@@ -21,6 +21,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   yyjson_val* op = yyjson_obj_get(term, "operation");
   unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
   int field_read = hako_physical_map_field_text_read(op);
+  int field_install = lv4_is(op, "kind", "map_field_install_indexed");
   int field_get = lv4_is(op, "kind", "map_field_get_indexed");
   int make_map = lv4_is(op, "kind", "map_new");
   int make_key = lv4_is(op, "kind", "map_prepare_key");
@@ -28,7 +29,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   int text = lv4_is(op, "kind", "map_install_text");
   int empty = lv4_is(op, "kind", "map_install_empty_array");
   int borrowed = lv4_is(op, "kind", "map_install_borrowed_array");
-  int install = scalar || text || empty || borrowed || lv4_is(op, "kind", "map_install_indexed");
+  int install = field_install || scalar || text || empty || borrowed || lv4_is(op, "kind", "map_install_indexed");
   int get = lv4_is(op, "kind", "map_checked_get");
   int array_length = lv4_is(op, "kind", "map_array_length");
   int array_index = lv4_is(op, "kind", "map_array_index_map");
@@ -50,9 +51,14 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
           b, i, len, b, i, value, b, i);
     }
   }
-  if (field_read) lv4_string_operand_emit(f, yyjson_obj_get(op, "key"), fi, b, 0);
+  if (field_read || field_install) lv4_string_operand_emit(f, yyjson_obj_get(op, "key"), fi, b, 0);
   fprintf(f, "  %%status%u = call i32 ", b);
-  if (field_read) {
+  if (field_install) {
+    uint32_t payload = lv4_u(op, "payload_object_id");
+    fprintf(f, "@\"nyash.object.checked_map_field_install_indexed_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %u, ptr %%strarg%u_0, i64 %%v%u, i64 %llu, ptr @hako_lifecycle_object_end_descriptor_%u, ptr %%outcome%u)\n",
+        in->profile, site, lv4_u(op, "base"), lv4_type_id(in, op), lv4_u(op, "field_ordinal"), b,
+        lv4_u(op, "value"), (unsigned long long)yyjson_get_uint(yyjson_obj_get(lv4_layout(in, payload), "runtime_type_id")), payload, b);
+  } else if (field_read) {
     fprintf(f, "@\"nyash.object.checked_map_field_%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %u, ptr %%strarg%u_0, ",
         field_get ? "get" : "has", in->profile, site, lv4_u(op, "base"), lv4_type_id(in, op), lv4_u(op, "field_ordinal"), b);
     if (field_get) fprintf(f, "i64 %llu, ", (unsigned long long)yyjson_get_uint(yyjson_obj_get(
@@ -123,7 +129,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
     lv4_map_dispatch(f, b, normal, fault);
     return;
   }
-  if (install) lv4_map_bookkeeping(f, "key_dispose", "v", lv4_u(op, "key"), b, 1);
+  if (install && !field_install) lv4_map_bookkeeping(f, "key_dispose", "v", lv4_u(op, "key"), b, 1);
   fprintf(f, "  %%map_normal%u = icmp eq i32 %%status%u, 0\n"
       "  br i1 %%map_normal%u, label %%%s, label %%map_failed%u\nmap_failed%u:\n",
       b, b, b, normal, b, b);
@@ -147,7 +153,7 @@ static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,
   else if (lv4_is(op, "kind", "map_get_text")) {
     name = "text"; size = (uint32_t)sizeof(NyrtTextViewStorageV1); align = (uint32_t)_Alignof(NyrtTextViewStorageV1);
   }
-  else if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
+  else if (lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
       lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
       lv4_is(op, "kind", "map_install_borrowed_array")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
   if (name) fprintf(f, "  %%%s%u = alloca [%u x i8], align %u\n", name, b, size, align);
@@ -169,6 +175,7 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       "declare void @llvm.trap()\n"
       "declare i32 @\"nyash.object.checked_map_field_has_v1\"(ptr, i32, i64, i64, i64, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.object.checked_map_field_get_v1\"(ptr, i32, i64, i64, i64, i64, ptr, i64, ptr)\n"
+      "declare i32 @\"nyash.object.checked_map_field_install_indexed_v1\"(ptr, i32, i64, i64, i64, i64, ptr, i64, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.map.storage_init_v1\"(ptr)\n"
       "declare i32 @\"nyash.map.key_init_v1\"(ptr)\n"
       "declare i32 @\"nyash.map.outcome_init_v1\"(ptr)\n"

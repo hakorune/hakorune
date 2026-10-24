@@ -54,6 +54,17 @@ impl DynamicCarrierTokenV1 {
         }
     }
 
+    /// Subtract one source-qualified I64 while borrowing this carrier. The
+    /// original token remains caller-owned; Normal publishes a fresh carrier
+    /// and Fault publishes none.
+    pub fn subtract_i64_v1(
+        &self,
+        rhs: i64,
+    ) -> Result<Self, DynamicInvocationFailureV1> {
+        let lhs = self.integer_payload_v1()?;
+        publish_carrier_v1(CarrierPayloadV1::Integer(lhs.wrapping_sub(rhs)))
+    }
+
     /// End the exact opaque carrier once. Forwarding keeps the same token and
     /// does not call this method at the forwarding point.
     pub fn end_v1(self) -> Result<(), DynamicInvocationFailureV1> {

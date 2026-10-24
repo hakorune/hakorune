@@ -1,6 +1,6 @@
 # Published lifecycle object results
 
-Status: active owner; Borrowed/Mixed/field connection remains unaccepted WIP.
+Status: active physical consumer; canonical source cutover remains separately required.
 Scope: structural result transport, Return correspondence and object outcome.
 Related: [shims](../README.md), `hako_llvmc_ffi_lifecycle_v4_indexed_object_result.inc`,
 `hako_llvmc_ffi_lifecycle_v4_object_result_emit.inc`.
@@ -103,8 +103,27 @@ Array and Map get use one non-owning slot projection in the existing value
 index. Map Copy/checked scalar reads recheck the original unique Normal, parent
 liveness and unchanged field/slot interval. Replacement, drain, Map mutation
 and unproved Calls in that interval refuse. No key lease is re-decoded after
-get. Raw nullable field access, Map-slot Call/Return and owning End remain
-unadmitted until their original source support consumers close.
+get. Slot-supported Calls carry an explicit receiver/field/key/payload tuple
+on both declaration and Call, distinct from fixed-formal result support. Every
+Return retains exact get or installed-alias coordinates. Present results retain
+has/Normal/condition Copies/true Branch; installed results retain new/Birth,
+install.Normal and detached-old End.Normal. Both paths recheck the unchanged
+slot interval. Only this complete nonnull Return census lends the payload class
+to caller receiver use; the caller independently keeps its parent/slot live.
+The key descriptor is checked at Call and is never reread after its End.
+Installed Return aliases preserve the candidate's spent origin and admit only
+their exact Return transport Copies; they gain no receiver, End or null-test use.
+
+Birth Text inputs borrow the existing descriptor pair. Materialize acquires a
+separate raw Text temporary; Dynamic Text first-write transfers that exact
+handle/token only on Normal through the existing field initialize ABI and an
+immutable Text End descriptor. Fault retains the candidate for its original End.
+Only the newest unheld raw temporary transfers. A successful first-write has
+an Empty old outcome, so an impossible postcommit End Fault is InvalidContract,
+not a retry of the precommit candidate cleanup. Complete object End drains the
+same field through its retained descriptor. Dynamic scalar reads retain runtime
+kind checks and their existing source/layout identity; storage metadata alone
+never grants a scalar payload or ownership.
 
 Borrowed Text uses the existing kind/payload pair with the closed physical
 formal declaration `text_view: true`, `object_view: null`, and

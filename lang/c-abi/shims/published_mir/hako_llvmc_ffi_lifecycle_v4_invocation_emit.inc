@@ -24,6 +24,7 @@ static void lv4_invocation_declarations(FILE* f) {
   fprintf(f,
       "declare i32 @\"nyash.dynamic.checked_invoke_v1\"(ptr, i64, ptr, ptr, i64, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_integer_v1\"(ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.dynamic.checked_sub_i64_v1\"(ptr, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_end_v1\"(ptr, i64, i64)\n");
 }
 
@@ -36,6 +37,8 @@ static void lv4_invocation_alloca(FILE* f, yyjson_val* op, uint32_t block) {
     fprintf(f, "  %%dynout%u = alloca i64, align 8\n", block);
   } else if (lv4_is(op, "kind", "dynamic_carrier_integer")) {
     fprintf(f, "  %%dynint%u = alloca i64, align 8\n", block);
+  } else if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) {
+    fprintf(f, "  %%dynout%u = alloca i64, align 8\n", block);
   }
 }
 
@@ -73,6 +76,7 @@ static int lv4_invocation_emit(FILE* f, yyjson_val* op, size_t function,
   unsigned long long site;
   if (!(lv4_is(op, "kind", "dynamic_invoke") ||
       lv4_is(op, "kind", "dynamic_carrier_integer") ||
+      lv4_is(op, "kind", "dynamic_carrier_sub_i64") ||
       lv4_is(op, "kind", "dynamic_carrier_end"))) return -1;
   site = yyjson_get_uint(yyjson_obj_get(op, "site"));
   if (lv4_is(op, "kind", "dynamic_invoke")) {
@@ -107,6 +111,15 @@ static int lv4_invocation_emit(FILE* f, yyjson_val* op, size_t function,
         "  switch i32 %%dynstatus%u, label %%invalid [ i32 0, label %%dynnormal%u i32 1, label %%%s ]\ndynnormal%u:\n"
         "  br label %%%s\n",
         block, site, lv4_u(op, "carrier"), block, block, block, fault, block, normal);
+    return !ferror(f);
+  }
+  if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) {
+    fprintf(f,
+        "  %%dynstatus%u = call i32 @\"nyash.dynamic.checked_sub_i64_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i64 %%v%u, ptr %%dynout%u)\n"
+        "  switch i32 %%dynstatus%u, label %%invalid [ i32 0, label %%dynnormal%u i32 1, label %%%s ]\ndynnormal%u:\n"
+        "  br label %%%s\n",
+        block, site, lv4_u(op, "carrier"), lv4_u(op, "rhs"), block,
+        block, block, fault, block, normal);
     return !ferror(f);
   }
   fprintf(f,

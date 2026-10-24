@@ -102,7 +102,7 @@ static int lv4_text_readable(hako_lv4_function_index* fn, hako_lv4_value* value,
 
 /* Formal read admission borrows the completed value index, independently of flow. */
 static yyjson_val* lv4_borrowed_formal_parameter(hako_lv4_function_index* fn, hako_lv4_value* value) {
-  if (!value || (value->kind != LV4_TAGGED && value->kind != LV4_I64 && value->kind != LV4_BOOL) || !lv4_is_ordinary(fn->function)) return NULL;
+  if (!value || (value->kind != LV4_TAGGED && value->kind != LV4_I64 && value->kind != LV4_BOOL) || !(lv4_is_ordinary(fn->function) || lv4_is(fn->function, "role", "birth_unit"))) return NULL;
   hako_lv4_value* root = lv4_value_alias_root(fn, value);
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
   for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {

@@ -41,3 +41,34 @@ static int hako_physical_object_result_call(yyjson_val* operation) {
        hako_physical_string(yyjson_obj_get(operation, "result"), "borrowed_nullable_handle") ||
        hako_physical_string(yyjson_obj_get(operation, "result"), "mixed_handle"));
 }
+
+/* Explicit receiver-slot support. Logical parameter ordinals exclude receiver.
+ * Parsing this tuple grants neither nonnull nor a live borrowed result. */
+typedef struct {
+  uint32_t receiver_object, field, key_ordinal, payload_object;
+} hako_physical_slot_support;
+
+static int hako_physical_result_slot(yyjson_val* owner, hako_physical_slot_support* out) {
+  static const char* const keys[] = {"kind", "field", "key_ordinal", "object_id"};
+  static const char* const field_keys[] = {"object_id", "field_ordinal"};
+  yyjson_val* support = yyjson_obj_get(owner, "result_support");
+  yyjson_val* field = yyjson_obj_get(support, "field");
+  hako_physical_slot_support row;
+  if (yyjson_obj_get(owner, "result_formal_ordinal") ||
+      !hako_physical_exact_keys(support, keys, 4) ||
+      !hako_physical_string(yyjson_obj_get(support, "kind"), "receiver_field_slot") ||
+      !hako_physical_exact_keys(field, field_keys, 2) ||
+      !hako_physical_u32(yyjson_obj_get(field, "object_id"), &row.receiver_object) ||
+      !hako_physical_u32(yyjson_obj_get(field, "field_ordinal"), &row.field) ||
+      !hako_physical_u32(yyjson_obj_get(support, "key_ordinal"), &row.key_ordinal) ||
+      !hako_physical_u32(yyjson_obj_get(support, "object_id"), &row.payload_object)) return 0;
+  if (out) *out = row;
+  return 1;
+}
+
+static int hako_physical_result_slot_equal(yyjson_val* a, yyjson_val* b) {
+  hako_physical_slot_support x, y;
+  return hako_physical_result_slot(a, &x) && hako_physical_result_slot(b, &y) &&
+      x.receiver_object == y.receiver_object && x.field == y.field &&
+      x.key_ordinal == y.key_ordinal && x.payload_object == y.payload_object;
+}

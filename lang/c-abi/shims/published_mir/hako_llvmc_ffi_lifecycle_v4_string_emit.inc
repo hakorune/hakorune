@@ -30,7 +30,7 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
         fprintf(f, "\", align 1\n");
       }
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
-      int call = lv4_is(op, "kind", "ordinary_call");
+      int call = lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call");
       if (!call && !hako_physical_string_operand_count(op)) continue;
       yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
       size_t count = call ? yyjson_arr_size(args) : hako_physical_string_operand_count(op);
@@ -69,7 +69,7 @@ static void lv4_string_result_emit(FILE* f, uint32_t dst, uint32_t producer_id) 
 }
 
 static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
-  if (lv4_is(op, "kind", "ordinary_call")) {
+  if (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")) {
     if (lv4_is(op, "result", "text"))
       fprintf(f, "  %%strout%u = alloca %%nyrt.string.owned, align 8\n", b);
     yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
@@ -78,7 +78,7 @@ static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
         fprintf(f, "  %%strarg%u_%zu = alloca %%nyrt.string.operand, align 8\n", b, i);
     return;
   }
-  if (hako_physical_map_field_text_read(op) || hako_physical_array_text_append(op)) {
+  if (hako_physical_map_field_text_access(op) || hako_physical_array_text_append(op)) {
     fprintf(f, "  %%strarg%u_0 = alloca %%nyrt.string.operand, align 8\n", b);
     return;
   }

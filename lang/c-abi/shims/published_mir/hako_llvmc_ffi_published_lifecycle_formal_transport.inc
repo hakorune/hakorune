@@ -66,7 +66,8 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       yyjson_val* scalar_view = text ? text : integer ? integer : boolean;
       if (((!!text + !!integer + !!boolean + !!finite) > 1) ||
           (scalar_view && (!yyjson_is_true(scalar_view) || !yyjson_is_null(view) ||
-              !hako_physical_ordinary_function(fn)))) return 0;
+              !(hako_physical_ordinary_function(fn) ||
+                (text && hako_physical_string(yyjson_obj_get(fn, "role"), "birth_unit")))))) return 0;
       if (finite && (!yyjson_is_null(view) || !hako_physical_ordinary_function(fn) ||
           !hako_physical_finite_domain(param))) return 0;
       if (!(finite ? hako_physical_exact_keys(param, finite_keys, 4) : text ? hako_physical_exact_keys(param, text_keys, 4) :
@@ -84,7 +85,10 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
           !hako_physical_string(yyjson_obj_get(param, "representation"), "map") &&
           !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;
-    } else if (!hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1") &&
+    } else if (!(hako_physical_string(yyjson_obj_get(fn, "role"), "birth_unit") &&
+        hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1") &&
+        yyjson_is_true(yyjson_obj_get(param, "text_view"))) &&
+        !hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1") &&
         /* A birth formal sealed as object-field-provided spells the
            nullable lane — same pair transport, the kind==0 branch is
            admitted beside the scalar kinds. */

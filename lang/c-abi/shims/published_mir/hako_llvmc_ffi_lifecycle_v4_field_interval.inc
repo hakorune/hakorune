@@ -28,7 +28,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
     if (!prefix) {
       yyjson_val* op = yyjson_obj_get(lv4_term(current->block), "operation");
       if (slot && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call") ||
-          lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
+          lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
           lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
           lv4_is(op, "kind", "map_install_borrowed_array") || lv4_is(op, "kind", "map_end"))) return 0;
       if (full && !discharged && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")))
@@ -114,4 +114,9 @@ static int lv4_field_dependency_discharged(hako_lv4_function_index* fn,
     uint32_t use, uint32_t born, const hako_lv4_value* base,
     uint32_t object, uint32_t field, uint32_t child) {
   return lv4_field_interval(fn, use, born, base, object, field, child, LV4_FIELD_SUPPORT_END);
+}
+
+static int lv4_map_slot_interval(hako_lv4_function_index* fn, uint32_t use, uint32_t born,
+    const hako_lv4_value* base, uint32_t object, uint32_t field) {
+  return lv4_field_interval(fn, use, born, base, object, field, 0, LV4_FIELD_MAP_SLOT);
 }

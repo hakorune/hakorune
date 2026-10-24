@@ -90,12 +90,14 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     failed = 1;
     if (lv4_string_pending(state, count) && !(lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned"))) return 0;
     if ((lv4_string_held(state, count) || lv4_string_call_pending(state, count)) && (lv4_is(op, "kind", "ordinary_call") ||
-        hako_physical_array_text_append(op) || hako_physical_map_field_text_read(op) || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !(lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned"))))) return 0;
+        hako_physical_array_text_append(op) || hako_physical_map_field_text_access(op) || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !(lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned"))))) return 0;
     if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
+    } else if (lv4_carrier_array_kind(op)) {
+      if (birth || !lv4_carrier_array_step(fn, op, faulted, state, normal)) return 0;
     } else if (!hako_physical_array_text_append(op) && hako_physical_string_operand_count(op)) {
-      if (birth || faulted || state[bi]) return 0;
-      if (hako_physical_map_field_text_read(op) && (in->profile != LV4_INDEXED_SAFE_MUTEX ||
+      if ((birth && !hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) || faulted || state[bi]) return 0;
+      if (hako_physical_map_field_text_access(op) && (in->profile != LV4_INDEXED_SAFE_MUTEX ||
           !lv4_birth_dynamic(in, op) || lv4_slot(in, op) < 0 ||
           !lv4_readable_object(in, fn, lv4_u(op, "base"), state, lv4_u(block, "id"),
               lv4_u(op, "object_id"), 1))) return 0;
@@ -105,13 +107,22 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         if (!(integer_index ? lv4_string_indexed_integer_operand(fn, operand) :
             lv4_string_indexed_operand(fn, operand, state))) return 0;
       }
+      if (lv4_is(op, "kind", "map_field_install_indexed")) {
+        hako_lv4_value* candidate = lv4_index_value(fn, lv4_u(op, "value"));
+        if (!candidate || candidate->origin < 0 ||
+            !lv4_indexed_live(fn, candidate->id, LV4_HANDLE, state, lv4_u(op, "payload_object_id"), 1) ||
+            !lv4_field_install_disjoint(fn, lv4_u(op, "base"), candidate->id)) return 0;
+        /* The field owns the child only on Normal; pre-commit Fault keeps
+         * the caller's Home. Detached old-value End cannot reacquire it. */
+        normal[candidate->origin] = 0;
+      }
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;
-      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2 || hako_physical_map_field_text_read(op)) normal[bi] = LV4_LIVE;
+      if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2 || hako_physical_map_field_text_access(op)) normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       int conditional = lv4_is(op, "kind", "string_end_if_owned");
-      if (birth || !value || (!conditional && value->kind != LV4_OWNED_STRING) ||
+      if (!value || (!conditional && value->kind != LV4_OWNED_STRING) ||
           (conditional && !lv4_text_readable(fn, value, state))) return 0;
       int origin = conditional ? lv4_text_origin(fn, value) : value->origin;
       if (origin != -1 && !lv4_string_end_paths(state, normal, count, origin, faulted)) return 0;
@@ -190,9 +201,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               if (value && value->kind == LV4_BORROWED_OBJECT) {
                 if (!lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
                 hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
-                if (class_domain && ((anchor->object_id_set && anchor->object_id != yyjson_get_uint(view)) ||
+                if (class_domain && (anchor ? ((anchor->object_id_set && anchor->object_id != yyjson_get_uint(view)) ||
                     (anchor->kind == LV4_TAGGED && !lv4_borrowed_object_formal(fn, anchor,
-                        (uint32_t)yyjson_get_uint(view))))) return 0;
+                        (uint32_t)yyjson_get_uint(view)))) :
+                    !lv4_slot_result_readable(in, fn, value, state, lv4_u(block, "id"),
+                        (uint32_t)yyjson_get_uint(view), 1))) return 0;
               } else if (value && value->kind == LV4_MIXED_OBJECT) {
                 /* Preserve the conditional obligation. Fresh and the SAME
                    fixed-formal actual both agree with the receiving domain;
@@ -271,6 +284,14 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (birth || faulted || state[bi] || !carrier || carrier->kind != LV4_DYNAMIC_CARRIER ||
           carrier->origin < 0 || state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) {
+      hako_lv4_value* carrier = lv4_index_value(fn, lv4_u(op, "carrier"));
+      hako_lv4_value* rhs = lv4_index_value(fn, lv4_u(op, "rhs"));
+      if (birth || faulted || state[bi] || !carrier || carrier->kind != LV4_DYNAMIC_CARRIER ||
+          carrier->origin < 0 || state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE ||
+          !rhs || rhs->kind != LV4_I64) return 0;
+      /* The input carrier stays live; Normal owns a fresh result carrier. */
+      normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
     } else if (lv4_is(op, "kind", "dynamic_carrier_end")) {
       hako_lv4_value* carrier = lv4_index_value(fn, lv4_u(op, "carrier"));
       if (birth || !carrier || carrier->kind != LV4_DYNAMIC_CARRIER || carrier->origin < 0 ||
@@ -325,6 +346,16 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
            proof the checked-compare lane owns — and the emitted kind==1
            branch discharges the i64 read at the call edge. */
         const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+        if (arg_kind && !strcmp(arg_kind, "borrowed_text")) {
+          yyjson_val* param = yyjson_arr_get(yyjson_obj_get(in->index[target].function, "params"), i);
+          if (!lv4_is(param, "representation", "borrowed_kind_payload_v1") ||
+              !yyjson_is_true(yyjson_obj_get(param, "text_view")) ||
+              !(lv4_is(yyjson_obj_get(arg, "operand"), "kind", "static_text") ||
+                lv4_is(yyjson_obj_get(arg, "operand"), "kind", "owned_string") ||
+                lv4_is(yyjson_obj_get(arg, "operand"), "kind", "borrowed_text")) ||
+              !lv4_string_indexed_operand(fn, yyjson_obj_get(arg, "operand"), state)) return 0;
+          continue;
+        }
         if (arg_kind && !strcmp(arg_kind, "nullable_typed_object")) {
           if (value && value->kind == LV4_MIXED_OBJECT) {
             if (value->origin < 0 || (size_t)value->origin >= count ||
@@ -380,11 +411,15 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
       yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");
       if (lv4_is(op, "transaction", "dynamic_i64_initialize") ||
-          lv4_is(op, "transaction", "dynamic_map_initialize")) {
+          lv4_is(op, "transaction", "dynamic_map_initialize") || lv4_is(op, "transaction", "dynamic_text_initialize")) {
+        int text = lv4_is(op, "transaction", "dynamic_text_initialize");
         int map = lv4_is(op, "transaction", "dynamic_map_initialize");
         if (!birth || faulted || !value || !lv4_birth_dynamic(in, op) ||
             !lv4_is(range, "kind", "none") || !lv4_birth_commit(in, fn, op, normal, bi, 0)) return 0;
-        if (map) {
+        if (text) {
+          if (value->kind != LV4_OWNED_STRING ||
+              !lv4_string_transfer_temporary(state, normal, count, value->origin)) return 0;
+        } else if (map) {
           if (in->profile != LV4_INDEXED_SAFE_MUTEX || value->kind != LV4_MAP || value->origin < 0 ||
               !lv4_indexed_live(fn, value->id, LV4_MAP, state, 0, 0)) return 0;
           yyjson_val* producer = lv4_term(fn->blocks[value->origin].block);

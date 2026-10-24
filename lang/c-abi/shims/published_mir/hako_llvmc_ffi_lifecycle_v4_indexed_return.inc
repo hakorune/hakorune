@@ -33,6 +33,15 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   }
   if (ordinary_handle && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+    hako_lv4_value* carrier_array = result ? lv4_value_alias_root(fn, result) : NULL;
+    if (carrier_array && carrier_array->origin >= 0 &&
+        lv4_carrier_array_claim(fn, carrier_array)) {
+      /* Return transfers this exact claimed Array residence to the caller.
+         The source/result verifier owns the ArrayBox result contract; this
+         physical lane only discharges its local affine state. */
+      if (faulted || state[carrier_array->origin] != LV4_CARRIER_ARRAY_LIVE) return 0;
+      state[carrier_array->origin] = 0;
+    } else {
     /* Identity is independently checked; only an owned LIVE lease transfers.
      * Null and borrowed handles never satisfy this nonnullable result role. */
     if (faulted || !result || result->kind != LV4_HANDLE || !result->object_id_set ||
@@ -40,6 +49,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
         result->origin < 0 || (size_t)result->origin >= count ||
         state[result->origin] != LV4_LIVE) return 0;
     state[result->origin] = 0;
+    }
   }
   if (ordinary_nullable && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
@@ -86,7 +96,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   if (lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle")) {
     /* The complete original Return law was checked by the result index. No
        owned state was consumed above, and all other Homes must already end. */
-    return !faulted && lv4_borrowed_return_origin(fn, term);
+    return !faulted && lv4_borrowed_return_origin(in, fn, term);
   }
   if (lv4_is(fn->function, "role", "ordinary_mixed_handle")) return !faulted;
   hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));

@@ -86,11 +86,19 @@ static int lv4_index_owned_results(const hako_lv4_input* in) {
       continue;
     }
     if (!borrowed && !hako_physical_object_result_role(fn->function)) continue;
+    size_t returns = 0;
     for (size_t bi = 0; bi < fn->block_count; bi++) {
       yyjson_val* term = lv4_term(fn->blocks[bi].block);
+      if (lv4_is(term, "op", "return")) returns++;
       if (lv4_is(term, "op", "return") &&
-          !(borrowed ? lv4_borrowed_return_origin(fn, term) :
+          !(borrowed ? lv4_borrowed_return_origin(in, fn, term) :
               lv4_owned_return_origin(in, fn, term) && lv4_return_field_dependencies(in, fn, term))) return 0;
+    }
+    hako_physical_slot_support support;
+    if (borrowed && hako_physical_result_slot(fn->function, &support)) {
+      if (!returns) return 0;
+      fn->return_object = support.payload_object;
+      fn->return_object_state = 2; /* All original Returns proved nonnull slot payloads. */
     }
   }
 

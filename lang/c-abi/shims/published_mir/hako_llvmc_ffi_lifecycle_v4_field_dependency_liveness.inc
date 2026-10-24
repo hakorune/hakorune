@@ -12,6 +12,8 @@ static int lv4_field_anchor_live(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state,
     uint32_t use, size_t remaining, uint32_t object, int check_object) {
   if (!remaining) return 0;
+  if (yyjson_obj_get(lv4_borrowed_result_operation(fn, value), "result_support"))
+    return lv4_slot_result_readable(in, fn, value, state, use, object, check_object);
   value = lv4_borrowed_result_anchor(in, fn, value);
   if (!value) return 0;
   if (value->kind == LV4_MIXED_OBJECT)

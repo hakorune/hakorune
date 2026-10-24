@@ -153,6 +153,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   if (birth) for (size_t i = 0; i < yyjson_arr_size(params); i++) {
     yyjson_val* param = yyjson_arr_get(params, i);
     uint32_t v = lv4_u(param, "value");
+    if (lv4_is(param, "representation", "borrowed_kind_payload_v1")) {
+      lv4_emit_borrowed_parameter_guard(f, in, fn, param, i);
+      continue;
+    }
     if (lv4_is(param, "representation", "nullable_kind_payload_v1")) {
       lv4_emit_object_residence_parameter_guard(f, v);
       continue;
@@ -313,7 +317,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             kind == LV4_TEXT_VIEW ? "text" : NULL;
         if (kind == LV4_OWNED_STRING) {
           lv4_string_result_emit(f, dst, lv4_u(ins, "invoke_block"));
-        } else if (kind == LV4_DYNAMIC_CARRIER && lv4_is(producer_op, "kind", "dynamic_invoke"))
+        } else if (kind == LV4_DYNAMIC_CARRIER &&
+            (lv4_is(producer_op, "kind", "dynamic_invoke") ||
+             lv4_is(producer_op, "kind", "dynamic_carrier_sub_i64")))
           fprintf(f, "  %%v%u = load i64, ptr %%dynout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && lv4_is(producer_op, "kind", "dynamic_carrier_integer"))
           fprintf(f, "  %%v%u = load i64, ptr %%dynint%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
@@ -572,6 +578,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
         lv4_emit_nullable_actual_tags(f, args, b);
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          if (!lv4_is(arg, "kind", "borrowed_text")) continue;
+          lv4_string_operand_emit(f, yyjson_obj_get(arg, "operand"), fi, b, (unsigned)i);
+          fprintf(f, "  %%textbits%u_%zu = ptrtoint ptr %%strarg%u_%zu to i64\n", b,i,b,i);
+        }
         yyjson_val* callee = yyjson_arr_get(in->functions, lv4_u(call, "target"));
         yyjson_val* formals = yyjson_obj_get(callee, "params");
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
@@ -600,7 +612,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_owned_array_kind(op)) {
         lv4_owned_array_emit_call(f, op, b, site);
-
+      } else if (lv4_carrier_array_kind(op)) {
+        lv4_carrier_array_emit_call(f, op, b, site);
       } else if (lv4_is(op, "kind", "script_arguments_new")) {
         fprintf(f, "@\"nyash.array.checked_script_arguments_new_v1\"(ptr %%frame, i64 %llu, ptr @argv_%zu_%u, i64 %zu, ptr %%new%u)\n",
             site, fi, b, yyjson_arr_size(yyjson_obj_get(op, "values")), b);
@@ -724,6 +737,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
   lv4_invocation_declarations(f);
   lv4_map_declarations(f, in);
   lv4_owned_array_globals(f, in);
+  lv4_carrier_array_globals(f, in);
   lv4_object_layout_globals(f, in);
   /* Complete End symbols cover plain and marked admitted layouts. Recursive
      child calls resolve in this module; no runtime class inference is used. */

@@ -4,7 +4,8 @@ static int lv4_handle_alias_readable(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state,
     uint32_t use) {
   return lv4_nullable_field_loan_readable(in, fn, value->id, state, use, 0, 0) ||
-      lv4_owned_array_holder_live(fn, value->id, state);
+      lv4_owned_array_holder_live(fn, value->id, state) ||
+      lv4_carrier_array_holder_live(fn, value->id, state);
 }
 
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
@@ -46,7 +47,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       hako_lv4_value* root = lv4_script_arguments_root(fn, lv4_u(ins, "value"));
       if (!root) {
         root = lv4_owned_array_root(fn, lv4_u(ins, "value"));
-        if (!root || !lv4_owned_array_claim(fn, root)) return 0;
+        if (!root || (!lv4_owned_array_claim(fn, root) &&
+            !lv4_carrier_array_claim(fn, root))) return 0;
       }
       if (state[root->origin] != LV4_LIVE) return 0;
       state[root->origin] = 0;
@@ -80,7 +82,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           (faulted || !lv4_borrowed_result_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_SLOT_BORROW && (faulted || !lv4_slot_borrow_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_HANDLE &&
-          !lv4_handle_alias_readable(in, fn, source, state, lv4_u(block, "id"))) return 0;
+          !lv4_handle_alias_readable(in, fn, source, state, lv4_u(block, "id"))) {
+        yyjson_val* returned = dest ? lv4_installed_return_alias(fn, dest->id, ins) : NULL;
+        if (faulted || !returned || !lv4_slot_return_origin(in, fn, returned)) return 0;
+      }
     } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "mul")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -124,9 +129,12 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       rnull = lv4_is(rhs->instruction, "op", "const_null");
       if (lnull == rnull) return 0;
       carrier = lnull ? rhs : lhs;
-      if (lv4_borrowed_text_formal(fn, carrier)) return 0;
+      if (lv4_borrowed_text_formal(fn, carrier) || lv4_installed_return_alias(fn, carrier->id, NULL)) return 0;
       if (carrier->kind != LV4_TAGGED && carrier->kind != LV4_HANDLE &&
-          carrier->kind != LV4_I64 && carrier->kind != LV4_BOOL && carrier->kind != LV4_BORROWED_OBJECT && carrier->kind != LV4_MIXED_OBJECT) return 0;
+          carrier->kind != LV4_I64 && carrier->kind != LV4_BOOL && carrier->kind != LV4_SLOT_BORROW &&
+          carrier->kind != LV4_BORROWED_OBJECT && carrier->kind != LV4_MIXED_OBJECT) return 0;
+      if (carrier->kind == LV4_SLOT_BORROW &&
+          (faulted || !lv4_slot_borrow_readable(in, fn, carrier, state, lv4_u(block, "id")))) return 0;
       if (carrier->kind == LV4_MIXED_OBJECT &&
           (faulted || !lv4_mixed_result_readable(in, fn, carrier, state, lv4_u(block, "id")))) return 0;
       if (carrier->kind == LV4_BORROWED_OBJECT &&

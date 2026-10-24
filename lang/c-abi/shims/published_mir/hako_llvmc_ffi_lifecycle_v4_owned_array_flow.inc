@@ -9,6 +9,74 @@ static int lv4_owned_array_kind(yyjson_val* op) {
       lv4_is(op, "kind", "array_owned_end");
 }
 
+static int lv4_carrier_array_kind(yyjson_val* op) {
+  return lv4_is(op, "kind", "array_carrier_claim") ||
+      lv4_is(op, "kind", "array_carrier_append") ||
+      lv4_is(op, "kind", "array_carrier_end");
+}
+
+static hako_lv4_value* lv4_owned_array_root(hako_lv4_function_index* fn, uint32_t id);
+static yyjson_val* lv4_owned_array_claim(hako_lv4_function_index* fn,
+    hako_lv4_value* root);
+
+static yyjson_val* lv4_carrier_array_claim(hako_lv4_function_index* fn,
+    hako_lv4_value* root) {
+  yyjson_val* found = NULL;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* op = yyjson_obj_get(lv4_term(fn->blocks[bi].block), "operation");
+    if (lv4_is(op, "kind", "array_carrier_claim") &&
+        lv4_owned_array_root(fn, lv4_u(op, "array")) == root) {
+      if (found) return NULL;
+      found = op;
+    }
+  }
+  return found;
+}
+
+static int lv4_carrier_array_holder_live(hako_lv4_function_index* fn,
+    uint32_t id, const hako_lv4_state* state) {
+  hako_lv4_value* holder = lv4_owned_array_root(fn, id);
+  return holder && lv4_carrier_array_claim(fn, holder) &&
+      state[holder->origin] == LV4_CARRIER_ARRAY_LIVE;
+}
+
+/* Candidate state stays unchanged on the invoke Fault edge and is consumed
+ * only in the Normal projection after the runtime Array commits it. */
+static int lv4_carrier_array_step(hako_lv4_function_index* fn, yyjson_val* op,
+    int faulted, hako_lv4_state* state, hako_lv4_state* normal) {
+  hako_lv4_value* holder = lv4_owned_array_root(fn, lv4_u(op, "array"));
+  yyjson_val* claim = holder ? lv4_carrier_array_claim(fn, holder) : NULL;
+  if (!holder || !claim) return 0;
+  int is_claim = lv4_is(op, "kind", "array_carrier_claim");
+  int is_end = lv4_is(op, "kind", "array_carrier_end");
+  if (faulted && !is_end) return 0;
+  if (is_claim) {
+    if (state[holder->origin] != LV4_LIVE || lv4_owned_array_claim(fn, holder)) return 0;
+    normal[holder->origin] = LV4_CARRIER_ARRAY_LIVE;
+    return 1;
+  }
+  if (state[holder->origin] != LV4_CARRIER_ARRAY_LIVE) return 0;
+  if (lv4_is(op, "kind", "array_carrier_append")) {
+    hako_lv4_value* value = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(op, "value")));
+    if (!value || value->kind != LV4_DYNAMIC_CARRIER || value->origin < 0 ||
+        state[value->origin] != LV4_DYNAMIC_CARRIER_LIVE) return 0;
+    normal[value->origin] = 0;
+    return 1;
+  }
+  if (!is_end) return 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* append = yyjson_obj_get(lv4_term(fn->blocks[bi].block), "operation");
+    if (!lv4_is(append, "kind", "array_carrier_append") ||
+        lv4_owned_array_root(fn, lv4_u(append, "array")) != holder) continue;
+    hako_lv4_value* value = lv4_value_alias_root(fn,
+        lv4_index_value(fn, lv4_u(append, "value")));
+    if (value && value->origin >= 0 &&
+        state[value->origin] == LV4_DYNAMIC_CARRIER_LIVE) return 0;
+  }
+  normal[holder->origin] = state[holder->origin] = 0;
+  return 1;
+}
+
 static int lv4_owned_descriptor_equal(yyjson_val* a, yyjson_val* b) {
   return lv4_u(a, "object_id") == lv4_u(b, "object_id") &&
       yyjson_get_bool(yyjson_obj_get(a, "nullable")) ==

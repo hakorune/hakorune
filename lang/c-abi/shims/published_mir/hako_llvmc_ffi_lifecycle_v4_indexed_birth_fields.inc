@@ -141,7 +141,8 @@ static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* f
       if (state[i] == LV4_BIRTH_FIELD && lv4_is(store, "kind", "field_set") &&
           lv4_birth_base(fn, store) && lv4_u(store, "field_ordinal") == ordinal &&
           (lv4_is(store, "transaction", "dynamic_i64_initialize") ||
-           lv4_is(store, "transaction", "dynamic_map_initialize"))) matched++;
+           lv4_is(store, "transaction", "dynamic_map_initialize") ||
+           lv4_is(store, "transaction", "dynamic_text_initialize"))) matched++;
     }
     if (matched != 1) return 0;
     expected++;

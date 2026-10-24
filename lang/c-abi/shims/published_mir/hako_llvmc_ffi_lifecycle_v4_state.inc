@@ -7,6 +7,7 @@ typedef uint64_t hako_lv4_state;
 /* A carrier lease uses its exact SSA origin slot. The kind table distinguishes
  * it from owned object/string/map state and Return requires it to be ended. */
 #define LV4_DYNAMIC_CARRIER_LIVE (UINT64_C(5) << 32)
+#define LV4_CARRIER_ARRAY_LIVE (UINT64_C(6) << 32)
 
 static hako_lv4_state lv4_map_transfer(int origin) {
   return LV4_TRANSFER_BASE + (uint32_t)origin;
@@ -87,6 +88,18 @@ static int lv4_string_install(hako_lv4_state* state, size_t count, int origin, i
   if (top + 1 >= LV4_STRING_LIMIT) return 0;
   state[origin] = top + 1;
   if (replaces >= 0) { state[origin] |= LV4_STRING_NEW; state[replaces] |= LV4_STRING_OLD; }
+  return 1;
+}
+
+/* A source-selected destination takes the newest raw Text temporary only
+ * on Normal. It creates no local Home; Fault retains the original token. */
+static int lv4_string_transfer_temporary(const hako_lv4_state* state,
+    hako_lv4_state* normal, size_t count, int origin) {
+  if (origin < 0 || (size_t)origin >= count || lv4_string_pending(state, count) ||
+      lv4_string_call_pending(state, count) || lv4_string_held(state, count) ||
+      state[origin] <= LV4_STRING_RANK_BASE || state[origin] >= LV4_STRING_HOME_BASE ||
+      state[origin] != lv4_string_domain_top(state, count, LV4_STRING_RANK_BASE, LV4_STRING_HOME_BASE)) return 0;
+  normal[origin] = 0;
   return 1;
 }
 

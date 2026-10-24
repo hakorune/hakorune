@@ -5,7 +5,10 @@ static void lv4_owned_array_globals(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.array.checked_owned_claim_v1\"(ptr, i64, i64, ptr)\n"
       "declare i32 @\"nyash.array.checked_owned_append_v1\"(ptr, i64, i64, ptr, i64)\n"
       "declare i32 @\"nyash.array.checked_owned_get_v1\"(ptr, i64, i64, ptr, i64, ptr)\n"
-      "declare i32 @\"nyash.array.checked_owned_end_v1\"(ptr, i64, i64, ptr)\n");
+      "declare i32 @\"nyash.array.checked_owned_end_v1\"(ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.array.checked_carrier_claim_v1\"(ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.array.checked_carrier_append_v1\"(ptr, i64, i64, ptr, i64)\n"
+      "declare i32 @\"nyash.array.checked_carrier_end_v1\"(ptr, i64, i64, ptr)\n");
   for (size_t li = 0; li < in->layout_count; li++) {
     uint32_t object = in->layouts[li].id;
     for (unsigned nullable = 0; nullable < 2; nullable++) {
@@ -29,6 +32,24 @@ static void lv4_owned_array_globals(FILE* f, const hako_lv4_input* in) {
   }
 }
 
+static void lv4_carrier_array_globals(FILE* f, const hako_lv4_input* in) {
+  int needed = 0;
+  for (size_t fi = 0; fi < in->index_count && !needed; fi++) {
+    hako_lv4_function_index* fn = &in->index[fi];
+    for (size_t bi = 0; bi < fn->block_count; bi++) {
+      yyjson_val* op = yyjson_obj_get(lv4_term(fn->blocks[bi].block), "operation");
+      const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
+      if (kind && (!strcmp(kind, "array_carrier_claim") ||
+          !strcmp(kind, "array_carrier_append") || !strcmp(kind, "array_carrier_end"))) {
+        needed = 1;
+        break;
+      }
+    }
+  }
+  if (needed) fprintf(f,
+      "@hako_array_carrier_slots_v1 = private constant { i32, i32 } { i32 1, i32 0 }, align 4\n");
+}
+
 /* The caller already emitted the common status/result prefix and owns the
  * sole Normal/Fault switch, including InvalidContract's unrecoverable edge. */
 static void lv4_owned_array_emit_call(FILE* f, yyjson_val* op,
@@ -44,6 +65,18 @@ static void lv4_owned_array_emit_call(FILE* f, yyjson_val* op,
   if (lv4_is(op, "kind", "array_owned_get"))
     fprintf(f, ", i64 %%v%u, ptr %%owned_get%u", lv4_u(op, "index"), block);
   fprintf(f, ")\n");
+}
+
+static void lv4_carrier_array_emit_call(FILE* f, yyjson_val* op,
+    uint32_t block, unsigned long long site) {
+  const char* kind = lv4_is(op, "kind", "array_carrier_claim") ? "claim" :
+      lv4_is(op, "kind", "array_carrier_append") ? "append" : "end";
+  fprintf(f, "@\"nyash.array.checked_carrier_%s_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, ptr @hako_array_carrier_slots_v1",
+      kind, site, lv4_u(op, "array"));
+  if (lv4_is(op, "kind", "array_carrier_append"))
+    fprintf(f, ", i64 %%v%u", lv4_u(op, "value"));
+  fprintf(f, ")\n");
+  (void)block;
 }
 
 /* The instruction schema already fixes numeric vs Text operands. */

@@ -180,6 +180,37 @@ pub unsafe extern "C" fn integer_payload(
     }
 }
 
+/// Borrow an integer carrier and publish one fresh subtraction result. The
+/// input remains live on both Normal and Fault; the output is untouched on
+/// Fault.
+#[export_name = "nyash.dynamic.checked_sub_i64_v1"]
+pub unsafe extern "C" fn subtract_i64(
+    storage: *mut c_void,
+    site: u64,
+    raw: u64,
+    rhs: i64,
+    out: *mut u64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let frame = match unsafe { frame(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    let token = match DynamicCarrierTokenV1::from_raw_v1(raw) {
+        Ok(token) => token,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    match token.subtract_i64_v1(rhs) {
+        Ok(result) => {
+            unsafe { out.write(result.raw_v1()) };
+            Status::Normal as u32
+        }
+        Err(failure) => record_failure(frame, site, failure),
+    }
+}
+
 /// Consume one opaque carrier. A second End is a source Fault; malformed
 /// tokens are rejected as invalid physical contracts before table access.
 #[export_name = "nyash.dynamic.checked_end_v1"]

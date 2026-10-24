@@ -16,14 +16,14 @@ static int hako_physical_array_text_append(yyjson_val* op) {
 }
 static size_t hako_physical_string_operand_count(yyjson_val* op) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
-  if (hako_physical_array_text_append(op) || hako_physical_map_field_text_read(op)) return 1;
+  if (hako_physical_array_text_append(op) || hako_physical_map_field_text_access(op)) return 1;
   if (!hako_physical_string_kind(kind) || !strcmp(kind, "string_end") || !strcmp(kind, "string_end_if_owned")) return 0;
   if (!strcmp(kind, "string_substring")) return 3;
   return !strcmp(kind, "string_add") || !strcmp(kind, "string_compare") || !strcmp(kind, "string_index_of") ? 2 : 1;
 }
 static yyjson_val* hako_physical_string_operand_at(yyjson_val* op, size_t ordinal) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
-  if (hako_physical_map_field_text_read(op)) return ordinal ? NULL : yyjson_obj_get(op, "key");
+  if (hako_physical_map_field_text_access(op)) return ordinal ? NULL : yyjson_obj_get(op, "key");
   if (kind && !strcmp(kind, "string_substring"))
     return yyjson_obj_get(op, ordinal == 0 ? "value" : ordinal == 1 ? "start" : ordinal == 2 ? "end" : "");
   const char* field = kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_compare")) ? (ordinal ? "right" : "left") : (ordinal ? "needle" : "value");
@@ -79,7 +79,8 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (!kind) return 0;
   if (hako_physical_string_result(kind)) return 1;
-  if (!strcmp(kind, "dynamic_invoke") || !strcmp(kind, "dynamic_carrier_integer")) return 1;
+  if (!strcmp(kind, "dynamic_invoke") || !strcmp(kind, "dynamic_carrier_integer") ||
+      !strcmp(kind, "dynamic_carrier_sub_i64")) return 1;
   if (native) return !strcmp(kind, "array_new");
   if (!strcmp(kind, "field_get")) return 1;
   /* `array_new` outside the native lane is the proven provider `new
@@ -90,7 +91,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
       !strcmp(kind, "map_install_borrowed_array") ||
       !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_length") || !strcmp(kind, "map_field_has") ||
-      !strcmp(kind, "map_field_get_indexed") || !strcmp(kind, "map_array_index_map") ||
+      !strcmp(kind, "map_field_get_indexed") || !strcmp(kind, "map_field_install_indexed") || !strcmp(kind, "map_array_index_map") ||
       !strcmp(kind, "map_get_text") || !strcmp(kind, "array_owned_get") ||
       (!strcmp(kind, "ordinary_call") && !hako_physical_string(yyjson_obj_get(op, "result"), "unit"));
 }
@@ -139,6 +140,16 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     return !native && hako_physical_exact_keys(operation, keys, 3) &&
         hako_physical_u32(yyjson_obj_get(operation, "carrier"), &value) &&
         hako_physical_value_available_at(function, value, block, index) &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
+  }
+  if (!strcmp(kind, "dynamic_carrier_sub_i64")) {
+    static const char* const keys[] = {"kind", "carrier", "rhs", "site"};
+    uint32_t carrier, rhs;
+    return !native && hako_physical_exact_keys(operation, keys, 4) &&
+        hako_physical_u32(yyjson_obj_get(operation, "carrier"), &carrier) &&
+        hako_physical_u32(yyjson_obj_get(operation, "rhs"), &rhs) &&
+        hako_physical_value_available_at(function, carrier, block, index) &&
+        hako_physical_value_available_at(function, rhs, block, index) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
   }
   if (!strcmp(kind, "string_compare")) {
@@ -196,6 +207,18 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         (hako_physical_u32(yyjson_obj_get(operation, push ? "value" : "index"), &value) &&
          hako_physical_value_available_at(function, value, block, index));
   }
+  if (!strcmp(kind, "array_carrier_claim") || !strcmp(kind, "array_carrier_append") ||
+      !strcmp(kind, "array_carrier_end")) {
+    static const char* const holder[] = {"kind", "array", "site"};
+    static const char* const append[] = {"kind", "array", "value", "site"};
+    int push = !strcmp(kind, "array_carrier_append");
+    if (native || !hako_physical_exact_keys(operation, push ? append : holder, push ? 4 : 3) ||
+        !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) ||
+        !hako_physical_u32(yyjson_obj_get(operation, "array"), &value) ||
+        !hako_physical_value_available_at(function, value, block, index)) return 0;
+    return !push || (hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
+        hako_physical_value_available_at(function, value, block, index));
+  }
   if (hako_physical_map_kind(kind))
     return !native && hako_physical_map_operation(function, layouts, operation, block, index);
   if (!strcmp(kind, "array_append")) {
@@ -252,6 +275,8 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   if (strcmp(kind, "ordinary_call") == 0) {
     yyjson_val* result = yyjson_obj_get(operation, "result");
     static const char* const borrowed_keys[] = {"kind", "call", "result", "result_formal_ordinal"};
+    static const char* const slot_keys[] = {"kind", "call", "result", "result_support"};
+    int slot_result = yyjson_obj_get(operation, "result_support") != NULL;
     int borrowed = hako_physical_string(result, "borrowed_nullable_handle") ||
         hako_physical_string(result, "mixed_handle");
     yyjson_val* cleanup = yyjson_obj_get(operation, "text_argument_cleanup");
@@ -271,12 +296,15 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     /* This structural pair is corroborated again by indexed flow. Neither
        classifier may silently fill an unknown result with the i64 role. */
     yyjson_val* call = yyjson_obj_get(operation, "call");
-    return hako_physical_exact_keys(operation, cleanup ? text_keys : borrowed ? borrowed_keys : ordinary_keys, cleanup || borrowed ? 4 : 3) && want_role &&
+    return hako_physical_exact_keys(operation, cleanup ? text_keys : borrowed ? (slot_result ? slot_keys : borrowed_keys) : ordinary_keys, cleanup || borrowed ? 4 : 3) && want_role &&
         hako_physical_validate_ordinary_call(function, functions, call, block, index, want_role) &&
-        (!borrowed || (hako_physical_u32(yyjson_obj_get(operation, "result_formal_ordinal"), &support) &&
+        (!borrowed || (slot_result ?
+            hako_physical_string(result, "borrowed_nullable_handle") &&
+            hako_physical_result_slot_equal(operation, yyjson_arr_get(functions,
+                yyjson_get_uint(yyjson_obj_get(call, "target")))) : (hako_physical_u32(yyjson_obj_get(operation, "result_formal_ordinal"), &support) &&
             hako_physical_u32(yyjson_obj_get(yyjson_arr_get(functions,
                 yyjson_get_uint(yyjson_obj_get(call, "target"))), "result_formal_ordinal"), &declared) &&
-            support == declared));
+            support == declared)));
   }
   if (strcmp(kind, "new_box") == 0)
     return hako_physical_exact_keys(operation, new_keys, 3) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_object(layouts, object_id);
@@ -305,7 +333,8 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     if (dynamic && !(write ?
         (hako_physical_string(transaction, "dynamic_i64_replace") ||
          hako_physical_string(transaction, "dynamic_i64_initialize") ||
-         hako_physical_string(transaction, "dynamic_map_initialize")) :
+         hako_physical_string(transaction, "dynamic_map_initialize") ||
+         hako_physical_string(transaction, "dynamic_text_initialize")) :
         hako_physical_string(transaction, "take_dynamic"))) return 0;
     if (!write) return hako_physical_drain_matches(layouts, operation);
     yyjson_val* range = yyjson_obj_get(operation, "exact_numeric_runtime_check");
