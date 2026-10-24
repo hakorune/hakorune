@@ -1,5 +1,5 @@
 # APP-json-stream-aggregator
-Status: selected app; worktree EXE PASS; source WIP landing incomplete. Date: 2026-10-24
+Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Current stop
@@ -56,9 +56,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dy
 - Existing kernel carrier publication/End and Array transfer checks previously passed 1/1 each; runtime archive/C shim were rebuilt for that earlier WIP. These are not JSON app acceptance. Pointer guard and diff checks pass.
 
 ## Next work
-1. No exact consumer-only landing set is established: MapFieldInstall/MapSlot consumers depend on WIP source/package authority. Canonical EXE confirms the direct MapFieldInstall C call, but the exact source path manifest and a clean build of that subset remain unproved. Keep matching source dependencies together until that commit boundary is established; temporary C Text harnesses do not define a standalone commit.
-2. Reuse the existing focused source publication/ownership cohorts and canonical app smoke to close that source set. Retire superseded temporary probes/inputs/adapters at landing; source authority, independent final verification and mandatory production/retirement conditions remain required.
-3. Switch the app pointer only after its required smoke contracts and the source changes are committed. Preserve the three failing apps and finite-goal closeout; no bulk shared-owner deletion from suite counts alone.
+1. Canonical JSON source and its Map/Array/Text/Loop consumers landed in `42289574b1`; direct lifecycle EXE output/exit and the MapFieldInstall C call were verified.
+2. Fixed suite remains 8/11: the remaining source compile stops are untyped-field (`array-holder/append-source: HolderEscape`), binary-trees (`ordinary-new/borrowed-result/source-not-i64`) and boxtorrent-mini (`ordinary-new/stored-child/receiver-unavailable`).
+3. Next app is `APP-typed-object-untyped-field-min`, per the accepted untyped-storage D0 and current workstream order.
 
 ## Scope
 - Fixed-suite success does not itself finish the finite MirBuilder goal; the mandatory canonical source/production/retirement closeout remains.

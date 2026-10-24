@@ -1,9 +1,9 @@
 date = "2026-10-24"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "APP-json-stream-aggregator"
+current_execution_row = "APP-typed-object-untyped-field-min"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "fixed suite 8/11 with 300s runner timeout; three source compile stops; canonical source WIP landing remains"
+current_blocker_token = "typed_object_untyped_field_min_exe: array-holder/append-source HolderEscape before Invoke precheck/EXE; accepted D0 source-backed slot transfer remains"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,20 +13,20 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
-latest_card = "app-json-stream-aggregator"
-latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
+current_execution_design = "docs/development/current/main/investigations/app-typed-object-untyped-field-min.md"
+latest_card = "app-typed-object-untyped-field-min"
+latest_card_path = "docs/development/current/main/investigations/app-typed-object-untyped-field-min.md"
 latest_card_summary = """
-APP-json-stream-aggregator canonical EXE/run/output PASS after a fresh opt0 CLI build with quick lifecycle archive and CFFI.
-Latest fixed suite (quick CLI/runtime, runner timeout 300s): 8/11 PASS (7 real EXEs + marker), 3 source compile failures, no timeout/SKIP.
-After declaration-order fix, borrowed-source rerun: 47/51 PASS, four fail-closed diagnostic mismatches; expensive owned-call test was skipped here.
-The returned-wrapper and guarded-declaration focused cases pass; JSON EXE smoke passes on the latest quick CLI/runtime.
-Remaining source/package WIP is unlanded; commit fd332db07b lands the verified declaration-order fix; next closeout must isolate verified app dependencies.
+APP-json-stream-aggregator landed in commit 42289574b1; direct Lifecycle V4 EXE, output/exit, and MapFieldInstall C call PASS.
+Fixed suite remains 8/11 (7 real EXEs + marker), with no timeout/SKIP.
+Next: APP-typed-object-untyped-field-min, per accepted untyped-storage D0 and current workstream order.
+Its unchanged smoke currently stops at [array-holder/append-source]: HolderEscape before the designed Invoke rejection and EXE.
+Next action: trace and transfer the exact available Array Home into the untyped slot; do not infer storage from MIR or change the app.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "APP-json-stream-aggregator"
-next_execution_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
+next_execution_card = "APP-typed-object-untyped-field-min"
+next_execution_card_path = "docs/development/current/main/investigations/app-typed-object-untyped-field-min.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
