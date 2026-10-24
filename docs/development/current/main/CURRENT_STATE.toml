@@ -1,9 +1,9 @@
 date = "2026-10-24"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "APP-typed-object-untyped-field-min"
+current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "typed_object_untyped_field_min_exe: array-holder/append-source HolderEscape before Invoke precheck/EXE; accepted D0 source-backed slot transfer remains"
+current_blocker_token = "binary_trees_exe: ordinary-new/borrowed-result/source-not-i64 at iterationCheck loop-carried sum using itemCheck()"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,20 +13,20 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/app-typed-object-untyped-field-min.md"
-latest_card = "app-typed-object-untyped-field-min"
-latest_card_path = "docs/development/current/main/investigations/app-typed-object-untyped-field-min.md"
+current_execution_design = "docs/development/current/main/investigations/app-binary-trees.md"
+latest_card = "app-binary-trees"
+latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-json-stream-aggregator landed in commit 42289574b1; direct Lifecycle V4 EXE, output/exit, and MapFieldInstall C call PASS.
-Fixed suite remains 8/11 (7 real EXEs + marker), with no timeout/SKIP.
-Next: APP-typed-object-untyped-field-min, per accepted untyped-storage D0 and current workstream order.
-Its unchanged smoke currently stops at [array-holder/append-source]: HolderEscape before the designed Invoke rejection and EXE.
-Next action: trace and transfer the exact available Array Home into the untyped slot; do not infer storage from MIR or change the app.
+APP-typed-object-untyped-field-min PASS: checked Dynamic FieldGet, exact Array Home transfer and expected EXE exit 7.
+Fixed suite 9/11 PASS with current opt1 quick CLI; no timeout/SKIP.
+Remaining suite stops: boxtorrent-mini stored-child receiver; binary-trees borrowed-result/source-not-i64.
+Selected: APP-binary-trees; stop is iterationCheck's loop-carried sum from itemCheck().
+Next: source/oracle tracing, then connect result through the canonical loop consumer.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "APP-typed-object-untyped-field-min"
-next_execution_card_path = "docs/development/current/main/investigations/app-typed-object-untyped-field-min.md"
+next_execution_card = "APP-binary-trees"
+next_execution_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-24: Untyped-field-min source-backed Dynamic FieldGet/Array Home transfer now emits and runs the unchanged EXE (exit7); physical exact-key validation no longer caps schemas at8 keys, and V4 Normal/Fault flow consumes the exact array Home only on Normal. `cargo quick-build --bin hakorune`4m16s and FFI C build PASS; fixed suite9/11 in142.476s, no timeout/SKIP. Remaining failures: boxtorrent-mini receiver-unavailable; binary-trees source-not-i64 in iterationCheck. Next APP-binary-trees.",
   "2026-10-24: Original TopLevel membership keeps method context optional; missing Static/Instance contracts still refuse. Alias observations retain original formal provenance; Dynamic and finite entry-read lenders share OpaqueHandle membership, leaving declared objects to their typed lane. Existing Loop cohort6PASS/2ignored (4reds fixed), forwarding3variants and declared-copy matrix PASS; fresh issued inputs C/LLVM/EXE Result7/exit7. Optimized CLI3m03s/JSON smoke PASS; suite8/11 in135.670s,7EXEs+marker,3source compile failures,no timeout/SKIP. Broader publication before fixes37PASS/15FAIL remains unclosed; source WIP/finite goal active.",
   "2026-10-24: Explicit receiver-slot result support closes declaration/Call equality, original has/Normal/Copy/Branch or new/Birth/install/old-End Return provenance, parent/slot lifetime and payload class. Birth Text moves the original newest raw handle/token only on Normal through existing Dynamic field ABI/End descriptor; no extra copy/ABI. Canonical JSON worktree EXE/run/output PASS; C/header isolation against HEAD also PASS. Fixed suite8/11 (7 real EXEs+marker),3 source compile failures,no timeout/SKIP; Text ingress/Map regressions PASS,27 malformed Map and9 slot-origin negatives retained. Source/package WIP/reds still unlanded; finite goal active.",
-  "2026-10-21: Positive literal Div/Mod share source law/Local/Plain Assignment/evaluation census/writer/SSA/Loop schedule. Recipe and final/C recheck exact source/op/operands/divisor; Initializer/Rebind/Return prefixes remain DCE roots. JSON BinOp output unified; C srem joins same positive-divisor law, runtime ABI/archive unchanged. Native countdown4/sum10 exit0;parent refuses;4source nonpositive/2Map refusals,C parser/boundaries,Sub67/Main Fault70/Text0 retained.46filters+8extra match parent outcomes/strict diagnostics;Loop43/rebind3 PASS,inventory9263. CLI34.98s/root81s;warnings1858/920 unchanged;suite7/4(actualEXE6+marker1),397.733s,no SKIP/timeout;mimalloc-lite/allocator-stress PASS. Code21files net+19;no new tests/cases/hooks/guards/checkers/cards/app edits. JSON Text carrier pending:next SAME Header/After immutable Static/Owned descriptor+conditional End;no eager Materialize/fake initializer;workers agreed. Full Map/native/source/cutover/retirement goal active.",
 ]

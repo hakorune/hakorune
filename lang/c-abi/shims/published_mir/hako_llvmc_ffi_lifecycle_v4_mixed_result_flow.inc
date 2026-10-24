@@ -110,6 +110,13 @@ static int lv4_complete_fields_discharged(const hako_lv4_input* in,
     hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
     if (!producer) return 0;
     born = lv4_u(lv4_term(producer->block), "normal");
+  } else if (lv4_is(root->instruction, "op", "invoke_normal_result")) {
+    hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+    yyjson_val* invoke = producer ? lv4_term(producer->block) : NULL;
+    yyjson_val* operation = yyjson_obj_get(invoke, "operation");
+    if (!lv4_is(operation, "kind", "new_box") || lv4_u(operation, "object_id") != object)
+      return 0;
+    born = lv4_u(invoke, "normal");
   } else {
     size_t births = 0;
     for (size_t bi = 0; bi < fn->block_count; bi++) {

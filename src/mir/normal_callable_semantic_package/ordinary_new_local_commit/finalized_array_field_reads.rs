@@ -161,9 +161,10 @@ impl FinalizedRootSourceHandoffV1 {
         &self, module: &crate::mir::MirModule,
         mut visit: impl FnMut(FunctionOwnerIdV1, &MirFunction) -> Result<(), String>,
     ) -> Result<(), String> {
-        let owners: std::collections::BTreeSet<_> = self.ledger.completion_index.values()
+        let mut owners: std::collections::BTreeSet<_> = self.ledger.completion_index.values()
             .chain(self.ledger.root_completion.iter()).filter_map(|row| row.as_ref().ok())
             .map(|row| row.owner()).filter(|owner| self.ledger.has_checked_field_reads_v1(*owner)).collect();
+        owners.extend(self.ledger.checked_field_read_owners_v1());
         for owner in owners {
             self.ledger.with_finished_projection(owner, |symbol, _| {
                 visit(owner, module.functions.get(symbol).ok_or_else(|| freeze("finished-received-field/function-membership"))?)

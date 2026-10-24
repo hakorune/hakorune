@@ -40,6 +40,19 @@ pub(super) fn module(module: &MirModule) -> Value {
 }
 
 pub(super) fn validate_source(function: &MirFunction) -> Result<(), String> {
+    // Generic MIR JSON has a narrow call transport. Reject lifecycle invoke
+    // operations at that boundary before unrelated physical cleanup/type
+    // rows obscure the designed refusal.
+    if function.blocks.values().any(|block| {
+        block.instructions.iter().chain(block.terminator.iter()).any(|instruction| {
+            matches!(instruction, MirInstruction::Invoke { operation, .. }
+                if !matches!(operation, crate::mir::instruction::InvokeOperation::Call {
+                    result: crate::mir::instruction::InvokeCallResultKind::I64, ..
+                }))
+        })
+    }) {
+        return Err("unsupported terminator Invoke".into());
+    }
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {

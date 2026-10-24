@@ -70,6 +70,20 @@ impl RawInvocationChildPortV1<'_, '_> {
                 (value, Proof::Literal(definition(function, value)?.ok_or("[freeze:contract][field-write-rhs/literal-writer]")?))
             },
             Node::Reference(_) => {
+                if let Some(array) = recipe.owned_array() {
+                    let binding = array.binding();
+                    let read = Rc::new(state.borrow_mut().take_exact_lexical_read(
+                        source.owner(), site.node(), binding,
+                    ).map_err(|issue| issue.to_string())?);
+                    let value = read.value_for(source.owner(), site.node(), binding)
+                        .map_err(|issue| issue.to_string())?;
+                    let function = builder.function_state.current_function.as_ref()
+                        .ok_or("[freeze:contract][field-write-rhs/no-function]")?;
+                    (value, Proof::ArrayHomeRead {
+                        read,
+                        producer: definition(function, value)?,
+                    })
+                } else {
                 let (binding, _) = recipe.reference(index).ok_or("[freeze:contract][field-write-rhs/reference-kind]")?;
                 let read = Rc::new(state.borrow_mut().take_exact_lexical_read(source.owner(), site.node(), binding).map_err(|issue| issue.to_string())?);
                 let value = read.value_for(source.owner(), site.node(), binding).map_err(|issue| issue.to_string())?;
@@ -88,6 +102,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                     _ => None,
                 };
                 (value, Proof::Reference { read, producer: definition(function, value)?, signed })
+                }
             },
             Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) => {
                 let owned = OwnedExprSiteV1::new(source.owner(), site.clone());

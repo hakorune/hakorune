@@ -84,6 +84,25 @@ impl FieldWriteSourceLoanV1 {
             };
         }
         let local = self.frame().owned_local().ok_or_else(fail)?;
+        let field = local.construction().allocation_only_field(local.original().write().field())
+            .filter(|field| field.field() == local.field())
+            .ok_or_else(fail)?;
+        if field.storage() == crate::mir::function::TypedObjectFieldStorage::Dynamic {
+            let rhs = self.qualified_rhs().ok_or_else(fail)?;
+            if rhs.owned_array().is_some_and(|array| array.proves_empty_transfer(
+                local.original().write().assignment(), local.root(), local.original().write().field())) {
+                let contract = crate::mir::instruction::DynamicFieldSetContractV1::issue(
+                    crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize,
+                    crate::mir::instruction::DynamicFieldValueTagV1::Array,
+                    crate::mir::instruction::DynamicFieldResidenceV1::EmptyArrayHome,
+                ).ok_or_else(fail)?;
+                return Ok(FieldSetModeV1::DynamicValue(contract));
+            }
+            // The source and same-expression check above has already proved a
+            // signed I64 RHS with no Home. Dynamic replacement retains that
+            // value law and lets the runtime detach any prior residence.
+            return Ok(FieldSetModeV1::DynamicI64Replace);
+        }
         if local.construction().allocation_only_i64_field(local.original().write().field()) != Some(local.field()) {
             return Err(fail());
         }

@@ -20,6 +20,69 @@ pub enum FieldSetModeV1 {
     DynamicMapInitialize,
     /// Birth first-write of an independently materialized Text residence.
     DynamicTextInitialize,
+    /// Tagged dynamic payload with a separately selected source residence.
+    DynamicValue(DynamicFieldSetContractV1),
+}
+
+/// Value tag stored in the dynamic slot. This does not select how the payload
+/// is kept alive; that is the independent `DynamicFieldResidenceV1` below.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DynamicFieldValueTagV1 {
+    Null,
+    I64,
+    Bool,
+    Text,
+    Object,
+    Array,
+}
+
+/// Source-selected residence disposition for a tagged dynamic payload.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DynamicFieldResidenceV1 {
+    None,
+    TextHome,
+    ObjectHome(hakorune_mir_defs::CanonicalObjectIdV1),
+    /// An empty Array handle moved into a Dynamic slot. This is narrower than
+    /// a general Array residence: the source issuer proves no element was
+    /// installed before the transfer.
+    EmptyArrayHome,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DynamicFieldWriteIntentV1 {
+    Initialize,
+    Replace,
+}
+
+/// The physical FieldSet contract carries the tag and residence independently.
+/// Construction rejects combinations that have no ownership meaning.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DynamicFieldSetContractV1 {
+    intent: DynamicFieldWriteIntentV1,
+    value_tag: DynamicFieldValueTagV1,
+    residence: DynamicFieldResidenceV1,
+}
+
+impl DynamicFieldSetContractV1 {
+    pub(crate) fn issue(
+        intent: DynamicFieldWriteIntentV1,
+        value_tag: DynamicFieldValueTagV1,
+        residence: DynamicFieldResidenceV1,
+    ) -> Option<Self> {
+        let paired = matches!(
+            (value_tag, residence),
+            (DynamicFieldValueTagV1::Null | DynamicFieldValueTagV1::I64 | DynamicFieldValueTagV1::Bool,
+                DynamicFieldResidenceV1::None)
+                | (DynamicFieldValueTagV1::Text, DynamicFieldResidenceV1::TextHome)
+                | (DynamicFieldValueTagV1::Object, DynamicFieldResidenceV1::ObjectHome(_))
+                | (DynamicFieldValueTagV1::Array, DynamicFieldResidenceV1::EmptyArrayHome)
+        );
+        paired.then_some(Self { intent, value_tag, residence })
+    }
+
+    pub(crate) fn intent(self) -> DynamicFieldWriteIntentV1 { self.intent }
+    pub(crate) fn value_tag(self) -> DynamicFieldValueTagV1 { self.value_tag }
+    pub(crate) fn residence(self) -> DynamicFieldResidenceV1 { self.residence }
 }
 
 /// Source-selected field End law; neither mode creates an owning child Home.

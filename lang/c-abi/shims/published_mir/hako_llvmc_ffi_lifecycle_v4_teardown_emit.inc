@@ -8,6 +8,13 @@ static void lv4_object_layout_globals(FILE* f, const hako_lv4_input* in) {
       "  %%token = load i64, ptr %%tokenptr, align 8\n"
       "  %%status = call i32 @\"nyash.string.checked_end_v1\"(ptr %%frame, i64 %%site, i64 %%handle, i64 %%token)\n"
       "  ret i32 %%status\n}\n", in->profile);
+  fprintf(f,
+      "@hako_lifecycle_array_end_descriptor = private constant { i32, i32, i64, ptr } { i32 %u, i32 6, i64 0, ptr @hako_lifecycle_array_end_adapter }\n"
+      "define internal i32 @hako_lifecycle_array_end_adapter(ptr %%frame, i64 %%site, ptr %%value) {\nstart:\n"
+      "  %%payload = getelementptr { i32, i32, i64, i64 }, ptr %%value, i32 0, i32 2\n"
+      "  %%handle = load i64, ptr %%payload, align 8\n"
+      "  call void @nyrt_handle_release_h(i64 %%handle)\n"
+      "  ret i32 0\n}\n", in->profile);
   for (size_t li = 0; li < in->layout_count; li++) {
     yyjson_val* layout = in->layouts[li].row;
     uint32_t count = lv4_u(layout, "field_count");
@@ -70,6 +77,7 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  %%%s_payload = getelementptr { i32, i32, i64, i64 }, ptr %%%s_candidate, i32 0, i32 2\n"
       "  store i64 %s, ptr %%%s_payload, align 8\n",
       name, name, name, name, candidate, name);
+  if (initialize == 5) fprintf(f, "  store i32 6, ptr %%%s_candidate, align 4\n", name);
   if (initialize == 3) {
     if (!candidate || !candidate_token) return 0;
     fprintf(f, "  store i32 4, ptr %%%s_candidate, align 4\n"
@@ -86,6 +94,9 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       name, profile, site, base, type, slot, candidate, name);
   else if (initialize == 3) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_text_end_descriptor, ptr %%%s_out)\n",
+      name, profile, site, base, type, slot, name, name);
+  else if (initialize == 5) fprintf(f,
+      "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_array_end_descriptor, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, name, name);
   else if (candidate) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr null, ptr %%%s_out)\n",
@@ -111,7 +122,8 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  switch i32 %%%s_ended, label %%invalid [ i32 0, label %%%s i32 1, label %%%s ]\n",
       name, name, name, name, fault, name,
       name, site, name, name, name, name, name, name, name,
-      name, name, name, name, normal, initialize ? "invalid" : fault);
+      name, name, name, name, normal,
+      initialize == 5 ? fault : (initialize ? "invalid" : fault));
   return !ferror(f);
 }
 
@@ -158,7 +170,10 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
   int replace = lv4_is(op, "kind", "field_set");
   int initialize = lv4_is(op, "transaction", "dynamic_text_initialize") ? 3 :
       lv4_is(op, "transaction", "dynamic_map_initialize") ? 2 :
-      lv4_is(op, "transaction", "dynamic_i64_initialize") ? 1 : 0;
+      lv4_is(op, "transaction", "dynamic_i64_initialize") ? 1 :
+      (lv4_is(op, "transaction", "dynamic_value_initialize") &&
+       lv4_is(op, "value_tag", "array") && lv4_is(op, "residence", "empty_array_home") &&
+       yyjson_is_null(yyjson_obj_get(op, "residence_object_id"))) ? 5 : 0;
   if (!(replace ? (initialize || lv4_is(op, "transaction", "dynamic_i64_replace")) :
       lv4_is(op, "transaction", "take_dynamic"))) return 0;
   char name[32], site[32], base[32], candidate[32], token[32];

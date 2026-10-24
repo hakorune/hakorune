@@ -46,6 +46,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         }
         | RootHomeExitEntry::MapGet {
             invoke, projection, ..
+        }
+        | RootHomeExitEntry::FieldGet {
+            invoke, projection, ..
         } => {
             let (clean, pending, _, _) =
                 call::ingress(function, bindings, invoke, projection, expected_kind)?;
@@ -111,6 +114,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             ..
         }
         | RootHomeExitEntry::MapGet {
+            invoke,
+            projection: result,
+            ..
+        }
+        | RootHomeExitEntry::FieldGet {
             invoke,
             projection: result,
             ..

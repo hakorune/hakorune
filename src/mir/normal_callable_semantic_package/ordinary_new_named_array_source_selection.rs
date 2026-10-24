@@ -144,6 +144,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
             "[freeze:contract][array-holder/source-membership]".into(),
         ));
     }
+    let empty_transfer = input.body_shape().and_then(|shape| {
+        crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1::issue(
+            &ledger, shape, &identity,
+        )
+    });
+    if empty_transfer.is_some() {
+        return Ok(Some(
+            crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(
+                identity,
+                empty_transfer,
+            ),
+        ));
+    }
     if let Some(body_shape) = input.body_shape() {
         match crate::mir::resolved_semantics::NamedArrayAppendOnlySourceV1::issue_for_construction_v1(
             &ledger,
@@ -164,10 +177,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
             ))),
         }
     }
-    let empty_transfer = input.body_shape().and_then(|shape| {
-        crate::mir::resolved_semantics::NamedArrayEmptyTransferSourceV1::issue(
-            &ledger, shape, &identity,
-        )
-    });
-    Ok(Some(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(identity, empty_transfer)))
+    Ok(Some(
+        crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1::from_construction(
+            identity, None,
+        ),
+    ))
 }

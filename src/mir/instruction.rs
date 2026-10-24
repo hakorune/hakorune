@@ -20,7 +20,10 @@ pub use construction_target::ConstructionTarget;
 
 mod invoke;
 pub use invoke::{
-    BirthArgumentV1, BirthInvokeV1, ArrayElementWriteValueV1, FieldSetModeV1, FieldResidenceEndModeV1, ObjectEndStepV1, FaultFrameMode, BorrowedResultSupportV1, InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation, StringInvokeOperand, StringInvokeOperation,
+    BirthArgumentV1, BirthInvokeV1, ArrayElementWriteValueV1, FieldSetModeV1, DynamicFieldSetContractV1,
+    DynamicFieldValueTagV1, DynamicFieldResidenceV1, DynamicFieldWriteIntentV1,
+    FieldResidenceEndModeV1, ObjectEndStepV1, FaultFrameMode, BorrowedResultSupportV1,
+    InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation, StringInvokeOperand, StringInvokeOperation,
     MapInvokeOperation, MapValueKind, DynamicCarrierArrayInvokeOperation, OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1,
     DynamicInvocationOperandV1, DynamicInvocationOperationV1,
 };

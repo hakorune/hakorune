@@ -151,6 +151,10 @@ pub(super) enum Progress {
     Pending,
     Taken(ValueId),
     Emitted(BasicBlockId, MirInstruction),
+    CheckedEmitted {
+        invoke: (BasicBlockId, MirInstruction),
+        projection: (BasicBlockId, MirInstruction),
+    },
     /// Retired by the enclosing claim's `RetainedUnavailable` decline:
     /// no selected emitter exists, so the raw lane owns the physical
     /// read at that site. Distinct from `Taken`/`Emitted` — released
@@ -663,11 +667,35 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    pub(crate) fn record_terminal_checked_field_read(
+        &self,
+        site: &OwnedExprSiteV1,
+        invoke: (BasicBlockId, MirInstruction),
+        projection: (BasicBlockId, MirInstruction),
+        base: ValueId,
+        field: CanonicalFieldRefV1,
+    ) -> Result<(), String> {
+        let mut reads = self.field_reads.borrow_mut();
+        let row = reads.get_mut(site).ok_or_else(|| fault("missing-source-site"))?;
+        self.recheck_terminal_field_value_v1(site, row, CallValidationContextV1::Lowering(self))?;
+        if !matches!(row.progress, Progress::Taken(expected) if expected == base)
+            || row.field != field
+            || !matches!((&invoke.1, &projection.1),
+                (MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldGet { field: actual, base: actual_base }, normal_landing, .. },
+                 MirInstruction::InvokeNormalResult { invoke_block, .. })
+                    if *actual == field && *actual_base == base && *normal_landing == projection.0 && *invoke_block == invoke.0)
+        {
+            return Err(fault("checked-emission-mismatch"));
+        }
+        row.progress = Progress::CheckedEmitted { invoke, projection };
+        Ok(())
+    }
+
     pub(super) fn field_reads_complete(&self) -> bool {
         self.field_reads
             .borrow()
             .values()
-            .all(|row| matches!(row.progress, Progress::Emitted(..)))
+            .all(|row| matches!(row.progress, Progress::Emitted(..) | Progress::CheckedEmitted { .. }))
             && self
                 .argument_field_reads
                 .borrow()
@@ -705,10 +733,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             self.recheck_terminal_field_value_v1(site, row, context)?;
-            let Progress::Emitted(block, instruction) = &row.progress else {
-                return Err(fault("unconsumed-read"));
-            };
-            expected.push((*block, instruction));
+            match &row.progress {
+                Progress::Emitted(block, instruction) => expected.push((*block, instruction)),
+                // The root FieldGet entry owns and independently validates
+                // the checked Invoke/result pair. This census owns only
+                // direct field-read instructions.
+                Progress::CheckedEmitted { .. } => {}
+                _ => return Err(fault("unconsumed-read")),
+            }
         }
         let argument_reads = self.argument_field_reads.borrow();
         for (site, row) in argument_reads.iter() {

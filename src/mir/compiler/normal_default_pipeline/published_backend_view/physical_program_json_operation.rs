@@ -308,6 +308,36 @@ pub(super) fn encode_invoke(
                     encoded["transaction"] = "dynamic_text_initialize".into();
                 },
                 Mode::DynamicMapInitialize => encoded["transaction"] = "dynamic_map_initialize".into(),
+                Mode::DynamicValue(contract) => {
+                    use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence,
+                        DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent};
+                    encoded["transaction"] = match contract.intent() {
+                        Intent::Initialize => "dynamic_value_initialize",
+                        Intent::Replace => "dynamic_value_replace",
+                    }.into();
+                    encoded["value_tag"] = match contract.value_tag() {
+                        Tag::Null => "null", Tag::I64 => "i64", Tag::Bool => "bool",
+                        Tag::Text => "text", Tag::Object => "object", Tag::Array => "array",
+                    }.into();
+                    match contract.residence() {
+                        Residence::None => {
+                            encoded["residence"] = "none".into();
+                            encoded["residence_object_id"] = Value::Null;
+                        }
+                        Residence::TextHome => {
+                            encoded["residence"] = "text_home".into();
+                            encoded["residence_object_id"] = Value::Null;
+                        }
+                        Residence::ObjectHome(object) => {
+                            encoded["residence"] = "object_home".into();
+                            encoded["residence_object_id"] = object.declaration_index().into();
+                        }
+                        Residence::EmptyArrayHome => {
+                            encoded["residence"] = "empty_array_home".into();
+                            encoded["residence_object_id"] = Value::Null;
+                        }
+                    }
+                }
             }
             encoded
         },

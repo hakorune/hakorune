@@ -343,7 +343,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
     fn emit_terminal_i64_field_return(
         &mut self,
         builder: &mut crate::mir::MirBuilder,
-    ) -> Result<Option<crate::mir::ValueId>, String> {
+    ) -> Result<Option<TerminalFieldReturnV1>, String> {
         let Some(ledger) = &self.ordinary_new_claim_ledger else {
             return Ok(None);
         };
@@ -378,10 +378,10 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         else {
             return Ok(None);
         };
+        let mut state = state.borrow_mut();
         crate::mir::builder::ordinary_new_admission::selected::emit_terminal_i64_field_return(
-            builder, ledger, prepared,
-        )
-        .map(Some)
+            builder, &mut state, ledger, prepared,
+        ).map(Some)
     }
 
     fn emit_terminal_map_get_return(
@@ -677,7 +677,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .flatten();
         match typed {
             Some(prepared) => Ok(Some(prepared)),
-            None => match ledger.prepare_dynamic_carrier_array_construction_v1(&site, relation)? {
+            None => match ledger.prepare_named_array_construction_v1(&site, relation)? {
                 Some(prepared) => Ok(Some(prepared)),
                 None if ledger.has_owned_array_construction(&site) => {
                     Err("[freeze:contract][owned-array/construction-source-missing]".into())

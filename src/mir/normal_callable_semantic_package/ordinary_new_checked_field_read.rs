@@ -143,6 +143,17 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn has_checked_field_reads_v1(&self, owner: FunctionOwnerIdV1) -> bool {
         self.local_field_reads.borrow().iter().any(|(site, row)| site.owner() == owner && row.source.requires_checked_field_read_v1())
+            || self.field_reads.borrow().iter().any(|(site, row)| site.owner() == owner
+                && matches!(row.progress, Progress::CheckedEmitted { .. }))
+    }
+
+    pub(in crate::mir) fn checked_field_read_owners_v1(&self) -> BTreeSet<FunctionOwnerIdV1> {
+        self.local_field_reads.borrow().iter()
+            .filter(|(_, row)| row.source.requires_checked_field_read_v1())
+            .map(|(site, _)| site.owner())
+            .chain(self.field_reads.borrow().iter().filter_map(|(site, row)|
+                matches!(row.progress, Progress::CheckedEmitted { .. }).then_some(site.owner())))
+            .collect()
     }
 
     /// Every checked read and Normal result must be the same original row after
@@ -160,6 +171,21 @@ impl OrdinaryNewClaimLedgerV1 {
             let pair = self.checked_field_pair_v1(&site, context)?.ok_or_else(|| fault("received/pair-missing"))?;
             for binding in pair {
                 let mapped = project(&binding)?.ok_or_else(|| fault("received/finished-binding-missing"))?;
+                if expected.contains(&mapped) { return Err(fault("received/duplicate-binding")); }
+                expected.push(mapped);
+            }
+        }
+        for (site, row) in self.field_reads.borrow().iter().filter(|(site, row)| {
+            site.owner() == owner && matches!(row.progress, Progress::CheckedEmitted { .. })
+        }) {
+            self.recheck_terminal_field_value_v1(site, row, context)?;
+            let linked = self.terminal_relations_for_owner(owner).into_iter().any(|relation| {
+                matches!(relation, TerminalRelationV1::I64Field(field) if field.field_read_site() == site)
+            });
+            if !linked { return Err(fault("received/terminal-source-missing")); }
+            let Progress::CheckedEmitted { invoke, projection } = &row.progress else { unreachable!() };
+            for binding in [invoke, projection] {
+                let mapped = project(binding)?.ok_or_else(|| fault("received/finished-binding-missing"))?;
                 if expected.contains(&mapped) { return Err(fault("received/duplicate-binding")); }
                 expected.push(mapped);
             }

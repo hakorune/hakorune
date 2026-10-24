@@ -14,7 +14,7 @@ pub(in crate::mir::builder) fn emit_construction(
     if state.owner() != site.owner() {
         return Err(freeze("owned-array-owner-drift"));
     }
-    let carrier_profile = source.dynamic_carrier_source().is_some();
+    let carrier_profile = source.uses_dynamic_carrier_array_abi();
     let descriptor = source.has_typed_recipe().then(|| source.descriptor());
     ledger.begin_owned_array_construction(source)?;
     let frame = state.borrow_fault_frame(builder)?;

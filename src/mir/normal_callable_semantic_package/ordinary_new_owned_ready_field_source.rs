@@ -51,6 +51,10 @@ impl OwnedReadyFieldReadSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn frame(&self) -> &Rc<CheckedFieldWriteFrameV1> { &self.frame }
     pub(in crate::mir::normal_callable_semantic_package) fn field(&self) -> CanonicalFieldRefV1 { self.field }
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_checked_read_v1(&self) -> bool {
+        self.request.owned_ready.as_ref().and_then(|plan| plan.owned_i64_field())
+            .is_some_and(|(_, storage)| storage == crate::mir::function::TypedObjectFieldStorage::Dynamic)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_request(&self, request: &LocalFieldReadRequestV1) -> bool {
         self.request == *request && request.owned_ready.as_ref().zip(self.request.owned_ready.as_ref()).is_some_and(|(plan, original)|
             Rc::ptr_eq(plan.frame(), &self.frame) && plan.same_source(original))
@@ -84,8 +88,13 @@ pub(in crate::mir::normal_callable_semantic_package) enum TerminalFieldValueSour
     Numeric(super::super::lexical_instance_call::IntegerFieldSourceLoanV1),
     OwnedLocal(OwnedReadyFieldReadSourceV1),
 }
+impl TerminalFieldValueSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_checked_read_v1(&self) -> bool {
+        matches!(self, Self::OwnedLocal(source) if source.requires_checked_read_v1())
+    }
+}
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn recheck_terminal_field_value_v1(&self, site: &OwnedExprSiteV1, row: &FieldRead,
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_terminal_field_value_v1(&self, site: &OwnedExprSiteV1, row: &FieldRead,
         context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         let request = self.terminal_relation.values().find_map(|relation| match relation {

@@ -484,6 +484,12 @@ fn issue_function_with_module<'module>(
     };
     let main_argument_binding = |block, instruction: &MirInstruction| main_argument_bindings
         .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
+    let array_construction_bindings = match (module, selected_view.and_then(|view| view.retained_root_source())) {
+        (Some(module), Some(source)) => source.finished_array_construction_bindings_v1(module, function)?,
+        _ => Vec::new(),
+    };
+    let array_construction_binding = |block, instruction: &MirInstruction| array_construction_bindings
+        .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
     // Borrow the source-checked full-holder image, never admit Array from
     // its instruction shape or runtime descriptor alone.
     let mut owned_array_bindings = Vec::new();
@@ -501,7 +507,9 @@ fn issue_function_with_module<'module>(
         .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
     let source_array_binding = |block: BasicBlockId, instruction: &MirInstruction| {
         field_appends.iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction)
+            || array_construction_binding(block, instruction)
             || matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(_), .. }
+            | MirInstruction::Invoke { operation: InvokeOperation::DynamicCarrierArray(_), .. }
             | MirInstruction::ArrayResidenceRelease { .. })
             && owned_array_bindings.iter().flat_map(|rows| rows.iter())
                 .any(|(bound_block, bound)| *bound_block == block && bound == instruction)

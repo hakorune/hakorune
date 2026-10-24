@@ -52,6 +52,7 @@ pub(in crate::mir::builder) use legacy_port::{
     drive_raw_legacy_body_v1, drive_raw_legacy_statement_v1, RawLegacyChildLoweringPortV1,
 };
 pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV1;
+pub(in crate::mir::builder) use raw_ordinary_new_claim::TerminalFieldReturnV1;
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
 pub(in crate::mir::builder) use super::recursive_child_lowering_port::{

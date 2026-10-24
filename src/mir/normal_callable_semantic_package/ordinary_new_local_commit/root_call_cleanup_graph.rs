@@ -36,6 +36,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             (*fault_frame, *normal_landing, *fault_landing)
         }
         MirInstruction::Invoke {
+            operation: InvokeOperation::FieldGet { .. },
+            fault_frame,
+            normal_landing,
+            fault_landing,
+        } if expected_kind == InvokeCallResultKind::I64 => {
+            (*fault_frame, *normal_landing, *fault_landing)
+        }
+        MirInstruction::Invoke {
             operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { field, object, .. }),
             fault_frame, normal_landing, fault_landing,
         } if matches!(expected_kind, InvokeCallResultKind::BorrowedNullableHandle {

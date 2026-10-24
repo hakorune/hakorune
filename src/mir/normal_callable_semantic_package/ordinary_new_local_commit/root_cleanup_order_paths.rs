@@ -43,6 +43,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             invoke,
             projection: result_projection,
             ..
+        }
+        | RootHomeExitEntry::FieldGet {
+            invoke,
+            projection: result_projection,
+            ..
         } => {
             let (_, invoke) = binding(invoke)?;
             let (_, projected) = binding(result_projection)?;
@@ -61,13 +66,20 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                 InvokeOperation::Map(
                     crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. },
                 ) if kind == crate::mir::instruction::InvokeCallResultKind::I64 => {}
+                InvokeOperation::FieldGet { .. }
+                    if kind == crate::mir::instruction::InvokeCallResultKind::I64 => {}
                 InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { field, object, .. })
                     if matches!(kind, crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
                         support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
                     } if original == field && payload == object) => {}
                 _ => {
                     if crate::config::env::builder_debug_enabled() {
-                        let entry_kind = if matches!(entry, RootHomeExitEntry::Call { .. }) { "Call" } else { "MapGet" };
+                        let entry_kind = match entry {
+                            RootHomeExitEntry::Call { .. } => "Call",
+                            RootHomeExitEntry::MapGet { .. } => "MapGet",
+                            RootHomeExitEntry::FieldGet { .. } => "FieldGet",
+                            RootHomeExitEntry::Plain { .. } => "Plain",
+                        };
                         eprintln!("[root-cleanup/ingress] function={} entry={entry_kind} expected={kind:?} operation={operation:?}", function.signature.name);
                     }
                     return Err(fault("ordered-path/ingress-kind"));

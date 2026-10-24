@@ -24,6 +24,10 @@ pub(in crate::mir) enum FieldWriteRhsProofV1 {
         producer: Option<Binding>,
         signed: Option<Rc<crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1>>,
     },
+    ArrayHomeRead {
+        read: Rc<ExactLexicalReadV1>,
+        producer: Option<Binding>,
+    },
     Field(Vec<Binding>),
     Binary {
         append: Binding,
@@ -92,6 +96,9 @@ impl EmittedFieldWriteRhsV1 {
                         rows.extend(signed.dependencies()?);
                     }
                 }
+                FieldWriteRhsProofV1::ArrayHomeRead { producer, .. } => {
+                    rows.extend(producer.iter().cloned());
+                }
                 FieldWriteRhsProofV1::Field(field) => rows.extend(field.iter().cloned()),
                 FieldWriteRhsProofV1::Binary {
                     append,
@@ -153,9 +160,10 @@ impl EmittedFieldWriteRhsV1 {
         post_rhs_prefix: &[Binding],
     ) -> Result<(), String> {
         let source = self.recipe.source();
-        if !self.recipe.is_consistent(source) || self.nodes.iter().map(|node| node.node).ne(
-            self.recipe.ordered_nodes().iter().copied().filter(|index|
-                self.recipe.node_class(*index) != Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)))
+        let expected_nodes = self.recipe.ordered_nodes().iter().copied().filter(|index|
+            self.recipe.node_class(*index) != Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)
+                || self.recipe.owned_array().is_some());
+        if !self.recipe.is_consistent(source) || self.nodes.iter().map(|node| node.node).ne(expected_nodes)
             || self.nodes.iter().find(|node| node.node == 0).map(|node| node.value) != Some(self.value) {
             return Err(freeze("field-write-rhs/source-coverage"));
         }
@@ -277,6 +285,28 @@ impl EmittedFieldWriteRhsV1 {
                         require(row, false)?;
                     } else if !function.params.contains(&node.value) {
                         return Err(freeze("field-write-rhs/reference-parameter"));
+                    }
+                }
+                (
+                    Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)),
+                    FieldWriteRhsProofV1::ArrayHomeRead { read, producer },
+                ) => {
+                    let array = self.recipe.owned_array()
+                        .ok_or_else(|| freeze("field-write-rhs/array-home-source"))?;
+                    if *binding != array.binding()
+                        || array.binding().owner() != source.owner()
+                        || read.value_for(source.owner(), original.site().node(), *binding)
+                            .map_err(|issue| issue.to_string())? != node.value
+                    {
+                        return Err(freeze("field-write-rhs/array-home-read"));
+                    }
+                    if let Some(row) = producer {
+                        if row.1.dst_value() != Some(node.value) {
+                            return Err(freeze("field-write-rhs/array-home-producer"));
+                        }
+                        require(row, false)?;
+                    } else if !function.params.contains(&node.value) {
+                        return Err(freeze("field-write-rhs/array-home-parameter"));
                     }
                 }
                 (

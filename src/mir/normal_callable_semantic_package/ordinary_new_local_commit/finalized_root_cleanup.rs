@@ -192,6 +192,92 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(result)
     }
 
+    /// Lend Array operations from their checked local construction rows.
+    /// Empty Arrays transferred directly into a field have no element-holder
+    /// row, but their Claim-fault release still belongs to this source owner.
+    pub(in crate::mir) fn finished_array_construction_bindings_v1(
+        &self, module: &MirModule, function: &MirFunction,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        if !module.functions.get(&function.signature.name)
+            .is_some_and(|stored| std::ptr::eq(stored, function))
+        { return Err(freeze("array-construction/function-membership")); }
+        let constructions: Vec<_> = self.ledger.local_commits.borrow().iter()
+            .filter_map(|(site, row)| matches!(row, LocalCommitV1::OwnedArray(_))
+                .then_some((row.owner(), site.clone())))
+            .collect();
+        let is_array_operation = |instruction: &MirInstruction| matches!(instruction,
+            MirInstruction::ArrayResidenceRelease { .. }
+                | MirInstruction::Invoke {
+                    operation: crate::mir::instruction::InvokeOperation::OwnedArray(_)
+                        | crate::mir::instruction::InvokeOperation::DynamicCarrierArray(_),
+                    ..
+                });
+        let has_root_array_exit = self.call_entries.values()
+            .any(|(_, bindings)| bindings.iter().any(|(_, row)| is_array_operation(row)))
+            || self.ledger.root_exits.borrow().values().any(|progress| matches!(progress,
+                RootHomeExitProgress::Emitted { bindings, .. }
+                    if bindings.iter().any(|(_, row)| is_array_operation(row))));
+        if !constructions.is_empty() || has_root_array_exit {
+            self.validate_finalized_root_cleanup_v1(module)?;
+        }
+        let mut result = Vec::new();
+        for (owner, site) in constructions {
+            self.ledger.with_finished_projection(owner, |symbol, projection| {
+                if symbol != function.signature.name { return Ok(()); }
+                self.ledger.validate_owned_array_construction(
+                    &site, function, Some(projection),
+                )?;
+                let rows = self.ledger.local_commits.borrow();
+                let Some(LocalCommitV1::OwnedArray(array)) = rows.get(&site) else {
+                    return Err(freeze("array-construction/source-row-missing"));
+                };
+                for original in array.checked_bindings()? {
+                    if !is_array_operation(&original.1) { continue; }
+                    let binding = projection.binding(original.0, &original.1)?
+                        .ok_or_else(|| freeze("array-construction/binding-removed"))?;
+                    if !projection.recorded().contains(&binding) {
+                        return Err(freeze("array-construction/binding-unrecorded"));
+                    }
+                    if !result.contains(&binding) { result.push(binding); }
+                }
+                Ok(())
+            })?;
+        }
+        self.ledger.with_finished_projection(self.owner, |symbol, _| {
+            if symbol != function.signature.name { return Ok(()); }
+            for (_, bindings) in self.call_entries.values() {
+                for binding in bindings.iter().filter(|(_, row)| is_array_operation(row)) {
+                    if !result.contains(binding) { result.push(binding.clone()); }
+                }
+            }
+            Ok(())
+        })?;
+        let exits = self.ledger.root_exits.borrow();
+        for ((owner, _), progress) in exits.iter() {
+            let RootHomeExitProgress::Emitted { bindings, entry, .. } = progress else {
+                continue;
+            };
+            let mut candidates = bindings.clone();
+            entry.append_bindings(&mut candidates);
+            let candidates: Vec<_> = candidates.into_iter()
+                .filter(|(_, row)| is_array_operation(row)).collect();
+            if candidates.is_empty() { continue; }
+            self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                if symbol != function.signature.name { return Ok(()); }
+                for original in &candidates {
+                    let binding = projection.binding(original.0, &original.1)?
+                        .ok_or_else(|| freeze("array-construction/exit-binding-removed"))?;
+                    if !projection.recorded().contains(&binding) {
+                        return Err(freeze("array-construction/exit-binding-unrecorded"));
+                    }
+                    if !result.contains(&binding) { result.push(binding); }
+                }
+                Ok(())
+            })?;
+        }
+        Ok(result)
+    }
+
     pub(in crate::mir) fn validate_finalized_root_cleanup_v1(
         &self,
         module: &MirModule,
@@ -399,6 +485,15 @@ pub(super) fn validate_finished_cleanup_entry(
         | (
             finishing @ Some(_),
             RootHomeExitEntry::MapGet {
+                invoke,
+                projection: result,
+                frame,
+                ..
+            },
+        )
+        | (
+            finishing @ Some(_),
+            RootHomeExitEntry::FieldGet {
                 invoke,
                 projection: result,
                 frame,

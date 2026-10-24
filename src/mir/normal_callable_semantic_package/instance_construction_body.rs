@@ -66,6 +66,19 @@ impl ConstructionSourceStructureV1 {
             fields.iter().all(|field| field.storage == TypedObjectFieldStorage::I64))
     }
 
+    /// Allocation-only objects may carry declared Dynamic slots as well as
+    /// I64 slots. Their execution still requires the separately sealed field
+    /// drain inventory before the local Home can be published.
+    pub(crate) fn supports_empty_allocation(&self) -> bool {
+        self.allocation_only_fields().is_some_and(|fields| {
+            !fields.is_empty()
+                && fields.iter().all(|field| matches!(
+                    field.storage,
+                    TypedObjectFieldStorage::I64 | TypedObjectFieldStorage::Dynamic
+                ))
+        })
+    }
+
     /// Resolve only within this original declaration, never a global name table.
     pub(crate) fn allocation_only_field(&self, name: &str) -> Option<&ConstructionFieldSourceV1> {
         self.allocation_only_fields()?.iter().find(|field| field.name() == name)

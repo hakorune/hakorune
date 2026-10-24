@@ -53,7 +53,7 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     fn emit_terminal_i64_field_return(
         &mut self,
         _builder: &mut crate::mir::MirBuilder,
-    ) -> Result<Option<crate::mir::ValueId>, String> {
+    ) -> Result<Option<TerminalFieldReturnV1>, String> {
         Ok(None)
     }
 
@@ -179,6 +179,13 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         )>,
         String,
     >;
+}
+
+/// Whether a selected terminal field value has already gone through the root
+/// cleanup graph, so the statement dispatcher never consumes that exit twice.
+pub(in crate::mir::builder) struct TerminalFieldReturnV1 {
+    pub(in crate::mir::builder) value: crate::mir::ValueId,
+    pub(in crate::mir::builder) root_home_exit_emitted: bool,
 }
 
 impl RawOrdinaryNewClaimPortV1 for super::RawLegacyChildLoweringPortV1 {

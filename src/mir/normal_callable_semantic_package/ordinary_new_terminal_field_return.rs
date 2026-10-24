@@ -14,6 +14,7 @@ pub(crate) struct PreparedTerminalI64FieldReturnV1 {
     pub(crate) site: OwnedExprSiteV1,
     pub(crate) base: ValueId,
     pub(crate) field: CanonicalFieldRefV1,
+    pub(crate) checked: bool,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -55,6 +56,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .get(&site)
             .map(|row| row.receiver_site.node().clone())
             .ok_or_else(|| fault("field-read-missing"))?;
+        let checked = self.field_reads.borrow().get(&site)
+            .is_some_and(|row| row.value_source.requires_checked_read_v1());
         let Some((base, field)) = self
             .take_terminal_field_read(&site, |binding| resolve_binding(binding, &receiver_site))?
         else {
@@ -65,6 +68,7 @@ impl OrdinaryNewClaimLedgerV1 {
             site,
             base,
             field,
+            checked,
         }))
     }
 
@@ -147,17 +151,17 @@ impl OrdinaryNewClaimLedgerV1 {
             let row = reads
                 .get(relation.field_read_site())
                 .ok_or_else(|| fault("field-read-missing"))?;
-            let field_reads::Progress::Emitted(
-                block,
-                instruction @ MirInstruction::ObjectFieldGet { dst, .. },
-            ) = &row.progress
-            else {
-                return Err(fault("field-read-not-emitted"));
+            let exact_read = match &row.progress {
+                field_reads::Progress::Emitted(block, instruction @ MirInstruction::ObjectFieldGet { dst, .. }) => {
+                    if *dst != value { return Err(fault("result-drift")); }
+                    check_read_binding(*block, instruction)?
+                }
+                field_reads::Progress::CheckedEmitted { projection: (block, instruction), invoke, .. }
+                    if matches!(instruction, MirInstruction::InvokeNormalResult { dst, .. } if *dst == value) => {
+                        check_read_binding(*block, instruction)? && check_read_binding(invoke.0, &invoke.1)?
+                    }
+                _ => return Err(fault("field-read-not-emitted")),
             };
-            if *dst != value {
-                return Err(fault("result-drift"));
-            }
-            let exact_read = check_read_binding(*block, instruction)?;
             let returned = function.blocks.values().any(|block| {
                 block.all_instructions().any(|instruction| {
                     matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value)

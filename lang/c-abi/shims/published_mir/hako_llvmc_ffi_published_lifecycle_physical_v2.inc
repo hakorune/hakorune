@@ -39,22 +39,19 @@ static int hako_physical_u64(yyjson_val* value, uint64_t* out) {
 }
 
 static int hako_physical_exact_keys(yyjson_val* object, const char* const* names, size_t count) {
-  yyjson_obj_iter iter;
-  yyjson_val* key;
-  size_t seen[8] = {0};
-  if (!(count <= 8 && object && yyjson_is_obj(object) && yyjson_obj_size(object) == count)) return 0;
-  iter = yyjson_obj_iter_with(object);
-  while ((key = yyjson_obj_iter_next(&iter))) {
-    const char* text = yyjson_get_str(key);
-    size_t i;
-    int known = 0;
-    for (i = 0; i < count; i++) {
-      if (hako_physical_string(key, names[i])) { known = 1; break; }
-    }
-    if (!known) return 0;
-    seen[i]++;
+  size_t i;
+  if (!(object && yyjson_is_obj(object) && yyjson_obj_size(object) == count)) return 0;
+  /* Schema widths are owned by their static key lists. Avoid a small fixed
+     bookkeeping array here: valid tagged field contracts have more than
+     eight keys, and exactness still needs to reject duplicates. */
+  for (i = 0; i < count; i++) {
+    yyjson_obj_iter iter = yyjson_obj_iter_with(object);
+    yyjson_val* key;
+    size_t matches = 0;
+    while ((key = yyjson_obj_iter_next(&iter)))
+      if (hako_physical_string(key, names[i])) matches++;
+    if (matches != 1) return 0;
   }
-  for (size_t i = 0; i < count; i++) if (seen[i] != 1) return 0;
   return 1;
 }
 

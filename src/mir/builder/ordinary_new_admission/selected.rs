@@ -311,12 +311,13 @@ pub(in crate::mir::builder) fn emit_root_home_unit_exit(
     )
 }
 
-/// One physically-emitting terminal ingress: the existing terminal Call or
-/// the readable-Map checked get. Both share the same Normal/Fault cleanup
-/// graph; the ledger entry kind keeps them apart.
+/// One physically-emitting terminal ingress. Every fallible terminal read
+/// shares the same Normal/Fault cleanup graph, while the ledger keeps its
+/// source-specific entry kind.
 pub(super) enum RootExitIngress {
     Call(terminal_call::Emission),
     MapGet { operation: InvokeOperation, stored: Option<Box<crate::mir::normal_callable_semantic_package::StoredMapGetReturnEmissionV1>> },
+    FieldGet { site: crate::mir::resolved_semantics::OwnedExprSiteV1, field: hakorune_mir_defs::CanonicalFieldRefV1, base: ValueId },
 }
 
 /// Exact physical graph evidence. The ledger wrapper retains its affine
@@ -365,6 +366,7 @@ fn emit_root_home_exit_payload(
             result: call.result,
         }),
         Some(RootExitIngress::MapGet { operation, .. }) => Some(operation.clone()),
+        Some(RootExitIngress::FieldGet { field, base, .. }) => Some(InvokeOperation::FieldGet { field: *field, base: *base }),
         None => None,
     };
     let argument_ends = match &ingress {
@@ -417,6 +419,24 @@ fn emit_root_home_exit_payload(
                 frame_binding,
                 origins,
                 bindings, stored,
+                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?,
+            )?;
+        }
+        (Some(RootExitIngress::FieldGet { site: read_site, field, base }), Some((invoke, projection))) => {
+            let frame = frame.ok_or_else(|| freeze("root-frame-missing"))?;
+            let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
+            ledger.record_terminal_checked_field_read(
+                &read_site, invoke.clone(), projection.clone(), base, field,
+            )?;
+            ledger.record_terminal_i64_field_return(owner, site, statement_result)?;
+            ledger.record_root_field_get_exit(
+                owner,
+                site,
+                invoke,
+                projection,
+                frame_binding,
+                origins,
+                bindings,
                 builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?,
             )?;
         }
@@ -509,9 +529,32 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
 
 pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
     builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     prepared: PreparedTerminalI64FieldReturnV1,
-) -> Result<ValueId, String> {
+) -> Result<crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1, String> {
+    if prepared.checked {
+        let result = builder.next_value_id();
+        builder.function_state.type_ctx.value_types.insert(result, MirType::Integer);
+        let value = emit_root_home_exit_payload(
+            builder,
+            state,
+            ledger,
+            prepared.site.owner(),
+            &prepared.return_site,
+            Some(result),
+            result,
+            Some(RootExitIngress::FieldGet {
+                site: prepared.site,
+                field: prepared.field,
+                base: prepared.base,
+            }),
+        )?;
+        return Ok(crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1 {
+            value,
+            root_home_exit_emitted: true,
+        });
+    }
     let block = builder
         .function_state
         .current_block
@@ -539,7 +582,10 @@ pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
         &prepared.return_site,
         result,
     )?;
-    Ok(result)
+    Ok(crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1 {
+        value: result,
+        root_home_exit_emitted: false,
+    })
 }
 
 /// Emit the bounded readable-Map terminal: one checked `get` read whose i64

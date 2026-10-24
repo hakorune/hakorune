@@ -654,8 +654,12 @@ where
         if let Some(value) = port.emit_terminal_scalar_literal_return(builder)? {
             return port.emit_root_home_exit(builder, value);
         }
-        if let Some(value) = port.emit_terminal_i64_field_return(builder)? {
-            return port.emit_root_home_exit(builder, value);
+        if let Some(result) = port.emit_terminal_i64_field_return(builder)? {
+            return if result.root_home_exit_emitted {
+                Ok(result.value)
+            } else {
+                port.emit_root_home_exit(builder, result.value)
+            };
         }
         let value = match &statement {
             ASTNode::Return { value: Some(_), .. } => {

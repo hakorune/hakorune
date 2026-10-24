@@ -108,7 +108,7 @@ impl OwnedArrayLocalProgress {
     }
     pub(super) fn end_plan(&self) -> Box<[(RootHomeReleaseSubjectV1, InvokeOperation)]> {
         let array = self.local().expect("installed owned Array");
-        let operation = if self.source.dynamic_carrier_source().is_some() {
+        let operation = if self.source.uses_dynamic_carrier_array_abi() {
             InvokeOperation::DynamicCarrierArray(CarrierArray::End { array })
         } else {
             InvokeOperation::OwnedArray(Array::End {
@@ -126,6 +126,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .values()
             .any(|r| r.owner() == site.owner() && r.construction() == site.site())
             || self.named_dynamic_carrier_array_source_v1(site).is_some()
+            || self.named_empty_transfer_array_source_v1(site).is_some()
     }
     pub(crate) fn owned_array_initializer_matches(
         &self,
@@ -169,15 +170,44 @@ impl OrdinaryNewClaimLedgerV1 {
         // obligations; loop-carried source rows must not gate the allocation.
         Some((source, prefix))
     }
-    pub(crate) fn prepare_dynamic_carrier_array_construction_v1(
+    fn named_empty_transfer_array_source_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<(
+        NamedArrayHolderSourceLoanV1,
+        crate::mir::resolved_semantics::home_new_prefix::CallerNewHomePrefixV1,
+    )> {
+        let flow = self
+            .completion_for_owner(site.owner())?
+            .cleanup()
+            .root_flow()?;
+        let mut sources = flow.named_arrays().iter().filter_map(|observation| match observation {
+            crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Initializer {
+                source, prefix,
+            } if source.binding().owner() == site.owner()
+                && source.construction() == *site
+                && source.is_exact_empty_transfer_v1()
+                && prefix.is_ok() => Some((source.clone(), prefix.as_ref().ok()?.clone())),
+            _ => None,
+        });
+        let (source, prefix) = sources.next()?;
+        if sources.next().is_some() {
+            return None;
+        }
+        Some((source, prefix))
+    }
+    pub(crate) fn prepare_named_array_construction_v1(
         &self,
         site: &OwnedExprSiteV1,
         relation: crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
     ) -> Result<Option<PreparedOwnedArrayConstructionV1>, String> {
-        let Some((source, _)) = self.named_dynamic_carrier_array_source_v1(site) else {
+        if let Some((source, _)) = self.named_dynamic_carrier_array_source_v1(site) {
+            return PreparedOwnedArrayConstructionV1::for_dynamic_carrier_v1(source, relation).map(Some);
+        }
+        let Some((source, _)) = self.named_empty_transfer_array_source_v1(site) else {
             return Ok(None);
         };
-        PreparedOwnedArrayConstructionV1::for_dynamic_carrier_v1(source, relation).map(Some)
+        PreparedOwnedArrayConstructionV1::for_empty_transfer_v1(source, relation).map(Some)
     }
     pub(crate) fn begin_owned_array_construction(
         &self,
@@ -190,6 +220,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 .is_none_or(|(original, _)| original != *carrier)
             {
                 return Err(freeze("owned-array-foreign-carrier-source"));
+            }
+        } else if let Some(empty_transfer) = source.empty_transfer_source() {
+            if self
+                .named_empty_transfer_array_source_v1(&site)
+                .is_none_or(|(original, _)| original != *empty_transfer)
+            {
+                return Err(freeze("owned-array-foreign-empty-transfer-source"));
             }
         } else {
             let recipes = self.array_holder_lifecycles.borrow();
@@ -230,6 +267,16 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             if Some(&original) != source.dynamic_carrier_source() {
                 return Err(freeze("owned-array-carrier-prefix-drift"));
+            }
+            prefix.prior_homes().to_vec()
+        } else if let Some(empty_transfer) = source.empty_transfer_source() {
+            let Some((original, prefix)) =
+                self.named_empty_transfer_array_source_v1(&source.site())
+            else {
+                return Err(freeze("owned-array-empty-transfer-prefix-missing"));
+            };
+            if &original != empty_transfer {
+                return Err(freeze("owned-array-empty-transfer-prefix-drift"));
             }
             prefix.prior_homes().to_vec()
         } else {
@@ -325,11 +372,11 @@ impl OrdinaryNewClaimLedgerV1 {
                     fault_landing,
                 } if matches!(operation,
                     InvokeOperation::OwnedArray(Array::Claim { array: actual, descriptor })
-                        if row.source.dynamic_carrier_source().is_none()
+                        if !row.source.uses_dynamic_carrier_array_abi()
                             && actual == array && *descriptor == row.descriptor())
                     || matches!(operation,
                     InvokeOperation::DynamicCarrierArray(CarrierArray::Claim { array: actual })
-                        if row.source.dynamic_carrier_source().is_some() && actual == array) =>
+                        if row.source.uses_dynamic_carrier_array_abi() && actual == array) =>
                 {
                     if claim
                         .replace((*block, *fault_frame, *normal_landing, *fault_landing))

@@ -131,6 +131,23 @@ impl OrdinaryNewClaimLedgerV1 {
                     stored.as_deref(),
                     CallValidationContextV1::Lowering(self),
                 ),
+                RootHomeExitEntry::FieldGet {
+                    local_bindings,
+                    invoke,
+                    projection,
+                    frame,
+                } => self.validate_field_get_entry(
+                    owner,
+                    exit,
+                    function,
+                    finishing,
+                    local_bindings,
+                    invoke,
+                    projection,
+                    frame,
+                    cleanup,
+                    CallValidationContextV1::Lowering(self),
+                ),
             };
         };
         let expected_kind = source.result();

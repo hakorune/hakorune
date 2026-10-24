@@ -20,7 +20,8 @@ impl EmittedFieldWriteRhsV1 {
         for node in &self.nodes {
             let rows = interval(function, node.entry, node.exit, post_rhs_prefix)?;
             match &node.proof {
-                FieldWriteRhsProofV1::Reference { .. } => {
+                FieldWriteRhsProofV1::Reference { .. }
+                | FieldWriteRhsProofV1::ArrayHomeRead { .. } => {
                     if node.entry != node.exit {
                         return Err(freeze("field-write-rhs/reference-effect"));
                     }

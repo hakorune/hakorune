@@ -85,6 +85,9 @@ impl NamedArrayHolderSourceLoanV1 {
         self.requirement.is_none() && self.append_only.as_ref().is_some_and(|source|
             source.has_appends() && source.reads().is_empty())
     }
+    pub(crate) fn is_exact_empty_transfer_v1(&self) -> bool {
+        self.requirement.is_none() && self.append_only.is_none() && self.empty_transfer.is_some()
+    }
     pub(crate) fn original_append_sites_v1(&self) -> Vec<OwnedExprSiteV1> {
         let rows = self.append_only.as_ref().map(|source| source.appends())
             .or_else(|| self.requirement.as_ref().map(|row| row.holder().appends()));

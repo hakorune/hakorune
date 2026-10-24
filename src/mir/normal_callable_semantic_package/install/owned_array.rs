@@ -47,6 +47,7 @@ pub(crate) struct PreparedOwnedArrayConstructionV1 {
 enum ArrayConstructionAuthorityV1 {
     Typed(Rc<super::super::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>),
     DynamicCarrier(super::super::NamedArrayHolderSourceLoanV1),
+    EmptyTransfer(super::super::NamedArrayHolderSourceLoanV1),
 }
 impl PreparedOwnedArrayConstructionV1 {
     pub(crate) fn site(&self) -> crate::mir::resolved_semantics::OwnedExprSiteV1 {
@@ -61,8 +62,9 @@ impl PreparedOwnedArrayConstructionV1 {
     pub(crate) fn descriptor(&self) -> crate::mir::instruction::OwnedArraySlotDescriptorV1 {
         match &self.authority {
             ArrayConstructionAuthorityV1::Typed(recipe) => recipe.slot_descriptor_v1(),
-            ArrayConstructionAuthorityV1::DynamicCarrier(_) => {
-                unreachable!("opaque carrier Array has no object descriptor")
+            ArrayConstructionAuthorityV1::DynamicCarrier(_)
+            | ArrayConstructionAuthorityV1::EmptyTransfer(_) => {
+                unreachable!("dynamic-profile Array has no object descriptor")
             }
         }
     }
@@ -79,7 +81,8 @@ impl PreparedOwnedArrayConstructionV1 {
     ) -> Option<&Rc<super::super::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>> {
         match &self.authority {
             ArrayConstructionAuthorityV1::Typed(recipe) => Some(recipe),
-            ArrayConstructionAuthorityV1::DynamicCarrier(_) => None,
+            ArrayConstructionAuthorityV1::DynamicCarrier(_)
+            | ArrayConstructionAuthorityV1::EmptyTransfer(_) => None,
         }
     }
     pub(crate) fn dynamic_carrier_source(
@@ -88,7 +91,20 @@ impl PreparedOwnedArrayConstructionV1 {
         match &self.authority {
             ArrayConstructionAuthorityV1::Typed(_) => None,
             ArrayConstructionAuthorityV1::DynamicCarrier(source) => Some(source),
+            ArrayConstructionAuthorityV1::EmptyTransfer(_) => None,
         }
+    }
+    pub(crate) fn empty_transfer_source(
+        &self,
+    ) -> Option<&super::super::NamedArrayHolderSourceLoanV1> {
+        match &self.authority {
+            ArrayConstructionAuthorityV1::EmptyTransfer(source) => Some(source),
+            ArrayConstructionAuthorityV1::Typed(_) | ArrayConstructionAuthorityV1::DynamicCarrier(_) => None,
+        }
+    }
+    pub(crate) fn uses_dynamic_carrier_array_abi(&self) -> bool {
+        matches!(&self.authority,
+            ArrayConstructionAuthorityV1::DynamicCarrier(_) | ArrayConstructionAuthorityV1::EmptyTransfer(_))
     }
     pub(crate) fn for_dynamic_carrier_v1(
         source: super::super::NamedArrayHolderSourceLoanV1,
@@ -106,6 +122,25 @@ impl PreparedOwnedArrayConstructionV1 {
         }
         Ok(Self {
             authority: ArrayConstructionAuthorityV1::DynamicCarrier(source),
+            relation,
+        })
+    }
+    pub(crate) fn for_empty_transfer_v1(
+        source: super::super::NamedArrayHolderSourceLoanV1,
+        relation: crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    ) -> Result<Self, String> {
+        if !source.is_exact_empty_transfer_v1()
+            || source.binding() != relation.binding()
+            || relation.initializer_site() != Some(source.construction_site())
+            || !matches!(
+                relation.declaration_site(),
+                crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. }
+            )
+        {
+            return Err("[freeze:contract][empty-array-transfer/construction-source-drift]".into());
+        }
+        Ok(Self {
+            authority: ArrayConstructionAuthorityV1::EmptyTransfer(source),
             relation,
         })
     }

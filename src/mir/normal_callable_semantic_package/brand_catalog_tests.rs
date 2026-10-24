@@ -220,7 +220,13 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let original = ledger.field_write_source_at_v1(transfer.frame().source().owner(),
         transfer.frame().source().root().statement()).unwrap().unwrap();
     original.validate_source(ledger).unwrap();
-    assert!(original.require_current_execution(super::CallValidationContextV1::Lowering(ledger)).is_err(), "source transfer grants no physical lease");
+    let mode = original.require_current_execution(super::CallValidationContextV1::Lowering(ledger)).unwrap();
+    let crate::mir::instruction::FieldSetModeV1::DynamicValue(contract) = mode else {
+        panic!("exact Array Home transfer selects a tagged dynamic-field write");
+    };
+    assert_eq!(contract.intent(), crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize);
+    assert_eq!(contract.value_tag(), crate::mir::instruction::DynamicFieldValueTagV1::Array);
+    assert_eq!(contract.residence(), crate::mir::instruction::DynamicFieldResidenceV1::EmptyArrayHome);
     for replacement in ["local alias = items holder.items = alias", "items.push(1) holder.items = items",
         "holder.items = items holder.items = items", "holder.count = items",
         "holder.items = items holder.items.push(1)",

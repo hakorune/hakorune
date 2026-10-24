@@ -260,7 +260,10 @@ impl<'a> Inventory<'a> {
                 }
             }
             if self.arrays.contains(&root) {
-                if !state.outer.contains(&root) && !state.holders.contains_key(&root) {
+                if !state.outer.contains(&root)
+                    && !state.holders.contains_key(&root)
+                    && !state.carrier_holders.contains(&root)
+                {
                     return Err("owned-array-holder-not-live");
                 }
                 let allowed = matches!(instruction, MirInstruction::Copy { src, .. } if *src == value)
@@ -270,6 +273,16 @@ impl<'a> Inventory<'a> {
                     || matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::DynamicCarrierArray(op), .. } if op.array() == value)
                     || matches!(instruction, MirInstruction::Return { value: Some(returned), .. }
                         if *returned == value && self.carrier_arrays.contains(&root))
+                    || matches!(instruction, MirInstruction::Invoke {
+                        operation: InvokeOperation::FieldSet {
+                            mode: crate::mir::instruction::FieldSetModeV1::DynamicValue(contract),
+                            value: stored, ..
+                        }, ..
+                    } if *stored == value && self.carrier_arrays.contains(&root)
+                        && contract.intent() == crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize
+                        && contract.value_tag() == crate::mir::instruction::DynamicFieldValueTagV1::Array
+                        && contract.residence() == crate::mir::instruction::DynamicFieldResidenceV1::EmptyArrayHome
+                        && state.carrier_holders.contains(&root))
                     || matches!(instruction, MirInstruction::ArrayResidenceRelease { value: released } if *released == value && state.outer.contains(&root));
                 if !allowed {
                     if crate::config::env::builder_mir_compile_trace() {
@@ -479,6 +492,26 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         normal.carrier_holders.remove(&array);
                         state.carrier_holders.remove(&array);
                     }
+                }
+            } else if let InvokeOperation::FieldSet {
+                mode: crate::mir::instruction::FieldSetModeV1::DynamicValue(contract),
+                value,
+                ..
+            } = operation {
+                if contract.intent() == crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize
+                    && contract.value_tag() == crate::mir::instruction::DynamicFieldValueTagV1::Array
+                    && contract.residence() == crate::mir::instruction::DynamicFieldResidenceV1::EmptyArrayHome
+                {
+                    let array = row.origin(*value);
+                    if !row.carrier_arrays.contains(&array)
+                        || !state.carrier_holders.contains(&array)
+                    {
+                        return Err("empty-array-field-transfer-not-live");
+                    }
+                    // The checked slot takes the Home only on Normal. The
+                    // untouched `state` is the Invoke Fault edge and keeps
+                    // the array available to its caller cleanup.
+                    normal.carrier_holders.remove(&array);
                 }
             }
             if let Some(result) = row.results.get(&id) {

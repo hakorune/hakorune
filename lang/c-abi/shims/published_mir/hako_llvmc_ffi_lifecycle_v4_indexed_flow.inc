@@ -410,7 +410,27 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
       yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");
-      if (lv4_is(op, "transaction", "dynamic_i64_initialize") ||
+      if (lv4_is(op, "transaction", "dynamic_value_initialize")) {
+        /* The source-selected tag and residence travel separately. An
+           empty Array Home may move into a Dynamic slot on Normal from a
+           root or ordinary function; Fault retains it for existing cleanup. */
+        int root = lv4_is(fn->function, "role", "root_i64") ||
+            lv4_is(fn->function, "role", "root_unit");
+        hako_lv4_value* array_home = value ? lv4_owned_array_root(fn, value->id) : NULL;
+        int array_value = value && lv4_birth_array_value(fn, value);
+        int array_live = value && (lv4_owned_array_holder_live(fn, value->id, state) ||
+            lv4_carrier_array_holder_live(fn, value->id, state));
+        int base_live = base && lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state, lv4_u(op, "object_id"), 1);
+        int dynamic_slot = lv4_birth_dynamic(in, op);
+        int tag_ok = lv4_is(op, "value_tag", "array") && lv4_is(op, "residence", "empty_array_home") && yyjson_is_null(yyjson_obj_get(op, "residence_object_id"));
+        int range_ok = lv4_is(range, "kind", "none");
+        if ((!ordinary && !root) || birth || faulted || !value || value->kind != LV4_HANDLE ||
+            value->origin < 0 || !array_home || !array_value || !array_live || !base || !base_live ||
+            !dynamic_slot || !tag_ok || !range_ok) return 0;
+        /* The slot takes the Home only on Normal. Fault keeps the candidate
+           live so the caller's existing cleanup still owns it. */
+        normal[array_home->origin] = 0;
+      } else if (lv4_is(op, "transaction", "dynamic_i64_initialize") ||
           lv4_is(op, "transaction", "dynamic_map_initialize") || lv4_is(op, "transaction", "dynamic_text_initialize")) {
         int text = lv4_is(op, "transaction", "dynamic_text_initialize");
         int map = lv4_is(op, "transaction", "dynamic_map_initialize");
