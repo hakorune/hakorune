@@ -69,7 +69,7 @@ pub(super) fn observe<E>(
                         if text {
                             if !prefix_known || !local_call_flow::stage_expression_actuals_v1(
                                 input, statement, frame.source(), locals, prefix_known,
-                                homes, local_calls, fields, actuals,
+                                homes, local_calls, path_calls, fields, actuals,
                             )? { return Ok(false); }
                             let purpose = OwnedExprSiteV1::new(input.owner(), assignment.value_site().clone());
                             let Some(evaluation) = super::expression_plan::qualify_text_evaluation_v1(

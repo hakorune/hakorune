@@ -102,7 +102,8 @@ pub(super) fn observe<E>(
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
     homes: &[LiveHomeV1],
-    local_calls: &[LocalCallObservationV1],
+    local_calls: &mut Vec<LocalCallObservationV1>,
+    path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
         LocalFieldReadDemandV1,
@@ -323,6 +324,13 @@ pub(super) fn observe<E>(
                 )
             },
             &mut |plan| {
+                let Some(frame) = plan.argument_frame() else { return false; };
+                // Preflight before completing the pending actual or installing
+                // the frame: a same-site disagreement must publish neither.
+                if frame.evaluation().calls().iter().any(|call| local_calls.iter()
+                    .any(|old| old.site() == call.site() && old != call)) {
+                    return false;
+                }
                 let mut candidate = locals.expression_installation();
                 if !candidate.approve(plan) {
                     return false;
@@ -374,10 +382,19 @@ pub(super) fn observe<E>(
             // the pending Call now owns for this current Home walk.
             let mut installation = installation.expect("approved argument installation");
             assert!(
-                installation.retain_approved_argument(frame),
+                installation.retain_approved_argument(std::rc::Rc::clone(&frame)),
                 "completed argument must match the approved Home frame"
             );
             installation.commit();
+            // Only the canonical committed argument contributes calls to this
+            // reached path, just like Print/initializer evaluation. No second
+            // call inventory or speculative observation is published.
+            for call in frame.evaluation().calls() {
+                path_calls.insert(call.site().clone());
+                if !local_calls.iter().any(|old| old.site() == call.site()) {
+                    local_calls.push(call.clone());
+                }
+            }
         }
     }
     Ok(())
@@ -414,7 +431,8 @@ pub(crate) fn observe_for_test<E>(
         &locals,
         prefix_known,
         &[],
-        &[],
+        &mut Vec::new(),
+        &mut BTreeSet::new(),
         fields,
         port,
     )?;

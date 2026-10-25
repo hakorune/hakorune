@@ -423,6 +423,7 @@ pub(super) fn observe_if_statement<'a, E>(
             prefix_known,
             homes,
             local_calls,
+            path_calls,
             local_field_read,
             borrowed_actuals,
         )?;

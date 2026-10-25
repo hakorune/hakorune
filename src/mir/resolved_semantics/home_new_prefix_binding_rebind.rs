@@ -53,7 +53,7 @@ pub(super) fn observe<E>(
     };
     let owned = OwnedExprSiteV1::new(input.owner(), assignment.value_site().clone());
     local_call_flow::stage_argument_expressions(
-        input, statement, &owned, locals, known, homes, calls, fields, actuals,
+        input, statement, &owned, locals, known, homes, calls, path_calls, fields, actuals,
     )?;
     let Some(prepared) = expression_plan::prepare_expression_calls_v1(
         &source,

@@ -15,6 +15,7 @@ pub(in crate::mir::builder) fn emit(
     ledger: &OrdinaryNewClaimLedgerV1,
     frame: Rc<CheckedPrintExpressionFrameV1>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<(), String> {
     ledger.validate_print_expression_source_v1(&frame)?;
     let owner = frame.source().owner();
@@ -25,7 +26,7 @@ pub(in crate::mir::builder) fn emit(
         }, purpose_acquisition: _,
     } = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
-            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, None,
+            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver, static_source,
         ),
     )?;
     let mut writer = RawRootGraphWriterV1;

@@ -54,6 +54,7 @@ pub(super) fn observe<E>(
         prefix_known,
         homes,
         local_calls,
+        path_calls,
         fields,
         actuals,
     )? {

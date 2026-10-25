@@ -154,11 +154,19 @@ impl RawInvocationChildPortV1<'_, '_> {
         if self.callable_owner_v1() != Some(frame.source().owner()) || frame.source().nodes()[0].site().node() != &node {
             return Err("[freeze:contract][print-expression/value-source-drift]".into());
         }
-        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or_else(|| "[freeze:contract][print-expression/ledger-missing]".to_owned())?;
-        let state = self.callable_ledger.as_ref().ok_or_else(|| "[freeze:contract][print-expression/state-missing]".to_owned())?;
+        let ledger = self.ordinary_new_claim_ledger.clone().ok_or_else(|| "[freeze:contract][print-expression/ledger-missing]".to_owned())?;
+        let state = self.callable_ledger.clone().ok_or_else(|| "[freeze:contract][print-expression/state-missing]".to_owned())?;
         let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
-        super::ordinary_new_admission::selected::print_expression::emit(builder, &mut state.borrow_mut(), ledger, frame,
-            &consume_receiver)?;
+        let port = std::cell::RefCell::new(self);
+        let issue_static = |builder: &mut MirBuilder,
+            original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+            evaluation: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+            observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+            super::static_result_publication_ingress::take_expression_static_packet_v1(
+                &mut port.borrow_mut(), builder, original, evaluation, observation, &ledger)
+        };
+        super::ordinary_new_admission::selected::print_expression::emit(builder, &mut state.borrow_mut(), &ledger, frame,
+            &consume_receiver, Some(&issue_static))?;
         // Print has a genuine Unit statement result, outside the expression's
         // Continue boundary. Never invent an SSA String for inline StaticText.
         super::emission::constant::emit_void(builder)

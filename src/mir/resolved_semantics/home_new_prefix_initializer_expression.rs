@@ -286,7 +286,7 @@ pub(crate) fn observe_for_test<E>(
             initializer.initializer_site().unwrap().clone(),
         );
         local_call_flow::stage_argument_expressions(
-            input, &statement, &root, &locals, known, &homes, &calls, fields, port,
+            input, &statement, &root, &locals, known, &homes, &mut calls, &mut path, fields, port,
         )?;
         if !observe(
             input,

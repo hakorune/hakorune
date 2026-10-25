@@ -480,7 +480,7 @@ pub(super) fn observe_loop<E>(
     for call in frame.calls() {
         let root = OwnedExprSiteV1::new(input.owner(), call.site().site().clone());
         super::local_call_flow::stage_argument_expressions(
-            input, &statement, &root, locals, true, homes, local_calls, fields, actuals,
+            input, &statement, &root, locals, true, homes, local_calls, path_calls, fields, actuals,
         )?;
     }
     Ok(Some(frame))

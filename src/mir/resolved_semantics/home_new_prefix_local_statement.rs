@@ -141,6 +141,7 @@ pub(super) fn observe<'a, E>(
             unavailable.is_none(),
             homes,
             local_calls,
+            path_calls,
             local_field_read,
             borrowed_actuals,
         )?;

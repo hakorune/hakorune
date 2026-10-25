@@ -269,7 +269,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
     prior_homes: &[LiveHomeV1],
-    local_calls: &[LocalCallObservationV1],
+    local_calls: &mut Vec<LocalCallObservationV1>,
+    path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(
         &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
         crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
@@ -300,6 +301,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
                 prefix_known,
                 prior_homes,
                 local_calls,
+                path_calls,
                 fields,
                 port,
             )?;
@@ -317,6 +319,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
                 prefix_known,
                 prior_homes,
                 local_calls,
+                path_calls,
                 fields,
                 port,
             )?;
@@ -335,7 +338,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_argument_expres
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
     homes: &[LiveHomeV1],
-    local_calls: &[LocalCallObservationV1],
+    local_calls: &mut Vec<LocalCallObservationV1>,
+    path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(
         &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
         crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
@@ -356,6 +360,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_argument_expres
         prefix_known,
         homes,
         local_calls,
+        path_calls,
         fields,
         port,
     )
@@ -370,7 +375,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_expression_actu
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
     homes: &[LiveHomeV1],
-    local_calls: &[LocalCallObservationV1],
+    local_calls: &mut Vec<LocalCallObservationV1>,
+    path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(
         &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
         crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
@@ -412,6 +418,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_expression_actu
         prefix_known,
         homes,
         local_calls,
+        path_calls,
         fields,
         port,
     )?;
@@ -425,7 +432,8 @@ fn stage_argument_roots_v1<E>(
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
     homes: &[LiveHomeV1],
-    local_calls: &[LocalCallObservationV1],
+    local_calls: &mut Vec<LocalCallObservationV1>,
+    path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
     fields: &mut impl FnMut(
         &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
         crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
@@ -473,6 +481,7 @@ fn stage_argument_roots_v1<E>(
                 prefix_known,
                 homes,
                 local_calls,
+                path_calls,
                 fields,
                 port,
             )?;
