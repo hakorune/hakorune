@@ -460,6 +460,24 @@ pub unsafe extern "C" fn map_field_borrow(
     }
 }
 
+/// Snapshot one checked Map field without exposing its native placement.
+/// The source retains the parent/field through this synchronous operation;
+/// Normal publishes an independent Text Array with its own End obligation.
+#[export_name = "nyash.object.checked_map_field_keys_v1"]
+pub unsafe extern "C" fn map_field_keys(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, out: *mut i64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() || !separate(&[
+        (frame as usize, size_of::<FaultFrame>()),
+        (out as usize, size_of::<i64>()),
+    ]) { return Status::InvalidContract as u32; }
+    let mut map = std::ptr::null_mut();
+    let status = unsafe { map_field_borrow(frame, profile, site, handle, type_id, slot, &mut map) };
+    if status != Status::Normal as u32 { return status; }
+    unsafe { super::checked_map::keys(frame, site, map, out) }
+}
+
 /// One synchronous presence read: receiver field precedes decoding the Text
 /// key. The Map placement never escapes and neither input gains an End lease.
 /// Source/final consumers still owe exact receiver and key evaluation order.

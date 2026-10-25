@@ -32,6 +32,7 @@ static uint32_t field_text_end(void *frame, uint64_t site, const NyrtDynamicFiel
   return nyrt_string_checked_end_v1(frame,site,(uint64_t)value->value,value->token);
 }
 extern void nyrt_handle_release_h(int64_t);
+extern int64_t array_length(int64_t) __asm__("nyash.array.slot_len_h");
 static uint32_t field_array_end(void *frame, uint64_t site, const NyrtDynamicFieldValueV1 *value) {
   (void)frame; (void)site;
   nyrt_handle_release_h(value->value);
@@ -124,6 +125,11 @@ int main(void) {
   assert(nyrt_map_outcome_dispose_v1(out)==0);
   assert(nyrt_map_key_dispose_v1(key)==0);
   complete_map=map;
+  int64_t snapshot=-1;
+  assert(nyrt_map_checked_keys_v1(frame,7,map,NULL)==2);
+  assert(nyrt_map_checked_keys_v1(frame,7,map,(int64_t*)map)==2);
+  assert(nyrt_map_checked_keys_v1(frame,7,map,&snapshot)==0 && snapshot>0);
+  assert(array_length(snapshot)==2);
   assert(nyrt_map_checked_end_v1(frame,7,map)==1);
   assert(complete_map_ends==1 && ((NyrtFaultFrameV1*)frame)->primary.reason==101);
   assert(((NyrtFaultFrameV1*)frame)->primary.site==7 && ((NyrtFaultFrameV1*)frame)->suppressed_len==0);
@@ -133,6 +139,11 @@ int main(void) {
   assert(nyrt_object_checked_field_get_i64_v1(1,child,931,0,&value)==2 && value==91);
   assert(nyrt_map_checked_has_v1(frame,7,map,text,sizeof(text),&value)==2 && value==91);
   assert(nyrt_map_checked_borrow_indexed_v1(frame,1,7,map,text,sizeof(text),931,&value)==2 && value==91);
+  assert(nyrt_map_checked_keys_v1(frame,7,map,&value)==2 && value==91);
+  assert(array_length(snapshot)==2); /* snapshot outlives Map, owns no payload */
+  assert(nyrt_array_checked_text_end_v1(frame,8,snapshot)==0);
+  assert(nyrt_array_checked_text_end_v1(frame,8,snapshot)==2);
+  assert(((NyrtFaultFrameV1*)frame)->primary.site==7); /* cleanup keeps Fault */
   assert(nyrt_map_storage_dispose_v1(map)==0);
   assert(nyrt_fault_frame_dispose_v1(frame)==0);
   }
@@ -299,6 +310,12 @@ int main(void) {
     assert(nyrt_object_checked_map_field_borrow_v1(frame,1,190,field_parent,940,0,&stable)==0 && stable && stable!=map);
     assert(nyrt_map_checked_has_v1(frame,190,stable,(const uint8_t*)"child",5,&value)==0 && value==1);
     assert(nyrt_map_checked_borrow_indexed_v1(frame,1,190,stable,(const uint8_t*)"child",5,932,&value)==0 && value==child);
+    int64_t field_snapshot=777;
+    assert(nyrt_object_checked_map_field_keys_v1(frame,2,190,field_parent,940,0,&field_snapshot)==2 && field_snapshot==777);
+    assert(nyrt_object_checked_map_field_keys_v1(frame,1,190,field_parent,999,0,&field_snapshot)==1 && field_snapshot==777);
+    assert(nyrt_object_checked_map_field_keys_v1(frame,1,190,field_parent,940,0,NULL)==2);
+    assert(nyrt_object_checked_map_field_keys_v1(frame,1,190,field_parent,940,0,&field_snapshot)==0);
+    assert(array_length(field_snapshot)==1);
     /* Fused field presence borrows both static and leased Text; it publishes
      * no Map view and does not acquire or consume the input Text pair. */
     NyrtStringOperandV1 map_key={NYRT_STRING_STATIC_TEXT_V1,0,(const uint8_t*)"child",5,0,0,0};
@@ -404,6 +421,8 @@ int main(void) {
     assert(nyrt_object_field_outcome_end_v1(frame,190,field_outcome)==2);
     assert(nyrt_object_field_outcome_dispose_v1(field_outcome)==0);
     assert(nyrt_object_checked_dynamic_get_v1(frame,1,190,field_parent,940,0,NYRT_FIELD_I64_V1,&seen)==0 && seen.value==42);
+    assert(array_length(field_snapshot)==1); /* replacement ended the Map */
+    assert(nyrt_array_checked_text_end_v1(frame,190,field_snapshot)==0);
     value=777;
     assert(nyrt_object_checked_field_get_i64_v1(1,child,932,0,&value)==2 && value==777);
     assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);

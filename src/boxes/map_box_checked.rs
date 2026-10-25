@@ -386,6 +386,26 @@ impl CheckedMap {
         Ok(state.entries.contains_key(key))
     }
 
+    /// Independent public-text snapshot, ordered like the native Map facade.
+    /// No payload is projected, cloned or consumed. Release the Map guard
+    /// before the caller constructs/publishes an Array or runs any cleanup.
+    pub fn keys_snapshot(&self) -> Result<Vec<String>, CheckedMapError> {
+        let mut keys = {
+            let state = self.state.lock().map_err(|_| CheckedMapError::StorageUnavailable)?;
+            if state.phase != Phase::Live { return Err(CheckedMapError::InvalidState); }
+            let mut keys = Vec::new();
+            keys.try_reserve_exact(state.entries.len())
+                .map_err(|_| CheckedMapError::CapacityUnavailable)?;
+            for key in state.entries.keys() {
+                keys.push(key.public_text());
+            }
+            keys
+        };
+        // Unstable sort needs no scratch allocation; the keys are unique.
+        keys.sort_unstable();
+        Ok(keys)
+    }
+
     /// Snapshot the identity of an owned indexed residence without cloning or
     /// moving it. A plain borrowed-handle payload is deliberately not indexed.
     pub fn read_indexed(&self, key: &MapKeyDomain) -> Result<Option<(i64, i64)>, CheckedMapError> {

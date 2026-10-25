@@ -279,6 +279,11 @@ uint32_t nyrt_object_checked_map_field_borrow_v1(void *, uint32_t, uint64_t,
 uint32_t nyrt_object_checked_map_field_has_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.object.checked_map_field_has_v1");
+/* Same checked field borrow, then independent keys snapshot. Normal alone
+ * publishes a Text Array, ended with array.checked_text_end_v1 by its caller. */
+uint32_t nyrt_object_checked_map_field_keys_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, int64_t *)
+    __asm__("nyash.object.checked_map_field_keys_v1");
 /* Same field/Text admission, then class-qualified indexed borrow. Only missing
  * returns Normal/0; present wrong kind/class Faults. Normal returns a nonowning
  * handle, with no claim/End authority. Source retains exact holder/key/slot
@@ -425,6 +430,12 @@ uint32_t nyrt_map_checked_get_i64_v1(void *, uint64_t, void *, const uint8_t *, 
  * and holder live; instantaneous native identity validation is not that proof.
  * Indexed borrow supports only profile1 (SafeMutex) and positive type ids. */
 uint32_t nyrt_map_checked_has_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t *) __asm__("nyash.map.checked_has_v1");
+/* Checked native Map pointer -> fresh, sorted public-text keys Array handle.
+ * Map/payloads are unchanged. Normal alone publishes out; the source-selected
+ * caller owns the independent Array and ends it with checked_text_end_v1.
+ * This never accepts a legacy MapBox host handle. */
+uint32_t nyrt_map_checked_keys_v1(void *, uint64_t, void *, int64_t *)
+    __asm__("nyash.map.checked_keys_v1");
 uint32_t nyrt_map_checked_borrow_indexed_v1(void *, uint32_t, uint64_t, void *, const uint8_t *, size_t, int64_t, int64_t *) __asm__("nyash.map.checked_borrow_indexed_v1");
 /* T2-alpha borrowed read descriptors. Storage is caller-owned and fresh; the
  * descriptors carry no End authority and are consumed only by the next read.

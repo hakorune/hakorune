@@ -254,10 +254,19 @@ fn preflight_preserves_ready_but_attempt_fault_consumes_key() {
 }
 #[test]
 fn utf8_numeric_domains_and_child_fault_cancellation() {
-    let (mut f, mut k) = (Slot::<FaultFrame>::new(), Slot::<KeyStorage>::new());
+    let (mut f, mut k, mut m) = (
+        Slot::<FaultFrame>::new(), Slot::<KeyStorage>::new(), Slot::<MapStorage>::new(),
+    );
     unsafe {
-        let (f, k) = (f.ptr(), k.ptr());
+        let (f, k, m) = (f.ptr(), k.ptr(), m.ptr());
         assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        let mut snapshot = -1;
+        assert_eq!(reads::keys(f, 1, m, &mut snapshot), 2);
+        assert_eq!(snapshot, -1);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        assert_eq!(reads::keys(f, 1, m, &mut snapshot), 0);
+        assert_eq!(super::super::checked_array::end_text(f, 1, snapshot), 0);
         for text in [
             "",
             "0",
@@ -278,6 +287,10 @@ fn utf8_numeric_domains_and_child_fault_cancellation() {
                 _ => panic!(),
             }
             drop(key);
+            admit::<CheckedMap>(m, MAP_TAG).unwrap()
+                .install(MapKeyDomain::from_text(text), CheckedMapPayload::I64(42))
+                .map_err(|failure| failure.error).unwrap()
+                .end(&mut MapEndContext::unbound()).unwrap();
             assert_eq!(key_prepare(f, 2, k, text.as_ptr(), text.len()), 2);
             // Same native cancellation used by the child-Fault continuation.
             assert_eq!(key_dispose(k), 0);
@@ -286,6 +299,25 @@ fn utf8_numeric_domains_and_child_fault_cancellation() {
         assert_eq!(key_prepare(f, 3, k, b"\xff".as_ptr(), 1), 2);
         assert_eq!(key_prepare(f, 3, k, std::ptr::null(), 0), 0);
         assert_eq!(key_dispose(k), 0);
+        assert_eq!(reads::keys(f, 4, m, std::ptr::null_mut()), 2);
+        assert_eq!(reads::keys(f, 4, m, m.cast()), 2);
+        assert_eq!(reads::keys(f, 4, m, &mut snapshot), 0);
+        // Snapshot stays independent after the Map ends. End of this Text
+        // residence also preserves a previous Fault and rejects a second End.
+        assert_eq!(map_end(f, 5, m), 0);
+        let object = nyash_rust::runtime::host_handles::get(snapshot as u64).unwrap();
+        let array = object.as_any().downcast_ref::<nyash_rust::boxes::array::ArrayBox>().unwrap();
+        let keys = array.with_items_read(|values| values.iter()
+            .map(|value| value.to_string_box().value).collect::<Vec<_>>());
+        assert_eq!(keys, ["", "+1", "-0", "-9223372036854775808", "0", "01", "a\0b", "猫"]);
+        let mut rejected = -1;
+        assert_eq!(reads::keys(f, 6, m, &mut rejected), 2);
+        assert_eq!(rejected, -1);
+        assert_eq!(super::super::record_static(f, 101, 7, 0, 0), 1);
+        assert_eq!(super::super::checked_array::end_text(f, 8, snapshot), 0);
+        assert_eq!((*f.cast::<FaultFrame>()).primary.site, 7);
+        assert_eq!(super::super::checked_array::end_text(f, 9, snapshot), 2);
+        assert_eq!(map_dispose(m), 0);
         assert_eq!(super::super::frame_dispose(f), 0);
     }
 }

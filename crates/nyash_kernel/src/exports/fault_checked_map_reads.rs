@@ -1,6 +1,50 @@
-//! Checked Map scalar, presence and indexed-borrow reads share admission.
-//! No read acquires Home; source holder/slot support is a separate final proof.
+//! Checked Map reads. Scalar/presence/indexed reads acquire no Home; keys
+//! publishes an independent Text Array only on Normal. Source ownership and
+//! holder/slot support remain separate compiler proofs.
 use super::*;
+
+/// Snapshot the checked Map's keys into a fresh, unclaimed Text Array.
+/// This consumes no Map/payload and publishes no alias into Map storage.
+/// The caller owns exactly one Array residence on Normal and ends it with
+/// array.checked_text_end_v1. Fault/InvalidContract never write the output.
+/// As with Array construction, fatal allocator termination does not return.
+#[export_name = "nyash.map.checked_keys_v1"]
+pub unsafe extern "C" fn keys(
+    frame: *mut c_void, site: u64, map_ptr: *mut c_void, out: *mut i64,
+) -> u32 {
+    if !out.is_aligned() || !separate(&[
+        (frame as usize, size_of::<FaultFrame>()),
+        (map_ptr as usize, size_of::<MapStorage>()),
+        (out as usize, size_of::<i64>()),
+    ]) || !unsafe { valid_frame(frame) } {
+        return Status::InvalidContract as u32;
+    }
+    let map = match unsafe { admit::<CheckedMap>(map_ptr, MAP_TAG) } {
+        Ok(map) => map, Err(status) => return status as u32,
+    };
+    let keys = match map.keys_snapshot() {
+        Ok(keys) => keys,
+        Err(error) => return unsafe { read_error(frame, site, error) },
+    };
+    let mut elements: Vec<Box<dyn nyash_rust::box_trait::NyashBox>> = Vec::new();
+    if elements.try_reserve_exact(keys.len()).is_err() {
+        return unsafe { failed(frame, site, 100) };
+    }
+    for key in keys {
+        elements.push(Box::new(nyash_rust::box_trait::StringBox::new(key)));
+    }
+    let array = nyash_rust::boxes::array::ArrayBox::new_with_elements(elements);
+    let raw = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(array));
+    let handle = match i64::try_from(raw) {
+        Ok(handle) if handle > 0 => handle,
+        _ => {
+            nyash_rust::runtime::host_handles::drop_handle(raw);
+            return Status::InvalidContract as u32;
+        }
+    };
+    unsafe { out.write(handle) };
+    Status::Normal as u32
+}
 
 unsafe fn admit_read<'a>(
     frame: *mut c_void, site: u64, map_ptr: *mut c_void,

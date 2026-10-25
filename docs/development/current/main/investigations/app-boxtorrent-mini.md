@@ -7,7 +7,7 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 ## 現在地
 - 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。現在のV4 FFIを使用。
 - canonical smokeの停止はowner73 Body12 Initializer、`chunks_before_final_release = store.chunkCount()` の `borrowed-result/source-not-i64`。chunkCount本体は `me.chunks.keys().length()`。releaseFrom/Store.releaseの数値依存は進んだが、EXE未生成。
-- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、463.098秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
+- 直前の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、463.098秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
 
 ## 接続済み
 - 唯一のattributed Plain Birth providerと同じwriter inventory/非weak未注釈fieldを照合。providerのclassと保存形式を分離し、DynamicResidenceのreceiverはchecked ObjectFieldBorrowで読む。typed field、異class/multiple/hidden writerの拒否は保持。
@@ -28,11 +28,14 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 
 ## 次の一手
 1. chunkCountの元inner keys/outer length・同じMap fieldをCore source/結果式へ接続する。keysは一度だけ評価し、一時Arrayをouter lengthのNormal/Fault双方で終了する。keys自体のFaultではArrayは未取得。Map.lenへの書換えはしない。
-2. canonical lifecycle-v4 Mapはnative checked-pointerで、legacy keys_hのhost-handle ABIとは異なる。既存MapKeys/ArrayLen契約とplain Array lifecycle ownerにnative keys snapshot/length/releaseを接続する。Text keysへobject-child専用OwnedArrayのObjectIdを捏造しない。
+2. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。次は既存MapKeys/ArrayLen契約から同じ操作を発行し、plain Text Arrayの取得・length・Normal/Fault Endを接続する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
 3. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
-- 今回CLI `cargo quick-build-fast`49.02秒、`cargo quick-test-fast --no-run`79秒PASS。既存source outcomes3/scalar pending7/object返却5/stored receiver6は全PASS。boxtorrent smokeは上記新停止でEXE未達。新規test関数/fixtureファイル/checker/for_testなし。
+- native keys snapshot: Live Mapの同じgateでpublic-textキーを複製し、gate外で辞書順に整列して独立Text ArrayをNormal時だけ公開。fieldも同じ操作へ接続し、既存checked_text_endで終了する。source/Core/物理packetはまだ未接続。
+- `cargo test --profile quick -p nyash_kernel --no-default-features --features lifecycle-core --lib --config profile.quick.package.nyash-rust.opt-level=0 fault::checked_map::tests::` は15件PASS（build48.50秒）。`cargo quick-build-lifecycle-fast` PASS（初回7.33秒、field追加後2.46秒）。実archive連結の既存checked_map_runtime_abi_test.cはprofile1/2 PASS（Mapはprofile1）。
+- snapshotの順序・数値/UTF-8キー・Map終了後の独立性・未公開out保持・Fault中End/二重End拒否は既存証拠で未検証の新境界なので、既存UTF-8ケースとC ABI検証だけを拡張。test関数/fixtureファイル/checkerの追加なし。固定suiteはこの未接続runtime API追加では再実行していない。
+- 直前CLI `cargo quick-build-fast`49.02秒、`cargo quick-test-fast --no-run`79秒PASS。既存source outcomes3/scalar pending7/object返却5/stored receiver6は全PASS。boxtorrent smokeは上記新停止でEXE未達。新規test関数/fixtureファイル/checker/for_testなし。
 - 型/Return/receiver originの独立した権限分離を既存consumer証拠だけでは守れないため、既存Map検証の7ケースへ最小receiver probe/assertionを追加。Directが普通のCall loanを持たず元initializerを再照合すること、異class/escape/clearの拒否を確認。test関数/ケース数は増やしていない。
 - Textの繰返しHome再観測テスト1件は `argument-frame-current-drift` で赤。同日の作業前既存test binaryでも同じ行/拒否を再現したが、対応revisionは未確認なので未完のまま保持し、現在のgreenとは数えない。
 - 結果昇格の挙動不変なowner移動は別commit。新moduleを増やさず、profile817行を800行未満へ戻した。テストで検出した移動時import欠落も訂正済み。
