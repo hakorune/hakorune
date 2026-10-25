@@ -68,14 +68,23 @@ impl NamedArrayEmissionCollectorV1 {
         sources: Vec<super::FieldArrayAppendSourceLoanV1>,
     ) -> Result<(), String> {
         let expected = self.expected.as_ref().map_err(Clone::clone)?;
-        if expected.values().filter(|row| matches!(row, Expected::FieldAppend(_))).count() != sources.len() {
+        let expected_count = expected.values().filter(|row| matches!(row, Expected::FieldAppend(_))).count();
+        if expected_count != sources.len() {
             return Err(fault("read-source-domain-drift"));
         }
+        let mut seen = std::collections::BTreeSet::new();
         for source in sources {
             let frame = source.text_frame().ok_or_else(|| fault("checked-source-mismatch"))?;
-            let Some(Expected::FieldAppend(original)) = expected.get(&(frame.source().caller().clone(), source.site().site().clone()))
+            let key = (frame.source().caller().clone(), source.site().site().clone());
+            if !seen.insert(key.clone()) {
+                return Err(fault("read-source-domain-drift"));
+            }
+            let Some(Expected::FieldAppend(original)) = expected.get(&key)
                 else { return Err(fault("read-source-domain-drift")) };
             if !original.same_source(&source) { return Err(fault("read-original-source-drift")); }
+        }
+        if seen.len() != expected_count {
+            return Err(fault("read-source-domain-drift"));
         }
         Ok(())
     }

@@ -81,7 +81,7 @@ pub(super) fn observe<E>(
         destination,
         &mut |site| locals.static_text_reference(site),
         &mut |site| locals.text_reference(site),
-        &mut |site| locals.loop_text_reference_v1(site),
+        &mut |site| locals.loop_text_reference_v1(site, homes),
         &mut |site| locals.dynamic_invocation_result_reference_v1(site),
         &mut |site| locals.loop_dynamic_reference_v1(site),
         &mut |site| {

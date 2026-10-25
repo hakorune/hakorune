@@ -197,6 +197,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     for declaration in walk_triggers::text_completion_order_v1(
         &borrowed_formal_source,
         &borrowed_i64_results,
+        &lexical_source_targets,
         selected,
         app_main.as_ref(),
         batch,

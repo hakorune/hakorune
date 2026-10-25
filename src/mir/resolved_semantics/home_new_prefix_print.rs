@@ -66,7 +66,7 @@ pub(super) fn observe<E>(
         homes,
         &mut |site| locals.static_text_reference(site),
         &mut |site| locals.text_reference(site),
-        &mut |site| locals.loop_text_reference_v1(site),
+        &mut |site| locals.loop_text_reference_v1(site, homes),
         &mut |site| locals.current_scalar_read_v1(site, local_calls),
         &mut |site| super::field_read::expression_field_read_request(input, &source, site, locals),
         &mut |site| {

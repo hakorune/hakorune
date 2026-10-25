@@ -97,9 +97,18 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
   int text = lv4_is(operand, "kind", "static_text");
   int owned = lv4_is(operand, "kind", "owned_string");
   int dynamic = lv4_is(operand, "kind", "tagged_dynamic");
+  int carrier = lv4_is(operand, "kind", "dynamic_carrier");
   uint32_t value = lv4_u(operand, "value");
   if (lv4_is(operand, "kind", "text_operand")) {
     fprintf(f, "  store %%nyrt.string.operand %%text%u, ptr %%strarg%u_%u, align 8\n", value,b,role);
+    return;
+  }
+  if (carrier) {
+    fprintf(f,
+        "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 5, 0\n"
+        "  %%str%u_%u_1 = insertvalue %%nyrt.string.operand %%str%u_%u_0, i64 %%v%u, 5\n"
+        "  store %%nyrt.string.operand %%str%u_%u_1, ptr %%strarg%u_%u, align 8\n",
+        b,role,b,role,b,role,value,b,role,b,role);
     return;
   }
   if (dynamic) {

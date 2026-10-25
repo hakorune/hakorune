@@ -807,6 +807,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             let MirInstruction::Invoke {
                 operation,
                 fault_frame: actual,
+                normal_landing,
                 fault_landing,
                 ..
             } = instruction
@@ -895,6 +896,66 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     Some(fault_frame),
                 )?);
                 live.push(ExpressionOwnedTemporaryV1::DynamicCarrier(dst));
+                continue;
+            }
+            let dynamic_result = match operation {
+                InvokeOperation::DynamicArrayGet { .. } => {
+                    let mut values = self.frame.cores().iter().filter_map(|(node, core)| {
+                        let expected = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(
+                            core, self.values,
+                        ).ok()?;
+                        if &expected != operation { return None; }
+                        self.values.get(*node).and_then(Option::as_ref)
+                            .and_then(|value| value.as_operand().ok())
+                            .and_then(|value| match value {
+                                crate::mir::instruction::StringInvokeOperand::DynamicCarrier(value) => Some(*value),
+                                _ => None,
+                            })
+                    });
+                    let value = values.next();
+                    if values.next().is_some() { return Err(freeze("dynamic-expression/core-source-ambiguous")); }
+                    value
+                }
+                InvokeOperation::DynamicCarrierSubI64 { carrier, rhs } => {
+                    let mut values = self.frame.operations().iter().filter_map(|loan| {
+                        let node = loan.node();
+                        let value = self.values.get(node).and_then(Option::as_ref)
+                            .and_then(|value| value.as_operand().ok())?;
+                        let crate::mir::instruction::StringInvokeOperand::DynamicCarrier(result) = value else {
+                            return None;
+                        };
+                        self.dynamic_sub_original_v1(node, *result, *carrier, *rhs).ok().map(|_| *result)
+                    });
+                    let value = values.next();
+                    if values.next().is_some() { return Err(freeze("dynamic-expression/sub-source-ambiguous")); }
+                    value
+                }
+                _ => None,
+            };
+            if matches!(operation,
+                InvokeOperation::DynamicArrayGet { .. } | InvokeOperation::DynamicCarrierSubI64 { .. })
+                && dynamic_result.is_none() {
+                return Err(freeze("dynamic-expression/owned-source-missing"));
+            }
+            if let Some(value) = dynamic_result {
+                let mut projections = ordered.iter().filter(|(_, row)| matches!(row,
+                    MirInstruction::InvokeNormalResult { invoke_block, dst }
+                        if *invoke_block == *id && *dst == value));
+                let Some((normal_block, _)) = projections.next() else {
+                    return Err(freeze("dynamic-expression/core-result-projection"));
+                };
+                if projections.next().is_some() || *normal_block != *normal_landing
+                    || live.contains(&ExpressionOwnedTemporaryV1::DynamicCarrier(value)) {
+                    return Err(freeze("dynamic-expression/core-result-lifecycle"));
+                }
+                covered.insert(*id);
+                covered.extend(paths::pending_operations(
+                    function,
+                    *fault_landing,
+                    &end_sequence(&live),
+                    Some(fault_frame),
+                )?);
+                live.push(ExpressionOwnedTemporaryV1::DynamicCarrier(value));
                 continue;
             }
             covered.insert(*id);

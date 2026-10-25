@@ -54,6 +54,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     StringPrint,
     StringEnd,
     DynamicInvocation,
+    DynamicArrayGet,
     DynamicCarrierInteger,
     DynamicCarrierSubI64,
     DynamicCarrierEnd,
@@ -121,6 +122,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                     | crate::mir::instruction::StringInvokeOperation::EndIfOwned { .. } => Self::StringEnd,
             }),
             InvokeOperation::DynamicInvocation(_) => Some(Self::DynamicInvocation),
+            InvokeOperation::DynamicArrayGet { .. } => Some(Self::DynamicArrayGet),
             InvokeOperation::DynamicCarrierInteger { .. } => Some(Self::DynamicCarrierInteger),
             InvokeOperation::DynamicCarrierSubI64 { .. } => Some(Self::DynamicCarrierSubI64),
             InvokeOperation::DynamicCarrierEnd { .. } => Some(Self::DynamicCarrierEnd),
@@ -669,6 +671,7 @@ fn referenced_objects(
                         | InvokeOperation::Map(_)
                         | InvokeOperation::String(_)
                         | InvokeOperation::DynamicInvocation(_)
+                        | InvokeOperation::DynamicArrayGet { .. }
                         | InvokeOperation::DynamicCarrierInteger { .. }
                         | InvokeOperation::DynamicCarrierSubI64 { .. }
                         | InvokeOperation::DynamicCarrierEnd { .. }

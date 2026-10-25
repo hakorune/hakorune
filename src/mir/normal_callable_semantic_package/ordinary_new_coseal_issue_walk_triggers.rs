@@ -312,6 +312,7 @@ pub(super) fn typed_static_walk_owners_v1(
 pub(super) fn text_completion_order_v1<'a>(
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
     results: &super::super::lexical_instance_call::BorrowedResultCohortV1,
+    lexical_targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
     batch: &'a crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
@@ -400,6 +401,67 @@ pub(super) fn text_completion_order_v1<'a>(
         if caller.batch_slot() != callee.batch_slot() {
             let children = dependencies.entry(caller.batch_slot()).or_default();
             if !children.contains(&callee.batch_slot()) { children.push(callee.batch_slot()); }
+        }
+    }
+    // A selected lexical result consumer also needs the callee's already
+    // issued completion row. This edge only schedules existing source owners;
+    // it does not classify the result or grant call execution.
+    if let Ok(lexical_targets) = lexical_targets {
+        for row in lexical_targets {
+            let Ok(Some(target)) = row.as_ref() else { continue };
+            if !target.uses_existing_borrowed_result_v1()
+                || target.target().namespace()
+                    != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            {
+                continue;
+            }
+            let Some(caller) = declarations
+                .iter()
+                .find(|row| row.owner() == target.call_site().owner())
+            else {
+                continue;
+            };
+            let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                target.target().clone(),
+            );
+            if selected.batch_slot(&key) != Some(target.target_batch_slot()) {
+                continue;
+            }
+            let Some(callee) = declarations
+                .iter()
+                .find(|row| row.batch_slot() == target.target_batch_slot())
+            else {
+                continue;
+            };
+            if callee.owner() != target.callee_owner()
+                || !selected
+                    .identity_for_batch_slot(callee.batch_slot())
+                    .is_some_and(|identity| identity.same_as(callee.identity()))
+            {
+                continue;
+            }
+            let selected_caller = selected
+                .key_for_batch_slot(caller.batch_slot())
+                .is_some_and(|key| {
+                    selected.batch_slot(&key) == Some(caller.batch_slot())
+                        && selected
+                            .identity_for_batch_slot(caller.batch_slot())
+                            .is_some_and(|identity| identity.same_as(caller.identity()))
+                });
+            let checked_main = main.is_some_and(|main| {
+                main.caller_source_ref_v1()
+                    .checked_caller_key(batch, contracts, caller.owner(), caller.batch_slot())
+                    .is_ok()
+            });
+            if !(selected_caller || checked_main) {
+                continue;
+            }
+            if caller.batch_slot() != callee.batch_slot() {
+                let children = dependencies.entry(caller.batch_slot()).or_default();
+                if !children.contains(&callee.batch_slot()) {
+                    children.push(callee.batch_slot());
+                }
+            }
         }
     }
     fn visit(

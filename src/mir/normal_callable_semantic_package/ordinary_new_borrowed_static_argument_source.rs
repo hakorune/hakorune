@@ -493,12 +493,51 @@ impl ArgumentExpressionSourceLoanV1 {
                 && self.plan.nodes().get(*node).is_some_and(|node| node.site() == site)))
     }
     pub(crate) fn signed_operand_contains(&self, site: &SourceExprSiteV1) -> bool {
-        self.i64_result && self.plan.nodes().iter().any(|node| node.site() == site)
-            || self.calls.values().filter_map(ArgumentMethodSourceV1::core).any(|receipt| { let core = receipt.source();
-                self.plan.nodes().iter().any(|node| node.site() == site)
-                    && core.source().arguments().iter().zip(core.target().parameters()).any(|(arg, kind)|
-                        *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter
-                            && site.node().segments().starts_with(arg.site().node().segments())) })
+        if !self.plan.nodes().iter().any(|node| node.site() == site) {
+            return false;
+        }
+        let site_path = site.node().segments();
+        let result_input = self.i64_result
+            && self
+                .plan
+                .nodes_outside_calls()
+                .any(|(_, node)| node.site() == site);
+        let core_input = self
+            .calls
+            .values()
+            .filter_map(ArgumentMethodSourceV1::core)
+            .any(|receipt| {
+                let core = receipt.source();
+                let call_site = core.source().site();
+                core.source()
+                    .arguments()
+                    .iter()
+                    .zip(core.target().parameters())
+                    .any(|(argument, parameter)| {
+                        if *parameter
+                            != crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter
+                        {
+                            return false;
+                        }
+                        let operand_path = argument.site().node().segments();
+                        site_path.starts_with(operand_path)
+                            && !self.plan.nodes().iter().any(|node| {
+                                matches!(
+                                    node.source(),
+                                    crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
+                                        | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::DirectCall
+                                ) && node.site() != call_site
+                                    && node
+                                        .site()
+                                        .node()
+                                        .segments()
+                                        .starts_with(operand_path)
+                                    && site_path
+                                        .starts_with(node.site().node().segments())
+                            })
+                    })
+            });
+        result_input || core_input
     }
     pub(crate) fn dynamic_operand_contains(&self, site: &SourceExprSiteV1) -> bool {
         self.calls

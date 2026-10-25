@@ -96,6 +96,35 @@ impl BranchNormalTextSourceV1 {
             }
         })
     }
+    pub(crate) fn is_loop_header_or_owned_residence_tree_v1(
+        &self,
+        basis: &Rc<LoopHeaderValueBasisV1>,
+    ) -> bool {
+        self.binding == basis.binding
+            && self.corroborates_original()
+            && self.incoming.iter().all(|(_, _, producer)| match producer {
+                SourceLoopTextProducerV1::Header(actual) => Rc::ptr_eq(actual, basis),
+                SourceLoopTextProducerV1::Residence(acquisition) => {
+                    acquisition.binding() == basis.binding
+                        && acquisition.is_text_residence()
+                        && acquisition.owns_root()
+                }
+                SourceLoopTextProducerV1::BranchNormal(source) => {
+                    source.is_loop_header_or_owned_residence_tree_v1(basis)
+                }
+                _ => false,
+            })
+            && self.contains_loop_header_v1(basis)
+    }
+    fn contains_loop_header_v1(&self, basis: &Rc<LoopHeaderValueBasisV1>) -> bool {
+        self.incoming.iter().any(|(_, _, producer)| match producer {
+            SourceLoopTextProducerV1::Header(actual) => Rc::ptr_eq(actual, basis),
+            SourceLoopTextProducerV1::BranchNormal(source) => {
+                source.contains_loop_header_v1(basis)
+            }
+            _ => false,
+        })
+    }
     pub(crate) fn corroborates_original(&self) -> bool {
         self.flow.is_complete() && self.flow.owner() == self.binding.owner()
             && matches!(self.flow.origin(self.value), Some(SourceValueOriginV1::Join {
@@ -363,6 +392,7 @@ impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn loop_text_reference_v1(
         &self,
         site: &SourceExprSiteV1,
+        homes: &[LiveHomeV1],
     ) -> Option<LoopTextReadV1> {
         if let Some(read) = self.loop_header_text_reference_v1(site) {
             return Some(read);
@@ -373,6 +403,33 @@ impl PrefixLocalFlow<'_> {
         };
         let flow = function.expression_source().value_flow()?;
         let value = flow.read(site, binding)?;
+        let Some(active) = self.source_loop.as_ref() else {
+            return self.loop_after_terminal_return_text_reference_v1(
+                site, binding, value, flow, homes,
+            );
+        };
+        let prefix = active.source.site().node().segments();
+        let segments = site.node().segments();
+        if !segments.starts_with(prefix)
+            || !matches!(
+                segments.get(prefix.len()),
+                Some(crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_))
+            )
+        {
+            return None;
+        }
+        if homes.iter().any(|home| home.binding() == binding) {
+            return None;
+        }
+        if let Some(StoredLocal::TextBranch { source }) = self.locals.get(&binding) {
+            if source.matches_source(flow, binding, value) {
+                return Some(LoopTextReadV1 {
+                    read: site.clone(),
+                    value,
+                    producer: SourceLoopTextProducerV1::BranchNormal(Rc::clone(source)),
+                });
+            }
+        }
         let StoredLocal::LoopText { product } = self.locals.get(&binding)? else {
             return None;
         };

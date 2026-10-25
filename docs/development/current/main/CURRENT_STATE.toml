@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner61 seal Body0 Value text-expression-execution-pending; callee owner65 Body4 LoopBody1 ids.get(i) source/Loop completion pending; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner73 Body9 Initializer(0): borrowed-instance/opaque-source-unsupported, ordinal0 actual=Unknown; EXE not emitted"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; final CLI still stops at owner61 seal Body0 text-expression-execution-pending. Owner65 LoopBody1 out+ids.get(i) still lacks checked execution.
-Fixed suite9/11 in477.347s on final CLI: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
-Count/Get share original Array provider/alias evidence through seeds/SUM/ClosedCore. Get index must be signed-only; DynamicToCaller lends no payload class. Exact Integer Element retains its owner. Core argument correspondence accepts Get only for OpaqueHandle, with no execution grant.
-CLI42s and focused11 PASS, including the corrected Array-return regression. Only the existing Core case was minimally expanded; no test functions/files/checkers, runtime ABI or .hako changes. Remaining reds are retained in card.
-Next: close all mutations with the same append/collector owner before selecting Text-copy Get, acquire an independent self-contained carrier and End it on every path. Loop/Return, exact SSA Array/Count, Text RHS/discard and required R6/R7/finite-product closeout remain incomplete.
+APP-boxtorrent-mini remains selected; owner73 Body9 Initializer(0) stops at `borrowed-instance/opaque-source-unsupported`, ordinal0 actual=Unknown; no EXE emitted.
+Quick build passed in36.65s (1,878 existing warnings); explicit `target/quick/hakorune` smoke reran and stopped at the same Body9 boundary, with no EXE.
+Shared handoff reports fixed suite6/11; this worktree did not rerun it. Mimalloc-lite is at slot37 Body5; binary-trees has two final field-read verification failures.
+The WIP is one ArrayGet/carrier/cleanup vertical slice across MIR, loop, and C runtime; no `.hako`, test, fixture, or checker changes. Temporary diagnostics are absent.
+Next: resume from the selected app's Body9 source/result path, preserving carrier ownership and cleanup; then recheck the app before suite acceptance.
 """
 next_design_card = "none"
 next_design_card_path = "none"

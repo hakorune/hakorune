@@ -176,7 +176,10 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                     }
                 }
                 CallableResultEvidenceV1::SameModuleStatic { .. } => {
-                    OriginalMethodResultResolutionV1::Unknown
+                    OriginalMethodResultResolutionV1::Existing {
+                        proof: self.proof(input, method, inventory),
+                        operands: None,
+                    }
                 }
             };
         }
@@ -330,40 +333,48 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             .claims
             .call_result_source_arc_v1(&self.caller, method.site());
         if let Some(target) = self.claims.source_target(&self.caller, method.site()) {
-            let mut rows = inventory?
-                .source_rows_v1()
-                .filter_map(|row| match &row.source {
-                    BorrowedIncomingSourceV1::Static(source)
-                        if row.call.owner() == input.owner()
-                            && row.call.site() == method.site() =>
-                    {
-                        Some(source)
-                    }
-                    _ => None,
-                });
-            let source = rows.next()?;
-            if rows.next().is_some()
-                || source.caller() != &self.caller
-                || source.target() != target.target()
-                || !Arc::ptr_eq(source.method_source(), method)
-                || match (source.call_result_evidence(), callrow) {
-                    (Some(a), Some(b)) => !std::ptr::eq(a, b.as_ref()),
-                    (None, None) => false,
-                    _ => true,
-                }
+            if callrow.is_some_and(|row| !matches!(row.evidence(),
+                CallableResultEvidenceV1::SameModuleStatic { source_target, .. }
+                    if source_target == target))
             {
                 return None;
             }
-            return Some(OriginalMethodResultProofV1::Static(Rc::clone(source)));
+            if let Some(inventory) = inventory {
+                let mut rows = inventory
+                    .source_rows_v1()
+                    .filter(|row| row.call.owner() == input.owner() && row.call.site() == method.site());
+                if let Some(incoming) = rows.next() {
+                    if rows.next().is_some() {
+                        return None;
+                    }
+                    let BorrowedIncomingSourceV1::Static(source) = &incoming.source else {
+                        return None;
+                    };
+                    if source.caller() != &self.caller
+                        || source.target() != target.target()
+                        || !Arc::ptr_eq(source.method_source(), method)
+                        || match (source.call_result_evidence(), callrow) {
+                            (Some(evidence), Some(result)) => !std::ptr::eq(evidence, result.as_ref()),
+                            (None, None) => source.source_result().representation().is_none(),
+                            _ => true,
+                        }
+                    {
+                        return None;
+                    }
+                    return Some(OriginalMethodResultProofV1::Static(Rc::clone(source)));
+                }
+            }
+            return callrow.map(|row| OriginalMethodResultProofV1::CallResult(Arc::clone(row)));
         }
         let row = callrow?;
-        if !matches!(
-            row.evidence(),
-            CallableResultEvidenceV1::CoreStringMethod { .. }
-        ) {
-            return None;
+        match row.evidence() {
+            CallableResultEvidenceV1::CoreStringMethod { .. } => {
+                Some(OriginalMethodResultProofV1::Core(Arc::clone(row)))
+            }
+            CallableResultEvidenceV1::SameModuleStatic { .. } => {
+                Some(OriginalMethodResultProofV1::CallResult(Arc::clone(row)))
+            }
         }
-        Some(OriginalMethodResultProofV1::Core(Arc::clone(row)))
     }
 }
 
@@ -498,6 +509,7 @@ impl OriginalCoreOperandRequestV1 {
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 enum OriginalMethodResultProofV1 {
     Static(Rc<StaticIncomingSourceV1>),
+    CallResult(Arc<OwnedCallableResultCallSiteV1>),
     Core(Arc<OwnedCallableResultCallSiteV1>),
 }
 impl OriginalMethodResultProofV1 {
@@ -506,6 +518,7 @@ impl OriginalMethodResultProofV1 {
     ) -> Option<VerifiedCallableResultRepresentationV1> {
         match self {
             Self::Static(source) => source.source_result().representation(),
+            Self::CallResult(row) => Some(row.result_representation()),
             Self::Core(row) => Some(row.result_representation()),
         }
     }
@@ -517,6 +530,13 @@ impl OriginalMethodResultProofV1 {
                 .source_result()
                 .required_i64_arguments()
                 .unwrap_or(&[]),
+            Self::CallResult(row) => match row.evidence() {
+                CallableResultEvidenceV1::SameModuleStatic {
+                    callee_required_i64_arguments,
+                    ..
+                } => callee_required_i64_arguments,
+                CallableResultEvidenceV1::CoreStringMethod { .. } => &[],
+            },
             Self::Core(_) => &[],
         }
     }

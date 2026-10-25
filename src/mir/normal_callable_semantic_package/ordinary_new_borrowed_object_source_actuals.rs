@@ -96,8 +96,10 @@ pub(super) fn selected_original_object_phase_v1(
     let Some(target) = prepared.object_source_target_at_v1(call)? else {
         return Ok(false);
     };
-    if prepared.original_signed_expression_argument_request_v1(call)
-        && prepared.source_incoming.has_object_input_callee_v1(target)
+    let object_producer_request = prepared.original_object_producer_callee_v1(target)?;
+    if prepared.source_incoming.has_object_input_callee_v1(target)
+        && (prepared.original_signed_expression_argument_request_v1(call)
+            || object_producer_request)
     {
         return Ok(true);
     }

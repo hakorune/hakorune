@@ -93,6 +93,10 @@ pub(super) fn encode_invoke(
             }),
             required_site(diagnostic_site, true)?,
         )?,
+        InvokeOperation::DynamicArrayGet { array, index } => with_site(
+            json!({ "kind": "dynamic_array_get", "array": value(array), "index": value(index) }),
+            required_site(diagnostic_site, true)?,
+        )?,
         InvokeOperation::DynamicCarrierInteger { carrier } => with_site(
             json!({"kind":"dynamic_carrier_integer", "carrier":value(carrier)}),
             required_site(diagnostic_site, true)?,

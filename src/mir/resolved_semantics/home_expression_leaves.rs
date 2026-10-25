@@ -119,6 +119,73 @@ impl PreparedExpressionCallsV1 {
                     ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
                         if object == node.site())))
     }
+    /// Reference leaves inside a Core I64 argument get their scalar class from
+    /// that exact input contract. A call's result class never flows backward
+    /// into its receiver or arguments.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn i64_core_input_reference_nodes_v1(
+        &self,
+    ) -> Option<BTreeSet<usize>> {
+        use crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1 as Parameter;
+
+        let mut references = BTreeSet::new();
+        for (&core_node, core) in &self.cores {
+            if !core.matches_plan(&self.source, core_node) {
+                return None;
+            }
+            let original = core.source().source();
+            let parameters = core.source().target().parameters();
+            if original.arguments().len() != parameters.len() {
+                return None;
+            }
+            for (argument, parameter) in original.arguments().iter().zip(parameters) {
+                if *parameter != Parameter::I64Parameter
+                    || core.dynamic_i64_operand_contains(argument.site())
+                {
+                    continue;
+                }
+                let argument_path = argument.site().node().segments();
+                if self
+                    .source
+                    .nodes()
+                    .iter()
+                    .filter(|node| node.site() == argument.site())
+                    .count()
+                    != 1
+                {
+                    return None;
+                }
+                for (node_index, node) in self.source.nodes().iter().enumerate() {
+                    if !matches!(
+                        node.source(),
+                        ExpressionNodeSourceV1::Reference(
+                            crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_)
+                        )
+                    ) {
+                        continue;
+                    }
+                    let node_path = node.site().node().segments();
+                    if !node_path.starts_with(argument_path) {
+                        continue;
+                    }
+                    let nested_call_owns_node = self.source.nodes().iter().any(|candidate| {
+                        if !matches!(
+                            candidate.source(),
+                            ExpressionNodeSourceV1::MethodCall
+                                | ExpressionNodeSourceV1::DirectCall
+                        ) {
+                            return false;
+                        }
+                        let call_path = candidate.site().node().segments();
+                        call_path.starts_with(argument_path) && node_path.starts_with(call_path)
+                    });
+                    if !nested_call_owns_node && !references.insert(node_index) {
+                        return None;
+                    }
+                }
+            }
+        }
+        Some(references)
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn seed_reference(
         &mut self,
         node: usize,
@@ -340,6 +407,28 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 Leaf::Value(Class::I64)
             };
             fields.push(request);
+        }
+    }
+    // A checked ArrayBox access owns the receiver's Identity class. The source
+    // row ties a local alias or field path to the same Array provider; do not
+    // route that receiver through scalar or Text reference classification.
+    for core in cores.values() {
+        let Some(array) = core.field_array_access_v1() else {
+            continue;
+        };
+        if !core.matches_plan(source, core.node())
+            || !array.matches_expression_receiver_v1(source)
+        {
+            return Ok(None);
+        }
+        let receiver = core.source().source().receiver_site();
+        let Some(index) = source.nodes().iter().position(|node| node.site() == receiver) else {
+            return Ok(None);
+        };
+        match leaves[index] {
+            Leaf::Unresolved => leaves[index] = Leaf::Identity,
+            Leaf::Identity => {}
+            _ => return Ok(None),
         }
     }
     // A Core Text receiver read is a distinct source contract from the

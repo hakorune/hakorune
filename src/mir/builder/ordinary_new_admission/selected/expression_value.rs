@@ -14,6 +14,13 @@ use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
+#[path = "expression_value/cleanup.rs"]
+mod cleanup;
+pub(super) use cleanup::{
+    bool_condition_temporary_operations_v1, finish_dynamic_initializer_continuation,
+    pending_operations,
+};
+
 /// No independent binding group is published here. Every retained original
 /// receipt and live temporary moves to the checked terminal consumer together.
 pub(super) struct EmittedExpressionValueV1 {
@@ -31,6 +38,8 @@ pub(super) struct EmittedExpressionBodyV1 {
     pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     pub(super) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     pub(super) acquired: Vec<(usize, ValueId)>,
+    pub(super) dynamic_carriers: Vec<(usize, ValueId)>,
+    pub(super) temporary_order: Vec<usize>,
     pub(super) homes: Vec<InvokeOperation>,
     pub(super) fault_frame: ValueId,
     pub(super) entry: Binding,
@@ -247,6 +256,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let mut values: Vec<Option<EvaluatedExpressionValueV1>> = vec![None; source.nodes().len()];
     let mut field_outputs: Vec<Option<ValueId>> = vec![None; source.nodes().len()];
     let mut acquired = Vec::new();
+    let mut dynamic_carriers = Vec::new();
+    let mut temporary_order = Vec::new();
     let mut calls = Vec::new();
     let mut dynamic_calls = Vec::new();
     for &index in &order {
@@ -267,7 +278,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             let descriptor = ledger.bind_result_path_receiver_v1(&site, base)?;
             let value = if descriptor.requires_checked_field_read_v1() {
                 let normal = writer.reserve_block(builder)?;
-                let pending = pending_operations(&acquired, &homes);
+                let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                 let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
                     normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
                 let (value, pair) = builder.append_checked_received_field_read_v1(base, &descriptor,
@@ -318,7 +329,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let text = matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_));
                 let value = if source.requires_checked_field_read_v1() {
                     let normal = writer.reserve_block(builder)?;
-                    let pending = pending_operations(&acquired, &homes);
+                    let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
                         normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
                     let (value, pair) = builder.append_checked_received_field_read_v1(base, &source,
@@ -333,7 +344,11 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     bindings.push(binding);
                     value
                 };
-                if text { acquired.push((index, value)); Operand::OwnedString(value) }
+                if text {
+                    acquired.push((index, value));
+                    temporary_order.push(index);
+                    Operand::OwnedString(value)
+                }
                 else { Operand::NormalInteger(value) }
             }
             Node::Reference(_) => {
@@ -342,7 +357,23 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             }
             Node::MethodCall if frame.cores().contains_key(&index) => {
                 let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;
-                let value = emit_string_value(builder, &mut writer, operation, index, fault_frame, &mut acquired, &homes, &mut bindings)?;
+                let value = match operation {
+                    InvokeOperation::String(operation) => emit_string_value(builder, &mut writer, operation,
+                        index, fault_frame, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
+                        &homes, &mut bindings)?,
+                    operation @ InvokeOperation::DynamicArrayGet { .. } => {
+                        let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
+                        let (value, result, _) = emit_scalar_operation_with_pending_v1(
+                            builder, &mut writer, operation, fault_frame, &pending, &mut bindings)?;
+                        if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
+                            return Err(freeze("expression-core/array-get-result"));
+                        }
+                        dynamic_carriers.push((index, value));
+                        temporary_order.push(index);
+                        Operand::DynamicCarrier(value)
+                    }
+                    _ => return Err(freeze("expression-core/operation-domain")),
+                };
                 state.complete_expression_core_source_v1(&frame.cores()[&index])?;
                 value
             }
@@ -358,7 +389,11 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                             return Err(freeze("print-expression/call-source-missing"));
                         }
                         calls.push(packet);
-                        if owned { acquired.push((index, value)); Operand::OwnedString(value) }
+                        if owned {
+                            acquired.push((index, value));
+                            temporary_order.push(index);
+                            Operand::OwnedString(value)
+                        }
                         else { Operand::NormalInteger(value) }
                     }
                     ExpressionCallEmissionV1::Dynamic(packet) => {
@@ -368,6 +403,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         }
                         let value = packet.value();
                         dynamic_calls.push(packet);
+                        dynamic_carriers.push((index, value));
+                        temporary_order.push(index);
                         Operand::DynamicCarrier(value)
                     }
                 }
@@ -413,7 +450,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     }
                     ResultKind::OwnedStringValue => {
                         emit_string_value(builder, &mut writer, Operation::Add { left, right }, index,
-                            fault_frame, &mut acquired, &homes, &mut bindings)?
+                            fault_frame, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
+                            &homes, &mut bindings)?
                     }
                     ResultKind::SelfContainedNonAliasingDynamicCarrier => {
                         let envelope = operation.single_envelope().ok_or_else(|| freeze("print-expression/operator-envelope"))?;
@@ -438,7 +476,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                                 Operand::Dynamic(value)
                             }
                             OperatorFamily::Sub if frame.owned_result_nodes().contains(&index) => {
-                                let pending = pending_operations(&acquired, &homes);
+                                let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                                 let (value, result, _) = emit_scalar_operation_with_pending_v1(
                                     builder,
                                     &mut writer,
@@ -450,6 +488,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                                 if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
                                     return Err(freeze("print-expression/dynamic-sub-result"));
                                 }
+                                dynamic_carriers.push((index, value));
+                                temporary_order.push(index);
                                 Operand::DynamicCarrier(value)
                             }
                             _ => return Err(freeze("print-expression/dynamic-operator-contract")),
@@ -464,60 +504,24 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     }
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
-    Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings })
+    Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls, path_reads, reference_reads, acquired,
+        dynamic_carriers, temporary_order, homes, fault_frame, entry, bindings })
 }
-
-pub(super) fn pending_operations(acquired: &[(usize, ValueId)], homes: &[InvokeOperation]) -> Vec<InvokeOperation> {
-    acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value }))
-        .chain(homes.iter().cloned()).collect()
-}
-
-pub(super) fn bool_condition_temporary_operations_v1(
-    frame: &CheckedExpressionEvaluationV1,
-    comparison: usize,
-    body: &EmittedExpressionBodyV1,
-) -> Result<Vec<InvokeOperation>, String> {
-    let order = frame.scalar_invoke_input_order_v1(comparison)
-        .ok_or_else(|| freeze("bool-condition/comparison-input-order"))?;
-    let expected: std::collections::BTreeSet<_> = order.iter().copied()
-        .filter(|node| frame.owned_result_nodes().contains(node)).collect();
-    let mut operations = std::collections::BTreeMap::new();
-    for &(node, value) in &body.acquired {
-        if !expected.contains(&node)
-            || body.values.get(node).and_then(Option::as_ref)
-                .and_then(|value| value.as_operand().ok()) != Some(&Operand::OwnedString(value))
-            || operations.insert(node, InvokeOperation::String(Operation::End { value })).is_some()
-        {
-            return Err(freeze("bool-condition/string-temporary-coverage"));
-        }
-    }
-    for packet in &body.dynamic_calls {
-        let call = packet.source();
-        let node = frame.source().nodes().iter().position(|row| row.site() == call.site().site())
-            .ok_or_else(|| freeze("bool-condition/dynamic-call-node"))?;
-        if !expected.contains(&node)
-            || !call.dynamic_invocation_result_lifecycle_v1().is_some()
-            || !frame.calls().iter().any(|original| original == call)
-            || body.values.get(node).and_then(Option::as_ref)
-                .and_then(|value| value.as_operand().ok()) != Some(&Operand::DynamicCarrier(packet.value()))
-            || operations.insert(node, InvokeOperation::DynamicCarrierEnd { carrier: packet.value() }).is_some()
-        {
-            return Err(freeze("bool-condition/dynamic-temporary-coverage"));
-        }
-    }
-    if operations.keys().copied().collect::<std::collections::BTreeSet<_>>() != expected {
-        return Err(freeze("bool-condition/owned-temporary-coverage"));
-    }
-    Ok(order.into_iter().rev().filter_map(|node| operations.remove(&node)).collect())
-}
-
 
 fn emit_string_value(
     builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: Operation,
     node: usize, fault_frame: ValueId, acquired: &mut Vec<(usize, ValueId)>,
+    dynamic_carriers: &[(usize, ValueId)], temporary_order: &mut Vec<usize>,
     homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<Operand, String> {
-    let (value, result) = emit_string_operation_v1(builder, writer, operation, node, fault_frame, acquired, homes, bindings)?;
+    let before = acquired.len();
+    let (value, result) = emit_string_operation_v1(builder, writer, operation, node, fault_frame,
+        acquired, dynamic_carriers, temporary_order, homes, bindings)?;
+    if acquired.len() == before + 1 {
+        temporary_order.push(node);
+    } else if acquired.len() != before {
+        return Err(freeze("expression/string-acquisition-count"));
+    }
     match result {
         crate::mir::instruction::InvokeNormalResultKind::OwnedString => Ok(Operand::OwnedString(value)),
         crate::mir::instruction::InvokeNormalResultKind::I64 => Ok(Operand::NormalInteger(value)),
@@ -530,9 +534,10 @@ fn emit_string_value(
 pub(super) fn emit_string_operation_v1(
     builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: Operation,
     node: usize, fault_frame: ValueId, acquired: &mut Vec<(usize, ValueId)>,
+    dynamic_carriers: &[(usize, ValueId)], temporary_order: &[usize],
     homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind), String> {
-    let pending = pending_operations(acquired, homes);
+    let pending = pending_operations(acquired, dynamic_carriers, temporary_order, homes)?;
     let (value, result, _) = emit_scalar_operation_with_pending_v1(builder, writer, InvokeOperation::String(operation),
         fault_frame, &pending, bindings)?;
     if result == crate::mir::instruction::InvokeNormalResultKind::OwnedString { acquired.push((node, value)); }
@@ -638,7 +643,8 @@ pub(super) fn materialize_text_root(
     if !expression.value.as_operand()?.is_text() || expression.purpose_acquisition.is_some() {
         return Err(freeze("rebind-expression/materialize-domain"));
     }
-    let pending = pending_operations(&expression.body.acquired, &expression.body.homes);
+    let pending = pending_operations(&expression.body.acquired, &expression.body.dynamic_carriers,
+        &expression.body.temporary_order, &expression.body.homes)?;
     let (value, _, pair) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
         InvokeOperation::String(Operation::Materialize { value: expression.value.as_operand()?.clone() }), expression.body.fault_frame,
         &pending, &mut expression.body.bindings)?;
@@ -690,39 +696,6 @@ pub(super) fn finish_bool_condition_continuation_v1(
 /// Transfer the exact Normal Dynamic carrier result into its Local receipt.
 /// The carrier is intentionally left live here; its Local scope owner must
 /// later discharge it with DynamicCarrierEnd on every exit path.
-pub(super) fn finish_dynamic_initializer_continuation(
-    builder: &mut MirBuilder,
-    expression: &mut EmittedExpressionValueV1,
-) -> Result<(Binding, Binding), String> {
-    let Operand::DynamicCarrier(value) = expression.value.as_operand()? else {
-        return Err(freeze("initializer-expression/dynamic-carrier-result"));
-    };
-    let projection = expression.body.bindings.iter().find(|(_, row)| {
-        matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if *dst == *value)
-    }).cloned().ok_or_else(|| freeze("initializer-expression/dynamic-carrier-projection"))?;
-    if expression.body.bindings.iter().filter(|(_, row)| {
-        matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if *dst == *value)
-    }).count() != 1 {
-        return Err(freeze("initializer-expression/dynamic-carrier-projection"));
-    }
-    let MirInstruction::InvokeNormalResult { invoke_block, .. } = projection.1 else {
-        return Err(freeze("initializer-expression/dynamic-carrier-projection"));
-    };
-    let invoke = expression.body.bindings.iter().find(|(block, row)| {
-        *block == invoke_block && matches!(row, MirInstruction::Invoke {
-            operation: InvokeOperation::DynamicInvocation(_), normal_landing, ..
-        } if *normal_landing == projection.0)
-    }).ok_or_else(|| freeze("initializer-expression/dynamic-carrier-invoke"))?;
-    if expression.body.bindings.iter().filter(|(block, row)| {
-        *block == invoke_block && matches!(row, MirInstruction::Invoke {
-            operation: InvokeOperation::DynamicInvocation(_), ..
-        })
-    }).count() != 1 || !expression.body.bindings.contains(invoke) {
-        return Err(freeze("initializer-expression/dynamic-carrier-invoke"));
-    }
-    finish_body_continuation(builder, &mut expression.body, None, None, false)
-}
-
 fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1,
     residence: Option<ValueId>, displaced: Option<InvokeOperation>, materialized: bool,
 ) -> Result<(Binding, Binding), String> {
@@ -736,12 +709,16 @@ fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressi
         let install = MirInstruction::StringResidenceInstall { value, replaces, returning: false };
         builder.emit_instruction(install.clone())?;
         body.bindings.push((block, install));
-        if !materialized { body.acquired.pop(); }
+        if !materialized {
+            if body.acquired.pop() != Some((0, value)) || body.temporary_order.pop() != Some(0) {
+                return Err(freeze("expression/residence-acquisition-order"));
+            }
+        }
     }
-    let mut normal: Vec<_> = body.acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value })).collect();
+    let normal = pending_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &[])?;
     let mut homes = body.homes.clone();
     if let Some(value) = residence { homes.insert(0, InvokeOperation::String(Operation::End { value })); }
-    let fault = pending_operations(&body.acquired, &homes);
+    let fault = pending_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &homes)?;
     finish_body_cleanup(builder, body, normal, fault, displaced)
 }
 

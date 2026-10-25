@@ -54,6 +54,21 @@ impl DynamicCarrierTokenV1 {
         }
     }
 
+    /// Borrow this carrier with the language's `String + Dynamic` display
+    /// rule. The token remains live and keeps its caller-owned End obligation.
+    pub fn string_add_suffix_v1(&self) -> Result<String, DynamicInvocationFailureV1> {
+        use crate::runtime::semantics::{display_string_add_value, StringAddDisplayValue as Display};
+        let snapshot = self.snapshot_v1()?;
+        let value = match &snapshot {
+            CarrierPayloadV1::Null => Display::Null,
+            CarrierPayloadV1::Integer(value) => Display::Integer(*value),
+            CarrierPayloadV1::Bool(value) => Display::Bool(*value),
+            CarrierPayloadV1::Object(value) => Display::BoxRef(value.as_ref()),
+            CarrierPayloadV1::Weak(value) => Display::WeakBox { usable_target: value.upgrade().is_some() },
+        };
+        display_string_add_value(value).map_err(|_| DynamicInvocationFailureV1::ArgumentTypeMismatch)
+    }
+
     /// Subtract one source-qualified I64 while borrowing this carrier. The
     /// original token remains caller-owned; Normal publishes a fresh carrier
     /// and Fault publishes none.
@@ -171,6 +186,14 @@ impl DynamicInvocationValueV1 {
             Self::Carrier(token) => token.snapshot_v1(),
         }
     }
+}
+
+/// Publish the already evaluated result of the source-selected ArrayBox Get.
+/// The narrow API keeps arbitrary carrier publication inside this owner.
+pub fn publish_array_get_v1(
+    value: Box<dyn NyashBox>,
+) -> Result<DynamicCarrierTokenV1, DynamicInvocationFailureV1> {
+    publish_carrier_v1(CarrierPayloadV1::Object(Arc::from(value)))
 }
 
 type ProviderV1 = fn(

@@ -105,7 +105,7 @@ static int lv4_canonical_receiver(hako_lv4_function_index* fn, const hako_lv4_va
 }
 static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "field_get")) return LV4_I64;
-  if (lv4_is(op, "kind", "dynamic_invoke")) return LV4_DYNAMIC_CARRIER;
+  if (lv4_is(op, "kind", "dynamic_invoke") || lv4_is(op, "kind", "dynamic_array_get")) return LV4_DYNAMIC_CARRIER;
   if (lv4_is(op, "kind", "dynamic_carrier_integer")) return LV4_I64;
   if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) return LV4_DYNAMIC_CARRIER;
   if (lv4_is(op, "kind", "array_owned_get") || lv4_is(op, "kind", "map_field_get_indexed") ||

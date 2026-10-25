@@ -424,6 +424,9 @@ impl VerifiedCoreMethodInstanceTargetV1 {
         match self.result {
             CoreMethodHomeResultRelationV1::I64ToCaller => Some(Class::I64),
             CoreMethodHomeResultRelationV1::TextToCaller => Some(Class::String),
+            CoreMethodHomeResultRelationV1::DynamicToCaller
+                if self.schema == CoreMethodHomeSchemaV1::ArrayDynamicRead
+                    && self.row.row().op == crate::mir::core_method_op::CoreMethodOp::ArrayGet => Some(Class::Dynamic),
             CoreMethodHomeResultRelationV1::BoolToCaller => Some(Class::Bool),
             _ => None,
         }

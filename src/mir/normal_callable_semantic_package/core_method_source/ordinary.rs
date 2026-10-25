@@ -300,8 +300,16 @@ impl ExpressionCoreSourceLoanV1 {
         self.original.operands.field_map().map(Rc::as_ref)
     }
     pub(crate) fn owns_result(&self) -> bool {
-        self.source().target().result()
-            == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller
+        use crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1 as Result;
+        self.source().target().result() == Result::TextToCaller ||
+            self.source().target().result() == Result::DynamicToCaller && self.is_array_dynamic_get_v1()
+    }
+    pub(crate) fn is_array_dynamic_get_v1(&self) -> bool {
+        self.source().target().schema()
+                == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead
+            && self.source().target().row().row().op
+                == crate::mir::core_method_op::CoreMethodOp::ArrayGet
+            && self.field_array_access_v1().is_some_and(|access| access.is_dynamic_get())
     }
 }
 

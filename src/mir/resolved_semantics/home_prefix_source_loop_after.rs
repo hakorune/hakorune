@@ -4,6 +4,66 @@ use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluatio
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 impl PrefixLocalFlow<'_> {
+    /// Qualify the narrow source-continuation use currently owned by the
+    /// Return cleanup projection. The read must be the direct value of a
+    /// Return sibling after the exact completed Loop, with the same retained
+    /// Home snapshot; ordinary post-Loop expressions remain unclassified.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn loop_after_terminal_return_text_reference_v1(
+        &self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        value: crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        homes: &[LiveHomeV1],
+    ) -> Option<super::LoopTextReadV1> {
+        use crate::mir::resolved_semantics::{BodyStatementShapeV1, ResolvedLexicalRefV1};
+        use crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1 as Producer;
+
+        if binding.owner() != self.input.owner()
+            || homes.iter().any(|home| home.binding() == binding)
+        {
+            return None;
+        }
+        let StoredLocal::LoopText { product } = self.locals.get(&binding)? else {
+            return None;
+        };
+        if homes != product.source.condition.prior_homes() {
+            return None;
+        }
+        let function = self.input.function();
+        let statement = function.source_site_inventory().containing_statement(site)?;
+        let direct_return = self.input.body_shape()?.statements().iter().any(|row| {
+            matches!(
+                row,
+                BodyStatementShapeV1::Return { site: return_site, value: Some(return_value) }
+                    if return_site == statement && return_value == site
+            )
+        });
+        if !direct_return
+            || !matches!(function.variable_ref(site), Some(ResolvedLexicalRefV1::Local(actual)) if actual == binding)
+            || !source_statement_precedes_v1(product.source.source.site(), statement)
+        {
+            return None;
+        }
+        let (_, producer) =
+            self.source_loop_after_text_for_value_v1(binding, value, flow, product)?;
+        let Producer::After {
+            product: exact,
+            binding: exact_binding,
+        } = producer
+        else {
+            return None;
+        };
+        Some(super::LoopTextReadV1 {
+            read: site.clone(),
+            value,
+            producer: Producer::After {
+                product: exact,
+                binding: exact_binding,
+            },
+        })
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn apply_source_loop_after_v2(
         &mut self,
         product: std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
@@ -113,6 +173,46 @@ impl PrefixLocalFlow<'_> {
             binding,
         })
     }
+}
+
+fn source_statement_precedes_v1(
+    earlier: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    later: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+) -> bool {
+    use crate::mir::resolved_semantics::SourcePathSegmentV1 as Segment;
+
+    fn statement_index(segment: &Segment) -> Option<u32> {
+        Some(match segment {
+            Segment::Body(index)
+            | Segment::ProgramBody(index)
+            | Segment::ScopeBody(index)
+            | Segment::TaskScopeBody(index)
+            | Segment::FastMemBody(index)
+            | Segment::IfThen(index)
+            | Segment::IfElse(index)
+            | Segment::LoopBody(index)
+            | Segment::LambdaBody(index)
+            | Segment::BlockExprPrelude(index)
+            | Segment::TryBody(index)
+            | Segment::CatchBody(index)
+            | Segment::CleanupBody(index)
+            | Segment::MatchArm(index)
+            | Segment::EnumMatchArm(index) => *index,
+            _ => return None,
+        })
+    }
+
+    let Some((earlier_item, earlier_parent)) = earlier.node().segments().split_last() else {
+        return false;
+    };
+    let Some((later_item, later_parent)) = later.node().segments().split_last() else {
+        return false;
+    };
+    earlier_parent == later_parent
+        && std::mem::discriminant(earlier_item) == std::mem::discriminant(later_item)
+        && statement_index(earlier_item)
+            .zip(statement_index(later_item))
+            .is_some_and(|(earlier, later)| earlier < later)
 }
 
 impl CheckedExpressionEvaluationV1 {

@@ -454,6 +454,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                             Operand::NormalInteger(dst),
                             Some(crate::mir::instruction::InvokeNormalResultKind::I64),
                         ) if !self.frame.owned_result_nodes().contains(&index) => *dst,
+                        (
+                            Operand::DynamicCarrier(dst),
+                            Some(crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier),
+                        ) if self.frame.owned_result_nodes().contains(&index) => *dst,
                         _ => return Err(freeze("expression-core/result-domain")),
                     };
                     let result = self.require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult { dst: actual, .. } if *actual == dst))?;
@@ -462,7 +466,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     };
                     let invoke = self.require_unique(|row| {
                         matches!(row, MirInstruction::Invoke {
-                        operation: InvokeOperation::String(actual), normal_landing, .. }
+                        operation: actual, normal_landing, .. }
                         if actual == &expected && *normal_landing == result.0)
                     })?;
                     if invoke.0 != invoke_block || invoke.0 == result.0 {
@@ -1298,12 +1302,12 @@ pub(super) fn normal_order(function: &MirFunction, ordered: &[Binding]) -> Resul
     Ok(())
 }
 
-/// The sole typed Core-to-String-operation projection, shared by the writer
+/// The sole source-qualified Core-operation projection, shared by the writer
 /// and both independent source consumers. It does not issue source permission.
 pub(crate) fn checked_expression_core_operation_v1(
     core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
     values: &[Option<EvaluatedExpressionValueV1>],
-) -> Result<Operation, String> {
+) -> Result<crate::mir::instruction::InvokeOperation, String> {
     use crate::mir::core_method_op::CoreMethodOp as Core;
     let source = core.plan();
     if !core.matches_plan(source, core.node()) || values.len() != source.nodes().len() {
@@ -1326,23 +1330,39 @@ pub(crate) fn checked_expression_core_operation_v1(
         .iter()
         .map(|arg| operand(arg.site()))
         .collect::<Result<Vec<_>, _>>()?;
+    use crate::mir::instruction::InvokeOperation as Invoke;
     let operation = match (core.source().target().row().row().op, arguments.as_slice()) {
-        (Core::StringLen, []) => Operation::Length { value: receiver },
+        (Core::StringLen, []) => Invoke::String(Operation::Length { value: receiver }),
         (
             Core::StringSubstring,
             [start @ (Operand::NormalInteger(_) | Operand::Dynamic(_)), end @ (Operand::NormalInteger(_) | Operand::Dynamic(_))],
-        ) => Operation::Substring {
+        ) => Invoke::String(Operation::Substring {
             value: receiver,
             start: start.clone(),
             end: end.clone(),
-        },
-        (Core::StringIndexOf, [needle]) => Operation::IndexOf {
+        }),
+        (Core::StringIndexOf, [needle]) => Invoke::String(Operation::IndexOf {
             value: receiver,
             needle: needle.clone(),
-        },
+        }),
+        (Core::ArrayGet, [Operand::NormalInteger(index)]) if core.is_array_dynamic_get_v1() => {
+            let Operand::NormalInteger(array) = receiver else {
+                return Err(freeze("expression-core/array-receiver-domain"));
+            };
+            Invoke::DynamicArrayGet { array, index: *index }
+        }
         _ => return Err(freeze("expression-core/operand-domain")),
     };
-    if !operation.valid_operand_domains() || operation.owns_normal_result() != core.owns_result() {
+    let result_kind = operation.normal_result_kind();
+    let owned_result = matches!(result_kind, Some(
+        crate::mir::instruction::InvokeNormalResultKind::OwnedString
+            | crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier));
+    let operation_valid = match &operation {
+        Invoke::String(operation) => operation.valid_operand_domains(),
+        Invoke::DynamicArrayGet { .. } => core.is_array_dynamic_get_v1(),
+        _ => false,
+    };
+    if !operation_valid || result_kind.is_none() || owned_result != core.owns_result() {
         return Err(freeze("expression-core/operand-domain"));
     }
     Ok(operation)

@@ -150,6 +150,35 @@ pub unsafe extern "C" fn invoke(
     }
 }
 
+/// Evaluate one checked ArrayBox Get and publish its language value as an
+/// independent opaque carrier. ArrayBox retains its own OOB/null semantics.
+#[export_name = "nyash.dynamic.checked_array_get_v1"]
+pub unsafe extern "C" fn array_get(
+    storage: *mut c_void,
+    site: u64,
+    array: i64,
+    index: i64,
+    out: *mut u64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let frame = match unsafe { frame(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    let Some(value) = crate::plugin::with_array_box_direct(array, |array| array.get_index_i64(index)) else {
+        return Status::InvalidContract as u32;
+    };
+    match invocation::publish_array_get_v1(value) {
+        Ok(carrier) => {
+            unsafe { out.write(carrier.raw_v1()) };
+            Status::Normal as u32
+        }
+        Err(failure) => record_failure(frame, site, failure),
+    }
+}
+
 /// Borrow an opaque carrier as an integer for a separately admitted Dynamic
 /// operator. A non-integer payload records TypeError and leaves `out`
 /// untouched; this read does not consume the carrier.

@@ -88,6 +88,9 @@ impl LexicalInstanceCallSourceTargetV1 {
     pub(crate) fn is_unit_discard_source_v1(&self) -> bool {
         matches!(self.result_requirement, LexicalCallSourceResultRequirementV1::UnitDiscardSource(_))
     }
+    pub(crate) fn has_scalar_return_source_v1(&self) -> bool {
+        matches!(self.result_requirement, LexicalCallSourceResultRequirementV1::ScalarReturnSource(_))
+    }
 
     pub(in crate::mir::normal_callable_semantic_package) fn uses_existing_borrowed_result_v1(
         &self,
@@ -230,6 +233,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn original_lexical_target_
         if found.replace(target).is_some() { return Err(freeze("original-target/duplicate")); }
     }
     Ok(found)
+}
+
+/// A source-backed scalar result keeps its lexical argument contract when a
+/// Dynamic candidate shares the call site.
+pub(in crate::mir::normal_callable_semantic_package) fn lexical_scalar_result_source_owns_arguments_v1(
+    targets: &PreparedLexicalInstanceCallSourceTargetsV1,
+    site: &OwnedExprSiteV1,
+) -> Result<bool, String> {
+    Ok(original_lexical_target_at_v1(targets, site)?
+        .is_some_and(LexicalInstanceCallSourceTargetV1::has_scalar_return_source_v1))
 }
 
 /// Passive receiver source facts. This is neither an owned-child lease nor inventory.

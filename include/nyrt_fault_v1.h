@@ -109,9 +109,11 @@ typedef struct NyrtOwnedStringV1 {
     uint64_t handle;
     uint64_t token;
 } NyrtOwnedStringV1;
-/* Add accepts String + String, signed NormalInteger, or one synchronous
- * tagged dynamic value (reserved=source tag 0 Null, 1 I64, 2 Bool, 3 Box;
- * payload is integer). Nullish values record TypeError Fault. Normal publishes
+/* Add accepts String + String, signed NormalInteger, one synchronous tagged
+ * dynamic value (reserved=source tag 0 Null, 1 I64, 2 Bool, 3 Box; payload is
+ * integer), or a live opaque dynamic carrier token. The carrier is borrowed,
+ * retains its own End obligation, and is never decoded as a handle/integer.
+ * Nullish values record TypeError Fault. Normal publishes
  * one fresh pair, even for empty operands. Failure leaves both out words untouched.
  * Print borrows String/NormalInteger and appends one newline. Writer failure
  * records Fault; the caller still Ends all earlier Normal acquisitions.

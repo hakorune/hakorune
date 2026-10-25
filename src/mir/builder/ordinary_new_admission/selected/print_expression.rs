@@ -22,7 +22,8 @@ pub(in crate::mir::builder) fn emit(
     if state.owner() != owner { return Err(freeze("print-expression/state-owner")); }
     let expression_value::EmittedExpressionValueV1 {
         value, body: expression_value::EmittedExpressionBodyV1 {
-            values, calls, dynamic_calls: _, path_reads, reference_reads, acquired, homes, fault_frame, entry, mut bindings,
+            values, calls, dynamic_calls: _, path_reads, reference_reads, acquired, dynamic_carriers, temporary_order,
+            homes, fault_frame, entry, mut bindings,
         }, purpose_acquisition: _,
     } = expression_value::emit(builder, state, ledger, frame.evaluation(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
@@ -34,9 +35,8 @@ pub(in crate::mir::builder) fn emit(
     let clean = writer.reserve_block(builder)?;
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut bindings)?;
-    let normal: Vec<_> = acquired.iter().rev().map(|(_, value)|
-        InvokeOperation::String(Operation::End { value: *value })).collect();
-    let fault = pending_operations(&acquired, &homes);
+    let normal = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &[])?;
+    let fault = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
     let after: Vec<_> = (0..normal.len()).map(|index| ((index + 1)..fault.len()).collect()).collect();
     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame, clean,
         &normal, &fault, &after, &(0..fault.len()).collect::<Vec<_>>(), &mut bindings)?;

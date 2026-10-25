@@ -80,6 +80,15 @@ fn transferred_by_expression_call(frame: &Evaluation, node: usize) -> bool {
         })
     }))
 }
+fn transferred_by_array_core(frame: &Evaluation, node: usize) -> bool {
+    let Some(original) = frame.source().nodes().get(node) else { return false; };
+    frame.cores().values().any(|core| {
+        let receiver = core.source().source().receiver_site();
+        core.is_array_dynamic_get_v1()
+            && core.matches_plan(frame.source(), core.node())
+            && original.site().node().segments().starts_with(receiver.node().segments())
+    })
+}
 fn fault(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, frame: &Evaluation,
     node: usize, prior_acquisitions: &[usize],
     text_carriers: &BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,
@@ -106,7 +115,9 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
     let mut normal_temporary_ends = Vec::new();
     for &node in frame.ordered_nodes() {
         if frame.transfers_node(node) {
-            if !transferred_by_expression_call(frame, node) {
+            if !transferred_by_expression_call(frame, node)
+                && !transferred_by_array_core(frame, node)
+            {
                 return Err(reject("execution-transferred-source"));
             }
             continue;
@@ -118,13 +129,23 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
         if let Some(core) = frame.cores().get(&node) {
             if call.is_some() { return Err(reject("execution-call-core-collision")); }
             let target = core.source().target();
-            if !core.matches_plan(frame.source(), node) || target.checked_code_point_law_v1().is_none() {
+            if !core.matches_plan(frame.source(), node)
+                || (target.checked_code_point_law_v1().is_none()
+                    && !core.is_array_dynamic_get_v1())
+            {
                 return Err(reject("execution-core-policy"));
             }
             let original = core.source().source();
             let leaf = |site| frame.source().nodes().iter().position(|row| row.site() == site)
                 .and_then(|node| frame.class(node));
-            if leaf(original.receiver_site()) != Some(Leaf::Value(Class::String))
+            let expected_receiver = if core.field_map().is_some()
+                || core.field_array_access_v1().is_some()
+            {
+                Leaf::Identity
+            } else {
+                Leaf::Value(Class::String)
+            };
+            if leaf(original.receiver_site()) != Some(expected_receiver)
                 || target.parameters().len() != original.arguments().len()
                 || target.parameters().iter().zip(original.arguments()).any(|(parameter, argument)| {
                     let expected = match parameter {
@@ -140,6 +161,7 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
             let result = match target.result() {
                 ResultKind::I64ToCaller => Class::I64,
                 ResultKind::TextToCaller => Class::String,
+                ResultKind::DynamicToCaller if core.is_array_dynamic_get_v1() => Class::Dynamic,
                 _ => return Err(reject("execution-core-result")),
             };
             if frame.class(node) != Some(Leaf::Value(result))
@@ -576,6 +598,11 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
                                 TextProducer::Residence(_) => SourceLoopTextOldResidenceV2::OwnedResidence,
                                 TextProducer::BranchNormal(source) if source.is_owned_residence_tree_v1() =>
                                     SourceLoopTextOldResidenceV2::OwnedResidence,
+                                TextProducer::BranchNormal(source)
+                                    if source.is_loop_header_or_owned_residence_tree_v1(basis) =>
+                                {
+                                    SourceLoopTextOldResidenceV2::ConditionalHeader
+                                }
                                 _ => return Err(reject("execution-text-rebind-prior")),
                             };
                             let acquisition = rebind.text_acquisition_v1();

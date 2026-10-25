@@ -377,11 +377,20 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             });
     }
     if let BorrowedCallActualRequestV1::DynamicInvocationSource { input, plan } = request {
-        if super::super::lexical_instance_call::original_owned_call_target_v1(
+        let original_owned = super::super::lexical_instance_call::original_owned_call_target_v1(
             source, targets, classes, site,
         ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
             site: site.clone(), issue,
-        })?.is_some() { return Ok(None); }
+        })?.is_some();
+        let lexical_result_source = super::super::lexical_instance_call::
+            lexical_scalar_result_source_owns_arguments_v1(targets, site)
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            })?;
+        if original_owned || lexical_result_source {
+            return Ok(None);
+        }
         let mut candidates = dynamic_source_calls.iter().filter(|target| {
             target.owner() == input.owner() && target.call_site() == site.site()
         });
@@ -735,8 +744,17 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
             site: site.clone(), issue,
         })?.is_some();
+        let lexical_result_source = super::super::lexical_instance_call::
+            lexical_scalar_result_source_owns_arguments_v1(targets, site)
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            })?;
         let mut dynamic_targets = dynamic_source_calls.iter().filter(|target| {
-            !ordinary && target.owner() == input.owner() && target.call_site() == site.site()
+            !ordinary
+                && !lexical_result_source
+                && target.owner() == input.owner()
+                && target.call_site() == site.site()
         });
         let first_dynamic = dynamic_targets.next();
         let prepared = match (first_dynamic, dynamic_targets.next()) {

@@ -214,6 +214,9 @@ impl SourceLoopScheduleDraftV2 {
                             Rc::ptr_eq(basis, &transition.basis),
                         (super::source_loop_v2::TextProducer::Residence(_),
                             super::source_loop_execution::SourceLoopTextOldResidenceV2::OwnedResidence) => true,
+                        (super::source_loop_v2::TextProducer::BranchNormal(source),
+                            super::source_loop_execution::SourceLoopTextOldResidenceV2::ConditionalHeader) =>
+                            source.is_loop_header_or_owned_residence_tree_v1(&transition.basis),
                         _ => false,
                     };
                     same_basis && old_end_matches && rebind.target() == transition.basis.binding()
@@ -265,6 +268,41 @@ struct ScheduleCheck<'a, 'source> {
     control: Vec<(SourceStmtSiteV1, LoopItemKeyV1)>,
 }
 impl ScheduleCheck<'_, '_> {
+    fn array_dynamic_core_slot_matches(
+        &self,
+        frame: &SourceLoopScheduledFrameV2,
+        args: &[LoopValueKeyV1],
+        result: Option<LoopValueKeyV1>,
+    ) -> bool {
+        let Some(result) = result else { return false; };
+        let mut matches = frame.evaluation().cores().iter().filter(|(&node, core)| {
+            if !core.is_array_dynamic_get_v1()
+                || !core.matches_plan(frame.source(), node)
+                || self.values.iter().filter(|value| {
+                    Rc::ptr_eq(&value.source, frame.source())
+                        && value.node == node
+                        && value.value == result
+                }).count() != 1
+                || self.recipe.values.get(result.raw() as usize).is_none_or(|value| {
+                    value.key != result || value.class != LoopValueClassV2::Dynamic
+                })
+            {
+                return false;
+            }
+            let expected: Option<Vec<_>> = core.source().source().arguments().iter().map(|argument| {
+                let mut rows = self.values.iter().filter(|value| {
+                    Rc::ptr_eq(&value.source, frame.source())
+                        && frame.source().nodes().get(value.node)
+                            .is_some_and(|node| node.site() == argument.site())
+                });
+                let value = rows.next()?.value;
+                rows.next().is_none().then_some(value)
+            }).collect();
+            expected.as_deref() == Some(args)
+        });
+        matches.next().is_some() && matches.next().is_none()
+    }
+
     fn integer_operation(&self, frame: &SourceLoopScheduledFrameV2, op: LoopBinaryI64OpV2,
         left: LoopValueKeyV1, right: LoopValueKeyV1, result: LoopValueKeyV1) -> Result<(), String> {
         let mut results = self.values.iter().filter(|value| value.value == result
@@ -499,10 +537,14 @@ impl ScheduleCheck<'_, '_> {
                         }
                         if let LoopOperationV2::CallSlot { receiver: None, args, result } = operation {
                             if bool_projection.is_some() { return Err(reject("schedule-frame-eager-bool-call")); }
-                            let Some(result) = result.filter(|_| args.is_empty()) else {
-                                return Err(reject("schedule-frame-call-slot"));
-                            };
-                            if embedded_calls.remove(&result).is_none() {
+                            if args.is_empty() {
+                                let Some(result) = result else {
+                                    return Err(reject("schedule-frame-call-slot"));
+                                };
+                                if embedded_calls.remove(result).is_none() {
+                                    return Err(reject("schedule-frame-call-slot"));
+                                }
+                            } else if !self.array_dynamic_core_slot_matches(frame, args, *result) {
                                 return Err(reject("schedule-frame-call-slot"));
                             }
                         }

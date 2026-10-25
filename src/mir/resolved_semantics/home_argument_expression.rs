@@ -353,12 +353,15 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         }
         return Ok(None);
     };
-    if crate::config::env::builder_debug_enabled() {
-        eprintln!("[argument-expression] nested source calls prepared");
-    }
+    let Some(core_i64_inputs) = prepared.i64_core_input_reference_nodes_v1() else {
+        return Ok(None);
+    };
     let mut scalar_proofs = BTreeMap::new();
     for (node, original) in source.nodes().iter().enumerate() {
-        if !prepared.is_active_reference(node) || !core.signed_operand_contains(original.site()) {
+        let active = prepared.is_active_reference(node);
+        let signed = core.signed_operand_contains(original.site());
+        let core_i64 = core_i64_inputs.contains(&node);
+        if !active || (!core_i64 && !signed) {
             continue;
         }
         let Some(read) = scalar_reference(original.site()) else {

@@ -310,6 +310,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         }
       } else if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
         normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;
+    } else if (lv4_is(op, "kind", "dynamic_array_get")) {
+      hako_lv4_value* index = lv4_index_value(fn, lv4_u(op, "index"));
+      if ((fi && !ordinary && !birth) || birth || faulted || state[bi] ||
+          !lv4_field_array_readable(in, fn, lv4_u(op, "array"), state, lv4_u(block, "id")) ||
+          !index || index->kind != LV4_I64) return 0;
+      normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
     } else if (lv4_is(op, "kind", "dynamic_invoke")) {
       yyjson_val* arguments = yyjson_obj_get(op, "arguments");
       if ((fi && !ordinary && !birth) || birth || faulted || state[bi] ||

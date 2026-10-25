@@ -1,10 +1,10 @@
 # APP-binary-trees
-Status: complete; unchanged canonical EXE/run/output/exit0 PASS. Date: 2026-10-25
+Status: canonical EXE passed 2026-10-25; later shared report records a final-verification regression. Date: 2026-10-26
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fixed smoke](../../../../../tools/smokes/v2/profiles/integration/apps/binary_trees_exe.sh).
 
 ## Current stop
 - Explicit CLI/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`. Quick CLI40.00s and C FFI build PASS. Unchanged `binary_trees_exe.sh` passes canonical LLVM C API EXE/run, exact output and exit0, with no compat replay.
-- Fixed suite7/11 in122.454s, no timeout/SKIP: six real EXEs plus the non-EXE marker. Binary-trees now passes within the suite in50.764s. Its source/publication, C flow and LLVM/native consumers are connected; full MirBuilder remains unfinished.
+- Historical fixed suite7/11 in122.454s, no timeout/SKIP: six real EXEs plus the non-EXE marker. Binary-trees passed within that run in50.764s. Its source/publication, C flow and LLVM/native consumers were connected; full MirBuilder remained unfinished.
 - Other failures stay open: mimalloc-lite and allocator-stress `borrowed-object/forward-source-identity`, owner37 Body5; JSON `borrowed-entry/source-use-completion-pending`, owner22; boxtorrent `stored-child/receiver-unavailable`, owner51.
 
 ## Source and final consumer contracts
@@ -38,3 +38,7 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fi
 1. Return to the original app order: mimalloc-lite's missing original entry-formal site proof (also allocator-stress); JSON and boxtorrent keep their measured source failures.
 2. Prior source/publication verification reds, full Loop local-producer normalization and R7/canonical closeout remain required. This app completion does not complete the finite-product goal.
 3. Invocation-owned C input was observed with GDB, never repaired or used as replacement acceptance. Temporary capture tooling is discarded; committed unchanged source plus the recorded smoke/suite commands reproduce acceptance. Earlier detail remains in Git history.
+
+## Shared owner session (2026-10-26)
+- Latest shared report: fixed suite6/11; binary-trees now fails final verification with `object-field-read-definition-invalid` (2 cases). This session did not modify binary-trees, and this worktree has not rerun that result. The 10/25 canonical pass above is historical, not the current suite status.
+- Scalar source-sum strictness and guarded-call entry-root correspondence are already present in HEAD. The report's current mimalloc-lite stop is `borrowed-object/forward-source-identity` at slot37 Body5; its next source proof and guarded correspondence precede returning to these two binary-trees field-read failures.

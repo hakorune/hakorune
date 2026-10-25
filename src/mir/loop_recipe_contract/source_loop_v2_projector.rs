@@ -318,7 +318,11 @@ impl Projector<'_> {
                         let core = frame.cores().get(&node).ok_or_else(|| reject("core-loan"))?;
                         if !core.matches_plan(source, node) { return Err(reject("core-identity")); }
                         let method = core.source().source();
-                        let receiver = Some(by_site(method.receiver_site())?);
+                        let receiver = if core.field_array_access_v1().is_some() {
+                            None
+                        } else {
+                            Some(by_site(method.receiver_site())?)
+                        };
                         let args = method.arguments().iter().map(|arg| by_site(arg.site())).collect::<Result<Vec<_>, _>>()?;
                         let result = self.value(value_class);
                         self.operation(block, source, LoopOperationV2::CallSlot { receiver, args, result: Some(result) }); result

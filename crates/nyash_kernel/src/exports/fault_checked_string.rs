@@ -9,6 +9,7 @@ const STATIC_TEXT: u32 = 1;
 const OWNED_TEXT: u32 = 2;
 const NORMAL_INTEGER: u32 = 3;
 const TAGGED_DYNAMIC: u32 = 4;
+const DYNAMIC_CARRIER: u32 = 5;
 const WRITE_FAILED: u32 = 300;
 const ALLOCATION_FAILED: u32 = 301;
 const TYPE_ERROR: u32 = 302;
@@ -283,7 +284,7 @@ pub unsafe extern "C" fn add(
         Err(s) => return s as u32,
     };
     if !matches!(left.kind, STATIC_TEXT | OWNED_TEXT)
-        || !matches!(right.kind, STATIC_TEXT | OWNED_TEXT | NORMAL_INTEGER | TAGGED_DYNAMIC)
+        || !matches!(right.kind, STATIC_TEXT | OWNED_TEXT | NORMAL_INTEGER | TAGGED_DYNAMIC | DYNAMIC_CARRIER)
     {
         return Status::InvalidContract as u32;
     }
@@ -291,17 +292,33 @@ pub unsafe extern "C" fn add(
         Ok(v) => v,
         Err(s) => return s as u32,
     };
-    let suffix = if right.kind == TAGGED_DYNAMIC {
-        match unsafe { dynamic_text(right) } {
+    let suffix = match right.kind {
+        TAGGED_DYNAMIC => match unsafe { dynamic_text(right) } {
             Ok(value) => value,
             Err(DynamicDisplayFailure::TypeError) => return fault(frame, site, TYPE_ERROR),
             Err(DynamicDisplayFailure::InvalidContract) => return Status::InvalidContract as u32,
+        },
+        DYNAMIC_CARRIER => {
+            if right.reserved != 0 || !right.bytes.is_null() || right.len != 0
+                || right.handle != 0 || right.integer != 0 || right.token == 0 {
+                return Status::InvalidContract as u32;
+            }
+            let carrier = match nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(right.token) {
+                Ok(carrier) => carrier,
+                Err(_) => return Status::InvalidContract as u32,
+            };
+            match carrier.string_add_suffix_v1() {
+                Ok(value) => value,
+                Err(nyash_rust::runtime::dynamic_invocation::DynamicInvocationFailureV1::ArgumentTypeMismatch) => {
+                    return fault(frame, site, TYPE_ERROR);
+                }
+                Err(_) => return Status::InvalidContract as u32,
+            }
         }
-    } else {
-        match unsafe { text(right) } {
+        _ => match unsafe { text(right) } {
             Ok(v) => v,
             Err(s) => return s as u32,
-        }
+        },
     };
     if result.try_reserve(suffix.len()).is_err() {
         return fault(frame, site, ALLOCATION_FAILED);

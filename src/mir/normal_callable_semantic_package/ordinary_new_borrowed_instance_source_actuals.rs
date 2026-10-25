@@ -275,7 +275,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     }
     // The existing Object source owner keeps its original qualification.
     if ingress.source_incoming.has_object_input_callee_v1(target) {
-        if expression_request {
+        if expression_request || object_producer_request {
             return object_source::prepare_object_source_actuals_v1(
                 ingress, contracts, site, actuals,
             );
