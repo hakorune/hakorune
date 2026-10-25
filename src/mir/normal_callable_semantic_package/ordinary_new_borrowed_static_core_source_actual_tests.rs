@@ -110,7 +110,7 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
         ("MapBox", "", "7", false),
     ] {
         let text = format!("box Holder {{ init {{ entries }} birth() {{ me.entries = new {provider}() }} \
-            probe() {{ if me.entries.has({key}) {{ return 1 }} return 0 }} {extra_writer} }} \
+            probe() {{ if me.entries.has({key}) {{ return 1 }} return 0 }} count() {{ return me.entries.keys().length() }} {extra_writer} }} \
             static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
@@ -132,6 +132,23 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
                         assert!(source.field_map().is_some());
                         assert!(Rc::ptr_eq(receipt.operands(), source));
                         assert!(std::sync::Arc::ptr_eq(source.method(), input.function().method_call_source_v1(method.site()).unwrap()));
+                    }
+                }
+                if let Some((site, _)) = input.function().method_calls().find(|(_, method)| method.selector() == "keys") {
+                    let keys_site = OwnedExprSiteV1::new(input.owner(), site.clone());
+                    let count = input.function().method_calls().find(|(_, method)| method.selector() == "length").unwrap().0;
+                    let count_site = OwnedExprSiteV1::new(input.owner(), count.clone());
+                    let snapshot_closes = provider == "MapBox" && extra_writer.is_empty();
+                    let keys = ingress.ordinary_core_source_v1(&keys_site);
+                    let count = ingress.ordinary_core_source_v1(&count_site);
+                    assert_eq!(keys.is_some(), snapshot_closes, "keys: {text}");
+                    assert_eq!(count.is_some(), snapshot_closes, "count receiver: {text}");
+                    if let (Some(keys), Some(count)) = (keys, count) {
+                        assert!(keys.source().target().checked_text_keys_law_v1());
+                        assert!(count.source().target().checked_array_count_law_v1());
+                        assert!(Rc::ptr_eq(count.operands().receiver_core().unwrap(), keys.operands()));
+                        package.ordinary_new_claim_ledger.borrowed_i64_results[&input.owner()]
+                            .as_ref().unwrap().require_source_i64_v1().unwrap();
                     }
                 }
             }).unwrap();

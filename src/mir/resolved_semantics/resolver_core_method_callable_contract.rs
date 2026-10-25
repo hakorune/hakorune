@@ -146,7 +146,8 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
     ) -> Result<VerifiedResolverOrdinaryCoreMethodSourceV1, ResolverCoreMethodCallableContractRejectV1> {
         let source = verify_source_identity(ledger, call)?;
         verify_arguments(call, &target)?;
-        if !matches!(target.schema(), CoreMethodHomeSchemaV1::StringBoxText | CoreMethodHomeSchemaV1::MapTextPresence) {
+        if !matches!(target.schema(), CoreMethodHomeSchemaV1::StringBoxText | CoreMethodHomeSchemaV1::MapTextPresence
+            | CoreMethodHomeSchemaV1::MapTextKeys | CoreMethodHomeSchemaV1::ArrayCount) {
             return Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch);
         }
         verify_target(&target, call)?;
@@ -425,6 +426,14 @@ fn verify_target(
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetManifestBrandMismatch);
     }
     let (receiver, effect, receiver_name, abi_profile) = match target.schema() {
+        CoreMethodHomeSchemaV1::MapTextKeys => (
+            CoreMethodHomeReceiverRelationV1::MapReceiver, CoreMethodEffectV1::PureRead,
+            "MapBox", CoreMethodHomeAbiProfileV1::MapTextKeysV1,
+        ),
+        CoreMethodHomeSchemaV1::ArrayCount => (
+            CoreMethodHomeReceiverRelationV1::NamedArrayReceiver, CoreMethodEffectV1::PureRead,
+            "ArrayBox", CoreMethodHomeAbiProfileV1::NamedArrayReadV1,
+        ),
         CoreMethodHomeSchemaV1::MapTextPresence => (
             CoreMethodHomeReceiverRelationV1::MapReceiver, CoreMethodEffectV1::PureRead,
             "MapBox", CoreMethodHomeAbiProfileV1::MapTextPresenceV1,
@@ -473,6 +482,10 @@ fn verify_target(
         );
     }
     match (row.op, target.row().arity(), target.result()) {
+        (CoreMethodOp::MapKeys, 0, CoreMethodHomeResultRelationV1::TextArrayToCaller)
+            if target.checked_text_keys_law_v1() => {},
+        (CoreMethodOp::ArrayLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
+            if target.checked_array_count_law_v1() => {},
         (CoreMethodOp::MapHas, 1, CoreMethodHomeResultRelationV1::BoolToCaller)
         | (CoreMethodOp::StringLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
         | (CoreMethodOp::StringSubstring, 2, CoreMethodHomeResultRelationV1::TextToCaller)
@@ -487,12 +500,14 @@ fn verify_target(
     }
     use super::CoreMethodHomeParameterRelationV1 as Parameter;
     let expected_parameters: &[Parameter] = match row.op {
-        CoreMethodOp::StringLen => &[],
+        CoreMethodOp::StringLen | CoreMethodOp::MapKeys | CoreMethodOp::ArrayLen => &[],
         CoreMethodOp::StringSubstring => &[Parameter::I64Parameter, Parameter::I64Parameter],
         CoreMethodOp::ArrayPush => match target.schema() {
             CoreMethodHomeSchemaV1::ArrayTextAppend => &[Parameter::TextRetainedByReceiver],
             CoreMethodHomeSchemaV1::ArrayIntegerAppend => &[Parameter::I64Parameter],
             CoreMethodHomeSchemaV1::MapTextPresence
+            | CoreMethodHomeSchemaV1::MapTextKeys
+            | CoreMethodHomeSchemaV1::ArrayCount
             | CoreMethodHomeSchemaV1::ArrayDynamicRead
             | CoreMethodHomeSchemaV1::StringBoxText => {
                 return Err(

@@ -105,3 +105,13 @@ Core receiver/arguments remain in the parent's postorder. Common evaluation owns
 the Core inventory and acquisition templates, and physical emission/validation
 share one typed operation projection. No new physical packet pool or all-Core
 source cache is issued. Missing current Text/finite/entry carrier remains refused.
+
+MapKeys retains the generated MapTextKeysSnapshot law and the same immutable
+Map field source. Its fresh Text Array result is structural, never a nominal
+Object/Dynamic or primitive SUM permission. ArrayLen retains that exact inner
+Core receipt as its receiver result. Request merging must keep both receipts
+in the final closed map with the same inner Rc; withdrawn/conflicting inner
+evidence cannot survive through an already-built outer. Result grounding checks
+that relation and original field source again. Expression evaluation still
+requires distinct TextArray acquisition/Count/End packets; String-only ownership
+or simple publication does not activate the Array result.

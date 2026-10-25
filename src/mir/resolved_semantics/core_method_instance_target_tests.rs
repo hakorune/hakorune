@@ -35,6 +35,15 @@ fn string_len_issues_exact_typed_home_target() {
     );
     assert_eq!(target.row().arity(), 0);
     assert_eq!(target.checked_code_point_law_v1(), Some(CoreMethodSemanticLawV2::CodePointCount));
+    let keys = CoreMethodInstanceTargetIssuerV1::map_text_keys(CORE_METHOD_MANIFEST_BRAND_V2).unwrap()
+        .issue(issue_core_method_manifest_row_ref_v2(CoreMethodOp::MapKeys, 0).unwrap()).unwrap();
+    assert!(keys.checked_text_keys_law_v1());
+    assert_eq!(keys.result(), CoreMethodHomeResultRelationV1::TextArrayToCaller);
+    assert_eq!(keys.expression_result_class_v1(), None, "snapshot lends no primitive or nominal class");
+    let count = CoreMethodInstanceTargetIssuerV1::array_count(CORE_METHOD_MANIFEST_BRAND_V2).unwrap()
+        .issue(issue_core_method_manifest_row_ref_v2(CoreMethodOp::ArrayLen, 0).unwrap()).unwrap();
+    assert!(count.checked_array_count_law_v1());
+    assert_eq!(count.result(), CoreMethodHomeResultRelationV1::I64ToCaller);
 }
 
 #[test]

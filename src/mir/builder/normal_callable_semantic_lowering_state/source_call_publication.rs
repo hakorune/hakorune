@@ -135,6 +135,9 @@ impl CallableSemanticLoweringState {
             _ => return Err(freeze("core-method-call-receiver")),
         };
         let result_type = match target.result() {
+            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextArrayToCaller => {
+                return Err(freeze("named-array-artifact-retention-required"));
+            }
             crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::NoValue => {
                 return Err(freeze("no-value-source-call-used-as-value"));
             }

@@ -133,7 +133,7 @@ pub(crate) const CORE_METHOD_CONTRACT_ROWS_V2: &[CoreMethodContractRowV2] = &[
         canonical: "keys",
         aliases: &[],
         arities: &[0],
-        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::MapTextKeysSnapshot)],
         op: CoreMethodOp::MapKeys,
         result_kind: CoreMethodResultKindV1::Dynamic,
         effect: CoreMethodEffectV1::PureRead,

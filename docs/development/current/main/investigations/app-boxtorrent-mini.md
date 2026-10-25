@@ -6,8 +6,8 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 
 ## 現在地
 - 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。現在のV4 FFIを使用。
-- canonical smokeの停止はowner73 Body12 Initializer、`chunks_before_final_release = store.chunkCount()` の `borrowed-result/source-not-i64`。chunkCount本体は `me.chunks.keys().length()`。releaseFrom/Store.releaseの数値依存は進んだが、EXE未生成。
-- 直前の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、463.098秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
+- 新CLIのcanonical smokeはowner56 Body0 Value、chunkCount本体 `return me.chunks.keys().length()` の `borrowed-result/source-not-i64`。呼出し側owner73 Body12から元Return側へ停止位置が変わったが、実アプリの式評価/cleanupは未完でEXE未生成。
+- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、469.043秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
 
 ## 接続済み
 - 唯一のattributed Plain Birth providerと同じwriter inventory/非weak未注釈fieldを照合。providerのclassと保存形式を分離し、DynamicResidenceのreceiverはchecked ObjectFieldBorrowで読む。typed field、異class/multiple/hidden writerの拒否は保持。
@@ -27,18 +27,21 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 - 引数ゼロの結果依存は借用Uses定義を作らず、既存parameterless declarationと同じOriginalReturn loan、owner/batch/key/ゼロ引数、callee全体のsource projectionを照合する。mutable facts Rcは共有せず、callee結果groundingと入力/receiver/物理検証は別途必須。
 
 ## 次の一手
-1. chunkCountの元inner keys/outer length・同じMap fieldをCore source/結果式へ接続する。keysは一度だけ評価し、一時Arrayをouter lengthのNormal/Fault双方で終了する。keys自体のFaultではArrayは未取得。Map.lenへの書換えはしない。
-2. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。FieldKeys物理操作・plain Text ArrayのNormal取得/length/End検証とC emissionも接続済み。次は既存MapKeys/ArrayLenの元sourceから同じ操作とcleanup packetを発行する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
+1. 元inner keys/outer ArrayLen・同じMap fieldの閉じたCore source/結果式は接続済み。実アプリの元Returnを式評価へ渡し、同じinventoryでTextArray値とString/DynamicCarrierを区別する。keysを一度だけ評価し、Array CountとNormal/Fault cleanupを独立した最終検証までつなぐ。
+2. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。FieldKeys物理操作・plain Text ArrayのNormal取得/length/End検証とC emissionも接続済み。共通cleanup列は現在Invoke End前提なので、同じownerで非FaultのArrayResidenceReleaseも表し、String Endへの誤変換を禁止してsource packetを発行する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
 3. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
+- MapTextKeysSnapshot/ArrayCountの生成lawとtyped Core契約を接続。keys結果はprimitive/Dynamic/nominal Objectへ投影せず、outerは同じinner source Rcを保持。構造依存は独立して閉じ、全request統合後にも最終inner Rcとの一致を再検証する。元field subtree以外の引数/receiverを隠さない。
+- CLI46.44秒PASS、root test build99秒。既存Core source2/target7/scalar pending7は全PASS、manifest codegen checkと既存Python14件PASS。正しいMap providerでCountのI64 source sealを確認し、異種provider/複数writerは拒否。同じCore/targetケースだけ最小拡張し、新規Rust test関数/ファイル/checkerなし。
+- SCC既存テストは0/1、String左辺と未知RHSのclass転送assertで失敗。以前の記録と同じassertだが旧binaryのrevisionは未確認のためexact-HEAD baseline証明とはしない。追加required_coreはこのケースでは空で、他のsource/publication/Loopの赤とともに未完として保持。
 - FieldKeysはkeyなしの同じcanonical field/baseを運び、独立module検証も元field-read pinを要求する。Rust/CともsnapshotのNormal取得・生存中Count・一度だけのEndとterminal残存/escape拒否を検証。Cはsnapshot終了だけ既存checked_text_endへ送り、他Arrayの契約を緩めない。
-- CLI56.67秒PASS、`cargo quick-test-fast map_tests::` は13 PASS/1既存ignored（build96秒）。`bash tools/build_hako_llvmc_ffi.sh` PASS。`CC="cc -fuse-ld=lld" python3 lang/c-abi/tests/published_map_physical_execution_test.py target/quick/libnyash_lifecycle_kernel.a` 全PASS（keys snapshotの実EXE0、既存Map実行/Fault/27 malformed含む）。新CLIのboxtorrentは同じowner73のsource停止でEXE未達。
+- CLI56.67秒PASS、`cargo quick-test-fast map_tests::` は13 PASS/1既存ignored（build96秒）。`bash tools/build_hako_llvmc_ffi.sh` PASS。`CC="cc -fuse-ld=lld" python3 lang/c-abi/tests/published_map_physical_execution_test.py target/quick/libnyash_lifecycle_kernel.a` 全PASS（keys snapshotの実EXE0、既存Map実行/Fault/27 malformed含む）。その時点のboxtorrentはowner73のsource停止でEXE未達（現在は上記owner56）。
 - 新しいsnapshot lifetimeは既存Map pointer/owned-object Array検証で守れないため、既存RustケースのCount/End/escape変異と既存C familyの最小snapshot graph/終了変異を追加。Rust test関数/新規ファイル/checkerなし（C fixture factoryは追加）。これは物理層の証拠でありsource受理の証拠には数えない。
 - native keys snapshot: Live Mapの同じgateでpublic-textキーを複製し、gate外で辞書順に整列して独立Text ArrayをNormal時だけ公開。fieldも同じ操作へ接続し、既存checked_text_endで終了する。source/Coreからのpacket発行はまだ未接続。
 - `cargo test --profile quick -p nyash_kernel --no-default-features --features lifecycle-core --lib --config profile.quick.package.nyash-rust.opt-level=0 fault::checked_map::tests::` は15件PASS（build48.50秒）。`cargo quick-build-lifecycle-fast` PASS（初回7.33秒、field追加後2.46秒）。実archive連結の既存checked_map_runtime_abi_test.cはprofile1/2 PASS（Mapはprofile1）。
-- snapshotの順序・数値/UTF-8キー・Map終了後の独立性・未公開out保持・Fault中End/二重End拒否は既存証拠で未検証の新境界なので、既存UTF-8ケースとC ABI検証だけを拡張。test関数/fixtureファイル/checkerの追加なし。固定suiteはこの未接続runtime API追加では再実行していない。
-- 直前CLI `cargo quick-build-fast`49.02秒、`cargo quick-test-fast --no-run`79秒PASS。既存source outcomes3/scalar pending7/object返却5/stored receiver6は全PASS。boxtorrent smokeは上記新停止でEXE未達。新規test関数/fixtureファイル/checker/for_testなし。
+- snapshotの順序・数値/UTF-8キー・Map終了後の独立性・未公開out保持・Fault中End/二重End拒否は既存証拠で未検証の新境界なので、既存UTF-8ケースとC ABI検証だけを拡張。test関数/fixtureファイル/checkerの追加なし。runtime追加時の証拠であり、今回のsuite結果は上記を参照。
+- 以前のCLI `cargo quick-build-fast`49.02秒、`cargo quick-test-fast --no-run`79秒PASS。既存source outcomes3/scalar pending7/object返却5/stored receiver6は全PASS。boxtorrent smokeは上記新停止でEXE未達。新規test関数/fixtureファイル/checker/for_testなし。
 - 型/Return/receiver originの独立した権限分離を既存consumer証拠だけでは守れないため、既存Map検証の7ケースへ最小receiver probe/assertionを追加。Directが普通のCall loanを持たず元initializerを再照合すること、異class/escape/clearの拒否を確認。test関数/ケース数は増やしていない。
 - Textの繰返しHome再観測テスト1件は `argument-frame-current-drift` で赤。同日の作業前既存test binaryでも同じ行/拒否を再現したが、対応revisionは未確認なので未完のまま保持し、現在のgreenとは数えない。
 - 結果昇格の挙動不変なowner移動は別commit。新moduleを増やさず、profile817行を800行未満へ戻した。テストで検出した移動時import欠落も訂正済み。

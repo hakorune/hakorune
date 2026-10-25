@@ -191,7 +191,7 @@
       "aliases": [],
       "arity": "0",
       "semantic_law": {
-        "0": "Unprojected"
+        "0": "MapTextKeysSnapshot"
       },
       "effect": "pure_read",
       "core_op": "MapKeys",

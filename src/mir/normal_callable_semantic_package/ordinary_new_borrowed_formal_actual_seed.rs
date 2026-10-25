@@ -509,6 +509,10 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             instance_result,
             required_i64,
             required_text: required_text.into_boxed_slice(),
+            receiver_core: core_operand_request.filter(|request| request.manifest().row().op
+                == crate::mir::core_method_op::CoreMethodOp::ArrayLen)
+                .and_then(|_| input.function().method_call_source_v1(method.receiver_site()))
+                .map(|inner| (std::sync::Arc::clone(inner), Box::new(classify(method.receiver_site())))),
         }));
     }
     let Some(mut binding) = arg_site_binding(input, site) else {

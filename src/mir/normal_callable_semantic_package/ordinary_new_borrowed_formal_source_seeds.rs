@@ -72,6 +72,12 @@ struct OriginalBorrowedFormalSourceV1
 }
 
 impl OriginalBorrowedFormalSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ordinary_core_source_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>> {
+        self.seeds.corroborate_original_v1(&self.inventory).then_some(())?;
+        self.seeds.ordinary_core.get(site)
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn join_instance_result_classes_v1(
         &mut self,
         classes: &[(

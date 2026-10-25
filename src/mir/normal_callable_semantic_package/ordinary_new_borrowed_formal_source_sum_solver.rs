@@ -89,6 +89,7 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
                 .iter()
                 .chain(&nodes[*node].required_i64)
                 .chain(&nodes[*node].required_text)
+                .chain(&nodes[*node].required_core)
                 .chain(nodes[*node].binary.iter().map(|binary| &binary.operands[0]))
                 .filter(|dependency| groups[**dependency] != component)
             {
@@ -103,6 +104,8 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
         // never justify its other, recursively assumed I64 premise.
         grounded |= members.iter().any(|node| {
             !nodes[*node].atoms.is_empty()
+                && nodes[*node].required_core.iter().all(|dependency|
+                    groups[*dependency] != component && values[*dependency].is_some())
                 && nodes[*node].required_i64.iter().all(|dependency| {
                     groups[*dependency] != component
                         && values[*dependency]
@@ -178,6 +181,8 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
         }
         for node in members {
             let value = SourceValueSumV1(candidate[node].clone());
+            valid &= nodes[*node].required_core.iter().all(|dependency|
+                groups[*dependency] != component && values[*dependency].is_some());
             valid &= !value.0.is_empty()
                 && nodes[*node]
                     .constraints

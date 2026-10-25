@@ -48,6 +48,7 @@ static box CoreMethodContractBox {
   semantic_law_unprojected() { return "Unprojected" }
   semantic_law_array_count() { return "ArrayCount" }
   semantic_law_map_key_presence() { return "MapKeyPresence" }
+  semantic_law_map_text_keys_snapshot() { return "MapTextKeysSnapshot" }
   semantic_law_code_point_count() { return "CodePointCount" }
   semantic_law_code_point_half_open_clamped() { return "CodePointHalfOpenClamped" }
   semantic_law_code_point_search_from_zero() { return "CodePointSearchFromZero" }
@@ -268,7 +269,7 @@ static box CoreMethodContractBox {
       "keys",
       me._aliases0(),
       "0",
-      me._law0(me.semantic_law_unprojected()),
+      me._law0(me.semantic_law_map_text_keys_snapshot()),
       me.effect_pure_read(),
       me.op_map_keys(),
       me.result_dynamic(),

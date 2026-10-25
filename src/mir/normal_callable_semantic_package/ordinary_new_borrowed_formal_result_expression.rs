@@ -29,6 +29,9 @@ pub(super) type FieldSourcesV1 = BTreeMap<FieldKeyV1, Rc<DeclaredFieldValueSourc
 #[derive(Debug)]
 enum LeafV1 {
     Structural,
+    Core(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
+    /// This exact field projection belongs to the retained Core source node.
+    CoreReceiver(usize),
     Integer(OriginalIntegerBasisV1),
     Receiver(BindingRefV1),
     MapLocal {
@@ -221,6 +224,12 @@ impl ResultExpressionSourceV1 {
                 }
 
                 ExpressionNodeSourceV1::MethodCall => {
+                    if let Some(core) = original.and_then(|source|
+                        source.ordinary_core_source_v1(&OwnedExprSiteV1::new(input.owner(), node.site().clone()))) {
+                        leaves[index] = crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1::lend(
+                            input, &plan, index, core).map(LeafV1::Core).unwrap_or(LeafV1::Unresolved);
+                        continue;
+                    }
                     let source_call = pending::exact_call_source_v1(input, node.site(), needs);
                     match source_call {
                         Ok(Some((reference, receiver, need))) => input
@@ -239,6 +248,19 @@ impl ResultExpressionSourceV1 {
                 _ => LeafV1::Unresolved,
             };
         }
+        // Only the source-issued field receiver is structural. This does not
+        // erase a key/argument subtree or reclassify a Map as a scalar field.
+        for index in 0..leaves.len() {
+            let field = match &leaves[index] {
+                LeafV1::Core(core) => core.field_map().map(|field| field.field_site().clone()),
+                _ => None,
+            };
+            if let Some(field) = field {
+                if let Some(receiver) = plan.nodes().iter().position(|node| node.site() == &field) {
+                    leaves[receiver] = LeafV1::CoreReceiver(index);
+                }
+            }
+        }
         Self {
             plan,
             leaves: leaves.into_boxed_slice(),
@@ -249,6 +271,7 @@ impl ResultExpressionSourceV1 {
         fields: &BTreeSet<FieldKeyV1>,
         results: &BTreeMap<FunctionOwnerIdV1, BorrowedResultClassV1>,
     ) -> Option<BorrowedResultClassV1> {
+        if !self.core_sources_match() { return None; }
         // Source Integer is broader than the current signed result producer.
         // Keep usize declaration / typed-literal obligations out of I64 loans.
         if self
@@ -265,6 +288,10 @@ impl ResultExpressionSourceV1 {
             return None;
         }
         let class = project_expression_class_v1(&self.plan, |index| match &self.leaves[index] {
+            LeafV1::Core(core) if core.source().target().checked_text_keys_law_v1() => ExpressionLeafClassV1::Identity,
+            LeafV1::Core(core) => core.result_class().map(ExpressionLeafClassV1::Value)
+                .unwrap_or(ExpressionLeafClassV1::Unresolved),
+            LeafV1::CoreReceiver(_) => ExpressionLeafClassV1::Identity,
             LeafV1::Integer(_) => ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64),
             LeafV1::Receiver(_) | LeafV1::MapLocal { .. } | LeafV1::ObjectField { .. } | LeafV1::StoredObjectField { .. } => {
                 ExpressionLeafClassV1::Identity
@@ -334,7 +361,11 @@ impl ResultExpressionSourceV1 {
         })
     }
     pub(super) fn calls_ready(&self, source: &PreparedBorrowedFormalIngressV1) -> bool {
-        self.leaves.iter().all(|leaf| {
+        self.core_sources_match() && self.leaves.iter().all(|leaf| {
+            if let LeafV1::Core(core) = leaf {
+                return source.ordinary_core_source_v1(&OwnedExprSiteV1::new(self.plan.owner(), core.source().source().site().clone()))
+                    .is_some_and(|original| core.borrows_original_v1(original));
+            }
             if let LeafV1::Integer(basis) = leaf { return basis.ready(source); }
             let LeafV1::Call { reference, receiver, stored_receiver, .. } = leaf else { return true; };
             let mut rows = source.source_incoming.exact_rows().filter(|row| row.call == reference.call_site);
@@ -356,8 +387,18 @@ impl ResultExpressionSourceV1 {
         })
     }
     pub(super) fn fields_closed(&self, fields: &BTreeSet<FieldKeyV1>) -> bool {
-        self.leaves.iter().all(|leaf| match leaf {
+        self.core_sources_match() && self.leaves.iter().all(|leaf| match leaf {
             LeafV1::Field { key, .. } => fields.contains(key),
+            _ => true,
+        })
+    }
+    fn core_sources_match(&self) -> bool {
+        self.leaves.iter().all(|leaf| match leaf {
+            LeafV1::Core(core) => core.matches_plan(&self.plan, core.node())
+                && (!core.source().target().checked_array_count_law_v1() || self.leaves.iter().any(|leaf|
+                    matches!(leaf, LeafV1::Core(inner) if core.matches_receiver_result_v1(inner)))),
+            LeafV1::CoreReceiver(index) => matches!(self.leaves.get(*index), Some(LeafV1::Core(core))
+                if core.field_map().is_some() && core.matches_plan(&self.plan, *index)),
             _ => true,
         })
     }
@@ -367,7 +408,9 @@ impl ResultExpressionSourceV1 {
         sources: &FieldSourcesV1,
         objects: &ObjectFieldClassSourcesV1,
     ) -> bool {
-        self.leaves.iter().all(|leaf| match leaf {
+        self.core_sources_match() && self.leaves.iter().all(|leaf| match leaf {
+            LeafV1::Core(core) => core.field_map().is_none_or(|field|
+                sources.values().any(|original| field.matches_declared_source_v1(original))),
             LeafV1::MapLocal { binding, key, source, get } => {
                 binding.owner() == self.plan.owner() && get.owner() == self.plan.owner()
                     && source.original_get_v1(get)

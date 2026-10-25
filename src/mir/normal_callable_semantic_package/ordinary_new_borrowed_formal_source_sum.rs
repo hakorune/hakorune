@@ -150,10 +150,14 @@ struct ClosedOriginalCoreSourceV1 {
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     request: OriginalCoreOperandRequestV1,
     field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
+    receiver_core: Option<Rc<ClosedOriginalCoreSourceV1>>,
     text: Box<[SourceValueSumV1]>,
     i64: Box<[SourceValueSumV1]>,
 }
 impl ClosedOriginalCoreSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn receiver_core(&self) -> Option<&Rc<Self>> {
+        self.receiver_core.as_ref()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn method(
         &self,
     ) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> {
@@ -195,6 +199,11 @@ impl ClosedOriginalCoreSourceV1 {
             && self.manifest().arity() == other.manifest().arity()
             && self.text == other.text
             && self.i64 == other.i64
+            && match (&self.receiver_core, &other.receiver_core) {
+                (None, None) => true,
+                (Some(left), Some(right)) => left.matches(right),
+                _ => false,
+            }
             && match (&self.field_map, &other.field_map) {
                 (None, None) => true,
                 (Some(left), Some(right)) => left.matches_source(right),
@@ -206,6 +215,7 @@ impl ClosedOriginalCoreSourceV1 {
 struct CoreRequestNode {
     node: usize,
     field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
+    receiver_core: Option<std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>>,
     text: Vec<usize>,
     i64: Vec<usize>,
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
@@ -218,6 +228,7 @@ struct Node {
     union: Vec<usize>,
     required_i64: Vec<usize>,
     required_text: Vec<usize>,
+    required_core: Vec<usize>,
     constraints: Vec<Box<str>>,
     invalid: bool,
     unconditional: bool,
@@ -229,6 +240,7 @@ impl Node {
             .iter()
             .chain(&self.required_i64)
             .chain(&self.required_text)
+            .chain(&self.required_core)
             .copied()
             .chain(self.binary.iter().flat_map(|binary| binary.operands))
     }
@@ -441,6 +453,12 @@ impl Graph<'_> {
                         Some(Rep::ExactNominalBox { box_name }) => {
                             row.atoms.insert(Value::Object(box_name.into()));
                         }
+                        None if source.core_operand_request().is_some_and(|request|
+                            request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapKeys) => {
+                            // No primitive class is lent. The exact structural
+                            // result and its receiver relation live on Core.
+                            row.atoms.insert(Value::Other);
+                        }
                         None => row.invalid = true,
                     }
                 }
@@ -455,8 +473,8 @@ impl Graph<'_> {
                     .map(|seed| self.seed(seed))
                     .collect();
                 if let Some(request) = source.core_operand_request() {
-                    let field_map = if request.manifest().row().op
-                        == crate::mir::core_method_op::CoreMethodOp::MapHas
+                    let field_map = if matches!(request.manifest().row().op,
+                        crate::mir::core_method_op::CoreMethodOp::MapHas | crate::mir::core_method_op::CoreMethodOp::MapKeys)
                     {
                         let proof = (self.map_receiver)(source.method());
                         row.invalid |= proof.is_none();
@@ -464,9 +482,20 @@ impl Graph<'_> {
                     } else {
                         None
                     };
+                    let receiver_core = if request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayLen {
+                        match source.receiver_core() {
+                            Some((original, seed)) if original.owner() == source.method().owner()
+                                && original.result_site() == source.method().receiver_site() => {
+                                row.required_core.push(self.seed(seed));
+                                Some(std::sync::Arc::clone(original))
+                            }
+                            _ => { row.invalid = true; None }
+                        }
+                    } else { None };
                     self.core_requests.push(CoreRequestNode {
                         node: id,
                         field_map,
+                        receiver_core,
                         method: std::sync::Arc::clone(source.method()),
                         request,
                         text: text.clone(),
@@ -513,7 +542,7 @@ fn project_graph_v1(
     BTreeMap<OwnedExprSiteV1, Rc<ClosedOriginalCoreSourceV1>>,
 ) {
     let values = solve(nodes);
-    let mut core_calls: BTreeMap<_, Option<ClosedOriginalCoreSourceV1>> = BTreeMap::new();
+    let mut core_calls: BTreeMap<_, Option<Rc<ClosedOriginalCoreSourceV1>>> = BTreeMap::new();
     for request in core_requests.iter().cloned() {
         let dynamic_integer_boundary = request.request.manifest().row().op
             == crate::mir::core_method_op::CoreMethodOp::StringSubstring;
@@ -526,14 +555,22 @@ fn project_graph_v1(
                 sum.signed_only() || (dynamic_integer_boundary && sum.tagged_dynamic_only())
             })
         });
+        let receiver_core = request.receiver_core.as_ref().and_then(|method|
+            core_calls.get(&OwnedExprSiteV1::new(method.owner(), method.site().clone()))
+                .and_then(Option::as_ref)
+                .filter(|inner| std::sync::Arc::ptr_eq(inner.method(), method)
+                    && inner.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapKeys
+                    && inner.field_map().is_some())).cloned();
+        let receiver_closed = request.receiver_core.is_some() == receiver_core.is_some();
         let closed = values[request.node]
             .as_ref()
-            .filter(|_| premises_closed)
+            .filter(|_| premises_closed && receiver_closed)
             .and_then(|_| {
-                Some(ClosedOriginalCoreSourceV1 {
+                Some(Rc::new(ClosedOriginalCoreSourceV1 {
                     method: std::sync::Arc::clone(&request.method),
                     request: request.request,
                     field_map: request.field_map.clone(),
+                    receiver_core,
                     text: request
                         .text
                         .iter()
@@ -546,7 +583,7 @@ fn project_graph_v1(
                         .map(|dependency| values[*dependency].clone())
                         .collect::<Option<Vec<_>>>()?
                         .into_boxed_slice(),
-                })
+                }))
             });
         let site = OwnedExprSiteV1::new(request.method.owner(), request.method.site().clone());
         match core_calls.entry(site) {
@@ -568,9 +605,22 @@ fn project_graph_v1(
         .iter()
         .filter_map(|(binding, node)| values[*node].clone().map(|value| (*binding, Rc::new(value))))
         .collect();
+    // A later conflicting demand may invalidate an earlier inner request.
+    // An outer receipt must retain the final canonical dependency, not a
+    // snapshot of an inner entry that the merge subsequently withdrew.
+    loop {
+        let invalid: Vec<_> = core_calls.iter().filter_map(|(site, value)| {
+            let inner = value.as_ref()?.receiver_core()?;
+            let key = OwnedExprSiteV1::new(inner.method().owner(), inner.method().site().clone());
+            (!core_calls.get(&key).and_then(Option::as_ref)
+                .is_some_and(|current| Rc::ptr_eq(current, inner))).then(|| site.clone())
+        }).collect();
+        if invalid.is_empty() { break; }
+        for site in invalid { core_calls.insert(site, None); }
+    }
     let core_calls = core_calls
         .into_iter()
-        .filter_map(|(site, value)| value.map(|value| (site, Rc::new(value))))
+        .filter_map(|(site, value)| value.map(|value| (site, value)))
         .collect();
     (values, points, formals, core_calls)
 }

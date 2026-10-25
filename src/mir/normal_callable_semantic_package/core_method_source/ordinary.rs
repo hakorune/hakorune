@@ -43,20 +43,33 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         .forest()
         .callable_source_ledger(input.owner())
         .map_err(|_| reject())?;
-    let map = operands.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapHas;
+    use crate::mir::core_method_op::CoreMethodOp as Op;
+    let op = operands.manifest().row().op;
+    let map = matches!(op, Op::MapHas | Op::MapKeys);
     if map != operands.field_map().is_some() {
         return Err(reject());
     }
-    let mut issuer = if map {
-        CoreMethodInstanceTargetIssuerV1::map_text_presence(operands.manifest().brand())
-    } else {
-        CoreMethodInstanceTargetIssuerV1::string_box_text(operands.manifest().brand())
+    if (op == Op::ArrayLen) != operands.receiver_core().is_some()
+        || operands.receiver_core().is_some_and(|inner|
+            inner.manifest().row().op != Op::MapKeys || inner.field_map().is_none()
+                || inner.method().owner() != method.owner()
+                || inner.method().result_site() != method.receiver_site()
+                || !input.function().method_call_source_v1(inner.method().site())
+                    .is_some_and(|original| std::sync::Arc::ptr_eq(original, inner.method()))) {
+        return Err(reject());
+    }
+    let mut issuer = match op {
+        Op::MapHas => CoreMethodInstanceTargetIssuerV1::map_text_presence(operands.manifest().brand()),
+        Op::MapKeys => CoreMethodInstanceTargetIssuerV1::map_text_keys(operands.manifest().brand()),
+        Op::ArrayLen => CoreMethodInstanceTargetIssuerV1::array_count(operands.manifest().brand()),
+        _ => CoreMethodInstanceTargetIssuerV1::string_box_text(operands.manifest().brand()),
     }
     .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
     let target = issuer
         .issue(operands.manifest())
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
-    if target.checked_code_point_law_v1().is_none() && !target.checked_map_presence_law_v1() {
+    if target.checked_code_point_law_v1().is_none() && !target.checked_map_presence_law_v1()
+        && !target.checked_text_keys_law_v1() && !target.checked_array_count_law_v1() {
         return Err("[freeze:contract][ordinary-core/semantic-law]".to_owned());
     }
     let source =
@@ -91,6 +104,16 @@ impl PartialEq for ExpressionCoreSourceLoanV1 {
 }
 impl Eq for ExpressionCoreSourceLoanV1 {}
 impl ExpressionCoreSourceLoanV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn borrows_original_v1(&self, original: &Rc<OrdinaryCoreSourceCallV1>) -> bool {
+        Rc::ptr_eq(&self.original, original)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_receiver_result_v1(&self, inner: &Self) -> bool {
+        Rc::ptr_eq(&self.plan, &inner.plan)
+            && self.source().source().receiver_site() == inner.source().source().result_site()
+            && self.original.operands.receiver_core().is_some_and(|original|
+                Rc::ptr_eq(original, inner.original.operands()))
+            && inner.source().target().checked_text_keys_law_v1()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn lend(
         input: ResolvedFunctionLoweringInputV1<'_>,
         plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
@@ -193,8 +216,15 @@ impl ExpressionCoreSourceLoanV1 {
             })
             && (self.source().target().checked_code_point_law_v1().is_some()
                 || self.field_map().is_some_and(|field| {
-                    self.source().target().checked_map_presence_law_v1() && field.matches_plan(plan)
-                }))
+                    (self.source().target().checked_map_presence_law_v1()
+                        || self.source().target().checked_text_keys_law_v1()) && field.matches_plan(plan)
+                })
+                || (self.source().target().checked_array_count_law_v1()
+                    && self.original.operands.receiver_core().is_some_and(|inner|
+                        inner.method().result_site() == self.source().source().receiver_site()
+                            && plan.nodes().iter().filter(|node| node.site() == inner.method().site()
+                                && matches!(node.source(), Node::MethodCall)).count() == 1
+                            && inner.field_map().is_some_and(|field| field.matches_plan(plan)))))
             && std::iter::once(self.source().source().receiver_site())
                 .chain(
                     self.source()
@@ -331,6 +361,11 @@ impl FieldMapReceiverSourceV1 {
         other: &Self,
     ) -> bool {
         Rc::ptr_eq(&self.source, &other.source)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_declared_source_v1(
+        &self, original: &Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::DeclaredFieldValueSourceV1>,
+    ) -> bool {
+        Rc::ptr_eq(&self.source, original)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_source(
         &self,

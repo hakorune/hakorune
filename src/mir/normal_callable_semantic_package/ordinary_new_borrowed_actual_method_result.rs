@@ -397,8 +397,13 @@ impl OriginalCoreOperandRequestV1 {
                 .and_then(|shape| shape.expression_shape(method.receiver_site())),
             Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })
         );
+        let receiver_core = input.function().method_call_source_v1(method.receiver_site())
+            .filter(|inner| inner.owner() == method.owner() && inner.result_site() == method.receiver_site())
+            .and_then(|inner| lookup_core_method_result_row_v2("MapBox", inner.selector(), inner.arity()))
+            .is_some_and(|row| row.op == CoreMethodOp::MapKeys);
         let row = lookup_core_method_result_row_v2(
-            if map_field && method.selector() == "has" {
+            if receiver_core { "ArrayBox" }
+            else if map_field && matches!(method.selector(), "has" | "keys") {
                 "MapBox"
             } else {
                 "StringBox"
@@ -412,6 +417,8 @@ impl OriginalCoreOperandRequestV1 {
                 | (CoreMethodOp::StringSubstring, 2)
                 | (CoreMethodOp::StringIndexOf, 1)
                 | (CoreMethodOp::MapHas, 1)
+                | (CoreMethodOp::MapKeys, 0)
+                | (CoreMethodOp::ArrayLen, 0)
         ) {
             return None;
         }
@@ -437,10 +444,14 @@ impl OriginalCoreOperandRequestV1 {
         }
     }
     pub(super) fn receiver_is_text(self) -> bool {
-        self.manifest.row().op != crate::mir::core_method_op::CoreMethodOp::MapHas
+        !matches!(self.manifest.row().op, crate::mir::core_method_op::CoreMethodOp::MapHas
+            | crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayLen)
     }
-    fn representation(self) -> VerifiedCallableResultRepresentationV1 {
-        match self.manifest.row().op {
+    fn representation(self) -> Option<VerifiedCallableResultRepresentationV1> {
+        Some(match self.manifest.row().op {
+            // Structural owned result stays on the Core receipt; it is not
+            // projected as a nominal object or an unknown Dynamic payload.
+            crate::mir::core_method_op::CoreMethodOp::MapKeys => return None,
             crate::mir::core_method_op::CoreMethodOp::StringSubstring => {
                 VerifiedCallableResultRepresentationV1::ExactString
             }
@@ -448,7 +459,7 @@ impl OriginalCoreOperandRequestV1 {
                 VerifiedCallableResultRepresentationV1::ExactBool
             }
             _ => VerifiedCallableResultRepresentationV1::ExactI64,
-        }
+        })
     }
 }
 
@@ -491,9 +502,15 @@ struct OriginalMethodResultSeedV1
     pub(super) instance_result: Option<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1>,
     pub(super) required_i64: Box<[OriginalFormalActualSeedV1]>,
     pub(super) required_text: Box<[OriginalFormalActualSeedV1]>,
+    pub(super) receiver_core: Option<(Arc<VerifiedResolvedMethodCallSourceV1>, Box<OriginalFormalActualSeedV1>)>,
 }
 
 impl OriginalMethodResultSeedV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn receiver_core(
+        &self,
+    ) -> Option<(&Arc<VerifiedResolvedMethodCallSourceV1>, &OriginalFormalActualSeedV1)> {
+        self.receiver_core.as_ref().map(|(source, seed)| (source, seed.as_ref()))
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn method(
         &self,
     ) -> &Arc<VerifiedResolvedMethodCallSourceV1> {
@@ -513,7 +530,7 @@ impl OriginalMethodResultSeedV1 {
     ) -> Option<VerifiedCallableResultRepresentationV1> {
         match (&self.proof, self.core_operand_request) {
             (Some(proof), _) => proof.representation(),
-            (None, Some(request)) => Some(request.representation()),
+            (None, Some(request)) => request.representation(),
             _ => None,
         }
     }

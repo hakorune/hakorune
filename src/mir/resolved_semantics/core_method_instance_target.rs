@@ -25,6 +25,8 @@ pub(crate) enum CoreMethodHomeSchemaV1 {
     ArrayIntegerAppend,
     ArrayDynamicRead,
     MapTextPresence,
+    MapTextKeys,
+    ArrayCount,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,6 +51,8 @@ pub(crate) enum CoreMethodHomeResultRelationV1 {
     BoolToCaller,
     TextToCaller,
     DynamicToCaller,
+    /// A fresh plain Text Array. This is not a nominal object's identity.
+    TextArrayToCaller,
     NoValue,
 }
 
@@ -59,6 +63,7 @@ pub(crate) enum CoreMethodHomeAbiProfileV1 {
     NamedArrayIntegerV1,
     NamedArrayReadV1,
     MapTextPresenceV1,
+    MapTextKeysV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -133,6 +138,15 @@ impl CoreMethodInstanceTargetIssuerV1 {
         Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::MapTextPresence)
     }
 
+    pub(crate) fn map_text_keys(manifest_brand: CoreMethodManifestBrandV2)
+        -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::MapTextKeys)
+    }
+    pub(crate) fn array_count(manifest_brand: CoreMethodManifestBrandV2)
+        -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::ArrayCount)
+    }
+
     fn with_schema(
         manifest_brand: CoreMethodManifestBrandV2,
         schema: CoreMethodHomeSchemaV1,
@@ -175,6 +189,12 @@ impl CoreMethodInstanceTargetIssuerV1 {
         }
         let generated = row.row();
         let (receiver_name, effect, abi_profile) = match self.schema {
+            CoreMethodHomeSchemaV1::MapTextKeys => (
+                "MapBox", CoreMethodEffectV1::PureRead, CoreMethodHomeAbiProfileV1::MapTextKeysV1,
+            ),
+            CoreMethodHomeSchemaV1::ArrayCount => (
+                "ArrayBox", CoreMethodEffectV1::PureRead, CoreMethodHomeAbiProfileV1::NamedArrayReadV1,
+            ),
             CoreMethodHomeSchemaV1::MapTextPresence => (
                 "MapBox", CoreMethodEffectV1::PureRead, CoreMethodHomeAbiProfileV1::MapTextPresenceV1,
             ),
@@ -207,6 +227,22 @@ impl CoreMethodInstanceTargetIssuerV1 {
         }
 
         let (receiver, parameters, result) = match (generated.op, row.arity()) {
+            (CoreMethodOp::MapKeys, 0) if self.schema == CoreMethodHomeSchemaV1::MapTextKeys => {
+                if generated.result_kind != CoreMethodResultKindV1::Dynamic
+                    || row.semantic_law_for_arity() != Some(crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::MapTextKeysSnapshot) {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (CoreMethodHomeReceiverRelationV1::MapReceiver, Box::new([]) as Box<[_]>,
+                    CoreMethodHomeResultRelationV1::TextArrayToCaller)
+            },
+            (CoreMethodOp::ArrayLen, 0) if self.schema == CoreMethodHomeSchemaV1::ArrayCount => {
+                if generated.result_kind != CoreMethodResultKindV1::I64Value
+                    || row.semantic_law_for_arity() != Some(crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::ArrayCount) {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (CoreMethodHomeReceiverRelationV1::NamedArrayReceiver, Box::new([]) as Box<[_]>,
+                    CoreMethodHomeResultRelationV1::I64ToCaller)
+            },
             (CoreMethodOp::MapHas, 1) if self.schema == CoreMethodHomeSchemaV1::MapTextPresence => {
                 if generated.result_kind != CoreMethodResultKindV1::BoolValue
                     || row.semantic_law_for_arity() != Some(crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::MapKeyPresence) {
@@ -252,6 +288,8 @@ impl CoreMethodInstanceTargetIssuerV1 {
                         CoreMethodHomeParameterRelationV1::I64Parameter
                     }
                     CoreMethodHomeSchemaV1::MapTextPresence
+                    | CoreMethodHomeSchemaV1::MapTextKeys
+                    | CoreMethodHomeSchemaV1::ArrayCount
                     | CoreMethodHomeSchemaV1::ArrayDynamicRead
                     | CoreMethodHomeSchemaV1::StringBoxText => {
                         return Err(CoreMethodInstanceTargetRejectV1::UnsupportedOperation {
@@ -389,6 +427,20 @@ impl VerifiedCoreMethodInstanceTargetV1 {
             CoreMethodHomeResultRelationV1::BoolToCaller => Some(Class::Bool),
             _ => None,
         }
+    }
+    pub(crate) fn checked_text_keys_law_v1(&self) -> bool {
+        self.schema == CoreMethodHomeSchemaV1::MapTextKeys
+            && self.row.row().op == CoreMethodOp::MapKeys && self.row.arity() == 0
+            && self.row.semantic_law_for_arity() == Some(crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::MapTextKeysSnapshot)
+            && self.result == CoreMethodHomeResultRelationV1::TextArrayToCaller
+            && self.parameters.is_empty()
+    }
+    pub(crate) fn checked_array_count_law_v1(&self) -> bool {
+        self.schema == CoreMethodHomeSchemaV1::ArrayCount
+            && self.row.row().op == CoreMethodOp::ArrayLen && self.row.arity() == 0
+            && self.row.semantic_law_for_arity() == Some(crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::ArrayCount)
+            && self.result == CoreMethodHomeResultRelationV1::I64ToCaller
+            && self.parameters.is_empty()
     }
     pub(crate) fn checked_map_presence_law_v1(&self) -> bool {
         self.schema == CoreMethodHomeSchemaV1::MapTextPresence

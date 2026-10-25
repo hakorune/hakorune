@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner73 Body12 chunkCount keys().length() borrowed-result/source-not-i64; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner56 Body0 Value chunkCount keys().length() borrowed-result/source-not-i64; fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,10 +18,10 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 APP-boxtorrent-mini remains selected; unchanged source uses canonical emit-exe/C API with exact stdout/exit and no replay. EXE remains incomplete.
-Last fixed suite before native keys snapshot:9/11 in463.098s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass again; boxtorrent and JSON source connections remain open.
-Current stop: owner73 Body12Initializer store.chunkCount(), borrowed-result/source-not-i64. Native keys snapshot and exact physical acquisition/Count/End now verified; next connect original keys/length Core source and cleanup packets to that operation; no Map.len rewrite or legacy handle ABI.
+Current fixed suite9/11 in469.043s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass again; boxtorrent owner56 and JSON owner22 source connections remain open.
+Current stop: owner56 Body0Value return keys().length(), borrowed-result/source-not-i64. Original inner/outer Core source and scalar grounding now verified in existing fixtures; actual app evaluation/cleanup remains open. Next carry TextArray result kind and nonfault Array End in the same expression/cleanup owner; no Map.len rewrite or legacy ABI.
 Connected DirectMapGet receiver origin and existing parameterless result declarations to original source dependencies; Store.release result now grounds. All borrowed origins remain SourcePending until real acquisition/nonnull/lifetime/physical proofs; late Direct scalar and nested retain remain open.
-CLI56.67s/test96s PASS; Map filter13 PASS/1 existing ignored; FFI build and full physical Map C execution/Fault/negative checks PASS, including keys snapshot EXE0. Native keys kernel Map15/C ABI profiles1/2 also PASS. No new test files/checkers. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
+CLI46.44s/test build99s PASS; existing Core source2/target7/scalar pending7 PASS; codegen check/Python14 PASS. Existing SCC String-left/unknownRHS test remains0/1 (same prior assert, old revision unconfirmed). No new Rust test functions/files/checkers; physical keys EXE0 and runtime checks remain separate evidence. Prior reds and R6/R7/finite-product closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"
