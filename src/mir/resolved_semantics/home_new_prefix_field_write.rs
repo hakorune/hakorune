@@ -23,7 +23,11 @@ pub(super) fn observe<E>(
     locals: &mut PrefixLocalFlow<'_>,
     homes: &mut Vec<LiveHomeV1>,
     prefix_known: bool,
-    local_calls: &[LocalCallObservationV1],
+    local_calls: &mut Vec<LocalCallObservationV1>,
+    path_calls: &mut BTreeSet<OwnedExprSiteV1>,
+    actuals: &mut impl FnMut(
+        &OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     fields: &mut impl FnMut(
@@ -58,9 +62,30 @@ pub(super) fn observe<E>(
                     if let Some(entry) =
                         scalar_field.entry_write(input, assignment.target_site())?
                     {
+                        let text = entry.text_value().is_some();
                         let Some(frame) = CheckedFieldWriteFrameV1::for_entry(entry, homes) else {
                             return Ok(false);
                         };
+                        if text {
+                            if !prefix_known || !local_call_flow::stage_expression_actuals_v1(
+                                input, statement, frame.source(), locals, prefix_known,
+                                homes, local_calls, fields, actuals,
+                            )? { return Ok(false); }
+                            let purpose = OwnedExprSiteV1::new(input.owner(), assignment.value_site().clone());
+                            let Some(evaluation) = super::expression_plan::qualify_text_evaluation_v1(
+                                input, Rc::clone(frame.source()), &purpose, locals,
+                                homes, local_calls, actuals, None,
+                            )? else { return Ok(false); };
+                            let Some(plan) = super::expression_plan::HomeExpressionPlanV1::text_field_write(
+                                frame, Rc::clone(&evaluation),
+                            ) else { return Ok(false); };
+                            let mut installation = locals.expression_installation();
+                            if !installation.approve(&plan) { return Ok(false); }
+                            installation.commit();
+                            path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
+                            local_calls.extend_from_slice(evaluation.calls());
+                            return Ok(true);
+                        }
                         let signed_reads =
                             signed_reads(frame.source(), locals, local_calls, scalar_field);
                         let inputs: Vec<_> = if crate::config::env::builder_debug_enabled() {

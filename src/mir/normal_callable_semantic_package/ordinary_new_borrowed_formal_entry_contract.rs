@@ -116,27 +116,31 @@ impl OrdinaryNewClaimLedgerV1 {
                 entry.recheck(self)?;
                 let mut reads = vec![(entry.original().write().receiver_site(), entry.receiver())];
                 let mut entry_reads = BTreeSet::new();
-                for (node, original) in frame.source().nodes().iter().enumerate() {
-                    let binding = match original.source() {
-                        ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => {
-                            if rhs.reference(node).is_none() && *binding != entry.receiver() { input_use_pending!("entry-write-reference") }
-                            *binding
-                        },
-                        ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
-                            receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), .. })
-                            if *binding == entry.receiver() => *binding,
-                        _ => continue,
-                    };
-                    if origins.contains_key(&binding) {
-                        let Some(Reference::FiniteEntry { read, exclusion: None }) = rhs.reference_source(node)
-                            else { input_use_pending!("entry-write-finite-read") };
-                        if !read.signed_only() || !read.requirement().corroborates_original_uses_v1(uses)
-                            || origins.get(&binding) != Some(&read.requirement().formal().1) {
-                            return Err(freeze("static-input/entry-read-source"));
+                // Text references/call inputs belong to the same common
+                // evaluation closure below. Only the target receiver is extra.
+                if rhs.evaluation().is_none() {
+                    for (node, original) in frame.source().nodes().iter().enumerate() {
+                        let binding = match original.source() {
+                            ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => {
+                                if rhs.reference(node).is_none() && *binding != entry.receiver() { input_use_pending!("entry-write-reference") }
+                                *binding
+                            },
+                            ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
+                                receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), .. })
+                                if *binding == entry.receiver() => *binding,
+                            _ => continue,
+                        };
+                        if origins.contains_key(&binding) {
+                            let Some(Reference::FiniteEntry { read, exclusion: None }) = rhs.reference_source(node)
+                                else { input_use_pending!("entry-write-finite-read") };
+                            if !read.signed_only() || !read.requirement().corroborates_original_uses_v1(uses)
+                                || origins.get(&binding) != Some(&read.requirement().formal().1) {
+                                return Err(freeze("static-input/entry-read-source"));
+                            }
+                            entry_reads.insert((original.site().clone(), binding));
                         }
-                        entry_reads.insert((original.site().clone(), binding));
+                        reads.push((original.site(), binding));
                     }
-                    reads.push((original.site(), binding));
                 }
                 for (site, binding) in reads {
                     if origins.contains_key(&binding) && !entry_reads.contains(&(site.clone(), binding)) { input_use_pending!("entry-write-read-uncovered") }
@@ -146,11 +150,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 }
             }
-            for evaluation in [plan.initializer_frame().map(|frame| frame.evaluation()),
-                plan.argument_frame().map(|frame| frame.evaluation()),
-                plan.print_frame().map(|frame| frame.evaluation()),
-                plan.condition_frame().map(|frame| frame.evaluation()),
-                plan.rebind_frame().map(|frame| frame.evaluation())].into_iter().flatten() {
+            if let Some(evaluation) = plan.evaluation() {
                 if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
             }
         }

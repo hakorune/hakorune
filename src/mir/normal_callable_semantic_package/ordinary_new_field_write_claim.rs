@@ -156,13 +156,29 @@ pub(crate) struct EntryFieldWriteSourceV1 {
     original: OriginalFieldWriteSourceLoanV1,
     field: hakorune_mir_defs::CanonicalFieldRefV1,
     declared: Option<Box<str>>,
-    value: Option<super::lexical_instance_call::ClosedNumericFieldSourceLoanV1>,
+    value: EntryFieldWriteValueSourceV1,
 }
+/// One closed all-writer value basis; absence is never an executable I64 lease.
+#[derive(Debug, Clone)]
+pub(in crate::mir::normal_callable_semantic_package) enum EntryFieldWriteValueSourceV1 {
+    Numeric(super::lexical_instance_call::ClosedNumericFieldSourceLoanV1),
+    Text(TextFieldValueSourceV1),
+}
+impl PartialEq for EntryFieldWriteValueSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Numeric(a), Self::Numeric(b)) => a.same_source(b),
+            (Self::Text(a), Self::Text(b)) => a == b,
+            _ => false,
+        }
+    }
+}
+impl Eq for EntryFieldWriteValueSourceV1 {}
 impl PartialEq for EntryFieldWriteSourceV1 {
     fn eq(&self, other: &Self) -> bool {
         self.root.same_source(&other.root) && self.original == other.original
             && self.field == other.field && self.declared == other.declared
-            && match (&self.value, &other.value) { (Some(a), Some(b)) => a.same_source(b), (None, None) => true, _ => false }
+            && self.value == other.value
     }
 }
 impl Eq for EntryFieldWriteSourceV1 {}
@@ -171,7 +187,7 @@ impl EntryFieldWriteSourceV1 {
         input: ResolvedFunctionLoweringInputV1<'_>, original: OriginalFieldWriteSourceLoanV1,
         root: Rc<super::terminal_home::ExpressionFieldRootSourceV1>,
         field: hakorune_mir_defs::CanonicalFieldRefV1, declared: Option<String>,
-        value: Option<super::lexical_instance_call::ClosedNumericFieldSourceLoanV1>,
+        value: EntryFieldWriteValueSourceV1,
     ) -> Option<Self> {
         let write = original.write();
         let source = write.source().ok()?;
@@ -195,6 +211,10 @@ impl EntryFieldWriteSourceV1 {
     pub(crate) fn original(&self) -> &OriginalFieldWriteSourceLoanV1 { &self.original }
     pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
     pub(crate) fn declared_type(&self) -> Option<&str> { self.declared.as_deref() }
+    /// Source class only; evaluation, acquisition and FieldSet remain separate.
+    pub(crate) fn text_value(&self) -> Option<&TextFieldValueSourceV1> {
+        match &self.value { EntryFieldWriteValueSourceV1::Text(value) => Some(value), _ => None }
+    }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.original.write().source().expect("sealed original writer") }
     pub(in crate::mir::normal_callable_semantic_package) fn checked_entry_value_v1(
         &self, ledger: &super::OrdinaryNewClaimLedgerV1, function: &crate::mir::MirFunction,
@@ -204,12 +224,22 @@ impl EntryFieldWriteSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn recheck(&self, ledger: &super::OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         ledger.field_write_claims.recheck_original_write_source_v1(&self.original)?;
         self.root.recheck_entry_v1(ledger, self.source().owner())?;
-        if let Some(value) = &self.value {
-            let ingress = ledger.borrowed_formal_source.as_ref().ok_or("field-write/formal-source-missing")?
-                .as_ref().map_err(Clone::clone)?;
-            value.recheck(&ledger.borrowed_i64_results, ingress)?;
-            if !value.matches_declaration(self.field, self.declared_type()) { return Err("field-write/source-plan".into()); }
-        } else if self.declared_type() != Some("i64") { return Err("field-write/source-plan".into()); }
+        let ingress = ledger.borrowed_formal_source.as_ref().ok_or("field-write/formal-source-missing")?
+            .as_ref().map_err(Clone::clone)?;
+        match &self.value {
+            EntryFieldWriteValueSourceV1::Numeric(value) => {
+                value.recheck(&ledger.borrowed_i64_results, ingress)?;
+                if !value.matches_declaration(self.field, self.declared_type()) {
+                    return Err("field-write/source-plan".into());
+                }
+            }
+            EntryFieldWriteValueSourceV1::Text(value) => {
+                if self.declared_type().is_some() || value.field() != self.field
+                    || !value.recheck(ingress, &ledger.field_write_claims, self.original.write().field()) {
+                    return Err("field-write/source-plan".into());
+                }
+            }
+        }
         Ok(())
     }
 }

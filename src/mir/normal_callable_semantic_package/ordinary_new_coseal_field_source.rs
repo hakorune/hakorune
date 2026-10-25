@@ -228,27 +228,41 @@ where
         };
         // A neutral source-only write is not an executable entry frame. Require
         // the complete value basis even for a declared slot before selecting it.
-        let value = match lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
-            self.results,
-            ingress,
-            field,
-            declared.as_deref(),
-            original.write().field(),
-        ) {
-            Ok(value) => value,
-            Err(issue) => {
-                if crate::config::env::builder_debug_enabled() {
-                    let retained = original
-                        .write()
-                        .owner_box()
-                        .and_then(|class| self.writes.value_source(class, original.write().field()))
-                        .map(|source| source.as_ref().err());
-                    eprintln!(
-                        "[field-source] site={site:?} field={} issue={issue} retained={retained:?}",
-                        original.write().field()
-                    );
+        use super::super::super::field_write_claim::{
+            EntryFieldWriteValueSourceV1 as Value, TextFieldValueSourceV1,
+        };
+        // Select Text from the SAME original all-writer SUM, before the numeric
+        // demand. A numeric refusal is never reinterpreted as a Text fallback.
+        let text = original.write().owner_box()
+            .and_then(|class| self.writes.value_source(class, original.write().field()))
+            .and_then(|source| source.as_ref().ok())
+            .and_then(|source| TextFieldValueSourceV1::lend(ingress, self.writes, source))
+            .filter(|source| declared.is_none() && source.field() == field);
+        let value = if let Some(text) = text {
+            Value::Text(text)
+        } else {
+            match lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
+                self.results,
+                ingress,
+                field,
+                declared.as_deref(),
+                original.write().field(),
+            ) {
+                Ok(value) => Value::Numeric(value),
+                Err(issue) => {
+                    if crate::config::env::builder_debug_enabled() {
+                        let retained = original
+                            .write()
+                            .owner_box()
+                            .and_then(|class| self.writes.value_source(class, original.write().field()))
+                            .map(|source| source.as_ref().err());
+                        eprintln!(
+                            "[field-source] site={site:?} field={} issue={issue} retained={retained:?}",
+                            original.write().field()
+                        );
+                    }
+                    return Ok(None);
                 }
-                return Ok(None);
             }
         };
         let root = terminal_home::ExpressionFieldRootSourceV1::issue_entry_v1(
@@ -267,7 +281,7 @@ where
                 root,
                 field,
                 declared,
-                Some(value),
+                value,
             ),
         )
     }

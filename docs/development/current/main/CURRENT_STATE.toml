@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner61 seal Body1 Value source-not-i64; preceding Text replacement Body0 unconnected; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner61 seal Body0 Value borrowed-static/source-actual-unavailable for nested Instance Text argument; fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner61 seal Body1 Value source-not-i64, after unsupported Text replacement at Body0.
-Fixed suite9/11 in473.748s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
-Same original receiver/all-writer Text facts now reach checked field snapshot/Return and final Rust/C validation; standalone source EXE/run/exact UTF-8 stdout/exit0 PASS, mixed-writer source rejected.
-Text Replace transaction: focused9/C physical Faults/existing field EXE PASS. Shared evaluator owner move: CLI45.37s and canonical source EXE/stdout/exit0 PASS; see card for test-binary note and prior reds.
-Next: connect original Text assignment RHS through expression_plan::qualify_text_evaluation_v1 to the existing both-exit consuming transaction, then returned Text discard, keys-array cleanup and borrowed receivers. Required local/shared R6/R7 and finite-product closeout remain open; see card.
+APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner61 seal Body0 Value borrowed-static/source-actual-unavailable for digest argument0 me.chunkListText().
+Fixed suite9/11 in509.428s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
+Same original field writer/entry/all-writer Text SUM now qualifies the Plain assignment through the shared evaluator; source identity and input-use closure remain separate from physical ownership.
+CLI72s and focused16 PASS. Four Core/receiver failures reproduce on clean pre-change HEAD with the same assertions/refusal; unchanged expectations. Text physical RHS/Normal-Fault cleanup remains unconnected; see card.
+Next: retain exact ordinary Instance argument source in the existing actual owner and require completed Text in the common argument evaluator, then connect the shared physical RHS and both-exit consuming transaction. Returned Text discard, keys cleanup, borrowed receivers and required R6/R7/finite-product closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

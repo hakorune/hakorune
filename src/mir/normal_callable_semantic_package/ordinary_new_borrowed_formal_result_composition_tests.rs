@@ -734,9 +734,45 @@ fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
         let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
         let sum = ingress.source_field_value_sum_v1(&ledger.field_write_claims, field).expect("all writer RHSs close");
         assert_eq!(sum.text_only(), expected, "replacement={replacement}: {sum:?}");
+        let text_source = crate::mir::normal_callable_semantic_package::TextFieldValueSourceV1::lend(
+            ingress, &ledger.field_write_claims, field);
+        assert_eq!(text_source.is_some(), expected);
+        if let Some(source) = &text_source {
+            assert_eq!(source.field(), field.field());
+            assert!(source.recheck(ingress, &ledger.field_write_claims, "value"));
+            assert!(!source.recheck(ingress, &ledger.field_write_claims, "other"));
+        }
         if expected {
             let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
             let other = &foreign.ordinary_new_claim_ledger;
+            assert!(!text_source.as_ref().unwrap().recheck(ingress, &other.field_write_claims, "value"));
+            let catalog = crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(package.batch()).unwrap();
+            let entries = crate::mir::resolved_semantics::CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1(package.batch(), &catalog).unwrap();
+            let contract = package.parameter_contracts.iter().find(|row| matches!(
+                package.selected.key_for_batch_slot(row.batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                    if key.owner() == "Page" && key.name() == "change")).unwrap();
+            let home = entries.for_batch_slot(contract.batch_slot).unwrap();
+            let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                &package.selected, package.batch(), Some(home), contract.batch_slot).unwrap();
+            let entry = package.batch().with_lowering_input(contract.batch_slot, |input| {
+                let assignment = &input.body_shape().unwrap().assignment_sources()[0];
+                let original = ledger.field_write_claims.original_write_source_v1(input.owner(), assignment.target_site()).unwrap().unwrap();
+                let root = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ExpressionFieldRootSourceV1::issue_entry_v1(
+                    package.instance_constructors(), receiver, home, input.owner(), receiver.0, field.field()).unwrap();
+                crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1::issue(
+                    input, original, root, field.field(), None,
+                    crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::EntryFieldWriteValueSourceV1::Text(
+                        text_source.as_ref().unwrap().clone())).unwrap()
+            }).unwrap();
+            entry.recheck(ledger).unwrap();
+            assert!(entry.recheck(other).is_err());
+            let completion = ledger.completion_source_for_owner_v1(contract.owner).unwrap();
+            let plan = completion.cleanup().root_flow().unwrap().expression_plans().iter()
+                .find(|plan| plan.field_write_frame().is_some()).unwrap();
+            assert!(plan.field_write_frame().unwrap().entry().unwrap().text_value().is_some());
+            assert!(plan.field_write_rhs().unwrap().is_consistent(entry.source()));
+            assert!(std::ptr::eq(plan.evaluation().unwrap(), plan.field_write_rhs().unwrap().evaluation().unwrap()));
             assert!(ingress.source_field_value_sum_v1(&other.field_write_claims,
                 other.field_value_source("Page", "value").unwrap().as_ref().unwrap()).is_none());
         }

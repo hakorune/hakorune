@@ -130,13 +130,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         );
     }
     // An unrelated scalar consumer must keep its original scalar demand/refusal.
-    // This passive loan is selected only by the SAME original Print expression.
+    // This passive loan needs the SAME original Text-purpose expression.
     let Some(expression) = expression else {
         return Ok(None);
     };
     if expression.owner() != site.owner()
-        || !matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+        || !(matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })
+            || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
+                if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain))
         || !expression.nodes().iter().any(|node| node.site() == site.site()
             && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall))
     { return Ok(None); }

@@ -527,20 +527,23 @@ pub(crate) fn issue_source_expression_call_v1<E>(
     if !result_matches_source_v1(input, site, &loan, &arguments) {
         return Ok(None);
     }
+    let plain_assignment = matches!(source.root(),
+        crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
+            if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain);
     let field_alias = match &loan {
         LocalCallResultSourceV1::Scalar(loan) if loan.kind() == SourceScalarKind::Integer =>
             loan.source().receiver_binding().ok().and_then(receiver_path),
-        LocalCallResultSourceV1::Ordinary(loan) if loan.static_source().is_some() && loan.result() == LocalCallResultClassV1::Text && matches!(source.root(),
+        LocalCallResultSourceV1::Ordinary(loan) if loan.static_source().is_some() && loan.result() == LocalCallResultClassV1::Text && (plain_assignment || matches!(source.root(),
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                     role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
-                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }) => None,
+                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })) => None,
         LocalCallResultSourceV1::Ordinary(loan) if loan.result() == LocalCallResultClassV1::Text
-            && loan.instance_source().is_some() && matches!(source.root(),
+            && loan.instance_source().is_some() && (plain_assignment || matches!(source.root(),
                 crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                     role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
-                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }) => None,
+                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })) => None,
         LocalCallResultSourceV1::DynamicInvocation(_) => None,
         _ => return Ok(None),
     };

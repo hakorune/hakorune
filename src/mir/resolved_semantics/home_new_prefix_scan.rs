@@ -325,6 +325,8 @@ pub(super) fn scan_statement_flow<'a, E>(
                 homes,
                 unavailable.is_none(),
                 local_calls,
+                path_calls,
+                borrowed_actuals,
                 scalar_field,
                 view_use,
                 local_field_read,
