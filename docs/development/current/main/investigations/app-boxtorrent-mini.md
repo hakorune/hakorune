@@ -8,7 +8,7 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 - 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。現在のV4 FFIを使用。
 - 現CLIのcanonical停止はowner70 Body4、`BoxTorrentChunker.ingest`の`manifest.seal()`を捨てるstatement call（`borrowed-result/source-not-i64`）。callee `BoxTorrentManifest.seal`は`me.root_id`を返すText候補でUnitではない。EXE未生成。
 - 訂正: keys().length()はowner55でsource I64が閉じていた。旧owner56をchunkCountへ対応付けた記録は誤りで、実際はallocatorBlocksの元field-return plan欠落だった。同じ元計画へ正規化しowner56/57のsource I64照合を確認。keysの実評価・Array cleanupは引き続き未接続。
-- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、469.156秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
+- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、467.002秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
 
 ## 接続済み
 - 唯一のattributed Plain Birth providerと同じwriter inventory/非weak未注釈fieldを照合。providerのclassと保存形式を分離し、DynamicResidenceのreceiverはchecked ObjectFieldBorrowで読む。typed field、異class/multiple/hidden writerの拒否は保持。
@@ -34,6 +34,9 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 4. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
+- Birthの文字列literal RHSを元construction storeへ保持し、既存DynamicTextInitialize/Materialize/FieldSet ownerへ接続。literalはStaticTextのbytesを使い、ParameterのSUM・ordinal・借用ABIを捏造しない。Materialize Faultは先行fieldのみ、store Faultは取得済みTextをEndしてから先行field、store Normalはfield residenceへ移転。独立した最終照合を保持。
+- 最終CLI `cargo quick-build-fast -j 4`27.46秒PASS。空文字/UTF-8文字列を初期化する一時programは正規EXE/run/exact stdout/exit0 PASS（確認後source/EXEを廃棄）。既存constructor/最終binding/partial Fault family13件PASS（test build88秒）。literalに続くstoreのFault順序は既存ケースだけ拡張し、test関数/ファイル/checker/runtime ABIの追加なし。元のParameter入力証拠だけではliteralの新規取得と先行residenceを守れないための最小追加。
+- 広いconstructor filterの別1件は、未注釈integer fieldの期待FieldContractUnsupportedに対し既存DynamicI64Initializeが受理されるassertで失敗。exact-HEAD比較未実施、原因未分類の赤として保持し、期待値変更や削除はしない。boxtorrentは上記owner70、JSONはowner22に停止し、field SUM/read/write/Return/discard接続は未完。
 - 元field subtreeを含む直接return callは、PendingCallのshortcutで元計画を失わず、既存ResultExpressionSourceで同じoriginal plan Rcを保持する。captureエラー、callee依存、元receiver/field/source同一性検証は維持。追加台帳・新規test/fixture/checkerなし。
 - この正規化の検証: `cargo quick-test-fast original_return_field_requests_keep_nested_expression_plans_before_qualification -j 4` PASS。同binaryのoriginal-field/lost-return・nested-field・direct-call terminal各1件とpending7件を合わせ11 PASS。最終CLI `cargo quick-build-fast -j 4`45.81秒PASS。明示CLI/runtimeの固定suite9/11（実EXE8＋marker、timeout/SKIPなし）、boxtorrentは上記owner70へ進み、JSONはowner22のまま。source診断は撤去済みで一時adapterなし。
 - WIP整理: 共通cleanup writerにInvoke End／非FaultのArrayResidenceRelease＋Jumpを表すactionを追加。既存Invoke callerは同じsuffix算法を再利用し、Array source packet・式評価・独立した構造/path検証への接続は未完。途中cursor変更は境界越えの危険があるため採用せず、従来の最終検証を保持。
@@ -44,7 +47,7 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 - CLI46.44秒PASS、root test build99秒。既存Core source2/target7/scalar pending7は全PASS、manifest codegen checkと既存Python14件PASS。正しいMap providerでCountのI64 source sealを確認し、異種provider/複数writerは拒否。同じCore/targetケースだけ最小拡張し、新規Rust test関数/ファイル/checkerなし。
 - SCC既存テストは0/1、String左辺と未知RHSのclass転送assertで失敗。以前の記録と同じassertだが旧binaryのrevisionは未確認のためexact-HEAD baseline証明とはしない。追加required_coreはこのケースでは空で、他のsource/publication/Loopの赤とともに未完として保持。
 - FieldKeysはkeyなしの同じcanonical field/baseを運び、独立module検証も元field-read pinを要求する。Rust/CともsnapshotのNormal取得・生存中Count・一度だけのEndとterminal残存/escape拒否を検証。Cはsnapshot終了だけ既存checked_text_endへ送り、他Arrayの契約を緩めない。
-- CLI56.67秒PASS、`cargo quick-test-fast map_tests::` は13 PASS/1既存ignored（build96秒）。`bash tools/build_hako_llvmc_ffi.sh` PASS。`CC="cc -fuse-ld=lld" python3 lang/c-abi/tests/published_map_physical_execution_test.py target/quick/libnyash_lifecycle_kernel.a` 全PASS（keys snapshotの実EXE0、既存Map実行/Fault/27 malformed含む）。その時点のboxtorrentはowner73のsource停止でEXE未達（現在は上記owner56）。
+- CLI56.67秒PASS、`cargo quick-test-fast map_tests::` は13 PASS/1既存ignored（build96秒）。`bash tools/build_hako_llvmc_ffi.sh` PASS。`CC="cc -fuse-ld=lld" python3 lang/c-abi/tests/published_map_physical_execution_test.py target/quick/libnyash_lifecycle_kernel.a` 全PASS（keys snapshotの実EXE0、既存Map実行/Fault/27 malformed含む）。その時点のboxtorrentはowner73のsource停止でEXE未達（現在は現在地を参照）。
 - 新しいsnapshot lifetimeは既存Map pointer/owned-object Array検証で守れないため、既存RustケースのCount/End/escape変異と既存C familyの最小snapshot graph/終了変異を追加。Rust test関数/新規ファイル/checkerなし（C fixture factoryは追加）。これは物理層の証拠でありsource受理の証拠には数えない。
 - native keys snapshot: Live Mapの同じgateでpublic-textキーを複製し、gate外で辞書順に整列して独立Text ArrayをNormal時だけ公開。fieldも同じ操作へ接続し、既存checked_text_endで終了する。source/Coreからのpacket発行はまだ未接続。
 - `cargo test --profile quick -p nyash_kernel --no-default-features --features lifecycle-core --lib --config profile.quick.package.nyash-rust.opt-level=0 fault::checked_map::tests::` は15件PASS（build48.50秒）。`cargo quick-build-lifecycle-fast` PASS（初回7.33秒、field追加後2.46秒）。実archive連結の既存checked_map_runtime_abi_test.cはprofile1/2 PASS（Mapはprofile1）。

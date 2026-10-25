@@ -307,7 +307,8 @@ impl ConstructionPlanV1 {
         for (index, (store, (mode, text_input))) in source.stores.iter().zip(qualified).enumerate() {
             if !match (mode, text_input.as_ref()) {
                 (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum)) => sum.text_only(),
-                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) => false,
+                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) =>
+                    matches!(store.rhs(), ConstructionStoreRhsV1::LiteralText(_)),
                 (_, loan) => loan.is_none(),
             } {
                 return Err(ConstructionUnavailableV1::SourceRelationMissing);
@@ -371,7 +372,8 @@ pub(super) fn qualified_field_demands_v1(
             && field.declared_type_name.is_none() && !field.is_weak
             && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. });
         let supported = if text || dynamic_i64 || dynamic_object { field.declared_type_name.is_none() && !field.is_weak
-            && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. })
+            && (matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. })
+                || text && matches!(store.rhs(), ConstructionStoreRhsV1::LiteralText(_)))
         } else { match field.declared_type_name.as_deref() {
             Some("i64") | Some("usize") => matches!(
                 store.rhs(),

@@ -35,6 +35,7 @@ impl CallableSemanticLoweringState {
             ConstructionStoreRhsV1::LiteralI64(value) => Some(
                 crate::mir::builder::emission::constant::emit_integer(builder, *value)?,
             ),
+            ConstructionStoreRhsV1::LiteralText(_) => None,
             ConstructionStoreRhsV1::Parameter {
                 site,
                 binding,
@@ -140,7 +141,8 @@ impl CallableSemanticLoweringState {
         let mut provider_nobirth = false;
         let mut object_child = None;
         let value = match value {
-            Some(value) => value,
+            Some(value) => Some(value),
+            None if matches!(&taken.rhs, ConstructionStoreRhsV1::LiteralText(_)) => None,
             None => {
                 // The proven provider `new` emits its checked allocation on
                 // the shared fault frame; the normal result in its own
@@ -463,11 +465,12 @@ impl CallableSemanticLoweringState {
                     .type_registry
                     .record_type(allocation, MirType::Box(class.as_ref().into()));
                 provider_origin = Some(origin);
-                allocation
+                Some(allocation)
             }
         };
         let text = text_input.map(|input| input.materialize_v1(builder, value, fault_frame, fault_landing)).transpose()?;
-        let value = text.as_ref().map_or(value, |text| text.value());
+        let value = text.as_ref().map(|text| text.value()).or(value)
+            .ok_or_else(|| fault("source-or-cleanup-contract"))?;
         let origin = builder
             .function_state
             .current_block

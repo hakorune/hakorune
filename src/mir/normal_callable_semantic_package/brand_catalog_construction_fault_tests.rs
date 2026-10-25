@@ -5,8 +5,12 @@ use super::issue_with_brand_catalog;
 
 #[test]
 fn construction_store_fault_inventory_is_prior_committed_source_order() {
-    for class in ["Inner", "ArrayBox"] {
-        let source = format!(
+    for class in ["Inner", "ArrayBox", "literal-text"] {
+        let source = if class == "literal-text" {
+            "box Holder { init { left, right, marker }
+                birth() { me.left = \"\" me.right = \"雪🐱\" me.marker = 0 } }
+                static box Main { main() { local holder = new Holder() return 0 } }".to_owned()
+        } else { format!(
             "box Inner {{ value: i64 = 0 birth() {{ }} }}
              box Holder {{
                  left: {class} = new {class}()
@@ -15,7 +19,7 @@ fn construction_store_fault_inventory_is_prior_committed_source_order() {
                  birth() {{ }}
              }}
              static box Main {{ main() {{ local holder = new Holder() return 0 }} }}"
-        );
+        ) };
         let package = issue_with_brand_catalog(&source).unwrap();
         let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let claims: Vec<_> = rows.values().collect();

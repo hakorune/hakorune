@@ -260,14 +260,14 @@ impl CallableSemanticLoweringState {
                 .iter()
                 .enumerate()
                 .any(|(ordinal, demand)| {
-                    let provider = plan.stores().iter().any(|store| {
+                    let acquired_in_birth = plan.stores().iter().any(|store| {
                         store.field().declaration_ordinal() == ordinal as u32
                             && matches!(
                                 store.rhs(),
-                                ConstructionStoreRhsV1::ProviderConstruction { .. }
+                                ConstructionStoreRhsV1::ProviderConstruction { .. } | ConstructionStoreRhsV1::LiteralText(_)
                             )
                     });
-                    if provider {
+                    if acquired_in_birth {
                         return *demand != HomeDemandV1::Handle;
                     }
                     // A caller-provided object store (`me.<field> =
@@ -301,7 +301,8 @@ impl CallableSemanticLoweringState {
             let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
             if !match (execution.mode(), execution.text_input_v1()) {
                 (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum)) => sum.text_only(),
-                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) => false,
+                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) =>
+                    matches!(store.rhs(), ConstructionStoreRhsV1::LiteralText(_)),
                 (_, loan) => loan.is_none(),
             } {
                 return Err(fault("source-or-cleanup-contract"));

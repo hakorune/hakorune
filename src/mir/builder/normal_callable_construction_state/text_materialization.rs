@@ -8,9 +8,9 @@ use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
-pub(super) struct PreparedTextInputV1 {
-    sum: Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
-    ordinal: usize,
+pub(super) enum PreparedTextInputV1 {
+    Parameter { sum: Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>, ordinal: usize },
+    Literal(Box<str>),
 }
 #[derive(Debug)]
 pub(in crate::mir::builder) struct TextStoreAcquisitionV1 {
@@ -27,17 +27,22 @@ impl CallableSemanticLoweringState {
         let (ordinal, source) = plan.stores().iter().enumerate()
             .find(|(_, source)| source.assignment().statement_site().node() == &taken.site)
             .ok_or_else(|| fault("source-or-cleanup-contract"))?;
-        let sum = plan.store_execution_v1(ordinal).filter(|execution| execution.mode() == store.mode)
-            .and_then(|execution| execution.text_input_v1()).filter(|sum| sum.text_only())
+        let execution = plan.store_execution_v1(ordinal).filter(|execution| execution.mode() == store.mode)
+            .ok_or_else(|| fault("source-or-cleanup-contract"))?;
+        if parameters.as_ref() != self.parameters.as_ref() || source.rhs() != &taken.rhs
+            || source.field() != taken.field || source.rhs() != &store.rhs
+            || plan.constructor().map(|(_, owner)| *owner) != Some(self.owner) {
+            return Err(fault("source-or-cleanup-contract"));
+        }
+        if let ConstructionStoreRhsV1::LiteralText(value) = source.rhs() {
+            if execution.text_input_v1().is_some() { return Err(fault("source-or-cleanup-contract")); }
+            return Ok(Some(PreparedTextInputV1::Literal(value.clone())));
+        }
+        let sum = execution.text_input_v1().filter(|sum| sum.text_only())
             .ok_or_else(|| fault("source-or-cleanup-contract"))?;
         let ConstructionStoreRhsV1::Parameter { binding, provided: None, .. } = source.rhs()
             else { return Err(fault("source-or-cleanup-contract")) };
-        if parameters.as_ref() != self.parameters.as_ref() || source.rhs() != &taken.rhs
-            || source.field() != taken.field || source.rhs() != &store.rhs
-            || plan.constructor().map(|(_, owner)| *owner) != Some(self.owner)
-            || binding.owner() != self.owner {
-            return Err(fault("source-or-cleanup-contract"));
-        }
+        if binding.owner() != self.owner { return Err(fault("source-or-cleanup-contract")); }
         let mut positions = parameters.iter().enumerate().filter(|(_, original)| *original == binding);
         let ordinal = positions.next().map(|(index, _)| index).ok_or_else(|| fault("emission-state"))?;
         if positions.next().is_some() { return Err(fault("emission-state")); }
@@ -47,7 +52,7 @@ impl CallableSemanticLoweringState {
             .map_err(|error| error.to_string())?) {
             return Err(fault("emission-state"));
         }
-        Ok(Some(PreparedTextInputV1 { sum: Rc::clone(sum), ordinal }))
+        Ok(Some(PreparedTextInputV1::Parameter { sum: Rc::clone(sum), ordinal }))
     }
 }
 fn require_parameter_layout(function: &MirFunction, count: usize) -> Result<(), String> {
@@ -63,26 +68,34 @@ fn require_parameter_layout(function: &MirFunction, count: usize) -> Result<(), 
     Ok(())
 }
 impl PreparedTextInputV1 {
-    pub(super) fn materialize_v1(self, builder: &mut MirBuilder, input: ValueId,
+    pub(super) fn materialize_v1(self, builder: &mut MirBuilder, input: Option<ValueId>,
         frame: ValueId, discharge: BasicBlockId,
     ) -> Result<TextStoreAcquisitionV1, String> {
-        let function = builder.function_state.current_function.as_mut().ok_or_else(|| fault("no-function"))?;
-        let lane = self.ordinal + 1; // The existing instance-constructor ABI is receiver then source parameters.
-        if function.params.get(lane) != Some(&input) || !self.sum.text_only()
-            || !(matches!(function.signature.params.get(lane), Some(MirType::Unknown | MirType::Integer | MirType::String))
-                || matches!(function.signature.params.get(lane), Some(MirType::Box(name))
-                    if crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1::classify(name).is_some())) {
-            return Err(fault("source-or-cleanup-contract"));
-        }
-        function.metadata.physical_param_carriers.as_mut().ok_or_else(|| fault("emission-state"))?[lane] = Carrier::BorrowedTaggedValue;
-        function.signature.params[lane] = MirType::Integer;
-        builder.function_state.type_ctx.value_types.insert(input, MirType::Integer);
+        let operand = match &self {
+            Self::Literal(utf8) if input.is_none() => Operand::StaticText { utf8: utf8.to_string() },
+            Self::Parameter { sum, ordinal } => {
+                let input = input.ok_or_else(|| fault("source-or-cleanup-contract"))?;
+                let function = builder.function_state.current_function.as_mut().ok_or_else(|| fault("no-function"))?;
+                let lane = ordinal + 1; // Constructor ABI: receiver then source parameters.
+                if function.params.get(lane) != Some(&input) || !sum.text_only()
+                    || !(matches!(function.signature.params.get(lane), Some(MirType::Unknown | MirType::Integer | MirType::String))
+                        || matches!(function.signature.params.get(lane), Some(MirType::Box(name))
+                            if crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1::classify(name).is_some())) {
+                    return Err(fault("source-or-cleanup-contract"));
+                }
+                function.metadata.physical_param_carriers.as_mut().ok_or_else(|| fault("emission-state"))?[lane] = Carrier::BorrowedTaggedValue;
+                function.signature.params[lane] = MirType::Integer;
+                builder.function_state.type_ctx.value_types.insert(input, MirType::Integer);
+                Operand::BorrowedText(input)
+            }
+            _ => return Err(fault("source-or-cleanup-contract")),
+        };
         use crate::mir::builder::ordinary_new_admission::selected::{emit_scalar_operation_to_landing_v1,
             root_graph::{RawRootGraphWriterV1, RootGraphWriterPortV1}};
         let mut writer = RawRootGraphWriterV1;
         let normal = writer.reserve_block(builder)?;
         let (_, _, pair) = emit_scalar_operation_to_landing_v1(builder, &mut writer,
-            InvokeOperation::String(Op::Materialize { value: Operand::BorrowedText(input) }),
+            InvokeOperation::String(Op::Materialize { value: operand }),
             frame, normal, discharge, &mut Vec::new())?;
         Ok(TextStoreAcquisitionV1 { input: self, pair })
     }
@@ -108,19 +121,27 @@ impl TextStoreAcquisitionV1 {
     fn validate_v1(&self, store: &SelectedConstructionStore, function: &MirFunction,
         parameters: &[crate::mir::resolved_semantics::BindingRefV1], frame: ValueId,
     ) -> Result<(), String> {
-        let ConstructionStoreRhsV1::Parameter { binding, provided: None, .. } = &store.rhs
-            else { return Err(fault("source-or-cleanup-contract")) };
-        if parameters.get(self.input.ordinal) != Some(binding) { return Err(fault("source-or-cleanup-contract")); }
+        let operand = match (&self.input, &store.rhs) {
+            (PreparedTextInputV1::Literal(expected), ConstructionStoreRhsV1::LiteralText(actual))
+                if expected == actual => Operand::StaticText { utf8: expected.to_string() },
+            (PreparedTextInputV1::Parameter { sum, ordinal }, ConstructionStoreRhsV1::Parameter { binding, provided: None, .. }) => {
+                if parameters.get(*ordinal) != Some(binding) || !sum.text_only() { return Err(fault("source-or-cleanup-contract")); }
+                let input = *function.params.get(ordinal + 1).ok_or_else(|| fault("emission-state"))?;
+                if function.params.iter().filter(|value| **value == input).count() != 1
+                    || function.blocks.values().flat_map(|body| body.all_instructions()).any(|row| row.dst_value() == Some(input)) {
+                    return Err(fault("emission-drift"));
+                }
+                Operand::BorrowedText(input)
+            }
+            _ => return Err(fault("source-or-cleanup-contract")),
+        };
         let StoreProgress::Emitted { block, normal, value, discharge, provider: None, provider_child: None, .. } = store.progress
             else { return Err(fault("emission-drift")) };
-        let input = *function.params.get(self.input.ordinal + 1).ok_or_else(|| fault("emission-state"))?;
-        if input == value || self.value() != value || self.pair[1].0 != block
+        if operand.value() == Some(value) || self.value() != value || self.pair[1].0 != block
             || self.pair[1].1 != (MirInstruction::InvokeNormalResult { invoke_block: self.entry(), dst: value })
             || !function.blocks.get(&block).is_some_and(|body| body.instructions.iter().filter(|row| *row == &self.pair[1].1).count() == 1)
-            || function.params.iter().filter(|value| **value == input).count() != 1
-            || function.blocks.values().flat_map(|body| body.all_instructions()).any(|row| row.dst_value() == Some(input))
             || self.pair[0].1 != (MirInstruction::Invoke {
-                operation: InvokeOperation::String(Op::Materialize { value: Operand::BorrowedText(input) }),
+                operation: InvokeOperation::String(Op::Materialize { value: operand }),
                 fault_frame: frame, normal_landing: block, fault_landing: discharge })
             || function.blocks.get(&self.entry()).and_then(|body| body.terminator.as_ref()) != Some(&self.pair[0].1) {
             return Err(fault("emission-drift"));
@@ -158,8 +179,14 @@ impl ConstructionState {
             let text = match &store.progress { StoreProgress::Emitted { text, .. } => text.as_ref(), _ => None };
             let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
             if execution.mode() != store.mode { return Err(fault("source-or-cleanup-contract")); }
-            match (store.mode, execution.text_input_v1(), text) {
-                (Mode::DynamicTextInitialize, Some(sum), Some(text)) if sum.text_only() && Rc::ptr_eq(sum, &text.input.sum) => {
+            let matches_input = text.is_some_and(|text| match (&text.input, source.rhs(), execution.text_input_v1()) {
+                (PreparedTextInputV1::Literal(a), ConstructionStoreRhsV1::LiteralText(b), None) => a == b,
+                (PreparedTextInputV1::Parameter { sum, .. }, ConstructionStoreRhsV1::Parameter { provided: None, .. }, Some(original)) =>
+                    sum.text_only() && Rc::ptr_eq(sum, original),
+                _ => false,
+            });
+            match (store.mode, text) {
+                (Mode::DynamicTextInitialize, Some(text)) if matches_input => {
                     let (_, owner) = plan.constructor().ok_or_else(|| fault("source-or-cleanup-contract"))?;
                     if parameters.iter().any(|binding| binding.owner() != *owner)
                         || source.rhs() != &store.rhs || source.field() != store.field {
@@ -168,9 +195,9 @@ impl ConstructionState {
                     require_parameter_layout(function, parameters.len())?;
                     let (frame, _) = frame.ok_or_else(|| fault("emission-state"))?;
                     text.validate_v1(store, function, parameters, frame)?;
-                    formals.insert(text.input.ordinal + 1);
+                    if let PreparedTextInputV1::Parameter { ordinal, .. } = &text.input { formals.insert(ordinal + 1); }
                 }
-                (Mode::DynamicTextInitialize, _, _) | (_, _, Some(_)) => return Err(fault("source-or-cleanup-contract")),
+                (Mode::DynamicTextInitialize, _) | (_, Some(_)) => return Err(fault("source-or-cleanup-contract")),
                 _ => (),
             }
         }

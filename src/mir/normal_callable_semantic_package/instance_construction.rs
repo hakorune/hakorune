@@ -41,6 +41,9 @@ pub(crate) enum ConstructionUnavailableV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ConstructionStoreRhsV1 {
     LiteralI64(i64),
+    /// Exact bytes at this store's original RHS, materialized into a fresh
+    /// owned Text before the Dynamic slot transaction.
+    LiteralText(Box<str>),
     Parameter {
         site: SourceExprSiteV1,
         binding: BindingRefV1,
@@ -456,6 +459,8 @@ pub(super) fn issue_construction_source_v1(
                 value: LiteralValue::Integer(value),
                 ..
             } => ConstructionStoreRhsV1::LiteralI64(*value),
+            ASTNode::Literal { value: LiteralValue::String(value), .. } =>
+                ConstructionStoreRhsV1::LiteralText(value.as_str().into()),
             ASTNode::Variable { .. } => {
                 let binding = shape
                     .expressions()
@@ -581,6 +586,7 @@ pub(super) fn issue_construction_source_v1(
         let mode = if field_decls[ordinal].declared_type_name.is_none() && !canonical.is_array_field(ordinal) {
             match &rhs {
                 ConstructionStoreRhsV1::LiteralI64(_) => Ok(Mode::DynamicI64Initialize),
+                ConstructionStoreRhsV1::LiteralText(_) => Ok(Mode::DynamicTextInitialize),
                 ConstructionStoreRhsV1::ProviderConstruction { class, object: None, .. }
                     if class.as_ref() == "MapBox" => Ok(Mode::DynamicMapInitialize),
                 _ => Err(U::FieldContractUnsupported),
