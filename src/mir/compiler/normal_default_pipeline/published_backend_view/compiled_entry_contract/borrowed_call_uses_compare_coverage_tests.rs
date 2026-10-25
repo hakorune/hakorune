@@ -13,6 +13,15 @@ fn borrowed_use_checked_compare_counts_each_physical_operand_occurrence() {
         let coordinate = (BasicBlockId(0), index);
         state.compare_coordinates = Some([(formal, BTreeSet::from([(coordinate, 0)]))].into());
         verify(&mut state, &function).unwrap();
+        let original = function.blocks[&coordinate.0].instructions[index].clone();
+        state.loop_compares.insert(coordinate, original.clone());
+        verify(&mut state, &function).unwrap();
+        if let MirInstruction::Compare { rhs, .. } = &mut function.blocks.get_mut(&coordinate.0).unwrap().instructions[index] {
+            *rhs = ValueId(801);
+        }
+        assert!(verify(&mut state, &function).is_err(), "same occurrence must retain both original operands");
+        function.blocks.get_mut(&coordinate.0).unwrap().instructions[index] = original;
+        state.loop_compares.clear();
         state.compare_coordinates = Some([(formal, BTreeSet::from([(coordinate, 1)]))].into());
         assert!(verify(&mut state, &function).unwrap_err().contains("compare-coverage"));
         if !matches!(op, CompareOp::Gt | CompareOp::Le) {

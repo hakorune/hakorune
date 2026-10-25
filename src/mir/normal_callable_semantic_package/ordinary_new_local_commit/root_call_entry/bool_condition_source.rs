@@ -623,3 +623,80 @@ impl CallValidationContextV1<'_> {
         })
     }
 }
+
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Join one original Loop operand to its sealed Bool packet. This lends an
+    /// occurrence and its exact Copy ancestry, never a legacy Greater guard.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_finished_loop_compare_operand_v1(
+        &self, owner: FunctionOwnerIdV1, context: CallValidationContextV1<'_>,
+        function: &MirFunction, projection: &Finished,
+        loop_site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+        binary: &OwnedExprSiteV1, original_read: &OwnedExprSiteV1,
+        binding: BindingRefV1, expected: ValueId,
+        mut visit: impl FnMut(Binding, usize, Vec<Binding>) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let mut found = false;
+        self.visit_verified_condition_groups_v1(owner, context, function, projection, |packet| {
+            use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
+            if !matches!(packet.materialization, BoolConditionOuterV2::SourceLoop { .. }) { return Ok(()); }
+            let source = packet.frame.source();
+            let ExpressionPlanRootV1::LoopCondition { statement, condition, .. } = source.root()
+                else { return Ok(()); };
+            if statement != loop_site { return Ok(()); }
+            if found || source.owner() != owner || binary.owner() != owner || original_read.owner() != owner
+                || condition != binary.site() {
+                return Err(freeze("static-input/loop-condition-use-source"));
+            }
+            let (binary_index, operation) = source.nodes().iter().enumerate()
+                .find(|(_, node)| node.site() == binary.site())
+                .ok_or_else(|| freeze("bool-condition/operator-source"))?;
+            let Node::Binary(operation) = operation.source() else { return Err(freeze("bool-condition/operator-source")); };
+            let side = match (operation.lhs() == original_read.site(), operation.rhs() == original_read.site()) {
+                (true, false) => 0, (false, true) => 1,
+                _ => return Err(freeze("bool-condition/ordered-operands")),
+            };
+            let read_index = source.nodes().iter().position(|node| node.site() == original_read.site())
+                .ok_or_else(|| freeze("bool-condition/reference-source"))?;
+            let original = &source.nodes()[read_index];
+            if !matches!(original.source(), Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(actual)) if *actual == binding) {
+                return Err(freeze("bool-condition/reference-source"));
+            }
+            let reference = packet.node(read_index)?;
+            let read = match &reference.proof {
+                BoolConditionValueProofV1::Reference { read, .. } => read,
+                BoolConditionValueProofV1::OriginalReference(read) => read.exact_read_v1(),
+                _ => return Err(freeze("bool-condition/reference-source")),
+            };
+            if read.value_for(owner, original_read.site().node(), binding).map_err(|issue| issue.to_string())? != reference.value {
+                return Err(freeze("bool-condition/reference-value"));
+            }
+            let mut copies = read.loan_forwarded_copies(binding, expected)?.to_vec();
+            let node = packet.node(binary_index)?;
+            let BoolConditionValueProofV1::Binary { append, operands } = &node.proof
+                else { return Err(freeze("bool-condition/operator-append")); };
+            let MirInstruction::Compare { lhs, rhs, .. } = &append.1
+                else { return Err(freeze("bool-condition/operator-append")); };
+            if operands[side].values() != (reference.value, if side == 0 { *lhs } else { *rhs }) {
+                return Err(freeze("bool-condition/ordered-operands"));
+            }
+            operands[side].require_completed_v1()?;
+            operands[side].verify_projected(function, &mut |row| projection.relation_binding(function, row))?;
+            operands[side].append_observed_bindings_v1(&mut copies);
+            let mut finished_copies = Vec::new();
+            for original in copies {
+                if !matches!(original.1, MirInstruction::Copy { .. }) { continue; }
+                if let Some(actual) = projection.relation_binding(function, &original)? {
+                    if !finished_copies.contains(&actual) { finished_copies.push(actual); }
+                }
+            }
+            let compare = mapped(append, Some(projection))?
+                .ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
+            visit(compare, side, finished_copies)?;
+            found = true;
+            Ok(())
+        })?;
+        if !found { return Err(freeze("static-input/loop-condition-use-source")); }
+        Ok(())
+    }
+}

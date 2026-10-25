@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary-trees final Loop Compare occurrence coverage; shared entry-formal forward proof unresolved; fixed suite 6/11"
+current_blocker_token = "binary-trees C function-body Birth i64/tagged ABI mismatch; shared entry-formal forward proof unresolved; fixed suite 6/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-bin
 latest_card = "app-binary-trees"
 latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-binary-trees remains selected. Completed original receiver-use evidence closes Call receiver validation; direct EXE now stops at iterationCheck/3 compare-coverage for the source Loop condition. No EXE/app completion.
-Quick CLI1m02s and C FFI build PASS; fixed suite6/11 in129.988s retains the same five failed apps, no timeout/SKIP. The six include a non-EXE marker.
-Same Uses receiver row/read/domain/Call and projected Copies lend exact final receiver permission. Canonical class/non-null wire view keeps tag3/nonzero/runtime-class checks; nullable/mixed forwarding, Fault frames and unproved callee operands stay forbidden. No entry-lane switch.
-Existing final-use27/0 and declared-source1/0; C20 both-opt programs preserve Normal/Fault cleanup, stricter replay/class drift and19 negatives PASS. One replay/four negatives added only to existing C script for new marker boundary; no Rust cases/hooks/files/checkers. Earlier reds remain open.
-Next: original LoopConditionOperand plus same Bool packet to exact finished Compare side/count/coordinates, without new generic permission; then unchanged EXE/run. Shared source failures and canonical closeout remain open.
+APP-binary-trees remains selected. Original Loop Compare/read/domain/Copy closure and same-block Cond reuse pass Rust publication; EXE now stops at C function-body for BinaryTreeBuilder.make/2. No EXE/app completion.
+Quick CLI44.29s PASS; fixed suite6/11 in108.031s keeps the same five failed apps, no timeout/SKIP. The six include a non-EXE marker.
+Source6/0, final-use27/0 and LocalSSA32/0 reuse one quick lib-test build2m09s. One existing comparison assertion protects full instruction identity; no new test functions/hooks/files/checkers. Previous verification reds remain open.
+Same source Loop packet lends exact Compare operands/count/coordinates and no legacy guard authority. Pure Loop source walk and Parameter-purpose selection keep canonical input ownership; direct same-block Compare reuse removes duplicate physical use. Broad recurrence normalization was reverted after four source regressions; original six cases pass.
+Next: same admitted signed Birth scalar to exact receiving i64 ABI. Issued JSON has tagged actual versus TreeNode.birth i64 formal; keep strict C rejection, then unchanged EXE/run. Shared source failures and canonical closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

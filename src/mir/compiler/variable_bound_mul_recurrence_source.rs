@@ -205,6 +205,15 @@ pub(crate) fn attempt_variable_bound_mul_source_v1(
     if scale == induction || scale == bound || induction == bound {
         return Err(Reject::BindingConflict);
     }
+    // This producer owns initialized LOCAL inputs only. An original formal
+    // is a different supported source purpose, not missing resolver evidence;
+    // the common source Loop owner must retain its entry/read correspondence.
+    if [scale, induction, bound].iter().any(|binding| matches!(
+        input.function().binding(*binding).map(|row| row.kind()),
+        Some(crate::mir::resolved_semantics::BindingKindV1::Parameter { .. })
+    )) {
+        return Ok(Attempt::Unselected(Reject::InputSource));
+    }
     let inputs = [
         input_source(input, scale)?,
         input_source(input, induction)?,

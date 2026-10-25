@@ -76,6 +76,20 @@ impl BorrowedCallUses {
             }
             Ok(())
         })?;
+        source.with_finished_loop_compare_uses_v1(owner, function, |formal, coordinate, compare, side, copies| {
+            if !expected.entry(formal).or_default().insert((coordinate, side)) {
+                return Err(fault("borrowed-use/compare-source-duplicate"));
+            }
+            if state.loop_compares.insert(coordinate, compare.clone()).is_some_and(|old| old != compare) {
+                return Err(fault("borrowed-use/compare-source-duplicate"));
+            }
+            *state.compare_admissions.entry(formal).or_default() += 1;
+            let mut rooted: Vec<_> = state.copies.values().filter_map(|(row, at)|
+                at.map(|at| (row.clone(), at))).collect();
+            rooted.extend(copies);
+            state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &rooted)?;
+            Ok(())
+        })?;
         state.compare_coordinates = Some(expected);
         source.with_borrowed_ordinary_compare_carrier_copies_v1(owner, function, |copy, coordinate| {
             state.copy(copy, Some(coordinate))

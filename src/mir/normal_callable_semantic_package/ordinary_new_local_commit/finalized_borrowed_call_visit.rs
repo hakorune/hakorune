@@ -142,6 +142,47 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 
+    /// Original Uses Loop-purpose rows admit only their exact final Compare
+    /// operand occurrence. They are not ordinary Greater guard capabilities.
+    pub(in crate::mir) fn with_finished_loop_compare_uses_v1(
+        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
+        mut visit: impl FnMut(BindingRefV1, (BasicBlockId, usize), MirInstruction, usize,
+            Vec<((BasicBlockId, MirInstruction), (BasicBlockId, usize))>) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        let uses = entry.completed_loop_condition_uses_v1()
+            .map_err(|issue| format!("{issue} function={} phase=loop-source-domain", function.signature.name))?;
+        for (loop_site, binary, read, binding, domain) in uses {
+            let expected = if binding == domain.binding() {
+                self.borrowed_ordinary_entry_values_v1(owner)?.iter()
+                    .find(|(ordinal, formal, _)| *ordinal == domain.ordinal() && *formal == domain.binding())
+                    .map(|(_, _, value)| *value).ok_or_else(|| freeze("finished-copy/owner"))?
+            } else {
+                let mut value = None;
+                self.with_borrowed_ordinary_alias_copies_v1(owner, function, |_, _, alias, formal, original, _| {
+                    if alias == binding && (formal != domain.binding() || value.replace(original).is_some()) {
+                        return Err(freeze("finished-copy/owner"));
+                    }
+                    Ok(())
+                })?;
+                value.ok_or_else(|| freeze("finished-copy/owner"))?
+            };
+            self.ledger.with_finished_projection(owner, |symbol, projection| {
+                if symbol != function.signature.name { return Err(freeze("finished-copy/owner")); }
+                self.ledger.visit_finished_loop_compare_operand_v1(owner, CallValidationContextV1::Finalized(self),
+                    function, projection, &loop_site, &binary, &read, binding, expected, |compare, side, copies| {
+                        let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &compare, function)?;
+                        let copies = copies.into_iter().map(|row| {
+                            let at = super::finalized_source_projection::find_finished_producer(symbol, &row, function)?;
+                            Ok((row, at))
+                        }).collect::<Result<Vec<_>, String>>()?;
+                        visit(domain.binding(), coordinate, compare.1, side, copies)
+                    }).map_err(|issue| format!("{issue} function={} loop={loop_site:?} read={read:?} phase=loop-source-packet", function.signature.name))
+            })?;
+        }
+        Ok(())
+    }
+
     /// Exact finite-entry Local copies and SAME source-Loop edge transports.
     /// This lends SSA definitions only, not a mutable binding's formal origin.
     pub(in crate::mir) fn with_finished_scalar_bindings_v1(

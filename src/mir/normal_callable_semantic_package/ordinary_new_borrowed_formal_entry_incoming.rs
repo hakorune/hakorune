@@ -562,6 +562,29 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         Ok(self.formal_domain_v1(*ordinal, *formal)?
             .filter(|domain| domain.single_object_class_v1() == Some(class)).cloned())
     }
+    /// Original Uses purpose plus the SAME completed signed input domain.
+    /// A condition annotation alone cannot admit an opaque formal operand.
+    pub(in crate::mir::normal_callable_semantic_package) fn completed_loop_condition_uses_v1(
+        &self,
+    ) -> Result<Vec<(crate::mir::resolved_semantics::SourceStmtSiteV1, OwnedExprSiteV1, OwnedExprSiteV1, BindingRefV1, BorrowedFormalDomainV1)>, String> {
+        let EntryStructureEvidenceV1::Uses(view) = &self.evidence else { return Ok(Vec::new()); };
+        let mut result = Vec::new();
+        for row in &view.definition.uses {
+            let super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::LoopConditionOperand { loop_site, binary } = &row.kind
+                else { continue; };
+            if row.site.owner() != self.owner || binary.owner() != self.owner
+                || view.definition.origins.get(&row.binding) != Some(&row.formal) {
+                return Err(freeze("static-input/loop-condition-use-source"));
+            }
+            let (ordinal, _) = self.formals.iter().find(|(_, formal)| *formal == row.formal)
+                .ok_or_else(|| freeze("static-input/loop-condition-use-source"))?;
+            let domain = self.formal_domain_v1(*ordinal, row.formal)?
+                .filter(|domain| domain.signed_only())
+                .ok_or_else(|| freeze("static-input/loop-condition-use-source"))?;
+            result.push((loop_site.clone(), binary.clone(), row.site.clone(), row.binding, domain.clone()));
+        }
+        Ok(result)
+    }
     fn finite_read_domain_v1(
         &self, site: &SourceExprSiteV1, binding: BindingRefV1,
     ) -> Result<Option<BorrowedFormalDomainV1>, String> {

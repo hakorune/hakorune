@@ -57,6 +57,9 @@ struct FunctionUses {
     compare_admissions: BTreeMap<BindingRefV1, usize>,
     /// Expected occurrences lent by the independently checked original Compare.
     compare_coordinates: Option<BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>>,
+    /// Source-Loop occurrences keep their full finished image in both scans.
+    /// They do not establish the legacy numeric dominance cone.
+    loop_compares: BTreeMap<Coordinate, MirInstruction>,
     mul_expected: BTreeMap<(Coordinate, usize), mul::MulOperandUse>,
     /// Dominated `+` operand admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
@@ -287,8 +290,9 @@ impl FunctionUses {
                     lhs,
                     rhs,
                     ..
-                } if matches!(op, crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le)
-                    || self.has_source_integer_compare(*coordinate) => {
+                } if !self.loop_compares.contains_key(coordinate)
+                    && (matches!(op, crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le)
+                        || self.has_source_integer_compare(*coordinate)) => {
                     for operand in [lhs, rhs] {
                         if let Some(formal) = tracked.get(operand).or(views.get(operand)) {
                             compares.entry(*formal).or_default().push(*coordinate);
@@ -318,6 +322,9 @@ impl FunctionUses {
         definitions: &mut Scan,
         dominates: &dyn Fn(BasicBlockId, BasicBlockId) -> bool,
     ) -> Result<(), String> {
+        if self.loop_compares.get(&coordinate).is_some_and(|expected| expected != instruction) {
+            return Err(fault("borrowed-use/published-compare-instruction"));
+        }
         formal_return::observe_map_slots(self, coordinate, instruction, definitions)?;
         if !definitions.coordinates.insert(coordinate) {
             return Err(fault("borrowed-use/coordinate-duplicate"));
@@ -652,7 +659,9 @@ impl FunctionUses {
             || self.compare_coordinates.as_ref().is_some_and(|expected|
                 *expected != definitions.compare_uses)
         {
-            return Err(fault("borrowed-use/compare-coverage"));
+            return Err(format!("{} expected-counts={:?} actual-counts={compare_uses:?} expected-occurrences={:?} actual-occurrences={:?} source-loop-compares={:?}",
+                fault("borrowed-use/compare-coverage"), self.compare_admissions, self.compare_coordinates,
+                definitions.compare_uses, self.loop_compares.keys().collect::<Vec<_>>()));
         }
         mul::coverage(self, definitions)?;
         let add_uses: BTreeMap<_, _> = definitions

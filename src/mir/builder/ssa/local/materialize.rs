@@ -269,13 +269,16 @@ fn materialize_local_inner_v1(
             )));
         }
 
-        if matches!(failure_policy, LocalSsaFailurePolicyV1::CheckedScalar)
-            && def_block == Some(bb)
-            && matches!(def_inst, Some(MirInstruction::BinOp { .. }))
+        if def_block == Some(bb)
+            && ((matches!(failure_policy, LocalSsaFailurePolicyV1::CheckedScalar)
+                && matches!(def_inst, Some(MirInstruction::BinOp { .. })))
+                || (kind == LocalKind::Cond && matches!(def_inst, Some(MirInstruction::Compare { .. }))))
         {
-            // The same issued producer is already local. Replaying it creates
-            // a dead mandatory original that finishing cannot legally discard.
-            // Borrow its Identity relation; keep cross-block materialization.
+            // A direct same-block Compare already supplies its SSA condition.
+            // Replaying it duplicates operand uses; reuse is physical identity,
+            // never source/borrow permission. Pinned Copies and cross-block
+            // conditions still require their existing materialization proofs.
+            // The same rule keeps issued scalar arithmetic producers affine.
             builder.function_state.local_ssa_map.insert(key, v);
             return Ok(v);
         }

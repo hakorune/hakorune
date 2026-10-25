@@ -59,6 +59,12 @@ pub(crate) fn requires_condition_expression_walk_v1(
             .child(SourcePathSegmentV1::IfCondition)
             .expr();
         requests_condition(input, &condition) || has_unconditional_nested_call_v1(input, &statement)
+    }) || input.function().loop_sites().any(|statement| {
+        let condition = SourcePathV1::from_node(statement.node())
+            .child(SourcePathSegmentV1::LoopCondition).expr();
+        // Pure Loop conditions need the same source packet and final-use
+        // closure even when the function acquires no object Home.
+        requests_condition(input, &condition)
     })
 }
 

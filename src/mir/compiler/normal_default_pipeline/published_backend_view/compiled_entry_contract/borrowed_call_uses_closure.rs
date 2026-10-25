@@ -96,8 +96,10 @@ impl FunctionUses {
                 function.signature.name, definition_context(function, instruction),
             ))?;
         }
-        self.definitions(tracked, &function.params, &definitions)
-            .map_err(|issue| format!("{issue} function={} scan=module", function.signature.name))
+        self.definitions(tracked, &function.params, &definitions).map_err(|issue| {
+            let comparisons: Vec<_> = indexed.iter().filter(|(_, row)| matches!(row, MirInstruction::Compare { .. })).collect();
+            format!("{issue} function={} scan=module comparisons={comparisons:?}", function.signature.name)
+        })
     }
 
     pub(super) fn verify_published(
