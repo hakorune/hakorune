@@ -219,18 +219,125 @@ static int lv4_dynamic_operand_live(hako_lv4_function_index* fn, yyjson_val* ope
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc"
 
+static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
+  if (!lv4_index_open(in)) return 0;
+  /* Every independent producer in every function precedes any dependent
+   * Field classification or recursive owned-result correspondence. A caller
+   * cannot demand class from a callee whose original producer is unseeded. */
+  for (size_t fi = 0; fi < in->index_count; fi++) {
+    hako_lv4_function_index* fn = &in->index[fi];
+    for (size_t vi = 0; vi < fn->value_count; vi++) {
+      hako_lv4_value* value = &fn->values[vi];
+      if (lv4_is(value->instruction, "op", "object_field_get")) continue;
+      if (!lv4_index_seed(in, fn, value)) return 0;
+    }
+  }
+  /* Birth callers bind borrowed receivers; ordinary callees already carry the
+   * prepared object identity in their physical function row. */
+  for (size_t fi = 0; fi < in->index_count; fi++) {
+    hako_lv4_function_index* caller = &in->index[fi];
+    int ordinary = lv4_is_ordinary(caller->function);
+    yyjson_val* blocks = hako_physical_blocks(caller->function);
+    for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+      yyjson_val* op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");
+      if (!lv4_is(op, "kind", "birth_call")) continue;
+      int birth_caller = lv4_is(caller->function, "role", "birth_unit");
+      if (fi && !ordinary && !birth_caller) return 0;
+      yyjson_val* call = yyjson_obj_get(op, "call");
+      uint32_t target = lv4_u(call, "target");
+      hako_lv4_value* receiver = lv4_value_alias_root(caller,
+          lv4_index_value(caller, lv4_u(call, "receiver")));
+      if (!target || target >= in->index_count ||
+          !lv4_is(in->index[target].function, "role", "birth_unit") ||
+          !receiver || receiver->kind != LV4_HANDLE || !receiver->object_id_set ||
+          receiver->origin < 0) return 0;
+      hako_lv4_function_index* birth = &in->index[target];
+      /* One birth unit may serve several provider sites (two fields can
+         construct the same class): a repeat binding is admitted only when
+         it restates the already-bound child object exactly. */
+      if (birth->receiver_object_set) {
+        if (birth->receiver_object != receiver->object_id) return 0;
+        continue;
+      }
+      birth->receiver_object = receiver->object_id; birth->receiver_object_set = 1;
+      for (size_t vi = 0; vi < birth->value_count; vi++)
+        if (birth->values[vi].origin == -2) {
+          birth->values[vi].object_id = receiver->object_id;
+          birth->values[vi].object_id_set = receiver->object_id_set;
+        }
+    }
+  }
+  for (size_t fi = 0; fi < in->index_count; fi++)
+    if (!lv4_index_kinds(in, &in->index[fi])) return 0;
+  if (!lv4_index_owned_results(in)) return 0;
+  for (size_t fi = 0; fi < in->index_count; fi++) {
+    hako_lv4_function_index* fn = &in->index[fi];
+    size_t count = fn->block_count, frames = 0;
+    hako_lv4_worklist work = {0};
+    if (lv4_is(fn->function, "role", "birth_unit") && !fn->receiver_object_set) return 0;
+    hako_lv4_block* entry = lv4_index_block(fn, lv4_u(fn->function, "entry"));
+    for (size_t bi = 0; bi < count; bi++) {
+      yyjson_val* rows = yyjson_obj_get(fn->blocks[bi].block, "instructions");
+      for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++)
+        frames += lv4_is(yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction"), "op", "fault_frame_enter");
+      yyjson_val* term = lv4_term(fn->blocks[bi].block);
+      if (lv4_operation_result(yyjson_obj_get(term, "operation")) != LV4_BAD) {
+        uint32_t id = fn->blocks[bi].id, normal = lv4_u(term, "normal");
+        size_t projections = 0;
+        if (hako_physical_predecessor_count(fn->function, normal) != 1) return 0;
+        for (size_t vi = 0; vi < fn->value_count; vi++) {
+          yyjson_val* ins = fn->values[vi].instruction;
+          projections += lv4_is(ins, "op", "invoke_normal_result") && lv4_u(ins, "invoke_block") == id;
+        }
+        if (projections != 1) return 0;
+      }
+    }
+    /* Root initializes its frame. A Birth with no frame uses may omit the
+       borrowed-frame projection; SSA validation still rejects undefined uses. */
+    if (!entry || frames > 1 || (!fi && frames != 1) ||
+        hako_physical_predecessor_count(fn->function, entry->id)) return 0;
+    if (!lv4_work_open(&work, count, lv4_state_count(fn), entry->ordinal)) return 0;
+    int valid = 1;
+    size_t failed_block = entry->ordinal;
+    const char* failed_phase = "flow";
+    while (valid == 1 && work.pending) {
+      size_t bi = work.queue[work.head]; work.head = (work.head + 1) % work.count;
+      work.queued[bi] = 0; work.pending--;
+      failed_block = bi;
+      valid = lv4_indexed_flow_block(in, fi, bi, &work);
+    }
+    if (valid == LV4_FLOW_RECEIVER_MISMATCH) { lv4_work_close(&work); return valid; }
+    for (size_t bi = 0; valid && bi < count; bi++) if (work.faults[bi] < 0) {
+      failed_block = bi; failed_phase = "unreachable"; valid = 0;
+    }
+    lv4_work_close(&work);
+    if (!valid) {
+      char message[320];
+      const char* name = yyjson_get_str(yyjson_obj_get(fn->function, "name"));
+      const char* op = yyjson_get_str(yyjson_obj_get(lv4_term(fn->blocks[failed_block].block), "op"));
+      snprintf(message, sizeof(message),
+          "[freeze:contract][published-lifecycle-v4/unsupported-cohort] function=%zu name=%.120s block=%u phase=%s terminator=%.40s",
+          fi, name ? name : "<invalid>", fn->blocks[failed_block].id, failed_phase, op ? op : "<invalid>");
+      set_err_owned(error, message);
+      return 0;
+    }
+  }
+  return 1;
+}
+
 static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
   int result;
   out->root = root; out->functions = yyjson_obj_get(root, "functions");
   out->native = yyjson_obj_get(root, "runtime_requirements") != NULL;
   out->result_site = yyjson_get_uint(yyjson_obj_get(root, "process_result_site"));
   out->profile = lv4_u(root, "storage_profile");
-  result = out->native ? lv4_native_admit(out) : lv4_indexed_admit(out);
+  result = out->native ? lv4_native_admit(out) : lv4_indexed_admit(out, error);
   if (result) {
     if (result == LV4_FLOW_RECEIVER_MISMATCH)
       return set_err_owned(error,
           "[freeze:contract][published-lifecycle-v4/receiver-object-mismatch]");
     return 0;
   }
+  if (error && *error) return -1;
   return set_err_owned(error, "[freeze:contract][published-lifecycle-v4/unsupported-cohort]");
 }
