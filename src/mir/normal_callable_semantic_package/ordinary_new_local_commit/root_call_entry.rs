@@ -213,71 +213,6 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(PreparedRootLexicalCallBindingGroupV1 { group, packet })
     }
 
-    pub(crate) fn print_expression_frame_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-        statement: &SourceStmtSiteV1,
-    ) -> Result<
-        Option<
-            std::rc::Rc<
-                crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
-            >,
-        >,
-        String,
-    > {
-        let Some(flow) = self
-            .completion_for_owner(owner)
-            .and_then(|completion| completion.cleanup().root_flow())
-        else {
-            return Ok(None);
-        };
-        let mut frames = flow
-            .expression_plans()
-            .iter()
-            .filter_map(|plan| plan.print_frame())
-            .filter(|frame| frame.source().root().statement() == statement);
-        let frame = frames.next().cloned();
-        if frame.is_none() && flow.statement_prefix_unavailable(statement) {
-            return Err(freeze("print-expression/source-unavailable"));
-        }
-        if frames.next().is_some() {
-            return Err(freeze("print-expression/duplicate-source-frame"));
-        }
-        Ok(frame)
-    }
-
-    pub(crate) fn validate_print_expression_source_v1(
-        &self,
-        frame: &std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
-        >,
-    ) -> Result<(), String> {
-        let owner = frame.source().owner();
-        let sources = self.expected_local_call_binding_sources(owner)?;
-        let groups = self.root_local_call_bindings.borrow();
-        let count = groups.get(&owner).map_or(0, Vec::len);
-        if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::PrintExpression { frame: expected, .. })
-            if std::rc::Rc::ptr_eq(frame, expected))
-        {
-            return Err(freeze("print-expression/source-prefix-order"));
-        }
-        Ok(())
-    }
-
-    /// The same pool owns a complete expression prefix. Source/frame identity
-    /// and ordering are checked before this pending group can be published.
-    pub(crate) fn prepare_print_expression_bindings(
-        &self,
-        owner: FunctionOwnerIdV1,
-        packet: std::rc::Rc<EmittedPrintExpressionProjectionV1>,
-        bindings: Vec<(BasicBlockId, MirInstruction)>,
-    ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
-        self.prepare_local_call_binding_group(
-            owner,
-            RootLifecyclePrefixBindingGroupV1::new_print(packet, bindings)?,
-        )
-    }
-
     fn record_local_call_binding_group(
         &self,
         owner: FunctionOwnerIdV1,
@@ -364,44 +299,6 @@ impl OrdinaryNewClaimLedgerV1 {
             // take below supplies the existing fail-fast diagnostic.
             _ => Ok(true),
         }
-    }
-
-    pub(super) fn expected_local_call_binding_sources(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
-        let completion = self
-            .completion_for_owner(owner)
-            .ok_or_else(|| freeze("local-call-source-missing"))?;
-        let flow = completion
-            .cleanup()
-            .root_flow()
-            .ok_or_else(|| freeze("local-call-source-missing"))?;
-        let routed = self.lifecycle_local_call_sites.borrow();
-        flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
-            .map_err(freeze)
-    }
-
-    /// Test-only sole-exit shorthand — production resolves through
-    /// `terminal_call_arguments_for_owner_at`.
-    #[cfg(test)]
-    pub(crate) fn terminal_call_arguments(
-        &self,
-    ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {
-        self.call_source_completion()
-            .map(|(_, terminal)| terminal.arguments())
-    }
-
-    /// Borrow the terminal Call seated at this exact exit site. A sibling
-    /// exit's Call relation is never a substitute — the argument evidence is
-    /// bound to its own `return` statement.
-    pub(crate) fn terminal_call_arguments_for_owner_at(
-        &self,
-        owner: FunctionOwnerIdV1,
-        site: &SourceStmtSiteV1,
-    ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {
-        self.call_source_completion_for_owner_at(owner, site)
-            .map(|(_, terminal)| terminal.arguments())
     }
 
     pub(crate) fn record_root_call_exit(

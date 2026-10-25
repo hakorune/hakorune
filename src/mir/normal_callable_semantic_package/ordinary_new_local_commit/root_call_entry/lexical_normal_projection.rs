@@ -559,3 +559,65 @@ impl EmittedLexicalCallProjectionV1 {
         Ok(covered)
     }
 }
+
+impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir) fn copy_dependencies(
+        &self,
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    ) -> Result<Vec<(crate::mir::resolved_semantics::OwnedExprSiteV1, Binding)>, String> {
+        self.copy_dependencies_in_context(CallValidationContextV1::Lowering(ledger))
+    }
+
+    pub(in crate::mir) fn copy_dependencies_in_context(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<(crate::mir::resolved_semantics::OwnedExprSiteV1, Binding)>, String> {
+        let mut dependencies = Vec::new();
+        if let (CallPacketSourceLoanV1::Instance(row), LexicalReceiverProjectionV1::Lexical(read)) =
+            (self.row.loan(), &self.prepared.receiver)
+        {
+            if row.source_target().borrowed_receiver_source_v1().is_some() {
+                context.require_borrowed_map_receiver_v1(row, read)?;
+                dependencies.extend(
+                    read.original_copy_dependencies_v1()?
+                        .iter()
+                        .map(|copy| (self.call_site().clone(), copy.clone())),
+                );
+            }
+        }
+        if let LexicalReceiverProjectionV1::StoredChild { parent, .. } = &self.prepared.receiver {
+            dependencies.extend(
+                parent
+                    .original_copy_dependencies_v1()?
+                    .iter()
+                    .map(|copy| (self.row.loan().call_site().clone(), copy.clone())),
+            );
+        }
+        for argument in &self.prepared.arguments {
+            if let LexicalCallArgumentProjectionV1::Expression(_) = argument {
+                dependencies.extend(
+                    argument
+                        .expression_copy_dependencies_v1(context)?
+                        .into_iter()
+                        .map(|copy| (self.call_site().clone(), copy)),
+                );
+                for call in argument.expression_calls_v1() {
+                    dependencies.extend(call.copy_dependencies_in_context(context)?);
+                }
+            } else if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
+                dependencies.extend(inner.copy_dependencies_in_context(context)?);
+            } else {
+                for copy in borrowed_projection::copies_in_context(
+                    argument,
+                    self.row.loan().call_site().owner(),
+                    self.row.loan(),
+                    context,
+                )? {
+                    dependencies.push((self.row.loan().call_site().clone(), copy.clone()));
+                }
+            }
+        }
+        Ok(dependencies)
+    }
+
+}

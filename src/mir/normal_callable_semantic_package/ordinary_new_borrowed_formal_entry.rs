@@ -403,42 +403,6 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    /// A borrowed formal may be used as an instance-call receiver without
-    /// acquiring an owned Home. Return true only when the completed entry
-    /// source proves this exact formal's original object class.
-    pub(crate) fn borrowed_entry_receiver_matches_class_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-        binding: BindingRefV1,
-        expected_class: &str,
-    ) -> Result<bool, String> {
-        let Some(catalog) = self.original_parameter_contracts.as_deref() else {
-            return Ok(false);
-        };
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
-        let Some(contract) = contracts.next() else { return Ok(false) };
-        if contracts.next().is_some() {
-            return Err(freeze("borrowed-entry/original-contract-duplicate"));
-        }
-        let Some(formal) = contract.parameters.iter().find(|row| row.binding == binding) else {
-            return Ok(false);
-        };
-        if !formal.kind.is_ordinary_borrowed_handle() {
-            return Ok(false);
-        }
-        let parameters = contract.parameters.iter()
-            .map(|row| (row.ordinal, row.binding, row.kind.clone()))
-            .collect::<Vec<_>>();
-        let Some(entry) = self.borrowed_entry_source_for_contract(owner, &parameters)? else {
-            return Ok(false);
-        };
-        if !entry.formals().contains(&(formal.ordinal, binding)) {
-            return Ok(false);
-        }
-        Ok(entry.formal_object_view(binding)?
-            .is_some_and(|view| view.class() == expected_class))
-    }
-
     /// Original final opaque entry and argument join for completed return acquisition.
     pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_opaque_object_arguments_v1(
         &self,

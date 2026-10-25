@@ -673,3 +673,44 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 }
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expected_local_call_binding_sources(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
+        let completion = self
+            .completion_for_owner(owner)
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let flow = completion
+            .cleanup()
+            .root_flow()
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let routed = self.lifecycle_local_call_sites.borrow();
+        flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
+            .map_err(freeze)
+    }
+
+    /// Test-only sole-exit shorthand — production resolves through
+    /// `terminal_call_arguments_for_owner_at`.
+    #[cfg(test)]
+    pub(crate) fn terminal_call_arguments(
+        &self,
+    ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {
+        self.call_source_completion()
+            .map(|(_, terminal)| terminal.arguments())
+    }
+
+    /// Borrow the terminal Call seated at this exact exit site. A sibling
+    /// exit's Call relation is never a substitute — the argument evidence is
+    /// bound to its own `return` statement.
+    pub(crate) fn terminal_call_arguments_for_owner_at(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {
+        self.call_source_completion_for_owner_at(owner, site)
+            .map(|(_, terminal)| terminal.arguments())
+    }
+
+}

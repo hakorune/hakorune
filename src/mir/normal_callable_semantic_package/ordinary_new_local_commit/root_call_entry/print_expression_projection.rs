@@ -168,3 +168,71 @@ impl EmittedPrintExpressionProjectionV1 {
         Ok(())
     }
 }
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn print_expression_frame_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        statement: &SourceStmtSiteV1,
+    ) -> Result<
+        Option<
+            std::rc::Rc<
+                crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
+            >,
+        >,
+        String,
+    > {
+        let Some(flow) = self
+            .completion_for_owner(owner)
+            .and_then(|completion| completion.cleanup().root_flow())
+        else {
+            return Ok(None);
+        };
+        let mut frames = flow
+            .expression_plans()
+            .iter()
+            .filter_map(|plan| plan.print_frame())
+            .filter(|frame| frame.source().root().statement() == statement);
+        let frame = frames.next().cloned();
+        if frame.is_none() && flow.statement_prefix_unavailable(statement) {
+            return Err(freeze("print-expression/source-unavailable"));
+        }
+        if frames.next().is_some() {
+            return Err(freeze("print-expression/duplicate-source-frame"));
+        }
+        Ok(frame)
+    }
+
+    pub(crate) fn validate_print_expression_source_v1(
+        &self,
+        frame: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1,
+        >,
+    ) -> Result<(), String> {
+        let owner = frame.source().owner();
+        let sources = self.expected_local_call_binding_sources(owner)?;
+        let groups = self.root_local_call_bindings.borrow();
+        let count = groups.get(&owner).map_or(0, Vec::len);
+        if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::PrintExpression { frame: expected, .. })
+            if std::rc::Rc::ptr_eq(frame, expected))
+        {
+            return Err(freeze("print-expression/source-prefix-order"));
+        }
+        Ok(())
+    }
+
+    /// The same pool owns a complete expression prefix. Source/frame identity
+    /// and ordering are checked before this pending group can be published.
+    pub(crate) fn prepare_print_expression_bindings(
+        &self,
+        owner: FunctionOwnerIdV1,
+        packet: std::rc::Rc<EmittedPrintExpressionProjectionV1>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
+        self.prepare_local_call_binding_group(
+            owner,
+            RootLifecyclePrefixBindingGroupV1::new_print(packet, bindings)?,
+        )
+    }
+
+}
