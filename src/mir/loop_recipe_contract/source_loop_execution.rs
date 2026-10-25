@@ -521,8 +521,16 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
                 if observation.prior_homes() != homes.as_slice() {
                     return Err(reject("execution-prior-homes"));
                 }
-                // Scalar Local/Discard leaves caller Homes unchanged. All
-                // argument acquisition/End/Fault remains inside the SAME Call.
+                if matches!(observation.result(), LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable) {
+                    let (_, binding) = observation.local_binding()
+                        .ok_or_else(|| reject("execution-initializer-owned-result"))?;
+                    if homes.iter().any(|home| home.binding() == binding) {
+                        return Err(reject("execution-home-reacquisition"));
+                    }
+                    // Acquisition happens only after the SAME Call's Normal.
+                    // Its installed CallReceived retains End and Fault duties.
+                    homes.push(LiveHomeV1::Stable(binding));
+                }
             }
             Statement::OwnedArrayAppend { observation, .. } => {
                 let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {

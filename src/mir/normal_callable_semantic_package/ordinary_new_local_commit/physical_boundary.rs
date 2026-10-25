@@ -564,10 +564,14 @@ impl PhysicalBoundary {
                             expected.dst_value().is_some_and(|dst| self.single_definitions.contains(&dst))
                         ));
                     }
-                    return Err(fault("finished-sequence"));
+                    return Err(format!("{} function={} block={id:?} expected={expected:?} actual={:?} original-used={}",
+                        fault("finished-sequence"), function.signature.name, remaining.peek(),
+                        expected.dst_value().is_some_and(|dst| self.walk_graph.values().any(|node|
+                            node.instructions.iter().chain(std::iter::once(&node.terminal))
+                                .any(|row| row.used_values().contains(&dst))))));
                 }
             }
-            if remaining.next().is_some()
+            if remaining.peek().is_some()
                 || !actual.terminator.as_ref().is_some_and(|found|
                     same_finished_instruction(found, &projection.instruction(terminal.clone())))
             {
@@ -577,7 +581,9 @@ impl PhysicalBoundary {
                         function.signature.name, id, projection.instruction(terminal.clone()), actual
                     ));
                 }
-                return Err(fault("finished-sequence"));
+                return Err(format!("{} function={} block={id:?} expected-terminal={:?} actual-terminal={:?} extra={:?}",
+                    fault("finished-sequence"), function.signature.name,
+                    projection.instruction(terminal.clone()), actual.terminator, remaining.peek()));
             }
         }
         let surviving: BTreeSet<BasicBlockId> = projection.sequences.keys().copied().collect();

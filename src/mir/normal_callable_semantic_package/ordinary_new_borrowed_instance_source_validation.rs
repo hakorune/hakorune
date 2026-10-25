@@ -53,9 +53,18 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
         }
         match identity.argument_sources.get(&candidate.ordinal) {
             Some(model::ArgumentExpressionV1::Source(_)) => {
-                if !matches!(candidate.value, BorrowedCallActualValueV1::Unknown)
-                    || original_unknown_scalar_actual_v1(ingress, call, identity, candidate)
-                        .is_none()
+                let local_object = original_local_object_binding_actual_v1(
+                    ingress,
+                    contracts,
+                    call,
+                    identity,
+                    candidate,
+                )
+                .is_some();
+                if !local_object
+                    && (!matches!(candidate.value, BorrowedCallActualValueV1::Unknown)
+                        || original_unknown_scalar_actual_v1(ingress, call, identity, candidate)
+                            .is_none())
                 {
                     pending_expression = true;
                 }
@@ -102,6 +111,15 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                     {
                         return Ok(Some(source));
                     }
+                }
+                if let Some(source) = original_local_object_binding_actual_v1(
+                    ingress,
+                    contracts,
+                    call,
+                    identity,
+                    candidate,
+                ) {
+                    return Ok(Some(source));
                 }
                 if matches!(
                     candidate.value,
@@ -230,6 +248,94 @@ fn original_unknown_scalar_actual_v1(
             binding,
             kind: SourceScalarKind::Integer,
         })
+}
+
+/// Retain an exact local object binding read as a borrowed actual. This is
+/// source attribution only: both the caller actual and callee formal must have
+/// the same singleton object class, and the original argument plan must name
+/// this exact local read at this exact call ordinal.
+fn original_local_object_binding_actual_v1(
+    ingress: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    identity: &InstanceSourceActualIdentityV1,
+    candidate: &BorrowedCallActualCandidateV1,
+) -> Option<BorrowedFormalActualSourceV1> {
+    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1 as Value;
+    use crate::mir::resolved_value_profile::expression_plan::{
+        ExpressionNodeSourceV1, ExpressionPlanRootV1,
+    };
+
+    let BorrowedCallActualValueV1::Binding(binding) = &candidate.value else {
+        return None;
+    };
+    let binding = *binding;
+    if binding.owner() != call.call.owner() {
+        return None;
+    }
+    let (_, expected_site, formal) = identity
+        .incoming_arguments
+        .iter()
+        .find(|(ordinal, _, _)| *ordinal == candidate.ordinal)?;
+    if expected_site != &candidate.site || formal.owner() != call.callee {
+        return None;
+    }
+    let parameter = contracts
+        .iter()
+        .find(|row| row.owner == call.callee)?
+        .parameters
+        .get(candidate.ordinal as usize)?;
+    if parameter.ordinal != candidate.ordinal
+        || parameter.binding != *formal
+        || !parameter.kind.is_ordinary_borrowed_handle()
+    {
+        return None;
+    }
+    let model::ArgumentExpressionV1::Source(plan) =
+        identity.argument_sources.get(&candidate.ordinal)?
+    else {
+        return None;
+    };
+    let [node] = plan.nodes() else {
+        return None;
+    };
+    if !matches!(
+        node.source(),
+        ExpressionNodeSourceV1::Reference(
+            crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(source_binding),
+        ) if *source_binding == binding
+    ) || node.site() != &candidate.site
+        || !matches!(
+            plan.root(),
+            ExpressionPlanRootV1::CallArgument {
+                call: original,
+                ordinal,
+                ..
+            } if original.site() == call.call.site() && *ordinal == candidate.ordinal
+        )
+    {
+        return None;
+    }
+    let actual_sum = ingress.source_actual_value_sum_v1(
+        &call.call,
+        candidate.ordinal,
+        &candidate.site,
+        Some(binding),
+    )?;
+    let formal_sum = ingress.source_value_sum_v1(*formal)?;
+    let [Value::Object(class)] = actual_sum.alternatives().iter().collect::<Vec<_>>().as_slice()
+    else {
+        return None;
+    };
+    if actual_sum.alternatives() != formal_sum.alternatives()
+        || formal_sum.alternatives().len() != 1
+    {
+        return None;
+    }
+    Some(BorrowedFormalActualSourceV1::LocalObjectBinding {
+        binding,
+        class: class.clone(),
+    })
 }
 
 pub(super) fn recheck_instance_source_actuals_v1(

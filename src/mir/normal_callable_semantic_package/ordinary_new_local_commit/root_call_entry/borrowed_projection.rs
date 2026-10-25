@@ -125,6 +125,7 @@ pub(super) fn value(
                 Source::Scalar { binding, .. }
                 | Source::TypedHome { binding, .. }
                 | Source::EntryReceiver { binding, .. }
+                | Source::LocalObjectBinding { binding, .. }
                 | Source::DeclaredFormal { binding, .. }
                 | Source::ReceivedNullable { binding, .. }
                 | Source::ReceivedMixed { binding, .. } => (*binding, None),

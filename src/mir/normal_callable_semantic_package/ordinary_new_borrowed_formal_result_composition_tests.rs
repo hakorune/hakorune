@@ -648,8 +648,11 @@ fn original_return_field_requests_keep_nested_expression_plans_before_qualificat
                 if key.owner() == "Parent" && key.name() == "read")).unwrap();
         let originals = original::prepare_original_returns_v1(package.batch(), &package.selected, &package.parameter_contracts);
         let loan = originals[&contract.owner].as_ref().unwrap();
-        assert_eq!(loan.is_some(), requested, "{body}");
-        if let Some(loan) = loan {
+        // Computed non-field Returns also retain passive plans now; only
+        // the original field request belongs to this field-authority test.
+        let field_loan = loan.as_ref().filter(|loan| loan.field_plans().next().is_some());
+        assert_eq!(field_loan.is_some(), requested, "{body}");
+        if let Some(loan) = field_loan {
             assert_eq!(loan.field_plans().count(), if body.contains("if true") { 2 } else { 1 });
             for plan in loan.field_plans() {
                 assert!(Rc::ptr_eq(loan.plan(plan.nodes()[0].site()).unwrap(), plan));

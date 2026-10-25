@@ -456,7 +456,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         let mapped = |original: &Binding| match finishing {
             Some(projection) => projection
                 .binding(original.0, &original.1)?
-                .ok_or_else(|| freeze("print-expression/required-producer-removed")),
+                .ok_or_else(|| format!("{} owner={:?} source={:?} original={original:?}",
+                    freeze("print-expression/required-producer-removed"),
+                    self.frame.source().owner(), self.frame.source().root().expression_site())),
             None => Ok(original.clone()),
         };
         for read in self.path_reads {
@@ -543,10 +545,20 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         if let Some(install) = residence {
             original_order.push(install.clone());
         }
-        let ordered = original_order
-            .iter()
-            .map(mapped)
-            .collect::<Result<Vec<_>, _>>()?;
+        let mut ordered = Vec::new();
+        for original in &original_order {
+            let current = match finishing {
+                Some(boundary) if matches!(original.1, MirInstruction::Jump { edge_args: None, .. }) => {
+                    boundary.structural_jump_binding(
+                        function, original, matches!(context, CallValidationContextV1::Finalized(_)),
+                    )?
+                }
+                _ => Some(mapped(original)?),
+            };
+            if let Some(current) = current {
+                ordered.push(current);
+            }
+        }
         let frame = self.require_unique(
             |row| matches!(row, MirInstruction::FaultFrameEnter { dst, .. } if *dst == fault_frame),
         )?;

@@ -7,6 +7,7 @@ use crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1 a
 use crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1 as DynamicProducer;
 
 pub(super) fn validate_owned_v2(
+    context: CallValidationContextV1<'_>,
     graph: &EmittedSourceLoopGraphV2,
     owned: &[Binding],
     children: &[RootLifecyclePrefixBindingGroupV1],
@@ -28,6 +29,9 @@ pub(super) fn validate_owned_v2(
     for child in children {
         for row in child.bindings() {
             claim(row, matches!(row.1, MirInstruction::KeepAlive { .. }))?;
+        }
+        for row in child.source_loop_dependencies_v2(context)? {
+            claim(&row, false)?;
         }
     }
     for (block, rows) in phis {

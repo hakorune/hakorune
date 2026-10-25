@@ -9,6 +9,43 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallArgumentsV1, LocalCallResultClassV1, ObjectCallSourceSupportV1,
 };
 
+/// Select only the existing original object acquisition, before any emitter.
+/// Syntax-level Dynamic origin cannot replace this closed source/return loan.
+pub(in crate::mir::normal_callable_semantic_package) fn original_owned_call_target_v1<'a>(
+    source: &'a Result<PreparedBorrowedFormalIngressV1, String>,
+    targets: &PreparedLexicalInstanceCallSourceTargetsV1,
+    classes: &OrdinaryNewResultClassClaimsV1,
+    site: &OwnedExprSiteV1,
+) -> Result<Option<&'a super::super::LexicalInstanceCallSourceTargetV1>, String> {
+    let mut originals = source.as_ref().ok().into_iter()
+        .flat_map(|ingress| ingress.source_incoming.exact_rows())
+        .filter(|row| &row.call == site);
+    let original = originals.next();
+    if originals.next().is_some() { return Err(freeze("original-not-unique")); }
+    let prepared: Vec<_> = targets.as_ref().ok().into_iter().flatten()
+        .filter_map(|row| row.as_ref().ok()?.as_ref())
+        .filter(|target| target.call_site() == site).collect();
+    let owns = original.and_then(|row| row.source.instance())
+        .is_some_and(|target| target.owning_object_local_input_v1().is_some())
+        || prepared.iter().any(|target| target.owning_object_local_input_v1().is_some());
+    if !owns {
+        return Ok(None);
+    }
+    require_prepared_targets(targets)?;
+    let ingress = source.as_ref().map_err(Clone::clone)?;
+    let original = original.ok_or_else(|| freeze("original-missing"))?;
+    let target = original.source.require_instance()?;
+    let loan = ingress.original_owning_object_input_source_v1(target)?
+        .ok_or_else(|| freeze("nullable-input-missing"))?;
+    classes.recheck_owning_object_local_input_roots_v1(loan).map_err(freeze)?;
+    if prepared.len() != 1 || prepared[0] != target
+        || original.callee != target.callee_owner()
+        || loan.destination().owner() != site.owner() || !loan.matches_target(target) {
+        return Err(freeze("nullable-input-identity"));
+    }
+    Ok(Some(target))
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn received_producer_arguments_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
@@ -57,22 +94,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
         return Ok(None);
     };
     if anchor.owning_object_local_input_v1().is_some() {
-        require_prepared_targets(targets)?;
+        let target = original_owned_call_target_v1(source, targets, classes, site)?
+            .ok_or_else(|| freeze("nullable-input-missing"))?;
         let ingress = source.as_ref().map_err(Clone::clone)?;
-        let original = original.ok_or_else(|| freeze("original-missing"))?;
-        let target = original.source.require_instance()?;
         let loan = ingress
             .original_owning_object_input_source_v1(target)?
             .ok_or_else(|| freeze("nullable-input-missing"))?;
-        classes
-            .recheck_owning_object_local_input_roots_v1(loan)
-            .map_err(freeze)?;
-        if prepared.len() != 1
-            || prepared[0] != target
-            || original.callee != target.callee_owner()
-            || loan.destination() != destination
-            || !loan.matches_target(target)
-        {
+        if loan.destination() != destination {
             return Err(freeze("nullable-input-identity"));
         }
         let result = if loan.nullable() {

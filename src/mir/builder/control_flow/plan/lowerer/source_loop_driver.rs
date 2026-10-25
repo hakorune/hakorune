@@ -310,6 +310,17 @@ impl Driver<'_, '_, '_, '_, '_> {
                             relation.verify(function)?;
                             Some((*logical, relation))
                         }
+                        (None, Some((value, local))) if matches!(observation.result(),
+                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+                            | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable) => {
+                            let claims = self.port.ordinary_new_claim_ledger.as_ref()
+                                .ok_or_else(|| reject("claim-ledger-missing"))?;
+                            if value != local || claims.source_loop_received_call_value_v2(observation, &packet,
+                                crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims))? != local {
+                                return Err(reject("call-local-correspondence"));
+                            }
+                            None
+                        }
                         (None, None) => None,
                         _ => return Err(reject("call-result-source")),
                     };

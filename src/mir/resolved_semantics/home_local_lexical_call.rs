@@ -199,10 +199,13 @@ pub(crate) fn issue_received_producer_local_call_with_alias_v1<E>(
         matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
             if binding.owner() == input.owner() && input.function().binding(binding)
                 .is_some_and(|row| row.kind() == crate::mir::resolved_semantics::BindingKindV1::Receiver)));
-    if !claim_local && !self_receiver {
+    let formal_receiver = receiver_binding.is_some_and(|binding| binding.owner() == input.owner()
+        && input.function().binding(binding).is_some_and(|row|
+            matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Parameter { .. })));
+    if !claim_local && !self_receiver && !formal_receiver {
         return Ok(None);
     }
-    let exact_initializer = if self_receiver {
+    let exact_initializer = if self_receiver || formal_receiver {
         corroborate_local_initializer_v1(
             input,
             statement,

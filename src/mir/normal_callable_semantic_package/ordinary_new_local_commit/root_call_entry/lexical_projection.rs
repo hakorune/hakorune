@@ -377,12 +377,28 @@ impl PreparedLexicalCallProjectionV1 {
             }
             CallPacketSourceLoanV1::Instance(instance) => {
                 if instance.source_target().stored_receiver().is_some() {
-                    ledger
-                        .ok_or_else(|| freeze("stored-child/source-ledger-missing"))?
-                        .recheck_stored_local_new_parent_v1(instance.source_target())?;
+                    let ledger = ledger.ok_or_else(|| freeze("stored-child/source-ledger-missing"))?;
+                    ledger.recheck_stored_local_new_parent_v1(instance.source_target())?;
+                    if let Some(observation) = ledger.lexical_i64_call_source(instance.call_site())
+                        .filter(|_| instance.scalar_result_source_v1().is_some()) {
+                        let (parent, _, _, _) = instance.source_target().stored_receiver().unwrap();
+                        if !observation.prior_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(parent))
+                            && !ledger.checked_stored_entry_receiver_v1(instance.source_target())? {
+                            return Err(freeze("lexical-terminal/receiver-arm-drift"));
+                        }
+                    }
                 }
                 let receiver = match (&self.receiver, instance.source_target().stored_receiver()) {
                     (LexicalReceiverProjectionV1::Lexical(read), None) => {
+                        if let Some(ledger) = ledger.filter(|_| instance.source_target().owning_object_local_input_v1().is_some()) {
+                            let binding = instance.receiver_binding()?;
+                            let formal = ledger.original_parameter_contracts.as_deref().is_some_and(|rows|
+                                rows.iter().any(|row| row.owner == owner
+                                    && row.parameters.iter().any(|formal| formal.binding == binding)));
+                            if formal && !ledger.borrowed_entry_receiver_matches_class_v1(owner, binding, instance.target().owner())? {
+                                return Err(freeze("lexical-terminal/receiver-arm-drift"));
+                            }
+                        }
                         if instance
                             .source_target()
                             .borrowed_receiver_source_v1()
@@ -403,11 +419,8 @@ impl PreparedLexicalCallProjectionV1 {
                     }
                     (
                         LexicalReceiverProjectionV1::StoredChild { parent, read },
-                        Some((binding, site, field, child)),
+                        Some((binding, site, field, _)),
                     ) => {
-                        if field.object() == child {
-                            return Err(freeze("lexical-terminal/stored-child-identity"));
-                        }
                         let base =
                             parent
                                 .value_for(owner, site.node(), binding)

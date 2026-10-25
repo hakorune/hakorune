@@ -165,7 +165,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         let owned = graph.completed_bindings(function)?;
-        validate_owned_v2(&graph, &owned, &children, marker.phis(), function)?;
+        validate_owned_v2(context, &graph, &owned, &children, marker.phis(), function)?;
         let roles = self.loop_cond_after_roles.borrow_mut();
         let site = graph.product.source.source.site().clone();
         if self.completion_for_owner(owner).is_none() || roles.contains_key(&(owner, site)) {

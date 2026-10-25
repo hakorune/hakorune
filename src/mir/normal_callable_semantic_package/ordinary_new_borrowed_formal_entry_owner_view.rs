@@ -6,6 +6,25 @@ use super::super::borrowed_formal_uses::{
 };
 use super::*;
 
+/// The actual still carries the exact original caller binding at this forward
+/// ordinal. A self-rooted handle names that binding as its own root; a closed
+/// scalar seed (`Scalar { binding, .. }`) names the same binding without an
+/// alias, so both preserve the original forward identity.
+fn forwards_original_formal_v1(
+    source: &super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1,
+    binding: BindingRefV1,
+    source_formal: BindingRefV1,
+) -> bool {
+    use super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1 as Source;
+    match source {
+        Source::Forwarded { binding: actual, formal } => {
+            *actual == binding && *formal == source_formal
+        }
+        Source::Scalar { binding: actual, .. } => *actual == binding && binding == source_formal,
+        _ => false,
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct BorrowedEntryOwnerViewV1
@@ -103,6 +122,13 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             if core_input || self.selected_original_object_input_owner_v1(source, owner)?
                 || source.original_returned_field_participant_request_v1(owner)?.is_some() {
+                return mixed_instance::checked_original_instance_parameter_frame_v1(
+                    source, self.original_parameter_contracts.as_deref(), owner);
+            }
+            if self.original_instance_input_kind_v1(source, owner)?
+                == Some(super::super::borrowed_formal_actuals::object_input_finish::OriginalInstanceInputKindV1::SourceInstance)
+                && self.original_instance_input_requires_reconstruction_v1(source, owner)?
+            {
                 return mixed_instance::checked_original_instance_parameter_frame_v1(
                     source, self.original_parameter_contracts.as_deref(), owner);
             }
@@ -350,11 +376,11 @@ impl OrdinaryNewClaimLedgerV1 {
                             && site == forward.site.site()
                             && *formal == forward.callee_formal
                     })
-                    || actual.source
-                        != (BorrowedFormalActualSourceV1::Forwarded {
-                            binding: forward.binding,
-                            formal: forward.source_formal,
-                        })
+                    || !forwards_original_formal_v1(
+                        &actual.source,
+                        forward.binding,
+                        forward.source_formal,
+                    )
                     || source
                         .definitions
                         .get(&forward.source_formal.owner())

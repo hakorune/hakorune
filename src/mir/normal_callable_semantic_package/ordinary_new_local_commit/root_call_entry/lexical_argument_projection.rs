@@ -8,6 +8,18 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
 impl LexicalCallArgumentProjectionV1 {
+    pub(super) fn source_loop_bindings_in_context_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        let bindings = match self {
+            Self::Expression(packet) => packet.source_loop_bindings_in_context_v1(context)?,
+            Self::CallResult(call) => call.source_loop_argument_bindings_in_context_v1(context)?,
+            _ => Vec::new(),
+        };
+        Ok(bindings)
+    }
+
     pub(crate) fn dynamic_carrier_append_entry_binding_v1(
         &self,
     ) -> Result<&Binding, String> {
@@ -339,6 +351,32 @@ impl EmittedArgumentExpressionProjectionV1 {
             );
         }
         Ok((ordered, copies))
+    }
+    fn source_loop_bindings_in_context_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        let (ordered, copies) = self.scope_bindings_in_context_v1(context)?;
+        let mut bindings = ordered;
+        bindings.extend(copies);
+        for read in self.reference_reads.values() {
+            bindings.extend(read.dependencies()?);
+        }
+        for call in &self.calls {
+            bindings.extend(call.source_loop_argument_bindings_in_context_v1(context)?);
+        }
+        for call in &self.dynamic_calls {
+            let (ordered, copies) = call.scope_bindings_in_context_v1(context)?;
+            bindings.extend(ordered);
+            bindings.extend(copies);
+        }
+        let mut unique = Vec::new();
+        for binding in bindings {
+            if !unique.contains(&binding) {
+                unique.push(binding);
+            }
+        }
+        Ok(unique)
     }
     fn copy_dependencies_in_context_v1(
         &self,

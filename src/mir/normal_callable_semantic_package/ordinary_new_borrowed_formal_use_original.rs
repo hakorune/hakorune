@@ -4,7 +4,7 @@ use super::*;
 use crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1;
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
-use std::sync::Arc;
+use std::{collections::BTreeSet, sync::Arc};
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
@@ -207,6 +207,126 @@ impl OriginalFormalUseSourceV1 {
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedLexicalRefV1)> {
         self.reads.iter().map(|(site, reference)| (site, reference))
+    }
+    /// A local read can satisfy the borrowed-input use census without a Home
+    /// evaluation only when its complete resolver value graph has no path to
+    /// any borrowed entry. Joins are followed with cycle protection; unknown
+    /// nodes and non-local references remain unproved.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn corroborates_non_entry_source_read_v1(
+        &self,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+        entry_origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+    ) -> bool {
+        use crate::mir::resolved_semantics::source_value_flow::{
+            SourceValueOriginV1, SourceValueRefV1, VerifiedSourceValueFlowV1,
+        };
+
+        fn visit(
+            value: SourceValueRefV1,
+            flow: &VerifiedSourceValueFlowV1,
+            reads: &[(SourceExprSiteV1, ResolvedLexicalRefV1)],
+            entry_origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+            active: &mut BTreeSet<SourceValueRefV1>,
+            complete: &mut BTreeSet<SourceValueRefV1>,
+        ) -> bool {
+            if complete.contains(&value) {
+                return true;
+            }
+            if !active.insert(value) {
+                return true;
+            }
+            let result = match flow.origin(value) {
+                Some(SourceValueOriginV1::Entry(binding)) => !entry_origins.contains_key(binding),
+                Some(SourceValueOriginV1::Expression(root)) => {
+                    let root_path = root.node().segments();
+                    reads
+                        .iter()
+                        .filter(|(read_site, _)| {
+                            read_site.node().segments().starts_with(root_path)
+                        })
+                        .all(|(read_site, reference)| {
+                            let ResolvedLexicalRefV1::Local(read_binding) = reference else {
+                                return false;
+                            };
+                            if read_binding.owner() != flow.owner()
+                                || reads
+                                    .iter()
+                                    .filter(|(candidate, candidate_ref)| {
+                                        candidate == read_site
+                                            && *candidate_ref
+                                                == ResolvedLexicalRefV1::Local(*read_binding)
+                                    })
+                                    .count()
+                                    != 1
+                            {
+                                return false;
+                            }
+                            flow.read(read_site, *read_binding).is_some_and(|dependency| {
+                                visit(
+                                    dependency,
+                                    flow,
+                                    reads,
+                                    entry_origins,
+                                    active,
+                                    complete,
+                                )
+                            })
+                        })
+                }
+                Some(SourceValueOriginV1::Join { incoming, .. }) => {
+                    !incoming.is_empty()
+                        && incoming.iter().all(|(_, dependency)| {
+                            visit(
+                                *dependency,
+                                flow,
+                                reads,
+                                entry_origins,
+                                active,
+                                complete,
+                            )
+                        })
+                }
+                Some(SourceValueOriginV1::Unknown) | None => false,
+            };
+            active.remove(&value);
+            if result {
+                complete.insert(value);
+            }
+            result
+        }
+
+        if binding.owner() != self.owner
+            || self
+                .reads
+                .iter()
+                .filter(|(candidate, reference)| {
+                    candidate == site
+                        && *reference == ResolvedLexicalRefV1::Local(binding)
+                })
+                .count()
+                != 1
+        {
+            return false;
+        }
+        let Some(flow) = self
+            .flow
+            .as_deref()
+            .filter(|flow| flow.owner() == self.owner && flow.is_complete())
+        else {
+            return false;
+        };
+        let Some(value) = flow.read(site, binding) else {
+            return false;
+        };
+        visit(
+            value,
+            flow,
+            &self.reads,
+            entry_origins,
+            &mut BTreeSet::new(),
+            &mut BTreeSet::new(),
+        )
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
     fn cover_exact_bool_static_return_reads_v1(

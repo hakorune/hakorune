@@ -400,10 +400,50 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         borrowed_actuals.ok_or_else(|| freeze("static-packet/actuals-missing"))?;
         for (formal, argument) in original.parameters().iter().zip(observation.arguments()) {
             if formal.kind.is_ordinary_borrowed_handle() {
-                if !matches!(argument, LocalCallArgumentV1::BorrowedActual { ordinal, site }
+                let borrowed_source_matches = matches!(argument, LocalCallArgumentV1::BorrowedActual { ordinal, site }
                     if *ordinal == formal.ordinal
-                        && original.argument_sites().get(*ordinal as usize) == Some(site))
-                {
+                        && original.argument_sites().get(*ordinal as usize) == Some(site));
+                let expression_source_matches = match (argument, borrowed_actuals) {
+                    (
+                        LocalCallArgumentV1::Expression { ordinal, site },
+                        Some(actuals),
+                    ) if *ordinal == formal.ordinal
+                        && original.argument_sites().get(*ordinal as usize) == Some(site) =>
+                    {
+                        actuals.iter().any(|actual| {
+                            if actual.ordinal != formal.ordinal
+                                || actual.site != *site
+                                || actual.formal != formal.binding
+                            {
+                                return false;
+                            }
+                            let crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(
+                                expression,
+                            ) = &actual.source
+                            else {
+                                return false;
+                            };
+                            let frame = expression.frame();
+                            frame.source().owner() == observation.owner()
+                                && frame
+                                    .source()
+                                    .nodes()
+                                    .first()
+                                    .is_some_and(|node| node.site() == site)
+                                && matches!(
+                                    frame.source().root(),
+                                    crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                                        call,
+                                        ordinal: position,
+                                        ..
+                                    } if call.site() == observation.site().site()
+                                        && *position == formal.ordinal
+                                )
+                        })
+                    }
+                    _ => false,
+                };
+                if !borrowed_source_matches && !expression_source_matches {
                     return Err(freeze("static-packet/borrowed-input-source-required"));
                 }
             } else if matches!(formal.kind,

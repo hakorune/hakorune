@@ -90,7 +90,11 @@ pub(in crate::mir::normal_callable_semantic_package) enum TerminalFieldValueSour
 }
 impl TerminalFieldValueSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn requires_checked_read_v1(&self) -> bool {
-        matches!(self, Self::OwnedLocal(source) if source.requires_checked_read_v1())
+        match self {
+            Self::OwnedLocal(source) => source.requires_checked_read_v1(),
+            Self::Numeric(source) => source.requires_checked_read_v1(),
+            Self::Declared => false,
+        }
     }
 }
 impl OrdinaryNewClaimLedgerV1 {

@@ -72,30 +72,41 @@ impl OrdinaryNewClaimLedgerV1 {
                 reads.push(read.clone());
             }
         }
-        let groups = self.root_local_call_bindings.borrow();
         let mut sites = std::collections::BTreeSet::new();
+        let mut lend = |packet: &EmittedLexicalCallProjectionV1, arguments: &[LocalCallArgumentV1], bindings: &[(BasicBlockId, MirInstruction)]| {
+            packet.visit_original_nodes_v1(owner, arguments, self, &mut |node, arguments| {
+                if let Some(read) = node.stored_receiver_read_v1() {
+                    if !sites.insert(node.call_site().clone()) {
+                        return Err(freeze("local-stored-receiver/duplicate-source"));
+                    }
+                    node.call_with_ledger(owner, arguments, self)?;
+                    node.validate_recorded(bindings)?;
+                    reads.push(read.clone());
+                }
+                Ok(())
+            })
+        };
+        for ((actual_owner, exit), progress) in exits.iter() {
+            if *actual_owner != owner { continue; }
+            let RootHomeExitProgress::Emitted { order, .. } = progress else { continue };
+            let Some(expression) = order.return_expression_v1() else { continue };
+            let exit = exit.explicit_site().ok_or_else(|| freeze("implicit-exit/terminal-call-drift"))?;
+            expression.require_source_v1(owner, exit)?;
+            if self.return_expression_evaluation_v1(owner, exit)?
+                .is_none_or(|original| !std::rc::Rc::ptr_eq(&original, &expression.source)) {
+                return Err(freeze("local-stored-receiver/source-drift"));
+            }
+            let bindings = order.return_expression_bindings_v1(CallValidationContextV1::Lowering(self))?;
+            expression.visit_calls_v1(|packet, arguments| lend(packet, arguments, &bindings))?;
+        }
+        let groups = self.root_local_call_bindings.borrow();
         for group in groups.get(&owner).into_iter().flatten() {
             for packet in group.lexical_packets() {
                 if packet.call_site().owner() != owner {
                     return Err(freeze("local-stored-receiver/source-drift"));
                 }
                 let arguments = self.original_local_packet_arguments_v1(packet)?;
-                packet.visit_original_nodes_v1(
-                    owner,
-                    arguments,
-                    self,
-                    &mut |node, arguments| {
-                        if let Some(read) = node.stored_receiver_read_v1() {
-                            if !sites.insert(node.call_site().clone()) {
-                                return Err(freeze("local-stored-receiver/duplicate-source"));
-                            }
-                            node.call_with_ledger(owner, arguments, self)?;
-                            node.validate_recorded(group.bindings())?;
-                            reads.push(read.clone());
-                        }
-                        Ok(())
-                    },
-                )?;
+                lend(packet, arguments, group.bindings())?;
             }
         }
         Ok(reads)

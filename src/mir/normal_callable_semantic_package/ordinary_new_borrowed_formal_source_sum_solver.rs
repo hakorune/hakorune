@@ -234,3 +234,167 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
     }
     values
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn atom(value: SourceValueAlternativeV1) -> Node {
+        Node {
+            atoms: BTreeSet::from([value]),
+            unconditional: true,
+            ..Default::default()
+        }
+    }
+    #[test]
+    fn source_sum_components_require_independent_ground_and_all_i64_premises() {
+        use SourceValueAlternativeV1::{Other, SignedI64, Text};
+        // P=Text|Q, Q=R, R=Q: upstream Text cannot rescue a seedless SCC.
+        let mut p = atom(Text);
+        p.union.push(1);
+        let mut q = Node::default();
+        q.union.push(2);
+        let mut r = Node::default();
+        r.union.push(1);
+        let mut nodes = vec![p, q, r];
+        assert!(solve(&nodes).iter().all(Option::is_none));
+        nodes[1].atoms.insert(Text);
+        nodes[1].unconditional = true;
+        assert!(solve(&nodes)
+            .iter()
+            .all(|value| value.as_ref().unwrap().0 == BTreeSet::from([Text])));
+        // P=f(P,7): a spare closed argument must not prove its cyclic premise.
+        let p = Node {
+            union: vec![1],
+            ..Default::default()
+        };
+        let f = Node {
+            atoms: BTreeSet::from([SignedI64]),
+            required_i64: vec![0, 2],
+            ..Default::default()
+        };
+        let mut nodes = vec![p, f, atom(SignedI64)];
+        assert!(solve(&nodes)[0].is_none());
+        // f(7) has independently closed premises and a conditional result.
+        nodes[1].required_i64 = vec![2];
+        assert!(solve(&nodes)[0].as_ref().unwrap().signed_only());
+        // An independently grounded recursive I64 cohort is different.
+        nodes[0].union.push(2);
+        nodes[1].required_i64 = vec![0, 2];
+        assert!(solve(&nodes)[0].as_ref().unwrap().signed_only());
+        nodes[2] = atom(Other);
+        assert!(
+            solve(&nodes)[0].is_none(),
+            "all I64 premises must close exactly"
+        );
+        nodes[2] = Node {
+            invalid: true,
+            ..Default::default()
+        };
+        assert!(
+            solve(&nodes)[0].is_none(),
+            "unknown siblings survive condensation"
+        );
+        // P=P.substring(0,1): closed bounds cannot ground receiver Text.
+        let mut nodes = vec![
+            Node {
+                union: vec![1],
+                ..Default::default()
+            },
+            Node {
+                atoms: BTreeSet::from([Text]),
+                required_text: vec![0],
+                required_i64: vec![2],
+                ..Default::default()
+            },
+            atom(SignedI64),
+        ];
+        assert!(solve(&nodes)[0].is_none());
+        nodes[0].union.push(3);
+        nodes.push(atom(Text));
+        assert!(
+            solve(&nodes)[0].as_ref().unwrap().text_only(),
+            "independent Text grounds its recursive cohort"
+        );
+        nodes[3] = atom(Other);
+        assert!(
+            solve(&nodes)[0].is_none(),
+            "mixed receiver is not Text-only"
+        );
+        nodes[3] = atom(Text);
+        nodes[2] = atom(Text);
+        assert!(solve(&nodes)[0].is_none(), "Text bounds are not signed I64");
+        // A binary contributes no speculative atom. External operands may
+        // ground it; a cyclic operand plus a spare literal may not.
+        use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+        let binary = |lhs, rhs, operator| {
+            use crate::mir::resolved_semantics::{
+                FunctionOwnerIssuerV1, ResolvedBinaryExpressionSourceV1, SourceNodeSiteV1,
+                SourcePathSegmentV1 as Path,
+            };
+            let site = |roles| SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(roles));
+            Node {
+                binary: Some(SourceBinaryTransferV1 {
+                    owner: FunctionOwnerIssuerV1::new_for_compilation()
+                        .unwrap()
+                        .issue()
+                        .unwrap(),
+                    source: ResolvedBinaryExpressionSourceV1::from_parts_for_test(
+                        site(vec![Path::Body(0)]),
+                        operator,
+                        site(vec![Path::Body(0), Path::Lhs]),
+                        site(vec![Path::Body(0), Path::Rhs]),
+                    ),
+                    operands: [lhs, rhs],
+                }),
+                ..Default::default()
+            }
+        };
+        let nodes = vec![binary(1, 2, Op::Add), atom(Text), atom(Text)];
+        assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
+        let mut nodes = vec![
+            Node {
+                union: vec![1],
+                ..Default::default()
+            },
+            binary(0, 2, Op::Add),
+            atom(Text),
+        ];
+        assert!(
+            solve(&nodes)[0].is_none(),
+            "cyclic concatenation has no initial source value"
+        );
+        nodes[0].union.push(3);
+        nodes.push(atom(Text));
+        assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
+        nodes[2].atoms.insert(Other);
+        assert!(
+            solve(&nodes)[0].as_ref().unwrap().text_only(),
+            "String + any returns Text on its normal path"
+        );
+        let unknown_rhs = vec![
+            binary(0, 1, Op::Add),
+            atom(Text),
+            Node {
+                invalid: true,
+                ..Default::default()
+            },
+        ];
+        assert!(
+            solve(&unknown_rhs)[0]
+                .as_ref()
+                .is_some_and(SourceValueSumV1::text_only),
+            "a definite String left operand does not need a closed RHS type domain"
+        );
+        let reverse = vec![binary(1, 2, Op::Add), atom(Other), atom(Text)];
+        assert!(
+            solve(&reverse)[0].is_none(),
+            "the right Text operand does not reverse String + any"
+        );
+        // This refusal is multiplication, not the now-proven String+Dynamic Add.
+        nodes[1] = binary(0, 2, Op::Multiply);
+        nodes[2] = atom(SignedI64);
+        assert!(solve(&nodes)[0].is_none(), "String*Dynamic is not selected");
+        nodes[3] = atom(SignedI64);
+        assert!(solve(&nodes)[0].as_ref().unwrap().signed_only());
+    }
+}

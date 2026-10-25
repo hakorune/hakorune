@@ -29,10 +29,12 @@ fn lexical_source_requirement_keeps_original_lexical_and_stored_defaults() {
             .unwrap()
             .unwrap();
         let target = row.source_target();
-        assert!(matches!(
-            target.result_requirement,
-            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
-        ));
+        assert!(match &target.result_requirement {
+            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult => true,
+            LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) =>
+                original.matches(&super::source::CallTargetReferenceV1::from_target(target)),
+            _ => false,
+        });
         assert!(!target.has_object_source_requirement());
         assert!(target.object_return_sources().is_none());
         assert!(target.object_producer_dependencies().is_none());

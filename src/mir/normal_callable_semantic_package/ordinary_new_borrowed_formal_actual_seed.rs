@@ -5,7 +5,8 @@ use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 mod entry;
 use entry::sum_checked;
 pub(super) use entry::{
-    alias_source_binding, exact_entry_i64_field_seed_v1, exact_local_i64_field_initializer_seed_v1,
+    alias_source_binding, exact_entry_i64_field_seed_v1, exact_entry_object_field_seed_v1,
+    exact_local_i64_field_initializer_seed_v1,
     source_entry_seed_v1, stable_source_binding_v1, uncaptured_source_binding_v1,
 };
 #[path = "ordinary_new_borrowed_actual_method_result.rs"]
@@ -420,6 +421,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                     "existing-no-core"
                 }
                 Some(OriginalMethodResultResolutionV1::ConditionalCore(_)) => "conditional-core",
+                Some(OriginalMethodResultResolutionV1::InstanceResult(_)) => "instance-result",
                 Some(OriginalMethodResultResolutionV1::Unknown) => "unknown",
             };
             eprintln!(
@@ -429,14 +431,17 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                 source_context.is_some()
             );
         }
-        let (proof, core_operand_request) = match resolution {
+        let (proof, core_operand_request, instance_result) = match resolution {
             Some(OriginalMethodResultResolutionV1::Existing { proof, operands }) => {
-                (proof, operands)
+                (proof, operands, None)
             }
             Some(OriginalMethodResultResolutionV1::ConditionalCore(request)) => {
-                (None, Some(request))
+                (None, Some(request), None)
             }
-            _ => (None, None),
+            Some(OriginalMethodResultResolutionV1::InstanceResult(reference)) => {
+                (None, None, Some(reference))
+            }
+            _ => (None, None, None),
         };
         let point_context = core_operand_request
             .and_then(|_| source_context.map(OriginalActualSourceContextV1::for_point_premise));
@@ -501,6 +506,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             method: std::sync::Arc::clone(method),
             proof,
             core_operand_request,
+            instance_result,
             required_i64,
             required_text: required_text.into_boxed_slice(),
         }));

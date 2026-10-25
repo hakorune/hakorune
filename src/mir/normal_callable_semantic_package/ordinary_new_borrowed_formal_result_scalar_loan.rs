@@ -195,7 +195,7 @@ fn source_scalar_seed_target_v1(
         let finite_input = if crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_instance_input_request_v1(
             ingress, contracts, target.callee_owner())? {
             match results.original_return_source_v1(&target.callee_owner())? {
-                Some(original) if original.scalar_class_v1().is_some() => {
+                Some(original) if original.is_value_return_source_v1() => {
                     if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
                         return Err(freeze("scalar-loan/original-return-target"));
                     }

@@ -181,7 +181,15 @@ pub(super) fn prepare_instance_source_actuals_v1(
         .any(|target| target.is_unit_discard_source_v1());
     let scalar_request = ingress.source_incoming.exact_rows().filter(|row| &row.call == site)
         .filter_map(|row| row.source.instance()).any(|target| matches!(&target.result_requirement,
-            super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request) if request.is_literal_scalar_v1()));
+            super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request)
+                if request.is_literal_scalar_v1() || (request.is_value_return_source_v1()
+                    // An existing Uses incoming retains its actual issuer,
+                    // including typed Home acquisition/class validation.
+                    // Computed returns add a source-only demand; they do not
+                    // replace that already-selected transport protocol.
+                    && !ingress.incoming.iter().any(|row| &row.call == site
+                        && row.callee == target.callee_owner()
+                        && row.source.instance() == Some(target)))));
     let object_producer_request = match ingress.object_source_target_at_v1(site)? {
         Some(target) => ingress.original_object_producer_callee_v1(target)?,
         None => false,
@@ -229,7 +237,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         else {
             return Err(freeze("borrowed-instance/source-identity"));
         };
-        if !request.is_literal_scalar_v1()
+        if !request.is_value_return_source_v1()
             || !request.matches(&super::super::source::CallTargetReferenceV1::from_target(
                 target,
             ))
@@ -323,6 +331,17 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 ingress.source_actual_value_sum_v1(site, actual.ordinal, &actual.site, None)
             }
             BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer)
+                if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                    && binding.owner() == site.owner() =>
+            {
+                ingress.source_actual_value_sum_v1(
+                    site,
+                    actual.ordinal,
+                    &actual.site,
+                    Some(*binding),
+                )
+            }
+            BorrowedCallActualValueV1::Binding(binding)
                 if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                     && binding.owner() == site.owner() =>
             {
@@ -456,6 +475,23 @@ pub(super) fn prepare_instance_source_actuals_v1(
                                 && read.owner() == site.owner()
                                 && read.site() == &actual.site
                                 && original == binding
+                        }) => {}
+                BorrowedCallActualValueV1::Binding(binding)
+                    if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                        && binding.owner() == site.owner()
+                        && source_actual_sum.is_some_and(|actual_sum| {
+                            let Some(formal_sum) = ingress.source_value_sum_v1(formal.binding) else {
+                                return false;
+                            };
+                            let object_only = |sum: &super::super::borrowed_formal_source::SourceValueSumV1| {
+                                sum.alternatives().len() == 1
+                                    && matches!(sum.alternatives().first(), Some(
+                                        super::super::borrowed_formal_source::SourceValueAlternativeV1::Object(_)
+                                    ))
+                            };
+                            object_only(actual_sum)
+                                && object_only(formal_sum)
+                                && actual_sum.alternatives() == formal_sum.alternatives()
                         }) => {}
                 BorrowedCallActualValueV1::Expression
                     if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)

@@ -6,6 +6,7 @@ use crate::mir::resolved_value_profile::expression_class::{
 };
 use std::collections::BTreeSet;
 
+#[derive(Debug, Clone)]
 pub(super) struct SourceBinaryTransferV1 {
     pub(super) owner: FunctionOwnerIdV1,
     pub(super) source: ResolvedBinaryExpressionSourceV1,

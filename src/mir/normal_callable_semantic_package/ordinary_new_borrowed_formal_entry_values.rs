@@ -132,9 +132,16 @@ impl OrdinaryNewClaimLedgerV1 {
         if !entry.formals().contains(&(formal.ordinal, binding)) {
             return Ok(false);
         }
-        Ok(entry.formal_object_view(binding)?
-            .is_some_and(|view| view.class() == expected_class))
+        if let Some(view) = entry.formal_object_view(binding)? {
+            return Ok(view.class() == expected_class);
+        }
+        // Completed incoming lends its original singleton domain, without
+        // fabricating a legacy object view or inferring from a physical tag.
+        Ok(entry.formal_domain_v1(formal.ordinal, binding)?
+            .and_then(|domain| domain.single_object_class_v1())
+            .is_some_and(|class| class == expected_class))
     }
+
 
     /// Loan the original declared classes for exactly the validated pre-entry
     /// rows. Inferred opaque object views grant no declared-header authority.

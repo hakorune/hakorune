@@ -344,7 +344,10 @@ impl ScheduleCheck<'_, '_> {
                     self.control.push((site.clone(), *item)); position += 1;
                 }
                 SourceLoopScheduledStepV2::Call { item, site, observation, result } => {
-                    let result_required = observation.local_binding().is_some()
+                    let scalar = matches!(observation.result(),
+                        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool);
+                    let result_required = (observation.local_binding().is_some() && scalar)
                         || observation.is_expression_value()
                             && super::source_loop_v2::source_condition_call_v2(self.source, observation);
                     let result_class = match observation.result() {

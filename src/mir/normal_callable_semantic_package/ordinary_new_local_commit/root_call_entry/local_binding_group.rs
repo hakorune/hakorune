@@ -165,7 +165,10 @@ impl RootLifecyclePrefixBindingGroupV1 {
         function: &MirFunction,
         check_coordinates: bool,
     ) -> Result<(), String> {
-        let has_result = source.local_binding().is_some() || source.is_expression_value();
+        let owned = matches!(source.result(),
+            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+            | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable);
+        let has_result = !owned && (source.local_binding().is_some() || source.is_expression_value());
         if self.site() != source.site() || has_result != value.is_some() {
             return Err(freeze("source-loop/call-source"));
         }
@@ -173,6 +176,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
             if self.scalar_call_value_v1(source, context)? != value {
                 return Err(freeze("source-loop/call-result"));
             }
+        }
+        if owned {
+            context.ledger().source_loop_received_call_value_v2(source, self, context)?;
         }
         match &self.proof {
             PrefixPhysicalProofV1::Call(Some(packet)) => packet.corroborate_loop_continuation_v2(

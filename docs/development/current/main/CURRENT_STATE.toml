@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "WIP organization first; binary-trees recursive make source-pending; shared source entry proof and 8 new lexical failures remain"
+current_blocker_token = "binary-trees recursive make source-pending; shared entry-formal forward proof unresolved; fixed suite 6/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-bin
 latest_card = "app-binary-trees"
 latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-binary-trees stays selected; WIP organization first. Fresh app stops at recursive make source-pending; the two final field-read errors are historical best evidence, not the current stop.
-Independent borrowed-call consumer repair is committed after isolated27 PASS; constructor order repair after a pre-change failure and reordered discard4 PASS. Owner refactor retains HEAD method bodies.
-Fresh CLI51.78s PASS; fixed suite6/11 in39.924s, five compile failures retained. No new acceptance PASS or product completion is claimed.
-Coupled source/result/Loop WIP remains: lexical family311 PASS/45 FAIL versus isolated296/60, with8 new failures and23 fixes after restoring12 strict/nested cases. App card distinguishes bookkeeping/stale pins from actual incomplete capture/source proof.
-Next: resolve the8 new lexical failures and original entry-read/recursive-call evidence, commit only validated groups, then restore shared acceptance and complete checked stored-child reads; .hako and negative boundaries stay unchanged.
+APP-binary-trees remains selected; source/result/Loop WIP is committed. Current stop is recursive make source-pending; historical final field-read errors remain later work.
+Fresh quick CLI1m14s PASS; fixed suite6/11 in40.050s, five compile failures retained. No app or finite-product completion is claimed.
+Compared746 existing cases:39 prior failures fixed, no new failing cases; current lexical319/37, local-commit94/10, Loop213/21, borrowed-publication38/14. Remaining82 failures are open.
+Original computed result facts, strict input responsibility, object/Loop Home cleanup and independent final consumers stay connected. Source SUM producer/read-only loan split keeps touched owners bounded; no test functions/checkers/guards were added.
+Next: resolve recursive call/entry-formal source proof, restore shared app acceptance, then implement required checked stored-child reads and remaining canonical closeout. Keep .hako and negative contracts unchanged.
 """
 next_design_card = "none"
 next_design_card_path = "none"

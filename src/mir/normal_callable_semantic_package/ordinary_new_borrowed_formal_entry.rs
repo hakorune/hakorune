@@ -41,6 +41,13 @@ impl BorrowedFormalDomainV1 {
     }
     pub(in crate::mir) fn signed_only(&self) -> bool { self.sum.signed_only() }
     pub(in crate::mir) fn bool_only(&self) -> bool { self.sum.bool_only() }
+    pub(in crate::mir) fn single_object_class_v1(&self) -> Option<&str> {
+        if self.sum.alternatives().len() != 1 { return None; }
+        match self.sum.alternatives().first()? {
+            super::borrowed_formal_source::SourceValueAlternativeV1::Object(class) => Some(class),
+            _ => None,
+        }
+    }
     pub(in crate::mir) fn finite_alternatives_v1(&self) -> Option<&BTreeSet<super::borrowed_formal_source::SourceValueAlternativeV1>> {
         self.sum.finite_input().then(|| self.sum.alternatives())
     }

@@ -827,6 +827,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 LocalCallArgumentV1::Scalar(actual),
             ) if abi.is_i64() => expected == actual && actual.owner() == site.owner(),
             (
+                CallableParameterContractKindV1::OpaqueHandle,
+                BorrowedCallActualValueV1::Expression,
+                LocalCallArgumentV1::Expression { ordinal, site: original },
+            ) if identity.integer_evidence.get(index) == Some(&false)
+                && *ordinal == formal.ordinal
+                && original == &candidate.site
+                && prepared
+                    .source_value_sum_v1(formal.binding)
+                    .is_some_and(|sum| sum.signed_only()) => true,
+            (
                 CallableParameterContractKindV1::ExactTrivial(abi),
                 BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::MethodCall(_),
                 LocalCallArgumentV1::Expression {

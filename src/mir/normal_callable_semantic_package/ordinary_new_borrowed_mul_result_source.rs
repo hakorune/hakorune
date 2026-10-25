@@ -22,11 +22,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     source: &PreparedBorrowedFormalIngressV1,
 ) -> Result<(), String> {
     let Some(draft) = source.definitions.get(&owner) else {
-        // Complete original primitive-literal Returns cannot contain a Mul
-        // product. This is a source proof, not a missing-draft default.
+        // A complete original Return plan can prove there is no Mul operation
+        // to lend. Missing borrowed-use drafts alone are never that proof.
         if proof.multiplications.is_empty() && proof.original_return.as_ref().is_some_and(|original|
-            original.receiver().owner() == owner && original.is_literal_scalar_v1()
-                && original.corroborates_literal_returns_v1(&proof.returns, proof.class))
+            original.receiver().owner() == owner && original.corroborates_no_mul_returns_v1(&proof.returns))
         { return Ok(()); }
         // The same result producer checked the original parameter census and
         // retained this declaration; no borrowed Mul product can be issued there.

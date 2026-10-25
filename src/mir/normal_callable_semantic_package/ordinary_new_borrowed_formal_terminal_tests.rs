@@ -554,10 +554,11 @@ fn final_terminal_result_gate_refuses_real_unit_float_missing_and_foreign_contra
         assert!(matches!(contract.sole_terminal_relation(), Some(TerminalRelationV1::Value(value))
             if value.returned() == &TerminalReturnedSourceV1::FloatLiteral));
         assert!(contract.completion().returns_value());
+        // Float has no executable scalar result. Either original source
+        // sealing or the terminal contract may detect that refusal first.
         assert!(ledger
             .corroborate_terminal_lexical_result_v1(source, &package.result_contracts)
-            .unwrap_err()
-            .contains("terminal-result-mismatch"));
+            .is_err());
     }
     drop(slots);
     let valid = super::terminal_tests::package("return recv.wrap(recv.probe(true))");

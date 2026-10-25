@@ -757,9 +757,12 @@ impl ports::SourceLoopScanSummaryV1 {
                             || !matches!(
                                 observation.result(),
                                 ResultClass::I64 | ResultClass::Bool | ResultClass::Unit
+                                    | ResultClass::Handle | ResultClass::Nullable
                             )
                             || (observation.result() == ResultClass::Unit
                                 && observation.local_binding().is_some())
+                            || (matches!(observation.result(), ResultClass::Handle | ResultClass::Nullable)
+                                && observation.local_binding().is_none())
                             || original.owner() != input.owner()
                             || original.arguments().len() != observation.arguments().len()
                             || ledger

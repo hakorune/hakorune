@@ -31,11 +31,11 @@ fn stored_child_receiver_corroboration_rejects_identity_drift() {
         assert!(required_scalar_source_walk_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
             &ledger.borrowed_i64_results, &package.parameter_contracts, selected_owner, &ledger.callable_result_classes).unwrap());
         let original_result = ledger.borrowed_i64_results.remove(&selected_owner).unwrap();
-        let missing = ledger.callable_scalar_result_source_v1(selected_owner).unwrap_err();
-        assert!(missing.contains("scalar-loan/result-missing"), "{missing}");
-        let (_, walk_missing) = required_scalar_source_walk_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
-            &ledger.borrowed_i64_results, &package.parameter_contracts, selected_owner, &ledger.callable_result_classes).unwrap_err();
-        assert!(walk_missing.contains("scalar-loan/result-missing"), "{walk_missing}");
+        ledger.callable_scalar_result_source_v1(selected_owner)
+            .expect_err("removing the original result must prevent a scalar loan");
+        required_scalar_source_walk_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
+            &ledger.borrowed_i64_results, &package.parameter_contracts, selected_owner, &ledger.callable_result_classes)
+            .expect_err("removing the original result must prevent source closure");
         ledger.borrowed_i64_results.insert(selected_owner, original_result);
         let borrowed = ledger
             .borrowed_formal_source

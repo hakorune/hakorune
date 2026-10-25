@@ -348,6 +348,22 @@ impl OrdinaryNewClaimLedgerV1 {
         let Ok(source) = source.as_ref() else {
             return Ok(());
         };
+        // A checked source argument is not a finished input cohort. Retain
+        // its selected reservation, but leave physical route registration to
+        // executable phases. Any eventual demand still validates the cohort.
+        let passive_arguments = |original: &Rc<StaticIncomingSourceV1>| -> Result<bool, String> {
+            if !original.is_qualified_i64_source_v1() || original.is_zero_input_source_v1() {
+                return Ok(false);
+            }
+            if !self.borrowed_formal_actuals.get(original.call_site())
+                .is_some_and(|row| row.as_ref().is_ok_and(|row| row.has_qualified_static_argument_source_v1())) {
+                return Ok(false);
+            }
+            super::super::borrowed_formal_actuals::project_pending_static_source_arguments_for_route_v1(
+                source, &self.borrowed_formal_actuals, original.call_site(), original.required_i64_arguments(), false,
+            )?.ok_or_else(|| freeze("borrowed-static/source-unavailable"))?;
+            Ok(true)
+        };
         let mut routed = Vec::new();
         for row in &source.incoming {
             let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
@@ -355,6 +371,7 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
+            if passive_arguments(original)? { continue; }
             if self.is_static_zero_packet_cohort_v1(original)
                 || (!original.is_qualified_i64_source_v1()
                     && self
@@ -369,6 +386,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for cohort in source.target_static.values() {
             for row in &cohort.incoming {
+                if let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source {
+                    if passive_arguments(original)? { continue; }
+                }
                 self.selected_static_local_source_v1(&row.call)?
                     .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
                 routed.push(row.call.clone());

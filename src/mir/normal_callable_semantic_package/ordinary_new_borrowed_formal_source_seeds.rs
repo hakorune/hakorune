@@ -72,6 +72,22 @@ struct OriginalBorrowedFormalSourceV1
 }
 
 impl OriginalBorrowedFormalSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn join_instance_result_classes_v1(
+        &mut self,
+        classes: &[(
+            super::super::source::CallTargetReferenceV1,
+            SourceValueAlternativeV1,
+        )],
+    ) -> bool {
+        if !self.seeds.corroborate_original_v1(&self.inventory) {
+            return false;
+        }
+        self.seeds
+            .source_sums
+            .as_mut()
+            .is_some_and(|sums| sums.join_instance_result_classes_v1(classes))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn field_bases_available(
         &self,
         class: &str,
@@ -164,6 +180,15 @@ impl OriginalFormalSeedProductV1 {
             if sums.static_sources.iter().any(|(site, source)| current.get(site).is_none_or(|(row, _)|
                 row.callee != source.callee_owner() || !matches!(&row.source,
                     super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(same) if Rc::ptr_eq(same, source))))
+                || sums.instance_result_references_v1().any(|reference| {
+                    current.get(&reference.call_site).is_none_or(|(row, _)| {
+                        row.callee != reference.callee_owner
+                            || row.source.instance().is_none_or(|target| {
+                                super::super::source::CallTargetReferenceV1::from_target(target)
+                                    != *reference
+                            })
+                    })
+                })
                 || sums.return_sites.iter().any(|(owner, sites)| sites.is_empty()
                     || sites.iter().any(|site| site.owner() != *owner)
                     || sites.iter().collect::<BTreeSet<_>>().len() != sites.len()

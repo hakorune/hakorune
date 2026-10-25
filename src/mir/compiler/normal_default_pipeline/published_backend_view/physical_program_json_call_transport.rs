@@ -498,6 +498,7 @@ fn encode_borrowed_actual_kind(source: &Source) -> Result<Value, String> {
         } => json!(2),
         Source::TypedHome { .. }
         | Source::EntryReceiver { .. }
+        | Source::LocalObjectBinding { .. }
         | Source::DeclaredFormal { .. } => json!(3),
         Source::ReceivedNullable { .. } | Source::ReceivedMixed { .. } | Source::Read(_) => json!("nullable_typed_object"),
         Source::Forwarded { .. } => json!("tagged"),

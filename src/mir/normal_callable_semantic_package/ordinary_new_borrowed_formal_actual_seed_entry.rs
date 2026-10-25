@@ -73,6 +73,58 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     )))
 }
 
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn exact_entry_object_field_seed_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    site: &SourceExprSiteV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+) -> Result<Option<OriginalFormalActualSeedV1>, String> {
+    use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, BodyMeReceiverV1};
+    let Some(shape) = input.body_shape() else {
+        return Ok(None);
+    };
+    let Some(Shape::FieldAccess { object, field, .. }) = shape.expression_shape(site) else {
+        return Ok(None);
+    };
+    let expected_object = crate::mir::resolved_semantics::SourcePathV1::from_node(site.node())
+        .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver)
+        .expr();
+    if object != &expected_object {
+        return Ok(None);
+    }
+    let Some((entry, box_source)) = receiver else {
+        return Ok(None);
+    };
+    if entry.owner() != input.owner()
+        || !matches!(shape.expression_shape(object), Some(Shape::Me {
+            receiver: BodyMeReceiverV1::Lexical(binding), ..
+        }) if *binding == entry)
+    {
+        return Ok(None);
+    }
+    let owned_site = OwnedExprSiteV1::new(input.owner(), site.clone());
+    let Some((_, Some(class))) = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::source_declared_field(
+        constructors,
+        box_source,
+        &owned_site,
+        field,
+    )
+    .map_err(|issue| format!("source-sum/entry-object-field-declaration: {issue:?}"))? else {
+        return Ok(None);
+    };
+    let Some(class_source) = coverage
+        .row_for(&class)
+        .map_err(|error| format!("{}: {error:?}", freeze("source-sum/entry-object-field-class")))?
+    else {
+        return Ok(None);
+    };
+    if class_source.name() != class {
+        return Ok(None);
+    }
+    Ok(Some(OriginalFormalActualSeedV1::Class(class.into())))
+}
+
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn exact_local_i64_field_initializer_seed_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,

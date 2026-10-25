@@ -313,7 +313,7 @@ fn nonopaque_entry_does_not_demand_unrelated_source_error() {
 }
 
 #[test]
-fn outside_profile_remains_unselected_before_entry() {
+fn scalar_entry_retains_original_domain_and_finite_census_boundaries() {
     let package = package(
         "return p",
         "local recv = new Transport() local a = recv.probe(0) return 0",
@@ -335,11 +335,16 @@ fn outside_profile_remains_unselected_before_entry() {
         .iter()
         .map(|row| (row.ordinal, row.binding, row.kind.clone()))
         .collect();
-    assert!(package
-        .ordinary_new_claim_ledger
+    let ledger = &package.ordinary_new_claim_ledger;
+    let entry = ledger
         .borrowed_entry_source_for_contract(contract.owner, &parameters)
         .unwrap()
-        .is_none());
+        .expect("computed return with one closed Integer incoming");
+    let formal = &contract.parameters[0];
+    let canonical = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
+        .lend_source_value_sum_v1(formal.binding).unwrap();
+    assert!(entry.formal_domain_v1(formal.ordinal, formal.binding).unwrap()
+        .is_some_and(|domain| domain.signed_only() && Rc::ptr_eq(domain.source_sum_v1(), &canonical)));
     for (source, text_only) in [
         (r#"static box Layout { probe(p, q: i64) { return Layout.sink(p.substring(0, q)) } sink(v) { return 0 } seed() { return Layout.probe("text", 1) } } static box Main { main() { return 0 } }"#, true),
         (r#"static box Layout { probe(p, q: i64) { return 0 } seed() { return Layout.probe("text", 1) } int_seed() { return Layout.probe(7, 1) } null_seed() { return Layout.probe(null, 1) } } static box Main { main() { return 0 } }"#, false),

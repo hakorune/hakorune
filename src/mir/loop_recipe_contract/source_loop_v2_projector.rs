@@ -339,11 +339,15 @@ impl Projector<'_> {
                         if self.source.source.bindings().bindings().find(|(original, _)| *original == binding)
                             .is_none_or(|(_, role)| role != Role::IterationLocal) { return Err(reject("initializer-role")); }
                         let class = match observation.result() {
-                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => LoopValueClassV2::I64,
-                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => LoopValueClassV2::Bool,
+                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => Some(LoopValueClassV2::I64),
+                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool => Some(LoopValueClassV2::Bool),
+                            // The original CallReceived local owns this value;
+                            // it is neither a scalar recipe value nor a carrier.
+                            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+                            | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable => None,
                             _ => return Err(reject("local-result-class")),
                         };
-                        Some(self.value(class))
+                        class.map(|class| self.value(class))
                     } else { None };
                     let item = self.item(block, LoopRecipeItemV2::Operation {
                         operation: LoopOperationV2::CallSlot { receiver: None, args: Vec::new(), result },

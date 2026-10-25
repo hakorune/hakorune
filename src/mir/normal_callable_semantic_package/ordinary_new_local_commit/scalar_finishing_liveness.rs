@@ -75,7 +75,11 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let groups = self.root_local_call_bindings.borrow().get(&owner).cloned().unwrap_or_default();
         for group in RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(&groups) {
-            if group.initializer().is_some() || group.rebind().is_some() { expressions.extend_from_slice(group.bindings()); }
+            if group.initializer().is_some() || group.rebind().is_some() || group.lexical().is_some() {
+                // Call argument packets also retain exact auxiliary producers
+                // after a LocalSSA adapter has supplied the consumed operand.
+                expressions.extend_from_slice(group.bindings());
+            }
         }
         required.extend(validated_roots_with_auxiliary(function, boundary, expressions, true)?);
         required.extend(validated_roots_with_auxiliary(function, boundary,

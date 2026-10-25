@@ -687,8 +687,19 @@ impl OrdinaryNewClaimLedgerV1 {
             .root_flow()
             .ok_or_else(|| freeze("local-call-source-missing"))?;
         let routed = self.lifecycle_local_call_sites.borrow();
-        flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
-            .map_err(freeze)
+        let mut prefixes = flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
+            .map_err(freeze)?;
+        // Return evaluation owns its nested Calls and their Normal/Fault
+        // graph. They must not also demand standalone prefix packets.
+        for terminal in self.terminal_relations_for_owner(owner) {
+            let Some(evaluation) = self.return_expression_evaluation_v1(owner, terminal.return_site())? else { continue };
+            for call in evaluation.calls() {
+                if !flow.local_calls().contains(call) { return Err(freeze("local-call-source-missing")); }
+                prefixes.retain(|prefix| !matches!(prefix,
+                    LifecyclePrefixSourceV1::Call { site, .. } if site == call.site()));
+            }
+        }
+        Ok(prefixes)
     }
 
     /// Test-only sole-exit shorthand — production resolves through

@@ -39,6 +39,32 @@ impl FieldAliasLocalV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// A stored child may borrow the caller's original instance receiver.
+    /// Local New parents still owe their live Home; an equal object class is
+    /// never a substitute for the original incoming and receiver lane.
+    pub(crate) fn checked_stored_entry_receiver_v1(
+        &self, target: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        let Some((root, _, _, _)) = target.stored_receiver() else { return Ok(false) };
+        let ingress = self.borrowed_formal_source.as_ref()
+            .ok_or_else(|| fault("alias/entry-root-empty"))?.as_ref().map_err(Clone::clone)?;
+        if ingress.stored_local_new_root_v1(target)?.is_some() { return Ok(false); }
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| fault("alias/entry-root-empty"))?;
+        let owner = target.call_site().owner();
+        let mut rows = catalog.iter().filter(|row| row.owner == owner);
+        let Some(contract) = rows.next() else { return Ok(false) };
+        if rows.next().is_some() || catalog.iter().filter(|row| row.batch_slot == contract.batch_slot).count() != 1 {
+            return Err(fault("alias/entry-root-field-drift"));
+        }
+        if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
+            return Ok(false);
+        }
+        let Some((selected, _)) = &self.original_instance_input_issuance else { return Ok(false) };
+        let Some(identity) = selected.identity_for_batch_slot(contract.batch_slot) else { return Ok(false) };
+        self.checked_field_alias_entry_root_v1(root, contract.batch_slot, identity, owner)
+    }
+
     /// Hand back the SAME completed initializer to its existing read row. Other
     /// locals do nothing; this neither creates a Home nor emits a second read.
     pub(crate) fn record_field_alias_local_v1(

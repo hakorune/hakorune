@@ -27,6 +27,12 @@ fn static_source_domain_core_point_premises_keep_original_reaching_definitions()
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
         ).unwrap();
         let source = ingress(&package);
+        if setup.contains("fn()") {
+            let call = source.source_incoming.source_rows_v1().find(|row| row.source.target().name() == "chain")
+                .expect("original selected source reservation");
+            assert!(package.ordinary_new_claim_ledger.selected_static_local_source_v1(&call.call).is_err(),
+                "passive arguments must not grant a captured callee an executable packet");
+        }
         let mut checked = 0;
         for declaration in package.batch().declarations() {
             package.batch().with_lowering_input(declaration.batch_slot(), |input| {

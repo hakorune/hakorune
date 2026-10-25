@@ -380,11 +380,56 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> bool {
         source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).any(|row| {
-            let source_input = matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                if source.original_finite_forward_input_request_v1(owner)
-                    || original.parameters().iter().any(|formal| matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-                    && source.source_value_sum_v1(formal.binding).is_some_and(|sum|
-                        sum.alternatives().contains(&super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))));
+            let source_input = match &row.source {
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) => {
+                    let finite_forward =
+                        source.original_finite_forward_input_request_v1(owner);
+                    let text_source = original.parameters().iter().any(|formal| {
+                        matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+                            && source
+                                .source_value_sum_v1(formal.binding)
+                                .is_some_and(|sum| {
+                                    sum.alternatives().contains(
+                                        &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text,
+                                    )
+                                })
+                    });
+                    let scalar_expression_source = self
+                        .borrowed_formal_actuals
+                        .get(&row.call)
+                        .and_then(|rows| rows.as_ref().ok())
+                        .and_then(PreparedBorrowedCallActualsV1::source_static_snapshot_v1)
+                        .is_some_and(|snapshot| {
+                            let opaque = original.parameters().iter().filter(|formal| {
+                                matches!(
+                                    formal.kind,
+                                    CallableParameterContractKindV1::OpaqueHandle
+                                )
+                            });
+                            let all_signed = opaque.clone().all(|formal| {
+                                source
+                                    .source_value_sum_v1(formal.binding)
+                                    .is_some_and(|sum| sum.signed_only())
+                            });
+                            let has_expression = opaque.into_iter().any(|formal| {
+                                matches!(
+                                    snapshot
+                                        .ordered_arguments
+                                        .get(formal.ordinal as usize),
+                                    Some(LocalCallArgumentV1::Expression { ordinal, site })
+                                        if *ordinal == formal.ordinal
+                                            && original
+                                                .argument_sites()
+                                                .get(formal.ordinal as usize)
+                                                == Some(site)
+                                )
+                            });
+                            all_signed && has_expression
+                        });
+                    finite_forward || text_source || scalar_expression_source
+                }
+                _ => false,
+            };
             let snapshot = self.borrowed_formal_actuals.get(&row.call).is_some_and(|rows|
                 rows.as_ref().is_ok_and(|rows| rows.source_static_snapshot_v1().is_some()));
             if crate::config::env::builder_debug_enabled() {

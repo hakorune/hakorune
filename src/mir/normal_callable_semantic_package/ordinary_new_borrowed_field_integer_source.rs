@@ -19,6 +19,9 @@ impl IntegerFieldSourceLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn field(&self) -> CanonicalFieldRefV1 {
         self.field.field()
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_checked_read_v1(&self) -> bool {
+        self.receiver_declaration.1.is_none()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck(
         &self,
         results: &Sources,

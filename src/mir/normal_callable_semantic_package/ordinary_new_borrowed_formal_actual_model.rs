@@ -76,6 +76,12 @@ pub(crate) enum BorrowedFormalActualSourceV1 {
         binding: BindingRefV1,
         kind: SourceScalarKind,
     },
+    /// Exact local object-handle read borrowed into the call. Its class comes
+    /// from the same single-object source sum as the callee formal.
+    LocalObjectBinding {
+        binding: BindingRefV1,
+        class: Box<str>,
+    },
     TypedHome {
         binding: BindingRefV1,
         root: BindingRefV1,
@@ -346,10 +352,20 @@ impl PreparedBorrowedCallActualsV1 {
             match (opaque, argument) {
                     (Some((index, site, _)), crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { ordinal: actual, site: observed })
                         if actual == index && observed == site => {}
+                    (Some((index, site, _)), crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Expression { ordinal: actual, site: observed })
+                        if actual == index
+                            && *actual as usize == ordinal
+                            && observed == site
+                            && call.source.argument_sites().get(ordinal) == Some(observed) => {}
+                    (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Expression { ordinal: actual, site: observed })
+                        if *actual as usize == ordinal
+                            && call.source.argument_sites().get(ordinal) == Some(observed) => {}
                     (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(_)) => {}
                     (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Scalar(binding))
                         if binding.owner() == call.call.owner() => {}
-                    _ => return Err(freeze("borrowed-entry/ordered-arguments-identity")),
+                    _ => {
+                        return Err(freeze("borrowed-entry/ordered-arguments-identity"));
+                    }
                 }
         }
         if self.opaque_actuals.len() != call.arguments.len() {
@@ -738,6 +754,15 @@ pub(super) fn validate_computed_actual_source_v1(
             && binding.owner() == call.owner()
             && formal.ordinal == actual.ordinal
             && formal.kind.is_ordinary_borrowed_handle() => {}
+        BorrowedFormalActualSourceV1::LocalObjectBinding { binding, .. }
+            if matches!(
+                actual.value,
+                BorrowedCallActualValueV1::Binding(actual_binding)
+                    if actual_binding == *binding
+            )
+                && binding.owner() == call.owner()
+                && formal.ordinal == actual.ordinal
+                && formal.kind.is_ordinary_borrowed_handle() => {}
         _ => return Err(freeze("borrowed-actual/expression-or-read-required")),
     }
     Ok(())

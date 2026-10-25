@@ -457,6 +457,18 @@ pub(super) fn prepare_static_source_actuals_v1(
             _ => return Err(unavailable()),
         };
         let argument = match &formal.kind {
+            kind if kind.is_ordinary_borrowed_handle()
+                && matches!(actual.value, BorrowedCallActualValueV1::Expression)
+                && source_expression
+                && prepared
+                    .source_value_sum_v1(formal.binding)
+                    .is_some_and(|sum| sum.signed_only()) =>
+            {
+                LocalCallArgumentV1::Expression {
+                    ordinal: actual.ordinal,
+                    site: actual.site.clone(),
+                }
+            }
             kind if kind.is_ordinary_borrowed_handle() => LocalCallArgumentV1::BorrowedActual {
                 ordinal: actual.ordinal,
                 site: actual.site.clone(),
@@ -657,7 +669,7 @@ pub(super) fn checked_executable_qualified_arguments_v1<'a>(
     Ok(arguments)
 }
 
-pub(super) fn project_pending_static_source_arguments_for_route_v1(
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_source_arguments_for_route_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,

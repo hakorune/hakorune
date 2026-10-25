@@ -240,7 +240,6 @@ fn checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling() {
         "if p < null { return 1 } return 0",
         "if p > true { return 1 } return 0",
         "local n = 5 if p > n { return 1 } return 0",
-        "loop(p > 5) { return 1 } return 0",
     ] {
         assert!(
             matches!(
@@ -250,6 +249,10 @@ fn checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling() {
             "rejected use: {body}"
         );
     }
+    let candidate = draft("loop(p > 5) { return 1 } return 0").unwrap();
+    assert!(matches!(candidate.uses.as_ref(), [row]
+        if matches!(&row.kind, BorrowedFormalUseDraftKindV1::LoopConditionOperand { .. })));
+
 }
 
 /// The bounded `Equal(Dynamic, Null)` envelope admits the direct-`if`
@@ -308,7 +311,6 @@ fn null_compare_rejects_wrong_operator_sibling_and_position() {
         "if p != null { return 1 } return 0",
         "if p == false { return 1 } return 0",
         "local b = p == null return 0",
-        "loop(p == null) { return 1 } return 0",
     ] {
         assert!(
             matches!(
@@ -318,6 +320,12 @@ fn null_compare_rejects_wrong_operator_sibling_and_position() {
             "rejected use: {body}"
         );
     }
+    // Loop observation retains the original operand; it grants no checked
+    // Null comparison or executable entry on its own.
+    let candidate = draft("loop(p == null) { return 1 } return 0").unwrap();
+    assert!(matches!(candidate.uses.as_ref(), [row]
+        if matches!(&row.kind, BorrowedFormalUseDraftKindV1::LoopConditionOperand { .. })));
+
 }
 
 #[test]

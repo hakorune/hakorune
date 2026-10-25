@@ -350,7 +350,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
                             .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
                                 selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
-                        if let Some(seed) = super::super::actual_seed::exact_entry_i64_field_seed_v1(
+                        if let Some(seed) = super::super::actual_seed::exact_entry_object_field_seed_v1(
+                            input, batch.ordinary_box_coverage(), constructors, site, receiver,
+                        )? {
+                            Expansion::Seed(seed)
+                        } else if let Some(seed) = super::super::actual_seed::exact_entry_i64_field_seed_v1(
                             input, constructors, site, receiver,
                         )? {
                             Expansion::Seed(seed)

@@ -225,6 +225,48 @@ impl LifecyclePrefixDestinationV2 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// A delegated object Call has no scalar recipe value. Its existing local
+    /// receipt and shared CallReceived packet remain the sole value authority.
+    pub(in crate::mir) fn source_loop_received_call_value_v2(
+        &self,
+        source: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        group: &RootLifecyclePrefixBindingGroupV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<ValueId, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        context.require_ledger(self)?;
+        let release = match source.result() {
+            Class::Handle => CallReceivedReleaseV1::Handle,
+            Class::Nullable => CallReceivedReleaseV1::Nullable,
+            _ => return Err(freeze("source-loop/call-source")),
+        };
+        let (declaration, binding) = source.local_binding()
+            .ok_or_else(|| freeze("source-loop/call-source"))?;
+        let packet = group.lexical().ok_or_else(|| freeze("source-loop/call-packet"))?;
+        if group.site() != source.site() || packet.call_site() != source.site()
+            || self.local_call_for_owner(source.owner(), source.site().site()) != Some(source) {
+            return Err(freeze("source-loop/call-source"));
+        }
+        let arguments = self.original_local_packet_arguments_v1(packet)?;
+        let value = packet.value_in_context_v1(source.owner(), arguments, context)?;
+        let commits = self.local_commits.borrow();
+        let Some(LocalCommitV1::CallReceived(received)) = commits.get(source.site()) else {
+            return Err(freeze("source-loop/call-packet"));
+        };
+        if matches!(context, CallValidationContextV1::Finalized(_)) {
+            received.checked_bindings()?;
+        }
+        let CallReceivedProgress::Emitted { packet: Some(retained), .. } = &received.progress else {
+            return Err(freeze("source-loop/call-packet"));
+        };
+        if received.owner != source.owner() || received.binding != binding
+            || &received.declaration != declaration || received.release != release
+            || received.local() != Some(value) || !std::ptr::eq(retained.as_ref(), packet) {
+            return Err(freeze("source-loop/call-result"));
+        }
+        Ok(value)
+    }
+
     /// Borrow the argument frame retained by the active source Loop for one
     /// nested call. Loop conditions keep these frames in the Loop summary,
     /// outside the completed root-flow inventory.
@@ -557,3 +599,31 @@ mod physical;
 pub(in crate::mir) use physical::{
     PreparedSourceLoopPhysicalCompletionV2, SourceLoopPhysicalProofV2,
 };
+
+impl RootLifecyclePrefixBindingGroupV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn source_loop_dependencies_v2(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let mut rows = Vec::new();
+        if let Some(call) = self.lexical() {
+            rows.extend(call.source_loop_argument_bindings_in_context_v1(context)?);
+            rows.extend(
+                call.copy_dependencies_in_context(context)?
+                    .into_iter()
+                    .map(|(_, binding)| binding),
+            );
+        }
+        if let Some(initializer) = self.initializer() {
+            rows.extend(initializer.source_loop_dependencies_v1(context)?);
+        }
+        let mut unique = Vec::new();
+        for row in rows {
+            if !unique.contains(&row) {
+                unique.push(row);
+            }
+        }
+        Ok(unique)
+    }
+
+}

@@ -18,8 +18,9 @@ pub(in crate::mir::builder) fn emit_local_lexical_object(
     owner: FunctionOwnerIdV1,
     site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     row: LexicalInstanceCallDispositionRowV1,
+    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 ) -> Result<ValueId, String> {
-    emit_object(builder, state, ledger, owner, site, row, None)
+    emit_object(builder, state, ledger, owner, site, row, None, consume_receiver)
 }
 
 /// The same physical owner consumes completed entry-receiver Object packets.
@@ -34,6 +35,7 @@ pub(in crate::mir::builder) fn emit_receiver_object(
     key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     receiver: ValueId,
     read: crate::mir::builder::ExactLexicalReadV1,
+    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 ) -> Result<ValueId, String> {
     emit_object(
         builder,
@@ -43,6 +45,7 @@ pub(in crate::mir::builder) fn emit_receiver_object(
         site,
         row,
         Some((key, receiver, read)),
+        consume_receiver,
     )
 }
 
@@ -58,6 +61,7 @@ fn emit_object(
         ValueId,
         crate::mir::builder::ExactLexicalReadV1,
     )>,
+    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
 ) -> Result<ValueId, String> {
     let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
     if row.call_site() != &owned_site {
@@ -191,25 +195,33 @@ fn emit_object(
     let outward = builder.next_block_id();
     let result = builder.next_value_id();
     let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
-    append_block(
-        builder,
-        outward,
-        MirInstruction::ReturnFault { fault_frame: frame },
-        &mut bindings,
-    )?;
-    // Prior Homes unwind newest-first on the fault edge — the received
-    // nullable does not exist there yet, so the checked release never
-    // runs on the fault path.
-    let fault_landing = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
-    let prepared = lexical_i64::prepare_arguments(
+    let prepared = lexical_i64::prepare_arguments_for_source(
         builder,
         state,
         ledger,
         owner,
-        receiver,
+        Some(receiver),
         source_arguments,
-        &row,
+        crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1::Instance(&row),
         &mut bindings,
+        Some(consume_receiver),
+        None,
+    )?;
+    let cancellation = match &object_packet {
+        Some(packet) => packet.cancellation_operations_v1(result),
+        None => {
+            if !prepared.deferred_argument_ends_v1(
+                crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger),
+            )?.is_empty() {
+                return Err(freeze("receiver-object/source-requirement"));
+            }
+            Vec::new()
+        }
+    };
+    // Argument temporaries end before prior Homes on Call Fault. Only Normal
+    // cleanup Fault may cancel the newly acquired object result.
+    let (fault_landing, cleanup) = lexical_i64::prepare_argument_cleanup_v1(
+        builder, ledger, &prepared, frame, outward, unwind, &cancellation, &mut bindings,
     )?;
     let call = prepared.materialize_with_ledger(owner, &row, source_arguments, ledger)?;
     let (invoke, projection) = emit_call_normal(
@@ -220,6 +232,9 @@ fn emit_object(
     let emitted = EmittedCall::new(row, prepared, invoke, projection);
     bindings.push(emitted.invoke_binding().clone());
     bindings.push(emitted.outer_bindings()?.1.clone());
+    let emitted = lexical_i64::finish_argument_cleanup_v1(
+        builder, normal_landing, emitted, cleanup, &mut bindings,
+    )?;
     // The binding group is the finalized-call inventory — the exit
     // cleanup claims it in source order exactly like the scalar lane —
     // while the `CallReceived` commit owns the received Home and the

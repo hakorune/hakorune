@@ -191,10 +191,12 @@ pub(super) fn prepare_object_source_actuals_v1(
                 return Err(freeze("borrowed-object/field-original-source-drift"));
             }
         }
+        let scalar_forward = scalar_forward_v1(prepared, call, actual);
         if target
             .object_source_forwards()
             .is_some_and(|forwards| forwards.iter().any(|row| row.ordinal() == actual.ordinal))
             && !matches!(actual.value, BorrowedCallActualValueV1::SelfRooted { .. })
+            && scalar_forward.is_none()
         {
             return Err(freeze("borrowed-object/forward-source-identity"));
         }
@@ -208,7 +210,11 @@ pub(super) fn prepare_object_source_actuals_v1(
         {
             validate_source_only_sibling_forward_v1(prepared, target, actual)?;
         }
-        if let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value {
+        let forwarded = match actual.value {
+            BorrowedCallActualValueV1::SelfRooted { binding, root } => Some((binding, root)),
+            _ => scalar_forward,
+        };
+        if let Some((binding, root)) = forwarded {
             if let Some(forwards) = target.object_source_forwards() {
                 let mut matching = forwards
                     .iter()
@@ -226,6 +232,9 @@ pub(super) fn prepare_object_source_actuals_v1(
                 {
                     return Err(freeze("borrowed-object/forward-source-identity"));
                 }
+            } else if scalar_forward.is_some() {
+                // The sibling proof covers a self-rooted forward only.
+                return Err(freeze("borrowed-object/forward-source-identity"));
             } else {
                 validate_source_only_sibling_forward_v1(prepared, target, actual)?;
             }
@@ -262,6 +271,26 @@ pub(super) fn prepare_object_source_actuals_v1(
         ordered_arguments: arguments.into_boxed_slice(),
         dynamic_invocation_arguments: None,
     }))
+}
+
+/// A source-proven integer actual rides the same opaque forward position as a
+/// self-rooted handle: the caller's own binding is both value and root, and its
+/// closed source SUM must be signed-only. This lends no class or payload.
+fn scalar_forward_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    call: &OwnedExprSiteV1,
+    actual: &BorrowedCallActualCandidateV1,
+) -> Option<(BindingRefV1, BindingRefV1)> {
+    let BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer) = actual.value else {
+        return None;
+    };
+    if binding.owner() != call.owner() {
+        return None;
+    }
+    prepared
+        .source_actual_value_sum_v1(call, actual.ordinal, &actual.site, Some(binding))
+        .is_some_and(|sum| sum.signed_only())
+        .then_some((binding, binding))
 }
 
 /// An unqualified sibling lends only its original input use. It cannot borrow
@@ -685,8 +714,10 @@ pub(super) fn needs_original_object_forward_source_v1(
             }
             return Err(freeze("borrowed-object/forward-source-identity"));
         };
-        let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value else {
-            return Err(freeze("borrowed-object/forward-source-identity"));
+        let (binding, root) = match actual.value {
+            BorrowedCallActualValueV1::SelfRooted { binding, root } => (binding, root),
+            _ => scalar_forward_v1(prepared, call, actual)
+                .ok_or_else(|| freeze("borrowed-object/forward-source-identity"))?,
         };
         if forward.call() != call
             || forward.target() != target.target()

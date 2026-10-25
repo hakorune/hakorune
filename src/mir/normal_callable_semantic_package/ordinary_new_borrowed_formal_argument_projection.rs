@@ -86,6 +86,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_resu
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     results: &BorrowedResultCohortV1,
     site: &OwnedExprSiteV1,
+    proposed: bool,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
     let source_instance = matches!(
         actuals.get(site),
@@ -106,9 +107,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_resu
         call
     } else {
         let mut calls = ingress.incoming.iter().filter(|row| &row.call == site);
-        let call = calls
-            .next()
-            .ok_or_else(|| freeze("borrowed-call/source-identity"))?;
+        let Some(call) = calls.next() else {
+            // Core/Dynamic requests are valid unselected source rows here.
+            // A positively proposed ordinary target still owes its original.
+            return if proposed || source_instance {
+                Err(freeze("borrowed-call/source-identity"))
+            } else { Ok(None) };
+        };
         if calls.next().is_some() {
             return Err(freeze("borrowed-call/source-identity"));
         }
@@ -123,7 +128,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_resu
         return Ok(None);
     }
     let original_result = results.original_return_source_v1(&call.callee)?;
-    if !original_result.is_some_and(|source| source.scalar_class_v1().is_some()) {
+    if !original_result.is_some_and(|source| source.is_value_return_source_v1()) {
         return Ok(None);
     }
     let arguments = if source_instance {

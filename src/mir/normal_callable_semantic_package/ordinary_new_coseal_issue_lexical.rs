@@ -377,6 +377,11 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             });
     }
     if let BorrowedCallActualRequestV1::DynamicInvocationSource { input, plan } = request {
+        if super::super::lexical_instance_call::original_owned_call_target_v1(
+            source, targets, classes, site,
+        ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(), issue,
+        })?.is_some() { return Ok(None); }
         let mut candidates = dynamic_source_calls.iter().filter(|target| {
             target.owner() == input.owner() && target.call_site() == site.site()
         });
@@ -725,8 +730,13 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         });
     }
     if let BorrowedCallActualRequestV1::Observe(input, actuals) = request {
+        let ordinary = super::super::lexical_instance_call::original_owned_call_target_v1(
+            source, targets, classes, site,
+        ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(), issue,
+        })?.is_some();
         let mut dynamic_targets = dynamic_source_calls.iter().filter(|target| {
-            target.owner() == input.owner() && target.call_site() == site.site()
+            !ordinary && target.owner() == input.owner() && target.call_site() == site.site()
         });
         let first_dynamic = dynamic_targets.next();
         let prepared = match (first_dynamic, dynamic_targets.next()) {
@@ -835,9 +845,12 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         }
     }
     if matches!(request, BorrowedCallActualRequestV1::I64ResultArguments) {
+        let proposed = targets.as_ref().is_ok_and(|rows| rows.iter()
+            .filter_map(|row| row.as_ref().ok()?.as_ref())
+            .any(|target| target.call_site() == site));
         if let Some(arguments) =
             super::super::lexical_instance_call::project_pending_i64_result_arguments_v1(
-                source, pending, contracts, results, site,
+                source, pending, contracts, results, site, proposed,
             )
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(),

@@ -149,8 +149,8 @@ fn conflicting_conditional_classes_do_not_depend_on_wrapper_order() {
             assert!(!source.formal_field_read_target(formal.owner()));
         }
         assert!(
-            ledger.borrowed_i64_results.is_empty(),
-            "no result permission is minted"
+            ledger.borrowed_i64_results.iter().all(|(_, result)| result.is_err()),
+            "refused source rows must not mint any result permission"
         );
         let calls = ledger.lexical_instance_calls.borrow();
         let mut lexical = 0;
@@ -320,7 +320,7 @@ fn qualified_scalar_family_keeps_preflight_and_retained_loss_fail_closed() {
         assert!(!matches!(initial, Ok(Some(_))), "no source loan without original result");
         let integer = super::super::super::borrowed_formal_actuals::project_pending_i64_result_arguments_v1(
             ledger.borrowed_formal_source.as_ref().unwrap(), &ledger.borrowed_formal_actuals,
-            &package.parameter_contracts, &ledger.borrowed_i64_results, &original.call);
+            &package.parameter_contracts, &ledger.borrowed_i64_results, &original.call, true);
         assert!(!matches!(integer, Ok(Some(_))), "no Integer permission after failed scalar preflight");
         assert!(validate_source_scalar_result_loan_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
             &ledger.borrowed_i64_results, &loan, target).is_err());

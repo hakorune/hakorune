@@ -549,8 +549,8 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
         .collect();
     assert_eq!(
         faults.len(),
-        3,
-        "substring plus two conditional Text comparisons"
+        1,
+        "substring; conditional comparison Faults belong to the same Bool prefix"
     );
     for (evaluation, fault) in &faults {
         assert!(

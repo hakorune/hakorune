@@ -30,7 +30,9 @@ impl OrdinaryNewClaimLedgerV1 {
         use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
         use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
         macro_rules! input_use_pending {
-            ($stage:literal) => {{ let _ = $stage; return Ok(None); }};
+            ($stage:literal) => {{
+                return Ok(None);
+            }};
         }
         let parameters: Vec<_> = contract.parameters.iter().map(|row|
             (row.ordinal, row.binding, row.kind.clone())).collect();
@@ -291,7 +293,12 @@ impl OrdinaryNewClaimLedgerV1 {
                     if actual != site { return Err(freeze("static-input/qualified-use-identity")); }
                     if let Some((binding, formal)) = Self::original_static_forwarded_use_v1(
                         structure.source, uses, original, *ordinal, site)? {
-                        if origins.get(&binding) != Some(&formal) || !covered.insert((site.clone(), binding)) {
+                        // The containing expression can already own this exact
+                        // argument read. Both proofs must retain the same formal;
+                        // unrelated pre-covered reads still refuse duplication.
+                        if origins.get(&binding) != Some(&formal)
+                            || (!covered.insert((site.clone(), binding))
+                                && !evaluation_reads.contains(&(site.clone(), binding))) {
                             return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                         }
                         continue;
@@ -344,6 +351,39 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
+        for (target_site, target) in uses.assignments() {
+            if assignments.contains(target_site) {
+                continue;
+            }
+            let crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::BindingRebind(
+                target_binding,
+            ) = target
+            else {
+                continue;
+            };
+            if origins.contains_key(target_binding)
+                || !target_site
+                    .node()
+                    .segments()
+                    .iter()
+                    .any(|segment| matches!(
+                        segment,
+                        crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)
+                    ))
+            {
+                continue;
+            }
+            let Some(_value_site) =
+                crate::mir::resolved_semantics::assignment_value_sibling_v1(target_site)
+            else {
+                continue;
+            };
+            // The borrowed-input census owns formal mutation/escape checks.
+            // The selected Loop route owns execution semantics for this exact
+            // local rebind; source-flow read closure below proves it cannot
+            // carry one of the borrowed entries.
+            assignments.insert(target_site.clone());
+        }
         if assignments.len() != uses.assignments().len()
             || uses.assignments().iter().any(|(site, _)| !assignments.contains(site)) {
             if crate::config::env::builder_debug_enabled() {
@@ -352,15 +392,66 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             input_use_pending!("assignments")
         }
-        let missing: Vec<_> = uses.reads().filter(|(site, reference)| match reference {
-            ResolvedLexicalRefV1::Local(binding) => !covered.contains(&((*site).clone(), *binding)),
-            _ => true,
-        }).collect();
-        if !missing.is_empty() {
-            if crate::config::env::builder_debug_enabled() {
-                eprintln!("[input-use] owner={:?} uncovered={missing:?}", contract.owner);
+        if let Some(draft) = structure
+            .source
+            .definitions
+            .get(&contract.owner)
+            .or_else(|| structure.source.source_only_definitions.get(&contract.owner))
+        {
+            use crate::mir::resolved_semantics::SourcePathSegmentV1;
+            for row in &draft.uses {
+                let super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::LoopConditionOperand {
+                    loop_site,
+                    binary,
+                } = &row.kind
+                else {
+                    continue;
+                };
+                let loop_path = loop_site.node().segments();
+                let binary_path = binary.site().node().segments();
+                let read_path = row.site.site().node().segments();
+                let exact_condition = binary.owner() == contract.owner
+                    && row.site.owner() == contract.owner
+                    && row.binding.owner() == contract.owner
+                    && row.formal.owner() == contract.owner
+                    && origins.get(&row.binding) == Some(&row.formal)
+                    && structure
+                        .source
+                        .source_value_sum_v1(row.formal)
+                        .is_some_and(|sum| sum.signed_only())
+                    && binary_path.len() == loop_path.len() + 1
+                    && binary_path.starts_with(loop_path)
+                    && matches!(binary_path.last(), Some(SourcePathSegmentV1::LoopCondition))
+                    && read_path.starts_with(binary_path)
+                    && uses
+                        .reads()
+                        .filter(|(site, reference)| {
+                            *site == row.site.site()
+                                && **reference
+                                    == ResolvedLexicalRefV1::Local(row.binding)
+                        })
+                        .count()
+                        == 1;
+                if !exact_condition {
+                    return Err(freeze("static-input/loop-condition-use-source"));
+                }
+                covered.insert((row.site.site().clone(), row.binding));
             }
-            input_use_pending!("missing-reads")
+        }
+        for (site, reference) in uses.reads() {
+            let ResolvedLexicalRefV1::Local(binding) = reference else {
+                input_use_pending!("missing-nonlocal-read")
+            };
+            if covered.contains(&(site.clone(), *binding)) {
+                continue;
+            }
+            if origins.contains_key(binding) {
+                input_use_pending!("missing-read-source")
+            }
+            if !uses.corroborates_non_entry_source_read_v1(site, *binding, &origins) {
+                input_use_pending!("missing-read-source")
+            }
+            covered.insert((site.clone(), *binding));
         }
         Ok(Some(Rc::clone(uses)))
     }

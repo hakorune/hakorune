@@ -1,5 +1,7 @@
 //! One source/result preparation: Pending eligibility precedes stored receiver issuance.
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_result::BorrowedResultClassV1;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::source::PreparedSourceNeedsV1;
 use super::super::OrdinaryNewCoSealIssueV1;
 use super::borrowed_formal_result::{
     grounded_source_results_v1, prepare_pending_results_v1, seal_pending_results_v1,
@@ -13,6 +15,85 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use std::collections::{BTreeMap, BTreeSet};
+
+fn instance_result_classes_v1(
+    pending: &BorrowedResultCohortV1,
+    needs: &[Result<Option<PreparedSourceCallNeedV1>, String>],
+) -> Vec<(
+    super::source::CallTargetReferenceV1,
+    super::borrowed_formal_source::SourceValueAlternativeV1,
+)> {
+    needs
+        .iter()
+        .filter_map(|row| {
+            let need = row.as_ref().ok()?.as_ref()?;
+            let PreparedSourceCallNeedV1::Lexical(target) = need else {
+                return None;
+            };
+            let reference = need.reference();
+            // Result classes belong to the original Return cohort, including
+            // strict input calls. Borrowed input admission is a separate choice.
+            let original = match &target.result_requirement {
+                LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) => original,
+                LexicalCallSourceResultRequirementV1::ExistingBorrowedResult =>
+                    pending.original_return_source_v1(&reference.callee_owner).ok().flatten()?,
+                _ => return None,
+            };
+            pending
+                .source_value_alternative_for_v1(&reference, original)
+                .map(|class| (reference, class))
+        })
+        .collect()
+}
+
+fn promote_grounded_computed_scalar_sources_v1(
+    pending: &BorrowedResultCohortV1,
+    needs: &mut PreparedSourceNeedsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+) -> Result<bool, (OwnedExprSiteV1, String)> {
+    let Ok(rows) = needs else { return Ok(false); };
+    let mut promoted = false;
+    for row in rows.iter_mut() {
+        let Ok(Some(need)) = row else { continue; };
+        if !matches!(need, PreparedSourceCallNeedV1::Lexical(_))
+            || need.owning_object_input_v1().is_some()
+            || !matches!(need.result_requirement(), LexicalCallSourceResultRequirementV1::ExistingBorrowedResult)
+        {
+            continue;
+        }
+        let reference = need.reference();
+        // A result fact does not select borrowed transport for strict inputs.
+        if !contracts.iter().any(|contract| contract.owner == reference.callee_owner
+            && contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle())) {
+            continue;
+        }
+        let Some(original) = pending
+            .original_return_source_v1(&reference.callee_owner)
+            .map_err(|issue| (reference.call_site.clone(), issue))?
+        else {
+            continue;
+        };
+        if !original.is_computed_value_return_source_v1() || !original.matches(&reference) {
+            continue;
+        }
+        let Some(class) = pending.source_value_alternative_for_v1(&reference, original) else {
+            continue;
+        };
+        let class = match class {
+            super::borrowed_formal_source::SourceValueAlternativeV1::SignedI64 => BorrowedResultClassV1::I64,
+            super::borrowed_formal_source::SourceValueAlternativeV1::Bool => BorrowedResultClassV1::Bool,
+            _ => continue,
+        };
+        if !original.corroborates_scalar_class_v1(class) {
+            continue;
+        }
+        need.set_result_requirement(LexicalCallSourceResultRequirementV1::ScalarReturnSource(
+            original.clone(),
+        ));
+        promoted = true;
+    }
+    Ok(promoted)
+}
 
 #[path = "ordinary_new_borrowed_stored_nullable_source.rs"]
 mod stored_nullable;
@@ -242,7 +323,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     issue: freeze("lexical-instance-call/unit-value-use"),
                                 });
                             }
-                        } else if !original.is_literal_scalar_v1() || !definitions.contains_key(&reference.callee_owner) {
+                        } else if need.owning_object_input_v1().is_none()
+                            && original.selects_scalar_return_source_v1(definitions.contains_key(&reference.callee_owner))
+                        {
                             // A retained literal census does not replace the
                             // existing original borrowed-use family or grant ABI.
                             need.set_result_requirement(LexicalCallSourceResultRequirementV1::ScalarReturnSource(original.clone()));
@@ -322,8 +405,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         .collect());
     // The source scan sees exact original Stored dispatch without pretending
     // its receiver is executable. The same inventory is completed below.
-    let original_inventory = (|| {
-        let mut lexical_calls = BTreeMap::new();
+    let build_original_inventory = |needs: &PreparedSourceNeedsV1| {
+        let mut lexical_calls: BTreeMap<OwnedExprSiteV1, &super::source::LexicalInstanceCallSourceTargetV1> = BTreeMap::new();
         for need in needs.as_ref().map_err(Clone::clone)? {
             if let Some(PreparedSourceCallNeedV1::Lexical(target)) = need.as_ref().map_err(Clone::clone)? {
                 if lexical_calls.insert(target.call_site().clone(), target).is_some() {
@@ -341,11 +424,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         prepare_original_incoming_v1(
             brands, batch, selected, omitted_static_callers, contracts, &lexical_calls,
             &ordinary_callers, &definitions, Some(static_call_claims), &static_arguments,
-            app_main, Some(&needs), constructors,
+            app_main, Some(needs), constructors,
             entry_home_loans, local_candidates, callable_result_classes, &guarded_actuals, array_i64_fields, Some(field_write_claims),
         )
-    })();
-    let pending = prepare_pending_results_v1(
+    };
+    let mut original_inventory = build_original_inventory(&needs);
+    let mut pending = prepare_pending_results_v1(
         batch,
         selected,
         contracts,
@@ -354,8 +438,48 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         constructors,
         callable_result_classes,
         array_i64_fields,
-        &original_inventory, field_write_claims, original_returns,
+        &original_inventory, field_write_claims, original_returns.clone(),
     );
+    if needs.is_ok() {
+        let max_steps = match &needs { Ok(rows) => rows.len(), Err(_) => 0 };
+        let mut previous = Vec::new();
+        for _ in 0..=max_steps {
+            let promoted = promote_grounded_computed_scalar_sources_v1(&pending, &mut needs, contracts)
+                .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;
+            if promoted {
+                original_inventory = build_original_inventory(&needs);
+            }
+            let classes = match &needs {
+                Ok(rows) => instance_result_classes_v1(&pending, rows),
+                Err(_) => break,
+            };
+            let joined = if classes.is_empty() || classes == previous {
+                false
+            } else {
+                let joined = original_inventory
+                    .as_mut()
+                    .is_ok_and(|original| original.join_instance_result_classes_v1(&classes));
+                if joined { previous = classes; }
+                joined
+            };
+            if !promoted && !joined {
+                break;
+            }
+            pending = prepare_pending_results_v1(
+                batch,
+                selected,
+                contracts,
+                &definitions,
+                &needs,
+                constructors,
+                callable_result_classes,
+                array_i64_fields,
+                &original_inventory,
+                field_write_claims,
+                original_returns.clone(),
+            );
+        }
+    }
     let grounded = grounded_source_results_v1(&pending);
     let targets: PreparedLexicalInstanceCallSourceTargetsV1 = match &needs {
         Err(issue) => Err(issue.clone()),
@@ -410,7 +534,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                         site: reference.call_site.clone(), issue: issue.clone(),
                                     })?;
                                     if !original.matches(&reference) || !proof.matches_original_return_v1(original)
-                                        || !grounded.contains(&reference.callee_owner) || original.scalar_class_v1() != Some(proof.class)
+                                        || !grounded.contains(&reference.callee_owner) || !original.corroborates_scalar_class_v1(proof.class)
                                     { return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                                         site: reference.call_site, issue: "original-return/source-unproven".into(),
                                     }); }

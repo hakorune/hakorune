@@ -161,6 +161,44 @@ impl EmittedInitializerExpressionProjectionV1 {
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
     }
+    pub(super) fn source_loop_dependencies_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        let mut dependencies = Vec::new();
+        for read in &self.path_reads {
+            dependencies.extend_from_slice(read.original_copy_dependencies_v1()?);
+        }
+        for read in self.reference_reads.values() {
+            dependencies.extend(read.dependencies()?);
+        }
+        dependencies.extend(self.expression().ordered_bindings_in_context(context)?);
+        dependencies.extend(self.expression().scalar_copy_dependencies_v1(context)?);
+        for call in self.calls() {
+            dependencies.extend(call.source_loop_argument_bindings_in_context_v1(context)?);
+            dependencies.extend(
+                call.copy_dependencies_in_context(context)?
+                    .into_iter()
+                    .map(|(_, binding)| binding),
+            );
+        }
+        for call in &self.dynamic_calls {
+            dependencies.extend(call.scope_bindings_in_context_v1(context)?.1);
+        }
+        for node in self.frame.source().nodes() {
+            dependencies.extend(context.ledger().checked_field_copy_dependencies_v1(
+                &OwnedExprSiteV1::new(self.frame.source().owner(), node.site().clone()),
+                context,
+            )?);
+        }
+        let mut unique = Vec::new();
+        for dependency in dependencies {
+            if !unique.contains(&dependency) {
+                unique.push(dependency);
+            }
+        }
+        Ok(unique)
+    }
     pub(in crate::mir) fn new(
         frame: Rc<CheckedInitializerExpressionFrameV1>,
         value: ValueId,

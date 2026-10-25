@@ -154,8 +154,7 @@ fn emit_lexical_i64_call(
             Some((binding, _, _, _)) => binding,
             None => instance.receiver_binding()?,
         };
-        let borrowed_self = instance.source_target().is_self_receiver()
-            && ledger.lexical_i64_call_source(row.call_site())
+        let borrowed_scalar_receiver = ledger.lexical_i64_call_source(row.call_site())
                 .filter(|observation| observation.prior_homes() == prior_homes
                     && observation.arguments() == sealed_arguments)
                 .and_then(|observation| observation.borrowed_scalar())
@@ -164,7 +163,9 @@ fn emit_lexical_i64_call(
                     && match loan.kind() {
                         crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => kind == InvokeCallResultKind::I64,
                         crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => kind == InvokeCallResultKind::Bool,
-                    });
+                    })
+            && (instance.source_target().is_self_receiver()
+                || ledger.checked_stored_entry_receiver_v1(instance.source_target())?);
         let borrowed_alias = ledger.lexical_i64_call_source(row.call_site())
             .filter(|observation| observation.prior_homes() == prior_homes
                 && observation.arguments() == sealed_arguments)
@@ -186,7 +187,7 @@ fn emit_lexical_i64_call(
                 observation.unit_source() == Some(instance.source_target())
                     && observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments)
             && ledger.checked_borrowed_map_receiver_source_v1(instance.source_target())?;
-        if !borrowed_self && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
+        if !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
             return Err(freeze("lexical-i64-receiver-home-missing"));
         }
     }
@@ -437,13 +438,18 @@ fn prepare_arguments_with_prefix(
             LocalCallArgumentV1::BorrowedActual {
                 ordinal,
                 site: original_site,
+            }
+            | LocalCallArgumentV1::Expression {
+                ordinal,
+                site: original_site,
             } => {
+                let expression_only = matches!(argument, LocalCallArgumentV1::Expression { .. });
                 if original_site != site {
                     return Err(freeze("lexical-i64/borrowed-site"));
                 }
-                let actuals = row
-                    .borrowed_actuals(ledger)?
-                    .ok_or_else(|| freeze("lexical-i64/borrowed-actuals-missing"))?;
+                let Some(actuals) = row.borrowed_actuals(ledger)? else {
+                    return Err(freeze("lexical-i64/borrowed-actuals-missing"));
+                };
                 let actual = actuals
                     .iter()
                     .find(|actual| actual.ordinal == *ordinal && &actual.site == site)
@@ -469,6 +475,9 @@ fn prepare_arguments_with_prefix(
                             bindings.push(binding.clone());
                         }
                         projection
+                    }
+                    _ if expression_only => {
+                        return Err(freeze("lexical-i64/expression-source-required"));
                     }
                     Source::Read(source) => {
                         let observed = crate::mir::builder::ordinary_new_admission::selected::read_argument::emit(
@@ -549,6 +558,7 @@ fn prepare_arguments_with_prefix(
                             Source::Scalar { binding, .. }
                             | Source::TypedHome { binding, .. }
                             | Source::EntryReceiver { binding, .. }
+                            | Source::LocalObjectBinding { binding, .. }
                             | Source::DeclaredFormal { binding, .. }
                             | Source::ReceivedNullable { binding, .. }
                 | Source::ReceivedMixed { binding, .. } => (*binding, None),

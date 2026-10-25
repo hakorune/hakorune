@@ -195,6 +195,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedMixed { class, .. }
                     | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::TypedHome { class, .. }
                     | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
+                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::LocalObjectBinding { class, .. }
                     | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::DeclaredFormal { class, .. } => {
                         class.as_ref() == view.class()
                     }

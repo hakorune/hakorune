@@ -341,6 +341,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
                 owner,
                 &site,
                 row,
+                &consume_receiver,
             )?
         } else if handle {
             crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical(
@@ -402,6 +403,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone());
         let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
         if let Some(row) = ledger.take_receiver_object_packet_v1(owner, &site, key)? {
+            let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
             let read =
                 read.ok_or_else(|| "[freeze:contract][receiver-object/read-missing]".to_owned())?;
             let state = self
@@ -410,6 +412,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
                 .ok_or_else(|| "[freeze:contract][receiver-object/state-missing]".to_owned())?;
             let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_receiver_object(
                 builder, &mut state.borrow_mut(), ledger, owner, &site, row, key, receiver, read,
+                &consume_receiver,
             )?;
             return Ok(Some(value));
         }

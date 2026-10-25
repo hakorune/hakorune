@@ -626,7 +626,8 @@ impl RootHomeExitEntry {
             | Self::FieldGet { local_bindings, .. } => local_bindings,
         };
         let mut copies = Vec::new();
-        for packet in groups.iter().flat_map(|group| group.lexical_packets()) {
+        let tree = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(groups);
+        for packet in tree.iter().flat_map(|group| group.lexical_packets()) {
             copies.extend(
                 packet
                     .copy_dependencies(ledger)?

@@ -1,32 +1,28 @@
 # APP-binary-trees
-Status: selected app; WIP organization first; EXE not reached. Date: 2026-10-25
+Status: selected app; source/result/Loop series landed; EXE not reached. Date: 2026-10-25
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fixed smoke](../../../../../tools/smokes/v2/profiles/integration/apps/binary_trees_exe.sh).
 
 ## Current stop
-- Fresh binary-trees smoke now stops earlier at `lexical-instance-call/source-pending`, recursive `BinaryTreeBuilder.make` (owner slot5 Body(4)/Initializer(0)), before EXE. The two final `object-field-read-definition-invalid` errors are historical best evidence, not the current stop after stricter source proof. Checked stored-child reads remain owed later.
-- Fresh full-tree CLI build PASS (51.78s); explicit quick CLI/runtime fixed suite 6/11 in39.924s, five compile FAIL (json, boxtorrent, binary-trees, mimalloc, allocator-stress). No new acceptance PASS; the previous 9/11 result belongs to an earlier state.
-- Mimalloc's best intermediate stop was `published-lifecycle/borrowed-use/guarded-call-correspondence`. After stricter scalar proof, latest reported stop is `ordinary-new/borrowed-object/forward-source-identity` (slot37 Body(5)); original entry-formal read proof remains owed.
-- JSON last source stop: `borrowed-entry/source-use-completion-pending` (owner slot22). Restore shared app acceptance before extending object-field operations.
+- Fresh quick CLI build PASS (1m14s); fixed suite 6/11 in40.050s, five compile FAIL, no new acceptance PASS. Explicit CLI/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`.
+- binary-trees: `lexical-instance-call/source-pending`, recursive `BinaryTreeBuilder.make`, owner slot5 Body(4)/Initializer(0), before EXE. Two final object-field-read errors are historical best evidence, not the current stop after stricter source proof.
+- mimalloc-lite and allocator-stress: `borrowed-object/forward-source-identity`, owner slot37 Body(5). Original entry-formal site proof remains owed. JSON: `borrowed-entry/source-use-completion-pending`, owner slot22. Boxtorrent: `stored-child/receiver-unavailable`.
 
-## Scope and retained WIP
-- Keep all `.hako` inputs and existing acceptance/negative boundaries unchanged; no fallback, retry or app-specific route.
-- Source/result work retains computed Return source demands, original source SUM recomputation/Core proof identity, exact actual plans and parameter domains.
-- Object Call selection uses original owned-object input before Dynamic selection. Loop result Homes, Normal/Fault cleanup, exact prefix liveness and independent final Call coverage remain connected in WIP.
-- Other WIP includes stored receiver parent lifetime, Return-owned Call/field inventories, structural Jump contraction and nested Loop copy dependencies.
-- Scalar source loans must distinguish reaching-point evidence from formal-wide class evidence. The candidate binding is independently matched to the immutable original argument by `bind_original_argument_plans_v1`; this check must remain on both SourceObject and SourceInstance completion paths.
-- New Scalar no-read handling remains unlanded with the source group; it does not itself grant a receiver, Home or execution permission.
+## Landed source and consumer connection
+- Computed Return trees retain original plans; grounded source classes feed the same original SUM without switching typed-only calls into borrowed-input transport. Unchanged Core premises reuse their canonical proof identity.
+- Source actuals retain original census, source phase identity, argument ordinal/site and reaching-value/formal class evidence. Original argument plans independently match binding to source; facts alone grant no receiver, Home or execution.
+- Object Call selection uses original owned-object input before Dynamic selection. Local object arguments, stored parent lifetime, Loop result Homes, Normal/Fault cleanup, exact prefix liveness and independent final Call coverage remain connected through existing owners.
+- Qualified SourceStatic arguments are revalidated with the original projector before physical co-seal deferral. Their selected reservation stays intact; selected physical demand still refuses an unfinished cohort. No generic retry or capture-execution permission was added.
+- Source SUM producer and read-only loans are separated (695/546 lines); solver tests moved to the existing solver module (400 lines). No new test file, hook, checker, guard or card.
+- Existing cases now check result permission rather than an empty Err census, field requests rather than all passive Return plans, original transport/return identity, source-only Loop observations, and semantic refusal rather than which guard runs first. Inputs/case counts stay unchanged; the captured case additionally guards physical-demand refusal after co-seal deferral.
+- Keep every `.hako` input and acceptance expectation unchanged. No fallback, AST rewrite, backend repair or app-specific route. Temporary instrumentation and omission prototype were removed; no temporary adapter is retained.
 
-## Verified WIP organization
-- Final borrowed-call consumers now record the same caller-entry-rooted Scalar forward in ordinary and guarded scans; correspondence, guard dominance and instruction order remain checked. Isolated HEAD plus only those three files: existing borrowed-use family 27 PASS; committed.
-- Constructor plans now finish after their original lexical child Call slots. Isolated pre-change constructor Unit publication FAIL; with only the order repair and method moves, the existing discard family is 4 PASS; order repair committed separately.
-- Pure method moves retain HEAD bodies: root print/terminal/census helpers, entry receiver-class lookup, and lexical copy-dependency helpers move to existing print/validation/entry-values/normal-projection owners. Return filtering, domain widening and Loop tree traversal stay outside this refactor; no new module.
-- Isolated move/order tree: borrowed-entry family 21 PASS; three print cases PASS. The fourth print case fails the same `outer-args` assertion before and after (None versus empty carriers); this existing red remains open. Terminal argument focused result is recorded with the refactor commit.
-- Broader lexical-family comparison: isolated committed source base 296 PASS/60 FAIL; initial WIP299/57 had20 new failures and23 fixes. Separating computed result facts from typed-only input admission restores12 healthy strict/nested cases: current WIP311/45,8 new failures versus base. A lower total FAIL count is not acceptance. Source coupling remains uncommitted.
-- Of the8 new failures, A/B conflict stores only refused Err rows (no successful result authority); several others pin newly expanded source shapes or earlier refusal diagnostics. One actual unfinished boundary is the captured-local static point-premise fixture: input-use captures prevent completion. Do not weaken its cohort check or ignore new reds.
-- No new tests, fixtures, files, hooks or checkers. Temporary diagnostic edits were removed; shared target/quick was reused sequentially and the isolated review worktree was removed. Isolated and full-WIP binary identities differ.
+## Verification and limits
+- Independent earlier commits: borrowed-call final consumers27 PASS; constructor order repair changes one existing Unit publication failure to discard-family4 PASS. Pure owner moves retain original bodies; isolated entry21 and terminal1 PASS, print3 PASS/1 identical prior failure.
+- Same selected lexical family (`cargo quick-test-fast ordinary_new_coseal::lexical_instance_call:: -- --test-threads=4`, `RUST_MIN_STACK=16777216`): baseline296 PASS/60 FAIL, current319/37. All8 newly failing cases from the previous cleanup are closed; no new failing test versus baseline.
+- Existing raw compiled families: local-commit baseline92/12 -> current94/10; Loop213/21 ->213/21; borrowed publication24/28 ->38/14. Combined746 cases:39 prior failures fixed, no newly failing cases. The82 remaining failures are still open; this is not full-lib or product acceptance.
+- Shared target/quick reused sequentially. Baseline and current binary identities were kept separate; no zero-match filter counts as evidence. The temporary isolated checkout is removed. Pointer guard and diff checks PASS.
 
-## Open verification and next work
-1. Continue organizing the coupled source/result/Loop WIP; close the8 new lexical failures, distinguishing safe source-only refusals/stale pins from the static capture completion boundary. Only validated independent changes may be committed.
-2. Close source-backed entry-formal read evidence and restore mimalloc/allocator/JSON; then continue binary-trees checked stored-child reads through the sole physical owner and final consumer.
-3. Existing broader reds remain open: scalar-expression malformed-source fixture, initializer alias/source provenance, stored-child result diagnostic, physical empty-carrier mutation, and previous full-lib failures/stack abort. Attribute against an isolated baseline before changing assertions.
-4. Use explicit quick CLI/runtime paths for app evidence; rerun the fixed suite after source/physical shared changes. Do not count a marker or SKIP as EXE success.
+## Next work
+1. With WIP committed, trace the recursive make source-pending and shared entry-formal forward evidence to the existing source/argument owner; restore mimalloc/allocator/JSON without weakening source or final checks.
+2. Continue binary-trees through its original checked stored-child reads and sole physical owner. Its existing output and exit0 remain acceptance; historical final-verifier progress is not current success.
+3. Attribute and resolve required remaining verification failures. Keep R7/canonical closeout obligations open; no app or finite-product completion is claimed by this internal commit.

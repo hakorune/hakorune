@@ -23,6 +23,7 @@ pub(in crate::mir::normal_callable_semantic_package) use instance_source::{
 pub(in crate::mir::normal_callable_semantic_package) use model::PreparedBorrowedCallActualsV1;
 use model::{ArgumentExpressionV1, BorrowedCallActualEvidencePhaseV1};
 pub(crate) use model::{BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1};
+pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_static_source_arguments_for_route_v1;
 
 #[path = "ordinary_new_borrowed_static_bool_entry_finish.rs"]
 mod static_bool_entry_finish;
@@ -615,6 +616,7 @@ fn construct_borrowed_call_actuals_v1(
                 BorrowedFormalActualSourceV1::Read(loan) => Some(loan.class()),
                 BorrowedFormalActualSourceV1::TypedHome { class, .. }
                 | BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
+                | BorrowedFormalActualSourceV1::LocalObjectBinding { class, .. }
                 | BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }
                 | BorrowedFormalActualSourceV1::ReceivedMixed { class, .. }
                 | BorrowedFormalActualSourceV1::DeclaredFormal { class, .. } => {
@@ -797,7 +799,7 @@ pub(super) mod object_input_finish;
 #[path = "ordinary_new_received_producer_arguments.rs"]
 mod received_producer;
 pub(in crate::mir::normal_callable_semantic_package) use received_producer::{
-    received_field_alias_producer_arguments_v1, received_producer_arguments_v1,
+    received_field_alias_producer_arguments_v1, received_producer_arguments_v1, original_owned_call_target_v1,
 };
 
 #[path = "ordinary_new_borrowed_instance_source_actuals.rs"]

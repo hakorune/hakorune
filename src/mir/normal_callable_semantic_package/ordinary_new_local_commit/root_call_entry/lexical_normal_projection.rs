@@ -217,6 +217,8 @@ impl EmittedLexicalCallProjectionV1 {
             Class::I64 => InvokeCallResultKind::I64,
             Class::Bool => InvokeCallResultKind::Bool,
             Class::Unit => InvokeCallResultKind::Unit,
+            Class::Handle => InvokeCallResultKind::Handle,
+            Class::Nullable => InvokeCallResultKind::NullableHandle,
             _ => return Err(freeze("source-loop/call-source")),
         };
         if self.call_site() != source.site()
@@ -228,7 +230,10 @@ impl EmittedLexicalCallProjectionV1 {
         {
             return Err(freeze("source-loop/call-source"));
         }
-        self.normal_result_using(source.owner(), source.arguments(), Some(context))?;
+        let arguments = if matches!(source.result(), Class::Handle | Class::Nullable) {
+            context.ledger().original_local_packet_arguments_v1(self)?
+        } else { source.arguments() };
+        self.normal_result_using(source.owner(), arguments, Some(context))?;
         let MirInstruction::Invoke { normal_landing, .. } = &self.invoke.1 else {
             return Err(freeze("source-loop/call-invoke"));
         };
@@ -249,7 +254,7 @@ impl EmittedLexicalCallProjectionV1 {
             let dominators = crate::mir::verification::utils::compute_dominators(function);
             let mut writes = self.ordered_call_bindings_in_context_v1(
                 source.owner(),
-                source.arguments(),
+                arguments,
                 context,
             )?;
             for argument in &self.prepared.arguments {
@@ -379,7 +384,7 @@ impl EmittedLexicalCallProjectionV1 {
         use super::super::super::root_cleanup_graph::ordered_paths as paths;
         // Every wrapper and nested Call uses the same original result projection.
         // An outer expression may corroborate this cancellation, never replace it.
-        let text_cancellation = if self.row.loan().result()
+        let result_cancellation = if self.row.loan().result()
             == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)
         {
             let (block, MirInstruction::InvokeNormalResult { dst, invoke_block }) =
@@ -397,18 +402,30 @@ impl EmittedLexicalCallProjectionV1 {
             vec![InvokeOperation::String(
                 crate::mir::instruction::StringInvokeOperation::End { value: *dst },
             )]
-        } else {
-            Vec::new()
-        };
-        let normal_fault_cancellation = if text_cancellation.is_empty() {
+        } else if let CallPacketSourceLoanV1::Instance(row) = self.row.loan() {
+            if matches!(row.result(), Some(InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle))
+                && context.ledger().uses_object_packet_protocol_v1(row)? {
+                let packet = context.ledger().borrowed_object_call_packet_v1(row)?;
+                let (block, MirInstruction::InvokeNormalResult { dst, invoke_block }) = self.projection.value()? else {
+                    return Err(freeze("call-argument/invoke-shape"));
+                };
+                if *invoke_block != self.invoke.0 || !matches!(&self.invoke.1,
+                    MirInstruction::Invoke { normal_landing, operation: InvokeOperation::Call { result, .. }, .. }
+                        if normal_landing == block && *result == packet.result()) {
+                    return Err(freeze("call-argument/invoke-shape"));
+                }
+                packet.cancellation_operations_v1(*dst)
+            } else { Vec::new() }
+        } else { Vec::new() };
+        let normal_fault_cancellation = if result_cancellation.is_empty() {
             normal_fault_cancellation
         } else {
             if !normal_fault_cancellation.is_empty()
-                && normal_fault_cancellation != text_cancellation
+                && normal_fault_cancellation != result_cancellation
             {
                 return Err(freeze("call-argument/duplicate-acquisition"));
             }
-            &text_cancellation
+            &result_cancellation
         };
         let ends = self.prepared.deferred_argument_ends_v1(context)?;
         if ends.is_empty() && inherited.is_none() {
@@ -558,6 +575,24 @@ impl EmittedLexicalCallProjectionV1 {
         }
         Ok(covered)
     }
+}
+
+impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir) fn source_loop_argument_bindings_in_context_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        let mut rows = Vec::new();
+        for argument in &self.prepared.arguments {
+            for binding in argument.source_loop_bindings_in_context_v1(context)? {
+                if !rows.contains(&binding) {
+                    rows.push(binding);
+                }
+            }
+        }
+        Ok(rows)
+    }
+
 }
 
 impl EmittedLexicalCallProjectionV1 {

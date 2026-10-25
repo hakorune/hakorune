@@ -14,7 +14,8 @@ use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSem
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::{field_write_claim, result_class_claim};
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedAssignmentTargetV1,
-    ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    ResolvedBinaryOperatorV1, ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    SourcePathSegmentV1, SourcePathV1,
 };
 
 #[path = "ordinary_new_borrowed_formal_use_array_element.rs"]
@@ -133,6 +134,17 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     UnresolvedArgument {
         call: OwnedExprSiteV1,
         ordinal: u32,
+    },
+    /// Exact direct receiver use of a lexical borrowed formal. Object class
+    /// and input compatibility remain obligations of the source input join.
+    InstanceMethodReceiver {
+        call: OwnedExprSiteV1,
+    },
+    /// Exact relational operand in a resolver-indexed loop condition. This
+    /// records use shape only; the input cohort must still ground its class.
+    LoopConditionOperand {
+        loop_site: crate::mir::resolved_semantics::SourceStmtSiteV1,
+        binary: OwnedExprSiteV1,
     },
     /// A checked-compare operand use admitted under the existing operation
     /// owner's `Greater(NormalInteger, NormalInteger)` view envelope. The
@@ -460,6 +472,88 @@ pub(super) fn classify_original_formal_uses_v1(
     }
 }
 
+fn instance_method_receiver_kind_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+    site: &SourceExprSiteV1,
+) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
+    use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1 as Receiver;
+    let mut calls = input
+        .function()
+        .method_calls()
+        .filter(|(_, call)| call.receiver_site() == site);
+    let Some((call_site, call)) = calls.next() else {
+        return Ok(None);
+    };
+    if calls.next().is_some() || call.owner() != input.owner() {
+        return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(OwnedExprSiteV1::new(
+            input.owner(), site.clone(),
+        )));
+    }
+    let Receiver::Lexical(ResolvedLexicalRefV1::Local(binding)) = call.receiver() else {
+        return Ok(None);
+    };
+    if !origins.contains_key(&binding) {
+        return Ok(None);
+    }
+    Ok(Some(BorrowedFormalUseDraftKindV1::InstanceMethodReceiver {
+        call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
+    }))
+}
+
+fn loop_condition_operand_kind_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
+    use crate::mir::resolved_semantics::ResolvedLoopPlacementV1;
+    let function = input.function();
+    let mut found = None;
+    for loop_site in function.loop_sites() {
+        let placement = function
+            .resolved_loop_placement(loop_site, site)
+            .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+        if placement != Some(ResolvedLoopPlacementV1::Condition) {
+            continue;
+        }
+        let condition = SourcePathV1::from_node(loop_site.node())
+            .child(SourcePathSegmentV1::LoopCondition)
+            .expr();
+        let mut binaries = function
+            .expression_source()
+            .binaries()
+            .filter(|binary| binary.site() == &condition && (binary.lhs() == site || binary.rhs() == site));
+        let Some(binary) = binaries.next() else {
+            continue;
+        };
+        if binaries.next().is_some() {
+            return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(OwnedExprSiteV1::new(
+                input.owner(), site.clone(),
+            )));
+        }
+        if !matches!(
+            binary.operator(),
+            ResolvedBinaryOperatorV1::Equal
+                | ResolvedBinaryOperatorV1::NotEqual
+                | ResolvedBinaryOperatorV1::Less
+                | ResolvedBinaryOperatorV1::LessEqual
+                | ResolvedBinaryOperatorV1::Greater
+                | ResolvedBinaryOperatorV1::GreaterEqual
+        ) {
+            continue;
+        }
+        if found.is_some() {
+            return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(OwnedExprSiteV1::new(
+                input.owner(), site.clone(),
+            )));
+        }
+        found = Some(BorrowedFormalUseDraftKindV1::LoopConditionOperand {
+            loop_site: loop_site.clone(),
+            binary: OwnedExprSiteV1::new(input.owner(), condition),
+        });
+    }
+    Ok(found)
+}
+
 fn classify_borrowed_formal_source_product_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     contract: &OwnedCallableParameterContractDeclarationV1,
@@ -680,6 +774,12 @@ fn classify_borrowed_formal_source_product_v1(
         }
         if kind.is_none() {
             kind = new_argument::construction_child_argument_kind_v1(input, contract, source_uses, formal, *binding, site)?;
+        }
+        if kind.is_none() {
+            kind = instance_method_receiver_kind_v1(input, &origins, site)?;
+        }
+        if kind.is_none() {
+            kind = loop_condition_operand_kind_v1(input, site)?;
         }
         if kind.is_none() && numeric_origins.contains_key(binding) {
             kind = new_argument::new_argument_kind(input, formal, &compare_guards, site)?;

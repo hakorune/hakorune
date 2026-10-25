@@ -14,7 +14,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Vec<OwnedExprSiteV1>, String> {
         context.require_ledger(self)?;
         let rows = self.local_commits.borrow();
-        context.with_local_call_groups_v1(owner, |groups| {
+        context.with_local_call_group_tree_v2(owner, |groups| {
             let mut shared = Vec::new();
             for (site, row) in rows.iter().filter(|(_, row)| row.owner() == owner) {
                 let LocalCommitV1::CallReceived(row) = row else {
@@ -427,18 +427,15 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("receiver-object/record-result-drift"));
         }
         packet.validate_recorded(&bindings)?;
-        {
-            let groups = self.root_local_call_bindings.borrow();
-            let original = groups.get(&site.owner()).and_then(|groups| {
-                groups
-                    .iter()
-                    .find(|group| group.site() == site)
-                    .and_then(|group| group.lexical())
-            });
-            if original.is_none_or(|original| !std::ptr::eq(original, packet.as_ref())) {
+        CallValidationContextV1::Lowering(self).with_local_call_group_tree_v2(site.owner(), |groups| {
+            let mut matching = groups.iter().filter(|group| group.site() == site)
+                .filter_map(|group| group.lexical());
+            if matching.next().is_none_or(|original| !std::ptr::eq(original, packet.as_ref()))
+                || matching.next().is_some() {
                 return Err(freeze("receiver-object/record-packet-drift"));
             }
-        }
+            Ok(())
+        })?;
         self.record_call_received_emission(site, result, bindings, Some(packet))
     }
 

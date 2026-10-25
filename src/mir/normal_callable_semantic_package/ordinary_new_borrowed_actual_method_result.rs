@@ -156,9 +156,35 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 }
             };
         }
-        OriginalCoreOperandRequestV1::checked(input, method)
-            .map(OriginalMethodResultResolutionV1::ConditionalCore)
-            .unwrap_or(OriginalMethodResultResolutionV1::Unknown)
+        if let Some(request) = OriginalCoreOperandRequestV1::checked(input, method) {
+            return OriginalMethodResultResolutionV1::ConditionalCore(request);
+        }
+        let Some(inventory) = inventory else {
+            return OriginalMethodResultResolutionV1::Unknown;
+        };
+        let call_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            input.owner(),
+            method.site().clone(),
+        );
+        let mut rows = inventory
+            .source_rows_v1()
+            .filter(|row| row.call == call_site);
+        let Some(row) = rows.next() else {
+            return OriginalMethodResultResolutionV1::Unknown;
+        };
+        if rows.next().is_some() || row.call.owner() != input.owner() {
+            return OriginalMethodResultResolutionV1::Unknown;
+        }
+        let Some(target) = row.source.instance() else {
+            return OriginalMethodResultResolutionV1::Unknown;
+        };
+        let reference = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1::from_target(target);
+        if reference.callee_owner != row.callee
+            || !reference.matches_original_call_v1(input, method)
+        {
+            return OriginalMethodResultResolutionV1::Unknown;
+        }
+        OriginalMethodResultResolutionV1::InstanceResult(reference)
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked(
         caller: OriginalCallSourceCallerV1<'_>,
@@ -322,6 +348,9 @@ pub(super) enum OriginalMethodResultResolutionV1 {
         operands: Option<OriginalCoreOperandRequestV1>,
     },
     ConditionalCore(OriginalCoreOperandRequestV1),
+    /// Exact original lexical call; its scalar class is joined later from
+    /// the borrowed-result cohort, never inferred from this source edge.
+    InstanceResult(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1),
     Unknown,
 }
 
@@ -459,6 +488,7 @@ struct OriginalMethodResultSeedV1
     pub(super) method: Arc<VerifiedResolvedMethodCallSourceV1>,
     pub(super) proof: Option<OriginalMethodResultProofV1>,
     pub(super) core_operand_request: Option<OriginalCoreOperandRequestV1>,
+    pub(super) instance_result: Option<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1>,
     pub(super) required_i64: Box<[OriginalFormalActualSeedV1]>,
     pub(super) required_text: Box<[OriginalFormalActualSeedV1]>,
 }
@@ -486,6 +516,11 @@ impl OriginalMethodResultSeedV1 {
             (None, Some(request)) => Some(request.representation()),
             _ => None,
         }
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn instance_result_v1(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1> {
+        self.instance_result.as_ref()
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn required_i64(
         &self,

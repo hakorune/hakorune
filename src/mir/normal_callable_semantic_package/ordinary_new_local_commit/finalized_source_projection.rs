@@ -670,7 +670,8 @@ fn project_recorded(
         .binding(original.0, &original.1)?
         .ok_or_else(|| freeze("finished-local-call/producer-removed"))?;
     if !projection.recorded().contains(&finished) {
-        return Err(freeze("finished-local-call/producer-unrecorded"));
+        return Err(format!("{} symbol={symbol} original={original:?} finished={finished:?}",
+            freeze("finished-local-call/producer-unrecorded")));
     }
     Ok((symbol.to_owned(), finished))
 }

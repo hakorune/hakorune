@@ -808,16 +808,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(refused());
     };
-    // Ordinary Call/field terminals retain their existing source owners. This
-    // scope joins original scalar reads; it never retries after qualification.
-    if source.nodes().iter().any(|node| {
-        matches!(node.source(),
-        crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
-        | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
-            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))
-    }) {
-        return Ok(None);
-    }
+    // The complete Return evaluation borrows its Call and field leaves from
+    // their existing source issuers and retains their ordered cleanup proof.
     let purpose = OwnedExprSiteV1::new(input.owner(), value.site().clone());
     let Some((evaluation, requests)) = prepare_terminal_evaluation_v1(
         input,
