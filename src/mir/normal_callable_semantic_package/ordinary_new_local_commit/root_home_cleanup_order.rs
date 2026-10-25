@@ -5,6 +5,14 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
+/// Physical cleanup selected by a retained source owner. This passive action
+/// never issues ownership; a plain Array End has no semantic Fault edge.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum RootCleanupActionV1 {
+    Invoke(InvokeOperation),
+    ArrayRelease { value: crate::mir::ValueId },
+}
+
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrderV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) implicit_void:

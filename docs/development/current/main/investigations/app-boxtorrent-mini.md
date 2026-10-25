@@ -32,6 +32,10 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 3. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
+- WIP整理: 共通cleanup writerにInvoke End／非FaultのArrayResidenceRelease＋Jumpを表すactionを追加。既存Invoke callerは同じsuffix算法を再利用し、Array source packet・式評価・独立した構造/path検証への接続は未完。途中cursor変更は境界越えの危険があるため採用せず、従来の最終検証を保持。
+- 非Fault Endの単一continuation・正確なinstruction記録・自己ループ拒否は既存Invokeだけの証拠では守れないため、既存canonical writerケースのみ拡張。test関数/ファイル/checkerは追加しない。
+- 整理差分: `cargo quick-test-fast root_graph_writer::tests:: -j 4`は3 PASS（build63秒）、同binaryの`root_ordered_`6／`root_cleanup_order_`5 PASS。`cargo quick-build-fast -j 4`66秒PASS。明示CLI/runtimeのboxtorrent smokeは同じowner56 source-not-i64で停止、EXE未達。固定suiteは再計測せず上記直前結果のまま。
+- 広いcanonical_root filterでMain0のin-body-step／derived-predicate 2件がIncompleteOrdinaryNewCoverageで失敗し、個別再実行でも再現。exact-HEAD比較は未実施で原因未分類の赤として保持し、baseline成功に読み替えない。
 - MapTextKeysSnapshot/ArrayCountの生成lawとtyped Core契約を接続。keys結果はprimitive/Dynamic/nominal Objectへ投影せず、outerは同じinner source Rcを保持。構造依存は独立して閉じ、全request統合後にも最終inner Rcとの一致を再検証する。元field subtree以外の引数/receiverを隠さない。
 - CLI46.44秒PASS、root test build99秒。既存Core source2/target7/scalar pending7は全PASS、manifest codegen checkと既存Python14件PASS。正しいMap providerでCountのI64 source sealを確認し、異種provider/複数writerは拒否。同じCore/targetケースだけ最小拡張し、新規Rust test関数/ファイル/checkerなし。
 - SCC既存テストは0/1、String左辺と未知RHSのclass転送assertで失敗。以前の記録と同じassertだが旧binaryのrevisionは未確認のためexact-HEAD baseline証明とはしない。追加required_coreはこのケースでは空で、他のsource/publication/Loopの赤とともに未完として保持。

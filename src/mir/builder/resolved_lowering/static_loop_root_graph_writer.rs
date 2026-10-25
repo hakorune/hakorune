@@ -127,7 +127,7 @@ mod tests {
     fn canonical_root_graph_preserves_bindings_and_predecessors() {
         let (mut builder, mut cfg, entry, frame) = owner();
         let mut bindings = Vec::new();
-        let (clean, fault_terminal, origin, normal, fault) = {
+        let (clean, fault_terminal, origin, normal, fault, array) = {
             let mut writer = CanonicalRootGraphWriterV1::new(&mut cfg);
             let clean = writer.reserve_block(&mut builder).unwrap();
             writer
@@ -152,7 +152,15 @@ mod tests {
             let origin = writer.reserve_block(&mut builder).unwrap();
             let normal = writer.reserve_block(&mut builder).unwrap();
             let fault = writer.reserve_block(&mut builder).unwrap();
-            for (landing, target) in [(normal, clean), (fault, fault_terminal)] {
+            let array = writer.reserve_block(&mut builder).unwrap();
+            // Nonfallible Array End shares the Invoke cleanup writer, but has
+            // only its Normal continuation and records the instruction itself.
+            assert!(writer.append_array_release(&mut builder, array,
+                ValueId::new(23), array, &mut bindings).is_err());
+            assert_eq!(bindings.len(), 2);
+            writer.append_array_release(&mut builder, array,
+                ValueId::new(23), clean, &mut bindings).unwrap();
+            for (landing, target) in [(normal, array), (fault, fault_terminal)] {
                 writer
                     .append_terminated(
                         &mut builder,
@@ -192,16 +200,22 @@ mod tests {
             bindings.push(ingress);
             assert_eq!(
                 writer.created(),
-                &[clean, fault_terminal, origin, normal, fault]
+                &[clean, fault_terminal, origin, normal, fault, array]
             );
             assert_eq!(writer.deferred_clean(), &bindings[..1]);
-            (clean, fault_terminal, origin, normal, fault)
+            (clean, fault_terminal, origin, normal, fault, array)
         };
         let function = builder.function_state.current_function.as_mut().unwrap();
         cfg.emit_return(function, clean, Some(ValueId::new(5)))
             .unwrap();
         assert_eq!(function.blocks[&origin].predecessors.len(), 1);
         assert_eq!(function.blocks[&normal].predecessors.len(), 1);
+        assert_eq!(function.blocks[&array].instructions,
+            vec![MirInstruction::ArrayResidenceRelease { value: ValueId::new(23) }]);
+        assert_eq!(bindings[2], (array,
+            MirInstruction::ArrayResidenceRelease { value: ValueId::new(23) }));
+        assert!(matches!(bindings[3], (id, MirInstruction::Jump { target, .. })
+            if id == array && target == clean));
         assert_eq!(function.blocks[&fault].predecessors.len(), 1);
         assert_eq!(function.blocks[&fault_terminal].predecessors.len(), 1);
         assert!(matches!(bindings[0].1, MirInstruction::Return { .. }));
@@ -213,7 +227,7 @@ mod tests {
         for block in function.block_ids() {
             cfg.seal_block(function, block).unwrap();
         }
-        assert_eq!(cfg.finish(function).unwrap().blocks().len(), 6);
+        assert_eq!(cfg.finish(function).unwrap().blocks().len(), 7);
         assert_eq!(entry, function.entry_block);
     }
 
@@ -402,6 +416,24 @@ mod tests {
 }
 
 impl RootGraphWriterPortV1 for CanonicalRootGraphWriterV1<'_> {
+    fn append_array_release(
+        &mut self, builder: &mut MirBuilder, id: BasicBlockId, value: crate::mir::ValueId,
+        next: BasicBlockId, bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<(), String> {
+        if id == next || !self.created.contains(&id) || builder.function_state.current_function.as_ref()
+            .is_none_or(|function| function.get_block(id).is_none_or(|block|
+                block.is_sealed() || block.is_terminated() || !block.instructions.is_empty())
+                || function.get_block(next).is_none()) {
+            return Err("[freeze:contract][root-graph/occupied-landing]".into());
+        }
+        let release = MirInstruction::ArrayResidenceRelease { value };
+        let jump = MirInstruction::Jump { target: next, edge_args: None };
+        self.write_terminator(builder, id, &jump)?;
+        builder.function_state.current_function.as_mut().unwrap()
+            .get_block_mut(id).unwrap().add_instruction(release.clone());
+        bindings.extend([(id, release), (id, jump)]);
+        Ok(())
+    }
     fn reserve_block(&mut self, builder: &mut MirBuilder) -> Result<BasicBlockId, String> {
         let block = builder.next_block_id();
         let function = builder

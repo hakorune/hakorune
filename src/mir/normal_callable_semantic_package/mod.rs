@@ -174,7 +174,7 @@ pub(in crate::mir) use ordinary_new_coseal::{FinalizedObjectReturnOutcomeV1, Fin
 pub(crate) use ordinary_new_coseal::{
     PendingChildPhysicalValidationV1, PendingSelectedStaticLoopViewV1,
     PreparedLoopStaticBodyRetentionV1, PreparedRootLexicalCallBindingGroupV1,
-    RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
+    RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
     PreparedRootHomeGraphPlanV1,
     PreparedRootHomeOrderV1,
     PendingRootHomeExitV1,

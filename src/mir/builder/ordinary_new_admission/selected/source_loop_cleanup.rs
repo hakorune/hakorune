@@ -49,6 +49,13 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
 
 struct LocalizedCleanupWriterV2 { operations: Vec<CleanupOperationLoanV2> }
 impl RootGraphWriterPortV1 for LocalizedCleanupWriterV2 {
+    fn append_array_release(&mut self, builder: &mut MirBuilder, id: BasicBlockId,
+        value: ValueId, next: BasicBlockId, bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<(), String> {
+        // An owned Array retains its original producer identity, like String
+        // End; it must not be localized into a scalar argument Copy.
+        RawRootGraphWriterV1.append_array_release(builder, id, value, next, bindings)
+    }
     fn reserve_block(&mut self, builder: &mut MirBuilder) -> Result<BasicBlockId, String> {
         RawRootGraphWriterV1.reserve_block(builder)
     }

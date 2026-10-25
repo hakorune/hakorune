@@ -160,7 +160,7 @@ pub(crate) use local_commit::PreparedRootHomeOrderV1;
 pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use local_commit::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use local_commit::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
-pub(crate) use local_commit::{RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
+pub(crate) use local_commit::{RootCleanupActionV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
 pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
 pub(in crate::mir) use loop_static_body_actual::{
     PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
