@@ -143,12 +143,12 @@ fn object_receiver_selection_retains_unavailable_original_nullable_source() {
         .borrow()
         .iter()
         .find_map(|(site, slot)| match slot {
-            LexicalInstanceCallDispositionSlotV1::SourcePending(source) => {
-                Some((site.clone(), source.clone()))
+            LexicalInstanceCallDispositionSlotV1::Ready(row) => {
+                Some((site.clone(), row.source.clone()))
             }
             _ => None,
         })
-        .expect("original untyped field contract keeps full packet unavailable");
+        .expect("original Dynamic field stores complete the nullable receiver packet");
     let key = original.target().clone();
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     assert!(ledger.requires_object_packet_v1(&original).unwrap());
@@ -161,7 +161,7 @@ fn object_receiver_selection_retains_unavailable_original_nullable_source() {
         "original-input-unavailable"
     );
     assert!(matches!(ledger.lexical_instance_calls.borrow().get(&site),
-        Some(LexicalInstanceCallDispositionSlotV1::SourcePending(source)) if source == &original));
+        Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if row.source == original));
 }
 
 #[test]

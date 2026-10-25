@@ -130,19 +130,16 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
-    pub(super) fn finish_execution_plans_v1(
+    /// Source store contracts precede object result ancestry. They depend on
+    /// original Birth formals and child relations, never lexical packet readiness.
+    pub(super) fn finish_source_store_plans_v1(
         &mut self,
         ledger: &mut super::OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
         for row in self.rows.iter_mut() {
             use super::instance_construction::ConstructionUnavailableV1 as U;
             if row.kind != ConstructorSourceKindV1::Birth { continue; }
-            let qualified = if row.source_arity == 0 && row.construction == Err(U::BodyCoverageUnsupported)
-                && row.construction_source.as_ref().is_ok_and(|source| source.steps().iter().any(|step|
-                    matches!(step, super::instance_construction::ConstructionSourceStepV1::StoredChildCall(_)))) {
-                ConstructionPlanV1::qualify_ordered_unit_calls_v1(&row.construction_source,
-                    |source, site| ledger.constructor_unit_step_ready_v1(source, site))?
-            } else if row.construction == Err(U::FieldContractUnsupported) {
+            let qualified = if row.construction == Err(U::FieldContractUnsupported) {
                 let definitions = self.object_definitions.borrow();
                 let definitions = definitions.as_deref().ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
                 let definition = definitions.get(row.object().declaration_index() as usize)
@@ -155,35 +152,61 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
                         && store.mode().is_err())) { continue; }
                 ConstructionPlanV1::qualify_source_dynamic_stores_v1(&row.construction_source, declarations,
                     &self.object_sources, definitions,
-                    |store| {
-                        let mode = ledger.constructor_dynamic_store_mode_v1(row, store);
-                        mode
-                    },
+                    |store| ledger.constructor_dynamic_store_mode_v1(row, store),
                     |store| ledger.constructor_text_store_sum_v1(row, store))
             } else { continue; };
-            if let Err(reason) = &qualified {
-            }
             let Ok(plan) = qualified else {
                 continue;
             };
-            // Receiver selection already installed canonical provider End
-            // inventory in the same ledger; never issue it again here.
-            for store in plan.stores() {
-                if let super::instance_construction::ConstructionStoreRhsV1::ProviderConstruction {
-                    object: Some(child), owned_fields, ..
-                } = store.rhs() {
-                    if !owned_fields.is_empty() {
-                        let children = ledger.owned_field_children_for(child.object())
-                            .flatten().ok_or("[freeze:contract][constructor-unit/provider-end-missing]")?;
-                        if children != owned_fields.as_ref() {
-                            return Err("[freeze:contract][constructor-unit/provider-end-drift]".into());
-                        }
+            Self::install_execution_plan_v1(row, ledger, plan)?;
+        }
+        Ok(())
+    }
+
+    /// Stored-child Unit calls require the completed lexical call dispositions.
+    pub(super) fn finish_execution_plans_v1(
+        &mut self,
+        ledger: &mut super::OrdinaryNewClaimLedgerV1,
+    ) -> Result<(), String> {
+        use super::instance_construction::ConstructionUnavailableV1 as U;
+        for row in self.rows.iter_mut() {
+            if row.kind != ConstructorSourceKindV1::Birth || row.source_arity != 0
+                || row.construction != Err(U::BodyCoverageUnsupported)
+                || !row.construction_source.as_ref().is_ok_and(|source| source.steps().iter().any(|step|
+                    matches!(step, super::instance_construction::ConstructionSourceStepV1::StoredChildCall(_)))) {
+                continue;
+            }
+            let Ok(plan) = ConstructionPlanV1::qualify_ordered_unit_calls_v1(
+                &row.construction_source,
+                |source, site| ledger.constructor_unit_step_ready_v1(source, site),
+            )? else { continue; };
+            Self::install_execution_plan_v1(row, ledger, plan)?;
+        }
+        Ok(())
+    }
+
+    fn install_execution_plan_v1(
+        row: &mut VerifiedInstanceConstructorSemanticRowV1,
+        ledger: &mut super::OrdinaryNewClaimLedgerV1,
+        plan: ConstructionPlanV1,
+    ) -> Result<(), String> {
+        // Receiver selection already installed canonical provider End
+        // inventory in the same ledger; never issue it again here.
+        for store in plan.stores() {
+            if let super::instance_construction::ConstructionStoreRhsV1::ProviderConstruction {
+                object: Some(child), owned_fields, ..
+            } = store.rhs() {
+                if !owned_fields.is_empty() {
+                    let children = ledger.owned_field_children_for(child.object())
+                        .flatten().ok_or("[freeze:contract][constructor-unit/provider-end-missing]")?;
+                    if children != owned_fields.as_ref() {
+                        return Err("[freeze:contract][constructor-unit/provider-end-drift]".into());
                     }
                 }
             }
-            ledger.install_late_constructor_plan_v1(row, &plan)?;
-            row.construction = Ok(plan);
         }
+        ledger.install_late_constructor_plan_v1(row, &plan)?;
+        row.construction = Ok(plan);
         Ok(())
     }
 

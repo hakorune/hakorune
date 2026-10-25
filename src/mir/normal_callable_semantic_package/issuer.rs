@@ -602,6 +602,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     ordinary_new_claim_ledger.stage_provider_static_actuals_v1(
         &instance_constructors, &static_claim_index, &selected, &parameter_contracts,
     ).map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
+    instance_constructors.finish_source_store_plans_v1(&mut ordinary_new_claim_ledger)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
     let physical_signature = object_input_finish::issue_signature_and_finish_inputs_v1(
         catalog.catalog().brand().clone(),
         &batch,
