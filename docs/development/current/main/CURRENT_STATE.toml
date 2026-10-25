@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner51 Body2 SourceObject input incomplete for HakoAllocHeap.allocate owner36; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner66 Body4 LoopBody1 Initializer borrowed-result/source-not-i64; prior fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; unchanged source now uses canonical emit-exe/C API instead of the old selfhost generic-JSON route. Full stdout/exit, root digest/roundtrip, no replay and existing String safety tests remain required.
-Latest fixed suite9/11 in468.515s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. Prior mimalloc/allocator/binary-trees and all minimal EXEs pass; JSON owner22 remains refused.
-Current stop: owner51 Body2 SourceObject actuals for HakoAllocHeap.allocate owner36 remain source-only. Next inspect finisher owner selection, Completion/signature and every original incoming; keep whole input closure and qualified frame requirements.
-Connected: same original sole Birth provider to Dynamic stored receiver; direct Return vs independent grounded scalar use; closed Core I64 pair arguments and original Pending/Selected identity. No app/source rewrites, fallback/retry, new checker/test assets or execution grant from source selection.
-CLI38.85s/test build71s PASS; existing receiver6/pending7/Core1/publication2 PASS. Text repeat-walk red reproduces an older existing test binary, exact revision unconfirmed; keep it and prior source/publication/Loop/R6/R7 closeout open. See active card/Git history.
+APP-boxtorrent-mini remains selected; unchanged source uses canonical emit-exe/C API with exact stdout/exit and no replay. EXE remains incomplete.
+Prior fixed suite9/11 in468.515s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. This internal change has not rerun the full suite; JSON remains open.
+Current stop: owner66 Body4 LoopBody1 Initializer borrowed-result/source-not-i64. Next identify original result purpose and keep scalar probes separate from checked non-scalar acquisition.
+Removed premature executable-input demand during Local I64 probing for positively checked original owning object calls; existing object input/Completion/Normal authority remains required. Scope scans unchanged.
+CLI38.87s/test build49.39s PASS; existing owning2/object-return5/scalar-pending7 PASS. Temporary diagnostics removed; no test/checker assets added. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -845,6 +845,16 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         }
     }
     if matches!(request, BorrowedCallActualRequestV1::I64ResultArguments) {
+        // The local initializer probes scalar arguments before object acquisition.
+        // A checked original owning result belongs to that object protocol;
+        // probing it must not demand executable inputs before Completion.
+        if super::super::lexical_instance_call::original_owned_call_target_v1(
+            source, targets, classes, site,
+        ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(), issue,
+        })?.is_some() {
+            return Ok(None);
+        }
         let proposed = targets.as_ref().is_ok_and(|rows| rows.iter()
             .filter_map(|row| row.as_ref().ok()?.as_ref())
             .any(|target| target.call_site() == site));
