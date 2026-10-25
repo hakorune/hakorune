@@ -535,6 +535,7 @@ fn seal_one(
     source: &PreparedBorrowedFormalIngressV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    parameterless: &BTreeMap<FunctionOwnerIdV1, (u32, CanonicalSameModuleCallableKeyV1, original::OriginalReturnSourceLoanV1)>,
 ) -> Result<(), String> {
     let BorrowedResultSourcePhaseV1::Pending { fields, calls } = &proof.phase else {
         return proof.require_source_sealed_v1();
@@ -593,9 +594,21 @@ fn seal_one(
                     && initializer.initializer_site() == Some(row.reference.call_site.site()) => {}
             _ => return Err(freeze("borrowed-result/call-origin-identity")),
         }
-        let mut incoming = source
-            .incoming
-            .iter()
+        // Zero-input result owners have no borrowed Uses draft. Their SAME
+        // retained declaration and Return census select original source rows;
+        // no empty definition or executable receiver is fabricated here.
+        let zero_input = if let Some((slot, key, original)) = parameterless.get(&row.reference.callee_owner) {
+            if *slot != row.reference.target_batch_slot || key != &row.reference.target
+                || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                || key.arity() != 0 || !row.reference.argument_sites.is_empty()
+                || !original.matches(&row.reference) { return Err(freeze("borrowed-result/call-source-identity")); }
+            true
+        } else { false };
+        let originals = if zero_input {
+            Some(source.source_incoming.project_source_v1(&BTreeSet::from([row.reference.callee_owner]))
+                .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-result/call-source-identity")))?)
+        } else { None };
+        let mut incoming = originals.as_deref().unwrap_or(source.incoming.as_ref()).iter()
             .filter(|actual| actual.call == row.reference.call_site);
         let actual = incoming
             .next()
@@ -604,7 +617,7 @@ fn seal_one(
         if incoming.next().is_some()
             || CallTargetReferenceV1::from_target(target) != row.reference
             || actual.callee != row.reference.callee_owner
-            || !source.definitions.contains_key(&actual.callee)
+            || (!zero_input && !source.definitions.contains_key(&actual.callee))
         {
             return Err(freeze("borrowed-result/call-source-identity"));
         }
@@ -668,9 +681,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             Err(issue) => { *result = Err(issue); true }
         }
     });
+    let parameterless: BTreeMap<_, _> = results.iter().filter_map(|(owner, row)| {
+        let proof = row.as_ref().ok()?;
+        let (original_owner, slot, key) = proof.parameterless_instance.as_ref()?;
+        let original = proof.original_return.as_ref()?;
+        (*original_owner == *owner && original.matches_declaration_v1(*owner, *slot, key))
+            .then(|| (*owner, (*slot, key.clone(), original.clone())))
+    }).collect();
     for (owner, result) in results.iter_mut() {
         if let Ok(proof) = result {
-            if let Err(issue) = seal_one(*owner, proof, source, batch, constructors) {
+            if let Err(issue) = seal_one(*owner, proof, source, batch, constructors, &parameterless) {
                 *result = Err(issue);
             }
         }

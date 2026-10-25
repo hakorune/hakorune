@@ -347,7 +347,11 @@ impl<'a> CallValidationContextV1<'a> {
         self, row: &LexicalInstanceCallDispositionRowV1,
         read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(), String> {
-        let Some(loan) = row.source_target().borrowed_receiver_source_v1() else { return Ok(()); };
+        let Some(loan) = row.source_target().borrowed_call_receiver_source_v1() else {
+            return if row.source_target().has_borrowed_receiver_source_v1() {
+                Err(freeze("borrowed-return/original-loan"))
+            } else { Ok(()) };
+        };
         self.ledger().corroborate_unit_discard_v1(row)?;
         let source = self.ledger().borrowed_nullable_call_source_v1(loan.call())
             .ok_or_else(|| freeze("borrowed-return/original-loan"))?;

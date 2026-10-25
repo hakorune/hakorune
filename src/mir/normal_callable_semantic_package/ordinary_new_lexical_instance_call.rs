@@ -220,6 +220,7 @@ mod provenance;
 mod source;
 pub(in crate::mir::normal_callable_semantic_package) use source::{StoredReceiverSourceOriginV1, StoredReceiverSourceV1, original_lexical_target_at_v1};
 pub(crate) use source::LexicalInstanceCallSourceTargetV1;
+pub(super) use source::{BorrowedReceiverSourceV1, DirectMapReceiverSourceV1};
 pub(super) use source::{
     prepare_lexical_source_targets_v1, PreparedLexicalInstanceCallSourceTargetsV1,
     PreparedSourceCallNeedV1, CallTargetReferenceV1,
@@ -342,7 +343,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let borrowed_nullable = source.borrowed_nullable_local_source().is_some();
             let mixed = source.mixed_local_source().is_some();
             // Slot result law and holder/key lifetime must precede a packet.
-            let borrowed_receiver = source.borrowed_receiver_source_v1().is_some();
+            let borrowed_receiver = source.has_borrowed_receiver_source_v1();
             if borrowed_nullable || mixed || borrowed_receiver || self.requires_object_packet_v1(&source)? {
                 if borrowed_nullable || mixed || borrowed_receiver {
                     self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());

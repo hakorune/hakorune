@@ -22,13 +22,61 @@ pub(crate) struct LexicalInstanceCallSourceTargetV1 {
     /// Exact non-receiver argument sites in source order.
     pub(super) argument_sites: Box<[SourceExprSiteV1]>,
     pub(super) owning_object_input: Option<std::rc::Rc<super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>>,
-    pub(super) borrowed_receiver_source: Option<Box<super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1>>,
+    pub(super) borrowed_receiver_source: Option<Box<BorrowedReceiverSourceV1>>,
     pub(super) result_requirement: LexicalCallSourceResultRequirementV1,
 }
 
+/// The acquisition origin stays separate from receiver class and execution.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum BorrowedReceiverSourceV1 {
+    OrdinaryCall(super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1),
+    DirectMapGet(DirectMapReceiverSourceV1),
+}
+impl BorrowedReceiverSourceV1 {
+    pub(super) fn destination(&self) -> BindingRefV1 {
+        match self { Self::OrdinaryCall(source) => source.destination(), Self::DirectMapGet(source) => source.binding }
+    }
+    pub(super) fn acquisition(&self) -> &OwnedExprSiteV1 {
+        match self { Self::OrdinaryCall(source) => source.call(), Self::DirectMapGet(source) => &source.initializer }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct DirectMapReceiverSourceV1 {
+    source: super::super::StoredMapGetSourceLoanV1,
+    declaration: crate::mir::resolved_semantics::SourceBindingSiteV1,
+    binding: BindingRefV1,
+    initializer: OwnedExprSiteV1,
+}
+impl DirectMapReceiverSourceV1 {
+    pub(super) fn issue(
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        binding: BindingRefV1, source: super::super::StoredMapGetSourceLoanV1,
+    ) -> Option<Self> {
+        let initializer = super::super::result_class_claim::sole_initializer_site(input.function(), binding)?;
+        let mut rows = input.function().expression_source().initializers().filter(|row| row.binding() == binding);
+        let row = rows.next()?;
+        if rows.next().is_some() || binding.owner() != input.owner()
+            || source.get().owner() != input.owner() || source.get().site() != &initializer
+            || !input.function().method_call_source_v1(&initializer).is_some_and(|get| std::sync::Arc::ptr_eq(get, source.get()))
+            || !input.forest().callable_source_ledger(input.owner()).ok()?.uncaptured_binding(binding) { return None; }
+        Some(Self { source, declaration: row.declaration_site().clone(), binding,
+            initializer: OwnedExprSiteV1::new(input.owner(), initializer) })
+    }
+    pub(crate) fn source(&self) -> &super::super::StoredMapGetSourceLoanV1 { &self.source }
+    pub(crate) fn matches_original_v1(&self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    ) -> bool {
+        input.owner() == self.initializer.owner()
+            && Self::issue(input, self.binding, self.source.clone()).as_ref() == Some(self)
+    }
+}
 impl LexicalInstanceCallSourceTargetV1 {
-    pub(crate) fn borrowed_receiver_source_v1(&self) -> Option<&super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
-        self.borrowed_receiver_source.as_deref()
+    pub(crate) fn has_borrowed_receiver_source_v1(&self) -> bool { self.borrowed_receiver_source.is_some() }
+    pub(crate) fn borrowed_call_receiver_source_v1(&self) -> Option<&super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
+        match self.borrowed_receiver_source.as_deref()? { BorrowedReceiverSourceV1::OrdinaryCall(source) => Some(source), _ => None }
+    }
+    pub(crate) fn direct_map_receiver_source_v1(&self) -> Option<&DirectMapReceiverSourceV1> {
+        match self.borrowed_receiver_source.as_deref()? { BorrowedReceiverSourceV1::DirectMapGet(source) => Some(source), _ => None }
     }
     pub(crate) fn owning_object_local_input_v1(&self) -> Option<&super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1> {
         self.owning_object_input.as_deref()
@@ -379,12 +427,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
         &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     ) -> Result<Option<StoredReceiverSourceV1>, String>,
     constructors: Option<&crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
+    entries: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
 ) -> PreparedSourceNeedsV1 {
     let source = provenance::LexicalReceiverClassSourceV1::prepared(
         new_classes,
         ordinary_box_names,
         field_write_claims,
-        callable_result_classes, parameters, app_main,
+        callable_result_classes, parameters, app_main, constructors, entries,
     );
     let mut needs = Vec::new();
     let mut collect = |caller: OriginalCallSourceCallerV1<'_>,
@@ -549,7 +598,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                 };
 
                 if let Some(loan) = &borrowed_receiver_source {
-                    if !source.borrowed_receiver_interval_v1(batch, &need, target_batch_slot, loan)? {
+                    let interval = source.borrowed_receiver_interval_v1(batch, &need, target_batch_slot, loan)?;
+                    if !interval {
                         return Ok(None);
                     }
                 }

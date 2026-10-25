@@ -111,7 +111,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
         ("", "me.stats.clear()", "", false),
         ("change(key) { me.stats.set(key, new Item()) }", "", "me.change(key)", false),
     ] {
-        let text = format!("box Item {{}} box Other {{}} box Holder {{ init {{ stats }} birth() {{ me.stats = new MapBox() {birth_tail} }} find(key) {{ if me.stats.has(key) {{ return me.stats.get(key) }} local item = new Item() me.stats.set(key, item) {between} return item }} {extra} }} static box Main {{ main() {{ return 0 }} }}");
+        let text = format!("box Item {{ read() {{ return 1 }} }} box Other {{}} box Holder {{ init {{ stats }} birth() {{ me.stats = new MapBox() {birth_tail} }} find(key) {{ if me.stats.has(key) {{ return me.stats.get(key) }} local item = new Item() me.stats.set(key, item) {between} return item }} probe(key) {{ local item = me.stats.get(key) if item == null {{ return 0 }} local value = item.read() return value }} {extra} }} static box Main {{ main() {{ return 0 }} }}");
         with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
             let common = crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(batch).unwrap();
             let entries = crate::mir::resolved_semantics::CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1(batch, &common).unwrap();
@@ -134,6 +134,23 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
                     assert_eq!(source.result_source_v1().is_some(), accepted);
                 }
             }).unwrap();
+            let probe = CanonicalSameModuleCallableKeyV1::instance_box_method("Holder", "probe", 1);
+            let probe_slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(probe)).unwrap();
+            let names: Vec<Box<str>> = batch.ordinary_box_coverage().rows().iter().map(|row| row.name().into()).collect();
+            let needs = super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
+                batch, selected, &BTreeMap::new(), &names, &fields, &facts, parameters,
+                main.map(|main| main.caller_source_ref_v1()), &mut |_, _, _| Ok(None), Some(constructors), Some(&entries)).unwrap();
+            let target = needs.iter().filter_map(|row| row.as_ref().unwrap().as_ref()).find_map(|need| match need {
+                super::super::super::lexical_instance_call::PreparedSourceCallNeedV1::Lexical(source)
+                    if source.target().owner() == "Item" && source.target().name() == "read" => Some(source), _ => None,
+            });
+            assert_eq!(target.is_some(), accepted || !between.is_empty());
+            if let Some(target) = target {
+                assert!(target.has_borrowed_receiver_source_v1());
+                assert!(target.borrowed_call_receiver_source_v1().is_none());
+                let direct = target.direct_map_receiver_source_v1().unwrap();
+                batch.with_lowering_input(probe_slot, |input| assert!(direct.matches_original_v1(input))).unwrap();
+            }
             assert_eq!(facts.outcomes(&key).is_some(), accepted, "Map source boundary: {extra}");
             assert!(facts.get(&key).is_none());
             if accepted {

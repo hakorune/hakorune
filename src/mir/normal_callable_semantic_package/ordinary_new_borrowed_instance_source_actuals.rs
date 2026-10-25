@@ -461,7 +461,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 }
                 BorrowedCallActualValueV1::Scalar(binding, _)
                     if unit_request
-                        && target.borrowed_receiver_source_v1().is_some()
+                        && target.borrowed_call_receiver_source_v1().is_some()
                         && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                         && binding.owner() == site.owner() => {}
                 BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer)

@@ -1,13 +1,13 @@
 # APP-boxtorrent-mini
 
-Status: selected app; original Map-local Call/result connection incomplete. Date: 2026-10-25
+Status: selected app; nested Core keys-array result and borrowed receiver completion incomplete. Date: 2026-10-25
 Scope: 未変更boxtorrent-miniの正規EXE生成・実行・期待出力/exit。
 Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直前のmimalloc着地](mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md)。
 
 ## 現在地
 - 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。現在のV4 FFIを使用。
-- canonical smokeの停止はowner67 Body3 LoopBody0、releaseFromの `store.release(ids.get(i))` における `borrowed-result/source-not-i64`。refCountの数値結果はgroundingが進んだが、EXE未生成。
-- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、465.405秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
+- canonical smokeの停止はowner73 Body12 Initializer、`chunks_before_final_release = store.chunkCount()` の `borrowed-result/source-not-i64`。chunkCount本体は `me.chunks.keys().length()`。releaseFrom/Store.releaseの数値依存は進んだが、EXE未生成。
+- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、463.098秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
 
 ## 接続済み
 - 唯一のattributed Plain Birth providerと同じwriter inventory/非weak未注釈fieldを照合。providerのclassと保存形式を分離し、DynamicResidenceのreceiverはchecked ObjectFieldBorrowで読む。typed field、異class/multiple/hidden writerの拒否は保持。
@@ -20,19 +20,21 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 - 同じ元Return planの単独literal Nullだけで汎用scalar seedとI64 probeを非選択にする。callee/batch/key/arityと元targetを照合し、nested Nullやscalar証拠のErrでは判定しない。明示ScalarReturnSourceの拒否は保持。Text型・入力・実行許可は発行しない。
 - 全batch/constructor-only Birthのfield-use観測を既存container ownerへ移動。Map payload classは同じwriter inventoryの唯一Map Birthと全setの同一New classから判定し、has/get/delete/keysを型だけの観測として保持。既存MapStoredResultのhas/get/set限定と借用寿命は緩めない。
 - 結果式のMap取得localはEntry Receiverと別のleaf。唯一initializer・非rebind/capture・元get Arc・同じfield source Rcとpayload/数値fieldのcanonical ObjectIdを照合する。Normalクラスだけを貸し、nonnull/取得/cleanup/物理読出しの許可は別ownerに残す。
-
 - MapStoredResultはpayload class/ObjectId/censusを同じRc sourceへ集約。単独Map.getもその同じpayload sourceと現在ownerのentry/get Arcから選択でき、Return producerを仮造しない。Return関連は独立したoptional sourceのSomeと全rootsを必須化し、元get/field inventory/entryの再照合を保持。
 - get Localの物理matches_input（whole-functionのcalls/capture/mutation制限）は変更していない。型証拠だけではchunk.releaseのCall/lifetimeは完成しない。
 
+- 借用receiverはOrdinaryCall/DirectMapGetを区別し、直接getは元source/declaration/binding/initializerを保持。同じsource-only区間（追加call/write/captureなし、calleeは自身のfield操作のみ）を検証し、全originをSourcePendingへ置く。DirectのUnit/物理呼出しは未完なので拒否を保持。
+- 引数ゼロの結果依存は借用Uses定義を作らず、既存parameterless declarationと同じOriginalReturn loan、owner/batch/key/ゼロ引数、callee全体のsource projectionを照合する。mutable facts Rcは共有せず、callee結果groundingと入力/receiver/物理検証は別途必須。
+
 ## 次の一手
-1. Store.releaseが返すremainの元 `chunk.release()` receiverを接続する。claim_local_classに直接getの取得元/localを保持するsource roleを結ぶ。普通の関数Call由来のloanへ偽装せず、同じMap payload sourceと元get/initializer/非rebind/captureを使う。
-2. 現borrowed receiver finisherはUnit専用で、get Localはwhole-function単独getを要求する。I64を返すpayload methodには元slotを壊さないcalleeとget→最終read/Callのbounded interval、実際のnull除外/SSA/initializer照合を接続する。class-onlyやSourcePendingの迂回はしない。
-3. 正規EXE/runまで同じアプリを追う。JSONと局所/共有退役は未完のまま保持する。
+1. chunkCountの元inner keys/outer length・同じMap fieldをCore source/結果式へ接続する。keysは一度だけ評価し、一時Arrayをouter lengthのNormal/Fault双方で終了する。keys自体のFaultではArrayは未取得。Map.lenへの書換えはしない。
+2. canonical lifecycle-v4 Mapはnative checked-pointerで、legacy keys_hのhost-handle ABIとは異なる。既存MapKeys/ArrayLen契約とplain Array lifecycle ownerにnative keys snapshot/length/releaseを接続する。Text keysへobject-child専用OwnedArrayのObjectIdを捏造しない。
+3. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
-- 今回CLI `cargo quick-build-fast`56.97秒、`cargo quick-test-fast --no-run`71秒PASS。既存source outcomes3/scalar pending7/object返却5/stored receiver6は全PASS。boxtorrent smokeは同じ停止でEXE未達。新規test/fixture/checker/for_testなし。
-- 型証拠とReturn借用権限の区別は既存consumer証拠だけでは守れないため、既存Map検証の同じ7入力へ権限分離のassertionを追加。同class置換は型のみ、異class/escape/clearは型も拒否することを確認。test関数・入力は増やしていない。
+- 今回CLI `cargo quick-build-fast`49.02秒、`cargo quick-test-fast --no-run`79秒PASS。既存source outcomes3/scalar pending7/object返却5/stored receiver6は全PASS。boxtorrent smokeは上記新停止でEXE未達。新規test関数/fixtureファイル/checker/for_testなし。
+- 型/Return/receiver originの独立した権限分離を既存consumer証拠だけでは守れないため、既存Map検証の7ケースへ最小receiver probe/assertionを追加。Directが普通のCall loanを持たず元initializerを再照合すること、異class/escape/clearの拒否を確認。test関数/ケース数は増やしていない。
 - Textの繰返しHome再観測テスト1件は `argument-frame-current-drift` で赤。同日の作業前既存test binaryでも同じ行/拒否を再現したが、対応revisionは未確認なので未完のまま保持し、現在のgreenとは数えない。
 - 結果昇格の挙動不変なowner移動は別commit。新moduleを増やさず、profile817行を800行未満へ戻した。テストで検出した移動時import欠落も訂正済み。
-- 一時診断コード/adapterは追加していない。失敗した直接EXE診断の出力は不要になれば廃棄する。詳細はこのcardのGit履歴へ集約する。
+- 一時source診断は取得元と区間の成立を測定後に撤去済み。adapterは追加していない。失敗した直接EXE診断の出力は不要になれば廃棄する。詳細はこのcardのGit履歴へ集約する。
 - JSON owner22 `borrowed-entry/source-use-completion-pending`、他のsource/publication/Loopの赤、局所/共有R6/R7・最終pipeline条件は未完。mimalloc benchmark promotionはparkedのまま。

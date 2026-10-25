@@ -174,7 +174,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         callable_result_classes,
         contracts, app_main.map(|main| main.caller_source_ref_v1()),
         probe,
-        Some(constructors),
+        Some(constructors), Some(entry_home_loans),
     );
     let drafts = collect_borrowed_source_drafts_v1(
         batch,
@@ -334,7 +334,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         }
         for need in rows.iter_mut().filter_map(|row| row.as_mut().ok().and_then(Option::as_mut)) {
             let PreparedSourceCallNeedV1::Lexical(target) = need else { continue; };
-            let Some(proposed) = target.borrowed_receiver_source.as_deref() else { continue; };
+            let Some(proposed) = target.borrowed_call_receiver_source_v1() else { continue; };
             let check = || -> Result<_, String> {
                 let original = producers.get(proposed.call()).ok_or_else(|| freeze("borrowed-nullable/source-missing"))?;
                 for loan in [proposed, original.as_ref()] {
@@ -346,8 +346,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 }
                 Ok(original.clone())
             };
-            target.borrowed_receiver_source = Some(check().map_err(|issue|
-                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: target.call_site.clone(), issue })?);
+            let original = check().map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: target.call_site.clone(), issue })?;
+            target.borrowed_receiver_source = Some(Box::new(BorrowedReceiverSourceV1::OrdinaryCall(*original)));
         }
     }
     let mut static_source_sites: Result<BTreeSet<OwnedExprSiteV1>, String> = Ok(static_arguments
@@ -367,7 +368,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             }
         }
         for target in lexical_calls.values() {
-            if let Some(loan) = target.borrowed_receiver_source_v1() {
+            if let Some(source) = target.direct_map_receiver_source_v1() {
+                let valid = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                    batch, constructors, target.call_site().owner(), |_, input| source.matches_original_v1(input))?;
+                if !valid { return Err(freeze("borrowed-nullable/source-identity")); }
+            }
+            if let Some(loan) = target.borrowed_call_receiver_source_v1() {
                 callable_result_classes.recheck_borrowed_nullable_local_source_v1(batch, selected,
                     field_write_claims, contracts, loan, app_main.map(|main| main.caller_source_ref_v1()))
                     .map_err(freeze)?;

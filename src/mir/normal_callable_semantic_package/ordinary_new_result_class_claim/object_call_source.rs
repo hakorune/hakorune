@@ -204,7 +204,7 @@ mod tests {
                         &classes,
                         parameters, main.map(|main| main.caller_source_ref_v1()),
                         &mut |_, _, _| Ok(None),
-                        None,
+                        None, None,
                     )
                     .unwrap();
                 let source = needs.iter().filter_map(|row| row.as_ref().unwrap().as_ref()).find_map(|need| match need {

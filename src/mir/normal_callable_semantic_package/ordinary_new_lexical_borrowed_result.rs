@@ -83,7 +83,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn checked_borrowed_map_receiver_source_v1(
         &self, source: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
-        let Some(loan) = source.borrowed_receiver_source_v1() else { return Ok(false); };
+        let Some(loan) = source.borrowed_call_receiver_source_v1() else { return Ok(false); };
         let Some((class, object)) = loan.map_payload_v1() else {
             return Err(freeze("borrowed-nullable-call/source-completion-drift"));
         };
@@ -140,7 +140,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let pending: Vec<_> = self.lexical_instance_calls.borrow().iter().filter_map(|(site, slot)| match slot {
             LexicalInstanceCallDispositionSlotV1::SourcePending(source)
-                if source.borrowed_nullable_local_source().is_some() && source.borrowed_receiver_source_v1().is_none() => Some((site.clone(), source.clone())),
+                if source.borrowed_nullable_local_source().is_some() && !source.has_borrowed_receiver_source_v1() => Some((site.clone(), source.clone())),
             _ => None,
         }).collect();
         let mut upgrades = Vec::new();
@@ -193,12 +193,12 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let pending: Vec<_> = self.lexical_instance_calls.borrow().iter().filter_map(|(site, slot)| match slot {
             LexicalInstanceCallDispositionSlotV1::SourcePending(source)
-                if source.borrowed_receiver_source_v1().is_some() && source.is_unit_discard_source_v1() => Some((site.clone(), source.clone())),
+                if source.borrowed_call_receiver_source_v1().is_some() && source.is_unit_discard_source_v1() => Some((site.clone(), source.clone())),
             _ => None,
         }).collect();
         let mut upgrades = Vec::new();
         for (site, source) in &pending {
-            let loan = source.borrowed_receiver_source_v1().expect("selected borrowed receiver");
+            let loan = source.borrowed_call_receiver_source_v1().expect("selected borrowed receiver");
             {
                 let slots = self.lexical_instance_calls.borrow();
                 let Some(LexicalInstanceCallDispositionSlotV1::Ready(producer)) = slots.get(loan.call()) else { continue; };

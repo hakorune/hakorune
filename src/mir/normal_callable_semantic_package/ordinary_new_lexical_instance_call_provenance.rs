@@ -12,6 +12,8 @@ pub(super) struct LexicalReceiverClassSourceV1<'a> {
     callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     parameters: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     app_main: Option<AppMainSourceRefV1<'a>>,
+    constructors: Option<&'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
+    entries: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
 }
 
 impl<'a> LexicalReceiverClassSourceV1<'a> {
@@ -22,12 +24,14 @@ impl<'a> LexicalReceiverClassSourceV1<'a> {
         callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
         parameters: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
         app_main: Option<AppMainSourceRefV1<'a>>,
+        constructors: Option<&'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
+        entries: Option<&'a crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
     ) -> Self {
         Self {
             new_classes,
             ordinary_box_names,
             field_write_claims,
-            callable_result_classes, parameters, app_main,
+            callable_result_classes, parameters, app_main, constructors, entries,
         }
     }
 
@@ -203,26 +207,35 @@ impl LexicalReceiverClassSourceV1<'_> {
     pub(super) fn borrowed_receiver_interval_v1(
         &self, batch: &VerifiedResolvedCallableSemanticBatchV1,
         need: &LexicalInstanceCallNeedV1, callee_slot: u32,
-        loan: &super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1,
+        loan: &BorrowedReceiverSourceV1,
     ) -> Result<bool, String> {
         use crate::mir::resolved_semantics::{BodyEffectKindV1 as Effect,
             BodyExpressionShapeV1 as Shape, BodyMeReceiverV1, ResolvedAssignmentTargetV1,
             ResolvedLexicalRefV1 as Ref, SourcePathSegmentV1 as Part};
-        if !loan.is_map_slot() || loan.destination() != need.receiver_binding
-            || loan.call().owner() != need.owner { return Ok(false); }
+        if matches!(loan, BorrowedReceiverSourceV1::OrdinaryCall(source) if !source.is_map_slot())
+            || loan.destination() != need.receiver_binding
+            || loan.acquisition().owner() != need.owner { return Ok(false); }
         let caller = batch.with_lowering_input(need.callee_slot, |input| {
             let Some(shape) = input.body_shape() else { return false; };
             let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false; };
-            let [Part::Body(start), Part::Initializer(_)] = loan.call().site().node().segments() else { return false; };
-            let [Part::Body(end)] = need.call_site.node().segments() else { return false; };
+            let [Part::Body(start), Part::Initializer(_)] = loan.acquisition().site().node().segments() else { return false; };
+            let end = match (loan, need.call_site.node().segments()) {
+                (_, [Part::Body(end)]) => end,
+                (BorrowedReceiverSourceV1::DirectMapGet(_), [Part::Body(end), Part::Initializer(_)]) => end,
+                _ => return false,
+            };
             let inside = |site: &SourceExprSiteV1| matches!(site.node().segments().first(),
                 Some(Part::Body(index)) if start <= index && index <= end);
-            let boundary = |site: &SourceExprSiteV1| site == loan.call().site() || site == &need.call_site;
+            let boundary = |site: &SourceExprSiteV1| site == loan.acquisition().site() || site == &need.call_site;
             input.owner() == need.owner && start < end
                 && input.function().variable_ref(&need.receiver_site) == Some(Ref::Local(loan.destination()))
                 && ledger.uncaptured_binding(loan.destination())
                 && shape.effects().iter().filter(|effect| inside(&effect.site))
-                    .all(|effect| effect.kind == Effect::Call && boundary(&effect.site))
+                    .all(|effect| effect.kind == Effect::Call && boundary(&effect.site)
+                        || matches!(loan, BorrowedReceiverSourceV1::DirectMapGet(_))
+                            && effect.kind == Effect::NonLocalControl && shape.statements().iter().any(|row|
+                                matches!(row, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { site, .. }
+                                    if site.node() == effect.site.node())))
                 && !ledger.direct_call_observations().any(|(site, _)| inside(site))
                 && ledger.method_calls().filter(|(site, _)| inside(site)).all(|(site, _)| boundary(site))
                 && !input.function().expression_source().constructions().any(|new| inside(new.site()))
@@ -235,7 +248,11 @@ impl LexicalReceiverClassSourceV1<'_> {
             if ledger.method_calls().next().is_some() || ledger.direct_call_observations().next().is_some()
                 || !ledger.capture_demands().is_empty()
                 || input.function().expression_source().constructions().next().is_some()
-                || shape.effects().iter().any(|effect| effect.kind != Effect::Write) { return false; }
+                || shape.effects().iter().any(|effect| effect.kind != Effect::Write
+                    && !(matches!(loan, BorrowedReceiverSourceV1::DirectMapGet(_)) && effect.kind == Effect::NonLocalControl
+                        && shape.statements().iter().any(|row| matches!(row,
+                            crate::mir::resolved_semantics::BodyStatementShapeV1::Return { site, .. }
+                                if site.node() == effect.site.node())))) { return false; }
             let assignments = shape.assignment_sources();
             let writes: Vec<_> = self.field_write_claims.writes().iter().filter(|write| write.owner() == input.owner()).collect();
             if assignments.len() != writes.len() { return false; }
@@ -260,11 +277,11 @@ impl LexicalReceiverClassSourceV1<'_> {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         need: &LexicalInstanceCallNeedV1,
-    ) -> Result<Option<(Box<str>, Option<Box<super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1>>)>, String> {
+    ) -> Result<Option<(Box<str>, Option<Box<BorrowedReceiverSourceV1>>)>, String> {
         batch
             .with_lowering_input(
                 need.callee_slot,
-                |input| -> Result<Option<(Box<str>, Option<Box<super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1>>)>, String> {
+                |input| -> Result<Option<(Box<str>, Option<Box<BorrowedReceiverSourceV1>>)>, String> {
                     if input.owner() != need.owner {
                         return Ok(None);
                     }
@@ -297,11 +314,23 @@ impl LexicalReceiverClassSourceV1<'_> {
                             || !input.forest().callable_source_ledger(input.owner())
                                 .is_ok_and(|ledger| ledger.uncaptured_binding(need.receiver_binding)) { return Ok(None); }
                         let call = OwnedExprSiteV1::new(need.owner, initializer_site.clone());
-                        let Some(loan) = self.callable_result_classes.borrowed_map_local_receiver_source_v1(
-                            batch, selected, self.field_write_claims, self.parameters, &call,
-                            need.receiver_binding, self.app_main).map_err(freeze)? else { return Ok(None); };
-                        let (class, _) = loan.map_payload_v1().ok_or_else(|| freeze("borrowed-nullable/source-identity"))?;
-                        (class.into(), Some(Box::new(loan)))
+                        let direct = if let (Some(constructors), Some(entries)) = (self.constructors, self.entries) {
+                            let entry = entries.for_batch_slot(need.callee_slot);
+                            let receiver = super::super::entry_receiver_box_proof(selected, batch, entry, need.callee_slot);
+                            super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(input, &call, batch, selected,
+                                constructors, receiver, entry, self.callable_result_classes, self.field_write_claims)?
+                                .and_then(|source| DirectMapReceiverSourceV1::issue(input, need.receiver_binding, source))
+                        } else { None };
+                        if let Some(source) = direct {
+                            let class = source.source().payload_source_v1().payload_class_v1().into();
+                            (class, Some(Box::new(BorrowedReceiverSourceV1::DirectMapGet(source))))
+                        } else {
+                            let Some(loan) = self.callable_result_classes.borrowed_map_local_receiver_source_v1(
+                                batch, selected, self.field_write_claims, self.parameters, &call,
+                                need.receiver_binding, self.app_main).map_err(freeze)? else { return Ok(None); };
+                            let (class, _) = loan.map_payload_v1().ok_or_else(|| freeze("borrowed-nullable/source-identity"))?;
+                            (class.into(), Some(Box::new(BorrowedReceiverSourceV1::OrdinaryCall(loan))))
+                        }
                     };
                     if !self
                         .ordinary_box_names

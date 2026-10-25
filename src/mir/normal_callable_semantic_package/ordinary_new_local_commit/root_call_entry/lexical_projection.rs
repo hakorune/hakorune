@@ -404,8 +404,7 @@ impl PreparedLexicalCallProjectionV1 {
                         }
                         if instance
                             .source_target()
-                            .borrowed_receiver_source_v1()
-                            .is_some()
+                            .has_borrowed_receiver_source_v1()
                         {
                             context
                                 .ok_or_else(|| freeze("borrowed-return/original-loan"))?

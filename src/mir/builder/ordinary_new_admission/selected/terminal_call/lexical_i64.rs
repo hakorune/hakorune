@@ -181,7 +181,7 @@ fn emit_lexical_i64_call(
                 observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments
                     && observation.mixed() == instance.source_target().mixed_local_source())
             && (instance.source_target().is_self_receiver() || instance.source_target().stored_receiver().is_some());
-        let borrowed_map_receiver = instance.source_target().borrowed_receiver_source_v1().is_some()
+        let borrowed_map_receiver = instance.source_target().borrowed_call_receiver_source_v1().is_some()
             && kind == InvokeCallResultKind::Unit
             && ledger.unit_discard_source_v1(row.call_site()).is_some_and(|observation|
                 observation.unit_source() == Some(instance.source_target())

@@ -647,7 +647,7 @@ impl EmittedLexicalCallProjectionV1 {
         if let (CallPacketSourceLoanV1::Instance(row), LexicalReceiverProjectionV1::Lexical(read)) =
             (self.row.loan(), &self.prepared.receiver)
         {
-            if row.source_target().borrowed_receiver_source_v1().is_some() {
+            if row.source_target().has_borrowed_receiver_source_v1() {
                 context.require_borrowed_map_receiver_v1(row, read)?;
                 dependencies.extend(
                     read.original_copy_dependencies_v1()?

@@ -168,7 +168,7 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
                 .iter()
                 .map(|row| row.name().into())
                 .collect();
-            let needs = super::super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(batch, selected, &BTreeMap::new(), &names, &fields, &classes, parameters, main.map(|main| main.caller_source_ref_v1()), &mut |_,_,_| Ok(None), None).unwrap();
+            let needs = super::super::super::super::lexical_instance_call::prepare_lexical_source_targets_v1(batch, selected, &BTreeMap::new(), &names, &fields, &classes, parameters, main.map(|main| main.caller_source_ref_v1()), &mut |_,_,_| Ok(None), None, None).unwrap();
             let mut calls = BTreeMap::new();
             for need in &needs {
                 if let Some(super::super::super::super::lexical_instance_call::PreparedSourceCallNeedV1::Lexical(row)) = need.as_ref().unwrap() {

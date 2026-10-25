@@ -49,8 +49,9 @@ pub(super) fn demand_v1<E>(
     {
         return Ok(UnitDiscardDemandV1::Refused);
     }
+    if source.direct_map_receiver_source_v1().is_some() { return Ok(UnitDiscardDemandV1::Refused); }
     if source
-        .borrowed_receiver_source_v1()
+        .borrowed_call_receiver_source_v1()
         .is_some_and(|loan| !locals.borrowed_map_receiver_v1(source.receiver_site(), loan))
     {
         return Ok(UnitDiscardDemandV1::Refused);
