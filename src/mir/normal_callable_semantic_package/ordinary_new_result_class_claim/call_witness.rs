@@ -46,7 +46,7 @@ impl MapSlotCallSubstitutionV1 {
     pub(super) fn origin(&self) -> ResultValueOriginV1 {
         ResultValueOriginV1::MapHeld { field: self.source.receiver.field(),
             key: self.key.binding.expect("checked original key binding"),
-            object: self.source.object, class: self.source.class.clone() }
+            object: self.source.payload_object_v1(), class: self.source.payload_class_v1().into() }
     }
 }
 

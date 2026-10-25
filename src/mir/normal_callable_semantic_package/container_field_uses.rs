@@ -341,11 +341,21 @@ impl MapFieldPayloadSourceV1 {
         let (class, object) = payload?;
         Some(Self { source: std::rc::Rc::clone(source), class, object, uses })
     }
+    /// Exact original get in the shared whole field-use census.
+    pub(super) fn original_get_at_v1(&self, at: &crate::mir::resolved_semantics::OwnedExprSiteV1)
+        -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
+        let mut calls = self.uses.calls.iter().filter_map(|(_, call)|
+            (call.owner() == at.owner() && call.site() == at.site()
+                && call.selector() == "get" && call.arity() == 1).then_some(call));
+        let call = calls.next()?;
+        calls.next().is_none().then_some(call)
+    }
     pub(super) fn original_get_v1(&self, call: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>) -> bool {
         self.uses.calls.iter().filter(|(_, original)| original.owner() == call.owner()
             && original.site() == call.site()).count() == 1
-            && self.uses.calls.iter().any(|(_, original)| std::sync::Arc::ptr_eq(original, call)
-                && call.selector() == "get" && call.arity() == 1)
+            && self.original_get_at_v1(&crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                call.owner(), call.site().clone()))
+                .is_some_and(|original| std::sync::Arc::ptr_eq(original, call))
     }
 }
 pub(super) fn original_payload_new_v1(

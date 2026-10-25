@@ -170,7 +170,7 @@ impl BorrowedNullableLocalSourceLoanV1 {
     /// Nominal payload only; the holder is not this object and owns no result.
     pub(crate) fn map_payload_v1(&self) -> Option<(&str, hakorune_mir_defs::CanonicalObjectIdV1)> {
         let BorrowedLocalSupportV1::MapSlot(map) = &self.support else { return None; };
-        Some((&map.source.class, map.source.object))
+        Some((map.source.payload_class_v1(), map.source.payload_object_v1()))
     }
     /// Original Map key correspondence only, never a Text or executable grant.
     pub(crate) fn map_key_actual_v1(&self) -> Option<(u32, &OwnedExprSiteV1, BindingRefV1)> {

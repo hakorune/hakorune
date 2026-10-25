@@ -64,10 +64,8 @@ pub(crate) struct MapStoredResultSourceV1 {
     pub(super) receiver: Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>,
     pub(super) key: BindingRefV1,
     pub(super) ordinal: u32,
-    pub(super) class: Box<str>,
-    pub(super) object: hakorune_mir_defs::CanonicalObjectIdV1,
+    payload: Rc<super::super::container_field_uses::MapFieldPayloadSourceV1>,
     pub(super) returns: std::collections::BTreeMap<OwnedExprSiteV1, MapStoredReturnV1>,
-    pub(super) uses: super::super::container_field_uses::FieldUseCensusV1,
 }
 impl PartialEq for MapStoredResultSourceV1 {
     fn eq(&self, other: &Self) -> bool { std::ptr::eq(self, other) }
@@ -89,12 +87,12 @@ pub(super) struct DisjointFieldAppendSourceV1 {
     call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
 }
 impl MapStoredResultSourceV1 {
-    pub(crate) fn payload_class_v1(&self) -> &str { &self.class }
-    pub(crate) fn payload_object_v1(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.object }
+    pub(crate) fn payload_class_v1(&self) -> &str { &self.payload.class }
+    pub(crate) fn payload_object_v1(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.payload.object }
     /// Logical support from the original slot; this never issues a Call ABI.
     pub(crate) fn result_support_v1(&self) -> crate::mir::instruction::BorrowedResultSupportV1 {
         crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot {
-            field: self.receiver.field(), key_ordinal: self.ordinal, object: self.object,
+            field: self.receiver.field(), key_ordinal: self.ordinal, object: self.payload.object,
         }
     }
     pub(crate) fn key_binding_v1(&self) -> BindingRefV1 { self.key }
@@ -127,11 +125,7 @@ impl MapStoredResultSourceV1 {
     /// outside the result-producing function. This lends source, never a Home.
     pub(crate) fn original_get_v1(&self, at: &OwnedExprSiteV1)
         -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
-        let mut calls = self.uses.calls.iter().filter_map(|(_, call)|
-            (call.owner() == at.owner() && call.site() == at.site()
-                && call.selector() == "get" && call.arity() == 1).then_some(call));
-        let call = calls.next()?;
-        calls.next().is_none().then_some(call)
+        self.payload.original_get_at_v1(at)
     }
     /// Exact retained miss-path source, selected by its original set or Return.
     pub(crate) fn installed_local_v1(&self, at: &OwnedExprSiteV1)
@@ -151,7 +145,7 @@ impl MapStoredResultSourceV1 {
     }
     pub(super) fn origin(&self) -> ResultValueOriginV1 {
         ResultValueOriginV1::MapHeld { field: self.receiver.field(), key: self.key,
-            object: self.object, class: self.class.clone() }
+            object: self.payload.object, class: self.payload.class.clone() }
     }
 }
 
@@ -189,12 +183,12 @@ pub(super) fn map_stored_result_source_v1(
             .then_some((binding, index))
     };
     let (key, ordinal) = symbolic_key(first)?;
-    let MapFieldPayloadSourceV1 { source, class, object, uses } =
-        MapFieldPayloadSourceV1::issue(batch, selected, constructors, fields, row.key.owner(), name)?;
-    if source.field() != receiver.field()
-        || uses.calls.iter().any(|(_, call)| !matches!((call.selector(), call.arity()),
+    let payload = Rc::new(MapFieldPayloadSourceV1::issue(
+        batch, selected, constructors, fields, row.key.owner(), name)?);
+    if payload.source.field() != receiver.field()
+        || payload.uses.calls.iter().any(|(_, call)| !matches!((call.selector(), call.arity()),
             ("has", 1) | ("get", 1) | ("set", 2))) { return None; }
-    let calls: Vec<_> = uses.calls.iter().filter(|(_, call)| call.owner() == input.owner())
+    let calls: Vec<_> = payload.uses.calls.iter().filter(|(_, call)| call.owner() == input.owner())
         .map(|(_, call)| call).collect();
     let mut returns = std::collections::BTreeMap::new();
     for (value, exit) in &row.exits {
@@ -217,7 +211,7 @@ pub(super) fn map_stored_result_source_v1(
                 if !ledger.uncaptured_binding(*binding) { return None; }
                 let init = super::sole_initializer_site(input.function(), *binding)?;
                 let construction = original_payload_new_v1(input, &init)?;
-                if construction.class() != class.as_ref() { return None; }
+                if construction.class() != payload.class.as_ref() { return None; }
                 let [Part::Body(return_index), Part::Value] = value.site().node().segments() else { return None };
                 let [Part::Body(init_index), Part::Initializer(_)] = init.node().segments() else { return None };
                 let mut stores = calls.iter().filter(|call| call.selector() == "set" && call.arity() == 2
@@ -261,7 +255,7 @@ pub(super) fn map_stored_result_source_v1(
         };
         if returns.insert(value.clone(), proof).is_some() { return None; }
     }
-    Some(Rc::new(MapStoredResultSourceV1 { receiver, key, ordinal, class, object, returns, uses }))
+    Some(Rc::new(MapStoredResultSourceV1 { receiver, key, ordinal, payload, returns }))
 }
 
 
