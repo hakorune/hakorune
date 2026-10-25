@@ -549,9 +549,10 @@ impl<'source> PrefixLocalFlow<'source> {
 
     pub(super) fn expression_installation(
         &self,
-    ) -> super::expression_plan::ExpressionPlanInstallationV1<'_> {
+    ) -> super::expression_plan::ExpressionPlanInstallationV1<'_, '_> {
         super::expression_plan::ExpressionPlanInstallationV1::new(
             self.input.owner(),
+            self,
             self.expression_plans.borrow_mut(),
         )
     }

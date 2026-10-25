@@ -101,6 +101,38 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
             }).unwrap();
         }).unwrap();
     }
+    // Count borrows the same fixed provider through the original local alias;
+    // neither a foreign container nor a replacement writer supplies that law.
+    for (provider, extra, before, closes) in [
+        ("ArrayBox", "", "", true), ("MapBox", "", "", false),
+        ("ArrayBox", "", "local i = 0 loop(i < 1) { ids.push(i) i = i + 1 }", true),
+        ("ArrayBox", "reset() { me.items = new ArrayBox() }", "", false),
+    ] {
+        let text = format!("box Holder {{ init {{ items }} birth() {{ me.items = new {provider}() }}
+            count() {{ local ids = me.items {before} return ids.length() }} {extra} }} static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+        ).unwrap();
+        let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        for declaration in package.batch().declarations() {
+            package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+                let Some((site, _)) = input.function().method_calls().find(|(_, call)| call.selector() == "length") else { return; };
+                let site = OwnedExprSiteV1::new(input.owner(), site.clone());
+                let source = ingress.ordinary_core_source_v1(&site);
+                assert_eq!(source.is_some(), closes, "fixed Count source: {text}");
+                if let Some(source) = source {
+                    assert!(source.source().target().checked_array_count_law_v1());
+                    assert!(source.operands().receiver_core().is_none());
+                    let count = source.operands().field_array_count_v1().unwrap();
+                    assert!(count.matches_original_call_v1(input));
+                    assert_eq!(count.call(), &site);
+                    assert_eq!(count.receiver().site(), source.source().source().receiver_site());
+                    assert!(crate::mir::normal_callable_semantic_package::core_method_source::issue_ordinary_core_source_v1(
+                        input, source.operands()).is_ok());
+                }
+            }).unwrap();
+        }
+    }
     // Map presence closes only with BOTH the original stable field writer and
     // Text key; it never inherits the String receiver's class by selector.
     for (provider, extra_writer, key, closes) in [

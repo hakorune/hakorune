@@ -667,18 +667,21 @@ impl super::RootHomeFlow {
 /// Approval stays private until the complete field batch succeeds; holding the
 /// one mutable inventory borrow prevents a sibling walk from changing its slot.
 /// Commit consumes the approved SAME source/frame without a second decision.
-pub(super) struct ExpressionPlanInstallationV1<'a> {
+pub(super) struct ExpressionPlanInstallationV1<'a, 'source> {
+    locals: &'a super::local_flow::PrefixLocalFlow<'source>,
     owner: FunctionOwnerIdV1,
     plans: std::cell::RefMut<'a, Vec<HomeExpressionPlanV1>>,
     approved: Option<HomeExpressionPlanV1>,
 }
-impl<'a> ExpressionPlanInstallationV1<'a> {
+impl<'a, 'source> ExpressionPlanInstallationV1<'a, 'source> {
     pub(super) fn new(
         owner: FunctionOwnerIdV1,
+        locals: &'a super::local_flow::PrefixLocalFlow<'source>,
         plans: std::cell::RefMut<'a, Vec<HomeExpressionPlanV1>>,
     ) -> Self {
         Self {
             owner,
+            locals,
             plans,
             approved: None,
         }
@@ -687,6 +690,8 @@ impl<'a> ExpressionPlanInstallationV1<'a> {
         if self.approved.is_some()
             || plan.source().owner() != self.owner
             || !plan.is_consistent()
+            || plan.evaluation().is_some_and(|evaluation| evaluation.cores().values()
+                .filter_map(|core| core.field_array_count_v1()).any(|count| !self.locals.has_field_array_count_source_v1(count)))
             || self.plans.iter().any(|old| {
                 old.source().root().statement() == plan.source().root().statement()
                     && old.source().nodes()[0].site() == plan.source().nodes()[0].site()

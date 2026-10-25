@@ -153,10 +153,13 @@ struct ClosedOriginalCoreSourceV1 {
     request: OriginalCoreOperandRequestV1,
     field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
     receiver_core: Option<Rc<ClosedOriginalCoreSourceV1>>,
+    field_array_count: Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>,
     text: Box<[SourceValueSumV1]>,
     i64: Box<[SourceValueSumV1]>,
 }
 impl ClosedOriginalCoreSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn field_array_count_v1(&self)
+        -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> { self.field_array_count.as_ref() }
     pub(in crate::mir::normal_callable_semantic_package) fn receiver_core(&self) -> Option<&Rc<Self>> {
         self.receiver_core.as_ref()
     }
@@ -206,6 +209,7 @@ impl ClosedOriginalCoreSourceV1 {
                 (Some(left), Some(right)) => left.matches(right),
                 _ => false,
             }
+            && self.field_array_count == other.field_array_count
             && match (&self.field_map, &other.field_map) {
                 (None, None) => true,
                 (Some(left), Some(right)) => left.matches_source(right),
@@ -218,6 +222,7 @@ struct CoreRequestNode {
     node: usize,
     field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
     receiver_core: Option<std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>>,
+    field_array_count: Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>,
     text: Vec<usize>,
     i64: Vec<usize>,
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,

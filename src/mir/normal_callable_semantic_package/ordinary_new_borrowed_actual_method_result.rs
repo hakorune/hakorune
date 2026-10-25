@@ -14,6 +14,10 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1;
 use std::sync::Arc;
 
+type FieldArrayCountConsultV1<'a> = dyn Fn(
+    ResolvedFunctionLoweringInputV1<'_>, &Arc<VerifiedResolvedMethodCallSourceV1>,
+) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>, String> + 'a;
+
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct OriginalActualSourceContextV1
 <'a> {
@@ -21,6 +25,7 @@ struct OriginalActualSourceContextV1
     caller: CanonicalSameModuleCallableKeyV1,
     owner: FunctionOwnerIdV1,
     point_premise: bool,
+    field_array_count: Option<&'a FieldArrayCountConsultV1<'a>>,
 }
 impl<'a> OriginalActualSourceContextV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(
@@ -31,6 +36,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             caller: self.caller.clone(),
             owner: self.owner,
             point_premise: true,
+            field_array_count: self.field_array_count,
         }
     }
     /// Check the SAME original Static incoming and callee before source Return expansion.
@@ -106,8 +112,12 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             caller: self.caller.clone(),
             owner: self.owner,
             point_premise: false,
+            field_array_count: self.field_array_count,
         }
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_field_array_counts_v1(
+        mut self, consult: &'a FieldArrayCountConsultV1<'a>,
+    ) -> Self { self.field_array_count = Some(consult); self }
     pub(super) fn is_point_premise(&self) -> bool {
         self.point_premise
     }
@@ -138,6 +148,20 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 proof: self.proof(input, method, inventory),
                 operands: None,
             };
+        }
+        if let Some(consult) = self.field_array_count {
+            match consult(input, method) {
+                Ok(Some(source)) => {
+                    let Some(manifest) = source.count_manifest_v1() else { return OriginalMethodResultResolutionV1::Unknown; };
+                    if source.caller() != &self.caller || source.call().site() != method.site()
+                        || !source.matches_original_call_v1(input) { return OriginalMethodResultResolutionV1::Unknown; }
+                    return OriginalMethodResultResolutionV1::FieldArrayCount {
+                        request: OriginalCoreOperandRequestV1 { manifest }, source,
+                    };
+                }
+                Ok(None) => {},
+                Err(_) => return OriginalMethodResultResolutionV1::Unknown,
+            }
         }
         if let Some(row) = self
             .claims
@@ -283,6 +307,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             caller,
             owner: input.owner(),
             point_premise: false,
+            field_array_count: None,
         }))
     }
 
@@ -348,6 +373,10 @@ pub(super) enum OriginalMethodResultResolutionV1 {
         operands: Option<OriginalCoreOperandRequestV1>,
     },
     ConditionalCore(OriginalCoreOperandRequestV1),
+    FieldArrayCount {
+        request: OriginalCoreOperandRequestV1,
+        source: Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
+    },
     /// Exact original lexical call; its scalar class is joined later from
     /// the borrowed-result cohort, never inferred from this source edge.
     InstanceResult(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1),
@@ -503,9 +532,12 @@ struct OriginalMethodResultSeedV1
     pub(super) required_i64: Box<[OriginalFormalActualSeedV1]>,
     pub(super) required_text: Box<[OriginalFormalActualSeedV1]>,
     pub(super) receiver_core: Option<(Arc<VerifiedResolvedMethodCallSourceV1>, Box<OriginalFormalActualSeedV1>)>,
+    pub(super) field_array_count: Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>,
 }
 
 impl OriginalMethodResultSeedV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn field_array_count_v1(&self)
+        -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> { self.field_array_count.as_ref() }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn receiver_core(
         &self,
     ) -> Option<(&Arc<VerifiedResolvedMethodCallSourceV1>, &OriginalFormalActualSeedV1)> {

@@ -15,6 +15,16 @@ provider; it requires no index or Integer elements. Incomplete, opaque, foreign,
 replacement or null writer evidence cannot establish that residence. The class
 name or runtime payload alone proves neither operation.
 
+Ordinary Core Count now borrows that same checked field Count source before
+Text operand premises are chosen. Direct field and original local-alias calls
+keep distinct receiver/initializer sites and retain the same Count Rc through
+seeds, the SUM graph and the closed Core receipt. This origin and nested
+Map.keys are exclusive. Expression qualification transfers only the original
+receiver subtree; the existing installation transaction checks the live parent
+and the same observed alias (or matching stronger Integer residence). Input-use
+closure, exact SSA receiver read, ArrayRead packet and final validation remain
+separate requirements; this source proof grants no Get or execution permission.
+
 A local field alias retains the same canonical fixed-provider source and its
 unique original initializer in the existing BorrowedArray local/field-read row.
 Its parent entry receiver must remain live; rebinding and capture are refused.

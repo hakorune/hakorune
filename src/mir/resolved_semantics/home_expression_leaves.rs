@@ -173,7 +173,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
                     return Ok(None);
                 };
                 leaves[index] = Leaf::Value(class);
-                if let Some(field) = core.field_map() {
+                let receiver = core.field_map().map(|field| field.field_site())
+                    .or_else(|| core.field_array_count_v1().map(|count| count.receiver().site()));
+                if let Some(receiver) = receiver {
                     // Only this exact receiver projection belongs to the Core
                     // call. Key subtrees keep their own Text/read obligations.
                     for (child, node) in source.nodes().iter().enumerate() {
@@ -181,7 +183,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_ca
                             .site()
                             .node()
                             .segments()
-                            .starts_with(field.field_site().node().segments())
+                            .starts_with(receiver.node().segments())
                         {
                             transferred.insert(child);
                         }
@@ -434,7 +436,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 .position(|node| node.site() == site)
                 .map(|node| classes[node])
         };
-        let expected_receiver = if core.field_map().is_some() {
+        let expected_receiver = if core.field_map().is_some() || core.field_array_count_v1().is_some() {
             Leaf::Identity
         } else {
             Leaf::Value(Class::String)

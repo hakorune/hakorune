@@ -252,7 +252,8 @@ impl ResultExpressionSourceV1 {
         // erase a key/argument subtree or reclassify a Map as a scalar field.
         for index in 0..leaves.len() {
             let field = match &leaves[index] {
-                LeafV1::Core(core) => core.field_map().map(|field| field.field_site().clone()),
+                LeafV1::Core(core) => core.field_map().map(|field| field.field_site().clone())
+                    .or_else(|| core.field_array_count_v1().map(|count| count.receiver().site().clone())),
                 _ => None,
             };
             if let Some(field) = field {
@@ -395,10 +396,10 @@ impl ResultExpressionSourceV1 {
     fn core_sources_match(&self) -> bool {
         self.leaves.iter().all(|leaf| match leaf {
             LeafV1::Core(core) => core.matches_plan(&self.plan, core.node())
-                && (!core.source().target().checked_array_count_law_v1() || self.leaves.iter().any(|leaf|
+                && (!core.source().target().checked_array_count_law_v1() || core.field_array_count_v1().is_some() || self.leaves.iter().any(|leaf|
                     matches!(leaf, LeafV1::Core(inner) if core.matches_receiver_result_v1(inner)))),
             LeafV1::CoreReceiver(index) => matches!(self.leaves.get(*index), Some(LeafV1::Core(core))
-                if core.field_map().is_some() && core.matches_plan(&self.plan, *index)),
+                if (core.field_map().is_some() || core.field_array_count_v1().is_some()) && core.matches_plan(&self.plan, *index)),
             _ => true,
         })
     }

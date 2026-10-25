@@ -27,6 +27,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
     fields: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1>,
 ) -> Result<OriginalFormalSeedProductV1, String> {
+    // Borrow a checked source Count before selecting Text operand premises.
+    // No SUM/Completion lookup, second inventory or target is created here.
+    let field_array_count = |input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>| {
+        let Some(fields) = fields else { return Ok(None); };
+        let mut declarations = batch.declarations().filter(|row| row.owner() == input.owner());
+        let Some(declaration) = declarations.next() else { return Ok(None); };
+        if declarations.next().is_some() { return Err(freeze("array-read/caller-source-drift")); }
+        let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(declaration.batch_slot())
+            else { return Ok(None); };
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_array_read_source::capture_exact_count(
+            input, caller, method.site(), selected, batch, constructors, fields)
+    };
     let mut rows = Vec::new();
     let mut seen = BTreeSet::new();
     for (call, legacy) in inventory.source_rows_with_legacy_v1() {
@@ -44,7 +57,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     || original.arguments().iter().map(|argument| argument.site()).ne(call.source.argument_sites().iter())
                 { return Err(freeze("borrowed-view/original-call-identity")); }
                 let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
-                    static_claims, app_main, omitted)?.map(|context| context.for_point_premise());
+                    static_claims, app_main, omitted)?.map(|context| context.with_field_array_counts_v1(&field_array_count)).map(|context| context.for_point_premise());
                 let slot = context.declaration_slot();
                 let candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
                     .map(Vec::as_slice).unwrap_or(&[]);
@@ -91,7 +104,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     let source_context = if owner == root_owner {
                         OriginalActualSourceContextV1::checked(
                             crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1::Declaration { batch_slot: slot },
-                            input, batch, selected, contracts, static_claims, app_main, omitted)?
+                            input, batch, selected, contracts, static_claims, app_main, omitted)?.map(|context| context.with_field_array_counts_v1(&field_array_count))
                     } else { None };
                     new_calls.observe(input, batch, constructors, static_claims, selected, array_i64_fields, |site| {
                         classify_original_actual_seed_in_scope(input, batch, selected, results, owner,
@@ -120,7 +133,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         && constructor.forest().roots() == [owner] {
                         OriginalActualSourceContextV1::checked(
                             crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1::Constructor { row: constructor, input },
-                            input, batch, selected, contracts, static_claims, app_main, omitted)?
+                            input, batch, selected, contracts, static_claims, app_main, omitted)?.map(|context| context.with_field_array_counts_v1(&field_array_count))
                     } else { None };
                     new_calls.observe(input, batch, constructors, static_claims, selected, array_i64_fields, |site| {
                         if let Some(origin) = new_seeds::stable_constructor_formal_v1(input, site, constructors) {
@@ -223,7 +236,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, declaration.owner(), |context, input| -> Result<(), String> {
                 let Some(source_context) = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
-                    static_claims, app_main, omitted)?.map(|context| context.for_point_premise()) else { return Ok(()) };
+                    static_claims, app_main, omitted)?.map(|context| context.with_field_array_counts_v1(&field_array_count)).map(|context| context.for_point_premise()) else { return Ok(()) };
                 if let Some(flow) = input.function().expression_source().value_flow() {
                     source_flows.insert(input.owner(), std::sync::Arc::clone(flow));
                 }
@@ -329,7 +342,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             return Ok(OriginalFormalActualSeedV1::Conflict);
                         }
                         let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
-                            static_claims, app_main, omitted)?.map(|context| context.for_point_premise());
+                            static_claims, app_main, omitted)?.map(|context| context.with_field_array_counts_v1(&field_array_count)).map(|context| context.for_point_premise());
                         let slot = context.declaration_slot();
                         let local_candidates = slot.and_then(|slot| candidates.get(&slot))
                             .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
@@ -379,7 +392,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     }
                     Origin::Expression(site) => {
                         let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
-                            static_claims, app_main, omitted)?.map(|context| context.for_point_premise());
+                            static_claims, app_main, omitted)?.map(|context| context.with_field_array_counts_v1(&field_array_count)).map(|context| context.for_point_premise());
                         let slot = context.declaration_slot();
                         let local_candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
                             .map(Vec::as_slice).unwrap_or(&[]);
@@ -419,7 +432,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 let unique: BTreeSet<_> = sites.iter().collect();
                 if sites.is_empty() || unique.len() != sites.len() { return Err(reject()); }
                 let Some(source_context) = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
-                    static_claims, app_main, omitted)?.map(|context| context.for_point_premise()) else { return Ok(None) };
+                    static_claims, app_main, omitted)?.map(|context| context.with_field_array_counts_v1(&field_array_count)).map(|context| context.for_point_premise()) else { return Ok(None) };
                 let local_candidates = candidates.get(&slot).and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
                 Ok(Some(sites.iter().map(|site| (OwnedExprSiteV1::new(input.owner(), site.clone()),
                     classify_original_actual_seed_in_scope(input, batch, selected, results,

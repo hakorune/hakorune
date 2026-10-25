@@ -421,6 +421,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                     "existing-no-core"
                 }
                 Some(OriginalMethodResultResolutionV1::ConditionalCore(_)) => "conditional-core",
+                Some(OriginalMethodResultResolutionV1::FieldArrayCount { .. }) => "field-array-count",
                 Some(OriginalMethodResultResolutionV1::InstanceResult(_)) => "instance-result",
                 Some(OriginalMethodResultResolutionV1::Unknown) => "unknown",
             };
@@ -431,17 +432,18 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                 source_context.is_some()
             );
         }
-        let (proof, core_operand_request, instance_result) = match resolution {
+        let (proof, core_operand_request, instance_result, field_array_count) = match resolution {
             Some(OriginalMethodResultResolutionV1::Existing { proof, operands }) => {
-                (proof, operands, None)
+                (proof, operands, None, None)
             }
             Some(OriginalMethodResultResolutionV1::ConditionalCore(request)) => {
-                (None, Some(request), None)
+                (None, Some(request), None, None)
             }
             Some(OriginalMethodResultResolutionV1::InstanceResult(reference)) => {
-                (None, None, Some(reference))
+                (None, None, Some(reference), None)
             }
-            _ => (None, None, None),
+            Some(OriginalMethodResultResolutionV1::FieldArrayCount { request, source }) => (None, Some(request), None, Some(source)),
+            _ => (None, None, None, None),
         };
         let point_context = core_operand_request
             .and_then(|_| source_context.map(OriginalActualSourceContextV1::for_point_premise));
@@ -507,6 +509,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
             proof,
             core_operand_request,
             instance_result,
+            field_array_count,
             required_i64,
             required_text: required_text.into_boxed_slice(),
             receiver_core: core_operand_request.filter(|request| request.manifest().row().op

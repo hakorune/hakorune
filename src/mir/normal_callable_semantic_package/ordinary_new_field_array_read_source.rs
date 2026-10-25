@@ -50,6 +50,8 @@ pub(crate) struct CheckedFieldArrayAccessSourceV1 {
     call: OwnedExprSiteV1,
     receiver: OwnedExprSiteV1,
     residence: FieldArrayResidenceSourceV1,
+    receiver_root: BindingRefV1,
+    receiver_alias: Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1>,
     operation: FieldArrayReadSourceOperationV1,
 }
 
@@ -59,11 +61,52 @@ impl CheckedFieldArrayAccessSourceV1 {
     ) -> bool {
         let Some(call) = input.function().method_call_source_v1(self.call.site()) else { return false; };
         if input.owner() != self.call.owner() || call.receiver_site() != self.receiver.site() { return false; }
+        if self.receiver_root.owner() != input.owner() { return false; }
+        if self.receiver_alias.is_none() && CanonicalArrayFieldReadSourceV1::original_receiver_v1(input, &self.receiver, self.field_name())
+            .ok().flatten().is_none_or(|(_, binding)| binding != self.receiver_root) { return false; }
+        if let Some(alias) = &self.receiver_alias {
+            let Some((field, initializer)) = alias.fixed_source_v1() else { return false; };
+            if input.function().variable_ref(call.receiver_site()) != Some(ResolvedLexicalRefV1::Local(alias.binding()))
+                || local_initializer(input, alias.binding()) != Some((initializer.declaration_site().clone(), field.site().site().clone()))
+                || input.forest().callable_source_ledger(input.owner()).ok()
+                    .is_none_or(|ledger| !ledger.uncaptured_binding(alias.binding()))
+                || !field.matches_original_receiver_v1(input, field.site(), field.name()).unwrap_or(false)
+                || field.binding() != self.receiver_root || field.field() != self.field() || field.name() != self.field_name() { return false; }
+        }
         match &self.operation {
             FieldArrayReadSourceOperationV1::Count(source) | FieldArrayReadSourceOperationV1::TextAppend(source) => std::sync::Arc::ptr_eq(call, &source.method),
             FieldArrayReadSourceOperationV1::Element { index, .. } => call.selector() == "get" && call.arity() == 1
                 && call.arguments().first().is_some_and(|argument| argument.ordinal() == 0 && argument.site() == index.site()),
         }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn count_manifest_v1(&self)
+        -> Option<crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2> {
+        match &self.operation { FieldArrayReadSourceOperationV1::Count(source) => Some(source.manifest), _ => None }
+    }
+    pub(crate) fn receiver_alias_v1(&self)
+        -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1> { self.receiver_alias.as_ref() }
+    pub(crate) fn receiver_root_binding_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> Option<BindingRefV1> {
+        self.matches_original_call_v1(input).then_some(self.receiver_root)
+    }
+    pub(crate) fn matches_expression_receiver_v1(&self,
+        plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    ) -> bool {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        if !self.is_count() || plan.owner() != self.call.owner() { return false; }
+        let mut nodes = plan.nodes().iter().filter(|node| node.site() == self.receiver.site());
+        let Some(receiver) = nodes.next() else { return false; };
+        if nodes.next().is_some() { return false; }
+        if let Some(alias) = &self.receiver_alias {
+            return matches!(receiver.source(), Node::Reference(ResolvedLexicalRefV1::Local(binding)) if *binding == alias.binding())
+                && alias.fixed_source_v1().is_some_and(|(source, initializer)| source.field() == self.field()
+                    && source.name() == self.field_name() && initializer.initializer_site() == Some(source.site().site()));
+        }
+        matches!(receiver.source(), Node::Shape(BodyExpressionShapeV1::FieldAccess { object, field, .. })
+            if field.as_ref() == self.field_name() && plan.nodes().iter().any(|node| node.site() == object
+                && matches!(node.source(), Node::Reference(ResolvedLexicalRefV1::Local(binding))
+                    | Node::Shape(BodyExpressionShapeV1::Me { receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), .. })
+                    | Node::ReceiverQualification { receiver: crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)), .. }
+                    if *binding == self.receiver_root)))
     }
     pub(crate) fn call(&self) -> &OwnedExprSiteV1 { &self.call }
     pub(crate) fn receiver(&self) -> &OwnedExprSiteV1 { &self.receiver }
@@ -295,12 +338,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_get(
         }
         _ => None,
     };
+    let receiver_root = CanonicalArrayFieldReadSourceV1::original_receiver_v1(input,
+        &OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()), &field)?
+        .ok_or_else(|| freeze("array-read/receiver-source-binding"))?.1;
     let residence = capture_residence(constructors, box_source, owner_box, field, field_ref)?;
     Ok(Some(Rc::new(CheckedFieldArrayAccessSourceV1 {
         caller: caller.clone(),
         call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
         receiver: OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
-        residence,
+        residence, receiver_root, receiver_alias: None,
         operation: FieldArrayReadSourceOperationV1::Element {
             index: OwnedExprSiteV1::new(input.owner(), call.arguments()[0].site().clone()), index_field,
         },
@@ -341,9 +387,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_count(
     let Some(method) = input.function().method_call_source_v1(call_site) else { return Ok(None) };
     if crate::boxes::array::ArrayMethodId::from_name_and_arity(method.selector(), method.arity() as usize)
         != Some(crate::boxes::array::ArrayMethodId::Length) { return Ok(None) }
-    let Some((field, canonical)) = exact_array_field_candidate(input, caller, call_site, selected, batch, constructors)? else { return Ok(None) };
+    let (field, canonical, receiver_alias) = if let Some((field, canonical)) =
+        exact_array_field_candidate(input, caller, call_site, selected, batch, constructors)? {
+        (field, canonical, None)
+    } else {
+        let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(method.receiver_site()) else { return Ok(None); };
+        let Some((_, site)) = local_initializer(input, binding) else { return Ok(None); };
+        let Some(alias) = capture_fixed_alias_v1(input, caller, &site, selected, batch, constructors, writers)? else { return Ok(None); };
+        let Some((source, _)) = alias.fixed_source_v1() else { return Ok(None); };
+        (source.name().into(), source.field(), Some(alias))
+    };
     let box_source = batch.ordinary_box_coverage().row_for(caller.owner()).ok().flatten()
         .ok_or_else(|| freeze("array-read/original-box-missing"))?;
+    let receiver_root = match &receiver_alias {
+        Some(alias) => alias.fixed_source_v1().ok_or_else(|| freeze("array-read/receiver-source-binding"))?.0.binding(),
+        None => CanonicalArrayFieldReadSourceV1::original_receiver_v1(input,
+            &OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), &field)?
+            .ok_or_else(|| freeze("array-read/receiver-source-binding"))?.1,
+    };
     let residence = capture_residence(constructors, box_source, caller.owner(), field, canonical)?;
     let writer = writers.array_provider_source_v1(caller.owner(), &residence.field_name,
         &residence.constructor, &residence.provider_site).ok_or_else(|| freeze("array-read/provider-writers"))?;
@@ -351,7 +412,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_count(
         .ok_or_else(|| freeze("array-read/count-manifest"))?;
     let source = Rc::new(CheckedFieldArrayAccessSourceV1 {
         caller: caller.clone(), call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
-        receiver: OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), residence,
+        receiver: OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), residence, receiver_root, receiver_alias,
         operation: FieldArrayReadSourceOperationV1::Count(ArrayProviderCallSourceV1 {
             method: std::sync::Arc::clone(method), manifest, writer, append_target: None,
         }),
@@ -378,6 +439,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_text_append(
         &OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), field)
         .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-result/field-authority")))? else { return Ok(None) };
     if !constructors.is_array_field(canonical).map_err(|_| freeze("array-read/field-source"))? { return Ok(None); }
+    let receiver_root = CanonicalArrayFieldReadSourceV1::original_receiver_v1(input,
+        &OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), field)?
+        .ok_or_else(|| freeze("array-read/receiver-source-binding"))?.1;
     let residence = capture_residence(constructors, box_source, caller.owner(), field.clone(), canonical)?;
     let writer = writers.array_provider_source_v1(caller.owner(), &residence.field_name,
         &residence.constructor, &residence.provider_site).ok_or_else(|| freeze("array-read/provider-writers"))?;
@@ -387,7 +451,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_text_append(
         .and_then(|mut issuer| issuer.issue(manifest)).map_err(|_| freeze("array-read/source-census-drift"))?;
     let source = Rc::new(CheckedFieldArrayAccessSourceV1 { caller: caller.clone(),
         call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
-        receiver: OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), residence,
+        receiver: OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), residence, receiver_root, receiver_alias: None,
         operation: FieldArrayReadSourceOperationV1::TextAppend(ArrayProviderCallSourceV1 {
             method: std::sync::Arc::clone(method), manifest, writer, append_target: Some(Rc::new(target)),
         }),

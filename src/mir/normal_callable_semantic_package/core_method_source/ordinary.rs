@@ -49,7 +49,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
     if map != operands.field_map().is_some() {
         return Err(reject());
     }
-    if (op == Op::ArrayLen) != operands.receiver_core().is_some()
+    let count = operands.field_array_count_v1();
+    if (op == Op::ArrayLen) != (operands.receiver_core().is_some() ^ count.is_some())
+        || (op != Op::ArrayLen && (operands.receiver_core().is_some() || count.is_some()))
         || operands.receiver_core().is_some_and(|inner|
             inner.manifest().row().op != Op::MapKeys || inner.field_map().is_none()
                 || inner.method().owner() != method.owner()
@@ -57,6 +59,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
                 || !input.function().method_call_source_v1(inner.method().site())
                     .is_some_and(|original| std::sync::Arc::ptr_eq(original, inner.method()))) {
         return Err(reject());
+    }
+    if let Some(count) = count {
+        if !count.is_count() || !count.matches_original_call_v1(input)
+            || count.call().owner() != method.owner() || count.call().site() != method.site()
+            || count.receiver().site() != method.receiver_site()
+            || count.count_manifest_v1().is_none_or(|original|
+                !std::ptr::eq(original.row(), operands.manifest().row()) || original.arity() != operands.manifest().arity()) {
+            return Err(reject());
+        }
+        count.recheck_census(input.owner(), &std::collections::BTreeMap::new())?;
     }
     let mut issuer = match op {
         Op::MapHas => CoreMethodInstanceTargetIssuerV1::map_text_presence(operands.manifest().brand()),
@@ -220,6 +232,8 @@ impl ExpressionCoreSourceLoanV1 {
                         || self.source().target().checked_text_keys_law_v1()) && field.matches_plan(plan)
                 })
                 || (self.source().target().checked_array_count_law_v1()
+                    && self.field_array_count_v1().is_some_and(|count| count.matches_expression_receiver_v1(plan)))
+                || (self.source().target().checked_array_count_law_v1()
                     && self.original.operands.receiver_core().is_some_and(|inner|
                         inner.method().result_site() == self.source().source().receiver_site()
                             && plan.nodes().iter().filter(|node| node.site() == inner.method().site()
@@ -239,6 +253,9 @@ impl ExpressionCoreSourceLoanV1 {
         &self,
     ) -> Option<crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1> {
         self.source().target().expression_result_class_v1()
+    }
+    pub(crate) fn field_array_count_v1(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> {
+        self.original.operands.field_array_count_v1()
     }
     pub(crate) fn field_map(&self) -> Option<&FieldMapReceiverSourceV1> {
         self.original.operands.field_map().map(Rc::as_ref)

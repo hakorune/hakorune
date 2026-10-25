@@ -271,7 +271,14 @@ impl Graph<'_> {
                     } else {
                         None
                     };
-                    let receiver_core = if request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayLen {
+                    let field_array_count = source.field_array_count_v1().cloned();
+                    if let Some(count) = &field_array_count {
+                        row.invalid |= !count.is_count() || count.call().owner() != source.method().owner()
+                            || count.call().site() != source.method().site()
+                            || count.receiver().site() != source.method().receiver_site()
+                            || request.manifest().row().op != crate::mir::core_method_op::CoreMethodOp::ArrayLen;
+                    }
+                    let receiver_core = if request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayLen && field_array_count.is_none() {
                         match source.receiver_core() {
                             Some((original, seed)) if original.owner() == source.method().owner()
                                 && original.result_site() == source.method().receiver_site() => {
@@ -285,6 +292,7 @@ impl Graph<'_> {
                         node: id,
                         field_map,
                         receiver_core,
+                        field_array_count,
                         method: std::sync::Arc::clone(source.method()),
                         request,
                         text: text.clone(),
@@ -360,6 +368,7 @@ pub(super) fn project_graph_v1(
                     request: request.request,
                     field_map: request.field_map.clone(),
                     receiver_core,
+                    field_array_count: request.field_array_count.clone(),
                     text: request
                         .text
                         .iter()
