@@ -144,7 +144,7 @@ impl FinalizedRootSourceHandoffV1 {
 
     /// Exact finite-entry Local copies and SAME source-Loop edge transports.
     /// This lends SSA definitions only, not a mutable binding's formal origin.
-    pub(in crate::mir) fn with_finished_scalar_copies_v1(
+    pub(in crate::mir) fn with_finished_scalar_bindings_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction,
         mut visit: impl FnMut(&(BasicBlockId, MirInstruction), (BasicBlockId, usize)) -> Result<(), String>,
     ) -> Result<(), String> {
@@ -163,17 +163,9 @@ impl FinalizedRootSourceHandoffV1 {
                         }
                     }
                     let Some(packet) = group.initializer().filter(|packet| packet.frame().is_i64()) else { continue; };
-                    let evaluation = packet.frame().evaluation();
-                    if evaluation.source().nodes().len() != 1 { continue; }
-                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry { read: finite, exclusion: None })
-                        = evaluation.references().get(&0) else { continue; };
-                    if !finite.signed_only() { return Err(freeze("expression/scalar-entry-contract")); }
                     group.validate_recorded_in_context(context, function, Some(projection))?;
-                    let read = packet.reference_read_v1(0).ok_or_else(|| freeze("initializer-expression/source-or-result"))?;
-                    for original in read.exact_read_v1().original_copy_dependencies_v1()?.iter()
-                        .chain(packet.receipt_copy_binding_v1()) {
-                        if !matches!(original.1, MirInstruction::Copy { .. }) { return Err(freeze("finished-copy/packet")); }
-                        if let Some(finished) = projection.relation_binding(function, original)? {
+                    for original in packet.scalar_source_bindings_v1(context)? {
+                        if let Some(finished) = projection.relation_binding(function, &original)? {
                             let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
                             visit(&finished, coordinate)?;
                         }

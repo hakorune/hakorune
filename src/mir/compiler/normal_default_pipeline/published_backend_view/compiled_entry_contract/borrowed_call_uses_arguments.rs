@@ -117,7 +117,7 @@ impl BorrowedCallUses {
         }
         if state.finite_input {
             source.with_finished_bool_bindings_v1(owner, function, |coordinate, instruction| {
-                if state.condition_bindings.insert(coordinate, instruction.clone())
+                if state.finite_scalar_bindings.insert(coordinate, instruction.clone())
                     .is_some_and(|previous| previous != instruction) {
                     return Err(fault("borrowed-use/coordinate-duplicate"));
                 }
@@ -125,8 +125,14 @@ impl BorrowedCallUses {
             })?;
             let mut scalar_copies: Vec<_> = state.copies.values().filter_map(|(binding, coordinate)|
                 coordinate.map(|coordinate| (binding.clone(), coordinate))).collect();
-            source.with_finished_scalar_copies_v1(owner, function, |original, coordinate| {
-                scalar_copies.push((original.clone(), coordinate));
+            source.with_finished_scalar_bindings_v1(owner, function, |original, coordinate| {
+                if state.finite_scalar_bindings.insert(coordinate, original.1.clone())
+                    .is_some_and(|previous| previous != original.1) {
+                    return Err(fault("borrowed-use/coordinate-duplicate"));
+                }
+                if matches!(original.1, MirInstruction::Copy { .. }) {
+                    scalar_copies.push((original.clone(), coordinate));
+                }
                 Ok(())
             })?;
             state.retain_rooted_copies_v1(state.roots.keys().copied().collect(), &scalar_copies)?;
@@ -365,10 +371,57 @@ impl FunctionUses {
         if !self.finite_input { return Ok(()); }
         let mut copies: Vec<_> = self.copies.values().filter_map(|(binding, coordinate)|
             coordinate.map(|coordinate| (binding.clone(), coordinate))).collect();
-        copies.extend(self.condition_bindings.iter().filter_map(|(coordinate, instruction)|
+        copies.extend(self.finite_scalar_bindings.iter().filter_map(|(coordinate, instruction)|
             matches!(instruction, MirInstruction::Copy { .. }).then_some(((coordinate.0, instruction.clone()), *coordinate))));
         copies.extend(self.owned_field_writes.values().flat_map(|write| write.bindings.iter())
             .filter(|(binding, _)| matches!(binding.1, MirInstruction::Copy { .. })).cloned());
         self.retain_rooted_copies_v1(self.roots.keys().copied().collect(), &copies)
+    }
+}
+
+/// Exact source-issued scalar argument, not a count or a generic constructor rule.
+pub(super) struct FiniteBirthArgumentUse {
+    instruction: MirInstruction,
+    value: ValueId,
+    domain: BorrowedFormalDomainV1,
+}
+impl FunctionUses {
+    pub(super) fn finite_birth_arguments_v1(
+        &mut self, source: &FinalizedRootSourceHandoffV1,
+        actuals: &[crate::mir::normal_callable_semantic_package::FinalizedBirthActualsV1],
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        if !self.finite_input { return Ok(()); }
+        let owners: BTreeSet<_> = self.roots.values().map(|formal| formal.owner()).collect();
+        let owners: Vec<_> = owners.into_iter().collect();
+        let [owner] = owners.as_slice() else {
+            return Err(fault("borrowed-use/entry-parameter"));
+        };
+        for actual in actuals.iter().filter(|actual| actual.owner() == *owner) {
+            for (ordinal, argument) in actual.arguments().iter().enumerate() {
+                let Some((domain, binding, coordinate)) = source.finite_entry_birth_argument_v1(actual, ordinal as u32, function)?
+                    else { continue; };
+                if self.finite_birth_arguments.insert((coordinate, ordinal), FiniteBirthArgumentUse {
+                    instruction: binding.1, value: argument.value_only_v1()?, domain,
+                }).is_some() { return Err(fault("borrowed-use/ctor-coverage")); }
+            }
+        }
+        Ok(())
+    }
+    pub(super) fn observe_finite_birth_argument_v1(
+        &self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+        coordinate: Coordinate, ordinal: usize, instruction: &MirInstruction, value: ValueId,
+        scan: &mut Scan,
+    ) -> Result<bool, String> {
+        let Some(expected) = self.finite_birth_arguments.get(&(coordinate, ordinal)) else { return Ok(false); };
+        let formal = tracked.get(&value).or(views.views.get(&value));
+        let roots: Vec<_> = self.roots.iter().filter(|(_, root)| **root == expected.domain.binding()).collect();
+        if !self.finite_input || instruction != &expected.instruction || value != expected.value
+            || formal != Some(&expected.domain.binding()) || !expected.domain.signed_only()
+            || roots.len() != 1 || self.domains.get(roots[0].0) != Some(&expected.domain)
+            || !scan.finite_birth_arguments.insert((coordinate, ordinal)) {
+            return Err(fault("borrowed-use/undominated-view"));
+        }
+        Ok(true)
     }
 }

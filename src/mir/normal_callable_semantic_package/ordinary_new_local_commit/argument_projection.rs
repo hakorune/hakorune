@@ -676,3 +676,65 @@ impl FinalizedRootSourceHandoffV1 {
         }
     }
 }
+
+impl FinalizedRootSourceHandoffV1 {
+    /// One original New read and its SAME final Birth occurrence. This lends
+    /// source meaning to final use validation and tagged ABI projection alike.
+    pub(in crate::mir) fn finite_entry_birth_argument_v1(
+        &self, actual: &FinalizedBirthActualsV1, ordinal: u32, function: &MirFunction,
+    ) -> Result<Option<(crate::mir::normal_callable_semantic_package::BorrowedFormalDomainV1,
+        Binding, (BasicBlockId, usize))>, String> {
+        if !self.has_borrowed_ordinary_entry_v1(actual.owner()) { return Ok(None); }
+        let entry = self.borrowed_ordinary_entry_source_for_function_v1(actual.owner(), function)?;
+        let argument = actual.arguments().get(ordinal as usize)
+            .ok_or_else(|| freeze("argument-source-drift"))?;
+        if argument.source().ordinal() != ordinal || argument.source().owner() != actual.owner()
+            || argument.source().new_site() != actual.site() { return Err(freeze("argument-source-drift")); }
+        let Some((binding, domain)) = entry.finite_new_argument_domain_v1(argument.source())? else { return Ok(None); };
+        // Read provenance is independent of the recorded Birth payload. Reuse
+        // original entry/alias owners; an arbitrary matching MIR id is no loan.
+        let expected = if binding == domain.binding() {
+            self.borrowed_ordinary_entry_values_v1(actual.owner())?.iter()
+                .find(|(index, formal, _)| *index == domain.ordinal() && *formal == domain.binding())
+                .map(|(_, _, value)| *value).ok_or_else(|| freeze("argument-binding-unavailable"))?
+        } else {
+            let mut expected = None;
+            self.with_borrowed_ordinary_alias_copies_v1(actual.owner(), function, |_, _, alias, formal, value, _| {
+                if alias == binding {
+                    if formal != domain.binding() || expected.replace(value).is_some() { return Err(freeze("argument-source-drift")); }
+                }
+                Ok(())
+            })?;
+            expected.ok_or_else(|| freeze("argument-binding-unavailable"))?
+        };
+        if argument.value_only_v1()? != expected { return Err(freeze("argument-source-drift")); }
+        self.ledger.with_finished_projection(actual.owner(), |symbol, projection| {
+            if symbol != function.signature.name { return Err(freeze("argument-read-function-drift")); }
+            let rows = self.ledger.local_commits.borrow();
+            let row = rows.get(actual.site()).ok_or_else(|| freeze("argument-source-drift"))?;
+            let (target, destination) = match row {
+                LocalCommitV1::Ordinary(row) => (row.birth_target.as_ref(), Some(row.binding)),
+                LocalCommitV1::Result(row) => (row.birth_target.as_ref(), None),
+                _ => return Err(freeze("argument-source-drift")),
+            };
+            let original = row.new_argument_rows().ok_or_else(|| freeze("argument-source-unavailable"))?
+                .as_ref().map_err(|_| freeze("argument-source-unavailable"))?;
+            if target != Some(actual.target()) || destination != actual.destination()
+                || original.get(ordinal as usize) != Some(argument.source()) { return Err(freeze("argument-source-drift")); }
+            let Some(NewEmissionProgress::Emitted { result, arguments, bindings,
+                progress: EmittedLocalProgress::Checked { .. }, .. }) = row.new_emission()
+                else { return Err(freeze("argument-source-unavailable")); };
+            if *result != actual.receiver() || arguments.as_ref() != actual.arguments() { return Err(freeze("argument-source-drift")); }
+            let mut births = bindings.iter().filter(|(_, instruction)| matches!(instruction,
+                MirInstruction::Invoke { operation: InvokeOperation::Birth(call), .. }
+                    if &call.key == actual.target() && call.receiver == actual.receiver()
+                        && call.arguments.iter().eq(actual.arguments().iter().map(|argument| argument.payload()))));
+            let original = births.next().ok_or_else(|| freeze("argument-source-drift"))?;
+            if births.next().is_some() { return Err(freeze("argument-source-drift")); }
+            let finished = projection.binding(original.0, &original.1)?
+                .ok_or_else(|| freeze("argument-source-drift"))?;
+            let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &finished, function)?;
+            Ok(Some((domain, finished, coordinate)))
+        })
+    }
+}

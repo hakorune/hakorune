@@ -161,6 +161,26 @@ impl EmittedInitializerExpressionProjectionV1 {
     pub(crate) fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
     }
+    /// Scalar dependencies of this same complete initializer. Call/field/
+    /// ownership effects keep their own source consumers and are never lent.
+    pub(in crate::mir::normal_callable_semantic_package) fn scalar_source_bindings_v1(
+        &self, context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<Binding>, String> {
+        if !self.frame.is_i64() { return Err(freeze("expression/scalar-entry-contract")); }
+        let expression = self.expression();
+        let mut source = expression.ordered_bindings_in_context(context)?;
+        source.extend(expression.scalar_copy_dependencies_v1(context)?);
+        for read in self.reference_reads.values() { source.extend(read.dependencies()?); }
+        source.extend(self.receipt_copy_binding_v1().cloned());
+        let mut bindings = Vec::new();
+        for binding in source.into_iter().filter(|(_, instruction)| matches!(instruction,
+            MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
+                | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. })) {
+            if !bindings.contains(&binding) { bindings.push(binding); }
+        }
+        Ok(bindings)
+    }
+
     pub(super) fn source_loop_dependencies_v1(
         &self,
         context: CallValidationContextV1<'_>,

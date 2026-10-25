@@ -525,3 +525,33 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 }
+
+impl BorrowedOrdinaryEntrySourceRefV1<'_> {
+    /// Lend the same finite domain for an exact original New-argument read.
+    /// Neither Handle syntax nor a SUM alone grants an Integer view.
+    pub(in crate::mir::normal_callable_semantic_package) fn finite_new_argument_domain_v1(
+        &self, argument: &crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
+    ) -> Result<Option<(BindingRefV1, BorrowedFormalDomainV1)>, String> {
+        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
+        let EntryStructureEvidenceV1::FiniteInput { uses, .. } = &self.evidence else { return Ok(None); };
+        let binding = match argument.kind() {
+            Kind::Local { binding } | Kind::Handle { binding } | Kind::BoundValue { binding } => *binding,
+            _ => return Ok(None),
+        };
+        if argument.owner() != self.owner || argument.new_site().owner() != self.owner || binding.owner() != self.owner {
+            return Err(freeze("static-input/qualified-use-identity"));
+        }
+        let Some(formal) = self.origins().get(&binding) else { return Ok(None); };
+        let Some((ordinal, _)) = self.formals.iter().find(|(_, root)| root == formal) else {
+            return Err(freeze("static-input/qualified-use-identity"));
+        };
+        let Some(domain) = self.formal_domain_v1(*ordinal, *formal)? else { return Ok(None); };
+        if !domain.signed_only() { return Ok(None); }
+        let read = uses.lend_read(argument.site(), binding, *formal)
+            .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
+        if !read.matches(argument.site(), binding, *formal) {
+            return Err(freeze("static-input/qualified-use-identity"));
+        }
+        Ok(Some((binding, domain.clone())))
+    }
+}

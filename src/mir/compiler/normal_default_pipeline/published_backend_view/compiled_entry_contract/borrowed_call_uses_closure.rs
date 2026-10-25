@@ -21,6 +21,9 @@ impl BorrowedCallUses {
                 .get(&name)
                 .ok_or_else(|| fault("borrowed-use/function-missing"))?;
             formal_return::prepare(&mut state, function, program.functions())?;
+            if let Some(source) = program.handoff().root_source() {
+                state.finite_birth_arguments_v1(source, program.handoff().birth_actuals().unwrap_or(&[]), function)?;
+            }
             let tracked = state.tracked()?;
             state.verify_module(&tracked, function)?;
             state.verify_published(&tracked, function, program.functions())?;

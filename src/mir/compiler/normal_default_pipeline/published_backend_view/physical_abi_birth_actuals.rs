@@ -105,28 +105,25 @@ impl PublishedMirBackendView<'_> {
                                 ::BirthFormalUseCoverageV1::ObjectFieldStores { .. }
                         )
                     }) || birth_abi.dynamic_object_formal_source_v1(actual.source().ordinal())?.is_some();
+                let finite = if let Some(source) = entry.program().handoff().root_source() {
+                    let function = self.module().functions.get(caller.name()).ok_or_else(|| fault("birth-caller-draft-missing"))?;
+                    source.finite_entry_birth_argument_v1(call.actual(), actual.source().ordinal(), function)?.is_some()
+                } else { false };
+                let admitted = finite || uses.iter().any(|(_, formal, site, ordinal)| {
+                    *ordinal == actual.source().ordinal() && site == actual.source().new_site()
+                        && matches!(actual.source().kind(), Kind::Handle { binding } if binding == formal)
+                });
+                if admitted && !object_formal {
+                    if !tagged.insert((actual.source().new_site().clone(), actual.source().ordinal())) {
+                        return Err(fault("birth-actual-tagged-duplicate"));
+                    }
+                    continue;
+                }
                 if birth_abi.dynamic_i64_formal_source_v1(actual.source().ordinal())? {
                     if object_formal || scalar_actual_kind(
                         actual.source().kind(), value, caller.value_types(),
                     )? != 1 {
                         return Err(fault("actual-kind-unavailable"));
-                    }
-                    continue;
-                }
-                let admitted = uses.iter().any(|(_, formal, site, ordinal)| {
-                    *ordinal == actual.source().ordinal()
-                        && site == actual.source().new_site()
-                        && matches!(
-                            actual.source().kind(),
-                            Kind::Handle { binding } if binding == formal
-                        )
-                });
-                if admitted && !object_formal {
-                    if !tagged.insert((
-                        actual.source().new_site().clone(),
-                        actual.source().ordinal(),
-                    )) {
-                        return Err(fault("birth-actual-tagged-duplicate"));
                     }
                     continue;
                 }

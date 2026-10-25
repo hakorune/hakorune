@@ -37,7 +37,7 @@ type Binding = (BasicBlockId, MirInstruction);
 #[derive(Default)]
 struct FunctionUses {
     finite_input: bool,
-    condition_bindings: BTreeMap<Coordinate, MirInstruction>,
+    finite_scalar_bindings: BTreeMap<Coordinate, MirInstruction>,
     domains: BTreeMap<ValueId, BorrowedFormalDomainV1>,
     text_operands: BTreeMap<(BasicBlockId, usize, usize), crate::mir::instruction::StringInvokeOperand>,
     owned_field_writes: BTreeMap<Coordinate, field_write::OwnedFieldWriteUse>,
@@ -66,6 +66,7 @@ struct FunctionUses {
     /// Dominated `new`-argument admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
     ctor_admissions: BTreeMap<BindingRefV1, usize>,
+    finite_birth_arguments: BTreeMap<(Coordinate, usize), arguments::FiniteBirthArgumentUse>,
     /// Null-equality operand admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
     null_admissions: BTreeMap<BindingRefV1, usize>,
@@ -98,6 +99,7 @@ struct Scan {
     /// Distinct argument values serving each formal's dominated `new`-arg
     /// view.
     ctor_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+    finite_birth_arguments: BTreeSet<(Coordinate, usize)>,
     /// Distinct operand values serving each formal's null-equality view.
     null_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
     /// Physical `object_field_get` rows serving each formal's guarded read.
@@ -137,10 +139,10 @@ impl FunctionUses {
         })
     }
 
-    fn condition_operand_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+    fn finite_scalar_operand_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
         coordinate: Coordinate, instruction: &MirInstruction,
     ) -> bool {
-        if !self.finite_input || self.condition_bindings.get(&coordinate) != Some(instruction) { return false; }
+        if !self.finite_input || self.finite_scalar_bindings.get(&coordinate) != Some(instruction) { return false; }
         // Raw tag equality must consume the exact null-use admission even for
         // a signed-only/Bool-only incoming SUM. Scalar permission cannot skip it.
         if matches!(instruction, MirInstruction::Compare { op: crate::mir::CompareOp::Eq, lhs, rhs, .. }
@@ -330,7 +332,7 @@ impl FunctionUses {
             }
             *definitions.definitions.entry(dst).or_default() += 1;
         }
-        if self.condition_operand_v1(tracked, views, coordinate, instruction) { return Ok(()); }
+        if self.finite_scalar_operand_v1(tracked, views, coordinate, instruction) { return Ok(()); }
         if field_write::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         if array_set::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         match instruction {
@@ -375,7 +377,7 @@ impl FunctionUses {
                     || tracked.contains_key(&call.receiver) || views.views.contains_key(&call.receiver) {
                     return Err(fault("borrowed-use/callee-or-fault-frame"));
                 }
-                for argument in &call.arguments {
+                for (ordinal, argument) in call.arguments.iter().enumerate() {
                     if let crate::mir::instruction::BirthArgumentV1::Text(operand) = argument {
                         self.verify_text_operands_v1(tracked, views, &[operand], &[call.receiver], *fault_frame)?;
                         continue;
@@ -383,6 +385,7 @@ impl FunctionUses {
                     let crate::mir::instruction::BirthArgumentV1::Value(value) = argument else {
                         return Err(fault("borrowed-use/callee-operand"));
                     };
+                    if self.observe_finite_birth_argument_v1(tracked, views, coordinate, ordinal, instruction, *value, definitions)? { continue; }
                     if let Some(formal) = tracked.get(value).or(views.views.get(value)) {
                         if !views.compares.get(formal).is_some_and(|sites| sites.iter().any(|&(block, index)|
                             dominates(block, coordinate.0) && (block != coordinate.0 || index < coordinate.1))) {
@@ -673,6 +676,9 @@ impl FunctionUses {
             .map(|(formal, values)| (*formal, values.len()))
             .collect();
         if ctor_uses != self.ctor_admissions {
+            return Err(fault("borrowed-use/ctor-coverage"));
+        }
+        if self.finite_birth_arguments.keys().copied().collect::<BTreeSet<_>>() != definitions.finite_birth_arguments {
             return Err(fault("borrowed-use/ctor-coverage"));
         }
         null_compare::coverage(&definitions.null_uses, &self.null_admissions)?;

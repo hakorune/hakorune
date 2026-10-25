@@ -37,7 +37,7 @@ pub(in super::super) fn entry(state: &mut FunctionUses, source: &FinalizedRootSo
 /// Run independently on module and published coordinates, including the whole
 /// RHS, exact New/Normal/copy source and the writer's Normal/Fault graph.
 pub(super) fn guards(state: &FunctionUses, indexed: &[(Coordinate, &MirInstruction)]) -> Result<(), String> {
-    for (coordinate, instruction) in &state.condition_bindings {
+    for (coordinate, instruction) in &state.finite_scalar_bindings {
         binding_guards(indexed, *coordinate, instruction)?;
     }
     for row in state.owned_field_writes.values() {
