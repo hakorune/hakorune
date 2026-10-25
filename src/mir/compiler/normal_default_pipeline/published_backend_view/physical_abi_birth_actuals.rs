@@ -1,6 +1,15 @@
 //! Final Birth argument lane projection from the same sealed source proofs.
 use super::*;
 
+/// Representation of the same source-admitted Integer actual at its receiver.
+#[derive(Debug, Clone, Copy)]
+pub(in crate::mir) enum BorrowedBirthActualTransportV1 { Tagged, Integer }
+impl BorrowedBirthActualTransportV1 {
+    pub(in crate::mir) fn wire_kind(self) -> serde_json::Value {
+        match self { Self::Tagged => serde_json::json!("tagged"), Self::Integer => serde_json::json!(1) }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir) enum ObjectBirthActualTransportV1 { Null, Handle, NullableHandle, MixedHandle }
 impl ObjectBirthActualTransportV1 {
@@ -16,20 +25,20 @@ impl ObjectBirthActualTransportV1 {
 impl PublishedMirBackendView<'_> {
     /// The finalized draft admits a dominated `new`-argument lane per
     /// exact (site, ordinal): that emitted `Handle{binding}` actual is the
-    /// same lent Integer view and is transported as `"tagged"`. An
+    /// same lent Integer view. Its receiving ABI selects a pair or i64 payload. An
     /// `ObjectFieldStores` formal instead admits its nullable pair lane —
     /// `Null` as (0,0) or an owned `Handle` actual as the (3,payload)
     /// lease move. Every other actual must still prove its scalar lane
     /// here — non-admitted actual kinds fail closed.
-    pub(super) fn issue_tagged_birth_actuals(
+    pub(super) fn issue_borrowed_birth_actuals(
         &self,
         entry: &CompiledEntryContractV1<'_>,
     ) -> Result<(
-        BTreeSet<(OwnedExprSiteV1, u32)>,
+        BTreeMap<(OwnedExprSiteV1, u32), BorrowedBirthActualTransportV1>,
         BTreeMap<(OwnedExprSiteV1, u32), ObjectBirthActualTransportV1>,
     ), String> {
         use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
-        let mut tagged = BTreeSet::new();
+        let mut borrowed = BTreeMap::new();
         let mut object = BTreeMap::new();
         for call in entry.birth_calls() {
             let caller = entry
@@ -114,7 +123,10 @@ impl PublishedMirBackendView<'_> {
                         && matches!(actual.source().kind(), Kind::Handle { binding } if binding == formal)
                 });
                 if admitted && !object_formal {
-                    if !tagged.insert((actual.source().new_site().clone(), actual.source().ordinal())) {
+                    let transport = if birth_abi.dynamic_i64_formal_source_v1(actual.source().ordinal())? {
+                        BorrowedBirthActualTransportV1::Integer
+                    } else { BorrowedBirthActualTransportV1::Tagged };
+                    if borrowed.insert((actual.source().new_site().clone(), actual.source().ordinal()), transport).is_some() {
                         return Err(fault("birth-actual-tagged-duplicate"));
                     }
                     continue;
@@ -173,6 +185,6 @@ impl PublishedMirBackendView<'_> {
                     .map_err(|error| contextualize(error, "scalar-kind"))?;
             }
         }
-        Ok((tagged, object))
+        Ok((borrowed, object))
     }
 }

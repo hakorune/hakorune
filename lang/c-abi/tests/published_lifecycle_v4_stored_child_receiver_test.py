@@ -128,7 +128,8 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
         path.write_text(json.dumps(data))
         obj.unlink(missing_ok=True)
         result = run([driver, path, obj], env=ENV)
-        assert result.returncode != 0 and reason in result.stderr, result
+        reasons = reason if isinstance(reason, tuple) else (reason,)
+        assert result.returncode != 0 and any(item in result.stderr for item in reasons), result
         assert not obj.exists() and not list(work.glob('source.o.*')), 'rejected artifact'
         print('reject', reason)
 
@@ -206,15 +207,17 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
             row = next(row for row in layout['owned_object_residences']
                        if row['field_ordinal'] == ordinal)
             row['child_object_id'] = function['params'][0]['object_view']
-        # A foreign tuple now fails the original provider correspondence at
-        # FieldGet, before Call receiver matching. Missing child stays scalar
-        # and still reaches the receiver mismatch boundary.
+        # One layout mutation must reject before artifacts. It can invalidate
+        # the original Birth/Call representation before indexed provider flow;
+        # checker ordering is not the layout-correspondence safety contract.
         reason = 'unsupported-cohort' if malformed == 'foreign-child' else 'receiver-object-mismatch'
-        reject(data, 'published-lifecycle-v4/' + reason)
+        reject(data, ('published-lifecycle-physical-parser/function-body',
+                      'published-lifecycle-v4/' + reason))
 
-    # Receiver borrowing does not authorize argument-carrier handoff.
+    # Exact tag-3 provided loans can now BorrowForCall (source acceptance is
+    # binary-trees). That does not grant nullable or scalar argument spellings.
     # Corroborate the unused formal's class so foreign class is not the cause.
-    for actual in (3, 'nullable_typed_object', 'i64'):
+    for actual in ('nullable_typed_object', 'i64'):
         data = json.loads((DIRECTORY / 'hako-issued-borrowed-stored-child-scalar-object-first-reversefalse-annotatedfalse-optfalse.json').read_text())
         function = parent(data)
         read = receiver_read(function)

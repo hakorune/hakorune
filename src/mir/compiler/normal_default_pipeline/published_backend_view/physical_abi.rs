@@ -6,7 +6,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 #[path = "physical_abi_birth_actuals.rs"]
 mod birth_actuals;
-use birth_actuals::ObjectBirthActualTransportV1;
+use birth_actuals::{BorrowedBirthActualTransportV1, ObjectBirthActualTransportV1};
 
 #[path = "physical_abi_row_obligations.rs"]
 mod row_obligations;
@@ -283,10 +283,10 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     exact_numeric_checks: Box<[PublishedLifecycleExactNumericCheckV1]>,
     /// Dominated `new`-argument uses admitted by the finalized draft, keyed
     /// by the argument's own (new site, ordinal) identity. Each admitted
-    /// row spells `"tagged"` so the callee sees the proven kind==1 payload.
-    tagged_birth_actuals: BTreeSet<(OwnedExprSiteV1, u32)>,
+    /// row retains the receiver's exact pair/i64 transport for that same view.
+    borrowed_birth_actuals: BTreeMap<(OwnedExprSiteV1, u32), BorrowedBirthActualTransportV1>,
     /// Object-field formal actuals admitted by the sealed
-    /// `ObjectFieldStores` contract, keyed like `tagged_birth_actuals`.
+    /// `ObjectFieldStores` contract, keyed like `borrowed_birth_actuals`.
     /// Each row rides the `nullable_kind_payload_v1` lane: `Null` spells
     /// the (0,0) pair, an owned `Handle` actual the (3,payload) move.
     object_birth_actuals: BTreeMap<(OwnedExprSiteV1, u32), ObjectBirthActualTransportV1>,
@@ -337,12 +337,9 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
             site.function == function && site.block == block && site.instruction == instruction
         })
     }
-    /// Whether this exact (new site, ordinal) actual is an admitted
-    /// dominated `new`-argument view: the birth transport spells it
-    /// `"tagged"` so the callee sees the proven kind==1 payload.
-    pub(crate) fn tagged_birth_actual(&self, site: &OwnedExprSiteV1, ordinal: u32) -> bool {
-        self.tagged_birth_actuals
-            .contains(&(site.clone(), ordinal))
+    /// The same admitted Integer view, projected to its receiving Birth ABI.
+    pub(in crate::mir) fn borrowed_birth_actual(&self, site: &OwnedExprSiteV1, ordinal: u32) -> Option<BorrowedBirthActualTransportV1> {
+        self.borrowed_birth_actuals.get(&(site.clone(), ordinal)).copied()
     }
     /// Whether this exact (new site, ordinal) actual binds an
     /// object-field formal through the `nullable_kind_payload_v1` lane:
@@ -424,8 +421,8 @@ impl<'module> PublishedMirBackendView<'module> {
         }
         // Exact call identity, arity and ordering were checked by compiled-entry.
         // Inspect every actual, including unused formals; never specialize a body.
-        let (tagged_birth_actuals, object_birth_actuals) =
-            self.issue_tagged_birth_actuals(&entry)?;
+        let (borrowed_birth_actuals, object_birth_actuals) =
+            self.issue_borrowed_birth_actuals(&entry)?;
         let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
         let exact_numeric_checks =
             issue_exact_numeric_checks(self.module(), entry.program())?;
@@ -438,7 +435,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 layouts: Box::new([]),
                 diagnostic_sites: diagnostic_sites.into_boxed_slice(),
                 exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
-                tagged_birth_actuals,
+                borrowed_birth_actuals,
                 object_birth_actuals,
                 process_result_site,
                 fault_abi_version: 1,
@@ -589,7 +586,7 @@ impl<'module> PublishedMirBackendView<'module> {
             layouts: layouts.into_boxed_slice(),
             diagnostic_sites: diagnostic_sites.into_boxed_slice(),
             exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
-            tagged_birth_actuals,
+            borrowed_birth_actuals,
             object_birth_actuals,
             process_result_site,
             fault_abi_version: 1,

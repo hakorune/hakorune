@@ -1,9 +1,9 @@
 date = "2026-10-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "APP-binary-trees"
+current_execution_row = "APP-mimalloc-lite"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary-trees C function-body Birth i64/tagged ABI mismatch; shared entry-formal forward proof unresolved; fixed suite 6/11"
+current_blocker_token = "mimalloc-lite owner37 Body5 borrowed-object/forward-source-identity; fixed suite 7/11, binary-trees EXE PASS"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,20 +13,20 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/app-binary-trees.md"
-latest_card = "app-binary-trees"
-latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-APP-binary-trees remains selected. Original Loop Compare/read/domain/Copy closure and same-block Cond reuse pass Rust publication; EXE now stops at C function-body for BinaryTreeBuilder.make/2. No EXE/app completion.
-Quick CLI44.29s PASS; fixed suite6/11 in108.031s keeps the same five failed apps, no timeout/SKIP. The six include a non-EXE marker.
-Source6/0, final-use27/0 and LocalSSA32/0 reuse one quick lib-test build2m09s. One existing comparison assertion protects full instruction identity; no new test functions/hooks/files/checkers. Previous verification reds remain open.
-Same source Loop packet lends exact Compare operands/count/coordinates and no legacy guard authority. Pure Loop source walk and Parameter-purpose selection keep canonical input ownership; direct same-block Compare reuse removes duplicate physical use. Broad recurrence normalization was reverted after four source regressions; original six cases pass.
-Next: same admitted signed Birth scalar to exact receiving i64 ABI. Issued JSON has tagged actual versus TreeNode.birth i64 formal; keep strict C rejection, then unchanged EXE/run. Shared source failures and canonical closeout remain open.
+APP-mimalloc-lite selected after unchanged binary-trees canonical LLVM C API EXE/run/output/exit0 PASS. Fixed suite7/11 in122.454s: six real EXEs plus marker, no timeout/SKIP. Full finite-product goal remains active.
+Current mimalloc stop is owner37 Body5 ordinary-new/borrowed-object/forward-source-identity; allocator shares it. JSON owner22 input completion and boxtorrent owner51 stored-child receiver remain open.
+Next: original entry-formal/candidate/site/read/binding evidence from seed to final call consumer; retain flow/origin/point SUM and guarded-call checks. No formal SUM as site proof, fallback/retry, app edits or new checker/test assets.
+Binary landing: source Loop/Compare closure, checked signed Uses ABI view, receiving Birth integer/pair projection, nonnull provided-field BorrowForCall and valid canonical class0 emission. Same Rust per-use and C lifetime/class/ownership checks remain required.
+CLI40s/FFI PASS; source6/use27/LocalSSA32, source calleeFault1/dedup1, C96 captures+23 negatives+both-opt Normal/Fault and C20 programs+19 negatives PASS. Prior new-argument6/4 and raw nested-release fixture red reproduce baseline; other source/publication/Loop/R7 closeout remains open.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "APP-binary-trees"
-next_execution_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
+next_execution_card = "APP-mimalloc-lite"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-25: Unchanged binary-trees passes canonical LLVM C API EXE/run/exact output/exit0, including fixed-suite smoke50.764s. Suite7/11 in122.454s (6realEXEs+marker), no timeout/SKIP; remaining JSON/boxtorrent/mimalloc/allocator source failures. Original Loop Compare evidence and local condition reuse close Rust publication; same source-backed signed ABI/Birth transport, provided-field borrow lifetime and class0 emission close native consumers. Existing C source/Normal/Fault/negative checks pass; prior independent verification reds remain open. Next APP-mimalloc-lite entry-formal site proof.",
   "2026-10-24: Untyped-field-min source-backed Dynamic FieldGet/Array Home transfer now emits and runs the unchanged EXE (exit7); physical exact-key validation no longer caps schemas at8 keys, and V4 Normal/Fault flow consumes the exact array Home only on Normal. `cargo quick-build --bin hakorune`4m16s and FFI C build PASS; fixed suite9/11 in142.476s, no timeout/SKIP. Remaining failures: boxtorrent-mini receiver-unavailable; binary-trees source-not-i64 in iterationCheck. Next APP-binary-trees.",
   "2026-10-24: Original TopLevel membership keeps method context optional; missing Static/Instance contracts still refuse. Alias observations retain original formal provenance; Dynamic and finite entry-read lenders share OpaqueHandle membership, leaving declared objects to their typed lane. Existing Loop cohort6PASS/2ignored (4reds fixed), forwarding3variants and declared-copy matrix PASS; fresh issued inputs C/LLVM/EXE Result7/exit7. Optimized CLI3m03s/JSON smoke PASS; suite8/11 in135.670s,7EXEs+marker,3source compile failures,no timeout/SKIP. Broader publication before fixes37PASS/15FAIL remains unclosed; source WIP/finite goal active.",
-  "2026-10-24: Explicit receiver-slot result support closes declaration/Call equality, original has/Normal/Copy/Branch or new/Birth/install/old-End Return provenance, parent/slot lifetime and payload class. Birth Text moves the original newest raw handle/token only on Normal through existing Dynamic field ABI/End descriptor; no extra copy/ABI. Canonical JSON worktree EXE/run/output PASS; C/header isolation against HEAD also PASS. Fixed suite8/11 (7 real EXEs+marker),3 source compile failures,no timeout/SKIP; Text ingress/Map regressions PASS,27 malformed Map and9 slot-origin negatives retained. Source/package WIP/reds still unlanded; finite goal active.",
 ]

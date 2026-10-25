@@ -234,6 +234,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                   value->object_id != yyjson_get_uint(view)) return 0;
             } else if (yyjson_is_uint(kind)) {
               uint64_t tag = yyjson_get_uint(kind);
+              /* A provided field lends its nonnull child only through the
+                 same live-parent/unique-writer/unchanged-interval proof as a
+                 receiver. BorrowForCall consumes no lease on either edge. */
+              int provided_borrow = tag == 3 && value && value->kind == LV4_HANDLE &&
+                  value->origin == LV4_OWNED_FIELD_BORROW && value->object_id_set &&
+                  lv4_readable_object(in, fn, value->id, state, lv4_u(block, "id"), value->object_id, 1);
               if (finite_domain && (tag > 4 || !(finite_domain & (1u << tag)))) return 0;
               if (class_domain && (tag != 0 && tag != 3)) return 0;
               /* Tag 0 admits the exact const_null producer only — a
@@ -243,7 +249,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                       !lv4_is(value->instruction, "op", "const_null")) ||
                   (tag == 1 && value->kind != LV4_I64) ||
                   (tag == 2 && value->kind != LV4_BOOL) ||
-                  (tag == 3 && !lv4_borrowed_typed_live(in, fn, value, state)) ||
+                  (tag == 3 && !lv4_borrowed_typed_live(in, fn, value, state) && !provided_borrow) ||
                   tag > 3) return 0;
               if (class_domain && tag == 3 && value->object_id != yyjson_get_uint(view)) return 0;
             } else return 0;

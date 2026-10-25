@@ -123,7 +123,9 @@ pub(super) fn encode_parameters(
                             }
                             if let Some(domain) = input.entry().borrowed_formal_domain_v1(ordinal, param.0) {
                                 let view = if domain.text_only() { Some("text_view") }
-                                    else if input.entry().has_finite_borrowed_input_v1(ordinal) && domain.signed_only() { Some("integer_view") }
+                                    // Completed Uses domains lend the same checked scalar entry
+                                    // view without granting finite-expression use permissions.
+                                    else if domain.signed_only() { Some("integer_view") }
                                     else if input.entry().has_finite_borrowed_input_v1(ordinal) && domain.bool_only() { Some("bool_view") } else { None };
                                 if let Some(view) = view {
                                     if function.role().ordinary_target().is_none() {
@@ -344,12 +346,10 @@ pub(super) fn encode_birth_call(
                 }
                 return Ok(json!({"kind":"borrowed_text", "operand":super::operation::encode_string_operand_v1(operand)}));
             }
-            // An admitted dominated `new`-argument use carries the same lent
-            // Integer view as a checked compare operand; the `"tagged"`
-            // spelling hands the callee its proven kind==1 payload.
-            if input.tagged_birth_actual(argument.source().new_site(), argument.source().ordinal())
-            {
-                return Ok(json!({ "kind": "tagged", "value": argument.value_only_v1()?.0 }));
+            // The source-admitted Integer view retains the exact receiving ABI:
+            // an i64 formal consumes its payload, a pair formal both lanes.
+            if let Some(transport) = input.borrowed_birth_actual(argument.source().new_site(), argument.source().ordinal()) {
+                return Ok(json!({ "kind": transport.wire_kind(), "value": argument.value_only_v1()?.0 }));
             }
             // An `ObjectFieldStores` formal rides the nullable pair lane:
             // the sealed source kind selects (0,0) for `null` or

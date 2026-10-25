@@ -80,7 +80,9 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       name, name, name, name, candidate, name);
   if (initialize == 5) fprintf(f, "  store i32 6, ptr %%%s_candidate, align 4\n", name);
   if (initialize == 6) {
-    if (!candidate_kind || !residence_object) return 0;
+    /* initialize selects presence; the caller already validated the uint and
+       layout membership. Canonical class zero names a real descriptor. */
+    if (!candidate_kind) return 0;
     fprintf(f,
         "  %%%s_is_null = icmp eq i32 %s, 0\n"
         "  %%%s_kind = select i1 %%%s_is_null, i32 1, i32 5\n"

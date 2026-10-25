@@ -1,48 +1,28 @@
 # APP-mimalloc-lite
 
-Status: closed; standalone and fixed-suite smoke PASS (2026-10-19).
-Date: 2026-10-19
-Scope: 未変更mimalloc-liteの正規EXE・実行・期待出力/exitと必要なprofile境界。
-Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、
-[全体完了条件](../workstreams/mirbuilder-inplace-replacement-current.md)。
+Status: selected app; reopened after measured source regression. Date: 2026-10-25
+Scope: 未変更mimalloc-liteの正規EXE生成・実行・期待出力/exit。benchmark promotionは再開しない。
+Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直前のbinary-trees着地](app-binary-trees.md)。
 
 ## 現在地
+- 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。
+- 最新固定suiteは7/11、122.454秒、実EXE6本＋空marker1本、SKIP/timeoutなし。binary-treesがEXE/run/output/exit0まで着地した。
+- mimallocの現在のsource停止は `ordinary-new/borrowed-object/forward-source-identity`、owner37 Body5。EXE未生成。allocator-stressも同じ不足を踏む。
+- 2026-10-19のPASSは過去の結果。古いAllSource JSON precheckの撤去でsmokeを整えた着地であり、その当時から動いたEXE自体を新能力に数えない。現在の赤を歴史的PASSで閉じない。
 
-- `APP-mimalloc-lite`は着地。単体smoke約163秒、固定suite内約147秒でPASS。
-- 着地時の固定suiteは6PASS/5FAIL。PASS内訳は実EXE5本と空marker1本、SKIP/timeoutなし。
-  最新の公式suite結果はCURRENT_STATEのlanded_tailを参照。
-- 変更前はgeneric JSON precheckが`required-integer-source-unproved`で停止した。
-  EXEはClosedAppExecutable、generic JSONは未使用importも含むAllSourceという違いがあった。
-
-## 修正した責務
-
-- generic JSONは既にStatic I64 Invokeを受理する。旧「全Invoke拒否」の前提は不一致。
-- アプリsmokeから古いserializer precheckを削除。V4・LLVM C API・no replay・EXE存在・全出力/exit確認は維持。
-- profile境界は既存source-publication testで確認：Static I64の実JSON出力成功と、4本のStoreプログラムのgeneric profile拒否。
-  同じmimallocの全import closureや全unsupported Invoke subtypeを移した検証ではない。
-  既存sourceケースを使い、test名・入力ケース・file・hook・checkerを追加しない。
-- EXE自体は変更前から成功。suite PASSへの改善はharness修正であり、新しいコンパイラ能力の獲得には数えない。
-- build timeout300秒とrun timeout120秒を分離。以前のbuild/run共通120秒は実測のEXE生成時間より短かった。
-- Integer証拠、AllSource受理範囲、production Rust、アプリsourceは変更しない。
+## 必要な接続
+- 元のentry formal、同じargument candidate/read site、binding/root、元source identityをseed側で保持し、借用entry値の証拠へ接続する。SUMは型を供給し、site読みの代用にしない。
+- flow.readがある場合はread＋origin＋point SUM signed-onlyが全て必要。不一致時にformal SUMへfallbackしない。サイト読みが無い場合も、登録済みformalのcorroborate済み閉SUMだけではsite対応を捏造しない。
+- guarded callのcaller-entry root gate、支配関係・guard対応・命令順序と、独立した最終argument/receiver/cleanup検証を保持する。
+- 共通ownerの範囲で直し、同じ未変更アプリの正規EXE/runまで追う。別アプリを並行実装せず、未知の停止点は同じcardへ短く更新する。
 
 ## 検証と次の一手
-
-- `cargo quick-test-fast --no-run --message-format=json`成功。
-- 既存`unannotated_borrowed_i64_result_publishes_call_forms`と
-  `static_direct_return_records_one_root_invoke`は各1件PASS。test名一覧9263件不変。
-- `bash tools/smokes/v2/profiles/integration/apps/mimalloc_lite_exe.sh`はPASS。
-  source一致の既存quick CLIを再利用し、HAKO_BIN/NYASH_BINを同じ絶対pathへ設定。
-  lifecycle runtimeとC API FFIも明示。変更Rustはcfg(test)内だけでCLI再buildは不要。
-- pointer・builder layer・CallTarget guard、shell syntax、diff checkはPASS。
-- `bash tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 600`
-  はsource一致のquick CLI、既存lifecycle runtime/C APIで完了。全体終了値1、約579秒。
-  対象revisionは`751dae566b`。赤はuntyped-field、binary-trees、boxtorrent、allocator、JSON。
-- 当時の次対象はallocator-stress。現在の共通storage判断は[既存D0](mirbuilder-untyped-object-storage-d0-2026-09-25.md)を参照。
+1. 既存調査とsource ownerを再利用し、entry formalの元サイト読みをseedから最終consumerへ結ぶ。新しい台帳・checker・test file・for_test hookは作らない。
+2. `bash tools/smokes/v2/profiles/integration/apps/mimalloc_lite_exe.sh`を同じ明示binary/runtimeで実行。sourceコンパイル、C/LLVM、リンク、実行、出力/exitを区別する。
+3. 必要な既存focused検証を再利用し、着地時に固定suiteを再測定する。内部green、SKIP、markerをEXE証拠へ数えない。
 
 ## 保持する未完条件
-
-- suite成功と全MirBuilder/Gate1完了は別。ObjectForward/field Birth/LOCAL初期化/receiver/cleanup/publicationの未完契約は維持。
-- 共有の不足は現在アプリに必要なownerで直し、置換済み専有edge/adapterは証明成立時に同じseriesで削除する。
-- [JSON/Textの既存契約](mirbuilder-gate1-static-text-input-s0-2026-10-17.md)は未受理のまま後続へ保持。
-  未接続Return準備は取り下げ済みで、保留branchはない。
-- 過去の完全な契約・履歴はこのpathの`0311400375`時点のGit履歴に保存済み。
+- JSON: owner22 `borrowed-entry/source-use-completion-pending`。boxtorrent: owner51 `stored-child/receiver-unavailable`。allocator: owner37 Body5の同じforward-source-identity。
+- 未完のsource/publication・Loop検証、局所adapter退役と共有R6/R7・最終pipeline条件は保持。詳しい直前の実測はbinary-trees cardとそのGit履歴へ集約する。
+- historical generic JSON/EXE profile境界は既存publication検証がowner。拒否を現在の失敗へ差し替えず、source・期待出力・negativeを回避的に書き換えない。
+- 過去の契約・着地履歴はこのcardのGit履歴へ圧縮済み。有限製品goalは未完。
