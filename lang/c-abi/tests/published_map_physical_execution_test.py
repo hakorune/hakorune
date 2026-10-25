@@ -304,7 +304,7 @@ def borrowed_array_program():
     return data
 
 
-def field_keys_program(text_snapshot=False):
+def field_keys_program(text_snapshot=False, text_replace=False):
     """Dynamic field snapshots: independent Map keys Array or owned Text."""
     graph = Graph()
     parent = graph.invoke(dict(kind="new_box", object_id=0), [], True)
@@ -313,6 +313,13 @@ def field_keys_program(text_snapshot=False):
                  [dict(kind="reclaim_unpublished", object_id=0, value=parent)])
     field_end = dict(kind="field_residence_release", object_id=0, field_ordinal=0,
                      base=parent, transaction="take_dynamic")
+    if text_replace:
+        candidate = graph.invoke(dict(kind="string_materialize", value=dict(kind="static_text", utf8="置換🐱")),
+                                 [field_end, release], True)
+        graph.invoke(dict(kind="field_set", object_id=0, field_ordinal=0, base=parent, value=candidate,
+                          transaction="dynamic_value_replace", value_tag="text", residence="text_home",
+                          residence_object_id=None, exact_numeric_runtime_check=dict(kind="none")),
+                     [field_end, release])
     snapshot = graph.invoke(dict(kind="string_field_materialize" if text_snapshot else "map_field_keys",
                                  object_id=0, field_ordinal=0, base=parent), [field_end, release], True)
     count = 1 if text_snapshot else graph.value
@@ -437,6 +444,26 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
     assert run([exe], env=env).returncode == 30
     print("duplicate MapLocal roots -> InstallBorrowedArray -> caller-owned cleanup -> EXE30")
+
+    # The actual transaction must consume the candidate once on precommit
+    # Fault and must leave a committed candidate with the slot on old-End Fault.
+    compile_input(field_keys_program(True, True))
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    result = run([exe], env=env)
+    assert (result.returncode, result.stdout) == (30, "置換🐱\n"), (result.returncode, result.stdout, result.stderr)
+    wraps = ["storage_init", "storage_dispose", "key_init", "key_dispose",
+             "outcome_init", "outcome_dispose", "checked_new", "key_prepare_utf8",
+             "checked_install_indexed_end", "outcome_end", "checked_end"]
+    checked(["cc", "-DHAKO_TEXT_FIELD_REPLACE_PROBE", TESTS / "published_map_fault_probe.c", obj, ARCHIVE,
+             *["-Wl,--wrap=nyash.map." + name + "_v1" for name in wraps],
+             "-Wl,--wrap=nyash.object.checked_dynamic_replace_v1",
+             "-Wl,--wrap=nyash.object.field_outcome_end_v1", "-Wl,--wrap=nyash.string.checked_end_v1",
+             "-ldl", "-lpthread", "-lm", "-o", exe])
+    for mode in ("normal", "text-precommit-fault", "text-postcommit-fault"):
+        result = run([exe, mode], env=env)
+        assert result.returncode == (30 if mode == "normal" else 70), (mode, result.returncode, result.stderr)
+        assert result.stdout.rstrip().endswith("TEXTFIELD 1 1 " + ("2" if mode == "normal" else "1")), (mode, result.stdout)
+    print("Text Replace commits new pair; pre/postcommit Fault each consume candidate once and preserve slot cleanup")
 
     text_snapshot = field_keys_program(True)
     compile_input(text_snapshot)

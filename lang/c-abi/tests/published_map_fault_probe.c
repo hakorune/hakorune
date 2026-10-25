@@ -14,6 +14,41 @@ static uint32_t fault(void* frame, uint64_t site) {
 static uint32_t fault_reason(void* frame, uint32_t reason, uint64_t site) {
   return nyrt_fault_record_static_v1(frame, reason, site, 0, 0);
 }
+#ifdef HAKO_TEXT_FIELD_REPLACE_PROBE
+static uint64_t text_candidate_handle, text_candidate_token;
+static void* text_replace_outcome;
+static unsigned text_replaces, text_candidate_ends, text_other_ends;
+extern uint32_t real_text_replace(void*, uint32_t, uint64_t, int64_t, int64_t, size_t,
+    const NyrtDynamicFieldValueV1*, const NyrtDynamicFieldEndDescriptorV1*, void*)
+    __asm__("__real_nyash.object.checked_dynamic_replace_v1");
+uint32_t wrap_text_replace(void*, uint32_t, uint64_t, int64_t, int64_t, size_t,
+    const NyrtDynamicFieldValueV1*, const NyrtDynamicFieldEndDescriptorV1*, void*)
+    __asm__("__wrap_nyash.object.checked_dynamic_replace_v1");
+uint32_t wrap_text_replace(void* frame, uint32_t profile, uint64_t site, int64_t base,
+    int64_t type, size_t slot, const NyrtDynamicFieldValueV1* candidate,
+    const NyrtDynamicFieldEndDescriptorV1* end, void* out) {
+  text_replaces++; text_candidate_handle = (uint64_t)candidate->value;
+  text_candidate_token = candidate->token; text_replace_outcome = out;
+  if (is_mode("text-precommit-fault")) return fault(frame, site);
+  return real_text_replace(frame, profile, site, base, type, slot, candidate, end, out);
+}
+extern uint32_t real_field_outcome_end(void*, uint64_t, void*) __asm__("__real_nyash.object.field_outcome_end_v1");
+uint32_t wrap_field_outcome_end(void*, uint64_t, void*) __asm__("__wrap_nyash.object.field_outcome_end_v1");
+uint32_t wrap_field_outcome_end(void* frame, uint64_t site, void* out) {
+  uint32_t status = real_field_outcome_end(frame, site, out);
+  if (out == text_replace_outcome && status == 0 && is_mode("text-postcommit-fault"))
+    return fault(frame, site);
+  return status;
+}
+extern uint32_t real_field_text_end(void*, uint64_t, uint64_t, uint64_t) __asm__("__real_nyash.string.checked_end_v1");
+uint32_t wrap_field_text_end(void*, uint64_t, uint64_t, uint64_t) __asm__("__wrap_nyash.string.checked_end_v1");
+uint32_t wrap_field_text_end(void* frame, uint64_t site, uint64_t handle, uint64_t token) {
+  if (handle == text_candidate_handle && token == text_candidate_token) text_candidate_ends++;
+  else text_other_ends++;
+  return real_field_text_end(frame, site, handle, token);
+}
+#endif
+
 #ifdef HAKO_MAP_SOURCE_PROBE
 static unsigned source_probe_sequence;
 static unsigned source_probe_end_sequence;
@@ -492,6 +527,9 @@ int main(int argc, char** argv) {
 #ifdef HAKO_MAP_READ_PROBE
   printf(" READ %s %zu %lld %u %u %u %u", read_key, read_key_len,
       (long long)read_out, read_status, read_get_seq, read_end_seq, read_ends);
+#endif
+#ifdef HAKO_TEXT_FIELD_REPLACE_PROBE
+  printf(" TEXTFIELD %u %u %u", text_replaces, text_candidate_ends, text_other_ends);
 #endif
   printf("\n");
   return (int)result;

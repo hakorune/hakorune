@@ -69,7 +69,7 @@ static int lv4_field_outcome_alloca(FILE* f, const char* name,
  * committed End Fault never rolls back. Both exits dispose before continuation. */
 static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t profile,
     const char* site, const char* base, long long type, int slot, const char* candidate, const char* candidate_token,
-    int initialize, uint32_t residence_object, const char* candidate_kind,
+    int initialize, int take_text, uint32_t residence_object, const char* candidate_kind,
     const char* normal, const char* fault) {
   if (slot < 0) return 0;
   if (candidate && initialize != 2) fprintf(f,
@@ -89,7 +89,7 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
         "  store i32 %%%s_kind, ptr %%%s_candidate, align 4\n",
         name, candidate_kind, name, name, name, name);
   }
-  if (initialize == 3) {
+  if (initialize == 3 || take_text) {
     if (!candidate || !candidate_token) return 0;
     fprintf(f, "  store i32 4, ptr %%%s_candidate, align 4\n"
         "  %%%s_token = getelementptr { i32, i32, i64, i64 }, ptr %%%s_candidate, i32 0, i32 3\n"
@@ -103,9 +103,9 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
   if (initialize == 2) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_map_field_install_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %s, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, candidate, name);
-  else if (initialize == 3) fprintf(f,
-      "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_text_end_descriptor, ptr %%%s_out)\n",
-      name, profile, site, base, type, slot, name, name);
+  else if (initialize == 3 || take_text) fprintf(f,
+      "  %%%s_commit = call i32 @\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_text_end_descriptor, ptr %%%s_out)\n",
+      name, take_text ? "checked_dynamic_replace" : "checked_dynamic_initialize", profile, site, base, type, slot, name, name);
   else if (initialize == 5) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_array_end_descriptor, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, name, name);
@@ -126,6 +126,13 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "%s_moved:\n  %%%s_source_dispose = call i32 @\"nyash.map.storage_dispose_v1\"(ptr %s)\n"
       "  switch i32 %%%s_source_dispose, label %%invalid [ i32 0, label %%%s_end ]\n",
       name, name, candidate, name, name);
+  if (take_text) {
+    fprintf(f, "%s_cancel_text:\n"
+        "  %%%s_candidate_end = call i32 @\"nyash.string.checked_end_v1\"(ptr %%frame, i64 %s, i64 %s, i64 %s)\n"
+        "  switch i32 %%%s_candidate_end, label %%invalid [ i32 0, label %%%s ]\n",
+        name, name, site, candidate, candidate_token, name, fault);
+  }
+  char text_cancel[64]; snprintf(text_cancel, sizeof(text_cancel), "%s_cancel_text", name);
   fprintf(f, "%s_unissued:\n"
       "  %%%s_cancel = call i32 @\"nyash.object.field_outcome_dispose_v1\"(ptr %%%s_out)\n"
       "  switch i32 %%%s_cancel, label %%invalid [ i32 0, label %%%s ]\n%s_end:\n"
@@ -134,7 +141,7 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  %%%s_disposed = call i32 @\"nyash.object.field_outcome_dispose_v1\"(ptr %%%s_out)\n"
       "  switch i32 %%%s_disposed, label %%invalid [ i32 0, label %%%s_finish ]\n%s_finish:\n"
       "  switch i32 %%%s_ended, label %%invalid [ i32 0, label %%%s i32 1, label %%%s ]\n",
-      name, name, name, name, fault, name,
+      name, name, name, name, take_text ? text_cancel : fault, name,
       name, site, name, name, name, name, name, name, name,
       name, name, name, name, normal,
       (initialize == 5 || initialize == 6) ? fault : (initialize ? "invalid" : fault));
@@ -191,7 +198,8 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
       (lv4_is(op, "transaction", "dynamic_value_initialize") &&
        lv4_is(op, "value_tag", "nullable_object") && lv4_is(op, "residence", "object_home") &&
        yyjson_is_uint(yyjson_obj_get(op, "residence_object_id"))) ? 6 : 0;
-  if (!(replace ? (initialize || lv4_is(op, "transaction", "dynamic_i64_replace")) :
+  int take_text = hako_physical_text_field_replace(op);
+  if (!(replace ? (initialize || take_text || lv4_is(op, "transaction", "dynamic_i64_replace")) :
       lv4_is(op, "transaction", "take_dynamic"))) return 0;
   char name[32], site[32], base[32], candidate[32], token[32];
   snprintf(name, sizeof(name), "dyn%u", block);
@@ -210,7 +218,7 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
   }
   return lv4_emit_dynamic_transaction(f, name, in->profile, site, base,
       (long long)lv4_type_id(in, op), lv4_slot(in, op), replace ? candidate : NULL,
-      initialize == 3 ? token : NULL, initialize, residence_object,
+      (initialize == 3 || take_text) ? token : NULL, initialize, take_text, residence_object,
       candidate_kind_operand, normal, fault);
 }
 
@@ -247,7 +255,7 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
       snprintf(name, sizeof(name), "td_dyn%u", ordinal);
       snprintf(done, sizeof(done), "%s_done", name); snprintf(fault, sizeof(fault), "%s_fault", name);
       if (array_mark || object_mark || !lv4_emit_dynamic_transaction(f, name, in->profile,
-          "%site", "%handle", type, lv4_layout_slot(layout, ordinal), NULL, NULL, 0, 0, NULL, done, fault)) return 0;
+          "%site", "%handle", type, lv4_layout_slot(layout, ordinal), NULL, NULL, 0, 0, 0, NULL, done, fault)) return 0;
       fprintf(f, "%s:\n  store i32 1, ptr %%td_status, align 4\n  br label %%%s\n%s:\n", fault, done, done);
       continue;
     }

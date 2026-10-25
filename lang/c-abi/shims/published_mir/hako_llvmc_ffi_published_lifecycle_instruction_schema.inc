@@ -108,6 +108,14 @@ static int hako_physical_field_range_check(yyjson_val* check) {
       hako_physical_string(yyjson_obj_get(check, "declared_type"), "usize");
 }
 
+/* A Text replacement takes the exact owned pair on both operation exits. */
+static int hako_physical_text_field_replace(yyjson_val* op) {
+  return hako_physical_string(yyjson_obj_get(op, "transaction"), "dynamic_value_replace") &&
+      hako_physical_string(yyjson_obj_get(op, "value_tag"), "text") &&
+      hako_physical_string(yyjson_obj_get(op, "residence"), "text_home") &&
+      yyjson_is_null(yyjson_obj_get(op, "residence_object_id"));
+}
+
 static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* functions,
     yyjson_val* layouts, yyjson_val* operation, uint32_t block, uint32_t index, int native) {
   static const char* const call_keys[] = {"kind", "call"};
@@ -371,7 +379,7 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
           hako_physical_string(yyjson_obj_get(operation, "residence"), "object_home") &&
           hako_physical_u32(yyjson_obj_get(operation, "residence_object_id"), &child_object) &&
           hako_physical_layout_has_object(layouts, child_object);
-      if (!empty_array && !nullable_object) return 0;
+      if (!empty_array && !nullable_object && !hako_physical_text_field_replace(operation)) return 0;
     }
     if (!write) return hako_physical_drain_matches(layouts, operation);
     yyjson_val* range = yyjson_obj_get(operation, "exact_numeric_runtime_check");

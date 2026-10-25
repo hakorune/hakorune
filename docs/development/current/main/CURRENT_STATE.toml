@@ -20,8 +20,8 @@ latest_card_summary = """
 APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner61 seal Body1 Value source-not-i64, after unsupported Text replacement at Body0.
 Fixed suite9/11 in473.748s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
 Same original receiver/all-writer Text facts now reach checked field snapshot/Return and final Rust/C validation; standalone source EXE/run/exact UTF-8 stdout/exit0 PASS, mixed-writer source rejected.
-Focused18 PASS; final CLI46.28s and C physical family PASS. One unrelated field-batch expectation failure reproduces on exact clean pre-change HEAD; other prior reds stay open. See card for baseline test-binary rebuild note.
-Next: original Text assignment RHS evaluation and transaction pre/postcommit Fault ownership, then returned Text discard, keys-array cleanup and borrowed receivers. Required local/shared R6/R7 and finite-product closeout remain open; see card.
+Text Replace transaction: focused9 PASS, CLI89s/FFI C/physical family and existing untyped-field EXE PASS; both Fault phases consume candidate once. Prior exact-HEAD field-batch red and other reds remain open.
+Next: connect original Text assignment RHS evaluation to the existing both-exit consuming transaction, then returned Text discard, keys-array cleanup and borrowed receivers. Required local/shared R6/R7 and finite-product closeout remain open; see card.
 """
 next_design_card = "none"
 next_design_card_path = "none"

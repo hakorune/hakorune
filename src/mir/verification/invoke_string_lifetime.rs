@@ -282,8 +282,8 @@ pub(super) fn check(
             matches!(instruction, MirInstruction::StringResidenceInstall { .. })
                 || matches!(
             instruction, MirInstruction::Invoke { operation, .. }
-                if matches!(operation, InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, .. }
-                    | InvokeOperation::String(_)
+                if matches!(operation, InvokeOperation::FieldSet { mode, .. } if mode.has_owned_text_candidate_v1())
+                    || matches!(operation, InvokeOperation::String(_)
                     | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }
                         | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }
                         | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { .. })
@@ -339,8 +339,8 @@ pub(super) fn check(
                             return Err("string-text-operand-domain");
                         }
                     }
-                    if matches!(operation, InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value, .. }
-                    if !results.contains_key(value))
+                    if matches!(operation, InvokeOperation::FieldSet { mode, value, .. }
+                    if mode.has_owned_text_candidate_v1() && !results.contains_key(value))
                     {
                         return Err("string-owned-result-missing");
                     }
@@ -497,8 +497,8 @@ pub(super) fn check(
                     // the path check below requires that exact live pair on Normal.
                     let allowed = allowed
                         || matches!(instruction, MirInstruction::Invoke {
-                    operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, value: stored, .. }, .. }
-                    if *stored == value);
+                    operation: InvokeOperation::FieldSet { mode, value: stored, .. }, .. }
+                    if mode.has_owned_text_candidate_v1() && *stored == value);
                     let allowed = allowed
                         || matches!(instruction, MirInstruction::Return { value: Some(returned) }
                     if *returned == value && function.signature.return_type == crate::mir::MirType::String);
@@ -702,24 +702,22 @@ pub(super) fn check(
                 {
                     next_faulted |= target == *fault_landing;
                     // Source corroboration remains mandatory in the module checker.
-                    // The physical transfer happens only on FieldSet Normal; Fault
-                    // retains the newest temporary for its explicit candidate End.
-                    if let InvokeOperation::FieldSet {
-                        mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize,
-                        value,
-                        ..
-                    } = operation
-                    {
-                        if faulted
-                            || live.replacement.is_some()
-                            || live.hold.is_some()
-                            || live.call_pending.is_some()
-                            || live.temporary.last() != Some(value)
-                        {
-                            return Err("string-borrow-not-live");
-                        }
-                        if target == *normal_landing {
-                            next.temporary.pop();
+                    // Initialize transfers only on Normal. Text Replace takes
+                    // the candidate at entry and disposes it internally on a
+                    // precommit Fault; a committed slot retains it on old-End Fault.
+                    if let InvokeOperation::FieldSet { mode, value, .. } = operation {
+                        if mode.has_owned_text_candidate_v1() {
+                            if faulted
+                                || live.replacement.is_some()
+                                || live.hold.is_some()
+                                || live.call_pending.is_some()
+                                || live.temporary.last() != Some(value)
+                            {
+                                return Err("string-borrow-not-live");
+                            }
+                            if target == *normal_landing || mode.consumes_text_candidate_on_fault_v1() {
+                                next.temporary.pop();
+                            }
                         }
                     }
                     if target == *normal_landing

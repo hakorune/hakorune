@@ -21,7 +21,21 @@ pub enum FieldSetModeV1 {
     /// Birth first-write of an independently materialized Text residence.
     DynamicTextInitialize,
     /// Tagged dynamic payload with a separately selected source residence.
+    /// Text Replace takes its candidate at operation entry: a precommit Fault
+    /// ends it internally; after commit the slot owns it, even if old End faults.
     DynamicValue(DynamicFieldSetContractV1),
+}
+
+impl FieldSetModeV1 {
+    pub(crate) fn has_owned_text_candidate_v1(self) -> bool {
+        self == Self::DynamicTextInitialize || self.consumes_text_candidate_on_fault_v1()
+    }
+    pub(crate) fn consumes_text_candidate_on_fault_v1(self) -> bool {
+        matches!(self, Self::DynamicValue(contract)
+            if contract.intent() == DynamicFieldWriteIntentV1::Replace
+                && contract.value_tag() == DynamicFieldValueTagV1::Text
+                && contract.residence() == DynamicFieldResidenceV1::TextHome)
+    }
 }
 
 /// Value tag stored in the dynamic slot. This does not select how the payload

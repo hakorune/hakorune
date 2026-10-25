@@ -264,6 +264,32 @@ mod tests {
         let verified = super::super::check_function(&good);
         assert!(verified.is_ok(), "{verified:?}");
         assert_eq!(check(&good), Ok(()));
+        // Replacement takes the newest candidate on BOTH exits. The older
+        // temporary still follows its original Normal/Fault cleanup paths.
+        let mut replaced = good.clone();
+        let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+            hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap(), 0).unwrap();
+        let contract = crate::mir::instruction::DynamicFieldSetContractV1::issue(
+            crate::mir::instruction::DynamicFieldWriteIntentV1::Replace,
+            crate::mir::instruction::DynamicFieldValueTagV1::Text,
+            crate::mir::instruction::DynamicFieldResidenceV1::TextHome).unwrap();
+        replaced.blocks.get_mut(&BasicBlockId(2)).unwrap().set_terminator(MirInstruction::Invoke {
+            operation: InvokeOperation::FieldSet {
+                mode: crate::mir::instruction::FieldSetModeV1::DynamicValue(contract),
+                field, base: ValueId(10), value: ValueId(3),
+            },
+            fault_frame: ValueId(0), normal_landing: BasicBlockId(1002), fault_landing: BasicBlockId(21),
+        });
+        replaced.blocks.get_mut(&BasicBlockId(1002)).unwrap().set_terminator(
+            MirInstruction::Jump { target: BasicBlockId(4), edge_args: None });
+        assert_eq!(check(&replaced), Ok(()));
+        for normal in [true, false] {
+            let mut double_end = replaced.clone();
+            let Some(MirInstruction::Invoke { normal_landing, fault_landing, .. }) =
+                double_end.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator.as_mut() else { unreachable!() };
+            if normal { *normal_landing = BasicBlockId(3); } else { *fault_landing = BasicBlockId(20); }
+            assert!(check(&double_end).is_err(), "candidate already consumed on normal={normal}");
+        }
         let mut unproved_residency = good.clone();
         let Some(MirInstruction::Invoke { operation, .. }) = unproved_residency.blocks
             .get_mut(&BasicBlockId(3)).unwrap().terminator.as_mut() else { panic!("original End") };
