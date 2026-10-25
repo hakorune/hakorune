@@ -240,7 +240,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 Box::new([])
             };
             uses.call(caller, (block, index), actuals, copies, &caller_entry)?;
-            uses.guarded_call(row.call_site(), caller, (block, index), actuals)?;
+            uses.guarded_call(row.call_site(), caller, (block, index), actuals, &caller_entry)?;
             original.insert(row.call_site().clone());
             let mut callers = program
                 .functions()

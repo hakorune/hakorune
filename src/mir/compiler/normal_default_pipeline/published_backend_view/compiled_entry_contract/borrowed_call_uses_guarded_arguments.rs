@@ -46,6 +46,7 @@ impl BorrowedCallUses {
         caller: &MirFunction,
         coordinate: Coordinate,
         actuals: &[PreparedBorrowedFormalActualV1],
+        caller_entry: &[(u32, BindingRefV1, ValueId)],
     ) -> Result<(), String> {
         let state = self
             .functions
@@ -53,7 +54,21 @@ impl BorrowedCallUses {
             .or_default();
         let mut formals = BTreeMap::new();
         for actual in actuals {
-            if let Some((binding, formal)) = actual.source.caller_formal_origin_v1() {
+            // The same closed scalar seed as `call()`: the caller's own entry
+            // root supplies the forward identity, never a local alias.
+            let origin = match &actual.source {
+                BorrowedFormalActualSourceV1::Scalar { binding, .. } => Some((*binding, *binding)),
+                _ => actual.source.caller_formal_origin_v1(),
+            };
+            if let Some((binding, formal)) = origin {
+                if matches!(
+                    actual.source,
+                    BorrowedFormalActualSourceV1::Scalar { .. }
+                        | BorrowedFormalActualSourceV1::DeclaredFormal { .. }
+                ) && !caller_entry.iter().any(|(_, root, _)| *root == formal)
+                {
+                    continue;
+                }
                 if formals.insert(actual.ordinal, (binding, formal)).is_some() {
                     return Err(fault("borrowed-use/guarded-actual-duplicate"));
                 }
