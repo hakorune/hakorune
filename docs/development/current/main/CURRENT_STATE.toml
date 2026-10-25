@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary-trees borrowed receiver final Call callee-or-fault-frame; shared entry-formal forward proof unresolved; fixed suite 6/11"
+current_blocker_token = "binary-trees final Loop Compare occurrence coverage; shared entry-formal forward proof unresolved; fixed suite 6/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-bin
 latest_card = "app-binary-trees"
 latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-binary-trees remains selected. Finite New arguments and compound I64 initializer bindings close make final use validation; direct EXE now stops at iterationCheck/3 Call receiver callee-or-fault-frame, block142 row5. No EXE/app completion.
-Quick CLI49.67s PASS; fixed suite6/11 in106.134s retains the same five failed apps, no timeout/SKIP. The six include a non-EXE marker.
-Original New read/domain/actual/finished Birth evidence serves exact final operand coverage and tagged ABI. Whole validated scalar initializer packets lend original bindings; rooted Copy ancestry grants no arithmetic-result alias or ownership. Existing tag/Fault/Home contracts remain.
-Existing final-use27/0 and publication38/14; publication failure names match prior records, New subset four failures match pre-change. No test cases/files/hooks/checkers/guards added. Earlier source and C parser reds remain open.
-Next: same original receiver read and singleton nonnull Object domain to exact final Call, JSON/C class view and tag==3 receiver check; then unchanged EXE/run. Shared source failures and canonical closeout remain open.
+APP-binary-trees remains selected. Completed original receiver-use evidence closes Call receiver validation; direct EXE now stops at iterationCheck/3 compare-coverage for the source Loop condition. No EXE/app completion.
+Quick CLI1m02s and C FFI build PASS; fixed suite6/11 in129.988s retains the same five failed apps, no timeout/SKIP. The six include a non-EXE marker.
+Same Uses receiver row/read/domain/Call and projected Copies lend exact final receiver permission. Canonical class/non-null wire view keeps tag3/nonzero/runtime-class checks; nullable/mixed forwarding, Fault frames and unproved callee operands stay forbidden. No entry-lane switch.
+Existing final-use27/0 and declared-source1/0; C20 both-opt programs preserve Normal/Fault cleanup, stricter replay/class drift and19 negatives PASS. One replay/four negatives added only to existing C script for new marker boundary; no Rust cases/hooks/files/checkers. Earlier reds remain open.
+Next: original LoopConditionOperand plus same Bool packet to exact finished Compare side/count/coordinates, without new generic permission; then unchanged EXE/run. Shared source failures and canonical closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

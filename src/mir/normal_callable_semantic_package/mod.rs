@@ -284,3 +284,5 @@ pub(crate) use ordinary_new_coseal::fault_indices_after_normal_step_v2;
 pub(in crate::mir) use ordinary_new_coseal::{SourceValueSumV1, SourceValueAlternativeV1};
 
 pub(in crate::mir) use ordinary_new_coseal::{EmittedNewExpressionV1, NewArgumentCleanupV1, EmittedNewArgumentV1};
+
+pub(in crate::mir) use ordinary_new_coseal::FinalizedBorrowedCallPacketV1;

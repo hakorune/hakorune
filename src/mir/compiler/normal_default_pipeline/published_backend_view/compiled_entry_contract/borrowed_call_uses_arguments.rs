@@ -425,3 +425,61 @@ impl FunctionUses {
         Ok(true)
     }
 }
+
+pub(super) struct CompletedReceiverUse {
+    domain: BorrowedFormalDomainV1,
+    value: ValueId,
+    instruction: MirInstruction,
+}
+impl BorrowedCallUses {
+    pub(in super::super) fn receiver(
+        &mut self, source: &FinalizedRootSourceHandoffV1,
+        packet: crate::mir::normal_callable_semantic_package::FinalizedBorrowedCallPacketV1<'_>,
+        arguments: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1],
+        function: &MirFunction, coordinate: Coordinate, copies: &[(Binding, Coordinate)],
+    ) -> Result<(), String> {
+        let Some((domain, value, instruction, read_copies)) = source.completed_call_receiver_v1(packet, arguments, function, coordinate)?
+            else { return Ok(()); };
+        let state = self.functions.entry(function.signature.name.clone()).or_default();
+        let entry = source.borrowed_ordinary_entry_values_v1(packet.call_site().owner())?;
+        state.retain_rooted_copies_v1(entry.iter().map(|(_, _, value)| *value).collect(), copies)?;
+        for (binding, coordinate) in read_copies { state.copy(&binding, Some(coordinate))?; }
+        if state.receivers.insert(coordinate, CompletedReceiverUse { domain, value, instruction }).is_some() {
+            return Err(fault("borrowed-use/conflicting-argument"));
+        }
+        Ok(())
+    }
+}
+impl FunctionUses {
+    pub(super) fn observe_receiver_v1(
+        &self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+        coordinate: Coordinate, instruction: &MirInstruction, scan: &mut Scan,
+    ) -> Result<Option<ValueId>, String> {
+        let Some(expected) = self.receivers.get(&coordinate) else { return Ok(None); };
+        let roots: Vec<_> = self.roots.iter().filter(|(_, formal)| **formal == expected.domain.binding()).collect();
+        if roots.len() != 1 || self.domains.get(roots[0].0) != Some(&expected.domain)
+            || tracked.get(&expected.value).or(views.views.get(&expected.value)) != Some(&expected.domain.binding())
+            || instruction != &expected.instruction
+            || !matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }
+                if matches!(&call.callee, Callee::SameModuleInstance { key, receiver }
+                    if *receiver == expected.value && expected.domain.single_object_class_v1() == Some(key.owner())))
+            || !scan.receivers.insert(coordinate) {
+            return Err(fault("borrowed-use/callee-or-fault-frame"));
+        }
+        Ok(Some(expected.value))
+    }
+    pub(super) fn completed_object_views_v1(&mut self, module: &crate::mir::MirModule) -> Result<(), String> {
+        for (value, domain) in &self.domains {
+            let Some(class) = domain.single_object_class_v1() else { continue; };
+            let object = module.metadata.canonical_object_membership.as_ref()
+                .and_then(|membership| membership.get(class)).copied()
+                .ok_or_else(|| fault("borrowed-use/entry-parameter"))?;
+            if module.canonical_object_definition(object).is_none() { return Err(fault("borrowed-use/entry-parameter")); }
+            if self.roots.get(value) != Some(&domain.binding())
+                || self.object_views.insert(domain.binding(), object).is_some_and(|previous| previous != object) {
+                return Err(fault("borrowed-use/entry-parameter"));
+            }
+        }
+        Ok(())
+    }
+}

@@ -149,7 +149,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
       if (callee_has_receiver) {
         if (!yyjson_is_uint(receiver) || !in->index[target].receiver_object_set) return 0;
-        if (!lv4_readable_object(in, fn, lv4_u(call, "receiver"), state, lv4_u(block, "id"),
+        hako_lv4_value* receiver_value = lv4_index_value(fn, lv4_u(call, "receiver"));
+        int nonnull_receiver = lv4_nonnull_object_formal(fn, receiver_value, in->index[target].receiver_object);
+        if (!nonnull_receiver && !lv4_readable_object(in, fn, lv4_u(call, "receiver"), state, lv4_u(block, "id"),
                 in->index[target].receiver_object, 1))
           return LV4_FLOW_RECEIVER_MISMATCH;
       }
@@ -171,6 +173,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             yyjson_val* view = yyjson_obj_get(yyjson_arr_get(cparams, i), "object_view");
             unsigned finite_domain = hako_physical_finite_domain(yyjson_arr_get(cparams, i));
             int class_domain = yyjson_is_uint(view);
+            int nonnull_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "object_nonnull_view"));
+            if (nonnull_domain && yyjson_is_uint(kind) && yyjson_get_uint(kind) != 3) return 0;
             int text_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "text_view"));
             int integer_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "integer_view"));
             int bool_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "bool_view"));
@@ -186,6 +190,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               continue; /* Caller owns the pair through either Call outcome. */
             }
             if (arg_kind && !strcmp(arg_kind, "tagged")) {
+              if (nonnull_domain && !lv4_nonnull_object_formal(fn, value, (uint32_t)yyjson_get_uint(view))) return 0;
               unsigned incoming = hako_physical_input_domain(lv4_borrowed_formal_parameter(fn, value));
               if (finite_domain && (!incoming || (incoming & ~finite_domain))) return 0;
               if (!finite_domain && !text_domain && (incoming & (1u << 4))) return 0;
@@ -196,7 +201,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                  borrowed: the Void sentinel or a live lease — never a
                  spent origin, never a forwarded tagged carrier. The ABI
                  owner selects tag 0/3 at runtime. */
-              if (finite_domain) return 0;
+              if (finite_domain || nonnull_domain) return 0;
               int array_borrow = value && value->kind == LV4_SLOT_BORROW;
               if (value && value->kind == LV4_BORROWED_OBJECT) {
                 if (!lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;

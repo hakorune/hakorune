@@ -95,7 +95,42 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
                 total += 1
     print(total, 'source-issued both-opt programs: Normal/Fault caller cleanup exactly once')
 
+    # Independent wire boundary: completed singleton Object narrows the existing
+    # class loan to nonnull, without changing legacy nullable source witnesses.
+    def nonnull_classes(data):
+        for row in data['functions']:
+            for param in row['params']:
+                if type(param.get('object_view')) is int:
+                    param['object_nonnull_view'] = True
+        return data
+
+    strict = nonnull_classes(copy.deepcopy(issued[('declared-copy', 'object')]))
+    compile_input(strict)
+    checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c',
+             TESTS / 'published_lifecycle_v4_declared_borrow_probe.c', ARCHIVE,
+             *['-Wl,--wrap=nyash.' + name + '_v1' for name in WRAPS],
+             '-Wl,--wrap=nyash.object.type_id_h', '-lpthread', '-ldl', '-lm', '-o', exe])
+    run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
+    assert run.returncode == 11 and 'FAULT ' not in run.stdout, run
+    drift = subprocess.run([exe], env=dict(ENV, V4_PROBE_CLASS_DRIFT='1'), capture_output=True, text=True)
+    assert drift.returncode == 70 and 'CLASS_DRIFT ' in drift.stderr, drift
+    print('nonnull class: same borrowed lifetime; runtime class mismatch refused')
+
     negatives = []
+    data = copy.deepcopy(strict)
+    function(data, 'Transport.bridge/1')['params'][0]['object_nonnull_view'] = False
+    negatives.append(('nonnull-marker-must-be-true', data))
+    data = nonnull_classes(copy.deepcopy(issued[('declared-copy', 'null')]))
+    negatives.append(('nonnull-class-rejects-null-actual', data))
+    data = copy.deepcopy(strict)
+    del function(data, 'Transport.bridge/1')['params'][0]['object_nonnull_view']
+    negatives.append(('nullable-class-cannot-forward-to-nonnull-class', data))
+    data = copy.deepcopy(strict)
+    for block in function(data, 'main')['blocks']:
+        operation = block['terminator']['instruction'].get('operation', {})
+        if operation.get('kind') == 'ordinary_call':
+            operation['call']['args'][0]['kind'] = 'nullable_typed_object'
+    negatives.append(('nonnull-class-rejects-nullable-spelling', data))
     for shape in ['declared-copy', 'ignored']:
         base = issued[(shape, 'object')]
         for label, value in [('missing', ...), ('unknown', 999999), ('scalar', True)]:

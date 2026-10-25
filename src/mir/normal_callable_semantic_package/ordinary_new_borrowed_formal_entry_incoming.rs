@@ -533,7 +533,6 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         &self, argument: &crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
     ) -> Result<Option<(BindingRefV1, BorrowedFormalDomainV1)>, String> {
         use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
-        let EntryStructureEvidenceV1::FiniteInput { uses, .. } = &self.evidence else { return Ok(None); };
         let binding = match argument.kind() {
             Kind::Local { binding } | Kind::Handle { binding } | Kind::BoundValue { binding } => *binding,
             _ => return Ok(None),
@@ -541,17 +540,43 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         if argument.owner() != self.owner || argument.new_site().owner() != self.owner || binding.owner() != self.owner {
             return Err(freeze("static-input/qualified-use-identity"));
         }
+        Ok(self.finite_read_domain_v1(argument.site(), binding)?
+            .filter(|domain| domain.signed_only()).map(|domain| (binding, domain)))
+    }
+    /// Completed Uses keeps its original receiver purpose. A singleton class
+    /// supplies nonnull input agreement, not a new generic use permission.
+    pub(in crate::mir::normal_callable_semantic_package) fn completed_receiver_domain_v1(
+        &self, call: &OwnedExprSiteV1, site: &SourceExprSiteV1, binding: BindingRefV1, class: &str,
+    ) -> Result<Option<BorrowedFormalDomainV1>, String> {
+        let EntryStructureEvidenceV1::Uses(view) = &self.evidence else { return Ok(None); };
+        if call.owner() != self.owner || binding.owner() != self.owner { return Err(freeze("static-input/qualified-use-identity")); }
+        let Some(formal) = view.definition.origins.get(&binding) else { return Ok(None); };
+        let mut uses = view.definition.uses.iter().filter(|row|
+            row.site.owner() == self.owner && row.site.site() == site && row.binding == binding && row.formal == *formal
+                && matches!(&row.kind, super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::InstanceMethodReceiver { call: original } if original == call));
+        if uses.next().is_none() { return Ok(None); }
+        if uses.next().is_some() { return Err(freeze("static-input/qualified-use-identity")); }
+        let Some((ordinal, _)) = self.formals.iter().find(|(_, root)| root == formal) else {
+            return Err(freeze("static-input/qualified-use-identity"));
+        };
+        Ok(self.formal_domain_v1(*ordinal, *formal)?
+            .filter(|domain| domain.single_object_class_v1() == Some(class)).cloned())
+    }
+    fn finite_read_domain_v1(
+        &self, site: &SourceExprSiteV1, binding: BindingRefV1,
+    ) -> Result<Option<BorrowedFormalDomainV1>, String> {
+        let EntryStructureEvidenceV1::FiniteInput { uses, .. } = &self.evidence else { return Ok(None); };
+        if binding.owner() != self.owner { return Err(freeze("static-input/qualified-use-identity")); }
         let Some(formal) = self.origins().get(&binding) else { return Ok(None); };
         let Some((ordinal, _)) = self.formals.iter().find(|(_, root)| root == formal) else {
             return Err(freeze("static-input/qualified-use-identity"));
         };
         let Some(domain) = self.formal_domain_v1(*ordinal, *formal)? else { return Ok(None); };
-        if !domain.signed_only() { return Ok(None); }
-        let read = uses.lend_read(argument.site(), binding, *formal)
+        let read = uses.lend_read(site, binding, *formal)
             .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
-        if !read.matches(argument.site(), binding, *formal) {
+        if !read.matches(site, binding, *formal) {
             return Err(freeze("static-input/qualified-use-identity"));
         }
-        Ok(Some((binding, domain.clone())))
+        Ok(Some(domain.clone()))
     }
 }

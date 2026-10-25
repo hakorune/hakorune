@@ -180,12 +180,17 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
       uint32_t runtime_type = lv4_u(lv4_layout(in, (uint32_t)yyjson_get_uint(object_view)), "runtime_type_id");
       /* Caller provenance remains independently verified. A class domain
          validates runtime class before any callee effect; no ownership change. */
-      fprintf(f,
+      if (yyjson_is_true(yyjson_obj_get(param, "object_nonnull_view"))) {
+        fprintf(f, "  br label %%arg_object_check%u\narg_object_check%u:\n", v, v);
+      } else {
+        fprintf(f,
           "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
           "  %%arg_zero%u = icmp eq i64 %%v%u, 0\n"
           "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_zero%u\n"
           "  br i1 %%arg_nulok%u, label %%arg_next%u, label %%arg_object_check%u\n"
-          "arg_object_check%u:\n"
+          "arg_object_check%u:\n", v,v,v,v,v,v,v,v,v,v,v);
+      }
+      fprintf(f,
           "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
           "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
           "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
@@ -194,7 +199,7 @@ static void lv4_emit_borrowed_parameter_guard(FILE* f, const hako_lv4_input* in,
           "  %%arg_type%u = call i64 @\"nyash.object.type_id_h\"(i64 %%v%u)\n"
           "  %%arg_class%u = icmp eq i64 %%arg_type%u, %u\n"
           "  br i1 %%arg_class%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
-          v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,runtime_type,v,v,v);
+          v,v,v,v,v,v,v,v,v,v,v,v,v,v,runtime_type,v,v,v);
       return;
     }
     if ((lv4_is(fn, "role", "ordinary_borrowed_nullable_handle") ||

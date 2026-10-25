@@ -144,6 +144,12 @@ static int lv4_borrowed_object_formal(hako_lv4_function_index* fn,
   return 0;
 }
 
+static int lv4_nonnull_object_formal(hako_lv4_function_index* fn,
+    hako_lv4_value* value, uint32_t object) {
+  return lv4_borrowed_object_formal(fn, value, object) &&
+      yyjson_is_true(yyjson_obj_get(lv4_borrowed_formal_parameter(fn, value), "object_nonnull_view"));
+}
+
 /* The null sentinel's other admitted lanes: the function carries at
    least one `borrowed_null_compare` row, or a call edge whose borrowed
    actual spells tag 0 — the arg's own `value` field still names the

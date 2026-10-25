@@ -131,6 +131,11 @@ pub(super) fn encode_parameters(
                                             fault("borrowed-text/parameter-role"), function.name(), function.role().wire_name()));
                                     }
                                     row[view] = json!(true);
+                                } else if domain.single_object_class_v1().is_some() {
+                                    if input.entry().borrowed_object_view(ordinal, param.0).is_none() || function.role().ordinary_target().is_none() {
+                                        return Err(fault("borrowed-carrier-source-missing"));
+                                    }
+                                    row["object_nonnull_view"] = json!(true);
                                 } else if input.entry().has_finite_borrowed_input_v1(ordinal) {
                                     use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1 as Alternative;
                                     let mut alternatives = domain.finite_alternatives_v1()

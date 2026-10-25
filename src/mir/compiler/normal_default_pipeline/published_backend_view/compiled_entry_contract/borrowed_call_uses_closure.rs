@@ -14,6 +14,7 @@ impl BorrowedCallUses {
     ) -> Result<BTreeMap<u32, ClosedBorrowedEntryV1>, String> {
         let mut object_views = BTreeMap::new();
         for (name, mut state) in self.functions {
+            state.completed_object_views_v1(module)?;
             state.prepare_finite_source_copies_v1()?;
             guarded_arguments::prepare(&mut state)?;
             let function = module

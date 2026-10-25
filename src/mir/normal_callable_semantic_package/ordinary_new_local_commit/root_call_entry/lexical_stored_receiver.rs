@@ -121,3 +121,17 @@ impl StoredReceiverReadV1 {
         }
     }
 }
+
+impl EmittedLexicalCallProjectionV1 {
+    /// Only the original lexical receiver observation, never a stored-child
+    /// result or an absent Static receiver, lends this source read.
+    pub(in crate::mir::normal_callable_semantic_package) fn lexical_receiver_read_v1(
+        &self,
+    ) -> Option<&ExactLexicalReadV1> {
+        match (self.row.loan(), &self.prepared.receiver) {
+            (CallPacketSourceLoanV1::Instance(row), LexicalReceiverProjectionV1::Lexical(read))
+                if row.source_target().stored_receiver().is_none() => Some(read),
+            _ => None,
+        }
+    }
+}

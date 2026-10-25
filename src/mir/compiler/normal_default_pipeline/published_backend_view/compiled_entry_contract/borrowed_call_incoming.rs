@@ -168,6 +168,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     source.visit_finalized_borrowed_call_nodes_v1(
         module,
         |packet, arguments, caller, (block, index), copies| {
+            uses.receiver(source, packet, arguments, caller, (block, index), copies)?;
             let row = packet;
             let selected_source = packet.selects_borrowed_source(arguments);
             let callee = callees.get(row.target());

@@ -49,6 +49,7 @@ struct FunctionUses {
     roots: BTreeMap<ValueId, BindingRefV1>,
     copies: BTreeMap<ValueId, (Binding, Option<Coordinate>)>,
     arguments: BTreeMap<(BasicBlockId, usize, usize), BindingRefV1>,
+    receivers: BTreeMap<Coordinate, arguments::CompletedReceiverUse>,
     /// Checked-compare view admissions per formal, proved by the original
     /// source draft. Each admitted operand use must be observed through
     /// exactly one physical instruction coordinate and operand side per use.
@@ -89,6 +90,7 @@ struct Scan {
     definitions: BTreeMap<ValueId, usize>,
     coordinates: BTreeSet<Coordinate>,
     arguments: BTreeSet<(BasicBlockId, usize, usize)>,
+    receivers: BTreeSet<Coordinate>,
     /// Exact operand occurrences, including both sides of shared carriers.
     compare_uses: BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>,
     mul_uses: BTreeSet<(Coordinate, usize)>,
@@ -435,9 +437,9 @@ impl FunctionUses {
             } => {
                 let mut forbidden = tracked.contains_key(fault_frame)
                     || views.views.contains_key(fault_frame);
+                let receiver = self.observe_receiver_v1(tracked, views, coordinate, instruction, definitions)?;
                 call.callee.for_each_value_operand(|value| {
-                    forbidden |=
-                        tracked.contains_key(&value) || views.views.contains_key(&value);
+                    forbidden |= (tracked.contains_key(&value) || views.views.contains_key(&value)) && Some(value) != receiver;
                 });
                 if forbidden {
                     return Err(fault("borrowed-use/callee-or-fault-frame"));
@@ -680,6 +682,9 @@ impl FunctionUses {
         }
         if self.finite_birth_arguments.keys().copied().collect::<BTreeSet<_>>() != definitions.finite_birth_arguments {
             return Err(fault("borrowed-use/ctor-coverage"));
+        }
+        if self.receivers.keys().copied().collect::<BTreeSet<_>>() != definitions.receivers {
+            return Err(fault("borrowed-use/argument-missing"));
         }
         null_compare::coverage(&definitions.null_uses, &self.null_admissions)?;
         object_field::coverage(&definitions.field_uses, &self.field_admissions)?;

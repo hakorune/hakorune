@@ -728,3 +728,5 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 pub(in crate::mir) use local_commit::{EmittedNewExpressionV1, NewArgumentCleanupV1, EmittedNewArgumentV1};
+
+pub(in crate::mir) use local_commit::FinalizedBorrowedCallPacketV1;

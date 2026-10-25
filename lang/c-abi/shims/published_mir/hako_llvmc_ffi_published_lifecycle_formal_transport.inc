@@ -49,6 +49,7 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
   static const char* const text_keys[] = {"value", "representation", "object_view", "text_view"};
   static const char* const integer_keys[] = {"value", "representation", "object_view", "integer_view"};
   static const char* const finite_keys[] = {"value", "representation", "object_view", "finite_domain"};
+  static const char* const object_keys[] = {"value", "representation", "object_view", "object_nonnull_view"};
   static const char* const bool_keys[] = {"value", "representation", "object_view", "bool_view"};
   yyjson_val* params = yyjson_obj_get(fn, "params");
   if (!yyjson_is_arr(params)) return 0;
@@ -63,6 +64,9 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       yyjson_val* integer = yyjson_obj_get(param, "integer_view");
       yyjson_val* boolean = yyjson_obj_get(param, "bool_view");
       yyjson_val* finite = yyjson_obj_get(param, "finite_domain");
+      yyjson_val* nonnull = yyjson_obj_get(param, "object_nonnull_view");
+      if (nonnull && (!yyjson_is_true(nonnull) || !yyjson_is_uint(view) ||
+          !hako_physical_ordinary_function(fn) || text || integer || boolean || finite)) return 0;
       yyjson_val* scalar_view = text ? text : integer ? integer : boolean;
       if (((!!text + !!integer + !!boolean + !!finite) > 1) ||
           (scalar_view && (!yyjson_is_true(scalar_view) || !yyjson_is_null(view) ||
@@ -70,7 +74,7 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
                 (text && hako_physical_string(yyjson_obj_get(fn, "role"), "birth_unit")))))) return 0;
       if (finite && (!yyjson_is_null(view) || !hako_physical_ordinary_function(fn) ||
           !hako_physical_finite_domain(param))) return 0;
-      if (!(finite ? hako_physical_exact_keys(param, finite_keys, 4) : text ? hako_physical_exact_keys(param, text_keys, 4) :
+      if (!(nonnull ? hako_physical_exact_keys(param, object_keys, 4) : finite ? hako_physical_exact_keys(param, finite_keys, 4) : text ? hako_physical_exact_keys(param, text_keys, 4) :
           integer ? hako_physical_exact_keys(param, integer_keys, 4) :
           boolean ? hako_physical_exact_keys(param, bool_keys, 4) :
           hako_physical_exact_keys(param, view_keys, 3)) ||

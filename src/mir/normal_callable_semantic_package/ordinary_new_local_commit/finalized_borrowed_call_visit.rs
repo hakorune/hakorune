@@ -476,3 +476,57 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(())
     }
 }
+
+impl FinalizedRootSourceHandoffV1 {
+    /// Exact original receiver/entry/Call correspondence. Class alone is not
+    /// executable receiver permission; the same checked packet remains owner.
+    pub(in crate::mir) fn completed_call_receiver_v1(
+        &self, packet: FinalizedBorrowedCallPacketV1<'_>, arguments: &[LocalCallArgumentV1],
+        function: &MirFunction, coordinate: (BasicBlockId, usize),
+    ) -> Result<Option<(crate::mir::normal_callable_semantic_package::BorrowedFormalDomainV1, ValueId, MirInstruction,
+        Vec<((BasicBlockId, MirInstruction), (BasicBlockId, usize))>)>, String> {
+        let FinalizedBorrowedCallPacketV1::Lexical(packet) = packet else { return Ok(None); };
+        let Some(read) = packet.lexical_receiver_read_v1() else { return Ok(None); };
+        let row = packet.original_row()?;
+        let owner = row.call_site().owner();
+        if !self.has_borrowed_ordinary_entry_v1(owner) { return Ok(None); }
+        let binding = row.receiver_binding()?;
+        let entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        let Some(domain) = entry.completed_receiver_domain_v1(row.call_site(), row.receiver_site(), binding, row.target().owner())?
+            else { return Ok(None); };
+        let expected = if binding == domain.binding() {
+            self.borrowed_ordinary_entry_values_v1(owner)?.iter()
+                .find(|(ordinal, formal, _)| *ordinal == domain.ordinal() && *formal == domain.binding())
+                .map(|(_, _, value)| *value).ok_or_else(|| freeze("finished-copy/owner"))?
+        } else {
+            let mut value = None;
+            self.with_borrowed_ordinary_alias_copies_v1(owner, function, |_, _, alias, formal, original, _| {
+                if alias == binding && (formal != domain.binding() || value.replace(original).is_some()) {
+                    return Err(freeze("finished-copy/owner"));
+                }
+                Ok(())
+            })?;
+            value.ok_or_else(|| freeze("finished-copy/owner"))?
+        };
+        let copies = read.loan_forwarded_copies(binding, expected)?;
+        let receiver = read.value_for(owner, row.receiver_site().node(), binding).map_err(|issue| issue.to_string())?;
+        let call = packet.call_in_context(owner, arguments, CallValidationContextV1::Finalized(self))?;
+        if !matches!(&call.callee, crate::mir::Callee::SameModuleInstance { key, receiver: actual }
+            if key == row.target() && *actual == receiver) { return Err(freeze("finished-local-call/original-producer")); }
+        let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, packet.invoke_binding())?;
+        if symbol != function.signature.name
+            || super::finalized_source_projection::find_finished_producer(&symbol, &finished, function)? != coordinate
+            || !matches!(&finished.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call: actual, .. }, .. } if actual == &call) {
+            return Err(freeze("finished-local-call/original-producer"));
+        }
+        let copies = self.ledger.with_finished_projection(owner, |symbol, projection| {
+            copies.iter().map(|original| {
+                let binding = projection.relation_binding(function, original)?
+                    .ok_or_else(|| freeze("finished-copy/owner"))?;
+                let coordinate = super::finalized_source_projection::find_finished_producer(symbol, &binding, function)?;
+                Ok((binding, coordinate))
+            }).collect::<Result<Vec<_>, String>>()
+        })?;
+        Ok(Some((domain, receiver, finished.1, copies)))
+    }
+}
