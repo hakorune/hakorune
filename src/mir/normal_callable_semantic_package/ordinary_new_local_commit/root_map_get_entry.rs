@@ -298,7 +298,7 @@ impl StoredMapGetReadEmissionV1 {
                 field: self.source.receiver().field(),
                 base,
                 key,
-                object: self.source.storage().payload_object_v1(),
+                object: self.source.payload_source_v1().payload_object_v1(),
             },
         ))
     }

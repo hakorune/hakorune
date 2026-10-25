@@ -487,7 +487,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         let field = source.receiver();
                         field.require_entry_source_v1(self)?;
                         if origins.contains_key(&field.receiver())
-                            || source.storage().present_get_v1(&OwnedExprSiteV1::new(owner, value.value_site().clone())).is_none()
+                            || source.result_source_v1().and_then(|result| result.present_get_v1(&OwnedExprSiteV1::new(owner, value.value_site().clone()))).is_none()
                             || !uses.reads().any(|(at, original)| at == receiver_read
                                 && *original == ResolvedLexicalRefV1::Local(field.receiver()))
                             || !covered.insert((receiver_read.clone(), field.receiver())) {

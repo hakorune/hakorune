@@ -55,7 +55,7 @@ impl FinalizedMapSlotReturnV1 {
         let TerminalReturnedSourceV1::StoredMapGet { source: get, .. } = terminal.returned() else {
             return Err(freeze("borrowed-return/source-kind"));
         };
-        if !Rc::ptr_eq(source, get.storage())
+        if get.result_source_v1().is_none_or(|result| !Rc::ptr_eq(source, result))
             || !source
                 .present_get_v1(&OwnedExprSiteV1::new(
                     terminal.owner(),

@@ -115,9 +115,25 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
         with_source_claims_fixture(&text, |batch, selected, constructors, parameters, main, writers| {
             let common = crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(batch).unwrap();
             let entries = crate::mir::resolved_semantics::CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1(batch, &common).unwrap();
-            let (_, _, facts, _) = prepare_source_claims(batch, selected, main, constructors, parameters,
+            let (fields, _, facts, _) = prepare_source_claims(batch, selected, main, constructors, parameters,
                 std::rc::Rc::clone(writers), Some(&entries)).unwrap();
             let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Holder", "find", 1);
+            let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key.clone())).unwrap();
+            batch.with_lowering_input(slot, |input| {
+                let get = input.function().method_calls().find(|(_, call)| call.selector() == "get").unwrap().0;
+                let at = OwnedExprSiteV1::new(input.owner(), get.clone());
+                let entry = entries.for_batch_slot(slot).unwrap();
+                let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(selected, batch, Some(entry), slot).unwrap();
+                let source = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StoredMapGetSourceLoanV1::issue_for_site_v1(
+                    input, &at, batch, selected, constructors, Some(receiver), Some(entry), &facts, &fields).unwrap();
+                // A same-class replacement invalidates Return borrowing, not
+                // the storage class. Escape/mixed writers/unknown mutations reject both.
+                assert_eq!(source.is_some(), accepted || !between.is_empty());
+                if let Some(source) = source {
+                    assert_eq!(source.payload_source_v1().payload_class_v1(), "Item");
+                    assert_eq!(source.result_source_v1().is_some(), accepted);
+                }
+            }).unwrap();
             assert_eq!(facts.outcomes(&key).is_some(), accepted, "Map source boundary: {extra}");
             assert!(facts.get(&key).is_none());
             if accepted {

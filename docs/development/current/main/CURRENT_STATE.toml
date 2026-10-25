@@ -18,10 +18,10 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 APP-boxtorrent-mini remains selected; unchanged source uses canonical emit-exe/C API with exact stdout/exit and no replay. EXE remains incomplete.
-Latest fixed suite9/11 in467.876s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass again; boxtorrent and JSON source connections remain open.
+Latest fixed suite9/11 in465.405s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass again; boxtorrent and JSON source connections remain open.
 Current stop: owner67 Body3LoopBody0 releaseFrom store.release(ids.get(i)), borrowed-result/source-not-i64. Next retain the exact original Map-get receiver acquisition for Store.release chunk.release; never bypass borrowed lifetime with class-only resolution.
-Connected whole-source Map payload class and a distinct MapLocal result leaf; refCount numeric fields now ground. Same get/source Rc/canonical object and all writers are checked; no Entry disguise, lifetime grant or weakening of old MapStoredResult restrictions.
-Final CLI37.06s/test build61s PASS; existing source3/scalar-pending7/object-return5/stored-receiver6 PASS. No new test/checker assets or temporary diagnostics. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
+Shared one Rc Map payload source beneath result and direct-get roles. Direct gets no longer require a Return producer, while every Return consumer requires its independent source; whole-function local lifetime checks are unchanged. refCount numeric proof remains grounded.
+CLI56.97s/test build71s PASS; existing source3/scalar-pending7/object-return5/stored-receiver6 PASS. Same seven Map inputs also check type-vs-Return authority; no new test functions/fixtures/checkers or temporary diagnostics. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
 """
 next_design_card = "none"
 next_design_card_path = "none"

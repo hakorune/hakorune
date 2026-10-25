@@ -702,6 +702,7 @@ pub(super) fn probe_source_home_prefixes_v1(
                 return super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(
                     input,
                     site,
+                    batch,
                     selected,
                     instance_constructors,
                     receiver_proof,

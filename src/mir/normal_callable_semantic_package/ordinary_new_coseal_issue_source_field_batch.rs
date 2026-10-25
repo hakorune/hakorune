@@ -135,7 +135,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             let LocalFieldReadResultV1::Alias(class) = row.source.result() else { return Ok(None); };
             Some(class.clone())
         } else if let Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, .. }) = &request.received {
-            Some(frame.source().storage().payload_class_v1().into())
+            Some(frame.source().payload_source_v1().payload_class_v1().into())
         } else if let Some(source) = &received { Some(source.class().into()) } else if request.nullable {
             match nullable_class(request.home) {
                 Some(class) => Some(class),

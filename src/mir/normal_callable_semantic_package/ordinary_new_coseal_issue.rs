@@ -622,7 +622,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             input, instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut local_field_read, &mut |site, actuals| {
                             if matches!(actuals, BorrowedCallActualRequestV1::StoredMapGetSource) {
-                                return super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(input, site, selected,
+                                return super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(input, site, batch, selected,
                                     instance_constructors, receiver_proof, entry_home, &callable_result_classes, &field_write_claims)
                                     .map(|loan| loan.map(BorrowedCallArgumentsV1::StoredMapGetSource))
                                     .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });

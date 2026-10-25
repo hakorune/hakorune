@@ -294,13 +294,24 @@ pub(super) fn capture_box_field_v1(
 /// Normal payload class only. Slot lifetime, nonnull and executable reads
 /// remain with their existing acquisition and field-read owners.
 #[derive(Debug)]
-pub(super) struct MapFieldPayloadSourceV1 {
+pub(crate) struct MapFieldPayloadSourceV1 {
     pub(super) source: std::rc::Rc<super::field_write_claim::DeclaredFieldValueSourceV1>,
     pub(super) class: Box<str>,
     pub(super) object: hakorune_mir_defs::CanonicalObjectIdV1,
     pub(super) uses: FieldUseCensusV1,
 }
 impl MapFieldPayloadSourceV1 {
+    pub(crate) fn payload_class_v1(&self) -> &str { &self.class }
+    pub(crate) fn payload_object_v1(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.object }
+    pub(super) fn same_source_v1(&self, other: &Self) -> bool {
+        std::rc::Rc::ptr_eq(&self.source, &other.source) && self.class == other.class
+            && self.object == other.object && self.uses.stores == other.uses.stores
+            && self.uses.aliases == other.uses.aliases && self.uses.foreign == other.uses.foreign
+            && self.uses.captured_receiver == other.uses.captured_receiver && self.uses.vetoed == other.uses.vetoed
+            && self.uses.calls.len() == other.uses.calls.len()
+            && self.uses.calls.iter().zip(&other.uses.calls).all(|((a, call), (b, original))|
+                a == b && std::sync::Arc::ptr_eq(call, original))
+    }
     pub(super) fn issue(
         batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,

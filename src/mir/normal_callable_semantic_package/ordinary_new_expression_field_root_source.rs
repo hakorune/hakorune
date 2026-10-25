@@ -100,7 +100,7 @@ impl ExpressionFieldRootSourceV1 {
                 || request.nullable || request.formal || request.alias_class.is_some() {
                 return Err("expression-path/received-root-kind".into());
             }
-            let storage = frame.source().storage();
+            let storage = frame.source().payload_source_v1();
             let source = coverage.row_for(storage.payload_class_v1()).map_err(|_| "expression-path/root-object")?
                 .ok_or("expression-path/root-object")?;
             if storage.payload_object_v1() != field.object() { return Err("expression-path/root-field-object".into()); }

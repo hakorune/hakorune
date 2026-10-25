@@ -707,7 +707,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
     else {
         return Ok(unavailable());
     };
-    if !std::rc::Rc::ptr_eq(&source, get_source.storage()) {
+    if get_source.result_source_v1().is_none_or(|result| !std::rc::Rc::ptr_eq(&source, result)) {
         return Ok(unavailable());
     }
     let get = get_source.get();

@@ -1,10 +1,8 @@
-//! Physical consumption of one source-issued readable-Map terminal.
-//!
-//! The source relation names the exact `return <map>.get("<literal>")`
-//! boundary. This module only resolves the receiver binding into its
-//! already-physical value; it never revisits raw syntax, issues a key, or
-//! decides ownership — a borrowed formal stays caller-owned and an owned
-//! map local keeps its own End obligation.
+//! Source-backed Map.get acquisition and terminal consumption.
+//! Shared payload facts qualify local gets independently of Return producers.
+//! Borrowed Return results still require their own complete source witnesses.
+//! Physical consumers resolve already-checked operands; no source rewrite,
+//! Recipe key, owning Home or fallback is issued here.
 use super::*;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourceStmtSiteV1};
 use crate::mir::ValueId;
@@ -57,25 +55,34 @@ fn fault(reason: &str) -> String {
 /// receiver. The producer's key ordinal and receiver are never substituted.
 #[derive(Debug, Clone)]
 pub(crate) struct StoredMapGetSourceLoanV1 {
-    storage: std::rc::Rc<super::MapStoredResultSourceV1>,
+    payload: std::rc::Rc<super::container_field_uses::MapFieldPayloadSourceV1>,
+    result: Option<std::rc::Rc<super::MapStoredResultSourceV1>>,
     get: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     receiver: std::rc::Rc<super::super::core_method_source::FieldMapReceiverSourceV1>,
 }
 impl PartialEq for StoredMapGetSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        std::rc::Rc::ptr_eq(&self.storage, &other.storage)
+        self.payload.same_source_v1(&other.payload)
+            && match (&self.result, &other.result) {
+                (Some(a), Some(b)) => std::rc::Rc::ptr_eq(a, b),
+                (None, None) => true,
+                _ => false,
+            }
             && std::sync::Arc::ptr_eq(&self.get, &other.get)
             && self.receiver.matches_source(&other.receiver)
     }
 }
 impl Eq for StoredMapGetSourceLoanV1 {}
 impl StoredMapGetSourceLoanV1 {
-    pub(crate) fn storage(&self) -> &std::rc::Rc<super::MapStoredResultSourceV1> { &self.storage }
+    pub(crate) fn payload_source_v1(&self) -> &std::rc::Rc<super::container_field_uses::MapFieldPayloadSourceV1> { &self.payload }
+    pub(crate) fn result_source_v1(&self) -> Option<&std::rc::Rc<super::MapStoredResultSourceV1>> { self.result.as_ref() }
     pub(crate) fn get(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.get }
     pub(crate) fn receiver(&self) -> &super::super::core_method_source::FieldMapReceiverSourceV1 { &self.receiver }
     pub(in crate::mir::normal_callable_semantic_package) fn issue_for_site_v1(
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-        at: &OwnedExprSiteV1, selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        at: &OwnedExprSiteV1,
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         constructors: &super::super::VerifiedInstanceConstructorSemanticBatchV1,
         receiver: Option<(crate::mir::resolved_semantics::BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
         entry: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
@@ -85,28 +92,49 @@ impl StoredMapGetSourceLoanV1 {
         if at.owner() != input.owner() { return Err(fault("source-drift")); }
         let Some(original) = input.function().method_call_source_v1(at.site()) else { return Ok(None) };
         if original.selector() != "get" || original.arity() != 1 { return Ok(None); }
-        let Some(storage) = classes.map_stored_get_source_v1(at).map_err(fault)? else { return Ok(None) };
-        let get = storage.original_get_v1(at).ok_or_else(|| fault("source-drift"))?;
-        let (Some(receiver), Some(entry)) = (receiver, entry) else { return Err(fault("source-drift")) };
+        let result = classes.map_stored_get_source_v1(at).map_err(fault)?;
+        let (Some(receiver), Some(entry)) = (receiver, entry) else {
+            return if result.is_some() { Err(fault("source-drift")) } else { Ok(None) };
+        };
         let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(entry.batch_slot())
             else { return Err(fault("source-drift")) };
-        if at.owner() != input.owner() || entry.owner() != input.owner()
-            || !input.function().method_call_source_v1(at.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, get)) {
-            return Err(fault("source-drift"));
-        }
+        let payload = if let Some(result) = &result {
+            std::rc::Rc::clone(result.payload_source_v1())
+        } else {
+            use crate::mir::resolved_semantics::BodyExpressionShapeV1 as Shape;
+            let Some(Shape::FieldAccess { object, field, .. }) = input.body_shape()
+                .and_then(|shape| shape.expression_shape(original.receiver_site())) else { return Ok(None); };
+            if !matches!(input.function().variable_ref(object),
+                Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if binding == receiver.0)
+                || !matches!(input.body_shape().and_then(|shape| shape.expression_shape(object)),
+                    Some(Shape::Me { receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), .. }) if *binding == receiver.0)
+                || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod { return Ok(None); }
+            let Some(payload) = super::container_field_uses::MapFieldPayloadSourceV1::issue(
+                batch, selected, constructors, fields, key.owner(), field) else { return Ok(None) };
+            std::rc::Rc::new(payload)
+        };
+        let get = payload.original_get_at_v1(at).ok_or_else(|| fault("source-drift"))?;
+        if entry.owner() != input.owner() || !std::sync::Arc::ptr_eq(original, get) { return Err(fault("source-drift")); }
         let receiver = super::super::core_method_source::FieldMapReceiverSourceV1::issue(
             input, key, get, constructors, fields, receiver, entry)?;
-        if !receiver.same_field_source_v1(storage.receiver_v1()) { return Err(fault("source-drift")); }
-        Ok(Some(Self { get: std::sync::Arc::clone(get), storage, receiver: std::rc::Rc::new(receiver) }))
+        if receiver.field() != payload.source.field() || !payload.source.same_inventory(fields)
+            || result.as_ref().is_some_and(|source| !receiver.same_field_source_v1(source.receiver_v1())) {
+            return Err(fault("source-drift"));
+        }
+        Ok(Some(Self { get: std::sync::Arc::clone(get), payload, result, receiver: std::rc::Rc::new(receiver) }))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         let at = OwnedExprSiteV1::new(self.get.owner(), self.get.site().clone());
-        let retained = ledger.callable_result_classes.map_stored_get_source_v1(&at).map_err(fault)?
-            .ok_or_else(|| fault("source-drift"))?;
-        if !std::rc::Rc::ptr_eq(&retained, &self.storage)
-            || !retained.original_get_v1(&at).is_some_and(|get| std::sync::Arc::ptr_eq(get, &self.get))
-            || !self.receiver.same_field_source_v1(retained.receiver_v1()) {
-            return Err(fault("source-drift"));
+        if !self.payload.source.same_inventory(&ledger.field_write_claims)
+            || !self.payload.original_get_at_v1(&at).is_some_and(|get| std::sync::Arc::ptr_eq(get, &self.get))
+            || self.receiver.field() != self.payload.source.field()
+            || !self.receiver.same_source(&ledger.field_write_claims) { return Err(fault("source-drift")); }
+        if let Some(result) = &self.result {
+            let retained = ledger.callable_result_classes.map_stored_get_source_v1(&at).map_err(fault)?
+                .ok_or_else(|| fault("source-drift"))?;
+            if !std::rc::Rc::ptr_eq(&retained, result)
+                || !std::rc::Rc::ptr_eq(retained.payload_source_v1(), &self.payload)
+                || !self.receiver.same_field_source_v1(retained.receiver_v1()) { return Err(fault("source-drift")); }
         }
         self.receiver.require_entry_source_v1(ledger)
     }
@@ -125,7 +153,7 @@ impl StoredMapGetReturnSourceLoanV1 {
         &crate::mir::resolved_semantics::SourceExprSiteV1) {
         let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } = self.terminal.returned()
             else { unreachable!("source-issued stored get loan") };
-        (source.storage(), key, receiver_read)
+        (source.result_source_v1().expect("verified stored Return source"), key, receiver_read)
     }
     pub(crate) fn get_source(&self) -> &StoredMapGetSourceLoanV1 {
         let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::StoredMapGet { source, .. } = self.terminal.returned()
@@ -147,10 +175,11 @@ impl OrdinaryNewClaimLedgerV1 {
         let retained = self.callable_result_classes.map_stored_source_v1(&site).map_err(fault)?
             .ok_or_else(|| fault("source-drift"))?;
         source.recheck_v1(self)?;
-        let get = source.storage().present_get_v1(&site).ok_or_else(|| fault("source-drift"))?;
+        let result = source.result_source_v1().ok_or_else(|| fault("source-drift"))?;
+        let get = result.present_get_v1(&site).ok_or_else(|| fault("source-drift"))?;
         let completion = self.completion_source_for_owner_v1(owner).ok_or_else(|| fault("completion-missing"))?;
         if terminal.owner() != owner || terminal.return_site() != exit || !completion.explicit_sites().contains(exit)
-            || !std::rc::Rc::ptr_eq(&retained, source.storage())
+            || !std::rc::Rc::ptr_eq(&retained, result)
             || !std::sync::Arc::ptr_eq(source.get(), get)
             || receiver_read != source.receiver().receiver_site()
             || key.source().owner() != owner || key.source().nodes().len() != 1

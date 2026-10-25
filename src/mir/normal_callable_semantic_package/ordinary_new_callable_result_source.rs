@@ -109,7 +109,7 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
                     }
                     match returned.returned() {
                         Returned::StoredMapGet { source: same, key, .. }
-                            if Rc::ptr_eq(source, same.storage()) && key.reference_coverage_is_exact()
+                            if same.result_source_v1().is_some_and(|result| Rc::ptr_eq(source, result)) && key.reference_coverage_is_exact()
                                 && key.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                                     crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
                                 && source.present_get_v1(&at).is_some_and(|get| std::sync::Arc::ptr_eq(same.get(), get) &&
