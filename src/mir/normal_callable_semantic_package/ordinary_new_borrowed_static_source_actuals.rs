@@ -125,7 +125,7 @@ pub(super) fn ordinary_text_argument_source_v1(
     if method.owner() != site.owner() || method.site() != site.site()
         || !std::sync::Arc::ptr_eq(source.method_source(), method)
         || source.call_site() != site
-        || source.call_result_evidence().is_none_or(|row| row.static_target_key() != Some(source.target())
+        || source.call_result_evidence().is_some_and(|row| row.static_target_key() != Some(source.target())
             || row.result_representation() != crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString)
     { return Err(freeze("borrowed-actual/text-call-source-identity")); }
     Ok(Some(Rc::clone(source)))
@@ -152,9 +152,10 @@ pub(super) fn core_argument_source_v1(
                 crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller,
             ) => kind.is_ordinary_borrowed_handle(),
             (
-                CallableParameterContractKindV1::ExactTrivial(abi),
+                kind,
                 crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller,
-            ) => abi.is_i64(),
+            ) => matches!(kind, CallableParameterContractKindV1::OpaqueHandle)
+                || matches!(kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()),
             _ => false,
         }
     {

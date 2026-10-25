@@ -479,15 +479,23 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 ) -> Result<bool, (OwnedExprSiteV1, String)> {
     let Ok(rows) = needs else { return Ok(false); };
     let mut promoted = false;
+    let grounded = grounded_source_results_v1(pending);
     for row in rows.iter_mut() {
         let Ok(Some(need)) = row else { continue; };
-        if !matches!(need, PreparedSourceCallNeedV1::Lexical(_))
-            || need.owning_object_input_v1().is_some()
+        if need.owning_object_input_v1().is_some()
             || !matches!(need.result_requirement(), LexicalCallSourceResultRequirementV1::ExistingBorrowedResult)
         {
             continue;
         }
         let reference = need.reference();
+        if need.stored().is_some() {
+            // Direct Return forwarding keeps its existing result owner.
+            // Missing source is not evidence of an independent value use.
+            let Ok(Some(caller)) = pending.original_return_source_v1(&reference.call_site.owner())
+                else { continue; };
+            if caller.directly_returns_call_v1(&reference.call_site)
+                || !grounded.contains(&reference.callee_owner) { continue; }
+        }
         // A result fact does not select borrowed transport for strict inputs.
         if !contracts.iter().any(|contract| contract.owner == reference.callee_owner
             && contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle())) {

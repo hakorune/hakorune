@@ -72,20 +72,32 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         call: &OwnedExprSiteV1,
     ) -> bool {
-        fn original_binary(
+        fn original_expression(
+            prepared: &PreparedBorrowedFormalIngressV1,
             seed: &OriginalFormalActualSeedV1,
             owner: FunctionOwnerIdV1,
             site: &SourceExprSiteV1,
+            formal_signed: bool,
         ) -> bool {
             match seed {
                 OriginalFormalActualSeedV1::Binary {
                     owner: original,
                     source,
                     ..
-                } => *original == owner && source.site() == site,
+                } => *original == owner && source.site() == site && formal_signed,
+                OriginalFormalActualSeedV1::MethodResult(source) => {
+                    let method = source.method();
+                    method.owner() == owner && method.site() == site
+                        && prepared.ordinary_core_source_v1(&OwnedExprSiteV1::new(owner, site.clone()))
+                            .is_some_and(|core| std::sync::Arc::ptr_eq(method, core.source().source())
+                                && core.source().target().schema()
+                                    == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
+                                && core.source().target().result()
+                                    == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller)
+                }
                 OriginalFormalActualSeedV1::SourceOnly(source)
                 | OriginalFormalActualSeedV1::SumUnknown(source) => {
-                    original_binary(source, owner, site)
+                    original_expression(prepared, source, owner, site, formal_signed)
                 }
                 _ => false,
             }
@@ -97,18 +109,22 @@ impl PreparedBorrowedFormalIngressV1 {
         let Some(sums) = &product.source_sums else {
             return false;
         };
+        let mut current = self.source_incoming.source_rows_v1().filter(|row| &row.call == call);
+        let Some(selected) = current.next() else { return false; };
+        if current.next().is_some() || selected.source.instance().is_none() { return false; }
         product
             .rows
             .iter()
-            .filter(|row| &row.incoming.call == call && row.incoming.source.instance().is_some())
+            .filter(|row| &row.incoming.call == call
+                && row.incoming.source.same_original_source_v1(&selected.source))
             .any(|row| {
                 row.incoming
                     .arguments
                     .iter()
                     .zip(&row.seeds)
                     .any(|((_, site, formal), seed)| {
-                        original_binary(seed, call.owner(), site)
-                            && sums.values.get(formal).is_some_and(|sum| sum.signed_only())
+                        original_expression(self, seed, call.owner(), site,
+                            sums.values.get(formal).is_some_and(|sum| sum.signed_only()))
                     })
             })
     }

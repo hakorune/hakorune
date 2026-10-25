@@ -1030,6 +1030,7 @@ pub(super) fn prepare_source_preflight_v1(
                     callable_result_classes,
                     site,
                     receiver,
+                    field_write_claims,
                     residences,
                     owned,
                 )

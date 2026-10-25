@@ -152,6 +152,11 @@ impl OriginalReturnSourceLoanV1 {
         matches!(self.0.body, OriginalReturnBodySourceV1::ComputedValueReturns { .. })
             && self.is_value_return_source_v1()
     }
+    /// Original Return purpose, independent of provisional result class.
+    pub(super) fn directly_returns_call_v1(&self, call: &OwnedExprSiteV1) -> bool {
+        self.0.owner == call.owner() && self.plans().iter().any(|plan|
+            plan.owner() == call.owner() && plan.root().expression_site() == Some(call.site()))
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn selects_scalar_return_source_v1(
         &self, has_borrowed_definition: bool,
     ) -> bool {

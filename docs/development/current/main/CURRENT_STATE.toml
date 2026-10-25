@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner51 ordinary-new/stored-child/receiver-unavailable; fixed suite 9/11, mimalloc and allocator EXE PASS"
+current_blocker_token = "boxtorrent-mini owner51 Body2 SourceObject input incomplete for HakoAllocHeap.allocate owner36; fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini selected after unchanged mimalloc-lite canonical LLVM C API/pure-first EXE/run/exact stdout/exit0 PASS; allocator-stress also passes through the shared owner fixes. Full finite-product goal remains active.
-Fixed suite9/11 in459.647s with explicit outer --timeout420: eight real EXEs plus marker, no timeout/SKIP. Mimalloc155.983s, allocator192.662s, binary-trees46.667s. Remaining reds: boxtorrent owner51 and JSON owner22.
-Current stop: ordinary-new/stored-child/receiver-unavailable. Next: same original parent/field/child receiver source to Call; no class inference from names/MIR types, fallback/retry or app edits. See the active card.
-Landed: exact forward-read SUM points, Uses NewArgument signed Birth projection, checked opaque-pair-to-integer Call with caller Fault cleanup, same projected borrowed usize store. Original source guard/dominance and independent final/ownership checks retained; temporary captures/artifacts removed.
-CLI43.11s/FFI and C borrowed-ingress Normal/Fault/domain negatives PASS; final-use18PASS; publication9PASS/1prior diagnostic red. Prior source/publication/Loop reds, local/shared R6/R7 retirement and final pipeline remain open; benchmark promotion stays parked.
+APP-boxtorrent-mini remains selected; unchanged source now uses canonical emit-exe/C API instead of the old selfhost generic-JSON route. Full stdout/exit, root digest/roundtrip, no replay and existing String safety tests remain required.
+Latest fixed suite9/11 in468.515s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. Prior mimalloc/allocator/binary-trees and all minimal EXEs pass; JSON owner22 remains refused.
+Current stop: owner51 Body2 SourceObject actuals for HakoAllocHeap.allocate owner36 remain source-only. Next inspect finisher owner selection, Completion/signature and every original incoming; keep whole input closure and qualified frame requirements.
+Connected: same original sole Birth provider to Dynamic stored receiver; direct Return vs independent grounded scalar use; closed Core I64 pair arguments and original Pending/Selected identity. No app/source rewrites, fallback/retry, new checker/test assets or execution grant from source selection.
+CLI38.85s/test build71s PASS; existing receiver6/pending7/Core1/publication2 PASS. Text repeat-walk red reproduces an older existing test binary, exact revision unconfirmed; keep it and prior source/publication/Loop/R6/R7 closeout open. See active card/Git history.
 """
 next_design_card = "none"
 next_design_card_path = "none"

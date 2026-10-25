@@ -545,6 +545,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     site: &OwnedExprSiteV1,
     receiver: &super::super::super::lexical_instance_call::StoredReceiverSourceV1,
+    writes: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     residences: &field_write_claim::OwnedFieldResidencesV1,
     owned: &mut BTreeMap<hakorune_mir_defs::CanonicalObjectIdV1, Option<Box<[OwnedFieldChildV1]>>>,
 ) -> Result<Option<super::super::super::lexical_instance_call::LexicalInstanceCallReceiverV1>, String>
@@ -591,6 +592,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     let Some(field) = field else {
         return Ok(None);
     };
+    let dynamic_provider = writes.object_sources()
+        .get(&(receiver.parent_class.clone(), receiver.field_name.clone()))
+        .is_some_and(|source| source.class() == class.as_ref()
+            && source.dynamic_provider_field_v1(&receiver.parent_class, name) == Some(field));
     let dynamic = if residences.get(&(receiver.parent_class.clone(), receiver.field_name.clone()))
         .is_some_and(|row| matches!(row, field_write_claim::OwnedFieldResidenceV1::Provider(_))) {
         None
@@ -626,7 +631,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     let Some(inventory) = inventory else {
         return Ok(None);
     };
-    let expected = if dynamic.is_some() {
+    let expected = if dynamic_provider || dynamic.is_some() {
         OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence)
     } else {
         OwnedFieldChildKindV1::Object(child)

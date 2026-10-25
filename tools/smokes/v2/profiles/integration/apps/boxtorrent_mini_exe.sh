@@ -4,8 +4,9 @@
 # Contract pin:
 # - BoxTorrent mini now has direct EXE parity for the allocator-backed local
 #   store path.
-# - `materialize` must concatenate the StringBox returned by
-#   `BoxTorrentStore.readData/1`, not treat it as scalar i64.
+# - The exact root digest and roundtrip output exercise returned chunk Text
+#   through materialize. String carrier/domain negatives remain with existing
+#   source publication and C borrowed-ingress tests, independent of LLVM names.
 
 set -euo pipefail
 
@@ -15,13 +16,13 @@ require_env || exit 2
 SMOKE_NAME="boxtorrent_mini_exe"
 APP="$HAKO_ROOT/apps/boxtorrent-mini/main.hako"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-120}"
+BUILD_TIMEOUT_SECS="${BUILD_TIMEOUT_SECS:-300}"
 TMP_ROOT="${TMPDIR:-/tmp}/hakorune_boxtorrent_mini_exe_$$"
 EXE_OUT="${TMP_ROOT}.exe"
-IR_OUT="${TMP_ROOT}.ll"
 BUILD_LOG="${TMP_ROOT}.build.log"
 
 cleanup() {
-  rm -f "$EXE_OUT" "$IR_OUT" "$BUILD_LOG" 2>/dev/null || true
+  rm -f "$EXE_OUT" "$BUILD_LOG" 2>/dev/null || true
 }
 trap cleanup EXIT
 
@@ -30,15 +31,24 @@ if [ ! -f "$APP" ]; then
   exit 2
 fi
 
+NYRT_DIR="${HAKO_LIFECYCLE_NYRT:-$HAKO_ROOT/target/lifecycle-kernel/release}"
+if [ -z "${HAKO_LIFECYCLE_NYRT:-}" ] &&
+   [ -f "${NYASH_EMIT_EXE_NYRT:-}/libnyash_lifecycle_kernel.a" ]; then
+  NYRT_DIR="$NYASH_EMIT_EXE_NYRT"
+fi
+if [ ! -f "$NYRT_DIR/libnyash_lifecycle_kernel.a" ]; then
+  test_skip "$SMOKE_NAME: lifecycle runtime archive missing: $NYRT_DIR/libnyash_lifecycle_kernel.a"
+  exit 0
+fi
+
 set +e
-NYASH_LLVM_DUMP_IR="$IR_OUT" \
+NYASH_LLVM_ROUTE_TRACE=1 \
   NYASH_DISABLE_PLUGINS=1 \
   HAKO_BACKEND_COMPILE_RECIPE=pure-first \
   HAKO_BACKEND_COMPAT_REPLAY=none \
-  timeout "$RUN_TIMEOUT_SECS" \
-    "$HAKO_ROOT/tools/selfhost/selfhost_build.sh" \
-      --in "$APP" \
-      --exe "$EXE_OUT" \
+  timeout "$BUILD_TIMEOUT_SECS" \
+    "$NYASH_BIN" --backend mir --emit-exe "$EXE_OUT" \
+      --emit-exe-nyrt "$NYRT_DIR" "$APP" \
       >"$BUILD_LOG" 2>&1
 build_rc=$?
 set -e
@@ -50,12 +60,13 @@ if [ "$build_rc" -ne 0 ]; then
   exit 1
 fi
 
-if ! grep -Fq '@"BoxTorrentStore.readData/1"' "$IR_OUT" ||
-   ! grep -Fq "@nyash.string.concat_hh" "$IR_OUT"; then
-  echo "[INFO] materialize/readData IR snippets:"
-  grep -F 'BoxTorrentStore.readData/1' "$IR_OUT" || true
-  grep -F 'nyash.string.concat_hh' "$IR_OUT" || true
-  test_fail "$SMOKE_NAME: missing StringBox concat route in EXE IR"
+if ! grep -Fq 'stage=lifecycle-v4-measure result=ok' "$BUILD_LOG" ||
+   ! grep -Fq 'toolchain=llvm-c-api' "$BUILD_LOG" ||
+   grep -Fq 'compat_replay=harness' "$BUILD_LOG" ||
+   ! grep -Fq 'EXE written:' "$BUILD_LOG" || [ ! -x "$EXE_OUT" ]; then
+  echo "[INFO] build output tail:"
+  tail -n 120 "$BUILD_LOG" || true
+  test_fail "$SMOKE_NAME: canonical LLVM C API EXE route missing or replayed"
   exit 1
 fi
 

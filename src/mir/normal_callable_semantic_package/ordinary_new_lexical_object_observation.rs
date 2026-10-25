@@ -6,13 +6,21 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Retained constructor relations distinguish Dynamic residence reads.
+    /// Retained provider writers or constructor relations distinguish Dynamic reads.
     /// This lends storage meaning only; the original Call still owns admission.
     pub(in crate::mir) fn stored_receiver_uses_dynamic_field_v1(
         &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
         let Some((_, _, field, child)) = target.stored_receiver() else { return Ok(false); };
         let mut dynamic = false;
+        for ((parent, name), source) in self.field_write_claims.object_sources().iter() {
+            if source.dynamic_provider_field_v1(parent, name) == Some(field) {
+                if source.class() != target.target().owner() {
+                    return Err(freeze("lexical-terminal/stored-read-drift"));
+                }
+                dynamic = true;
+            }
+        }
         for relation in self.callable_result_classes.construction_child_relation_loans()
             .filter(|relation| relation.field() == field && relation.is_unqualified_dynamic_v1()) {
             if relation.child() != child { return Err(freeze("lexical-terminal/stored-read-drift")); }

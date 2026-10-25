@@ -346,9 +346,15 @@ Ready packet input/result and acquisition owners still owe executable permission
 ## Lexical call source requirement loans
 
 `LexicalInstanceCallSourceTargetV1` retains a passive result requirement.
-Both original lexical and stored-child constructors select
-`ExistingBorrowedResult`; final affine disposition and result sealing stay
-with their existing issuers. Object dependency/return views borrow original
+Original constructors select `ExistingBorrowedResult`. Direct stored Return
+forwarding keeps that owner; independent scalar expressions may borrow the
+same original computed-return loan only after the callee result is grounded.
+The caller's retained Return plan distinguishes those purposes without using
+its provisional result class. Final affine disposition and result sealing stay
+with their existing issuers. A sole attributed Birth provider lends class from
+the original writer inventory; its unannotated strong field remains a Dynamic
+residence and uses checked field borrowing, rather than a raw typed field read.
+Object dependency/return views borrow original
 Facts qualifications. `ForwardIdentityV1` exposes read-only coordinates from
 the existing forward join; its fields and construction remain private.
 No source requirement grants a Home, result slot, ABI or cleanup permission.

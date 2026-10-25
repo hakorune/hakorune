@@ -778,11 +778,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     || method.owner() != site.owner() || method.site() != site.site()
                     || identity.integer_evidence.get(index) != Some(&false)
                     || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
-                    || !match (&formal.kind, receipt.source().target().result()) {
-                        (kind, crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller) => kind.is_ordinary_borrowed_handle(),
-                        (CallableParameterContractKindV1::ExactTrivial(abi), crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller) => abi.is_i64(),
-                        _ => false,
-                    }
+                    || !super::static_source::core_argument_source_v1(prepared, &site, method, &formal.kind)?
+                        .is_some_and(|original| Rc::ptr_eq(&original, receipt))
                 { return Err(freeze("borrowed-static/core-source-identity")); }
             }
             (BorrowedCallActualValueV1::MethodCall(method), None)

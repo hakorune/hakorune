@@ -407,14 +407,23 @@ pub(super) fn reconstruct_original_argument_protocol_v1(
         contracts,
         call,
         candidates,
-        &mut |ordinal, site, _| {
+        &mut |ordinal, site, formal| {
             let Some(candidate) = candidates
                 .iter()
                 .find(|actual| actual.ordinal == ordinal && &actual.site == site)
             else {
                 return Err(freeze("borrowed-object/field-candidate-missing"));
             };
-            if matches!(
+            let core_integer = if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
+                contracts.iter().find(|row| row.owner == call.callee)
+                    .and_then(|row| row.parameters.iter().find(|row| row.binding == formal))
+                    .filter(|row| matches!(row.kind, CallableParameterContractKindV1::OpaqueHandle))
+                    .map(|row| static_source::core_argument_source_v1(prepared,
+                        &OwnedExprSiteV1::new(call.call.owner(), site.clone()), method, &row.kind))
+                    .transpose()?.flatten().is_some_and(|core| core.source().target().result()
+                        == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller)
+            } else { false };
+            if core_integer || matches!(
                 candidate.value,
                 BorrowedCallActualValueV1::Expression | BorrowedCallActualValueV1::Unknown
             ) {

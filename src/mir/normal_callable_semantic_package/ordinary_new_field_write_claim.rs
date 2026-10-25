@@ -68,6 +68,25 @@ impl ObjectFieldClassSourceV1 {
         let (field, declared) = self.declaration.as_ref()?;
         (declared.as_deref() == Some(self.class())).then_some(*field)
     }
+    /// The same original sole Birth provider in an unannotated strong slot.
+    /// Its class does not turn the slot into a declared typed-object field.
+    pub(in crate::mir::normal_callable_semantic_package) fn dynamic_provider_field_v1(
+        &self, owner_box: &str, name: &str,
+    ) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
+        if self.inventory.opaque || self.inventory.value_incomplete
+            || self.inventory.unattributed_fields.contains(name)
+            || crate::box_trait::is_builtin_box(self.class()) { return None; }
+        let (field, declared) = self.declaration.as_ref()?;
+        if declared.is_some() { return None; }
+        let mut writers = self.inventory.writes.iter().filter(|row|
+            row.owner_box() == Some(owner_box) && row.field() == name);
+        let write = writers.next()?;
+        if writers.next().is_some() || !write.is_attributed() || !write.in_birth()
+            || write.assignment().form() != crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
+            || !matches!(&write.object_store, ObservedFieldStoreV1::Construction(class) if class == &self.class)
+            || write.source().is_err() { return None; }
+        Some(*field)
+    }
 }
 pub(crate) type ObjectFieldClassSourcesV1 =
     Rc<BTreeMap<(Box<str>, Box<str>), Rc<ObjectFieldClassSourceV1>>>;
