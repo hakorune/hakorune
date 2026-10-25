@@ -432,9 +432,9 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
         let site = field_access_site(&package, field_name);
         let (field, result) = ledger.staged_local_field_read(&site).expect("source field alias staged");
         let LocalFieldReadResultV1::BorrowedArray(loan) = result else { panic!("borrowed Array, no ordinary alias"); };
-        assert_eq!(loan.requirement.field(), field);
-        assert_eq!(loan.requirement.field_site(), site.site());
-        assert_eq!(loan.requirement.owner(), site.owner());
+        assert_eq!(loan.integer_requirement_v1().unwrap().field(), field);
+        assert_eq!(loan.integer_requirement_v1().unwrap().field_site(), site.site());
+        assert_eq!(loan.integer_requirement_v1().unwrap().owner(), site.owner());
         let originals: Vec<_> = package.source_core_method_calls.values().flat_map(|rows| rows.values())
             .filter_map(|row| match row.contract().named_array_requirement() {
                 Some(crate::mir::resolved_semantics::NamedArrayRequirementV1::FieldResidence(source))
@@ -442,7 +442,7 @@ fn local_field_read_claims_object_alias_on_entry_receiver() {
                 _ => None,
             }).collect();
         assert_eq!(originals.len(), 1);
-        assert!(std::rc::Rc::ptr_eq(&loan.requirement, originals[0]));
+        assert!(std::rc::Rc::ptr_eq(loan.integer_requirement_v1().unwrap(), originals[0]));
         let completion = ledger.completion_for_owner(site.owner()).expect("single canonical Completion");
         let flow = completion.cleanup().root_flow().expect("original alias Home walk");
         let exit = flow.implicit_exit().expect("original body end").expect("same Recipe proves original loop After");

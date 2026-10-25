@@ -65,7 +65,7 @@ impl LoopI64PreStateRequestV1 {
             && self.borrowed_arrays.len() == other.borrowed_arrays.len()
             && self.borrowed_arrays.iter().all(|(binding, source)| {
                 other.borrowed_arrays.get(binding).is_some_and(|other| {
-                    std::rc::Rc::ptr_eq(&source.requirement, &other.requirement)
+                    source == other
                 })
             })
     }

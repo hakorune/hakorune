@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner61 seal Body0 Value text-expression-execution-pending; callee owner65 Body1 Array field alias lacks Completion; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner61 seal Body0 Value text-expression-execution-pending; callee owner65 Array operations/physical borrow Completion pending; fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; owner61 seal Body0 Value stops at text-expression-execution-pending; callee owner65 Body1 Array field alias lacks Completion.
-Fixed suite9/11 in490.158s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
-Committed canonical argument-frame calls now enter the same local_calls/current-path inventory after preflight and frame commit. Print uses the existing Static issuer; standalone canonical C API EXE/run/exact stdout/exit0 PASS.
-CLI37.83s and focused13 PASS; two additional failures reproduce on the clean pre-cleanup parent. The regressing Text fixed-point trial was withdrawn; no new tests/checkers/fixtures or .hako changes. See card for cleanup and remaining boundaries.
-Next: close the original field Array alias in owner65, then same-source Text result input SUM, physical RHS/Replace cleanup and result discard. Keys cleanup, borrowed receivers and required R6/R7/finite-product closeout remain open.
+APP-boxtorrent-mini remains selected; owner61 seal Body0 Value stops at text-expression-execution-pending. Callee owner65 Array Count/Get, physical borrow and Completion remain open.
+Fixed suite9/11 in513.641s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
+Fixed-provider field aliases now retain the same canonical field source and unique uncaptured/nonrebound initializer in existing BorrowedArray/local-field rows. Parent root stays live; no Home, Integer operation or legacy physical read is granted.
+CLI77s and focused11 PASS; one additional parameter-receiver refusal reproduces on clean pre-change HEAD. Only an existing descriptor case was expanded for the new source/physical refusal boundary; no test functions/files/checkers or .hako changes. See card for remaining reds.
+Next: lend the same checked Count provider to the original alias receiver without replacing its site. Get must retain DynamicToCaller; then close physical borrow/Loop, Text RHS/Replace cleanup and result discard. Keys cleanup, borrowed receivers and required R6/R7/finite-product closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

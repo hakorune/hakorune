@@ -120,7 +120,7 @@ impl LocalFieldReadSourceV1 {
         if self.requires_checked_field_read_v1() { return false; }
         match (self.result(), instruction) {
             (LocalFieldReadResultV1::BorrowedArray(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
-                source.requirement.field() == self.field() && source.requirement.field_name() == field && class == "ArrayBox",
+                source.integer_requirement_v1().is_some_and(|source| source.field() == self.field() && source.field_name() == field && class == "ArrayBox"),
             (LocalFieldReadResultV1::BorrowedArray(_), _) => false,
             (LocalFieldReadResultV1::ArrayField(source), MirInstruction::ObjectFieldGet { field, .. })
                 if source.text_append_origin_v1().is_some() => source.field() == self.field() && *field == self.field(),

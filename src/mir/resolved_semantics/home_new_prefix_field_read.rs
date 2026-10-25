@@ -114,12 +114,48 @@ pub(super) struct ObservedLocalFieldReadV1 {
 
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedArrayFieldSourceV1 {
-    pub(in crate::mir) requirement:
-        std::rc::Rc<super::super::NamedArrayFieldResidenceRequirementV1>,
+    origin: BorrowedArrayFieldOriginV1,
+}
+#[derive(Debug, Clone)]
+enum BorrowedArrayFieldOriginV1 {
+    Operation(std::rc::Rc<super::super::NamedArrayFieldResidenceRequirementV1>),
+    FixedAlias {
+        field: std::rc::Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
+        initializer: super::super::ResolvedInitializerRelationV1,
+    },
+}
+impl BorrowedArrayFieldSourceV1 {
+    pub(in crate::mir) fn operation_v1(
+        requirement: std::rc::Rc<super::super::NamedArrayFieldResidenceRequirementV1>,
+    ) -> Self { Self { origin: BorrowedArrayFieldOriginV1::Operation(requirement) } }
+    /// Original local association only; this lends no operation or Home.
+    pub(in crate::mir) fn fixed_alias_v1(
+        field: std::rc::Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
+        initializer: super::super::ResolvedInitializerRelationV1,
+    ) -> Option<Self> {
+        if initializer.initializer_site() != Some(field.site().site())
+            || initializer.binding().owner() != field.site().owner() { return None; }
+        Some(Self { origin: BorrowedArrayFieldOriginV1::FixedAlias { field, initializer } })
+    }
+    pub(in crate::mir) fn binding(&self) -> BindingRefV1 {
+        match &self.origin {
+            BorrowedArrayFieldOriginV1::Operation(source) => source.binding(),
+            BorrowedArrayFieldOriginV1::FixedAlias { initializer, .. } => initializer.binding(),
+        }
+    }
+    pub(in crate::mir) fn integer_requirement_v1(&self)
+        -> Option<&std::rc::Rc<super::super::NamedArrayFieldResidenceRequirementV1>> {
+        match &self.origin { BorrowedArrayFieldOriginV1::Operation(source) => Some(source), _ => None }
+    }
 }
 impl PartialEq for BorrowedArrayFieldSourceV1 {
     fn eq(&self, other: &Self) -> bool {
-        std::rc::Rc::ptr_eq(&self.requirement, &other.requirement)
+        match (&self.origin, &other.origin) {
+            (BorrowedArrayFieldOriginV1::Operation(a), BorrowedArrayFieldOriginV1::Operation(b)) => std::rc::Rc::ptr_eq(a, b),
+            (BorrowedArrayFieldOriginV1::FixedAlias { field: a, initializer: ai },
+             BorrowedArrayFieldOriginV1::FixedAlias { field: b, initializer: bi }) => a == b && ai == bi,
+            _ => false,
+        }
     }
 }
 impl Eq for BorrowedArrayFieldSourceV1 {}

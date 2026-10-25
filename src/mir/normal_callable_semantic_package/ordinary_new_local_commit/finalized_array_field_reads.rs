@@ -56,7 +56,7 @@ impl FinalizedRootSourceHandoffV1 {
             for (site, source, original) in &originals {
                 let mut provider_key = None;
                 if let LocalFieldReadResultV1::BorrowedArray(array) = source.result() {
-                    let requirement = &array.requirement;
+                    let requirement = array.integer_requirement_v1().ok_or_else(|| freeze("finished-array-field/source-membership"))?;
                     if requirement.owner() != owner || requirement.field_site() != site.site()
                         || requirement.field() != source.field()
                     { return Err(freeze("finished-array-field/source-membership")); }

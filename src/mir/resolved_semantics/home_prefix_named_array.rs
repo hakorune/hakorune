@@ -37,10 +37,10 @@ impl PrefixLocalFlow<'_> {
             || loan.arrays().iter().any(|(binding, source)| {
                 !prestate
                     .borrowed_array(*binding)
-                    .is_some_and(|alias| std::rc::Rc::ptr_eq(&alias.requirement, source))
+                    .is_some_and(|alias| alias.integer_requirement_v1().is_some_and(|original| std::rc::Rc::ptr_eq(original, source)))
                     || !current_arrays
                         .get(binding)
-                        .is_some_and(|alias| std::rc::Rc::ptr_eq(&alias.requirement, source))
+                        .is_some_and(|alias| alias.integer_requirement_v1().is_some_and(|original| std::rc::Rc::ptr_eq(original, source)))
             })
         {
             return false;
@@ -65,7 +65,7 @@ impl PrefixLocalFlow<'_> {
         source: super::super::field_read::BorrowedArrayFieldSourceV1,
         root: BindingRefV1,
     ) -> bool {
-        if source.requirement.binding() != binding
+        if source.binding() != binding
             || binding.owner() != root.owner()
             || !self.field_root_is_live(root)
         {

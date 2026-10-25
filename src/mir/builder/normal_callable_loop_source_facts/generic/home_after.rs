@@ -135,20 +135,20 @@ impl PreissuedCallableLoopSourcePlanV1 {
                     || contract.arguments().len() != 1 || contract.arguments() != call.arguments() { return None; }
                 let Some(NamedArrayRequirementV1::FieldResidence(requirement)) = contract.named_array_requirement() else { return None; };
                 let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) = call.receiver() else { return None; };
-                let alias = prestate.borrowed_array(binding)?;
+                let alias = prestate.borrowed_array(binding)?.integer_requirement_v1()?;
                 if requirement.owner() != input.owner() || requirement.binding() != binding || requirement.call() != &call_site
                     || requirement.argument() != call.arguments()[0].site()
                     || contract.arguments()[0].site() != requirement.argument()
                     || ledger.variable_ref(call.receiver_site()) != Some(ResolvedLexicalRefV1::Local(binding))
-                    || !same_residence(&alias.requirement, requirement)
+                    || !same_residence(alias, requirement)
                     || !contracts.iter().any(|row| matches!(row.named_array_requirement(), Some(NamedArrayRequirementV1::FieldResidence(original))
-                        if Rc::ptr_eq(original, &alias.requirement))) { return None; }
+                        if Rc::ptr_eq(original, alias))) { return None; }
                 let fault = crate::mir::resolved_control_flow::issue_loop_call_fault_continuation_v1(
                     input, self.site(), self.frame(), &OwnedExprSiteV1::new(input.owner(), call_site.clone()),
                 ).ok()?;
                 let argument = integer_expression(&ledger, prestate, requirement.argument(), &mut expressions)?;
                 appends.push(VerifiedNoExitArrayAppendV1 { requirement: Rc::clone(requirement), fault, argument });
-                arrays.entry(binding).or_insert_with(|| Rc::clone(&alias.requirement));
+                arrays.entry(binding).or_insert_with(|| Rc::clone(alias));
                 expressions.insert(call_site.clone()); expressions.insert(call.receiver_site().clone());
                 effects.insert(BodyEffectShapeV1 { site: call_site, kind: BodyEffectKindV1::Call });
             } else {

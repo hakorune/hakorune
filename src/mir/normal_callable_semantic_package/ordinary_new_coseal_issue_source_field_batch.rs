@@ -269,6 +269,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                         request,
                         alias_class.as_deref(),
                         source_core_calls,
+                        received_context,
                     )?
                     else {
                         return Ok(None);
@@ -455,15 +456,13 @@ fn borrow_array_field_source(
     request: &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1,
     alias_class: Option<&str>,
     source_core_calls: Option<&core_method_source::SourceCoreMethodCallRowsV1>,
+    context: Option<field_reads::ReceivedFieldContextV1<'_>>,
 ) -> Result<Option<Rc<LocalFieldReadSourceV1>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::resolved_semantics::home_new_prefix::{
         BorrowedArrayFieldSourceV1, LocalFieldReadResultV1,
     };
-    let Some(calls) = source_core_calls else {
-        return Ok(None);
-    };
     let mut original = None;
-    for row in calls.values() {
+    for row in source_core_calls.into_iter().flat_map(|calls| calls.values()) {
         let Some(crate::mir::resolved_semantics::NamedArrayRequirementV1::FieldResidence(source)) =
             row.contract().named_array_requirement()
         else {
@@ -491,7 +490,7 @@ fn borrow_array_field_source(
         }
     }
     let Some(original) = original else {
-        return Ok(None);
+        return borrow_fixed_array_alias_source(constructors, receiver_proof, request, context);
     };
     let Some((field, declared)) = terminal_home::local_read_field_declaration(
         constructors,
@@ -515,9 +514,51 @@ fn borrow_array_field_source(
     }
     Ok(Some(LocalFieldReadSourceV1::from_declaration(
         field,
-        LocalFieldReadResultV1::BorrowedArray(BorrowedArrayFieldSourceV1 {
-            requirement: original,
-        }),
+        LocalFieldReadResultV1::BorrowedArray(BorrowedArrayFieldSourceV1::operation_v1(original)),
         declared.map(String::into_boxed_str),
     )))
+}
+
+/// A local may borrow its exact fixed provider without an Integer operation.
+/// The existing descriptor retains the same field source and initializer;
+/// neither operation permissions nor a new Home are issued here.
+fn borrow_fixed_array_alias_source(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    request: &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1,
+    context: Option<field_reads::ReceivedFieldContextV1<'_>>,
+) -> Result<Option<Rc<LocalFieldReadSourceV1>>, OrdinaryNewCoSealIssueV1> {
+    use crate::mir::resolved_semantics::home_new_prefix::{BorrowedArrayFieldSourceV1, LocalFieldReadResultV1};
+    let (Some((receiver, box_source)), Some((batch, selected, _, _, writes))) = (receiver_proof, context)
+        else { return Ok(None); };
+    if request.receiver != receiver || request.home != receiver || request.nullable || request.formal
+        || request.alias_class.is_some() || request.received.is_some() || request.path.is_some()
+        || request.alias_path.is_some() || request.owned_ready.is_some() { return Ok(None); }
+    let mut rows = batch.declarations().filter(|row| row.owner() == request.site.owner());
+    let Some(row) = rows.next() else { return Ok(None); };
+    if rows.next().is_some() { return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: request.site.clone() }); }
+    let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(row.batch_slot())
+        else { return Ok(None); };
+    if caller.owner() != box_source.name()
+        || caller.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod { return Ok(None); }
+    let Some(source) = writes.array_source(caller.owner(), &request.field) else { return Ok(None); };
+    let result = batch.with_lowering_input(row.batch_slot(), |input| -> Result<_, String> {
+        let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| "array-read/receiver-source-owner".to_owned())?;
+        let mut initializers = input.function().expression_source().initializers()
+            .filter(|row| row.initializer_site() == Some(request.site.site()));
+        let Some(initializer) = initializers.next() else { return Ok(None); };
+        if initializers.next().is_some() || !ledger.uncaptured_binding(initializer.binding())
+            || super::super::super::field_array_read_source::local_initializer(input, initializer.binding())
+                != Some((initializer.declaration_site().clone(), request.site.site().clone())) { return Ok(None); }
+        let Some(field) = crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1::fixed_receiver_v1(
+            input, caller.clone(), &request.site, &request.field, source)? else { return Ok(None); };
+        if field.binding() != receiver || !constructors.is_array_field(field.field()).map_err(|_| "array-read/field-source".to_owned())? {
+            return Ok(None);
+        }
+        let canonical = field.field();
+        let declared = field.declared_type_name().map(Into::into);
+        let Some(alias) = BorrowedArrayFieldSourceV1::fixed_alias_v1(Rc::new(field), initializer.clone()) else { return Ok(None); };
+        Ok(Some(LocalFieldReadSourceV1::from_declaration(canonical, LocalFieldReadResultV1::BorrowedArray(alias), declared)))
+    }).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+    result.map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })
 }

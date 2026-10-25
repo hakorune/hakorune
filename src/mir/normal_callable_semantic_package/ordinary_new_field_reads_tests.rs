@@ -333,7 +333,7 @@ fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement(
     assert!(ledger.record_local_field_read(&site, BasicBlockId(0), ValueId(11), base, source.field(), &source)
         .unwrap_err().contains("source-emission-kind"), "Array must never use ObjectFieldGet");
     let instruction = MirInstruction::FieldGet { dst: ValueId(11), base,
-        field: array.requirement.field_name().into(), declared_type: Some(crate::mir::MirType::Box("ArrayBox".into())) };
+        field: array.integer_requirement_v1().unwrap().field_name().into(), declared_type: Some(crate::mir::MirType::Box("ArrayBox".into())) };
     let foreign = Rc::new((*source).clone());
     assert!(ledger.record_local_field_read_binding(&site, BasicBlockId(0), instruction.clone(), &foreign).is_err());
     ledger.record_local_field_read_binding(&site, BasicBlockId(0), instruction.clone(), &source).unwrap();
@@ -370,6 +370,30 @@ fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement(
         assert!(ledger.validate_field_reads(site.owner(), &altered).is_err(), "Array physical read drift {mutation}");
     }
 
+
+    // A fixed provider may identify a borrowed local without granting the
+    // Integer operation or either unverified physical field-read protocol.
+    let package = issue_with_brand_catalog(r#"box Pool { init { values } birth() { me.values = new ArrayBox() }
+        seed() { local a = me.values print("alias") return 0 }
+    } static box Main { main() { local pool = new Pool() return pool.seed() } }"#).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let site = ledger.local_field_reads.borrow().iter().find_map(|(site, row)| matches!(
+        row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)
+    ).then(|| site.clone())).expect("original fixed field alias");
+    assert!(ledger.completion_source_for_owner_v1(site.owner())
+        .and_then(|completion| completion.cleanup().root_flow()).is_some(), "the borrowed local prefix completes without a new Home");
+    let (base, source) = ledger.take_local_field_read(&site, |_| Ok(ValueId(10))).unwrap().unwrap();
+    let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(alias) = source.result() else { unreachable!() };
+    assert!(alias.integer_requirement_v1().is_none());
+    let original = ledger.staged_local_field_source(&site).unwrap();
+    assert!(Rc::ptr_eq(&source, &original));
+    for instruction in [
+        MirInstruction::ObjectFieldGet { dst: ValueId(11), base, field: source.field() },
+        MirInstruction::FieldGet { dst: ValueId(11), base, field: "values".into(), declared_type: Some(crate::mir::MirType::Box("ArrayBox".into())) },
+    ] {
+        assert!(ledger.record_local_field_read_binding(&site, BasicBlockId(0), instruction, &source).is_err(),
+            "source alias alone must not issue a physical Array read");
+    }
 
     // Direct Text append borrows the original canonical field, whereas the
     // Loop Integer origin above keeps its established FieldGet protocol.

@@ -15,6 +15,14 @@ provider; it requires no index or Integer elements. Incomplete, opaque, foreign,
 replacement or null writer evidence cannot establish that residence. The class
 name or runtime payload alone proves neither operation.
 
+A local field alias retains the same canonical fixed-provider source and its
+unique original initializer in the existing BorrowedArray local/field-read row.
+Its parent entry receiver must remain live; rebinding and capture are refused.
+This source origin issues neither a Home nor an Integer operation requirement.
+Until the shared operation/physical owners are connected, legacy field reads
+and Integer Loop append consumers reject it. Fixed Array storage is Array
+residence, independent of whether the declaration had a type annotation.
+
 Statement Text append shares Count's original Array residence and sole-provider
 writer loan. Its operation retains the original Push Arc and existing
 ArrayTextAppend target; the read Recipe explicitly refuses this operation.

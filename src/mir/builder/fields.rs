@@ -228,6 +228,8 @@ impl super::MirBuilder {
             PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
                 | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_) => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array)
+                    if array.integer_requirement_v1().is_none() => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)
@@ -243,7 +245,7 @@ impl super::MirBuilder {
             }
             let array_field = match source.result() {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array) =>
-                    Some((array.requirement.owner(), array.requirement.field_site(), array.requirement.field_name())),
+                    array.integer_requirement_v1().map(|source| (source.owner(), source.field_site(), source.field_name())),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(array) =>
                     Some((array.site().owner(), array.site().site(), array.name())),
                 _ => None,
