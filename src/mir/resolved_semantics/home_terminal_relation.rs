@@ -17,7 +17,7 @@ mod returned_value;
 pub(super) use returned_value::{
     finite_entry_return, observe_scalar_return_expression_v1 as returned_scalar_expression_v1,
     observe_stored_return_v1, observe_text_return_expression_v1,
-    qualify_terminal_text_evaluation_v1, terminal_returned_source,
+    terminal_returned_source,
 };
 pub(crate) use returned_value::{
     TerminalI64ScalarReturnV1, TerminalReturnedSourceV1, TerminalValueReturnV1,

@@ -195,6 +195,7 @@ pub(crate) use binding_rebind_expression::{
 };
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
+pub(super) use evaluation::{prepare_value_evaluation_v1, qualify_text_evaluation_v1};
 pub(crate) use evaluation::{
     CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, CheckedScalarReferenceV1,
 };

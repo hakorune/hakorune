@@ -569,7 +569,7 @@ pub(super) fn observe_text_append<E>(
     {
         refuse_text_append!("argument-plan-mismatch");
     }
-    let Some(evaluation) = super::terminal_relation::qualify_terminal_text_evaluation_v1(
+    let Some(evaluation) = super::expression_plan::qualify_text_evaluation_v1(
         input,
         std::rc::Rc::clone(&plan),
         source.call(),

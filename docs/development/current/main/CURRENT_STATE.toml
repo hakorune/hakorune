@@ -1,4 +1,4 @@
-date = "2026-10-25"
+date = "2026-10-26"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
@@ -20,8 +20,8 @@ latest_card_summary = """
 APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner61 seal Body1 Value source-not-i64, after unsupported Text replacement at Body0.
 Fixed suite9/11 in473.748s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
 Same original receiver/all-writer Text facts now reach checked field snapshot/Return and final Rust/C validation; standalone source EXE/run/exact UTF-8 stdout/exit0 PASS, mixed-writer source rejected.
-Text Replace transaction: focused9 PASS, CLI89s/FFI C/physical family and existing untyped-field EXE PASS; both Fault phases consume candidate once. Prior exact-HEAD field-batch red and other reds remain open.
-Next: connect original Text assignment RHS evaluation to the existing both-exit consuming transaction, then returned Text discard, keys-array cleanup and borrowed receivers. Required local/shared R6/R7 and finite-product closeout remain open; see card.
+Text Replace transaction: focused9/C physical Faults/existing field EXE PASS. Shared evaluator owner move: CLI45.37s and canonical source EXE/stdout/exit0 PASS; see card for test-binary note and prior reds.
+Next: connect original Text assignment RHS through expression_plan::qualify_text_evaluation_v1 to the existing both-exit consuming transaction, then returned Text discard, keys-array cleanup and borrowed receivers. Required local/shared R6/R7 and finite-product closeout remain open; see card.
 """
 next_design_card = "none"
 next_design_card_path = "none"

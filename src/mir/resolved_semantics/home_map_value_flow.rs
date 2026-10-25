@@ -255,7 +255,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     {
         return Ok(false);
     }
-    let Some(key) = super::super::terminal_relation::qualify_terminal_text_evaluation_v1(
+    let Some(key) = super::super::expression_plan::qualify_text_evaluation_v1(
         input, plan, &site, locals, homes, calls, port, None,
     )?
     else {
@@ -413,7 +413,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_loc
     {
         return Ok(unavailable());
     }
-    let Some(key) = super::super::terminal_relation::qualify_terminal_text_evaluation_v1(
+    let Some(key) = super::super::expression_plan::qualify_text_evaluation_v1(
         input, plan, at, locals, homes, calls, port, None,
     )?
     else {
