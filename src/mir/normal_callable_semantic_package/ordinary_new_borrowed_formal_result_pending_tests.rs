@@ -275,7 +275,7 @@ fn parameterless_result_source_requires_original_parameter_census() {
             owner: contract.owner, batch_slot: contract.batch_slot,
             mode: contract.mode, parameters: Box::new([]),
         };
-        let fields = composition::FieldCandidatesV1::prepare(package.batch(),
+        let fields = composition::FieldCandidatesV1::prepare(package.batch(), &package.selected,
             &package.ordinary_new_claim_ledger.field_write_claims, &package.instance_constructors,
             Err(&"test/no-original-source".to_owned()), &BTreeMap::new(), &package.parameter_contracts, &[]);
         let result = source_result_pending(package.batch(), &package.selected, &[proposed],

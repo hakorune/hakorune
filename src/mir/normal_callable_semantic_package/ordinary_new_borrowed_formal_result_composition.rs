@@ -307,6 +307,7 @@ impl FieldCandidatesV1 {
     }
     pub(super) fn prepare(
         batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
         claims: &OrdinaryNewFieldWriteClaimsV1,
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         original: Result<&OriginalBorrowedFormalSourceV1, &String>,
@@ -399,6 +400,7 @@ impl FieldCandidatesV1 {
                         definitions,
                         contracts,
                         needs,
+                        batch, selected, claims,
                     ))
                 };
                 let prepared = if let Some(birth) = write.birth_source() {

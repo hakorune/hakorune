@@ -1,5 +1,5 @@
-//! Shared original field-use walk. No container kind, element type or Home is
-//! inferred here; each semantic owner consumes the same exact use observations.
+//! Shared original field-use and payload-class source owner. Observation and
+//! class qualification grant no Home, slot lifetime or executable operation.
 use super::*;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{BindingKindV1, BindingRefV1, BodyExpressionShapeV1,
@@ -289,4 +289,74 @@ pub(super) fn capture_box_field_v1(
         capture_method_v1(input, FieldUseMethodV1::BirthRow, &tracked, &mut census, true).ok()?;
     }
     census.remove(field)
+}
+
+/// Normal payload class only. Slot lifetime, nonnull and executable reads
+/// remain with their existing acquisition and field-read owners.
+#[derive(Debug)]
+pub(super) struct MapFieldPayloadSourceV1 {
+    pub(super) source: std::rc::Rc<super::field_write_claim::DeclaredFieldValueSourceV1>,
+    pub(super) class: Box<str>,
+    pub(super) object: hakorune_mir_defs::CanonicalObjectIdV1,
+    pub(super) uses: FieldUseCensusV1,
+}
+impl MapFieldPayloadSourceV1 {
+    pub(super) fn issue(
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
+        claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        owner_class: &str, field: &str,
+    ) -> Option<Self> {
+        let source = claims.value_source(owner_class, field)?.as_ref().ok()?;
+        let writers: Vec<_> = source.writers().collect();
+        let store = source.birth_store(constructors, 0).ok()??;
+        if !source.same_inventory(claims) || source.declared_type_name().is_some()
+            || writers.len() != 1 || !writers[0].in_birth()
+            || store.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
+            || !matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
+                object: None, class, .. } if class.as_ref() == "MapBox") { return None; }
+        let owner = batch.ordinary_box_coverage().row_for(owner_class).ok()??;
+        let birth = constructors.birth_row_for(owner).ok()?;
+        let uses = capture_box_field_v1(batch, selected, birth, owner_class, field)?;
+        if uses.vetoed || uses.foreign || uses.captured_receiver || !uses.aliases.is_empty()
+            || uses.stores.len() != 1 || !uses.stores[0].0.is_birth() { return None; }
+        let mut payload = None;
+        for (method, call) in &uses.calls {
+            with_method_input_v1(batch, birth, batch.source_ast(), *method, |input| {
+                match (call.selector(), call.arity()) {
+                    ("has", 1) | ("get", 1) | ("delete", 1) | ("keys", 0) => {},
+                    ("set", 2) => {
+                        let construction = original_payload_new_v1(input, call.arguments()[1].site())?;
+                        let declaration = batch.ordinary_box_coverage().row_for(construction.class()).ok()??;
+                        let found = (Box::<str>::from(construction.class()), constructors.object_for(declaration).ok()?);
+                        if payload.as_ref().is_some_and(|old| old != &found) { return None; }
+                        payload = Some(found);
+                    }
+                    _ => return None,
+                }
+                Some(())
+            }).ok()??;
+        }
+        let (class, object) = payload?;
+        Some(Self { source: std::rc::Rc::clone(source), class, object, uses })
+    }
+    pub(super) fn original_get_v1(&self, call: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>) -> bool {
+        self.uses.calls.iter().filter(|(_, original)| original.owner() == call.owner()
+            && original.site() == call.site()).count() == 1
+            && self.uses.calls.iter().any(|(_, original)| std::sync::Arc::ptr_eq(original, call)
+                && call.selector() == "get" && call.arity() == 1)
+    }
+}
+pub(super) fn original_payload_new_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, value: &SourceExprSiteV1,
+) -> Option<crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1> {
+    let function = input.function();
+    let site = if function.expression_source().construction(value).is_some() { value.clone() }
+        else {
+            let ResolvedLexicalRefV1::Local(binding) = function.variable_ref(value)? else { return None };
+            if !input.forest().callable_source_ledger(input.owner()).ok()?.uncaptured_binding(binding) { return None; }
+            super::result_class_claim::sole_initializer_site(function, binding)?
+        };
+    function.expression_source().construction(&site).cloned()
 }

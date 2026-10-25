@@ -169,7 +169,7 @@ pub(super) fn map_stored_result_source_v1(
 ) -> Option<Rc<MapStoredResultSourceV1>> {
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, ResolvedLexicalRefV1 as Ref,
         BindingKindV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1 as Part};
-    use super::super::container_field_uses::{capture_box_field_v1, with_method_input_v1};
+    use super::super::container_field_uses::{MapFieldPayloadSourceV1, original_payload_new_v1};
     let shape = input.body_shape()?;
     let (get_site, _) = row.exits.iter().find(|(_, exit)| matches!(exit,
         super::ResultClassExitDraftV1::ForwardCall(site)
@@ -189,29 +189,11 @@ pub(super) fn map_stored_result_source_v1(
             .then_some((binding, index))
     };
     let (key, ordinal) = symbolic_key(first)?;
-    let birth = constructors.birth_row_for(receiver_proof.1).ok()?;
-    let uses = capture_box_field_v1(batch, selected, birth, row.key.owner(), name)?;
-    if uses.vetoed || uses.foreign || uses.captured_receiver || !uses.aliases.is_empty() || uses.stores.len() != 1
-        || !uses.stores[0].0.is_birth() { return None; }
-    // Validate the final WHOLE census, including constructor-only Birth.
-    let mut payload: Option<(Box<str>, hakorune_mir_defs::CanonicalObjectIdV1)> = None;
-    for (method, call) in &uses.calls {
-        with_method_input_v1(batch, birth, batch.source_ast(), *method, |method_input| {
-            match (call.selector(), call.arity()) {
-                ("has", 1) | ("get", 1) => {},
-                ("set", 2) => {
-                    let construction = original_payload_new_v1(method_input, call.arguments()[1].site())?;
-                    let source = batch.ordinary_box_coverage().row_for(construction.class()).ok()??;
-                    let found = (Box::<str>::from(construction.class()), constructors.object_for(source).ok()?);
-                    if payload.as_ref().is_some_and(|old| old != &found) { return None; }
-                    payload = Some(found);
-                }
-                _ => return None,
-            }
-            Some(())
-        }).ok()??;
-    }
-    let (class, object) = payload?;
+    let MapFieldPayloadSourceV1 { source, class, object, uses } =
+        MapFieldPayloadSourceV1::issue(batch, selected, constructors, fields, row.key.owner(), name)?;
+    if source.field() != receiver.field()
+        || uses.calls.iter().any(|(_, call)| !matches!((call.selector(), call.arity()),
+            ("has", 1) | ("get", 1) | ("set", 2))) { return None; }
     let calls: Vec<_> = uses.calls.iter().filter(|(_, call)| call.owner() == input.owner())
         .map(|(_, call)| call).collect();
     let mut returns = std::collections::BTreeMap::new();
@@ -282,19 +264,6 @@ pub(super) fn map_stored_result_source_v1(
     Some(Rc::new(MapStoredResultSourceV1 { receiver, key, ordinal, class, object, returns, uses }))
 }
 
-fn original_payload_new_v1(
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    value: &crate::mir::resolved_semantics::SourceExprSiteV1,
-) -> Option<crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1> {
-    let function = input.function();
-    let site = if function.expression_source().construction(value).is_some() { value.clone() }
-        else {
-            let crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) = function.variable_ref(value)? else { return None };
-            if !input.forest().callable_source_ledger(input.owner()).ok()?.uncaptured_binding(binding) { return None; }
-            super::sole_initializer_site(function, binding)?
-        };
-    function.expression_source().construction(&site).cloned()
-}
 
 impl super::OrdinaryNewResultClassClaimsV1 {
     /// Select storage by its exact original get, then independently recheck

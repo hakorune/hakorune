@@ -317,7 +317,7 @@ fn source_result_pending(
                 };
                 let receiver = input.function().bindings().find(|(_, row)| row.kind() == BindingKindV1::Receiver).map(|(binding, _)| binding);
                 expressions.push(Rc::new(expression::ResultExpressionSourceV1::prepare(input, plan, key.owner(), receiver,
-                    field_candidates.sources(), field_candidates.object_sources(), original, constructors, drafts, contracts, needs)));
+                    field_candidates.sources(), field_candidates.object_sources(), original, constructors, drafts, contracts, needs, batch, selected, field_claims)));
                 BorrowedResultClassV1::UnresolvedScalar
             };
             has_construction |= function.expression_source().construction(site).is_some();
@@ -362,7 +362,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             return results;
         }
     };
-    let field_candidates = composition::FieldCandidatesV1::prepare(batch, field_claims, constructors,
+    let field_candidates = composition::FieldCandidatesV1::prepare(batch, selected, field_claims, constructors,
         original.as_ref(), drafts, contracts, needs);
     let loans = class_loans::conditional_class_loans_v1(
         batch,

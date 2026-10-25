@@ -31,6 +31,12 @@ enum LeafV1 {
     Structural,
     Integer(OriginalIntegerBasisV1),
     Receiver(BindingRefV1),
+    MapLocal {
+        binding: BindingRefV1,
+        key: FieldKeyV1,
+        source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::container_field_uses::MapFieldPayloadSourceV1>,
+        get: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    },
     ObjectField {
         key: FieldKeyV1,
         source: Rc<ObjectFieldClassSourceV1>,
@@ -76,6 +82,9 @@ impl ResultExpressionSourceV1 {
         definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
         needs: &[Result<Option<super::super::source::PreparedSourceCallNeedV1>, String>],
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        claims: &OrdinaryNewFieldWriteClaimsV1,
     ) -> Self {
         // Resolver references take precedence over shape classification. Demand
         // both rows at the SAME object site instead of inventing a Me category.
@@ -106,6 +115,8 @@ impl ResultExpressionSourceV1 {
                     })
                     .filter(|basis| basis.binding() == *binding)
                     .map(LeafV1::Integer)
+                    .or_else(|| map_local_source_v1(input, *binding, class, receiver,
+                        batch, selected, constructors, claims))
                     .unwrap_or(LeafV1::Unresolved),
                 ExpressionNodeSourceV1::ReceiverQualification {
                     receiver:
@@ -131,13 +142,20 @@ impl ResultExpressionSourceV1 {
                             .position(|node| node.site() == object)
                             .and_then(|index| match &leaves[index] {
                                 LeafV1::ObjectField { source, .. } => Some(source.class()),
+                                LeafV1::MapLocal { source, .. } => Some(source.class.as_ref()),
                                 _ => None,
                             })
                     };
+                    let map_root = plan.nodes().iter().position(|node| node.site() == object)
+                        .and_then(|index| match &leaves[index] {
+                            LeafV1::MapLocal { binding, source, .. } => Some((*binding, source.object)),
+                            _ => None,
+                        });
                     let path = plan.field_path_v1(node.site());
                     if path
                         .as_ref()
-                        .is_none_or(|(root, _)| Some(*root) != receiver)
+                        .is_none_or(|(root, fields)| Some(*root) != receiver
+                            && !map_root.is_some_and(|(binding, _)| binding == *root && fields.len() == 1))
                     {
                         LeafV1::Unresolved
                     } else if let Some(parent_class) = parent_class {
@@ -189,6 +207,7 @@ impl ResultExpressionSourceV1 {
                             } else {
                                 fields
                                     .get(&key)
+                                    .filter(|source| map_root.is_none_or(|(_, object)| source.field().object() == object))
                                     .map(|source| LeafV1::Field {
                                         key,
                                         source: Rc::clone(source),
@@ -247,7 +266,7 @@ impl ResultExpressionSourceV1 {
         }
         let class = project_expression_class_v1(&self.plan, |index| match &self.leaves[index] {
             LeafV1::Integer(_) => ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64),
-            LeafV1::Receiver(_) | LeafV1::ObjectField { .. } | LeafV1::StoredObjectField { .. } => {
+            LeafV1::Receiver(_) | LeafV1::MapLocal { .. } | LeafV1::ObjectField { .. } | LeafV1::StoredObjectField { .. } => {
                 ExpressionLeafClassV1::Identity
             }
             LeafV1::Field { key, .. } if fields.contains(key) => {
@@ -349,6 +368,11 @@ impl ResultExpressionSourceV1 {
         objects: &ObjectFieldClassSourcesV1,
     ) -> bool {
         self.leaves.iter().all(|leaf| match leaf {
+            LeafV1::MapLocal { binding, key, source, get } => {
+                binding.owner() == self.plan.owner() && get.owner() == self.plan.owner()
+                    && source.original_get_v1(get)
+                    && sources.get(key).is_some_and(|original| Rc::ptr_eq(original, &source.source))
+            }
             LeafV1::ObjectField { key, source } => objects
                 .get(key)
                 .is_some_and(|other| Rc::ptr_eq(source, other) && source.field().is_some()),
@@ -423,4 +447,27 @@ pub(super) fn field_sources_v1(claims: &OrdinaryNewFieldWriteClaimsV1) -> FieldS
                 .then(|| ((class.into(), name.into()), Rc::clone(source)))
         })
         .collect()
+}
+
+/// Bind a local's original get to the complete Map payload-class census.
+/// This is not the Entry receiver and lends no nonnull or lifetime permission.
+fn map_local_source_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, binding: BindingRefV1,
+    class: &str, receiver: Option<BindingRefV1>,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    claims: &OrdinaryNewFieldWriteClaimsV1,
+) -> Option<LeafV1> {
+    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::{result_class_claim, container_field_uses::MapFieldPayloadSourceV1};
+    let function = input.function();
+    let initializer = result_class_claim::sole_initializer_site(function, binding)?;
+    let get = function.method_call_source_v1(&initializer)?;
+    if get.owner() != input.owner() || get.selector() != "get" || get.arity() != 1
+        || !input.forest().callable_source_ledger(input.owner()).ok()?.uncaptured_binding(binding) { return None; }
+    let BodyExpressionShapeV1::FieldAccess { object, field, .. } = input.body_shape()?.expression_shape(get.receiver_site())? else { return None; };
+    if !receiver.is_some_and(|receiver| original::exact_me_receiver_v1(input, object, receiver)) { return None; }
+    let source = MapFieldPayloadSourceV1::issue(batch, selected, constructors, claims, class, field)?;
+    if !source.original_get_v1(get) { return None; }
+    Some(LeafV1::MapLocal { binding, key: (class.into(), field.clone()), source: Rc::new(source), get: std::sync::Arc::clone(get) })
 }

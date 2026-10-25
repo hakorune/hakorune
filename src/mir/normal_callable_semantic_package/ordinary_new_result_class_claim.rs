@@ -224,7 +224,7 @@ fn binding_is_unrebound(function: &VerifiedResolvedFunctionV1, binding: BindingR
 /// The binding's sole initializer site — `None` when the binding is
 /// rebound, never initialized, or initialized more than once. A
 /// rebound or multi-initializer local cannot prove a result edge.
-fn sole_initializer_site(
+pub(super) fn sole_initializer_site(
     function: &VerifiedResolvedFunctionV1,
     binding: BindingRefV1,
 ) -> Option<SourceExprSiteV1> {
