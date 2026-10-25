@@ -257,3 +257,36 @@ pub(super) fn with_method_input_v1<R>(
         }
     }
 }
+
+/// Observe a field across the complete original batch and constructor-only
+/// Birth. Consumers decide container kind, payload class and lifetime rules.
+pub(super) fn capture_box_field_v1(
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    birth: Option<&super::VerifiedInstanceConstructorSemanticRowV1>,
+    owner_class: &str,
+    field: &str,
+) -> Option<FieldUseCensusV1> {
+    let tracked = BTreeSet::from([Box::<str>::from(field)]);
+    let mut census = BTreeMap::from([(Box::<str>::from(field), FieldUseCensusV1::default())]);
+    let birth_owner = birth?.lowering_input(batch.source_ast()).ok()?.owner();
+    let mut birth_seen = false;
+    for declaration in batch.declarations() {
+        let own = matches!(selected.key_for_batch_slot(declaration.batch_slot()),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.owner() == owner_class && matches!(key.namespace(),
+                    hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                    | hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor));
+        let is_birth = birth_owner == declaration.owner();
+        birth_seen |= is_birth;
+        batch.with_lowering_input(declaration.batch_slot(), |input| {
+            let method = FieldUseMethodV1::Selected { slot: declaration.batch_slot(), is_birth };
+            capture_method_v1(input, method, &tracked, &mut census, own).ok()
+        }).ok()??;
+    }
+    if !birth_seen {
+        let input = birth?.lowering_input(batch.source_ast()).ok()?;
+        capture_method_v1(input, FieldUseMethodV1::BirthRow, &tracked, &mut census, true).ok()?;
+    }
+    census.remove(field)
+}

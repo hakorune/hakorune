@@ -169,7 +169,7 @@ pub(super) fn map_stored_result_source_v1(
 ) -> Option<Rc<MapStoredResultSourceV1>> {
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, ResolvedLexicalRefV1 as Ref,
         BindingKindV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1 as Part};
-    use super::super::container_field_uses::{FieldUseCensusV1, FieldUseMethodV1, capture_method_v1, with_method_input_v1};
+    use super::super::container_field_uses::{capture_box_field_v1, with_method_input_v1};
     let shape = input.body_shape()?;
     let (get_site, _) = row.exits.iter().find(|(_, exit)| matches!(exit,
         super::ResultClassExitDraftV1::ForwardCall(site)
@@ -189,31 +189,8 @@ pub(super) fn map_stored_result_source_v1(
             .then_some((binding, index))
     };
     let (key, ordinal) = symbolic_key(first)?;
-    let tracked = std::collections::BTreeSet::from([name.clone()]);
-    let mut census = std::collections::BTreeMap::from([(name.clone(), FieldUseCensusV1::default())]);
     let birth = constructors.birth_row_for(receiver_proof.1).ok()?;
-    let mut birth_seen = false;
-    let birth_owner = birth?.lowering_input(batch.source_ast()).ok()?.owner();
-    for declaration in batch.declarations() {
-        let own = matches!(selected.key_for_batch_slot(declaration.batch_slot()),
-            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
-                if key.owner() == row.key.owner() && matches!(key.namespace(),
-                    hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-                    | hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor));
-        let is_birth = birth_owner == declaration.owner();
-        birth_seen |= is_birth;
-        batch.with_lowering_input(declaration.batch_slot(), |method_input| {
-            let method = FieldUseMethodV1::Selected { slot: declaration.batch_slot(), is_birth };
-            capture_method_v1(method_input, method, &tracked, &mut census, own).ok()?;
-            Some(())
-        }).ok()??;
-    }
-    if !birth_seen {
-        let birth = birth?;
-        let birth_input = birth.lowering_input(batch.source_ast()).ok()?;
-        capture_method_v1(birth_input, FieldUseMethodV1::BirthRow, &tracked, &mut census, true).ok()?;
-    }
-    let uses = census.remove(name)?;
+    let uses = capture_box_field_v1(batch, selected, birth, row.key.owner(), name)?;
     if uses.vetoed || uses.foreign || uses.captured_receiver || !uses.aliases.is_empty() || uses.stores.len() != 1
         || !uses.stores[0].0.is_birth() { return None; }
     // Validate the final WHOLE census, including constructor-only Birth.
