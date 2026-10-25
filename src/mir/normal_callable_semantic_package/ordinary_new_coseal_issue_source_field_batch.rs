@@ -528,7 +528,7 @@ fn borrow_fixed_array_alias_source(
     request: &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1,
     context: Option<field_reads::ReceivedFieldContextV1<'_>>,
 ) -> Result<Option<Rc<LocalFieldReadSourceV1>>, OrdinaryNewCoSealIssueV1> {
-    use crate::mir::resolved_semantics::home_new_prefix::{BorrowedArrayFieldSourceV1, LocalFieldReadResultV1};
+    use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
     let (Some((receiver, box_source)), Some((batch, selected, _, _, writes))) = (receiver_proof, context)
         else { return Ok(None); };
     if request.receiver != receiver || request.home != receiver || request.nullable || request.formal
@@ -541,23 +541,13 @@ fn borrow_fixed_array_alias_source(
         else { return Ok(None); };
     if caller.owner() != box_source.name()
         || caller.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod { return Ok(None); }
-    let Some(source) = writes.array_source(caller.owner(), &request.field) else { return Ok(None); };
     let result = batch.with_lowering_input(row.batch_slot(), |input| -> Result<_, String> {
-        let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| "array-read/receiver-source-owner".to_owned())?;
-        let mut initializers = input.function().expression_source().initializers()
-            .filter(|row| row.initializer_site() == Some(request.site.site()));
-        let Some(initializer) = initializers.next() else { return Ok(None); };
-        if initializers.next().is_some() || !ledger.uncaptured_binding(initializer.binding())
-            || super::super::super::field_array_read_source::local_initializer(input, initializer.binding())
-                != Some((initializer.declaration_site().clone(), request.site.site().clone())) { return Ok(None); }
-        let Some(field) = crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1::fixed_receiver_v1(
-            input, caller.clone(), &request.site, &request.field, source)? else { return Ok(None); };
-        if field.binding() != receiver || !constructors.is_array_field(field.field()).map_err(|_| "array-read/field-source".to_owned())? {
-            return Ok(None);
-        }
+        let Some(alias) = super::super::super::field_array_read_source::capture_fixed_alias_v1(
+            input, caller, request.site.site(), selected, batch, constructors, writes)? else { return Ok(None); };
+        let Some((field, _)) = alias.fixed_source_v1() else { return Ok(None); };
+        if field.binding() != receiver || field.name() != request.field.as_ref() { return Ok(None); }
         let canonical = field.field();
         let declared = field.declared_type_name().map(Into::into);
-        let Some(alias) = BorrowedArrayFieldSourceV1::fixed_alias_v1(Rc::new(field), initializer.clone()) else { return Ok(None); };
         Ok(Some(LocalFieldReadSourceV1::from_declaration(canonical, LocalFieldReadResultV1::BorrowedArray(alias), declared)))
     }).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
     result.map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })

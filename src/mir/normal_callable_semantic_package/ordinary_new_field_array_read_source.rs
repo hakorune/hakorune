@@ -562,3 +562,32 @@ impl CanonicalArrayFieldReadSourceV1 {
     pub(in crate::mir) fn name(&self) -> &str { &self.name }
     pub(in crate::mir) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
 }
+
+/// The sole fixed-provider local alias adapter. Count and the Home field walk
+/// retain this same source shape; neither can invent an operation or Home.
+pub(in crate::mir::normal_callable_semantic_package) fn capture_fixed_alias_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, caller: &CanonicalSameModuleCallableKeyV1,
+    site: &SourceExprSiteV1, selected: &VerifiedSelectedCallableBatchMapV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1, constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    writers: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1>, String> {
+    if caller.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod { return Ok(None); }
+    let mut declarations = batch.declarations().filter(|row| row.owner() == input.owner());
+    let Some(declaration) = declarations.next() else { return Ok(None); };
+    if declarations.next().is_some() || selected.key_for_batch_slot(declaration.batch_slot())
+        != Some(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller.clone())) {
+        return Err(freeze("array-read/receiver-source-caller"));
+    }
+    let Some(BodyExpressionShapeV1::FieldAccess { field: name, .. }) = input.body_shape()
+        .and_then(|shape| shape.expression_shape(site)) else { return Ok(None); };
+    let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| freeze("array-read/receiver-source-owner"))?;
+    let mut initializers = input.function().expression_source().initializers().filter(|row| row.initializer_site() == Some(site));
+    let Some(initializer) = initializers.next() else { return Ok(None); };
+    if initializers.next().is_some() || !ledger.uncaptured_binding(initializer.binding())
+        || local_initializer(input, initializer.binding()) != Some((initializer.declaration_site().clone(), site.clone())) { return Ok(None); }
+    let Some(source) = writers.array_source(caller.owner(), name) else { return Ok(None); };
+    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+    let Some(field) = CanonicalArrayFieldReadSourceV1::fixed_receiver_v1(input, caller.clone(), &owned, name, source)? else { return Ok(None); };
+    if !constructors.is_array_field(field.field()).map_err(|_| freeze("array-read/field-source"))? { return Ok(None); }
+    Ok(crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1::fixed_alias_v1(Rc::new(field), initializer.clone()))
+}

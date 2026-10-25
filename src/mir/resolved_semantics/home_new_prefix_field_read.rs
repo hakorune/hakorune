@@ -137,6 +137,15 @@ impl BorrowedArrayFieldSourceV1 {
             || initializer.binding().owner() != field.site().owner() { return None; }
         Some(Self { origin: BorrowedArrayFieldOriginV1::FixedAlias { field, initializer } })
     }
+    pub(in crate::mir) fn fixed_source_v1(&self) -> Option<(
+        &std::rc::Rc<crate::mir::normal_callable_semantic_package::CanonicalArrayFieldReadSourceV1>,
+        &super::super::ResolvedInitializerRelationV1,
+    )> {
+        match &self.origin {
+            BorrowedArrayFieldOriginV1::FixedAlias { field, initializer } => Some((field, initializer)),
+            _ => None,
+        }
+    }
     pub(in crate::mir) fn binding(&self) -> BindingRefV1 {
         match &self.origin {
             BorrowedArrayFieldOriginV1::Operation(source) => source.binding(),
