@@ -34,6 +34,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     NewBox,
     MapNew,
     MapFieldHas,
+    MapFieldKeys,
     MapFieldGetIndexed,
     MapFieldInstallIndexed,
     MapPrepareKey,
@@ -130,6 +131,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             }),
             InvokeOperation::Map(operation) => Some(match operation {
                 MapInvokeOperation::New => Self::MapNew,
+                MapInvokeOperation::FieldKeys { .. } => Self::MapFieldKeys,
                 MapInvokeOperation::FieldHas { .. } => Self::MapFieldHas,
                 MapInvokeOperation::FieldGetIndexed { .. } => Self::MapFieldGetIndexed,
                 MapInvokeOperation::FieldInstallIndexed { .. } => Self::MapFieldInstallIndexed,

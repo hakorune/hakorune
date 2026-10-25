@@ -28,11 +28,14 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 
 ## 次の一手
 1. chunkCountの元inner keys/outer length・同じMap fieldをCore source/結果式へ接続する。keysは一度だけ評価し、一時Arrayをouter lengthのNormal/Fault双方で終了する。keys自体のFaultではArrayは未取得。Map.lenへの書換えはしない。
-2. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。次は既存MapKeys/ArrayLen契約から同じ操作を発行し、plain Text Arrayの取得・length・Normal/Fault Endを接続する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
+2. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。FieldKeys物理操作・plain Text ArrayのNormal取得/length/End検証とC emissionも接続済み。次は既存MapKeys/ArrayLenの元sourceから同じ操作とcleanup packetを発行する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
 3. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
-- native keys snapshot: Live Mapの同じgateでpublic-textキーを複製し、gate外で辞書順に整列して独立Text ArrayをNormal時だけ公開。fieldも同じ操作へ接続し、既存checked_text_endで終了する。source/Core/物理packetはまだ未接続。
+- FieldKeysはkeyなしの同じcanonical field/baseを運び、独立module検証も元field-read pinを要求する。Rust/CともsnapshotのNormal取得・生存中Count・一度だけのEndとterminal残存/escape拒否を検証。Cはsnapshot終了だけ既存checked_text_endへ送り、他Arrayの契約を緩めない。
+- CLI56.67秒PASS、`cargo quick-test-fast map_tests::` は13 PASS/1既存ignored（build96秒）。`bash tools/build_hako_llvmc_ffi.sh` PASS。`CC="cc -fuse-ld=lld" python3 lang/c-abi/tests/published_map_physical_execution_test.py target/quick/libnyash_lifecycle_kernel.a` 全PASS（keys snapshotの実EXE0、既存Map実行/Fault/27 malformed含む）。新CLIのboxtorrentは同じowner73のsource停止でEXE未達。
+- 新しいsnapshot lifetimeは既存Map pointer/owned-object Array検証で守れないため、既存RustケースのCount/End/escape変異と既存C familyの最小snapshot graph/終了変異を追加。Rust test関数/新規ファイル/checkerなし（C fixture factoryは追加）。これは物理層の証拠でありsource受理の証拠には数えない。
+- native keys snapshot: Live Mapの同じgateでpublic-textキーを複製し、gate外で辞書順に整列して独立Text ArrayをNormal時だけ公開。fieldも同じ操作へ接続し、既存checked_text_endで終了する。source/Coreからのpacket発行はまだ未接続。
 - `cargo test --profile quick -p nyash_kernel --no-default-features --features lifecycle-core --lib --config profile.quick.package.nyash-rust.opt-level=0 fault::checked_map::tests::` は15件PASS（build48.50秒）。`cargo quick-build-lifecycle-fast` PASS（初回7.33秒、field追加後2.46秒）。実archive連結の既存checked_map_runtime_abi_test.cはprofile1/2 PASS（Mapはprofile1）。
 - snapshotの順序・数値/UTF-8キー・Map終了後の独立性・未公開out保持・Fault中End/二重End拒否は既存証拠で未検証の新境界なので、既存UTF-8ケースとC ABI検証だけを拡張。test関数/fixtureファイル/checkerの追加なし。固定suiteはこの未接続runtime API追加では再実行していない。
 - 直前CLI `cargo quick-build-fast`49.02秒、`cargo quick-test-fast --no-run`79秒PASS。既存source outcomes3/scalar pending7/object返却5/stored receiver6は全PASS。boxtorrent smokeは上記新停止でEXE未達。新規test関数/fixtureファイル/checker/for_testなし。

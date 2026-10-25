@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 APP-boxtorrent-mini remains selected; unchanged source uses canonical emit-exe/C API with exact stdout/exit and no replay. EXE remains incomplete.
 Last fixed suite before native keys snapshot:9/11 in463.098s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass again; boxtorrent and JSON source connections remain open.
-Current stop: owner73 Body12Initializer store.chunkCount(), borrowed-result/source-not-i64. Native keys snapshot now verified; next connect original keys/length Core source and owned temporary Text Array Normal/Fault cleanup to that operation; no Map.len rewrite or legacy handle ABI.
+Current stop: owner73 Body12Initializer store.chunkCount(), borrowed-result/source-not-i64. Native keys snapshot and exact physical acquisition/Count/End now verified; next connect original keys/length Core source and cleanup packets to that operation; no Map.len rewrite or legacy handle ABI.
 Connected DirectMapGet receiver origin and existing parameterless result declarations to original source dependencies; Store.release result now grounds. All borrowed origins remain SourcePending until real acquisition/nonnull/lifetime/physical proofs; late Direct scalar and nested retain remain open.
-Native keys kernel Map15 PASS (build48.50s), lifecycle archive build PASS, real-archive C ABI profiles1/2 PASS (Map profile1); existing UTF-8/C cases extended for independent snapshot/End boundaries, no new test functions/files/checkers. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
+CLI56.67s/test96s PASS; Map filter13 PASS/1 existing ignored; FFI build and full physical Map C execution/Fault/negative checks PASS, including keys snapshot EXE0. Native keys kernel Map15/C ABI profiles1/2 also PASS. No new test files/checkers. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
 """
 next_design_card = "none"
 next_design_card_path = "none"

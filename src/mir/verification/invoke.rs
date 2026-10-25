@@ -157,6 +157,10 @@ pub(super) fn check_module_with_source(
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
                         }
+                        InvokeOperation::Map(MapInvokeOperation::FieldKeys { field, .. })
+                            if !dynamic_field(module, *field) || root.is_none()
+                                || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
+                        { errors.push(error(*id, "object-field-read-definition-invalid")); }
                         InvokeOperation::Map(MapInvokeOperation::FieldHas { field, key, .. }
                             | MapInvokeOperation::FieldGetIndexed { field, key, .. })
                             if !key.is_text() || !dynamic_field(module, *field) || root.is_none()

@@ -40,6 +40,16 @@ static hako_lv4_value* lv4_script_arguments_root(hako_lv4_function_index* fn, ui
       "kind", "script_arguments_new") ? root : NULL;
 }
 
+/* A keys snapshot owns a plain Text Array, never an indexed object or Map. */
+static hako_lv4_value* lv4_map_keys_root(hako_lv4_function_index* fn, uint32_t id) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, lv4_index_value(fn, id));
+  if (!root || root->kind != LV4_HANDLE || root->origin < 0 ||
+      !lv4_is(root->instruction, "op", "invoke_normal_result")) return NULL;
+  hako_lv4_block* origin = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  return origin && lv4_is(yyjson_obj_get(lv4_term(origin->block), "operation"),
+      "kind", "map_field_keys") ? root : NULL;
+}
+
 static int lv4_borrowed_typed_live(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state) {
   if (!value || value->kind != LV4_HANDLE || !lv4_layout(in, value->object_id) ||
@@ -95,6 +105,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
     } else if (lv4_carrier_array_kind(op)) {
       if (birth || !lv4_carrier_array_step(fn, op, faulted, state, normal)) return 0;
+    } else if (lv4_is(op, "kind", "map_field_keys")) {
+      if (faulted || birth || state[bi] || in->profile != LV4_INDEXED_SAFE_MUTEX ||
+          !lv4_birth_dynamic(in, op) || lv4_slot(in, op) < 0 ||
+          !lv4_readable_object(in, fn, lv4_u(op, "base"), state, lv4_u(block, "id"),
+              lv4_u(op, "object_id"), 1)) return 0;
+      normal[bi] = LV4_LIVE;
     } else if (!hako_physical_array_text_append(op) && hako_physical_string_operand_count(op)) {
       if ((birth && !hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) || faulted || state[bi]) return 0;
       if (hako_physical_map_field_text_access(op) && (in->profile != LV4_INDEXED_SAFE_MUTEX ||

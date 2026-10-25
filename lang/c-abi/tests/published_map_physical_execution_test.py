@@ -59,7 +59,7 @@ class Graph:
             block["edges"] = [dict(target=instruction[k], args=None) for k in ("normal", "fault")]
 
     def invoke_term(self, block, op, normal, fault):
-        op = dict(op, site=self.site)
+        op = dict(op) if op["kind"] == "birth_call" else dict(op, site=self.site)
         self.site += 1
         self.term(block, dict(op="invoke", operation=op, fault_frame=0, normal=normal, fault=fault))
 
@@ -304,6 +304,51 @@ def borrowed_array_program():
     return data
 
 
+def field_keys_program():
+    """Physical Map field snapshot and plain Text Array lifetime, not source admission."""
+    graph = Graph()
+    parent = graph.invoke(dict(kind="new_box", object_id=0), [], True)
+    release = dict(kind="home_release", object_id=0, value=parent)
+    graph.invoke(dict(kind="birth_call", call=dict(target=1, receiver=parent, args=[], dst=None)),
+                 [dict(kind="reclaim_unpublished", object_id=0, value=parent)])
+    field_end = dict(kind="field_residence_release", object_id=0, field_ordinal=0,
+                     base=parent, transaction="take_dynamic")
+    snapshot = graph.invoke(dict(kind="map_field_keys", object_id=0, field_ordinal=0, base=parent),
+                            [field_end, release], True)
+    count = graph.value
+    graph.row(graph.current, dict(op="array_length", array=snapshot, dst=count))
+    graph.row(graph.current, dict(op="array_residence_release", value=snapshot))
+    graph.invoke(field_end, [release])
+    graph.invoke(release, [])
+    graph.term(graph.current, dict(op="return", value=count))
+    birth = Graph()
+    birth.current["instructions"][0]["instruction"]["mode"] = "borrowed"
+    birth.current["instructions"][1]["instruction"] = dict(op="const_unit", dst=1)
+    map_value = birth.invoke(dict(kind="map_new"), [], True)
+    birth.invoke(dict(kind="field_set", object_id=0, field_ordinal=0, base=10, value=map_value,
+                      transaction="dynamic_map_initialize", exact_numeric_runtime_check=dict(kind="none")),
+                 [dict(kind="map_end", map=map_value)])
+    birth.term(birth.current, dict(op="return", value=1))
+    data = dict(schema="hako.published-lifecycle-physical-program.v2", storage_profile=1,
+                fault_abi_version=1, process_result_site=graph.site,
+                layouts=[dict(object_id=0, runtime_type_id=900, field_count=1,
+                              fields=[dict(declaration_ordinal=0, runtime_slot=0, storage_kind=12)],
+                              owned_residences=[], owned_object_residences=[])],
+                functions=[dict(name="main", role="root_i64", entry=0, params=[], receiver=None,
+                                receiver_object=None, blocks=graph.blocks),
+                           dict(name="Holder.birth/0", role="birth_unit", entry=0, params=[], receiver=10,
+                                receiver_object=None, blocks=birth.blocks)])
+    site = 0
+    for function in data["functions"]:
+        for block in function["blocks"]:
+            operation = block["terminator"]["instruction"].get("operation", {})
+            if "site" in operation:
+                operation["site"] = site
+                site += 1
+    data["process_result_site"] = site
+    return data
+
+
 with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     work = Path(directory)
     library_dir = Path(os.environ.get("HAKO_TEST_FFI_DIR", ROOT / "target/release"))
@@ -382,6 +427,29 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
     assert run([exe], env=env).returncode == 30
     print("duplicate MapLocal roots -> InstallBorrowedArray -> caller-owned cleanup -> EXE30")
+
+    snapshot = field_keys_program()
+    compile_input(snapshot)
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    assert run([exe], env=env).returncode == 0
+    for mutation in ("missing-end", "double-end", "read-after-end", "field-as-array"):
+        invalid = copy.deepcopy(snapshot)
+        block = next(b for b in invalid["functions"][0]["blocks"]
+                     if any(r["instruction"]["op"] == "array_length" for r in b["instructions"]))
+        rows = block["instructions"]
+        if mutation == "missing-end":
+            rows.pop()
+        elif mutation == "double-end":
+            rows.append(copy.deepcopy(rows[-1]))
+        elif mutation == "read-after-end":
+            rows[-1], rows[-2] = rows[-2], rows[-1]
+        else:
+            rows[-2]["instruction"]["array"] = 2
+        for index, row in enumerate(rows):
+            row["index"] = index
+        block["terminator"]["index"] = len(rows)
+        compile_input(invalid, False)
+    print("Map field keys -> independent Text Array length/End -> EXE0; lifetime mutations rejected")
 
     compile_input(program(["same", "same"]))
     wraps = ["storage_init", "storage_dispose", "key_init", "key_dispose",

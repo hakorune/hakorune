@@ -46,6 +46,12 @@ pub enum MapValueKind {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MapInvokeOperation {
     New,
+    /// Independent Text Array snapshot of one checked Map field. Normal
+    /// acquires an Array residence; neither Map nor its payloads transfer.
+    FieldKeys {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+    },
     /// One synchronous exact field borrow + Text-key presence. No Map value
     /// is produced and the receiver remains supported by the source entry.
     FieldHas {
@@ -145,6 +151,7 @@ impl MapInvokeOperation {
     pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
         match self {
             Self::New => Some(InvokeNormalResultKind::Map),
+            Self::FieldKeys { .. } => Some(InvokeNormalResultKind::Handle),
             Self::FieldHas { .. } => Some(InvokeNormalResultKind::Bool),
             Self::FieldGetIndexed { .. } => Some(InvokeNormalResultKind::BorrowedNullableHandle),
             Self::PrepareKey { .. } => Some(InvokeNormalResultKind::MapKey),
@@ -165,6 +172,7 @@ impl MapInvokeOperation {
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::New | Self::PrepareKey { .. } => EffectMask::CONTROL.add(Effect::Alloc),
+            Self::FieldKeys { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
             Self::FieldHas { .. } | Self::FieldGetIndexed { .. } => EffectMask::READ.add(Effect::Control),
             Self::FieldInstallIndexed { .. }
             | Self::InstallIndexed { .. }
@@ -189,6 +197,7 @@ impl MapInvokeOperation {
     pub fn used_values(&self) -> Vec<ValueId> {
         match self {
             Self::New | Self::PrepareKey { .. } => vec![],
+            Self::FieldKeys { base, .. } => vec![*base],
             Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => std::iter::once(*base).chain(key.value()).collect(),
             Self::FieldInstallIndexed { base, key, value, .. } => std::iter::once(*base)
                 .chain(key.value()).chain(std::iter::once(*value)).collect(),
@@ -214,6 +223,7 @@ impl MapInvokeOperation {
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
             Self::New | Self::PrepareKey { .. } => {}
+            Self::FieldKeys { base, .. } => rewrite(base),
             Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => { rewrite(base); key.rewrite_value(rewrite); }
             Self::FieldInstallIndexed { base, key, value, .. } => {
                 rewrite(base);

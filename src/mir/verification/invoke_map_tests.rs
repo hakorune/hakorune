@@ -119,6 +119,41 @@ fn map_normal_results_and_returned_fault_paths_keep_opaque_lifetimes() {
         let function = graph(populated);
         check_function(&function).unwrap();
     }
+    // A keys snapshot is a plain Array residence, not a Map or indexed
+    // object. Its length borrows it; terminal cleanup consumes it once.
+    let mut function = graph(false);
+    function.params.push(ValueId(10));
+    function.signature.params.push(MirType::Box("Holder".into()));
+    let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+    let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, 0).unwrap();
+    function.blocks.get_mut(&BasicBlockId(0)).unwrap().terminator = Some(invoke(
+        Map::FieldKeys { field, base: ValueId(10) }, 1, 9));
+    let normal = function.blocks.get_mut(&BasicBlockId(1)).unwrap();
+    normal.add_instruction(MirInstruction::ArrayRead {
+        site_id: crate::mir::ArrayReadSiteId::new(0), dst: Some(ValueId(3)),
+        receiver: ValueId(2), operation: crate::mir::instruction::ArrayReadOperationV1::Count,
+    });
+    normal.add_instruction(MirInstruction::ArrayResidenceRelease { value: ValueId(2) });
+    normal.set_terminator(MirInstruction::Jump { target: BasicBlockId(5), edge_args: None });
+    check_function(&function).unwrap();
+    for mutation in 0..5 {
+        let mut invalid = function.clone();
+        let normal = invalid.blocks.get_mut(&BasicBlockId(1)).unwrap();
+        match mutation {
+            0 => { normal.instructions.pop(); }, // missing End
+            1 => normal.add_instruction(MirInstruction::ArrayResidenceRelease { value: ValueId(2) }),
+            2 => normal.instructions.swap(1, 2), // read after End
+            3 => normal.set_terminator(MirInstruction::Return { value: Some(ValueId(2)) }),
+            _ => normal.set_terminator(invoke(Map::End { map: ValueId(2) }, 5, 9)),
+        }
+        assert!(check_function(&invalid).is_err(), "keys snapshot mutation {mutation}");
+    }
+    // A Fault after acquisition still owes End; a keys Fault acquired nothing.
+    let mut fault = function;
+    fault.blocks.get_mut(&BasicBlockId(1)).unwrap().set_terminator(MirInstruction::ReturnFault {
+        fault_frame: ValueId(0),
+    });
+    check_function(&fault).unwrap();
 }
 
 #[test]

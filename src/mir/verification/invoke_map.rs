@@ -95,6 +95,10 @@ pub(super) fn check(
                 if results.insert(*dst, (kind, *invoke_block)).is_some() {
                     return Err("map-duplicate-result");
                 }
+            } else if matches!(operation, InvokeOperation::Map(Map::FieldKeys { .. })) {
+                if results.insert(*dst, (Kind::Handle, *invoke_block)).is_some() {
+                    return Err("map-duplicate-result");
+                }
             }
         }
     }
@@ -109,6 +113,7 @@ pub(super) fn check(
             {
                 let valid = match operation {
                     Map::New | Map::PrepareKey { .. } => true,
+                    Map::FieldKeys { base, .. } => !results.contains_key(base),
                     Map::FieldHas { key, base, .. } | Map::FieldGetIndexed { key, base, .. } => key.is_text() && !results.contains_key(base),
                     Map::FieldInstallIndexed { key, base, value, .. } =>
                         key.is_text() && !results.contains_key(base) && !results.contains_key(value),
@@ -187,7 +192,12 @@ pub(super) fn check(
                             operation: InvokeOperation::Call { call, .. }, ..
                         } if call.args.contains(&value)
                             && borrowed_map_call_edge(call, module))
-                        && results[&value].0 == Kind::Map);
+                        && results[&value].0 == Kind::Map)
+                    || (results[&value].0 == Kind::Handle && (
+                        matches!(instruction, MirInstruction::ArrayRead {
+                            receiver, operation: crate::mir::instruction::ArrayReadOperationV1::Count, ..
+                        } if *receiver == value)
+                        || matches!(instruction, MirInstruction::ArrayResidenceRelease { value: released } if *released == value)));
                 if !allowed {
                     return Err("map-opaque-escape");
                 }
@@ -205,7 +215,7 @@ pub(super) fn check(
     // These temporaries have one immediate consumer in this source cohort.
     // Fresh/nested child evaluation and its cancellation edges are not admitted.
     for (value, (kind, producer)) in &results {
-        if *kind == Kind::Map || *kind == Kind::TextView {
+        if *kind == Kind::Map || *kind == Kind::TextView || *kind == Kind::Handle {
             continue;
         }
         let Some(MirInstruction::Invoke { normal_landing, .. }) =
@@ -274,6 +284,17 @@ fn visit(
         active.insert(id);
         let block = function.blocks.get(&id).ok_or("map-block-missing")?;
         let term = block.terminator.as_ref().ok_or("map-terminator-missing")?;
+        for instruction in &block.instructions {
+            match instruction {
+                MirInstruction::ArrayRead { receiver, .. }
+                    if results.get(receiver).is_some_and(|r| r.0 == Kind::Handle)
+                        && !live.contains(receiver) => return Err("map-get-not-live"),
+                MirInstruction::ArrayResidenceRelease { value }
+                    if results.get(value).is_some_and(|r| r.0 == Kind::Handle)
+                        && !live.remove(value) => return Err("map-end-not-live"),
+                _ => {}
+            }
+        }
         if let MirInstruction::Invoke {
             operation: InvokeOperation::FieldSet {
                 mode: crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
@@ -351,10 +372,11 @@ fn visit(
             }
             if matches!(term, MirInstruction::Invoke {
                 operation, normal_landing, ..
-            } if *normal_landing == target && matches!(operation.normal_result_kind(), Some(Kind::Map | Kind::MapView)))
+            } if *normal_landing == target && (matches!(operation.normal_result_kind(), Some(Kind::Map | Kind::MapView))
+                || matches!(operation, InvokeOperation::Map(Map::FieldKeys { .. }))))
             {
                 let mut values = results.iter().filter(|(_, (kind, producer))| {
-                    matches!(*kind, Kind::Map | Kind::MapView) && *producer == id
+                    matches!(*kind, Kind::Map | Kind::MapView | Kind::Handle) && *producer == id
                 });
                 let (&value, _) = values.next().ok_or("map-result-missing")?;
                 if values.next().is_some() || !next.insert(value) {

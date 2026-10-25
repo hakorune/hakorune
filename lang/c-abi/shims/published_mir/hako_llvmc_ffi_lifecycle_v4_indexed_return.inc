@@ -9,6 +9,10 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   int ordinary_text = lv4_is(fn->function, "role", "ordinary_text");
   int ordinary_handle = lv4_is(fn->function, "role", "ordinary_handle");
   int ordinary_nullable = lv4_is(fn->function, "role", "ordinary_nullable_handle");
+  /* This lane owns only local keys temporaries; no array result/handoff
+   * contract has been selected at an ordinary object Return boundary. */
+  if (lv4_is(term, "op", "return") &&
+      lv4_map_keys_root(fn, lv4_u(term, "value"))) return 0;
   if (ordinary_text && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
     /* The source return transfers the SAME installed residence after all

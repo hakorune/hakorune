@@ -45,6 +45,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
               : !lv4_string_install(state, lv4_state_count(fn), value->origin, old ? lv4_text_origin(fn, old) : -1))) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
       hako_lv4_value* root = lv4_script_arguments_root(fn, lv4_u(ins, "value"));
+      if (!root) root = lv4_map_keys_root(fn, lv4_u(ins, "value"));
       if (!root) {
         root = lv4_owned_array_root(fn, lv4_u(ins, "value"));
         if (!root || (!lv4_owned_array_claim(fn, root) &&
@@ -154,8 +155,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !value || (value->kind != LV4_I64 && !(value->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, value)))) return 0;
     } else if (lv4_is(ins, "op", "array_length")) {
       hako_lv4_value* array = lv4_index_value(fn, lv4_u(ins, "array"));
+      hako_lv4_value* snapshot = array ? lv4_map_keys_root(fn, array->id) : NULL;
       if (faulted || birth || !array ||
-          !lv4_field_array_readable(in, fn, array->id, state, lv4_u(block, "id"))) return 0;
+          !(snapshot ? state[snapshot->origin] == LV4_LIVE :
+            lv4_field_array_readable(in, fn, array->id, state, lv4_u(block, "id")))) return 0;
     } else if (lv4_is(ins, "op", "array_get")) {
       /* A routed `.get` element read: the array operand is the same
          slot-loaded handle lane and the index a committed i64 — the read

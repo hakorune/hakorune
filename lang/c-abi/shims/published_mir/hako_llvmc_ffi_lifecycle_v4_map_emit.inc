@@ -23,6 +23,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   int field_read = hako_physical_map_field_text_read(op);
   int field_install = lv4_is(op, "kind", "map_field_install_indexed");
   int field_get = lv4_is(op, "kind", "map_field_get_indexed");
+  int field_keys = lv4_is(op, "kind", "map_field_keys");
   int make_map = lv4_is(op, "kind", "map_new");
   int make_key = lv4_is(op, "kind", "map_prepare_key");
   int scalar = lv4_is(op, "kind", "map_install_value");
@@ -53,7 +54,10 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   }
   if (field_read || field_install) lv4_string_operand_emit(f, yyjson_obj_get(op, "key"), fi, b, 0);
   fprintf(f, "  %%status%u = call i32 ", b);
-  if (field_install) {
+  if (field_keys) {
+    fprintf(f, "@\"nyash.object.checked_map_field_keys_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %u, ptr %%get_out%u)\n",
+        in->profile, site, lv4_u(op, "base"), lv4_type_id(in, op), lv4_u(op, "field_ordinal"), b);
+  } else if (field_install) {
     uint32_t payload = lv4_u(op, "payload_object_id");
     fprintf(f, "@\"nyash.object.checked_map_field_install_indexed_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %u, ptr %%strarg%u_0, i64 %%v%u, i64 %llu, ptr @hako_lifecycle_object_end_descriptor_%u, ptr %%outcome%u)\n",
         in->profile, site, lv4_u(op, "base"), lv4_type_id(in, op), lv4_u(op, "field_ordinal"), b,
@@ -118,7 +122,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   fprintf(f, "  %%map_status_ok%u = icmp ult i32 %%status%u, 2\n"
       "  br i1 %%map_status_ok%u, label %%map_returned%u, label %%map_invalid\nmap_returned%u:\n",
       b, b, b, b, b);
-  if (field_read || get || array_length || array_index || get_text) {
+  if (field_keys || field_read || get || array_length || array_index || get_text) {
     /* No storage was initialized or consumed: dispatch on status only. */
     lv4_map_dispatch(f, b, normal, fault);
     return;
@@ -161,7 +165,7 @@ static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,
     yyjson_val* elements = yyjson_obj_get(op, "elements");
     fprintf(f, "  %%borrowed_elements%u = alloca [%zu x ptr], align 8\n", b, yyjson_arr_size(elements));
   }
-  if (hako_physical_map_field_text_read(op) || lv4_is(op, "kind", "map_checked_get") ||
+  if (lv4_is(op, "kind", "map_field_keys") || hako_physical_map_field_text_read(op) || lv4_is(op, "kind", "map_checked_get") ||
       lv4_is(op, "kind", "map_array_length")) {
     /* The kernel writes the slot only on Normal; a Fault read leaves the
      * sentinel so a stray consumer observes -1, never uninitialized stack. */
@@ -174,6 +178,8 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
   fprintf(f,
       "declare void @llvm.trap()\n"
       "declare i32 @\"nyash.object.checked_map_field_has_v1\"(ptr, i32, i64, i64, i64, i64, ptr, ptr)\n"
+      "declare i32 @\"nyash.object.checked_map_field_keys_v1\"(ptr, i32, i64, i64, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.array.checked_text_end_v1\"(ptr, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_map_field_get_v1\"(ptr, i32, i64, i64, i64, i64, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_map_field_install_indexed_v1\"(ptr, i32, i64, i64, i64, i64, ptr, i64, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.map.storage_init_v1\"(ptr)\n"

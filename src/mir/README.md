@@ -44,6 +44,13 @@ C admission matches every typed carrier against that input's exact claims;
 module-only and outside-family routes keep their capability Stops. Numeric,
 ownership and write capability checks remain independent.
 
+Checked Map FieldKeys acquires an independent plain Text Array only on Normal.
+The existing Map verifier tracks this exact snapshot separately from Map storage
+and indexed objects: Count borrows it, ArrayResidenceRelease ends it once, and
+escape/terminal residue refuse. Canonical C uses the same origin/liveness rule
+and checked Text End. Original Core source/cleanup packet issuance remains
+required; the physical vocabulary does not select a source operation.
+
 Map literal construction adds `IntrinsicMap` allocation and result-free
 `MapLiteralEntryWrite` with exact receiver/key/value uses and mutation/IO effects.
 The v2 planner borrows SSA definitions and exact canonical call/ordinal relations

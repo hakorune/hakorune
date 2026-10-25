@@ -217,7 +217,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(ins, "op", "string_residence_install")) {
         /* Validated lifecycle handoff preserves the existing handle/token pair. */
       } else if (lv4_is(ins, "op", "array_residence_release")) {
-        fprintf(f, "  call void @nyrt_handle_release_h(i64 %%v%u)\n", lv4_u(ins, "value"));
+        if (lv4_map_keys_root(&in->index[fi], lv4_u(ins, "value"))) {
+          /* Nonfallible Text End: a broken physical contract traps and never
+           * manufactures a source Fault. The prior Fault frame is retained. */
+          fprintf(f,
+              "  %%keys_end%u_%zu = call i32 @\"nyash.array.checked_text_end_v1\"(ptr %%frame, i64 0, i64 %%v%u)\n"
+              "  %%keys_end_ok%u_%zu = icmp eq i32 %%keys_end%u_%zu, 0\n"
+              "  br i1 %%keys_end_ok%u_%zu, label %%keys_ended%u_%zu, label %%map_invalid\nkeys_ended%u_%zu:\n",
+              b, ri, lv4_u(ins, "value"), b, ri, b, ri, b, ri, b, ri, b, ri);
+        } else fprintf(f, "  call void @nyrt_handle_release_h(i64 %%v%u)\n", lv4_u(ins, "value"));
       } else if (lv4_is(ins, "op", "const_string")) {
         lv4_string_constant_emit(f, ins, fi);
       } else if (lv4_is(ins, "op", "copy")) {
@@ -339,7 +347,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               lv4_is(producer_op, "kind", "map_field_get_indexed") ? "get_out" :
               lv4_is(producer_op, "kind", "object_field_borrow") ? "field_read" : "owned_get", lv4_u(ins, "invoke_block"));
         else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
-        else if ((kind == LV4_BOOL && lv4_is(producer_op, "kind", "map_field_has")) ||
+        else if ((kind == LV4_HANDLE && lv4_is(producer_op, "kind", "map_field_keys")) ||
+            (kind == LV4_BOOL && lv4_is(producer_op, "kind", "map_field_has")) ||
             (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
             lv4_is(producer_op, "kind", "map_array_length"))))
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
