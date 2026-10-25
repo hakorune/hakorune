@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner56 Body0 Value chunkCount keys().length() borrowed-result/source-not-i64; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner70 Body4 manifest.seal discarded Text-field result borrowed-result/source-not-i64; fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,10 +18,10 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 APP-boxtorrent-mini remains selected; unchanged source uses canonical emit-exe/C API with exact stdout/exit and no replay. EXE remains incomplete.
-Current fixed suite9/11 in469.043s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass again; boxtorrent owner56 and JSON owner22 source connections remain open.
-Current stop: owner56 Body0Value return keys().length(), borrowed-result/source-not-i64. Original inner/outer Core source and scalar grounding now verified in existing fixtures; actual app evaluation/cleanup remains open. Next carry TextArray result kind and nonfault Array End in the same expression/cleanup owner; no Map.len rewrite or legacy ABI.
-Connected DirectMapGet receiver origin and existing parameterless result declarations to original source dependencies; Store.release result now grounds. All borrowed origins remain SourcePending until real acquisition/nonnull/lifetime/physical proofs; late Direct scalar and nested retain remain open.
-CLI46.44s/test build99s PASS; existing Core source2/target7/scalar pending7 PASS; codegen check/Python14 PASS. Existing SCC String-left/unknownRHS test remains0/1 (same prior assert, old revision unconfirmed). No new Rust test functions/files/checkers; physical keys EXE0 and runtime checks remain separate evidence. Prior reds and R6/R7/finite-product closeout remain open.
+Current fixed suite9/11 in469.156s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass; boxtorrent owner70 and JSON owner22 source connections remain open.
+Current stop: owner70 Body4 manifest.seal() discarded value, borrowed-result/source-not-i64. Callee returns untyped root_id Text candidate, not Unit; next close same all-writer field source, checked read/Materialize return and source-selected discard End/Normal/Fault cleanup.
+Corrected owner mapping: keys().length() is owner55 with closed I64 source; former owner56 was allocatorBlocks, missing original field Return plan. Stored field-call Returns now use the same original ResultExpressionSource; owner56/57 source closures pass. Keys TextArray evaluation/cleanup and late borrowed receiver proof remain open.
+Source focused11 PASS; final CLI45.81s PASS. No new tests/fixtures/checkers or retained diagnostics. Earlier Main0/source/publication/Loop reds, local/shared R6/R7 and required finite-product closeout remain open; see active card. Previous cleanup preparation remains unconnected to Array source packets.
 """
 next_design_card = "none"
 next_design_card_path = "none"

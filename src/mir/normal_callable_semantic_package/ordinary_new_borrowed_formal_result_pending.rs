@@ -294,7 +294,13 @@ fn source_result_pending(
                 multiplications.push(product); BorrowedResultClassV1::I64
             } else if let Some(field) = draft.and_then(|draft| capture_field(input, contract, draft, site)) {
                 fields.push(field); BorrowedResultClassV1::I64
-            } else if let Some(call) = capture_call(input, site, needs)? {
+            } else if let Some(call) = capture_call(input, site, needs)?.filter(|_| {
+                // A retained field-containing Return belongs to its original
+                // whole-expression plan, including a stored receiver Call.
+                // The direct Call shortcut cannot discharge that field tree.
+                original_return.is_none_or(|original| !original.field_plans()
+                    .any(|plan| plan.nodes().first().is_some_and(|node| node.site() == site)))
+            }) {
                 calls.push(call); BorrowedResultClassV1::UnresolvedScalar
             } else if let Some(read) = capture_field_array_read(
                 input, contract, site, selected, batch, constructors, proven_fields, original, field_claims, original_return,

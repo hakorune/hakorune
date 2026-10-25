@@ -1,13 +1,14 @@
 # APP-boxtorrent-mini
 
-Status: selected app; nested Core keys-array result and borrowed receiver completion incomplete. Date: 2026-10-25
+Status: selected app; Text field result/discard, nested Core keys-array and borrowed receiver completion incomplete. Date: 2026-10-25
 Scope: 未変更boxtorrent-miniの正規EXE生成・実行・期待出力/exit。
 Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直前のmimalloc着地](mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md)。
 
 ## 現在地
 - 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。現在のV4 FFIを使用。
-- 新CLIのcanonical smokeはowner56 Body0 Value、chunkCount本体 `return me.chunks.keys().length()` の `borrowed-result/source-not-i64`。呼出し側owner73 Body12から元Return側へ停止位置が変わったが、実アプリの式評価/cleanupは未完でEXE未生成。
-- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、469.043秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
+- 現CLIのcanonical停止はowner70 Body4、`BoxTorrentChunker.ingest`の`manifest.seal()`を捨てるstatement call（`borrowed-result/source-not-i64`）。callee `BoxTorrentManifest.seal`は`me.root_id`を返すText候補でUnitではない。EXE未生成。
+- 訂正: keys().length()はowner55でsource I64が閉じていた。旧owner56をchunkCountへ対応付けた記録は誤りで、実際はallocatorBlocksの元field-return plan欠落だった。同じ元計画へ正規化しowner56/57のsource I64照合を確認。keysの実評価・Array cleanupは引き続き未接続。
+- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、469.156秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
 
 ## 接続済み
 - 唯一のattributed Plain Birth providerと同じwriter inventory/非weak未注釈fieldを照合。providerのclassと保存形式を分離し、DynamicResidenceのreceiverはchecked ObjectFieldBorrowで読む。typed field、異class/multiple/hidden writerの拒否は保持。
@@ -27,11 +28,14 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 - 引数ゼロの結果依存は借用Uses定義を作らず、既存parameterless declarationと同じOriginalReturn loan、owner/batch/key/ゼロ引数、callee全体のsource projectionを照合する。mutable facts Rcは共有せず、callee結果groundingと入力/receiver/物理検証は別途必須。
 
 ## 次の一手
-1. 元inner keys/outer ArrayLen・同じMap fieldの閉じたCore source/結果式は接続済み。実アプリの元Returnを式評価へ渡し、同じinventoryでTextArray値とString/DynamicCarrierを区別する。keysを一度だけ評価し、Array CountとNormal/Fault cleanupを独立した最終検証までつなぐ。
-2. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。FieldKeys物理操作・plain Text ArrayのNormal取得/length/End検証とC emissionも接続済み。共通cleanup列は現在Invoke End前提なので、同じownerで非FaultのArrayResidenceReleaseも表し、String Endへの誤変換を禁止してsource packetを発行する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
-3. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
+1. まずsealの結果を既存Text結果/discard ownerへ接続する。同じDeclaredFieldValueSourceの全writer RHS（Birthの空Textとdigest結果の置換）を既存SUM graphで閉じ、field readの借用からMaterialize/所有返却まで保持する。statementのdiscard用途で結果を選択し、Normal取得後End／Fault時の既存Home unwindを検証する。名前やBirthだけでTextを推測せず、scalar Errの抑制やUnit化はしない。
+2. 元inner keys/outer ArrayLen・同じMap fieldの閉じたCore source/結果式は接続済み。実アプリの元Returnを式評価へ渡し、同じinventoryでTextArray値とString/DynamicCarrierを区別する。keysを一度だけ評価し、Array CountとNormal/Fault cleanupを独立した最終検証までつなぐ。
+3. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。FieldKeys物理操作・plain Text ArrayのNormal取得/length/End検証とC emissionも接続済み。共通cleanup列は現在Invoke End前提なので、同じownerで非FaultのArrayResidenceReleaseも表し、String Endへの誤変換を禁止してsource packetを発行する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
+4. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
+- 元field subtreeを含む直接return callは、PendingCallのshortcutで元計画を失わず、既存ResultExpressionSourceで同じoriginal plan Rcを保持する。captureエラー、callee依存、元receiver/field/source同一性検証は維持。追加台帳・新規test/fixture/checkerなし。
+- この正規化の検証: `cargo quick-test-fast original_return_field_requests_keep_nested_expression_plans_before_qualification -j 4` PASS。同binaryのoriginal-field/lost-return・nested-field・direct-call terminal各1件とpending7件を合わせ11 PASS。最終CLI `cargo quick-build-fast -j 4`45.81秒PASS。明示CLI/runtimeの固定suite9/11（実EXE8＋marker、timeout/SKIPなし）、boxtorrentは上記owner70へ進み、JSONはowner22のまま。source診断は撤去済みで一時adapterなし。
 - WIP整理: 共通cleanup writerにInvoke End／非FaultのArrayResidenceRelease＋Jumpを表すactionを追加。既存Invoke callerは同じsuffix算法を再利用し、Array source packet・式評価・独立した構造/path検証への接続は未完。途中cursor変更は境界越えの危険があるため採用せず、従来の最終検証を保持。
 - 非Fault Endの単一continuation・正確なinstruction記録・自己ループ拒否は既存Invokeだけの証拠では守れないため、既存canonical writerケースのみ拡張。test関数/ファイル/checkerは追加しない。
 - 整理差分: `cargo quick-test-fast root_graph_writer::tests:: -j 4`は3 PASS（build63秒）、同binaryの`root_ordered_`6／`root_cleanup_order_`5 PASS。`cargo quick-build-fast -j 4`66秒PASS。明示CLI/runtimeのboxtorrent smokeは同じowner56 source-not-i64で停止、EXE未達。固定suiteは再計測せず上記直前結果のまま。
