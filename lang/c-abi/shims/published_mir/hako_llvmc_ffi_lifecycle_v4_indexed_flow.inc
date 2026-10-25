@@ -178,9 +178,16 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             int text_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "text_view"));
             int integer_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "integer_view"));
             int bool_domain = yyjson_is_true(yyjson_obj_get(yyjson_arr_get(cparams, i), "bool_view"));
+            /* An opaque borrowed pair keeps its original tag through this
+               Call. The emitter checks kind==1 on the caller's own Fault
+               edge; an already-projected I64 cannot masquerade as tagged. */
+            yyjson_val* source_param = lv4_borrowed_formal_parameter(fn, value);
+            int checked_integer_pair = integer_domain && arg_kind && !strcmp(arg_kind, "tagged") &&
+                lv4_borrowed_tagged_formal(fn, value) && source_param &&
+                yyjson_is_null(yyjson_obj_get(source_param, "object_view"));
             if (bool_domain && (!yyjson_is_uint(kind) || yyjson_get_uint(kind) != 2 ||
                 !value || value->kind != LV4_BOOL)) return 0;
-            if (integer_domain && (!yyjson_is_uint(kind) || yyjson_get_uint(kind) != 1 ||
+            if (integer_domain && !checked_integer_pair && (!yyjson_is_uint(kind) || yyjson_get_uint(kind) != 1 ||
                 !value || value->kind != LV4_I64)) return 0;
             if (arg_kind && !strcmp(arg_kind, "borrowed_text")) {
               yyjson_val* operand = yyjson_obj_get(arg, "operand");
@@ -493,14 +500,15 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             !lv4_is(range, "kind", "none") || !base ||
             !lv4_readable_object(in, fn, base->id, state, lv4_u(block, "id"), lv4_u(op, "object_id"), 1)) return 0;
       } else {
-      /* The published source-owned usize write borrows two original tagged
-         formals. The base retains its sealed class; neither operand owns a
-         lease. Runtime kind/range/slot checks precede the store itself. */
+      /* The source-owned usize write borrows original formals. Its scalar
+         may already have the same checked entry Integer projection; this
+         does not admit an arbitrary computed I64 or grant a base lease. */
       int borrowed_write = ordinary &&
           lv4_is(range, "kind", "dynamic_integer_range") &&
           lv4_is(range, "declared_type", "usize") &&
           lv4_borrowed_object_formal(fn, base, lv4_u(op, "object_id")) &&
-          lv4_borrowed_tagged_formal(fn, value);
+          (lv4_borrowed_tagged_formal(fn, value) ||
+           (value && value->kind == LV4_I64 && lv4_borrowed_formal_parameter(fn, value)));
       /* A birth caller installs provider `new` results and scalar formals
          into its borrowed receiver's fields: the base is the stamped
          receiver handle (origin -2, object-corroborated), the value an

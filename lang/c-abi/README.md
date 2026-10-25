@@ -636,12 +636,19 @@ source-issued JSON, and rejects fourteen external ABI mutations without artifact
 This tiny program does not prove full mimalloc or MirBuilder migration completion.
 
 An optional `integer_view: true` on a borrowed formal retains the same pair ABI
-and requires a null object view and no Text view. Every incoming must carry
-tag1 with an independently checked I64 value; generic tagged forwarding is
-rejected. The function prologue checks kind1 before any body effect, and the
+and requires a null object view and no Text view. An incoming is either tag1
+with an independently checked I64 value, or the same original opaque borrowed
+pair with null object view. The latter preserves its tag and checks kind1 at
+the exact Call, taking the caller's MIR Fault cleanup edge on mismatch. An
+already projected I64 cannot be forged as a tagged pair. The function prologue
+also checks kind1 before any body effect, and the
 indexed body then uses I64 through Copy/Phi. This is an entry projection, not a
 mixed-domain coercion. Rust must supply the original finite-domain/use proof
-before emitting the marker; C support alone grants no source permission.
+before emitting the marker, and guarded forwards retain their original
+per-use guard/dominance proof; C support alone grants no source permission.
+The same signed entry read spells tag1 at Birth even for a generic receiving
+pair. A usize write can borrow that exact projected formal/Copy while retaining
+the original object class, slot and runtime sign/range checks.
 The existing borrowed-ingress execution matrix covers Static/Instance Copy/Phi,
 Normal/Fault cleanup and domain/producer mutations without replacing artifacts.
 

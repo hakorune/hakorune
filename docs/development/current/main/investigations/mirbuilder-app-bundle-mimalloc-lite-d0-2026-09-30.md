@@ -1,33 +1,28 @@
 # APP-mimalloc-lite
 
-Status: selected app; reopened after measured source regression. Date: 2026-10-25
-Scope: 未変更mimalloc-liteの正規EXE生成・実行・期待出力/exit。benchmark promotionは再開しない。
-Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直前のbinary-trees着地](app-binary-trees.md)。
+Status: landed EXE acceptance. Date: 2026-10-25
+Scope: 未変更mimalloc-liteの正規EXE生成・実行・期待出力/exit。benchmark promotionはparkedのまま。
+Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[次のboxtorrent](app-boxtorrent-mini.md)。
 
-## 現在地
-- 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。
-- 最新固定suiteは7/11、354.429秒、実EXE6本＋空marker1本。binary-treesは47.638秒で再PASS。mimalloc/allocatorは外側120秒timeout、JSON/boxtorrentはsource拒否。timeoutをEXE証拠にしない。
-- 単独mimallocは元owner37 Body5のforward-source-identityとBirth ABIを越え、C `published-lifecycle-physical-parser/function-body`、function12 `HakoAllocHeap.allocateResult/1`で停止。EXE未生成。
-- 2026-10-19のPASSは過去の結果。古いAllSource JSON precheckの撤去でsmokeを整えた着地であり、その当時から動いたEXE自体を新能力に数えない。現在の赤を歴史的PASSで閉じない。
+## 着地
+- 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。同じ現在のC FFIを使用。
+- 未変更mimallocの正規LLVM C API/pure-first EXE/run/期待stdout/exit0 PASS。固定suite内155.983秒。free-list再利用と会計を既存smokeで確認し、compat replayなし。
+- 固定suite `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` は9/11、459.647秒、実EXE8本＋空marker1本、timeout/SKIPなし。allocator-stressも192.662秒で実EXE/run PASS。
+- 残る赤はboxtorrent owner51 `stored-child/receiver-unavailable`とJSON owner22 `borrowed-entry/source-use-completion-pending`。次はAPP-boxtorrent-mini。
 
-## 必要な接続
-- 元のforward claimのcall/target/ordinal/site/bindingから既存flow.readをSUMグラフへ登録済み。guardがScalar seedを作っても同じEntry/Join/Seedのpoint証明を失わず、未知のpointは拒否する。SUMをsite読みの代用にしない。
-- flow.readがある場合はread＋origin＋point SUM signed-onlyが全て必要。不一致時にformal SUMへfallbackしない。サイト読みが無い場合も、登録済みformalのcorroborate済み閉SUMだけではsite対応を捏造しない。
-- completed Usesの元NewArgument行（new site/ordinal/read site/binding/origin/formal）とsigned domainを既存Birth lenderへ接続済み。独立したentry/alias値・最終Birth全命令・guard支配/用途数検査は保持。
-- guarded callのcaller-entry root gate、支配関係・guard対応・命令順序と、独立した最終argument/receiver/cleanup検証を保持する。
-- 次の接続: allocateResultのentryは呼び元なしのtagged、guard後のallocate呼出もtagged actualだが受け側はinteger_view。発行JSONと既存C validate-only APIでparser拒否を再現済み。entry全体をsignedと偽らず、元per-use guardのchecked整数値を同じCall operand/ordinalとtransportへ結ぶ。
-- 共通ownerの範囲で直し、同じ未変更アプリの正規EXE/runまで追う。別アプリを並行実装せず、未知の停止点は同じcardへ短く更新する。
+## 同じsourceから最終consumerへの接続
+- 元forward claimのcall/target/ordinal/site/bindingからflow.readをSUMグラフへ保持。Scalar guardでpoint証明を失わず、不一致時にformal SUMへfallbackしない。
+- Usesの元NewArgument行・signed domain・独立したentry/alias値・最終Birthを照合する。完了したsigned entryのactualはgeneric受け側でもtag1、混合guarded値は元のpairを保持する。
+- opaque borrowed pairからinteger_viewへのCallは元tagを保持し、直前のkind1検査で失敗をcaller自身のMIR Fault cleanupへ送る。callee入口検査、元guard/支配・最終用途数検証も保持。
+- usize writeは同じborrowed formal/Copyのchecked Integer viewも使える。baseの正確なclass、slot、予約領域、符号/範囲、Normal/Fault義務は保持。任意のI64計算結果へ拡張しない。
 
-## 検証と次の一手
-1. 既存調査とsource ownerを再利用し、guard後の同じ引数の意味・値・ABIを最終consumerへ結ぶ。新しい台帳・checker・test file・for_test hookは作らない。
-2. `bash tools/smokes/v2/profiles/integration/apps/mimalloc_lite_exe.sh`を同じ明示binary/runtimeで実行。sourceコンパイル、C/LLVM、リンク、実行、出力/exitを区別する。
-3. 必要な既存focused検証を再利用し、着地時に固定suiteを再測定する。内部green、SKIP、markerをEXE証拠へ数えない。
-- `cargo quick-build-fast`40.30秒、`cargo quick-test-fast --no-run`68秒PASS。既存new_argument_testsは6PASS/4FAILから9PASS/1FAIL、最終borrowed_usesは18/18PASS。テストの追加・変更なし。
-- 残るnew_argument negativeは従前と同じ早期refusal/期待診断不一致。domain1PASS/1FAIL、guard1PASS/2FAIL、input12PASS/1FAIL、solver0PASS/1FAILも以前のログと同じ箇所/理由の赤として未完。全体greenとは扱わない。
-- 一時診断コードは撤去済み。発行JSONは次のparser/Call照合まで保持し、その接続解消時に廃棄する。検証詳細はこのcardのGit履歴へ集約する。
+## 検証と片付け
+- CLI `cargo quick-build-fast`43.11秒、C FFI build PASS。既存new_argument_testsは9PASS/1FAIL、最終borrowed_uses18/18PASS。残るnegativeは従前と同じ早期refusal/期待診断不一致で未完。
+- 既存C borrowed-ingress一式PASS。`CC='cc -fuse-ld=lld'`と同じquick runtimeを使用。独立したCallタグ失敗のcaller cleanupとprojected usize正/負範囲を守るため、既存ケースへ4実行と既存拒否変異4検査を追加。既存の型偽装/class/nullable/所有権negativeは保持。
+- positiveのBirth表現期待は、元Integer callerのentry viewとの一致を検証する形に更新。新しいtest file/関数/for_test/checker/adapterはなし。
+- 一時診断コードと取得JSON/OBJ/EXEは撤去済み。詳細はこのcardのGit履歴と既存smoke/testの再実行へ集約する。
 
 ## 保持する未完条件
-- JSON: owner22 `borrowed-entry/source-use-completion-pending`。boxtorrent: owner51 `stored-child/receiver-unavailable`。allocator: 最新suiteは120秒timeout、先のsource停止を最新結果へ代用しない。
-- 未完のsource/publication・Loop検証、局所adapter退役と共有R6/R7・最終pipeline条件は保持。詳しい直前の実測はbinary-trees cardとそのGit履歴へ集約する。
-- historical generic JSON/EXE profile境界は既存publication検証がowner。拒否を現在の失敗へ差し替えず、source・期待出力・negativeを回避的に書き換えない。
-- 過去の契約・着地履歴はこのcardのGit履歴へ圧縮済み。有限製品goalは未完。
+- source domain1PASS/1FAIL、guard1PASS/2FAIL、input12PASS/1FAIL、solver0PASS/1FAILの既知赤と、他のsource/publication/Loop検証は未完。全体greenとは扱わない。
+- 局所adapter退役・共有R6/R7・最終pipelineは別途必須。現在の9/11やmimallocの着地だけで有限製品goalを閉じない。
+- 歴史的PASSとgeneric JSON/EXE境界は過去の記録。今回の未変更sourceからの実EXE証拠で置き換え、benchmark promotionを自動再開しない。

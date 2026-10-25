@@ -128,6 +128,7 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
          !(finite & (1u << yyjson_get_uint(yyjson_obj_get(arg, "kind")))))) return 0;
     if (finite && arg_kind && strcmp(arg_kind, "tagged")) return 0;
     if (yyjson_is_true(yyjson_obj_get(param, "integer_view")) &&
+        !(arg_kind && !strcmp(arg_kind, "tagged")) &&
         (!yyjson_is_uint(yyjson_obj_get(arg, "kind")) ||
          yyjson_get_uint(yyjson_obj_get(arg, "kind")) != 1)) return 0;
     if (yyjson_is_true(yyjson_obj_get(param, "bool_view")) &&

@@ -480,6 +480,18 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%textbits%u_%zu = ptrtoint ptr %%strarg%u_%zu to i64\n", b,i,b,i);
         }
         lv4_emit_nullable_actual_tags(f, args, b);
+        yyjson_val* callee = yyjson_arr_get(in->functions, lv4_u(call, "target"));
+        yyjson_val* formals = yyjson_obj_get(callee, "params");
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          if (!lv4_is(arg, "kind", "tagged") ||
+              !yyjson_is_true(yyjson_obj_get(yyjson_arr_get(formals, i), "integer_view"))) continue;
+          /* Preserve the borrowed pair, checking its Integer use before
+             the Call. Failure owns the same MIR Fault cleanup edge. */
+          fprintf(f, "  %%call_int%u_%zu = icmp eq i32 %%k%u, 1\n"
+              "  br i1 %%call_int%u_%zu, label %%call_int_next%u_%zu, label %%%s\ncall_int_next%u_%zu:\n",
+              b, i, lv4_u(arg, "value"), b, i, b, i, fault_label, b, i);
+        }
         if (lv4_is(op, "result", "unit"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame",
               b, lv4_u(call, "target"));

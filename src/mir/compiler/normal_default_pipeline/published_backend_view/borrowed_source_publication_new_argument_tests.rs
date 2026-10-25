@@ -58,7 +58,7 @@ fn nonliteral_i64_birth_actuals_publish_integer_payload_tag() {
 }
 
 #[test]
-fn dominated_new_argument_view_publishes_tagged_birth_actual() {
+fn dominated_new_argument_preserves_checked_caller_representation() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for (suffix, argument) in [
@@ -114,10 +114,12 @@ fn dominated_new_argument_view_publishes_tagged_birth_actual() {
                         assert_eq!(birth_ops.len(), 1, "{suffix}: {wire}");
                         let args = birth_ops[0]["call"]["args"].as_array().unwrap();
                         assert_eq!(args.len(), 2, "{suffix}");
-                        assert_eq!(
-                            args[0]["kind"], "tagged",
-                            "{suffix}: dominated new argument spells the tagged pair"
-                        );
+                        let signed = matches!(suffix, "ok" | "over");
+                        assert_eq!(make["params"][0]["integer_view"] == true, signed,
+                            "{suffix}: only Integer callers lend a signed entry");
+                        assert_eq!(args[0]["kind"],
+                            if signed { serde_json::json!(1) } else { serde_json::json!("tagged") },
+                            "{suffix}: the actual preserves the caller's checked representation");
                         assert_eq!(args[1]["kind"], 1, "{suffix}: literal actual stays i64 payload");
                         for arg in args {
                             assert!(arg["value"].is_u64(), "{suffix}: {arg}");

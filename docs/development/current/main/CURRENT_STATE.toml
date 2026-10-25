@@ -1,9 +1,9 @@
 date = "2026-10-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "APP-mimalloc-lite"
+current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "mimalloc-lite owner37 Body5 borrowed-object/forward-source-identity; fixed suite 7/11, binary-trees EXE PASS"
+current_blocker_token = "boxtorrent-mini owner51 ordinary-new/stored-child/receiver-unavailable; fixed suite 9/11, mimalloc and allocator EXE PASS"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,20 +13,20 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+current_execution_design = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+latest_card = "app-boxtorrent-mini"
+latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-mimalloc-lite selected after unchanged binary-trees canonical LLVM C API EXE/run/output/exit0 PASS. Fixed suite7/11 in122.454s: six real EXEs plus marker, no timeout/SKIP. Full finite-product goal remains active.
-Current mimalloc stop is owner37 Body5 ordinary-new/borrowed-object/forward-source-identity; allocator shares it. JSON owner22 input completion and boxtorrent owner51 stored-child receiver remain open.
-Next: original entry-formal/candidate/site/read/binding evidence from seed to final call consumer; retain flow/origin/point SUM and guarded-call checks. No formal SUM as site proof, fallback/retry, app edits or new checker/test assets.
-Binary landing: source Loop/Compare closure, checked signed Uses ABI view, receiving Birth integer/pair projection, nonnull provided-field BorrowForCall and valid canonical class0 emission. Same Rust per-use and C lifetime/class/ownership checks remain required.
-CLI40s/FFI PASS; source6/use27/LocalSSA32, source calleeFault1/dedup1, C96 captures+23 negatives+both-opt Normal/Fault and C20 programs+19 negatives PASS. Prior new-argument6/4 and raw nested-release fixture red reproduce baseline; other source/publication/Loop/R7 closeout remains open.
+APP-boxtorrent-mini selected after unchanged mimalloc-lite canonical LLVM C API/pure-first EXE/run/exact stdout/exit0 PASS; allocator-stress also passes through the shared owner fixes. Full finite-product goal remains active.
+Fixed suite9/11 in459.647s with explicit outer --timeout420: eight real EXEs plus marker, no timeout/SKIP. Mimalloc155.983s, allocator192.662s, binary-trees46.667s. Remaining reds: boxtorrent owner51 and JSON owner22.
+Current stop: ordinary-new/stored-child/receiver-unavailable. Next: same original parent/field/child receiver source to Call; no class inference from names/MIR types, fallback/retry or app edits. See the active card.
+Landed: exact forward-read SUM points, Uses NewArgument signed Birth projection, checked opaque-pair-to-integer Call with caller Fault cleanup, same projected borrowed usize store. Original source guard/dominance and independent final/ownership checks retained; temporary captures/artifacts removed.
+CLI43.11s/FFI and C borrowed-ingress Normal/Fault/domain negatives PASS; final-use18PASS; publication9PASS/1prior diagnostic red. Prior source/publication/Loop reds, local/shared R6/R7 retirement and final pipeline remain open; benchmark promotion stays parked.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "APP-mimalloc-lite"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_execution_card = "APP-boxtorrent-mini"
+next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -41,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-25: Unchanged mimalloc-lite canonical LLVM C API/pure-first EXE/run/expected stdout/exit0 PASS; allocator-stress also PASS. Fixed suite9/11 in459.647s (--timeout420),8realEXEs+marker,no timeout/SKIP. Original guarded pair retains Call-site kind1 checking and caller Fault cleanup; signed entry reads keep correct Birth/usize representations. Final-use18PASS, publication9/1prior red, C borrowed ingress positives/negatives/Normal/Fault PASS. Next APP-boxtorrent-mini source stored-child receiver; JSON source completion and required finite-product retirement/closeout remain open.",
   "2026-10-25: Unchanged binary-trees passes canonical LLVM C API EXE/run/exact output/exit0, including fixed-suite smoke50.764s. Suite7/11 in122.454s (6realEXEs+marker), no timeout/SKIP; remaining JSON/boxtorrent/mimalloc/allocator source failures. Original Loop Compare evidence and local condition reuse close Rust publication; same source-backed signed ABI/Birth transport, provided-field borrow lifetime and class0 emission close native consumers. Existing C source/Normal/Fault/negative checks pass; prior independent verification reds remain open. Next APP-mimalloc-lite entry-formal site proof.",
   "2026-10-24: Untyped-field-min source-backed Dynamic FieldGet/Array Home transfer now emits and runs the unchanged EXE (exit7); physical exact-key validation no longer caps schemas at8 keys, and V4 Normal/Fault flow consumes the exact array Home only on Normal. `cargo quick-build --bin hakorune`4m16s and FFI C build PASS; fixed suite9/11 in142.476s, no timeout/SKIP. Remaining failures: boxtorrent-mini receiver-unavailable; binary-trees source-not-i64 in iterationCheck. Next APP-binary-trees.",
-  "2026-10-24: Original TopLevel membership keeps method context optional; missing Static/Instance contracts still refuse. Alias observations retain original formal provenance; Dynamic and finite entry-read lenders share OpaqueHandle membership, leaving declared objects to their typed lane. Existing Loop cohort6PASS/2ignored (4reds fixed), forwarding3variants and declared-copy matrix PASS; fresh issued inputs C/LLVM/EXE Result7/exit7. Optimized CLI3m03s/JSON smoke PASS; suite8/11 in135.670s,7EXEs+marker,3source compile failures,no timeout/SKIP. Broader publication before fixes37PASS/15FAIL remains unclosed; source WIP/finite goal active.",
 ]

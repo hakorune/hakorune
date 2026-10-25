@@ -123,7 +123,10 @@ impl PublishedMirBackendView<'_> {
                         && matches!(actual.source().kind(), Kind::Handle { binding } if binding == formal)
                 });
                 if admitted && !object_formal {
-                    let transport = if birth_abi.dynamic_i64_formal_source_v1(actual.source().ordinal())? {
+                    // A completed signed entry already projects this exact
+                    // read to I64. Even a generic receiving pair keeps tag 1;
+                    // spelling it tagged would invent a caller kind lane.
+                    let transport = if finite || birth_abi.dynamic_i64_formal_source_v1(actual.source().ordinal())? {
                         BorrowedBirthActualTransportV1::Integer
                     } else { BorrowedBirthActualTransportV1::Tagged };
                     if borrowed.insert((actual.source().new_site().clone(), actual.source().ordinal()), transport).is_some() {

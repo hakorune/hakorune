@@ -564,6 +564,24 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     assert result.returncode == 7 and 'COUNTS 1 0 1 0 0 1\n' in result.stdout, result
     print('borrowed Integer entry projection: Static/Instance Copy/Phi, Normal/Fault cleanup and independent domain negatives PASS')
 
+    # An opaque caller keeps its pair until the exact Integer Call use.
+    # Bool must take the caller's Fault cleanup, without entering the leaf.
+    for tag, expected, counts in [(1, 7, '1 1 1 0 0 1'), (2, 70, '1 0 1 0 1 1')]:
+        checked_pair = copy.deepcopy(data)
+        root, forward, _ = checked_pair['functions']
+        del forward['params'][0]['integer_view']
+        forward['blocks'][0]['terminator']['instruction']['operation']['call']['args'][0]['kind'] = 'tagged'
+        if tag == 2:
+            root['blocks'][1]['instructions'][1]['instruction'] = {'op': 'const_bool', 'dst': 10, 'value': True}
+            root['blocks'][1]['terminator']['instruction']['operation']['call']['args'][0]['kind'] = 2
+        compile_input(checked_pair)
+        checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+        assert result.returncode == expected and f'COUNTS {counts}\n' in result.stdout, (tag, result)
+    print('opaque pair to checked Integer Call: payload preserved, wrong tag takes caller Fault cleanup PASS')
+
     for null_result in [False, True]:
         data = received_field_read_graph(null_result)
         compile_input(data)
@@ -647,9 +665,9 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
         compile_input(data, False)
     print('Invoke range schema rejects missing and malformed checks')
 
-    # Two original tagged formals: object-view base and Integer payload.
+    # Original object-view base plus raw or entry-projected Integer payload.
     # Explicit physical policy only; this does not establish source admission.
-    for stored in [0, 7, -7]:
+    for stored, projected in [(0, False), (7, False), (-7, False), (7, True), (-7, True)]:
         data = graph(3)
         root, forward, leaf = data['functions']
         root_block = root['blocks'][1]
@@ -663,6 +681,10 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
         forwarding['instructions'].append({'index': 2, 'instruction': {'op': 'copy', 'dst': 7, 'src': 6}})
         forwarding['terminator']['index'] = 3
         forwarding['terminator']['instruction']['operation']['call']['args'].append({'kind': 'tagged', 'value': 7})
+        if projected:
+            for fn in [forward, leaf]:
+                fn['params'][1]['integer_view'] = True
+            forwarding['terminator']['instruction']['operation']['call']['args'][1]['kind'] = 1
         op = leaf['blocks'][0]['terminator']['instruction']['operation']
         op.update(base=3, value=6, exact_numeric_runtime_check={'kind': 'dynamic_integer_range', 'declared_type': 'usize'})
         compile_input(data)
@@ -681,7 +703,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             else:
                 mutated['functions'][2]['blocks'][0]['terminator']['instruction']['operation']['exact_numeric_runtime_check'] = {'kind': 'none'}
             compile_input(mutated, False)
-        print('borrowed usize receiver/value', stored, 'exact store/Fault and closed views')
+        print('borrowed usize receiver/value', stored, 'projected', projected, 'exact store/Fault and closed views')
 
     # I64 Return already accepts an original tagged formal behind its runtime
     # tag1 guard. Keep this as execution coverage, not an obsolete rejection.
