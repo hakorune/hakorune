@@ -780,7 +780,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     || !std::sync::Arc::ptr_eq(method, receipt.source().source())
                     || method.owner() != site.owner() || method.site() != site.site()
                     || identity.integer_evidence.get(index) != Some(&false)
-                    || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
                     || !super::static_source::core_argument_source_v1(prepared, &site, method, &formal.kind)?
                         .is_some_and(|original| Rc::ptr_eq(&original, receipt))
                 { return Err(freeze("borrowed-static/core-source-identity")); }

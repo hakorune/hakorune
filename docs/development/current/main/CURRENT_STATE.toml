@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; owner61 seal Body0 still awaits Text input completion. Existing builder debug proves owner65 alias/Count and separator If advance; first uncovered is Body4 LoopBody1 out+ids.get(i).
-Fixed suite9/11 in470.418s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
-Same checked field Count source now flows through seeds/SUM/ClosedCore and common expression plans without String retry or MapKeys confusion. Installation requires the same live parent and observed alias/Integer residence; actual receiver and initializer remain distinct.
-CLI56.07s and focused11 PASS. Array-return regression fixed; one additional old context test reproduces its failure on clean parent. Existing Core case expanded only for the independent new Count boundary; no test functions/files/checkers or .hako changes. See card for remaining reds.
-Next: lend DynamicToCaller Get from the same Array source and close Loop/Return source completion; then exact SSA borrowed receiver, existing Count ArrayRead/collector/final checks, Text RHS/Replace cleanup and result discard. Required R6/R7/finite-product closeout remain open.
+APP-boxtorrent-mini remains selected; final CLI still stops at owner61 seal Body0 text-expression-execution-pending. Owner65 LoopBody1 out+ids.get(i) still lacks checked execution.
+Fixed suite9/11 in477.347s on final CLI: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
+Count/Get share original Array provider/alias evidence through seeds/SUM/ClosedCore. Get index must be signed-only; DynamicToCaller lends no payload class. Exact Integer Element retains its owner. Core argument correspondence accepts Get only for OpaqueHandle, with no execution grant.
+CLI42s and focused11 PASS, including the corrected Array-return regression. Only the existing Core case was minimally expanded; no test functions/files/checkers, runtime ABI or .hako changes. Remaining reds are retained in card.
+Next: close all mutations with the same append/collector owner before selecting Text-copy Get, acquire an independent self-contained carrier and End it on every path. Loop/Return, exact SSA Array/Count, Text RHS/discard and required R6/R7/finite-product closeout remain incomplete.
 """
 next_design_card = "none"
 next_design_card_path = "none"

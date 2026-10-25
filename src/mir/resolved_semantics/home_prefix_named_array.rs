@@ -4,7 +4,7 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1;
 
 impl PrefixLocalFlow<'_> {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_field_array_count_source_v1(
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_field_array_access_source_v1(
         &self, source: &crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1,
     ) -> bool {
         let Some(root) = source.receiver_root_binding_v1(self.input) else { return false; };

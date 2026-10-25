@@ -8,8 +8,8 @@ Related: [source issuer](../ordinary_new_field_array_read_source.rs),
 
 One immutable CheckedFieldArrayAccessSourceV1 retains the exact self field,
 original instance method, selected canonical key, batch membership and Birth
-provider. Get additionally requires the whole-Box Integer store census and exact
-Integer index. Count retains the original method Arc, canonical ArrayLen/0
+provider. Integer Element Get additionally requires the whole-Box Integer store
+census and exact Integer index. Count retains the original method Arc, canonical ArrayLen/0
 ArrayCount law and original all-writer loan proving the unique Plain Birth Array
 provider; it requires no index or Integer elements. Incomplete, opaque, foreign,
 replacement or null writer evidence cannot establish that residence. The class
@@ -24,6 +24,29 @@ receiver subtree; the existing installation transaction checks the live parent
 and the same observed alias (or matching stronger Integer residence). Input-use
 closure, exact SSA receiver read, ArrayRead packet and final validation remain
 separate requirements; this source proof grants no Get or execution permission.
+
+Ordinary Dynamic Get shares the same residence/provider and alias source factory
+with Count, but retains its own Get/1 operation and original method Arc. An
+already-proven exact Integer Element source keeps its existing result owner;
+the generic Dynamic receipt never supersedes it. The
+original index site must close as signed-only in the same SUM; tagged inputs,
+Bool and Text do not supply an I64 index. The existing ArrayDynamicRead target
+retains DynamicToCaller. Neither a concrete result representation nor the
+Integer Element census is projected from this result: SUM keeps Other, which
+cannot satisfy finite input, signed, Text or nominal object premises. The old
+Count-only Return collector and expression execution gates remain separate.
+Original argument correspondence is owned by the same Core receipt: Get lends
+only OpaqueHandle/DynamicToCaller, never a nominal object or I64. Static and
+Instance consumers reuse that predicate and retain the same original Rc;
+source-plan matching does not supply an expression result class or execution.
+Checked carrier acquisition and both-exit End must be connected before Get can
+execute; source qualification alone grants neither. A sole Birth Array provider
+does not prove Text elements. Before selecting a Text-copy read, the same append
+and collector owners must close every mutation as Text-copy. Object-slot Get
+keeps its borrowed nullable relation; neither an Arc retain nor the schema name
+can turn it into an independently owned Dynamic carrier. This follows the
+[existing ownership contract](../../../../docs/reference/language/ownership.md#named-array-opaque-carrier-destination-target)
+and [self-contained result law](../../../../docs/reference/language/dynamic-invocation.md).
 
 A local field alias retains the same canonical fixed-provider source and its
 unique original initializer in the existing BorrowedArray local/field-read row.

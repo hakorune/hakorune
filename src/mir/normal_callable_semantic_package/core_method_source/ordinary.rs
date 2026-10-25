@@ -23,6 +23,37 @@ impl OrdinaryCoreSourceCallV1 {
     ) -> &Rc<ClosedOriginalCoreSourceV1> {
         &self.operands
     }
+    /// Original source/argument correspondence only. A Dynamic result can
+    /// lend an unannotated input, never a nominal class or executable carrier.
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_original_argument_v1(
+        &self,
+        site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+        formal: &crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+    ) -> bool {
+        use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+        !(method.owner() != site.owner()
+        || method.site() != site.site()
+        || !std::sync::Arc::ptr_eq(method, self.source().source())
+        || !(self.source().target().schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
+            || self.source().target().schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead
+                && self.operands().field_array_access_v1().is_some_and(|source| source.is_dynamic_get()))
+        || !match (formal, self.source().target().result()) {
+            (
+                kind,
+                crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller,
+            ) => kind.is_ordinary_borrowed_handle(),
+            (
+                kind,
+                crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller,
+            ) => matches!(kind, CallableParameterContractKindV1::OpaqueHandle)
+                || matches!(kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()),
+            (CallableParameterContractKindV1::OpaqueHandle,
+                crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::DynamicToCaller) => true,
+            _ => false,
+        })
+    }
+
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_source_v1(
@@ -49,10 +80,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
     if map != operands.field_map().is_some() {
         return Err(reject());
     }
-    let count = operands.field_array_count_v1();
-    if (op == Op::ArrayLen) != (operands.receiver_core().is_some() ^ count.is_some())
-        || (op != Op::ArrayLen && (operands.receiver_core().is_some() || count.is_some()))
-        || operands.receiver_core().is_some_and(|inner|
+    let access = operands.field_array_access_v1();
+    let receiver_valid = match op {
+        Op::ArrayLen => operands.receiver_core().is_some() ^ access.is_some(),
+        Op::ArrayGet => operands.receiver_core().is_none() && access.is_some_and(|source| source.is_dynamic_get()),
+        _ => operands.receiver_core().is_none() && access.is_none(),
+    };
+    if !receiver_valid || operands.receiver_core().is_some_and(|inner|
             inner.manifest().row().op != Op::MapKeys || inner.field_map().is_none()
                 || inner.method().owner() != method.owner()
                 || inner.method().result_site() != method.receiver_site()
@@ -60,20 +94,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
                     .is_some_and(|original| std::sync::Arc::ptr_eq(original, inner.method()))) {
         return Err(reject());
     }
-    if let Some(count) = count {
-        if !count.is_count() || !count.matches_original_call_v1(input)
-            || count.call().owner() != method.owner() || count.call().site() != method.site()
-            || count.receiver().site() != method.receiver_site()
-            || count.count_manifest_v1().is_none_or(|original|
+    if let Some(access) = access {
+        if !(op == Op::ArrayLen && access.is_count() || op == Op::ArrayGet && access.is_dynamic_get())
+            || !access.matches_original_call_v1(input)
+            || access.call().owner() != method.owner() || access.call().site() != method.site()
+            || access.receiver().site() != method.receiver_site()
+            || access.read_manifest_v1().is_none_or(|original|
                 !std::ptr::eq(original.row(), operands.manifest().row()) || original.arity() != operands.manifest().arity()) {
             return Err(reject());
         }
-        count.recheck_census(input.owner(), &std::collections::BTreeMap::new())?;
+        access.recheck_census(input.owner(), &std::collections::BTreeMap::new())?;
     }
     let mut issuer = match op {
         Op::MapHas => CoreMethodInstanceTargetIssuerV1::map_text_presence(operands.manifest().brand()),
         Op::MapKeys => CoreMethodInstanceTargetIssuerV1::map_text_keys(operands.manifest().brand()),
         Op::ArrayLen => CoreMethodInstanceTargetIssuerV1::array_count(operands.manifest().brand()),
+        Op::ArrayGet => CoreMethodInstanceTargetIssuerV1::array_dynamic_read(operands.manifest().brand()),
         _ => CoreMethodInstanceTargetIssuerV1::string_box_text(operands.manifest().brand()),
     }
     .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
@@ -81,7 +117,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         .issue(operands.manifest())
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
     if target.checked_code_point_law_v1().is_none() && !target.checked_map_presence_law_v1()
-        && !target.checked_text_keys_law_v1() && !target.checked_array_count_law_v1() {
+        && !target.checked_text_keys_law_v1() && !target.checked_array_count_law_v1()
+        && !(op == Op::ArrayGet && access.is_some_and(|source| source.is_dynamic_get())
+            && target.schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead) {
         return Err("[freeze:contract][ordinary-core/semantic-law]".to_owned());
     }
     let source =
@@ -231,8 +269,9 @@ impl ExpressionCoreSourceLoanV1 {
                     (self.source().target().checked_map_presence_law_v1()
                         || self.source().target().checked_text_keys_law_v1()) && field.matches_plan(plan)
                 })
-                || (self.source().target().checked_array_count_law_v1()
-                    && self.field_array_count_v1().is_some_and(|count| count.matches_expression_receiver_v1(plan)))
+                || ((self.source().target().checked_array_count_law_v1()
+                        || self.source().target().schema() == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead)
+                    && self.field_array_access_v1().is_some_and(|access| access.matches_expression_receiver_v1(plan)))
                 || (self.source().target().checked_array_count_law_v1()
                     && self.original.operands.receiver_core().is_some_and(|inner|
                         inner.method().result_site() == self.source().source().receiver_site()
@@ -254,8 +293,8 @@ impl ExpressionCoreSourceLoanV1 {
     ) -> Option<crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1> {
         self.source().target().expression_result_class_v1()
     }
-    pub(crate) fn field_array_count_v1(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> {
-        self.original.operands.field_array_count_v1()
+    pub(crate) fn field_array_access_v1(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> {
+        self.original.operands.field_array_access_v1()
     }
     pub(crate) fn field_map(&self) -> Option<&FieldMapReceiverSourceV1> {
         self.original.operands.field_map().map(Rc::as_ref)

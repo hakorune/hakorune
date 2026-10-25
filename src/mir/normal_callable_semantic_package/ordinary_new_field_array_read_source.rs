@@ -1,5 +1,5 @@
 //! Shared original residence/provider authority for field Array accesses.
-//! Element/Count reads and Text append keep distinct operation permissions.
+//! Element/Count/Dynamic reads and Text append keep distinct operation permissions.
 use super::*;
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -41,6 +41,7 @@ enum FieldArrayReadSourceOperationV1 {
         index_field: Option<(BindingRefV1, SourceExprSiteV1, Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>)>,
     },
     Count(ArrayProviderCallSourceV1),
+    DynamicGet(ArrayProviderCallSourceV1),
     TextAppend(ArrayProviderCallSourceV1),
 }
 
@@ -74,15 +75,19 @@ impl CheckedFieldArrayAccessSourceV1 {
                 || field.binding() != self.receiver_root || field.field() != self.field() || field.name() != self.field_name() { return false; }
         }
         match &self.operation {
-            FieldArrayReadSourceOperationV1::Count(source) | FieldArrayReadSourceOperationV1::TextAppend(source) => std::sync::Arc::ptr_eq(call, &source.method),
+            FieldArrayReadSourceOperationV1::Count(source) | FieldArrayReadSourceOperationV1::DynamicGet(source) | FieldArrayReadSourceOperationV1::TextAppend(source) => std::sync::Arc::ptr_eq(call, &source.method),
             FieldArrayReadSourceOperationV1::Element { index, .. } => call.selector() == "get" && call.arity() == 1
                 && call.arguments().first().is_some_and(|argument| argument.ordinal() == 0 && argument.site() == index.site()),
         }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn count_manifest_v1(&self)
+    pub(in crate::mir::normal_callable_semantic_package) fn read_manifest_v1(&self)
         -> Option<crate::mir::core_method_result_kind::CoreMethodManifestRowRefV2> {
-        match &self.operation { FieldArrayReadSourceOperationV1::Count(source) => Some(source.manifest), _ => None }
+        match &self.operation {
+            FieldArrayReadSourceOperationV1::Count(source) | FieldArrayReadSourceOperationV1::DynamicGet(source) => Some(source.manifest),
+            _ => None,
+        }
     }
+    pub(crate) fn is_dynamic_get(&self) -> bool { matches!(self.operation, FieldArrayReadSourceOperationV1::DynamicGet(_)) }
     pub(crate) fn receiver_alias_v1(&self)
         -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1> { self.receiver_alias.as_ref() }
     pub(crate) fn receiver_root_binding_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> Option<BindingRefV1> {
@@ -92,7 +97,7 @@ impl CheckedFieldArrayAccessSourceV1 {
         plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     ) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
-        if !self.is_count() || plan.owner() != self.call.owner() { return false; }
+        if !(self.is_count() || self.is_dynamic_get()) || plan.owner() != self.call.owner() { return false; }
         let mut nodes = plan.nodes().iter().filter(|node| node.site() == self.receiver.site());
         let Some(receiver) = nodes.next() else { return false; };
         if nodes.next().is_some() { return false; }
@@ -146,6 +151,19 @@ impl CheckedFieldArrayAccessSourceV1 {
                     && row.op == crate::mir::core_method_op::CoreMethodOp::ArrayLen
                     && row.receiver_box == "ArrayBox" && row.effect == Effect::PureRead && row.result_kind == ResultKind::I64Value
                     && source.manifest.arity() == 0 && source.manifest.semantic_law_for_arity() == Some(Law::ArrayCount)
+                    && source.writer.corroborates_sole_array_provider_v1(&self.residence.owner_box,
+                        self.field_name(), &self.residence.constructor, self.provider_site())
+            }
+            FieldArrayReadSourceOperationV1::DynamicGet(source) => {
+                use crate::mir::core_method_result_kind::{CoreMethodEffectV1 as Effect, CoreMethodResultKindV1 as ResultKind};
+                source.append_target.is_none() && source.method.owner() == owner && source.method.site() == self.call.site()
+                    && source.method.receiver_site() == self.receiver.site() && source.method.arity() == 1
+                    && source.method.arguments().len() == 1 && source.method.arguments()[0].ordinal() == 0
+                    && crate::boxes::array::ArrayMethodId::from_name_and_arity(source.method.selector(), 1)
+                        == Some(crate::boxes::array::ArrayMethodId::Get)
+                    && source.manifest.row().op == crate::mir::core_method_op::CoreMethodOp::ArrayGet
+                    && source.manifest.row().receiver_box == "ArrayBox" && source.manifest.row().effect == Effect::PureRead
+                    && source.manifest.row().result_kind == ResultKind::Dynamic && source.manifest.arity() == 1
                     && source.writer.corroborates_sole_array_provider_v1(&self.residence.owner_box,
                         self.field_name(), &self.residence.constructor, self.provider_site())
             }
@@ -378,15 +396,20 @@ fn capture_residence(
 }
 
 #[allow(clippy::too_many_arguments)]
-pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_count(
+pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_read(
     input: ResolvedFunctionLoweringInputV1<'_>, caller: &CanonicalSameModuleCallableKeyV1,
     call_site: &SourceExprSiteV1, selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1, constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     writers: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 ) -> Result<Option<Rc<CheckedFieldArrayAccessSourceV1>>, String> {
     let Some(method) = input.function().method_call_source_v1(call_site) else { return Ok(None) };
-    if crate::boxes::array::ArrayMethodId::from_name_and_arity(method.selector(), method.arity() as usize)
-        != Some(crate::boxes::array::ArrayMethodId::Length) { return Ok(None) }
+    use crate::boxes::array::ArrayMethodId;
+    let (op, arity) = match ArrayMethodId::from_name_and_arity(method.selector(), method.arity() as usize) {
+        Some(ArrayMethodId::Length) => (crate::mir::core_method_op::CoreMethodOp::ArrayLen, 0),
+        Some(ArrayMethodId::Get) if method.arguments().len() == 1 && method.arguments()[0].ordinal() == 0 =>
+            (crate::mir::core_method_op::CoreMethodOp::ArrayGet, 1),
+        _ => return Ok(None),
+    };
     let (field, canonical, receiver_alias) = if let Some((field, canonical)) =
         exact_array_field_candidate(input, caller, call_site, selected, batch, constructors)? {
         (field, canonical, None)
@@ -408,17 +431,34 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_count(
     let residence = capture_residence(constructors, box_source, caller.owner(), field, canonical)?;
     let writer = writers.array_provider_source_v1(caller.owner(), &residence.field_name,
         &residence.constructor, &residence.provider_site).ok_or_else(|| freeze("array-read/provider-writers"))?;
-    let manifest = crate::mir::core_method_result_kind::issue_core_method_manifest_row_ref_v2(crate::mir::core_method_op::CoreMethodOp::ArrayLen, 0)
+    let manifest = crate::mir::core_method_result_kind::issue_core_method_manifest_row_ref_v2(op, arity)
         .ok_or_else(|| freeze("array-read/count-manifest"))?;
+    let provider = ArrayProviderCallSourceV1 {
+        method: std::sync::Arc::clone(method), manifest, writer, append_target: None,
+    };
+    let operation = if op == crate::mir::core_method_op::CoreMethodOp::ArrayLen {
+        FieldArrayReadSourceOperationV1::Count(provider)
+    } else { FieldArrayReadSourceOperationV1::DynamicGet(provider) };
     let source = Rc::new(CheckedFieldArrayAccessSourceV1 {
         caller: caller.clone(), call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
         receiver: OwnedExprSiteV1::new(input.owner(), method.receiver_site().clone()), residence, receiver_root, receiver_alias,
-        operation: FieldArrayReadSourceOperationV1::Count(ArrayProviderCallSourceV1 {
-            method: std::sync::Arc::clone(method), manifest, writer, append_target: None,
-        }),
+        operation,
     });
     source.recheck_census(input.owner(), &BTreeMap::new())?;
     Ok(Some(source))
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_count(
+    input: ResolvedFunctionLoweringInputV1<'_>, caller: &CanonicalSameModuleCallableKeyV1,
+    call_site: &SourceExprSiteV1, selected: &VerifiedSelectedCallableBatchMapV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1, constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    writers: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+) -> Result<Option<Rc<CheckedFieldArrayAccessSourceV1>>, String> {
+    let Some(method) = input.function().method_call_source_v1(call_site) else { return Ok(None); };
+    if crate::boxes::array::ArrayMethodId::from_name_and_arity(method.selector(), method.arity() as usize)
+        != Some(crate::boxes::array::ArrayMethodId::Length) { return Ok(None); }
+    capture_exact_read(input, caller, call_site, selected, batch, constructors, writers)
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn capture_text_append(

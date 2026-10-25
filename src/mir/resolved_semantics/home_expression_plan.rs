@@ -691,7 +691,7 @@ impl<'a, 'source> ExpressionPlanInstallationV1<'a, 'source> {
             || plan.source().owner() != self.owner
             || !plan.is_consistent()
             || plan.evaluation().is_some_and(|evaluation| evaluation.cores().values()
-                .filter_map(|core| core.field_array_count_v1()).any(|count| !self.locals.has_field_array_count_source_v1(count)))
+                .filter_map(|core| core.field_array_access_v1()).any(|count| !self.locals.has_field_array_access_source_v1(count)))
             || self.plans.iter().any(|old| {
                 old.source().root().statement() == plan.source().root().statement()
                     && old.source().nodes()[0].site() == plan.source().nodes()[0].site()

@@ -147,7 +147,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         let source = verify_source_identity(ledger, call)?;
         verify_arguments(call, &target)?;
         if !matches!(target.schema(), CoreMethodHomeSchemaV1::StringBoxText | CoreMethodHomeSchemaV1::MapTextPresence
-            | CoreMethodHomeSchemaV1::MapTextKeys | CoreMethodHomeSchemaV1::ArrayCount) {
+            | CoreMethodHomeSchemaV1::MapTextKeys | CoreMethodHomeSchemaV1::ArrayCount | CoreMethodHomeSchemaV1::ArrayDynamicRead) {
             return Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch);
         }
         verify_target(&target, call)?;

@@ -243,7 +243,7 @@ impl Graph<'_> {
                             row.atoms.insert(Value::Object(box_name.into()));
                         }
                         None if source.core_operand_request().is_some_and(|request|
-                            request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapKeys) => {
+                            matches!(request.manifest().row().op, crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayGet)) => {
                             // No primitive class is lent. The exact structural
                             // result and its receiver relation live on Core.
                             row.atoms.insert(Value::Other);
@@ -271,14 +271,16 @@ impl Graph<'_> {
                     } else {
                         None
                     };
-                    let field_array_count = source.field_array_count_v1().cloned();
-                    if let Some(count) = &field_array_count {
-                        row.invalid |= !count.is_count() || count.call().owner() != source.method().owner()
-                            || count.call().site() != source.method().site()
-                            || count.receiver().site() != source.method().receiver_site()
-                            || request.manifest().row().op != crate::mir::core_method_op::CoreMethodOp::ArrayLen;
+                    let field_array_access = source.field_array_access_v1().cloned();
+                    if let Some(access) = &field_array_access {
+                        row.invalid |= access.read_manifest_v1().is_none_or(|manifest|
+                            !std::ptr::eq(manifest.row(), request.manifest().row()) || manifest.arity() != request.manifest().arity())
+                            || access.call().owner() != source.method().owner()
+                            || access.call().site() != source.method().site()
+                            || access.receiver().site() != source.method().receiver_site()
+                            || !matches!(request.manifest().row().op, crate::mir::core_method_op::CoreMethodOp::ArrayLen | crate::mir::core_method_op::CoreMethodOp::ArrayGet);
                     }
-                    let receiver_core = if request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayLen && field_array_count.is_none() {
+                    let receiver_core = if request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayLen && field_array_access.is_none() {
                         match source.receiver_core() {
                             Some((original, seed)) if original.owner() == source.method().owner()
                                 && original.result_site() == source.method().receiver_site() => {
@@ -292,7 +294,7 @@ impl Graph<'_> {
                         node: id,
                         field_map,
                         receiver_core,
-                        field_array_count,
+                        field_array_access,
                         method: std::sync::Arc::clone(source.method()),
                         request,
                         text: text.clone(),
@@ -368,7 +370,7 @@ pub(super) fn project_graph_v1(
                     request: request.request,
                     field_map: request.field_map.clone(),
                     receiver_core,
-                    field_array_count: request.field_array_count.clone(),
+                    field_array_access: request.field_array_access.clone(),
                     text: request
                         .text
                         .iter()

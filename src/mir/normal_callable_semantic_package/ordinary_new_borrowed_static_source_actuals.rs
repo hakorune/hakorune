@@ -142,24 +142,7 @@ pub(super) fn core_argument_source_v1(
     let Some(receipt) = prepared.ordinary_core_source_v1(site) else {
         return Ok(None);
     };
-    if method.owner() != site.owner()
-        || method.site() != site.site()
-        || !std::sync::Arc::ptr_eq(method, receipt.source().source())
-        || receipt.source().target().schema()
-            != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
-        || !match (formal, receipt.source().target().result()) {
-            (
-                kind,
-                crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller,
-            ) => kind.is_ordinary_borrowed_handle(),
-            (
-                kind,
-                crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller,
-            ) => matches!(kind, CallableParameterContractKindV1::OpaqueHandle)
-                || matches!(kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()),
-            _ => false,
-        }
-    {
+    if !receipt.matches_original_argument_v1(site, method, formal) {
         return Err(freeze("borrowed-static/core-source-identity"));
     }
     Ok(Some(Rc::clone(receipt)))

@@ -14,7 +14,7 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1;
 use std::sync::Arc;
 
-type FieldArrayCountConsultV1<'a> = dyn Fn(
+type FieldArrayAccessConsultV1<'a> = dyn Fn(
     ResolvedFunctionLoweringInputV1<'_>, &Arc<VerifiedResolvedMethodCallSourceV1>,
 ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>, String> + 'a;
 
@@ -25,7 +25,7 @@ struct OriginalActualSourceContextV1
     caller: CanonicalSameModuleCallableKeyV1,
     owner: FunctionOwnerIdV1,
     point_premise: bool,
-    field_array_count: Option<&'a FieldArrayCountConsultV1<'a>>,
+    field_array_access: Option<&'a FieldArrayAccessConsultV1<'a>>,
 }
 impl<'a> OriginalActualSourceContextV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(
@@ -36,7 +36,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             caller: self.caller.clone(),
             owner: self.owner,
             point_premise: true,
-            field_array_count: self.field_array_count,
+            field_array_access: self.field_array_access,
         }
     }
     /// Check the SAME original Static incoming and callee before source Return expansion.
@@ -112,12 +112,12 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             caller: self.caller.clone(),
             owner: self.owner,
             point_premise: false,
-            field_array_count: self.field_array_count,
+            field_array_access: self.field_array_access,
         }
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_field_array_counts_v1(
-        mut self, consult: &'a FieldArrayCountConsultV1<'a>,
-    ) -> Self { self.field_array_count = Some(consult); self }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_field_array_accesses_v1(
+        mut self, consult: &'a FieldArrayAccessConsultV1<'a>,
+    ) -> Self { self.field_array_access = Some(consult); self }
     pub(super) fn is_point_premise(&self) -> bool {
         self.point_premise
     }
@@ -149,13 +149,13 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 operands: None,
             };
         }
-        if let Some(consult) = self.field_array_count {
+        if let Some(consult) = self.field_array_access {
             match consult(input, method) {
                 Ok(Some(source)) => {
-                    let Some(manifest) = source.count_manifest_v1() else { return OriginalMethodResultResolutionV1::Unknown; };
+                    let Some(manifest) = source.read_manifest_v1() else { return OriginalMethodResultResolutionV1::Unknown; };
                     if source.caller() != &self.caller || source.call().site() != method.site()
                         || !source.matches_original_call_v1(input) { return OriginalMethodResultResolutionV1::Unknown; }
-                    return OriginalMethodResultResolutionV1::FieldArrayCount {
+                    return OriginalMethodResultResolutionV1::FieldArrayAccess {
                         request: OriginalCoreOperandRequestV1 { manifest }, source,
                     };
                 }
@@ -307,7 +307,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             caller,
             owner: input.owner(),
             point_premise: false,
-            field_array_count: None,
+            field_array_access: None,
         }))
     }
 
@@ -373,7 +373,7 @@ pub(super) enum OriginalMethodResultResolutionV1 {
         operands: Option<OriginalCoreOperandRequestV1>,
     },
     ConditionalCore(OriginalCoreOperandRequestV1),
-    FieldArrayCount {
+    FieldArrayAccess {
         request: OriginalCoreOperandRequestV1,
         source: Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
     },
@@ -462,6 +462,7 @@ impl OriginalCoreOperandRequestV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn i64_ordinals(self) -> &'static [u32] {
         match self.manifest.row().op {
             crate::mir::core_method_op::CoreMethodOp::StringSubstring => &[0, 1],
+            crate::mir::core_method_op::CoreMethodOp::ArrayGet => &[0],
             _ => &[],
         }
     }
@@ -474,13 +475,14 @@ impl OriginalCoreOperandRequestV1 {
     }
     pub(super) fn receiver_is_text(self) -> bool {
         !matches!(self.manifest.row().op, crate::mir::core_method_op::CoreMethodOp::MapHas
-            | crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayLen)
+            | crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayLen | crate::mir::core_method_op::CoreMethodOp::ArrayGet)
     }
     fn representation(self) -> Option<VerifiedCallableResultRepresentationV1> {
         Some(match self.manifest.row().op {
             // Structural owned result stays on the Core receipt; it is not
             // projected as a nominal object or an unknown Dynamic payload.
-            crate::mir::core_method_op::CoreMethodOp::MapKeys => return None,
+            crate::mir::core_method_op::CoreMethodOp::MapKeys
+            | crate::mir::core_method_op::CoreMethodOp::ArrayGet => return None,
             crate::mir::core_method_op::CoreMethodOp::StringSubstring => {
                 VerifiedCallableResultRepresentationV1::ExactString
             }
@@ -532,12 +534,12 @@ struct OriginalMethodResultSeedV1
     pub(super) required_i64: Box<[OriginalFormalActualSeedV1]>,
     pub(super) required_text: Box<[OriginalFormalActualSeedV1]>,
     pub(super) receiver_core: Option<(Arc<VerifiedResolvedMethodCallSourceV1>, Box<OriginalFormalActualSeedV1>)>,
-    pub(super) field_array_count: Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>,
+    pub(super) field_array_access: Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>,
 }
 
 impl OriginalMethodResultSeedV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn field_array_count_v1(&self)
-        -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> { self.field_array_count.as_ref() }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn field_array_access_v1(&self)
+        -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> { self.field_array_access.as_ref() }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn receiver_core(
         &self,
     ) -> Option<(&Arc<VerifiedResolvedMethodCallSourceV1>, &OriginalFormalActualSeedV1)> {
