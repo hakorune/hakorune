@@ -14,6 +14,84 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 use std::rc::Rc;
 
+/// Original ordinary call syntax only. Instance result meaning is supplied
+/// later by completed_instance_text_source_v1, never by an opaque destination.
+#[derive(Debug, Clone)]
+pub(super) struct OrdinaryArgumentCallSourceV1 {
+    source: BorrowedIncomingSourceV1,
+    method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+}
+impl PartialEq for OrdinaryArgumentCallSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.source.same_source(&other.source) && std::sync::Arc::ptr_eq(&self.method, &other.method)
+    }
+}
+impl Eq for OrdinaryArgumentCallSourceV1 {}
+impl OrdinaryArgumentCallSourceV1 {
+    pub(super) fn call_site(&self) -> &OwnedExprSiteV1 { self.source.call_site() }
+    pub(super) fn is_instance(&self) -> bool { matches!(self.source, BorrowedIncomingSourceV1::Instance(_)) }
+    pub(super) fn method_source(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.method }
+    pub(super) fn validate_input_v1(
+        &self, input: ResolvedFunctionLoweringInputV1<'_>,
+        prepared: &PreparedBorrowedFormalIngressV1,
+        contracts: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+    ) -> Result<(), String> {
+        let reject = || freeze("borrowed-actual/text-call-source-identity");
+        if input.owner() != self.call_site().owner() || !input.function()
+            .method_call_source_v1(self.call_site().site()).is_some_and(|method| std::sync::Arc::ptr_eq(method, &self.method)) {
+            return Err(reject());
+        }
+        if let BorrowedIncomingSourceV1::Instance(target) = &self.source {
+            let original = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(
+                prepared, contracts.ok_or_else(reject)?, self.call_site())?.ok_or_else(reject)?;
+            if !original.source.same_source(&self.source) || !target.matches_receiver(input, &self.method) {
+                return Err(reject());
+            }
+        }
+        Ok(())
+    }
+}
+/// Preserve the Static Text contract while lending a strict Instance source
+/// without classifying its result. Stored targets keep their separate owner.
+pub(super) fn original_argument_call_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, site: &OwnedExprSiteV1,
+) -> Result<Option<OrdinaryArgumentCallSourceV1>, String> {
+    if let Some(source) = original_static_source_v1(prepared, site)? {
+        return Ok(ordinary_text_argument_source_v1(prepared, site, source.method_source())?
+            .map(|source| OrdinaryArgumentCallSourceV1 {
+                method: std::sync::Arc::clone(source.method_source()),
+                source: BorrowedIncomingSourceV1::Static(source),
+            }));
+    }
+    let reject = || freeze("borrowed-actual/text-call-source-identity");
+    let mut rows = prepared.source_incoming.source_rows_with_method_v1().filter(|(row, _)| &row.call == site);
+    let Some((row, method)) = rows.next() else { return Ok(None) };
+    if rows.next().is_some() { return Err(reject()); }
+    let BorrowedIncomingSourceV1::Instance(target) = &row.source else { return Ok(None) };
+    let method = method.ok_or_else(reject)?;
+    if method.owner() != site.owner() || method.site() != site.site()
+        || target.call_site() != site || row.callee != target.callee_owner()
+        || target.receiver_site() != method.receiver_site()
+        || target.target().namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+        || target.target().name() != method.selector()
+        || target.target().arity() != method.arity()
+        || target.argument_sites().len() != method.arity() as usize
+        || target.argument_sites().iter().ne(method.arguments().iter().map(|arg| arg.site())) {
+        return Err(reject());
+    }
+    Ok(Some(OrdinaryArgumentCallSourceV1 { source: row.source.clone(), method: std::sync::Arc::clone(method) }))
+}
+pub(super) fn ordinary_argument_call_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, site: &OwnedExprSiteV1,
+    method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+) -> Result<Option<OrdinaryArgumentCallSourceV1>, String> {
+    let source = original_argument_call_source_v1(prepared, site)?;
+    if source.as_ref().is_some_and(|source| !std::sync::Arc::ptr_eq(source.method_source(), method)) {
+        return Err(freeze("borrowed-actual/text-call-source-identity"));
+    }
+    Ok(source)
+}
+
 #[derive(Debug, Clone)]
 enum OrdinaryResultOriginV1 {
     Static(Rc<StaticIncomingSourceV1>),
@@ -137,6 +215,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     if expression.owner() != site.owner()
         || !(matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })
+            || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. })
             || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
                 if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain))
         || !expression.nodes().iter().any(|node| node.site() == site.site()

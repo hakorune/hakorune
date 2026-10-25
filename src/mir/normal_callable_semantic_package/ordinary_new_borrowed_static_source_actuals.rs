@@ -6,6 +6,7 @@ use crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1;
 use crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1;
 use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 use std::rc::Rc;
+use super::call_result_source::ordinary_argument_call_source_v1;
 
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
@@ -244,6 +245,7 @@ pub(super) fn selects_static_expression_source_v1(
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<bool, String> {
+    let original = original_static_source_v1(prepared, call)?;
     let mut core_source = false;
     for actual in actuals {
         let BorrowedCallActualValueV1::MethodCall(method) = &actual.value else {
@@ -253,7 +255,10 @@ pub(super) fn selects_static_expression_source_v1(
         core_source |= prepared
             .ordinary_core_source_v1(&site)
             .is_some_and(|receipt| std::sync::Arc::ptr_eq(method, receipt.source().source()))
-            || ordinary_text_argument_source_v1(prepared, &site, method)?.is_some();
+            || ordinary_argument_call_source_v1(prepared, &site, method)?.is_some_and(|source|
+                !source.is_instance() || original.is_some_and(|outer| outer.parameters()
+                    .get(actual.ordinal as usize).is_some_and(|formal|
+                        matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle))));
     }
     let original_text_formal = |root| {
         prepared.source_value_sum_v1(root).is_some_and(|sum| {
@@ -270,7 +275,6 @@ pub(super) fn selects_static_expression_source_v1(
         BorrowedCallActualValueV1::SelfRooted { root, .. } => original_text_formal(root),
         _ => false,
     });
-    let original = original_static_source_v1(prepared, call)?;
     let finite_cohort = original.is_some_and(|source|
         prepared.original_finite_forward_input_request_v1(source.callee_owner())
             || source.parameters().iter().any(|formal|
@@ -439,7 +443,9 @@ pub(super) fn prepare_static_source_actuals_v1(
             }
             BorrowedCallActualValueV1::MethodCall(method) => {
                 let site = OwnedExprSiteV1::new(call.owner(), actual.site.clone());
-                if ordinary_text_argument_source_v1(prepared, &site, method)?.is_some() {
+                if ordinary_argument_call_source_v1(prepared, &site, method)?
+                    .is_some_and(|source| !source.is_instance()
+                        || matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)) {
                     if !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) {
                         return Err(freeze("borrowed-static/text-formal-domain"));
                     }

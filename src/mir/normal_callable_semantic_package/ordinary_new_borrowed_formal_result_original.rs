@@ -10,6 +10,7 @@ struct OriginalReturnSourceV1 {
     batch_slot: u32,
     key: CanonicalSameModuleCallableKeyV1,
     receiver: BindingRefV1,
+    flow: Option<std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>>,
     body: OriginalReturnBodySourceV1,
 }
 #[derive(Debug)]
@@ -100,12 +101,23 @@ impl OriginalReturnSourceLoanV1 {
             && reference.argument_sites.len() == self.0.key.arity() as usize
     }
     /// Affirmative other-result evidence, independent of scalar proof success.
-    /// Every original return must be exactly a direct field of this receiver.
-    pub(in crate::mir::normal_callable_semantic_package) fn is_text_field_return_v1(&self, ingress: &PreparedBorrowedFormalIngressV1) -> bool {
+    /// Every original Return has Text source evidence. This selects the result
+    /// family only; acquisition, completion and physical Return remain owed.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_text_return_v1(&self, ingress: &PreparedBorrowedFormalIngressV1) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
         let plans = self.plans();
         let answer = !plans.is_empty() && plans.iter().all(|plan| {
             let Some(root) = plan.nodes().first() else { return false; };
+            if plan.owner() != self.0.owner { return false; }
+            match root.source() {
+                Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => return true,
+                Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) => {
+                    return self.0.flow.as_ref().and_then(|flow|
+                        ingress.lend_original_read_sum_v1(flow, root.site(), *binding))
+                        .is_some_and(|sum| sum.text_only());
+                }
+                _ => {}
+            }
             let Node::Shape(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = root.source() else { return false; };
             let Some((receiver, fields)) = plan.field_path_v1(root.site()) else { return false; };
             plan.owner() == self.0.owner && receiver == self.0.receiver && fields.len() == 1
@@ -315,7 +327,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 }
             };
             Ok(Some(OriginalReturnSourceLoanV1(Rc::new(OriginalReturnSourceV1 {
-                owner: input.owner(), batch_slot: contract.batch_slot, key: key.clone(), receiver, body,
+                owner: input.owner(), batch_slot: contract.batch_slot, key: key.clone(), receiver,
+                flow: input.function().expression_source().value_flow().cloned(), body,
             }))))
         }).map_err(|_| freeze("borrowed-result/original-return-input")).and_then(|result| result);
         (contract.owner, source)

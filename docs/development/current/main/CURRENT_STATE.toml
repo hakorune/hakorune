@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner61 seal Body0 Value borrowed-static/source-actual-unavailable for nested Instance Text argument; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner61 seal Body0 Value text-expression-execution-pending; callee owner65 Body1 Array field alias lacks Completion; fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner61 seal Body0 Value borrowed-static/source-actual-unavailable for digest argument0 me.chunkListText().
-Fixed suite9/11 in509.428s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
-Same original field writer/entry/all-writer Text SUM now qualifies the Plain assignment through the shared evaluator; source identity and input-use closure remain separate from physical ownership.
-CLI72s and focused16 PASS. Four Core/receiver failures reproduce on clean pre-change HEAD with the same assertions/refusal; unchanged expectations. Text physical RHS/Normal-Fault cleanup remains unconnected; see card.
-Next: retain exact ordinary Instance argument source in the existing actual owner and require completed Text in the common argument evaluator, then connect the shared physical RHS and both-exit consuming transaction. Returned Text discard, keys cleanup, borrowed receivers and required R6/R7/finite-product closeout remain open.
+APP-boxtorrent-mini remains selected; owner61 seal Body0 Value stops at text-expression-execution-pending. Callee chunkListText owner65 reaches Text walk first but Body1 local ids=me.chunk_ids is uncovered.
+Fixed suite9/11 in471.823s: eight real EXEs plus marker, no timeout/SKIP; prior EXEs all re-pass. JSON owner22 remains open.
+Strict original Instance argument source now reaches the same CallArgument evaluator; same-flow all-Return Text SUM controls scalar nonselection/dependency order/walk. Standalone local Text Return canonical EXE/run/UTF-8 stdout/exit0 PASS.
+CLI45.65s and focused14 PASS; two additional direct/rebind rejection tests reproduce on clean pre-change HEAD. Canonical argument-frame call registration, field Array alias and physical Text RHS/cleanup remain open; see card for prior reds/test-binary revision.
+Next: close the original field Array alias in owner65 and register completed argument-frame calls on the existing current-path inventory, then connect physical RHS/Replace and result discard. Keys cleanup, borrowed receivers and required R6/R7/finite-product closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

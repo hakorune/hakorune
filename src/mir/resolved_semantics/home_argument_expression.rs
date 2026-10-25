@@ -168,7 +168,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     } else if !core.requires_i64_v1()
         && !(core.dynamic_array_carrier_append_root_v1()
             && core.dynamic_array_carrier_call_is_v1(root.site()))
-        && !core.ordinary_text_call_is(root.site())
+        && !core.ordinary_call_is(root.site())
         && !matches!(
             root.source(),
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))

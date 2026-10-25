@@ -167,7 +167,7 @@ fn source_scalar_seed_target_v1(
 ) -> Result<bool, String> {
     if !target.uses_existing_borrowed_result_v1() { return Ok(false); }
     if let Some(original) = results.original_return_source_v1(&target.callee_owner())? {
-        if original.is_text_field_return_v1(ingress) {
+        if original.is_text_return_v1(ingress) {
             if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target))
                 || matches!(&target.result_requirement, super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request)
                     if request != original) {

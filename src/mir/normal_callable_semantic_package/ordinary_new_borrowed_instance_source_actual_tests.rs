@@ -31,6 +31,21 @@ fn original_instance_forward_source_refuses_execution_and_snapshot_drift() {
         super::super::bind_argument_sources_v1(input,
             ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap(),
             Some(&package.parameter_contracts), &site, Some(&previous), Some(&mut staged)).unwrap();
+        let prepared = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let method = input.function().method_call_source_v1(site.site()).unwrap();
+        let ordinary = super::super::call_result_source::ordinary_argument_call_source_v1(
+            prepared, &site, method).unwrap().unwrap();
+        ordinary.validate_input_v1(input, prepared, Some(&package.parameter_contracts)).unwrap();
+        assert!(ordinary.validate_input_v1(input, prepared, None).is_err(),
+            "passive Instance syntax cannot replace the complete declaration census");
+        let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+        foreign.batch().with_lowering_input(slot, |other| {
+            let method = other.function().method_call_source_v1(site.site()).unwrap();
+            assert!(super::super::call_result_source::ordinary_argument_call_source_v1(
+                prepared, &site, method).is_err(), "equal syntax cannot replace the retained original method");
+        }).unwrap();
+        assert_eq!(ordinary, super::super::call_result_source::original_argument_call_source_v1(
+            prepared, &site).unwrap().unwrap());
     }).unwrap();
     let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     let mut observed = BTreeMap::from([(site.clone(), Ok(super::prepare_instance_source_actuals_v1(

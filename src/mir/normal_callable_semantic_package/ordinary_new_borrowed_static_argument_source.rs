@@ -1,5 +1,8 @@
 //! Source-purpose connection at the original actual observation. No Home rights.
 use super::*;
+use super::super::call_result_source::{
+    OrdinaryArgumentCallSourceV1, ordinary_argument_call_source_v1, original_argument_call_source_v1,
+};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_value_profile::expression_plan::{
     call_argument_expression_source_plan_v1, ExpressionPlanRootV1, ExpressionSourcePlanV1,
@@ -190,13 +193,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
             }
         }
         if let BorrowedCallActualValueV1::MethodCall(method) = &candidate.value {
-            if ordinary_text_argument_source_v1(
+            if let Some(source) = ordinary_argument_call_source_v1(
                 prepared,
                 &OwnedExprSiteV1::new(site.owner(), candidate.site.clone()),
                 method,
-            )?
-            .is_some()
-            {
+            )? {
+                source.validate_input_v1(input, prepared, contracts)?;
                 if identity.core_arguments.contains_key(&ordinal) {
                     return Err(reject());
                 }
@@ -381,7 +383,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actu
 #[derive(Debug, Clone)]
 enum ArgumentMethodSourceV1 {
     Core(Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>),
-    OrdinaryText(Rc<StaticIncomingSourceV1>),
+    OrdinaryCall(OrdinaryArgumentCallSourceV1),
     DynamicArrayCarrierAppend(
         crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1,
     ),
@@ -390,7 +392,7 @@ impl PartialEq for ArgumentMethodSourceV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Core(a), Self::Core(b)) => Rc::ptr_eq(a, b),
-            (Self::OrdinaryText(a), Self::OrdinaryText(b)) => Rc::ptr_eq(a, b),
+            (Self::OrdinaryCall(a), Self::OrdinaryCall(b)) => a == b,
             (Self::DynamicArrayCarrierAppend(a), Self::DynamicArrayCarrierAppend(b)) => a == b,
             _ => false,
         }
@@ -415,7 +417,8 @@ impl ArgumentMethodSourceV1 {
 }
 
 /// One original source loan, never an evaluation, entry or ownership grant.
-/// Core and ordinary Text calls retain their own SAME original source products.
+/// Core and ordinary calls retain their SAME original sources; Instance syntax
+/// alone grants no Text class. The common evaluator requires the completed result.
 #[derive(Debug, Clone)]
 pub(crate) struct ArgumentExpressionSourceLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
@@ -484,8 +487,8 @@ impl ArgumentExpressionSourceLoanV1 {
                 ))
                 .is_some_and(|candidate| candidate.site() == root.site())
     }
-    pub(crate) fn ordinary_text_call_is(&self, site: &SourceExprSiteV1) -> bool {
-        self.calls.iter().any(|(node, source)| matches!(source, ArgumentMethodSourceV1::OrdinaryText(original)
+    pub(crate) fn ordinary_call_is(&self, site: &SourceExprSiteV1) -> bool {
+        self.calls.iter().any(|(node, source)| matches!(source, ArgumentMethodSourceV1::OrdinaryCall(original)
             if original.call_site().owner() == self.plan.owner() && original.call_site().site() == site
                 && self.plan.nodes().get(*node).is_some_and(|node| node.site() == site)))
     }
@@ -783,7 +786,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 { return Err(freeze("borrowed-static/core-source-identity")); }
             }
             (BorrowedCallActualValueV1::MethodCall(method), None)
-                if ordinary_text_argument_source_v1(
+                if ordinary_argument_call_source_v1(
                     prepared,
                     &OwnedExprSiteV1::new(site.owner(), candidate.site.clone()),
                     method,
@@ -876,8 +879,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     };
     for actual in &identity.candidates {
         let core = identity.core_arguments.contains_key(&actual.ordinal);
-        let ordinary_text = match &actual.value {
-            BorrowedCallActualValueV1::MethodCall(method) => ordinary_text_argument_source_v1(
+        let ordinary_call = match &actual.value {
+            BorrowedCallActualValueV1::MethodCall(method) => ordinary_argument_call_source_v1(
                 prepared,
                 &OwnedExprSiteV1::new(site.owner(), actual.site.clone()),
                 method,
@@ -899,7 +902,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         .is_some_and(|sum| sum.signed_only())
             });
         let expression = core
-            || ordinary_text
+            || ordinary_call
             || finite_integer
             || matches!(
                 actual.value,
@@ -1075,12 +1078,8 @@ fn lend_argument_source_inner_for_array_v1(
             }
             call_inputs.push(original.site());
         } else {
-            if let Some(original) = original_static_source_v1(prepared, &site)? {
-                if let Some(source) =
-                    ordinary_text_argument_source_v1(prepared, &site, original.method_source())?
-                {
-                    calls.insert(node, ArgumentMethodSourceV1::OrdinaryText(source));
-                }
+            if let Some(source) = original_argument_call_source_v1(prepared, &site)? {
+                calls.insert(node, ArgumentMethodSourceV1::OrdinaryCall(source));
             }
             call_inputs.push(original.site());
         }
@@ -1091,7 +1090,7 @@ fn lend_argument_source_inner_for_array_v1(
         };
         let original = match source {
             ArgumentMethodSourceV1::Core(core) => Some(core.source().source()),
-            ArgumentMethodSourceV1::OrdinaryText(row) => Some(row.method_source()),
+            ArgumentMethodSourceV1::OrdinaryCall(row) => Some(row.method_source()),
             ArgumentMethodSourceV1::DynamicArrayCarrierAppend(_) => {
                 if source
                     .dynamic_array_carrier_append()
@@ -1316,7 +1315,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
             arg.site(),
         ) {
             Some(BorrowedCallActualValueV1::MethodCall(method)) => {
-                if ordinary_text_argument_source_v1(
+                if ordinary_argument_call_source_v1(
                     prepared,
                     &OwnedExprSiteV1::new(input.owner(), arg.site().clone()),
                     &method,

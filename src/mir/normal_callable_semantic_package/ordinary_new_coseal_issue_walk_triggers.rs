@@ -396,7 +396,7 @@ pub(super) fn text_completion_order_v1<'a>(
         }
         // Optional ordering information is never an admission or a new veto.
         if !results.original_return_source_v1(&callee.owner()).is_ok_and(|row|
-            row.is_some_and(|row| row.is_text_field_return_v1(source))) { continue; }
+            row.is_some_and(|row| row.is_text_return_v1(source))) { continue; }
         if caller.batch_slot() != callee.batch_slot() {
             let children = dependencies.entry(caller.batch_slot()).or_default();
             if !children.contains(&callee.batch_slot()) { children.push(callee.batch_slot()); }

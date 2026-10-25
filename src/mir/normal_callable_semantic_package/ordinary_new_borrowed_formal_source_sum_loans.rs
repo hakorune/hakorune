@@ -332,6 +332,16 @@ impl PreparedBorrowedFormalIngressV1 {
             })
         })
     }
+    /// Same original read point, without assigning it a scalar/result protocol.
+    /// No alias-formal fallback or inferred carrier can replace this flow loan.
+    pub(in crate::mir::normal_callable_semantic_package) fn lend_original_read_sum_v1(
+        &self,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        site: &SourceExprSiteV1, binding: BindingRefV1,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        flow.origin(flow.read(site, binding)?)?;
+        lend_original_point_sum(&self.original_formal_seeds, &self.source_incoming, flow, site, binding)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn lend_current_scalar_sum_v1(
         &self,
         read: &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1,

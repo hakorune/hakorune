@@ -106,8 +106,15 @@ impl BorrowedIncomingInventoryV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_rows_v1(
         &self,
     ) -> impl Iterator<Item = &BorrowedIncomingCallDraftV1> {
-        self.source_observations()
-            .filter_map(|(_, row)| row.as_ref().ok())
+        self.source_rows_with_method_v1().map(|(row, _)| row)
+    }
+    /// Lend the retained original method together with its successful source.
+    /// A missing method remains visible to the consumer as an obligation.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_rows_with_method_v1(
+        &self,
+    ) -> impl Iterator<Item = (&BorrowedIncomingCallDraftV1, Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>>)> {
+        self.observations.iter().filter(|row| row.scope.source())
+            .filter_map(|row| row.original.1.as_ref().ok().map(|source| (source, row.method_source.as_ref())))
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_rows_with_legacy_v1(
         &self,

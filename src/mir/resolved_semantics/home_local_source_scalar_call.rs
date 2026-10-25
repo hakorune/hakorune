@@ -541,7 +541,8 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                         | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })) => None,
         LocalCallResultSourceV1::Ordinary(loan) if loan.result() == LocalCallResultClassV1::Text
             && loan.instance_source().is_some() && (plain_assignment || matches!(source.root(),
-                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
+                | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                     role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
                         | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })) => None,
         LocalCallResultSourceV1::DynamicInvocation(_) => None,

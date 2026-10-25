@@ -132,7 +132,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_resu
         return Ok(None);
     }
     if let Some(target) = call.source.instance() {
-        if let Some(original) = original_result.filter(|original| original.is_text_field_return_v1(ingress)) {
+        if let Some(original) = original_result.filter(|original| original.is_text_return_v1(ingress)) {
             if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target))
                 || matches!(&target.result_requirement, super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request)
                     if request != original) {

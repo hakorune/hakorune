@@ -424,7 +424,7 @@ impl PreparedBorrowedFormalIngressV1 {
             return false;
         }
         if results.original_return_source_v1(&input.owner()).is_ok_and(|row|
-            row.is_some_and(|original| original.is_text_field_return_v1(self))) {
+            row.is_some_and(|original| original.is_text_return_v1(self))) {
             return true;
         }
         let Some(shape) = input.body_shape() else {
