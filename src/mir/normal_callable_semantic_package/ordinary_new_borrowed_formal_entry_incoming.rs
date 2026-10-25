@@ -527,7 +527,7 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl BorrowedOrdinaryEntrySourceRefV1<'_> {
-    /// Lend the same finite domain for an exact original New-argument read.
+    /// Lend the same signed domain for an exact original New-argument read.
     /// Neither Handle syntax nor a SUM alone grants an Integer view.
     pub(in crate::mir::normal_callable_semantic_package) fn finite_new_argument_domain_v1(
         &self, argument: &crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
@@ -540,8 +540,24 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         if argument.owner() != self.owner || argument.new_site().owner() != self.owner || binding.owner() != self.owner {
             return Err(freeze("static-input/qualified-use-identity"));
         }
-        Ok(self.finite_read_domain_v1(argument.site(), binding)?
-            .filter(|domain| domain.signed_only()).map(|domain| (binding, domain)))
+        let domain = match &self.evidence {
+            EntryStructureEvidenceV1::Uses(view) => {
+                let Some(formal) = view.definition.origins.get(&binding) else { return Ok(None); };
+                let mut uses = view.definition.uses.iter().filter(|row|
+                    row.site.owner() == self.owner && row.site.site() == argument.site()
+                        && row.binding == binding && row.formal == *formal
+                        && matches!(&row.kind,
+                            super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::NewArgument { site, ordinal }
+                                if site == argument.new_site() && *ordinal == argument.ordinal()));
+                if uses.next().is_none() { return Ok(None); }
+                if uses.next().is_some() { return Err(freeze("static-input/qualified-use-identity")); }
+                let (ordinal, _) = self.formals.iter().find(|(_, root)| root == formal)
+                    .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
+                self.formal_domain_v1(*ordinal, *formal)?.cloned()
+            }
+            _ => self.finite_read_domain_v1(argument.site(), binding)?,
+        };
+        Ok(domain.filter(|domain| domain.signed_only()).map(|domain| (binding, domain)))
     }
     /// Completed Uses keeps its original receiver purpose. A singleton class
     /// supplies nonnull input agreement, not a new generic use permission.

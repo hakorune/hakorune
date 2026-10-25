@@ -633,6 +633,27 @@ pub(super) fn resolve_original_source_sums_v1(
         for ((_, _, formal), seed) in row.incoming.arguments.iter().zip(&row.seeds) {
             graph.actual(*formal, Some(seed));
         }
+        // A checked guard may classify an argument as Scalar while its source
+        // forward still retains the exact read. Demand that point separately:
+        // the guard's class must not erase the original reaching-value proof.
+        if let Some(target) = row.incoming.source.instance() {
+            for forward in target.object_source_forwards().into_iter().flatten() {
+                if forward.call() != &row.incoming.call
+                    || forward.target() != target.target()
+                    || target.argument_sites().get(forward.ordinal() as usize)
+                        != Some(forward.site().site())
+                    || forward.binding().owner() != row.incoming.call.owner()
+                {
+                    return Err(freeze("source-sum/caller-owner"));
+                }
+                if let Some(value) = flows.get(&row.incoming.call.owner())
+                    .filter(|flow| flow.owner() == row.incoming.call.owner() && flow.is_complete())
+                    .and_then(|flow| flow.read(forward.site().site(), forward.binding()))
+                {
+                    graph.point(row.incoming.call.owner(), value);
+                }
+            }
+        }
     }
     source
         .new_calls
