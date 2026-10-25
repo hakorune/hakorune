@@ -542,6 +542,7 @@ pub(super) fn probe_source_home_prefixes_v1(
     >,
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    completed: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1,
 ) -> Result<
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     OrdinaryNewCoSealIssueV1,
@@ -765,7 +766,7 @@ pub(super) fn probe_source_home_prefixes_v1(
                 callable_result_classes,
                 receiver_rows,
                 field_write_claims,
-                None,
+                Some(completed),
             )
         },
         &mut dominated_view_use_consult_v1(

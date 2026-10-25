@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner70 Body4 manifest.seal discarded Text-field result borrowed-result/source-not-i64; fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner61 seal Body1 Value source-not-i64; preceding Text replacement Body0 unconnected; fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner70 Body4 manifest.seal(), borrowed-result/source-not-i64.
-Last fixed suite9/11: eight real EXEs plus marker, no timeout/SKIP; boxtorrent and JSON remain open. Not remeasured for this source-only cleanup.
-All original field writer RHSs now join the same source SUM; class facts grant no read, Home or execution permission. Focused16 PASS; CLI38.60s PASS; selected smoke retains the same owner70 stop.
-Incomplete Text field snapshot/Return connection is preserved in the named Git stash recorded in the card; it is not validated or landed.
-Next: reconnect checked field snapshot/Return/discard with ownership and independent Rust/C validation; keys-array cleanup, borrowed receivers, existing reds and required R6/R7 remain open.
+APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner61 seal Body1 Value source-not-i64, after unsupported Text replacement at Body0.
+Fixed suite9/11 in473.748s: eight real EXEs plus marker, no timeout/SKIP; all prior EXEs re-pass. JSON owner22 remains open.
+Same original receiver/all-writer Text facts now reach checked field snapshot/Return and final Rust/C validation; standalone source EXE/run/exact UTF-8 stdout/exit0 PASS, mixed-writer source rejected.
+Focused18 PASS; final CLI46.28s and C physical family PASS. One unrelated field-batch expectation failure reproduces on exact clean pre-change HEAD; other prior reds stay open. See card for baseline test-binary rebuild note.
+Next: original Text assignment RHS evaluation and transaction pre/postcommit Fault ownership, then returned Text discard, keys-array cleanup and borrowed receivers. Required local/shared R6/R7 and finite-product closeout remain open; see card.
 """
 next_design_card = "none"
 next_design_card_path = "none"

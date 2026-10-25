@@ -181,7 +181,7 @@ impl FinalizedRootSourceHandoffV1 {
         use crate::mir::instruction::InvokeOperation;
         if !self.ledger.has_checked_field_reads_v1(owner) {
             if function.blocks.values().flat_map(|body| body.all_instructions()).any(|row|
-                matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }, .. })) {
+                matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }), .. })) {
                 return Err(freeze("finished-received-field/source-missing"));
             }
             return Ok(Vec::new());

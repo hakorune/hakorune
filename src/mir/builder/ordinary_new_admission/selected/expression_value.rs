@@ -315,6 +315,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let (base, source, slot) = direct_fields.remove(&index)
                     .ok_or_else(|| freeze("print-expression/field-source-missing"))?;
                 let original_read = reads[slot].take();
+                let text = matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_));
                 let value = if source.requires_checked_field_read_v1() {
                     let normal = writer.reserve_block(builder)?;
                     let pending = pending_operations(&acquired, &homes);
@@ -332,7 +333,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     bindings.push(binding);
                     value
                 };
-                Operand::NormalInteger(value)
+                if text { acquired.push((index, value)); Operand::OwnedString(value) }
+                else { Operand::NormalInteger(value) }
             }
             Node::Reference(_) => {
                 let observed = reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;

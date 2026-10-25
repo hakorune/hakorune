@@ -111,6 +111,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !lv4_readable_object(in, fn, lv4_u(op, "base"), state, lv4_u(block, "id"),
               lv4_u(op, "object_id"), 1)) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "string_field_materialize")) {
+      if (faulted || birth || state[bi] || !lv4_birth_dynamic(in, op) ||
+          !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id")) ||
+          !lv4_string_push(state, count, &normal[bi])) return 0;
     } else if (!hako_physical_array_text_append(op) && hako_physical_string_operand_count(op)) {
       if ((birth && !hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) || faulted || state[bi]) return 0;
       if (hako_physical_map_field_text_access(op) && (in->profile != LV4_INDEXED_SAFE_MUTEX ||

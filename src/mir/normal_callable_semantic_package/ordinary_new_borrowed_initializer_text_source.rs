@@ -412,6 +412,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn requires_text_return_walk_v1(
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,
+        results: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1,
     ) -> bool {
         // A new lifecycle Return needs an original consumer. Passive generated
         // methods and self-recursive-only unused helpers keep their prior lane.
@@ -421,6 +422,10 @@ impl PreparedBorrowedFormalIngressV1 {
             .any(|row| row.callee == input.owner() && row.call.owner() != input.owner())
         {
             return false;
+        }
+        if results.original_return_source_v1(&input.owner()).is_ok_and(|row|
+            row.is_some_and(|original| original.is_text_field_return_v1(self))) {
+            return true;
         }
         let Some(shape) = input.body_shape() else {
             return false;

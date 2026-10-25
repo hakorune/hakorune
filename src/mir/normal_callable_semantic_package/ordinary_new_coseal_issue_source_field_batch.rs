@@ -87,7 +87,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             if request.nullable
                 || request.formal
                 || request.owned_ready.is_some()
-                || !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
+                || !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
                     if Rc::ptr_eq(plan, path.plan()) && request.node_in_plan(plan) == Some(path.node()))
             {
                 return Ok(None);
@@ -96,7 +96,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         let stored_get = matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }));
         if request.received.is_some()
             && !stored_get
-            && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
+            && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
             if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                 role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. }))
         {
@@ -154,7 +154,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         } else {
             request.alias_class.clone()
         };
-        let object_obligation = matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
+        let object_obligation = matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
             if request.is_nullable_object_comparison_v1(plan));
         let object_source = if object_obligation {
             match (received_context, receiver_proof) {
@@ -232,10 +232,27 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 let numeric = if matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) {
                     match terminal_home::local_read_field_declaration(constructors, candidates, coverage,
                         receiver_proof, &request.site, request.home, alias_class.as_deref(), &request.field)? {
-                        Some((field, None)) if ingress.as_ref().is_ok_and(|ingress|
-                            super::super::super::lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
-                                results, ingress, field, None, &request.field).is_ok()) =>
-                            Some(LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Scalar, None)),
+                        Some((field, None)) => {
+                            let text = if request.path.is_none() && request.received.is_none() && request.owned_ready.is_none()
+                                && matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
+                                    if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                                        role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })
+                                        && plan.nodes().first().is_some_and(|node| node.site() == request.site.site())) {
+                                received_context.and_then(|(_, _, _, _, claims)| {
+                                    let ingress = ingress.as_ref().ok()?;
+                                    claims.value_sources().filter_map(|(_, _, source)| source.as_ref().ok())
+                                        .filter(|source| source.field() == field).find_map(|source|
+                                            crate::mir::normal_callable_semantic_package::TextFieldValueSourceV1::lend(ingress, claims, source))
+                                })
+                            } else { None };
+                            if let Some(value) = text {
+                                Some(LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Text(Rc::new(value)), None))
+                            } else if ingress.as_ref().is_ok_and(|ingress|
+                                super::super::super::lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
+                                    results, ingress, field, None, &request.field).is_ok()) {
+                                Some(LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Scalar, None))
+                            } else { None }
+                        }
                         _ => None,
                     }
                 } else {
@@ -268,6 +285,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 .is_some_and(|path| path.is_intermediate()),
         };
         if scalar_only && *source.result() != LocalFieldReadResultV1::Scalar
+            && !(matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. })
+                && matches!(source.result(), LocalFieldReadResultV1::Text(_)))
             && !(object_obligation && matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_))) {
             return Ok(None);
         }
@@ -348,11 +367,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             LocalFieldReadDemandV1::Declared { .. } => None,
             LocalFieldReadDemandV1::SourceExpression { .. }
                 if request.path.is_some() || request.owned_ready.is_some()
-                    || matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_)) =>
+                    || matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_) | LocalFieldReadResultV1::Text(_)) =>
             {
                 None
             }
-            LocalFieldReadDemandV1::SourceExpression { plan } => Some(
+            LocalFieldReadDemandV1::SourceExpression { plan, .. } => Some(
                 super::super::super::lexical_instance_call::ExpressionFieldSourceLoanV1::from_read(
                     results,
                     ingress.as_ref().map_err(|issue| {

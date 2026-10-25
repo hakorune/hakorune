@@ -551,7 +551,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
     )? {
         return Ok(None);
     }

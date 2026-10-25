@@ -166,6 +166,17 @@ fn source_scalar_seed_target_v1(
     results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
 ) -> Result<bool, String> {
     if !target.uses_existing_borrowed_result_v1() { return Ok(false); }
+    if let Some(original) = results.original_return_source_v1(&target.callee_owner())? {
+        if original.is_text_field_return_v1(ingress) {
+            if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target))
+                || matches!(&target.result_requirement, super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(request)
+                    if request != original) {
+                return Err(freeze("scalar-loan/original-return-target"));
+            }
+            exact_original_target(ingress, target)?;
+            return Ok(false);
+        }
+    }
     if let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) = &target.result_requirement {
         if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
             return Err(freeze("scalar-loan/original-return-target"));

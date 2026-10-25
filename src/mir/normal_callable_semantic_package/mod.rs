@@ -165,6 +165,7 @@ pub(crate) use ordinary_new_coseal::CanonicalArrayFieldReadSourceV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::{OriginalScalarAppendV1, LocalFieldReadSourceV1, DynamicStoredChildFieldV1};
+pub(in crate::mir) use ordinary_new_coseal::TextFieldValueSourceV1;
 pub(in crate::mir) use ordinary_new_coseal::LoopStaticSourceCallLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::{
     PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,

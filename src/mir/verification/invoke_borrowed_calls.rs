@@ -79,6 +79,7 @@ pub(super) fn original_call_slots(
     let dynamic_fields = module.functions.values().flat_map(|function| function.blocks.values())
         .flat_map(|body| body.all_instructions()).any(|row| match row {
             MirInstruction::Invoke { operation: InvokeOperation::FieldGet { field, .. }
+                | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, .. })
                 | InvokeOperation::ObjectFieldBorrow { field, nullable: true, .. }, .. } =>
                 module.canonical_field_definition(*field).is_some_and(|field|
                     !field.is_weak && field.declared_type_name.is_none()),

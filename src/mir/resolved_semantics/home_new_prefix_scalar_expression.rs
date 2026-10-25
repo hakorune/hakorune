@@ -244,6 +244,7 @@ fn observe_scalar_expression_with_operation<E>(
         let demand = initializer_plan
             .as_ref()
             .map(|plan| LocalFieldReadDemandV1::SourceExpression {
+                probe: false,
                 plan: std::rc::Rc::clone(plan.source()),
             })
             .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: true });

@@ -196,6 +196,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     )?;
     for declaration in walk_triggers::text_completion_order_v1(
         &borrowed_formal_source,
+        &borrowed_i64_results,
         selected,
         app_main.as_ref(),
         batch,
@@ -328,14 +329,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     &borrowed_formal_source, parameter_contracts, &lexical_source_targets, owner,
                 )?;
                 let mut probe = |explicit_sites: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
-                                 pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1| {
+                                 pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1,
+                                 completed: &super::super::result_contract::VerifiedCallableResultContractBuilderV1| {
                     source_claims::probe_source_home_prefixes_v1(
                         brands, source_core_calls, input, &new_sites, entry_home, explicit_sites, pending_actuals,
                         dynamic_source_calls,
                         batch_slot, selected, batch, parameter_contracts,
                         &callable_result_classes, &candidates, instance_constructors,
                         receiver_proof, &array_i64_field_sets,
-                        &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call, &receiver_call_observations, &field_write_claims,
+                        &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call, &receiver_call_observations, &field_write_claims, completed,
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {
@@ -344,7 +346,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     // guard arm reads as `PrefixNotCovered` and poisons the
                     // joined prefix before the selected `new` is walked.
                     match crate::mir::resolved_control_flow::verify_function_completion_v1(input) {
-                        Ok(control) => probe(control.explicit_sites(), &mut BTreeMap::new())?
+                        Ok(control) => probe(control.explicit_sites(), &mut BTreeMap::new(), &seeds)?
                             .values()
                             .all(Result::is_ok),
                         // When completion itself is unverifiable the verified
@@ -386,7 +388,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_print_expression = walk_triggers::has_print_expression_v1(input);
                 let has_condition_expression = walk_triggers::has_condition_expression_v1(input);
                 let has_text_initializer = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_initializer_expression_walk_v1(input));
-                let has_text_return = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input));
+                let has_text_return = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input, &borrowed_i64_results));
                 let has_array_residence = source_core_calls.is_some_and(|rows| rows.values()
                     .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some()));
                 let seed_completion = (seed_eligible
@@ -449,7 +451,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     // Borrow existing control authority without publishing Completion.
                     let observed = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
                         .map_err(|issue| format!("borrowed-actual/control-unavailable: {issue:?}"))
-                        .and_then(|control| probe(control.explicit_sites(), &mut borrowed_formal_actuals)
+                        .and_then(|control| probe(control.explicit_sites(), &mut borrowed_formal_actuals, &seeds)
                             .map(|_| ()).map_err(|issue| format!("borrowed-actual/source-walk: {issue:?}")));
                     if let Err(issue) = observed {
                         super::lexical_instance_call::reject_borrowed_actuals_for_owner_v1(
@@ -491,6 +493,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     // the ledger row, later asks return its result class.
                     let mut local_staged_reads: BTreeMap<OwnedExprSiteV1, field_reads::LocalFieldRead> = BTreeMap::new();
                     let mut local_field_read = |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], demand| {
+                        let probe = matches!(&demand, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1::SourceExpression { probe: true, .. });
                         let Some(rows) = source_claims::prove_local_field_read_batch(
                             instance_constructors, &candidates, batch.ordinary_box_coverage(),
                             receiver_proof, entry_home, source_core_calls, requests, demand, &borrowed_i64_results, &borrowed_formal_source,
@@ -499,6 +502,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             ),
                             &mut |home| source_claims::source_formal_class_v1(&borrowed_formal_source, home), Some((batch, selected, &callable_result_classes, &lexical_source_targets, &field_write_claims)),
                         )? else { return Ok(None); };
+                        if probe { return Ok(Some(rows.into_iter().map(|(_, row)| row.source.result().clone()).collect())); }
                         source_claims::stage_local_field_read_batch(&mut local_staged_reads, rows)
                             .map(Some)
                     };

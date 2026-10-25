@@ -89,7 +89,8 @@ impl LocalFieldReadSourceV1 {
         Ok(Rc::new(source))
     }
     pub(in crate::mir) fn requires_checked_field_read_v1(&self) -> bool {
-        matches!(self.result, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_))
+        matches!(self.result, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
+            | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_))
             || (self.declared_type_name.is_none()
             && self.result == crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar)
             || self.owned_ready.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
@@ -103,6 +104,8 @@ impl LocalFieldReadSourceV1 {
         match (self.result(), operation) {
             (LocalFieldReadResultV1::BorrowedObject(source), InvokeOperation::ObjectFieldBorrow { field, base: actual, child, nullable: true }) =>
                 *field == self.field && source.field() == self.field && *actual == base && *child == source.child(),
+            (LocalFieldReadResultV1::Text(source), InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, base: actual })) =>
+                *field == self.field && source.field() == self.field && *actual == base,
             (LocalFieldReadResultV1::Scalar, InvokeOperation::FieldGet { field, base: actual }) => *field == self.field && *actual == base,
             _ => false,
         }
@@ -479,6 +482,20 @@ impl OrdinaryNewClaimLedgerV1 {
             if row.numeric_source.is_some() || row.source.declared_type_name().is_some()
                 || loan.field() != row.source.field() || !loan.recheck_v1(&self.callable_result_classes, &request.field)
                 || !request.is_nullable_object_comparison_v1(required.plan())
+                || row.receiver_site != request.receiver_site || row.receiver != request.receiver || row.home != request.home {
+                return Err(fault("required-source-read-drift"));
+            }
+            return Ok(());
+        }
+        if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(loan) = row.source.result() {
+            let required = requirement.ok_or_else(|| fault("required-source-loan-missing"))?;
+            let request = required.request();
+            let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| fault("required-source-loan-missing"))?
+                .as_ref().map_err(Clone::clone)?;
+            if row.numeric_source.is_some() || row.source.declared_type_name().is_some()
+                || loan.field() != row.source.field() || !loan.recheck(ingress, &self.field_write_claims, &request.field)
+                || request.path.is_some() || request.received.is_some() || request.owned_ready.is_some()
+                || !required.plan().nodes().first().is_some_and(|node| node.site() == site.site())
                 || row.receiver_site != request.receiver_site || row.receiver != request.receiver || row.home != request.home {
                 return Err(fault("required-source-read-drift"));
             }

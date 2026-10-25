@@ -158,6 +158,7 @@ pub(super) fn check_module_with_source(
                             errors.push(error(*id, "home-destruction-unavailable"));
                         }
                         InvokeOperation::Map(MapInvokeOperation::FieldKeys { field, .. })
+                        | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, .. })
                             if !dynamic_field(module, *field) || root.is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
                         { errors.push(error(*id, "object-field-read-definition-invalid")); }

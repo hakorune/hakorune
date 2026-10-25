@@ -169,7 +169,7 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
             let prove = |plan| prove_local_field_read_batch(
                 package.instance_constructors(), &candidates, package.batch().ordinary_box_coverage(),
                 None, None, None, &requests,
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1::SourceExpression { plan },
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1::SourceExpression { plan, probe: false },
                 &ledger.borrowed_i64_results, ledger.borrowed_formal_source.as_ref().unwrap(),
                 &mut |_| None, &mut |_| Ok(None), None,
             ).unwrap().unwrap();

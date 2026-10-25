@@ -90,6 +90,39 @@ impl DeclaredFieldValueSourceV1 {
     }
 }
 
+/// Source class for the same complete original writer cohort. This grants
+/// neither a borrowed field payload nor an owned Text result.
+#[derive(Debug, Clone)]
+pub(crate) struct TextFieldValueSourceV1 {
+    source: Rc<DeclaredFieldValueSourceV1>,
+    sum: Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+}
+impl PartialEq for TextFieldValueSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.sum, &other.sum)
+    }
+}
+impl Eq for TextFieldValueSourceV1 {}
+impl TextFieldValueSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn lend(
+        ingress: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+        claims: &OrdinaryNewFieldWriteClaimsV1, source: &Rc<DeclaredFieldValueSourceV1>,
+    ) -> Option<Self> {
+        if source.declared_type_name().is_some() { return None; }
+        let sum = ingress.source_field_value_sum_v1(claims, source)?;
+        sum.text_only().then(|| Self { source: Rc::clone(source), sum })
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck(
+        &self,
+        ingress: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+        claims: &OrdinaryNewFieldWriteClaimsV1, name: &str,
+    ) -> bool {
+        self.source.writers().all(|writer| writer.field() == name)
+            && Self::lend(ingress, claims, &self.source).as_ref().is_some_and(|current| current == self)
+    }
+    pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.source.field() }
+}
+
 pub(super) fn issue_value_sources_v1(
     inventory: &Rc<OriginalFieldWriterInventoryV1>,
     coverage: &ParserOrdinaryBoxSourceCoverageV1,

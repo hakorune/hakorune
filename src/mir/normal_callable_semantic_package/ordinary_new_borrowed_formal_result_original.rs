@@ -99,6 +99,23 @@ impl OriginalReturnSourceLoanV1 {
             && self.0.key == reference.target
             && reference.argument_sites.len() == self.0.key.arity() as usize
     }
+    /// Affirmative other-result evidence, independent of scalar proof success.
+    /// Every original return must be exactly a direct field of this receiver.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_text_field_return_v1(&self, ingress: &PreparedBorrowedFormalIngressV1) -> bool {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        let plans = self.plans();
+        let answer = !plans.is_empty() && plans.iter().all(|plan| {
+            let Some(root) = plan.nodes().first() else { return false; };
+            let Node::Shape(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = root.source() else { return false; };
+            let Some((receiver, fields)) = plan.field_path_v1(root.site()) else { return false; };
+            plan.owner() == self.0.owner && receiver == self.0.receiver && fields.len() == 1
+                && plan.nodes().iter().any(|node| node.site() == object && matches!(node.source(),
+                    Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
+                    | Node::Shape(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == self.0.receiver))
+                && ingress.source_declared_field_sum_v1(self.0.key.owner(), field).is_some_and(|sum| sum.text_only())
+        });
+        answer
+    }
     pub(super) fn plan(&self, value: &SourceExprSiteV1) -> Option<&Rc<ExpressionSourcePlanV1>> {
         self.plans().iter().find(|plan| {
             plan.nodes()

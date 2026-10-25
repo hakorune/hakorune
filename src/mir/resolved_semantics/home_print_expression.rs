@@ -153,7 +153,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
     )? {
         return Ok(None);
     }
@@ -222,7 +222,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
     if !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) {
         return Ok(None);
     }
-    let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(
+    let Some((operations, mut owned_results)) = super::operations::qualify_arithmetic_operations_v1(
         &source,
         &order,
         &classes,
@@ -230,6 +230,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
     ) else {
         return Ok(None);
     };
+    owned_results.extend(order.iter().copied().filter(|node| !transferred.contains(node)
+        && classes[*node] == Leaf::Value(Class::String)
+        && matches!(source.nodes()[*node].source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))));
     let owned_results =
         super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     let mut evaluation = CheckedExpressionEvaluationV1 {

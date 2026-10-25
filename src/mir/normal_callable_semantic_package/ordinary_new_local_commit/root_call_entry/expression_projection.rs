@@ -483,8 +483,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                             ..
                         },
                     ),
-                    Some(Operand::NormalInteger(dst)),
+                    Some(operand @ (Operand::NormalInteger(dst) | Operand::OwnedString(dst))),
                 ) => {
+                    if matches!(operand, Operand::OwnedString(_)) != self.frame.owned_result_nodes().contains(&index) {
+                        return Err(freeze("print-expression/field-source-value"));
+                    }
                     let emitted = ledger.expression_field_read_bindings_v1(
                         &OwnedExprSiteV1::new(source.owner(), node.site().clone()),
                         source,

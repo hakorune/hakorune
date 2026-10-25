@@ -311,6 +311,7 @@ pub(super) fn typed_static_walk_owners_v1(
 /// The graph orders existing loans; it creates no Completion or result authority.
 pub(super) fn text_completion_order_v1<'a>(
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    results: &super::super::lexical_instance_call::BorrowedResultCohortV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
     batch: &'a crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
@@ -366,7 +367,7 @@ pub(super) fn text_completion_order_v1<'a>(
         }
         let required = batch
             .with_lowering_input(callee.batch_slot(), |input| {
-                source.requires_text_return_walk_v1(input)
+                source.requires_text_return_walk_v1(input, results)
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
         if required && caller.batch_slot() != callee.batch_slot() {
@@ -374,6 +375,31 @@ pub(super) fn text_completion_order_v1<'a>(
             if !children.contains(&callee.batch_slot()) {
                 children.push(callee.batch_slot());
             }
+        }
+    }
+    for target in source.original_instance_source_targets_v1() {
+        let Some(caller) = declarations.iter().find(|row| row.owner() == target.call_site().owner()) else { continue; };
+        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(target.target().clone());
+        if selected.batch_slot(&key) != Some(target.target_batch_slot()) { continue; }
+        let selected_caller = selected.key_for_batch_slot(caller.batch_slot()).is_some_and(|key|
+            selected.batch_slot(&key) == Some(caller.batch_slot())
+                && selected.identity_for_batch_slot(caller.batch_slot()).is_some_and(|identity| identity.same_as(caller.identity())));
+        let checked_main = main.is_some_and(|main| main.caller_source_ref_v1()
+            .checked_caller_key(batch, contracts, caller.owner(), caller.batch_slot()).is_ok());
+        if !(selected_caller || checked_main) { continue; }
+        let Some(callee) = declarations.iter().find(|row| row.batch_slot() == target.target_batch_slot()) else {
+            return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+        };
+        if callee.owner() != target.callee_owner()
+            || !selected.identity_for_batch_slot(callee.batch_slot()).is_some_and(|identity| identity.same_as(callee.identity())) {
+            return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+        }
+        // Optional ordering information is never an admission or a new veto.
+        if !results.original_return_source_v1(&callee.owner()).is_ok_and(|row|
+            row.is_some_and(|row| row.is_text_field_return_v1(source))) { continue; }
+        if caller.batch_slot() != callee.batch_slot() {
+            let children = dependencies.entry(caller.batch_slot()).or_default();
+            if !children.contains(&callee.batch_slot()) { children.push(callee.batch_slot()); }
         }
     }
     fn visit(

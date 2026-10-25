@@ -447,7 +447,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       yyjson_val* op = yyjson_obj_get(term, "operation");
       unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
       if (lv4_string_operation(op)) {
-        lv4_string_emit(f, op, fi, b, normal_label, fault_label);
+        lv4_string_emit(f, in, op, fi, b, normal_label, fault_label);
         continue;
       }
       int invocation = lv4_invocation_emit(f, op, fi, b, normal_label, fault_label);

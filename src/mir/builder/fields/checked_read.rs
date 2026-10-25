@@ -33,6 +33,8 @@ impl crate::mir::MirBuilder {
             LocalFieldReadResultV1::BorrowedObject(child) =>
                 (InvokeOperation::ObjectFieldBorrow { field: source.field(), base, child: child.child(), nullable: true },
                     MirType::Box(child.child_class().into())),
+            LocalFieldReadResultV1::Text(text) if text.field() == source.field() =>
+                (InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field: source.field(), base }), MirType::String),
             LocalFieldReadResultV1::Scalar => (InvokeOperation::FieldGet { field: source.field(), base }, MirType::Integer),
             _ => return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into()),
         };

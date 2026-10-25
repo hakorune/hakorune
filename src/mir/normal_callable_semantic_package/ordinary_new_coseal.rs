@@ -93,6 +93,7 @@ pub(in crate::mir) use field_reads::LocalFieldReadSourceV1;
 #[path = "ordinary_new_field_write_claim.rs"]
 mod field_write_claim;
 pub(super) use field_write_claim::{DeclaredFieldValueSourceV1, OrdinaryNewFieldWriteClaimsV1};
+pub(crate) use field_write_claim::TextFieldValueSourceV1;
 pub(super) use terminal_home::ExpressionFieldRootSourceV1;
 pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1, ObjectFieldClassSourceV1};
 pub(super) use field_write_claim::{OrdinaryNewFieldWriteClaimDraftV1, OriginalFieldWriterInventoryV1};

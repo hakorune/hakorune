@@ -83,6 +83,10 @@ static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
     return;
   }
   if (!lv4_string_operation(op) || lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned")) return;
+  if (lv4_is(op, "kind", "string_field_materialize")) {
+    fprintf(f, "  %%strfield%u = alloca { i32, i32, i64, i64 }, align 8\n", b);
+    fprintf(f, "  %%strarg%u_0 = alloca %%nyrt.string.operand, align 8\n", b);
+  }
   int result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind")));
   for (unsigned role = 0; role < hako_physical_string_operand_count(op); role++)
     fprintf(f, "  %%strarg%u_%u = alloca %%nyrt.string.operand, align 8\n", b, role);
@@ -156,10 +160,25 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
   }
   fprintf(f, "  store %%nyrt.string.operand %%str%u_%u_2, ptr %%strarg%u_%u, align 8\n", b,role,b,role);
 }
-static void lv4_string_emit(FILE* f, yyjson_val* op, size_t fi, uint32_t b,
+static void lv4_string_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op, size_t fi, uint32_t b,
     const char* normal, const char* fault) {
   unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
-  if (lv4_is(op, "kind", "string_end_if_owned")) {
+  if (lv4_is(op, "kind", "string_field_materialize")) {
+    /* Dynamic kind4 is a borrowed field pair. Only checked materialize
+       creates the independent owned result; neither read nor Fault consumes it. */
+    fprintf(f, "  %%strfield_status%u = call i32 @\"nyash.object.checked_dynamic_get_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %d, i32 4, ptr %%strfield%u)\n",
+        b, in->profile, site, lv4_u(op, "base"), lv4_type_id(in, op), lv4_slot(in, op), b);
+    fprintf(f, "  switch i32 %%strfield_status%u, label %%invalid [ i32 0, label %%strfield_normal%u i32 1, label %%%s ]\nstrfield_normal%u:\n", b,b,fault,b);
+    fprintf(f, "  %%strfield_payload%u = getelementptr { i32, i32, i64, i64 }, ptr %%strfield%u, i32 0, i32 2\n", b,b);
+    fprintf(f, "  %%strfield_handle%u = load i64, ptr %%strfield_payload%u, align 8\n", b,b);
+    fprintf(f, "  %%strfield_tokenptr%u = getelementptr { i32, i32, i64, i64 }, ptr %%strfield%u, i32 0, i32 3\n", b,b);
+    fprintf(f, "  %%strfield_token%u = load i64, ptr %%strfield_tokenptr%u, align 8\n", b,b);
+    fprintf(f, "  %%strfield_operand%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 2, 0\n", b);
+    fprintf(f, "  %%strfield_operand%u_1 = insertvalue %%nyrt.string.operand %%strfield_operand%u_0, i64 %%strfield_handle%u, 4\n", b,b,b);
+    fprintf(f, "  %%strfield_operand%u_2 = insertvalue %%nyrt.string.operand %%strfield_operand%u_1, i64 %%strfield_token%u, 5\n", b,b,b);
+    fprintf(f, "  store %%nyrt.string.operand %%strfield_operand%u_2, ptr %%strarg%u_0, align 8\n", b,b);
+    fprintf(f, "  %%status%u = call i32 @\"nyash.string.checked_materialize_v1\"(ptr %%frame, i64 %llu, ptr %%strarg%u_0, ptr %%strout%u)\n", b,site,b,b);
+  } else if (lv4_is(op, "kind", "string_end_if_owned")) {
     uint32_t value = lv4_u(op, "value");
     fprintf(f, "  %%end_kind%u = extractvalue %%nyrt.string.operand %%text%u, 0\n", b,value);
     fprintf(f, "  switch i32 %%end_kind%u, label %%invalid [ i32 1, label %%end_static%u i32 2, label %%end_owned%u ]\n", b,b,b);

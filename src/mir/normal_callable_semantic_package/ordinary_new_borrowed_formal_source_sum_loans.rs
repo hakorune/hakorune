@@ -78,6 +78,19 @@ impl PreparedBorrowedFormalIngressV1 {
         let (original, sum) = product.source_sums.as_ref()?.fields.get(&source.field())?;
         Rc::ptr_eq(original, source).then(|| Rc::clone(sum))
     }
+    /// Declaration lookup in the already checked all-writer graph. This lends
+    /// only a class, never a field read or a result execution disposition.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_declared_field_sum_v1(
+        &self, class: &str, name: &str,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        let product = &self.original_formal_seeds;
+        if !product.corroborate_original_v1(&self.source_incoming) { return None; }
+        let mut rows = product.source_sums.as_ref()?.fields.values().filter(|(source, _)|
+            source.writers().next().is_some()
+                && source.writers().all(|writer| writer.owner_box() == Some(class) && writer.field() == name));
+        let (_, sum) = rows.next()?;
+        rows.next().is_none().then(|| Rc::clone(sum))
+    }
     /// Select an original computed argument purpose, never a legacy literal
     /// caller or an executable entry. The whole source SUM stays independent.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_signed_expression_argument_request_v1(

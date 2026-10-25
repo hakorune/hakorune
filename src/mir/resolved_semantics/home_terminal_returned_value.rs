@@ -438,7 +438,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         root = tail;
     }
     match source.nodes()[root].source() {
-        Node::MethodCall
+        Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })
+        | Node::MethodCall
         | Node::Literal(ResolvedLiteralSourceV1::String(_))
         | Node::Reference(_) => {}
         Node::Binary(binary)
@@ -447,6 +448,26 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         _ => return Ok(None),
     }
     let purpose_site = OwnedExprSiteV1::new(input.owner(), value.clone());
+    let mut field_seeds = std::collections::BTreeMap::new();
+    if matches!(source.nodes()[root].source(), Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
+        if let Some(request) = super::super::field_read::expression_field_read_request(input, &source, source.nodes()[root].site(), locals) {
+            // The retained Text-return source covers this declaration's own
+            // receiver. A foreign formal keeps its existing field/result lane;
+            // probing it here must not demand scalar ingress ahead of that lane.
+            if input.function().binding(request.receiver).is_none_or(|binding|
+                binding.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver) {
+                return Ok(None);
+            }
+            if let Some(classes) = fields(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression {
+                probe: true, plan: std::rc::Rc::clone(&source),
+            })? {
+                if matches!(classes.as_slice(), [super::super::LocalFieldReadResultV1::Text(_)]) {
+                    field_seeds.insert(root, crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                        crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String));
+                }
+            }
+        }
+    }
     let Some((evaluation, requests)) = prepare_terminal_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
@@ -457,15 +478,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         calls,
         actuals,
         None,
+        &field_seeds,
         &mut |site| {
             let request = super::super::field_read::expression_field_read_request(
                 input, &source, site, locals,
             )?;
-            matches!(
-                request.received,
-                Some(super::super::ReceivedFieldReadRequestV1::StoredMapGet { .. })
-            )
-            .then_some(request)
+            (matches!(request.received, Some(super::super::ReceivedFieldReadRequestV1::StoredMapGet { .. }))
+                || request.received.is_none() && request.path.is_none())
+                .then_some(request)
         },
     )?
     else {
@@ -484,6 +504,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         if fields(
             &requests,
             super::super::LocalFieldReadDemandV1::SourceExpression {
+                probe: false,
                 plan: std::rc::Rc::clone(&source),
             },
         )?
@@ -540,6 +561,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_terminal_text
         calls,
         actuals,
         field_text_source,
+        &std::collections::BTreeMap::new(),
         &mut |_| None,
     )?
     else {
@@ -568,6 +590,7 @@ fn prepare_terminal_evaluation_v1<E>(
     field_text_source: Option<
         &crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1,
     >,
+    field_seeds: &std::collections::BTreeMap<usize, crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LocalFieldReadRequestV1>,
 ) -> Result<
     Option<(
@@ -578,7 +601,7 @@ fn prepare_terminal_evaluation_v1<E>(
 > {
     use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
     let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(&source,
-        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, &std::collections::BTreeMap::new(), homes,
+        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, field_seeds, homes,
         &mut |site| super::super::local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
             &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return Ok(None) };
     let mut initial = Vec::new();
@@ -821,6 +844,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         calls,
         actuals,
         None,
+        &std::collections::BTreeMap::new(),
         &mut |site| {
             super::super::field_read::expression_field_read_request(input, &source, site, locals)
         },
@@ -840,7 +864,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         }
         if fields(
             &requests,
-            super::super::LocalFieldReadDemandV1::SourceExpression { plan: source },
+            super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
         )?
         .is_none()
         {

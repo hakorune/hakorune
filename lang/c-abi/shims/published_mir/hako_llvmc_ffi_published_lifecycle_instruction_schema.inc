@@ -2,7 +2,7 @@
 /* One physical String classification/operand table, shared by all consumers. */
 static int hako_physical_string_result(const char* kind) {
   if (!kind) return 0;
-  if (!strcmp(kind, "string_add") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_materialize")) return 1;
+  if (!strcmp(kind, "string_add") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_materialize") || !strcmp(kind, "string_field_materialize")) return 1;
   if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_length") || !strcmp(kind, "string_index_of")) return 2;
   if (!strcmp(kind, "string_compare")) return 3; /* Bool, never I64 */
   return 0;
@@ -17,7 +17,7 @@ static int hako_physical_array_text_append(yyjson_val* op) {
 static size_t hako_physical_string_operand_count(yyjson_val* op) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (hako_physical_array_text_append(op) || hako_physical_map_field_text_access(op)) return 1;
-  if (!hako_physical_string_kind(kind) || !strcmp(kind, "string_end") || !strcmp(kind, "string_end_if_owned")) return 0;
+  if (!hako_physical_string_kind(kind) || !strcmp(kind, "string_end") || !strcmp(kind, "string_end_if_owned") || !strcmp(kind, "string_field_materialize")) return 0;
   if (!strcmp(kind, "string_substring")) return 3;
   return !strcmp(kind, "string_add") || !strcmp(kind, "string_compare") || !strcmp(kind, "string_index_of") ? 2 : 1;
 }
@@ -124,6 +124,14 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   const char* kind = operation ? yyjson_get_str(yyjson_obj_get(operation, "kind")) : NULL;
   uint32_t object_id, ordinal, value;
   if (!kind) return 0;
+  if (!strcmp(kind, "string_field_materialize"))
+    return !native && hako_physical_exact_keys(operation, field_access_keys, 5) &&
+        hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) &&
+        hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) &&
+        hako_physical_u32(yyjson_obj_get(operation, "base"), &value) &&
+        hako_physical_value_available_at(function, value, block, index) &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
+        hako_physical_field_storage(layouts, object_id, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC;
   if (!strcmp(kind, "dynamic_invoke")) {
     static const char* const keys[] = {"kind", "selector", "receiver", "arguments", "site"};
     yyjson_val* arguments = yyjson_obj_get(operation, "arguments");

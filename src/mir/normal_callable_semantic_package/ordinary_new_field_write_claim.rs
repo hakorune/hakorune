@@ -35,7 +35,7 @@ use crate::parser::{ConstructorSourceIdV1, ParserOrdinaryBoxSourceCoverageV1};
 
 #[path = "ordinary_new_field_value_source.rs"]
 mod value_source;
-pub(crate) use value_source::{DeclaredFieldValueSourceV1, FieldValueSourceIssueV1};
+pub(crate) use value_source::{DeclaredFieldValueSourceV1, FieldValueSourceIssueV1, TextFieldValueSourceV1};
 
 type FieldValueSourcesV1 = BTreeMap<
     (Box<str>, Box<str>), Result<Rc<DeclaredFieldValueSourceV1>, FieldValueSourceIssueV1>,

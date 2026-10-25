@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Physical C Map consumer proof. Synthetic CFG, not source cutover evidence."""
+"""Physical C Map/Text-field consumer proof. Synthetic CFG, not source cutover evidence."""
 import copy
 import json
 import os
@@ -304,8 +304,8 @@ def borrowed_array_program():
     return data
 
 
-def field_keys_program():
-    """Physical Map field snapshot and plain Text Array lifetime, not source admission."""
+def field_keys_program(text_snapshot=False):
+    """Dynamic field snapshots: independent Map keys Array or owned Text."""
     graph = Graph()
     parent = graph.invoke(dict(kind="new_box", object_id=0), [], True)
     release = dict(kind="home_release", object_id=0, value=parent)
@@ -313,21 +313,31 @@ def field_keys_program():
                  [dict(kind="reclaim_unpublished", object_id=0, value=parent)])
     field_end = dict(kind="field_residence_release", object_id=0, field_ordinal=0,
                      base=parent, transaction="take_dynamic")
-    snapshot = graph.invoke(dict(kind="map_field_keys", object_id=0, field_ordinal=0, base=parent),
-                            [field_end, release], True)
-    count = graph.value
-    graph.row(graph.current, dict(op="array_length", array=snapshot, dst=count))
-    graph.row(graph.current, dict(op="array_residence_release", value=snapshot))
-    graph.invoke(field_end, [release])
-    graph.invoke(release, [])
+    snapshot = graph.invoke(dict(kind="string_field_materialize" if text_snapshot else "map_field_keys",
+                                 object_id=0, field_ordinal=0, base=parent), [field_end, release], True)
+    count = 1 if text_snapshot else graph.value
+    if text_snapshot:
+        # End the entire original field/object before using the independent copy.
+        text_end = dict(kind="string_end", value=snapshot)
+        graph.invoke(field_end, [text_end, release])
+        graph.invoke(release, [text_end])
+        graph.invoke(dict(kind="string_print", value=dict(kind="owned_string", value=snapshot)), [text_end])
+        graph.invoke(text_end, [])
+    else:
+        graph.row(graph.current, dict(op="array_length", array=snapshot, dst=count))
+        graph.row(graph.current, dict(op="array_residence_release", value=snapshot))
+        graph.invoke(field_end, [release])
+        graph.invoke(release, [])
     graph.term(graph.current, dict(op="return", value=count))
     birth = Graph()
     birth.current["instructions"][0]["instruction"]["mode"] = "borrowed"
     birth.current["instructions"][1]["instruction"] = dict(op="const_unit", dst=1)
-    map_value = birth.invoke(dict(kind="map_new"), [], True)
+    map_value = birth.invoke(dict(kind="string_materialize", value=dict(kind="static_text", utf8="雪🐱"))
+                            if text_snapshot else dict(kind="map_new"), [], True)
     birth.invoke(dict(kind="field_set", object_id=0, field_ordinal=0, base=10, value=map_value,
-                      transaction="dynamic_map_initialize", exact_numeric_runtime_check=dict(kind="none")),
-                 [dict(kind="map_end", map=map_value)])
+                      transaction="dynamic_text_initialize" if text_snapshot else "dynamic_map_initialize",
+                      exact_numeric_runtime_check=dict(kind="none")),
+                 [dict(kind="string_end", value=map_value) if text_snapshot else dict(kind="map_end", map=map_value)])
     birth.term(birth.current, dict(op="return", value=1))
     data = dict(schema="hako.published-lifecycle-physical-program.v2", storage_profile=1,
                 fault_abi_version=1, process_result_site=graph.site,
@@ -427,6 +437,41 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
     assert run([exe], env=env).returncode == 30
     print("duplicate MapLocal roots -> InstallBorrowedArray -> caller-owned cleanup -> EXE30")
+
+    text_snapshot = field_keys_program(True)
+    compile_input(text_snapshot)
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    result = run([exe], env=env)
+    assert (result.returncode, result.stdout) == (30, "雪🐱\n"), (result.returncode, result.stdout, result.stderr)
+    wrong_tag = copy.deepcopy(text_snapshot)
+    for block in wrong_tag["functions"][1]["blocks"]:
+        operation = block["terminator"]["instruction"].get("operation", {})
+        if operation.get("kind") == "string_materialize":
+            operation.pop("value")
+            operation["kind"] = "map_new"
+        elif operation.get("transaction") == "dynamic_text_initialize":
+            operation["transaction"] = "dynamic_map_initialize"
+        elif operation.get("kind") == "string_end":
+            operation["kind"], operation["map"] = "map_end", operation.pop("value")
+    compile_input(wrong_tag)
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    assert run([exe], env=env).returncode == 70
+    for mutation in ("wrong-storage", "wrong-base", "missing-text-end"):
+        invalid = copy.deepcopy(text_snapshot)
+        op = next(b["terminator"]["instruction"]["operation"] for b in invalid["functions"][0]["blocks"]
+                  if b["terminator"]["instruction"].get("operation", {}).get("kind") == "string_field_materialize")
+        if mutation == "wrong-storage":
+            invalid["layouts"][0]["fields"][0]["storage_kind"] = 1
+        elif mutation == "wrong-base":
+            op["base"] = 1
+        else:
+            end = next(b for b in invalid["functions"][0]["blocks"] if b["terminator"]["instruction"].get("operation", {}).get("kind") == "string_end"
+                       and b["terminator"]["instruction"]["normal"] != b["terminator"]["instruction"]["fault"])
+            target = end["terminator"]["instruction"]["normal"]
+            end["terminator"]["instruction"] = dict(op="jump", target=target)
+            end["edges"] = [dict(target=target, args=None)]
+        compile_input(invalid, False)
+    print("Text field copied then field/parent ended -> independent UTF-8 EXE30; source/storage/lifetime mutations rejected")
 
     snapshot = field_keys_program()
     compile_input(snapshot)

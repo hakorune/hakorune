@@ -20,6 +20,9 @@ use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
 /// The sealed result class of a proven local-initializer field read.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LocalFieldReadResultV1 {
+    /// Same closed all-writer class; a checked snapshot must still acquire
+    /// an independent Text result on Normal before any owned use.
+    Text(std::rc::Rc<crate::mir::normal_callable_semantic_package::TextFieldValueSourceV1>),
     /// A numeric-integer declared type — the binding is a trivial scalar.
     Scalar,
     /// Original selected field-call container read, without owned residence.
@@ -130,6 +133,7 @@ pub(crate) enum LocalFieldReadDemandV1 {
         scalar_only: bool,
     },
     SourceExpression {
+        probe: bool,
         plan: std::rc::Rc<
             crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
         >,
@@ -198,6 +202,7 @@ pub(super) fn observe_local_field_read<E>(
     let demand = plan
         .as_ref()
         .map(|plan| LocalFieldReadDemandV1::SourceExpression {
+            probe: false,
             plan: std::rc::Rc::clone(plan.source()),
         })
         .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: false });
@@ -422,7 +427,7 @@ pub(super) fn install_local_field_read_result(
     // join no Home set.
     let ObservedLocalFieldReadV1 { request, result } = observed;
     match result {
-        LocalFieldReadResultV1::ArrayField(_) | LocalFieldReadResultV1::BorrowedObject(_) => {
+        LocalFieldReadResultV1::ArrayField(_) | LocalFieldReadResultV1::BorrowedObject(_) | LocalFieldReadResultV1::Text(_) => {
             // Statement-call provenance never installs a local Home.
             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         }

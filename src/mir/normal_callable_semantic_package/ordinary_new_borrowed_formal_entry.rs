@@ -623,7 +623,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let catalog = self.original_parameter_contracts.as_deref()
             .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
-        if let Some(original) = Self::original_instance_input_call_v1(source, catalog, row.call_site())? {
+        let original = Self::original_instance_input_call_v1(source, catalog, row.call_site())?;
+        if let Some(original) = &original {
             if original.callee != row.callee_owner() || original.source.require_instance()? != row.source_target()
                 || row.argument_sites().len() != row.target().arity() as usize {
                 return Err(freeze("borrowed-call/disposition-identity"));
@@ -631,6 +632,16 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         if self.uses_object_packet_protocol_v1(row)? {
             return row.checked_object_packet_actuals_v1(self).map(Some);
+        }
+        if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) {
+            // Text owns its result protocol, while the SAME original Instance
+            // input cohort supplies these actuals (including a proved empty tuple).
+            self.corroborate_local_instance_text_call_v1(row)?;
+            let call = original.as_ref().ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
+            let actuals = self.borrowed_formal_actuals.get(row.call_site())
+                .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?.as_ref().map_err(Clone::clone)?;
+            actuals.ordered_arguments_for_v1(call)?;
+            return Ok(Some(&actuals.opaque_actuals));
         }
         let actuals = if let Some(actuals) = self.completed_finite_entry_call_actuals_v1(row)? {
             actuals
@@ -691,10 +702,6 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         if row.source_target().mixed_local_source().is_some() {
             self.corroborate_mixed_call_using_v1(row, context)?;
-            return Ok(Some(actuals));
-        }
-        if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) {
-            self.corroborate_local_instance_text_call_v1(row)?;
             return Ok(Some(actuals));
         }
         let proof = self

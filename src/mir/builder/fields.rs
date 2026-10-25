@@ -226,7 +226,8 @@ impl super::MirBuilder {
             PreparedExactFieldReadClaimV1::Terminal => crate::mir::MirType::Integer,
             PreparedExactFieldReadClaimV1::CheckedLocal { .. } => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
             PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
-                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_) => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
+                | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_) => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)

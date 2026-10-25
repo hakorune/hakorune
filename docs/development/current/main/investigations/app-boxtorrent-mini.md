@@ -6,9 +6,9 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 
 ## 現在地
 - 明示binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`。現在のV4 FFIを使用。
-- 現CLIのcanonical停止はowner70 Body4、`BoxTorrentChunker.ingest`の`manifest.seal()`を捨てるstatement call（`borrowed-result/source-not-i64`）。callee `BoxTorrentManifest.seal`は`me.root_id`を返すText候補でUnitではない。EXE未生成。
+- 現CLIのcanonical停止はowner61 `BoxTorrentManifest.seal` Body1 Value、`borrowed-result/source-not-i64`。先行Body0の`me.root_id = ContentHash.digest(me.chunkListText())`でText置換のprefixが未接続。直接Text field返却の最小sourceは正規EXE/runまで通るが、seal全体とcallerのdiscardは未完。EXE未生成。
 - 訂正: keys().length()はowner55でsource I64が閉じていた。旧owner56をchunkCountへ対応付けた記録は誤りで、実際はallocatorBlocksの元field-return plan欠落だった。同じ元計画へ正規化しowner56/57のsource I64照合を確認。keysの実評価・Array cleanupは引き続き未接続。
-- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、467.002秒、実EXE8本＋空marker1本、timeout/SKIPなし。boxtorrentとJSONがsourceで拒否し、以前の実EXEは全て再PASS。
+- 今回の固定suiteは `run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420` で9/11、473.748秒、実EXE8本＋空marker1本、timeout/SKIPなし。以前の実EXEは全て再PASS。boxtorrentは上記owner61へ移り、JSONはowner22のsource停止を保持。
 
 ## 接続済み
 - 唯一のattributed Plain Birth providerと同じwriter inventory/非weak未注釈fieldを照合。providerのclassと保存形式を分離し、DynamicResidenceのreceiverはchecked ObjectFieldBorrowで読む。typed field、異class/multiple/hidden writerの拒否は保持。
@@ -28,15 +28,19 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 - 引数ゼロの結果依存は借用Uses定義を作らず、既存parameterless declarationと同じOriginalReturn loan、owner/batch/key/ゼロ引数、callee全体のsource projectionを照合する。mutable facts Rcは共有せず、callee結果groundingと入力/receiver/物理検証は別途必須。
 
 ## 次の一手
-1. まずsealの結果を既存Text結果/discard ownerへ接続する。同じDeclaredFieldValueSourceの全writer RHS（Birthの空Textとdigest結果の置換）を既存SUM graphで閉じ、field readの借用からMaterialize/所有返却まで保持する。statementのdiscard用途で結果を選択し、Normal取得後End／Fault時の既存Home unwindを検証する。名前やBirthだけでTextを推測せず、scalar Errの抑制やUnit化はしない。
+1. sealの元assignmentを、同じentry receiver/DeclaredField Rc・全writer Text SUM・既存CheckedExpressionEvaluationへ接続する。RHSのcall/途中Fault cleanupを保持してchecked FieldSetのText Replaceへ渡す。transactionのprecommit Faultは候補をEnd、postcommit Faultは候補がfield所有なのでEndしない。既存outcome ownerで区別し、単一Fault cleanupへのcandidate End追加はしない。完了後、同じ元Return/結果/discard ownerでNormal取得後Endを検証する。
 2. 元inner keys/outer ArrayLen・同じMap fieldの閉じたCore source/結果式は接続済み。実アプリの元Returnを式評価へ渡し、同じinventoryでTextArray値とString/DynamicCarrierを区別する。keysを一度だけ評価し、Array CountとNormal/Fault cleanupを独立した最終検証までつなぐ。
 3. native checked Map/fieldのkeys snapshotは実装・runtime検証済み。FieldKeys物理操作・plain Text ArrayのNormal取得/length/End検証とC emissionも接続済み。共通cleanup列は現在Invoke End前提なので、同じownerで非FaultのArrayResidenceReleaseも表し、String Endへの誤変換を禁止してsource packetを発行する。legacy keys_hやMap.lenへの置換、object-child専用ObjectIdの捏造はしない。
 4. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
+- 最終CLI `cargo quick-build-fast -j 4`46.28秒PASS、FFI C build PASS。単独sourceはroute traceでcanonical LLVM C API/no replayまで確認。固定suiteも上記9/11。テスト/guard関数・fixtureファイル・runtime ABI追加なし。一時source/EXE・途中診断を廃棄し、退避stashを本commitへ回収。baseline照合で現root-test binaryだけは変更前HEADになっているため、次のRust検証はCargoで再構築する（CLIは本変更の検証済みbinary）。
+- Text field読出し/返却: 最小source `Holder.read(){return me.text}`→`print(holder.read())`は正規EXE/run/UTF-8 stdout/exit0 PASS。未使用メソッドが同じfieldへIntegerを書くだけでも拒否する。元fieldと親をEndした後の独立snapshot利用、誤tagの読出しFault、storage/base/End変異の拒否は既存C physical familyでPASS。新しい独立copy/所有境界を既存I64/Map snapshot証拠だけでは守れないため、既存factoryを引数分岐で最小拡張（test関数/ファイル/checker追加なし）。
+- source classからText walk/inputを選び、callee依存順序とreadiness/verified側で同じCompletionを貸す。最終actualsは同じ元入力cohort・signature・Completionと実行済みsnapshotを再照合し、空sliceを生成しない。workerのsource/入力/最終検証/C flowレビューで追加権限・循環なしを確認。
+- focusedは元field SUM/Core/pending/constructor・field cached drift・String lifetimeの18件PASS。probeがforeign formalの旧scalar laneを先回りした退行1件を修正し、元7件の再PASSを確認。別のfield-batch duplicateケースは`"bad=" + c.echo(9)`の期待falseに対しtrueで失敗し、変更前HEADをcleanに戻した実buildでも同じassertを再現した既存赤として保持する。期待値変更/削除なし。
 - WIP整理: 全writer RHSを同じ元source SUM graphで合流させ、再solve時も同じfield/sourceの事実だけ再利用する。これは型情報のみで、read/Home/実行許可は発行しない。Birthだけでは置換後のText型と他sourceの拒否を守れないため、既存ケースだけ最小拡張（test関数・ファイル追加なし）。
 - 今回の切り出し後: `cargo quick-test-fast nested_result_fields_keep_object_identity_separate_from_numeric_writers -j 4` PASS（build41.86秒）、同binaryで既存Core2/pending7/constructor6 PASS、合計16 PASS。`cargo quick-build-fast -j 4`38.60秒PASS。明示CLI/runtimeの既存boxtorrent smokeは同じowner70 Body4で拒否、EXE未達。pointer guard・差分チェックPASS。固定suiteは再実行せず、上記直前測定を保持。
-- 未完成のText field snapshot/Return接続20ファイルは、名前付きGit stash `WIP Text field snapshot Return connection; incomplete; resume after all-writer SUM` に保全。未buildの途中実装で、Rust/C transport・独立最終検証・所有取得/cleanupが未接続。自動適用せず、この単位を確認して再開する。
+- 退避していたText field snapshot/Return接続は本変更へ回収。元receiver直下の全Return＋全writer Text SUMのみでscalar probeを非選択にし、同じ元field sourceをstage/final readへ保持。readは既存Dynamic get(kind4)で借り、checked materializeのNormalで独立Textを取得してReturnへ渡す。借りたfield自体をEndせず、新runtime ABI・並列台帳・adapterは追加しない。
 - Birthの文字列literal RHSを元construction storeへ保持し、既存DynamicTextInitialize/Materialize/FieldSet ownerへ接続。literalはStaticTextのbytesを使い、ParameterのSUM・ordinal・借用ABIを捏造しない。Materialize Faultは先行fieldのみ、store Faultは取得済みTextをEndしてから先行field、store Normalはfield residenceへ移転。独立した最終照合を保持。
 - 最終CLI `cargo quick-build-fast -j 4`27.46秒PASS。空文字/UTF-8文字列を初期化する一時programは正規EXE/run/exact stdout/exit0 PASS（確認後source/EXEを廃棄）。既存constructor/最終binding/partial Fault family13件PASS（test build88秒）。literalに続くstoreのFault順序は既存ケースだけ拡張し、test関数/ファイル/checker/runtime ABIの追加なし。元のParameter入力証拠だけではliteralの新規取得と先行residenceを守れないための最小追加。
 - 広いconstructor filterの別1件は、未注釈integer fieldの期待FieldContractUnsupportedに対し既存DynamicI64Initializeが受理されるassertで失敗。exact-HEAD比較未実施、原因未分類の赤として保持し、期待値変更や削除はしない。boxtorrentは上記owner70、JSONはowner22に停止し、field SUM/read/write/Return/discard接続は未完。

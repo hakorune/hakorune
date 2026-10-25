@@ -66,6 +66,9 @@ pub enum StringInvokeOperation {
     Compare { op: crate::mir::CompareOp, left: StringInvokeOperand, right: StringInvokeOperand },
     /// Borrow Text and publish a fresh independent pair without consuming input.
     Materialize { value: StringInvokeOperand },
+    /// Check the exact Dynamic field and copy its live Text pair. The field
+    /// retains its residence; only Normal acquires the independent result.
+    FieldMaterialize { field: hakorune_mir_defs::CanonicalFieldRefV1, base: ValueId },
     /// Fixed CodePoint operations; the source issuer retains the exact Core law.
     Length { value: StringInvokeOperand },
     Substring { value: StringInvokeOperand, start: StringInvokeOperand, end: StringInvokeOperand },
@@ -81,7 +84,7 @@ pub enum StringInvokeOperation {
 impl StringInvokeOperation {
     pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
         match self {
-            Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } => Some(InvokeNormalResultKind::OwnedString),
+            Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } | Self::FieldMaterialize { .. } => Some(InvokeNormalResultKind::OwnedString),
             Self::Length { .. } | Self::IndexOf { .. } => Some(InvokeNormalResultKind::I64),
             Self::Compare { .. } => Some(InvokeNormalResultKind::Bool),
             Self::Print { .. } | Self::End { .. } | Self::EndIfOwned { .. } => None,
@@ -89,7 +92,7 @@ impl StringInvokeOperation {
     }
     pub fn effects(&self) -> EffectMask {
         match self {
-            Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
+            Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } | Self::FieldMaterialize { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
             Self::Length { .. } | Self::IndexOf { .. } | Self::Compare { .. } => EffectMask::READ.add(Effect::Control),
             // Runtime output preparation may allocate; End consumes residence.
             Self::Print { .. } => EffectMask::IO.add(Effect::Alloc).add(Effect::Control),
@@ -101,12 +104,13 @@ impl StringInvokeOperation {
             Self::Add { left, right } | Self::Compare { left, right, .. } => vec![left, right],
             Self::IndexOf { value, needle } => vec![value, needle],
             Self::Materialize { value } | Self::Length { value } | Self::Substring { value, .. } | Self::Print { value } => vec![value],
-            Self::End { .. } | Self::EndIfOwned { .. } => vec![],
+            Self::End { .. } | Self::EndIfOwned { .. } | Self::FieldMaterialize { .. } => vec![],
         }
     }
     pub fn used_values(&self) -> Vec<ValueId> {
         match self {
             Self::End { value } | Self::EndIfOwned { value } => vec![*value],
+            Self::FieldMaterialize { base, .. } => vec![*base],
             _ => self.operands().into_iter().filter_map(StringInvokeOperand::value)
                 .chain(match self { Self::Substring { start, end, .. } => {
                     start.value().into_iter().chain(end.value()).collect()
@@ -127,6 +131,7 @@ impl StringInvokeOperation {
             }
             Self::Materialize { value } | Self::Length { value } | Self::Print { value } => value.rewrite_value(rewrite),
             Self::End { value } | Self::EndIfOwned { value } => rewrite(value),
+            Self::FieldMaterialize { base, .. } => rewrite(base),
         }
     }
     pub fn owns_normal_result(&self) -> bool {
@@ -145,7 +150,7 @@ impl StringInvokeOperation {
                 && matches!(end, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_)),
             Self::IndexOf { value, needle } => value.is_text() && needle.is_text(),
             Self::Print { value } => !matches!(value, StringInvokeOperand::Dynamic(_) | StringInvokeOperand::DynamicCarrier(_)),
-            Self::End { .. } | Self::EndIfOwned { .. } => true,
+            Self::End { .. } | Self::EndIfOwned { .. } | Self::FieldMaterialize { .. } => true,
         }
     }
 }

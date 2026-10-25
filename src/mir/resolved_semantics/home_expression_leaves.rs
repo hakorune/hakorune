@@ -327,6 +327,10 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 .is_some_and(|path| path.is_intermediate())
             {
                 Leaf::Identity
+            } else if leaves[index] == Leaf::Value(Class::String) {
+                // This seed comes from the same field batch's closed Text
+                // source; the retained descriptor still owes physical proof.
+                Leaf::Value(Class::String)
             } else if matches!(profile, ExpressionLeafProfileV1::BoolCondition)
                 && request.is_nullable_object_comparison_v1(source) {
                 Leaf::Value(Class::Opaque)

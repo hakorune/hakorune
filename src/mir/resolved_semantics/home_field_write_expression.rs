@@ -381,7 +381,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
     }
     if !field_batch(
         &requests,
-        super::super::LocalFieldReadDemandV1::SourceExpression { plan: source },
+        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: source },
     )? {
         return Ok(None);
     }

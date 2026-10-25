@@ -12,6 +12,15 @@ use super::super::borrowed_formal_source::{
     ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1,
 };
 
+impl PreparedBorrowedFormalIngressV1 {
+    /// Borrow the same original Instance targets for dependency ordering only.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_instance_source_targets_v1(
+        &self,
+    ) -> impl Iterator<Item = &LexicalInstanceCallSourceTargetV1> {
+        self.source_incoming.source_rows_v1().filter_map(|row| row.source.instance())
+    }
+}
+
 enum ArrayProducerReadinessV1 {
     Pending,
     Refused(String),

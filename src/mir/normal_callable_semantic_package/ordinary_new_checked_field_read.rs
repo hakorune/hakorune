@@ -155,7 +155,11 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(received) = row.source.received.as_ref() else {
             // checked_field_pair replays the same complete numeric/source loan
             // and exact lexical receiver. A direct Self read has no Call result.
-            if row.numeric_source.is_none() && !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)) { return Err(fault("received/source-missing")); }
+            if row.numeric_source.is_none() && !matches!(row.source.result(),
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
+                    | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_)) {
+                return Err(fault("received/source-missing"));
+            }
             return read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?
                 .original_copy_dependencies_v1().map(<[_]>::to_vec);
         };
@@ -239,10 +243,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let published = expected.clone();
         for (block, body) in &function.blocks {
             for row in body.all_instructions() {
-                let checked = matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })
+                let checked = matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })
                     || matches!(row, MirInstruction::InvokeNormalResult { invoke_block, .. }
                         if function.blocks.get(invoke_block).and_then(|body| body.terminator.as_ref()).is_some_and(|row|
-                            matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })));
+                            matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })));
                 if !checked { continue; }
                 let index = expected.iter().position(|binding| binding == &(*block, row.clone()))
                     .ok_or_else(|| fault("received/unowned-or-drifted-read"))?;

@@ -333,7 +333,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     }
     if !field_batch(
         &fields,
-        super::super::LocalFieldReadDemandV1::SourceExpression { plan: Rc::clone(&source) },
+        super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: Rc::clone(&source) },
     )? {
         reject_rebind!("field-batch");
     }
@@ -483,7 +483,7 @@ mod tests {
                     },
                     &mut |requests, demand| {
                         assert!(requests.is_empty());
-                        assert!(matches!(demand, super::super::super::LocalFieldReadDemandV1::SourceExpression { plan }
+                        assert!(matches!(demand, super::super::super::LocalFieldReadDemandV1::SourceExpression { plan, .. }
                             if Rc::ptr_eq(&plan, &source)));
                         batches += 1; Ok(batch_ok)
                     }).unwrap();

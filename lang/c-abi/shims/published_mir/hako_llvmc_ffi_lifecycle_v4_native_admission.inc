@@ -103,7 +103,7 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
           !lv4_string_end(state, count, origin, faulted)) return 0;
       memcpy(normal, state, count * sizeof(*state));
     } else if (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
-      if (state[bi]) return 0;
+      if (state[bi] || lv4_is(op, "kind", "string_field_materialize")) return 0;
       for (size_t role = 0; role < hako_physical_string_operand_count(op); role++)
         if (!lv4_string_native_operand(fn,
             hako_physical_string_operand_at(op, role), state, budget)) return 0;
