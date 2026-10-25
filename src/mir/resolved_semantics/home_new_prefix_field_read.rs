@@ -31,6 +31,8 @@ pub(crate) enum LocalFieldReadResultV1 {
     Alias(Box<str>),
     /// Same source-issued field residence, borrowed without acquiring a Home.
     BorrowedArray(BorrowedArrayFieldSourceV1),
+    /// Complete original Dynamic child cohort; observation acquires no Home.
+    BorrowedObject(std::rc::Rc<crate::mir::normal_callable_semantic_package::DynamicStoredChildFieldV1>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -258,6 +260,21 @@ pub(crate) struct LocalFieldReadRequestV1 {
 }
 
 impl LocalFieldReadRequestV1 {
+    /// A source obligation only. The field batch must independently prove its
+    /// complete constructor child relation before admitting this observation.
+    pub(crate) fn is_nullable_object_comparison_v1(
+        &self, plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    ) -> bool {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        if self.path.is_some() || self.received.is_some() || self.owned_ready.is_some() { return false; }
+        let Some(node) = self.node_in_plan(plan).and_then(|index| plan.nodes().get(index)) else { return false; };
+        plan.nodes().iter().filter_map(|row| row.binary()).any(|binary|
+            binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal
+                && [(binary.lhs(), binary.rhs()), (binary.rhs(), binary.lhs())].into_iter().any(|(read, null)|
+                    read == node.site() && plan.nodes().iter().any(|row| row.site() == null
+                        && matches!(row.source(), Node::Literal(ResolvedLiteralSourceV1::Null)))))
+    }
+
     pub(crate) fn node_in_plan(
         &self,
         plan: &std::rc::Rc<
@@ -405,7 +422,7 @@ pub(super) fn install_local_field_read_result(
     // join no Home set.
     let ObservedLocalFieldReadV1 { request, result } = observed;
     match result {
-        LocalFieldReadResultV1::ArrayField(_) => {
+        LocalFieldReadResultV1::ArrayField(_) | LocalFieldReadResultV1::BorrowedObject(_) => {
             // Statement-call provenance never installs a local Home.
             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         }

@@ -281,7 +281,8 @@ fn selects(
         && [(binary.lhs(), binary.rhs()), (binary.rhs(), binary.lhs())]
             .into_iter()
             .any(|(read, null)| {
-                locals.stored_get_reference_v1(read).is_some()
+                (locals.stored_get_reference_v1(read).is_some()
+                    || super::field_read::field_read_request(input, read, locals).is_some())
                     && source.nodes().iter().any(|node| {
                         node.site() == null && matches!(node.source(), Node::Literal(Literal::Null))
                     })
@@ -638,9 +639,8 @@ fn install_source<E>(
         &mut |requests, demand| {
             Ok(fields(requests, demand)?.is_some_and(|results| {
                 results.len() == requests.len()
-                    && results
-                        .iter()
-                        .all(|result| *result == LocalFieldReadResultV1::Scalar)
+                    && results.iter().all(|result| matches!(result,
+                        LocalFieldReadResultV1::Scalar | LocalFieldReadResultV1::BorrowedObject(_)))
             }))
         },
     )?;

@@ -289,7 +289,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%nul%u = icmp %s i32 %%k%u, 0\n"
               "  %%v%u = zext i1 %%nul%u to i64\n", dst,
               yyjson_get_str(yyjson_obj_get(ins, "predicate")), carrier->id, dst, dst);
-        else if (carrier->kind == LV4_HANDLE || carrier->kind == LV4_BORROWED_OBJECT || carrier->kind == LV4_MIXED_OBJECT)
+        else if (carrier->kind == LV4_HANDLE || carrier->kind == LV4_BORROWED_OBJECT || carrier->kind == LV4_MIXED_OBJECT ||
+            lv4_object_field_borrow_operation(&in->index[fi], carrier))
           fprintf(f, "  %%nul%u = icmp %s i64 %%v%u, 0\n"
               "  %%v%u = zext i1 %%nul%u to i64\n", dst,
               yyjson_get_str(yyjson_obj_get(ins, "predicate")), carrier->id, dst, dst);

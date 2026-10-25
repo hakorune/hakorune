@@ -174,7 +174,7 @@ pub(crate) use expression_plan::{
     qualify_bool_condition_v1, qualify_condition_expression_v1, qualify_initializer_expression_v1,
     qualify_print_expression_v1, BindingRebindDestinationV1, CheckedArgumentExpressionFrameV1,
     CheckedBindingRebindFrameV1, CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1,
-    CheckedExpressionReferenceV1, CheckedFieldWriteFrameV1, CheckedInitializerExpressionFrameV1,
+    CheckedExpressionReferenceV1, CheckedExpressionOperationLoanV1, CheckedFieldWriteFrameV1, CheckedInitializerExpressionFrameV1,
     CheckedPrintExpressionFrameV1, CheckedScalarReferenceV1, ExpressionCallSourceV1,
     ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, FieldWritePlanV1,
     HomeExpressionPlanV1, QualifiedFieldWriteRhsV1,

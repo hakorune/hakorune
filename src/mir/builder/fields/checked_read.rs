@@ -27,8 +27,17 @@ impl crate::mir::MirBuilder {
             return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into());
         }
         let block = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
+        use crate::mir::instruction::InvokeOperation;
+        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
+        let (operation, ty) = match source.result() {
+            LocalFieldReadResultV1::BorrowedObject(child) =>
+                (InvokeOperation::ObjectFieldBorrow { field: source.field(), base, child: child.child(), nullable: true },
+                    MirType::Box(child.child_class().into())),
+            LocalFieldReadResultV1::Scalar => (InvokeOperation::FieldGet { field: source.field(), base }, MirType::Integer),
+            _ => return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into()),
+        };
         let invoke = MirInstruction::Invoke {
-            operation: crate::mir::instruction::InvokeOperation::FieldGet { field: source.field(), base },
+            operation,
             fault_frame, normal_landing: normal, fault_landing: fault,
         };
         self.emit_instruction(invoke.clone())?;
@@ -36,9 +45,9 @@ impl crate::mir::MirBuilder {
         let dst = destination.unwrap_or_else(|| self.next_value_id());
         let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst };
         self.emit_instruction(projection.clone())?;
-        self.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
+        self.function_state.type_ctx.value_types.insert(dst, ty.clone());
         if let Some(function) = self.function_state.current_function.as_mut() {
-            function.metadata.value_types.insert(dst, MirType::Integer);
+            function.metadata.value_types.insert(dst, ty);
         }
         Ok((dst, [(block, invoke), (normal, projection)]))
     }

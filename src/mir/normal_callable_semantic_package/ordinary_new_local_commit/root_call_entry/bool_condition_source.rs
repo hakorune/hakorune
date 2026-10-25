@@ -349,7 +349,9 @@ impl EmittedBoolConditionProjectionV1 {
                     if !Rc::ptr_eq(loan.source(), source) {
                         return Err(freeze("bool-condition/operator-source"));
                     }
-                    if loan.nullable_null_v1().is_some() {
+                    if loan.nullable_field_null_v1().is_some() {
+                        ledger.validate_nullable_field_operation_v1(loan, context)?;
+                    } else if loan.nullable_null_v1().is_some() {
                         if !loan.matches_nullable_null_reference_v1(self.frame.references()) {
                             return Err(freeze("bool-condition/operator-source"));
                         }

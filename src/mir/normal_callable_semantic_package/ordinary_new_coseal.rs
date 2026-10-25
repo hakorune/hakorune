@@ -100,6 +100,7 @@ pub(super) use field_write_claim::{OrdinaryNewFieldWriteClaimDraftV1, OriginalFi
 use coseal_helpers::no_birth_constructor_disposition;
 #[path = "ordinary_new_coseal_issue.rs"]
 mod coseal_issue;
+pub(in crate::mir) use coseal_issue::source_claims::DynamicStoredChildFieldV1;
 pub(crate) use coseal_issue::RetainedSourceLoopProductV1;
 pub(super) use coseal_issue::issue_ordinary_source_cohort_v1;
 #[path = "ordinary_new_terminal_result.rs"]

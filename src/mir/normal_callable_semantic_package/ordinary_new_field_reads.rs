@@ -89,12 +89,23 @@ impl LocalFieldReadSourceV1 {
         Ok(Rc::new(source))
     }
     pub(in crate::mir) fn requires_checked_field_read_v1(&self) -> bool {
-        (self.declared_type_name.is_none()
+        matches!(self.result, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_))
+            || (self.declared_type_name.is_none()
             && self.result == crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar)
             || self.owned_ready.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn received_root_source_v1(&self) -> Option<&ReceivedFieldReadSourceV1> {
         self.received.as_ref().or_else(|| self.statement_path().and_then(|path| path.received_root_v1()))
+    }
+    pub(in crate::mir) fn matches_checked_operation_v1(&self, operation: &crate::mir::instruction::InvokeOperation, base: ValueId) -> bool {
+        use crate::mir::instruction::InvokeOperation;
+        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
+        match (self.result(), operation) {
+            (LocalFieldReadResultV1::BorrowedObject(source), InvokeOperation::ObjectFieldBorrow { field, base: actual, child, nullable: true }) =>
+                *field == self.field && source.field() == self.field && *actual == base && *child == source.child(),
+            (LocalFieldReadResultV1::Scalar, InvokeOperation::FieldGet { field, base: actual }) => *field == self.field && *actual == base,
+            _ => false,
+        }
     }
     pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
     pub(crate) fn result(&self) -> &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1 {
@@ -461,6 +472,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 received.recheck_issuing_target_v1(&self.callable_result_classes, ingress, original.source_target(), request))?;
         } else if requirement.is_some_and(|required| required.request().received.is_some()) {
             return Err(fault("received/source-missing"));
+        }
+        if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(loan) = row.source.result() {
+            let required = requirement.ok_or_else(|| fault("required-source-loan-missing"))?;
+            let request = required.request();
+            if row.numeric_source.is_some() || row.source.declared_type_name().is_some()
+                || loan.field() != row.source.field() || !loan.recheck_v1(&self.callable_result_classes, &request.field)
+                || !request.is_nullable_object_comparison_v1(required.plan())
+                || row.receiver_site != request.receiver_site || row.receiver != request.receiver || row.home != request.home {
+                return Err(fault("required-source-read-drift"));
+            }
+            return Ok(());
         }
         let source = match (requirement, &row.numeric_source) {
             (None, None) => return Ok(()),

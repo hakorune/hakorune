@@ -306,6 +306,19 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             _ => return Ok(None),
         };
         if binary.operator() == Op::Equal {
+            let nullable_field = [(left, right), (right, left)].into_iter().find_map(|(reference, null)| {
+                let request = fields.iter().find(|request| request.node_in_plan(&source) == Some(reference))?;
+                (classes[reference] == Leaf::Value(Class::Opaque)
+                    && classes[null] == Leaf::Value(Class::Null)
+                    && request.is_nullable_object_comparison_v1(&source)).then(|| (reference, null, request.clone()))
+            });
+            if let Some((reference, null, request)) = nullable_field {
+                let loan = CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index,
+                    proof: CheckedExpressionOperationProofV1::NullableFieldNull { reference, null, request } };
+                if loan.nullable_field_null_v1().is_none() { return Ok(None); }
+                operations.push(Rc::new(loan));
+                continue;
+            }
             let nullable =
                 [(left, right), (right, left)]
                     .into_iter()

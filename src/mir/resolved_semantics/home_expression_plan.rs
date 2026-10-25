@@ -23,6 +23,7 @@ pub(crate) struct CheckedExpressionOperationLoanV1 {
 enum CheckedExpressionOperationProofV1 {
     Dynamic(Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>),
     Scalar(Rc<ExpressionScalarOperationLoanV1>),
+    NullableFieldNull { reference: usize, null: usize, request: LocalFieldReadRequestV1 },
     NullableNull {
         reference: usize,
         null: usize,
@@ -65,8 +66,22 @@ impl CheckedExpressionOperationLoanV1 {
                     .all(|envelope| envelope.normal_result() == result)
                     .then_some(result)
             }
-            CheckedExpressionOperationProofV1::NullableNull { .. } => None,
+            CheckedExpressionOperationProofV1::NullableNull { .. }
+            | CheckedExpressionOperationProofV1::NullableFieldNull { .. } => None,
         }
+    }
+    pub(crate) fn nullable_field_null_v1(&self) -> Option<(usize, usize, &LocalFieldReadRequestV1)> {
+        let CheckedExpressionOperationProofV1::NullableFieldNull { reference, null, request } = &self.proof else { return None; };
+        let binary = self.plan.nodes().get(self.node)?.binary()?;
+        let read = self.plan.nodes().get(*reference)?;
+        let empty = self.plan.nodes().get(*null)?;
+        (request.node_in_plan(&self.plan) == Some(*reference)
+            && request.is_nullable_object_comparison_v1(&self.plan)
+            && binary.operator() == ResolvedBinaryOperatorV1::Equal
+            && matches!(empty.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null))
+            && ((read.site() == binary.lhs() && empty.site() == binary.rhs())
+                || (read.site() == binary.rhs() && empty.site() == binary.lhs())))
+            .then_some((*reference, *null, request))
     }
     pub(crate) fn nullable_null_v1(
         &self,

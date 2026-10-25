@@ -52,7 +52,7 @@ fn dynamic_child_nonnull_guard_v1(
     ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
         return Ok(false);
     };
-    if declared.is_some() || call_field != dynamic.field || !dynamic.paired_fields.contains(&call_field) {
+    if declared.is_some() || call_field != dynamic.field() || !dynamic.paired_field(call_field) {
         return Ok(false);
     }
     let call_scope = function.exact_scope_containing(call.site().node());
@@ -77,7 +77,7 @@ fn dynamic_child_nonnull_guard_v1(
             constructors, parent_source,
             &OwnedExprSiteV1::new(input.owner(), call.site().clone()), guard_name,
         ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { continue; };
-        if guard_declared.is_some() || !dynamic.paired_fields.contains(&guard_field) { continue; }
+        if guard_declared.is_some() || !dynamic.paired_field(guard_field) { continue; }
         let valid = function.with_if_region_for_condition(&condition, |row| {
             let bundle = row.bundle();
             if bundle.else_pair().is_some() { return false; }
@@ -515,13 +515,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
             )? else {
                 return Ok(None);
             };
-            if dynamic.nullable && !dynamic_child_nonnull_guard_v1(
+            if dynamic.nullable() && !dynamic_child_nonnull_guard_v1(
                 batch, constructors, input, call, parent_binding, parent_site,
                 &key.0, &dynamic,
             )? {
                 return Ok(None);
             }
-            dynamic.child_class
+            dynamic.child_class().into()
         }
     };
     Ok(Some(
@@ -598,7 +598,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         let Some(dynamic) = dynamic_stored_child_field_v1(
             batch, constructors, facts, &receiver.parent_class, &receiver.field_name,
         )? else { return Ok(None); };
-        if dynamic.field != field || dynamic.child != child || dynamic.child_class.as_ref() != class.as_ref() {
+        if dynamic.field() != field || dynamic.child() != child || dynamic.child_class() != class.as_ref() {
             return Ok(None);
         }
         Some(dynamic)

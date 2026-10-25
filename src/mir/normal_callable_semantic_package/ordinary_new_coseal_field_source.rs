@@ -368,13 +368,16 @@ where
     }
 }
 
-#[derive(Debug)]
-pub(super) struct DynamicStoredChildFieldV1 {
-    pub(super) field: hakorune_mir_defs::CanonicalFieldRefV1,
-    pub(super) child: hakorune_mir_defs::CanonicalObjectIdV1,
-    pub(super) child_class: Box<str>,
-    pub(super) nullable: bool,
-    pub(super) paired_fields: BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) struct DynamicStoredChildFieldV1 {
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    child: hakorune_mir_defs::CanonicalObjectIdV1,
+    child_class: Box<str>,
+    nullable: bool,
+    paired_fields: BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
+    parent_class: Box<str>,
+    field_name: Box<str>,
+    relations: Vec<std::rc::Rc<super::super::super::result_class_claim::SourceConstructionChildRelationV1>>,
 }
 
 /// Project the exact New-site child relations for one untyped field. The
@@ -411,6 +414,7 @@ pub(super) fn dynamic_stored_child_field_v1(
         BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, bool>>::new();
     let mut child = None;
     let mut nullable = false;
+    let mut relations = Vec::new();
     for relation in facts.construction_child_relation_loans().filter(|relation|
         relation.is_unqualified_dynamic_v1() && relation.field().object() == parent_object)
     {
@@ -438,6 +442,7 @@ pub(super) fn dynamic_stored_child_field_v1(
         }) || child.is_some_and(|prior| prior != relation.child()) {
             return Ok(None);
         }
+        relations.push(std::rc::Rc::clone(relation));
         child = Some(relation.child());
         nullable |= !nonnull;
         if per_outer.entry(relation.outer().clone()).or_default()
@@ -462,5 +467,58 @@ pub(super) fn dynamic_stored_child_field_v1(
     if child_classes.next().is_some() { return Ok(None); }
     Ok(Some(DynamicStoredChildFieldV1 {
         field, child, child_class: child_source.name().into(), nullable, paired_fields,
+        parent_class: parent_class.into(), field_name: field_name.into(), relations,
     }))
+}
+
+impl DynamicStoredChildFieldV1 {
+    pub(in crate::mir) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
+    pub(in crate::mir) fn child(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.child }
+    pub(in crate::mir) fn child_class(&self) -> &str { &self.child_class }
+    pub(super) fn nullable(&self) -> bool { self.nullable }
+    pub(super) fn paired_field(&self, field: hakorune_mir_defs::CanonicalFieldRefV1) -> bool {
+        self.paired_fields.contains(&field)
+    }
+    /// The same complete immutable parent cohort, not a new class inference.
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_v1(
+        &self, facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1, field_name: &str,
+    ) -> bool {
+        let current: Vec<_> = facts.construction_child_relation_loans().filter(|row|
+            row.is_unqualified_dynamic_v1() && row.field().object() == self.field.object()).collect();
+        if self.field_name.as_ref() != field_name || self.relations.is_empty()
+            || current.len() != self.relations.len()
+            || !current.iter().zip(&self.relations).all(|(a, b)| std::rc::Rc::ptr_eq(a, b)
+                && a.unqualified_field_source_v1(&self.parent_class).is_ok()) {
+            return false;
+        }
+        // Re-derive the summary from the same immutable sources. Matching two
+        // mutable coordinates is not a substitute for original field identity.
+        use super::super::super::result_class_claim::ResultValueOriginV1;
+        let mut per_outer = BTreeMap::<OwnedExprSiteV1, BTreeMap<_, bool>>::new();
+        let mut nullable = false;
+        let mut requested = false;
+        for relation in &self.relations {
+            if relation.child() != self.child || relation.witnesses().is_empty() { return false; }
+            let nonnull = match relation.witnesses()[0].origin() {
+                ResultValueOriginV1::Null => false,
+                ResultValueOriginV1::Fresh(class) if class.as_ref() == self.child_class() => true,
+                _ => return false,
+            };
+            if !relation.witnesses().iter().all(|witness| match witness.origin() {
+                ResultValueOriginV1::Null => !nonnull,
+                ResultValueOriginV1::Fresh(class) => nonnull && class.as_ref() == self.child_class(),
+                _ => false,
+            }) { return false; }
+            if relation.field() == self.field {
+                if relation.original_field_name_v1() != Ok(field_name) { return false; }
+                requested = true;
+            }
+            nullable |= !nonnull;
+            if per_outer.entry(relation.outer().clone()).or_default()
+                .insert(relation.field(), nonnull).is_some() { return false; }
+        }
+        requested && nullable == self.nullable && per_outer.values().all(|fields|
+            fields.keys().copied().collect::<BTreeSet<_>>() == self.paired_fields
+                && fields.values().copied().collect::<BTreeSet<_>>().len() == 1)
+    }
 }

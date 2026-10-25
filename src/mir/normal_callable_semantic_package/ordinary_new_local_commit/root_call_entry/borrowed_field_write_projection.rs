@@ -245,6 +245,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let MirInstruction::Invoke {
             operation:
                 crate::mir::instruction::InvokeOperation::FieldGet { .. }
+                | crate::mir::instruction::InvokeOperation::ObjectFieldBorrow { nullable: true, .. }
                 | crate::mir::instruction::InvokeOperation::Map(
                     crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }
                     | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { .. }

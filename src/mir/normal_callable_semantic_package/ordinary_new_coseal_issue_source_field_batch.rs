@@ -154,7 +154,26 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         } else {
             request.alias_class.clone()
         };
-        let source = if request.owned_ready.is_some() {
+        let object_obligation = matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
+            if request.is_nullable_object_comparison_v1(plan));
+        let object_source = if object_obligation {
+            match (received_context, receiver_proof) {
+                (Some((batch, _, classes, _, _)), Some((binding, parent)))
+                    if binding == request.home && binding == request.receiver
+                        && !request.nullable && !request.formal && alias_class.is_none() =>
+                {
+                    super::field_source::dynamic_stored_child_field_v1(batch, constructors, classes,
+                        parent.name(), &request.field)
+                        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?
+                        .map(|loan| LocalFieldReadSourceV1::from_declaration(loan.field(),
+                            LocalFieldReadResultV1::BorrowedObject(Rc::new(loan)), None))
+                },
+                _ => None,
+            }
+        } else { None };
+        // A syntactic handle obligation cannot fall back to an Integer view.
+        if object_obligation && object_source.is_none() { return Ok(None); }
+        let source = if object_source.is_some() { object_source } else if request.owned_ready.is_some() {
             let Some((field, declared)) = terminal_home::local_read_field_declaration(
                 constructors,
                 candidates,
@@ -248,7 +267,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 .as_ref()
                 .is_some_and(|path| path.is_intermediate()),
         };
-        if scalar_only && *source.result() != LocalFieldReadResultV1::Scalar {
+        if scalar_only && *source.result() != LocalFieldReadResultV1::Scalar
+            && !(object_obligation && matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_))) {
             return Ok(None);
         }
         let mut source = match received.as_ref().filter(|_| request.path.is_none()) {
@@ -327,7 +347,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         let numeric_source = match &demand {
             LocalFieldReadDemandV1::Declared { .. } => None,
             LocalFieldReadDemandV1::SourceExpression { .. }
-                if request.path.is_some() || request.owned_ready.is_some() =>
+                if request.path.is_some() || request.owned_ready.is_some()
+                    || matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_)) =>
             {
                 None
             }

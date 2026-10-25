@@ -7,6 +7,20 @@ use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
 type Binding = (BasicBlockId, MirInstruction);
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_nullable_field_operation_v1(
+        &self, loan: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<(), String> {
+        let (_, _, request) = loan.nullable_field_null_v1().ok_or_else(|| fault("required-source-read-drift"))?;
+        let required = self.source_field_requirement_v1(&request.site)?.ok_or_else(|| fault("required-source-loan-missing"))?;
+        let rows = self.local_field_reads.borrow();
+        let row = rows.get(&request.site).ok_or_else(|| fault("required-source-read-missing"))?;
+        if !Rc::ptr_eq(required.plan(), loan.source()) || required.request() != request
+            || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)) {
+            return Err(fault("required-source-read-drift"));
+        }
+        self.recheck_local_field_source_v1(&request.site, row, context)
+    }
     pub(in crate::mir) fn local_field_read_requires_checked_v1(&self, site: &OwnedExprSiteV1) -> bool {
         self.local_field_reads.borrow().get(site).is_some_and(|row| row.source.requires_checked_field_read_v1())
     }
@@ -52,7 +66,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !source.requires_checked_field_read_v1() || !Rc::ptr_eq(source, &row.source)
             || !matches!(&row.progress, LocalReadProgress::Taken { source: taken, base }
                 if Rc::ptr_eq(taken, source) && read.as_ref().is_none_or(|read| read.source_value().2 == *base)
-                    && matches!(&invoke.1, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { base: actual, .. }, .. } if actual == base)) {
+                    && matches!(&invoke.1, MirInstruction::Invoke { operation, .. } if source.matches_checked_operation_v1(operation, *base))) {
             return Err(fault("received/emission-source"));
         }
         self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
@@ -89,9 +103,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 .map_err(|issue| format!("{}: {issue}", fault("received/exact-read")))?
         };
         if !matches!((&invoke.1, &normal.1),
-            (MirInstruction::Invoke { operation: InvokeOperation::FieldGet { field, base: actual }, normal_landing, fault_landing, .. },
+            (MirInstruction::Invoke { operation, normal_landing, fault_landing, .. },
              MirInstruction::InvokeNormalResult { invoke_block, dst })
-                if *field == source.field() && *actual == base && *invoke_block == invoke.0
+                if source.matches_checked_operation_v1(operation, base) && *invoke_block == invoke.0
                     && *normal_landing == normal.0 && normal_landing != fault_landing && *dst != base)
         { return Err(fault("received/invoke-normal-drift")); }
         if let Some(received) = &row.source.received { context.with_taken_packet_v1(received.target().call_site(), |packet| {
@@ -141,7 +155,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(received) = row.source.received.as_ref() else {
             // checked_field_pair replays the same complete numeric/source loan
             // and exact lexical receiver. A direct Self read has no Call result.
-            if row.numeric_source.is_none() { return Err(fault("received/source-missing")); }
+            if row.numeric_source.is_none() && !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)) { return Err(fault("received/source-missing")); }
             return read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?
                 .original_copy_dependencies_v1().map(<[_]>::to_vec);
         };
@@ -225,10 +239,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let published = expected.clone();
         for (block, body) in &function.blocks {
             for row in body.all_instructions() {
-                let checked = matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }, .. })
+                let checked = matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })
                     || matches!(row, MirInstruction::InvokeNormalResult { invoke_block, .. }
                         if function.blocks.get(invoke_block).and_then(|body| body.terminator.as_ref()).is_some_and(|row|
-                            matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }, .. })));
+                            matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })));
                 if !checked { continue; }
                 let index = expected.iter().position(|binding| binding == &(*block, row.clone()))
                     .ok_or_else(|| fault("received/unowned-or-drifted-read"))?;

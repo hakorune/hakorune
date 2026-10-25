@@ -1,13 +1,15 @@
 # APP-binary-trees
-Status: selected app; checked stored-child borrow connected; EXE not reached. Date: 2026-10-25
+Status: selected app; nullable child field guard connected; EXE not reached. Date: 2026-10-25
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fixed smoke](../../../../../tools/smokes/v2/profiles/integration/apps/binary_trees_exe.sh).
 
 ## Current stop
-- Fresh quick CLI build PASS (31.05s); fixed suite 6/11 in92.578s, five compile FAIL, no new acceptance PASS. The six include the non-EXE probe marker. Explicit CLI/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`.
-- binary-trees now passes MIR verification, including the two stored-child reads. Direct EXE stops at `published-lifecycle-program/instruction-unsupported`: raw Dynamic `FieldGet(left)` in `TreeNode.itemCheck` null guard, block16 row2. EXE remains unbuilt.
+- Fresh quick CLI build PASS (48.93s); fixed suite 6/11 in115.831s, same five failed apps, no timeout/SKIP or new acceptance PASS. The six include the non-EXE probe marker. Explicit CLI/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`.
+- binary-trees no longer emits the raw Dynamic field read in the null guard. Direct EXE now stops at `published-lifecycle/borrowed-use/undominated-view`: `BinaryTreeBuilder.make/2`, Birth `TreeNode.birth`, block52 row1, original `value` formal operand. EXE remains unbuilt; publication verification is incomplete.
 - mimalloc-lite and allocator-stress: `borrowed-object/forward-source-identity`, owner slot37 Body(5). Original entry-formal site proof remains owed. JSON: `borrowed-entry/source-use-completion-pending`, owner slot22. Boxtorrent: `stored-child/receiver-unavailable`.
 
 ## Landed source and consumer connection
+- Bool field/null equality retains the exact original field request. The last atomic field batch proves the complete constructor child cohort; its BorrowedObject result is distinct from numeric field loans. The same checked read, source Home cleanup and final field image retain exact field/class/nullable mode and Normal/Fault correspondence. No Call receiver, Home or End is granted by a nullable observation.
+- The existing field source owner now owns the shared Dynamic child classifier; its immutable loan retains the same complete relation Rc cohort. Final checks rederive original field name/canonical field, child, homogeneous Null/Fresh classes, nullable and paired fields. No second classifier or ledger was added. C raw-null equality uses the exact indexed object-borrow producer and keeps independent slot/parent liveness.
 - Checked Dynamic child borrowing uses the exact original parent read, canonical field and child class. Source Call admission retains sole Birth writer + nonnull refinement; runtime and C receiver consumption both require `nullable=false`. Nullable observation mode grants no Call receiver, Home or End.
 - The original Call packet retains checked Invoke/Normal/Fault rows. Expression Fault uses the pre-argument source unwind; terminal Fault lends the same root acquisition order; constructor Fault shares its existing frame/landing. Final source images corroborate the same packet, field/class/mode, frame and lifetime.
 - Physical C uses the existing slot-borrow index and shared unchanged-slot interval. Null/class mismatch preserves output; Normal lends no ownership. Recursive nominal child class (including object id0) is distinct from forbidden self-instance storage.
@@ -22,6 +24,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fi
 - Keep every `.hako` input and acceptance expectation unchanged. No fallback, AST rewrite, backend repair or app-specific route. Temporary instrumentation and omission prototype were removed; no temporary adapter is retained.
 
 ## Verification and limits
+- Nullable-guard connection: CLI48.93s, C FFI build and existing field interval PASS. Existing472 cases: lexical319 PASS/37 FAIL, local-commit94/10, field-read6/1, field-batch1/1, expression installation2/1. The first460 retain the previous failing-name sets; the additional12 reproduce their same three failures on exact pre-change HEAD (baseline compile2m04s, authored changes restored byte-for-byte). Current test compile2m20s; no cases/hooks/checkers/guards added. These50 failures remain open, not an all-green test result.
+- The last comparison rebuilt only the lib-test artifact on pre-change HEAD; next source test must use `cargo quick-test-fast`, not that raw cached binary. The CLI remains the current authored build.
+- Fixed suite6/11 in115.831s retains the same five failed apps. The nullable guard now reaches downstream final Birth use verification, but no source-to-C execution of the new guard is claimed. Existing C parser negative and other verification obligations remain open.
 - Current receiver series: existing lexical319 PASS/37 FAIL and local-commit94/10, same failing names across460 cases; no Rust cases/hooks/checkers added. Final CLI31.05s, runtime1m04s, C FFI build and field interval PASS. Existing native C ABI case passes SafeMutex and SingleThreadExact with exact-class/Null/mode/output-preservation/End assertions; added assertions cover the new independent ABI and borrow-invalidating interval boundaries.
 - Fixed suite6/11 has the same five failed apps, all before EXE. The new borrow passes source/final MIR checks, but source-to-C EXE acceptance remains unproved behind the null guard. Ad hoc source probes stopped earlier at source-not-i64 and provide no positive acceptance evidence.
 - Preartifact C parser negative also fails on the unchanged pre-series C baseline at the same formal-representation mutation; it remains open. This is not a parser-suite PASS or a completion exemption.
@@ -32,6 +37,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fi
 - Shared target/quick reused sequentially. Baseline and current binary identities were kept separate; no zero-match filter counts as evidence. The temporary isolated checkout is removed. Pointer guard and diff checks PASS.
 
 ## Next work
-1. Connect the original Dynamic object field to Bool null-guard admission: borrow the existing complete constructor relation before the nonnull guard, add nullable-object expression/field meaning instead of the current I64-only terminal field assumption, emit the same checked borrow with nullable=true, and independently validate nullable identity + final field image. Do not retype Dynamic storage or repair raw MIR in the backend.
+1. Connect the existing signed-only finite input proof and exact original New argument read/site/ordinal/formal to finalized Birth actuals and final borrowed-use coverage. The current compare-only rule cannot authorize `value` from a guard on `depth`; keep that rule for unselected operands and retain Birth ABI/runtime tag checks. Then run the unchanged EXE smoke. Do not infer permission from names, MIR type or an unrelated compare.
 2. Keep shared entry-formal forward evidence and other app failures open. binary-trees existing output and exit0 remain acceptance; final-verifier progress alone is not success.
 3. Attribute and resolve required remaining verification failures. Keep R7/canonical closeout obligations open; no app or finite-product completion is claimed by this internal commit.

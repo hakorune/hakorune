@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary-trees physical output raw Dynamic FieldGet in null guard; shared entry-formal forward proof unresolved; fixed suite 6/11"
+current_blocker_token = "binary-trees final Birth borrowed-use/undominated-view; shared entry-formal forward proof unresolved; fixed suite 6/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-bin
 latest_card = "app-binary-trees"
 latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-binary-trees remains selected. Checked child reads pass MIR verification; direct EXE now stops at raw Dynamic FieldGet(left) in the itemCheck null guard, physical block16 row2.
-Final quick CLI31.05s and lifecycle runtime1m04s PASS; fixed suite6/11 in92.578s retains five pre-EXE failures. The six include a non-EXE marker; no app completion is claimed.
-Original Call packets retain exact field/child/non-null mode and Normal/Fault correspondence; existing slot-borrow lifetime and sole Birth writer proof remain authoritative. Nullable observations grant no receiver or Home.
-Rechecked460 existing cases: lexical319/37 and local-commit94/10, no new failing names. C ABI two profiles and borrow intervals PASS; preartifact parser negative reproduces on pre-series baseline and stays open. No Rust cases/checkers/guards added.
-Next: source-owned nullable object field in Bool null guard, same checked read and final field image; then real EXE/run. Shared source failures, remaining verification reds and canonical closeout remain open.
+APP-binary-trees remains selected. Source-proved nullable child reads replace the raw null-guard FieldGet; direct EXE now stops at final Birth borrowed-use/undominated-view in BinaryTreeBuilder.make/2 block52 row1. No EXE or app completion.
+Quick CLI48.93s, C FFI build and existing field interval PASS; fixed suite6/11 in115.831s retains the same five failed apps, no timeout/SKIP. The six include a non-EXE marker.
+Original field requests and complete constructor relation Rc loans retain field name/class/Null-Fresh pairing through checked reads, cleanup and final field images. Nullable observations grant no Call receiver or Home; no extra ledger or source workaround.
+Existing472 cases retain50 failures: lexical319/37 and local94/10 match prior sets; field6/1, batch1/1 and installation2/1 match exact pre-change HEAD. No cases/hooks/checkers/guards added. C parser and remaining verification reds stay open.
+Next: original signed-only finite New argument proof to finalized Birth actual/use coverage, preserving unrelated compare refusal and ABI tag checks; then unchanged EXE/run. Shared source failures and canonical closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

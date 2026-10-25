@@ -171,17 +171,26 @@ static int lv4_slot_borrow_readable(const hako_lv4_input*, hako_lv4_function_ind
 static int lv4_slot_result_readable(const hako_lv4_input*, hako_lv4_function_index*,
     hako_lv4_value*, const hako_lv4_state*, uint32_t, uint32_t, int);
 
+/* Classify the already-indexed producer only. Readability and source
+ * membership remain independent prerequisites at each consumer. */
+static yyjson_val* lv4_object_field_borrow_operation(hako_lv4_function_index* fn,
+    hako_lv4_value* value) {
+  if (!value || value->kind != LV4_SLOT_BORROW) return NULL;
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  hako_lv4_block* producer = root && lv4_is(root->instruction, "op", "invoke_normal_result") ?
+      lv4_index_block(fn, lv4_u(root->instruction, "invoke_block")) : NULL;
+  yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+  return lv4_is(op, "kind", "object_field_borrow") ? op : NULL;
+}
+
 static int lv4_readable_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
     uint32_t id, const hako_lv4_state* state, uint32_t use, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
   if (value && value->kind == LV4_BORROWED_OBJECT)
     return lv4_slot_result_readable(in, fn, value, state, use, object, check_object);
   if (value && value->kind == LV4_SLOT_BORROW) {
-    hako_lv4_value* root = lv4_value_alias_root(fn, value);
-    hako_lv4_block* producer = root && lv4_is(root->instruction, "op", "invoke_normal_result") ?
-        lv4_index_block(fn, lv4_u(root->instruction, "invoke_block")) : NULL;
-    yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
-    return lv4_is(op, "kind", "object_field_borrow") && yyjson_is_false(yyjson_obj_get(op, "nullable")) &&
+    yyjson_val* op = lv4_object_field_borrow_operation(fn, value);
+    return op && yyjson_is_false(yyjson_obj_get(op, "nullable")) &&
         (!check_object || (value->object_id_set && value->object_id == object)) &&
         lv4_slot_borrow_readable(in, fn, value, state, use);
   }
