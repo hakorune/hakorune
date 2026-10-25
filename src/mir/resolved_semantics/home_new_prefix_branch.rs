@@ -9,13 +9,13 @@ use super::SelectedLoopHomeLoanV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{
-    BodyChildRoleV1, BodyExpressionShapeV1, ResolvedBinaryOperatorV1, ResolvedLexicalRefV1,
-    ResolvedLiteralSourceV1,
+    BodyChildRoleV1, BodyExpressionShapeV1, ResolvedBinaryOperatorV1,
 };
 
 #[path = "home_new_prefix_null_exclusion.rs"]
 mod null_exclusion;
 pub(crate) use null_exclusion::SourceNullExclusionV1;
+use null_exclusion::null_guarded_local;
 
 /// One path's Home/local state during a branch walk. A terminated path
 /// (one that reached an explicit Return) does not join the continuation.
@@ -793,32 +793,4 @@ pub(super) fn observe_if_statement<'a, E>(
     *path_calls = join_calls;
     *unavailable = branch_issue;
     Ok(false)
-}
-
-/// The `binding == null` (or `null == binding`) compare guard at one
-/// exact condition site — operator and binding, nothing else. Only the
-/// sealed binary/literal/variable source rows answer here; the caller
-/// alone decides which terminated arm proves non-null.
-fn null_guarded_local(
-    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
-    site: &SourceExprSiteV1,
-) -> Option<(BindingRefV1, ResolvedBinaryOperatorV1)> {
-    let binary = function.expression_source().binary(site)?;
-    if !matches!(
-        binary.operator(),
-        ResolvedBinaryOperatorV1::Equal | ResolvedBinaryOperatorV1::NotEqual
-    ) {
-        return None;
-    }
-    for (value, other) in [(binary.lhs(), binary.rhs()), (binary.rhs(), binary.lhs())] {
-        if let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(value) {
-            if matches!(
-                function.expression_source().literal(other),
-                Some(ResolvedLiteralSourceV1::Null)
-            ) {
-                return Some((binding, binary.operator()));
-            }
-        }
-    }
-    None
 }

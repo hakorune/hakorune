@@ -147,6 +147,23 @@ impl RawInvocationChildPortV1<'_, '_> {
         self.record_callable_rebind_v1(&target_site, value)?;
         Ok(value)
     }
+    pub(in crate::mir::builder) fn emit_checked_print_value_v1(&mut self, builder: &mut MirBuilder,
+        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>,
+    ) -> Result<ValueId, String> {
+        let node = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][print-expression/value-site-missing]".to_owned())?;
+        if self.callable_owner_v1() != Some(frame.source().owner()) || frame.source().nodes()[0].site().node() != &node {
+            return Err("[freeze:contract][print-expression/value-source-drift]".into());
+        }
+        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or_else(|| "[freeze:contract][print-expression/ledger-missing]".to_owned())?;
+        let state = self.callable_ledger.as_ref().ok_or_else(|| "[freeze:contract][print-expression/state-missing]".to_owned())?;
+        let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
+        super::ordinary_new_admission::selected::print_expression::emit(builder, &mut state.borrow_mut(), ledger, frame,
+            &consume_receiver)?;
+        // Print has a genuine Unit statement result, outside the expression's
+        // Continue boundary. Never invent an SSA String for inline StaticText.
+        super::emission::constant::emit_void(builder)
+    }
+
     pub(in crate::mir::builder) fn emit_checked_local_initializer_v1(&mut self, builder: &mut MirBuilder,
         source: &super::raw_structured_child_scope::PreparedRawChildSourceV1, ordinal: u32,
     ) -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String> {

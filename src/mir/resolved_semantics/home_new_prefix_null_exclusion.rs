@@ -1,5 +1,6 @@
 //! Original terminating null arm, scoped to one covered surviving Prefix path.
 use super::*;
+use crate::mir::resolved_semantics::{ResolvedLexicalRefV1, ResolvedLiteralSourceV1};
 use crate::mir::resolved_semantics::source_value_flow::{
     SourceValueRefV1, VerifiedSourceValueFlowV1,
 };
@@ -176,4 +177,32 @@ pub(super) fn issue(
         value,
         flow: Arc::clone(flow),
     }))
+}
+
+/// The `binding == null` (or `null == binding`) compare guard at one
+/// exact condition site — operator and binding, nothing else. Only the
+/// sealed binary/literal/variable source rows answer here; the caller
+/// alone decides which terminated arm proves non-null.
+pub(super) fn null_guarded_local(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    site: &SourceExprSiteV1,
+) -> Option<(BindingRefV1, ResolvedBinaryOperatorV1)> {
+    let binary = function.expression_source().binary(site)?;
+    if !matches!(
+        binary.operator(),
+        ResolvedBinaryOperatorV1::Equal | ResolvedBinaryOperatorV1::NotEqual
+    ) {
+        return None;
+    }
+    for (value, other) in [(binary.lhs(), binary.rhs()), (binary.rhs(), binary.lhs())] {
+        if let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(value) {
+            if matches!(
+                function.expression_source().literal(other),
+                Some(ResolvedLiteralSourceV1::Null)
+            ) {
+                return Some((binding, binary.operator()));
+            }
+        }
+    }
+    None
 }
