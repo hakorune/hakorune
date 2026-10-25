@@ -182,7 +182,7 @@ impl BorrowedI64ResultSourceV1 {
 mod pending;
 pub(super) use pending::collect_observed_forward_identities_v1;
 pub(in crate::mir::normal_callable_semantic_package) use pending::ForwardIdentityV1;
-pub(super) use pending::{prepare_pending_results_v1, seal_pending_results_v1, stored_eligible_v1};
+pub(super) use pending::{prepare_pending_results_v1, seal_pending_results_v1, stored_eligible_v1, promote_grounded_computed_scalar_sources_v1};
 
 /// Complete declaration/Completion agreement for the SAME original result facts.
 /// Both issuance and retained-loan demand use this check; cached readiness alone

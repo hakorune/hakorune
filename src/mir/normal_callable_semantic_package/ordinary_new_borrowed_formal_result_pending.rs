@@ -472,6 +472,55 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         && class_loans::forward_identities_v1(need, contracts, drafts).is_some_and(|rows| !rows.is_empty())
 }
 
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn promote_grounded_computed_scalar_sources_v1(
+    pending: &BorrowedResultCohortV1,
+    needs: &mut PreparedSourceNeedsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+) -> Result<bool, (OwnedExprSiteV1, String)> {
+    let Ok(rows) = needs else { return Ok(false); };
+    let mut promoted = false;
+    for row in rows.iter_mut() {
+        let Ok(Some(need)) = row else { continue; };
+        if !matches!(need, PreparedSourceCallNeedV1::Lexical(_))
+            || need.owning_object_input_v1().is_some()
+            || !matches!(need.result_requirement(), LexicalCallSourceResultRequirementV1::ExistingBorrowedResult)
+        {
+            continue;
+        }
+        let reference = need.reference();
+        // A result fact does not select borrowed transport for strict inputs.
+        if !contracts.iter().any(|contract| contract.owner == reference.callee_owner
+            && contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle())) {
+            continue;
+        }
+        let Some(original) = pending
+            .original_return_source_v1(&reference.callee_owner)
+            .map_err(|issue| (reference.call_site.clone(), issue))?
+        else {
+            continue;
+        };
+        if !original.is_computed_value_return_source_v1() || !original.matches(&reference) {
+            continue;
+        }
+        let Some(class) = pending.source_value_alternative_for_v1(&reference, original) else {
+            continue;
+        };
+        let class = match class {
+            super::borrowed_formal_source::SourceValueAlternativeV1::SignedI64 => BorrowedResultClassV1::I64,
+            super::borrowed_formal_source::SourceValueAlternativeV1::Bool => BorrowedResultClassV1::Bool,
+            _ => continue,
+        };
+        if !original.corroborates_scalar_class_v1(class) {
+            continue;
+        }
+        need.set_result_requirement(LexicalCallSourceResultRequirementV1::ScalarReturnSource(
+            original.clone(),
+        ));
+        promoted = true;
+    }
+    Ok(promoted)
+}
+
 fn seal_one(
     owner: FunctionOwnerIdV1,
     proof: &mut BorrowedI64ResultSourceV1,
