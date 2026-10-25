@@ -172,6 +172,15 @@ fn source_scalar_seed_target_v1(
         }
         return Ok(true);
     }
+    // A retained Normal null return is affirmative evidence for another
+    // result protocol, even if the scalar cohort cannot represent that result.
+    if results.original_return_source_v1(&target.callee_owner())?
+        .is_some_and(|original| original.has_null_return_v1(
+            &super::super::source::CallTargetReferenceV1::from_target(target)))
+    {
+        exact_original_target(ingress, target)?;
+        return Ok(false);
+    }
     // The original incoming census already retains zero-input scalar demands
     // without a borrowed-formal draft. Use that same source family here; a
     // missing/refused result must then fail demand, never deselect the call.

@@ -145,6 +145,18 @@ impl OriginalReturnSourceLoanV1 {
             OriginalReturnBodySourceV1::UnitCandidate { .. } => false,
         }
     }
+    /// An explicit Normal null return excludes an unconditional I64 result.
+    /// Only the returned root counts; a nested null operand proves nothing.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_null_return_v1(
+        &self, reference: &super::super::source::CallTargetReferenceV1,
+    ) -> bool {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        self.matches(reference) && self.plans().iter().any(|plan| {
+            plan.owner() == self.0.owner && plan.nodes().len() == 1
+                && matches!(plan.nodes().first().map(|node| node.source()),
+                    Some(Node::Literal(ResolvedLiteralSourceV1::Null)))
+        })
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_value_return_source_v1(&self) -> bool {
         !self.plans().is_empty()
     }

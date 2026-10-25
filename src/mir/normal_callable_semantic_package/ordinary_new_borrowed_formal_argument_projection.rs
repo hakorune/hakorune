@@ -131,6 +131,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_resu
     if !original_result.is_some_and(|source| source.is_value_return_source_v1()) {
         return Ok(None);
     }
+    if let Some(target) = call.source.instance() {
+        if original_result.is_some_and(|original| original.has_null_return_v1(
+            &super::super::source::CallTargetReferenceV1::from_target(target),
+        )) {
+            // Positive original result evidence partitions the scalar probe.
+            // It grants neither a nullable/Text class nor executable inputs.
+            return Ok(None);
+        }
+    }
     let arguments = if source_instance {
         super::project_pending_instance_source_arguments_v1(source, actuals, contracts, site)?
     } else {

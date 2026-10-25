@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner66 Body4 LoopBody1 Initializer borrowed-result/source-not-i64; prior fixed suite9/11"
+current_blocker_token = "boxtorrent-mini owner73 Body11 refCount initializer borrowed-result/source-not-i64; prior fixed suite9/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 APP-boxtorrent-mini remains selected; unchanged source uses canonical emit-exe/C API with exact stdout/exit and no replay. EXE remains incomplete.
 Prior fixed suite9/11 in468.515s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. This internal change has not rerun the full suite; JSON remains open.
-Current stop: owner66 Body4 LoopBody1 Initializer borrowed-result/source-not-i64. Next identify original result purpose and keep scalar probes separate from checked non-scalar acquisition.
-Removed premature executable-input demand during Local I64 probing for positively checked original owning object calls; existing object input/Completion/Normal authority remains required. Scope scans unchanged.
-CLI38.87s/test build49.39s PASS; existing owning2/object-return5/scalar-pending7 PASS. Temporary diagnostics removed; no test/checker assets added. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
+Current stop: owner73 Body11Initializer store.refCount(first_chunk), borrowed-result/source-not-i64. Next join Map-derived object field numeric source and scalar dependencies; this call must not be relabelled Dynamic.
+Original exact Null Return plans now partition generic scalar seeds and I64 probes; explicit scalar selection/refusals remain. readData advances without a fabricated Text class or execution grant; object input/Completion/Normal authority remains required.
+CLI38.08s/test build63s PASS; existing owning2/object-return5/scalar-pending7/Dynamic8 PASS. No temporary diagnostics or new test/checker assets. Prior Text/source/publication/Loop reds and R6/R7/finite-product closeout remain open; see active card.
 """
 next_design_card = "none"
 next_design_card_path = "none"
