@@ -34,6 +34,9 @@ Related: [RULES](../../../RULES.md)、[現在地](../CURRENT_STATE.toml)、[直�
 4. DirectMapGetのlate receiver/非null/SSA/initializer/借用区間とI64 finisher、put内nested retainの同じbranch区間は未完。source-only区間が成立しても実行許可にはしない。JSONと局所/共有退役も保持する。
 
 ## 検証と未完条件
+- WIP整理: 全writer RHSを同じ元source SUM graphで合流させ、再solve時も同じfield/sourceの事実だけ再利用する。これは型情報のみで、read/Home/実行許可は発行しない。Birthだけでは置換後のText型と他sourceの拒否を守れないため、既存ケースだけ最小拡張（test関数・ファイル追加なし）。
+- 今回の切り出し後: `cargo quick-test-fast nested_result_fields_keep_object_identity_separate_from_numeric_writers -j 4` PASS（build41.86秒）、同binaryで既存Core2/pending7/constructor6 PASS、合計16 PASS。`cargo quick-build-fast -j 4`38.60秒PASS。明示CLI/runtimeの既存boxtorrent smokeは同じowner70 Body4で拒否、EXE未達。pointer guard・差分チェックPASS。固定suiteは再実行せず、上記直前測定を保持。
+- 未完成のText field snapshot/Return接続20ファイルは、名前付きGit stash `WIP Text field snapshot Return connection; incomplete; resume after all-writer SUM` に保全。未buildの途中実装で、Rust/C transport・独立最終検証・所有取得/cleanupが未接続。自動適用せず、この単位を確認して再開する。
 - Birthの文字列literal RHSを元construction storeへ保持し、既存DynamicTextInitialize/Materialize/FieldSet ownerへ接続。literalはStaticTextのbytesを使い、ParameterのSUM・ordinal・借用ABIを捏造しない。Materialize Faultは先行fieldのみ、store Faultは取得済みTextをEndしてから先行field、store Normalはfield residenceへ移転。独立した最終照合を保持。
 - 最終CLI `cargo quick-build-fast -j 4`27.46秒PASS。空文字/UTF-8文字列を初期化する一時programは正規EXE/run/exact stdout/exit0 PASS（確認後source/EXEを廃棄）。既存constructor/最終binding/partial Fault family13件PASS（test build88秒）。literalに続くstoreのFault順序は既存ケースだけ拡張し、test関数/ファイル/checker/runtime ABIの追加なし。元のParameter入力証拠だけではliteralの新規取得と先行residenceを守れないための最小追加。
 - 広いconstructor filterの別1件は、未注釈integer fieldの期待FieldContractUnsupportedに対し既存DynamicI64Initializeが受理されるassertで失敗。exact-HEAD比較未実施、原因未分類の赤として保持し、期待値変更や削除はしない。boxtorrentは上記owner70、JSONはowner22に停止し、field SUM/read/write/Return/discard接続は未完。

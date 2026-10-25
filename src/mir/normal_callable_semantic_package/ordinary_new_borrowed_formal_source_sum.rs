@@ -7,7 +7,7 @@ mod binary;
 use binary::SourceBinaryTransferV1;
 #[path = "ordinary_new_borrowed_formal_source_sum_graph.rs"]
 mod graph;
-use graph::{Graph, Node, OriginalSourceSumGraphV1, project_graph_v1};
+use graph::{Graph, Node, OriginalSourceSumGraphV1, project_graph_v1, project_field_sums_v1};
 #[path = "ordinary_new_borrowed_formal_source_sum_loans.rs"]
 mod loans;
 pub(in crate::mir) use loans::SourceValueClassFactsV1;
@@ -77,10 +77,15 @@ impl SourceValueSumV1 {
     }
 }
 
+type FieldSource = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1;
+pub(super) type FieldSourceSeedsV1 = (Rc<FieldSource>, Vec<OriginalFormalActualSeedV1>);
+type ClosedFieldSumsV1 = BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, (Rc<FieldSource>, Rc<SourceValueSumV1>)>;
+
 #[derive(Debug)]
 pub(super) struct OriginalSourceSumsV1 {
     pub(super) new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
     pub(super) values: BTreeMap<BindingRefV1, Rc<SourceValueSumV1>>,
+    fields: ClosedFieldSumsV1,
     pub(super) core_calls: BTreeMap<OwnedExprSiteV1, Rc<ClosedOriginalCoreSourceV1>>,
     pub(super) static_sources: BTreeMap<OwnedExprSiteV1, Rc<StaticSource>>,
     pub(super) return_sites: BTreeMap<FunctionOwnerIdV1, Box<[OwnedExprSiteV1]>>,
@@ -114,7 +119,7 @@ impl OriginalSourceSumsV1 {
             node.atoms.insert(class.clone());
             node.unconditional = true;
         }
-        let (_, points, formals, mut core_calls) = project_graph_v1(
+        let (all, points, formals, mut core_calls) = project_graph_v1(
             &nodes,
             &self.graph.points,
             &self.graph.formals,
@@ -127,6 +132,7 @@ impl OriginalSourceSumsV1 {
                 *current = Rc::clone(original);
             }
         }
+        self.fields = project_field_sums_v1(&self.graph, &all, Some(&self.fields));
         self.values = formals;
         self.points = points;
         self.core_calls = core_calls;
@@ -222,6 +228,7 @@ pub(super) fn resolve_original_source_sums_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     initializer_roots: &[OriginalFormalActualSeedV1],
+    field_roots: &[FieldSourceSeedsV1],
     flows: BTreeMap<
         FunctionOwnerIdV1,
         std::sync::Arc<
@@ -303,6 +310,15 @@ pub(super) fn resolve_original_source_sums_v1(
     for root in initializer_roots {
         graph.seed(root);
     }
+    let mut fields = BTreeMap::new();
+    for (source, seeds) in field_roots {
+        let union = seeds.iter().map(|seed| graph.seed(seed)).collect();
+        let node = graph.nodes.len();
+        graph.nodes.push(Node { union, invalid: seeds.is_empty(), ..Node::default() });
+        if fields.insert(source.field(), (Rc::clone(source), node)).is_some() {
+            return Err(freeze("source-sum/caller-owner"));
+        }
+    }
     if let Some(error) = graph.expansion_error.take() {
         return Err(error);
     }
@@ -330,18 +346,21 @@ pub(super) fn resolve_original_source_sums_v1(
     let static_sources = graph.static_sources;
     let return_sites = graph.return_sites;
     let resolved_graph = OriginalSourceSumGraphV1 {
+        fields,
         nodes: graph.nodes,
         points: graph.points,
         formals: graph.formals,
         core_requests: graph.core_requests,
     };
-    let (_, points, values, core_calls) = project_graph_v1(
+    let (all, points, values, core_calls) = project_graph_v1(
         &resolved_graph.nodes,
         &resolved_graph.points,
         &resolved_graph.formals,
         &resolved_graph.core_requests,
     );
+    let fields = project_field_sums_v1(&resolved_graph, &all, None);
     Ok(OriginalSourceSumsV1 {
+        fields,
         new_calls: Rc::clone(&source.new_calls),
         static_sources,
         return_sites,

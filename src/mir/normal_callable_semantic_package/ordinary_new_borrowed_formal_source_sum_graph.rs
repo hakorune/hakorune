@@ -4,6 +4,7 @@ use super::*;
 
 #[derive(Debug, Clone)]
 pub(super) struct OriginalSourceSumGraphV1 {
+    pub(super) fields: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, (Rc<FieldSource>, usize)>,
     pub(super) nodes: Vec<Node>,
     pub(super) points: BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), usize>,
     pub(super) formals: BTreeMap<BindingRefV1, usize>,
@@ -411,4 +412,19 @@ pub(super) fn project_graph_v1(
         .filter_map(|(site, value)| value.map(|value| (site, value)))
         .collect();
     (values, points, formals, core_calls)
+}
+
+/// Project the SAME solve's field union nodes. Re-solving unchanged original
+/// writers retains the existing fact allocation; no second classifier/solve.
+pub(super) fn project_field_sums_v1(
+    graph: &OriginalSourceSumGraphV1, values: &[Option<SourceValueSumV1>],
+    previous: Option<&ClosedFieldSumsV1>,
+) -> ClosedFieldSumsV1 {
+    graph.fields.iter().filter_map(|(field, (source, node))| {
+        let sum = values[*node].as_ref()?;
+        let retained = previous.and_then(|rows| rows.get(field))
+            .filter(|(original, old)| Rc::ptr_eq(original, source) && old.as_ref() == sum)
+            .map(|(_, sum)| Rc::clone(sum)).unwrap_or_else(|| Rc::new(sum.clone()));
+        Some((*field, (Rc::clone(source), retained)))
+    }).collect()
 }

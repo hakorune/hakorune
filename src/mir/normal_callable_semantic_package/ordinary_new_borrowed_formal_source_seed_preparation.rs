@@ -308,6 +308,43 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 Ok(())
             })??;
     }
+    // Whole original RHSs from the retained all-writer census join the SAME
+    // source graph. Missing/unsupported writers veto the field, never vanish.
+    let mut field_roots = Vec::<source_sum::FieldSourceSeedsV1>::new();
+    if let Some(fields) = fields {
+        for (_, _, source) in fields.value_sources() {
+            let Ok(source) = source else { continue; };
+            if !source.same_inventory(fields) { return Err(freeze("source-sum/caller-owner")); }
+            let mut seeds = Vec::new();
+            for write in source.writers() {
+                let seed = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                    batch, constructors, write.owner(), |context, input| -> Result<_, String> {
+                        let assignment = write.assignment();
+                        let Some(shape) = input.body_shape() else { return Ok(OriginalFormalActualSeedV1::Conflict); };
+                        let Ok(plan) = write.source() else { return Ok(OriginalFormalActualSeedV1::Conflict); };
+                        if assignment.form() != crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
+                            || plan.owner() != input.owner() || plan.root().statement() != assignment.statement_site()
+                            || plan.nodes().first().is_none_or(|node| node.site() != assignment.value_site())
+                            || shape.assignment_sources().iter().filter(|row| *row == assignment).count() != 1 {
+                            return Ok(OriginalFormalActualSeedV1::Conflict);
+                        }
+                        let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
+                            static_claims, app_main, omitted)?.map(|context| context.for_point_premise());
+                        let slot = context.declaration_slot();
+                        let local_candidates = slot.and_then(|slot| candidates.get(&slot))
+                            .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
+                        let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
+                            .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
+                            .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                                selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
+                        Ok(classify_original_actual_seed_in_scope(input, batch, selected, results, input.owner(),
+                            local_candidates, receiver, definitions, contracts, assignment.value_site(), None, Some(inventory), source_context.as_ref()))
+                    })??;
+                seeds.push(seed);
+            }
+            field_roots.push((Rc::clone(source), seeds));
+        }
+    }
     let mut expand = |owner, value| -> Result<source_sum::SourcePointExpansionV1, String> {
         use crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1 as Origin;
         use source_sum::SourcePointExpansionV1 as Expansion;
@@ -409,6 +446,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         contracts,
         constructors,
         &expression_roots,
+        &field_roots,
         source_flows.clone(),
         &mut expand,
         &mut expand_returns,

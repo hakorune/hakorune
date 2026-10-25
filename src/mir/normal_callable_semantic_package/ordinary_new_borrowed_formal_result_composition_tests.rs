@@ -722,6 +722,25 @@ fn original_field_request_rejects_lost_retained_return_before_lending() {
 
 #[test]
 fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
+    // All original writer RHSs, rather than only Birth, decide this class.
+    for (replacement, expected) in [("\"雪\"", true), ("7", false)] {
+        let text = format!("box Page {{ init {{ value }} birth() {{ me.value = \"\" }}
+            change() {{ me.value = {replacement} }} }}
+            static box Main {{ main() {{ local page = new Page() return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let field = ledger.field_value_source("Page", "value").unwrap().as_ref().unwrap();
+        assert_eq!(field.writers().count(), 2);
+        let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let sum = ingress.source_field_value_sum_v1(&ledger.field_write_claims, field).expect("all writer RHSs close");
+        assert_eq!(sum.text_only(), expected, "replacement={replacement}: {sum:?}");
+        if expected {
+            let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+            let other = &foreign.ordinary_new_claim_ledger;
+            assert!(ingress.source_field_value_sum_v1(&other.field_write_claims,
+                other.field_value_source("Page", "value").unwrap().as_ref().unwrap()).is_none());
+        }
+    }
     for (birth, extra, returned, expected) in [
         ("0", "", "me.child.n + me.child.n", true),
         ("0", "me.child.seed()", "me.child.n + me.child.n", true),
@@ -751,6 +770,9 @@ fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
             let proof = result.as_ref().unwrap();
             proof.require_source_i64_v1().unwrap();
             let expression = &proof.expressions[0];
+            let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+            assert!(ingress.source_field_value_sum_v1(&package.ordinary_new_claim_ledger.field_write_claims,
+                &context.sources()[&("Leaf".into(), "n".into())]).is_some_and(|sum| sum.signed_only()));
             assert_eq!(expression.fields().cloned().collect::<BTreeSet<_>>(),
                 BTreeSet::from([("Leaf".into(), "n".into())]));
             assert!(!proof.field_component.as_ref().unwrap().fields.contains(&("Parent".into(), "child".into())),

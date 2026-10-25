@@ -66,6 +66,18 @@ impl SourceValueClassFactsV1 {
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// A closed class for every original field writer. No read, residence,
+    /// conversion or execution permission is issued by this source fact.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_field_value_sum_v1(
+        &self,
+        claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        source: &Rc<FieldSource>,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        let product = &self.original_formal_seeds;
+        if !product.corroborate_original_v1(&self.source_incoming) || !source.same_inventory(claims) { return None; }
+        let (original, sum) = product.source_sums.as_ref()?.fields.get(&source.field())?;
+        Rc::ptr_eq(original, source).then(|| Rc::clone(sum))
+    }
     /// Select an original computed argument purpose, never a legacy literal
     /// caller or an executable entry. The whole source SUM stays independent.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_signed_expression_argument_request_v1(

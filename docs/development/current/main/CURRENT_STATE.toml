@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; unchanged source uses canonical emit-exe/C API with exact stdout/exit and no replay. EXE remains incomplete.
-Current fixed suite9/11 in467.002s (--timeout420): eight real EXEs plus marker, no timeout/SKIP. All prior EXEs pass; boxtorrent owner70 and JSON owner22 remain open.
-Current stop: owner70 Body4 manifest.seal() discarded value, borrowed-result/source-not-i64. Callee returns untyped root_id Text candidate, not Unit; next close same all-writer field SUM, checked read/write/Materialize return and source-selected discard End/Normal/Fault cleanup.
-Birth LiteralText now follows the same checked materialization/store/cleanup owner without fake SUM or parameter ABI. Empty/UTF-8 literal source passes canonical standalone EXE/run/exact stdout/exit0; real app remains incomplete. Keys TextArray evaluation/cleanup and late borrowed receiver proof remain open.
-Focused construction/final-binding/Fault13 PASS; final CLI27.46s PASS. Broad constructor filter has one unclassified integer-expectation failure; earlier Main0/source/publication/Loop reds remain open. No new test functions/files/checkers/runtime ABI; scratch source/EXE retired. Required local/shared R6/R7 and finite-product closeout remain open; see card.
+APP-boxtorrent-mini remains selected; canonical EXE is incomplete at owner70 Body4 manifest.seal(), borrowed-result/source-not-i64.
+Last fixed suite9/11: eight real EXEs plus marker, no timeout/SKIP; boxtorrent and JSON remain open. Not remeasured for this source-only cleanup.
+All original field writer RHSs now join the same source SUM; class facts grant no read, Home or execution permission. Focused16 PASS; CLI38.60s PASS; selected smoke retains the same owner70 stop.
+Incomplete Text field snapshot/Return connection is preserved in the named Git stash recorded in the card; it is not validated or landed.
+Next: reconnect checked field snapshot/Return/discard with ownership and independent Rust/C validation; keys-array cleanup, borrowed receivers, existing reds and required R6/R7 remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"
