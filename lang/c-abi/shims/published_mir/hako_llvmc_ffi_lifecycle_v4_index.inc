@@ -108,7 +108,8 @@ static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "dynamic_invoke")) return LV4_DYNAMIC_CARRIER;
   if (lv4_is(op, "kind", "dynamic_carrier_integer")) return LV4_I64;
   if (lv4_is(op, "kind", "dynamic_carrier_sub_i64")) return LV4_DYNAMIC_CARRIER;
-  if (lv4_is(op, "kind", "array_owned_get") || lv4_is(op, "kind", "map_field_get_indexed")) return LV4_SLOT_BORROW;
+  if (lv4_is(op, "kind", "array_owned_get") || lv4_is(op, "kind", "map_field_get_indexed") ||
+      lv4_is(op, "kind", "object_field_borrow")) return LV4_SLOT_BORROW;
   int string_result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind")));
   if (string_result) return string_result == 1 ? LV4_OWNED_STRING : string_result == 3 ? LV4_BOOL : LV4_I64;
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new") || lv4_is(op, "kind", "script_arguments_new")) return LV4_HANDLE;
@@ -221,6 +222,8 @@ static int lv4_index_seed(const hako_lv4_input* in,
     value->origin = (int)block->ordinal;
     if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_owned_get")) {
       value->object_id = lv4_u(op, "object_id"); value->object_id_set = 1;
+    } else if (lv4_is(op, "kind", "object_field_borrow")) {
+      value->object_id = lv4_u(op, "expected_object_id"); value->object_id_set = 1;
     } else if (lv4_is(op, "kind", "map_field_get_indexed")) {
       value->object_id = lv4_u(op, "payload_object_id"); value->object_id_set = 1;
     }

@@ -261,6 +261,9 @@ impl OrdinaryNewClaimLedgerV1 {
         expected.extend(
             stored_receivers
                 .iter()
+                // Checked stored receivers retain their Invoke/Normal/Fault
+                // proof in the original Call packet, outside this raw census.
+                .filter(|(_, instruction)| matches!(instruction, MirInstruction::ObjectFieldGet { .. }))
                 .map(|(block, instruction)| (*block, instruction)),
         );
         for (site, row) in reads.iter() {

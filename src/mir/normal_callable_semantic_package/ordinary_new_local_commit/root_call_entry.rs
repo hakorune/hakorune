@@ -720,7 +720,7 @@ pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use lexical_projection::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
-    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
+    PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
 
 #[path = "root_call_entry/local_binding_group.rs"]

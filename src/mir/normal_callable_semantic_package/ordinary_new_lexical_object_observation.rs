@@ -6,6 +6,20 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Retained constructor relations distinguish Dynamic residence reads.
+    /// This lends storage meaning only; the original Call still owns admission.
+    pub(in crate::mir) fn stored_receiver_uses_dynamic_field_v1(
+        &self, target: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        let Some((_, _, field, child)) = target.stored_receiver() else { return Ok(false); };
+        let mut dynamic = false;
+        for relation in self.callable_result_classes.construction_child_relation_loans()
+            .filter(|relation| relation.field() == field && relation.is_unqualified_dynamic_v1()) {
+            if relation.child() != child { return Err(freeze("lexical-terminal/stored-read-drift")); }
+            dynamic = true;
+        }
+        Ok(dynamic)
+    }
     /// The local flow and original receiver observation select full packet
     /// demand. They grant neither callee input nor result/teardown permission.
     pub(super) fn has_original_receiver_nullable_packet_source_v1(

@@ -746,7 +746,7 @@ mod loop_cond_after_role;
 
 pub(in crate::mir) use root_home::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
+    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1,
     PreparedSelectedStaticLoopCallProjectionV1,
 };
 pub(in crate::mir) use root_home::EmittedDynamicInvocationCallProjectionV1;

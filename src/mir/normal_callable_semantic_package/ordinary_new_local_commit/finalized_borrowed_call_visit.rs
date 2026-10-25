@@ -247,6 +247,23 @@ impl FinalizedRootSourceHandoffV1 {
     }
 
     /// Both coverage consumers inspect the same original pools and final producers.
+    /// Project the SAME checked stored receiver already corroborated by the
+    /// original node visitor; no opcode scan can manufacture this source loan.
+    pub(in crate::mir) fn finished_stored_receiver_read_v1(
+        &self, packet: FinalizedBorrowedCallPacketV1<'_>, function: &MirFunction,
+    ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        let FinalizedBorrowedCallPacketV1::Lexical(packet) = packet else { return Ok(None); };
+        let Some(read) = packet.stored_receiver_read_v1() else { return Ok(None); };
+        if !matches!(read.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectFieldBorrow { .. }, .. }) {
+            return Ok(None);
+        }
+        let (symbol, read) = self.ledger.finished_binding_for_owner(packet.call_site().owner(), read)?;
+        if symbol != function.signature.name || !super::physical_boundary::check_binding(function, None, read.0, &read.1)? {
+            return Err(freeze("final-call-visit/function-missing"));
+        }
+        Ok(Some(read))
+    }
+
     pub(in crate::mir) fn visit_finalized_borrowed_call_nodes_v1(
         &self,
         module: &MirModule,

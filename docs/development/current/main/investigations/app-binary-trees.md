@@ -1,13 +1,17 @@
 # APP-binary-trees
-Status: selected app; source/result/Loop series landed; EXE not reached. Date: 2026-10-25
+Status: selected app; checked stored-child borrow connected; EXE not reached. Date: 2026-10-25
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fixed smoke](../../../../../tools/smokes/v2/profiles/integration/apps/binary_trees_exe.sh).
 
 ## Current stop
-- Fresh quick CLI build PASS (32.83s); fixed suite 6/11 in52.276s, five compile FAIL, no new acceptance PASS. The six include the non-EXE probe marker. Explicit CLI/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`.
-- binary-trees now passes recursive `BinaryTreeBuilder.make` source/result sealing and reaches final MIR verification: `object-field-read-definition-invalid` at bb25/bb27. EXE remains unbuilt; these are current results, not historical best evidence.
+- Fresh quick CLI build PASS (31.05s); fixed suite 6/11 in92.578s, five compile FAIL, no new acceptance PASS. The six include the non-EXE probe marker. Explicit CLI/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`.
+- binary-trees now passes MIR verification, including the two stored-child reads. Direct EXE stops at `published-lifecycle-program/instruction-unsupported`: raw Dynamic `FieldGet(left)` in `TreeNode.itemCheck` null guard, block16 row2. EXE remains unbuilt.
 - mimalloc-lite and allocator-stress: `borrowed-object/forward-source-identity`, owner slot37 Body(5). Original entry-formal site proof remains owed. JSON: `borrowed-entry/source-use-completion-pending`, owner slot22. Boxtorrent: `stored-child/receiver-unavailable`.
 
 ## Landed source and consumer connection
+- Checked Dynamic child borrowing uses the exact original parent read, canonical field and child class. Source Call admission retains sole Birth writer + nonnull refinement; runtime and C receiver consumption both require `nullable=false`. Nullable observation mode grants no Call receiver, Home or End.
+- The original Call packet retains checked Invoke/Normal/Fault rows. Expression Fault uses the pre-argument source unwind; terminal Fault lends the same root acquisition order; constructor Fault shares its existing frame/landing. Final source images corroborate the same packet, field/class/mode, frame and lifetime.
+- Physical C uses the existing slot-borrow index and shared unchanged-slot interval. Null/class mismatch preserves output; Normal lends no ownership. Recursive nominal child class (including object id0) is distinct from forbidden self-instance storage.
+- binary-trees smoke now uses the same direct `--emit-exe` / explicit lifecycle archive / C API trace as other acceptance apps. Generic MIR JSON still refuses lifecycle Invoke; output and exit expectations are unchanged. Raw/checked field correspondence moved into the existing validation module (733/349 lines), in a separate behavior-preserving commit.
 - Constructor source Dynamic stores now finish before input/result sealing; stored-child Unit calls finish after lexical dispositions. Both use the same original qualifiers and common End/claim/handoff installer, once per responsibility. No speculative rerun or app-specific gate.
 - Computed Return trees retain original plans; grounded source classes feed the same original SUM without switching typed-only calls into borrowed-input transport. Unchanged Core premises reuse their canonical proof identity.
 - Source actuals retain original census, source phase identity, argument ordinal/site and reaching-value/formal class evidence. Original argument plans independently match binding to source; facts alone grant no receiver, Home or execution.
@@ -18,6 +22,9 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fi
 - Keep every `.hako` input and acceptance expectation unchanged. No fallback, AST rewrite, backend repair or app-specific route. Temporary instrumentation and omission prototype were removed; no temporary adapter is retained.
 
 ## Verification and limits
+- Current receiver series: existing lexical319 PASS/37 FAIL and local-commit94/10, same failing names across460 cases; no Rust cases/hooks/checkers added. Final CLI31.05s, runtime1m04s, C FFI build and field interval PASS. Existing native C ABI case passes SafeMutex and SingleThreadExact with exact-class/Null/mode/output-preservation/End assertions; added assertions cover the new independent ABI and borrow-invalidating interval boundaries.
+- Fixed suite6/11 has the same five failed apps, all before EXE. The new borrow passes source/final MIR checks, but source-to-C EXE acceptance remains unproved behind the null guard. Ad hoc source probes stopped earlier at source-not-i64 and provide no positive acceptance evidence.
+- Preartifact C parser negative also fails on the unchanged pre-series C baseline at the same formal-representation mutation; it remains open. This is not a parser-suite PASS or a completion exemption.
 - Constructor staging verification reuses460 existing cases: lexical319 PASS/37 FAIL and local-commit94/10, with the same failing names as the preceding commit. Unit/discard4 PASS. The nullable-source negative keeps the same input and refusal; it now checks that a completed packet remains unconsumed when original ingress becomes unavailable. No cases added.
 - Independent earlier commits: borrowed-call final consumers27 PASS; constructor order repair changes one existing Unit publication failure to discard-family4 PASS. Pure owner moves retain original bodies; isolated entry21 and terminal1 PASS, print3 PASS/1 identical prior failure.
 - Same selected lexical family (`cargo quick-test-fast ordinary_new_coseal::lexical_instance_call:: -- --test-threads=4`, `RUST_MIN_STACK=16777216`): baseline296 PASS/60 FAIL, current319/37. All8 newly failing cases from the previous cleanup are closed; no new failing test versus baseline.
@@ -25,6 +32,6 @@ Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fi
 - Shared target/quick reused sequentially. Baseline and current binary identities were kept separate; no zero-match filter counts as evidence. The temporary isolated checkout is removed. Pointer guard and diff checks PASS.
 
 ## Next work
-1. Replace raw Dynamic stored-child reads with the original-source checked borrowed-object read: exact field/expected child class/nullability, Normal borrowed result, Fault cleanup and parent lifetime; connect the same packet to independent final validation. Do not reinterpret the I64 getter as a handle or relax the verifier.
+1. Connect the original Dynamic object field to Bool null-guard admission: borrow the existing complete constructor relation before the nonnull guard, add nullable-object expression/field meaning instead of the current I64-only terminal field assumption, emit the same checked borrow with nullable=true, and independently validate nullable identity + final field image. Do not retype Dynamic storage or repair raw MIR in the backend.
 2. Keep shared entry-formal forward evidence and other app failures open. binary-trees existing output and exit0 remain acceptance; final-verifier progress alone is not success.
 3. Attribute and resolve required remaining verification failures. Keep R7/canonical closeout obligations open; no app or finite-product completion is claimed by this internal commit.

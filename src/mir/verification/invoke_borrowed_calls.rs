@@ -137,6 +137,11 @@ pub(super) fn original_call_slots(
     source.visit_finalized_borrowed_call_nodes_v1(
         module,
         |packet, arguments, caller, coordinate, _| {
+            if let Some(read) = source.finished_stored_receiver_read_v1(packet, caller)? {
+                let read = (caller.signature.name.clone(), read);
+                if image.field_reads.contains(&read) { return Err("borrowed-source-coordinate-duplicate".into()); }
+                image.field_reads.push(read);
+            }
             let row = packet;
             let symbol = module
                 .canonical_callable_definition_symbol(row.target())

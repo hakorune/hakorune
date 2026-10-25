@@ -204,7 +204,7 @@ fn emit_lexical_i64_call(
     }
     let (receiver, stored_read) = match row {
         SourceLoan::Instance(instance) => {
-            let (receiver, read) = lexical_receiver::prepare(builder, state, owner, instance, bindings)?;
+            let (receiver, read) = lexical_receiver::prepare(builder, state, owner, instance, ledger, lexical_receiver::Fault::Call(&unwind), bindings)?;
             (Some(receiver), read)
         }
         SourceLoan::Static { .. } => (None, None),
@@ -629,7 +629,7 @@ pub(in crate::mir::builder) fn emit_constructor_unit(
     }
     let owner = row.call_site().owner();
     let mut bindings = Vec::new();
-    let (receiver, read) = lexical_receiver::prepare(builder, state, owner, &row, &mut bindings)?;
+    let (receiver, read) = lexical_receiver::prepare(builder, state, owner, &row, ledger, lexical_receiver::Fault::Constructor { frame, landing: fault_landing }, &mut bindings)?;
     let read = read.ok_or_else(|| freeze("constructor-unit/stored-read-missing"))?;
     let prepared = prepare_arguments(builder, state, ledger, owner, receiver, &[], &row, &mut bindings)?
         .with_stored_receiver(read)?;

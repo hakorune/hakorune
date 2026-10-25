@@ -580,6 +580,25 @@ pub unsafe extern "C" fn dynamic_get(
     }
 }
 
+/// Observe only the exact child class. The source parent keeps the residence;
+/// neither Normal nor Fault acquires an independently owned handle.
+#[export_name = "nyash.object.checked_object_field_borrow_v1"]
+pub unsafe extern "C" fn object_field_borrow(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, child_type: i64, nullable: u32, out: *mut i64,
+) -> u32 {
+    if nullable > 1 || out.is_null() || !out.is_aligned()
+        || !separate(&[(frame as usize, size_of::<FaultFrame>()),
+            (out as usize, size_of::<i64>())]) { return Status::InvalidContract as u32; }
+    let (frame, profile) = match unsafe { admit(frame, profile) } {
+        Ok(value) => value, Err(status) => return status as u32,
+    };
+    match store::borrow_dynamic_object_field_checked(profile, handle, type_id, slot, child_type, nullable != 0) {
+        Ok(value) => { unsafe { out.write(value); } Status::Normal as u32 }
+        Err(error) => failed(frame, error, site),
+    }
+}
+
 /// The source destructor selects reverse field order and parent fini. Taking a
 /// field only detaches its current residence; End is a separate consumed outcome.
 #[export_name = "nyash.object.checked_dynamic_take_v1"]

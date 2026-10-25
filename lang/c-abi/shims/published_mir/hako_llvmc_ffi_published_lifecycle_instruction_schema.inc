@@ -82,7 +82,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
   if (!strcmp(kind, "dynamic_invoke") || !strcmp(kind, "dynamic_carrier_integer") ||
       !strcmp(kind, "dynamic_carrier_sub_i64")) return 1;
   if (native) return !strcmp(kind, "array_new");
-  if (!strcmp(kind, "field_get")) return 1;
+  if (!strcmp(kind, "field_get") || !strcmp(kind, "object_field_borrow")) return 1;
   /* `array_new` outside the native lane is the proven provider `new
      ArrayBox()` inside a birth unit — its normal result is the store's
      installed handle. */
@@ -309,6 +309,20 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   }
   if (strcmp(kind, "new_box") == 0)
     return hako_physical_exact_keys(operation, new_keys, 3) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_object(layouts, object_id);
+  if (strcmp(kind, "object_field_borrow") == 0) {
+    static const char* const keys[] = {"kind", "object_id", "field_ordinal", "base", "expected_object_id", "nullable", "site"};
+    uint32_t child;
+    return !native && hako_physical_exact_keys(operation, keys, 7) &&
+        yyjson_is_bool(yyjson_obj_get(operation, "nullable")) &&
+        hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) &&
+        hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) &&
+        hako_physical_u32(yyjson_obj_get(operation, "base"), &value) &&
+        hako_physical_value_available_at(function, value, block, index) &&
+        hako_physical_u32(yyjson_obj_get(operation, "expected_object_id"), &child) &&
+        hako_physical_layout_has_object(layouts, child) &&
+        hako_physical_field_storage(layouts, object_id, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
+  }
   if (strcmp(kind, "field_get") == 0)
     return !native && hako_physical_exact_keys(operation, field_access_keys, 5) &&
         hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) &&

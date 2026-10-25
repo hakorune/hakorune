@@ -292,6 +292,12 @@ pub(super) fn encode_invoke(
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,
+        InvokeOperation::ObjectFieldBorrow { field, base, child, nullable } => with_site(
+            json!({ "kind": "object_field_borrow", "object_id": field.object().declaration_index(),
+                "field_ordinal": field.declaration_ordinal(), "base": value(base),
+                "expected_object_id": child.declaration_index(), "nullable": nullable }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
         InvokeOperation::FieldSet { mode, field, base, value: stored } => {
             let mut encoded = with_site(json!({
                 "kind": "field_set", "object_id": field.object().declaration_index(),

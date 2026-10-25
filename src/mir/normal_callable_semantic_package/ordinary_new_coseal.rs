@@ -688,7 +688,7 @@ mod tests;
 pub(in crate::mir) use local_commit::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
-    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
+    PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
 
 #[cfg(test)]

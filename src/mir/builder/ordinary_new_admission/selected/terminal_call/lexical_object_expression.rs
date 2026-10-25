@@ -29,7 +29,8 @@ pub(in crate::mir::builder) fn emit(
     }.ok_or_else(|| freeze("array-append/candidate-class-missing"))?;
     let carrier = result_type(result_kind, Some(class))?;
     let arguments = packet.arguments();
-    let (receiver, stored) = lexical_receiver::prepare(builder, state, site.owner(), &row, bindings)?;
+    let unwind = ledger.owned_array_append_unwind_v1(source)?;
+    let (receiver, stored) = lexical_receiver::prepare(builder, state, site.owner(), &row, ledger, lexical_receiver::Fault::Call(&unwind), bindings)?;
     let frame = state.borrow_fault_frame(builder)?;
     let frame_binding = fault_frame_binding(builder, state, frame)?;
     if !bindings.contains(&frame_binding) { bindings.push(frame_binding); }

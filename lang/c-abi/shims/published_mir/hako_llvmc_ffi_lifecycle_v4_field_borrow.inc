@@ -165,6 +165,9 @@ static int lv4_object_base_readable(const hako_lv4_input* in, hako_lv4_function_
 static int lv4_object_field_dependencies_live(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state, uint32_t use);
 
+static int lv4_slot_borrow_readable(const hako_lv4_input*, hako_lv4_function_index*,
+    hako_lv4_value*, const hako_lv4_state*, uint32_t);
+
 static int lv4_slot_result_readable(const hako_lv4_input*, hako_lv4_function_index*,
     hako_lv4_value*, const hako_lv4_state*, uint32_t, uint32_t, int);
 
@@ -173,6 +176,15 @@ static int lv4_readable_object(const hako_lv4_input* in, hako_lv4_function_index
   hako_lv4_value* value = lv4_index_value(fn, id);
   if (value && value->kind == LV4_BORROWED_OBJECT)
     return lv4_slot_result_readable(in, fn, value, state, use, object, check_object);
+  if (value && value->kind == LV4_SLOT_BORROW) {
+    hako_lv4_value* root = lv4_value_alias_root(fn, value);
+    hako_lv4_block* producer = root && lv4_is(root->instruction, "op", "invoke_normal_result") ?
+        lv4_index_block(fn, lv4_u(root->instruction, "invoke_block")) : NULL;
+    yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+    return lv4_is(op, "kind", "object_field_borrow") && yyjson_is_false(yyjson_obj_get(op, "nullable")) &&
+        (!check_object || (value->object_id_set && value->object_id == object)) &&
+        lv4_slot_borrow_readable(in, fn, value, state, use);
+  }
   return lv4_object_base_readable(in, fn, id, state, use, object, check_object) &&
       lv4_object_field_dependencies_live(in, fn, lv4_index_value(fn, id), state, use);
 }

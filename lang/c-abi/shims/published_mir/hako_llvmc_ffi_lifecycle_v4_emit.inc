@@ -123,7 +123,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
     if (op && (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new") || lv4_is(op, "kind", "script_arguments_new")))
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
-    if (op && lv4_is(op, "kind", "field_get"))
+    if (op && (lv4_is(op, "kind", "field_get") || lv4_is(op, "kind", "object_field_borrow")))
       fprintf(f, "  %%field_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "field_residence_release"))
       fprintf(f, "  %%fr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
@@ -335,7 +335,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%v%u = load i64, ptr %%strout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_SLOT_BORROW)
           fprintf(f, "  %%v%u = load i64, ptr %%%s%u, align 8\n", dst,
-              lv4_is(producer_op, "kind", "map_field_get_indexed") ? "get_out" : "owned_get", lv4_u(ins, "invoke_block"));
+              lv4_is(producer_op, "kind", "map_field_get_indexed") ? "get_out" :
+              lv4_is(producer_op, "kind", "object_field_borrow") ? "field_read" : "owned_get", lv4_u(ins, "invoke_block"));
         else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
         else if ((kind == LV4_BOOL && lv4_is(producer_op, "kind", "map_field_has")) ||
             (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
@@ -644,6 +645,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "@\"nyash.object.checked_new_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %lld, ptr @hako_lifecycle_layout_%u, i64 %u, ptr %%new%u)\n",
             in->profile, site, (long long)lv4_type_id(in, op), lv4_u(op, "object_id"),
             lv4_u(lv4_layout(in, lv4_u(op, "object_id")), "field_count"), b);
+      } else if (lv4_is(op, "kind", "object_field_borrow")) {
+        fprintf(f, "@\"nyash.object.checked_object_field_borrow_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %lld, i32 %u, ptr %%field_read%u)\n",
+            in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op),
+            (long long)lv4_u(lv4_layout(in, lv4_u(op, "expected_object_id")), "runtime_type_id"),
+            yyjson_get_bool(yyjson_obj_get(op, "nullable")) ? 1u : 0u, b);
       } else if (lv4_is(op, "kind", "field_get")) {
         fprintf(f, "@\"nyash.object.checked_field_get_fallible_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, ptr %%field_read%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), b);
@@ -733,6 +739,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.object.checked_new_v1\"(ptr, i32, i64, i64, ptr, i64, ptr)\n"
       "declare i64 @\"nyash.object.type_id_h\"(i64)\n"
       "declare i32 @\"nyash.object.checked_field_set_v1\"(ptr, i32, i64, i64, i64, i64, i64)\n"
+      "declare i32 @\"nyash.object.checked_object_field_borrow_v1\"(ptr, i32, i64, i64, i64, i64, i64, i32, ptr)\n"
       "declare i32 @\"nyash.object.checked_field_get_i64_v1\"(i32, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_field_get_fallible_i64_v1\"(ptr, i32, i64, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_residence_set_v1\"(ptr, i32, i64, i64, i64, i64, i64, i64, i32)\n"

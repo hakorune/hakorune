@@ -178,8 +178,8 @@ impl EmittedLexicalCallProjectionV1 {
     ) -> Result<Vec<Binding>, String> {
         self.call_in_context(owner, source, context)?;
         let mut ordered = Vec::new();
-        if let Some(read) = self.stored_receiver_read_v1() {
-            ordered.push(read.clone());
+        if let LexicalReceiverProjectionV1::StoredChild { read, .. } = &self.prepared.receiver {
+            ordered.extend(read.producer_bindings().into_iter().cloned());
         }
         for (argument, original) in self.prepared.arguments.iter().zip(source) {
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
@@ -344,6 +344,18 @@ impl EmittedLexicalCallProjectionV1 {
         if self.row.loan().result() != Some(*emitted_result) || *call != expected {
             return Err(freeze("lexical-i64/nested-producer-drift"));
         }
+        if let LexicalReceiverProjectionV1::StoredChild {
+            read: StoredReceiverReadV1::Checked { invoke: read, owner: StoredReceiverFaultV1::Constructor, .. }, ..
+        } = &self.prepared.receiver {
+            let CallPacketSourceLoanV1::Instance(row) = self.row.loan() else { return Err(freeze("call-argument/original-source")); };
+            if context.ok_or_else(|| freeze("call-argument/original-source"))?.ledger()
+                .constructor_unit_call_source_v1(row)?.is_none() || !matches!((&read.1, &self.invoke.1),
+                    (MirInstruction::Invoke { fault_frame: read_frame, fault_landing: read_fault, .. },
+                     MirInstruction::Invoke { fault_frame, fault_landing, .. })
+                        if read_frame == fault_frame && read_fault == fault_landing) {
+                return Err(freeze("call-argument/invoke-shape"));
+            }
+        }
         match &self.projection {
             NormalCallProjectionV1::Value(projection) => {
                 let MirInstruction::InvokeNormalResult { invoke_block, dst } = &projection.1 else {
@@ -428,11 +440,32 @@ impl EmittedLexicalCallProjectionV1 {
             &result_cancellation
         };
         let ends = self.prepared.deferred_argument_ends_v1(context)?;
-        if ends.is_empty() && inherited.is_none() {
+        let checked_receiver = match &self.prepared.receiver {
+            LexicalReceiverProjectionV1::StoredChild { read, .. } if read.is_checked() => Some(read),
+            _ => None,
+        };
+        let mapped = |binding: &Binding| match finishing {
+            Some(boundary) => boundary.binding(binding.0, &binding.1)?
+                .ok_or_else(|| freeze("call-argument/required-binding")),
+            None => Ok(binding.clone()),
+        };
+        let mut receiver_covered = std::collections::BTreeSet::new();
+        if let Some(StoredReceiverReadV1::Checked { invoke, owner: StoredReceiverFaultV1::Return(exit), .. }) = checked_receiver {
+            let required = context.ledger().stored_receiver_return_unwind_v1(self.call_site(), exit)?;
+            let invoke = mapped(invoke)?;
+            let MirInstruction::Invoke { fault_frame, fault_landing, .. } = invoke.1
+                else { return Err(freeze("lexical-terminal/stored-read-kind")); };
+            if !matches!(mapped(&self.invoke)?.1, MirInstruction::Invoke { fault_frame: outer, .. }
+                if outer == fault_frame) { return Err(freeze("call-argument/invoke-shape")); }
+            receiver_covered.extend(paths::pending_operations(function, fault_landing, &required, Some(fault_frame))?);
+            receiver_covered.insert(invoke.0);
+        }
+        let checked_call = matches!(checked_receiver, Some(StoredReceiverReadV1::Checked { owner: StoredReceiverFaultV1::Call, .. }));
+        if ends.is_empty() && inherited.is_none() && !checked_call {
             if self.argument_cleanup.is_some() {
                 return Err(freeze("call-argument/unexpected-cleanup"));
             }
-            return Ok(Default::default());
+            return Ok(receiver_covered);
         }
         if matches!(context, CallValidationContextV1::Finalized(_)) {
             finishing
@@ -461,12 +494,6 @@ impl EmittedLexicalCallProjectionV1 {
                 }
             }
         }
-        let mapped = |binding: &Binding| match finishing {
-            Some(boundary) => boundary
-                .binding(binding.0, &binding.1)?
-                .ok_or_else(|| freeze("call-argument/required-binding")),
-            None => Ok(binding.clone()),
-        };
         let invoke = mapped(&self.invoke)?;
         if !super::super::super::physical_boundary::check_binding(
             function, None, invoke.0, &invoke.1,
@@ -485,6 +512,15 @@ impl EmittedLexicalCallProjectionV1 {
         let mut covered =
             paths::pending_operations(function, fault_landing, &operations, Some(fault_frame))?;
         covered.insert(invoke.0);
+        covered.extend(receiver_covered);
+        if let Some(StoredReceiverReadV1::Checked { invoke: read, owner: StoredReceiverFaultV1::Call, .. }) = checked_receiver {
+            let read = mapped(read)?;
+            let MirInstruction::Invoke { fault_frame: read_frame, fault_landing: read_fault, .. } = read.1
+                else { return Err(freeze("lexical-terminal/stored-read-kind")); };
+            if read_frame != fault_frame { return Err(freeze("call-argument/invoke-shape")); }
+            covered.extend(paths::pending_operations(function, read_fault, &suffix, Some(fault_frame))?);
+            covered.insert(read.0);
+        }
         if let Some((_, suffix)) = self.root_cleanup_suffixes_v1(finishing)? {
             let mut next = fault_landing;
             for operation in &ends {

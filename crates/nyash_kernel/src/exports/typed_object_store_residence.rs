@@ -150,6 +150,36 @@ pub(in crate::exports) fn read_dynamic_field_checked(
     }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
+/// The slot's tag, End descriptor and child identity are checked under the
+/// same parent-store guard. The returned payload borrows that residence.
+pub(in crate::exports) fn borrow_dynamic_object_field_checked(
+    expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
+    child_type: i64, nullable: bool,
+) -> Result<i64, CheckedStorageError> {
+    check_indexed_profile(expected)?;
+    with_objects(|objects| {
+        if child_type <= 0 { return None; }
+        let parent = objects.get(handle_to_index(handle)?)?.as_ref()?;
+        if parent.type_id != type_id { return None; }
+        let field = parent.fields.get(slot)?;
+        if field.storage != TypedSlotStorage::Dynamic || field.residence.is_some() { return None; }
+        let TypedSlotValue::Dynamic(stored) = &field.value else { return None; };
+        validate_dynamic(objects, stored, expected)?;
+        let DynamicFieldStoredV1::Published { value, end } = stored else { return None; };
+        // Null must still belong to this source-selected object residence.
+        let end = (*end)?;
+        if end.kind != 5 || end.type_id != child_type { return None; }
+        match value.kind {
+            1 if nullable => Some(0),
+            5 => {
+                let child = objects.get(handle_to_index(value.value)?)?.as_ref()?;
+                (child.type_id == child_type).then_some(value.value)
+            }
+            _ => None,
+        }
+    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+}
+
 /// Explicit teardown detaches the SAME current residence, leaving known Empty.
 /// A plain object reclaim cannot silently discard a nonempty Dynamic slot.
 pub(in crate::exports) fn take_dynamic_field_checked(

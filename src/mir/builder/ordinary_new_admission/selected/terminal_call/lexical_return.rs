@@ -21,7 +21,7 @@ pub(in crate::mir::builder) fn emit(
     let class = direct.as_ref().map(|view| view.class());
     let mut arguments = Vec::new();
     let (receiver, field_read) = lexical_receiver::prepare(
-        builder, state, owner, &row, &mut arguments)?;
+        builder, state, owner, &row, ledger, lexical_receiver::Fault::Return(exit), &mut arguments)?;
     let mut prepared = lexical_i64::prepare_arguments(
         builder,
         state,

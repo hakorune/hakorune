@@ -2,6 +2,28 @@
 //! Selected Static retains the exact order until collector admission succeeds.
 use super::*;
 
+impl OrdinaryNewClaimLedgerV1 {
+    /// The same root order before terminal argument acquisitions. This read
+    /// does not begin or consume the exit and remains valid after finishing.
+    pub(in crate::mir) fn stored_receiver_return_unwind_v1(
+        &self, call: &OwnedExprSiteV1, exit: &SourceStmtSiteV1,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        if self.verified_terminal_call_source_v1(call.owner(), exit)?
+            .is_none_or(|source| source.call_site() != call.site()) {
+            return Err(freeze("lexical-terminal/source-missing"));
+        }
+        let exits = self.root_exits.borrow();
+        let order = match exits.get(&(call.owner(), exit.clone().into())) {
+            Some(RootHomeExitProgress::Prepared(order) | RootHomeExitProgress::Emitting(order)
+                | RootHomeExitProgress::Finalized(order) | RootHomeExitProgress::Emitted { order, .. }) => order,
+            _ => return Err(freeze("root-exit-not-prepared")),
+        };
+        Ok(order.acquisition_fault().into_iter().filter(|origin|
+            !matches!(origin.subject(), RootHomeReleaseSubjectV1::ArgumentMap { .. }))
+            .map(|origin| origin.operation().clone()).collect())
+    }
+}
+
 pub(super) enum RootHomePreparationV1 {
     NotSelected,
     Unavailable,

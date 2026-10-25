@@ -1,7 +1,7 @@
 /* Query purpose belongs to the same interval proof, not a source classifier. */
 typedef enum {
   LV4_FIELD_UNCHANGED, LV4_FIELD_SUPPORT_END,
-  LV4_FIELD_ARRAY_DRAIN, LV4_FIELD_OBJECT_DRAIN, LV4_FIELD_DYNAMIC_DRAIN, LV4_FIELD_MAP_SLOT
+  LV4_FIELD_ARRAY_DRAIN, LV4_FIELD_OBJECT_DRAIN, LV4_FIELD_DYNAMIC_DRAIN, LV4_FIELD_BORROW_SLOT
 } hako_lv4_field_interval_kind;
 
 /* One reverse interval owner. Reads require an unchanged residence; wrapper
@@ -10,7 +10,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
     uint32_t use, uint32_t born, const hako_lv4_value* base,
     uint32_t object, uint32_t field, uint32_t child, hako_lv4_field_interval_kind query,
     unsigned char* seen, size_t* queue) {
-  int slot = query == LV4_FIELD_MAP_SLOT;
+  int slot = query == LV4_FIELD_BORROW_SLOT;
   int released = query != LV4_FIELD_UNCHANGED && !slot;
   int full = query >= LV4_FIELD_ARRAY_DRAIN && !slot;
   hako_lv4_block* current = lv4_index_block(fn, use);
@@ -118,5 +118,5 @@ static int lv4_field_dependency_discharged(hako_lv4_function_index* fn,
 
 static int lv4_map_slot_interval(hako_lv4_function_index* fn, uint32_t use, uint32_t born,
     const hako_lv4_value* base, uint32_t object, uint32_t field) {
-  return lv4_field_interval(fn, use, born, base, object, field, 0, LV4_FIELD_MAP_SLOT);
+  return lv4_field_interval(fn, use, born, base, object, field, 0, LV4_FIELD_BORROW_SLOT);
 }

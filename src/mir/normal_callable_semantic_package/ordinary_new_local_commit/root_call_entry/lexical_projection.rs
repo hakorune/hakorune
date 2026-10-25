@@ -22,6 +22,9 @@ mod normal_projection;
 pub(crate) use call_packet_source::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use call_packet_source::{CallPacketSourceLoanV1, CallPacketSourceV1};
 use normal_projection::{ArgumentCallCleanupV1, NormalCallProjectionV1};
+#[path = "lexical_stored_receiver.rs"]
+mod stored_receiver;
+pub(in crate::mir) use stored_receiver::{StoredReceiverReadV1, StoredReceiverFaultV1};
 
 /// Selected Static Call packet checked with a borrowed publication row.
 /// The owned handoff arrives only after collector admission succeeds.
@@ -105,7 +108,7 @@ enum LexicalReceiverProjectionV1 {
     Lexical(ExactLexicalReadV1),
     StoredChild {
         parent: ExactLexicalReadV1,
-        read: Binding,
+        read: StoredReceiverReadV1,
     },
 }
 
@@ -218,7 +221,7 @@ impl PreparedLexicalCallProjectionV1 {
         finishing: Option<&FinishedBindings>,
     ) -> Result<(), String> {
         if let LexicalReceiverProjectionV1::StoredChild { read, .. } = &self.receiver {
-            require_recorded(bindings, read, finishing)?;
+            for binding in read.bindings() { require_recorded(bindings, binding, finishing)?; }
         }
         for argument in &self.arguments {
             match argument {
@@ -279,11 +282,11 @@ impl PreparedLexicalCallProjectionV1 {
         }
     }
 
-    pub(in crate::mir) fn with_stored_receiver(mut self, read: Binding) -> Result<Self, String> {
+    pub(in crate::mir) fn with_stored_receiver(mut self, read: impl Into<StoredReceiverReadV1>) -> Result<Self, String> {
         let LexicalReceiverProjectionV1::Lexical(parent) = self.receiver else {
             return Err(freeze("lexical-terminal/duplicate-stored-receiver"));
         };
-        self.receiver = LexicalReceiverProjectionV1::StoredChild { parent, read };
+        self.receiver = LexicalReceiverProjectionV1::StoredChild { parent, read: read.into() };
         Ok(self)
     }
 
@@ -427,18 +430,7 @@ impl PreparedLexicalCallProjectionV1 {
                                 .map_err(|error| {
                                     format!("[freeze:contract][lexical-terminal/parent/{error:?}]")
                                 })?;
-                        let MirInstruction::ObjectFieldGet {
-                            dst,
-                            base: actual,
-                            field: actual_field,
-                        } = &read.1
-                        else {
-                            return Err(freeze("lexical-terminal/stored-read-kind"));
-                        };
-                        if *actual != base || *actual_field != field || *dst == base {
-                            return Err(freeze("lexical-terminal/stored-read-drift"));
-                        }
-                        *dst
+                        read.value(base, instance.source_target(), context)?
                     }
                     _ => return Err(freeze("lexical-terminal/receiver-arm-drift")),
                 };
@@ -573,6 +565,8 @@ impl EmittedLexicalCallProjectionV1 {
         binding: &Binding,
     ) -> bool {
         self.has_producer_at(site, binding)
+            || self.call_site() == site && matches!(&self.prepared.receiver,
+                LexicalReceiverProjectionV1::StoredChild { read, .. } if read.bindings().contains(&binding))
             || self.call_site() == site
                 && self
                     .prepared
@@ -591,7 +585,7 @@ impl EmittedLexicalCallProjectionV1 {
             && (&self.invoke == binding
                 || matches!(&self.projection, NormalCallProjectionV1::Value(original) if original == binding)
                 || matches!(&self.prepared.receiver,
-                    LexicalReceiverProjectionV1::StoredChild { read, .. } if read == binding)
+                    LexicalReceiverProjectionV1::StoredChild { read, .. } if read.producer_bindings().contains(&binding))
                 || self.prepared.arguments.iter().any(|argument| {
                     matches!(argument, LexicalCallArgumentProjectionV1::Integer(original)
                         if original == binding)
@@ -618,7 +612,7 @@ impl EmittedLexicalCallProjectionV1 {
 
     pub(in crate::mir) fn stored_receiver_read_v1(&self) -> Option<&Binding> {
         match &self.prepared.receiver {
-            LexicalReceiverProjectionV1::StoredChild { read, .. } => Some(read),
+            LexicalReceiverProjectionV1::StoredChild { read, .. } => Some(read.primary()),
             LexicalReceiverProjectionV1::Lexical(_) | LexicalReceiverProjectionV1::AbsentStatic => {
                 None
             }

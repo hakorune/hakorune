@@ -68,6 +68,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     OwnedArrayGet,
     OwnedArrayEnd,
     FieldGet,
+    ObjectFieldBorrow,
     FieldSet,
     ObjectFieldSet,
     HomeRelease,
@@ -147,6 +148,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             }),
             InvokeOperation::NewBox { .. } => Some(Self::NewBox),
             InvokeOperation::FieldGet { .. } => Some(Self::FieldGet),
+            InvokeOperation::ObjectFieldBorrow { .. } => Some(Self::ObjectFieldBorrow),
             InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
             InvokeOperation::ObjectFieldSet { .. } => Some(Self::ObjectFieldSet),
             InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
@@ -655,6 +657,7 @@ fn referenced_objects(
                             ids.insert(field.object().declaration_index());
                         }
                         InvokeOperation::OwnedObjectFieldRelease { field, child, .. }
+                        | InvokeOperation::ObjectFieldBorrow { field, child, .. }
                         | InvokeOperation::ObjectFieldSet { field, child, .. } => {
                             ids.insert(field.object().declaration_index());
                             ids.insert(child.declaration_index());

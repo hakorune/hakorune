@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-binary-trees"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "binary-trees final MIR object-field-read-definition-invalid bb25/bb27; shared entry-formal forward proof unresolved; fixed suite 6/11"
+current_blocker_token = "binary-trees physical output raw Dynamic FieldGet in null guard; shared entry-formal forward proof unresolved; fixed suite 6/11"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-bin
 latest_card = "app-binary-trees"
 latest_card_path = "docs/development/current/main/investigations/app-binary-trees.md"
 latest_card_summary = """
-APP-binary-trees remains selected. Recursive make source/result sealing now succeeds; current stop is final MIR object-field-read-definition-invalid at bb25/bb27, before EXE.
-Fresh quick CLI32.83s PASS; fixed suite6/11 in52.276s, five compile failures retained. The six include the non-EXE probe marker; no new app completion is claimed.
-Constructor Dynamic source stores finish before input/result seals; stored-child Unit plans finish after lexical dispositions. Original source qualifiers, End inventory and common affine claim/handoff installation stay intact.
-Rechecked460 existing cases: lexical319/37 and local-commit94/10, no new failing names; Unit/discard4 PASS. Nullable-source negative still refuses missing ingress without consuming its completed packet; no test cases/checkers/guards added.
-Next: checked borrowed stored-child read with exact source field/child/nullability, parent lifetime and Normal/Fault/final validation. Shared entry-formal failures, remaining verification reds and canonical closeout remain open.
+APP-binary-trees remains selected. Checked child reads pass MIR verification; direct EXE now stops at raw Dynamic FieldGet(left) in the itemCheck null guard, physical block16 row2.
+Final quick CLI31.05s and lifecycle runtime1m04s PASS; fixed suite6/11 in92.578s retains five pre-EXE failures. The six include a non-EXE marker; no app completion is claimed.
+Original Call packets retain exact field/child/non-null mode and Normal/Fault correspondence; existing slot-borrow lifetime and sole Birth writer proof remain authoritative. Nullable observations grant no receiver or Home.
+Rechecked460 existing cases: lexical319/37 and local-commit94/10, no new failing names. C ABI two profiles and borrow intervals PASS; preartifact parser negative reproduces on pre-series baseline and stays open. No Rust cases/checkers/guards added.
+Next: source-owned nullable object field in Bool null guard, same checked read and final field image; then real EXE/run. Shared source failures, remaining verification reds and canonical closeout remain open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

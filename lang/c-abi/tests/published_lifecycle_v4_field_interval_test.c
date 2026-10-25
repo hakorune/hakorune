@@ -68,6 +68,11 @@ int main(void) {
   const char* write = "{\"operation\":{\"kind\":\"field_set\",\"base\":1,\"object_id\":7,\"field_ordinal\":3}}";
   const char* call = "{\"operation\":{\"kind\":\"ordinary_call\"}}";
   const char* lower = "{\"operation\":{\"kind\":\"field_residence_release\",\"transaction\":\"take_dynamic\",\"base\":1,\"object_id\":7,\"field_ordinal\":2}}";
+  /* A slot borrow survives only an unchanged, still-live parent interval. */
+  assert(interval(EMPTY, EMPTY, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
+  assert(!interval(EMPTY, call, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
+  assert(!interval(EMPTY, write, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
+  assert(!interval(EMPTY, END, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
   assert(interval(dynamic, EMPTY, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
   assert(interval(write, dynamic, dynamic, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
   assert(!interval(dynamic, write, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));

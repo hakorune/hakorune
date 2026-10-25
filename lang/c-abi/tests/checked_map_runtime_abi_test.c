@@ -166,6 +166,8 @@ int main(void) {
     assert(!memcmp(&seen,&scalars[i],sizeof(seen)));
     assert(nyrt_object_checked_dynamic_get_v1(frame,field_profile,121,field_parent,940,0,0,&seen)==0);
     assert(seen.kind==scalars[i].kind);
+    value=777;
+    assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,121,field_parent,940,0,941,1,&value)==1 && value==777);
     if (scalars[i].kind!=NYRT_FIELD_I64_V1)
       assert(nyrt_object_checked_dynamic_get_v1(frame,field_profile,122,field_parent,940,0,NYRT_FIELD_I64_V1,&seen)==1);
     field_finish(frame,123);
@@ -191,6 +193,11 @@ int main(void) {
   assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,142,field_parent,940,0,&object,&field_child[field_profile-1],field_outcome)==0);
   field_finish(frame,143);
   assert(nyrt_object_checked_dynamic_get_v1(frame,field_profile,143,field_parent,940,0,0,&seen)==0 && seen.kind==NYRT_FIELD_OBJECT_V1);
+  assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,143,field_parent,940,0,941,1,&value)==0 && value==child);
+  assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,143,field_parent,940,0,941,0,&value)==0 && value==child);
+  value=777;
+  assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,143,field_parent,940,0,941,2,&value)==2 && value==777);
+  assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,143,field_parent,940,0,942,1,&value)==1 && value==777);
   assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
   assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,144,field_parent,940,0,&object,&field_child[field_profile-1],field_outcome)==1);
   scalar.value=42;
@@ -248,6 +255,11 @@ int main(void) {
   assert(nyrt_object_checked_dynamic_initialize_v1(frame,field_profile,190,field_parent,940,0,
       &nullable_null,&field_nullable_child[field_profile-1],field_outcome)==0);
   field_finish(frame,191);
+  assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,191,field_parent,940,0,941,1,&value)==0 && value==0);
+  value=777;
+  assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,191,field_parent,940,0,941,0,&value)==1 && value==777);
+  value=777;
+  assert(nyrt_object_checked_object_field_borrow_v1(frame,field_profile,191,field_parent,940,0,942,1,&value)==1 && value==777);
   assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
   assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,192,field_parent,940,0,field_outcome)==0);
   field_finish(frame,192);

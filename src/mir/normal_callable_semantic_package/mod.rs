@@ -238,7 +238,7 @@ mod map_physical_dependency_tests;
 pub(in crate::mir) use ordinary_new_coseal::{
     BorrowedFormalDomainV1, BorrowedFormalActualSourceV1, CallPacketSourceLoanV1, CallPacketSourceV1,
     EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
-    PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1,
+    PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1, StoredReceiverReadV1, StoredReceiverFaultV1,
     PreparedSelectedStaticLoopCallProjectionV1,
 };
 

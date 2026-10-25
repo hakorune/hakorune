@@ -328,6 +328,15 @@ pub enum InvokeOperation {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         base: ValueId,
     },
+    /// Observe an exact Dynamic object slot while its parent remains live.
+    /// Normal lends the checked child class, admitting Null only when selected
+    /// by the source purpose. A nonnull receiver refinement acquires no Home.
+    ObjectFieldBorrow {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        child: hakorune_mir_defs::CanonicalObjectIdV1,
+        nullable: bool,
+    },
     /// Checked source-selected mutation; the mode defines its commit/Fault law.
     FieldSet {
         mode: FieldSetModeV1,
@@ -394,6 +403,7 @@ impl InvokeOperation {
         match self {
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => Some(InvokeNormalResultKind::Handle),
             Self::FieldGet { .. } => Some(InvokeNormalResultKind::I64),
+            Self::ObjectFieldBorrow { .. } => Some(InvokeNormalResultKind::BorrowedNullableHandle),
             Self::Map(operation) => operation.normal_result_kind(),
             Self::String(operation) => operation.normal_result_kind(),
             Self::DynamicInvocation(_) => Some(InvokeNormalResultKind::DynamicCarrier),
@@ -463,7 +473,7 @@ impl InvokeOperation {
             Self::Birth(call) => call.effects.add(Effect::Control),
             Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => EffectMask::CONTROL.add(Effect::Alloc),
-            Self::FieldGet { .. } => EffectMask::READ.add(Effect::Control),
+            Self::FieldGet { .. } | Self::ObjectFieldBorrow { .. } => EffectMask::READ.add(Effect::Control),
             Self::ArrayElementWrite { value: ArrayElementWriteValueV1::Text(_), .. } => EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
             Self::FieldSet { mode: FieldSetModeV1::DynamicMapInitialize, .. } =>
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
@@ -515,6 +525,7 @@ impl InvokeOperation {
                 vec![*base, *value]
             }
             Self::FieldGet { base, .. }
+            | Self::ObjectFieldBorrow { base, .. }
             | Self::OwnedFieldResidenceRelease { base, .. }
             | Self::OwnedObjectFieldRelease { base, .. } => vec![*base],
             Self::HomeRelease { value, .. }
@@ -560,6 +571,7 @@ impl InvokeOperation {
                 value.rewrite_values(rewrite);
             }
             Self::FieldGet { base, .. }
+            | Self::ObjectFieldBorrow { base, .. }
             | Self::OwnedFieldResidenceRelease { base, .. }
             | Self::OwnedObjectFieldRelease { base, .. } => rewrite(base),
             Self::HomeRelease { value, .. }

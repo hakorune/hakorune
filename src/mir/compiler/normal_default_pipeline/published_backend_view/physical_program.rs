@@ -705,7 +705,7 @@ fn validate_instruction_with_context(
     let field_get = matches!(instruction, MirInstruction::FieldGet { .. }) && field_ref.is_some();
     let field_set = matches!(instruction, MirInstruction::FieldSet { .. }) && field_ref.is_some();
     let supported = ordinary
-        || received_field && matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }, .. })
+        || received_field && matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { .. }, .. })
         || field_get
         || field_set
         || matches!(
@@ -732,6 +732,7 @@ fn validate_instruction_with_context(
                         | InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::FieldSet { .. }
                         | InvokeOperation::ObjectFieldSet { .. }
+                        | InvokeOperation::ObjectFieldBorrow { .. }
                         | InvokeOperation::HomeRelease { .. }
                         | InvokeOperation::HomeReleaseIfLive { .. }
                         | InvokeOperation::OwnedFieldResidenceRelease { .. }

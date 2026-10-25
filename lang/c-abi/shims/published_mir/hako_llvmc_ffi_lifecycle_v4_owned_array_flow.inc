@@ -142,14 +142,15 @@ static int lv4_slot_borrow_readable(const hako_lv4_input* in,
       !lv4_is(term, "op", "invoke") || lv4_u(term, "normal") != lv4_u(value->definition_block, "id") ||
       hako_physical_predecessor_count(fn->function, lv4_u(term, "normal")) != 1) return 0;
   if (lv4_is(op, "kind", "array_owned_get")) return lv4_owned_array_borrow_live(fn, value, state);
-  if (!lv4_is(op, "kind", "map_field_get_indexed") || in->profile != LV4_INDEXED_SAFE_MUTEX ||
-      !value->object_id_set || value->object_id != lv4_u(op, "payload_object_id") ||
+  int object_borrow = lv4_is(op, "kind", "object_field_borrow");
+  if ((!object_borrow && !lv4_is(op, "kind", "map_field_get_indexed")) || (!object_borrow && in->profile != LV4_INDEXED_SAFE_MUTEX) ||
+      !value->object_id_set || value->object_id != lv4_u(op, object_borrow ? "expected_object_id" : "payload_object_id") ||
       !lv4_layout(in, value->object_id) || !lv4_birth_dynamic(in, op) || lv4_slot(in, op) < 0) return 0;
   hako_lv4_value* base = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(op, "base")));
   return base && base->kind == LV4_HANDLE &&
       lv4_readable_object(in, fn, base->id, state, use, lv4_u(op, "object_id"), 1) &&
       lv4_field_interval(fn, use, lv4_u(term, "normal"), base,
-          lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), 0, LV4_FIELD_MAP_SLOT);
+          lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), 0, LV4_FIELD_BORROW_SLOT);
 }
 
 static int lv4_owned_array_step(const hako_lv4_input* in,

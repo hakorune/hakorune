@@ -257,6 +257,11 @@ uint32_t nyrt_object_checked_dynamic_initialize_v1(void *, uint32_t, uint64_t,
     const NyrtDynamicFieldEndDescriptorV1 *, void *) __asm__("nyash.object.checked_dynamic_initialize_v1");
 uint32_t nyrt_object_checked_dynamic_get_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, uint32_t, NyrtDynamicFieldValueV1 *) __asm__("nyash.object.checked_dynamic_get_v1");
+/* Borrow Null or an exact object class from the same live Dynamic residence.
+ * nullable=0 requires a nonnull source refinement; nullable=1 admits Null.
+ * No Home is acquired; output is written only on Normal. */
+uint32_t nyrt_object_checked_object_field_borrow_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, int64_t, uint32_t, int64_t *) __asm__("nyash.object.checked_object_field_borrow_v1");
 uint32_t nyrt_object_checked_dynamic_take_v1(void *, uint32_t, uint64_t,
     int64_t, int64_t, size_t, void *) __asm__("nyash.object.checked_dynamic_take_v1");
 /* SafeMutex only: source-exclusive initialized Live Map -> stable field Home.
