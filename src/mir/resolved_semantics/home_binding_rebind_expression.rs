@@ -48,7 +48,7 @@ impl CheckedBindingRebindFrameV1 {
         )
     }
     pub(crate) fn materializes_root(&self) -> bool {
-        self.is_text_residence() && !self.evaluation.owned_result_nodes().contains(&0)
+        self.is_text_residence() && self.evaluation.owned_text_root_node_v1().is_none()
     }
     pub(crate) fn previous_text(&self) -> Option<&TextResidenceAcquisitionV1> {
         match &self.destination {

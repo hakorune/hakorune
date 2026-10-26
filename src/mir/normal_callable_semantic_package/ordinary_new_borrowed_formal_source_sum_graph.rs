@@ -251,15 +251,15 @@ impl Graph<'_> {
                         }
                         None if source.core_operand_request().is_some_and(|request|
                             request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayGet) => {
-                            let field = source.field_array_access_v1()
-                                .filter(|access| access.is_dynamic_get())
-                                .map(|access| access.field());
+                            let access = source.field_array_access_v1().filter(|access| access.is_dynamic_get());
+                            let field = access.map(|access| access.field());
                             if let Some(elements) = field.and_then(|field| self.array_fields.get(&field).copied()) {
                                 row.union.push(elements);
-                                // ArrayBox.get returns Null when its index is
-                                // out of range. A separate same-field guard
-                                // proof may later exclude this arm.
-                                row.atoms.insert(Value::Null);
+                                // Preserve OOB/null unless the same original
+                                // field/count/terminating guard proves bounds.
+                                if access.is_none_or(|access| !access.get_is_in_bounds_v1()) {
+                                    row.atoms.insert(Value::Null);
+                                }
                             } else {
                                 row.atoms.insert(Value::Other);
                             }
@@ -382,6 +382,7 @@ pub(super) fn project_graph_v1(
             .filter(|_| premises_closed && receiver_closed)
             .and_then(|_| {
                 Some(Rc::new(ClosedOriginalCoreSourceV1 {
+                    result: values[request.node].clone()?,
                     method: std::sync::Arc::clone(&request.method),
                     request: request.request,
                     field_map: request.field_map.clone(),

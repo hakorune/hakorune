@@ -156,13 +156,13 @@ pub(super) fn prepare_instance_source_actuals_v1(
             }
         }
     }
-    // An affirmative original zero-input result request needs the SAME
-    // argument-row protocol even though its caller has no borrowed formal.
-    let nullable_request = match ingress.object_source_target_at_v1(site)? {
+    // An original owning-result request needs the SAME argument-row protocol
+    // even though its caller may have no borrowed formal of its own.
+    let owning_input_request = match ingress.object_source_target_at_v1(site)? {
         Some(target) => ingress.original_owning_object_input_callee_v1(target)?,
         None => false,
     };
-    let zero_request = !nullable_request
+    let zero_request = !owning_input_request
         && ingress
             .source_incoming
             .exact_rows()
@@ -209,7 +209,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         && !scalar_request
         && !object_producer_request
         && mixed_request.is_none()
-        && !nullable_request
+        && !owning_input_request
         && !expression_request
         && map_key.is_none()
     {
@@ -356,6 +356,18 @@ pub(super) fn prepare_instance_source_actuals_v1(
         };
         let argument = if formal.kind.is_ordinary_borrowed_handle() {
             match actual.value {
+                BorrowedCallActualValueV1::Home {
+                    binding,
+                    root,
+                    ref acquisition,
+                } if owning_input_request
+                    && binding.owner() == site.owner()
+                    && root.owner() == site.owner()
+                    && acquisition.owner() == site.owner() => {
+                    // Retain the original Home candidate only. Reconstruction
+                    // requires the same ledger's exact local New/class, and
+                    // the executable consumer still checks the current Home.
+                }
                 BorrowedCallActualValueV1::SelfRooted { binding, root } => {
                     let draft =
                         draft.ok_or_else(|| freeze("borrowed-instance/forward-source-missing"))?;
@@ -469,6 +481,16 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         && binding.owner() == site.owner()
                         && source_actual_sum.is_some_and(|sum| sum.signed_only()) => {}
                 BorrowedCallActualValueV1::Binding(binding)
+                    if owning_input_request && binding.owner() == site.owner()
+                        && source_actual_sum.is_some() => {
+                    // Plain reads retain an expression obligation, regardless
+                    // of class. The source query still corroborates this exact
+                    // binding read; reconstruction needs its Qualified frame
+                    // (or the existing object-read source).
+                }
+                BorrowedCallActualValueV1::Unknown | BorrowedCallActualValueV1::Expression
+                    if owning_input_request => {}
+                BorrowedCallActualValueV1::Binding(binding)
                     if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                         && map_key.is_some_and(|(ordinal, read, original)| {
                             ordinal == actual.ordinal
@@ -500,9 +522,12 @@ pub(super) fn prepare_instance_source_actuals_v1(
                             .is_some_and(|sum| sum.signed_only()) => {}
                 BorrowedCallActualValueV1::Unknown
                     if matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-                        && source_actual_sum.is_some_and(|sum| sum.signed_only()) => {}
+                        // This selects source reconstruction only. The exact
+                        // Text read/residence and whole input remain owed.
+                        && source_actual_sum.is_some_and(|sum|
+                            sum.signed_only() || finite_input && sum.text_only()) => {}
                 BorrowedCallActualValueV1::String(_)
-                    if finite_input
+                    if (finite_input || owning_input_request)
                         && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) => {
                 }
                 BorrowedCallActualValueV1::Integer(_)
@@ -510,7 +535,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 | BorrowedCallActualValueV1::Null => {}
                 _ => {
                     return Err(format!(
-                        "{}: site={site:?} ordinal={} actual={:?}",
+                        "{}: site={site:?} ordinal={} actual={:?} sum={source_actual_sum:?} finite-input={finite_input}",
                         freeze("borrowed-instance/opaque-source-unsupported"),
                         actual.ordinal,
                         actual.value

@@ -41,7 +41,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
         None => expression_value::emit(builder, state, ledger, &source, &mut emit_call)?,
     };
     let (terminal, continuation) = if text {
-        expression_value::materialize_text_root(builder, &mut expression, source.owned_root_node_v1().is_none())?;
+        expression_value::materialize_text_root(builder, &mut expression, source.owned_text_root_node_v1().is_none(), &source)?;
         expression_value::finish_residence_with_displaced_continuation(builder, &mut expression, displaced)?
     } else { expression_value::finish_scalar_continuation(builder, &mut expression)? };
     let value = match expression.value.as_operand()? {

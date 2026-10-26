@@ -144,7 +144,8 @@ impl StringInvokeOperation {
                 (left.is_text() || matches!(left, StringInvokeOperand::DynamicCarrier(_)))
                     && (right.is_text() || matches!(right, StringInvokeOperand::DynamicCarrier(_)))
             }
-            Self::Materialize { value } | Self::Length { value } => value.is_text(),
+            Self::Materialize { value } => value.is_text() || matches!(value, StringInvokeOperand::DynamicCarrier(_)),
+            Self::Length { value } => value.is_text(),
             Self::Substring { value, start, end } => value.is_text()
                 && matches!(start, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_))
                 && matches!(end, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_)),

@@ -45,6 +45,11 @@ pub(super) fn evaluate_row(
                 origin: ResultValueOriginV1::Fresh(found.clone()),
                 step: ResultWitnessStepV1::FreshConstruction,
             })),
+            PendingExitV1::LocalNew(source) => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+                site: exit.site.clone(),
+                origin: ResultValueOriginV1::Fresh(source.construction.class().into()),
+                step: ResultWitnessStepV1::LocalConstruction(std::rc::Rc::clone(source)),
+            })),
             PendingExitV1::Null => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
                 site: exit.site.clone(),
                 origin: ResultValueOriginV1::Null,

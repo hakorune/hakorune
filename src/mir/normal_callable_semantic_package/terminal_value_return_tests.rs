@@ -73,6 +73,23 @@ fn map_local_return_issues_value_relation_and_leaves_cleanup() {
 
 #[test]
 fn home_local_return_issues_value_relation_and_leaves_cleanup() {
+    // Source class discovery must retain the local acquisition separately
+    // from its Return read. Rebinding must not reuse that construction.
+    for (body, accepted) in [
+        ("local p = new Page() return p", true),
+        ("local p = new Page() p = new Page() return p", false),
+    ] {
+        let facts = super::ordinary_new_coseal::source_result_facts_for_test(&work_program(body));
+        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("Work", "make", 1);
+        let outcomes = facts.outcomes(&key);
+        assert_eq!(outcomes.is_some(), accepted, "local return source: {body}");
+        if let Some(outcomes) = outcomes {
+            let root = &outcomes[0].witnesses()[0];
+            let acquisition = root.construction_site_v1().expect("local New source");
+            assert_eq!(acquisition.owner(), root.site().owner());
+            assert_ne!(acquisition.site(), root.site().site());
+        }
+    }
     let package = issue(&work_program(
         "local p = new Page() local m = %{\"k\" => 1} return p",
     ))

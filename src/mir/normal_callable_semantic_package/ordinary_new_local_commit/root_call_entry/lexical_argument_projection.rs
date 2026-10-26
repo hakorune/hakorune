@@ -322,7 +322,7 @@ impl EmittedArgumentExpressionProjectionV1 {
                 ArgumentCompletionV1::OwnedTextDeferred,
                 Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)),
             ) if !self.frame.is_i64()
-                && self.frame.evaluation().owned_result_nodes().contains(&0) =>
+                && self.frame.evaluation().owned_text_root_node_v1().is_some() =>
             {
                 *value
             }
@@ -530,7 +530,7 @@ impl LexicalCallArgumentProjectionV1 {
             ArgumentCompletionV1::ScalarCompleted
         } else if frame.is_dynamic_carrier_append_v1() {
             ArgumentCompletionV1::DynamicCarrierDeferred
-        } else if frame.materializes_root() || frame.evaluation().owned_result_nodes().contains(&0)
+        } else if frame.materializes_root() || frame.evaluation().owned_text_root_node_v1().is_some()
         {
             ArgumentCompletionV1::OwnedTextDeferred
         } else {

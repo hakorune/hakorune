@@ -130,6 +130,7 @@ enum ResultClassExitDraftV1 {
 enum PendingExitV1 {
     MapStored(std::rc::Rc<witness::MapStoredResultSourceV1>),
     New(Box<str>),
+    LocalNew(std::rc::Rc<witness::LocalConstructionResultSourceV1>),
     Null,
     Fwd {
         call_site: crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -423,23 +424,27 @@ fn resolve_call_key(
 }
 
 /// Resolve a `return <local>` exit: the binding must be an unrebound
-/// local with a sole initializer, and the initializer must be a
-/// supported forwarded call — a `new`/`null`/other initializer kills
-/// the row, keeping the grammar to F5 exactly.
+/// local with a sole initializer. A New retains its exact local acquisition;
+/// a supported call retains its original forwarding edge.
 fn resolve_forward_local(
     binding: BindingRefV1,
-    function: &VerifiedResolvedFunctionV1,
+    returned: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     body_shape: &VerifiedResolvedBodyShapeInventoryV1,
     caller_key: &CanonicalSameModuleCallableKeyV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 ) -> Option<PendingExitV1> {
+    let function = input.function();
     let record = function.binding(binding)?;
     if !matches!(record.kind(), BindingKindV1::Local { .. }) {
         return None;
     }
     let initializer_site = sole_initializer_site(function, binding)?;
+    if function.expression_source().construction(&initializer_site).is_some() {
+        return witness::capture_local_construction_result_v1(input, binding, returned).map(PendingExitV1::LocalNew);
+    }
     resolve_call_key(
         &initializer_site,
         function,
@@ -627,7 +632,8 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                             }),
                             ResultClassExitDraftV1::ForwardLocal(binding) => resolve_forward_local(
                                 *binding,
-                                function,
+                                site,
+                                input,
                                 body_shape,
                                 &row.key,
                                 batch,

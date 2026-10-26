@@ -143,7 +143,7 @@ pub(in crate::mir::builder) fn emit_with_checked_frame(
             )
         },
     )?;
-    expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root())?;
+    expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root(), frame.evaluation())?;
     let (value, terminal, continuation) = if frame.is_dynamic_carrier_append_v1() {
         let Operand::DynamicCarrier(value) = expression.value.as_operand()?.clone() else {
             return Err(freeze("argument-expression/dynamic-carrier-result"));

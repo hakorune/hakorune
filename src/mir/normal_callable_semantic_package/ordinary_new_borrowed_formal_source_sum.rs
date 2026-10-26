@@ -149,6 +149,7 @@ impl OriginalSourceSumsV1 {
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package)
 struct ClosedOriginalCoreSourceV1 {
+    result: SourceValueSumV1,
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     request: OriginalCoreOperandRequestV1,
     field_map: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1>>,
@@ -158,6 +159,7 @@ struct ClosedOriginalCoreSourceV1 {
     i64: Box<[SourceValueSumV1]>,
 }
 impl ClosedOriginalCoreSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn result_sum_v1(&self) -> &SourceValueSumV1 { &self.result }
     pub(in crate::mir::normal_callable_semantic_package) fn field_array_access_v1(&self)
         -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> { self.field_array_access.as_ref() }
     pub(in crate::mir::normal_callable_semantic_package) fn receiver_core(&self) -> Option<&Rc<Self>> {
@@ -203,6 +205,7 @@ impl ClosedOriginalCoreSourceV1 {
             && std::ptr::eq(self.manifest().row(), other.manifest().row())
             && self.manifest().arity() == other.manifest().arity()
             && self.text == other.text
+            && self.result == other.result
             && self.i64 == other.i64
             && match (&self.receiver_core, &other.receiver_core) {
                 (None, None) => true,

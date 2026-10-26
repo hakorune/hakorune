@@ -843,4 +843,40 @@ fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
                 "an erased original object edge cannot retain numeric result credit");
         }
     }
+    // A get keeps its Null alternative unless the same original count guard
+    // proves the constant index on the surviving path. This is source proof,
+    // independent of whether an unused helper has a physical Return packet.
+    for (body, expected) in [
+        ("if me.values.length() == 0 { return \"\" } return me.values.get(0)", true),
+        ("if me.values.length() <= 2 { return \"\" } return me.values.get(2)", true),
+        ("return me.values.get(0)", false),
+        ("if me.other.length() == 0 { return \"\" } return me.values.get(0)", false),
+        ("if me.values.length() == 0 { local unused = 0 } return me.values.get(0)", false),
+        ("if me.values.length() == 0 { return \"\" } me.values.push(\"y\") return me.values.get(0)", false),
+        ("if me.values.length() == 0 { return \"\" } return me.values.get(1)", false),
+        ("if me.values.length() == 0 { return \"\" } local i = 0 loop(i < 1) { local v = me.values.get(0) me.values.push(\"y\") i = i + 1 } return \"\"", true),
+    ] {
+        let text = format!("box Page {{ init {{ values, other }} birth() {{ me.values = new ArrayBox() me.other = new ArrayBox() }}
+            seed() {{ me.values.push(\"x\") me.other.push(\"x\") }} read() {{ {body} }} }}
+            static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let owner = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.owner() == "Page" && key.name() == "read")).unwrap().owner;
+        let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let original = ledger.borrowed_i64_results.original_return_source_v1(&owner).unwrap().unwrap();
+        assert_eq!(original.is_text_return_v1(ingress), expected, "{body}");
+        for (site, method) in package.batch().with_lowering_input(
+            package.parameter_contracts.iter().find(|row| row.owner == owner).unwrap().batch_slot,
+            |input| input.function().method_calls().map(|(site, method)| (site.clone(), method.selector().to_owned())).collect::<Vec<_>>(),
+        ).unwrap() {
+            if method != "get" { continue; }
+            if body.contains("loop(") {
+                let core = ingress.ordinary_core_source_v1(&OwnedExprSiteV1::new(owner, site)).unwrap();
+                assert!(!core.operands().field_array_access_v1().unwrap().get_is_in_bounds_v1(),
+                    "a guard outside a repeated container does not certify each iteration");
+            }
+        }
+    }
 }

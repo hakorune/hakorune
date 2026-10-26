@@ -302,6 +302,21 @@ impl CheckedExpressionEvaluationV1 {
         }
         self.owned_result_nodes().contains(&node).then_some(node)
     }
+    /// Owned carrier and owned Text are distinct acquisitions. A proved Text
+    /// payload still needs a snapshot before a Text destination can own it.
+    pub(crate) fn text_snapshot_root_v1(&self) -> Option<usize> {
+        let node = self.owned_root_node_v1()?;
+        (self.class(node) == Some(ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String))
+            && self.cores.get(&node).is_some_and(|core|
+                core.is_array_dynamic_get_v1() && core.proves_text_result_v1())).then_some(node)
+    }
+    pub(crate) fn owned_text_root_node_v1(&self) -> Option<usize> {
+        let node = self.owned_root_node_v1()?;
+        (self.class(node) == Some(ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String))
+            && self.text_snapshot_root_v1().is_none()).then_some(node)
+    }
     pub(crate) fn node_is_identity(&self, node: usize) -> bool {
         self.classes.get(node) == Some(&ExpressionLeafClassV1::Identity)
     }

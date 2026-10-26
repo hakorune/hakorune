@@ -45,7 +45,7 @@ impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn materializes_root(&self) -> bool {
         !self.is_i64()
             && !self.is_dynamic_carrier_append_v1()
-            && !self.evaluation.owned_result_nodes().contains(&0)
+            && self.evaluation.owned_text_root_node_v1().is_none()
     }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
         &self.evaluation

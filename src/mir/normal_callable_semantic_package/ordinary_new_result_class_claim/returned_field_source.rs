@@ -111,8 +111,9 @@ impl OrdinaryNewResultClassClaimsV1 {
             let field = hop.field.ok_or("returned-field/current-field-missing")?;
             let mut retained = source.alternatives.iter().filter(|row| row.hop == index);
             for root in hop.call.roots() {
+                let construction = root.construction_site_v1().ok_or("returned-field/wrapper-forward-root")?;
                 let mut relations = self.construction_child_relation_loans()
-                    .filter(|row| row.outer() == root.site() && row.field() == field
+                    .filter(|row| row.outer() == construction && row.field() == field
                         && !row.is_unqualified_dynamic_v1());
                 let relation = relations.next().ok_or("returned-field/current-relation-missing")?;
                 if relations.next().is_some() { return Err("returned-field/current-relation-duplicate"); }
@@ -224,9 +225,9 @@ impl<'a, 't> FieldWalkV1<'a, 't> {
         let mut chosen = None;
         let mut selected = Vec::new();
         for root in call.roots() {
-            if !matches!(root.step(), ResultWitnessStepV1::FreshConstruction) { return Err("returned-field/wrapper-forward-root"); }
+            let construction = root.construction_site_v1().ok_or("returned-field/wrapper-forward-root")?;
             let mut rows = self.facts.construction_child_relation_loans().filter(|row|
-                !row.is_unqualified_dynamic_v1() && row.outer() == root.site()
+                !row.is_unqualified_dynamic_v1() && row.outer() == construction
                     && row.original_field_name_v1() == Ok(name.as_ref()));
             let Some(relation) = rows.next() else { return Err("returned-field/field-alternative-missing"); };
             if rows.next().is_some() { return Err("returned-field/field-relation-duplicate"); }

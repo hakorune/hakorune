@@ -608,6 +608,7 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
 #[test]
 fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
     use super::checked_dynamic::{self as api, Operand};
+    use super::checked_string::{self as text_api, Operand as TextOperand, OwnedText};
     use nyash_rust::{box_trait::StringBox, runtime::host_handles};
     use std::sync::Arc;
 
@@ -622,6 +623,10 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
     let pointer = (&mut frame as *mut FaultFrame).cast();
     let mut carrier = 0x1234;
     let mut integer = -91;
+    let text_carrier = |token| TextOperand {
+        kind: 5, reserved: 0, bytes: std::ptr::null(), len: 0,
+        handle: 0, token, integer: 0,
+    };
     unsafe {
         assert_eq!(
             api::invoke(
@@ -642,6 +647,13 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
             0
         );
         assert_eq!(integer, 2);
+        let mut rejected_text = OwnedText { handle: 777, token: 888 };
+        let sentinel = rejected_text;
+        let mut snapshot_fault = FaultFrame::new();
+        assert_eq!(text_api::materialize((&mut snapshot_fault as *mut FaultFrame).cast(),
+            42, &text_carrier(carrier_raw), &mut rejected_text), 1);
+        assert_eq!(rejected_text, sentinel, "wrong payload publishes no Text");
+        assert_eq!(snapshot_fault.diagnostics().unwrap().0.unwrap().reason, 302);
         assert_eq!(api::end(pointer, 43, carrier_raw), 0);
 
         carrier = 0x5678;
@@ -706,6 +718,8 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
             ),
             0
         );
+        let mut snapshot = OwnedText { handle: 0, token: 0 };
+        assert_eq!(text_api::materialize(type_pointer, 50, &text_carrier(string_carrier), &mut snapshot), 0);
         assert_eq!(
             api::integer_payload(type_pointer, 51, string_carrier, &mut rejected_integer),
             1
@@ -715,6 +729,12 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
             "Fault leaves the projection output untouched"
         );
         assert_eq!(api::end(type_pointer, 52, string_carrier), 0);
+        let owned = TextOperand { kind: 2, reserved: 0, bytes: std::ptr::null(), len: 0,
+            handle: snapshot.handle, token: snapshot.token, integer: 0 };
+        let mut length = -1;
+        assert_eq!(text_api::length(type_pointer, 53, &owned, &mut length), 0);
+        assert_eq!(length, 1, "Text snapshot outlives the borrowed carrier");
+        assert_eq!(text_api::end(type_pointer, 54, snapshot.handle, snapshot.token), 0);
     }
     let (primary, _, _) = type_frame.diagnostics().unwrap();
     let primary = primary.unwrap();

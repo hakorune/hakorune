@@ -17,6 +17,7 @@ pub(crate) struct ResultFormalSubstitutionV1 {
 pub(crate) enum ResultWitnessStepV1 {
     NullLiteral,
     FreshConstruction,
+    LocalConstruction(Rc<LocalConstructionResultSourceV1>),
     MapStored { source: Rc<MapStoredResultSourceV1> },
     Formal {
         binding: BindingRefV1,
@@ -37,6 +38,14 @@ pub(crate) struct ResultOriginWitnessV1 {
     pub(super) step: ResultWitnessStepV1,
 }
 impl ResultOriginWitnessV1 {
+    /// The Return read and the New acquisition are distinct source positions.
+    pub(crate) fn construction_site_v1(&self) -> Option<&OwnedExprSiteV1> {
+        match &self.step {
+            ResultWitnessStepV1::FreshConstruction => Some(&self.site),
+            ResultWitnessStepV1::LocalConstruction(source) => Some(&source.acquisition),
+            _ => None,
+        }
+    }
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }
@@ -55,6 +64,37 @@ impl ResultOriginWitnessV1 {
             _ => None,
         }
     }
+}
+
+/// Exact unrebound, uncaptured local New reaching an original Return read.
+/// This is a source class derivation, never a live Home transfer permission.
+#[derive(Debug)]
+pub(crate) struct LocalConstructionResultSourceV1 {
+    pub(super) binding: BindingRefV1,
+    pub(super) acquisition: OwnedExprSiteV1,
+    pub(super) construction: crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
+}
+pub(super) fn capture_local_construction_result_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    binding: BindingRefV1, returned: &OwnedExprSiteV1,
+) -> Option<Rc<LocalConstructionResultSourceV1>> {
+    let function = input.function();
+    if returned.owner() != input.owner()
+        || function.variable_ref(returned.site()) != Some(super::ResolvedLexicalRefV1::Local(binding)) { return None; }
+    let site = super::sole_initializer_site(function, binding)?;
+    let acquisition = OwnedExprSiteV1::new(input.owner(), site.clone());
+    super::call_witness::original_local_declaration_v1(input, &acquisition, binding).ok()?;
+    let construction = function.expression_source().construction(&site)?.clone();
+    let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
+    if !ledger.uncaptured_binding(binding) || input.forest().semantic_owners().any(|(_, function)|
+        function.assignment_targets().any(|(_, target)| matches!(target,
+            super::ResolvedAssignmentTargetV1::UpvarRebind(upvar) if upvar.source() == binding))) { return None; }
+    let flow = function.expression_source().value_flow()?;
+    let value = flow.read(returned.site(), binding)?;
+    if !matches!(flow.origin(value), Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(original)) if original == &site) {
+        return None;
+    }
+    Some(Rc::new(LocalConstructionResultSourceV1 { binding, acquisition, construction }))
 }
 
 /// Passive same-field result derivation. This retains original get/has/set and

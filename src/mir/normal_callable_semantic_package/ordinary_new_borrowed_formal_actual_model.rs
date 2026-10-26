@@ -545,6 +545,7 @@ pub(super) fn bind_original_argument_plans_v1(
             (
                 BorrowedCallActualValueV1::Scalar(binding, _)
                 | BorrowedCallActualValueV1::SelfRooted { binding, .. }
+                | BorrowedCallActualValueV1::Home { binding, .. }
                 | BorrowedCallActualValueV1::ReceivedNullable(binding)
                 | BorrowedCallActualValueV1::ReceivedMixed(binding),
                 Some(BorrowedCallActualValueV1::Binding(original)),

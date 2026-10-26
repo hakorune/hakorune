@@ -96,6 +96,28 @@ impl SourceNodeSiteV1 {
     pub fn segments(&self) -> &[SourcePathSegmentV1] {
         &self.0
     }
+
+    /// Order only indexed siblings in the same structural sequence vocabulary.
+    /// This is source order, not a proof that a conditional node executes.
+    pub(crate) fn precedes_in_sequence(&self, later: &Self) -> bool {
+        fn ordinal(segment: &SourcePathSegmentV1) -> Option<u32> {
+            match segment {
+                SourcePathSegmentV1::Body(i) | SourcePathSegmentV1::ProgramBody(i)
+                | SourcePathSegmentV1::ScopeBody(i) | SourcePathSegmentV1::TaskScopeBody(i)
+                | SourcePathSegmentV1::FastMemBody(i) | SourcePathSegmentV1::IfThen(i)
+                | SourcePathSegmentV1::IfElse(i) | SourcePathSegmentV1::LoopBody(i)
+                | SourcePathSegmentV1::LambdaBody(i) | SourcePathSegmentV1::BlockExprPrelude(i)
+                | SourcePathSegmentV1::TryBody(i) | SourcePathSegmentV1::CatchBody(i)
+                | SourcePathSegmentV1::CleanupBody(i) => Some(*i),
+                _ => None,
+            }
+        }
+        let Some((left, right)) = self.0.iter().zip(later.0.iter()).find(|(a, b)| a != b) else {
+            return false;
+        };
+        std::mem::discriminant(left) == std::mem::discriminant(right)
+            && ordinal(left).zip(ordinal(right)).is_some_and(|(a, b)| a < b)
+    }
 }
 
 /// Immutable path builder shared by resolver production and source projection.

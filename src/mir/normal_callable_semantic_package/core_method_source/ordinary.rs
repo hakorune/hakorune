@@ -291,7 +291,14 @@ impl ExpressionCoreSourceLoanV1 {
     pub(crate) fn result_class(
         &self,
     ) -> Option<crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1> {
+        if self.is_array_dynamic_get_v1() && self.proves_text_result_v1() {
+            return Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String);
+        }
         self.source().target().expression_result_class_v1()
+    }
+    /// A payload class only; the physical Get result remains an owned carrier.
+    pub(crate) fn proves_text_result_v1(&self) -> bool {
+        self.original.operands.result_sum_v1().text_only()
     }
     pub(crate) fn field_array_access_v1(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> {
         self.original.operands.field_array_access_v1()

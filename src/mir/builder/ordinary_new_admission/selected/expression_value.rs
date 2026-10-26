@@ -638,9 +638,14 @@ pub(super) fn finish_deferred_argument_continuation(
 /// Shared purpose acquisition; preserve the original evaluation operands.
 pub(super) fn materialize_text_root(
     builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1, required: bool,
+    source: &CheckedExpressionEvaluationV1,
 ) -> Result<(), String> {
     if !required { return Ok(()); }
-    if !expression.value.as_operand()?.is_text() || expression.purpose_acquisition.is_some() {
+    let operand = expression.value.as_operand()?;
+    let snapshot = matches!(operand, Operand::DynamicCarrier(_))
+        && source.text_snapshot_root_v1().is_some_and(|node|
+            expression.body.values.get(node).and_then(Option::as_ref) == Some(&expression.value));
+    if !(operand.is_text() || snapshot) || expression.purpose_acquisition.is_some() {
         return Err(freeze("rebind-expression/materialize-domain"));
     }
     let pending = pending_operations(&expression.body.acquired, &expression.body.dynamic_carriers,

@@ -14,7 +14,7 @@ use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSem
 use crate::mir::resolved_semantics::{
     BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, OwnedExprSiteV1,
     ResolvedBinaryOperatorV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1,
+    SourceNodeSiteV1,
 };
 
 use super::{BorrowedCompareSourceV1, BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
@@ -309,41 +309,5 @@ pub(super) fn is_call_argument(
 /// admission per the task-4 D0 boundary; block-level dominance remains the
 /// physical gate's own proof.
 pub(super) fn use_dominated_by_if(use_node: &SourceNodeSiteV1, guard: &SourceNodeSiteV1) -> bool {
-    let guard = guard.segments();
-    let path = use_node.segments();
-    let Some(index) = guard
-        .iter()
-        .zip(path.iter())
-        .position(|(left, right)| left != right)
-    else {
-        return false;
-    };
-    let (Some(guard), Some(use_)) = (guard.get(index), path.get(index)) else {
-        return false;
-    };
-    std::mem::discriminant(guard) == std::mem::discriminant(use_)
-        && sequence_ordinal(guard)
-            .zip(sequence_ordinal(use_))
-            .is_some_and(|(guard, use_)| guard < use_)
-}
-
-/// Sibling statement positions share one sequence vocabulary per container
-/// kind; only equal-kind indexed steps are ordered.
-fn sequence_ordinal(segment: &SourcePathSegmentV1) -> Option<u32> {
-    match segment {
-        SourcePathSegmentV1::Body(index)
-        | SourcePathSegmentV1::ProgramBody(index)
-        | SourcePathSegmentV1::ScopeBody(index)
-        | SourcePathSegmentV1::TaskScopeBody(index)
-        | SourcePathSegmentV1::FastMemBody(index)
-        | SourcePathSegmentV1::IfThen(index)
-        | SourcePathSegmentV1::IfElse(index)
-        | SourcePathSegmentV1::LoopBody(index)
-        | SourcePathSegmentV1::LambdaBody(index)
-        | SourcePathSegmentV1::BlockExprPrelude(index)
-        | SourcePathSegmentV1::TryBody(index)
-        | SourcePathSegmentV1::CatchBody(index)
-        | SourcePathSegmentV1::CleanupBody(index) => Some(*index),
-        _ => None,
-    }
+    guard.precedes_in_sequence(use_node)
 }

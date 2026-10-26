@@ -164,6 +164,11 @@ impl OrdinaryNewResultClassClaimsV1 {
                             ResultWitnessStepV1::FreshConstruction,
                             ResultValueOriginV1::Fresh(name),
                         ) => Some(name.as_ref()) == class.class(),
+                        (ResultWitnessStepV1::LocalConstruction(source), ResultValueOriginV1::Fresh(name)) =>
+                            source.binding.owner() == witness.site().owner()
+                                && source.acquisition.owner() == witness.site().owner()
+                                && source.construction.class() == name.as_ref()
+                                && Some(name.as_ref()) == class.class(),
                         _ => false,
                     }
             }) {

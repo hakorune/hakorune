@@ -31,6 +31,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
             // publish a concrete Invoke result ABI.
             TerminalReturnedSourceV1::TaggedDynamic(_) => None,
             TerminalReturnedSourceV1::Construction(_) => Some(InvokeCallResultKind::Handle),
+            TerminalReturnedSourceV1::Home { binding, acquisition }
+                if binding.owner() == row.owner() && acquisition.owner() == row.owner() =>
+                    Some(InvokeCallResultKind::Handle),
+            TerminalReturnedSourceV1::Home { .. } => None,
             TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_) => {
                 Some(InvokeCallResultKind::Map)
             }

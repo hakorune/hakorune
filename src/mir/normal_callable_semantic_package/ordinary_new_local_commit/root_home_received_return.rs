@@ -517,7 +517,7 @@ impl ReturnExpressionEmissionV1 {
         expression.validate_effective_root_v1(
             self.value,
             self.residence.is_some(),
-            self.residence.is_some() && self.source.owned_root_node_v1().is_none(),
+            self.residence.is_some() && self.source.owned_text_root_node_v1().is_none(),
             self.residence
                 .as_ref()
                 .and_then(|row| row.materialize.as_ref()),

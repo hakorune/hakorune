@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini Main owner73 Body9 Initializer(0): store.refCount(first_chunk) borrowed-instance/opaque-source-unsupported, ordinal0 actual=Unknown; firstChunkId ArrayGet result proof incomplete"
+current_blocker_token = "boxtorrent-mini Main Body10 second.releaseFrom(store): opaque-source-unsupported argument0 Unknown point SUM absent; local-result execution/Home transfer still open; no EXE"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; Main owner73 Body9 stops at `store.refCount(first_chunk)`, opaque actual Unknown; no EXE emitted.
-Exact all-Return Text evidence now joins instance source SUMs; newly closed Core demands retain old receipts and use the same source issuer.
-Quick CLI build41.79s PASS; focused5PASS, two other focused reds reproduce with HEAD production; selected smoke remains FAIL before EXE.
-Fixed suite was not rerun after this series; `.hako`, fixtures, and checkers unchanged; no test cases/files added.
-Next: prove same-array bounds for firstChunkId's surviving get(0), then connect source-proved Text snapshot with carrier Normal/Fault End intact.
+APP-boxtorrent-mini selected; source ingress now stops at Main Body10 second.releaseFrom(store), argument0 Unknown with no point SUM; no EXE.
+Original local New Return class and owning-input obligations are connected; local-result execution/Home transfer remains fail-closed.
+CLI41.91s PASS; related focused30PASS/4FAIL, all four reproduce on pre-series HEAD; earlier physical/Text baseline reds remain open.
+Fixed suite9/11 in557.587s:8realEXEs+marker, JSON/boxtorrent compile failures, no timeout/SKIP; .hako/fixtures unchanged, no new test file/checker.
+Next: exact source store read/acquisition at Body10, then local-result live transfer and firstChunkId's original summary/read.
 """
 next_design_card = "none"
 next_design_card_path = "none"

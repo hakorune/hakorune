@@ -417,6 +417,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;
             if promoted {
                 original_inventory = build_original_inventory(&needs);
+                // This graph has not joined the previous graph's summaries.
+                previous.clear();
             }
             let classes = match &needs {
                 Ok(rows) => instance_result_classes_v1(&pending, rows, original_inventory.as_ref().ok()),

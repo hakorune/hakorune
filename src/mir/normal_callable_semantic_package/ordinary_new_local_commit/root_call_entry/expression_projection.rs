@@ -151,7 +151,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     return Err(freeze("rebind-expression/materialize-input"));
                 };
                 let input = input.as_operand()?;
-                if !input.is_text()
+                let snapshot = matches!(input, Operand::DynamicCarrier(_))
+                    && self.frame.text_snapshot_root_v1().is_some_and(|node|
+                        self.values.get(node).and_then(Option::as_ref).and_then(|value| value.as_operand().ok()) == Some(input));
+                if !(input.is_text() || snapshot)
                     || !matches!(&invoke.1, MirInstruction::Invoke {
                     operation: InvokeOperation::String(Operation::Materialize { value }), normal_landing, .. }
                         if value == input && *normal_landing == normal.0)

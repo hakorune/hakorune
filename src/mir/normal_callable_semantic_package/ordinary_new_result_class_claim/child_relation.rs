@@ -116,8 +116,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
     let mut new_sites = Vec::new();
     let result_construction_sites: BTreeSet<_> = facts.source_rows().flat_map(|(_, rows)| rows.iter())
         .flat_map(|row| row.witnesses())
-        .filter(|witness| matches!(witness.step(), ResultWitnessStepV1::FreshConstruction))
-        .map(|witness| witness.site().clone())
+        .filter_map(|witness| witness.construction_site_v1().cloned())
         .collect();
     for declaration in batch.declarations() {
         let slot = declaration.batch_slot();

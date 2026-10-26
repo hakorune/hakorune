@@ -45,7 +45,7 @@ pub(in crate::mir::builder) fn emit(
         Some(unwind) => expression_value::emit_with_prior_home_unwind(builder, state, ledger, frame.evaluation(), unwind, &mut emit_call)?,
         None => expression_value::emit(builder, state, ledger, frame.evaluation(), &mut emit_call)?,
     };
-    expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root())?;
+    expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root(), frame.evaluation())?;
     let dynamic_root = frame.evaluation().root_class()
         == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic);

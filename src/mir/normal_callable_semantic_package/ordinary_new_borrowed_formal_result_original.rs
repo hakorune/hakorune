@@ -107,6 +107,7 @@ impl OriginalReturnSourceLoanV1 {
         self.text_returns_with_sums_v1(
             |flow, site, binding| ingress.lend_original_read_sum_v1(flow, site, binding).is_some_and(|sum| sum.text_only()),
             |class, name| ingress.source_declared_field_sum_v1(class, name).is_some_and(|sum| sum.text_only()),
+            |site| ingress.ordinary_core_source_v1(site).is_some_and(|core| core.operands().result_sum_v1().text_only()),
         )
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_original_text_return_v1(
@@ -115,12 +116,14 @@ impl OriginalReturnSourceLoanV1 {
         self.text_returns_with_sums_v1(
             |flow, site, binding| source.lend_original_read_sum_v1(flow, site, binding).is_some_and(|sum| sum.text_only()),
             |class, name| source.source_declared_field_sum_v1(class, name).is_some_and(|sum| sum.text_only()),
+            |site| source.ordinary_core_source_v1(site).is_some_and(|core| core.operands().result_sum_v1().text_only()),
         )
     }
     fn text_returns_with_sums_v1(
         &self,
         mut read_is_text: impl FnMut(&std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>, &SourceExprSiteV1, BindingRefV1) -> bool,
         mut field_is_text: impl FnMut(&str, &str) -> bool,
+        mut core_is_text: impl FnMut(&OwnedExprSiteV1) -> bool,
     ) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
         let plans = self.plans();
@@ -129,6 +132,7 @@ impl OriginalReturnSourceLoanV1 {
             if plan.owner() != self.0.owner { return false; }
             match root.source() {
                 Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => return true,
+                Node::MethodCall => return core_is_text(&OwnedExprSiteV1::new(plan.owner(), root.site().clone())),
                 Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) => {
                     return self.0.flow.as_ref().is_some_and(|flow|
                         read_is_text(flow, root.site(), *binding));

@@ -607,7 +607,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     _ => None,
                 })
                 .ok_or_else(|| freeze("argument-expression/deferred-root"))?;
-            if residence.is_some() || (purpose_acquisition.is_none() && self.frame.owned_root_node_v1().is_none())
+            if residence.is_some() || (purpose_acquisition.is_none() && self.frame.owned_text_root_node_v1().is_none())
                 || !live.last().is_some_and(|temporary| temporary.is_string(root))
                 || !matches!(self.frame.source().root(),
                     crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }

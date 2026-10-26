@@ -141,7 +141,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 },
                 // These source forms still need their own exact acquired-Home
                 // or original-formal Return seal; kind alone grants nothing.
-                ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => None,
+                ResultWitnessStepV1::LocalConstruction(_) | ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => None,
             };
             missing |= self.normal_exit_projection_v1(terminal.owner(), terminal.return_site())?.is_none();
             let Some(evidence) = evidence else { missing = true; continue; };
