@@ -163,7 +163,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Option<OwnedExprSiteV1>, String> {
-        let consumer = self.original_returned_field_input_request_v1(owner)?;
+        let consumer = self.original_field_input_request_v1(owner)?;
         let mut producer = None;
         for call in self
             .source_incoming

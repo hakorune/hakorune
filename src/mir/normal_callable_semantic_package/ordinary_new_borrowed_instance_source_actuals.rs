@@ -92,7 +92,12 @@ pub(super) fn prepare_instance_source_actuals_v1(
         return Ok(None);
     }
     let core_argument = original_core_argument_input_request_v1(ingress, contracts, site)?;
+    let map_field_request = ingress.original_map_field_argument_request_v1(site)?;
     let original_call = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(ingress, contracts, site)?;
+    let field_input_request = match original_call.as_ref() {
+        Some(call) => ingress.original_field_input_request_v1(call.callee)?.is_some(),
+        None => false,
+    };
     let finite_input = match original_call.as_ref() {
         Some(call) => crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_finite_instance_input_request_v1(
             ingress, contracts, call.callee)?,
@@ -202,6 +207,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     let expression_request = ingress.original_signed_expression_argument_request_v1(site);
     if !finite_input
         && !core_argument
+        && !field_input_request
         && array_loans.is_empty()
         && field_loans.is_empty()
         && !zero_request
@@ -275,7 +281,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     }
     // The existing Object source owner keeps its original qualification.
     if ingress.source_incoming.has_object_input_callee_v1(target) {
-        if expression_request || object_producer_request {
+        if expression_request || object_producer_request || map_field_request || owning_input_request {
             return object_source::prepare_object_source_actuals_v1(
                 ingress, contracts, site, actuals,
             );
@@ -360,7 +366,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                     binding,
                     root,
                     ref acquisition,
-                } if owning_input_request
+                } if (owning_input_request || field_input_request)
                     && binding.owner() == site.owner()
                     && root.owner() == site.owner()
                     && acquisition.owner() == site.owner() => {
@@ -390,6 +396,14 @@ pub(super) fn prepare_instance_source_actuals_v1(
                     {
                         return Err(freeze("borrowed-instance/forward-source-identity"));
                     }
+                }
+                BorrowedCallActualValueV1::ReceivedNullable(binding)
+                | BorrowedCallActualValueV1::ReceivedMixed(binding)
+                    if mixed_request.is_none() && binding.owner() == site.owner() => {
+                    // An ordinary input need not be returned by the callee.
+                    // Keep the original acquired-local candidate. The common
+                    // Ledger context, not this source row, checks its current
+                    // producer/class and Normal/Fault lifetime.
                 }
                 BorrowedCallActualValueV1::ReceivedNullable(binding)
                 | BorrowedCallActualValueV1::ReceivedMixed(binding) => {
@@ -481,13 +495,15 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         && binding.owner() == site.owner()
                         && source_actual_sum.is_some_and(|sum| sum.signed_only()) => {}
                 BorrowedCallActualValueV1::Binding(binding)
-                    if (owning_input_request || finite_input) && binding.owner() == site.owner()
+                    if (owning_input_request || field_input_request || finite_input) && binding.owner() == site.owner()
                         && source_actual_sum.is_some() => {
                     // Plain reads retain an expression obligation, regardless
                     // of class. The source query still corroborates this exact
                     // binding read; reconstruction needs its Qualified frame
                     // (or the existing object-read source).
                 }
+                BorrowedCallActualValueV1::FieldAccess
+                    if ingress.original_map_field_actual_request_v1(site, actual.ordinal, &actual.site)? => {}
                 BorrowedCallActualValueV1::Unknown | BorrowedCallActualValueV1::Expression
                     if owning_input_request => {}
                 BorrowedCallActualValueV1::Binding(binding)
@@ -528,7 +544,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                             sum.signed_only() || finite_input && sum.text_only()
                                 || sum.object_class_v1().is_some()) => {}
                 BorrowedCallActualValueV1::String(_)
-                    if (finite_input || owning_input_request)
+                    if (finite_input || owning_input_request || field_input_request)
                         && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) => {
                 }
                 BorrowedCallActualValueV1::Integer(_)
@@ -600,6 +616,8 @@ pub(super) fn selected_original_instance_forward_v1(
             {
                 return Ok(true);
             }
+            if ingress.original_field_input_request_v1(original.callee)?.is_some()
+                && !ingress.source_incoming.has_object_input_callee_v1(target) { return Ok(true); }
             if ingress.original_signed_expression_argument_request_v1(site) {
                 return Ok(true);
             }

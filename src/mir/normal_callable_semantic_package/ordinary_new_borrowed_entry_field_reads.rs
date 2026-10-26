@@ -200,7 +200,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 || input.function().variable_ref(object) != Some(ResolvedLexicalRefV1::Local(binding))
             { return Err(fault("borrowed-entry-read-origin")); }
             let view = entry.formal_object_view(formal)?
-                .ok_or_else(|| fault("borrowed-entry-object-view-missing"))?;
+                .ok_or_else(|| format!("{}: owner={:?}, binding={binding:?}, formal={formal:?}, read={site:?}, field={field}",
+                    fault("borrowed-entry-object-view-missing"), input.owner()))?;
             let source = view.scalar_field_source_v1(field)
                 .ok_or_else(|| fault("borrowed-entry-declaration-missing"))?;
             if source.field().object() != view.object() {

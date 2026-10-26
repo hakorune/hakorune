@@ -126,6 +126,51 @@ impl PreparedBorrowedFormalIngressV1 {
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Original field evidence selects input work only. It cannot lend a live
+    /// operand, acquire a Home or qualify the callee's result.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_map_field_argument_request_v1(
+        &self, call: &OwnedExprSiteV1,
+    ) -> Result<bool, String> {
+        self.map_field_input_request_v1(call, None)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn original_map_field_actual_request_v1(
+        &self, call: &OwnedExprSiteV1, ordinal: u32, site: &SourceExprSiteV1,
+    ) -> Result<bool, String> {
+        self.map_field_input_request_v1(call, Some((ordinal, site)))
+    }
+    fn map_field_input_request_v1(
+        &self, call: &OwnedExprSiteV1, actual: Option<(u32, &SourceExprSiteV1)>,
+    ) -> Result<bool, String> {
+        let seeds = &self.original_formal_seeds;
+        let mut rows = seeds.rows.iter().filter(|row| &row.incoming.call == call);
+        let Some(row) = rows.next() else { return Ok(false); };
+        if !row.seeds.iter().any(|seed| matches!(seed, OriginalFormalActualSeedV1::MapField { .. })) { return Ok(false); }
+        if rows.next().is_some() || !seeds.corroborate_original_v1(&self.source_incoming) {
+            return Err(freeze("borrowed-view/original-seed-identity"));
+        }
+        let target = row.incoming.source.original_instance_reference_v1()
+            .ok_or_else(|| freeze("borrowed-object/source-actual-identity"))?;
+        if &target.call_site != call || target.callee_owner != row.incoming.callee {
+            return Err(freeze("borrowed-object/source-actual-identity"));
+        }
+        let mut selected = false;
+        for ((ordinal, site, formal), seed) in row.incoming.arguments.iter().zip(&row.seeds) {
+            let OriginalFormalActualSeedV1::MapField { read, get, source } = seed else { continue; };
+            if actual.is_some_and(|(expected, _)| expected != *ordinal) { continue; }
+            if actual.is_some_and(|(_, expected)| expected != site) {
+                return Err(freeze("borrowed-object/source-actual-identity"));
+            }
+            if read != &OwnedExprSiteV1::new(call.owner(), site.clone())
+                || target.argument_sites.get(*ordinal as usize) != Some(site)
+                || formal.owner() != row.incoming.callee || get.get().owner() != call.owner()
+                || source.field().object() != get.payload_source_v1().payload_object_v1() {
+                return Err(freeze("borrowed-object/source-actual-identity"));
+            }
+            // An unknown source projection may request no executable work.
+            selected |= seeds.source_objects.as_ref().is_some_and(|domain| domain.views.contains_key(formal));
+        }
+        Ok(selected)
+    }
     /// Merge corroborated passive class evidence from selected source inputs
     /// and the original all-incoming domain. Neither is an execution capability.
     /// If both are known they must name the same canonical object.

@@ -23,6 +23,7 @@ pub(super) enum OriginalFormalActualSeedV1 {
     /// Exact Map-get receiver plus the complete original field writer census.
     /// This source dependency grants no nonnull, live Home or executable read.
     MapField {
+        read: OwnedExprSiteV1,
         get: Box<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StoredMapGetSourceLoanV1>,
         source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>,
     },

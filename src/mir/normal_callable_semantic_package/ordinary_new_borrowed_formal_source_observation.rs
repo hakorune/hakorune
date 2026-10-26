@@ -1,7 +1,31 @@
-//! Original Static observations retained beside borrowed-formal source facts.
+//! Original call and acquired-local observations beside borrowed source facts.
 use super::*;
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// The actual's own original producer, independent of the consumer's
+    /// result flavor. A source loan is not a current acquired Home.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_acquired_object_input_source_v1(
+        &self, binding: BindingRefV1,
+    ) -> Result<Option<&super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>, String> {
+        let mut loans = self.source_incoming.source_rows_v1().filter_map(|row| {
+            let loan = row.source.original_owning_object_input_v1()?;
+            (loan.destination() == binding).then_some((row, loan))
+        });
+        let Some((row, loan)) = loans.next() else { return Ok(None); };
+        if loans.next().is_some() || !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+            return Err(freeze("nullable-input/original-source-drift"));
+        }
+        let reference = row.source.original_instance_reference_v1()
+            .ok_or_else(|| freeze("nullable-input/original-source-drift"))?;
+        if loan.call() != &row.call || loan.call().owner() != binding.owner()
+            || loan.key() != &reference.target || loan.callee_owner() != row.callee
+            || reference.callee_owner != row.callee || reference.call_site != row.call
+            || loan.receiver() != Some(&reference.receiver_site)
+            || !loan.matches_arguments_v1(&reference.argument_sites) {
+            return Err(freeze("nullable-input/original-source-drift"));
+        }
+        Ok(Some(loan))
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn stored_local_new_root_v1(
         &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<(u32, &std::rc::Rc<super::super::super::LocalNewRootSourceV1>)>, String> {

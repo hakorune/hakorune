@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini main.hako:108 release(chunk.alloc_handle), owner54 Body3/IfThen0/IfCondition/Argument0: borrowed-actual/unsupported-or-unavailable; no EXE"
+current_blocker_token = "boxtorrent-mini HakoAllocPage.release handle.block_id owner30 formal1 Body1/Initializer0/Argument0: ordinary-field-read/borrowed-entry-object-view-missing; no EXE"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini selected; main.hako108 release(chunk.alloc_handle) rejects borrowed-actual/unsupported-or-unavailable; no EXE.
-Field liveness now tracks checked same-field Normal aliases and carrier End; existing interval case verified red-before/green-after.
-Current narrow checks3PASS/1source-input refusal before physical verification; earlier source-series reds remain open in card.
-CLI39.30s PASS, selected smoke same refusal; last full suite9/11 (8realEXEs+marker), not rerun for this interval-only change.
-Next: bounded Object-field value proof and exact Map-root ReadActual consumer, preserving nullable child, anchor lifetime and finite-product closeout.
+APP-boxtorrent-mini selected; HakoAllocPage.release handle.block_id lacks qualified entry Object view; no EXE.
+Exact Map-field source inputs, tagged nested construction and original local-reference class agreement connect; live entry/read still owed.
+CLI38.92s and entry21/provider publication/prefix-cleanup checks PASS; related unresolved failures and HEAD comparison remain in card.
+Fixed suite9/11 in610.901s (8realEXEs+marker), JSON/boxtorrent compilation failures, no timeout/SKIP or new red.
+Next: complete whole incoming before entry Object-view lending, exact Map-root ReadActual with nullable child/anchor cleanup, finite-product closeout.
 """
 next_design_card = "none"
 next_design_card_path = "none"

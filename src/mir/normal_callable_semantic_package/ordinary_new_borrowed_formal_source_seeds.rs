@@ -439,7 +439,7 @@ impl OriginalFormalSeedProductV1 {
 impl PreparedBorrowedFormalIngressV1 {
     /// One original request selects the callee's existing parameter/Home walk;
     /// it lends no entry values, completed inputs or result permission.
-    pub(in crate::mir::normal_callable_semantic_package) fn original_returned_field_input_request_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn original_field_input_request_v1(
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Option<OwnedExprSiteV1>, String> {
@@ -449,7 +449,7 @@ impl PreparedBorrowedFormalIngressV1 {
                 && row
                     .seeds
                     .iter()
-                    .any(|seed| matches!(seed, OriginalFormalActualSeedV1::ReturnedField(_)))
+                    .any(|seed| matches!(seed, OriginalFormalActualSeedV1::ReturnedField(_) | OriginalFormalActualSeedV1::MapField { .. }))
         });
         let Some(first) = rows.next() else {
             return Ok(None);
@@ -461,23 +461,23 @@ impl PreparedBorrowedFormalIngressV1 {
             return Err(freeze("returned-field/original-incoming-census-drift"));
         }
         for row in std::iter::once(first).chain(rows) {
-            let target = row.incoming.source.require_instance()?;
-            if target.callee_owner() != owner || target.call_site() != &row.incoming.call
-                || row.incoming.source.as_loan()?.declaration_mode()
-                    != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
+            let target = row.incoming.source.original_instance_reference_v1()
+                .ok_or_else(|| freeze("returned-field/input-request-identity"))?;
+            if target.callee_owner != owner || target.call_site != row.incoming.call
+                || target.target.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod {
                 return Err(freeze("returned-field/input-request-identity"));
             }
             for ((ordinal, site, formal), seed) in
                 row.incoming.arguments.iter().zip(row.seeds.iter())
             {
-                if let OriginalFormalActualSeedV1::ReturnedField(source) = seed {
-                    if formal.owner() != owner
-                        || target.argument_sites().get(*ordinal as usize) != Some(site)
-                        || source.read().owner() != row.incoming.call.owner()
-                        || source.read().site() != site
-                    {
-                        return Err(freeze("returned-field/input-request-argument"));
-                    }
+                let read = match seed {
+                    OriginalFormalActualSeedV1::ReturnedField(source) => source.read(),
+                    OriginalFormalActualSeedV1::MapField { read, .. } => read,
+                    _ => continue,
+                };
+                if formal.owner() != owner || target.argument_sites.get(*ordinal as usize) != Some(site)
+                    || read.owner() != row.incoming.call.owner() || read.site() != site {
+                    return Err(freeze("returned-field/input-request-argument"));
                 }
             }
         }

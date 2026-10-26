@@ -22,7 +22,8 @@ impl ObjectActualHomeSourceV1<'_> {
             || root.owner() != call.owner()
             || acquisition.owner() != call.owner()
         {
-            return Err(freeze("borrowed-actual/home-domain"));
+            return Err(format!("{}: call={call:?}, binding={binding:?}, root={root:?}, acquisition={acquisition:?}",
+                freeze("borrowed-actual/home-domain")));
         }
         match self {
             Self::Candidates(candidates) => {
@@ -33,7 +34,8 @@ impl ObjectActualHomeSourceV1<'_> {
                     .next()
                     .ok_or_else(|| freeze("borrowed-actual/home-source"))?;
                 if matching.next().is_some() || candidate.construction.is_err() {
-                    return Err(freeze("borrowed-actual/home-domain"));
+                    return Err(format!("{}: call={call:?}, root={root:?}, acquisition={acquisition:?}, class={}, construction={:?}",
+                        freeze("borrowed-actual/home-domain"), candidate.class, candidate.construction.as_ref().err()));
                 }
                 Ok(Some(candidate.class.clone()))
             }
@@ -70,7 +72,9 @@ pub(super) fn selected_returned_field_input_v1(
     {
         return Ok(false);
     }
-    Ok(prepared.returned_field_argument_selected_v1(call)
+    let field_input = prepared.returned_field_argument_selected_v1(call)
+        || prepared.original_map_field_argument_request_v1(call)?;
+    Ok(field_input
         && prepared
             .object_source_target_at_v1(call)?
             .is_some_and(|target| prepared.source_incoming.has_object_input_callee_v1(target)))
@@ -99,6 +103,7 @@ pub(super) fn selected_original_object_phase_v1(
     let object_producer_request = prepared.original_object_producer_callee_v1(target)?;
     if prepared.source_incoming.has_object_input_callee_v1(target)
         && (prepared.original_signed_expression_argument_request_v1(call)
+            || prepared.original_owning_object_input_callee_v1(target)?
             || object_producer_request)
     {
         return Ok(true);
@@ -518,6 +523,9 @@ fn original_object_input_context_v1<'a>(
 ) -> Result<ObjectInputActualContextV1<'a>, String> {
     use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
     use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
+    if ledger.is_none() && prepared.original_map_field_argument_request_v1(&call.call)? {
+        return Ok(ObjectInputActualContextV1::Pending);
+    }
     let mut guarded_definition = None;
     for actual in candidates {
         match &actual.value {

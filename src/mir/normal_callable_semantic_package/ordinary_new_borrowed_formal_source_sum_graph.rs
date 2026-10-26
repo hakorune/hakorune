@@ -187,7 +187,7 @@ impl Graph<'_> {
             OriginalFormalActualSeedV1::Class(name) => {
                 row.atoms.insert(Value::Object(name.clone()));
             }
-            OriginalFormalActualSeedV1::MapField { get, source } => {
+            OriginalFormalActualSeedV1::MapField { get, source, .. } => {
                 // Keep the same canonical source, never a field-name class guess.
                 if source.field().object() == get.payload_source_v1().payload_object_v1() {
                     match self.fields.get(&source.field()) {

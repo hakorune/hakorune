@@ -73,7 +73,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         let payload = get.payload_source_v1();
         let source = fields.value_source(payload.payload_class_v1(), field)?.as_ref().ok()?;
         if !source.same_inventory(fields) || source.field().object() != payload.payload_object_v1() { return None; }
-        Some(OriginalFormalActualSeedV1::MapField { get: Box::new(get), source: Rc::clone(source) })
+        Some(OriginalFormalActualSeedV1::MapField { read: OwnedExprSiteV1::new(input.owner(), site.clone()), get: Box::new(get), source: Rc::clone(source) })
     };
     let mut rows = Vec::new();
     let mut seen = BTreeSet::new();

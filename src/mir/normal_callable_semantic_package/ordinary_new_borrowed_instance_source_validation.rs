@@ -51,7 +51,8 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                 | BorrowedCallActualValueV1::String(_)
                 | BorrowedCallActualValueV1::Binding(_)
                 | BorrowedCallActualValueV1::Unknown
-        ) {
+        ) && !(matches!(candidate.value, BorrowedCallActualValueV1::FieldAccess)
+            && ingress.original_map_field_actual_request_v1(&call.call, candidate.ordinal, &candidate.site)?) {
             continue;
         }
         match identity.argument_sources.get(&candidate.ordinal) {
@@ -269,10 +270,17 @@ fn original_local_object_binding_actual_v1(
         ExpressionNodeSourceV1, ExpressionPlanRootV1,
     };
 
-    let BorrowedCallActualValueV1::Binding(binding) = &candidate.value else {
-        return None;
-    };
+    let model::ArgumentExpressionV1::Source(plan) =
+        identity.argument_sources.get(&candidate.ordinal)? else { return None; };
+    let [node] = plan.nodes() else { return None; };
+    let ExpressionNodeSourceV1::Reference(
+        crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
+    ) = node.source() else { return None; };
     let binding = *binding;
+    if !matches!(&candidate.value, BorrowedCallActualValueV1::Binding(actual) if *actual == binding)
+        && !matches!(candidate.value, BorrowedCallActualValueV1::Unknown) {
+        return None;
+    }
     if binding.owner() != call.call.owner() {
         return None;
     }
@@ -294,20 +302,7 @@ fn original_local_object_binding_actual_v1(
     {
         return None;
     }
-    let model::ArgumentExpressionV1::Source(plan) =
-        identity.argument_sources.get(&candidate.ordinal)?
-    else {
-        return None;
-    };
-    let [node] = plan.nodes() else {
-        return None;
-    };
-    if !matches!(
-        node.source(),
-        ExpressionNodeSourceV1::Reference(
-            crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(source_binding),
-        ) if *source_binding == binding
-    ) || node.site() != &candidate.site
+    if node.site() != &candidate.site
         || !matches!(
             plan.root(),
             ExpressionPlanRootV1::CallArgument {
@@ -477,7 +472,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
             .candidates
             .get(*ordinal as usize)
             .ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
+        let local_object = original_local_object_binding_actual_v1(ingress, contracts, call, identity, candidate);
         let class = match &candidate.value {
+            BorrowedCallActualValueV1::Binding(_) | BorrowedCallActualValueV1::Unknown =>
+                match &local_object {
+                    Some(BorrowedFormalActualSourceV1::LocalObjectBinding { class, .. }) => Some(class.as_ref()),
+                    _ => None,
+                },
             BorrowedCallActualValueV1::ReceivedField {
                 parent,
                 acquisition,
@@ -551,15 +552,29 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
             BorrowedCallActualValueV1::SelfRooted { root, .. } => ingress
                 .source_object_view_v1(*root)?
                 .map(|view| view.class()),
-            BorrowedCallActualValueV1::ReceivedNullable(_)
-            | BorrowedCallActualValueV1::ReceivedMixed(_) => {
-                let loan = ingress
-                    .original_mixed_input_source_v1(call.source.require_instance()?)?
-                    .ok_or_else(|| freeze("borrowed-instance/mixed-request-missing"))?;
-                classes
-                    .recheck_mixed_local_roots_v1(loan)
-                    .map_err(|issue| freeze(issue))?;
-                Some(loan.fresh_class())
+            BorrowedCallActualValueV1::ReceivedNullable(binding)
+            | BorrowedCallActualValueV1::ReceivedMixed(binding) => {
+                if let Some(loan) = ingress.original_mixed_input_source_v1(call.source.require_instance()?)? {
+                    classes.recheck_mixed_local_roots_v1(loan).map_err(freeze)?;
+                    Some(loan.fresh_class())
+                } else if matches!(candidate.value, BorrowedCallActualValueV1::ReceivedNullable(_)) {
+                    match ingress.original_acquired_object_input_source_v1(*binding)? {
+                        Some(loan) => {
+                            if !loan.nullable() { return Err(freeze("nullable-input/original-source-drift")); }
+                            classes.recheck_owning_object_local_input_roots_v1(loan).map_err(freeze)?;
+                            classes.get(loan.key()).and_then(|class| class.class())
+                        }
+                        None => None,
+                    }
+                } else {
+                    match ingress.mixed_received_actual_source_v1(*binding)? {
+                        Some(loan) => {
+                            classes.recheck_mixed_local_roots_v1(loan).map_err(freeze)?;
+                            Some(loan.fresh_class())
+                        }
+                        None => None,
+                    }
+                }
             }
             BorrowedCallActualValueV1::Null => continue,
             _ => None,
@@ -571,7 +586,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
                     | BorrowedCallActualValueV1::ReceivedField { .. }
             ) && view.is_none())
         {
-            return Err(freeze("borrowed-entry/object-view-drift"));
+            return Err(format!("{}: call={:?}, formal={formal:?}, candidate={candidate:?}, expected={:?}, actual={class:?}",
+                freeze("borrowed-entry/object-view-drift"), call.call, view.map(|view| view.class())));
         }
     }
     Ok(true)
