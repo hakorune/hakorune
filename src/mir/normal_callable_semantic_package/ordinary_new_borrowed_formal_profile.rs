@@ -4,7 +4,7 @@ use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_i
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::source::PreparedSourceNeedsV1;
 use super::super::OrdinaryNewCoSealIssueV1;
 use super::borrowed_formal_result::{
-    grounded_source_results_v1, prepare_pending_results_v1, seal_pending_results_v1,
+    grounded_source_results_v1, instance_result_classes_v1, prepare_pending_results_v1, seal_pending_results_v1,
     stored_eligible_v1, promote_grounded_computed_scalar_sources_v1,
 };
 use super::borrowed_formal_source::{
@@ -15,45 +15,6 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use std::collections::{BTreeMap, BTreeSet};
-
-fn instance_result_classes_v1(
-    pending: &BorrowedResultCohortV1,
-    needs: &[Result<Option<PreparedSourceCallNeedV1>, String>],
-    source: Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
-) -> Vec<(
-    super::source::CallTargetReferenceV1,
-    super::borrowed_formal_source::SourceValueAlternativeV1,
-)> {
-    needs
-        .iter()
-        .filter_map(|row| {
-            let need = row.as_ref().ok()?.as_ref()?;
-            let reference = need.reference();
-            if let Some(original) = pending.original_return_source_v1(&reference.callee_owner).ok().flatten() {
-                if original.matches(&reference)
-                    && source.is_some_and(|source| original.is_original_text_return_v1(source))
-                {
-                    return Some((reference, super::borrowed_formal_source::SourceValueAlternativeV1::Text));
-                }
-            }
-            let PreparedSourceCallNeedV1::Lexical(target) = need else {
-                return None;
-            };
-            // Result classes belong to the original Return cohort, including
-            // strict input calls. Borrowed input admission is a separate choice.
-            let original = match &target.result_requirement {
-                LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) => original,
-                LexicalCallSourceResultRequirementV1::ExistingBorrowedResult =>
-                    pending.original_return_source_v1(&reference.callee_owner).ok().flatten()?,
-                _ => return None,
-            };
-            pending
-                .source_value_alternative_for_v1(&reference, original)
-                .map(|class| (reference, class))
-        })
-        .collect()
-}
-
 
 #[path = "ordinary_new_borrowed_stored_nullable_source.rs"]
 mod stored_nullable;

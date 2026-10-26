@@ -1,6 +1,7 @@
 //! Source-result projection for borrowed callers of the existing lexical owner.
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use super::borrowed_formal_actuals::PendingBorrowedFormalActualsV1;
+use super::source::PreparedSourceCallNeedV1;
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 use super::borrowed_formal_uses::BorrowedMulSourceV1;
 use super::*;
@@ -699,3 +700,41 @@ mod tests;
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_formal_terminal_tests.rs"]
 mod terminal_tests;
+
+pub(super) fn instance_result_classes_v1(
+    pending: &BorrowedResultCohortV1,
+    needs: &[Result<Option<PreparedSourceCallNeedV1>, String>],
+    source: Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
+) -> Vec<(
+    super::source::CallTargetReferenceV1,
+    super::borrowed_formal_source::SourceValueAlternativeV1,
+)> {
+    needs
+        .iter()
+        .filter_map(|row| {
+            let need = row.as_ref().ok()?.as_ref()?;
+            let reference = need.reference();
+            if let Some(original) = pending.original_return_source_v1(&reference.callee_owner).ok().flatten() {
+                if original.matches(&reference)
+                    && source.is_some_and(|source| original.is_original_text_return_v1(source))
+                {
+                    return Some((reference, super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+                }
+            }
+            let PreparedSourceCallNeedV1::Lexical(target) = need else {
+                return None;
+            };
+            // Result classes belong to the original Return cohort, including
+            // strict input calls. Borrowed input admission is a separate choice.
+            let original = match &target.result_requirement {
+                LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) => original,
+                LexicalCallSourceResultRequirementV1::ExistingBorrowedResult =>
+                    pending.original_return_source_v1(&reference.callee_owner).ok().flatten()?,
+                _ => return None,
+            };
+            pending
+                .source_value_alternative_for_v1(&reference, original)
+                .map(|class| (reference, class))
+        })
+        .collect()
+}
