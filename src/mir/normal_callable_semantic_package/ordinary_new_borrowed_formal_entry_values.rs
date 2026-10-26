@@ -18,8 +18,47 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         }
         let executable = matches!(&self.incoming,
             BorrowedEntryActualsV1::Executable(rows) if !rows.is_empty());
-        Ok(self.source.source_object_view_v1(formal)?
-            .filter(|view| view.is_declared() || executable))
+        if let Some(view) = self.source.source_object_view_v1(formal)?
+            .filter(|view| view.is_declared() || executable) {
+            return Ok(Some(view));
+        }
+        let Some(view) = self.source.field_source_object_view_v1(formal)? else {
+            return Ok(None);
+        };
+        let BorrowedEntryActualsV1::Executable(rows) = &self.incoming else {
+            return Ok(None);
+        };
+        if rows.is_empty() || rows.len() != self.incoming_rows.len() {
+            return Ok(None);
+        }
+        let mut formals = self.formals.iter().filter(|(_, binding)| *binding == formal);
+        let Some((ordinal, _)) = formals.next() else { return Ok(None); };
+        if formals.next().is_some() { return Err(freeze("borrowed-entry/actuals-identity")); }
+        let mut seen = BTreeSet::new();
+        for original in self.incoming_rows.iter() {
+            if original.callee != self.owner || !seen.insert(&original.call) {
+                return Err(freeze("borrowed-entry/actuals-identity"));
+            }
+            let mut matches = rows.iter().filter(|(call, _)| **call == original.call);
+            let Some((_, actuals)) = matches.next() else { return Ok(None); };
+            if matches.next().is_some() || actuals.len() != original.arguments.len() {
+                return Ok(None);
+            }
+            for ((expected_ordinal, site, expected_formal), actual) in
+                original.arguments.iter().zip(actuals.iter()) {
+                if *expected_ordinal != actual.ordinal || *site != actual.site
+                    || *expected_formal != actual.formal {
+                    return Err(freeze("borrowed-entry/actuals-identity"));
+                }
+            }
+            let mut candidates = actuals.iter().filter(|actual| actual.ordinal == *ordinal && actual.formal == formal);
+            let Some(actual) = candidates.next() else { return Ok(None); };
+            if candidates.next().is_some() { return Err(freeze("borrowed-entry/actuals-identity")); }
+            if !incoming::actual_object_class_agrees_v1(self.source, actual, view)? {
+                return Err(freeze("borrowed-entry/object-view-drift"));
+            }
+        }
+        Ok(Some(view))
     }
 }
 use crate::mir::ValueId;

@@ -189,32 +189,34 @@ impl OrdinaryNewClaimLedgerV1 {
             // agreed class — a sealed actual naming a different class
             // (or no class at all) is drift, never a second authority.
             if let Some(view) = source.source_object_view_v1(actual.formal)? {
-                let agrees = match &actual.source {
-                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Read(loan) => loan.class() == view.class(),
-                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }
-                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedMixed { class, .. }
-                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::TypedHome { class, .. }
-                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
-                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::LocalObjectBinding { class, .. }
-                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::DeclaredFormal { class, .. } => {
-                        class.as_ref() == view.class()
-                    }
-                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Null => true,
-                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Forwarded { formal, .. } => {
-                        source
-                            .object_views
-                            .get(formal)
-                            .is_some_and(|origin| origin.class() == view.class())
-                    }
-                    _ => false,
-                };
-                if !agrees {
+                if !actual_object_class_agrees_v1(source, actual, view)? {
                     return Err(freeze("borrowed-entry/object-view-drift"));
                 }
             }
         }
         Ok(())
     }
+}
+
+/// Compare an already issued actual to the source-selected object, without
+/// making a passive source view into an entry or physical value.
+pub(super) fn actual_object_class_agrees_v1(
+    source: &PreparedBorrowedFormalIngressV1,
+    actual: &PreparedBorrowedFormalActualV1,
+    view: &super::super::borrowed_formal_source::BorrowedFormalObjectViewV1,
+) -> Result<bool, String> {
+    use super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1 as Actual;
+    Ok(match &actual.source {
+        Actual::Read(loan) => loan.class() == view.class(),
+        Actual::ReceivedNullable { class, .. } | Actual::ReceivedMixed { class, .. }
+        | Actual::TypedHome { class, .. } | Actual::EntryReceiver { class, .. }
+        | Actual::LocalObjectBinding { class, .. } | Actual::DeclaredFormal { class, .. } =>
+            class.as_ref() == view.class(),
+        Actual::Null => true,
+        Actual::Forwarded { formal, .. } => source.field_source_object_view_v1(*formal)?
+            .is_some_and(|origin| origin.class() == view.class() && origin.object() == view.object()),
+        _ => false,
+    })
 }
 
 
