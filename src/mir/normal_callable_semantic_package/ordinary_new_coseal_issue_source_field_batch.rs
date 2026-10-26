@@ -19,7 +19,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_formal_class_v1(
     source
         .as_ref()
         .map_err(Clone::clone)?
-        .source_object_view_v1(formal)
+        .field_source_object_view_v1(formal)
         .map(|view| view.map(|view| view.class().into()))
 }
 

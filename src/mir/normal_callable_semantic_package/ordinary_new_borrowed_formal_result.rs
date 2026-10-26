@@ -707,7 +707,7 @@ pub(super) fn instance_result_classes_v1(
     source: Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
 ) -> Vec<(
     super::source::CallTargetReferenceV1,
-    super::borrowed_formal_source::SourceValueAlternativeV1,
+    BTreeSet<super::borrowed_formal_source::SourceValueAlternativeV1>,
 )> {
     needs
         .iter()
@@ -718,7 +718,7 @@ pub(super) fn instance_result_classes_v1(
                 if original.matches(&reference)
                     && source.is_some_and(|source| original.is_original_text_return_v1(source))
                 {
-                    return Some((reference, super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+                    return Some((reference, BTreeSet::from([super::borrowed_formal_source::SourceValueAlternativeV1::Text])));
                 }
             }
             let PreparedSourceCallNeedV1::Lexical(target) = need else {
@@ -734,7 +734,7 @@ pub(super) fn instance_result_classes_v1(
             };
             pending
                 .source_value_alternative_for_v1(&reference, original)
-                .map(|class| (reference, class))
+                .map(|class| (reference, BTreeSet::from([class])))
         })
         .collect()
 }

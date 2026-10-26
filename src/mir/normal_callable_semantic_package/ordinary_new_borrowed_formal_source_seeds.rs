@@ -82,12 +82,13 @@ impl OriginalBorrowedFormalSourceV1 {
         &mut self,
         classes: &[(
             super::super::source::CallTargetReferenceV1,
-            SourceValueAlternativeV1,
+            BTreeSet<SourceValueAlternativeV1>,
         )],
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
     ) -> Result<bool, (OwnedExprSiteV1, String)> {
-        if !self.seeds.corroborate_original_v1(&self.inventory) {
+        if classes.is_empty() || !self.seeds.corroborate_original_v1(&self.inventory) {
             return Ok(false);
         }
         let Some(sums) = self.seeds.source_sums.as_mut() else { return Ok(false); };
@@ -115,6 +116,8 @@ impl OriginalBorrowedFormalSourceV1 {
             return Err((site.clone(), freeze("source-sum/caller-owner")));
         }
         self.seeds.ordinary_core = ordinary_core;
+        self.seeds.refresh_source_objects_v1(batch, constructors, contracts, &self.inventory)
+            .map_err(|issue| (classes[0].0.call_site.clone(), issue))?;
         Ok(true)
     }
 
@@ -213,10 +216,7 @@ impl OriginalFormalSeedProductV1 {
                 || sums.instance_result_references_v1().any(|reference| {
                     current.get(&reference.call_site).is_none_or(|(row, _)| {
                         row.callee != reference.callee_owner
-                            || row.source.instance().is_none_or(|target| {
-                                super::super::source::CallTargetReferenceV1::from_target(target)
-                                    != *reference
-                            })
+                            || row.source.original_instance_reference_v1().as_ref() != Some(reference)
                     })
                 })
                 || sums.return_sites.iter().any(|(owner, sites)| sites.is_empty()
@@ -306,6 +306,21 @@ impl OriginalFormalSeedProductV1 {
         )
     }
 
+    fn refresh_source_objects_v1(
+        &mut self, batch: &VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1], inventory: &BorrowedIncomingInventoryV1,
+    ) -> Result<(), String> {
+        let views = self.project_v1(batch, constructors, contracts, inventory,
+            FormalDomainProjectionV1::SourceObject)?.0;
+        if self.source_objects.as_ref().is_none_or(|old| old.views != views) {
+            self.source_objects = Some(Rc::new(SourceObjectDomainV1 {
+                views, new_calls: Rc::clone(&self.new_calls),
+            }));
+        }
+        Ok(())
+    }
+
     fn project_v1(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -363,7 +378,7 @@ impl OriginalFormalSeedProductV1 {
                 }
             }
         }
-        for row in self.rows.iter().filter(|row| row.legacy) {
+        for row in self.rows.iter().filter(|row| row.legacy || matches!(projection, FormalDomainProjectionV1::SourceObject)) {
             let caller = row.incoming.call.owner();
             for ((_, site, formal), raw) in row.incoming.arguments.iter().zip(row.seeds.iter()) {
                 let seed = match projection {
@@ -371,7 +386,9 @@ impl OriginalFormalSeedProductV1 {
                     | FormalDomainProjectionV1::SourceI64 => raw.project_source_integer_v1(
                         matches!(projection, FormalDomainProjectionV1::SourceI64),
                     ),
-                    FormalDomainProjectionV1::SourceObject => raw.project_source_object_v1(),
+                    FormalDomainProjectionV1::SourceObject => raw.project_source_object_with_fields_v1(&|field|
+                        self.source_sums.as_ref().map(|sums| sums.field_object_projection_v1(field))
+                            .unwrap_or(FormalActualSeedV1::Conflict)),
                     FormalDomainProjectionV1::SelectedTransport { owners, arrays } => {
                         match arrays.get(&OwnedExprSiteV1::new(caller, site.clone())) {
                             Some(source) => match &source.requirement {

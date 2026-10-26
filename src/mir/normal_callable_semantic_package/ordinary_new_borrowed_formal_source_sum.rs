@@ -106,11 +106,88 @@ pub(super) struct OriginalSourceSumsV1 {
     graph: OriginalSourceSumGraphV1,
 }
 impl OriginalSourceSumsV1 {
+    /// Close only the graph's original Object-result demands. This reuses the
+    /// result owner's exact call/root loan before live input eligibility exists.
+    pub(super) fn join_original_object_results_v1(
+        &mut self, inventory: &BorrowedIncomingInventoryV1,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    ) -> Result<(), String> {
+        use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::{OrdinaryNewResultClassV1 as Class, ResultValueOriginV1 as Origin};
+        let mut classes = BTreeMap::new();
+        for reference in self.instance_result_references_v1() {
+            if classes.contains_key(&reference.call_site) { continue; }
+            let mut rows = inventory.source_rows_v1().filter(|row| row.call == reference.call_site);
+            let row = rows.next().ok_or_else(|| freeze("source-sum/caller-owner"))?;
+            if rows.next().is_some() || row.callee != reference.callee_owner
+                || row.source.original_instance_reference_v1().as_ref() != Some(reference) {
+                return Err(freeze("source-sum/caller-owner"));
+            }
+            if !matches!(facts.get(row.source.target()), Some(Class::Object(_) | Class::NullableObject(_))) { continue; }
+            let roots = if let Some(target) = row.source.instance() {
+                facts.object_call_source_v1(batch, selected, target).map_err(freeze)?;
+                facts.checked_original_source_roots_v1(target.target(), target.callee_owner()).map_err(freeze)?
+            } else {
+                // The pending Stored source already retains its exact owning
+                // result loan. Lending its roots does not select that receiver.
+                let Some(loan) = row.source.original_owning_object_input_v1() else { continue; };
+                if loan.call() != &reference.call_site || loan.key() != &reference.target
+                    || loan.callee_owner() != reference.callee_owner
+                    || loan.receiver() != Some(&reference.receiver_site)
+                    || !loan.matches_arguments_v1(&reference.argument_sites) {
+                    return Err(freeze("source-sum/caller-owner"));
+                }
+                facts.recheck_owning_object_local_input_roots_v1(loan).map_err(freeze)?;
+                facts.checked_original_source_roots_v1(loan.key(), loan.callee_owner()).map_err(freeze)?
+            };
+            let mut values = BTreeSet::new();
+            for root in roots {
+                values.insert(match root.origin() {
+                    Origin::Fresh(name) => SourceValueAlternativeV1::Object(name.clone()),
+                    Origin::Null => SourceValueAlternativeV1::Null,
+                    _ => return Err(freeze("source-sum/caller-owner")),
+                });
+            }
+            classes.insert(reference.call_site.clone(), (reference.clone(), values));
+        }
+        let classes: Vec<_> = classes.into_values().collect();
+        if classes.is_empty() { return Ok(()); }
+        if !self.join_instance_result_classes_v1(&classes) { return Err(freeze("source-sum/caller-owner")); }
+        // These immutable original roots remain ground when later scalar
+        // summaries re-solve the same graph; they grant no execution capability.
+        for node in &mut self.graph.nodes {
+            if let Some((_, values)) = classes.iter().find(|(reference, _)| node.instance_result.as_ref() == Some(reference)) {
+                node.atoms.extend(values.iter().cloned());
+                node.unconditional = true;
+            }
+        }
+        Ok(())
+    }
+    pub(super) fn field_object_projection_v1(&self, source: &Rc<FieldSource>) -> FormalActualSeedV1 {
+        let Some((original, sum)) = self.fields.get(&source.field()) else { return FormalActualSeedV1::Conflict; };
+        if !Rc::ptr_eq(original, source) { return FormalActualSeedV1::Conflict; }
+        let mut class = None;
+        let mut alternatives = Vec::new();
+        for value in sum.alternatives() {
+            match value {
+                SourceValueAlternativeV1::Null => alternatives.push(FormalActualSeedV1::Null),
+                SourceValueAlternativeV1::Object(name) => {
+                    if class.is_some_and(|original| original != name.as_ref()) { return FormalActualSeedV1::Conflict; }
+                    class = Some(name.as_ref());
+                    alternatives.push(FormalActualSeedV1::Class(name.clone()));
+                }
+                _ => return FormalActualSeedV1::Conflict,
+            }
+        }
+        if alternatives.is_empty() { FormalActualSeedV1::Conflict }
+        else { FormalActualSeedV1::All(alternatives.into_boxed_slice()) }
+    }
     pub(super) fn join_instance_result_classes_v1(
         &mut self,
         classes: &[(
             crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1,
-            SourceValueAlternativeV1,
+            BTreeSet<SourceValueAlternativeV1>,
         )],
     ) -> bool {
         let mut nodes = self.graph.nodes.clone();
@@ -118,12 +195,15 @@ impl OriginalSourceSumsV1 {
             let Some(reference) = &node.instance_result else { continue; };
             let mut matches = classes.iter().filter(|(candidate, _)| candidate == reference);
             let Some((_, class)) = matches.next() else { continue; };
-            if matches.next().is_some()
-                || !matches!(class, SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Bool | SourceValueAlternativeV1::Text)
-            {
-                return false;
-            }
-            node.atoms.insert(class.clone());
+            let primitive = class.len() == 1 && class.iter().all(|value| matches!(value,
+                SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Bool | SourceValueAlternativeV1::Text));
+            let nominal = class.iter().find_map(|value| match value {
+                SourceValueAlternativeV1::Object(name) => Some(name), _ => None,
+            }).is_some_and(|name| class.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
+                || matches!(value, SourceValueAlternativeV1::Object(actual) if actual == name)));
+            if matches.next().is_some() || !(primitive || nominal) { return false; }
+            // One complete original result cohort, including its Null exits.
+            node.atoms.extend(class.iter().cloned());
             node.unconditional = true;
         }
         let (all, points, formals, mut core_calls) = project_graph_v1(
@@ -266,6 +346,7 @@ pub(super) fn resolve_original_source_sums_v1(
         formals: BTreeMap::new(),
         constructors,
         array_fields: BTreeMap::new(),
+        fields: BTreeMap::new(),
         core_requests: Vec::new(),
         map_receiver,
         expand_returns,
@@ -274,6 +355,15 @@ pub(super) fn resolve_original_source_sums_v1(
         return_sites: BTreeMap::new(),
         flow_owners: flows.keys().copied().collect(),
     };
+    // Reserve every original all-writer field before expanding any actual.
+    // Field reads and mutually dependent writers share these same nodes.
+    for (source, _) in field_roots {
+        let node = graph.nodes.len();
+        if graph.fields.insert(source.field(), (Rc::clone(source), node)).is_some() {
+            return Err(freeze("source-sum/caller-owner"));
+        }
+        graph.nodes.push(Node::default());
+    }
     for field in array_field_roots.keys() {
         if graph.array_fields.insert(*field, graph.nodes.len()).is_some() {
             return Err(freeze("source-sum/array-field-duplicate"));
@@ -346,14 +436,12 @@ pub(super) fn resolve_original_source_sums_v1(
     for root in initializer_roots {
         graph.seed(root);
     }
-    let mut fields = BTreeMap::new();
     for (source, seeds) in field_roots {
+        let node = graph.fields.get(&source.field())
+            .filter(|(original, _)| Rc::ptr_eq(original, source))
+            .map(|(_, node)| *node).ok_or_else(|| freeze("source-sum/caller-owner"))?;
         let union = seeds.iter().map(|seed| graph.seed(seed)).collect();
-        let node = graph.nodes.len();
-        graph.nodes.push(Node { union, invalid: seeds.is_empty(), ..Node::default() });
-        if fields.insert(source.field(), (Rc::clone(source), node)).is_some() {
-            return Err(freeze("source-sum/caller-owner"));
-        }
+        graph.nodes[node] = Node { union, invalid: seeds.is_empty(), ..Node::default() };
     }
     if let Some(error) = graph.expansion_error.take() {
         return Err(error);
@@ -382,7 +470,7 @@ pub(super) fn resolve_original_source_sums_v1(
     let static_sources = graph.static_sources;
     let return_sites = graph.return_sites;
     let resolved_graph = OriginalSourceSumGraphV1 {
-        fields,
+        fields: graph.fields,
         nodes: graph.nodes,
         points: graph.points,
         formals: graph.formals,

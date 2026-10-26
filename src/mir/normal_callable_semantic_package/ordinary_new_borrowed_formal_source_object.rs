@@ -124,3 +124,26 @@ impl PreparedBorrowedFormalIngressV1 {
             .flatten()
     }
 }
+
+impl PreparedBorrowedFormalIngressV1 {
+    /// Merge corroborated passive class evidence from selected source inputs
+    /// and the original all-incoming domain. Neither is an execution capability.
+    /// If both are known they must name the same canonical object.
+    pub(in crate::mir::normal_callable_semantic_package) fn field_source_object_view_v1(
+        &self, formal: BindingRefV1,
+    ) -> Result<Option<&BorrowedFormalObjectViewV1>, String> {
+        if self.source_definition_for(formal.owner()).is_none() { return Ok(None); }
+        let selected = self.source_object_view_v1(formal)?;
+        let seeds = &self.original_formal_seeds;
+        if !seeds.corroborate_original_v1(&self.source_incoming) {
+            return Err(freeze("borrowed-view/original-seed-identity"));
+        }
+        let original = seeds.source_objects.as_ref().and_then(|domain| domain.views.get(&formal));
+        match (selected, original) {
+            (Some(a), Some(b)) if a.class() != b.class() || a.object() != b.object() =>
+                Err(freeze("borrowed-view/declared-object-class")),
+            (Some(view), _) | (_, Some(view)) => Ok(Some(view)),
+            (None, None) => Ok(None),
+        }
+    }
+}

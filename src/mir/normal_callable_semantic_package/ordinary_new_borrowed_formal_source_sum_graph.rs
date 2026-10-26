@@ -46,6 +46,7 @@ pub(super) struct Graph<'a> {
     pub(super) nodes: Vec<Node>,
     pub(super) formals: BTreeMap<BindingRefV1, usize>,
     pub(super) constructors: &'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    pub(super) fields: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, (Rc<FieldSource>, usize)>,
     pub(super) array_fields: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, usize>,
     pub(super) core_requests: Vec<CoreRequestNode>,
     pub(super) map_receiver: &'a mut MapReceiverLender<'a>,
@@ -185,6 +186,15 @@ impl Graph<'_> {
             }
             OriginalFormalActualSeedV1::Class(name) => {
                 row.atoms.insert(Value::Object(name.clone()));
+            }
+            OriginalFormalActualSeedV1::MapField { get, source } => {
+                // Keep the same canonical source, never a field-name class guess.
+                if source.field().object() == get.payload_source_v1().payload_object_v1() {
+                    match self.fields.get(&source.field()) {
+                        Some((original, node)) if Rc::ptr_eq(original, source) => row.union.push(*node),
+                        _ => row.invalid = true,
+                    }
+                } else { row.invalid = true; }
             }
             OriginalFormalActualSeedV1::ReturnedField(source) => {
                 if let Some(name) = source.class() {

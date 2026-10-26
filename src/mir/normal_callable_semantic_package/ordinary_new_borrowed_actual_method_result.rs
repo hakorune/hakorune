@@ -18,6 +18,10 @@ type FieldArrayAccessConsultV1<'a> = dyn Fn(
     ResolvedFunctionLoweringInputV1<'_>, &Arc<VerifiedResolvedMethodCallSourceV1>,
 ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>, String> + 'a;
 
+type FieldValueConsultV1<'a> = dyn Fn(
+    ResolvedFunctionLoweringInputV1<'_>, &SourceExprSiteV1,
+) -> Option<OriginalFormalActualSeedV1> + 'a;
+
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct OriginalActualSourceContextV1
 <'a> {
@@ -26,6 +30,7 @@ struct OriginalActualSourceContextV1
     owner: FunctionOwnerIdV1,
     point_premise: bool,
     field_array_access: Option<&'a FieldArrayAccessConsultV1<'a>>,
+    field_value: Option<&'a FieldValueConsultV1<'a>>,
 }
 impl<'a> OriginalActualSourceContextV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(
@@ -37,6 +42,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             owner: self.owner,
             point_premise: true,
             field_array_access: self.field_array_access,
+            field_value: self.field_value,
         }
     }
     /// Check the SAME original Static incoming and callee before source Return expansion.
@@ -113,11 +119,21 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             owner: self.owner,
             point_premise: false,
             field_array_access: self.field_array_access,
+            field_value: self.field_value,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_field_array_accesses_v1(
         mut self, consult: &'a FieldArrayAccessConsultV1<'a>,
     ) -> Self { self.field_array_access = Some(consult); self }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_field_values_v1(
+        mut self, consult: &'a FieldValueConsultV1<'a>,
+    ) -> Self { self.field_value = Some(consult); self }
+    pub(super) fn field_value_seed_v1(
+        &self, input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceExprSiteV1,
+    ) -> Option<OriginalFormalActualSeedV1> {
+        if input.owner() != self.owner { return None; }
+        (self.field_value?)(input, site)
+    }
     pub(super) fn is_point_premise(&self) -> bool {
         self.point_premise
     }
@@ -202,10 +218,9 @@ impl<'a> OriginalActualSourceContextV1<'a> {
         if rows.next().is_some() || row.call.owner() != input.owner() {
             return OriginalMethodResultResolutionV1::Unknown;
         }
-        let Some(target) = row.source.instance() else {
+        let Some(reference) = row.source.original_instance_reference_v1() else {
             return OriginalMethodResultResolutionV1::Unknown;
         };
-        let reference = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::CallTargetReferenceV1::from_target(target);
         if reference.callee_owner != row.callee
             || !reference.matches_original_call_v1(input, method)
         {
@@ -311,6 +326,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             owner: input.owner(),
             point_premise: false,
             field_array_access: None,
+            field_value: None,
         }))
     }
 

@@ -20,6 +20,12 @@ use method_result::{OriginalMethodResultResolutionV1, OriginalMethodResultSeedV1
 #[derive(Debug)]
 #[cfg_attr(test, derive(Clone))]
 pub(super) enum OriginalFormalActualSeedV1 {
+    /// Exact Map-get receiver plus the complete original field writer census.
+    /// This source dependency grants no nonnull, live Home or executable read.
+    MapField {
+        get: Box<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StoredMapGetSourceLoanV1>,
+        source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>,
+    },
     ReturnedField(Box<super::super::super::result_class_claim::ReturnedFieldSourceLoanV1>),
     Mixed {
         source: Box<super::super::super::result_class_claim::MixedLocalCallSourceLoanV1>,
@@ -60,7 +66,7 @@ impl OriginalFormalActualSeedV1 {
     /// Scalar reaching-value analysis must not replace their original proof.
     fn retains_original_binding_anchor_v1(&self) -> bool {
         match self {
-            Self::ReturnedField(_) | Self::Mixed { .. } | Self::Class(_)
+            Self::MapField { .. } | Self::ReturnedField(_) | Self::Mixed { .. } | Self::Class(_)
                 | Self::Forward { .. } | Self::ProviderStatic(_) => true,
             Self::SourceOnly(source) | Self::SumUnknown(source)
                 | Self::PointValue { legacy: source, .. } => source.retains_original_binding_anchor_v1(),
@@ -99,6 +105,21 @@ impl OriginalFormalActualSeedV1 {
             _ => self.project_source_integer_v1(false),
         }
     }
+    pub(super) fn project_source_object_with_fields_v1(
+        &self,
+        project: &impl Fn(&Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>) -> FormalActualSeedV1,
+    ) -> FormalActualSeedV1 {
+        match self {
+            Self::MapField { source, .. } => project(source),
+            Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } =>
+                legacy.project_source_object_with_fields_v1(project),
+            Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
+                FormalActualSeedV1::Class(source.fresh_class().into()),
+                anchor.project_source_object_with_fields_v1(project),
+            ])),
+            _ => self.project_source_object_v1(),
+        }
+    }
     pub(super) fn project_source_integer_v1(&self, current_i64: bool) -> FormalActualSeedV1 {
         match self {
             Self::ReturnedField(source) => Self::returned_field_domain_v1(source),
@@ -127,7 +148,8 @@ impl OriginalFormalActualSeedV1 {
             Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => {
                 legacy.project_source_integer_v1(current_i64)
             }
-            Self::Binary { .. }
+            Self::MapField { .. }
+            | Self::Binary { .. }
             | Self::Conflict
             | Self::ProviderStatic(_)
             | Self::Scalar(SourceScalarKind::Bool)
@@ -157,7 +179,8 @@ impl OriginalFormalActualSeedV1 {
             Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => {
                 legacy.project_selected_v1(caller, transport_owners)
             }
-            Self::Binary { .. }
+            Self::MapField { .. }
+            | Self::Binary { .. }
             | Self::Conflict
             | Self::ProviderStatic(_)
             | Self::Scalar(SourceScalarKind::Bool)
@@ -517,6 +540,11 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
                 .and_then(|_| input.function().method_call_source_v1(method.receiver_site()))
                 .map(|inner| (std::sync::Arc::clone(inner), Box::new(classify(method.receiver_site())))),
         }));
+    }
+    if let Some(context) = source_context {
+        if let Some(seed) = context.field_value_seed_v1(input, site) {
+            return seed;
+        }
     }
     let Some(mut binding) = arg_site_binding(input, site) else {
         return OriginalFormalActualSeedV1::Conflict;

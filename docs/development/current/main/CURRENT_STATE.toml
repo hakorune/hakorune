@@ -1,9 +1,9 @@
-date = "2026-10-26"
+date = "2026-10-27"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini HakoAllocHeap.release(handle) Body1 handle.page_id condition unproved; object-input/callee-exit TerminalNotCovered; source Object views/SUM absent; no EXE"
+current_blocker_token = "boxtorrent-mini borrowed-actual/unsupported-or-unavailable after original Map payload field SUM and release field-condition admission; no EXE"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini selected; current stop HakoAllocHeap.release(handle) Body1 page_id condition, object-input/callee-exit; no EXE.
-Original New/SUM and mixed Uses inputs now connect; opaque signed Core MethodCall frames pass; source facts still grant no live Home.
-Fixed suite9/11 in551.806s:8realEXEs+marker, JSON/boxtorrent compilation failures, no timeout/SKIP; focused54PASS/4pre-series reds.
-Touched owners split below800 lines and unused loan wrapper retired; .hako/fixtures unchanged, no new test function/file/checker; final build in card.
-Next: release's field-derived original incoming source, then local-result/cleanup/publication and required finite-product closeout.
+APP-boxtorrent-mini selected; stop borrowed-actual/unsupported-or-unavailable; no EXE.
+Exact Map-get payload/field writers and nullable original result roots now join one SUM; PendingStored source references grant no live Home.
+Fixed suite9/11 in576.456s:8realEXEs+marker, JSON/boxtorrent compilation failures, no timeout/SKIP; focused51PASS/4pre-series reds.
+CLI38.64s PASS; .hako/fixtures unchanged, no new test function/file/checker; selected and original source class evidence must agree when both exist.
+Next: locate the rejected argument's exact source site and connect existing Map/field read and live frame proofs; required finite-product closeout remains open.
 """
 next_design_card = "none"
 next_design_card_path = "none"

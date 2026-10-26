@@ -389,7 +389,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 false
             } else {
                 let joined = match original_inventory.as_mut() {
-                    Ok(original) => original.join_instance_result_classes_v1(&classes, batch, constructors)
+                    Ok(original) => original.join_instance_result_classes_v1(&classes, batch, constructors, contracts)
                         .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?,
                     Err(_) => false,
                 };

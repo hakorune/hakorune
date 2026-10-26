@@ -42,6 +42,23 @@ impl BorrowedIncomingSourceV1 {
             )),
         }
     }
+    /// Original coordinates also exist before Stored execution selection.
+    /// This lends no instance target, receiver, argument frame or result ABI.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_instance_reference_v1(&self) -> Option<CallTargetReferenceV1> {
+        match self {
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => Some(CallTargetReferenceV1::from_target(row)),
+            Self::PendingStored(row) => Some(row.reference.clone()),
+            Self::Static(_) => None,
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn original_owning_object_input_v1(&self)
+        -> Option<&super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1> {
+        match self {
+            Self::PendingStored(row) | Self::SelectedStored { original: row, .. } => row.owning_object_input.as_deref(),
+            Self::Instance(row) => row.owning_object_local_input_v1(),
+            Self::Static(_) => None,
+        }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn instance(
         &self,
     ) -> Option<&super::super::LexicalInstanceCallSourceTargetV1> {
