@@ -60,12 +60,30 @@ impl<'f> IntervalViewV1<'f> {
         // A repeated unchanged slot denotes the same retained child, even when
         // its fresh SSA destination or unknown base cannot prove non-aliasing.
         let mut children = BTreeSet::from([child]);
-        for instruction in self.function.blocks.values().flat_map(|block| block.all_instructions()) {
-            if let MirInstruction::ObjectFieldGet { dst, base, field: read_field } = instruction {
-                if *read_field == field && origins.origin(*base).is_none_or(|origin| origin == parent) {
-                    let origin = origins.origin(*dst).ok_or_else(|| freeze("field-argument/repeated-read-origin"))?;
-                    children.insert(origin);
-                }
+        for (block_id, block) in &self.function.blocks {
+            for instruction in block.all_instructions() {
+                let (base, read_field) = match instruction {
+                    MirInstruction::ObjectFieldGet { base, field, .. }
+                    | MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldBorrow { base, field, .. }, .. } => (*base, *field),
+                    _ => continue,
+                };
+                if read_field != field || !origins.origin(base).is_none_or(|origin| origin == parent) { continue; }
+                let dst = match instruction {
+                    MirInstruction::ObjectFieldGet { dst, .. } => *dst,
+                    MirInstruction::Invoke { normal_landing, .. } => {
+                        let landing = self.function.blocks.get(normal_landing)
+                            .ok_or_else(|| freeze("field-argument/repeated-read-origin"))?;
+                        let mut values = landing.instructions.iter().filter_map(|instruction| match instruction {
+                            MirInstruction::InvokeNormalResult { invoke_block, dst } if invoke_block == block_id => Some(*dst),
+                            _ => None,
+                        });
+                        let value = values.next().ok_or_else(|| freeze("field-argument/repeated-read-origin"))?;
+                        if values.next().is_some() { return Err(freeze("field-argument/repeated-read-origin")); }
+                        value
+                    },
+                    _ => unreachable!("classified original field read"),
+                };
+                children.insert(origins.origin(dst).ok_or_else(|| freeze("field-argument/repeated-read-origin"))?);
             }
         }
         Ok(ReadIntervalV1 { view: self, parent, children, field })
@@ -125,7 +143,8 @@ impl ReadIntervalV1<'_, '_> {
                         InvokeOperation::HomeRelease { value, .. }
                         | InvokeOperation::HomeReleaseIfLive { value, .. }
                         | InvokeOperation::ObjectEndIfOwned { value, .. }
-                        | InvokeOperation::ReclaimUnpublished { value, .. } => aliases(*value)?,
+                        | InvokeOperation::ReclaimUnpublished { value, .. }
+                        | InvokeOperation::DynamicCarrierEnd { carrier: value } => aliases(*value)?,
                         InvokeOperation::OwnedObjectFieldRelease { base, .. }
                         | InvokeOperation::OwnedFieldResidenceRelease { base, .. } => aliases(*base)?,
                         InvokeOperation::FieldSet { base, field: written, .. } => *written == field && parent_alias(*base)?,
@@ -192,6 +211,7 @@ mod tests {
         verify(&function).unwrap();
         for operation in [
             InvokeOperation::HomeRelease { object, value: ValueId(1) },
+            InvokeOperation::DynamicCarrierEnd { carrier: ValueId(1) },
             InvokeOperation::HomeReleaseIfLive { object, value: ValueId(5) },
             InvokeOperation::ReclaimUnpublished { object, value: ValueId(6) },
             InvokeOperation::OwnedObjectFieldRelease { base: ValueId(1), field: other, child: object },
@@ -213,6 +233,19 @@ mod tests {
             changed.blocks.get_mut(&BasicBlockId(0)).unwrap().add_instruction(instruction);
             assert!(verify(&changed).is_err());
         }
+        // A checked reread's Normal value aliases the same retained child,
+        // despite its distinct SSA result and its Invoke/Normal split.
+        let mut checked = function.clone();
+        checked.blocks.get_mut(&BasicBlockId(0)).unwrap().set_terminator(MirInstruction::Invoke {
+            operation: InvokeOperation::ObjectFieldBorrow { base: ValueId(1), field, child: object, nullable: true },
+            fault_frame: ValueId(4), normal_landing: BasicBlockId(3), fault_landing: BasicBlockId(2) });
+        let mut landing = BasicBlock::new(BasicBlockId(3));
+        landing.add_instruction(MirInstruction::InvokeNormalResult { invoke_block: BasicBlockId(0), dst: ValueId(8) });
+        landing.set_terminator(MirInstruction::Jump { target: BasicBlockId(1), edge_args: None });
+        checked.add_block(landing);
+        verify(&checked).unwrap();
+        checked.blocks.get_mut(&BasicBlockId(3)).unwrap().add_instruction(MirInstruction::DestroyOwned { value: ValueId(8) });
+        assert!(verify(&checked).is_err(), "ending a checked same-field reread invalidates the borrowed child");
         // A valid non-unanimous Phi cannot prove that a reread's base is a
         // different parent. Its fresh SSA destination is a potential child.
         let mut ambiguous = function.clone();

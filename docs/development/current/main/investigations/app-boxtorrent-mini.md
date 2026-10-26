@@ -6,11 +6,13 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Array
 
 ## Current stop
 - Binary/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`; canonical LLVM C API/pure-first, no compatibility replay.
-- Latest smoke passes the former HakoAllocHeap.release(handle) Body1 field-condition stop, then fails `borrowed-actual/unsupported-or-unavailable`. No EXE. The next task is the exact rejected source argument's live read/frame, not further source class inference.
+- Latest smoke fails `borrowed-actual/unsupported-or-unavailable` at `apps/boxtorrent-mini/main.hako:108`: BoxTorrentStore.release, `me.allocator.release(chunk.alloc_handle)`, argument0 (owner54 Body3/IfThen0/IfCondition/Argument0). No EXE. Diagnostic source changes were removed; the same stop remains with the final binary.
 - `chunk.alloc_handle` now retains the exact local read → sole Map get → all-set payload class → canonical field's complete writer census. Every field node is reserved before actual/writer expansion; nullable nominal results from exact original calls join the same SUM. PendingStored lends only its retained reference and checked result roots, never a selected receiver or Home.
 - Original source ingress now passes the earlier Main Body10 and ingest addChunk stops. The computed i64 `allocate(data.length())` argument receives its original loan/frame, so its previous frame-missing stop is gone. This does not establish completion of every later Home/return/cleanup consumer.
-- Fixed suite (`run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420`)9/11 in576.456s:8realEXEs+marker; JSON/boxtorrent compilation failures, no timeout/SKIP. Binary-trees/mimalloc/allocator retain canonical EXE/run success. CLI post-diagnostic-removal build38.64s PASS (1,877 warnings); current source has no diagnostic additions.
-- Current focused checks51PASS/4FAIL: SUM solver1, entry21, incoming-kind1, declared6/2, result claims22/2. The same four failures were established before this series: two source-only declared-cohort cases, PageHeap required-integer-source, JSON callee-exit. Earlier physical/Text and terminal reds remain open; no refusal was disabled.
+- Last full suite (`run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420`)9/11 in576.456s:8realEXEs+marker; JSON/boxtorrent compilation failures, no timeout/SKIP. Binary-trees/mimalloc/allocator retain canonical EXE/run success. CLI post-diagnostic-removal build38.64s PASS (1,877 warnings); current source has no diagnostic additions.
+- Prior source-series focused checks51PASS/4FAIL: SUM solver1, entry21, incoming-kind1, declared6/2, result claims22/2. The same four failures were established before this series: two source-only declared-cohort cases, PageHeap required-integer-source, JSON callee-exit. Earlier physical/Text and terminal reds remain open; no refusal was disabled.
+
+- Current interval change: CLI `cargo quick-build-fast -j 4`39.30s PASS; selected smoke retains the same compilation refusal. Existing interval test demonstrates red-before/green-after for checked same-field reread→early child End. Descriptor and returned-wrapper publication checks also PASS (3PASS total). An additional returned-field source-input test refuses `borrowed-object/forward-source-identity` during package issuance, before the changed physical interval; it remains unresolved, not waived.
 
 
 ## Implementation boundary
@@ -21,10 +23,13 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Array
 - Opaque signed Core MethodCall arguments now use the existing original-Core/site/result checks and i64 source-loan classification. Text results remain distinct; source loan creation itself is nonexecuting.
 - Entry selection/aliases and argument lending/binding/completion were mechanically separated with unchanged caller API/private scope, keeping touched owners below800 lines. The unused append lending wrapper/export was retired after caller-zero source search; observed append lending remains.
 - Dynamic ArrayGet retains its carrier class and independent End; bounds/append SUM may prove Text only for a separate snapshot. Materialize/final validation retain exact operands and Normal/Fault cleanup. Direct initializer/deferred-argument capability refusals remain where not connected.
-- `.hako`, fixtures and checker entrances are unchanged; no test function/file was added. Existing source/solver/entry/result checks were reused. Temporary diagnostic source code is removed; transient trace snapshots are retired at landing.
+- `.hako`, fixtures and checker entrances are unchanged; no test function/file was added. One existing interval case was extended because the prior ObjectFieldGet matrix did not cover checked ObjectFieldBorrow→Normal aliasing or DynamicCarrierEnd. Source diagnostic snapshots are retired at landing.
+- Field argument liveness now includes exact checked same-field Normal results in the alias cohort, validates their Invoke/Normal correspondence, and rejects aliasing carrier End. Terminating Fault cleanup remains distinct from paths rejoining the argument use.
+
 
 
 ## Next
-- Identify the rejected borrowed argument's exact original site and connect its existing source proof to the live operand/frame consumer, preserving Map get null exclusion, payload/field lifetime and Normal/Fault cleanup. Passive SUM/class completion grants no executable read.
+- Connect the exact terminal Map-derived Object field to the existing ReadActual field issuer: retain MapGet frame/nonnull exclusion and use nullable ObjectFieldBorrow, without forging ReturnedField provenance. Normalize BorrowedObject value evidence behind a private-origin wrapper (existing child relation / complete all-writer SUM); teardown pairing permission stays on the original child-relation type.
+- Extend the existing checked read/field-argument consumer through Normal/Fault and final interval/End validation, including the parent anchor. Parent MapGet nonnull does not prove child nonnull. Passive SUM/class completion grants no executable read.
 - Then finish local-result live transfer, remaining field/array reads, publication and actual EXE behavior. Original local-New source class is not proof of an executable return leaf.
 - JSON, required source/production connections, R6/R7, Loop and finite-product closeout remain incomplete.

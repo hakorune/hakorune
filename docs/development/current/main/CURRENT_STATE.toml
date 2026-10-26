@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini borrowed-actual/unsupported-or-unavailable after original Map payload field SUM and release field-condition admission; no EXE"
+current_blocker_token = "boxtorrent-mini main.hako:108 release(chunk.alloc_handle), owner54 Body3/IfThen0/IfCondition/Argument0: borrowed-actual/unsupported-or-unavailable; no EXE"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini selected; stop borrowed-actual/unsupported-or-unavailable; no EXE.
-Exact Map-get payload/field writers and nullable original result roots now join one SUM; PendingStored source references grant no live Home.
-Fixed suite9/11 in576.456s:8realEXEs+marker, JSON/boxtorrent compilation failures, no timeout/SKIP; focused51PASS/4pre-series reds.
-CLI38.64s PASS; .hako/fixtures unchanged, no new test function/file/checker; selected and original source class evidence must agree when both exist.
-Next: locate the rejected argument's exact source site and connect existing Map/field read and live frame proofs; required finite-product closeout remains open.
+APP-boxtorrent-mini selected; main.hako108 release(chunk.alloc_handle) rejects borrowed-actual/unsupported-or-unavailable; no EXE.
+Field liveness now tracks checked same-field Normal aliases and carrier End; existing interval case verified red-before/green-after.
+Current narrow checks3PASS/1source-input refusal before physical verification; earlier source-series reds remain open in card.
+CLI39.30s PASS, selected smoke same refusal; last full suite9/11 (8realEXEs+marker), not rerun for this interval-only change.
+Next: bounded Object-field value proof and exact Map-root ReadActual consumer, preserving nullable child, anchor lifetime and finite-product closeout.
 """
 next_design_card = "none"
 next_design_card_path = "none"
