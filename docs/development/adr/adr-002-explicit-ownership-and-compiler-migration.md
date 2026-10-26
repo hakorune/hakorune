@@ -85,8 +85,8 @@ LLVM noaliasはmutの綴りから発行せず、実際の排他区間と到達�
 
 | 順 | 選択・作業 | 完了証拠と置換対象 |
 | --- | --- | --- |
-| 現在 | APP-json-streamのArray carrier source・commit・Endを接続 | 既存EXE smokeの全契約と出力/exit。新所有構文へ入力を書換えない。 |
-| 準備 | 数本の既存.hakoを紙上移行し、上の境界を決着 | record、Box、Array/Mapを含む少数例でmove/copy/share数・必要コピー・借用困難点を比較。copyの意味を決める前に単なる語数で評価しない。 |
+| 現在 | CURRENT_STATEが選択する受け入れアプリのsource・ABI・lifecycle接続を完了 | 既存EXE smokeの全契約と出力/exit。新所有構文へ入力を書換えない。 |
+| 準備 | 既存record/box契約を参照し、copy対象の未決境界を紙上移行で確定 | 数値record、所有payload付きrecord、identity BoxとArray/Mapの少数例で、新identity・入れ子所有・Shared/Weak・失敗時責任を比較。copyの意味を決める前に単なる語数で評価しない。 |
 | 1 | 代表recordのmove/returnをsource→ownership検査→End→EXEへ接続 | 移転後使用とborrowed returnを拒否。同じ入力で既存SSAを本番consumerへ接続し、未接続passを作らない。置換した同一source専用edgeは検証後同seriesで退役。 |
 | 2 | 同じ型のcopyとread/mut/take callをEXEまで接続 | copy後の独立性、mut競合拒否、takeの消費時点、Normal/Faultの責任。Dynamic carrierのreadはcallerがEnd責任を維持し、calleeへownerを渡さない。旧の同一source/ABI専用adapterを切替と同じseriesで退役。 |
 | 3 | 同じ所有型のEndを分岐/loop/再代入/Invokeへ拡張 | Return/Faultでの終了順と一度だけの消費。必要時だけdrop flag。意味が一致しcaller-zeroとなった専有HomeRelease等だけ削除。 |
@@ -94,6 +94,8 @@ LLVM noaliasはmutの綴りから発行せず、実際の排他区間と到達�
 
 数値のみのPointがTrivialなら、それだけでは所有移転やEndの証拠にならない。Trivial分類を
 確定し、構文/value copyのcanaryと所有payloadを持つ代表入力を区別する。
+record/boxの基本区別は[既存SSOT](../current/main/design/record-box-two-surface-one-substrate-ssot.md)と
+[types.md](../../reference/language/types.md)で確定済み。準備ではその区別を再設計せず、copy対象の決定へ使う。
 新規test/checker/cardは原則増やさず、追加が必要ならRULES §6に従う。
 実装選択は既存parked checkpointに従う。現行アプリを未完のまま全面改修へ切り替えない。
 4〜5万行削減・Rust相当の速度・期間は未計測であり、達成条件や見積もりには使わない。

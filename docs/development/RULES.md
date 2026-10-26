@@ -36,8 +36,8 @@ Related: [現在地](current/main/CURRENT_STATE.toml)、[最終pipeline](current
 5. 検証済みの内部commitはアプリ完走前でもよい。対象パスだけstageし、無関係なWIPを保持する。
 6. アプリが通ったら既存cardの状態を短く更新し、次のアプリへpointerを切り替える。
 
-commitは短い件名と必要な変更・検証・残件だけにする。通常実装では文書だけの追随commitを作らない。
-ユーザーが依頼した文書整理は独立commitでよい。
+commitは短い件名と必要な変更・検証・残件だけにする。通常の自動継続・引継ぎではcheckpoint専用commitを作らず、現在地の更新は次の検証済み実装commitに含める。
+ユーザーが指定した停止・文書整理のための記録は独立commitでよい。
 
 ## 4. 建設と旧経路退役の証明タイミング
 

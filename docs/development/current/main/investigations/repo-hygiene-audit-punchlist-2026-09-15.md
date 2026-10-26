@@ -10,6 +10,21 @@ Source: external day-3 audit (2-lens independent review) delivered 2026-09-15
 External audit findings verified in-tree on `3e3d39d632`. Each row is a
 bounded follow-up; none is part of the active MirBuilder semantic lane.
 
+## 2026-10-26 dead_code allowance review
+
+Git-tracked Rust under `src/mir` has307 `dead_code` allowance attributes in84files
+(295 outer,3 conditional,9 inner); excluding `generated/` gives292 in76files.
+These are attributes, not dead functions or compiler warning counts. The earlier303 count is not the current scope.
+Same-line or immediately attached comment blocks accompany113 attributes;194 have none.
+This attachment heuristic does not certify RULES §8's full reason/planned-use/reconsideration contract.
+Explicit reconsideration markers total21:20 event conditions and1 dated review; literal `retire_when` count is0.
+The dated review is `src/mir/compiler/module_registry.in.rs`'s allowance for
+`variable_bound_mul_recurrence_source`, due2026-10-17. It has a production import in
+`ordinary_new_coseal_issue_loop.rs`: review the allowance, not deletion of the live implementation.
+Also reconcile `resolved_semantics/mod.rs`'s stale SA0/SA1 disconnected-module comment when that owner is touched.
+Apply §8 within touched owners/retirement series; do not bulk-add dates/comments, create a checker/ledger,
+or preempt the selected app. Complete each review with actual consumer/use evidence under the existing cleanup SSOT.
+
 ## 2026-09-20 fifth-audit reconciliation
 
 The later audit's three documentation P1s were checked against the current
