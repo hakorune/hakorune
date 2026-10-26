@@ -200,8 +200,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 || input.function().variable_ref(object) != Some(ResolvedLexicalRefV1::Local(binding))
             { return Err(fault("borrowed-entry-read-origin")); }
             let view = entry.formal_object_view(formal)?
-                .ok_or_else(|| format!("{}: owner={:?}, binding={binding:?}, formal={formal:?}, read={site:?}, field={field}",
-                    fault("borrowed-entry-object-view-missing"), input.owner()))?;
+                .ok_or_else(|| format!("{}: owner={:?}, binding={binding:?}, formal={formal:?}, read={site:?}, field={field}, incoming={:?}, original_class={:?}, retained=(terminal:{}, argument:{}, local:{})",
+                    fault("borrowed-entry-object-view-missing"), input.owner(),
+                    entry.incoming().map(|rows| rows.iter().map(|(call, actuals)| (*call, actuals.len())).collect::<Vec<_>>()),
+                    self.borrowed_formal_source.as_ref().and_then(|source| source.as_ref().ok())
+                        .map(|source| source.field_source_object_view_v1(formal).map(|view| view.map(|view| view.class().to_owned()))),
+                    self.field_reads.borrow().contains_key(&site), self.argument_field_reads.borrow().contains_key(&site),
+                    self.local_field_reads.borrow().contains_key(&site)))?;
             let source = view.scalar_field_source_v1(field)
                 .ok_or_else(|| fault("borrowed-entry-declaration-missing"))?;
             if source.field().object() != view.object() {
