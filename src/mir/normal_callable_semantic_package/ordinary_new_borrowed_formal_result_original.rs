@@ -104,6 +104,24 @@ impl OriginalReturnSourceLoanV1 {
     /// Every original Return has Text source evidence. This selects the result
     /// family only; acquisition, completion and physical Return remain owed.
     pub(in crate::mir::normal_callable_semantic_package) fn is_text_return_v1(&self, ingress: &PreparedBorrowedFormalIngressV1) -> bool {
+        self.text_returns_with_sums_v1(
+            |flow, site, binding| ingress.lend_original_read_sum_v1(flow, site, binding).is_some_and(|sum| sum.text_only()),
+            |class, name| ingress.source_declared_field_sum_v1(class, name).is_some_and(|sum| sum.text_only()),
+        )
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_original_text_return_v1(
+        &self, source: &super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1,
+    ) -> bool {
+        self.text_returns_with_sums_v1(
+            |flow, site, binding| source.lend_original_read_sum_v1(flow, site, binding).is_some_and(|sum| sum.text_only()),
+            |class, name| source.source_declared_field_sum_v1(class, name).is_some_and(|sum| sum.text_only()),
+        )
+    }
+    fn text_returns_with_sums_v1(
+        &self,
+        mut read_is_text: impl FnMut(&std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>, &SourceExprSiteV1, BindingRefV1) -> bool,
+        mut field_is_text: impl FnMut(&str, &str) -> bool,
+    ) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
         let plans = self.plans();
         let answer = !plans.is_empty() && plans.iter().all(|plan| {
@@ -112,9 +130,8 @@ impl OriginalReturnSourceLoanV1 {
             match root.source() {
                 Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => return true,
                 Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) => {
-                    return self.0.flow.as_ref().and_then(|flow|
-                        ingress.lend_original_read_sum_v1(flow, root.site(), *binding))
-                        .is_some_and(|sum| sum.text_only());
+                    return self.0.flow.as_ref().is_some_and(|flow|
+                        read_is_text(flow, root.site(), *binding));
                 }
                 _ => {}
             }
@@ -124,7 +141,7 @@ impl OriginalReturnSourceLoanV1 {
                 && plan.nodes().iter().any(|node| node.site() == object && matches!(node.source(),
                     Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
                     | Node::Shape(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == self.0.receiver))
-                && ingress.source_declared_field_sum_v1(self.0.key.owner(), field).is_some_and(|sum| sum.text_only())
+                && field_is_text(self.0.key.owner(), field)
         });
         answer
     }

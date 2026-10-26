@@ -84,14 +84,38 @@ impl OriginalBorrowedFormalSourceV1 {
             super::super::source::CallTargetReferenceV1,
             SourceValueAlternativeV1,
         )],
-    ) -> bool {
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> Result<bool, (OwnedExprSiteV1, String)> {
         if !self.seeds.corroborate_original_v1(&self.inventory) {
-            return false;
+            return Ok(false);
         }
-        self.seeds
-            .source_sums
-            .as_mut()
-            .is_some_and(|sums| sums.join_instance_result_classes_v1(classes))
+        let Some(sums) = self.seeds.source_sums.as_mut() else { return Ok(false); };
+        if !sums.join_instance_result_classes_v1(classes) { return Ok(false); }
+        // The same solver may close new Core demands after an instance Return
+        // joins. Retain old canonical receipts and issue only the newly closed
+        // sites through their original input; no second source census is needed.
+        let mut ordinary_core = BTreeMap::new();
+        for (site, operands) in &sums.core_calls {
+            let receipt = if let Some(original) = self.seeds.ordinary_core.get(site) {
+                if !Rc::ptr_eq(original.operands(), operands) {
+                    return Err((site.clone(), freeze("source-sum/caller-owner")));
+                }
+                Rc::clone(original)
+            } else {
+                crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                    batch, constructors, site.owner(), |_, input|
+                        crate::mir::normal_callable_semantic_package::core_method_source::issue_ordinary_core_source_v1(input, operands))
+                    .map_err(|issue| (site.clone(), issue))?
+                    .map_err(|issue| (site.clone(), issue))?
+            };
+            ordinary_core.insert(site.clone(), receipt);
+        }
+        if let Some(site) = self.seeds.ordinary_core.keys().find(|site| !ordinary_core.contains_key(*site)) {
+            return Err((site.clone(), freeze("source-sum/caller-owner")));
+        }
+        self.seeds.ordinary_core = ordinary_core;
+        Ok(true)
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn field_bases_available(

@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini owner65 Body4 LoopBody1: ids.get(i) ArrayGet source SUM unresolved from addChunk(cid); no closed Core receipt, EXE not emitted"
+current_blocker_token = "boxtorrent-mini Main owner73 Body9 Initializer(0): store.refCount(first_chunk) borrowed-instance/opaque-source-unsupported, ordinal0 actual=Unknown; firstChunkId ArrayGet result proof incomplete"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini remains selected; owner65 `chunkListText()` Body4 LoopBody1 stops at `out = out + ids.get(i)`; no EXE emitted.
-Exact field read and signed-i64 index are recognized, but `chunk_ids` element SUM from `addChunk(cid, ...)` remains unresolved; no closed ArrayGet Core receipt.
-Latest `cargo quick-build-fast -j 4` passed in44.00s before temporary trace removal; selected smoke/direct EXE route still failed before EXE emission.
-Last fixed suite result was6/11 before ArrayGet-demand wiring; `.hako`, fixtures, and checkers are unchanged; two existing test callers only gained an argument; WIP is uncommitted.
-Next: trace `store.put` result into `addChunk`'s `cid`, close the exact source SUM, then reconnect the ArrayGet result and Loop recipe.
+APP-boxtorrent-mini remains selected; Main owner73 Body9 stops at `store.refCount(first_chunk)`, opaque actual Unknown; no EXE emitted.
+Exact all-Return Text evidence now joins instance source SUMs; newly closed Core demands retain old receipts and use the same source issuer.
+Quick CLI build41.79s PASS; focused5PASS, two other focused reds reproduce with HEAD production; selected smoke remains FAIL before EXE.
+Fixed suite was not rerun after this series; `.hako`, fixtures, and checkers unchanged; no test cases/files added.
+Next: prove same-array bounds for firstChunkId's surviving get(0), then connect source-proved Text snapshot with carrier Normal/Fault End intact.
 """
 next_design_card = "none"
 next_design_card_path = "none"

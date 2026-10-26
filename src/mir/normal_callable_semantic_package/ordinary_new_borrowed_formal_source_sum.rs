@@ -112,7 +112,7 @@ impl OriginalSourceSumsV1 {
             let mut matches = classes.iter().filter(|(candidate, _)| candidate == reference);
             let Some((_, class)) = matches.next() else { continue; };
             if matches.next().is_some()
-                || !matches!(class, SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Bool)
+                || !matches!(class, SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Bool | SourceValueAlternativeV1::Text)
             {
                 return false;
             }

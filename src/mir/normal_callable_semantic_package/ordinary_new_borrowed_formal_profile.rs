@@ -19,6 +19,7 @@ use std::collections::{BTreeMap, BTreeSet};
 fn instance_result_classes_v1(
     pending: &BorrowedResultCohortV1,
     needs: &[Result<Option<PreparedSourceCallNeedV1>, String>],
+    source: Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
 ) -> Vec<(
     super::source::CallTargetReferenceV1,
     super::borrowed_formal_source::SourceValueAlternativeV1,
@@ -27,10 +28,17 @@ fn instance_result_classes_v1(
         .iter()
         .filter_map(|row| {
             let need = row.as_ref().ok()?.as_ref()?;
+            let reference = need.reference();
+            if let Some(original) = pending.original_return_source_v1(&reference.callee_owner).ok().flatten() {
+                if original.matches(&reference)
+                    && source.is_some_and(|source| original.is_original_text_return_v1(source))
+                {
+                    return Some((reference, super::borrowed_formal_source::SourceValueAlternativeV1::Text));
+                }
+            }
             let PreparedSourceCallNeedV1::Lexical(target) = need else {
                 return None;
             };
-            let reference = need.reference();
             // Result classes belong to the original Return cohort, including
             // strict input calls. Borrowed input admission is a separate choice.
             let original = match &target.result_requirement {
@@ -411,15 +419,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 original_inventory = build_original_inventory(&needs);
             }
             let classes = match &needs {
-                Ok(rows) => instance_result_classes_v1(&pending, rows),
+                Ok(rows) => instance_result_classes_v1(&pending, rows, original_inventory.as_ref().ok()),
                 Err(_) => break,
             };
             let joined = if classes.is_empty() || classes == previous {
                 false
             } else {
-                let joined = original_inventory
-                    .as_mut()
-                    .is_ok_and(|original| original.join_instance_result_classes_v1(&classes));
+                let joined = match original_inventory.as_mut() {
+                    Ok(original) => original.join_instance_result_classes_v1(&classes, batch, constructors)
+                        .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?,
+                    Err(_) => false,
+                };
                 if joined { previous = classes; }
                 joined
             };

@@ -377,7 +377,7 @@ mod tests {
             "String + any returns Text on its normal path"
         );
         let unknown_rhs = vec![
-            binary(0, 1, Op::Add),
+            binary(1, 2, Op::Add),
             atom(Text),
             Node {
                 invalid: true,

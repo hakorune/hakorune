@@ -83,13 +83,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn source_declared_field_sum_v1(
         &self, class: &str, name: &str,
     ) -> Option<Rc<SourceValueSumV1>> {
-        let product = &self.original_formal_seeds;
-        if !product.corroborate_original_v1(&self.source_incoming) { return None; }
-        let mut rows = product.source_sums.as_ref()?.fields.values().filter(|(source, _)|
-            source.writers().next().is_some()
-                && source.writers().all(|writer| writer.owner_box() == Some(class) && writer.field() == name));
-        let (_, sum) = rows.next()?;
-        rows.next().is_none().then(|| Rc::clone(sum))
+        lend_original_declared_field_sum(&self.original_formal_seeds, &self.source_incoming, class, name)
     }
     /// Select an original computed argument purpose, never a legacy literal
     /// caller or an executable entry. The whole source SUM stays independent.
@@ -494,6 +488,20 @@ impl OriginalIntegerBasisV1 {
 }
 
 impl OriginalBorrowedFormalSourceV1 {
+    /// Retained source facts before ingress; these grant no result execution.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_original_read_sum_v1(
+        &self,
+        flow: &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>,
+        site: &SourceExprSiteV1, binding: BindingRefV1,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        flow.origin(flow.read(site, binding)?)?;
+        lend_original_point_sum(&self.seeds, &self.inventory, flow, site, binding)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_declared_field_sum_v1(
+        &self, class: &str, name: &str,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        lend_original_declared_field_sum(&self.seeds, &self.inventory, class, name)
+    }
     /// Source agreement plus the original stable use, not entry agreement alone.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn integer_origin_at_v1(
         &self,
@@ -573,6 +581,19 @@ impl OriginalBorrowedFormalSourceV1 {
 
 /// One source-only lender for original field bases and current scalar reads.
 /// The original flow/read and incoming census stay bound to the SAME solver.
+fn lend_original_declared_field_sum(
+    product: &OriginalFormalSeedProductV1,
+    inventory: &BorrowedIncomingInventoryV1,
+    class: &str, name: &str,
+) -> Option<Rc<SourceValueSumV1>> {
+    product.corroborate_original_v1(inventory).then_some(())?;
+    let mut rows = product.source_sums.as_ref()?.fields.values().filter(|(source, _)|
+        source.writers().next().is_some()
+            && source.writers().all(|writer| writer.owner_box() == Some(class) && writer.field() == name));
+    let (_, sum) = rows.next()?;
+    rows.next().is_none().then(|| Rc::clone(sum))
+}
+
 fn lend_original_point_sum(
     product: &OriginalFormalSeedProductV1,
     inventory: &BorrowedIncomingInventoryV1,
