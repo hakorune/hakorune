@@ -486,10 +486,15 @@ fn user_object_provider_construction_reaches_artifact_lane() {
         crate::runtime::ring0::ensure_global_ring0_initialized();
         field_resident_env(|| {
         let source = "box Inner { value: i64 = 0 birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }";
+        // Dynamic slots must retain the provider's checked Birth/Fault graph;
+        // the typed-slot case alone cannot validate the tagged residence store.
+        for dynamic in [false, true] {
+        let source = if dynamic { source.replace("inner: Inner = new Inner() birth() { }", "init { inner } birth() { me.inner = new Inner() }") }
+            else { source.to_owned() };
         for optimize in [false, true] {
             let mut calls = 0;
             MirCompiler::with_options(optimize).compile_normal_with_published(
-                published_request(source),
+                published_request(&source),
                 |view, verification| -> Result<(), String> {
                     calls += 1;
                     assert!(verification.is_ok(), "{verification:?}");
@@ -503,9 +508,17 @@ fn user_object_provider_construction_reaches_artifact_lane() {
                     let birth_calls = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(_), .. })).count();
                     assert_eq!(birth_calls, 1, "provider emits the canonical BirthConstructor call");
-                    let field_sets = instructions().filter(|i| matches!(i,
-                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectFieldSet { .. }, .. })).count();
-                    assert_eq!(field_sets, 1, "provider store is the checked ObjectFieldSet");
+                    use crate::mir::instruction::{InvokeOperation as Op, FieldSetModeV1 as Mode,
+                        DynamicFieldValueTagV1 as Tag, DynamicFieldResidenceV1 as Residence,
+                        DynamicFieldWriteIntentV1 as Intent};
+                    let field_sets = instructions().filter(|i| match i {
+                        MirInstruction::Invoke { operation: Op::ObjectFieldSet { .. }, .. } => !dynamic,
+                        MirInstruction::Invoke { operation: Op::FieldSet { mode: Mode::DynamicValue(contract), .. }, .. } =>
+                            dynamic && contract.intent() == Intent::Initialize && contract.value_tag() == Tag::Object
+                                && matches!(contract.residence(), Residence::ObjectHome(_)),
+                        _ => false,
+                    }).count();
+                    assert_eq!(field_sets, 1, "provider store retains its exact residence mode");
                     let reclaims = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished { .. }, .. })).count();
                     assert_eq!(reclaims, 1, "birth fault reclaims the unpublished child");
@@ -516,6 +529,7 @@ fn user_object_provider_construction_reaches_artifact_lane() {
                 },
             ).unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}"));
             assert_eq!(calls, 1);
+        }
         }
         });
     });

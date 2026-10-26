@@ -589,6 +589,14 @@ pub(super) fn issue_construction_source_v1(
                 ConstructionStoreRhsV1::LiteralText(_) => Ok(Mode::DynamicTextInitialize),
                 ConstructionStoreRhsV1::ProviderConstruction { class, object: None, .. }
                     if class.as_ref() == "MapBox" => Ok(Mode::DynamicMapInitialize),
+                ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. }
+                    if !field_decls[ordinal].is_weak => {
+                    use crate::mir::instruction::{DynamicFieldSetContractV1 as Contract,
+                        DynamicFieldWriteIntentV1 as Intent, DynamicFieldValueTagV1 as Tag,
+                        DynamicFieldResidenceV1 as Residence};
+                    Contract::issue(Intent::Initialize, Tag::Object, Residence::ObjectHome(child.object()))
+                        .map(Mode::DynamicValue).ok_or(U::FieldContractUnsupported)
+                }
                 _ => Err(U::FieldContractUnsupported),
             }
         } else { Ok(Mode::ExactSlot) };

@@ -371,7 +371,15 @@ pub(super) fn qualified_field_demands_v1(
                                 .is_some_and(|definition| definition.destruction_disposition().has_no_hook())))
             && field.declared_type_name.is_none() && !field.is_weak
             && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. });
-        let supported = if text || dynamic_i64 || dynamic_object { field.declared_type_name.is_none() && !field.is_weak
+        // A source-proven nested constructor supplies its exact class, not
+        // a formal SUM. Retain the same tagged residence law for this fresh Home.
+        let dynamic_provider = field.declared_type_name.is_none() && !field.is_weak
+            && matches!((modes[index], store.rhs()),
+                (Ok(Mode::DynamicValue(contract)), ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. })
+                if contract.intent() == Intent::Initialize && contract.value_tag() == Tag::Object
+                    && contract.residence() == Residence::ObjectHome(child.object()));
+        let supported = if dynamic_provider { true }
+        else if text || dynamic_i64 || dynamic_object { field.declared_type_name.is_none() && !field.is_weak
             && (matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. })
                 || text && matches!(store.rhs(), ConstructionStoreRhsV1::LiteralText(_)))
         } else { match field.declared_type_name.as_deref() {

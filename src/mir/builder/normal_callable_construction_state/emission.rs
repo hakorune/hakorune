@@ -518,15 +518,19 @@ impl CallableSemanticLoweringState {
                 });
                 function.add_block(tail_block);
                 let head = emit_discharge(builder, teardown, value, fault_frame, tail)?;
-                (
-                    InvokeOperation::ObjectFieldSet {
-                        field: store.field,
-                        base,
-                        value,
-                        child: *child,
+                use crate::mir::instruction::{FieldSetModeV1 as Mode,
+                    DynamicFieldSetContractV1 as Contract, DynamicFieldWriteIntentV1 as Intent,
+                    DynamicFieldValueTagV1 as Tag, DynamicFieldResidenceV1 as Residence};
+                let operation = match store.mode {
+                    Mode::ExactSlot => InvokeOperation::ObjectFieldSet {
+                        field: store.field, base, value, child: *child,
                     },
-                    head,
-                )
+                    Mode::DynamicValue(contract) if Some(contract) ==
+                        Contract::issue(Intent::Initialize, Tag::Object, Residence::ObjectHome(*child)) =>
+                        InvokeOperation::FieldSet { mode: store.mode, field: store.field, base, value },
+                    _ => return Err(fault("source-or-cleanup-contract")),
+                };
+                (operation, head)
             }
             None => match provided_child {
                 // Caller retains the provided Home on Fault; only Birth

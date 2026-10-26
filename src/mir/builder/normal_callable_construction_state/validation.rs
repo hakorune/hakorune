@@ -304,6 +304,24 @@ impl ConstructionState {
             {
                 return Err(fault("store-discharge-chain"));
             }
+            // Reconstruct the operation from the original provider's exact
+            // child and retained slot mode, independently of emitted progress.
+            let provider_store_operation = if let ConstructionStoreRhsV1::ProviderConstruction {
+                object: Some(child), ..
+            } = &store.rhs {
+                use crate::mir::instruction::{FieldSetModeV1 as Mode,
+                    DynamicFieldSetContractV1 as Contract, DynamicFieldWriteIntentV1 as Intent,
+                    DynamicFieldValueTagV1 as Tag, DynamicFieldResidenceV1 as Residence};
+                Some(match store.mode {
+                    Mode::ExactSlot => InvokeOperation::ObjectFieldSet {
+                        field, base: *base, value: *value, child: child.object(),
+                    },
+                    Mode::DynamicValue(contract) if Some(contract) ==
+                        Contract::issue(Intent::Initialize, Tag::Object, Residence::ObjectHome(child.object())) =>
+                        InvokeOperation::FieldSet { mode: store.mode, field, base: *base, value: *value },
+                    _ => return Err(fault("emission-drift")),
+                })
+            } else { None };
             let store_ok = match (&store.rhs, provider_child) {
                 (
                     ConstructionStoreRhsV1::ProviderConstruction {
@@ -316,8 +334,8 @@ impl ConstructionState {
                     },
                     Some(super::ProviderChildEmissionV1::Birth(birth)),
                 ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
-                    Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
-                    if actual == &field && b == base && v == value && stored == child
+                    Some(MirInstruction::Invoke { operation, fault_frame, fault_landing, normal_landing })
+                    if Some(operation) == provider_store_operation.as_ref()
                         && normal_landing == normal
                         && *fault_landing == birth.store_discharge
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
@@ -332,8 +350,8 @@ impl ConstructionState {
                     },
                     Some(super::ProviderChildEmissionV1::NoBirthZero { store_discharge }),
                 ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
-                    Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
-                    if actual == &field && b == base && v == value && stored == child
+                    Some(MirInstruction::Invoke { operation, fault_frame, fault_landing, normal_landing })
+                    if Some(operation) == provider_store_operation.as_ref()
                         && normal_landing == normal
                         && *fault_landing == *store_discharge
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
