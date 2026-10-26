@@ -65,7 +65,8 @@ fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
     let original_seeds = source_seeds::prepare_original_formal_seeds_v1(
         package.batch(), &package.selected, &empty_loans, &package.instance_constructors,
         &package.ordinary_new_claim_ledger.callable_result_classes, &BTreeMap::new(),
-        &package.parameter_contracts, &definitions, &inventory, &BTreeMap::new(), None, &BTreeMap::new(), None, &BTreeMap::new(), None,
+        &package.parameter_contracts, &definitions, &inventory, &BTreeMap::new(), None,
+        &BTreeMap::new(), &[], &[], None, &BTreeMap::new(), None,
     ).unwrap();
     let (objects, integers, _) = original_seeds.selected_views_v1(
         &BTreeMap::new(), package.batch(), &package.instance_constructors,

@@ -209,7 +209,26 @@ pub unsafe extern "C" fn materialize(storage: *mut c_void, site: u64, value: *co
     out: *mut OwnedText) -> u32 {
     if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
     let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
-    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    let descriptor = match unsafe { operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    let value = if descriptor.kind == DYNAMIC_CARRIER {
+        if !descriptor.bytes.is_null() || descriptor.len != 0 || descriptor.handle != 0
+            || descriptor.integer != 0 || descriptor.token == 0 || descriptor.reserved != 0 {
+            return Status::InvalidContract as u32;
+        }
+        let carrier = match nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(descriptor.token) {
+            Ok(carrier) => carrier,
+            Err(_) => return Status::InvalidContract as u32,
+        };
+        match carrier.text_snapshot_v1() {
+            Ok(value) => value,
+            Err(nyash_rust::runtime::dynamic_invocation::DynamicInvocationFailureV1::ArgumentTypeMismatch) => {
+                return fault(frame, site, TYPE_ERROR);
+            }
+            Err(_) => return Status::InvalidContract as u32,
+        }
+    } else {
+        match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 }
+    };
     unsafe { publish(frame, site, value, out) }
 }
 

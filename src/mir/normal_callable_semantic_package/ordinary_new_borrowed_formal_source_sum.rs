@@ -234,6 +234,10 @@ pub(super) fn resolve_original_source_sums_v1(
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     initializer_roots: &[OriginalFormalActualSeedV1],
     field_roots: &[FieldSourceSeedsV1],
+    array_field_roots: &BTreeMap<
+        hakorune_mir_defs::CanonicalFieldRefV1,
+        Vec<OriginalFormalActualSeedV1>,
+    >,
     flows: BTreeMap<
         FunctionOwnerIdV1,
         std::sync::Arc<
@@ -251,6 +255,7 @@ pub(super) fn resolve_original_source_sums_v1(
         nodes: Vec::new(),
         formals: BTreeMap::new(),
         constructors,
+        array_fields: BTreeMap::new(),
         core_requests: Vec::new(),
         map_receiver,
         expand_returns,
@@ -259,6 +264,22 @@ pub(super) fn resolve_original_source_sums_v1(
         return_sites: BTreeMap::new(),
         flow_owners: flows.keys().copied().collect(),
     };
+    for field in array_field_roots.keys() {
+        if graph.array_fields.insert(*field, graph.nodes.len()).is_some() {
+            return Err(freeze("source-sum/array-field-duplicate"));
+        }
+        graph.nodes.push(Node::default());
+    }
+    for (field, seeds) in array_field_roots {
+        let node = *graph.array_fields.get(field)
+            .ok_or_else(|| freeze("source-sum/array-field-owner"))?;
+        if seeds.is_empty() {
+            graph.nodes[node].invalid = true;
+            continue;
+        }
+        let union = seeds.iter().map(|seed| graph.seed(seed)).collect();
+        graph.nodes[node].union = union;
+    }
     let mut registered = BTreeSet::new();
     for contract in contracts
         .iter()

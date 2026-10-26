@@ -46,6 +46,7 @@ pub(super) struct Graph<'a> {
     pub(super) nodes: Vec<Node>,
     pub(super) formals: BTreeMap<BindingRefV1, usize>,
     pub(super) constructors: &'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    pub(super) array_fields: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, usize>,
     pub(super) core_requests: Vec<CoreRequestNode>,
     pub(super) map_receiver: &'a mut MapReceiverLender<'a>,
 }
@@ -243,10 +244,25 @@ impl Graph<'_> {
                             row.atoms.insert(Value::Object(box_name.into()));
                         }
                         None if source.core_operand_request().is_some_and(|request|
-                            matches!(request.manifest().row().op, crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayGet)) => {
+                            request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapKeys) => {
                             // No primitive class is lent. The exact structural
                             // result and its receiver relation live on Core.
                             row.atoms.insert(Value::Other);
+                        }
+                        None if source.core_operand_request().is_some_and(|request|
+                            request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::ArrayGet) => {
+                            let field = source.field_array_access_v1()
+                                .filter(|access| access.is_dynamic_get())
+                                .map(|access| access.field());
+                            if let Some(elements) = field.and_then(|field| self.array_fields.get(&field).copied()) {
+                                row.union.push(elements);
+                                // ArrayBox.get returns Null when its index is
+                                // out of range. A separate same-field guard
+                                // proof may later exclude this arm.
+                                row.atoms.insert(Value::Null);
+                            } else {
+                                row.atoms.insert(Value::Other);
+                            }
                         }
                         None => row.invalid = true,
                     }

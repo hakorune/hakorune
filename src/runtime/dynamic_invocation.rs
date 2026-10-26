@@ -54,6 +54,19 @@ impl DynamicCarrierTokenV1 {
         }
     }
 
+    /// Copy an exact StringBox payload while borrowing the carrier. The token
+    /// remains live and keeps its caller-owned End obligation.
+    pub fn text_snapshot_v1(&self) -> Result<String, DynamicInvocationFailureV1> {
+        let CarrierPayloadV1::Object(value) = self.snapshot_v1()? else {
+            return Err(DynamicInvocationFailureV1::ArgumentTypeMismatch);
+        };
+        value
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .map(|string| string.value.clone())
+            .ok_or(DynamicInvocationFailureV1::ArgumentTypeMismatch)
+    }
+
     /// Borrow this carrier with the language's `String + Dynamic` display
     /// rule. The token remains live and keeps its caller-owned End obligation.
     pub fn string_add_suffix_v1(&self) -> Result<String, DynamicInvocationFailureV1> {

@@ -23,6 +23,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     guarded: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
     static_claims: Option<&crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1>,
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
+    array_field_push_candidates: &[super::super::super::super::array_i64_fields::ArrayFieldPushCandidateV1],
+    array_field_get_candidates: &[super::super::super::super::array_i64_fields::ArrayFieldGetCandidateV1],
     app_main: Option<AppMainSourceRefV1<'_>>,
     omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
     fields: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1>,
@@ -362,6 +364,91 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             field_roots.push((Rc::clone(source), seeds));
         }
     }
+    let mut array_field_roots = BTreeMap::<
+        hakorune_mir_defs::CanonicalFieldRefV1,
+        Vec<OriginalFormalActualSeedV1>,
+    >::new();
+    let mut seen_array_pushes = BTreeSet::new();
+    for candidate in array_field_push_candidates {
+        let call = candidate.call();
+        let field = candidate.field();
+        if call.selector() != "push" || call.arity() != 1
+            || call.arguments().len() != 1 || call.arguments()[0].ordinal() != 0
+            || !seen_array_pushes.insert((field, OwnedExprSiteV1::new(call.owner(), call.site().clone())))
+        {
+            return Err(freeze("source-sum/array-push-census"));
+        }
+        let seed = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+            batch, constructors, call.owner(), |context, input| -> Result<_, String> {
+                if input.owner() != call.owner()
+                    || !input.function().method_call_source_v1(call.site())
+                        .is_some_and(|original| std::sync::Arc::ptr_eq(original, call))
+                {
+                    return Err(freeze("source-sum/array-push-source"));
+                }
+                let source_context = OriginalActualSourceContextV1::checked(
+                    context, input, batch, selected, contracts, static_claims, app_main, omitted,
+                )?.map(|context| context.with_field_array_accesses_v1(&field_array_access))
+                    .map(|context| context.for_point_premise());
+                let slot = context.declaration_slot();
+                let local_candidates = slot.and_then(|slot| candidates.get(&slot))
+                    .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
+                let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
+                    .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
+                    .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                        selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
+                Ok(classify_original_actual_seed_in_scope(
+                    input, batch, selected, results, input.owner(), local_candidates, receiver,
+                    definitions, contracts, call.arguments()[0].site(), None, Some(inventory),
+                    source_context.as_ref(),
+                ))
+            },
+        )??;
+        array_field_roots.entry(field).or_default().push(seed);
+    }
+    let mut seen_array_gets = BTreeSet::new();
+    for candidate in array_field_get_candidates {
+        let call = candidate.call();
+        let field = candidate.field();
+        let site = OwnedExprSiteV1::new(call.owner(), call.site().clone());
+        if call.selector() != "get" || call.arity() != 1 || call.arguments().len() != 1
+            || call.arguments()[0].ordinal() != 0 || !array_field_roots.contains_key(&field)
+            || !seen_array_gets.insert((field, site))
+        {
+            return Err(freeze("source-sum/array-get-census"));
+        }
+        let seed = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+            batch, constructors, call.owner(), |context, input| -> Result<_, String> {
+                if input.owner() != call.owner()
+                    || !input.function().method_call_source_v1(call.site())
+                        .is_some_and(|original| std::sync::Arc::ptr_eq(original, call))
+                {
+                    return Err(freeze("source-sum/array-get-source"));
+                }
+                let checked_context = OriginalActualSourceContextV1::checked(
+                    context, input, batch, selected, contracts, static_claims, app_main, omitted,
+                )?;
+                let source_context = checked_context.map(|context| context.with_field_array_accesses_v1(&field_array_access))
+                    .map(|context| context.for_point_premise())
+                    .ok_or_else(|| freeze("source-sum/array-get-context"))?;
+                if let Some(flow) = input.function().expression_source().value_flow() {
+                    source_flows.insert(input.owner(), std::sync::Arc::clone(flow));
+                }
+                let slot = context.declaration_slot();
+                let local_candidates = slot.and_then(|slot| candidates.get(&slot))
+                    .and_then(|rows| rows.as_ref().ok()).map(Vec::as_slice).unwrap_or(&[]);
+                let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == input.owner())
+                    .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
+                    .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                        selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
+                Ok(classify_original_actual_seed_in_scope(
+                    input, batch, selected, results, input.owner(), local_candidates, receiver,
+                    definitions, contracts, call.site(), None, Some(inventory), Some(&source_context),
+                ))
+            },
+        )??;
+        expression_roots.push(seed);
+    }
     let mut expand = |owner, value| -> Result<source_sum::SourcePointExpansionV1, String> {
         use crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1 as Origin;
         use source_sum::SourcePointExpansionV1 as Expansion;
@@ -464,6 +551,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         constructors,
         &expression_roots,
         &field_roots,
+        &array_field_roots,
         source_flows.clone(),
         &mut expand,
         &mut expand_returns,

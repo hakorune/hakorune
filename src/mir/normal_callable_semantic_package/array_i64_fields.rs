@@ -41,6 +41,33 @@ use super::container_field_uses::{FieldUseCensusV1 as FieldCensusV1,
     FieldUseMethodV1 as CensusMethodV1, capture_method_v1, with_method_input_v1 as with_census_input};
 pub(crate) use super::container_field_uses::is_self_receiver;
 
+#[derive(Debug, Clone)]
+pub(crate) struct ArrayFieldPushCandidateV1 {
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+}
+impl ArrayFieldPushCandidateV1 {
+    pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
+    pub(crate) fn call(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.call }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct ArrayFieldGetCandidateV1 {
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+}
+impl ArrayFieldGetCandidateV1 {
+    pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
+    pub(crate) fn call(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.call }
+}
+
+#[derive(Debug, Default)]
+pub(crate) struct ArrayFieldCensusV1 {
+    pub(crate) integer_fields: BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
+    pub(crate) push_only_fields: Box<[ArrayFieldPushCandidateV1]>,
+    pub(crate) push_only_reads: Box<[ArrayFieldGetCandidateV1]>,
+}
+
 const INTEGER_SOURCE_DEPTH: u32 = 8;
 
 /// `formal.<field>` leaf authority: `field` names exactly one non-weak
@@ -282,7 +309,7 @@ pub(crate) fn issue_array_i64_fields_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     box_source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
-) -> Result<BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
+) -> Result<ArrayFieldCensusV1, OrdinaryNewCoSealIssueV1> {
     let mut fields: BTreeSet<Box<str>> = BTreeSet::new();
     let mut numeric_fields: BTreeSet<Box<str>> = BTreeSet::new();
     let mut canonical: BTreeMap<Box<str>, hakorune_mir_defs::CanonicalFieldRefV1> = BTreeMap::new();
@@ -310,7 +337,7 @@ pub(crate) fn issue_array_i64_fields_v1(
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
     if fields.is_empty() {
-        return Ok(BTreeSet::new());
+        return Ok(ArrayFieldCensusV1::default());
     }
     // Every selected callable owned by this Box joins the census; a method
     // outside the selected set is never emitted and cannot write. The Box's
@@ -396,9 +423,7 @@ pub(crate) fn issue_array_i64_fields_v1(
             proven.insert(field.clone());
         }
     }
-    if proven.is_empty() {
-        return Ok(BTreeSet::new());
-    }
+    let provider_fields = proven.clone();
     // Integer-write fixpoint: a field stays proven while every write value
     // is integer-source with `get` results on proven fields credited.
     let coverage = batch.ordinary_box_coverage();
@@ -438,8 +463,59 @@ pub(crate) fn issue_array_i64_fields_v1(
             proven.remove(&field);
         }
     }
-    Ok(proven
+    let integer_fields = proven
         .iter()
         .filter_map(|field| canonical.get(field.as_ref()).copied())
-        .collect())
+        .collect();
+
+    // A text-content candidate is deliberately narrower than the general
+    // ArrayBox use census: every mutation must be push/1 and the field must
+    // have one exact birth provider with no escape or untracked use. The
+    // source SUM graph later proves each push argument is Text.
+    let mut push_only_fields = Vec::new();
+    let mut push_only_reads = Vec::new();
+    for (field, rows) in &census {
+        let has_provider = provider_fields.contains(field);
+        if !has_provider || rows.vetoed || rows.foreign || rows.captured_receiver || rows.calls.is_empty() {
+            continue;
+        }
+        let mut pushes = Vec::new();
+        let mut reads = Vec::new();
+        let mut set_seen = false;
+        let mut unsupported = false;
+        for (_, call) in &rows.calls {
+            match (call.selector(), call.arity()) {
+                ("push", 1) => pushes.push(std::sync::Arc::clone(call)),
+                ("get", 1) => reads.push(std::sync::Arc::clone(call)),
+                ("set", 2) => set_seen = true,
+                ("has", 1) | ("length", 0) => {}
+                _ => unsupported = true,
+            }
+        }
+        if set_seen || unsupported || pushes.is_empty() {
+            continue;
+        }
+        let Some(canonical) = canonical.get(field.as_ref()).copied() else {
+            continue;
+        };
+        push_only_fields.extend(pushes.into_iter().map(|call| ArrayFieldPushCandidateV1 {
+            field: canonical,
+            call,
+        }));
+        push_only_reads.extend(reads.into_iter().map(|call| ArrayFieldGetCandidateV1 {
+            field: canonical,
+            call,
+        }));
+    }
+    push_only_fields.sort_by(|left, right| {
+        left.field.cmp(&right.field).then_with(|| left.call.site().cmp(right.call.site()))
+    });
+    push_only_reads.sort_by(|left, right| {
+        left.field.cmp(&right.field).then_with(|| left.call.site().cmp(right.call.site()))
+    });
+    Ok(ArrayFieldCensusV1 {
+        integer_fields,
+        push_only_fields: push_only_fields.into_boxed_slice(),
+        push_only_reads: push_only_reads.into_boxed_slice(),
+    })
 }
