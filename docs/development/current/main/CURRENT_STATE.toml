@@ -18,9 +18,9 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 APP-boxtorrent-mini; HakoAllocHeap.release input cohort remains uncompleted; no EXE.
-Qualified entry Object views require complete, exact original incoming actuals and independent class agreement; null guard remains.
-CLI39.73s, entry21, incoming-kind and guarded field checks PASS; selected smoke advances beyond the Page.release field-entry stop.
-Prior fixed suite9/11; current shared-entry fixed-suite verification running. Related unresolved failures remain in card.
+Qualified entry Object views require complete exact incoming actuals and independent class agreement; null guard remains.
+Fixed suite9/11 in630.472s (8realEXEs+marker), no timeout/SKIP or new red; before source-accessor refactor.
+CLI40.22s, entry21 and returned-field publication PASS after the source-only accessor refactor; selected smoke retains the same stop.
 Next: connect exact Map-root ReadActual with nullable child and parent anchor cleanup, then finite-product closeout.
 """
 next_design_card = "none"

@@ -4,6 +4,12 @@ use super::*;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{ResolvedAssignmentTargetV1, SourceBindingSiteV1};
 
+pub(in crate::mir::normal_callable_semantic_package) type OriginalMapFieldSourceV1<'a> = (
+    &'a OwnedExprSiteV1,
+    &'a crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StoredMapGetSourceLoanV1,
+    &'a Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>,
+);
+
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) struct OriginalFormalObjectBasisV1 {
     domain: Rc<SourceObjectDomainV1>,
@@ -131,20 +137,27 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_map_field_argument_request_v1(
         &self, call: &OwnedExprSiteV1,
     ) -> Result<bool, String> {
-        self.map_field_input_request_v1(call, None)
+        self.map_field_input_source_v1(call, None).map(|source| source.is_some())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn original_map_field_actual_request_v1(
         &self, call: &OwnedExprSiteV1, ordinal: u32, site: &SourceExprSiteV1,
     ) -> Result<bool, String> {
-        self.map_field_input_request_v1(call, Some((ordinal, site)))
+        self.original_map_field_actual_source_v1(call, ordinal, site).map(|source| source.is_some())
     }
-    fn map_field_input_request_v1(
+    /// Retain the same original get and complete writer source for this exact
+    /// argument. The returned source does not grant a live or nonnull read.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_map_field_actual_source_v1(
+        &self, call: &OwnedExprSiteV1, ordinal: u32, site: &SourceExprSiteV1,
+    ) -> Result<Option<OriginalMapFieldSourceV1<'_>>, String> {
+        self.map_field_input_source_v1(call, Some((ordinal, site)))
+    }
+    fn map_field_input_source_v1(
         &self, call: &OwnedExprSiteV1, actual: Option<(u32, &SourceExprSiteV1)>,
-    ) -> Result<bool, String> {
+    ) -> Result<Option<OriginalMapFieldSourceV1<'_>>, String> {
         let seeds = &self.original_formal_seeds;
         let mut rows = seeds.rows.iter().filter(|row| &row.incoming.call == call);
-        let Some(row) = rows.next() else { return Ok(false); };
-        if !row.seeds.iter().any(|seed| matches!(seed, OriginalFormalActualSeedV1::MapField { .. })) { return Ok(false); }
+        let Some(row) = rows.next() else { return Ok(None); };
+        if !row.seeds.iter().any(|seed| matches!(seed, OriginalFormalActualSeedV1::MapField { .. })) { return Ok(None); }
         if rows.next().is_some() || !seeds.corroborate_original_v1(&self.source_incoming) {
             return Err(freeze("borrowed-view/original-seed-identity"));
         }
@@ -153,7 +166,7 @@ impl PreparedBorrowedFormalIngressV1 {
         if &target.call_site != call || target.callee_owner != row.incoming.callee {
             return Err(freeze("borrowed-object/source-actual-identity"));
         }
-        let mut selected = false;
+        let mut selected = None;
         for ((ordinal, site, formal), seed) in row.incoming.arguments.iter().zip(&row.seeds) {
             let OriginalFormalActualSeedV1::MapField { read, get, source } = seed else { continue; };
             if actual.is_some_and(|(expected, _)| expected != *ordinal) { continue; }
@@ -167,7 +180,10 @@ impl PreparedBorrowedFormalIngressV1 {
                 return Err(freeze("borrowed-object/source-actual-identity"));
             }
             // An unknown source projection may request no executable work.
-            selected |= seeds.source_objects.as_ref().is_some_and(|domain| domain.views.contains_key(formal));
+            if seeds.source_objects.as_ref().is_some_and(|domain| domain.views.contains_key(formal))
+                && selected.is_none() {
+                selected = Some((read, get.as_ref(), source));
+            }
         }
         Ok(selected)
     }
