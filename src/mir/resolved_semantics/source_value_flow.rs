@@ -55,6 +55,16 @@ impl VerifiedSourceValueFlowV1 {
     pub(crate) fn is_complete(&self) -> bool {
         self.complete
     }
+    /// The exact original read, without a guessed binding or value class.
+    pub(crate) fn read_at(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<(BindingRefV1, SourceValueRefV1)> {
+        if !self.complete {
+            return None;
+        }
+        self.reads.get(site).copied().filter(|(binding, _)| binding.owner() == self.owner)
+    }
     pub(crate) fn read(
         &self,
         site: &SourceExprSiteV1,

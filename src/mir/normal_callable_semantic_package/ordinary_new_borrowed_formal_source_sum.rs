@@ -44,6 +44,13 @@ pub(in crate::mir) enum SourceValueAlternativeV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
 impl SourceValueSumV1 {
+    pub(in crate::mir) fn object_class_v1(&self) -> Option<&str> {
+        if self.0.len() != 1 { return None; }
+        match self.0.first()? {
+            SourceValueAlternativeV1::Object(class) => Some(class),
+            _ => None,
+        }
+    }
     pub(in crate::mir) fn alternatives(&self) -> &BTreeSet<SourceValueAlternativeV1> {
         &self.0
     }

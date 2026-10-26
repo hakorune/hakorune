@@ -482,6 +482,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         }
                     }
                     Origin::Expression(site) => {
+                        if let Some(construction) = input.function().expression_source().construction(site) {
+                            let acquisition = OwnedExprSiteV1::new(owner, site.clone());
+                            return Ok(match product.new_calls.nominal_class_at_v1(&acquisition) {
+                                Some(class) if class == construction.class() =>
+                                    Expansion::Seed(OriginalFormalActualSeedV1::Class(class.into())),
+                                _ => Expansion::Unknown,
+                            });
+                        }
                         let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
                             static_claims, app_main, omitted)?.map(|context| context.with_field_array_accesses_v1(&field_array_access)).map(|context| context.for_point_premise());
                         let slot = context.declaration_slot();

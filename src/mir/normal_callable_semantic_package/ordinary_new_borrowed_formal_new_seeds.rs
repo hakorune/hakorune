@@ -93,6 +93,16 @@ pub(super) struct OriginalNewSeedsV1 {
     incomplete: bool,
 }
 impl OriginalNewSeedsV1 {
+    /// Nominal source identity only; construction execution remains separate.
+    pub(super) fn nominal_class_at_v1(&self, site: &OwnedExprSiteV1) -> Option<&str> {
+        let mut rows = self.rows.iter().filter(|row| &row.site == site);
+        let row = rows.next()?;
+        if rows.next().is_some() || row.original.site() != site.site()
+            || !matches!(row.birth, OriginalNewBirthV1::Birth { .. } | OriginalNewBirthV1::NoBirth)
+        { return None; }
+        Some(row.original.class())
+    }
+
     /// Field-base evidence must retain all original construction obligations.
     /// Override typing is not supplied by the constructor-argument projection.
     pub(super) fn field_bases_available(&self, class: &str) -> bool {

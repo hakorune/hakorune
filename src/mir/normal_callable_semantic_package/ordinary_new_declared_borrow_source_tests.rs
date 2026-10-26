@@ -59,6 +59,16 @@ fn declared_formal_and_copy_share_existing_forwarded_source_and_class() {
             })
             .unwrap();
         let formal = contract.parameters[0].binding;
+        if actual == "owned_wrap" {
+            let incoming = prepared.source_incoming.source_rows_v1()
+                .find(|row| row.callee == contract.owner).expect("original local New caller");
+            let (ordinal, site, _) = &incoming.arguments[0];
+            let sum = prepared.source_actual_value_sum_v1(&incoming.call, *ordinal, site, None)
+                .expect("exact New read retains its nominal source SUM");
+            assert_eq!(sum.object_class_v1(), Some("Wrap"));
+            assert!(prepared.source_actual_value_sum_v1(&incoming.call, *ordinal, site, Some(formal)).is_none(),
+                "the callee formal cannot substitute for the caller's New read");
+        }
         assert_eq!(
             prepared.definitions[&contract.owner].origins.get(&formal),
             Some(&formal)

@@ -60,6 +60,7 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
                 ingress, &pending, original.call_site(), original.required_i64_arguments(), false,
             ).unwrap_err().contains("core-expression-execution-pending"));
             let loan = argument_source::lend_argument_expression_source_v1(ingress, &pending, &package.parameter_contracts, original.call_site(), 0).unwrap().unwrap();
+            assert!(!loan.requires_i64_v1(), "a Text Core result keeps its original result class");
             assert!(Rc::ptr_eq(loan.plan(), plan), "loan must retain the observed plan, not rebuild it");
             assert!(std::ptr::eq(loan.resolver_source().unwrap(), receipt.unwrap().source()), "loan must retain the ordinary Core receipt");
             assert_eq!(loan, argument_source::lend_argument_expression_source_v1(ingress, &pending, &package.parameter_contracts, original.call_site(), 0).unwrap().unwrap());
@@ -101,6 +102,28 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
             }).unwrap();
         }).unwrap();
     }
+    // An unannotated signed formal also observes an i64 Core method result;
+    // producing its original loan must not grant executable arguments.
+    let text = "static box Values { sink(p) { return 0 } caller() { local receiver = \"text\" local n = Values.sink(receiver.length()) return 0 } } static box Main { main() { return 0 } }";
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+    ).unwrap();
+    let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let original = ingress.source_incoming.source_rows_v1().filter_map(|row| match &row.source {
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source) => Some(source), _ => None,
+    }).find(|row| row.target().name() == "sink").unwrap();
+    let slot = package.batch().declarations().find(|row| row.owner() == original.call_site().owner()).unwrap().batch_slot();
+    package.batch().with_lowering_input(slot, |input| {
+        let method = input.function().method_call_source_v1(&original.argument_sites()[0]).unwrap();
+        let actual = BorrowedCallActualCandidateV1 { ordinal: 0, site: method.site().clone(),
+            value: BorrowedCallActualValueV1::MethodCall(std::sync::Arc::clone(method)) };
+        let mut rows = prepare_static_source_actuals_v1(ingress, &package.parameter_contracts, original.call_site(), &[actual]).unwrap().unwrap();
+        bind_argument_sources_v1(input, ingress, None, original.call_site(), None, Some(&mut rows)).unwrap();
+        let pending = BTreeMap::from([(original.call_site().clone(), Ok(rows))]);
+        let loan = argument_source::observed_argument_source_v1(input, ingress, &pending, &package.parameter_contracts, original.call_site(), 0).unwrap().expect("signed Core argument source");
+        assert!(loan.requires_i64_v1());
+        assert!(pending[original.call_site()].as_ref().unwrap().require_executable_v1().is_err());
+    }).unwrap();
     // Count borrows the same fixed provider through the original local alias;
     // neither a foreign container nor a replacement writer supplies that law.
     for (provider, extra, before, call, closes) in [
@@ -127,7 +150,9 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
                     if call.starts_with("get") {
                         assert_eq!(source.source().target().schema(), crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead);
                         assert_eq!(source.source().target().result(), crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::DynamicToCaller);
-                        assert_eq!(source.source().target().expression_result_class_v1(), None);
+                        assert_eq!(source.source().target().expression_result_class_v1(),
+                            Some(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic),
+                            "the admitted carrier class does not select a concrete payload");
                         assert!(source.matches_original_argument_v1(&site, source.source().source(), &CallableParameterContractKindV1::OpaqueHandle));
                         assert!(!source.matches_original_argument_v1(&site, source.source().source(), &CallableParameterContractKindV1::DeclaredObject("Holder".into())));
                     } else { assert!(source.source().target().checked_array_count_law_v1()); }

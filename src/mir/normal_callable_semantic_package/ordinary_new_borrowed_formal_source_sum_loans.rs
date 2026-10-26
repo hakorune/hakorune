@@ -210,7 +210,7 @@ impl PreparedBorrowedFormalIngressV1 {
         // source argument ordinal when typed formals precede this argument.
         let mut actuals = seed_row.incoming.arguments.iter().enumerate()
             .filter(|(_, (actual_ordinal, _, _))| *actual_ordinal == ordinal);
-        let (position, (_, actual_site, _)) = actuals.next()?;
+        let (position, (_, actual_site, formal)) = actuals.next()?;
         if actuals.next().is_some() || actual_site != site {
             return None;
         }
@@ -219,6 +219,23 @@ impl PreparedBorrowedFormalIngressV1 {
         // that same closed formal SUM only for its exact original read.
         let mut seed = seed_row.seeds.get(position)?;
         while let OriginalFormalActualSeedV1::SourceOnly(original) = seed { seed = original; }
+        if let OriginalFormalActualSeedV1::Class(class) = seed {
+            let sums = product.source_sums.as_ref()?;
+            let flow = sums.flows.get(&call.owner())?;
+            if flow.owner() != call.owner() { return None; }
+            let (binding, value) = flow.read_at(site)?;
+            if expected_binding.is_some_and(|expected| expected != binding) { return None; }
+            let crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(new_site) = flow.origin(value)?
+            else { return None; };
+            let acquisition = OwnedExprSiteV1::new(call.owner(), new_site.clone());
+            if product.new_calls.nominal_class_at_v1(&acquisition) != Some(class.as_ref()) {
+                return None;
+            }
+            // The actual's class is independently proven above. Borrow the
+            // existing closed SUM only after this exact formal agrees with it.
+            return self.source_value_sum_v1(*formal)
+                .filter(|sum| sum.object_class_v1() == Some(class.as_ref()));
+        }
         // A resolved reaching value lends only its own point SUM. Prefix gaps
         // may borrow a registered formal class; the retained argument plan
         // still owes the independent exact site/binding correspondence.

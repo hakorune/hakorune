@@ -27,6 +27,12 @@ impl OrdinaryNewClaimLedgerV1 {
         // The source read lender uses this SAME full original membership.
         // One Text formal cannot select an ungrounded sibling or grant entry.
         let Some(sums) = source.lend_original_input_sums_v1(&contract.parameters) else { return Ok(None) };
+        // Nominal objects retain their existing Uses/Object view authority.
+        // Select that owner before issuing any finite structure, including
+        // cohorts whose sibling parameters carry Text or scalar domains.
+        if sums.iter().any(|sum| sum.object_class_v1().is_some()) {
+            return Ok(None);
+        }
         let text_requested = sums.iter().any(|sum| sum.alternatives().contains(
             &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text));
         // Original Text domains select the same finite source structure even

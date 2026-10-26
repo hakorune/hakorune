@@ -31,14 +31,17 @@ already-proven exact Integer Element source keeps its existing result owner;
 the generic Dynamic receipt never supersedes it. The
 original index site must close as signed-only in the same SUM; tagged inputs,
 Bool and Text do not supply an I64 index. The existing ArrayDynamicRead target
-retains DynamicToCaller. Neither a concrete result representation nor the
-Integer Element census is projected from this result: SUM keeps Other, which
-cannot satisfy finite input, signed, Text or nominal object premises. The old
-Count-only Return collector and expression execution gates remain separate.
+retains DynamicToCaller and the generic Dynamic expression class. This does
+not select a concrete payload or the Integer Element owner. Unknown elements
+retain Other; a closed append census supplies source element alternatives,
+with Null retained unless the same-field terminating guard proves bounds at
+the exact Get. All-Return Text classification uses that same closed receipt;
+source class facts still grant no payload extraction or execution.
 Original argument correspondence is owned by the same Core receipt: Get lends
 only OpaqueHandle/DynamicToCaller, never a nominal object or I64. Static and
 Instance consumers reuse that predicate and retain the same original Rc;
-source-plan matching does not supply an expression result class or execution.
+source-plan matching does not refine the generic carrier into a nominal or
+I64 expression, or supply execution permission.
 Checked carrier acquisition and both-exit End must be connected before Get can
 execute; source qualification alone grants neither. A sole Birth Array provider
 does not prove Text elements. Before selecting a Text-copy read, the same append

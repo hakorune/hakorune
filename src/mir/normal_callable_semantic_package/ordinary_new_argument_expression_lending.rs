@@ -137,6 +137,7 @@ fn lend_argument_source_inner_for_array_v1(
         || matches!(
             candidate.value,
             BorrowedCallActualValueV1::Expression
+                | BorrowedCallActualValueV1::MethodCall(_)
                 | BorrowedCallActualValueV1::Binding(_)
                 | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer)
         ) && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
@@ -295,6 +296,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
                     .map(|actual| &actual.value),
                 Some(
                     BorrowedCallActualValueV1::Expression
+                        | BorrowedCallActualValueV1::MethodCall(_)
                         | BorrowedCallActualValueV1::Binding(_)
                         | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Integer)
                 )

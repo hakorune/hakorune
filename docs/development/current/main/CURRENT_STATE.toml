@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini Main Body10 second.releaseFrom(store): opaque-source-unsupported argument0 Unknown point SUM absent; local-result execution/Home transfer still open; no EXE"
+current_blocker_token = "boxtorrent-mini HakoAllocHeap.release(handle) Body1 handle.page_id condition unproved; object-input/callee-exit TerminalNotCovered; source Object views/SUM absent; no EXE"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini selected; source ingress now stops at Main Body10 second.releaseFrom(store), argument0 Unknown with no point SUM; no EXE.
-Original local New Return class and owning-input obligations are connected; local-result execution/Home transfer remains fail-closed.
-CLI41.91s PASS; related focused30PASS/4FAIL, all four reproduce on pre-series HEAD; earlier physical/Text baseline reds remain open.
-Fixed suite9/11 in557.587s:8realEXEs+marker, JSON/boxtorrent compile failures, no timeout/SKIP; .hako/fixtures unchanged, no new test file/checker.
-Next: exact source store read/acquisition at Body10, then local-result live transfer and firstChunkId's original summary/read.
+APP-boxtorrent-mini selected; current stop HakoAllocHeap.release(handle) Body1 page_id condition, object-input/callee-exit; no EXE.
+Original New/SUM and mixed Uses inputs now connect; opaque signed Core MethodCall frames pass; source facts still grant no live Home.
+Fixed suite9/11 in551.806s:8realEXEs+marker, JSON/boxtorrent compilation failures, no timeout/SKIP; focused54PASS/4pre-series reds.
+Touched owners split below800 lines and unused loan wrapper retired; .hako/fixtures unchanged, no new test function/file/checker; final build in card.
+Next: release's field-derived original incoming source, then local-result/cleanup/publication and required finite-product closeout.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -481,7 +481,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         && binding.owner() == site.owner()
                         && source_actual_sum.is_some_and(|sum| sum.signed_only()) => {}
                 BorrowedCallActualValueV1::Binding(binding)
-                    if owning_input_request && binding.owner() == site.owner()
+                    if (owning_input_request || finite_input) && binding.owner() == site.owner()
                         && source_actual_sum.is_some() => {
                     // Plain reads retain an expression obligation, regardless
                     // of class. The source query still corroborates this exact
@@ -525,7 +525,8 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         // This selects source reconstruction only. The exact
                         // Text read/residence and whole input remain owed.
                         && source_actual_sum.is_some_and(|sum|
-                            sum.signed_only() || finite_input && sum.text_only()) => {}
+                            sum.signed_only() || finite_input && sum.text_only()
+                                || sum.object_class_v1().is_some()) => {}
                 BorrowedCallActualValueV1::String(_)
                     if (finite_input || owning_input_request)
                         && matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) => {
