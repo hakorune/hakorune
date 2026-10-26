@@ -579,14 +579,12 @@ impl OrdinaryNewClaimLedgerV1 {
 mod lifecycle;
 #[path = "ordinary_new_argument_expression_lending.rs"]
 mod lending;
-pub(super) use lifecycle::corroborates_argument_source_v1;
 pub(in crate::mir::normal_callable_semantic_package) use lifecycle::bind_argument_sources_v1;
 pub(in crate::mir::normal_callable_semantic_package) use lifecycle::stage_observed_call_actuals_v1;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use lifecycle::validate_static_source_actuals_v1;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use lifecycle::validate_qualified_argument_sources_v1;
 pub(in crate::mir::normal_callable_semantic_package) use lifecycle::complete_argument_expression_v1;
 pub(in crate::mir::normal_callable_semantic_package) use lending::lend_argument_expression_source_v1;
-pub(in crate::mir::normal_callable_semantic_package) use lending::lend_array_carrier_append_argument_source_v1;
 pub(in crate::mir::normal_callable_semantic_package) use lending::observed_argument_source_v1;
 pub(in crate::mir::normal_callable_semantic_package) use lending::observed_carrier_array_append_argument_source_v1;
 pub(in crate::mir::normal_callable_semantic_package) use lending::lend_text_entry_read_v1;

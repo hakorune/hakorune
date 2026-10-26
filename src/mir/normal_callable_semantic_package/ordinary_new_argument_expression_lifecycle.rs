@@ -15,7 +15,7 @@ fn corroborates_argument_plan_v1(
         && plan.nodes().first().is_some_and(|node| node.site() == site)
 }
 
-pub(in super::super) fn corroborates_argument_source_v1(
+fn corroborates_argument_source_v1(
     plan: &ExpressionSourcePlanV1,
     source: &StaticIncomingSourceV1,
     ordinal: u32,

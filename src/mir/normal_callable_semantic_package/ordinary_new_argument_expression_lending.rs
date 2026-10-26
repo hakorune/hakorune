@@ -10,25 +10,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
 ) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
     lend_argument_source_inner_v1(prepared, pending, Some(contracts), site, ordinal)
 }
-pub(in crate::mir::normal_callable_semantic_package) fn lend_array_carrier_append_argument_source_v1(
-    prepared: &PreparedBorrowedFormalIngressV1,
-    pending: &PendingBorrowedFormalActualsV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
-    site: &OwnedExprSiteV1,
-    ordinal: u32,
-    holder: &crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
-    dynamic_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
-) -> Result<Option<ArgumentExpressionSourceLoanV1>, String> {
-    lend_argument_source_inner_for_array_v1(
-        prepared,
-        pending,
-        Some(contracts),
-        site,
-        ordinal,
-        Some(holder.clone()),
-        dynamic_calls,
-    )
-}
 pub(super) fn lend_argument_source_inner_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
