@@ -2,7 +2,11 @@
 Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
-## Current stop (advanced 2026-10-28; substring premises measured)
+## Current stop (composition measured)
+- The substring text dependency chain is `dep -> 174 -> 175` with **no atoms and no further union** at any level (before the untyped fallback runs), so the flow point my earlier fix attached expands to an atom-less node. `TaggedDynamic` is then added later by the untyped OpaqueHandle fallback on the formal node.
+- So the remaining work is not another OR: the flow point for these formals has no producer expansion. Next is to check what `Graph::expand` returns for those values (entry formal vs loop value) and supply the producer there (or seed the formal from its original census Text) instead of relying on the point.
+
+## Previous measurement (substring premises)
 - For `JsonLine.find`'s `text.substring(i, i+m)`, the core request `StringSubstring` has result SUM `{Text}` and **text dependency SUM `{Text, TaggedDynamic}`**, so `premises_closed` is false (needs `text_only`). The mixed alternative is the remaining blocker; next is to find where `TaggedDynamic` enters that dependency (the untyped OpaqueHandle default vs the flow point) and drop it only when the same formal's original census is Text-only.
 
 ## Previous stop (advanced 2026-10-28)
