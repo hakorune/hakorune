@@ -76,6 +76,9 @@ original resolver + source value flow + existing Home/call contracts
 - [x] Map-held field 実引数を原source read として接続: `ReadActualSourceLoanV1::MapField`（read site + class）、pending gate/closure、executable constructor、`require_executable_v1` の ordinal 会計、class は field writer SUM から（null併存は単一classのみ許可）。owner38 の input cohort は通過。
 - これで停止点が前進: `BoxTorrentStore.allocatorBlocks/0` の `callable-scalar/return-type-mismatch`（expected Integer / returns Unknown）。次はこの Integer return 推論。
 - 残: map-field read の emission/interval（`EmittedReadArgumentV1` は MapField を kind-drift で拒否）＝タスク4後半。今回の admission だけではEXEに届かない。
+- 新停止の切り分け: `allocatorBlocks` は**borrowed walkが走っていない**（`borrowed_terminal_arguments_v1` が owner56 で一度も呼ばれない）。よって zero-arg stored-child の Ready I64 row を terminal 経由で使う案は現状のownerでは到達不能。標準laneの `UnknownBox.outstandingBlocks/0` signature missが直接原因。
+- 次: 既存 evidence のどちらか一方だけを接続する。(i) walk trigger 側で「zero-arg `return me.<owned child>.m()` が Ready I64 row を持つ」を既存 trigger に含める（borrowed result owner が型を発行）、(ii) 標準laneのcallee解決で owned-child/field-write claim の一意classを読む（claim ownerの再導出はしない）。wall時は (i) を優先。
+- 直近suite: **9/11**（`--timeout 420`、mimalloc PASS 242s、FAILは json / boxtorrent、SKIP/timeoutなし）。
 
 ## 検証・整理
 - 既存 `ordinary_new_borrowed_formal_result_composition_tests.rs` の count guard/OOB/別配列/途中 call、`container_field_uses.rs` の全 writer/capture、既存 Map/field interval のケースを再利用する。
