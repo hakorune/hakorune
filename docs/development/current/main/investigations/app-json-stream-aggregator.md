@@ -2,7 +2,10 @@
 Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
-## Current stop (advanced 2026-10-28)
+## Current stop (advanced 2026-10-28; substring premises measured)
+- For `JsonLine.find`'s `text.substring(i, i+m)`, the core request `StringSubstring` has result SUM `{Text}` and **text dependency SUM `{Text, TaggedDynamic}`**, so `premises_closed` is false (needs `text_only`). The mixed alternative is the remaining blocker; next is to find where `TaggedDynamic` enters that dependency (the untyped OpaqueHandle default vs the flow point) and drop it only when the same formal's original census is Text-only.
+
+## Previous stop (advanced 2026-10-28)
 - `statsFor` now closes: the core text operand takes the same completed flow read at its argument site (`graph.point` OR), committed `b0f9b5103e`. New stop: `JsonLine.find` `[Body(4), LoopBody(0), IfCondition]` -> `borrowed-static/source-actual-unavailable`, actual = `MethodCall(text.substring(i, i+m))` at a nested call site, formal `OpaqueHandle`. The static lane already selects the call (`core_source`/`sibling_source`), but the per-actual source for that nested MethodCall is not produced.
 
 ## Earlier stop (2026-10-28, before the core-operand fix)
