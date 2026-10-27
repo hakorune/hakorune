@@ -63,6 +63,8 @@ original resolver + source value flow + existing Home/call contracts
 - 既存Map familyに最小caseを追加: 取得frame登録と実consumer lookupは既存caseで直接検証されず、再走査除去の独立境界に必要。
 - probeと実walkのMap/NamedArray/借用引数dispatchを共通ownerへ統合し、実walkだけのArray append例外を保持。既存Map21・NamedArray5・borrowed callback1・direct Map1 PASS、CLI build PASS。例外を直接踏む独立testは未確認。
 - 途中: 唯一initializer照合を共通化。Map get frameのsource/全体vetoを登録時に一度検証し、null判定とfield readの再走査を削除。元getの同site照合も1走査に統合。既存Map family 21/0、direct receiver・physical interval各1/0、CLI build PASS。smokeは同じowner38停止。lexical intervalとの統合は未完。
+- [x] `DirectMapReceiverSourceV1::matches_original_v1` の再発行（initializer/ledger/Arc再走査）を退役し、mint時のadmission＋owner照合へ統合。`stored_map_get_keeps_its_original_local_source` と `direct_map_receiver_numeric_writes_close_the_original_callee_effects` PASS、boxtorrent smokeは同じowner38停止（受理/拒否の差分なし）。`main_direct_...`は既存のcallee-exit赤（同test内208行）で、照合assert（152行）ではない。
+- [ ] 次: `source_call_arguments_v1` の `StoredMapGetSource` で mint済み loan を共有し、get-localごとの再発行を削除。caller区間(`[acquisition..end]`)と callee全体vetoは意味が異なるため統合しない。series純減はこの2件を合わせて判定する。
 - [x] 基点は `d2a32dd08c`。`home_map_value_flow.rs::MapFieldGetLocalV1::matches_input` と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`、その既存consumerを対象に固定する。9/11は履歴であり新基点の検証ではない。
 - [ ] 元get/支持slot/区間内effectを既存source解析で保持し、既存consumerを同じ結果の参照へ切替える。site別条件・未知call拒否・Normal/Faultを保ち、まず既存受理/拒否を変えず重複観測・探索を統合する。全体vetoを弱める機能拡張は後続タスク4で別commitにする。
 - [ ] 置換された探索分岐・専有relayを削除する。残る別consumerのpermissionは保持し、関数名を消すための改名はしない。独立Rust/C physical検証は残す。

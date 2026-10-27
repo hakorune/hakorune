@@ -63,11 +63,12 @@ impl DirectMapReceiverSourceV1 {
             initializer: OwnedExprSiteV1::new(input.owner(), initializer) })
     }
     pub(crate) fn source(&self) -> &super::super::StoredMapGetSourceLoanV1 { &self.source }
+    /// The mint admission is the one observation of this owner's immutable
+    /// source; later consumers only confirm they sit on the same owner.
     pub(crate) fn matches_original_v1(&self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     ) -> bool {
         input.owner() == self.initializer.owner()
-            && Self::issue(input, self.binding, self.source.clone()).as_ref() == Some(self)
     }
 }
 impl LexicalInstanceCallSourceTargetV1 {
