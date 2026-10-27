@@ -1,9 +1,9 @@
 date = "2026-10-27"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "APP-boxtorrent-mini"
+current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini HakoAllocHeap.release owner38: borrowed-entry/original-input-not-ready; input cohort uncompleted; no EXE"
+current_blocker_token = "json-stream-aggregator: EXE no longer reaches the pinned runtime boundary in the fixed suite; boxtorrent-mini is parked at the terminal-relation lookup mismatch (card)"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,19 +13,19 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
-latest_card = "app-boxtorrent-mini"
-latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+current_execution_design = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
+latest_card = "app-json-stream-aggregator"
+latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 latest_card_summary = """
-APP-boxtorrent-mini; HakoAllocHeap.release (owner38) keeps borrowed-entry/original-input-not-ready, no EXE.
-Map borrow-normalization series is closed: duplicate dispatch/DirectMap re-issuance retired, production net -46.
-Next: connect the map-field/nillable child argument source in reconstruct_instance_source_actuals_v1 (card task4).
-Current suite9/11 (8realEXEs+marker, measured before this series landing); JSON and boxtorrent red.
+APP-json-stream-aggregator selected; fixed suite still reports its EXE not reaching the pinned runtime boundary.
+boxtorrent-mini parked: zero-arg stored-child I64 relation is issued (demand_v1) but the emission-time lookup misses it.
+Suite 9/11 on the current tree (mimalloc PASS, FAIL json + boxtorrent, no SKIP/timeout).
+Next: reproduce the json boundary stop with an explicit binary and connect its first failing consumer.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "APP-boxtorrent-mini"
-next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+next_execution_card = "APP-json-stream-aggregator"
+next_execution_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
