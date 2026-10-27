@@ -28,8 +28,9 @@ original resolver + source value flow + existing Home/call contracts
   -> independent Rust/C final validation -> unchanged EXE
 ```
 
-## 実装タスク（同じ APP row 内、順番に進める）
+## 実装タスク（同じ APP row 内）
 
+先に下記のMap借用整理seriesを実施し、完了後に1〜5の機能接続へ戻る。
 1〜3は一本の縦の実装series。1で元sourceの支持条件と後段照合義務を構成し、2はそのsource条件だけを使う。実命令の独立照合は3のlower後に閉じ、物理PASSを2の着手条件へ戻さない。
 
 1. [ ] **支持 Home と呼び出し区間を既存 source に接続する。**
@@ -54,10 +55,13 @@ original resolver + source value flow + existing Home/call contracts
    未完の free_stack/use_counts、integer ArrayGet の source/physical 不一致、NoIncoming formal は記録を再利用する。call closure に不要な全 allocator graph を先に閉じないが、選択 consumer が必要とする境界を省略もしない。
    完了条件: 下記 smoke 全契約と期待 stdout/exit が PASS。続けて固定 suite、必要な shared regression、局所退役を確認して対象変更を commit。JSON と有限ゴール全体の後続条件は残る。
 
-## 接続と同時に行う局所正規化
-- 上の1〜3で同じArray identity/支持元を再探索せず、既存source queryの結果をbounds・SUM・lowerへ渡す。site/edgeごとの生存とFault義務は保持する。
-- 4では共通get identity＋use intervalへ切替えた関数全体veto/重複探索を退役する。旧caller切替・既存negative境界確認・専有relay削除まで同series。既存定数guardの対応範囲は失わない。
-- `ordinary_new_*`形別ファイルを追加しない。広い共有退役は[既存整理queue](mirbuilder-structure-refactor-queue-d0-2026-08-23.md#縮小を伴う正規化2026-10-27)へ集約。着地時は実削除と残る旧callerを報告し、移動を削減に数えない。
+## 次に実施するMap借用整理series
+- [ ] 基点は実装開始直前のcommitを記録し、`home_map_value_flow.rs::MapFieldGetLocalV1::matches_input` と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`、その既存consumerを対象に固定する。今の9/11は履歴であり新基点の検証ではない。
+- [ ] 元get/支持slot/区間内effectを既存source解析で保持し、既存consumerを同じ結果の参照へ切替える。site別条件・未知call拒否・Normal/Faultを保ち、まず既存受理/拒否を変えず重複観測・探索を統合する。全体vetoを弱める機能拡張は後続タスク4で別commitにする。
+- [ ] 置換された探索分岐・専有relayを削除する。残る別consumerのpermissionは保持し、関数名を消すための改名はしない。独立Rust/C physical検証は残す。
+- [ ] 下記の既存Map/field interval検証と影響するconsumerの検証を実行し、必要なsmokeで回帰を確認する。既存失敗をPASSにせず、上流停止で未実行の区間はfocused証拠と区別する。
+- [ ] 基点からseries全体のproductionコードが純減し、消えた関数/分岐と旧callerの切替を確認して完了。新共通処理・移動先も集計し、test/docsは別記。未達なら同範囲の設計を見直し、退役を残件にして次の機能追加へ進まない。途中commitは可、app完了とは別。
+- `ordinary_new_*`形別ファイルは追加しない。範囲・測定・後続整理は[既存queue](mirbuilder-structure-refactor-queue-d0-2026-08-23.md#縮小を伴う正規化2026-10-27)へ集約。未接続の共通基盤だけでは完了にしない。
 
 ## 検証・整理
 - 既存 `ordinary_new_borrowed_formal_result_composition_tests.rs` の count guard/OOB/別配列/途中 call、`container_field_uses.rs` の全 writer/capture、既存 Map/field interval のケースを再利用する。

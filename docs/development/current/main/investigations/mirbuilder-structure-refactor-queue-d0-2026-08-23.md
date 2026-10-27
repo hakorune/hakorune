@@ -104,8 +104,8 @@ site/edge情報も一つのsource解析ownerが計算・保持し、consumerは�
 
 | 順序 | 同じ既存app/ownerで行う変更 | 退役と確認 |
 | --- | --- | --- |
-| 今の接続 | app cardのArray支持・effect・boundsを同じsource graphへ接続。定数guardとLoopで別のArray identity分類器を作らず、既存field/alias queryを共用する。 | 共通queryへ移した元探索と専有relayを削除。site別前提、未知call拒否、独立した生成物検証は残す。 |
-| 同じappのMap借用 | 元getのidentityと実use区間を分離し、既存Map/field interval ownerを利用する。 | 置換した関数全体vetoと重複interval探索を切替後に撤去。早期delete/Endを拒否し、最後のuse後のdeleteを許可する既存検証を通す。 |
+| 最初のMap借用整理（次に実施） | 既存受理/拒否を保って元get/支持slot/区間effectの重複観測を共有し、実consumerへ接続する。機能拡張より先に実施。 | 旧探索/relayを削除し、追加共通処理込みでproduction純減と既存検証が成立するまで閉じない。全体vetoの意味変更は後続appタスク4へ分離。 |
+| 整理series後の接続 | app cardのArray支持・effect・boundsを同じsource graphへ接続。定数guardとLoopで別のArray identity分類器を作らず、既存field/alias queryを共用する。 | 共通queryへ移した元探索と専有relayを削除。site別前提、未知call拒否、独立した生成物検証は残す。 |
 | family着地 | 共通Call/Newのtarget・receiver・入力mode・result・cleanupを既存計画から各consumerへ渡す。新しい形別producerを作らない。 | 旧形別producerの全callerを切替/停止して削除。cfg/reexport/外部readerを確認し、単なる名前やgrep0件で死亡判定しない。 |
 | 広い共有退役 | 既存R7とowner-splitの条件で残りfamilyを一つずつ処理。native/arena最適化のための全体rewriteを先行させない。 | 既存契約を保った実削除・ビルドと必要EXEの確認で閉じる。新旧計画を永久併存させない。 |
 
@@ -115,6 +115,18 @@ site/edge情報も一つのsource解析ownerが計算・保持し、consumerは�
 置換分岐だけを削除する。他consumerのpermissionが残る関数を丸ごと消さない。
 `ordinary_new_local_commit/field_read_argument_interval.rs::IntervalViewV1` は
 immutable MIRとOnceCellで構造解析を再利用する既存例であり、独立physical検証として残す。
+
+20万行以内は長期の削減目標であり、達成可能性・期限が実証された見積もりではない。
+集計対象はまず上記src/mir全体（test込み）を比較基準にし、production/testを分けて示す。
+別ディレクトリへの移動で総量が減ったとは主張しない。finite goalへの新しい数値条件にはしない。
+
+最初のseriesはapp cardのチェックリストを実行正本とする。実装開始前に基点commitと
+対象familyを固定し、追加された共通処理・移動先を集計範囲から外さない。
+既存git diffの追加/削除行をproduction/test/docsに分け、混在ファイルはhunkで確認する。
+コメント/空行整理や整形が混じる場合はコードの実削減と区別し、それだけで純減を通さない。
+純減・実consumer接続・既存契約検証・置換経路撤去が全て成立して初めて整理完了。
+途中commitは許可するが、純増や退役予定だけで閉じない。削減できなければ同じ範囲で
+共通表現とconsumer分担を見直す。入力改変、検証削除、無関係な削除で通さない。
 
 着地時は既存diffで、対象familyのproduction/test別の行・ファイル純増減、
 消えた分類/探索/relay、残る旧callerを短く報告する。月次「削除ファイル数≥追加」は

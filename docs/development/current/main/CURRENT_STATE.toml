@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini; HakoAllocHeap.release input cohort remains uncompleted; no EXE.
-Design/task review: null-key semantics is not an external prerequisite; keep the existing Text-only Map contract.
-Prior fixed suite9/11 (8realEXEs+marker); JSON and boxtorrent red; no new build/test in this docs-only review.
-Next: connect original Home support and nonshrinking call effects, then loop bounds before first Core issuance.
-Reuse existing Text snapshot; finish use-scoped Map/child borrowing and Rust/C validation; tasks are in the app card.
+APP-boxtorrent-mini; HakoAllocHeap.release input cohort uncompleted; no EXE.
+Next: Map borrow normalization in the active app card, before further feature expansion.
+Share source analysis with existing consumers; preserve current admission and independent Rust/C validation.
+Close the series only with replaced scans/relays retired and net production-code reduction; otherwise revise within scope.
+Prior suite9/11 (8realEXEs+marker); JSON and boxtorrent red; no build/test in this docs-only update.
 """
 next_design_card = "none"
 next_design_card_path = "none"
