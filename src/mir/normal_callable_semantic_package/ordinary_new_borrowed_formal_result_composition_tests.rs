@@ -880,3 +880,45 @@ fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
         }
     }
 }
+
+#[test]
+fn forwarded_constructor_field_preserves_original_object_class() {
+    let program = "box Handle { birth() {} } box Maker { birth() {} make(flag) { if flag == 0 { return null } return new Handle() } } box Chunk { init { handle } birth(h) { me.handle = h } } static box Main { main() { local m = new Maker() local h = m.make(1) if h == null { return 0 } local c = new Chunk(h) return 0 } }";
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(program).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let source = ledger.field_value_source("Chunk", "handle").unwrap().as_ref().unwrap();
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let sum = ingress.source_field_value_sum_v1(&ledger.field_write_claims, source)
+        .expect("the exact constructor input closes the complete field writer sum");
+    assert_eq!(sum.nullable_object_class_v1(), Some(("Handle", false)));
+}
+
+#[test]
+fn direct_map_receiver_numeric_writes_close_the_original_callee_effects() {
+    for (birth, update, accepted) in [("0", "me.value = me.value + 1", true),
+        ("\"\"", "me.value = \"changed\"", false)] {
+        let program = format!("box Item {{ init {{ value }} birth() {{ me.value = {birth} }} read() {{ {update} return 1 }} }}
+            box Holder {{ init {{ stats }} birth() {{ me.stats = new MapBox() }}
+              find(key) {{ if me.stats.has(key) {{ return me.stats.get(key) }} local item = new Item() me.stats.set(key, item) return item }}
+              probe(key) {{ local item = me.stats.get(key) if item == null {{ return 0 }} local n = item.read() return n }} }}
+            static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&program).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let targets: Vec<_> = ledger.lexical_instance_calls.borrow().values().filter_map(|slot| match slot {
+            LexicalInstanceCallDispositionSlotV1::Ready(row) => Some(row.source_target()),
+            LexicalInstanceCallDispositionSlotV1::SourcePending(source) => Some(source),
+            _ => None,
+        }.filter(|source| source.target().owner() == "Item" && source.target().name() == "read"
+            && source.direct_map_receiver_source_v1().is_some()).cloned()).collect();
+        assert_eq!(targets.len(), 1);
+        let completion = ledger.completion_source_for_owner_v1(targets[0].callee_owner()).unwrap();
+        let flow = completion.cleanup().root_flow().unwrap();
+        let plans: Vec<_> = flow.expression_plans().iter().filter(|plan| plan.field_write_frame().is_some()).collect();
+        assert_eq!(plans.len(), 1);
+        let entry = plans[0].field_write_frame().unwrap().entry().unwrap();
+        assert!(plans[0].field_write_rhs().is_some());
+        entry.recheck(ledger).unwrap();
+        assert_eq!(entry.is_numeric_v1(), accepted);
+        assert_eq!(ledger.check_direct_map_numeric_effects_v1(&targets[0]).is_ok(), accepted);
+    }
+}

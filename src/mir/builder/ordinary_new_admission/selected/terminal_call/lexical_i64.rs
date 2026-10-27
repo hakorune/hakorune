@@ -150,6 +150,9 @@ fn emit_lexical_i64_call(
         _ => return Err(freeze("lexical-i64-result-mismatch")),
     };
     if let SourceLoan::Instance(instance) = row {
+        if kind == InvokeCallResultKind::I64 && instance.source_target().direct_map_receiver_source_v1().is_some() {
+            ledger.check_direct_map_numeric_effects_v1(instance.source_target())?;
+        }
         let binding = match instance.source_target().stored_receiver() {
             Some((binding, _, _, _)) => binding,
             None => instance.receiver_binding()?,

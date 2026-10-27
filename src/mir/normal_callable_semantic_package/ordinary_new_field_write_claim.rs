@@ -215,6 +215,9 @@ impl EntryFieldWriteSourceV1 {
     pub(crate) fn text_value(&self) -> Option<&TextFieldValueSourceV1> {
         match &self.value { EntryFieldWriteValueSourceV1::Text(value) => Some(value), _ => None }
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn is_numeric_v1(&self) -> bool {
+        matches!(self.value, EntryFieldWriteValueSourceV1::Numeric(_))
+    }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.original.write().source().expect("sealed original writer") }
     pub(in crate::mir::normal_callable_semantic_package) fn checked_entry_value_v1(
         &self, ledger: &super::OrdinaryNewClaimLedgerV1, function: &crate::mir::MirFunction,

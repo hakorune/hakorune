@@ -104,6 +104,27 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-nullable-call/completion-missing"))?;
         let flow = completion.cleanup().root_flow()
             .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
+        self.check_borrowed_receiver_writes_v1(source, object, Some(loan.result_support_v1()), false)?;
+        if !flow.maps().is_empty() || !flow.named_arrays().is_empty()
+            || completion.returns_value() || !completion.explicit_sites().is_empty()
+            || !flow.implicit_exit().is_some_and(|exit| exit.is_ok_and(|exit| exit.homes().is_empty()))
+            || !self.root_home_flow_ready_v1(completion)? {
+            return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+        }
+        Ok(true)
+    }
+
+    /// Source effects only: neither Map slot liveness nor physical Call is
+    /// granted by this check. Every original field writer must match once.
+    fn check_borrowed_receiver_writes_v1(
+        &self, source: &LexicalInstanceCallSourceTargetV1,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        protected: Option<crate::mir::instruction::BorrowedResultSupportV1>, numeric_only: bool,
+    ) -> Result<(), String> {
+        let completion = self.completion_source_for_owner_v1(source.callee_owner())
+            .ok_or_else(|| freeze("borrowed-nullable-call/completion-missing"))?;
+        let flow = completion.cleanup().root_flow()
+            .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
         let originals: Vec<_> = self.field_write_claims.writes().iter()
             .filter(|write| write.owner() == source.callee_owner()).collect();
         let mut writes = std::collections::BTreeSet::new();
@@ -113,22 +134,34 @@ impl OrdinaryNewClaimLedgerV1 {
             let rhs = plan.field_write_rhs().ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
             entry.recheck(self)?;
             if !rhs.is_consistent(frame.source()) || !Rc::ptr_eq(entry.source(), frame.source())
-                || entry.field().object() != object || entry.field() == match loan.result_support_v1() {
-                    crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, .. } => field,
-                    _ => return Err(freeze("borrowed-nullable-call/source-completion-drift")),
+                || entry.field().object() != object || (numeric_only && !entry.is_numeric_v1())
+                || match protected {
+                    Some(crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, .. }) => entry.field() == field,
+                    Some(_) => return Err(freeze("borrowed-nullable-call/source-completion-drift")),
+                    None => false,
                 }
                 || !originals.iter().any(|write| std::ptr::eq(*write, entry.original().write()))
                 || !writes.insert(entry.original().write().assignment().statement_site().clone()) {
                 return Err(freeze("borrowed-nullable-call/source-completion-drift"));
             }
         }
-        if writes.len() != originals.len() || !flow.maps().is_empty() || !flow.named_arrays().is_empty()
-            || completion.returns_value() || !completion.explicit_sites().is_empty()
-            || !flow.implicit_exit().is_some_and(|exit| exit.is_ok_and(|exit| exit.homes().is_empty()))
-            || !self.root_home_flow_ready_v1(completion)? {
+        if writes.len() != originals.len() || !flow.maps().is_empty() || !flow.named_arrays().is_empty() {
             return Err(freeze("borrowed-nullable-call/source-completion-drift"));
         }
-        Ok(true)
+        Ok(())
+    }
+
+    pub(in crate::mir) fn check_direct_map_numeric_effects_v1(
+        &self, source: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<(), String> {
+        let loan = source.direct_map_receiver_source_v1()
+            .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
+        let get = loan.source();
+        get.recheck_v1(self)?;
+        if source.target().owner() != get.payload_source_v1().payload_class_v1() {
+            return Err(freeze("borrowed-nullable-call/source-completion-drift"));
+        }
+        self.check_borrowed_receiver_writes_v1(source, get.payload_source_v1().payload_object_v1(), None, true)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn finish_borrowed_nullable_slots_v1(
