@@ -19,6 +19,7 @@ pub(super) struct Node {
     pub(super) required_i64: Vec<usize>,
     pub(super) required_text: Vec<usize>,
     pub(super) required_core: Vec<usize>,
+    pub(super) required_object: Vec<(usize, Box<str>)>,
     pub(super) constraints: Vec<Box<str>>,
     pub(super) invalid: bool,
     pub(super) unconditional: bool,
@@ -32,6 +33,7 @@ impl Node {
             .chain(&self.required_text)
             .chain(&self.required_core)
             .copied()
+            .chain(self.required_object.iter().map(|(node, _)| *node))
             .chain(self.binary.iter().flat_map(|binary| binary.operands))
     }
 }
@@ -196,6 +198,17 @@ impl Graph<'_> {
                         _ => row.invalid = true,
                     }
                 } else { row.invalid = true; }
+            }
+            OriginalFormalActualSeedV1::FormalField { read, formal, class, source } => {
+                if read.owner() != formal.owner() {
+                    row.invalid = true;
+                } else {
+                    match self.fields.get(&source.field()) {
+                        Some((original, node)) if Rc::ptr_eq(original, source) => row.union.push(*node),
+                        _ => row.invalid = true,
+                    }
+                    row.required_object.push((self.formal(*formal), class.clone()));
+                }
             }
             OriginalFormalActualSeedV1::ReturnedField(source) => {
                 if let Some(name) = source.class() {

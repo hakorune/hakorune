@@ -90,6 +90,7 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
                 .chain(&nodes[*node].required_i64)
                 .chain(&nodes[*node].required_text)
                 .chain(&nodes[*node].required_core)
+                .chain(nodes[*node].required_object.iter().map(|(dependency, _)| dependency))
                 .chain(nodes[*node].binary.iter().map(|binary| &binary.operands[0]))
                 .filter(|dependency| groups[**dependency] != component)
             {
@@ -106,6 +107,10 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
             !nodes[*node].atoms.is_empty()
                 && nodes[*node].required_core.iter().all(|dependency|
                     groups[*dependency] != component && values[*dependency].is_some())
+                && nodes[*node].required_object.iter().all(|(dependency, class)|
+                    groups[*dependency] != component && values[*dependency].as_ref()
+                        .and_then(SourceValueSumV1::nullable_object_class_v1)
+                        .is_some_and(|(actual, _)| actual == class.as_ref()))
                 && nodes[*node].required_i64.iter().all(|dependency| {
                     groups[*dependency] != component
                         && values[*dependency]
@@ -183,6 +188,10 @@ pub(super) fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
             let value = SourceValueSumV1(candidate[node].clone());
             valid &= nodes[*node].required_core.iter().all(|dependency|
                 groups[*dependency] != component && values[*dependency].is_some());
+            valid &= nodes[*node].required_object.iter().all(|(dependency, class)|
+                groups[*dependency] != component && values[*dependency].as_ref()
+                    .and_then(SourceValueSumV1::nullable_object_class_v1)
+                    .is_some_and(|(actual, _)| actual == class.as_ref()));
             valid &= !value.0.is_empty()
                 && nodes[*node]
                     .constraints
@@ -249,6 +258,26 @@ mod tests {
             unconditional: true,
             ..Default::default()
         }
+    }
+    #[test]
+    fn formal_field_sum_requires_closed_matching_receiver_class() {
+        use SourceValueAlternativeV1::{Null, Object, SignedI64, TaggedDynamic};
+        for (receiver, accepted) in [
+            (BTreeSet::from([Object("Handle".into())]), true),
+            (BTreeSet::from([Object("Handle".into()), Null]), true),
+            (BTreeSet::from([Object("Other".into())]), false),
+            (BTreeSet::from([Null]), false),
+            (BTreeSet::from([TaggedDynamic]), false),
+            (BTreeSet::from([Object("Handle".into()), Object("Other".into())]), false),
+        ] {
+            let read = Node { union: vec![1], required_object: vec![(2, "Handle".into())], ..Default::default() };
+            let class = Node { atoms: receiver, unconditional: true, ..Default::default() };
+            let nodes = vec![read, atom(SignedI64), class];
+            assert_eq!(solve(&nodes)[0].as_ref().is_some_and(SourceValueSumV1::signed_only), accepted);
+        }
+        let read = Node { union: vec![1], required_object: vec![(2, "Handle".into())], ..Default::default() };
+        let class = Node { union: vec![0], ..atom(Object("Handle".into())) };
+        assert!(solve(&[read, atom(SignedI64), class])[0].is_none(), "receiver class cannot be proved by the field it guards");
     }
     #[test]
     fn source_sum_components_require_independent_ground_and_all_i64_premises() {

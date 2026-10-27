@@ -943,3 +943,26 @@ fn array_set_and_push_join_original_element_sources() {
     assert!(sum.alternatives().contains(&SourceValueAlternativeV1::SignedI64));
     assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Null), "out-of-bounds remains nullable");
 }
+
+#[test]
+fn array_write_uses_original_formal_field_source() {
+    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1;
+    let source = "box Handle { block_id: i64 birth() { me.block_id = 7 } }
+        box Sink { birth() {} accept(value) { return 0 } }
+        box Page { init { values } birth() { me.values = new ArrayBox() }
+          seed(handle: Handle): i64 { if handle == null { return 0 } me.values.push(\"x\") me.values.set(0, handle.block_id) return 0 }
+          qualified(): i64 { local h = new Handle() local out = me.seed(h) return 0 }
+          read() { local sink = new Sink() local value = me.values.get(0) local out = sink.accept(value) return 0 } }
+        static box Main { main() { return 0 } }";
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+    let contract = package.parameter_contracts.iter().find(|row| matches!(
+        package.selected.key_for_batch_slot(row.batch_slot),
+        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            if key.owner() == "Sink" && key.name() == "accept"
+    )).expect("original sink contract");
+    let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let sum = ingress.source_value_sum_v1(contract.parameters[0].binding).expect("closed formal-field element sum");
+    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::SignedI64));
+    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Text));
+    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Null));
+}

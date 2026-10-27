@@ -50,12 +50,41 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     // existing all-writer node. Receiver null/lifetime checks remain executable.
     let field_value = |input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &SourceExprSiteV1| -> Option<OriginalFormalActualSeedV1> {
-        use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, ResolvedLexicalRefV1 as Ref};
+        use crate::mir::resolved_semantics::{BindingKindV1, BodyExpressionShapeV1 as Shape, ResolvedLexicalRefV1 as Ref};
         use crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1 as Origin;
         let fields = fields?;
         let Shape::FieldAccess { object, field, .. } = input.body_shape()?.expression_shape(site)? else { return None; };
         let Ref::Local(binding) = input.function().variable_ref(object)? else { return None; };
+        if binding.owner() != input.owner()
+            || *object != crate::mir::resolved_semantics::SourcePathV1::from_node(site.node())
+                .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver).expr() { return None; }
         if !super::super::actual_seed::uncaptured_source_binding_v1(input, binding) { return None; }
+        if input.function().binding(binding).is_some_and(|row| matches!(row.kind(), BindingKindV1::Parameter { .. })) {
+            let flow = input.function().expression_source().value_flow()
+                .filter(|flow| flow.owner() == input.owner() && flow.is_complete())?;
+            let value = flow.read(object, binding)?;
+            if !matches!(flow.origin(value), Some(Origin::Entry(original)) if *original == binding)
+                || contracts.iter().filter(|row| row.owner == input.owner()
+                    && row.parameters.iter().any(|formal| formal.binding == binding)).count() != 1 {
+                return None;
+            }
+            let declaration = super::super::super::super::array_i64_fields::coverage_unique_i64_field_source(
+                constructors, batch.ordinary_box_coverage(), field)?;
+            if declaration.declared_type_name() != Some("i64") { return None; }
+            let mut class = None;
+            for row in batch.ordinary_box_coverage().rows() {
+                if constructors.object_for(row).ok()? == declaration.field().object() {
+                    if class.replace(row.name()).is_some() { return None; }
+                }
+            }
+            let class = class?;
+            let source = fields.value_source(class, field)?.as_ref().ok()?;
+            if !source.same_inventory(fields) || source.field() != declaration.field() { return None; }
+            return Some(OriginalFormalActualSeedV1::FormalField {
+                read: OwnedExprSiteV1::new(input.owner(), site.clone()), formal: binding,
+                class: class.into(), source: Rc::clone(source),
+            });
+        }
         let initializer = super::super::super::super::result_class_claim::sole_initializer_site(input.function(), binding)?;
         let flow = input.function().expression_source().value_flow()
             .filter(|flow| flow.owner() == input.owner() && flow.is_complete())?;
