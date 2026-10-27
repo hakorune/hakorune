@@ -2,6 +2,9 @@
 Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
+## Audit follow-up: text operand ordinal pairing
+- Measured for the statsFor MapHas request: `text_len=1`, `text_ordinals()=[0]`, so the landing OR already pairs argument 0 correctly there. Applying the general pairing (`text_ordinals()` + receiver fallback for receiver-Text ops) nonetheless moved the json failure back to `callee-exit TerminalNotCovered`, i.e. it changed a receiver-Text op's closure in a way that breaks an earlier consumer. The pairing change is therefore not safe as-is; bisect by applying pairing alone first, then restricting the receiver OR to ops whose receiver is not also supplied as an argument (`receiver_is_text()`), before re-landing.
+
 ## Current stop (root cause identified: static-call formals are never seeded)
 - The `Graph::point` chain is `dep -> point(Entry(formal)) -> formal node` with an empty union: the flow value IS the entry formal. `resolve_original_source_sums_v1` only feeds `graph.actual` from `source.rows` (instance incoming rows), and `JsonLine.find` is a **static box method** whose calls carry no borrowed instance arguments, so its formals never receive a source; the untyped OpaqueHandle fallback then yields `TaggedDynamic` and the `StringSubstring` text premise never becomes `text_only`.
 - Next (feature-sized): feed the static-call argument sources into the same seed product for static box method formals, in the existing seed-preparation owner (no new graph/relay). Until then, any Text-based Core operand inside a static box method stays TaggedDynamic.
