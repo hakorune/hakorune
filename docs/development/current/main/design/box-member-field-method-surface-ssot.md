@@ -157,6 +157,36 @@ The legacy `init { field, ... }` stored-slot list is a separate compatibility
 surface, not a Property kind. Its later migration or retirement requires an
 independent grammar row and is not changed by this pack.
 
+### Legacy stored-slot list retirement follow-up
+
+| Row / owner | Selection and scope | Completion and retirement |
+| --- | --- | --- |
+| `INIT-STORED-SLOT-SURFACE-RETIRE` / this field-surface owner, existing parser and constructor owners | Registered follow-up, not selected. After the current app closes, select explicitly under the existing grammar/selfhost gates; app closure alone is not permission. Migrate the slot-list surface to canonical stored declarations while preserving the existing field contract. | Both parser paths and constructor/source consumers preserve field order, initial state, visibility, birth selection, reads/writes and partial-construction Fault behavior. Migrate applicable apps/selfhost inputs only after equivalent supported behavior is verified; retire slot-list-only parsing/lowering and obsolete fixtures after all supported consumers switch. Keep shared constructor machinery. |
+
+This is a syntax retirement, not blanket type annotation or a language decision
+to forbid untyped storage. Canonical stored declarations include bare `name`.
+`name: Type` currently supplies declared metadata without ordinary-write type
+enforcement; annotation alone proves neither a fixed native layout nor safe
+ownership. Adding annotations must separately establish accepted nullability,
+recursive fields, all writes and the metadata contract. Never invent types or
+initializers for a mechanical conversion: uninitialized storage is not null,
+and an added initializer changes construction and Fault behavior.
+
+The `init|pack|birth/arity` constructor identity is not by itself evidence that
+the `init { fields }` slot-list owns a duplicate lowering route. Trace actual
+slot-list consumers before deleting anything; constructor declarations and
+shared normalization may remain live. Do not count files by spelling as proof
+of semantics-preserving migration.
+
+Current fixed acceptance sources stay unchanged. A later canonical-surface
+corpus migration records the semantic equivalence and deliberate fixture
+transition; it cannot replace a failing frozen input to claim acceptance.
+Array get's out-of-bounds Null and use-scoped lifetime obligations remain even
+with declared fields. Conversely, an untyped field is not an absolute ban on
+native storage if the existing ObjectStoragePlan can prove a closed layout and
+all operations. No new implementation/checker/card is activated by this row.
+
+
 ## Migration contract
 
 ### Computed property

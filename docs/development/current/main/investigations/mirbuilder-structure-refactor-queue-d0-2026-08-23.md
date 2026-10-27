@@ -98,7 +98,9 @@ builder は342,789行/1,454、semantic package は200,621行/542。
 正規化の単位は型だけでなく、元source identity、target、入力mode、支持元、
 取得/移転/終了を分離した既存論理計画。関数の不変な意味情報は共有し、
 各useの到達条件・alias・借用区間・Fault時の取得済みprefixはsite/edgeに保持する。
-「値へ一度付ければ寿命も全siteで同じ」「所有検査は必ず一pass」は採用しない。
+site/edge情報も一つのsource解析ownerが計算・保持し、consumerは同じ計画を参照する。
+使用点ごとの情報が必要という理由で専用証明器の再導出を残さない。必要な固定点や
+解析段階は同じowner内に保ち、変換後の実命令との独立照合とは区別する。
 
 | 順序 | 同じ既存app/ownerで行う変更 | 退役と確認 |
 | --- | --- | --- |
@@ -144,6 +146,8 @@ README圧縮は既存`SEMANTIC-PACKAGE-README-CAPSULE-R0`、test/guard等価統�
 [H-1/H-4](docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md)、cache整理は
 [physical cleanup](../design/repo-physical-structure-cleanup-ssot.md)へ集約する。
 このqueueから同じ作業を二重登録しない。
+`init { fields }` のsyntax退役は[field-surface owner](../design/box-member-field-method-surface-ssot.md#legacy-stored-slot-list-retirement-follow-up)
+の既存文書内rowへ登録。typed化・native配置とは分離し、現在のacceptance入力は変えない。
 
 ## Compressed completed history
 
