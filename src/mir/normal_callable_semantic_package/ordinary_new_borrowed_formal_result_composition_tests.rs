@@ -843,6 +843,32 @@ fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
                 "an erased original object edge cannot retain numeric result credit");
         }
     }
+    // The same admitted Map-local result cannot borrow an equal-shaped foreign field source.
+    let map_source = r#"
+        box Item { value: i64 birth() { me.value = 1 } }
+        box Holder {
+            init { stats }
+            birth() { me.stats = new MapBox() }
+            add(key) { local value = new Item() me.stats.set(key, value) return 0 }
+            probe() { local key = "seed" local item = me.stats.get(key) if item == null { return 0 } return item.value + 1 }
+        }
+        static box Main { main() { return 0 } }
+    "#;
+    let map_package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(map_source).unwrap();
+    let map_owner = map_package.parameter_contracts.iter().find(|row| matches!(
+        map_package.selected.key_for_batch_slot(row.batch_slot),
+        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            if key.owner() == "Holder" && key.name() == "probe")).unwrap().owner;
+    let results = &map_package.ordinary_new_claim_ledger.borrowed_i64_results;
+    let context = results.field_candidates.as_ref().unwrap();
+    let expression = &results[&map_owner].as_ref().unwrap().expressions[0];
+    assert!(expression.fields_match(context.sources(), context.object_sources()));
+    let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(map_source).unwrap();
+    let foreign_context = foreign.ordinary_new_claim_ledger.borrowed_i64_results.field_candidates.as_ref().unwrap();
+    let mut sources = context.sources().clone();
+    let field = ("Holder".into(), "stats".into());
+    sources.insert(field.clone(), Rc::clone(&foreign_context.sources()[&field]));
+    assert!(!expression.fields_match(&sources, context.object_sources()));
     // A get keeps its Null alternative unless the same original count guard
     // proves the constant index on the surviving path. This is source proof,
     // independent of whether an unused helper has a physical Return packet.

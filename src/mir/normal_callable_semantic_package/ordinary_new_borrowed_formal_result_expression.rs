@@ -38,7 +38,6 @@ enum LeafV1 {
         binding: BindingRefV1,
         key: FieldKeyV1,
         source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::container_field_uses::MapFieldPayloadSourceV1>,
-        get: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     },
     ObjectField {
         key: FieldKeyV1,
@@ -412,9 +411,8 @@ impl ResultExpressionSourceV1 {
         self.core_sources_match() && self.leaves.iter().all(|leaf| match leaf {
             LeafV1::Core(core) => core.field_map().is_none_or(|field|
                 sources.values().any(|original| field.matches_declared_source_v1(original))),
-            LeafV1::MapLocal { binding, key, source, get } => {
-                binding.owner() == self.plan.owner() && get.owner() == self.plan.owner()
-                    && source.original_get_v1(get)
+            LeafV1::MapLocal { binding, key, source } => {
+                binding.owner() == self.plan.owner()
                     && sources.get(key).is_some_and(|original| Rc::ptr_eq(original, &source.source))
             }
             LeafV1::ObjectField { key, source } => objects
@@ -513,5 +511,5 @@ fn map_local_source_v1(
     if !receiver.is_some_and(|receiver| original::exact_me_receiver_v1(input, object, receiver)) { return None; }
     let source = MapFieldPayloadSourceV1::issue(batch, selected, constructors, claims, class, field)?;
     if !source.original_get_v1(get) { return None; }
-    Some(LeafV1::MapLocal { binding, key: (class.into(), field.clone()), source: Rc::new(source), get: std::sync::Arc::clone(get) })
+    Some(LeafV1::MapLocal { binding, key: (class.into(), field.clone()), source: Rc::new(source) })
 }

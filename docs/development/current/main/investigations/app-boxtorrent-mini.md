@@ -56,6 +56,7 @@ original resolver + source value flow + existing Home/call contracts
    完了条件: 下記 smoke 全契約と期待 stdout/exit が PASS。続けて固定 suite、必要な shared regression、局所退役を確認して対象変更を commit。JSON と有限ゴール全体の後続条件は残る。
 
 ## 次に実施するMap借用整理series
+- MapLocalは元getを生成時に検証し、不変payloadの後段再走査を退役。別packageの同名field拒否は未検証の独立境界だったため既存composition caseへ最小追加。CLI・focused PASS、smokeは同じowner38停止。
 - Map payload/receiverの同一Birth provider判定をfield-sourceへ統合し、旧2判定を退役。共有cache試作は17 files・production純増68行で未完、採用せず戻した。query共有と区間統合は残る。
 - Map payloadはresult facts構築・lexical・Homeで繰り返し発行される。既存field-source ownerにco-seal単位でsource/selection/constructorを束縛し、要求時に共通化する。各get・entry・intervalは別照合。effect一覧とcall/newの一般対応は未sealなので走査削除の根拠にしない。
 - lexical preflightはMap frame完成より先。完成frameの逆流は循環し、全関数vetoとget→call区間の受理条件も異なる。共通化は両者より前のresolver観測から行い、site区間と別calleeの判定を残す。
