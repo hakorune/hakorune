@@ -632,30 +632,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         }, &mut source_claims::formal_i64_index_consult_v1(
                             input, instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut local_field_read, &mut |site, actuals| {
-                            if matches!(actuals, BorrowedCallActualRequestV1::StoredMapGetSource) {
-                                return super::super::StoredMapGetSourceLoanV1::issue_for_site_v1(input, site, batch, selected,
-                                    instance_constructors, receiver_proof, entry_home, &callable_result_classes, &field_write_claims)
-                                    .map(|loan| loan.map(BorrowedCallArgumentsV1::StoredMapGetSource))
-                                    .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
-                            }
-                            if let (BorrowedCallActualRequestV1::NamedArrayHolderInitializer(binding), Ok(source)) = (actuals, &borrowed_formal_source) {
-                                return source_claims::named_array_initializer_source_v1(input, batch, brands, source, site, binding)
-                                    .map(|row| row.map(BorrowedCallArgumentsV1::NamedArrayHolderSource));
-                            }
-                            if borrowed_formal_source.is_err()
-                                && !matches!(actuals, BorrowedCallActualRequestV1::DynamicInvocationSource { .. })
-                                && !matches!(actuals, BorrowedCallActualRequestV1::ArgumentExpressionCarrierArrayAppendSource { .. })
-                                && !source_claims::select_failed_array_initializer_v1(
-                                input, batch, brands, &lexical_source_targets, site, actuals,
-                            )? { return Ok(None); }
-                            borrowed_call_arguments_callback_v1(batch, selected,
-                                &lexical_source_targets, dynamic_source_calls,
-                                parameter_contracts, &candidates, receiver_proof,
-                                &borrowed_formal_source, &static_source_sites, &mut borrowed_formal_actuals, &borrowed_i64_results,
-                                &mut |binding| lexical::nullable_received_result_class(
-                                    selected, batch, &callable_result_classes, &candidates, input, receiver_proof, binding,
-                                ),
-                                site, actuals, &callable_result_classes, &receiver_call_observations, &field_write_claims, Some(&seeds),
+                            source_claims::source_call_arguments_v1(
+                                input, brands, batch, selected, instance_constructors, receiver_proof, entry_home,
+                                &callable_result_classes, &field_write_claims, &lexical_source_targets, dynamic_source_calls,
+                                parameter_contracts, &candidates, &borrowed_formal_source, &static_source_sites,
+                                &mut borrowed_formal_actuals, &borrowed_i64_results, &receiver_call_observations,
+                                &seeds, site, actuals, true,
                             )
                         }, &mut source_claims::dominated_view_use_consult_v1(
                             &borrowed_formal_source, input, &borrowed_i64_results, &array_i64_field_sets,

@@ -8,7 +8,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 最新実行は `HakoAllocHeap.release`: `borrowed-entry/original-input-not-ready`。入力 cohort 未完、MIR 構築で停止し EXE 未生成。
 - 上流の `BoxTorrentManifest.releaseFrom` / `materialize` は `ids = me.chunk_ids; n = ids.length(); loop(i < n)` 内で `ids.get(i)` を Text key の受け手へ渡す。元の element SUM は Text だが、範囲外 Null が残る。
 - 現行の範囲証明は定数添字と直前の終了 guard 用。Loop の全 backedge、同じ Array、非縮小、支持 Home の生存をまだ結んでいない。
-- 固定 suite の前回実測は 9/11、611.474s（実 EXE 8本＋空 marker、timeout/SKIP なし）。JSON と boxtorrent が赤。今回の設計整理では再計測していない。
+- 固定 suite は共有dispatch統合後に 9/11、617.729s（実 EXE 8本＋空 marker、timeout/SKIP なし）。JSON と boxtorrent が赤。mimalloc-lite・allocator-stress・binary-treesはPASS。
 
 ## 採用設計
 - **既存仕様を維持して実装する。null-key の仕様回答はこのアプリの着手条件ではない。** 一般 Dynamic→Map の null 受理は別の未決事項であり、Text-only key の現在の経路へ勝手に stringify / TypeError を導入しない。
@@ -59,6 +59,7 @@ original resolver + source value flow + existing Home/call contracts
 - Map payloadはresult facts構築・lexical・Homeで繰り返し発行される。既存field-source ownerにco-seal単位でsource/selection/constructorを束縛し、要求時に共通化する。各get・entry・intervalは別照合。effect一覧とcall/newの一般対応は未sealなので走査削除の根拠にしない。
 - lexical preflightはMap frame完成より先。完成frameの逆流は循環し、全関数vetoとget→call区間の受理条件も異なる。共通化は両者より前のresolver観測から行い、site区間と別calleeの判定を残す。
 - 既存Map familyに最小caseを追加: 取得frame登録と実consumer lookupは既存caseで直接検証されず、再走査除去の独立境界に必要。
+- probeと実walkのMap/NamedArray/借用引数dispatchを共通ownerへ統合し、実walkだけのArray append例外を保持。既存Map21・NamedArray5・borrowed callback1・direct Map1 PASS、CLI build PASS。例外を直接踏む独立testは未確認。
 - 途中: 唯一initializer照合を共通化。Map get frameのsource/全体vetoを登録時に一度検証し、null判定とfield readの再走査を削除。元getの同site照合も1走査に統合。既存Map family 21/0、direct receiver・physical interval各1/0、CLI build PASS。smokeは同じowner38停止。lexical intervalとの統合は未完。
 - [x] 基点は `d2a32dd08c`。`home_map_value_flow.rs::MapFieldGetLocalV1::matches_input` と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`、その既存consumerを対象に固定する。9/11は履歴であり新基点の検証ではない。
 - [ ] 元get/支持slot/区間内effectを既存source解析で保持し、既存consumerを同じ結果の参照へ切替える。site別条件・未知call拒否・Normal/Faultを保ち、まず既存受理/拒否を変えず重複観測・探索を統合する。全体vetoを弱める機能拡張は後続タスク4で別commitにする。
