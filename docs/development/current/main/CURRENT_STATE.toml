@@ -18,10 +18,10 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 APP-boxtorrent-mini; HakoAllocHeap.release input cohort remains uncompleted; no EXE.
-Qualified entry Object views require complete exact incoming actuals and independent class agreement; null guard remains.
-Fixed suite9/11 in611.474s (8realEXEs+marker), no timeout/SKIP; JSON and boxtorrent remain red.
-Formal field source class/solver checks pass; free_stack SUM, loop bounds and Home remain unproved.
-Next: complete Array source reachability and slot lifetime, then connect the checked nullable ReadActual.
+Design/task review: null-key semantics is not an external prerequisite; keep the existing Text-only Map contract.
+Prior fixed suite9/11 (8realEXEs+marker); JSON and boxtorrent red; no new build/test in this docs-only review.
+Next: connect original Home support and nonshrinking call effects, then loop bounds before first Core issuance.
+Reuse existing Text snapshot; finish use-scoped Map/child borrowing and Rust/C validation; tasks are in the app card.
 """
 next_design_card = "none"
 next_design_card_path = "none"
