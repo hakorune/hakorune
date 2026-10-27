@@ -137,7 +137,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                     let shape = constructor_shapes
                         .get(root)
                         .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?;
-                    super::super::instance_constructor_non_escape::verify_birth_receiver_non_escape_v1(
+                    super::super::instance_constructor_non_escape::verify_receiver_non_escape_v1(
                         function, shape, &forest,
                     )
                     .map_err(|_issue| {

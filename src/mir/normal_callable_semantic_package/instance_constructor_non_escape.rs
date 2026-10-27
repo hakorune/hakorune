@@ -1,4 +1,4 @@
-//! Birth-body admission, not Home Flow or a runtime cleanup plan.
+//! Receiver nonescape from original source, not Home Flow or a runtime cleanup plan.
 //!
 //! All receiver occurrences come from the sealed expression inventory. Local
 //! aliases use a monotone may-alias set: source traversal order is not execution
@@ -21,7 +21,7 @@ pub(in crate::mir) enum BirthReceiverNonEscapeIssueV1 {
     UnprovenUse { _site: SourceExprSiteV1 },
 }
 
-pub(super) fn verify_birth_receiver_non_escape_v1(
+pub(super) fn verify_receiver_non_escape_v1(
     function: &VerifiedResolvedFunctionV1,
     shape: &VerifiedResolvedBodyShapeInventoryV1,
     forest: &VerifiedSemanticOwnerForestV1,
