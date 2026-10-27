@@ -2,7 +2,11 @@
 Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
-## Current stop (composition measured)
+## Current stop (root cause identified: static-call formals are never seeded)
+- The `Graph::point` chain is `dep -> point(Entry(formal)) -> formal node` with an empty union: the flow value IS the entry formal. `resolve_original_source_sums_v1` only feeds `graph.actual` from `source.rows` (instance incoming rows), and `JsonLine.find` is a **static box method** whose calls carry no borrowed instance arguments, so its formals never receive a source; the untyped OpaqueHandle fallback then yields `TaggedDynamic` and the `StringSubstring` text premise never becomes `text_only`.
+- Next (feature-sized): feed the static-call argument sources into the same seed product for static box method formals, in the existing seed-preparation owner (no new graph/relay). Until then, any Text-based Core operand inside a static box method stays TaggedDynamic.
+
+## Previous stop (composition measured)
 - The substring text dependency chain is `dep -> 174 -> 175` with **no atoms and no further union** at any level (before the untyped fallback runs), so the flow point my earlier fix attached expands to an atom-less node. `TaggedDynamic` is then added later by the untyped OpaqueHandle fallback on the formal node.
 - So the remaining work is not another OR: the flow point for these formals has no producer expansion. Next is to check what `Graph::expand` returns for those values (entry formal vs loop value) and supply the producer there (or seed the formal from its original census Text) instead of relying on the point.
 
