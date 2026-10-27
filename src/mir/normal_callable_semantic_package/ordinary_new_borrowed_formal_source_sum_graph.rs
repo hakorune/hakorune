@@ -279,10 +279,11 @@ impl Graph<'_> {
                             let field = access.map(|access| access.field());
                             if let Some(elements) = field.and_then(|field| self.array_fields.get(&field).copied()) {
                                 row.union.push(elements);
-                                // Preserve OOB/null unless the same original
-                                // field/count/terminating guard proves bounds.
+                                // Preserve both OOB results unless the same
+                                // original field/count/guard proves bounds.
                                 if access.is_none_or(|access| !access.get_is_in_bounds_v1()) {
                                     row.atoms.insert(Value::Null);
+                                    row.atoms.insert(Value::Text);
                                 }
                             } else {
                                 row.atoms.insert(Value::Other);

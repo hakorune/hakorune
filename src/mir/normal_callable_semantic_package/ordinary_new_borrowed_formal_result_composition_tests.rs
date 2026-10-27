@@ -931,17 +931,20 @@ fn array_set_and_push_join_original_element_sources() {
           seed() { me.values.push(\"x\") me.values.set(0, 7) }
           read() { local sink = new Sink() local value = me.values.get(0) local out = sink.accept(value) return 0 } }
         static box Main { main() { local page = new Page() page.seed() local out = page.read() return 0 } }";
-    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
-    let contract = package.parameter_contracts.iter().find(|row| matches!(
-        package.selected.key_for_batch_slot(row.batch_slot),
-        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
-            if key.owner() == "Sink" && key.name() == "accept"
-    )).expect("original sink contract");
-    let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
-    let sum = ingress.source_value_sum_v1(contract.parameters[0].binding).expect("closed original element sum");
-    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Text));
-    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::SignedI64));
-    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Null), "out-of-bounds remains nullable");
+    for source in [source.to_string(), source.replace("push(\"x\")", "push(true)")] {
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let contract = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.owner() == "Sink" && key.name() == "accept"
+        )).expect("original sink contract");
+        let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let sum = ingress.source_value_sum_v1(contract.parameters[0].binding).expect("closed original element sum");
+        assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Text), "strict out-of-bounds can produce Text");
+        if source.contains("push(true)") { assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Bool)); }
+        assert!(sum.alternatives().contains(&SourceValueAlternativeV1::SignedI64));
+        assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Null), "out-of-bounds remains nullable");
+    }
 }
 
 #[test]
