@@ -326,15 +326,13 @@ impl MapFieldGetLocalV1 {
         };
         statement
     }
-    /// A passive caller cannot replace, escape or mutate the supporting slot.
-    /// This is source/lifetime evidence only, not execution or null exclusion.
-    pub(crate) fn matches_input(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
-        let Some(shape) = input.body_shape() else {
-            return false;
-        };
-        let Ok(uses) = input.forest().callable_source_ledger(input.owner()) else {
-            return false;
-        };
+    /// Source identity is independent of the supporting Map slot's lifetime.
+    /// This alone never permits a read or a non-null observation.
+    fn matches_source_identity_v1(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        uses: &crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
+    ) -> bool {
         let get = self.source.get();
         let mut initializers = input
             .function()
@@ -348,10 +346,23 @@ impl MapFieldGetLocalV1 {
         input.owner() == self.site.owner() && self.binding.owner() == input.owner() && exact
             && input.function().method_call_source_v1(self.site.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, get))
             && uses.uncaptured_binding(self.binding) && uses.capture_demands().is_empty()
+            && self.key.prior_homes() == self.prior_homes()
+    }
+
+    /// A passive caller cannot replace, escape or mutate the supporting slot.
+    /// This is source/lifetime evidence only, not execution or null exclusion.
+    pub(crate) fn matches_input(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+        let Some(shape) = input.body_shape() else {
+            return false;
+        };
+        let Ok(uses) = input.forest().callable_source_ledger(input.owner()) else {
+            return false;
+        };
+        let get = self.source.get();
+        self.matches_source_identity_v1(input, &uses)
             && !uses.direct_call_observations().any(|_| true)
             && uses.method_calls().all(|(site, _)| site == get.site())
             && input.function().expression_source().constructions().next().is_none()
-            && self.key.prior_homes() == self.prior_homes()
             && shape.effects().iter().all(|effect| match effect.kind {
                 crate::mir::resolved_semantics::BodyEffectKindV1::Call => &effect.site == get.site(),
                 crate::mir::resolved_semantics::BodyEffectKindV1::NonLocalControl => shape.statements().iter().any(|row|
