@@ -19,8 +19,8 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 APP-boxtorrent-mini; HakoAllocHeap.release input cohort remains uncompleted; no EXE.
 Qualified entry Object views require complete exact incoming actuals and independent class agreement; null guard remains.
-Fixed suite9/11 in617.338s (8realEXEs+marker), no timeout/SKIP or new red; batch cross-check and inactive loop WIP present.
-Full-batch push correspondence, field-use capture, loop and field/guard focused checks pass.
+Previous fixed suite9/11 in617.338s (8realEXEs+marker), no timeout/SKIP; inactive loop experiment removed.
+Full-batch push correspondence and field-use capture are retained; removed induction experiment is not a bounds proof.
 Next: complete Array source reachability and slot lifetime, then connect the checked nullable ReadActual.
 """
 next_design_card = "none"
