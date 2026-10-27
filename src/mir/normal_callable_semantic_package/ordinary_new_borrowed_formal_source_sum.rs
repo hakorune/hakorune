@@ -474,6 +474,20 @@ pub(super) fn resolve_original_source_sums_v1(
                 graph.nodes[*node].union.push(point);
             }
         }
+        // A receiver-Text op may list the receiver ahead of its arguments; add
+        // that same read instead of shifting the argument pairing.
+        if request.request.receiver_is_text() {
+            if let Some((binding, value)) = flow.read_at(request.method.receiver_site()) {
+                if binding.owner() == owner {
+                    let point = graph.point(owner, value);
+                    for node in request.text.iter() {
+                        if point != *node && !graph.nodes[*node].union.contains(&point) {
+                            graph.nodes[*node].union.push(point);
+                        }
+                    }
+                }
+            }
+        }
     }
     if let Some(error) = graph.expansion_error.take() {
         return Err(error);

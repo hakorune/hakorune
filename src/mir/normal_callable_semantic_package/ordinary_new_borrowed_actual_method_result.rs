@@ -500,7 +500,7 @@ impl OriginalCoreOperandRequestV1 {
             _ => &[],
         }
     }
-    pub(super) fn receiver_is_text(self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn receiver_is_text(self) -> bool {
         !matches!(self.manifest.row().op, crate::mir::core_method_op::CoreMethodOp::MapHas
             | crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayLen | crate::mir::core_method_op::CoreMethodOp::ArrayGet)
     }
