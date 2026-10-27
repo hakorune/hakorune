@@ -56,9 +56,10 @@ original resolver + source value flow + existing Home/call contracts
    完了条件: 下記 smoke 全契約と期待 stdout/exit が PASS。続けて固定 suite、必要な shared regression、局所退役を確認して対象変更を commit。JSON と有限ゴール全体の後続条件は残る。
 
 ## 次に実施するMap借用整理series
+- Map payloadはresult facts構築・lexical・Homeで繰り返し発行される。既存field-source ownerにco-seal単位でsource/selection/constructorを束縛し、要求時に共通化する。各get・entry・intervalは別照合。effect一覧とcall/newの一般対応は未sealなので走査削除の根拠にしない。
 - lexical preflightはMap frame完成より先。完成frameの逆流は循環し、全関数vetoとget→call区間の受理条件も異なる。共通化は両者より前のresolver観測から行い、site区間と別calleeの判定を残す。
 - 既存Map familyに最小caseを追加: 取得frame登録と実consumer lookupは既存caseで直接検証されず、再走査除去の独立境界に必要。
-- 途中: 唯一initializer照合を共通化。Map get frameのsource/全体vetoを登録時に一度検証し、null判定とfield readの再走査を削除。既存Map family 21/0、direct receiver・physical interval各1/0、CLI build PASS。smokeは同じowner38停止。lexical intervalとの統合は未完。
+- 途中: 唯一initializer照合を共通化。Map get frameのsource/全体vetoを登録時に一度検証し、null判定とfield readの再走査を削除。元getの同site照合も1走査に統合。既存Map family 21/0、direct receiver・physical interval各1/0、CLI build PASS。smokeは同じowner38停止。lexical intervalとの統合は未完。
 - [x] 基点は `d2a32dd08c`。`home_map_value_flow.rs::MapFieldGetLocalV1::matches_input` と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`、その既存consumerを対象に固定する。9/11は履歴であり新基点の検証ではない。
 - [ ] 元get/支持slot/区間内effectを既存source解析で保持し、既存consumerを同じ結果の参照へ切替える。site別条件・未知call拒否・Normal/Faultを保ち、まず既存受理/拒否を変えず重複観測・探索を統合する。全体vetoを弱める機能拡張は後続タスク4で別commitにする。
 - [ ] 置換された探索分岐・専有relayを削除する。残る別consumerのpermissionは保持し、関数名を消すための改名はしない。独立Rust/C physical検証は残す。

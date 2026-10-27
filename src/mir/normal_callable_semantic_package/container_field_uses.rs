@@ -429,11 +429,11 @@ impl MapFieldPayloadSourceV1 {
         calls.next().is_none().then_some(call)
     }
     pub(super) fn original_get_v1(&self, call: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>) -> bool {
-        self.uses.calls.iter().filter(|(_, original)| original.owner() == call.owner()
-            && original.site() == call.site()).count() == 1
-            && self.original_get_at_v1(&crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-                call.owner(), call.site().clone()))
-                .is_some_and(|original| std::sync::Arc::ptr_eq(original, call))
+        let mut originals = self.uses.calls.iter().filter(|(_, original)|
+            original.owner() == call.owner() && original.site() == call.site());
+        let Some((_, original)) = originals.next() else { return false };
+        originals.next().is_none() && original.selector() == "get" && original.arity() == 1
+            && std::sync::Arc::ptr_eq(original, call)
     }
 }
 pub(super) fn original_payload_new_v1(
