@@ -224,6 +224,7 @@ impl OriginalSourceSumsV1 {
             &self.graph.points,
             &self.graph.formals,
             &self.graph.core_requests,
+            &self.graph.array_fields,
         );
         // Already-closed Core receipts retain this exact canonical allocation.
         // Re-solving unchanged premises must not reissue their source proof.
@@ -484,6 +485,7 @@ pub(super) fn resolve_original_source_sums_v1(
     let return_sites = graph.return_sites;
     let resolved_graph = OriginalSourceSumGraphV1 {
         fields: graph.fields,
+        array_fields: graph.array_fields,
         nodes: graph.nodes,
         points: graph.points,
         formals: graph.formals,
@@ -494,6 +496,7 @@ pub(super) fn resolve_original_source_sums_v1(
         &resolved_graph.points,
         &resolved_graph.formals,
         &resolved_graph.core_requests,
+        &resolved_graph.array_fields,
     );
     let fields = project_field_sums_v1(&resolved_graph, &all, None);
     Ok(OriginalSourceSumsV1 {

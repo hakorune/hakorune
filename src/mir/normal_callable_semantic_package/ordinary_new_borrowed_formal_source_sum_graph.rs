@@ -5,6 +5,7 @@ use super::*;
 #[derive(Debug, Clone)]
 pub(super) struct OriginalSourceSumGraphV1 {
     pub(super) fields: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, (Rc<FieldSource>, usize)>,
+    pub(super) array_fields: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, usize>,
     pub(super) nodes: Vec<Node>,
     pub(super) points: BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), usize>,
     pub(super) formals: BTreeMap<BindingRefV1, usize>,
@@ -360,6 +361,7 @@ pub(super) fn project_graph_v1(
     point_nodes: &BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), usize>,
     formal_nodes: &BTreeMap<BindingRefV1, usize>,
     core_requests: &[CoreRequestNode],
+    array_fields: &BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, usize>,
 ) -> (
     Vec<Option<SourceValueSumV1>>,
     BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), Rc<SourceValueSumV1>>,
@@ -369,6 +371,12 @@ pub(super) fn project_graph_v1(
     let values = solve(nodes);
     let mut core_calls: BTreeMap<_, Option<Rc<ClosedOriginalCoreSourceV1>>> = BTreeMap::new();
     for request in core_requests.iter().cloned() {
+        // A retained ArrayGet that has a field element node must use that
+        // same node. An absent field remains the existing unknown path.
+        let array_source_matches = request.field_array_access.as_ref()
+            .filter(|source| source.is_dynamic_get())
+            .and_then(|source| array_fields.get(&source.field()))
+            .is_none_or(|element| nodes.get(request.node).is_some_and(|node| node.union.contains(element)));
         let dynamic_integer_boundary = request.request.manifest().row().op
             == crate::mir::core_method_op::CoreMethodOp::StringSubstring;
         let premises_closed = request.text.iter().all(|dependency| {
@@ -389,7 +397,7 @@ pub(super) fn project_graph_v1(
         let receiver_closed = request.receiver_core.is_some() == receiver_core.is_some();
         let closed = values[request.node]
             .as_ref()
-            .filter(|_| premises_closed && receiver_closed)
+            .filter(|_| premises_closed && receiver_closed && array_source_matches)
             .and_then(|_| {
                 Some(Rc::new(ClosedOriginalCoreSourceV1 {
                     result: values[request.node].clone()?,
