@@ -1,5 +1,5 @@
 Status: reviewed simplification direction; execution selection belongs to CURRENT_STATE
-Date: 2026-10-21
+Date: 2026-10-27
 Parent: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml)
 Current app: see CURRENT_STATE; this queue does not resume implementation
 
@@ -75,7 +75,7 @@ Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲
 
 | 順序・既存owner | 最初の範囲 / 開始条件 | 完了と削除 |
 | --- | --- | --- |
-| 現APP-json-stream-aggregator | 共通FiniteInput/referenceと最終operand検証を着地。既存Static scalarの元source優先を保持し、次はstatsForのMap slot result ABI/lifetimeを最終consumerへ接続する。 | 新規形別分類器を足さずsource→生成物を接続。既存smokeの実EXE/output/exitを確認。置換済みの専有relayは同seriesで削除。全体rewriteをappの前提にしない。 |
+| 現在の選択app（CSTATE） | 現在は boxtorrent の Array identity/支持Home・区間effect・bounds・Map借用を既存source計画へ接続する。下記の局所正規化をapp実装と一緒に実施。 | 共通consumerへ切替えた形別再探索・専有relayを同seriesで削除し、既存focused検証と未変更smokeへ接続。全体rewriteをappの前提にしない。 |
 | `MIRBUILDER-SEMANTIC-PACKAGE-OWNER-SPLIT-D0` | 次に必要なowner境界で、共通source query、入力domain、Call/ownership計画、physical投影の実責務を分ける。まず現appが使う共通入力/referenceから。 | 一つの意味判定・一つのwriter。元source protocolの選択優先を保ち、証明成功によるissuer切替をしない。単なるkind×stageの機械分割を避け、重複した分類・探索・wrapperと専有adapterを実際に減らす。移動行と削除行を別記。 |
 | `MIRBUILDER-PACKET-DISPATCH-COHESION-D0` | 必要なkind拡張時に、同じ操作を繰り返すmatchを一つのownerへ寄せる。既存Call packetを核にtable/private methods/sealed abstractionを比較。 | 正当な段別exhaustive checkと独立final consumerは維持。旧dispatch callerを切替え、不要なexclusive dispatchを削除。trait/table採用自体を完了にしない。 |
 | Call/M7-S → R7 → M8 | 固定製品acceptance後の最初の整理候補は、共有Compatibility一族のcaller切替・停止と専有dead code退役。既に置換済みの局所edgeは全suite待ちにしない。 | 利用root・feature・schema/reader・保持すべき検証を確認し、対象familyだけ削除。既存focused＋必要suiteを通す。未判定候補は一括削除せず、次の利用判定を同じownerに残す。 |
@@ -86,6 +86,41 @@ Cargo、runtime、EXE、suiteは実行していない。WIPの検証済み範囲
 固定suiteの11/11表示だけで共有schemaを消さない。空marker、SKIP、timeoutを除き、
 全必要EXEと既存negative境界を確認する。MirBuilder完了にはさらに既存の
 source接続・production切替・R6/R7・Loop・物理退役が必要。
+
+## 縮小を伴う正規化（2026-10-27）
+
+現treeの `.rs` を改行で数えると src/mir は1,015,417行/3,827ファイル、
+builder は342,789行/1,454、semantic package は200,621行/542。
+`ordinary_new`で始まるRustファイルは273本/103,617行（ディレクトリ内の別名ファイルは別集計）。
+テストを含む物理行数であり、実行経路長・生存コード量・重複量ではない。
+ファイル名の総数から「一つのnewが全ファイルを通る」とは結論しない。
+
+正規化の単位は型だけでなく、元source identity、target、入力mode、支持元、
+取得/移転/終了を分離した既存論理計画。関数の不変な意味情報は共有し、
+各useの到達条件・alias・借用区間・Fault時の取得済みprefixはsite/edgeに保持する。
+「値へ一度付ければ寿命も全siteで同じ」「所有検査は必ず一pass」は採用しない。
+
+| 順序 | 同じ既存app/ownerで行う変更 | 退役と確認 |
+| --- | --- | --- |
+| 今の接続 | app cardのArray支持・effect・boundsを同じsource graphへ接続。定数guardとLoopで別のArray identity分類器を作らず、既存field/alias queryを共用する。 | 共通queryへ移した元探索と専有relayを削除。site別前提、未知call拒否、独立した生成物検証は残す。 |
+| 同じappのMap借用 | 元getのidentityと実use区間を分離し、既存Map/field interval ownerを利用する。 | 置換した関数全体vetoと重複interval探索を切替後に撤去。早期delete/Endを拒否し、最後のuse後のdeleteを許可する既存検証を通す。 |
+| family着地 | 共通Call/Newのtarget・receiver・入力mode・result・cleanupを既存計画から各consumerへ渡す。新しい形別producerを作らない。 | 旧形別producerの全callerを切替/停止して削除。cfg/reexport/外部readerを確認し、単なる名前やgrep0件で死亡判定しない。 |
+| 広い共有退役 | 既存R7とowner-splitの条件で残りfamilyを一つずつ処理。native/arena最適化のための全体rewriteを先行させない。 | 既存契約を保った実削除・ビルドと必要EXEの確認で閉じる。新旧計画を永久併存させない。 |
+
+最初の具体対象は `home_map_value_flow.rs` の `MapFieldGetLocalV1::matches_input`
+と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`。
+既存 `matches_source_identity_v1` を土台に支持区間を共有し、接続済みconsumerの
+置換分岐だけを削除する。他consumerのpermissionが残る関数を丸ごと消さない。
+`ordinary_new_local_commit/field_read_argument_interval.rs::IntervalViewV1` は
+immutable MIRとOnceCellで構造解析を再利用する既存例であり、独立physical検証として残す。
+
+着地時は既存diffで、対象familyのproduction/test別の行・ファイル純増減、
+消えた分類/探索/relay、残る旧callerを短く報告する。月次「削除ファイル数≥追加」は
+傾向確認に使えるが、ファイル結合だけで達成できるため品質gateにはしない。
+読む導線は入口からsource計画・lower・最終検証まで主要10ファイル以内を目安に
+既存READMEへ示す。全依存ファイルが10以下という制限や、新しい巨大ファイルへの
+結合ではない。最初のfamily切替で実際の導線を確認し、未達を達成扱いしない。
+新しい定期checker・台帳・監査cardは作らない。正規化だけで性能改善を主張しない。
 
 ## Remaining parked responsibilities
 

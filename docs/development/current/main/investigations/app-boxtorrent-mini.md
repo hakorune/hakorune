@@ -54,6 +54,11 @@ original resolver + source value flow + existing Home/call contracts
    未完の free_stack/use_counts、integer ArrayGet の source/physical 不一致、NoIncoming formal は記録を再利用する。call closure に不要な全 allocator graph を先に閉じないが、選択 consumer が必要とする境界を省略もしない。
    完了条件: 下記 smoke 全契約と期待 stdout/exit が PASS。続けて固定 suite、必要な shared regression、局所退役を確認して対象変更を commit。JSON と有限ゴール全体の後続条件は残る。
 
+## 接続と同時に行う局所正規化
+- 上の1〜3で同じArray identity/支持元を再探索せず、既存source queryの結果をbounds・SUM・lowerへ渡す。site/edgeごとの生存とFault義務は保持する。
+- 4では共通get identity＋use intervalへ切替えた関数全体veto/重複探索を退役する。旧caller切替・既存negative境界確認・専有relay削除まで同series。既存定数guardの対応範囲は失わない。
+- `ordinary_new_*`形別ファイルを追加しない。広い共有退役は[既存整理queue](mirbuilder-structure-refactor-queue-d0-2026-08-23.md#縮小を伴う正規化2026-10-27)へ集約。着地時は実削除と残る旧callerを報告し、移動を削減に数えない。
+
 ## 検証・整理
 - 既存 `ordinary_new_borrowed_formal_result_composition_tests.rs` の count guard/OOB/別配列/途中 call、`container_field_uses.rs` の全 writer/capture、既存 Map/field interval のケースを再利用する。
 - Map は既存 `direct_map_receiver_numeric_writes_close_the_original_callee_effects`、`field_argument_interval_rejects_early_end_mutation_and_transfer_but_allows_terminating_fault`、C の `published_lifecycle_v4_borrowed_source_execution_test.py` / `published_lifecycle_v4_borrowed_ingress_test.py` を再利用し、実際の slot 境界が未網羅なら同 family で補う。
