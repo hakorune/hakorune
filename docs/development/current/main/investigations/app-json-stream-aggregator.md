@@ -2,7 +2,10 @@
 Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
-## Current stop (2026-10-28, current tree)
+## Current stop (advanced 2026-10-28)
+- `statsFor` now closes: the core text operand takes the same completed flow read at its argument site (`graph.point` OR), committed `b0f9b5103e`. New stop: `JsonLine.find` `[Body(4), LoopBody(0), IfCondition]` -> `borrowed-static/source-actual-unavailable`, actual = `MethodCall(text.substring(i, i+m))` at a nested call site, formal `OpaqueHandle`. The static lane already selects the call (`core_source`/`sibling_source`), but the per-actual source for that nested MethodCall is not produced.
+
+## Earlier stop (2026-10-28, before the core-operand fix)
 - Selected row resumed. Explicit binary `target/quick/hakorune` + `target/quick` runtime: smoke stops at **MIR compile**, not runtime: `[freeze:contract][ordinary-new/object-return/callee-exit]: TerminalNotCovered`.
 - First failure trace: callee owner slot 25 = `JsonStreamAggregator.statsFor`, exit `[Body(0), IfThen(0)]` = `main.hako:108 return me.stats.get(user)` inside `if me.stats.has(user)` (app-relative lines 106-109). The callee's root-flow exit row for that explicit site is `Err(TerminalNotCovered)`, so the walk never covered that return.
 - Measured with the terminal-scan probe: for owner 25 only `[Body(4)]` reaches `observe_terminal_statement` (object obligation = `Err(ReturnValueNotCovered([Body(4)]))`, i.e. `return stats`), and the branch exit `[Body(0), IfThen(0)]` (`return me.stats.get(user)`) is **never observed**, so its exit row keeps the default `TerminalNotCovered`. Two gaps to close in that order: (a) observe the if-then terminal for a map-get object return, (b) cover the local `return stats` obligation.
