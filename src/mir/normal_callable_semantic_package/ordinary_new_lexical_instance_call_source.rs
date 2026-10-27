@@ -52,10 +52,10 @@ impl DirectMapReceiverSourceV1 {
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         binding: BindingRefV1, source: super::super::StoredMapGetSourceLoanV1,
     ) -> Option<Self> {
-        let initializer = super::super::result_class_claim::sole_initializer_site(input.function(), binding)?;
-        let mut rows = input.function().expression_source().initializers().filter(|row| row.binding() == binding);
-        let row = rows.next()?;
-        if rows.next().is_some() || binding.owner() != input.owner()
+        if !super::super::result_class_claim::binding_is_unrebound(input.function(), binding) { return None; }
+        let row = input.function().expression_source().sole_initializer(binding)?;
+        let initializer = row.initializer_site()?.clone();
+        if binding.owner() != input.owner()
             || source.get().owner() != input.owner() || source.get().site() != &initializer
             || !input.function().method_call_source_v1(&initializer).is_some_and(|get| std::sync::Arc::ptr_eq(get, source.get()))
             || !input.forest().callable_source_ledger(input.owner()).ok()?.uncaptured_binding(binding) { return None; }

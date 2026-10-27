@@ -56,7 +56,8 @@ original resolver + source value flow + existing Home/call contracts
    完了条件: 下記 smoke 全契約と期待 stdout/exit が PASS。続けて固定 suite、必要な shared regression、局所退役を確認して対象変更を commit。JSON と有限ゴール全体の後続条件は残る。
 
 ## 次に実施するMap借用整理series
-- [ ] 基点は実装開始直前のcommitを記録し、`home_map_value_flow.rs::MapFieldGetLocalV1::matches_input` と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`、その既存consumerを対象に固定する。今の9/11は履歴であり新基点の検証ではない。
+- 途中: 唯一initializer照合を共通source queryへ統合し、DirectMapの二重走査を削除。範囲検査・全体vetoの統合は未完。CLI buildと既存direct receiver/physical interval各1件PASS、witness family 4PASS/1FAIL（callee-exit、過去記録にも同じ失敗、基点binary未確認）。smokeは元と同じowner38停止。
+- [x] 基点は `d2a32dd08c`。`home_map_value_flow.rs::MapFieldGetLocalV1::matches_input` と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`、その既存consumerを対象に固定する。9/11は履歴であり新基点の検証ではない。
 - [ ] 元get/支持slot/区間内effectを既存source解析で保持し、既存consumerを同じ結果の参照へ切替える。site別条件・未知call拒否・Normal/Faultを保ち、まず既存受理/拒否を変えず重複観測・探索を統合する。全体vetoを弱める機能拡張は後続タスク4で別commitにする。
 - [ ] 置換された探索分岐・専有relayを削除する。残る別consumerのpermissionは保持し、関数名を消すための改名はしない。独立Rust/C physical検証は残す。
 - [ ] 下記の既存Map/field interval検証と影響するconsumerの検証を実行し、必要なsmokeで回帰を確認する。既存失敗をPASSにせず、上流停止で未実行の区間はfocused証拠と区別する。

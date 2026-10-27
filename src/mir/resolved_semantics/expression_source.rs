@@ -351,6 +351,13 @@ impl ResolvedExpressionSourceInventoryV1 {
     pub(crate) fn initializers(&self) -> impl Iterator<Item = &ResolvedInitializerRelationV1> {
         self.initializers.values()
     }
+
+    /// The unique source relation for a binding, independent of rebindings.
+    pub(crate) fn sole_initializer(&self, binding: BindingRefV1) -> Option<&ResolvedInitializerRelationV1> {
+        let mut rows = self.initializers().filter(|row| row.binding() == binding);
+        let row = rows.next()?;
+        rows.next().is_none().then_some(row)
+    }
 }
 
 #[derive(Debug, Default, Clone)]

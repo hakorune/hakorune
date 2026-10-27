@@ -216,7 +216,7 @@ fn is_receiver_binding(function: &VerifiedResolvedFunctionV1, binding: BindingRe
 
 /// Original binding identity is usable only when the sealed source records no
 /// rebind. This conservative proof does not infer assignment ordering.
-fn binding_is_unrebound(function: &VerifiedResolvedFunctionV1, binding: BindingRefV1) -> bool {
+pub(super) fn binding_is_unrebound(function: &VerifiedResolvedFunctionV1, binding: BindingRefV1) -> bool {
     !function.assignment_targets().any(|(_, target)| {
         matches!(target, ResolvedAssignmentTargetV1::BindingRebind(rebound) if *rebound == binding)
     })
@@ -232,15 +232,7 @@ pub(super) fn sole_initializer_site(
     if !binding_is_unrebound(function, binding) {
         return None;
     }
-    let mut initializers = function
-        .expression_source()
-        .initializers()
-        .filter(|initializer| initializer.binding() == binding);
-    let initializer = initializers.next()?;
-    if initializers.next().is_some() {
-        return None;
-    }
-    initializer.initializer_site().cloned()
+    function.expression_source().sole_initializer(binding)?.initializer_site().cloned()
 }
 
 /// Class of a `local x = <initializer>` binding when the initializer is

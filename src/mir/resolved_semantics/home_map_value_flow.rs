@@ -334,15 +334,9 @@ impl MapFieldGetLocalV1 {
         uses: &crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
     ) -> bool {
         let get = self.source.get();
-        let mut initializers = input
-            .function()
-            .expression_source()
-            .initializers()
-            .filter(|row| row.binding() == self.binding);
-        let exact = initializers.next().is_some_and(|row| {
-            row.initializer_site() == Some(self.site.site())
-                && row.declaration_site() == self.declaration()
-        }) && initializers.next().is_none();
+        let exact = input.function().expression_source().sole_initializer(self.binding).is_some_and(|row| {
+            row.initializer_site() == Some(self.site.site()) && row.declaration_site() == self.declaration()
+        });
         input.owner() == self.site.owner() && self.binding.owner() == input.owner() && exact
             && input.function().method_call_source_v1(self.site.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, get))
             && uses.uncaptured_binding(self.binding) && uses.capture_demands().is_empty()
