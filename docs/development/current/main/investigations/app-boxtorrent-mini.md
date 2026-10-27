@@ -64,13 +64,15 @@ original resolver + source value flow + existing Home/call contracts
 - probeと実walkのMap/NamedArray/借用引数dispatchを共通ownerへ統合し、実walkだけのArray append例外を保持。既存Map21・NamedArray5・borrowed callback1・direct Map1 PASS、CLI build PASS。例外を直接踏む独立testは未確認。
 - 途中: 唯一initializer照合を共通化。Map get frameのsource/全体vetoを登録時に一度検証し、null判定とfield readの再走査を削除。元getの同site照合も1走査に統合。既存Map family 21/0、direct receiver・physical interval各1/0、CLI build PASS。smokeは同じowner38停止。lexical intervalとの統合は未完。
 - [x] `DirectMapReceiverSourceV1::matches_original_v1` の再発行（initializer/ledger/Arc再走査）を退役し、mint時のadmission＋owner照合へ統合。`stored_map_get_keeps_its_original_local_source` と `direct_map_receiver_numeric_writes_close_the_original_callee_effects` PASS、boxtorrent smokeは同じowner38停止（受理/拒否の差分なし）。`main_direct_...`は既存のcallee-exit赤（同test内208行）で、照合assert（152行）ではない。
-- [ ] 次: `source_call_arguments_v1` の `StoredMapGetSource` で mint済み loan を共有し、get-localごとの再発行を削除。caller区間(`[acquisition..end]`)と callee全体vetoは意味が異なるため統合しない。series純減はこの2件を合わせて判定する。
-- [x] 基点は `d2a32dd08c`。`home_map_value_flow.rs::MapFieldGetLocalV1::matches_input` と `ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1`、その既存consumerを対象に固定する。9/11は履歴であり新基点の検証ではない。
-- [ ] 元get/支持slot/区間内effectを既存source解析で保持し、既存consumerを同じ結果の参照へ切替える。site別条件・未知call拒否・Normal/Faultを保ち、まず既存受理/拒否を変えず重複観測・探索を統合する。全体vetoを弱める機能拡張は後続タスク4で別commitにする。
-- [ ] 置換された探索分岐・専有relayを削除する。残る別consumerのpermissionは保持し、関数名を消すための改名はしない。独立Rust/C physical検証は残す。
-- [ ] 下記の既存Map/field interval検証と影響するconsumerの検証を実行し、必要なsmokeで回帰を確認する。既存失敗をPASSにせず、上流停止で未実行の区間はfocused証拠と区別する。
-- [ ] 基点からseries全体のproductionコードが純減し、消えた関数/分岐と旧callerの切替を確認して完了。新共通処理・移動先も集計し、test/docsは別記。未達なら同範囲の設計を見直し、退役を残件にして次の機能追加へ進まない。途中commitは可、app完了とは別。
-- `ordinary_new_*`形別ファイルは追加しない。範囲・測定・後続整理は[既存queue](mirbuilder-structure-refactor-queue-d0-2026-08-23.md#縮小を伴う正規化2026-10-27)へ集約。未接続の共通基盤だけでは完了にしない。
+- [x] 元get/支持slot/区間内effectの保持とconsumer切替は上記6 commit＋今回の退役で完了。caller区間(`[acquisition..end]`)と callee全体vetoは受理条件が異なるため統合せず、それぞれ既存ownerに残す（統合しない判断をここに固定）。
+- [x] 置換済みの再走査・再発行を削除: `matches_input`の重複呼出し元get site照合、`DirectMapReceiverSourceV1`の再発行、probe/実walkのdispatch二重化。`binding_is_unrebound`はresult-class ownerへ移動。独立Rust/C physical検証は保持。
+- [x] 検証: `map_home_flow_tests` 21/0、`map_get_terminal` 13/0、`field_argument_interval` 1/0、`stored_map_get_keeps_its_original_local_source` 1/0、`direct_map_receiver_numeric_writes...` 1/0、CLI build PASS、boxtorrent smokeは同じowner38停止（受理/拒否の差分なし）。`main_direct_...`は既存callee-exit赤（208行）。
+- [x] series全体のproduction純減: `d2a32dd08c..1a19885659` の src は production +111/−157（**net −46**）、test +79（別記）。旧caller切替と削除分岐は上記のとおり。→ **series完了。**
+- [ ] 残る任意の重複: `source_call_arguments_v1` の `StoredMapGetSource` はmint済みloanを共有できるが、+10/−4程度で純減に寄与しないため今回は採らない。構造整理queueへ送る（機能追加の前提にしない）。
+
+## owner38停止点の実体（次タスク4の入口）
+- `entry_owner_view:306` → `checked_completed_original_instance_target_arguments_v1` が None。内側は owner38 `HakoAllocHeap.release` で `instance_source::reconstruct_instance_source_actuals_v1` が None（`pending_expression` 分岐: 元source slotが未qualify）。owner60/62も同経路、62はcall siteのactuals欠落が併発。
+- 未qualifyの実引数は nullable child（`chunk.alloc_handle` の field read / Map local borrow）で、card タスク4の区間接続が次の実装。ここを閉じるまで新機能・別アプリへ進まない。
 
 ## 検証・整理
 - 既存 `ordinary_new_borrowed_formal_result_composition_tests.rs` の count guard/OOB/別配列/途中 call、`container_field_uses.rs` の全 writer/capture、既存 Map/field interval のケースを再利用する。
