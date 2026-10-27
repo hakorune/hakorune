@@ -65,7 +65,11 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                     candidate,
                 )
                 .is_some();
+                // A map-held payload field read carries its own original get
+                // and declared field source; it is not an unqualified Prefix slot.
+                let map_field = matches!(candidate.value, BorrowedCallActualValueV1::FieldAccess);
                 if !local_object
+                    && !map_field
                     && (!matches!(candidate.value, BorrowedCallActualValueV1::Unknown)
                         || original_unknown_scalar_actual_v1(ingress, call, identity, candidate)
                             .is_none())
@@ -168,6 +172,23 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                             return Err(freeze("borrowed-instance/text-formal-identity"));
                         }
                         return Ok(Some(actual.source));
+                    }
+                }
+                if matches!(candidate.value, BorrowedCallActualValueV1::FieldAccess) {
+                    if let Some((read, _get, declared)) =
+                        ingress.original_map_field_actual_source_v1(&call.call, ordinal, site)?
+                    {
+                        if read.site() != site {
+                            return Err(freeze("borrowed-instance/map-field-original-identity"));
+                        }
+                        let class = ingress
+                            .field_value_class_v1(declared)
+                            .ok_or_else(|| freeze("borrowed-instance/map-field-class"))?;
+                        return Ok(Some(BorrowedFormalActualSourceV1::Read(
+                            crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_map_field_v1(
+                                read.clone(), class,
+                            ),
+                        )));
                     }
                 }
                 if let Some((_, loan)) = identity

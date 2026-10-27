@@ -285,6 +285,16 @@ impl PreparedBorrowedCallActualsV1 {
                         return Err(freeze("borrowed-instance/field-actual-identity-drift"));
                     }
                 }
+                // Map-held payload field reads were validated by the single
+                // reconstruct admission (read site + original get); account
+                // their ordinals instead of treating them as array/field loans.
+                for actual in &self.opaque_actuals {
+                    if let BorrowedFormalActualSourceV1::Read(read) = &actual.source {
+                        if read.is_map_field_v1() {
+                            ordinals.insert(actual.ordinal);
+                        }
+                    }
+                }
                 if self
                     .opaque_actuals
                     .iter()

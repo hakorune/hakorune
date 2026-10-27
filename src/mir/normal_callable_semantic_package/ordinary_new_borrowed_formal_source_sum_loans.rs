@@ -168,6 +168,46 @@ impl PreparedBorrowedFormalIngressV1 {
         self.original_formal_seeds
             .source_value_sum_v1(&self.source_incoming, formal)
     }
+    /// Object class of one declared field value, taken from the field writer
+    /// SUM owner. The callee's formal view is never consulted here.
+    pub(in crate::mir::normal_callable_semantic_package) fn field_value_class_v1(
+        &self,
+        source: &Rc<super::FieldSource>,
+    ) -> Option<Box<str>> {
+        let product = &self.original_formal_seeds;
+        if !product.corroborate_original_v1(&self.source_incoming) {
+            return None;
+        }
+        let sums = product.source_sums.as_ref()?;
+        // The writer SUM may also carry the exact null literal; only one object
+        // class is a class proof.
+        fn single_class(
+            seed: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source::FormalActualSeedV1,
+        ) -> Option<Box<str>> {
+            use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source::FormalActualSeedV1 as Seed;
+            match seed {
+                Seed::Class(class) => Some(class.clone()),
+                Seed::Null => None,
+                Seed::All(rows) => {
+                    let mut class = None;
+                    for row in rows.iter() {
+                        match row {
+                            Seed::Null => {}
+                            Seed::Class(current) => {
+                                if class.replace(current.clone()).is_some() {
+                                    return None;
+                                }
+                            }
+                            _ => return None,
+                        }
+                    }
+                    class
+                }
+                _ => None,
+            }
+        }
+        single_class(&sums.field_object_projection_v1(source))
+    }
     /// Original class for one exact call argument. A stable formal anchor or
     /// reaching-value point lends only source facts; original argument plans
     /// independently corroborate the site/binding before execution.

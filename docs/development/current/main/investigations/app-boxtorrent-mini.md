@@ -73,6 +73,9 @@ original resolver + source value flow + existing Home/call contracts
 ## owner38停止点の実体（次タスク4の入口）
 - `entry_owner_view:306` → `checked_completed_original_instance_target_arguments_v1` が None。内側は owner38 `HakoAllocHeap.release` で `instance_source::reconstruct_instance_source_actuals_v1` が None（`pending_expression` 分岐: 元source slotが未qualify）。owner60/62も同経路、62はcall siteのactuals欠落が併発。
 - 未qualifyの実引数は nullable child（`chunk.alloc_handle` の field read / Map local borrow）で、card タスク4の区間接続が次の実装。ここを閉じるまで新機能・別アプリへ進まない。
+- [x] Map-held field 実引数を原source read として接続: `ReadActualSourceLoanV1::MapField`（read site + class）、pending gate/closure、executable constructor、`require_executable_v1` の ordinal 会計、class は field writer SUM から（null併存は単一classのみ許可）。owner38 の input cohort は通過。
+- これで停止点が前進: `BoxTorrentStore.allocatorBlocks/0` の `callable-scalar/return-type-mismatch`（expected Integer / returns Unknown）。次はこの Integer return 推論。
+- 残: map-field read の emission/interval（`EmittedReadArgumentV1` は MapField を kind-drift で拒否）＝タスク4後半。今回の admission だけではEXEに届かない。
 
 ## 検証・整理
 - 既存 `ordinary_new_borrowed_formal_result_composition_tests.rs` の count guard/OOB/別配列/途中 call、`container_field_uses.rs` の全 writer/capture、既存 Map/field interval のケースを再利用する。

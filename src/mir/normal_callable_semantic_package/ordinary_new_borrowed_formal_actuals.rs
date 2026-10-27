@@ -446,6 +446,22 @@ fn construct_borrowed_call_actuals_v1(
             }
             BorrowedCallActualValueV1::Bool(value) => BorrowedFormalActualSourceV1::Bool(*value),
             BorrowedCallActualValueV1::Null => BorrowedFormalActualSourceV1::Null,
+            BorrowedCallActualValueV1::FieldAccess => {
+                let (read, _get, declared) = prepared
+                    .original_map_field_actual_source_v1(call, *ordinal, site)?
+                    .ok_or_else(|| freeze("borrowed-actual/map-field-source"))?;
+                if read.site() != site {
+                    return Err(freeze("borrowed-actual/map-field-original-identity"));
+                }
+                let class = prepared
+                    .field_value_class_v1(declared)
+                    .ok_or_else(|| freeze("borrowed-actual/map-field-class"))?;
+                BorrowedFormalActualSourceV1::Read(
+                    crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_map_field_v1(
+                        read.clone(), class,
+                    ),
+                )
+            }
             BorrowedCallActualValueV1::String(_)
             | BorrowedCallActualValueV1::Expression
             | BorrowedCallActualValueV1::Binding(_)
