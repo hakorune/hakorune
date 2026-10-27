@@ -107,8 +107,14 @@ impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_stored_get_v1(
         &mut self,
         frame: std::rc::Rc<super::super::MapFieldGetLocalV1>,
-    ) {
+        input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> bool {
+        if !std::ptr::eq(input.forest(), self.input.forest())
+            || !std::ptr::eq(input.function(), self.input.function())
+            || !matches!((input.body_shape(), self.input.body_shape()), (Some(a), Some(b)) if std::ptr::eq(a, b))
+            || !frame.matches_input(input) { return false; }
         self.store(frame.binding(), StoredLocal::StoredMapGet(frame));
+        true
     }
 
     /// Borrow the same original stored get on the current path, without
@@ -124,7 +130,6 @@ impl PrefixLocalFlow<'_> {
             return None;
         };
         (binding == frame.binding()
-            && frame.matches_input(self.input)
             && self.is_self_rooted_handle(frame.source().receiver().receiver()))
         .then(|| std::rc::Rc::clone(frame))
     }

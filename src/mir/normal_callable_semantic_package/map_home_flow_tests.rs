@@ -671,3 +671,56 @@ fn return_boundary_map_reuses_one_borrowed_param_across_entries() {
     assert_eq!(a.binding(), b.binding());
     assert!(a.transfer_home().is_none() && b.transfer_home().is_none());
 }
+
+#[test]
+fn stored_map_get_keeps_its_original_local_source() {
+    use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
+    use crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation;
+    let source = r#"
+        box Item { value: i64 birth() { me.value = 1 } }
+        box Holder {
+            init { stats }
+            birth() { me.stats = new MapBox() }
+            add(key) { local value = new Item() me.stats.set(key, value) return 0 }
+            probe() { local key = "seed" local item = me.stats.get(key) if item == null { return 0 } local v = item.value return 0 }
+        }
+        static box Main { main() { return 0 } }
+    "#;
+    let package = issue(source).expect("source Map and holder");
+    let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Holder", "probe", 0);
+    let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+    package.batch().with_lowering_input(slot, |input| {
+        let flow = package.ordinary_new_claim_ledger.completion_for_owner(input.owner())
+            .expect("probe completion").cleanup().root_flow().expect("probe source flow");
+        let frame = flow.maps().iter().find_map(|row| match row {
+            MapHomeObservation::FieldGet(frame) => Some(frame), _ => None,
+        }).expect("original get retained");
+        let consumer = package.ordinary_new_claim_ledger
+            .stored_map_get_local_source_v1(input.owner(), frame.statement().node())
+            .expect("consumer rechecks source").expect("consumer receives original get");
+        assert!(std::rc::Rc::ptr_eq(frame, &consumer));
+        assert!(flow.expression_plans().iter().filter_map(|plan| plan.evaluation())
+            .flat_map(|evaluation| evaluation.operations())
+            .filter_map(|operation| operation.nullable_null_v1())
+            .any(|(_, _, observed)| std::rc::Rc::ptr_eq(frame, observed)),
+            "null check consumes the original get frame");
+        assert!(flow.all_exits_ready(), "field initializer and final return must be covered");
+        let field_site = input.body_shape().unwrap().expressions().iter().find_map(|shape| match shape {
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { site, field, .. }
+                if field.as_ref() == "value" => Some(OwnedExprSiteV1::new(input.owner(), site.clone())),
+            _ => None,
+        }).expect("original field read");
+        assert!(package.ordinary_new_claim_ledger.staged_local_field_source(&field_site).is_some(),
+            "nonnull field read reaches the existing source consumer");
+    }).unwrap();
+    let changed = source.replace("if item == null", "me.add(key) if item == null");
+    let rejected = issue(&changed).expect("changed Map source is observed");
+    let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Holder", "probe", 0);
+    let slot = rejected.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+    rejected.batch().with_lowering_input(slot, |input| {
+        let flow = rejected.ordinary_new_claim_ledger.completion_for_owner(input.owner())
+            .expect("changed probe completion").cleanup().root_flow().expect("changed probe source flow");
+        assert!(!flow.maps().iter().any(|row| matches!(row, MapHomeObservation::FieldGet(_))),
+            "intervening call must not issue a passive get frame");
+    }).unwrap();
+}

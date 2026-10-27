@@ -439,10 +439,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_loc
         key,
         prior: homes.into(),
     });
-    if !frame.matches_input(input) {
+    if !locals.install_stored_get_v1(std::rc::Rc::clone(&frame), input) {
         return Ok(unavailable());
     }
-    locals.install_stored_get_v1(std::rc::Rc::clone(&frame));
     maps.push(MapHomeObservation::FieldGet(frame));
     Ok(Some(Ok(())))
 }
