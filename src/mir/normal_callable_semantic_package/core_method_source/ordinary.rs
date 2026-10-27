@@ -382,24 +382,11 @@ impl FieldMapReceiverSourceV1 {
             .ok_or_else(reject)?
             .as_ref()
             .map_err(|_| reject())?;
-        let writers: Vec<_> = source.writers().collect();
-        let store = source
-            .birth_store(constructors, 0)
-            .map_err(|_| reject())?
-            .ok_or_else(reject)?;
-        if writers.len() != 1
-            || !writers[0].in_birth()
-            || source.declared_type_name().is_some()
-            || store.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
-            || !matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
-                object: None, class, .. } if class.as_ref() == "MapBox")
-        {
-            return Err(reject());
-        }
+        let (writer, store) = source.map_birth_provider_v1(constructors).ok_or_else(reject)?;
         let root = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ExpressionFieldRootSourceV1::issue_entry_v1(
             constructors, receiver_proof, entry, input.owner(), *receiver, source.field())?;
         let birth_key = constructors
-            .published_birth_key(writers[0].birth_source().ok_or_else(reject)?)
+            .published_birth_key(writer.birth_source().ok_or_else(reject)?)
             .ok_or_else(reject)?
             .clone();
         Ok(Self {
@@ -410,7 +397,7 @@ impl FieldMapReceiverSourceV1 {
             name: field.clone(),
             root,
             birth_key,
-            birth_owner: writers[0].owner(),
+            birth_owner: writer.owner(),
             birth_store: store.clone(),
         })
     }

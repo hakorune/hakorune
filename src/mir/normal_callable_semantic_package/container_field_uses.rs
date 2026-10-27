@@ -387,13 +387,8 @@ impl MapFieldPayloadSourceV1 {
         owner_class: &str, field: &str,
     ) -> Option<Self> {
         let source = claims.value_source(owner_class, field)?.as_ref().ok()?;
-        let writers: Vec<_> = source.writers().collect();
-        let store = source.birth_store(constructors, 0).ok()??;
-        if !source.same_inventory(claims) || source.declared_type_name().is_some()
-            || writers.len() != 1 || !writers[0].in_birth()
-            || store.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
-            || !matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
-                object: None, class, .. } if class.as_ref() == "MapBox") { return None; }
+        if !source.same_inventory(claims) { return None; }
+        source.map_birth_provider_v1(constructors)?;
         let owner = batch.ordinary_box_coverage().row_for(owner_class).ok()??;
         let birth = constructors.birth_row_for(owner).ok()?;
         let uses = capture_box_field_v1(batch, selected, birth, owner_class, field)?;

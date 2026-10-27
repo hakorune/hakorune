@@ -55,6 +55,23 @@ impl DeclaredFieldValueSourceV1 {
         Rc::ptr_eq(&self.inventory, &source.inventory) && self.writers.get(ordinal) == Some(&source.index)
     }
 
+    /// The sole untyped field writer initializes its original Map provider in Birth.
+    pub(crate) fn map_birth_provider_v1<'a, 'b>(
+        &'a self,
+        constructors: &'b VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> Option<(&'a ObservedFieldWriteV1, &'b ConstructionStoreV1)> {
+        let mut writers = self.writers();
+        let writer = writers.next()?;
+        if writers.next().is_some() || !writer.in_birth() || self.declared_type_name().is_some() {
+            return None;
+        }
+        let store = self.birth_store(constructors, 0).ok()??;
+        (store.mode() == Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
+            && matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
+                object: None, class, .. } if class.as_ref() == "MapBox"))
+            .then_some((writer, store))
+    }
+
     /// Return the SAME constructor's store after independently checking its
     /// source, owner, exact assignment, field and source-order ordinal.
     /// A Parameter RHS stays a Parameter need; metadata grants no Integer.
