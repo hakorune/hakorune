@@ -2,10 +2,17 @@
 Status: canonical EXE passed 2026-10-25; later shared report records a final-verification regression. Date: 2026-10-26
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [fixed smoke](../../../../../tools/smokes/v2/profiles/integration/apps/binary_trees_exe.sh).
 
-## Current stop
+## Historical app verification (not a fresh run)
 - Explicit CLI/runtime: `NYASH_BIN=target/quick/hakorune NYASH_EMIT_EXE_NYRT=target/quick`. Quick CLI40.00s and C FFI build PASS. Unchanged `binary_trees_exe.sh` passes canonical LLVM C API EXE/run, exact output and exit0, with no compat replay.
 - Historical fixed suite7/11 in122.454s, no timeout/SKIP: six real EXEs plus the non-EXE marker. Binary-trees passed within that run in50.764s. Its source/publication, C flow and LLVM/native consumers were connected; full MirBuilder remained unfinished.
 - Other failures stay open: mimalloc-lite and allocator-stress `borrowed-object/forward-source-identity`, owner37 Body5; JSON `borrowed-entry/source-use-completion-pending`, owner22; boxtorrent `stored-child/receiver-unavailable`, owner51.
+
+Latest shared suite state is owned by [CURRENT_STATE](../CURRENT_STATE.toml);
+the observations here are historical and were not rerun by the 2026-10-27
+representation review. A stale runtime archive is separate from MIR failure.
+Post-acceptance native/region work is parked in the existing
+[storage plan](../design/object-storage-plan-boundary-ssot.md#post-acceptance-representation-tasks),
+not selected by this card or added to this app's EXE acceptance.
 
 ## Source and final consumer contracts
 - The same admitted signed Birth actual retains the receiving ABI: exact dynamic-i64 formal gets kind1 payload; pair formal retains tagged transport. Completed signed Uses domains project into the existing checked integer_view column without switching the function to finite-expression permission. Existing source/domain/use/image checks and C tag1/class/representation checks remain required.

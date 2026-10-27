@@ -466,43 +466,17 @@ selected_object_boundary_owner=<owner|none>
 selected_owner_confidence=<low|medium|high>
 ```
 
-## Task Order
+## Historical Pilot: Published Nested Object
 
-Use this order after the active array length helper owner refresh.
-
-```text
-1. MIMALLOC-POST-ARRAY-LEN-HELPER-OWNER-REFRESH-001
-   Classify remaining nyash_array_length_h handle registry / typed handle
-   residue after the borrowed-ready keeper.
-
-2. OBJECT-BOUNDARY-INVENTORY-001
-   Report Arc / HostHandle / runtime helper / Box method / dynamic route
-   boundaries in the object-lifecycle body. No implementation.
-
-3. OBJECT-STORAGE-PLAN-SSOT-001
-   Promote this boundary into the code-facing plan vocabulary and guard
-   surfaces. Still docs/report only unless a concrete owner is selected.
-
-4. EXACT-OBJECT-PLAN-SHADOW-001
-   Generate shadow exact-object candidates without changing execution.
-   Report accepted and rejected object storage plans.
-
-5. EXACT-OBJECT-PILOT-001
-   If shadow evidence is high confidence, lower one closed-world object front
-   through RoutePlan + ObjectStoragePlan. Product default remains unchanged.
-```
-
-## Current Refinement: Published Nested Object
-
-`EXACT-OBJECT-PILOT-001` selected
+The closed `EXACT-OBJECT-PILOT-001` experiment selected
 `HakoAllocObjectLifecycleAlignmentResult`, but the candidate is published
 through `HakoAllocObjectLifecycleFacade.alignment_result`.  The follow-up
 nested publication row proved that the nested handle does not escape and chose
 `flatten_nested_fields`.
 
-This does not mean the backend may special-case the benchmark.  It means the
-next implementation seam must be an explicit ObjectStoragePlan consumer for a
-published nested object.
+The experiment required an explicit ObjectStoragePlan consumer for a published
+nested object, never a backend benchmark special case. Its final no-keeper
+result below supersedes the intermediate implementation queue.
 
 ```text
 nested_owner=HakoAllocObjectLifecycleFacade.alignment_result
@@ -524,7 +498,7 @@ MIRBuilder:
 
 ObjectStoragePlan:
   records that Facade.alignment_result is represented as nested fields
-  owns fallback back to GenericBox when proof is missing
+  selects valid GenericBox before execution when exact proof is missing
 
 Backend / exact-AOT:
   consumes the plan and lowers field/method access to flattened fields
@@ -539,204 +513,45 @@ can still be unsafe for exact lowering when it is published through another
 object field, returned, stored in a dynamic collection, or passed to plugin /
 extern boundaries.
 
-## Flattened Nested Field Pilot Task Order
+## Post-acceptance representation tasks
 
-Use this sequence before claiming `EXACT-OBJECT-PILOT-001` success.
+Status: follow-up plan, not selected. This replaces the historical 715–727
+shadow/consumer/retry queue; the pilot's final result is the Closeout Decision
+below (route reached, no keeper). Intermediate route-unavailable observations
+are not current tasks. Current app selection and `finite_product_goal` stay
+unchanged; this plan adds no completion prerequisite to MirBuilder or selfhost.
+Reopening requires existing parked-lane gates and explicit owner selection.
 
-```text
-715. EXACT-OBJECT-PILOT-001R
-   Retry the pilot only through the selected nested publication plan.  If the
-   backend has no flattened-nested-field consumer, close as blocked and select
-   the layout seam instead of adding a local patch.
+Use unchanged `apps/binary-trees/main.hako` as the first candidate, never as a
+compiler name predicate. Each task connects the existing semantic plan through
+its production consumer; do not create a parallel planner, checker or card.
 
-716. EXACT-OBJECT-FLATTENED-NESTED-FIELD-LAYOUT-SSOT-001
-   Define how a field such as Facade.alignment_result expands to primitive
-   nested fields.  Own field naming, layout ids, fallback, and report
-   vocabulary.  No lowering change.
+| Order | Work in existing owners | Completion evidence |
+| --- | --- | --- |
+| 1. Reproduce | Select matching compiler/runtime artifacts and explicit backend/profile; reuse the fixed smoke. A stale archive is a build-input failure, not a source rejection. | Expected output/exit with no retry, timeout or skip; separate compile/link from execution. Record baseline before optimization. |
+| 2. Native representation | ObjectStoragePlan chooses a known layout; allocation, field get/set, call boundaries and destruction consume that same plan. | Unchanged app passes; hot `itemCheck` field access has direct loads, no slot-store lookup, global mutex or runtime field helper, including after inlining. Preserve necessary null/identity/lifetime checks. This does not require arena allocation. |
+| 3. Region and reclamation | Extend existing ownership/storage products with recursive result/field region relations and safe reclamation boundaries, only where semantics permit. | Constructor Fault and every exit discharge ownership; no escaped alias or external anchor outlives reset. Reclaim/reuse temporary trees at the actual iteration boundary; live memory does not accumulate with completed iterations. |
+| 4. Compare and retain | Reuse performance tooling with matched workload and optimized configurations; inspect generated operations as well as wall time and peak RSS. | Correct output and safety first, then measured time/RSS and baseline ratios. Retain only demonstrated improvements; remove replaced exclusive paths in the same series. No promised Goose/C++/Rust multiplier. |
 
-717. EXACT-OBJECT-FLATTENED-NESTED-FIELD-SHADOW-001
-   Produce a shadow layout report for the object-lifecycle front:
-   flattened_nested_field_count, rewritten_get_candidate_count,
-   rewritten_set_candidate_count, and fallback reasons.  No execution change.
+Region task constraints:
 
-718. EXACT-OBJECT-FLATTENED-NESTED-FIELD-BACKEND-SEAM-001
-   Add the exact-AOT backend seam that can consume the shadow plan.  This row
-   may add passive lowering helpers, but keeps the feature disabled and must
-   prove product_default_changed=0.
-
-719. EXACT-OBJECT-PILOT-001S
-   Retry the guarded pilot after the backend seam exists.  If field access and
-   nested method calls cannot share the same flattened state yet, close as
-   blocked and select the state-sharing seam instead of enabling lowering.
-
-720. EXACT-OBJECT-FLATTENED-NESTED-FIELD-STATE-SEAM-001
-   Define the backend state-sharing seam so the owner field set, owner field
-   gets, and nested method calls all refer to the same flattened nested field
-   state.  No field access or method lowering route is enabled here.
-
-721. EXACT-OBJECT-PILOT-001T
-   Re-run the pilot preflight after the state seam exists.  This row may select
-   the next narrow route-wiring row, but still must not enable backend lowering
-   unless field access and method-call consumers are both explicitly routed.
-
-722. EXACT-OBJECT-FLATTENED-NESTED-FIELD-ROUTE-WIRING-001
-   Wire field access and direct nested method calls to the passive state seam.
-   Keep backend lowering disabled until the guard proves that both read and
-   write candidates resolve through the same ObjectStoragePlan state.
-
-723. EXACT-OBJECT-PILOT-001U
-   Enable the first guarded exact-object pilot for the selected closed-world
-   front only if the state seam and route wiring are green.  Acceptance requires
-   no MIRBuilder object management, no benchmark/helper branches, generic
-   fallback still available, and product default unchanged.
-
-724. EXACT-OBJECT-PILOT-MEASUREMENT-001
-   Measure the pilot.  Claim only exact-AOT product-route evidence.  Do not
-   generalize to product NyRT default or global Arc retirement.
-
-725. EXACT-OBJECT-PILOT-EFFECT-ATTRIBUTION-001
-   Attribute whether the enabled pilot actually reached generated exact-AOT
-   artifacts.  If the route does not appear in generated IR / object evidence,
-   do not tune performance; select a backend reachability row.
-
-726. EXACT-OBJECT-FLATTENED-NESTED-FIELD-BACKEND-REACHABILITY-001
-   Make the flattened nested field route observable in the backend route used
-   by the measured exact-EXE path.  The current evidence says Python
-   `src/llvm_py` seams are not the measurement owner; `ny-llvmc`'s default
-   boundary driver is.
-
-727. EXACT-OBJECT-FLATTENED-NESTED-FIELD-PLAN-EXPORT-001
-   Publish the selected flattened nested ObjectStoragePlan into MIR JSON before
-   adding the C ABI boundary consumer.  This prevents the boundary shim from
-   inferring representation from Box names, field names, method names, helper
-   names, or benchmark names.
-```
-
-If 716 or 717 finds a missing proof, keep the pilot blocked.  The correct next
-task is another proof row, not a backend shortcut.
-
-## Active Backend Reachability Finding
-
-`EXACT-OBJECT-PILOT-MEASUREMENT-001` did not produce a win:
-
-```text
-body_elapsed_ratio_before=112.969
-body_elapsed_ratio_after=114.326
-winner_claim=0
-```
-
-`EXACT-OBJECT-PILOT-EFFECT-ATTRIBUTION-001` then showed that the enabled route
-did not reach generated exact-AOT artifacts:
-
-```text
-flattened_nested_route_reached=0
-generated_ir_contains_synthetic_nested_fields=0
-alignment_result.last_requested_count=0
-alignment_result.last_normalized_count=0
-alignment_result.last_reason_count=0
-alignment_result.last_supported_count=0
-selected_owner=backend_route_reachability
-```
-
-The first reachability attempt updated the Python llvmlite backend seam, but
-the measured exact-EXE route uses `ny-llvmc`'s default boundary driver.
-
-```text
-python_llvmlite_route_updated=1
-measured_exact_exe_driver=ny_llvmc_boundary
-python_route_is_measurement_owner=0
-boundary_driver_flattened_nested_consumer=0
-selected_owner=ny_llvmc_boundary_driver_reachability
-```
-
-Therefore the active row must not continue patching Python as the measurement
-fix.  The first clean next step is to export the selected ObjectStoragePlan into
-MIR JSON:
-
-```text
-EXACT-OBJECT-FLATTENED-NESTED-FIELD-PLAN-EXPORT-001:
-  object_storage_plan_mir_json_export_enabled=1
-  backend_lowering_enabled=0
-  boundary_driver_flattened_nested_consumer=0
-```
-
-Only after that export exists may the boundary driver consume it:
-
-```text
-EXACT-OBJECT-FLATTENED-NESTED-FIELD-BOUNDARY-CONSUMER-001:
-  boundary_driver_flattened_nested_consumer=1
-  uses_object_storage_plan_metadata=1
-  benchmark_name_branch_count=0
-  helper_name_branch_count=0
-```
-
-## Current Task Queue
-
-The active exact-object lane has passed the representation-publication stage.
-Do not treat the previous Python backend seam as the measured owner; the
-measured exact-EXE route is the `ny-llvmc` boundary C ABI shim.
-
-```text
-1. EXACT-OBJECT-FLATTENED-NESTED-FIELD-PLAN-EXPORT-001
-   Landed.  ObjectStoragePlan metadata is exported into MIR JSON as a read-only
-   plan surface:
-     object_storage_plan_mir_json_export_enabled=1
-     backend_lowering_enabled=0
-     boundary_driver_flattened_nested_consumer=0
-     mirbuilder_object_management_enabled=0
-
-2. EXACT-OBJECT-FLATTENED-NESTED-FIELD-BOUNDARY-CONSUMER-001
-   Active.
-   Teach the ny-llvmc boundary C ABI shim to consume the exported plan.
-   The consumer must key from ObjectStoragePlan metadata, not from benchmark,
-   helper, or source-file names.
-
-   Required work:
-     field_access_lowering_connected=1
-     nested_method_lowering_connected=1
-     generated_artifact_reachability_proven=1
-
-   Allowed method-name use:
-     only after the receiver is proven to be the ObjectStoragePlan-provided
-     flattened nested view.  Method names may select the semantic nested view
-     operation, but must not infer that the object is flattened.
-
-3. EXACT-OBJECT-PILOT-001V
-   Retry the guarded exact-object pilot after the measured boundary route can
-   consume the plan.  This row may claim reachability only if generated
-   artifacts contain the flattened nested field route.
-
-4. EXACT-OBJECT-PILOT-MEASUREMENT-002
-   Landed.  The product exact-AOT route was measured after reachability was
-   proven:
-     body_elapsed_ratio_before=114.326
-     body_elapsed_ratio_after=117.038
-     winner_claim=0
-
-5. EXACT-OBJECT-PILOT-CLOSEOUT-001
-   Landed.  Close the first exact-object pilot as a no-keeper boundary
-   experiment:
-     object_storage_plan_route_reached=1
-     keeper_claim=0
-     global_arc_retirement_claim=0
-     global_host_handle_retirement_claim=0
-     mirbuilder_object_management_enabled=0
-     selected_next=MIMALLOC-BODY-TIMING-FRESH-OWNER-SELECTION-002
-```
-
-If task 2 cannot consume the exported plan without adding representation
-decisions to MIRBuilder, stop the lane and update this SSOT.  The correct fix is
-another backend plan-consumer seam, not MIRBuilder object management.
-
-A diagnostic route switch to Python remains possible, but it must be explicit
-and report-visible:
-
-```text
-exact_object_pilot_route=python_llvmlite_diagnostic
-route_switch_explicit=1
-product_default_changed=0
-winner_claim=0
-```
+- `make()` returns recursively allocated children to its caller. A local
+  noescape bit cannot prove caller/result region membership by itself.
+- `iterationCheck()` constructs two trees per loop iteration. A function-wide
+  arena that retains all iterations is not the target. `long_lived_tree` is
+  last read immediately after construction in this source; its name does not
+  prove the same lifetime workload as another benchmark.
+- Noescape alone does not allow delayed destruction: preserve fini order,
+  Normal/Fault/Return cleanup, partial construction, owning/borrowed fields,
+  external resources, weak/lease and observable identity. Start with proved
+  eligible objects; do not redefine source lifetime to fit the optimization.
+- Contiguous placement, bulk reclamation and 32-bit offsets are independent
+  choices. Offset compression additionally needs bounds, alignment, null
+  encoding, overflow and growth/reference-stability proofs; it is not required
+  for the native-field milestone.
+- An optimization proof miss may select an already valid GenericBox plan
+  before execution, with a reason. It is not a semantic error or permission
+  for retry. A native-only profile reports its unmet requirement explicitly.
 
 ## Stop Line
 

@@ -42,6 +42,29 @@ to measure after the compiler, standard library, tooling, and selfhost corpus
 are real; it is not a claim that an AI will always prefer Hakorune or that
 grammar simplicity alone is sufficient.
 
+## Ordinary source and predictable performance
+
+The product hypothesis is ordinary source whose supported behavior is
+predictable, with native representation and safe region reuse inferred where
+proved. Shorter syntax in one example is not demonstrated usability or a
+performance win. Users must be able to identify the supported executable
+subset, reproduce its examples, and understand a failure at its source site.
+
+Keep three outcomes distinct: a semantic violation; an unsupported compiler
+or profile capability; and a missed optimization with an otherwise valid
+implementation. Only report an escaping value/destination when actually
+proved; do not describe missing compiler support as a source ownership error.
+Human diagnostics explain the cause in one line plus source location, retaining
+structured detail for tools. Suggest only implemented, semantically valid repairs.
+
+Current priority remains the selected app and all existing finite-product
+completion conditions. Subsequent representation work follows the
+[ObjectStoragePlan tasks](object-storage-plan-boundary-ssot.md#post-acceptance-representation-tasks):
+reproducible EXE, native field operations, separately proved region reclamation,
+then comparable wall/RSS results. No new language surface or ownership-model
+replacement is selected by this performance hypothesis. A comparison cannot
+activate a parked lane or add another mandatory gate to the current goal.
+
 ## Success model
 
 ```text

@@ -242,6 +242,16 @@ cycle / instruction / IPC の読みは先に固定する。
 
 ## Probe Contract
 
+Comparisons bind compiler revision, runtime archive, backend/profile and build
+options as one compatible configuration; build once per configuration and reuse
+it. Record input, output/exit, repetitions and environment. Separate compile/link
+from timed execution; include construction and teardown when comparing whole
+programs. Match work, lifetimes and optimization settings before comparing
+wall time and peak RSS across languages on the same host. Published ratios from
+other hosts are context, not acceptance thresholds. Native code shape and a
+measured performance improvement are separate claims. Baseline measurement
+may precede native lowering; it does not establish a language-design winner.
+
 1 仮説 = 1 owner family = 1 seam = 1 commit で進める。
 
 probe 前に、keeper / revert 条件を先に書く。
