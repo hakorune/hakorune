@@ -44,6 +44,20 @@ pub(in crate::mir) enum SourceValueAlternativeV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
 impl SourceValueSumV1 {
+    /// A closed nominal source may include null but must contain one class.
+    /// This is a value-class fact, not a live or non-null read permission.
+    pub(in crate::mir) fn nullable_object_class_v1(&self) -> Option<(&str, bool)> {
+        Self::nullable_object_alternatives_v1(&self.0)
+    }
+    fn nullable_object_alternatives_v1(values: &BTreeSet<SourceValueAlternativeV1>) -> Option<(&str, bool)> {
+        let class = values.iter().find_map(|value| match value {
+            SourceValueAlternativeV1::Object(name) => Some(name.as_ref()),
+            _ => None,
+        })?;
+        values.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
+            || matches!(value, SourceValueAlternativeV1::Object(actual) if actual.as_ref() == class))
+            .then_some((class, values.contains(&SourceValueAlternativeV1::Null)))
+    }
     pub(in crate::mir) fn object_class_v1(&self) -> Option<&str> {
         if self.0.len() != 1 { return None; }
         match self.0.first()? {
@@ -167,14 +181,16 @@ impl OriginalSourceSumsV1 {
     pub(super) fn field_object_projection_v1(&self, source: &Rc<FieldSource>) -> FormalActualSeedV1 {
         let Some((original, sum)) = self.fields.get(&source.field()) else { return FormalActualSeedV1::Conflict; };
         if !Rc::ptr_eq(original, source) { return FormalActualSeedV1::Conflict; }
-        let mut class = None;
+        if sum.nullable_object_class_v1().is_none()
+            && !(sum.alternatives().len() == 1
+                && sum.alternatives().contains(&SourceValueAlternativeV1::Null)) {
+            return FormalActualSeedV1::Conflict;
+        }
         let mut alternatives = Vec::new();
         for value in sum.alternatives() {
             match value {
                 SourceValueAlternativeV1::Null => alternatives.push(FormalActualSeedV1::Null),
                 SourceValueAlternativeV1::Object(name) => {
-                    if class.is_some_and(|original| original != name.as_ref()) { return FormalActualSeedV1::Conflict; }
-                    class = Some(name.as_ref());
                     alternatives.push(FormalActualSeedV1::Class(name.clone()));
                 }
                 _ => return FormalActualSeedV1::Conflict,
@@ -197,10 +213,7 @@ impl OriginalSourceSumsV1 {
             let Some((_, class)) = matches.next() else { continue; };
             let primitive = class.len() == 1 && class.iter().all(|value| matches!(value,
                 SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Bool | SourceValueAlternativeV1::Text));
-            let nominal = class.iter().find_map(|value| match value {
-                SourceValueAlternativeV1::Object(name) => Some(name), _ => None,
-            }).is_some_and(|name| class.iter().all(|value| matches!(value, SourceValueAlternativeV1::Null)
-                || matches!(value, SourceValueAlternativeV1::Object(actual) if actual == name)));
+            let nominal = SourceValueSumV1::nullable_object_alternatives_v1(class).is_some();
             if matches.next().is_some() || !(primitive || nominal) { return false; }
             // One complete original result cohort, including its Null exits.
             node.atoms.extend(class.iter().cloned());
