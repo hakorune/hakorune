@@ -457,6 +457,24 @@ pub(super) fn resolve_original_source_sums_v1(
         let union = seeds.iter().map(|seed| graph.seed(seed)).collect();
         graph.nodes[node] = Node { union, invalid: seeds.is_empty(), ..Node::default() };
     }
+    // A Core-method text operand can keep only its formal dependency, whose node
+    // carries no source when the formal itself is unregistered or unfounded.
+    // OR in the SAME completed flow read at that exact argument site.
+    let core_requests = graph.core_requests.clone();
+    for request in &core_requests {
+        let owner = request.method.owner();
+        let Some(flow) = flows.get(&owner).filter(|flow| flow.is_complete()) else { continue };
+        if flow.owner() != owner { continue; }
+        for (ordinal, node) in request.text.iter().enumerate() {
+            let Some(argument) = request.method.arguments().get(ordinal) else { continue };
+            let Some((binding, value)) = flow.read_at(argument.site()) else { continue };
+            if binding.owner() != owner { continue; }
+            let point = graph.point(owner, value);
+            if point != *node && !graph.nodes[*node].union.contains(&point) {
+                graph.nodes[*node].union.push(point);
+            }
+        }
+    }
     if let Some(error) = graph.expansion_error.take() {
         return Err(error);
     }
