@@ -77,7 +77,7 @@ original resolver + source value flow + existing Home/call contracts
 - これで停止点が前進: `BoxTorrentStore.allocatorBlocks/0` の `callable-scalar/return-type-mismatch`（expected Integer / returns Unknown）。次はこの Integer return 推論。
 - 残: map-field read の emission/interval（`EmittedReadArgumentV1` は MapField を kind-drift で拒否）＝タスク4後半。今回の admission だけではEXEに届かない。
 - 新停止の切り分け: `allocatorBlocks` は**borrowed walkが走っていない**（`borrowed_terminal_arguments_v1` が owner56 で一度も呼ばれない）。よって zero-arg stored-child の Ready I64 row を terminal 経由で使う案は現状のownerでは到達不能。標準laneの `UnknownBox.outstandingBlocks/0` signature missが直接原因。
-- 次: 既存 evidence のどちらか一方だけを接続する。(i) walk trigger 側で「zero-arg `return me.<owned child>.m()` が Ready I64 row を持つ」を既存 trigger に含める（borrowed result owner が型を発行）、(ii) 標準laneのcallee解決で owned-child/field-write claim の一意classを読む（claim ownerの再導出はしない）。wall時は (i) を優先。
+- 追加判明: owner56 には lexical target row が**既に在る**（call site `[Body(0), Value]`、stored_receiver=true、uses_existing_borrowed_result=true、result cohort も在り）。したがって `has_stored_terminal_v1` の入力側は揃っており、欠けているのは **zero-arg stored-child scalar return の terminal relation が発行されない**点（`borrowed_terminal_arguments_v1` が owner56 で一度も呼ばれない）。次は `home_new_prefix_terminal` 側でこの形に terminal を発行し、既存の borrowed result owner に型を出させる（walk trigger 追加や標準laneの型付けは採らない）。
 - 直近suite: **9/11**（`--timeout 420`、mimalloc PASS 242s、FAILは json / boxtorrent、SKIP/timeoutなし）。
 
 ## 検証・整理
