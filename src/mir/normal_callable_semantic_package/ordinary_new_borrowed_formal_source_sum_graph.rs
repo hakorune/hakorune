@@ -370,6 +370,75 @@ impl Graph<'_> {
     }
 }
 
+/// The first operand premise of a Core request whose dependency sum does not
+/// satisfy the operand contract. `None` means every premise is closed.
+#[derive(Debug)]
+enum OpenPremise {
+    Text(usize),
+    I64(usize),
+}
+
+fn first_open_premise(
+    request: &CoreRequestNode,
+    values: &[Option<SourceValueSumV1>],
+) -> Option<OpenPremise> {
+    let dynamic_integer_boundary = request.request.manifest().row().op
+        == crate::mir::core_method_op::CoreMethodOp::StringSubstring;
+    let open_text = request.text.iter().position(|dependency| {
+        !values[*dependency].as_ref().is_some_and(SourceValueSumV1::text_only)
+    });
+    let open_i64 = || {
+        request.i64.iter().position(|dependency| {
+            !values[*dependency].as_ref().is_some_and(|sum| {
+                sum.signed_only() || (dynamic_integer_boundary && sum.tagged_dynamic_only())
+            })
+        })
+    };
+    open_text.map(OpenPremise::Text).or_else(|| open_i64().map(OpenPremise::I64))
+}
+
+/// Default-off diagnostic (builder debug flag): names the open premise and walks
+/// its dependency tree, so a mixed sum shows which node contributes each alternative.
+fn explain_open_premise(
+    nodes: &[Node],
+    formal_nodes: &BTreeMap<BindingRefV1, usize>,
+    values: &[Option<SourceValueSumV1>],
+    request: &CoreRequestNode,
+    open: &OpenPremise,
+) {
+    if !crate::config::env::builder_debug_enabled() {
+        return;
+    }
+    let dependency = match open {
+        OpenPremise::Text(ordinal) => request.text[*ordinal],
+        OpenPremise::I64(ordinal) => request.i64[*ordinal],
+    };
+    eprintln!(
+        "[source-sum] open premise {open:?} op={:?} owner={:?} site={:?}",
+        request.request.manifest().row().op,
+        request.method.owner(),
+        request.method.site(),
+    );
+    let mut visited = BTreeSet::new();
+    let mut pending = vec![(dependency, 0usize)];
+    while let Some((node, depth)) = pending.pop() {
+        if depth > 8 || !visited.insert(node) {
+            continue;
+        }
+        let formal = formal_nodes.iter().find(|(_, index)| **index == node).map(|(binding, _)| binding);
+        let row = &nodes[node];
+        eprintln!(
+            "[source-sum] {:indent$}node {node} sum={:?} own_atoms={:?} invalid={} formal={formal:?}",
+            "",
+            values[node],
+            row.atoms,
+            row.invalid,
+            indent = depth * 2,
+        );
+        pending.extend(row.union.iter().rev().map(|next| (*next, depth + 1)));
+    }
+}
+
 pub(super) fn project_graph_v1(
     nodes: &[Node],
     point_nodes: &BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), usize>,
@@ -391,17 +460,11 @@ pub(super) fn project_graph_v1(
             .filter(|source| source.is_dynamic_get())
             .and_then(|source| array_fields.get(&source.field()))
             .is_none_or(|element| nodes.get(request.node).is_some_and(|node| node.union.contains(element)));
-        let dynamic_integer_boundary = request.request.manifest().row().op
-            == crate::mir::core_method_op::CoreMethodOp::StringSubstring;
-        let premises_closed = request.text.iter().all(|dependency| {
-            values[*dependency]
-                .as_ref()
-                .is_some_and(SourceValueSumV1::text_only)
-        }) && request.i64.iter().all(|dependency| {
-            values[*dependency].as_ref().is_some_and(|sum| {
-                sum.signed_only() || (dynamic_integer_boundary && sum.tagged_dynamic_only())
-            })
-        });
+        let open_premise = first_open_premise(&request, &values);
+        if let Some(open) = &open_premise {
+            explain_open_premise(nodes, formal_nodes, &values, &request, open);
+        }
+        let premises_closed = open_premise.is_none();
         let receiver_core = request.receiver_core.as_ref().and_then(|method|
             core_calls.get(&OwnedExprSiteV1::new(method.owner(), method.site().clone()))
                 .and_then(Option::as_ref)

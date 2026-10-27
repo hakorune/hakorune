@@ -2,11 +2,13 @@
 Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
-## Current stop (advanced 2026-10-28; substring premises measured)
-- For `JsonLine.find`'s `text.substring(i, i+m)`, the core request `StringSubstring` has result SUM `{Text}` and **text dependency SUM `{Text, TaggedDynamic}`**, so `premises_closed` is false (needs `text_only`). The mixed alternative is the remaining blocker; next is to find where `TaggedDynamic` enters that dependency (the untyped OpaqueHandle default vs the flow point) and drop it only when the same formal's original census is Text-only.
-
-## Previous stop (advanced 2026-10-28)
-- `statsFor` now closes: the core text operand takes the same completed flow read at its argument site (`graph.point` OR), committed `b0f9b5103e`. New stop: `JsonLine.find` `[Body(4), LoopBody(0), IfCondition]` -> `borrowed-static/source-actual-unavailable`, actual = `MethodCall(text.substring(i, i+m))` at a nested call site, formal `OpaqueHandle`. The static lane already selects the call (`core_source`/`sibling_source`), but the per-actual source for that nested MethodCall is not produced.
+## Current stop (2026-10-28, measured)
+- The stop is **not** `JsonLine.find`. It is owner slot 15 = imported `StringHelpers.skip_ws(src, i)` (`lang/src/shared/common/string_helpers.hako:194`), `me.is_space(s.substring(j, j+1))` at `[Body(4), LoopBody(0), IfCondition]`. The JSON app never calls `skip_ws`; `using ... as StringHelpers` compiles the whole static box, and no incoming row targets slot 15.
+- Its untyped formals therefore take the no-incoming default `TaggedDynamic`; the flow-point OR (`b0f9b5103e`) adds `{Text}`, so the `substring` text dependency is `{Text, TaggedDynamic}` and `text_only` fails. `find` itself has rows (callers slots 19/20/21/27, 3 actuals) and is not the blocker.
+- Other uncalled StringHelpers methods (`trim`, `starts_with`, `index_of`, `last_index_of`, ...) use `.substring`/`.length` on untyped formals the same way, so fixing `skip_ws` alone would only move the stop.
+- Open contract (decide here): an untyped formal with no caller (library method the app never references). Either (a) compile only callables reachable from the entry's static call closure, or (b) keep validating every declared method (see `ordinary_new_borrowed_formal_result_unit.rs:116`) and accept a runtime-checked Dynamic text operand. Not decided; do not widen `text_only` to admit `TaggedDynamic`.
+- Diagnostics (default off, `NYASH_BUILDER_DEBUG`): `[source-sum] open premise ...` walks the dependency tree; `[source-sum] untyped formal ... defaulting to TaggedDynamic`; `[source-sum] incoming row ...`. Repro: `hakorune --backend mir --emit-exe X --emit-exe-nyrt target/quick apps/json-stream-aggregator/main.hako` with the smoke's env.
+- Landed diagnostics are src +80/−11 (net +69): `first_open_premise` replaces the inline `premises_closed` boolean (same result), the walk/census print are default-off. No old function retired; the walk is the replacement for throwaway probes. Verified: `quick-build-fast`, solver tests 2/2; `source_graph_instance_forward…` fails identically on the base revision.
 
 ## Earlier stop (2026-10-28, before the core-operand fix)
 - Selected row resumed. Explicit binary `target/quick/hakorune` + `target/quick` runtime: smoke stops at **MIR compile**, not runtime: `[freeze:contract][ordinary-new/object-return/callee-exit]: TerminalNotCovered`.

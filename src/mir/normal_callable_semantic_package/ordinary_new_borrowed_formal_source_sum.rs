@@ -419,6 +419,9 @@ pub(super) fn resolve_original_source_sums_v1(
         }
     }
     for row in &source.rows {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[source-sum] incoming row call={:?} callee={:?} formals={:?} seeds={}", row.incoming.call, row.incoming.callee, row.incoming.arguments.iter().map(|(ordinal, _, formal)| (*ordinal, formal.binding())).collect::<Vec<_>>(), row.seeds.len());
+        }
         for ((_, _, formal), seed) in row.incoming.arguments.iter().zip(&row.seeds) {
             graph.actual(*formal, Some(seed));
         }
@@ -492,6 +495,9 @@ pub(super) fn resolve_original_source_sums_v1(
                         && formal.kind == CallableParameterContractKindV1::OpaqueHandle
                 });
             if untyped {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[source-sum] untyped formal {binding:?} has no incoming row; defaulting to TaggedDynamic");
+                }
                 row.atoms.insert(SourceValueAlternativeV1::TaggedDynamic);
                 row.unconditional = true;
             } else {
