@@ -428,6 +428,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         )??;
         array_field_roots.entry(field).or_default().push(seed);
     }
+    let complete_push_fields = fields.map(|claims|
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::container_field_uses::full_batch_push_fields_v1(
+            batch, selected, constructors, claims, array_field_push_candidates)).unwrap_or_default();
+    for (field, seeds) in &mut array_field_roots {
+        if !complete_push_fields.contains(field) { seeds.push(OriginalFormalActualSeedV1::Conflict); }
+    }
     let mut seen_array_gets = BTreeSet::new();
     for candidate in array_field_get_candidates {
         let call = candidate.call();

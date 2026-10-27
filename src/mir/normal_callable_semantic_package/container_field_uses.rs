@@ -121,8 +121,10 @@ fn method_aliases(
         }
     }
     for binding in duplicate {
-        if let Some(field) = aliases.remove(&binding) {
-            census.entry(field).or_default().vetoed = true;
+        if aliases.remove(&binding).is_some() {
+            // A single binding attributed to more than one field cannot
+            // safely retain any field in this batched observation.
+            for field in fields { census.entry(field.clone()).or_default().vetoed = true; }
         }
     }
     for source in shape.assignment_sources() {
@@ -272,7 +274,18 @@ pub(super) fn capture_box_field_v1(
     field: &str,
 ) -> Option<FieldUseCensusV1> {
     let tracked = BTreeSet::from([Box::<str>::from(field)]);
-    let mut census = BTreeMap::from([(Box::<str>::from(field), FieldUseCensusV1::default())]);
+    capture_box_fields_v1(batch, selected, birth, owner_class, &tracked)?.remove(field)
+}
+
+/// Observe several fields of the same owner in one source-batch walk.
+fn capture_box_fields_v1(
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    birth: Option<&super::VerifiedInstanceConstructorSemanticRowV1>,
+    owner_class: &str,
+    tracked: &BTreeSet<Box<str>>,
+) -> Option<BTreeMap<Box<str>, FieldUseCensusV1>> {
+    let mut census: BTreeMap<_, _> = tracked.iter().cloned().map(|field| (field, FieldUseCensusV1::default())).collect();
     let birth_owner = birth?.lowering_input(batch.source_ast()).ok()?.owner();
     let mut birth_seen = false;
     for declaration in batch.declarations() {
@@ -285,14 +298,63 @@ pub(super) fn capture_box_field_v1(
         birth_seen |= is_birth;
         batch.with_lowering_input(declaration.batch_slot(), |input| {
             let method = FieldUseMethodV1::Selected { slot: declaration.batch_slot(), is_birth };
-            capture_method_v1(input, method, &tracked, &mut census, own).ok()
+            capture_method_v1(input, method, tracked, &mut census, own).ok()
         }).ok()??;
     }
     if !birth_seen {
         let input = birth?.lowering_input(batch.source_ast()).ok()?;
-        capture_method_v1(input, FieldUseMethodV1::BirthRow, &tracked, &mut census, true).ok()?;
+        capture_method_v1(input, FieldUseMethodV1::BirthRow, tracked, &mut census, true).ok()?;
     }
-    census.remove(field)
+    Some(census)
+}
+
+/// Qualify selected push candidates against the original whole-batch field
+/// uses. The result grants no holder, call, Home or lifetime permission.
+pub(super) fn full_batch_push_fields_v1(
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
+    claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    candidates: &[super::array_i64_fields::ArrayFieldPushCandidateV1],
+) -> BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1> {
+    let candidate_fields: BTreeSet<_> = candidates.iter().map(|candidate| candidate.field()).collect();
+    let mut by_class: BTreeMap<&str, BTreeSet<Box<str>>> = BTreeMap::new();
+    for (class, name, source) in claims.value_sources() {
+        if source.as_ref().is_ok_and(|source| candidate_fields.contains(&source.field())) {
+            by_class.entry(class).or_default().insert(name.into());
+        }
+    }
+    let mut closed = BTreeSet::new();
+    for (class, names) in by_class {
+        let Ok(Some(owner)) = batch.ordinary_box_coverage().row_for(class) else { continue; };
+        let Ok(birth) = constructors.birth_row_for(owner) else { continue; };
+        let Some(uses) = capture_box_fields_v1(batch, selected, birth, class, &names) else { continue; };
+        for name in names {
+            let Some(Ok(source)) = claims.value_source(class, &name) else { continue; };
+            let field = source.field();
+            let Some(row) = uses.get(&name) else { continue; };
+            let writers: Vec<_> = source.writers().collect();
+            let Ok(Some(store)) = source.birth_store(constructors, 0) else { continue; };
+            if !source.same_inventory(claims) || writers.len() != 1 || !writers[0].in_birth()
+                || !matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
+                    object: None, class, .. } if class.as_ref() == "ArrayBox")
+                || row.vetoed || row.foreign || row.captured_receiver || row.stores.len() != 1
+                || !row.stores[0].0.is_birth() { continue; }
+            let expected: Vec<_> = candidates.iter().filter(|candidate| candidate.field() == field).collect();
+            let mut count = 0;
+            let complete = row.calls.iter().all(|(_, call)| match (call.selector(), call.arity()) {
+                ("push", 1) => {
+                    count += 1;
+                    call.arguments().len() == 1 && call.arguments()[0].ordinal() == 0
+                        && expected.iter().filter(|candidate| std::sync::Arc::ptr_eq(candidate.call(), call)).count() == 1
+                }
+                ("get", 1) | ("length", 0) | ("has", 1) => true,
+                _ => false,
+            });
+            if complete && count > 0 && count == expected.len() { closed.insert(field); }
+        }
+    }
+    closed
 }
 
 /// Normal payload class only. Slot lifetime, nonnull and executable reads
@@ -389,6 +451,22 @@ pub(super) fn original_payload_new_v1(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn push_field_requires_every_original_batch_push() {
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+            "box Page { init { values } birth() { me.values = new ArrayBox() } seed() { me.values.push(\"x\") me.values.push(\"y\") } read() { return me.values.get(0) } } static box Main { main() { return 0 } }"
+        ).unwrap();
+        let owner = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+        let candidates = super::super::array_i64_fields::issue_array_i64_fields_v1(
+            &package.selected, package.batch(), &package.instance_constructors, owner).unwrap().push_only_fields;
+        assert_eq!(candidates.len(), 2);
+        let field = candidates[0].field();
+        assert!(full_batch_push_fields_v1(package.batch(), &package.selected, &package.instance_constructors,
+            &package.ordinary_new_claim_ledger.field_write_claims, &candidates).contains(&field));
+        assert!(!full_batch_push_fields_v1(package.batch(), &package.selected, &package.instance_constructors,
+            &package.ordinary_new_claim_ledger.field_write_claims, &candidates[..1]).contains(&field));
+    }
 
     #[test]
     fn field_alias_capture_stays_visible_to_the_original_census() {
