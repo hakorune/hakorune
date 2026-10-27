@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-json-stream-aggregator"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "json-stream-aggregator: EXE no longer reaches the pinned runtime boundary in the fixed suite; boxtorrent-mini is parked at the terminal-relation lookup mismatch (card)"
+current_blocker_token = "json-stream-aggregator: MIR compile stop ordinary-new/object-return/callee-exit TerminalNotCovered at statsFor return me.stats.get(user) inside if (main.hako:108); boxtorrent parked on terminal-relation lookup"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -20,7 +20,7 @@ latest_card_summary = """
 APP-json-stream-aggregator selected; fixed suite still reports its EXE not reaching the pinned runtime boundary.
 boxtorrent-mini parked: zero-arg stored-child I64 relation is issued (demand_v1) but the emission-time lookup misses it.
 Suite 9/11 on the current tree (mimalloc PASS, FAIL json + boxtorrent, no SKIP/timeout).
-Next: reproduce the json boundary stop with an explicit binary and connect its first failing consumer.
+Next: cover the map-get object return exit inside statsFor's if (callee-exit TerminalNotCovered).
 """
 next_design_card = "none"
 next_design_card_path = "none"

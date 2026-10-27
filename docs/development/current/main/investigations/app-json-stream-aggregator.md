@@ -2,6 +2,11 @@
 Status: landed; source closure committed as `42289574b1`. Date: 2026-10-24
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
+## Current stop (2026-10-28, current tree)
+- Selected row resumed. Explicit binary `target/quick/hakorune` + `target/quick` runtime: smoke stops at **MIR compile**, not runtime: `[freeze:contract][ordinary-new/object-return/callee-exit]: TerminalNotCovered`.
+- First failure trace: callee owner slot 25 = `JsonStreamAggregator.statsFor`, exit `[Body(0), IfThen(0)]` = `main.hako:108 return me.stats.get(user)` inside `if me.stats.has(user)` (app-relative lines 106-109). The callee's root-flow exit row for that explicit site is `Err(TerminalNotCovered)`, so the walk never covered that return.
+- Next: find why the map-get object return inside the `if` leaves that exit uncovered (map-get terminal coverage across the if boundary), then connect the existing owner. Fixed suite on this tree is 9/11 (mimalloc PASS; json and boxtorrent red).
+
 ## Current stop
 - Canonical JSON EXE smoke PASSes generation, execution and expected output/exit with the quick CLI, `target/quick` lifecycle archive and refreshed CFFI. The latest fixed suite with `--timeout 300` is 8/11 PASS: seven real EXEs plus the marker, with no timeout/SKIP. JSON (101.15s), mimalloc-lite (152.44s) and allocator-stress (184.82s) PASS through EXE execution. The remaining source compile failures are boxtorrent-mini (`ordinary-new/stored-child/receiver-unavailable`), binary-trees (`ordinary-new/borrowed-result/source-not-i64`) and typed-object-untyped-field-min (`array-holder/append-source: HolderEscape`). This is worktree evidence, not pure-HEAD or complete-goal evidence.
 - Existing `returned_wrapper_field_argument_reaches_published_call` PASSes with optimization off and on, including the latest broad cohort. `I64ResultArguments` rechecks original source-only instance arguments and the sealed I64 result before projecting `Scalar`; non-I64 results retain the source-only instance response.
