@@ -162,7 +162,11 @@ pub(super) fn capture_method_v1(
         for field in fields { census.entry(field.clone()).or_default().captured_receiver = true; }
     }
     let (aliases, alias_sites, me_aliases) = method_aliases(&ledger, shape, fields, census);
-    for (binding, field) in &aliases { census.entry(field.clone()).or_default().aliases.insert(*binding); }
+    for (binding, field) in &aliases {
+        let row = census.entry(field.clone()).or_default();
+        row.aliases.insert(*binding);
+        if !ledger.uncaptured_binding(*binding) { row.captured_receiver = true; }
+    }
     let mut store_sites: BTreeSet<SourceExprSiteV1> = BTreeSet::new();
     let mut receiver_sites: BTreeSet<SourceExprSiteV1> = BTreeSet::new();
     for source in shape.assignment_sources() {
@@ -380,4 +384,41 @@ pub(super) fn original_payload_new_v1(
             super::result_class_claim::sole_initializer_site(function, binding)?
         };
     function.expression_source().construction(&site).cloned()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn field_alias_capture_stays_visible_to_the_original_census() {
+        for (returned, captured) in [("ids", true), ("1", false)] {
+            let text = format!("box Page {{ init {{ values }} probe() {{ local ids = me.values
+                local f = fn() {{ return {returned} }} ids.push(\"x\") return 0 }} }}
+                static box Main {{ main() {{ return 0 }} }}");
+            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                &text, crate::parser::ParserBuildConfig::default()).unwrap();
+            let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", ||
+                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap());
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+                panic!("original source");
+            };
+            let mut resolver = crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1::new(71).unwrap();
+            let batch = crate::mir::callable_semantic_batch::issue_resolved_callable_semantic_batch_v1(
+                &mut resolver, source).unwrap();
+            let mut checked = 0;
+            for declaration in batch.declarations() {
+                batch.with_lowering_input(declaration.batch_slot(), |input| {
+                    if !input.function().method_calls().any(|(_, call)| call.selector() == "push") { return; }
+                    let fields = BTreeSet::from([Box::<str>::from("values")]);
+                    let mut census = BTreeMap::new();
+                    capture_method_v1(input, FieldUseMethodV1::Selected { slot: declaration.batch_slot(), is_birth: false },
+                        &fields, &mut census, true).unwrap();
+                    assert_eq!(census["values"].captured_receiver, captured, "return {returned}");
+                    checked += 1;
+                }).unwrap();
+            }
+            assert_eq!(checked, 1);
+        }
+    }
 }

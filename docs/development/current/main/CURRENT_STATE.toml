@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 APP-boxtorrent-mini; HakoAllocHeap.release input cohort remains uncompleted; no EXE.
 Qualified entry Object views require complete exact incoming actuals and independent class agreement; null guard remains.
-Fixed suite9/11 in630.472s (8realEXEs+marker), no timeout/SKIP or new red; before source-accessor refactor.
-Map source-identity refactor: focused Map tests3 PASS, CLI build88s PASS; selected smoke retains the same stop.
-Next: prove the exact Map slot remains live through intervening calls and the field argument; then connect checked nullable ReadActual.
+Fixed suite9/11 in613.774s (8realEXEs+marker), no timeout/SKIP or new red; alias fix and inactive loop WIP present.
+Field-use capture fix passes its focused source boundary; loop and field/guard checks also pass.
+Next: complete Array source reachability and slot lifetime, then connect the checked nullable ReadActual.
 """
 next_design_card = "none"
 next_design_card_path = "none"
