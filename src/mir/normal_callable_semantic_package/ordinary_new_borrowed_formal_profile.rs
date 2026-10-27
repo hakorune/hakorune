@@ -116,7 +116,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     field_write_claims: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
-    array_field_push_candidates: &[super::super::array_i64_fields::ArrayFieldPushCandidateV1],
+    array_field_write_candidates: &[super::super::array_i64_fields::ArrayFieldWriteCandidateV1],
     array_field_get_candidates: &[super::super::array_i64_fields::ArrayFieldGetCandidateV1],
     probe: &mut impl FnMut(
         crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1<'_>,
@@ -355,7 +355,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             &ordinary_callers, &definitions, Some(static_call_claims), &static_arguments,
             app_main, Some(needs), constructors,
             entry_home_loans, local_candidates, callable_result_classes, &guarded_actuals, array_i64_fields,
-            array_field_push_candidates, array_field_get_candidates, Some(field_write_claims),
+            array_field_write_candidates, array_field_get_candidates, Some(field_write_claims),
         )
     };
     let mut original_inventory = build_original_inventory(&needs);

@@ -42,11 +42,11 @@ use super::container_field_uses::{FieldUseCensusV1 as FieldCensusV1,
 pub(crate) use super::container_field_uses::is_self_receiver;
 
 #[derive(Debug, Clone)]
-pub(crate) struct ArrayFieldPushCandidateV1 {
+pub(crate) struct ArrayFieldWriteCandidateV1 {
     field: hakorune_mir_defs::CanonicalFieldRefV1,
     call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
 }
-impl ArrayFieldPushCandidateV1 {
+impl ArrayFieldWriteCandidateV1 {
     pub(crate) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
     pub(crate) fn call(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.call }
 }
@@ -64,8 +64,8 @@ impl ArrayFieldGetCandidateV1 {
 #[derive(Debug, Default)]
 pub(crate) struct ArrayFieldCensusV1 {
     pub(crate) integer_fields: BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
-    pub(crate) push_only_fields: Box<[ArrayFieldPushCandidateV1]>,
-    pub(crate) push_only_reads: Box<[ArrayFieldGetCandidateV1]>,
+    pub(crate) write_fields: Box<[ArrayFieldWriteCandidateV1]>,
+    pub(crate) field_reads: Box<[ArrayFieldGetCandidateV1]>,
 }
 
 const INTEGER_SOURCE_DEPTH: u32 = 8;
@@ -468,54 +468,51 @@ pub(crate) fn issue_array_i64_fields_v1(
         .filter_map(|field| canonical.get(field.as_ref()).copied())
         .collect();
 
-    // A text-content candidate is deliberately narrower than the general
-    // ArrayBox use census: every mutation must be push/1 and the field must
-    // have one exact birth provider with no escape or untracked use. The
-    // source SUM graph later proves each push argument is Text.
-    let mut push_only_fields = Vec::new();
-    let mut push_only_reads = Vec::new();
+    // Retain all writes for the source SUM graph. The field must have one
+    // exact birth provider and every use must be accounted for. Element
+    // classes are determined by the graph, not by this census.
+    let mut write_fields = Vec::new();
+    let mut field_reads = Vec::new();
     for (field, rows) in &census {
         let has_provider = provider_fields.contains(field);
         if !has_provider || rows.vetoed || rows.foreign || rows.captured_receiver || rows.calls.is_empty() {
             continue;
         }
-        let mut pushes = Vec::new();
+        let mut writes = Vec::new();
         let mut reads = Vec::new();
-        let mut set_seen = false;
         let mut unsupported = false;
         for (_, call) in &rows.calls {
             match (call.selector(), call.arity()) {
-                ("push", 1) => pushes.push(std::sync::Arc::clone(call)),
+                ("push", 1) | ("set", 2) => writes.push(std::sync::Arc::clone(call)),
                 ("get", 1) => reads.push(std::sync::Arc::clone(call)),
-                ("set", 2) => set_seen = true,
                 ("has", 1) | ("length", 0) => {}
                 _ => unsupported = true,
             }
         }
-        if set_seen || unsupported || pushes.is_empty() {
+        if unsupported || writes.is_empty() {
             continue;
         }
         let Some(canonical) = canonical.get(field.as_ref()).copied() else {
             continue;
         };
-        push_only_fields.extend(pushes.into_iter().map(|call| ArrayFieldPushCandidateV1 {
+        write_fields.extend(writes.into_iter().map(|call| ArrayFieldWriteCandidateV1 {
             field: canonical,
             call,
         }));
-        push_only_reads.extend(reads.into_iter().map(|call| ArrayFieldGetCandidateV1 {
+        field_reads.extend(reads.into_iter().map(|call| ArrayFieldGetCandidateV1 {
             field: canonical,
             call,
         }));
     }
-    push_only_fields.sort_by(|left, right| {
+    write_fields.sort_by(|left, right| {
         left.field.cmp(&right.field).then_with(|| left.call.site().cmp(right.call.site()))
     });
-    push_only_reads.sort_by(|left, right| {
+    field_reads.sort_by(|left, right| {
         left.field.cmp(&right.field).then_with(|| left.call.site().cmp(right.call.site()))
     });
     Ok(ArrayFieldCensusV1 {
         integer_fields,
-        push_only_fields: push_only_fields.into_boxed_slice(),
-        push_only_reads: push_only_reads.into_boxed_slice(),
+        write_fields: write_fields.into_boxed_slice(),
+        field_reads: field_reads.into_boxed_slice(),
     })
 }

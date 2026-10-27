@@ -25,7 +25,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     callable_result_classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     guarded_actuals: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
-    array_field_push_candidates: &[super::super::super::array_i64_fields::ArrayFieldPushCandidateV1],
+    array_field_write_candidates: &[super::super::super::array_i64_fields::ArrayFieldWriteCandidateV1],
     array_field_get_candidates: &[super::super::super::array_i64_fields::ArrayFieldGetCandidateV1],
     fields: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1>,
 ) -> Result<source_seeds::OriginalBorrowedFormalSourceV1, String> {
@@ -79,7 +79,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let seeds = source_seeds::prepare_original_formal_seeds_v1(
         batch, selected, entry_home_loans, constructors, callable_result_classes,
         local_candidates, contracts, definitions, &inventory, guarded_actuals, static_claims, array_i64_fields,
-        array_field_push_candidates, array_field_get_candidates,
+        array_field_write_candidates, array_field_get_candidates,
         app_main.map(|main| main.caller_source_ref_v1()), omitted, fields,
     )?;
     Ok(source_seeds::OriginalBorrowedFormalSourceV1 { inventory, seeds, array_sources })

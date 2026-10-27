@@ -142,7 +142,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         Box<str>,
         BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
     > = BTreeMap::new();
-    let mut array_field_push_candidates = Vec::new();
+    let mut array_field_write_candidates = Vec::new();
     let mut array_field_get_candidates = Vec::new();
     for box_source in batch.ordinary_box_coverage().rows() {
         let census = array_i64_fields::issue_array_i64_fields_v1(
@@ -154,8 +154,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         if !census.integer_fields.is_empty() {
             array_i64_field_sets.insert(box_source.name().into(), census.integer_fields);
         }
-        array_field_push_candidates.extend(census.push_only_fields.into_vec());
-        array_field_get_candidates.extend(census.push_only_reads.into_vec());
+        array_field_write_candidates.extend(census.write_fields.into_vec());
+        array_field_get_candidates.extend(census.field_reads.into_vec());
     }
     let (
         names,
@@ -180,7 +180,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &callable_result_classes,
         &field_residences,
         &array_i64_field_sets,
-        &array_field_push_candidates,
+        &array_field_write_candidates,
         &array_field_get_candidates,
         &mut owned_field_children,
     )?;

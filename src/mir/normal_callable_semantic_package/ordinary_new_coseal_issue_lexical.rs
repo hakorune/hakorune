@@ -984,7 +984,7 @@ pub(super) fn prepare_source_preflight_v1(
     callable_result_classes: &result_class_claim::OrdinaryNewResultClassClaimsV1,
     residences: &field_write_claim::OwnedFieldResidencesV1,
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
-    array_field_push_candidates: &[array_i64_fields::ArrayFieldPushCandidateV1],
+    array_field_write_candidates: &[array_i64_fields::ArrayFieldWriteCandidateV1],
     array_field_get_candidates: &[array_i64_fields::ArrayFieldGetCandidateV1],
     owned: &mut BTreeMap<hakorune_mir_defs::CanonicalObjectIdV1, Option<Box<[OwnedFieldChildV1]>>>,
 ) -> Result<
@@ -1036,7 +1036,7 @@ pub(super) fn prepare_source_preflight_v1(
             field_write_claims,
             callable_result_classes,
             array_i64_fields,
-            array_field_push_candidates,
+            array_field_write_candidates,
             array_field_get_candidates,
             &mut |caller, input, call| {
                 let Some(slot) = caller.declaration_slot() else {

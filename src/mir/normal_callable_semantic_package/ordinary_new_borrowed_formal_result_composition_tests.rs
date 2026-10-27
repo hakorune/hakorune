@@ -922,3 +922,24 @@ fn direct_map_receiver_numeric_writes_close_the_original_callee_effects() {
         assert_eq!(ledger.check_direct_map_numeric_effects_v1(&targets[0]).is_ok(), accepted);
     }
 }
+
+#[test]
+fn array_set_and_push_join_original_element_sources() {
+    use crate::mir::normal_callable_semantic_package::SourceValueAlternativeV1;
+    let source = "box Sink { birth() {} accept(value) { return 0 } }
+        box Page { init { values } birth() { me.values = new ArrayBox() }
+          seed() { me.values.push(\"x\") me.values.set(0, 7) }
+          read() { local sink = new Sink() local value = me.values.get(0) local out = sink.accept(value) return 0 } }
+        static box Main { main() { local page = new Page() page.seed() local out = page.read() return 0 } }";
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+    let contract = package.parameter_contracts.iter().find(|row| matches!(
+        package.selected.key_for_batch_slot(row.batch_slot),
+        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            if key.owner() == "Sink" && key.name() == "accept"
+    )).expect("original sink contract");
+    let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let sum = ingress.source_value_sum_v1(contract.parameters[0].binding).expect("closed original element sum");
+    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Text));
+    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::SignedI64));
+    assert!(sum.alternatives().contains(&SourceValueAlternativeV1::Null), "out-of-bounds remains nullable");
+}

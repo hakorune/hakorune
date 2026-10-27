@@ -308,14 +308,14 @@ fn capture_box_fields_v1(
     Some(census)
 }
 
-/// Qualify selected push candidates against the original whole-batch field
+/// Qualify selected write candidates against the original whole-batch field
 /// uses. The result grants no holder, call, Home or lifetime permission.
-pub(super) fn full_batch_push_fields_v1(
+pub(super) fn full_batch_write_fields_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
     claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-    candidates: &[super::array_i64_fields::ArrayFieldPushCandidateV1],
+    candidates: &[super::array_i64_fields::ArrayFieldWriteCandidateV1],
 ) -> BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1> {
     let candidate_fields: BTreeSet<_> = candidates.iter().map(|candidate| candidate.field()).collect();
     let mut by_class: BTreeMap<&str, BTreeSet<Box<str>>> = BTreeMap::new();
@@ -343,9 +343,10 @@ pub(super) fn full_batch_push_fields_v1(
             let expected: Vec<_> = candidates.iter().filter(|candidate| candidate.field() == field).collect();
             let mut count = 0;
             let complete = row.calls.iter().all(|(_, call)| match (call.selector(), call.arity()) {
-                ("push", 1) => {
+                ("push", 1) | ("set", 2) => {
                     count += 1;
-                    call.arguments().len() == 1 && call.arguments()[0].ordinal() == 0
+                    call.arguments().len() == call.arity() as usize
+                        && call.arguments().iter().enumerate().all(|(ordinal, argument)| argument.ordinal() as usize == ordinal)
                         && expected.iter().filter(|candidate| std::sync::Arc::ptr_eq(candidate.call(), call)).count() == 1
                 }
                 ("get", 1) | ("length", 0) | ("has", 1) => true,
@@ -453,19 +454,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn push_field_requires_every_original_batch_push() {
-        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
-            "box Page { init { values } birth() { me.values = new ArrayBox() } seed() { me.values.push(\"x\") me.values.push(\"y\") } read() { return me.values.get(0) } } static box Main { main() { return 0 } }"
-        ).unwrap();
-        let owner = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap();
-        let candidates = super::super::array_i64_fields::issue_array_i64_fields_v1(
-            &package.selected, package.batch(), &package.instance_constructors, owner).unwrap().push_only_fields;
-        assert_eq!(candidates.len(), 2);
-        let field = candidates[0].field();
-        assert!(full_batch_push_fields_v1(package.batch(), &package.selected, &package.instance_constructors,
-            &package.ordinary_new_claim_ledger.field_write_claims, &candidates).contains(&field));
-        assert!(!full_batch_push_fields_v1(package.batch(), &package.selected, &package.instance_constructors,
-            &package.ordinary_new_claim_ledger.field_write_claims, &candidates[..1]).contains(&field));
+    fn field_requires_every_original_batch_write() {
+        for writes in ["me.values.push(\"x\") me.values.push(\"y\")",
+            "me.values.push(\"x\") me.values.set(0, \"y\")"] {
+            let source = format!("box Page {{ init {{ values }} birth() {{ me.values = new ArrayBox() }} seed() {{ {writes} }} read() {{ return me.values.get(0) }} }} static box Main {{ main() {{ return 0 }} }}");
+            let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+            let owner = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+            let candidates = super::super::array_i64_fields::issue_array_i64_fields_v1(
+                &package.selected, package.batch(), &package.instance_constructors, owner).unwrap().write_fields;
+            assert_eq!(candidates.len(), 2);
+            let field = candidates[0].field();
+            assert!(full_batch_write_fields_v1(package.batch(), &package.selected, &package.instance_constructors,
+                &package.ordinary_new_claim_ledger.field_write_claims, &candidates).contains(&field));
+            assert!(!full_batch_write_fields_v1(package.batch(), &package.selected, &package.instance_constructors,
+                &package.ordinary_new_claim_ledger.field_write_claims, &candidates[..1]).contains(&field));
+        }
     }
 
     #[test]

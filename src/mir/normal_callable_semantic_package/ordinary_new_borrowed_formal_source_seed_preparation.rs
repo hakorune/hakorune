@@ -23,7 +23,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     guarded: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
     static_claims: Option<&crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1>,
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
-    array_field_push_candidates: &[super::super::super::super::array_i64_fields::ArrayFieldPushCandidateV1],
+    array_field_write_candidates: &[super::super::super::super::array_i64_fields::ArrayFieldWriteCandidateV1],
     array_field_get_candidates: &[super::super::super::super::array_i64_fields::ArrayFieldGetCandidateV1],
     app_main: Option<AppMainSourceRefV1<'_>>,
     omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
@@ -390,13 +390,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         hakorune_mir_defs::CanonicalFieldRefV1,
         Vec<OriginalFormalActualSeedV1>,
     >::new();
-    let mut seen_array_pushes = BTreeSet::new();
-    for candidate in array_field_push_candidates {
+    let mut seen_array_writes = BTreeSet::new();
+    for candidate in array_field_write_candidates {
         let call = candidate.call();
         let field = candidate.field();
-        if call.selector() != "push" || call.arity() != 1
-            || call.arguments().len() != 1 || call.arguments()[0].ordinal() != 0
-            || !seen_array_pushes.insert((field, OwnedExprSiteV1::new(call.owner(), call.site().clone())))
+        let value_ordinal = match (call.selector(), call.arity()) {
+            ("push", 1) => 0,
+            ("set", 2) => 1,
+            _ => return Err(freeze("source-sum/array-push-census")),
+        };
+        if call.arguments().len() != call.arity() as usize
+            || call.arguments().iter().enumerate().any(|(ordinal, argument)| argument.ordinal() as usize != ordinal)
+            || !seen_array_writes.insert((field, OwnedExprSiteV1::new(call.owner(), call.site().clone())))
         {
             return Err(freeze("source-sum/array-push-census"));
         }
@@ -421,18 +426,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
                 Ok(classify_original_actual_seed_in_scope(
                     input, batch, selected, results, input.owner(), local_candidates, receiver,
-                    definitions, contracts, call.arguments()[0].site(), None, Some(inventory),
+                    definitions, contracts, call.arguments()[value_ordinal].site(), None, Some(inventory),
                     source_context.as_ref(),
                 ))
             },
         )??;
         array_field_roots.entry(field).or_default().push(seed);
     }
-    let complete_push_fields = fields.map(|claims|
-        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::container_field_uses::full_batch_push_fields_v1(
-            batch, selected, constructors, claims, array_field_push_candidates)).unwrap_or_default();
+    let complete_write_fields = fields.map(|claims|
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::container_field_uses::full_batch_write_fields_v1(
+            batch, selected, constructors, claims, array_field_write_candidates)).unwrap_or_default();
     for (field, seeds) in &mut array_field_roots {
-        if !complete_push_fields.contains(field) { seeds.push(OriginalFormalActualSeedV1::Conflict); }
+        if !complete_write_fields.contains(field) { seeds.push(OriginalFormalActualSeedV1::Conflict); }
     }
     let mut seen_array_gets = BTreeSet::new();
     for candidate in array_field_get_candidates {
