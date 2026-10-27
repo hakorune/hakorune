@@ -136,6 +136,28 @@ immutable MIRとOnceCellで構造解析を再利用する既存例であり、�
 結合ではない。最初のfamily切替で実際の導線を確認し、未達を達成扱いしない。
 新しい定期checker・台帳・監査cardは作らない。正規化だけで性能改善を主張しない。
 
+## 読みやすさの整理タスク（2026-10-28、優先順）
+
+読み取りworker3人の結果（実行・build未確認、grep/目視）。目的は挙動を変えずに、
+src/mir の読みにくさを減らすこと。RULES §2のとおり現appに不要な全repo整理は選ばず、
+**現appが触るsource→SUM→loan経路のファイルに限り、そのappの実装と同じseriesで行う**。
+着地ごとに production行の純増減と消えた関数/closure名を報告する。新ファイル・新trait・新基盤は作らない。
+
+| 順 | 内容 | 場所（`normal_callable_semantic_package/`） | 見込み | リスク |
+| --- | --- | --- | --- | --- |
+| 1 | 「単一Text SUM」の手書き判定6か所を `SourceValueSumV1::text_only` に一本化。完全一致のclosure2つ（`..._static_source_actuals.rs:246-253,294-301`）と `..._argument_expression_lending.rs:373,505,562`、`..._initializer_text_source.rs:502` | 同左 | −30行 | 極低 |
+| 2 | 有限Text cohort判定の共通化（`static_source_actuals.rs:261-265` と `static_input_finish.rs:111-115`） | 同左 | −8行 | 低 |
+| 3 | `BorrowedFormalIngress{site,issue}` の `map_err` 反復（3ファイルで67か所）を、各ファイルの小関数1つへ | `formal_profile.rs`、`coseal_issue_lexical.rs`、`static_source_actuals.rs` | −60行 | 低 |
+| 4 | 長い型パス・fully qualified pathを `use`/`type` に（`source_sum.rs` の11引数、`graph.rs` の `SourceScalarKind::`） | `source_sum*.rs` | −16行、120字超の行を削減 | 低 |
+| 5 | solver `close` の「外部依存の値を引く」判定が`grounded`と`valid`の2passで重複。名前付き関数へ | `source_sum_solver.rs:104-130,191-230` | −35行 | 中（既存solver testが覆う） |
+| 6 | 「通常call引数か」の真偽判定3か所を `ordinary_new_borrowed_call_result_source.rs` の1関数へ（真偽だけ。errorパスは各所のまま） | `argument_expression_lifecycle.rs`、`..._lending.rs` | −15行 | 中 |
+| 7 | 巨大関数の分割: `borrowed_call_arguments_callback_v1`(約670行)、`prepare_instance_source_actuals_v1`(約520)、`construct_borrowed_call_actuals_v1`(約510)、`original_mixed_local_loan_v1`(約554)。葉のmatch armを名前付き関数へ。**そのappが実際にその関数を直すときだけ**、1関数ずつ | 各ファイル | 行数ほぼ不変、読む単位が短くなる | 中〜高（借用・所有境界が動く） |
+| 8 | `allow(dead_code)` 303か所（145が `compiler/module_registry.in.rs` と `builder.rs`）に理由・利用予定・再判断条件を付けるか削除。grep上のcaller-zeroで確定したdeadは0件。`method_candidates_tail` は有力だが `tools/checks/manifests/chronic_measurement_observations_v1.json` の更新が要る | 横断 | 不明 | 低（削除前に必ずcaller確認） |
+
+統合しない（調査で否定）: `borrowed_actual_source_atom_v1` の呼び出し側（目的が別）、`bind_original_argument_plans_v1` の再導出
+（独立検査としてScalar/SelfRooted/Home/ReceivedNullableの写像を持つ。再利用すると循環する）、`ordinary_core_source_v1` の2実装（型が別で約4行）。
+非test本体に無条件の `eprintln!` は見つからなかった（116か所は抜き取りでdebug gate内）。
+
 ## Remaining parked responsibilities
 
 過去の構造調査は再開許可ではない。次の未完責務を保持する。
