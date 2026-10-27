@@ -63,10 +63,14 @@ impl CheckedFieldArrayAccessSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn matches_original_call_v1(
         &self, input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> bool {
+        self.matches_original_call_base_v1(input)
+            && self.bounds.as_ref().is_none_or(|proof| proof.matches(input, self))
+    }
+    /// Original call identity without re-entering its optional bounds proof.
+    fn matches_original_call_base_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
         let Some(call) = input.function().method_call_source_v1(self.call.site()) else { return false; };
         if input.owner() != self.call.owner() || call.receiver_site() != self.receiver.site() { return false; }
         if self.receiver_root.owner() != input.owner() { return false; }
-        if self.bounds.as_ref().is_some_and(|proof| !proof.matches(input, self)) { return false; }
         if self.receiver_alias.is_none() && CanonicalArrayFieldReadSourceV1::original_receiver_v1(input, &self.receiver, self.field_name())
             .ok().flatten().is_none_or(|(_, binding)| binding != self.receiver_root) { return false; }
         if let Some(alias) = &self.receiver_alias {
