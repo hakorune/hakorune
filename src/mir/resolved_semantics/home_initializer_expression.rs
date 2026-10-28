@@ -148,7 +148,13 @@ impl CheckedInitializerExpressionFrameV1 {
         self.evaluation.root_class() == Leaf::Value(Class::I64)
     }
     pub(crate) fn is_text_residence(&self) -> bool {
-        self.evaluation.root_class() == Leaf::Value(Class::String) && self.evaluation.owned_text_root_node_v1().is_some()
+        self.evaluation.root_class() == Leaf::Value(Class::String)
+            && (self.evaluation.owned_text_root_node_v1().is_some()
+                || self.evaluation.text_snapshot_root_v1().is_some())
+    }
+    /// A Text-proven Array dynamic get is an owned carrier; the Local owns a Text snapshot of it.
+    pub(crate) fn materializes_root(&self) -> bool {
+        self.is_text_residence() && self.evaluation.owned_text_root_node_v1().is_none()
     }
     pub(crate) fn is_dynamic_invocation_result(&self) -> bool {
         self.evaluation.root_class() == Leaf::Value(Class::Dynamic)
@@ -372,8 +378,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     // child acquisitions still belong to the SAME ordered evaluation/cleanup.
     let owned_results =
         super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
-    if classes[0] == Leaf::Value(Class::String) && (!owned_results.contains(&0)
-        || cores.get(&0).is_some_and(|core| core.is_array_dynamic_get_v1())) {
+    if classes[0] == Leaf::Value(Class::String) && !owned_results.contains(&0) {
         return Ok(None);
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));

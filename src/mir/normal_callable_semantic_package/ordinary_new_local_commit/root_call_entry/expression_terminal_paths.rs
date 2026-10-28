@@ -1056,6 +1056,23 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        self.validate_local_continuation_with_purpose_v1(
+            context, function, finishing, entry, terminal, continuation, residence, inherited, None,
+        )
+    }
+    /// A Local that owns a Text snapshot of an owned carrier also carries the `Materialize` pair.
+    pub(in crate::mir) fn validate_local_continuation_with_purpose_v1(
+        &self,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        entry: &Binding,
+        terminal: &Binding,
+        continuation: &Binding,
+        residence: Option<&Binding>,
+        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
+        purpose_acquisition: Option<&[Binding; 2]>,
+    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_delimiters_v1(
             context,
             function,
@@ -1064,7 +1081,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             terminal,
             continuation,
         )?;
-        self.validate_paths_to_terminal(
+        self.validate_paths_with_policy(
             context,
             function,
             finishing,
@@ -1072,6 +1089,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             continuation,
             residence,
             inherited,
+            false,
+            None,
+            purpose_acquisition,
+            None,
         )
     }
     pub(in crate::mir) fn validate_dynamic_local_handoff_continuation_v1(

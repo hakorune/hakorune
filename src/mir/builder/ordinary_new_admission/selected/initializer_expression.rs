@@ -68,7 +68,8 @@ impl PendingEvaluatedInitializerV1 {
         let packet = Rc::new(EmittedInitializerExpressionProjectionV1::new(self.frame,
             receipt.initializer(), receipt.local(), receipt.copy().cloned(), expression.body.values,
             expression.body.calls, expression.body.dynamic_calls, expression.body.path_reads.into_values().collect(), expression.body.reference_reads,
-            expression.body.entry, self.terminal, self.continuation, self.loop_residency, expression.body.bindings, ledger, function)?);
+            expression.body.entry, self.terminal, self.continuation, self.loop_residency, expression.purpose_acquisition,
+            expression.body.bindings, ledger, function)?);
         ledger.prepare_initializer_expression_bindings(packet, bindings)?.commit()
     }
 }
@@ -101,6 +102,7 @@ pub(in crate::mir::builder) fn emit(
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings,
             consume_receiver, static_source, retained_argument_frames))?;
+    expression_value::materialize_text_root(builder, &mut expression, frame.materializes_root(), frame.evaluation())?;
     let (terminal, continuation) = if frame.is_dynamic_invocation_result() {
         expression_value::finish_dynamic_initializer_continuation(builder, &mut expression)?
     } else if frame.is_dynamic_alias() {

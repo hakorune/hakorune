@@ -56,6 +56,8 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     continuation: Binding,
     loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         Vec<crate::mir::builder::BindingValueObservationV2>)>,
+    /// The `Materialize` pair when the Local owns a Text snapshot of an owned carrier.
+    purpose_acquisition: Option<[Binding; 2]>,
     original: Vec<Binding>,
 }
 impl EmittedInitializerExpressionProjectionV1 {
@@ -237,6 +239,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         continuation: Binding,
         loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
             Vec<crate::mir::builder::BindingValueObservationV2>)>,
+        purpose_acquisition: Option<[Binding; 2]>,
         original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
@@ -260,6 +263,7 @@ impl EmittedInitializerExpressionProjectionV1 {
             terminal,
             continuation,
             loop_residency,
+            purpose_acquisition,
             original,
         };
         packet.validate_source(CallValidationContextV1::Lowering(ledger))?;
@@ -268,6 +272,9 @@ impl EmittedInitializerExpressionProjectionV1 {
         let mut ordered = packet
             .expression()
             .ordered_bindings_in_context(CallValidationContextV1::Lowering(ledger))?;
+        if let Some(pair) = &packet.purpose_acquisition {
+            ordered.extend(pair.iter().cloned());
+        }
         if let Some(install) = &packet.install {
             ordered.push(install.clone());
         }
@@ -360,10 +367,37 @@ impl EmittedInitializerExpressionProjectionV1 {
         } else if self.has_dynamic_alias() {
             Operand::Dynamic(self.value)
         } else if self.has_text_home() {
-            Operand::OwnedString(self.value)
+            // A snapshot Local keeps the original carrier as the evaluation root.
+            match &self.purpose_acquisition {
+                Some([invoke, _]) => match &invoke.1 {
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
+                        ..
+                    } => match value {
+                        crate::mir::instruction::StringInvokeOperand::DynamicCarrier(carrier) => Operand::DynamicCarrier(*carrier),
+                        _ => return Err(freeze("initializer-expression/source-or-result")),
+                    },
+                    _ => return Err(freeze("initializer-expression/source-or-result")),
+                },
+                None => Operand::OwnedString(self.value),
+            }
         } else {
             return Err(freeze("initializer-expression/source-or-result"));
         };
+        if self.purpose_acquisition.is_some() != self.frame.materializes_root() {
+            return Err(freeze("initializer-expression/snapshot-root"));
+        }
+        if let Some([invoke, normal]) = &self.purpose_acquisition {
+            if !matches!(&invoke.1, MirInstruction::Invoke {
+                    operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { .. }),
+                    normal_landing, .. } if *normal_landing == normal.0)
+                || normal.1 != (MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: self.value })
+                || !self.original.contains(invoke)
+                || !self.original.contains(normal)
+            {
+                return Err(freeze("initializer-expression/snapshot-pair"));
+            }
+        }
         if !Rc::ptr_eq(&selected, &self.frame)
             || self.values.first() != Some(&Some(expected.into()))
             || !matches!(
@@ -489,7 +523,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                 self.value,
             )
         } else {
-            expression.validate_local_continuation_v1(
+            expression.validate_local_continuation_with_purpose_v1(
                 context,
                 function,
                 finishing,
@@ -498,6 +532,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                 &self.continuation,
                 self.install.as_ref(),
                 None,
+                self.purpose_acquisition.as_ref(),
             )
         }
     }
