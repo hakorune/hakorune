@@ -5,10 +5,11 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 現CLIの選択smokeはArray alias初期化・Countを通過し、`chunkListText` Loop内Text再代入の `source-loop/text-point-binding`（`phi_lifecycle/txn_abort`）で停止。EXE未生成。
+- 現CLIの選択smokeはLoop Text cleanupと取得prefixを通過し、`expression-core/operand-missing`。既定OFF診断でslot64 `firstChunkId`、`return me.chunk_ids.get(0)` の直接field receiverと特定。local alias経由のArray receiverとは別の不足で、EXE未生成。
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
 - Array aliasは実Count/Get source loanがある場合だけ初期化時にcanonical readを一回発行。既存exact-read poolで実alias値をCoreへ渡し、Countは既存read recipe/marker/emission会計を使用。snapshot・initializer Copy・使用Copyを実MIR/finisherで照合。source-only拒否pinと最終noninteger aliasの拒否を保持。
-- 次: 分岐後Text carrierのcleanupを既存Loop/branch sourceへ接続する。続けてArrayの全実operationとsnapshotの親root/field/provider・生存を最終consumerで検証する。Count receiptをDynamicGet証明の代用にせず、非integerの最終gateはそれまで開けない。
+- 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
+- 次: 直接Array field receiverの元Core sourceを既存field ownerへ接続する。続けて全実operationとsnapshotの親root/field/provider・生存を最終consumerで検証する。Count receiptをDynamicGet証明の代用にせず、非integerの最終gateはそれまで開けない。
 - entry loanだけで未知callee中の親生存は証明できない。snapshotとfield再読の同一性、支持Home、Normal/Faultを別々に閉じる。
 - 着地済み: C Map null guard→child borrow（空Map/nullable child/Fault/誤分岐）、異なるslot借用の保守的alias検査、nullable slotの実payload null比較。Rust完成guardの到達・支配・再実行検査は完成時だけ行い、構築中の局所検査を維持。
 - 既存接続: stored-child scalar return、Map keys count、put/readData/refCount、nullable Text需要、Text連結Loop、Null return、DiscardValue、delete。chunkCount独立validator、nullable Text C transport、Bool物理、全体cleanupとEXE実行は未完。

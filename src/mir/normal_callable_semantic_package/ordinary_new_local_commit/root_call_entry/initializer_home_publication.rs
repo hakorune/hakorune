@@ -230,6 +230,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 old.clone()
             }
+            Producer::BranchNormal(source) if source.is_owned_residence_tree_v1()
+                || source.is_loop_header_or_owned_residence_tree_v1(basis) => {
+                let value = read.loan_text_branch_v1(before)?.relation().values().0;
+                InvokeOperation::String(Op::EndIfOwned { value })
+            }
             _ => return Err(freeze("rebind-expression/old-text-end")),
         };
         if unwind.iter().filter(|operation| **operation == old).count() != 1 {
@@ -303,7 +308,7 @@ impl OrdinaryNewClaimLedgerV1 {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<Vec<InvokeOperation>, String> {
         use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1,
-            SourceLoopTextProducerV1 as Producer, SourceLoopValueProducerV1 as ValueProducer};
+            SourceLoopTextProducerV1 as Producer};
         use crate::mir::instruction::StringInvokeOperation as Op;
         context.require_ledger(self)?;
         context.require_original_source_loop_v2(product)?;
@@ -320,48 +325,91 @@ impl OrdinaryNewClaimLedgerV1 {
         for ((binding, producer), read) in sources.iter().zip(reads) {
             super::expression_projection::ExpressionReferenceReadV1::validate_text_binding_with_finishing_v2(
                 *binding, producer, read, context, function, finishing)?;
-            match producer {
-                Producer::Static { .. } => {},
-                Producer::Header(basis) => {
-                    let value = read.loan_text_join_v1(producer)?.value();
-                    let end = InvokeOperation::String(Op::EndIfOwned { value });
-                    match basis.entry_producer() {
-                        ValueProducer::Text(Producer::Residence(acquisition)) => {
-                            let old = self.prior_home_unwind_for(&[LiveHomeV1::Text(acquisition.clone())])?;
-                            let [old] = old.as_slice() else { return Err(freeze("rebind-expression/old-text-end")); };
-                            let indices: Vec<_> = unwind.iter().enumerate()
-                                .filter_map(|(index, operation)| (operation == old).then_some(index)).collect();
-                            let [index] = indices.as_slice() else { return Err(freeze("rebind-expression/old-home-missing")); };
-                            unwind[*index] = end;
-                        }
-                        ValueProducer::Text(Producer::Static { .. }) => {
-                            let outer = product.source.condition.prior_homes();
-                            if !frame.prior_homes().starts_with(outer) {
-                                return Err(freeze("rebind-expression/old-home-missing"));
-                            }
-                            let suffix = self.prior_home_unwind_for(outer)?;
-                            if !unwind.ends_with(&suffix) { return Err(freeze("rebind-expression/old-home-missing")); }
-                            unwind.insert(unwind.len() - suffix.len(), end);
-                        }
-                        _ => return Err(freeze("source-loop/text-point-binding")),
-                    }
-                }
+            let end = match producer {
+                Producer::Static { .. } => continue,
+                Producer::Header(_) => InvokeOperation::String(Op::EndIfOwned {
+                    value: read.loan_text_join_v1(producer)?.value(),
+                }),
                 Producer::Residence(acquisition) => {
                     let operations = self.prior_home_unwind_for(&[LiveHomeV1::Text(acquisition.clone())])?;
                     let [end] = operations.as_slice() else { return Err(freeze("rebind-expression/old-text-end")); };
-                    if unwind.contains(end) { continue; }
-                    let original = acquisition.rebind_origin_v1()
-                        .ok_or_else(|| freeze("rebind-expression/old-text-end"))?;
-                    let prior: Vec<_> = original.evaluation().prior_homes().iter()
-                        .filter(|home| home.binding() != *binding).cloned().collect();
-                    if !frame.prior_homes().starts_with(&prior) { return Err(freeze("rebind-expression/old-home-missing")); }
-                    let suffix = self.prior_home_unwind_for(&prior)?;
-                    if !unwind.ends_with(&suffix) { return Err(freeze("rebind-expression/old-home-missing")); }
-                    unwind.insert(unwind.len() - suffix.len(), end.clone());
+                    end.clone()
                 }
+                Producer::BranchNormal(_) => InvokeOperation::String(Op::EndIfOwned {
+                    value: read.loan_text_branch_v1(producer)?.relation().values().0,
+                }),
                 _ => return Err(freeze("source-loop/text-point-binding")),
-            }
+            };
+            unwind = self.loop_text_unwind_with_end_v2(frame, product, *binding, producer, &end, &unwind)?;
         }
         Ok(unwind)
     }
+
+    /// Each incoming source must place the joined End at the same cleanup
+    /// position. Compute from original Home suffixes, never branch/map order.
+    fn loop_text_unwind_with_end_v2(
+        &self,
+        frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+        product: &Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        producer: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1,
+        end: &InvokeOperation,
+        unwind: &[InvokeOperation],
+    ) -> Result<Vec<InvokeOperation>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1,
+            SourceLoopTextProducerV1 as Producer, SourceLoopValueProducerV1 as ValueProducer};
+        if let Producer::BranchNormal(source) = producer {
+            if source.binding() != binding || !(source.is_owned_residence_tree_v1()
+                || product.source.headers.get(&binding).is_some_and(|basis|
+                    source.is_loop_header_or_owned_residence_tree_v1(basis))) {
+                return Err(freeze("source-loop/text-point-binding"));
+            }
+            let mut selected = None;
+            for (_, _, incoming) in source.incoming() {
+                let candidate = self.loop_text_unwind_with_end_v2(frame, product, binding, incoming, end, unwind)?;
+                if selected.as_ref().is_some_and(|previous| previous != &candidate) {
+                    return Err(freeze("rebind-expression/old-home-missing"));
+                }
+                selected = Some(candidate);
+            }
+            return selected.ok_or_else(|| freeze("source-loop/text-point-binding"));
+        }
+        let mut result = unwind.to_vec();
+        let mut replace = |old: &InvokeOperation| -> Result<(), String> {
+            let mut indices = unwind.iter().enumerate().filter_map(|(index, operation)| (operation == old).then_some(index));
+            let index = indices.next().ok_or_else(|| freeze("rebind-expression/old-home-missing"))?;
+            if indices.next().is_some() { return Err(freeze("rebind-expression/old-home-missing")); }
+            result[index] = end.clone();
+            Ok(())
+        };
+        let prior = match producer {
+            Producer::Header(basis) if basis.binding() == binding => match basis.entry_producer() {
+                ValueProducer::Text(Producer::Residence(acquisition)) => {
+                    let old = self.prior_home_unwind_for(&[LiveHomeV1::Text(acquisition.clone())])?;
+                    let [old] = old.as_slice() else { return Err(freeze("rebind-expression/old-text-end")); };
+                    replace(old)?;
+                    return Ok(result);
+                }
+                ValueProducer::Text(Producer::Static { .. }) => product.source.condition.prior_homes().to_vec(),
+                _ => return Err(freeze("source-loop/text-point-binding")),
+            },
+            Producer::Residence(acquisition) if acquisition.binding() == binding => {
+                let old = self.prior_home_unwind_for(&[LiveHomeV1::Text(acquisition.clone())])?;
+                let [old] = old.as_slice() else { return Err(freeze("rebind-expression/old-text-end")); };
+                if unwind.contains(old) {
+                    replace(old)?;
+                    return Ok(result);
+                }
+                let original = acquisition.rebind_origin_v1().ok_or_else(|| freeze("rebind-expression/old-text-end"))?;
+                original.evaluation().prior_homes().iter().filter(|home| home.binding() != binding).cloned().collect()
+            }
+            _ => return Err(freeze("source-loop/text-point-binding")),
+        };
+        if !frame.prior_homes().starts_with(&prior) { return Err(freeze("rebind-expression/old-home-missing")); }
+        let suffix = self.prior_home_unwind_for(&prior)?;
+        if !unwind.ends_with(&suffix) { return Err(freeze("rebind-expression/old-home-missing")); }
+        result.insert(unwind.len() - suffix.len(), end.clone());
+        Ok(result)
+    }
+
 }

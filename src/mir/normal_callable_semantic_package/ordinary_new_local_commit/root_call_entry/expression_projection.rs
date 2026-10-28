@@ -1364,7 +1364,10 @@ pub(crate) fn checked_expression_core_operation_v1(
             .and_then(|node| values[node].as_ref())
             .map(|value| value.as_operand().cloned())
             .transpose()?
-            .ok_or_else(|| freeze("expression-core/operand-missing"))
+            .ok_or_else(|| {
+                if crate::config::env::builder_debug_enabled() { eprintln!("[core-operand] owner={:?} call={:?} missing={site:?}", source.owner(), original.site()); }
+                freeze("expression-core/operand-missing")
+            })
     };
     let receiver = operand(original.receiver_site())?;
     let arguments = original
@@ -1456,6 +1459,11 @@ pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
     };
     let expected = order[..end].iter().copied().filter(|node| {
         frame.owned_result_nodes().contains(node)
+            // Text acquisitions and opaque carriers have distinct lifetime
+            // pools. Dynamic results remain checked by the owned-flow owner.
+            && !frame.cores().get(node).is_some_and(|core| core.is_array_dynamic_get_v1())
+            && !frame.operations().iter().any(|operation| operation.node() == *node
+                && operation.normal_result_v1() == Some(crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::SelfContainedNonAliasingDynamicCarrier))
             && !frame.calls().iter().any(|call| {
                 call.site().site() == frame.source().nodes()[*node].site()
                     && call.dynamic_invocation_result_lifecycle_v1().is_some()
