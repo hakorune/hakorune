@@ -161,6 +161,9 @@ fn evaluation(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, fram
             let result = match target.result() {
                 ResultKind::I64ToCaller => Class::I64,
                 ResultKind::TextToCaller => Class::String,
+                // The plan class of a Text-proven element read is String; the physical result stays
+                // an owned carrier, ended through `owns_result` (checked below).
+                ResultKind::DynamicToCaller if core.is_array_dynamic_get_v1() && core.proves_text_result_v1() => Class::String,
                 ResultKind::DynamicToCaller if core.is_array_dynamic_get_v1() => Class::Dynamic,
                 _ => return Err(reject("execution-core-result")),
             };

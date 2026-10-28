@@ -250,7 +250,13 @@ impl Projector<'_> {
             if frame.transfers_node(node) { continue; }
             if frame.node_is_identity(node) { return Err(reject("identity-node")); }
             let original = source.nodes().get(node).ok_or_else(|| reject("evaluation-node"))?;
-            let value_class = class(frame.class(node))?;
+            // A Text-only element proof changes the plan class of an Array dynamic get, but the
+            // loop value stays the owned Dynamic carrier; a Text add reads it as its right operand.
+            let value_class = if frame.cores().get(&node).is_some_and(|core| core.is_array_dynamic_get_v1() && core.proves_text_result_v1()) {
+                LoopValueClassV2::Dynamic
+            } else {
+                class(frame.class(node))?
+            };
             let by_site = |site: &crate::mir::resolved_semantics::SourceExprSiteV1| -> Result<LoopValueKeyV1, String> {
                 source.nodes().iter().position(|row| row.site() == site).and_then(|node| values.get(&node).copied())
                     .ok_or_else(|| reject("original-child-order"))
