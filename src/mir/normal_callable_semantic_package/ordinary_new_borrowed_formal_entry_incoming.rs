@@ -589,7 +589,14 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package) fn completed_receiver_domain_v1(
         &self, call: &OwnedExprSiteV1, site: &SourceExprSiteV1, binding: BindingRefV1, class: &str,
     ) -> Result<Option<BorrowedFormalDomainV1>, String> {
-        let EntryStructureEvidenceV1::Uses(view) = &self.evidence else { return Ok(None); };
+        let EntryStructureEvidenceV1::Uses(view) = &self.evidence else {
+            let Some(formal) = self.evidence.original_object_receiver_v1(
+                self.source, self.owner, call, site, binding, class)? else { return Ok(None); };
+            let (ordinal, _) = self.formals.iter().find(|(_, root)| *root == formal)
+                .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
+            return Ok(self.formal_domain_v1(*ordinal, formal)?
+                .filter(|domain| domain.single_object_class_v1() == Some(class)).cloned());
+        };
         if call.owner() != self.owner || binding.owner() != self.owner { return Err(freeze("static-input/qualified-use-identity")); }
         let Some(formal) = view.definition.origins.get(&binding) else { return Ok(None); };
         let mut uses = view.definition.uses.iter().filter(|row|

@@ -10,6 +10,7 @@ impl OrdinaryNewClaimLedgerV1 {
         catalog: Option<&[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1]>,
         owner: FunctionOwnerIdV1,
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
+        nominal_sibling_structure: bool,
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
@@ -27,10 +28,15 @@ impl OrdinaryNewClaimLedgerV1 {
         // The source read lender uses this SAME full original membership.
         // One Text formal cannot select an ungrounded sibling or grant entry.
         let Some(sums) = source.lend_original_input_sums_v1(&contract.parameters) else { return Ok(None) };
-        // Nominal objects retain their existing Uses/Object view authority.
-        // Select that owner before issuing any finite structure, including
-        // cohorts whose sibling parameters carry Text or scalar domains.
-        if sums.iter().any(|sum| sum.object_class_v1().is_some()) {
+        // Existing Uses/Object owners keep authority. A complete original
+        // mixed cohort with no legacy draft can lend structural membership
+        // for sibling reads; it never selects finite executable input work.
+        let nominal = sums.iter().any(|sum| sum.object_class_v1().is_some());
+        if nominal && (!nominal_sibling_structure || contract.mode != Mode::InstanceBoxMethod
+            || source.source_definition_for(owner).is_some()
+            || !sums.iter().any(|sum| sum.alternatives().contains(
+                &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))
+            || !sums.iter().all(|sum| sum.finite_input() || sum.object_class_v1().is_some())) {
             return Ok(None);
         }
         let text_requested = sums.iter().any(|sum| sum.alternatives().contains(
@@ -60,7 +66,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !uses.matches_contract(contract) { return Err(freeze("borrowed-entry/original-use-contract")); }
         let mut domains = BTreeMap::new();
         for (formal, sum) in borrowed.iter().zip(sums) {
-            if !sum.finite_input() {
+            if !sum.finite_input() && !(nominal_sibling_structure && sum.object_class_v1().is_some()) {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[input-domain] finite owner={owner:?} formal={:?} alternatives={:?}", formal.binding, sum.alternatives());
                 }
@@ -127,6 +133,38 @@ impl OrdinaryNewClaimLedgerV1 {
         }))
     }
 
+}
+
+impl EntryStructureEvidenceV1<'_> {
+    /// The same original read and resolved Instance target qualify both source
+    /// use coverage and the completed receiver domain. No MIR class is a source.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_entry) fn original_object_receiver_v1(
+        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+        call: &OwnedExprSiteV1, site: &SourceExprSiteV1, binding: BindingRefV1, class: &str,
+    ) -> Result<Option<BindingRefV1>, String> {
+        let Self::FiniteInput { uses, domains, .. } = self else { return Ok(None); };
+        if call.owner() != owner || binding.owner() != owner {
+            return Err(freeze("static-input/qualified-use-identity"));
+        }
+        let Some(formal) = uses.roots().get(&binding) else { return Ok(None); };
+        // Source-only calls have not joined the executable/legacy projection.
+        // Lend their original target from the same retained source census.
+        let mut incoming = source.source_incoming.source_rows_v1().filter(|row| &row.call == call);
+        let Some(original) = incoming.next() else { return Ok(None); };
+        let target = original.source.require_instance()?;
+        if incoming.next().is_some() || target.call_site() != call || target.callee_owner() != original.callee {
+            return Err(freeze("static-input/qualified-use-identity"));
+        }
+        if target.stored_receiver().is_some() || target.is_self_receiver()
+            || target.receiver_binding()? != binding || target.receiver_site() != site
+            || target.target().owner() != class
+            || !uses.reads().any(|(at, reference)| at == site
+                && *reference == crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
+            || domains.get(formal).is_none_or(|sum| sum.object_class_v1() != Some(class)) {
+            return Ok(None);
+        }
+        Ok(Some(*formal))
+    }
 }
 
 impl BorrowedEntryStructureV1<'_> {

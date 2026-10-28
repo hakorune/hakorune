@@ -299,7 +299,12 @@ impl OrdinaryNewClaimLedgerV1 {
                     Some((parent, parent_site, _, _)) => (parent, parent_site),
                     None => (instance.receiver_binding()?, instance.receiver_site()),
                 };
-                if origins.contains_key(&binding) { input_use_pending!("instance-receiver-is-entry") }
+                if let Some(formal) = origins.get(&binding) {
+                    if structure.evidence.original_object_receiver_v1(structure.source, contract.owner,
+                        observation.site(), read_site, binding, instance.target().owner())? != Some(*formal) {
+                        input_use_pending!("instance-receiver-is-entry")
+                    }
+                }
                 if uses.reads().any(|(site, reference)| site == read_site
                     && *reference == ResolvedLexicalRefV1::Local(binding)) {
                     covered.insert((read_site.clone(), binding));
@@ -523,7 +528,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        if let Some(structure) = Self::finite_input_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, parameters)? {
+        if let Some(structure) = Self::finite_input_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, parameters, true)? {
             return Ok(Some(structure));
         }
         let Some(view) = self.checked_entry_owner_view_v1(source, owner)? else {
@@ -655,7 +660,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         let identity = (actual.ordinal, actual.formal);
                         !structure.formals.contains(&identity) || !represented.insert(identity)
                     }) || structure.formals.iter().any(|identity| {
-                        !domains.contains_key(&identity.1) && !represented.contains(identity)
+                        domains.get(&identity.1).is_none_or(|sum| sum.object_class_v1().is_some()) && !represented.contains(identity)
                     }) {
                         // Finite scalar input is represented by its checked
                         // ordered argument source and retained domain. It need
@@ -752,7 +757,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(contract) = contracts.next() else { return Ok(false) };
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         let parameters: Vec<_> = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Ok(Self::finite_input_entry_structure_v1(source, Some(catalog), owner, &parameters)?.is_some())
+        Ok(Self::finite_input_entry_structure_v1(source, Some(catalog), owner, &parameters, false)?.is_some())
     }
 
     pub(super) fn finite_entry_for_owner_v1(
@@ -764,7 +769,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(|rows| rows.iter().find(|row| row.owner == owner)) else { return Ok(None) };
         let parameters: Vec<_> = contract.parameters.iter()
             .map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Self::finite_input_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, &parameters)
+        Self::finite_input_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, &parameters, true)
     }
 
     /// Only source-scope staging consumes the structure. Object/field consumers
