@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini: MIR compile callable-scalar/return-type-mismatch at BoxTorrentStore.allocatorBlocks/0 (slot 56); json-stream-aggregator landed"
+current_blocker_token = "boxtorrent-mini: MIR compile callable-scalar/return-type-mismatch at BoxTorrentStore.chunkCount/0 (return me.chunks.keys().length(), dynamic length call); json-stream-aggregator landed"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,7 +18,7 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 APP-boxtorrent-mini selected; JSON landed (smoke PASS). Fixed suite 10/11 (total 11, no SKIP/timeout); only boxtorrent-mini fails.
-Stop: MIR compile passes the semantic package (base stops at slot 57 source-unproven), then callable-scalar/return-type-mismatch at BoxTorrentStore.allocatorBlocks/0 (return class Unknown).
+Stop: MIR compile now passes allocatorBlocks (scalar Call relation retained); next callable-scalar/return-type-mismatch at BoxTorrentStore.chunkCount (return me.chunks.keys().length()).
 Diagnostics are default-off: NYASH_BUILDER_DEBUG ([source-sum], [entry-input-use], [finite-reads], [method-result], [closed-app-omission]).
 Next: trace why allocatorBlocks' return value is Unknown (result/source-sum class), then the owner38 chain.
 """

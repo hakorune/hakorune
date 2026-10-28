@@ -723,6 +723,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                         || matches!(row, TerminalRelationV1::Call(call)
                                             if call.owner() == owner && static_caller_key.as_ref().is_some_and(|key|
                                                 static_call_claims.current_owner_i64_source(key, call.call_site()).is_some()))
+                                        // An instance call whose scalar result was lent by the package keeps
+                                        // its relation when the callee's scalar proof verified; the root-home
+                                        // exit later requires the same proof (`scalar-result-source-missing`).
+                                        || matches!(row, TerminalRelationV1::Call(call)
+                                            if call.owner() == owner && call.source_scalar().is_some_and(|loan|
+                                                borrowed_i64_results.get(&loan.source().callee_owner()).is_some_and(|proof| proof.is_ok())))
                                         || loop_issue::retain_static_i64_search_early_return_v1(
                                             input, static_caller_key.as_ref(), static_call_claims,
                                             &preissued_static_i64_products, row))

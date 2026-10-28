@@ -74,12 +74,19 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,
     ) -> Option<&TerminalRelationV1> {
-        if let Some(index) = self.terminal_relation_index.get(&owner) {
-            return index.get(site);
+        let found = if let Some(index) = self.terminal_relation_index.get(&owner) {
+            index.get(site)
+        } else {
+            self.terminal_relation
+                .get(site)
+                .filter(|relation| relation.owner() == owner)
+        };
+        if found.is_none() && crate::config::env::builder_debug_enabled() {
+            eprintln!("[terminal-lookup] miss owner={owner:?} site={site:?} owner-index={:?} index-sites={:?}",
+                self.terminal_relation_index.get(&owner).map(|index| index.len()),
+                self.terminal_relation_index.get(&owner).map(|index| index.keys().collect::<Vec<_>>()));
         }
-        self.terminal_relation
-            .get(site)
-            .filter(|relation| relation.owner() == owner)
+        found
     }
 
     /// Every Call terminal relation for `owner`, in exit-site order.

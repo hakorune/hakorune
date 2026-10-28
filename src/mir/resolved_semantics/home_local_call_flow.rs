@@ -673,6 +673,28 @@ fn issue_lexical_i64_call<E>(
     }))
 }
 
+/// Default-off (builder debug flag): why no direct-return call relation was issued.
+#[inline(never)]
+fn terminal_call_absent<T, E>(
+    owner: FunctionOwnerIdV1,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    why: &str,
+) -> Result<Option<T>, E> {
+    note_terminal_call(owner, statement, why);
+    Ok(None)
+}
+
+#[inline(never)]
+fn note_terminal_call(
+    owner: FunctionOwnerIdV1,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    why: &str,
+) {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[terminal-call-issue] owner={owner:?} statement={:?}: {why}", statement.site());
+    }
+}
+
 /// Direct ReturnValue only; this does not create a local/discard continuation.
 pub(super) fn issue_borrowed_i64_terminal_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -694,16 +716,16 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
             crate::ast::ASTNode::Return { value: Some(_), .. }
         )
     {
-        return Ok(None);
+        return terminal_call_absent(input.owner(), statement, "the statement is not a Return with a value");
     }
     let Ok(value) = input.source().child_expr_from_stmt(
         statement,
         crate::mir::resolved_semantics::ExprChildRoleV1::ReturnValue,
     ) else {
-        return Ok(None);
+        return terminal_call_absent(input.owner(), statement, "the return value child expression is unavailable");
     };
     if !matches!(value.node(), crate::ast::ASTNode::MethodCall { .. }) {
-        return Ok(None);
+        return terminal_call_absent(input.owner(), statement, "the return value is not a method call");
     }
     let site = OwnedExprSiteV1::new(input.owner(), value.site().clone());
     match source_scalar_call::demand_v1(input, &site, borrowed_arguments)? {
@@ -720,8 +742,8 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
                 loan,
             )));
         }
-        source_scalar_call::SourceScalarDemandV1::Refused => return Ok(None),
-        source_scalar_call::SourceScalarDemandV1::Unselected => {}
+        source_scalar_call::SourceScalarDemandV1::Refused => return terminal_call_absent(input.owner(), statement, "the source scalar demand was refused (result does not match the source loan)"),
+        source_scalar_call::SourceScalarDemandV1::Unselected => note_terminal_call(input.owner(), statement, "no source scalar result was lent for this call; trying borrowed i64 arguments"),
     }
     let Some(arguments) = seal_lexical_i64_arguments_at(
         input,
@@ -734,10 +756,10 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
         borrowed_arguments,
     )?
     else {
-        return Ok(None);
+        return terminal_call_absent(input.owner(), statement, "the lexical i64 argument row is unavailable");
     };
     if !borrowed_actuals::contains_borrowed_actual_v1(&arguments) {
-        return Ok(None);
+        return terminal_call_absent(input.owner(), statement, "the call has no borrowed actual (a zero-argument call or only literals)");
     }
     Ok(Some(super::TerminalI64CallReturnV1::issue(
         input.owner(),

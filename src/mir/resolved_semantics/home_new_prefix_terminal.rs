@@ -216,6 +216,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
             }
         }
     }
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[terminal-relation] owner={:?} statement={:?} object={} scalar={} text={} static={}",
+            input.owner(), statement.site(), object_terminal.is_some(), scalar_terminal.is_some(),
+            text_terminal.is_some(), static_terminal.is_some());
+    }
     let borrowed_terminal = if object_terminal.is_none()
         && scalar_terminal.is_none()
         && text_terminal.is_none()
@@ -239,6 +244,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 true
             }
             Err(issue) => {
+                note_terminal_unavailable(input.owner(), statement, "object terminal", &issue);
                 unavailable.get_or_insert(issue);
                 false
             }
@@ -250,6 +256,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 true
             }
             Err(issue) => {
+                note_terminal_unavailable(input.owner(), statement, "scalar terminal", &issue);
                 unavailable.get_or_insert(issue);
                 false
             }
@@ -727,6 +734,9 @@ pub(super) fn observe_terminal_statement<'a, E>(
             covered_statements.clone().into_boxed_slice(),
         )),
     };
+    if let Err(issue) = &homes_row {
+        note_terminal_unavailable(input.owner(), statement, "terminal homes (the relation is dropped)", issue);
+    }
     if homes_row.is_err() {
         // `return new <class>` is exact-site evidence: its own
         // `ResultNewHomePrefixV1` — and thus the retained result
@@ -751,7 +761,24 @@ pub(super) fn observe_terminal_statement<'a, E>(
     // live under its own site, never a function-level slot.
     exit_homes.insert(statement.site().clone(), homes_row);
     if let Some(relation) = relation {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[terminal-relation] stored owner={:?} statement={:?}", input.owner(), statement.site());
+        }
         terminal_relations.insert(statement.site().clone(), relation);
     }
     Ok(())
+}
+
+/// Default-off (builder debug flag): which terminal classification made a return unavailable.
+#[inline(never)]
+fn note_terminal_unavailable(
+    owner: FunctionOwnerIdV1,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    which: &str,
+    issue: &dyn std::fmt::Debug,
+) {
+    if crate::config::env::builder_debug_enabled() {
+        let issue: String = format!("{issue:?}").chars().take(300).collect();
+        eprintln!("[terminal-relation] owner={owner:?} statement={:?}: {which} unavailable: {issue}", statement.site());
+    }
 }
