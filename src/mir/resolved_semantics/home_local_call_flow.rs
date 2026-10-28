@@ -591,7 +591,7 @@ pub(crate) fn issue_lexical_i64_discard_call<E>(
         borrowed_arguments,
     )? {
         unit_discard::UnitDiscardDemandV1::Unselected => {}
-        unit_discard::UnitDiscardDemandV1::Refused => return Ok(None),
+        unit_discard::UnitDiscardDemandV1::Refused => return terminal_call_absent(input.owner(), statement, "discard: unit-discard source refused"),
         unit_discard::UnitDiscardDemandV1::Ready(observation) => return Ok(Some(observation)),
     }
     issue_lexical_i64_call(
@@ -641,7 +641,7 @@ fn issue_lexical_i64_call<E>(
                 arguments,
             )));
         }
-        source_scalar_call::SourceScalarDemandV1::Refused => return Ok(None),
+        source_scalar_call::SourceScalarDemandV1::Refused => return terminal_call_absent_at(input.owner(), site, "i64 call: source scalar demand refused"),
         source_scalar_call::SourceScalarDemandV1::Unselected => {}
     }
     let Some(arguments) = seal_lexical_i64_arguments_at(
@@ -655,7 +655,7 @@ fn issue_lexical_i64_call<E>(
         borrowed_arguments,
     )?
     else {
-        return Ok(None);
+        return terminal_call_absent_at(input.owner(), site, "i64 call: lexical i64 arguments not sealed");
     };
     Ok(Some(LocalCallObservationV1 {
         owner: input.owner(),
@@ -671,6 +671,14 @@ fn issue_lexical_i64_call<E>(
         mixed: None,
         field_alias: None,
     }))
+}
+
+#[inline(never)]
+fn terminal_call_absent_at<T, E>(owner: FunctionOwnerIdV1, site: &OwnedExprSiteV1, why: &str) -> Result<Option<T>, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[terminal-call-issue] owner={owner:?} site={:?}: {why}", site.site());
+    }
+    Ok(None)
 }
 
 /// Default-off (builder debug flag): why no direct-return call relation was issued.

@@ -202,13 +202,13 @@ where
         OrdinaryNewCoSealIssueV1,
     > {
         let (Some(receiver), Some(entry)) = (self.receiver, self.entry) else {
-            return Ok(None);
+            return entry_write_declined(input, target, 0);
         };
         let Some(original) = self.original_writer(input.owner(), target)? else {
-            return Ok(None);
+            return entry_write_declined(input, target, 1);
         };
         if original.write().in_birth() {
-            return Ok(None);
+            return entry_write_declined(input, target, 2);
         }
         let site = OwnedExprSiteV1::new(input.owner(), target.clone());
         let Some((field, declared)) = terminal_home::source_declared_field(
@@ -218,13 +218,13 @@ where
             original.write().field(),
         )?
         else {
-            return Ok(None);
+            return entry_write_declined(input, target, 3);
         };
         if !matches!(declared.as_deref(), None | Some("i64")) {
-            return Ok(None);
+            return entry_write_declined(input, target, 4);
         }
         let Ok(ingress) = self.ingress else {
-            return Ok(None);
+            return entry_write_declined(input, target, 5);
         };
         // A neutral source-only write is not an executable entry frame. Require
         // the complete value basis even for a declared slot before selecting it.
@@ -261,7 +261,7 @@ where
                             original.write().field()
                         );
                     }
-                    return Ok(None);
+                    return entry_write_declined(input, target, 6);
                 }
             }
         };
@@ -535,4 +535,13 @@ impl DynamicStoredChildFieldV1 {
             fields.keys().copied().collect::<BTreeSet<_>>() == self.paired_fields
                 && fields.values().copied().collect::<BTreeSet<_>>().len() == 1)
     }
+}
+
+/// Default-off (builder debug flag): which numbered check declined an entry field write.
+#[inline(never)]
+fn entry_write_declined<T>(input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, target: &SourceExprSiteV1, check: u32) -> Result<Option<T>, OrdinaryNewCoSealIssueV1> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[entry-write] declined owner={:?} target={target:?} check={check}", input.owner());
+    }
+    Ok(None)
 }

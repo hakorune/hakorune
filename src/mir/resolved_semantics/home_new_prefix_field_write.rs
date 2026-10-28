@@ -59,28 +59,31 @@ pub(super) fn observe<E>(
                 input.function().assignment_target(assignment.target_site())
             {
                 if self_rooted_me(shape, receiver, locals).is_some() {
-                    if let Some(entry) =
-                        scalar_field.entry_write(input, assignment.target_site())?
+                    let entry_source = scalar_field.entry_write(input, assignment.target_site())?;
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!("[field-write] entry source owner={:?} statement={:?} present={}", input.owner(), statement.site(), entry_source.is_some());
+                    }
+                    if let Some(entry) = entry_source
                     {
                         let text = entry.text_value().is_some();
                         let Some(frame) = CheckedFieldWriteFrameV1::for_entry(entry, homes) else {
-                            return Ok(false);
+                            return field_write_declined(input, statement, 0);
                         };
                         if text {
                             if !prefix_known || !local_call_flow::stage_expression_actuals_v1(
                                 input, statement, frame.source(), locals, prefix_known,
                                 homes, local_calls, path_calls, fields, actuals,
-                            )? { return Ok(false); }
+                            )? { return field_write_declined(input, statement, 1); }
                             let purpose = OwnedExprSiteV1::new(input.owner(), assignment.value_site().clone());
                             let Some(evaluation) = super::expression_plan::qualify_text_evaluation_v1(
                                 input, Rc::clone(frame.source()), &purpose, locals,
                                 homes, local_calls, actuals, None,
-                            )? else { return Ok(false); };
+                            )? else { return field_write_declined(input, statement, 2); };
                             let Some(plan) = super::expression_plan::HomeExpressionPlanV1::text_field_write(
                                 frame, Rc::clone(&evaluation),
-                            ) else { return Ok(false); };
+                            ) else { return field_write_declined(input, statement, 3); };
                             let mut installation = locals.expression_installation();
-                            if !installation.approve(&plan) { return Ok(false); }
+                            if !installation.approve(&plan) { return field_write_declined(input, statement, 4); }
                             installation.commit();
                             path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
                             local_calls.extend_from_slice(evaluation.calls());
@@ -133,7 +136,7 @@ pub(super) fn observe<E>(
                             if crate::config::env::builder_debug_enabled() {
                                 eprintln!("[field-source] owner={:?} target={target:?} RHS unavailable inputs={inputs:?} field-batch={field_batch_ready:?}", input.owner());
                             }
-                            return Ok(false);
+                            return field_write_declined(input, statement, 5);
                         }
                         installation.commit();
                         return Ok(true);
@@ -143,7 +146,7 @@ pub(super) fn observe<E>(
         }
     }
     if !observe_receiver_field_write(input, statement, locals, scalar_field, view_use)? {
-        return Ok(false);
+        return field_write_declined(input, statement, 6);
     }
     let shape = input
         .body_shape()
@@ -160,22 +163,22 @@ pub(super) fn observe<E>(
     if source.owner() != input.owner()
         || !matches!(source.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment: original } if original == assignment)
     {
-        return Ok(false);
+        return field_write_declined(input, statement, 7);
     }
     let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) =
         input.function().assignment_target(assignment.target_site())
     else {
-        return Ok(false);
+        return field_write_declined(input, statement, 8);
     };
     if self_rooted_me(shape, receiver, locals).is_none() {
         let Some(plan) =
             super::expression_plan::HomeExpressionPlanV1::borrowed_field_write(source, homes)
         else {
-            return Ok(false);
+            return field_write_declined(input, statement, 9);
         };
         let mut installation = locals.expression_installation();
         if !installation.approve(&plan) {
-            return Ok(false);
+            return field_write_declined(input, statement, 10);
         }
         installation.commit();
         return Ok(true);
@@ -212,7 +215,7 @@ pub(super) fn observe<E>(
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
     )?;
     if plan.is_none() {
-        return Ok(false);
+        return field_write_declined(input, statement, 11);
     }
     installation.commit();
     Ok(true)
@@ -247,32 +250,32 @@ pub(super) fn observe_receiver_field_write<E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<bool, E> {
     if !matches!(statement.node(), ASTNode::Assignment { .. }) {
-        return Ok(false);
+        return field_write_declined(input, statement, 12);
     }
     let Some(shape) = input.body_shape() else {
-        return Ok(false);
+        return field_write_declined(input, statement, 13);
     };
     let Some(row) = shape
         .assignment_sources()
         .iter()
         .find(|row| row.statement_site() == statement.site())
     else {
-        return Ok(false);
+        return field_write_declined(input, statement, 14);
     };
     // Compound `op=` reads and writes the field — this bounded admission
     // covers the plain store only.
     if row.form() != ResolvedAssignmentFormV1::Plain {
-        return Ok(false);
+        return field_write_declined(input, statement, 15);
     }
     let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver }) =
         input.function().assignment_target(row.target_site())
     else {
-        return Ok(false);
+        return field_write_declined(input, statement, 16);
     };
     if self_rooted_me(shape, receiver, locals).is_none() {
         let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(receiver)
         else {
-            return Ok(false);
+            return field_write_declined(input, statement, 17);
         };
         // The canonical branch walk, not source order, proves the non-null
         // surviving path. No owned local or alias can become a borrowed formal.
@@ -296,7 +299,7 @@ pub(super) fn observe_receiver_field_write<E>(
                 },
             )?
         {
-            return Ok(false);
+            return field_write_declined(input, statement, 18);
         }
         return Ok(true);
     }
@@ -336,12 +339,12 @@ pub(super) fn observe_receiver_field_write<E>(
                         BorrowedViewUseRequestV1::Operand,
                     )?
                 {
-                    return Ok(false);
+                    return field_write_declined(input, statement, 19);
                 }
             }
             BodyExpressionShapeV1::Me { site, .. } => {
                 if !field_receivers.contains(site) {
-                    return Ok(false);
+                    return field_write_declined(input, statement, 20);
                 }
             }
             BodyExpressionShapeV1::FieldAccess {
@@ -350,7 +353,7 @@ pub(super) fn observe_receiver_field_write<E>(
                 field,
             } => {
                 let Some(home) = self_rooted_me(shape, object, locals) else {
-                    return Ok(false);
+                    return field_write_declined(input, statement, 21);
                 };
                 if !scalar_field.scalar_field(
                     &OwnedExprSiteV1::new(input.owner(), site.clone()),
@@ -359,14 +362,14 @@ pub(super) fn observe_receiver_field_write<E>(
                     home,
                     field,
                 )? {
-                    return Ok(false);
+                    return field_write_declined(input, statement, 22);
                 }
             }
             BodyExpressionShapeV1::Other { site, kind } => match &**kind {
                 "UnaryOp" | "BinaryOp" => {}
                 "Literal" => {
                     if !locals.observe(site).is_some_and(|row| row.is_trivial()) {
-                        return Ok(false);
+                        return field_write_declined(input, statement, 23);
                     }
                 }
                 _ => return Ok(false),
@@ -450,4 +453,13 @@ fn note_finite_read(input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceExp
     if crate::config::env::builder_debug_enabled() {
         eprintln!("[finite-reads] owner={:?} site={:?}: {why}, lent={lent}", input.owner(), site);
     }
+}
+
+/// Default-off (builder debug flag): which numbered check declined a field-write statement.
+#[inline(never)]
+fn field_write_declined<E>(input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>, check: u32) -> Result<bool, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[field-write] declined owner={:?} statement={:?} check={check}", input.owner(), statement.site());
+    }
+    Ok(false)
 }

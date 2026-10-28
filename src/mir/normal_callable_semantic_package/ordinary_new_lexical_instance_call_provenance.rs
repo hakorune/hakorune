@@ -218,14 +218,29 @@ impl LexicalReceiverClassSourceV1<'_> {
         let caller = batch.with_lowering_input(need.callee_slot, |input| {
             let Some(shape) = input.body_shape() else { return false; };
             let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false; };
-            let [Part::Body(start), Part::Initializer(_)] = loan.acquisition().site().node().segments() else { return false; };
-            let end = match (loan, need.call_site.node().segments()) {
-                (_, [Part::Body(end)]) => end,
-                (BorrowedReceiverSourceV1::DirectMapGet(_), [Part::Body(end), Part::Initializer(_)]) => end,
-                _ => return false,
+            // Acquisition and call sit in one statement list (top level or one
+            // nested block); the interval is the ordinals between them.
+            let ordinal = |segment: &Part| match segment {
+                Part::Body(i) | Part::IfThen(i) | Part::IfElse(i) => Some(*i),
+                _ => None,
             };
-            let inside = |site: &SourceExprSiteV1| matches!(site.node().segments().first(),
-                Some(Part::Body(index)) if start <= index && index <= end);
+            let [prefix @ .., acquired, Part::Initializer(_)] = loan.acquisition().site().node().segments() else { return false; };
+            let Some(start) = ordinal(acquired) else { return false };
+            let call = need.call_site.node().segments();
+            let end = match (loan, call) {
+                (_, [head @ .., last]) if head == prefix && std::mem::discriminant(last) == std::mem::discriminant(acquired) => ordinal(last),
+                (BorrowedReceiverSourceV1::DirectMapGet(_), [head @ .., last, Part::Initializer(_)])
+                    if head == prefix && std::mem::discriminant(last) == std::mem::discriminant(acquired) => ordinal(last),
+                _ => None,
+            };
+            let Some(end) = end else { return false };
+            if prefix.iter().any(|segment| matches!(segment, Part::LoopBody(_) | Part::LambdaBody(_) | Part::TryBody(_) | Part::CatchBody(_))) { return false; }
+            let inside = |site: &SourceExprSiteV1| {
+                let path = site.node().segments();
+                path.len() > prefix.len() && path.starts_with(prefix)
+                    && std::mem::discriminant(&path[prefix.len()]) == std::mem::discriminant(acquired)
+                    && ordinal(&path[prefix.len()]).is_some_and(|index| start <= index && index <= end)
+            };
             let boundary = |site: &SourceExprSiteV1| site == loan.acquisition().site() || site == &need.call_site;
             input.owner() == need.owner && start < end
                 && input.function().variable_ref(&need.receiver_site) == Some(Ref::Local(loan.destination()))

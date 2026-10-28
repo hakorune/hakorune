@@ -343,6 +343,64 @@ impl MapFieldGetLocalV1 {
             && self.key.prior_homes() == self.prior_homes()
     }
 
+    /// The alias lives from the get to the end of its declaring statement list
+    /// (never inside a loop). Inside that scope only effects that cannot reach
+    /// the supporting slot are allowed: Return, scalar writes to other `me`
+    /// fields, argument-free calls on the element itself, Map reads, and Map
+    /// mutations of this field after every read of the alias. Any other call
+    /// (including a Provider call, which has no callee effect summary) refuses.
+    fn region_is_passive_v1(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        uses: &crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
+        shape: &crate::mir::resolved_semantics::VerifiedResolvedBodyShapeInventoryV1,
+    ) -> bool {
+        use crate::mir::resolved_semantics::{BodyEffectKindV1 as Kind, BodyExpressionShapeV1 as Shape, SourcePathSegmentV1 as Seg};
+        let get = self.source.get();
+        let SourceBindingSiteV1::Local { statement, .. } = &self.declaration else { return false };
+        let Some((last, prefix)) = statement.node().segments().split_last() else { return false };
+        let ordinal = |segment: &Seg| match segment {
+            Seg::Body(i) | Seg::IfThen(i) | Seg::IfElse(i) => Some(*i),
+            _ => None,
+        };
+        let Some(start) = ordinal(last) else { return false };
+        if prefix.iter().any(|segment| matches!(segment, Seg::LoopBody(_) | Seg::LambdaBody(_) | Seg::TryBody(_) | Seg::CatchBody(_))) {
+            return false;
+        }
+        let in_scope = |path: &[Seg]| path.len() > prefix.len() && path.starts_with(prefix)
+            && std::mem::discriminant(&path[prefix.len()]) == std::mem::discriminant(last)
+            && ordinal(&path[prefix.len()]).is_some_and(|i| i >= start);
+        let is_me = |site: &SourceExprSiteV1| matches!(shape.expression_shape(site), Some(Shape::Me { .. }));
+        let Some(Shape::FieldAccess { object, field: map_field, .. }) = shape.expression_shape(get.receiver_site()) else { return false };
+        if !is_me(&object) { return false; }
+        let reads: Vec<_> = uses.variable_refs()
+            .filter(|(_, reference)| **reference == ResolvedLexicalRefV1::Local(self.binding)).map(|(site, _)| site).collect();
+        shape.effects().iter().all(|effect| {
+            if &effect.site == get.site() || !in_scope(effect.site.node().segments()) { return true; }
+            match effect.kind {
+                Kind::NonLocalControl => shape.statements().iter().any(|row|
+                    matches!(row, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { site, .. } if site.node() == effect.site.node())),
+                Kind::Write => matches!(shape.expression_shape(&effect.site),
+                    Some(Shape::FieldAccess { object, field, .. }) if is_me(&object) && field != map_field),
+                Kind::Call => {
+                    let Some(call) = input.function().method_call_source_v1(&effect.site) else { return false };
+                    if input.function().variable_ref(call.receiver_site()) == Some(ResolvedLexicalRefV1::Local(self.binding)) {
+                        return call.arity() == 0;
+                    }
+                    match shape.expression_shape(call.receiver_site()) {
+                        Some(Shape::FieldAccess { object, field, .. }) if is_me(&object) && field == map_field => match call.selector() {
+                            "has" | "get" | "keys" | "length" | "size" => true,
+                            "set" | "delete" | "remove" | "clear" => reads.iter().all(|read| read.node().precedes_in_sequence(effect.site.node())),
+                            _ => false,
+                        },
+                        _ => false,
+                    }
+                }
+                _ => false,
+            }
+        })
+    }
+
     /// A passive caller cannot replace, escape or mutate the supporting slot.
     /// This is source/lifetime evidence only, not execution or null exclusion.
     pub(crate) fn matches_input(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
@@ -352,18 +410,7 @@ impl MapFieldGetLocalV1 {
         let Ok(uses) = input.forest().callable_source_ledger(input.owner()) else {
             return false;
         };
-        let get = self.source.get();
-        self.matches_source_identity_v1(input, &uses)
-            && !uses.direct_call_observations().any(|_| true)
-            && uses.method_calls().all(|(site, _)| site == get.site())
-            && input.function().expression_source().constructions().next().is_none()
-            && shape.effects().iter().all(|effect| match effect.kind {
-                crate::mir::resolved_semantics::BodyEffectKindV1::Call => &effect.site == get.site(),
-                crate::mir::resolved_semantics::BodyEffectKindV1::NonLocalControl => shape.statements().iter().any(|row|
-                    matches!(row, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { site, .. }
-                        if site.node() == effect.site.node())),
-                _ => false,
-            })
+        self.matches_source_identity_v1(input, &uses) && self.region_is_passive_v1(input, &uses, shape)
     }
 }
 
