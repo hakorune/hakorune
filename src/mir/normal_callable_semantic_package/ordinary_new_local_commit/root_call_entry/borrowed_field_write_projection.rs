@@ -249,6 +249,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 | crate::mir::instruction::InvokeOperation::Map(
                     crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }
                     | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { .. }
+                    | crate::mir::instruction::MapInvokeOperation::FieldDeleteIndexed { .. }
                     | crate::mir::instruction::MapInvokeOperation::EndOutcome { .. },
                 ),
             fault_landing,
