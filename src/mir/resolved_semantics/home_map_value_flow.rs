@@ -393,7 +393,10 @@ impl MapFieldGetLocalV1 {
                             "set" | "delete" | "remove" | "clear" => reads.iter().all(|read| read.node().precedes_in_sequence(effect.site.node())),
                             _ => false,
                         },
-                        _ => false,
+                        // Any other call executes after its arguments: it is harmless to the
+                        // alias when every read precedes it or is evaluated inside its arguments.
+                        _ => reads.iter().all(|read| read.node().precedes_in_sequence(effect.site.node())
+                            || read.node().segments().starts_with(effect.site.node().segments())),
                     }
                 }
                 _ => false,
