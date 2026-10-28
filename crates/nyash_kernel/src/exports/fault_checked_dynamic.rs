@@ -272,6 +272,10 @@ pub unsafe extern "C" fn publish_text_or_null(
         match invocation::publish_string_v1(text) {
             Ok(carrier) => {
                 if nyash_rust::runtime::dynamic_v2_lease::end_authorized_text_pair(handle, token).is_err() {
+                    // Publication has not transferred the carrier to the caller.
+                    // Retire it even if the original pair became invalid after
+                    // the snapshot; the output remains untouched on failure.
+                    let _ = carrier.end_v1();
                     return Status::InvalidContract as u32;
                 }
                 Ok(carrier)

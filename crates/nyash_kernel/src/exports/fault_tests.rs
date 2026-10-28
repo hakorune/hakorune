@@ -627,6 +627,29 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
         kind: 5, reserved: 0, bytes: std::ptr::null(), len: 0,
         handle: 0, token, integer: 0,
     };
+    // Nullable Text publication owns one carrier; invalid pairs never publish.
+    let mut nullable_frame = FaultFrame::new();
+    let nullable_pointer = (&mut nullable_frame as *mut FaultFrame).cast();
+    let mut nullable_carrier = 0x1234;
+    let literal = TextOperand { kind: 1, reserved: 0, bytes: b"cat".as_ptr(), len: 3,
+        handle: 0, token: 0, integer: 0 };
+    unsafe {
+        assert_eq!(api::publish_text_or_null(nullable_pointer, 37, 0, 0, &mut nullable_carrier), 0);
+        assert_eq!(api::end(nullable_pointer, 38, nullable_carrier), 0);
+        nullable_carrier = 0x1234;
+        assert_eq!(api::publish_text_or_null(nullable_pointer, 39, 0, 1, &mut nullable_carrier), 2);
+        assert_eq!(nullable_carrier, 0x1234);
+        let mut pair = OwnedText { handle: 0, token: 0 };
+        assert_eq!(text_api::materialize(nullable_pointer, 39, &literal, &mut pair), 0);
+        assert_eq!(api::publish_text_or_null(nullable_pointer, 39, pair.handle, pair.token, &mut nullable_carrier), 0);
+        let mut snapshot = OwnedText { handle: 0, token: 0 };
+        assert_eq!(text_api::materialize(nullable_pointer, 39, &text_carrier(nullable_carrier), &mut snapshot), 0);
+        assert_eq!(nyash_rust::runtime::dynamic_v2_lease::with_end_authorized_text_pair(
+            snapshot.handle, std::num::NonZeroU64::new(snapshot.token).unwrap(), str::to_owned), Ok("cat".into()));
+        assert_eq!(text_api::end(nullable_pointer, 39, snapshot.handle, snapshot.token), 0);
+        assert_eq!(text_api::end(nullable_pointer, 39, pair.handle, pair.token), 2);
+        assert_eq!(api::end(nullable_pointer, 39, nullable_carrier), 0);
+    }
     unsafe {
         assert_eq!(
             api::invoke(
