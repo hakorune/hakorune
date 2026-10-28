@@ -552,7 +552,7 @@ impl CallValidationContextV1<'_> {
         read: &crate::mir::builder::ExactLexicalReadV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-    ) -> Result<(ValueId, (BasicBlockId, MirInstruction)), String> {
+    ) -> Result<(ValueId, [(BasicBlockId, MirInstruction); 2]), String> {
         self.with_local_call_group_tree_v2(frame.site().owner(), |groups| {
             let mut rows = groups
                 .iter()
@@ -573,7 +573,7 @@ impl CallValidationContextV1<'_> {
                 return Err(freeze("initializer-expression/local-copy-correspondence"));
             }
             let value = read.source_value().2;
-            Ok((value, packet.normal.clone()))
+            Ok((value, [packet.invoke.clone(), packet.normal.clone()]))
         })
     }
 }

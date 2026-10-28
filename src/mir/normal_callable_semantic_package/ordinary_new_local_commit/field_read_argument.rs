@@ -130,3 +130,171 @@ impl EmittedFieldReadArgumentV1 {
         intervals.read(parent, child, self.source.field())?.check(&parent_normal, &outer)
     }
 }
+
+/// A Map payload keeps its slot support; it is never a returned owned parent.
+pub(super) fn validate_map_field_v1(
+    emitted: &EmittedReadArgumentV1, source: &ReadActualSourceLoanV1, receiver: &ExactLexicalReadV1,
+    pair: &[Binding; 2], module: &crate::mir::MirModule, function: &MirFunction,
+    projection: &super::super::physical_boundary::FinishedBindings, context: CallValidationContextV1<'_>,
+    call: &OwnedExprSiteV1, outer: &Binding, coordinate: (BasicBlockId, usize), ordinal: u32,
+) -> Result<(), String> {
+    let ReadSourceKindV1::MapField(original) = &source.kind else { return Err(freeze("field-argument/source-missing")); };
+    let child = emitted.value_with_source_v1(call, source, context)?;
+    let (frame, exclusion) = context.ledger().stored_get_field_root_source_v1(source.site(), receiver, context)?
+        .ok_or_else(|| freeze("field-argument/source-missing"))?;
+    if frame.source() != &original.get { return Err(freeze("field-argument/original-source-identity")); }
+    context.validate_stored_get_nonnull_read_v1(&frame, &exclusion, receiver, function, Some(projection), &pair[0])?;
+    let (_, get) = context.stored_map_get_read_v1(&frame, receiver, function, Some(projection))?;
+    let get_invoke = projection.required_effect_binding(function, &get[0])?;
+    let get_normal = projection.relation_binding(function, &get[1])?
+        .ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
+    let read = projection.required_effect_binding(function, &pair[0])?;
+    let normal = projection.relation_binding(function, &pair[1])?
+        .ok_or_else(|| freeze("field-argument/finished-read-removed"))?;
+    let outer = projection.required_effect_binding(function, outer)?;
+    if interval::locate(function, &outer)? != coordinate { return Err(freeze("field-argument/finished-call-coordinate")); }
+    let MirInstruction::Invoke { operation: InvokeOperation::Call { call: actual, .. }, .. } = &outer.1 else {
+        return Err(freeze("field-argument/finished-call-missing"));
+    };
+    if actual.args.get(ordinal as usize) != Some(&child) { return Err(freeze("field-argument/finished-argument-slot")); }
+    let MirInstruction::InvokeNormalResult { dst: parent, .. } = get_normal.1 else { return Err(freeze("field-argument/finished-parent-link")); };
+    if !matches!((&read.1, &normal.1), (MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldBorrow { field, .. }, normal_landing, .. },
+        MirInstruction::InvokeNormalResult { invoke_block, dst })
+        if *field == original.field.field() && *invoke_block == read.0 && *normal_landing == normal.0 && *dst == child) {
+        return Err(freeze("field-argument/read-operands"));
+    }
+    for copy in emitted.copy_dependencies_v1(context)? { projection.relation_binding(function, copy)?; }
+    let intervals = interval::IntervalViewV1::new(function);
+    for (before, after) in [(&get_invoke, &get_normal), (&get_normal, &read), (&read, &normal), (&normal, &outer)] {
+        intervals.require_before(before, after)?;
+    }
+    let CallValidationContextV1::Finalized(view) = context else { return Err(freeze("field-argument/source-missing")); };
+    validate_map_completion_effects_v1(view, module, function, coordinate,
+        original.get.receiver().field(), original.field.field())?;
+    let mut calls = std::collections::BTreeSet::new();
+    context.with_local_call_group_tree_v2(call.owner(), |groups| {
+        for group in groups {
+            for packet in group.lexical_packets() {
+                let Ok(row) = packet.original_row() else { continue; };
+                let Some(loan) = row.source_target().direct_map_receiver_source_v1() else { continue; };
+                if loan.source() != frame.source() || loan.binding() != frame.binding() { continue; }
+                context.ledger().check_direct_map_numeric_effects_v1(row.source_target())?;
+                let expected = packet.call_in_context(call.owner(), &[], context)?;
+                let invoke = projection.required_effect_binding(function, packet.invoke_binding())?;
+                if !matches!(&invoke.1, MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } if call == &expected) {
+                    return Err(freeze("field-argument/finished-parent-link"));
+                }
+                let CallValidationContextV1::Finalized(view) = context else { return Err(freeze("field-argument/source-missing")); };
+                view.ledger.with_finished_projection(row.callee_owner(), |symbol, _| {
+                    if symbol != row.target().mir_symbol_projection() { return Err(freeze("field-argument/source-missing")); }
+                    let callee = module.functions.get(symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;
+                    validate_map_scalar_callee_v1(callee, original.field.field())
+                })?;
+                calls.insert(interval::locate(function, &invoke)?);
+            }
+        }
+        Ok(())
+    })?;
+    intervals.read(parent, child, original.field.field())?.check_with_effects(&get_normal, &outer, |at, instruction| {
+        use crate::mir::instruction::MapInvokeOperation as Map;
+        Ok(match instruction {
+            MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. } => !calls.contains(&at),
+            MirInstruction::Invoke { operation: InvokeOperation::Map(map), .. } => !matches!(map,
+                Map::FieldGetIndexed { .. } | Map::FieldHas { .. } | Map::FieldKeys { .. }
+                    | Map::CheckedGetI64 { .. } | Map::ArrayLength { .. } | Map::ArrayIndexMap { .. }
+                    | Map::MapGetText { .. } | Map::New | Map::PrepareKey { .. }),
+            MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }
+                | InvokeOperation::ObjectFieldBorrow { .. } | InvokeOperation::String(_), .. }
+            | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. } | MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+            | MirInstruction::Phi { .. } | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. }
+            | MirInstruction::Branch { .. } | MirInstruction::Jump { .. } | MirInstruction::Return { .. }
+            | MirInstruction::InvokeNormalResult { .. } | MirInstruction::FaultFrameEnter { .. }
+            | MirInstruction::ReturnFault { .. } | MirInstruction::TypeOp { .. } => false,
+            _ => true,
+        })
+    })
+}
+
+/// Recheck the source-approved numeric receiver effects on the actual callee.
+/// Neither a method name nor an advertised effect mask authorizes this body.
+fn validate_map_scalar_callee_v1(function: &MirFunction, protected: hakorune_mir_defs::CanonicalFieldRefV1) -> Result<(), String> {
+    let receiver = *function.params.first().ok_or_else(|| freeze("field-argument/source-missing"))?;
+    let origins = crate::mir::value_origin::AcyclicUnanimousValueOrigins::new(function);
+    for instruction in function.blocks.values().flat_map(|block| block.all_instructions()) {
+        let allowed = match instruction {
+            MirInstruction::Invoke { operation: InvokeOperation::FieldGet { base, field }, .. }
+            | MirInstruction::ObjectFieldGet { base, field, .. } => origins.origin(*base) == Some(receiver) && field.object() == protected.object(),
+            MirInstruction::Invoke { operation: InvokeOperation::FieldSet { base, field, mode, .. }, .. } =>
+                origins.origin(*base) == Some(receiver) && field.object() == protected.object() && *field != protected
+                    && matches!(mode, crate::mir::instruction::FieldSetModeV1::ExactSlot | crate::mir::instruction::FieldSetModeV1::DynamicI64Replace),
+            MirInstruction::Const { .. } | MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
+            | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Branch { .. }
+            | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::InvokeNormalResult { .. }
+            | MirInstruction::FaultFrameEnter { .. } | MirInstruction::ReturnFault { .. } | MirInstruction::TypeOp { .. } => true,
+            _ => false,
+        };
+        if !allowed { return Err(format!("{} callee={} instruction={instruction:?}", freeze("field-argument/parent-or-child-invalidated"), function.signature.name)); }
+    }
+    Ok(())
+}
+
+/// Close every source-backed callee edge before granting the outer borrow.
+/// The worklist accepts cycles only after every reachable body has been checked.
+fn validate_map_completion_effects_v1(
+    view: &super::super::FinalizedRootSourceHandoffV1, module: &crate::mir::MirModule,
+    caller: &MirFunction, at: (BasicBlockId, usize),
+    map_field: hakorune_mir_defs::CanonicalFieldRefV1, child_field: hakorune_mir_defs::CanonicalFieldRefV1,
+) -> Result<(), String> {
+    let mut edges = Vec::new();
+    view.visit_finalized_call_structure_v1(module, |_, _, packet, _, function, at, _| {
+        let source = packet.original_source();
+        edges.push((function.signature.name.clone(), at, source.target().clone(), source.callee_owner()));
+        Ok(())
+    })?;
+    let mut root = edges.iter().filter(|(name, coordinate, _, _)| name == &caller.signature.name && *coordinate == at);
+    let (_, _, target, owner) = root.next().ok_or_else(|| freeze("field-argument/source-missing"))?;
+    if root.next().is_some() { return Err(freeze("field-argument/source-missing")); }
+    let mut pending = vec![(target.clone(), *owner)];
+    let mut checked = std::collections::BTreeSet::new();
+    while let Some((target, owner)) = pending.pop() {
+        if checked.contains(&target) { continue; }
+        view.ledger.with_finished_projection(owner, |symbol, _| {
+            if symbol != target.mir_symbol_projection() { return Err(freeze("field-argument/source-missing")); }
+            let function = module.functions.get(symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;
+            for (block, body) in &function.blocks {
+                for (index, instruction) in body.all_instructions().enumerate() {
+                    let allowed = match instruction {
+                        MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. } => {
+                            let mut matching = edges.iter().filter(|(name, at, _, _)| name == symbol && *at == (*block, index));
+                            let (_, _, callee, owner) = matching.next().ok_or_else(|| freeze("field-argument/source-missing"))?;
+                            if matching.next().is_some() { return Err(freeze("field-argument/source-missing")); }
+                            pending.push((callee.clone(), *owner));
+                            true
+                        }
+                        MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field, mode, .. }, .. } =>
+                            *field != map_field && *field != child_field
+                                && matches!(mode, crate::mir::instruction::FieldSetModeV1::ExactSlot
+                                    | crate::mir::instruction::FieldSetModeV1::DynamicI64Replace)
+                                && module.canonical_field_definition(*field).and_then(|field| field.declared_type_name.as_deref())
+                                    .is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name),
+                        MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }
+                            | InvokeOperation::ObjectFieldBorrow { .. }, .. }
+                        | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. } | MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+                        | MirInstruction::Phi { .. } | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. }
+                        | MirInstruction::Branch { .. } | MirInstruction::Jump { .. } | MirInstruction::Return { .. }
+                        | MirInstruction::InvokeNormalResult { .. } | MirInstruction::FaultFrameEnter { .. }
+                        | MirInstruction::ReturnFault { .. } | MirInstruction::TypeOp { .. } | MirInstruction::ArrayRead { .. } => true,
+                        _ => false,
+                    };
+                    if !allowed {
+                        return Err(format!("{} callee={symbol} instruction={instruction:?}",
+                            freeze("field-argument/parent-or-child-invalidated")));
+                    }
+                }
+            }
+            Ok(())
+        })?;
+        checked.insert(target);
+    }
+    Ok(())
+}

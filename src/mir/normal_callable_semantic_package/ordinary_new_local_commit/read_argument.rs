@@ -125,6 +125,7 @@ impl ReadActualSourceLoanV1 {
 enum EmittedReadKindV1 {
     Array(Rc<EmittedOwnedArrayReadV1>),
     Field(field::EmittedFieldReadArgumentV1),
+    MapField { source: ReadActualSourceLoanV1, call: OwnedExprSiteV1, receiver: Rc<crate::mir::builder::ExactLexicalReadV1>, pair: [Binding; 2], bindings: Vec<Binding> },
 }
 /// Retain the original emitted allocation; never reissue an equivalent Get.
 #[derive(Debug)]
@@ -143,17 +144,37 @@ impl EmittedReadArgumentV1 {
         Ok(Self { kind: EmittedReadKindV1::Field(field::EmittedFieldReadArgumentV1::new(
             source, call, receiver, read, context, function)?) })
     }
+    pub(in crate::mir) fn from_map_field_v1(source: ReadActualSourceLoanV1, call: OwnedExprSiteV1,
+        receiver: Rc<crate::mir::builder::ExactLexicalReadV1>, context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+    ) -> Result<Self, String> {
+        let ReadSourceKindV1::MapField(original) = &source.kind else { return Err(freeze("read-argument/emitted-source-kind-drift")); };
+        let ledger = context.ledger();
+        let pair = ledger.checked_field_pair_v1(source.site(), context)?.ok_or_else(|| freeze("field-argument/source-missing"))?;
+        let (frame, exclusion) = ledger.stored_get_field_root_source_v1(source.site(), &receiver, context)?
+            .ok_or_else(|| freeze("field-argument/source-missing"))?;
+        if frame.source() != &original.get { return Err(freeze("field-argument/original-source-identity")); }
+        context.validate_stored_get_nonnull_read_v1(&frame, &exclusion, &receiver, function, None, &pair[0])?;
+        let mut bindings = ledger.checked_field_normal_prefix_v1(source.site())?;
+        bindings.extend(pair.clone());
+        bindings.extend(ledger.checked_field_cleanup_bindings_v1(source.site())?);
+        let mut unique = Vec::new();
+        for row in bindings { if !unique.contains(&row) { unique.push(row); } }
+        Ok(Self { kind: EmittedReadKindV1::MapField { source, call, receiver, pair, bindings: unique } })
+    }
     /// The Get holder census still owns the exact original Get Rc identity.
     pub(super) fn array_projection_v1(&self) -> Option<&Rc<EmittedOwnedArrayReadV1>> {
-        match &self.kind { EmittedReadKindV1::Array(read) => Some(read), EmittedReadKindV1::Field(_) => None }
+        match &self.kind { EmittedReadKindV1::Array(read) => Some(read), EmittedReadKindV1::Field(_) | EmittedReadKindV1::MapField { .. } => None }
     }
     pub(crate) fn producer_bindings(&self) -> Box<dyn Iterator<Item = &Binding> + '_> {
         match &self.kind { EmittedReadKindV1::Array(read) => Box::new(read.producer_bindings()),
-            EmittedReadKindV1::Field(read) => Box::new(std::iter::once(read.binding())) }
+            EmittedReadKindV1::Field(read) => Box::new(std::iter::once(read.binding())),
+            EmittedReadKindV1::MapField { pair, .. } => Box::new(pair.iter()) }
     }
     pub(crate) fn bindings(&self) -> Box<dyn Iterator<Item = &Binding> + '_> {
         match &self.kind { EmittedReadKindV1::Array(read) => Box::new(read.bindings()),
-            EmittedReadKindV1::Field(read) => Box::new(std::iter::once(read.binding())) }
+            EmittedReadKindV1::Field(read) => Box::new(std::iter::once(read.binding())),
+            EmittedReadKindV1::MapField { bindings, .. } => Box::new(bindings.iter()) }
     }
     pub(crate) fn value_with_source_v1(
         &self, call: &OwnedExprSiteV1, source: &ReadActualSourceLoanV1,
@@ -163,9 +184,15 @@ impl EmittedReadArgumentV1 {
             (EmittedReadKindV1::Array(read), ReadSourceKindV1::Array(source)) =>
                 read.value_with_source_v1(call, source, context.ledger()),
             (EmittedReadKindV1::Field(read), ReadSourceKindV1::Field(source)) => read.value(call, source, context),
-            (EmittedReadKindV1::Array(_), ReadSourceKindV1::Field(_))
-            | (EmittedReadKindV1::Field(_), ReadSourceKindV1::Array(_))
-            | (_, ReadSourceKindV1::MapField(_)) => Err(freeze("read-argument/emitted-source-kind-drift")),
+            (EmittedReadKindV1::MapField { source: retained, call: original_call, pair, .. }, ReadSourceKindV1::MapField(_))
+                if retained == source && original_call == call => {
+                if context.ledger().checked_field_pair_v1(source.site(), context)?.as_ref() != Some(pair) {
+                    return Err(freeze("field-argument/original-producer-drift"));
+                }
+                match pair[1].1 { MirInstruction::InvokeNormalResult { dst, .. } => Ok(dst),
+                    _ => Err(freeze("field-argument/read-operands")) }
+            }
+            _ => Err(freeze("read-argument/emitted-source-kind-drift")),
         }
     }
     pub(super) fn validate_field_anchor_ends_v1(
@@ -186,10 +213,11 @@ impl EmittedReadArgumentV1 {
             EmittedReadKindV1::Array(read) => read.receiver().loan_forwarded_copies(
                 read.source().holder(), context.ledger().live_owned_array_read_value_v1(read.source())?),
             EmittedReadKindV1::Field(read) => read.copies(context),
+            EmittedReadKindV1::MapField { receiver, .. } => receiver.original_copy_dependencies_v1(),
         }
     }
     pub(super) fn validate_finished_v1(
-        &self, function: &MirFunction, projection: &super::physical_boundary::FinishedBindings,
+        &self, module: &crate::mir::MirModule, function: &MirFunction, projection: &super::physical_boundary::FinishedBindings,
         context: CallValidationContextV1<'_>, call: &OwnedExprSiteV1, outer: &Binding,
         coordinate: (BasicBlockId, usize), ordinal: u32,
     ) -> Result<(), String> {
@@ -198,6 +226,11 @@ impl EmittedReadArgumentV1 {
                 function, projection, context.ledger(), call, outer, coordinate, ordinal),
             EmittedReadKindV1::Field(read) => read.validate_finished(
                 function, projection, context, call, outer, coordinate, ordinal),
+            EmittedReadKindV1::MapField { source, call: original_call, receiver, pair, .. } => {
+                if original_call != call { return Err(freeze("field-argument/call-identity")); }
+                field::validate_map_field_v1(self, source, receiver, pair, module, function,
+                    projection, context, call, outer, coordinate, ordinal)
+            },
         }
     }
 }

@@ -410,7 +410,7 @@ impl CallValidationContextV1<'_> {
         finishing: Option<&Finished>,
         consumer: &Binding,
     ) -> Result<(), String> {
-        let (_, normal) = self.stored_map_get_read_v1(frame, read, function, finishing)?;
+        let (_, [_, normal]) = self.stored_map_get_read_v1(frame, read, function, finishing)?;
         self.with_local_call_group_tree_v2(frame.site().owner(), |groups| {
             let mut matches = groups.iter().filter_map(|group| {
                 let packet = group.bool_condition()?;

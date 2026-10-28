@@ -1,9 +1,9 @@
-date = "2026-10-27"
+date = "2026-10-29"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini: MIR emission read-argument/source-kind for Map-held child field; nullable Text result transport incomplete"
+current_blocker_token = "boxtorrent-mini: final Map borrow effects refuse HakoAllocPage.release Array Set; call-result contracts remain unconnected"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,10 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini: input cohort advances; MIR emission stops at Map child read-argument/source-kind; EXE has not run.
-Original Text/null return demand and Home class recheck use existing source evidence; next connect Map child read through the call interval.
-C nullable Text call/return transport, Fault cleanup, Bool physical projection and independent validation remain open; see app card.
-Last fixed suite was 10/11 on an earlier tree, not remeasured at current HEAD.
+APP-boxtorrent-mini: final Map borrow verification rejects unproved Array Set in HakoAllocPage.release; EXE not generated.
+Map child source/emission and final call-effect closure are connected; unknown mutation/destruction stays rejected.
+Next connect original integer-array writer census and exact Set operands through the existing receipt owner; see app card.
+Fixed suite on this quick binary/runtime: 10/11, 9 real EXEs plus marker; only boxtorrent fails, no timeout/SKIP.
+User requested handoff; stop implementation/build after commit/push. Goal remains paused.
 """
 next_design_card = "none"
 next_design_card_path = "none"

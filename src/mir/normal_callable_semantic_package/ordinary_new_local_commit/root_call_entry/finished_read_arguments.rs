@@ -24,7 +24,7 @@ impl EmittedLexicalCallProjectionV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_finished_read_arguments_v1(
         &self,
-        function: &MirFunction,
+        module: &crate::mir::MirModule, function: &MirFunction,
         context: CallValidationContextV1<'_>,
         projection: &FinishedBindings,
         call_coordinate: (BasicBlockId, usize),
@@ -50,7 +50,7 @@ impl EmittedLexicalCallProjectionV1 {
                 context,
             )?;
             read.validate_finished_v1(
-                function,
+                module, function,
                 projection,
                 context,
                 self.call_site(),

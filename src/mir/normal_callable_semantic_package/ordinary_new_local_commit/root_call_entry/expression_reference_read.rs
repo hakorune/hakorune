@@ -498,7 +498,7 @@ impl ExpressionReferenceReadV1 {
         }
         match source {
             Reference::StoredMapGet(frame) => {
-                let (_, normal) = context.stored_map_get_read_v1(frame, read, function, None)?;
+                let (_, [_, normal]) = context.stored_map_get_read_v1(frame, read, function, None)?;
                 let producer = ReferenceProducerV1::Definition(normal);
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 { producer })
@@ -571,7 +571,7 @@ impl ExpressionReferenceReadV1 {
         }
         match source {
             Reference::StoredMapGet(frame) => {
-                let (value, normal) =
+                let (value, [_, normal]) =
                     context.stored_map_get_read_v1(frame, &self.read, function, finishing)?;
                 if !matches!(&self.producer, ReferenceProducerV1::Definition(original) if original == &normal)
                 {

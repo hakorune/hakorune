@@ -45,6 +45,30 @@ impl FinalizedRootSourceHandoffV1 {
             &[((BasicBlockId, MirInstruction), (BasicBlockId, usize))],
         ) -> Result<(), String>,
     ) -> Result<(), String> {
+        self.visit_finalized_call_structure_v1(module, |owner, scope, node, arguments, function, coordinate, copies| {
+            self.ledger.with_finished_projection(owner, |symbol, projection| {
+                if function.signature.name != symbol { return Err(freeze("owned-array-read-finished-owner")); }
+                node.validate_finished_read_arguments_v1(module, function,
+                    CallValidationContextV1::Finalized(self), projection, coordinate)
+            })?;
+            visit(owner, scope, node, arguments, function, coordinate, copies)
+        })
+    }
+
+    /// Source/actual call geometry only. This lends no read-lifetime permission.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn visit_finalized_call_structure_v1(
+        &self,
+        module: &MirModule,
+        mut visit: impl FnMut(
+            FunctionOwnerIdV1,
+            FinalizedLexicalCallContextV1<'_>,
+            &EmittedLexicalCallProjectionV1,
+            &[LocalCallArgumentV1],
+            &MirFunction,
+            (BasicBlockId, usize),
+            &[((BasicBlockId, MirInstruction), (BasicBlockId, usize))],
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
         self.validate_finalized_root_cleanup_v1(module)?;
         for (owner, groups) in &self.local_calls {
             self.ledger
@@ -102,18 +126,6 @@ impl FinalizedRootSourceHandoffV1 {
                     if !coordinates.insert((symbol, coordinate)) {
                         return Err(freeze("final-call-visit/coordinate-duplicate"));
                     }
-                    self.ledger
-                        .with_finished_projection(owner, |symbol, projection| {
-                            if function.signature.name != symbol {
-                                return Err(freeze("owned-array-read-finished-owner"));
-                            }
-                            node.validate_finished_read_arguments_v1(
-                                function,
-                                CallValidationContextV1::Finalized(self),
-                                projection,
-                                coordinate,
-                            )
-                        })?;
                     // This node alone owns its dependencies. Nested nodes are
                     // visited separately, while exact shared prefixes are lent once.
                     let mut copies = Vec::new();
