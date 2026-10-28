@@ -417,6 +417,39 @@ impl OriginalFormalUseSourceV1 {
         if initializer.declared_type_name().is_some() || formal == initializer.binding() { return Err(reject()); }
         Ok(Some(formal))
     }
+    /// Account only for the original Return read of a fresh local construction.
+    /// Constructor arguments remain separate uses; this grants no Home transfer.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn local_construction_return_read_v1(
+        &self, root: &crate::mir::normal_callable_semantic_package::ResultOriginWitnessV1,
+    ) -> Option<BindingRefV1> {
+        use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1,
+            expression_root::StatementExpressionRoleV1};
+        if !matches!(root.step(), crate::mir::normal_callable_semantic_package::ResultWitnessStepV1::LocalConstruction(_)) {
+            return None;
+        }
+        let acquisition = root.construction_site_v1()?;
+        let mut plans = self.return_plans.as_deref()?.iter().filter(|plan|
+            plan.owner() == self.owner && matches!(plan.root(), ExpressionPlanRootV1::Statement {
+                role: StatementExpressionRoleV1::ReturnValue, value, .. } if value == root.site().site()));
+        let plan = plans.next()?;
+        let crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding))
+            = plan.nodes().first()?.source() else { return None; };
+        let mut initializers = self.initializers.iter().filter(|row| row.binding() == *binding);
+        let initializer = initializers.next()?;
+        if plans.next().is_some() || initializers.next().is_some() || self.roots.contains_key(binding)
+            || binding.owner() != self.owner || plan.nodes().first()?.site() != root.site().site()
+            || root.site().owner() != self.owner || acquisition.owner() != self.owner
+            || initializer.initializer_site() != Some(acquisition.site())
+            || self.reads().filter(|(site, reference)| *site == root.site().site()
+                && **reference == ResolvedLexicalRefV1::Local(*binding)).count() != 1 {
+            return None;
+        }
+        let flow = self.flow.as_ref()?;
+        let value = flow.read(root.site().site(), *binding)?;
+        matches!(flow.origin(value), Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(site))
+            if site == acquisition.site()).then_some(*binding)
+    }
+
     /// Corroborate a returned residence through the SAME original alias flow.
     /// Source membership alone cannot turn a replaced/joined value into this Home.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn corroborates_text_residence_return_v1(

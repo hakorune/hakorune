@@ -367,6 +367,21 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
+        // Original New/Return identity can close its read census before the
+        // ownership walk publishes terminals. Home/cleanup stay with that walk.
+        if let Some((selected, _)) = &self.original_instance_input_issuance {
+            if let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(contract.batch_slot) {
+                if self.callable_result_classes.outcomes(key).is_some() {
+                    for root in self.callable_result_classes.checked_original_source_roots_v1(key, contract.owner).map_err(freeze)? {
+                        if let Some(binding) = uses.local_construction_return_read_v1(root) {
+                            if origins.contains_key(&binding) || !covered.insert((root.site().site().clone(), binding)) {
+                                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // Retained scalar terminals own exact Return reads, including Loop After.
         for terminal in self.terminal_relations_for_owner(contract.owner) {
             if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(row) = terminal {
