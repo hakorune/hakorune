@@ -526,6 +526,14 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     }
                 }
             }
+            Node::Binary(_) if frame.operations().iter().any(|operation|
+                operation.node() == index && operation.normal_result_v1() == Some(ResultKind::TrivialBool)) => {
+                let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
+                let value = emit_checked_scalar_condition_v1(builder, frame, index, &values, None,
+                    fault_frame, &pending, &mut bindings)?;
+                values[index] = Some(EvaluatedExpressionValueV1::Bool(value));
+                continue;
+            }
             Node::Binary(binary) => {
                 let operand = |site| source.nodes().iter().position(|node| node.site() == site)
                     .and_then(|node| values[node].as_ref()).ok_or_else(|| freeze("print-expression/operand-missing"))
@@ -664,6 +672,28 @@ pub(super) fn emit_string_operation_v1(
 
 /// Physical Invoke/Normal writer shared by source nodes and purpose acquisition.
 /// Only the caller that owns a source node may add it to the source-node stack.
+/// Share source-derived comparison emission across conditions and value consumers.
+pub(super) fn emit_checked_scalar_condition_v1(
+    builder: &mut MirBuilder, frame: &CheckedExpressionEvaluationV1, node: usize,
+    values: &[Option<EvaluatedExpressionValueV1>], receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
+    fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,
+) -> Result<ValueId, String> {
+    let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(frame, node, values, receiver)?;
+    let (normal, kind, _) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
+        plan.operation().clone(), fault_frame, pending, bindings)?;
+    if plan.is_integer_comparison() {
+        if kind != crate::mir::instruction::InvokeNormalResultKind::I64 { return Err(freeze("bool-condition/text-result")); }
+        let result = builder.next_value_id();
+        let comparison = plan.comparison_instruction(normal, result).ok_or_else(|| freeze("bool-condition/text-result"))?;
+        let MirInstruction::Compare { dst, op, lhs, rhs } = comparison else { unreachable!() };
+        bindings.push(crate::mir::builder::emission::compare::emit_to_recorded(builder, dst, op, lhs, rhs)?);
+        Ok(result)
+    } else {
+        if kind != crate::mir::instruction::InvokeNormalResultKind::Bool { return Err(freeze("bool-condition/text-result")); }
+        Ok(normal)
+    }
+}
+
 pub(super) fn emit_scalar_operation_with_pending_v1(
     builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: InvokeOperation,
     fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,

@@ -5,7 +5,7 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 選択smoke: MainのHandle返却packetを越え、`ordinary-new/emission/text-initializer/execution-pending`で停止。元LocalConstruction witnessと同じlocal Newを既存返却leaf・teardown・Normal移転/Fault取消・最終allocation/Copy/Return照合へ接続。兄弟Homeをcleanupしてlocal Newを返す一時probeは正規EXE/runで`7`/exit0。次はText initializerの元sourceと実行planの対応を接続、アプリEXEは未達。
+- 選択smoke: MainのHandle返却packetを越え、`ordinary-new/local-commit/bool-condition/text-comparison-source`で停止。元LocalConstruction witnessと同じlocal Newを既存返却leaf・teardown・Normal移転/Fault取消・最終allocation/Copy/Return照合へ接続。兄弟Homeをcleanupしてlocal Newを返す一時probeは正規EXE/runで`7`/exit0。次は通常method callを含む比較入力の元source計画を、条件式専用の制限と分離して共通consumerへ接続する。アプリEXEは未達。
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
 - Array aliasと直接receiverは実Count/Get source loanを同じfield descriptorへ保持。直接receiverもReturnを含むsource field census→既存field issuer→exact親read/Copy→記録済みcanonical readへ接続。Countは既存read会計を使用。source-only拒否pin、最終noninteger aliasとdirect Arrayの拒否を保持。
 - 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
@@ -14,8 +14,9 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - entry loanだけで未知callee中の親生存は証明できない。snapshotとfield再読の同一性、支持Home、Normal/Faultを別々に閉じる。
 - 着地済み: C Map null guard→child borrow（空Map/nullable child/Fault/誤分岐）、異なるslot借用の保守的alias検査、nullable slotの実payload null比較。Rust完成guardの到達・支配・再実行検査は完成時だけ行い、構築中の局所検査を維持。
 - 既存接続: stored-child scalar return、Map keys count、put/readData/refCount、nullable Text需要、Text連結Loop、Null return、DiscardValue、delete。chunkCount独立validator、nullable Text C transport、Bool物理、全体cleanupとEXE実行は未完。
-- 固定suite: `target/quick/hakorune-acceptance-original-entry`＋同じquick runtime（元Return read会計まで、prepared receiver変更前、保持Map WIP込み）で**10/11、834.01秒**。実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現CLI build PASS、選択smokeは上記Text initializer停止でFAIL。route修正は既存Object slot family26/0（変更前後とも同じ26件）。
+- 固定suite: `target/quick/hakorune-acceptance-original-entry`＋同じquick runtime（元Return read会計まで、prepared receiver変更前、保持Map WIP込み）で**10/11、834.01秒**。実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現CLI build PASS、選択smokeは上記比較source停止でFAIL。route修正は既存Object slot family26/0（変更前後とも同じ26件）。
 - 今回の既存検証: local返却leaf10/0、normal projection9/0、構築完了4/0、Copy改変拒否1/0、Fault欠落拒否1/0、final preflightのjoint MIR/recorded Fault欠落拒否1/0。CLI build35.74秒PASS。local返却probeはBirth未注釈版でEXE/run成功、注釈版は既存formal-declaration-unavailableで拒否。前回entry21/0、discard4/0、String1/0、child terminal1/0。terminal value6/2とfinished-discard1赤、object input11/2は変更前binaryでも同じ失敗。
+- Bool Local: sourceのBool frameを既存評価値・scalar cleanup・exact Copy receipt・最終scalar visitorへ接続。比較の発行は条件式と共通化し、独立検証も同じsource plan/Invoke pairを使用。Text equality local→分岐の一時probeは真exit7/偽exit0、CLI build41.14秒PASS。既存initializer1/8、Text条件1赤は保存済み変更前binaryと同じ失敗集合/forwarded-copy拒否。比較Normal/Fault契約とFault欠落拒否は各1/0。通常callを含む比較、Bool文字列化、primitive比較の一般化は未達。
 - 以前の未解消検証: source-use拒否test1赤は変更前commitでも同じ`p.sink(0)` assertion。Null境界は診断assert赤、Text alias赤は変更前後で同じforwarded-copy/root。Core source family8/3は未分類、initializer i64の3赤は既存失敗名集合内。これらを今回の成功に数えない。
 
 ## 採用設計

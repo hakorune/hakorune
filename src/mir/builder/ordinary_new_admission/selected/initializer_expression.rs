@@ -1,7 +1,6 @@
 //! Affine Local evaluation transport; publication waits for the existing receipt.
 use super::*;
 use super::expression_value::{self, EmittedExpressionValueV1};
-use crate::mir::instruction::{StringInvokeOperand as Operand};
 use crate::mir::normal_callable_semantic_package::{EmittedInitializerExpressionProjectionV1, LexicalInstanceCallDispositionRowV1};
 use crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1;
 use std::rc::Rc;
@@ -46,10 +45,7 @@ pub(in crate::mir::builder) struct PendingEvaluatedInitializerV1 {
 impl PendingEvaluatedInitializerV1 {
     pub(in crate::mir::builder) fn ordinal(&self) -> u32 { self.ordinal }
     pub(in crate::mir::builder) fn value(&self) -> ValueId {
-        match self.expression.value.as_operand().expect("checked Local initializer operand") {
-            Operand::NormalInteger(value) | Operand::OwnedString(value) | Operand::DynamicCarrier(value) | Operand::Dynamic(value) => *value,
-            _ => unreachable!("checked Local initializer value"),
-        }
+        self.expression.value.value().expect("checked Local initializer value")
     }
     pub(in crate::mir::builder) fn placement(&self, value: ValueId) -> Result<crate::mir::builder::stmts::variable_stmt::LocalValuePlacement, String> {
         if value != self.value() { return Err(freeze("initializer-expression/placement-value")); }
@@ -81,7 +77,7 @@ pub(in crate::mir::builder) fn emit(
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
     retained_argument_frames: &[Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>],
 ) -> Result<PendingInitializerExpressionV1, String> {
-    if !frame.is_i64() && !frame.is_text_residence() && !frame.is_dynamic_value() {
+    if !frame.is_i64() && !frame.is_bool() && !frame.is_text_residence() && !frame.is_dynamic_value() {
         return Err(freeze("text-initializer/execution-pending"));
     }
     if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(

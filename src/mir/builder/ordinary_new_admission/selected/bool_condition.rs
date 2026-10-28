@@ -190,26 +190,13 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
         builder, state, ledger, frame.evaluation(), node, consume_receiver, retained_argument_frames,
     )?;
     if !body.calls.is_empty() || !body.path_reads.is_empty() { return Err(freeze("bool-condition/text-operand-order")); }
-    let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(
-        frame.evaluation(), node, &body.values, receiver.as_ref())?;
     let normal_temporaries = super::expression_value::bool_condition_temporary_operations_v1(
         frame.evaluation(), node, &body,
     )?;
     let pending: Vec<_> = normal_temporaries.iter().cloned()
         .chain(body.homes.iter().cloned()).collect();
-    let (normal, kind, _) = super::expression_value::emit_scalar_operation_with_pending_v1(builder,
-        &mut RawRootGraphWriterV1, plan.operation().clone(), body.fault_frame, &pending, &mut body.bindings)?;
-    let value = if plan.is_integer_comparison() {
-        if kind != crate::mir::instruction::InvokeNormalResultKind::I64 { return Err(freeze("bool-condition/text-result")); }
-        let result = builder.next_value_id();
-        let comparison = plan.comparison_instruction(normal, result).ok_or_else(|| freeze("bool-condition/text-result"))?;
-        let MirInstruction::Compare { dst, op, lhs, rhs } = comparison else { unreachable!() };
-        body.bindings.push(crate::mir::builder::emission::compare::emit_to_recorded(builder, dst, op, lhs, rhs)?);
-        result
-    } else {
-        if kind != crate::mir::instruction::InvokeNormalResultKind::Bool { return Err(freeze("bool-condition/text-result")); }
-        normal
-    };
+    let value = super::expression_value::emit_checked_scalar_condition_v1(builder,
+        frame.evaluation(), node, &body.values, receiver.as_ref(), body.fault_frame, &pending, &mut body.bindings)?;
     if let Some(receiver) = &receiver { body.bindings.extend(receiver.original_copy_dependencies_v1()?.iter().cloned()); }
     let (terminal, continuation) = super::expression_value::finish_bool_condition_continuation_v1(
         builder, &mut body, normal_temporaries,

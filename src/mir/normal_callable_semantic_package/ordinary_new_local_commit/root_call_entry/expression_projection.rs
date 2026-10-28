@@ -472,6 +472,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     if actual == dst && value == expected))?;
                 continue;
             }
+            if let (Node::Binary(_), Some(EvaluatedExpressionValueV1::Bool(result))) = (node.source(), value) {
+                scalar_condition_bindings_v1(self.frame, index, self.values, None, *result, self.original)?;
+                continue;
+            }
             let value = value.map(|value| value.as_operand()).transpose()?;
             match (node.source(), value) {
                 (Node::Literal(Literal::String(text)), Some(Operand::StaticText { utf8 }))
@@ -953,10 +957,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 continue;
             }
             if let Some(EvaluatedExpressionValueV1::Bool(value)) = self.values[index].as_ref() {
-                ordered.push(
-                    self.require_unique(|row| row.dst_value() == Some(*value))?
-                        .clone(),
-                );
+                if source.nodes()[index].binary().is_some() {
+                    ordered.extend(scalar_condition_bindings_v1(self.frame, index, self.values, None, *value, self.original)?);
+                } else {
+                    ordered.push(self.require_unique(|row| row.dst_value() == Some(*value))?.clone());
+                }
                 continue;
             }
             match self.values[index]

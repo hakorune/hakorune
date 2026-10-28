@@ -203,7 +203,7 @@ impl FinalizedRootSourceHandoffV1 {
                             }
                         }
                     }
-                    let Some(packet) = group.initializer().filter(|packet| packet.frame().is_i64()) else { continue; };
+                    let Some(packet) = group.initializer().filter(|packet| packet.frame().is_i64() || packet.frame().is_bool()) else { continue; };
                     group.validate_recorded_in_context(context, function, Some(projection))?;
                     for original in packet.scalar_source_bindings_v1(context)? {
                         if let Some(finished) = projection.relation_binding(function, &original)? {

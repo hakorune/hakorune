@@ -180,7 +180,7 @@ impl EmittedInitializerExpressionProjectionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn scalar_source_bindings_v1(
         &self, context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
-        if !self.frame.is_i64() { return Err(freeze("expression/scalar-entry-contract")); }
+        if !self.frame.is_i64() && !self.frame.is_bool() { return Err(freeze("expression/scalar-entry-contract")); }
         let expression = self.expression();
         let mut source = expression.ordered_bindings_in_context(context)?;
         source.extend(expression.scalar_copy_dependencies_v1(context)?);
@@ -372,12 +372,14 @@ impl EmittedInitializerExpressionProjectionV1 {
                 self.frame.source().root().statement().node(),
             )?
             .ok_or_else(|| freeze("initializer-expression/source-missing"))?;
-        let expected = if self.frame.is_i64() {
-            Operand::NormalInteger(self.value)
+        let expected = if self.frame.is_bool() {
+            EvaluatedExpressionValueV1::Bool(self.value)
+        } else if self.frame.is_i64() {
+            Operand::NormalInteger(self.value).into()
         } else if self.has_dynamic_carrier() {
-            Operand::DynamicCarrier(self.value)
+            Operand::DynamicCarrier(self.value).into()
         } else if self.has_dynamic_alias() {
-            Operand::Dynamic(self.value)
+            Operand::Dynamic(self.value).into()
         } else if self.has_text_home() {
             // A snapshot Local keeps the original carrier as the evaluation root.
             match &self.purpose_acquisition {
@@ -392,7 +394,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                     _ => return Err(freeze("initializer-expression/source-or-result")),
                 },
                 None => Operand::OwnedString(self.value),
-            }
+            }.into()
         } else {
             return Err(freeze("initializer-expression/source-or-result"));
         };
@@ -411,7 +413,7 @@ impl EmittedInitializerExpressionProjectionV1 {
             }
         }
         if !Rc::ptr_eq(&selected, &self.frame)
-            || self.values.first() != Some(&Some(expected.into()))
+            || self.values.first() != Some(&Some(expected))
             || !matches!(
                 self.terminal.1,
                 MirInstruction::Jump {
@@ -442,7 +444,7 @@ impl EmittedInitializerExpressionProjectionV1 {
                 "initializer-expression/dynamic-carrier-local-handoff",
             ));
         }
-        if self.frame.is_i64()
+        if (self.frame.is_i64() || self.frame.is_bool())
             && self.copy.as_ref().is_none_or(|(_, row)| {
                 !matches!(row, MirInstruction::Copy { dst, src }
             if *dst == self.local && *src == self.value)
