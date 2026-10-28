@@ -54,6 +54,16 @@ pub(super) struct Graph<'a> {
     pub(super) core_requests: Vec<CoreRequestNode>,
     pub(super) map_receiver: &'a mut MapReceiverLender<'a>,
 }
+/// Default-off (builder debug flag): why a graph node was marked invalid.
+/// Kept out of line so the recursive callers do not grow their stack frames.
+#[inline(never)]
+fn note_invalid(node: usize, why: &str, detail: &dyn std::fmt::Debug) {
+    if crate::config::env::builder_debug_enabled() {
+        let detail = format!("{detail:?}");
+        eprintln!("[source-sum] node {node} invalid: {why} {}", &detail[..detail.len().min(260)]);
+    }
+}
+
 impl Graph<'_> {
     pub(super) fn point(&mut self, owner: FunctionOwnerIdV1, value: SourceValueRefV1) -> usize {
         if let Some(node) = self.points.get(&(owner, value)) {
@@ -67,13 +77,18 @@ impl Graph<'_> {
             Ok(SourcePointExpansionV1::Entry(binding)) => node.union.push(self.formal(binding)),
             Ok(SourcePointExpansionV1::Join(incoming)) => {
                 node.invalid = incoming.is_empty();
+                if node.invalid { note_invalid(id, "point join without incoming values", &()); }
                 for incoming in incoming {
                     node.union.push(self.point(owner, incoming));
                 }
             }
             Ok(SourcePointExpansionV1::Seed(seed)) => node.union.push(self.seed(&seed)),
-            Ok(SourcePointExpansionV1::Unknown) => node.invalid = true,
+            Ok(SourcePointExpansionV1::Unknown) => {
+                note_invalid(id, "point expansion unknown", &());
+                node.invalid = true;
+            }
             Err(error) => {
+                note_invalid(id, "point expansion error", &error);
                 self.expansion_error.get_or_insert(error);
                 node.invalid = true;
             }
@@ -100,10 +115,14 @@ impl Graph<'_> {
         if let Some(&id) = self.returns.get(&source.callee_owner()) {
             match &expanded {
                 Err(error) => {
+                    note_invalid(id, "callee return expansion error", &error);
                     self.expansion_error.get_or_insert(error.clone());
                     self.nodes[id].invalid = true;
                 }
-                Ok(None) => self.nodes[id].invalid = true,
+                Ok(None) => {
+                    note_invalid(id, "later demand: callee return has no source", &());
+                    self.nodes[id].invalid = true;
+                }
                 _ => {}
             }
             return id;
@@ -125,10 +144,15 @@ impl Graph<'_> {
                 }
             }
             Err(error) => {
+                note_invalid(id, "callee return expansion error", &error);
                 self.expansion_error.get_or_insert(error);
                 node.invalid = true;
             }
-            _ => node.invalid = true,
+            other => {
+                note_invalid(id, "callee return: no seeds or owner has no complete flow", &source.callee_owner());
+                let _ = other;
+                node.invalid = true;
+            }
         }
         self.nodes[id] = node;
         id
@@ -355,6 +379,9 @@ impl Graph<'_> {
         }
         row.unconditional =
             row.required_i64.is_empty() && row.required_text.is_empty() && !row.atoms.is_empty();
+        if row.invalid {
+            note_invalid(id, "seed", seed);
+        }
         self.nodes[id] = row;
         id
     }

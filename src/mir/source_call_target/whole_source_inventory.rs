@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
 use crate::mir::resolved_semantics::{
     observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ShadowMethodCallReceiverV0,
@@ -168,6 +168,15 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
         app_main: &AppMainCatalogCoSealV1,
     ) -> BTreeSet<CanonicalSameModuleCallableKeyV1> {
         let app_key = app_main.catalog_key();
+        if crate::config::env::builder_debug_enabled() {
+            if let Some(unavailable) = &self.first_method_observation_unavailable {
+                eprintln!(
+                    "[closed-app-omission] disabled: method-call observation unavailable in {:?}: {:?}",
+                    unavailable.caller(),
+                    unavailable.cause()
+                );
+            }
+        }
         if self.first_method_observation_unavailable.is_some()
             || app_key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
             || !app_main.catalog_brand().is_same(self.declarations.brand())
@@ -189,48 +198,77 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
             let next: BTreeSet<_> = self
                 .declarations
                 .static_declarations()
-                .filter_map(|(key, declaration)| {
-                    if omitted.contains(key) {
-                        return None;
-                    }
-                    // Main and its static children remain physical roots. Explicit
-                    // visibility/ABI metadata is conservatively retained too.
-                    if key.owner() == app_key.owner()
-                        || declaration.attrs().runes.iter().any(|rune| {
-                            matches!(
-                                rune.name.as_str(),
-                                "Public"
-                                    | "Internal"
-                                    | "FfiSafe"
-                                    | "Symbol"
-                                    | "CallConv"
-                                    | "ReturnsOwned"
-                                    | "FreeWith"
-                            )
-                        })
-                    {
-                        return None;
-                    }
-                    self.calls()
-                        .filter(|row| !omitted.contains(row.call().caller()))
-                        .filter(|row| {
-                            let call = row.call();
-                            call.method() == key.name() && call.arity() == key.arity()
-                        })
-                        .all(|row| {
-                            let call = row.call();
-                            self.target(call.caller(), call.site())
-                                .is_some_and(|target| target.target() != key)
-                        })
-                        .then(|| key.clone())
+                .filter(|(key, declaration)| {
+                    !omitted.contains(*key)
+                        && self
+                            .static_retention(key, declaration_rune_names(declaration), app_key, &omitted)
+                            .is_none()
                 })
+                .map(|(key, _)| key.clone())
                 .collect();
             if next.is_empty() {
+                if crate::config::env::builder_debug_enabled() {
+                    for (key, declaration) in self.declarations.static_declarations() {
+                        if !omitted.contains(key) {
+                            eprintln!(
+                                "[closed-app-omission] retained {key:?}: {:?}",
+                                self.static_retention(key, declaration_rune_names(declaration), app_key, &omitted)
+                            );
+                        }
+                    }
+                    eprintln!("[closed-app-omission] omitted {} static methods", omitted.len());
+                }
                 return omitted;
             }
             omitted.extend(next);
         }
     }
+
+    /// Why a static method must stay physically selected, or `None` when
+    /// nothing retained can reach it. Main and its static children are roots;
+    /// explicit visibility/ABI metadata is retained; an unresolved same-selector
+    /// call from a retained caller keeps the candidate.
+    fn static_retention<'a>(
+        &'a self,
+        key: &CanonicalSameModuleCallableKeyV1,
+        rune_names: impl Iterator<Item = &'a str>,
+        app_key: &CanonicalSameModuleCallableKeyV1,
+        omitted: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
+    ) -> Option<StaticRetentionV1<'a>> {
+        if key.owner() == app_key.owner() {
+            return Some(StaticRetentionV1::AppRoot);
+        }
+        for name in rune_names {
+            if matches!(
+                name,
+                "Public" | "Internal" | "FfiSafe" | "Symbol" | "CallConv" | "ReturnsOwned" | "FreeWith"
+            ) {
+                return Some(StaticRetentionV1::Rune(name));
+            }
+        }
+        self.calls()
+            .filter(|row| !omitted.contains(row.call().caller()))
+            .find(|row| {
+                let call = row.call();
+                call.method() == key.name()
+                    && call.arity() == key.arity()
+                    && self
+                        .target(call.caller(), call.site())
+                        .is_none_or(|target| target.target() == key)
+            })
+            .map(|row| StaticRetentionV1::Incoming(row.call().caller(), row.call().site()))
+    }
+}
+
+fn declaration_rune_names(declaration: &VerifiedSameModuleCallableDeclarationV1) -> impl Iterator<Item = &str> {
+    declaration.attrs().runes.iter().map(|rune| rune.name.as_str())
+}
+
+#[derive(Debug)]
+enum StaticRetentionV1<'a> {
+    AppRoot,
+    Rune(&'a str),
+    Incoming(&'a CanonicalSameModuleCallableKeyV1, &'a SourceExprSiteV1),
 }
 
 fn observe_all_calls<'catalog>(

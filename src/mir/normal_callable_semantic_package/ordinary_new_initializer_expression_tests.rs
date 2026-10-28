@@ -915,6 +915,9 @@ fn initializer_core_i64_reads_require_original_producers_in_the_real_home_walk()
 
 #[test]
 fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_cleanup() {
+    // Sources that now reach physical emission recurse deeper than a 2 MiB test thread.
+    std::thread::Builder::new().name("initializer-core-i64".into())
+        .stack_size(32 * 1024 * 1024).spawn(|| {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut failures = Vec::new();
@@ -1071,10 +1074,13 @@ fn initializer_core_i64_reaches_the_normal_compiler_with_original_reads_and_clea
         }
         assert!(failures.is_empty(), "{}", failures.join("\n"));
     });
-}
+    }).unwrap().join().unwrap();}
 
 #[test]
 fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_scopes() {
+    // Sources that now reach physical emission recurse deeper than a 2 MiB test thread.
+    std::thread::Builder::new().name("original-loop-header".into())
+        .stack_size(32 * 1024 * 1024).spawn(|| {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let text = r#"static box Main { main() {
         local n = 2
@@ -1295,4 +1301,4 @@ fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_sc
                 &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None));
     }).unwrap();
     }
-}
+    }).unwrap().join().unwrap();}

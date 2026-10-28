@@ -217,7 +217,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .find(|key| selected.batch_slot(key) == Some(batch_slot))
             .and_then(|key| source_core_method_calls.get(key));
         let has_typed_static_walk = typed_static_walk_owners.contains(&owner);
-        if !walk_triggers::needs_declaration_walk_v1(batch, selected, app_main_batch_slot, batch_slot)? { continue; }
+        if !walk_triggers::needs_declaration_walk_v1(batch, selected, omitted_static_callers, app_main_batch_slot, batch_slot)? { continue; }
         let seed_eligible = super::super::result_contract::preflight_declaration(
             declaration,
             selected,

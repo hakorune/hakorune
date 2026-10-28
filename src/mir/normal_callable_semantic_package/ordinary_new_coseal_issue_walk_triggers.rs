@@ -31,9 +31,15 @@ pub(super) fn has_nested_call_argument_walk_v1(input: ResolvedFunctionLoweringIn
 pub(super) fn needs_declaration_walk_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    omitted_static_callers: &std::collections::BTreeMap<crate::mir::resolved_semantics::FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     app_main: Option<u32>, slot: u32,
 ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
     if selected.role_for_batch_slot(slot).is_some() || app_main == Some(slot) { return Ok(true); }
+    // An omitted closed-App static owner gets no physical code, so its nested-call
+    // sources need no input inventory; their failures must not stop the app.
+    if batch.declarations().any(|row| row.batch_slot() == slot && omitted_static_callers.contains_key(&row.owner())) {
+        return Ok(false);
+    }
     batch.with_lowering_input(slot, has_nested_call_argument_walk_v1)
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)
 }

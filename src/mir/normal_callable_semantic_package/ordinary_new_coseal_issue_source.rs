@@ -89,6 +89,7 @@ pub(super) fn collect_local_candidates_v1(
 pub(super) fn prepare_local_candidates_by_slot_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    omitted_static_callers: &std::collections::BTreeMap<crate::mir::resolved_semantics::FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     app_main_batch_slot: Option<u32>,
     dynamic_slot: Option<u32>,
@@ -98,7 +99,7 @@ pub(super) fn prepare_local_candidates_by_slot_v1(
         .filter_map(|declaration| {
             let slot = declaration.batch_slot();
             if dynamic_slot == Some(slot) { return None; }
-            match super::walk_triggers::needs_declaration_walk_v1(batch, selected, app_main_batch_slot, slot) {
+            match super::walk_triggers::needs_declaration_walk_v1(batch, selected, omitted_static_callers, app_main_batch_slot, slot) {
                 Ok(false) => return None,
                 Err(issue) => return Some((slot, Err(issue))),
                 Ok(true) => {}

@@ -1007,6 +1007,7 @@ pub(super) fn prepare_source_preflight_v1(
     let local_candidates = source_claims::prepare_local_candidates_by_slot_v1(
         batch,
         selected,
+        omitted_static_callers,
         instance_constructors,
         app_main_batch_slot,
         dynamic_slot,

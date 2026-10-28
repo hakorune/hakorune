@@ -39,6 +39,7 @@ fn original(
     let mut candidates = super::super::super::source_claims::prepare_local_candidates_by_slot_v1(
         package.batch(),
         &package.selected,
+        &std::collections::BTreeMap::new(),
         &package.instance_constructors,
         Some(slot),
         None,

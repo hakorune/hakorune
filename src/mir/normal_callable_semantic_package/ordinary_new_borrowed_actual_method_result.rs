@@ -493,14 +493,14 @@ impl OriginalCoreOperandRequestV1 {
             _ => &[],
         }
     }
-    pub(super) fn text_ordinals(self) -> &'static [u32] {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn text_ordinals(self) -> &'static [u32] {
         match self.manifest.row().op {
             crate::mir::core_method_op::CoreMethodOp::StringIndexOf
             | crate::mir::core_method_op::CoreMethodOp::MapHas => &[0],
             _ => &[],
         }
     }
-    pub(super) fn receiver_is_text(self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_source) fn receiver_is_text(self) -> bool {
         !matches!(self.manifest.row().op, crate::mir::core_method_op::CoreMethodOp::MapHas
             | crate::mir::core_method_op::CoreMethodOp::MapKeys | crate::mir::core_method_op::CoreMethodOp::ArrayLen | crate::mir::core_method_op::CoreMethodOp::ArrayGet)
     }

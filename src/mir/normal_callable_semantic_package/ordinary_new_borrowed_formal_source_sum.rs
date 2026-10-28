@@ -332,6 +332,18 @@ struct CoreRequestNode {
     method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     request: OriginalCoreOperandRequestV1,
 }
+impl CoreRequestNode {
+    /// Source site of text operand `ordinal`: the receiver first when it is text,
+    /// then the text arguments, the same order `required_text` seeds are built in.
+    fn text_operand_site(&self, ordinal: usize) -> Option<&SourceExprSiteV1> {
+        let receiver = usize::from(self.request.receiver_is_text());
+        if ordinal < receiver {
+            return Some(self.method.receiver_site());
+        }
+        let argument = *self.request.text_ordinals().get(ordinal - receiver)?;
+        self.method.arguments().get(argument as usize).map(|argument| argument.site())
+    }
+}
 pub(super) fn resolve_original_source_sums_v1(
     source: &OriginalFormalSeedProductV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -469,8 +481,8 @@ pub(super) fn resolve_original_source_sums_v1(
         let Some(flow) = flows.get(&owner).filter(|flow| flow.is_complete()) else { continue };
         if flow.owner() != owner { continue; }
         for (ordinal, node) in request.text.iter().enumerate() {
-            let Some(argument) = request.method.arguments().get(ordinal) else { continue };
-            let Some((binding, value)) = flow.read_at(argument.site()) else { continue };
+            let Some(site) = request.text_operand_site(ordinal) else { continue };
+            let Some((binding, value)) = flow.read_at(site) else { continue };
             if binding.owner() != owner { continue; }
             let point = graph.point(owner, value);
             if point != *node && !graph.nodes[*node].union.contains(&point) {
