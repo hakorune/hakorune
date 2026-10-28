@@ -76,6 +76,15 @@ pub(super) fn text_reference(
     .then_some((binding, root))
 }
 
+/// An entry-formal read: a Text entry reference, else an untyped (opaque) entry formal.
+pub(super) fn entry_formal_reference(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    locals: &PrefixLocalFlow<'_>,
+    site: &SourceExprSiteV1,
+) -> Option<(BindingRefV1, BindingRefV1)> {
+    text_reference(input, locals, site).or_else(|| dynamic_formal_reference(input, locals, site))
+}
+
 pub(super) fn dynamic_formal_reference(
     input: ResolvedFunctionLoweringInputV1<'_>,
     locals: &PrefixLocalFlow<'_>,

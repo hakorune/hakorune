@@ -154,6 +154,18 @@ src/mir の読みにくさを減らすこと。RULES §2のとおり現appに不
 | 7 | 巨大関数の分割: `borrowed_call_arguments_callback_v1`(約670行)、`prepare_instance_source_actuals_v1`(約520)、`construct_borrowed_call_actuals_v1`(約510)、`original_mixed_local_loan_v1`(約554)。葉のmatch armを名前付き関数へ。**そのappが実際にその関数を直すときだけ**、1関数ずつ | 各ファイル | 行数ほぼ不変、読む単位が短くなる | 中〜高（借用・所有境界が動く） |
 | 8 | `allow(dead_code)` 303か所（145が `compiler/module_registry.in.rs` と `builder.rs`）に理由・利用予定・再判断条件を付けるか削除。grep上のcaller-zeroで確定したdeadは0件。`method_candidates_tail` は有力だが `tools/checks/manifests/chronic_measurement_observations_v1.json` の更新が要る | 横断 | 不明 | 低（削除前に必ずcaller確認） |
 
+JSON着地後のレビュー（2026-10-28、読取りworker3人。未実行）。上の表に加えて、次の順で行う。
+
+| 順 | 内容 | 見込み | リスク |
+| --- | --- | --- | --- |
+| 9 | `proof_declined`（`..._actual_method_result.rs`）を、`Option`を返すだけの印字helperから「不一致理由を返す小関数＋呼び側1か所のログ」へ。130字超の行も解消 | −15行 | 低 |
+| 10 | 診断の足場（`note_invalid`/`explain_open_premise`/`report_formal_sums`/`reference_kind_name`/`note_finite_read`）が約130行。4種の書き方が混在。既存の作法（インライン`if builder_debug_enabled()`）へ寄せるか、card上の停止点が閉じたものから削除。新しい`debug_note!`枠は作らない | −80〜−120行 | 低（既定OFF） |
+| 11 | `static_retention`の二重評価（filterとdebug loop）と、runeの一覧を`const`へ | −5行 | 低 |
+| 12 | 800行超の既存ファイル。`ordinary_new_coseal_issue_lexical.rs`(1145、うち`borrowed_call_arguments_callback_v1`が約665行・18引数)、`ordinary_new_coseal_issue.rs`(855、`issue_ordinary_source_cohort_v1`が約780行の1関数)、`ordinary_new_coseal_issue_source.rs`(847、`probe_source_home_prefixes_v1`約208行を既存`preparation`へ)。先に置換済み判定を削除し、責務（query/plan/physical）で既存familyを再編する。形別の新ファイルは作らない | 各ファイルを800行未満へ | 中〜高 |
+| 13 | `needs_declaration_walk_v1`が省略済みownerを1slotごとに全declarationから探す（O(n²)）。省略済みownerのslot集合を一度作って渡す | 行数ほぼ不変 | 低 |
+
+済み（`entry_formal_reference`）: 入口formalの探し方4か所を1関数へ（本番−6行）。
+
 統合しない（調査で否定）: `borrowed_actual_source_atom_v1` の呼び出し側（目的が別）、`bind_original_argument_plans_v1` の再導出
 （独立検査としてScalar/SelfRooted/Home/ReceivedNullableの写像を持つ。再利用すると循環する）、`ordinary_core_source_v1` の2実装（型が別で約4行）。
 非test本体に無条件の `eprintln!` は見つからなかった（116か所は抜き取りでdebug gate内）。

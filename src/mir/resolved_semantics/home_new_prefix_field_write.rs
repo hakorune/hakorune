@@ -429,12 +429,8 @@ fn finite_reads<E>(
         ) {
             continue;
         }
-        // The same entry-formal lookup as the initializer expression: a Text
-        // entry reference, else an untyped (opaque) entry formal.
         let Some((binding, root)) =
-            super::argument_expression::text_reference(input, locals, node.site()).or_else(|| {
-                super::argument_expression::dynamic_formal_reference(input, locals, node.site())
-            })
+            super::argument_expression::entry_formal_reference(input, locals, node.site())
         else {
             note_finite_read(input, node.site(), "not an entry formal reference", false);
             continue;

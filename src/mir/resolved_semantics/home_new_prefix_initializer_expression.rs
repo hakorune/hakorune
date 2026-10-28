@@ -122,11 +122,9 @@ pub(super) fn observe<E>(
         if !matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) {
             continue;
         }
-        let formal = super::argument_expression::text_reference(input, locals, node.site())
-            .or_else(|| {
-                super::argument_expression::dynamic_formal_reference(input, locals, node.site())
-            });
-        let Some((binding, root)) = formal else {
+        let Some((binding, root)) =
+            super::argument_expression::entry_formal_reference(input, locals, node.site())
+        else {
             continue;
         };
         if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = port(
@@ -196,11 +194,7 @@ pub(super) fn observe<E>(
         &dynamic_reads,
         &mut |site| locals.dynamic_invocation_result_reference_v1(site),
         signed_root_sum,
-        &mut |site| {
-            super::argument_expression::text_reference(input, locals, site).or_else(|| {
-                super::argument_expression::dynamic_formal_reference(input, locals, site)
-            })
-        },
+        &mut |site| super::argument_expression::entry_formal_reference(input, locals, site),
         &mut |site, binding, root| locals.entry_null_exclusion(site, binding, root),
         &mut |site| locals.text_reference(site),
         &mut |site| locals.static_text_reference(site),

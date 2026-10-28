@@ -59,8 +59,8 @@ pub(super) struct Graph<'a> {
 #[inline(never)]
 fn note_invalid(node: usize, why: &str, detail: &dyn std::fmt::Debug) {
     if crate::config::env::builder_debug_enabled() {
-        let detail = format!("{detail:?}");
-        eprintln!("[source-sum] node {node} invalid: {why} {}", &detail[..detail.len().min(1400)]);
+        let detail: String = format!("{detail:?}").chars().take(1400).collect();
+        eprintln!("[source-sum] node {node} invalid: {why} {detail}");
     }
 }
 
@@ -148,9 +148,8 @@ impl Graph<'_> {
                 self.expansion_error.get_or_insert(error);
                 node.invalid = true;
             }
-            other => {
+            _ => {
                 note_invalid(id, "callee return: no seeds or owner has no complete flow", &source.callee_owner());
-                let _ = other;
                 node.invalid = true;
             }
         }
