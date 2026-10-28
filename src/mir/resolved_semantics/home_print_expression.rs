@@ -234,6 +234,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
         && classes[*node] == Leaf::Value(Class::String)
         && matches!(source.nodes()[*node].source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))));
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[statement-evaluation] owner={:?} order={:?} owned_candidates={:?} transferred={:?} classes={:?} nodes={:?}",
+            source.owner(), order, owned_results, transferred, classes, source.nodes().iter().map(|node| format!("{:?}", node.source())).collect::<Vec<_>>());
+    }
     let owned_results =
         super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     let mut evaluation = CheckedExpressionEvaluationV1 {

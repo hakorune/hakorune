@@ -398,10 +398,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         expression_root::StatementExpressionRoleV1,
     };
     let Some(shape) = input.body_shape() else {
-        return Ok(None);
+        return text_return_declined(input, statement, 0);
     };
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
-        return Ok(None);
+        return text_return_declined(input, statement, 1);
     };
     let Ok(Some(source)) =
         crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
@@ -410,7 +410,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
             statement.site(),
         )
     else {
-        return Ok(None);
+        return text_return_declined(input, statement, 2);
     };
     let ExpressionPlanRootV1::Statement {
         role: StatementExpressionRoleV1::ReturnValue,
@@ -418,7 +418,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         ..
     } = source.root()
     else {
-        return Ok(None);
+        return text_return_declined(input, statement, 3);
     };
     if locals.text_reference(value).is_some()
         || source
@@ -430,7 +430,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
             if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
         })
     {
-        return Ok(None);
+        return text_return_declined(input, statement, 4);
     }
     // Scalar/field terminals keep their own observer and pending input phase.
     use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
@@ -455,9 +455,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
             // The retained Text-return source covers this declaration's own
             // receiver. A foreign formal keeps its existing field/result lane;
             // probing it here must not demand scalar ingress ahead of that lane.
-            if input.function().binding(request.receiver).is_none_or(|binding|
+            // A Map element alias reads through its own checked StoredMapGet receiver.
+            let stored_get = matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }));
+            if !stored_get && input.function().binding(request.receiver).is_none_or(|binding|
                 binding.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver) {
-                return Ok(None);
+                return text_return_declined(input, statement, 5);
             }
             if let Some(classes) = fields(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression {
                 probe: true, plan: std::rc::Rc::clone(&source),
@@ -490,17 +492,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         },
     )?
     else {
-        return Ok(None);
+        return text_return_declined(input, statement, 6);
     };
     if !requests.is_empty() {
         let Some(candidate) =
             super::super::HomeExpressionPlanV1::terminal_fields_v1(&evaluation, &requests)
         else {
-            return Ok(None);
+            return text_return_declined(input, statement, 7);
         };
         let mut installation = locals.expression_installation();
         if !installation.approve(&candidate) {
-            return Ok(None);
+            return text_return_declined(input, statement, 8);
         }
         if fields(
             &requests,
@@ -511,7 +513,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         )?
         .is_none()
         {
-            return Ok(None);
+            return text_return_declined(input, statement, 9);
         }
         installation.commit();
     }
@@ -667,7 +669,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(None);
     };
-    if !input
+    // A Map element's field read is one checked StoredMapGet path hop; nothing else is selected.
+    let stored_field = input.body_shape().is_some_and(|shape| matches!(shape.expression_shape(value.site()),
+        Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
+            if locals.stored_get_reference_v1(&object).is_some()));
+    if !stored_field && !input
         .function()
         .expression_source()
         .binary(value.site())
@@ -718,6 +724,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(refused());
     };
+    if stored_field {
+        // Only an integer field belongs to this scalar lane; Text and others keep theirs.
+        let probed = fields(&requests, super::super::LocalFieldReadDemandV1::SourceExpression {
+            probe: true, plan: std::rc::Rc::clone(&source) })?;
+        if !probed.as_deref().is_some_and(|rows| rows.iter().all(|row| matches!(row, super::super::LocalFieldReadResultV1::Scalar))) {
+            return Ok(None);
+        }
+    }
     if !requests.is_empty() {
         let Some(candidate) =
             super::super::HomeExpressionPlanV1::terminal_fields_v1(&evaluation, &requests)
@@ -749,4 +763,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone())
         }),
     ))
+}
+
+/// Default-off (builder debug flag): which numbered check declined a Text return expression.
+#[inline(never)]
+fn text_return_declined<T, E>(input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>, check: u32) -> Result<Option<T>, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[text-return] declined owner={:?} statement={:?} check={check}", input.owner(), statement.site());
+    }
+    Ok(None)
 }

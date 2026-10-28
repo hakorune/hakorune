@@ -292,6 +292,9 @@ impl MirBuilder {
                     || values.iter().any(|value| value.is_none_or(|value|
                         self.function_state.type_ctx.value_types.get(&value) != Some(&expected)))
                 {
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!("[scalar-return] function:\n{}", crate::mir::MirPrinter::new().print_function(f));
+                    }
                     return Err(format!("[freeze:contract][callable-scalar/return-type-mismatch] owner={:?} fn={} expected={expected:?} returns={:?}",
                         source.owner(), f.signature.name, values.iter().map(|value|
                             (*value, value.and_then(|value| self.function_state.type_ctx.value_types.get(&value))))

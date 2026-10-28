@@ -386,6 +386,43 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(evaluations)
     }
 
+    /// Original field roots belong to the same qualified Return field batch,
+    /// not to scalar/reference operand authority.
+    fn cover_expression_field_roots_v1(
+        &self,
+        flow: Option<&crate::mir::resolved_semantics::home_new_prefix::RootHomeFlow>,
+        evaluation: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
+        uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
+        origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+        covered: &mut BTreeSet<(crate::mir::resolved_semantics::SourceExprSiteV1, BindingRefV1)>,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
+        use crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation;
+                        // Original field roots belong to the same qualified Return
+                        // field batch, not to scalar/reference operand authority.
+                        for required in flow.into_iter().flat_map(|flow| flow.source_expression_fields())
+                            .filter(|required| Rc::ptr_eq(required.plan(), evaluation.source())) {
+                            let request = required.request();
+                            let Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, .. }) = &request.received
+                                else { return Err(freeze("static-input/qualified-use-identity")) };
+                            frame.source().recheck_v1(self)?;
+                            if request.node_in_plan(evaluation.source()).is_none()
+                                || !flow.is_some_and(|flow| flow.maps().iter().any(|row|
+                                    matches!(row, MapHomeObservation::FieldGet(original) if Rc::ptr_eq(original, frame)))) {
+                                return Err(freeze("static-input/qualified-use-identity"));
+                            }
+                            self.check_original_expression_field_source_v1(required)?;
+                            // An intermediate hop already owns this root read.
+                            if request.path.as_ref().is_some_and(|path| path.parent().is_some()) { continue; }
+                            if origins.contains_key(&request.receiver) || request.receiver != frame.binding()
+                                || !uses.reads().any(|(at, original)| at == &request.receiver_site
+                                    && *original == ResolvedLexicalRefV1::Local(request.receiver))
+                                || !covered.insert((request.receiver_site.clone(), request.receiver)) {
+                                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                            }
+                        }
+        Ok(())
+    }
     pub(super) fn collect_terminal_input_evaluations_v1<'a>(
         &'a self, owner: FunctionOwnerIdV1,
         uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
@@ -454,35 +491,14 @@ impl OrdinaryNewClaimLedgerV1 {
             use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
             if let TerminalRelationV1::I64Scalar(row) = terminal {
                 if let Some(evaluation) = row.evaluation() {
+                    self.cover_expression_field_roots_v1(flow, evaluation, uses, origins, covered)?;
                     if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation.as_ref())) { evaluations.push(evaluation); }
                 }
             }
             if let TerminalRelationV1::Value(value) = terminal {
                 let evaluation = match value.returned() {
                     TerminalReturnedSourceV1::TextExpression(evaluation) => {
-                        // Original field roots belong to the same qualified Return
-                        // field batch, not to scalar/reference operand authority.
-                        for required in flow.into_iter().flat_map(|flow| flow.source_expression_fields())
-                            .filter(|required| Rc::ptr_eq(required.plan(), evaluation.source())) {
-                            let request = required.request();
-                            let Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, .. }) = &request.received
-                                else { return Err(freeze("static-input/qualified-use-identity")) };
-                            frame.source().recheck_v1(self)?;
-                            if request.node_in_plan(evaluation.source()).is_none()
-                                || !flow.is_some_and(|flow| flow.maps().iter().any(|row|
-                                    matches!(row, MapHomeObservation::FieldGet(original) if Rc::ptr_eq(original, frame)))) {
-                                return Err(freeze("static-input/qualified-use-identity"));
-                            }
-                            self.check_original_expression_field_source_v1(required)?;
-                            // An intermediate hop already owns this root read.
-                            if request.path.as_ref().is_some_and(|path| path.parent().is_some()) { continue; }
-                            if origins.contains_key(&request.receiver) || request.receiver != frame.binding()
-                                || !uses.reads().any(|(at, original)| at == &request.receiver_site
-                                    && *original == ResolvedLexicalRefV1::Local(request.receiver))
-                                || !covered.insert((request.receiver_site.clone(), request.receiver)) {
-                                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
-                            }
-                        }
+                        self.cover_expression_field_roots_v1(flow, evaluation, uses, origins, covered)?;
                         Some(evaluation)
                     },
                     TerminalReturnedSourceV1::StoredMapGet { source, key, receiver_read } => {

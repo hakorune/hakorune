@@ -335,12 +335,16 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             let mut operations = emitted.iter().filter_map(|(_, row)| match row {
                 MirInstruction::ObjectFieldGet { base, .. }
                 | MirInstruction::Invoke {
-                    operation: InvokeOperation::FieldGet { base, .. },
+                    operation: InvokeOperation::FieldGet { base, .. }
+                        | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { base, .. }),
                     ..
                 } => Some(*base),
                 _ => None,
             });
             if operations.next() != Some(value) || operations.next().is_some() {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[path-root-value] root value {value:?}; emitted field read rows: {emitted:?}");
+                }
                 return Err(freeze("print-expression/path-root-value"));
             }
         }
@@ -1422,7 +1426,11 @@ pub(in crate::mir) fn validate_expression_acquisition_scope_v1(
                     && call.dynamic_invocation_result_lifecycle_v1().is_some()
             })
     });
-    if acquired.iter().map(|(node, _)| *node).ne(expected) {
+    if acquired.iter().map(|(node, _)| *node).ne(expected.clone()) {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[acquisition-prefix] function={} acquired={:?} expected={:?} owned_results={:?}", function.signature.name,
+                acquired.iter().map(|(node, _)| *node).collect::<Vec<_>>(), expected.collect::<Vec<_>>(), frame.owned_result_nodes());
+        }
         return Err(freeze("expression-call/acquisition-prefix"));
     }
     let mut seen_values = std::collections::BTreeSet::new();

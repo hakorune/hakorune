@@ -1337,7 +1337,8 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     row,
                     MirInstruction::ObjectFieldGet { .. }
                         | MirInstruction::Invoke {
-                            operation: InvokeOperation::FieldGet { .. },
+                            operation: InvokeOperation::FieldGet { .. }
+                                | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }),
                             ..
                         }
                 )

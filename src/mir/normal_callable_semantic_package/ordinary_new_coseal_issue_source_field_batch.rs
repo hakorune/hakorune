@@ -233,7 +233,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                     match terminal_home::local_read_field_declaration(constructors, candidates, coverage,
                         receiver_proof, &request.site, request.home, alias_class.as_deref(), &request.field)? {
                         Some((field, None)) => {
-                            let text = if request.path.is_none() && request.received.is_none() && request.owned_ready.is_none()
+                            if crate::config::env::builder_debug_enabled() {
+                                eprintln!("[field-read] text candidate site={:?} field={} path={} received={} stored_get={stored_get} owned_ready={}",
+                                    request.site, request.field, request.path.is_some(), request.received.is_some(), request.owned_ready.is_some());
+                            }
+                            let text = if (request.path.is_none() || stored_get && request.path.as_ref().is_some_and(|path| path.parent().is_none() && !path.is_intermediate())) && (request.received.is_none() || stored_get) && request.owned_ready.is_none()
                                 && matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
                                     if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                                         role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })

@@ -276,6 +276,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     .value_for(owner, path.root_site().node(), path.root()).map_err(|error| error.to_string())?
             };
             let descriptor = ledger.bind_result_path_receiver_v1(&site, base)?;
+            let path_text = matches!(descriptor.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_));
             let value = if descriptor.requires_checked_field_read_v1() {
                 let normal = writer.reserve_block(builder)?;
                 let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
@@ -299,7 +300,16 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 value
             };
             field_outputs[index] = Some(value);
-            if !frame.node_is_identity(index) { values[index] = Some(Operand::NormalInteger(value).into()); }
+            if !frame.node_is_identity(index) {
+                // A final Text hop is an independent copy the expression owns until End.
+                if path_text {
+                    acquired.push((index, value));
+                    temporary_order.push(index);
+                    values[index] = Some(Operand::OwnedString(value).into());
+                } else {
+                    values[index] = Some(Operand::NormalInteger(value).into());
+                }
+            }
             continue;
         }
         if let Some(tail) = source.transparent_tail_node_v1(index) {

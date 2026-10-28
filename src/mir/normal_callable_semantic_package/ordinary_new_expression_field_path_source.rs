@@ -9,6 +9,8 @@ enum StatementFieldValueV1 {
     Object(ExpressionObjectFieldSourceLoanV1),
     Returned(super::super::result_class_claim::ReturnedFieldSourceLoanV1),
     Numeric(ClosedNumericFieldSourceLoanV1),
+    /// The final Text hop of one checked field: an independent copy is acquired later.
+    Text(Rc<super::super::TextFieldValueSourceV1>),
 }
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) struct StatementFieldPathSourceV1 {
@@ -58,6 +60,7 @@ impl StatementFieldPathSourceV1 {
             LocalFieldReadResultV1::Scalar if !path.is_intermediate() => StatementFieldValueV1::Numeric(
                 ClosedNumericFieldSourceLoanV1::from_declaration(results, ingress, declaration.field(),
                     declaration.declared_type_name(), &request.field)?),
+            LocalFieldReadResultV1::Text(text) if !path.is_intermediate() => StatementFieldValueV1::Text(Rc::clone(text)),
             _ => return Err(fault("expression-path/value-role")),
         };
         let source = Self { request: request.clone(), declaration, parent, root, value };
@@ -101,6 +104,7 @@ impl StatementFieldPathSourceV1 {
                 self.root.class()
             },
             StatementFieldValueV1::Numeric(source) => source.container_class(),
+            StatementFieldValueV1::Text(_) => self.root.class(),
         };
         if expected.is_some_and(|expected| expected != actual) { return Err(fault("expression-path/container-class")); }
         Ok(())
@@ -118,6 +122,7 @@ impl StatementFieldPathSourceV1 {
                 (StatementFieldValueV1::Object(a), StatementFieldValueV1::Object(b)) => a.same_source(b),
                 (StatementFieldValueV1::Returned(a), StatementFieldValueV1::Returned(b)) => a == b,
                 (StatementFieldValueV1::Numeric(a), StatementFieldValueV1::Numeric(b)) => a.same_source(b),
+                (StatementFieldValueV1::Text(a), StatementFieldValueV1::Text(b)) => a == b,
                 _ => false,
             }
     }
@@ -157,6 +162,15 @@ impl StatementFieldPathSourceV1 {
                     return Err(fault("expression-path/declaration-drift"));
                 }
                 source.recheck(&ledger.borrowed_i64_results, ingress)
+            },
+            StatementFieldValueV1::Text(source) => {
+                let ingress = ledger.borrowed_formal_source.as_ref().ok_or_else(|| fault("text-source-missing"))?
+                    .as_ref().map_err(Clone::clone)?;
+                if source.field() != self.declaration.field()
+                    || !source.recheck(ingress, &ledger.field_write_claims, &self.request.field) {
+                    return Err(fault("expression-path/declaration-drift"));
+                }
+                Ok(())
             },
         }
     }

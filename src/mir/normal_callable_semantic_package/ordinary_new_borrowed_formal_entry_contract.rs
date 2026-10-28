@@ -177,6 +177,10 @@ impl OrdinaryNewClaimLedgerV1 {
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
         }
         for evaluation in evaluations {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[entry-evaluation] owner={:?} order={:?} references={:?}", contract.owner, evaluation.ordered_nodes(),
+                    evaluation.references().iter().map(|(node, reference)| (*node, std::mem::discriminant(reference), reference.binding())).collect::<Vec<_>>());
+            }
             if evaluation.source().owner() != contract.owner || !evaluation.reference_coverage_is_exact() {
                 return Err(freeze("static-input/qualified-use-identity"));
             }

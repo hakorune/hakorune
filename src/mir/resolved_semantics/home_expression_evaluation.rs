@@ -708,7 +708,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
     let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(&source,
         crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, field_seeds, homes,
         &mut |site| super::super::local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
-            &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return Ok(None) };
+            &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return value_evaluation_declined(input, purpose_site, 0) };
     let mut initial = Vec::new();
     for (node, original) in source.nodes().iter().enumerate() {
         if !prepared.is_active_reference(node) {
@@ -754,10 +754,22 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
             if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
                 eprintln!("[field-text-append] owner={:?} reason=evaluation-qualification-missing", input.owner());
             }
-            return Ok(None);
+            return value_evaluation_declined(input, purpose_site, 1);
         };
     if evaluation.root_class() != ExpressionLeafClassV1::Value(expected) {
-        return Ok(None);
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[value-evaluation] root class {:?} is not the expected {expected:?}", evaluation.root_class());
+        }
+        return value_evaluation_declined(input, purpose_site, 2);
     }
     Ok(Some((std::rc::Rc::new(evaluation), fields)))
+}
+
+/// Default-off (builder debug flag): which numbered check declined a value evaluation.
+#[inline(never)]
+fn value_evaluation_declined<T, E>(input: ResolvedFunctionLoweringInputV1<'_>, purpose: &OwnedExprSiteV1, check: u32) -> Result<Option<T>, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[value-evaluation] declined owner={:?} purpose={:?} check={check}", input.owner(), purpose.site());
+    }
+    Ok(None)
 }
