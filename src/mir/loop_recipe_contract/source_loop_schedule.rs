@@ -451,24 +451,24 @@ impl ScheduleCheck<'_, '_> {
                             if eager_root {
                                 let mut imports = projection.imports().iter().enumerate().filter(|(_, (source_node, class))|
                                     *source_node == node && *class == result_class);
-                                let (ordinal, _) = imports.next().ok_or_else(|| reject("schedule-frame-call-slot"))?;
+                                let (ordinal, _) = imports.next().ok_or_else(|| reject_at("schedule-frame-call-slot", 1))?;
                                 if imports.next().is_some()
                                     || projection.region().nodes.iter().filter(|node| matches!(node,
                                         super::bool_region::LoopBoolNodeV1::Import { ordinal: actual, class }
                                             if *actual as usize == ordinal && *class == result_class)).count() != 1 {
-                                    return Err(reject("schedule-frame-call-slot"));
+                                    return Err(reject_at("schedule-frame-call-slot", 2));
                                 }
                                 let mut scheduled = steps[..step_index].iter().filter_map(|step| match step {
                                     SourceLoopScheduledStepV2::Call { site, observation, result: Some(result), .. }
                                         if site == call.statement() && observation == call => Some(*result),
                                     _ => None,
                                 });
-                                let value = scheduled.next().ok_or_else(|| reject("schedule-frame-call-slot"))?;
+                                let value = scheduled.next().ok_or_else(|| reject_at("schedule-frame-call-slot", 3))?;
                                 if scheduled.next().is_some() || rows.len() != 1
                                     || rows[0].value != frame.result()
                                     || self.recipe.values.get(value.raw() as usize)
                                         .is_none_or(|actual| actual.key != value || actual.class != result_class) {
-                                    return Err(reject("schedule-frame-call-slot"));
+                                    return Err(reject_at("schedule-frame-call-slot", 4));
                                 }
                                 let mut expressions = block.items[frame.items.clone()].iter().filter_map(|item|
                                     match &self.recipe.items[item.raw() as usize].item {
@@ -476,9 +476,9 @@ impl ScheduleCheck<'_, '_> {
                                             if *result == frame.result() && region == projection.region() => Some(inputs),
                                         _ => None,
                                     });
-                                let inputs = expressions.next().ok_or_else(|| reject("schedule-frame-call-slot"))?;
+                                let inputs = expressions.next().ok_or_else(|| reject_at("schedule-frame-call-slot", 5))?;
                                 if expressions.next().is_some() || inputs.get(ordinal) != Some(&value) {
-                                    return Err(reject("schedule-frame-call-slot"));
+                                    return Err(reject_at("schedule-frame-call-slot", 6));
                                 }
                             } else {
                                 let mut effects = projection.calls().iter().enumerate().filter(|(_, (source_node, _))|
@@ -539,13 +539,13 @@ impl ScheduleCheck<'_, '_> {
                             if bool_projection.is_some() { return Err(reject("schedule-frame-eager-bool-call")); }
                             if args.is_empty() {
                                 let Some(result) = result else {
-                                    return Err(reject("schedule-frame-call-slot"));
+                                    return Err(reject_at("schedule-frame-call-slot", 7));
                                 };
                                 if embedded_calls.remove(result).is_none() {
-                                    return Err(reject("schedule-frame-call-slot"));
+                                    return Err(reject_at("schedule-frame-call-slot", 8));
                                 }
                             } else if !self.array_dynamic_core_slot_matches(frame, args, *result) {
-                                return Err(reject("schedule-frame-call-slot"));
+                                return Err(reject_at("schedule-frame-call-slot", 9));
                             }
                         }
                         if let LoopOperationV2::BinaryI64 { op, left, right, result } = operation {
@@ -861,4 +861,13 @@ pub(super) fn assert_original_schedule_for_test(input: ResolvedFunctionLoweringI
         }
         assert!(verify(&draft).is_err(), "source/Recipe schedule mutation {mutation} must refuse before effects");
     }
+}
+
+/// Default-off (builder debug flag): which exit of a schedule check rejected.
+#[inline(never)]
+fn reject_at(token: &str, exit: u32) -> String {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[source-loop] schedule reject {token} at exit {exit}");
+    }
+    reject(token)
 }
