@@ -466,6 +466,16 @@ fn explain_open_premise(
     }
 }
 
+/// Default-off (builder debug flag): the solved SUM of every formal.
+#[inline(never)]
+fn report_formal_sums(formal_nodes: &BTreeMap<BindingRefV1, usize>, values: &[Option<SourceValueSumV1>]) {
+    if crate::config::env::builder_debug_enabled() {
+        for (binding, node) in formal_nodes {
+            eprintln!("[source-sum] formal {binding:?} sum={:?}", values[*node]);
+        }
+    }
+}
+
 pub(super) fn project_graph_v1(
     nodes: &[Node],
     point_nodes: &BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), usize>,
@@ -540,6 +550,7 @@ pub(super) fn project_graph_v1(
         .iter()
         .filter_map(|(point, node)| values[*node].clone().map(|value| (point.clone(), Rc::new(value))))
         .collect();
+    report_formal_sums(formal_nodes, &values);
     let formals = formal_nodes
         .iter()
         .filter_map(|(binding, node)| values[*node].clone().map(|value| (*binding, Rc::new(value))))

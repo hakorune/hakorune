@@ -429,14 +429,29 @@ fn finite_reads<E>(
         ) {
             continue;
         }
+        // The same entry-formal lookup as the initializer expression: a Text
+        // entry reference, else an untyped (opaque) entry formal.
         let Some((binding, root)) =
-            super::argument_expression::text_reference(input, locals, node.site())
+            super::argument_expression::text_reference(input, locals, node.site()).or_else(|| {
+                super::argument_expression::dynamic_formal_reference(input, locals, node.site())
+            })
         else {
+            note_finite_read(input, node.site(), "not an entry formal reference", false);
             continue;
         };
-        if let Some(read) = consult.finite_entry_read(input, source, node.site(), binding, root)? {
+        let read = consult.finite_entry_read(input, source, node.site(), binding, root)?;
+        note_finite_read(input, node.site(), "entry formal reference", read.is_some());
+        if let Some(read) = read {
             reads.insert(node.site().clone(), read);
         }
     }
     Ok(reads)
+}
+
+/// Default-off (builder debug flag): whether a field-write RHS reference got a finite entry read.
+#[inline(never)]
+fn note_finite_read(input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceExprSiteV1, why: &str, lent: bool) {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[finite-reads] owner={:?} site={:?}: {why}, lent={lent}", input.owner(), site);
+    }
 }

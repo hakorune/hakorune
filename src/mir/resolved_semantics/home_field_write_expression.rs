@@ -265,7 +265,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
                 continue;
             }
             if matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) {
-                let (proof, sum, kind) = if let Some(kind) = scalar_reference(node.site()) {
+                // A finite entry read of an entry formal owns that reference; the
+                // entry-use check accepts no other reference kind for it.
+                let finite = finite_reference(node.site());
+                let scalar = if finite.is_none() { scalar_reference(node.site()) } else { None };
+                let (proof, sum, kind) = if let Some(kind) = scalar {
                     let ExpressionNodeSourceV1::Reference(
                         crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
                     ) = node.source()
@@ -288,7 +292,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
                         ),
                     };
                     (Reference::Scalar(scalar), sum, kind)
-                } else if let Some(read) = finite_reference(node.site()) {
+                } else if let Some(read) = finite {
                     let kind = match read.leaf_class(None) {
                         Some(Leaf::Value(Class::I64)) => SourceScalarKind::Integer,
                         Some(Leaf::Value(Class::Bool)) => SourceScalarKind::Bool,

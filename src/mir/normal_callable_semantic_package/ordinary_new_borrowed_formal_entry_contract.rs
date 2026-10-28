@@ -31,6 +31,9 @@ impl OrdinaryNewClaimLedgerV1 {
         use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
         macro_rules! input_use_pending {
             ($stage:literal) => {{
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[entry-input-use] owner={:?} pending at {}", contract.owner, $stage);
+                }
                 return Ok(None);
             }};
         }
@@ -132,7 +135,13 @@ impl OrdinaryNewClaimLedgerV1 {
                         };
                         if origins.contains_key(&binding) {
                             let Some(Reference::FiniteEntry { read, exclusion: None }) = rhs.reference_source(node)
-                                else { input_use_pending!("entry-write-finite-read") };
+                                else {
+                                    if crate::config::env::builder_debug_enabled() {
+                                        eprintln!("[entry-input-use] entry-write-finite-read node={node} binding={binding:?} reference={}",
+                                            reference_kind_name(rhs.reference_source(node)));
+                                    }
+                                    input_use_pending!("entry-write-finite-read")
+                                };
                             if !read.signed_only() || !read.requirement().corroborates_original_uses_v1(uses)
                                 || origins.get(&binding) != Some(&read.requirement().formal().1) {
                                 return Err(freeze("static-input/entry-read-source"));
@@ -734,3 +743,24 @@ impl OrdinaryNewClaimLedgerV1 {
 
 #[path = "ordinary_new_borrowed_formal_entry_finite.rs"]
 mod finite;
+
+/// Default-off diagnostic: the variant of a checked expression reference.
+fn reference_kind_name(
+    reference: Option<&crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1>,
+) -> &'static str {
+    use crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1 as Reference;
+    match reference {
+        None => "none",
+        Some(Reference::StoredMapGet(_)) => "StoredMapGet",
+        Some(Reference::DynamicInvocationResult(_)) => "DynamicInvocationResult",
+        Some(Reference::StaticText(_)) => "StaticText",
+        Some(Reference::Residence(_)) => "Residence",
+        Some(Reference::LoopText(_)) => "LoopText",
+        Some(Reference::ArgumentEntry(_)) => "ArgumentEntry",
+        Some(Reference::DynamicEntry(_)) => "DynamicEntry",
+        Some(Reference::LoopDynamic(_)) => "LoopDynamic",
+        Some(Reference::FiniteEntry { exclusion: Some(_), .. }) => "FiniteEntry+exclusion",
+        Some(Reference::FiniteEntry { .. }) => "FiniteEntry",
+        Some(Reference::Scalar(_)) => "Scalar",
+    }
+}
