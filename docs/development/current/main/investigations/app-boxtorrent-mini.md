@@ -5,15 +5,15 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 現CLIは直接Array receiverとslot66 `materialize` の静的nullable Text callのdispatch/receiver照合を通過。選択smokeは`initializer-expression/dynamic-carrier-invoke`。EXE未生成。
+- 現CLIは直接Array receiverとslot66 `materialize` の静的nullable Text callのdispatch/receiver照合を通過。initializer継続も同じCall/Normal packetで接続。選択smokeは`source-loop/unexplained-physical-write`（Loop物理命令の会計不一致）。EXE未生成。
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
 - Array aliasと直接receiverは実Count/Get source loanを同じfield descriptorへ保持。直接receiverもReturnを含むsource field census→既存field issuer→exact親read/Copy→記録済みcanonical readへ接続。Countは既存read会計を使用。source-only拒否pin、最終noninteger aliasとdirect Arrayの拒否を保持。
 - 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
-- 静的call選別は元result-source variantへ統合し、carrier lifecycleをdispatch判定に流用する2箇所を置換。通常callのcarrier取得/Endと結果取消を既存packetへ接続。借用formal receiverは結果型と分離し、元class・entry値/Copyを照合。独立完成検証も同じLoop内callを巡回。次はinitializer継続のcarrier producer照合、その後Array operation/provider・生存の最終gate（未完拒否は保持）。
+- 静的call選別は元result-source variantへ統合し、carrier lifecycleをdispatch判定に流用する2箇所を置換。通常callのcarrier取得/Endと結果取消を既存packetへ接続。借用formal receiverは結果型と分離し、元class・entry値/Copyを照合。独立完成検証も同じLoop内callを巡回。initializer継続の重複Invoke探索も一つへ統合。次はLoop child/cleanupの未会計命令を特定し、その後Array operation/provider・生存の最終gate（未完拒否は保持）。
 - entry loanだけで未知callee中の親生存は証明できない。snapshotとfield再読の同一性、支持Home、Normal/Faultを別々に閉じる。
 - 着地済み: C Map null guard→child borrow（空Map/nullable child/Fault/誤分岐）、異なるslot借用の保守的alias検査、nullable slotの実payload null比較。Rust完成guardの到達・支配・再実行検査は完成時だけ行い、構築中の局所検査を維持。
 - 既存接続: stored-child scalar return、Map keys count、put/readData/refCount、nullable Text需要、Text連結Loop、Null return、DiscardValue、delete。chunkCount独立validator、nullable Text C transport、Bool物理、全体cleanupとEXE実行は未完。
-- 固定suite再計測: 直接Array接続着地時のpinned CLI＋保持Map WIPで10/11、775.16秒、実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現在の静的carrier変更は含まない。現CLI build44.69秒PASS、dynamic_invocation_contract6/0、引数順/foreign receiver拒否とstored print最終consumerは各1/0。選択smokeは上記停止。Core source family8/3の赤は未分類、initializer i64の3赤は既存失敗名集合に含まれる。
+- 固定suite再計測: 直接Array接続着地時のpinned CLI＋保持Map WIPで10/11、775.16秒、実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現在の静的carrier変更は含まない。現CLI build40.67秒PASS、Loop回帰とString Normal/Fault/escape各1/0。owned_text_initializerはalias.lengthでforwarded-copy/root赤（既存失敗名集合に含まれるが同原因の比較は未実施）。前commitはdynamic_invocation_contract6/0、引数順/foreign receiver拒否とstored print最終consumerは各1/0。選択smokeは上記停止。Core source family8/3の赤は未分類、initializer i64の3赤は既存失敗名集合に含まれる。
 
 ## 採用設計
 - **既存仕様を維持して実装する。null-key の仕様回答はこのアプリの着手条件ではない。** 一般 Dynamic→Map の null 受理は別の未決事項であり、Text-only key の現在の経路へ勝手に stringify / TypeError を導入しない。

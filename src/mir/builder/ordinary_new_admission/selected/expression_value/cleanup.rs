@@ -213,44 +213,28 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
     let MirInstruction::InvokeNormalResult { invoke_block, .. } = projection.1 else {
         return Err(freeze("initializer-expression/dynamic-carrier-projection"));
     };
-    let invoke = expression
-        .body
-        .bindings
-        .iter()
-        .find(|(block, row)| {
-            *block == invoke_block
-                && matches!(
-                    row,
-                    MirInstruction::Invoke {
-                        operation: InvokeOperation::DynamicInvocation(_)
-                            | InvokeOperation::DynamicArrayGet { .. }
-                            | InvokeOperation::DynamicCarrierSubI64 { .. },
-                        normal_landing,
-                        ..
-                    } if *normal_landing == projection.0
-                )
-        })
-        .ok_or_else(|| freeze("initializer-expression/dynamic-carrier-invoke"))?;
-    if expression
-        .body
-        .bindings
-        .iter()
-        .filter(|(block, row)| {
-            *block == invoke_block
-                && matches!(
-                    row,
-                    MirInstruction::Invoke {
-                        operation: InvokeOperation::DynamicInvocation(_)
-                            | InvokeOperation::DynamicArrayGet { .. }
-                            | InvokeOperation::DynamicCarrierSubI64 { .. },
-                        ..
-                    }
-                )
-        })
-        .count()
-        != 1
-        || !expression.body.bindings.contains(invoke)
-    {
+    // Transport does not select dispatch. Ordinary nullable Text calls lend
+    // their exact checked Call/Normal pair, just as dynamic producers do.
+    let carrier_invoke = |binding: &Binding| {
+        if binding.0 != invoke_block { return false; }
+        let MirInstruction::Invoke { operation, normal_landing, .. } = &binding.1 else {
+            return false;
+        };
+        if *normal_landing != projection.0 { return false; }
+        match operation {
+            InvokeOperation::DynamicInvocation(_)
+                | InvokeOperation::DynamicArrayGet { .. }
+                | InvokeOperation::DynamicCarrierSubI64 { .. } => true,
+            InvokeOperation::Call { result: crate::mir::instruction::InvokeCallResultKind::DynamicCarrier, .. } => {
+                let mut packets = expression.body.calls.iter().filter(|packet|
+                    packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
+                        && packet.outer_bindings().is_ok_and(|(invoke, normal)| invoke == binding && normal == &projection));
+                packets.next().is_some() && packets.next().is_none()
+            }
+            _ => false,
+        }
+    };
+    if expression.body.bindings.iter().filter(|binding| carrier_invoke(binding)).count() != 1 {
         return Err(freeze("initializer-expression/dynamic-carrier-invoke"));
     }
     expression.body.dynamic_carriers.pop();
