@@ -359,7 +359,7 @@ pub(super) fn observe_if_statement<'a, E>(
                 homes,
                 borrowed_actuals,
             )?;
-            return Ok(false);
+            return if_refused(statement.site(), line!());
         }
     };
     let then_body = input
@@ -380,7 +380,7 @@ pub(super) fn observe_if_statement<'a, E>(
         || bundle.else_pair().is_some() != else_expected
     {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
-        return Ok(false);
+        return if_refused(statement.site(), line!());
     }
     if subtree_has_map_literal(input, statement) {
         unavailable.get_or_insert_with(|| {
@@ -396,14 +396,14 @@ pub(super) fn observe_if_statement<'a, E>(
             homes,
             borrowed_actuals,
         )?;
-        return Ok(false);
+        return if_refused(statement.site(), line!());
     }
     let Ok(condition) = input
         .source()
         .child_expr_from_stmt(statement, ExprChildRoleV1::IfCondition)
     else {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
-        return Ok(false);
+        return if_refused(statement.site(), line!());
     };
     // Conditions own their whole control expression, but calls nested below
     // that expression still qualify their original argument frames at this
@@ -454,7 +454,7 @@ pub(super) fn observe_if_statement<'a, E>(
             homes,
             borrowed_actuals,
         )?;
-        return Ok(false);
+        return if_refused(statement.site(), line!());
     }
     let whole_selected = matches!(
         whole_condition,
@@ -491,7 +491,7 @@ pub(super) fn observe_if_statement<'a, E>(
                     homes,
                     borrowed_actuals,
                 )?;
-                return Ok(false);
+                return if_refused(statement.site(), line!());
             }
             local_call_flow::SourceScalarConditionCallV1::Unselected => false,
         };
@@ -536,7 +536,7 @@ pub(super) fn observe_if_statement<'a, E>(
                 homes,
                 borrowed_actuals,
             )?;
-            return Ok(false);
+            return if_refused(statement.site(), line!());
         }
     }
     let then_body = then_body.unwrap();
@@ -671,6 +671,9 @@ pub(super) fn observe_if_statement<'a, E>(
 
 
     let both_paths_available = then_path.unavailable.is_none() && else_path.unavailable.is_none();
+    if !both_paths_available && crate::config::env::builder_debug_enabled() {
+        eprintln!("[if-paths] {:?} then={:?} else={:?}", statement.site(), then_path.unavailable, else_path.unavailable);
+    }
     locals.record_source_loop_if_v1(
         statement.site(),
         *bundle,
@@ -793,5 +796,13 @@ pub(super) fn observe_if_statement<'a, E>(
     *selected_seen = join_selected;
     *path_calls = join_calls;
     *unavailable = branch_issue;
+    Ok(false)
+}
+
+/// Default-off: which refusal gate left this `If` uncovered.
+fn if_refused<E>(site: &SourceStmtSiteV1, line: u32) -> Result<bool, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[if-refused] {site:?} at line {line}");
+    }
     Ok(false)
 }

@@ -134,6 +134,10 @@ pub(crate) enum LoopOperationV2 {
         result: LoopValueKeyV1,
         value: String,
     },
+    /// The language `null`, only as an explicit Return value; no other use.
+    ConstNull {
+        result: LoopValueKeyV1,
+    },
     BinaryI64 {
         op: LoopBinaryI64OpV2,
         left: LoopValueKeyV1,
@@ -222,6 +226,7 @@ impl LoopOperationV2 {
             | Self::ReadBinding { .. }
             | Self::ConstI64 { .. }
             | Self::ConstText { .. }
+            | Self::ConstNull { .. }
             | Self::BinaryI64 { .. }
             | Self::CompareI64 { .. }
             | Self::WriteBinding { .. }

@@ -501,6 +501,10 @@ impl Projector<'_> {
                             crate::mir::resolved_semantics::home_new_prefix::CheckedScalarReferenceV1::Original(read.clone()),
                         );
                         self.reference(block, &source.source, &reference, LoopValueClassV2::I64)?
+                    } else if source.is_null_literal_v1() {
+                        let result = self.value(LoopValueClassV2::Dynamic);
+                        self.operation(block, &source.source, LoopOperationV2::ConstNull { result });
+                        result
                     } else {
                         let literal = source.integer_literal_value_v1()
                             .ok_or_else(|| reject("return-value-source"))?;

@@ -224,12 +224,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     if expression.owner() != site.owner()
         || !(matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })
-            || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. })
+            || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
+                | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. })
             || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
                 if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain))
         || !expression.nodes().iter().any(|node| node.site() == site.site()
             && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall))
-    { return ordinary_result_absent(site, "the expression is not a Print, CallArgument or plain Assignment root with this method call"); }
+    { return ordinary_result_absent(site, "the expression is not a Print, CallArgument, LocalInitializer or plain Assignment root with this method call"); }
     let Some(original) = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(prepared, contracts, site)?
         else { return ordinary_result_absent(site, "no original instance input call for the site") };
     // Do not project SelectedStored/PendingStored into this ordinary Instance role.

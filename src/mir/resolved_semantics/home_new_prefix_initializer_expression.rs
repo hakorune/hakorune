@@ -32,15 +32,15 @@ pub(super) fn observe<E>(
                 statement.site()
             );
         }
-        return Ok(false);
+        return declined(statement.site(), 1);
     }
     let Some(site) = initializer.initializer_site() else {
-        return Ok(false);
+        return declined(statement.site(), 2);
     };
     if initializer.binding().owner() != input.owner()
         || !matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. } if original == statement.site())
     {
-        return Ok(false);
+        return declined(statement.site(), 3);
     }
     if matches!(
         input.function().expression_source().literal(site),
@@ -58,11 +58,11 @@ pub(super) fn observe<E>(
         return Ok(true);
     }
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
-        return Ok(false);
+        return declined(statement.site(), 4);
     };
     let Ok(source) = local_expression_source_plan_v1(&ledger, input.body_shape(), initializer)
     else {
-        return Ok(false);
+        return declined(statement.site(), 5);
     };
     let root_add = source
         .nodes()
@@ -89,7 +89,7 @@ pub(super) fn observe<E>(
             ExpressionNodeSourceV1::MethodCall
         )
     {
-        return Ok(false);
+        return declined(statement.site(), 6);
     }
     let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(
         &source,
@@ -111,7 +111,7 @@ pub(super) fn observe<E>(
         if debug {
             eprintln!("[initializer-expression] statement={:?} site={site:?} call preparation unavailable", statement.site());
         }
-        return Ok(false);
+        return declined(statement.site(), 7);
     };
     let mut reads = Vec::new();
     let mut dynamic_reads = Vec::new();
@@ -185,7 +185,10 @@ pub(super) fn observe<E>(
         && signed_root_sum.is_none()
         && !arithmetic_requested
     {
-        return Ok(false);
+        if debug {
+            eprintln!("[initializer-expression] statement={:?} site={site:?} no admissible call or root", statement.site());
+        }
+        return declined(statement.site(), 8);
     }
     let mut installation = None;
     let plan = qualify_initializer_expression_v1(
@@ -213,7 +216,7 @@ pub(super) fn observe<E>(
     if plan.is_none() && debug {
         eprintln!("[initializer-expression] statement={:?} site={site:?} qualification unavailable reads={}", statement.site(), reads.len());
     }
-    let Some(plan) = plan else { return Ok(false) };
+    let Some(plan) = plan else { return declined(statement.site(), 10) };
     let frame = std::rc::Rc::clone(plan.initializer_frame().expect("Local initializer purpose"));
     let calls = frame.evaluation().calls();
     installation
@@ -223,6 +226,10 @@ pub(super) fn observe<E>(
     local_calls.extend_from_slice(calls);
     if frame.is_text_residence() {
         homes.push(LiveHomeV1::Text(frame.text_acquisition_v1()));
+    }
+    if debug {
+        eprintln!("[initializer-expression] statement={:?} installed i64={} dynamic_result={} dynamic_alias={} text={}",
+            statement.site(), frame.is_i64(), frame.is_dynamic_invocation_result(), frame.is_dynamic_alias(), frame.is_text_residence());
     }
     if frame.is_i64() {
         locals.install_i64_call_result(frame.binding());
@@ -234,9 +241,17 @@ pub(super) fn observe<E>(
     } else if frame.is_text_residence() {
         locals.install_text_initializer(frame);
     } else {
-        return Ok(false);
+        return declined(statement.site(), 9);
     }
     Ok(true)
+}
+
+/// Default-off: which gate left this Local initializer to the later lanes.
+fn declined<E>(statement: &SourceStmtSiteV1, gate: u32) -> Result<bool, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[initializer-expression] statement={statement:?} declined gate={gate}");
+    }
+    Ok(false)
 }
 
 #[cfg(test)]

@@ -559,6 +559,9 @@ fn install_source<E>(
         },
     )?
     else {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[condition] call preparation refused for {:?}", source.nodes()[0].site());
+        }
         return Ok(None);
     };
     let mut initial_references = source_references.to_vec();
@@ -593,6 +596,9 @@ fn install_source<E>(
         let Some((binding, root)) =
             super::argument_expression::text_reference(input, locals, node.site())
         else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[condition] reference {:?} has no stored-get, dynamic-result, loop or formal source", node.site());
+            }
             continue;
         };
         if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(
@@ -651,6 +657,9 @@ fn install_source<E>(
         },
     )?;
     let Some(plan) = plan else {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[condition] qualification refused for {:?}", source.nodes()[0].site());
+        }
         return Ok(None);
     };
     let frame = Rc::clone(

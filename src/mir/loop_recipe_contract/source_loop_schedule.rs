@@ -724,7 +724,8 @@ impl ScheduleCheck<'_, '_> {
                         else { return Err(reject("schedule-exit-source")); };
                     let class = self.recipe.values.get(value.raw() as usize).filter(|row| row.key == value).map(|row| row.class);
                     let returned = self.values.iter().filter(|row| Rc::ptr_eq(&row.source, &source.source) && row.node == 0 && row.value == value).count();
-                    if returned != 1 || class != Some(LoopValueClassV2::I64) { return Err(reject("schedule-result-unavailable")); }
+                    let expected_class = if source.is_null_literal_v1() { LoopValueClassV2::Dynamic } else { LoopValueClassV2::I64 };
+                    if returned != 1 || class != Some(expected_class) { return Err(reject("schedule-result-unavailable")); }
                     if let Some(read) = &source.read {
                         let producer = super::source_loop_v2::producer_value_v2(read.producer(), self.source, self.recipe,
                             self.values, self.bindings, self.draft);
@@ -752,6 +753,17 @@ impl ScheduleCheck<'_, '_> {
                                         if actual == *binding && result == value) { return Err(reject("schedule-operation-source")); }
                             available.insert(value);
                         }
+                    } else if source.is_null_literal_v1() {
+                        if operations.len() != 1 { return Err(reject("schedule-operation-source")); }
+                        let null_item = block.items[position];
+                        if !self.items.insert(null_item) || self.draft.operations.get(&null_item)
+                            .is_none_or(|plan| !Rc::ptr_eq(plan, &source.source))
+                            || !matches!(self.recipe.items[null_item.raw() as usize].item,
+                                LoopRecipeItemV2::Operation { operation: LoopOperationV2::ConstNull { result } }
+                                    if result == value) {
+                            return Err(reject("schedule-operation-source"));
+                        }
+                        available.insert(value);
                     } else {
                         let literal = source.integer_literal_value_v1()
                             .ok_or_else(|| reject("schedule-operation-source"))?;

@@ -40,6 +40,7 @@ fn class(frame: &CheckedBoolConditionFrameV1, node: usize) -> Result<Class, Stri
         Some(Leaf::Value(Value::Dynamic)) => Ok(Class::Dynamic),
         Some(Leaf::Value(Value::Bool)) => Ok(Class::Bool),
         Some(Leaf::Value(Value::String)) => Ok(Class::Text),
+        Some(Leaf::Value(Value::Null)) => Ok(Class::Unit),
         _ => Err(reject("value-class")),
     }
 }
@@ -112,6 +113,7 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
             Source::Literal(Literal::Integer(value)) if current_class == Class::I64 => Node::I64 { value: *value },
             Source::Literal(Literal::Bool(value)) if current_class == Class::Bool => Node::Bool { value: *value },
             Source::Literal(Literal::String(value)) if current_class == Class::Text => Node::Text { value: value.to_string() },
+            Source::Literal(Literal::Null) if current_class == Class::Unit => Node::Null,
             Source::MethodCall => {
                 if let Some(core) = evaluation.cores().get(&index) {
                     use crate::mir::core_method_op::CoreMethodOp as Core;
@@ -206,6 +208,7 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
                             (Operand::I64, Operand::Dynamic) if binary.operator() == Op::Less => Domain::I64Dynamic,
                             (Operand::Dynamic, Operand::String) => Domain::DynamicText,
                             (Operand::String, Operand::Dynamic) => Domain::TextDynamic,
+                            (Operand::Dynamic, Operand::Null) => Domain::DynamicNull,
                             _ => return Err(reject("compare-domain")),
                         };
                         if current_class != Class::Bool || domain.family() != family { return Err(reject("compare-family")); }

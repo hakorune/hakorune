@@ -340,6 +340,20 @@ impl SourceLoopPhysicalProofV2 {
                     function,
                     finishing,
                 )? == returned.value,
+                (None, None) if returned.source.is_null_literal_v1() => {
+                    let dominators = crate::mir::verification::utils::compute_dominators(function);
+                    let mut constants = function.blocks.iter().flat_map(|(block_id, block)| {
+                        block.instructions.iter().filter_map(move |instruction| match instruction {
+                            MirInstruction::Const { dst, value: crate::mir::ConstValue::Null }
+                                if *dst == returned.value => Some(*block_id),
+                            _ => None,
+                        })
+                    });
+                    constants.next().is_some_and(|block| {
+                        constants.next().is_none()
+                            && dominators.dominates(block, returned.terminal.0)
+                    })
+                }
                 (None, None) => {
                     let literal = returned.source.integer_literal_value_v1()
                         .ok_or_else(|| freeze("source-loop/frame-source"))?;

@@ -386,6 +386,36 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 continue;
             }
         }
+        // A dynamic invocation result is a tagged value; comparing it with the
+        // exact source null observes the tag only and takes no payload view.
+        if matches!(binary.operator(), Op::Equal | Op::NotEqual) {
+            let result_null = [(left, right), (right, left)].into_iter().any(|(reference, null)| {
+                matches!(reference_proofs.get(&reference),
+                    Some(CheckedExpressionReferenceV1::DynamicInvocationResult(_)))
+                    && matches!(classes[reference], Leaf::Value(Class::Dynamic | Class::Opaque))
+                    && matches!(
+                        source.nodes()[null].source(),
+                        ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::Null)
+                    )
+            });
+            if result_null {
+                let Ok(envelope) =
+                    issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
+                        family,
+                        DynamicOperatorValueClassV1::Dynamic,
+                        DynamicOperatorValueClassV1::Null,
+                    ))
+                else {
+                    return Ok(None);
+                };
+                operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
+                    plan: Rc::clone(&source),
+                    node: index,
+                    proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])),
+                }));
+                continue;
+            }
+        }
         if matches!(
             binary.operator(),
             Op::Equal | Op::NotEqual | Op::Less | Op::LessEqual | Op::Greater | Op::GreaterEqual

@@ -30,6 +30,7 @@ pub(super) fn emit_return(
     crate::mir::builder::control_flow::cleanup::ensure_cleanup_exit_allowed_v1(
         &builder.function_state, crate::mir::builder::control_flow::cleanup::CleanupExitKindV1::Return)?;
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
+    let mut exit_prepared = false;
     let (value, read) = if let Some(source_read) = &source.read {
         let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
         let mut state = state.borrow_mut();
@@ -44,6 +45,17 @@ pub(super) fn emit_return(
         let value = observed.scalar_read_value_v2(&source.source, source_read,
             CallValidationContextV1::Lowering(&claims), function)?;
         (value, Some(observed))
+    } else if let (true, crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(terminal)) =
+        (source.is_null_literal_v1(), &source.terminal) {
+        // The Null producer is recorded on the prepared exit order itself.
+        if !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
+        exit_prepared = true;
+        let at = OwnedExprSiteV1::new(input.owner(), terminal.value_site().clone());
+        let loan = claims.prepare_terminal_null_literal_v1(at.clone())?
+            .ok_or_else(|| freeze("literal-return-source"))?;
+        let completed = crate::mir::builder::emission::constant::emit_null_recorded(builder)?;
+        claims.complete_terminal_null_literal_v1(loan, at, &completed)?;
+        (completed.value(), None)
     } else {
         let expected = claims.prepare_terminal_scalar_literal_return(input.owner(), source.site.node())?
             .ok_or_else(|| freeze("literal-return-source"))?;
@@ -62,7 +74,7 @@ pub(super) fn emit_return(
         )?;
         (value, None)
     };
-    if !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
+    if !exit_prepared && !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
     let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
     let mut state = state.borrow_mut();
     crate::mir::builder::ordinary_new_admission::selected::emit_root_home_exit(

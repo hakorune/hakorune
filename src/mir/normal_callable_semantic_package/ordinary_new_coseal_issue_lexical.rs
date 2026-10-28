@@ -389,6 +389,10 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 issue,
             })?;
         if original_owned || lexical_result_source {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[dynamic-source] {site:?} not dynamic: original_owned={original_owned} lexical_result_source={lexical_result_source} dynamic_candidates={}",
+                    dynamic_source_calls.iter().filter(|target| target.owner() == input.owner() && target.call_site() == site.site()).count());
+            }
             return Ok(None);
         }
         let mut candidates = dynamic_source_calls.iter().filter(|target| {

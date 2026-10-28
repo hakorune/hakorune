@@ -468,6 +468,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 TerminalRelationV1::IntegerLiteral(expected),
                 Some(TerminalRelationV1::IntegerLiteral(original)),
             ) => expected == original,
+            (TerminalRelationV1::Value(expected), Some(TerminalRelationV1::Value(original))) => expected == original,
             _ => false,
         };
         if self.retained_source_loop_recipe_v2(owner, product.source.source.site())?

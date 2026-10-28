@@ -10,7 +10,7 @@ pub(crate) enum LoopBoolCompareV1 { Equal, NotEqual, Less, LessEqual, Greater, G
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub(crate) enum LoopBoolCompareDomainV1 { I64, Text, DynamicI64, I64Dynamic, DynamicText, TextDynamic }
+pub(crate) enum LoopBoolCompareDomainV1 { I64, Text, DynamicI64, I64Dynamic, DynamicText, TextDynamic, DynamicNull }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
@@ -23,6 +23,8 @@ pub(crate) enum LoopBoolNodeV1 {
     I64 { value: i64 },
     Bool { value: bool },
     Text { value: String },
+    /// The exact source `null` literal; only the right operand of a DynamicNull compare.
+    Null,
     TextLength { value: u32 },
     TextSubstring { value: u32, start: u32, end: u32 },
     TextIndexOf { value: u32, needle: u32 },
@@ -123,6 +125,8 @@ impl LoopBoolRegionV1 {
                 LoopBoolNodeV1::I64 { .. } => Class::I64,
                 LoopBoolNodeV1::Bool { .. } => Class::Bool,
                 LoopBoolNodeV1::Text { .. } => Class::Text,
+                // `Unit` marks the Null operand inside this tree only.
+                LoopBoolNodeV1::Null => Class::Unit,
                 LoopBoolNodeV1::TextLength { value } => {
                     if classes[*value as usize] != Class::Text { return Err(Reject::Domain); }
                     Class::I64
@@ -148,6 +152,7 @@ impl LoopBoolRegionV1 {
                         LoopBoolCompareDomainV1::I64Dynamic => (Class::I64, Class::Dynamic),
                         LoopBoolCompareDomainV1::DynamicText => (Class::Dynamic, Class::Text),
                         LoopBoolCompareDomainV1::TextDynamic => (Class::Text, Class::Dynamic),
+                        LoopBoolCompareDomainV1::DynamicNull => (Class::Dynamic, Class::Unit),
                     };
                     if classes[*left as usize] != expected_left || classes[*right as usize] != expected_right {
                         return Err(Reject::Domain);

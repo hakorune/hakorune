@@ -48,6 +48,13 @@ pub(super) fn check_operation(
             values,
             definitions,
         ),
+        LoopOperationV2::ConstNull { result } => define_value(
+            *item_key,
+            *result,
+            LoopValueClassV2::Dynamic,
+            values,
+            definitions,
+        ),
         LoopOperationV2::BinaryI64 {
             left,
             right,

@@ -86,6 +86,24 @@ pub(crate) struct SourceLoopReturnV1 {
         Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
 }
 impl SourceLoopReturnV1 {
+    /// An explicit `return null`: the original literal node under the Return root.
+    pub(crate) fn is_null_literal_v1(&self) -> bool {
+        use crate::mir::resolved_value_profile::{
+            expression_plan::{ExpressionNodeSourceV1 as Node, ExpressionPlanRootV1},
+            expression_root::StatementExpressionRoleV1,
+        };
+        let super::super::super::TerminalRelationV1::Value(terminal) = &self.terminal else { return false; };
+        matches!(terminal.returned(), super::super::super::TerminalReturnedSourceV1::NullLiteral)
+            && self.read.is_none()
+            && self.source.nodes().len() == 1
+            && terminal.return_site() == &self.site
+            && matches!(self.source.root(), ExpressionPlanRootV1::Statement {
+                statement, role: StatementExpressionRoleV1::ReturnValue, value
+            } if statement == &self.site && value == terminal.value_site())
+            && self.source.nodes()[0].site() == terminal.value_site()
+            && matches!(self.source.nodes()[0].source(),
+                Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null))
+    }
     pub(crate) fn integer_literal_value_v1(&self) -> Option<i64> {
         use crate::mir::resolved_value_profile::{
             expression_plan::{ExpressionNodeSourceV1 as Node, ExpressionPlanRootV1},
@@ -165,6 +183,9 @@ impl SourceLoopReturnV1 {
                     && terminal.return_site() == &self.site
                     && self.integer_literal_value_v1().is_some()
             }
+            (crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(terminal), None) => {
+                terminal.owner() == input.owner() && self.is_null_literal_v1()
+            }
             _ => false,
         };
         source_value
@@ -225,7 +246,12 @@ impl SourceLoopControlDraftV1 {
             let statement = match self
                 .actions
                 .remove(&site)
-                .ok_or("source statement has no checked execution action")?
+                .ok_or_else(|| {
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!("[loop-return] {site:?} has no checked execution action");
+                    }
+                    "source statement has no checked execution action"
+                })?
             {
                 Action::Return(source) => {
                     observed_termination = true;
@@ -311,6 +337,7 @@ impl PrefixLocalFlow<'_> {
                     self.current_scalar_read_v1(terminal.value_site(), calls)
                 }
                 super::super::super::TerminalRelationV1::IntegerLiteral(_) => None,
+                super::super::super::TerminalRelationV1::Value(_) => None,
                 _ => return None,
             };
             let homes = homes?.as_ref().ok()?;
@@ -332,8 +359,17 @@ impl PrefixLocalFlow<'_> {
                 read,
                 source,
             });
-            observed.corroborates(self.input).then_some(observed)
+            let corroborated = observed.corroborates(self.input);
+            if !corroborated && crate::config::env::builder_debug_enabled() {
+                eprintln!("[loop-return] {site:?} terminal does not corroborate: null={} read={}",
+                    observed.is_null_literal_v1(), observed.read.is_some());
+            }
+            corroborated.then_some(observed)
         })();
+        if source.is_none() && crate::config::env::builder_debug_enabled() {
+            eprintln!("[loop-return] {site:?} not recorded: terminal={:?} homes={}",
+                terminal.map(std::mem::discriminant), homes.is_some_and(|homes| homes.is_ok()));
+        }
         match source {
             Some(source) => context
                 .control

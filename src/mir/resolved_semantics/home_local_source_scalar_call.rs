@@ -500,7 +500,7 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                 &LocalCallResultSourceV1::DynamicInvocation(loan.clone()),
                 &arguments,
             ) {
-                return Ok(None);
+                return expression_call_declined(site, 1);
             }
             return Ok(Some(Call::Ordinary(result_observation_v1(
                 input.owner(),
@@ -522,10 +522,10 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         },
     )?
     else {
-        return Ok(None);
+        return expression_call_declined(site, 2);
     };
     if !result_matches_source_v1(input, site, &loan, &arguments) {
-        return Ok(None);
+        return expression_call_declined(site, 3);
     }
     let plain_assignment = matches!(source.root(),
         crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }
@@ -542,11 +542,12 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         LocalCallResultSourceV1::Ordinary(loan) if loan.result() == LocalCallResultClassV1::Text
             && loan.instance_source().is_some() && (plain_assignment || matches!(source.root(),
                 crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
+                | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                     role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
                         | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })) => None,
         LocalCallResultSourceV1::DynamicInvocation(_) => None,
-        _ => return Ok(None),
+        _ => return expression_call_declined(site, 90),
     };
     let mut observation = result_observation_v1(
         input.owner(),
@@ -559,6 +560,14 @@ pub(crate) fn issue_source_expression_call_v1<E>(
     );
     observation.field_alias = field_alias;
     Ok(Some(Call::Ordinary(observation)))
+}
+
+/// Default-off: which gate refused this expression call source.
+fn expression_call_declined<T, E>(site: &OwnedExprSiteV1, gate: u32) -> Result<Option<T>, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[expression-call] {site:?} declined gate={gate}");
+    }
+    Ok(None)
 }
 
 /// Direct Static Bool Local uses the same result source and ordered Call proof.
