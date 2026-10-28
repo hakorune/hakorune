@@ -732,46 +732,6 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Original finite Instance membership selects preparation only. Completion,
-    /// all use purposes and executable incoming remain separate prerequisites.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_finite_instance_input_request_v1(
-        source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-        owner: FunctionOwnerIdV1,
-    ) -> Result<bool, String> {
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
-        let Some(contract) = contracts.next() else { return Ok(false) };
-        if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
-        if contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod { return Ok(false); }
-        Self::original_finite_input_use_request_v1(source, catalog, owner)
-    }
-
-    /// Select the existing finite input's full-use responsibility, independently
-    /// of body/actual completion. Admitted Uses owners retain their original authority.
-    pub(in crate::mir::normal_callable_semantic_package) fn original_finite_input_use_request_v1(
-        source: &PreparedBorrowedFormalIngressV1,
-        catalog: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-        owner: FunctionOwnerIdV1,
-    ) -> Result<bool, String> {
-        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
-        let Some(contract) = contracts.next() else { return Ok(false) };
-        if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
-        let parameters: Vec<_> = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Ok(Self::finite_input_entry_structure_v1(source, Some(catalog), owner, &parameters, false)?.is_some())
-    }
-
-    pub(super) fn finite_entry_for_owner_v1(
-        &self, owner: FunctionOwnerIdV1,
-    ) -> Result<Option<BorrowedEntryStructureV1<'_>>, String> {
-        let source = self.borrowed_formal_source.as_ref()
-            .ok_or_else(|| freeze("borrowed-entry/source-missing"))?.as_ref().map_err(Clone::clone)?;
-        let Some(contract) = self.original_parameter_contracts.as_deref()
-            .and_then(|rows| rows.iter().find(|row| row.owner == owner)) else { return Ok(None) };
-        let parameters: Vec<_> = contract.parameters.iter()
-            .map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Self::finite_input_entry_structure_v1(source, self.original_parameter_contracts.as_deref(), owner, &parameters, true)
-    }
-
     /// Only source-scope staging consumes the structure. Object/field consumers
     /// continue to require their original completed use/actual products.
     pub(crate) fn stage_borrowed_ordinary_entry_structure_v1(
