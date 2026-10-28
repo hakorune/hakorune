@@ -83,6 +83,7 @@ fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirT
         InvokeCallResultKind::MixedHandle { .. } => Ok(MirType::Unknown),
         InvokeCallResultKind::I64 => Ok(MirType::Integer),
         InvokeCallResultKind::OwnedString => Ok(MirType::String),
+        InvokeCallResultKind::DynamicCarrier => Ok(MirType::Unknown),
         InvokeCallResultKind::Bool => Ok(MirType::Bool),
     }
 }

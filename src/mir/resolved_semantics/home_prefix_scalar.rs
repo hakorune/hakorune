@@ -88,6 +88,7 @@ impl BranchNormalScalarSourceV1 {
 pub(crate) struct CurrentScalarReadV1 {
     read: SourceExprSiteV1,
     binding: BindingRefV1,
+    kind: SourceScalarKind,
     value: SourceValueRefV1,
     origin: SourceValueRefV1,
     flow: Arc<VerifiedSourceValueFlowV1>,
@@ -137,7 +138,7 @@ impl CurrentScalarReadV1 {
         self.binding
     }
     pub(crate) fn kind(&self) -> SourceScalarKind {
-        SourceScalarKind::Integer
+        self.kind
     }
     pub(crate) fn producer(&self) -> &CurrentScalarProducerV1 {
         &self.producer
@@ -161,18 +162,29 @@ impl PrefixLocalFlow<'_> {
         site: &SourceExprSiteV1,
         calls: &[LocalCallObservationV1],
     ) -> Option<CurrentScalarReadV1> {
-        let OrdinaryObservation::TrivialLocal(binding, Some(SourceScalarKind::Integer)) =
-            self.observe(site)?
-        else {
+        let observed = self.observe(site);
+        let OrdinaryObservation::TrivialLocal(binding, Some(kind)) = observed? else {
             return None;
         };
         let function = self.input.function();
-        let flow = function.expression_source().value_flow()?;
-        let value = flow.read(site, binding)?;
-        let (origin, producer) = self.scalar_producer_for_value_v1(binding, value, calls)?;
+        let Some(flow) = function.expression_source().value_flow() else {
+            if crate::config::env::builder_debug_enabled() { eprintln!("[scalar-read] {site:?} no value flow"); }
+            return None;
+        };
+        let Some(value) = flow.read(site, binding) else {
+            if crate::config::env::builder_debug_enabled() { eprintln!("[scalar-read] {site:?} binding={binding:?} kind={kind:?} has no flow read"); }
+            return None;
+        };
+        let Some((origin, producer)) = self.scalar_producer_for_value_v1(binding, value, calls) else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[scalar-read] {site:?} binding={binding:?} kind={kind:?} has no current producer");
+            }
+            return None;
+        };
         Some(CurrentScalarReadV1 {
             read: site.clone(),
             binding,
+            kind,
             value,
             origin,
             flow: Arc::clone(flow),
@@ -201,14 +213,19 @@ impl PrefixLocalFlow<'_> {
         if !path.insert(value) {
             return None;
         }
-        if binding.owner() != self.input.owner()
-            || !matches!(
-                self.locals.get(&binding),
-                Some(StoredLocal::Trivial(Some(SourceScalarKind::Integer)))
-            )
-        {
+        let Some(StoredLocal::Trivial(Some(kind))) = self.locals.get(&binding) else {
+            return None;
+        };
+        let kind = *kind;
+        if binding.owner() != self.input.owner() {
             return None;
         }
+        // Only Integer reads have literal/field/call/rebind producers; an
+        // exact Bool read is produced by its Local initializer frame alone.
+        let frame_class = |frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1| match kind {
+            SourceScalarKind::Integer => frame.is_i64(),
+            SourceScalarKind::Bool => frame.is_bool(),
+        };
         let function = self.input.function();
         let flow = function.expression_source().value_flow()?;
         // A completed source rebind is its own producer, including `x = x`.
@@ -245,7 +262,7 @@ impl PrefixLocalFlow<'_> {
                         .iter()
                         .filter_map(|plan| plan.initializer_frame())
                         .any(|frame| {
-                            frame.is_i64()
+                            frame_class(frame)
                                 && frame.signed_root_sum().is_none()
                                 && frame
                                     .source()
@@ -345,7 +362,7 @@ impl PrefixLocalFlow<'_> {
                             .iter()
                             .filter_map(|plan| plan.initializer_frame())
                             .filter(|frame| {
-                                frame.is_i64()
+                                frame_class(frame)
                                     && frame.binding() == initializer.binding()
                                     && frame
                                         .source()

@@ -548,6 +548,10 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                         | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue
                         | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::DiscardValue, .. })) => None,
         LocalCallResultSourceV1::DynamicInvocation(_) => None,
+        // A static {Text, null} call published as one opaque Dynamic carrier.
+        LocalCallResultSourceV1::Ordinary(loan) if loan.result() == LocalCallResultClassV1::Dynamic
+            && loan.instance_source().is_some() && matches!(source.root(),
+                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }) => None,
         _ => return expression_call_declined(site, 90),
     };
     let mut observation = result_observation_v1(

@@ -225,6 +225,53 @@ impl<'a> CallableResultContractRefV1<'a> {
                     }))
     }
 
+    /// Every exit returns a Text residence/expression or the source `null`, and
+    /// at least one of each exists. Text-only consumers keep using the strict
+    /// predicate above; a nullable result never widens them.
+    pub(super) fn has_nullable_text_result_v1(&self) -> bool {
+        use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
+        let exits = self.completion.explicit_sites();
+        let unique: std::collections::BTreeSet<_> = exits.iter().collect();
+        let (mut text, mut null) = (0usize, 0usize);
+        let exact = self.result.is_none()
+            && matches!(self.completion.function_exit_contract().declared_result(), DeclaredFunctionResultContractV1::Unannotated)
+            && self.completion.owner() == self.owner && self.completion.returns_value()
+            && self.completion.implicit_body_end().is_none() && !exits.is_empty()
+            && unique.len() == exits.len() && self.terminal_relations.len() == exits.len()
+            && exits.iter().all(|site| match self.terminal_relations.get(site) {
+                Some(TerminalRelationV1::Value(value)) if value.owner() == self.owner && value.return_site() == site => {
+                    match value.returned() {
+                        TerminalReturnedSourceV1::TextResidence { .. } => { text += 1; true }
+                        TerminalReturnedSourceV1::TextExpression(evaluation) => {
+                            text += 1;
+                            evaluation.source().owner() == self.owner
+                                && evaluation.source().root().statement() == site
+                                && evaluation.source().nodes().first().is_some_and(|node| node.site() == value.value_site())
+                                && evaluation.root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                                    crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)
+                                && evaluation.reference_coverage_is_exact()
+                        }
+                        TerminalReturnedSourceV1::NullLiteral => { null += 1; true }
+                        _ => false,
+                    }
+                }
+                _ => false,
+            });
+        exact && text > 0 && null > 0
+    }
+
+    /// Instance target agreement for a {Text, null} completed result.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_instance_nullable_text_source_v1(
+        &self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::LexicalInstanceCallSourceTargetV1,
+    ) -> bool {
+        let slot = source.target_batch_slot();
+        source.target().namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            && selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(source.target().clone())) == Some(slot)
+            && selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(self.identity))
+            && selected.role_for_batch_slot(slot) == Some(self.role)
+            && self.owner == source.callee_owner() && self.has_nullable_text_result_v1()
+    }
+
     /// The original Static target and this exact completed declaration agree.
     /// Unknown catalog output stays unknown; only the completed Return owner
     /// supplies Text meaning, never a name, MIR type or backend result.
@@ -311,6 +358,11 @@ impl CompletedTextResultSourceV1 {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
             &self.completion, &self.terminals).corroborates_static_text_source_v1(selected, source)
     }
+    pub(super) fn corroborates_instance_nullable(&self, selected: &VerifiedSelectedCallableBatchMapV1,
+        source: &super::LexicalInstanceCallSourceTargetV1) -> bool {
+        CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
+            &self.completion, &self.terminals).corroborates_instance_nullable_text_source_v1(selected, source)
+    }
     pub(super) fn corroborates_instance(&self, selected: &VerifiedSelectedCallableBatchMapV1,
         source: &super::LexicalInstanceCallSourceTargetV1) -> bool {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
@@ -322,6 +374,13 @@ impl CompletedTextResultSourceV1 {
     }
 }
 impl VerifiedCallableResultContractRowV1 {
+    pub(super) fn completed_instance_nullable_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
+        source: &super::LexicalInstanceCallSourceTargetV1) -> Option<CompletedTextResultSourceV1> {
+        self.borrow().corroborates_instance_nullable_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {
+            owner: self.owner, identity: self.identity.clone(), role: self.role,
+            completion: Rc::clone(&self.completion), terminals: Rc::clone(&self.terminal_relations),
+        })
+    }
     pub(super) fn completed_instance_text_source_v1(&self, selected: &VerifiedSelectedCallableBatchMapV1,
         source: &super::LexicalInstanceCallSourceTargetV1) -> Option<CompletedTextResultSourceV1> {
         self.borrow().corroborates_instance_text_source_v1(selected, source).then(|| CompletedTextResultSourceV1 {

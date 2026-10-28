@@ -389,16 +389,25 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("object-input/contract-duplicate"));
         }
         let Some(kind) = self.selected_instance_input_protocol_v1(source, contract.owner)? else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[instance-input] owner={:?} no selected input protocol", contract.owner);
+            }
             return Ok(None);
         };
         match self.prepare_original_instance_input_owner_v1(
             source, selected, contract, signatures, kind,
         )? {
             TypedInputClosureV1::Pending => {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[instance-input] owner={:?} closure pending", contract.owner);
+                }
                 return Ok(None);
             }
             TypedInputClosureV1::Refused(issue) => return Err(issue),
             TypedInputClosureV1::Ready(rows) if !rows.is_empty() => {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[instance-input] owner={:?} has {} unreplaced source actuals", contract.owner, rows.len());
+                }
                 return Ok(None);
             }
             TypedInputClosureV1::Ready(_) => {}
@@ -409,6 +418,9 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("object-input/original-target"));
         }
         let Some(actuals) = self.borrowed_formal_actuals.get(target.call_site()) else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[instance-input] owner={:?} call={:?} has no staged actuals", contract.owner, target.call_site());
+            }
             return Ok(None);
         };
         let actuals = actuals.as_ref().map_err(Clone::clone)?;
@@ -730,6 +742,9 @@ impl OrdinaryNewClaimLedgerV1 {
             ObjectInputCompletionGateV1::Ready => {}
         }
         let Some(signature) = signatures.row(contract.batch_slot) else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[instance-input] owner={owner:?} has no physical signature row");
+            }
             return Ok(TypedInputClosureV1::Pending);
         };
         let identity = selected
@@ -775,6 +790,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("object-input/original-target"));
             }
             let Some(actuals) = self.borrowed_formal_actuals.get(&call.call) else {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[instance-input] owner={owner:?} call={:?} has no staged actuals", call.call);
+                }
                 missing = true;
                 continue;
             };
@@ -857,6 +875,9 @@ impl OrdinaryNewClaimLedgerV1 {
                             Some(self),
                         )?
                     else {
+                        if crate::config::env::builder_debug_enabled() {
+                            eprintln!("[instance-input] owner={owner:?} call={:?} source actuals not reconstructed", call.call);
+                        }
                         return Ok(TypedInputClosureV1::Pending);
                     };
                     if !actuals.opaque_actuals.is_empty()

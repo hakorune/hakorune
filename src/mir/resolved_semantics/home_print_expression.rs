@@ -187,7 +187,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
     let source = Rc::clone(prepared.source());
     let prior_homes = prepared.prior_homes().to_vec();
     let Ok(order) = source.ordered_postorder_v1() else {
-        return Ok(None);
+        return statement_evaluation_declined(1);
     };
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();
     let Some(mut reference_proofs) =
@@ -203,7 +203,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
             },
         )
     else {
-        return Ok(None);
+        return statement_evaluation_declined(2);
     };
     let Some(super::leaves::QualifiedExpressionLeavesV1 {
         classes,
@@ -219,14 +219,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
         field_request,
     )?
     else {
-        return Ok(None);
+        return statement_evaluation_declined(3);
     };
     if !references.is_empty() {
-        return Ok(None);
+        return statement_evaluation_declined(4);
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) {
-        return Ok(None);
+        return statement_evaluation_declined(5);
     }
     let Some((operations, mut owned_results)) = super::operations::qualify_arithmetic_operations_v1(
         &source,
@@ -234,7 +234,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
         &classes,
         &transferred,
     ) else {
-        return Ok(None);
+        return statement_evaluation_declined(6);
     };
     owned_results.extend(order.iter().copied().filter(|node| !transferred.contains(node)
         && classes[*node] == Leaf::Value(Class::String)
@@ -259,7 +259,15 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
         transferred_inputs: transferred,
     };
     if !evaluation.retain_core_text_entry_reads_v1() || !evaluation.reference_coverage_is_exact() {
-        return Ok(None);
+        return statement_evaluation_declined(7);
     }
     Ok(Some((evaluation, fields)))
+}
+
+/// Default-off: which qualification gate refused this statement expression.
+fn statement_evaluation_declined<T, E>(gate: u32) -> Result<Option<T>, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[statement-evaluation] declined gate={gate}");
+    }
+    Ok(None)
 }

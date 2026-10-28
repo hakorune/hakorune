@@ -184,6 +184,13 @@ impl OrdinaryNewClaimLedgerV1 {
             if evaluation.source().owner() != contract.owner || !evaluation.reference_coverage_is_exact() {
                 return Err(freeze("static-input/qualified-use-identity"));
             }
+            // A stored-Map element field read inside a condition or call argument
+            // belongs to that expression's qualified field batch. Return
+            // evaluations cover theirs in the terminal collector.
+            if !matches!(evaluation.source().root(),
+                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement { .. }) {
+                self.cover_expression_field_roots_v1(flow, evaluation, uses, &origins, &mut covered)?;
+            }
             // Core owns only its exact transferred Me receiver. Account for
             // that original read here; key references keep their own proofs.
             for core in evaluation.cores().values() {
@@ -306,6 +313,9 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             for (argument, site) in observation.arguments().iter().zip(argument_sites) {
                 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1 as Argument;
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[entry-input-use] call={:?} argument site={site:?} kind={:?}", observation.site(), std::mem::discriminant(argument));
+                }
                 if let (Argument::BorrowedActual { ordinal, site: actual }, Some(original)) = (argument, scalar_static.as_ref()) {
                     if actual != site { return Err(freeze("static-input/qualified-use-identity")); }
                     if let Some((binding, formal)) = Self::original_static_forwarded_use_v1(
@@ -318,6 +328,22 @@ impl OrdinaryNewClaimLedgerV1 {
                                 && !evaluation_reads.contains(&(site.clone(), binding))) {
                             return Err(freeze("static-input/read-use-duplicate-or-foreign"));
                         }
+                        continue;
+                    }
+                }
+                // A stored-Map element field actual reads its holder Local at the
+                // argument's Receiver child; the same original get owns that read.
+                if let Argument::BorrowedActual { ordinal, site: actual } = argument {
+                    if actual == site && structure.source.original_map_field_actual_request_v1(observation.site(), *ordinal, site)? {
+                        use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1};
+                        let receiver = SourcePathV1::from_node(site.node()).child(SourcePathSegmentV1::Receiver).expr();
+                        let holder = uses.reads().find_map(|(at, reference)| match reference {
+                            ResolvedLexicalRefV1::Local(binding) if *at == receiver => Some(*binding),
+                            _ => None,
+                        });
+                        let Some(holder) = holder else { input_use_pending!("map-field-actual-holder") };
+                        if origins.contains_key(&holder) { input_use_pending!("map-field-actual-holder-is-entry") }
+                        covered.insert((receiver, holder));
                         continue;
                     }
                 }

@@ -147,6 +147,10 @@ impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn is_i64(&self) -> bool {
         self.evaluation.root_class() == Leaf::Value(Class::I64)
     }
+    /// An exact Bool Local produced by a root comparison.
+    pub(crate) fn is_bool(&self) -> bool {
+        self.evaluation.root_class() == Leaf::Value(Class::Bool)
+    }
     pub(crate) fn is_text_residence(&self) -> bool {
         self.evaluation.root_class() == Leaf::Value(Class::String)
             && (self.evaluation.owned_text_root_node_v1().is_some()
@@ -350,10 +354,14 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         && source.nodes().len() == 1
         && matches!(reference_proofs.get(&0), Some(CheckedExpressionReferenceV1::DynamicInvocationResult(frame))
             if frame.dynamic_home_binding_v1().is_some_and(|owner| prior_homes.contains(&LiveHomeV1::Stable(owner))));
+    // A root Equal/NotEqual over exact Text/Dynamic/Bool operands is a Bool Local.
+    let bool_root = classes[0] == Leaf::Value(Class::Bool)
+        && source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
+            crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual));
     if !references.is_empty()
         || transferred.contains(&0)
         || (!matches!(classes[0], Leaf::Value(Class::String | Class::I64))
-            && !dynamic_invocation_root && !dynamic_alias_root)
+            && !dynamic_invocation_root && !dynamic_alias_root && !bool_root)
         || (classes[0] == Leaf::Value(Class::I64)
             && !has_core
             && !entry_reads
@@ -366,12 +374,16 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     }
     // Root purpose selects a binary; the shared operation law below owns its
     // supported operator/domain and exact original positive-divisor proof.
-    let Some((operations, owned_results)) = super::operations::qualify_arithmetic_operations_v1(
-        &source,
-        &order,
-        &classes,
-        &transferred,
-    ) else {
+    let Some((operations, owned_results)) = (if bool_root {
+        // Operand subtrees (calls, Text adds) keep their own arithmetic law.
+        let root = super::operations::qualify_comparison_operation_v1(&source, 0, &classes);
+        let inner_order: Vec<usize> = order.iter().copied().filter(|node| *node != 0).collect();
+        root.and_then(|root| super::operations::qualify_arithmetic_operations_v1(
+            &source, &inner_order, &classes, &transferred,
+        ).map(|(mut operations, owned)| { operations.push(root); (operations, owned) }))
+    } else {
+        super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
+    }) else {
         return Ok(None);
     };
     // Owned Text transfers one root residence; I64 retains no Home. Its Text

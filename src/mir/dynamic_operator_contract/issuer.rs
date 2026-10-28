@@ -54,6 +54,19 @@ const ADD_STRING_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
     );
 
+/// An exact Bool displays as its language spelling; the result is a fresh String.
+const ADD_STRING_BOOL: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::Bool,
+        ),
+        DynamicOperatorNormalResultV1::OwnedStringValue,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
+    );
+
 const ADD_STRING_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
         DynamicOperatorDomainV1::new(
@@ -425,6 +438,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::String,
             DynamicOperatorValueClassV1::NormalInteger,
         ) => Ok(&ADD_STRING_NORMAL_INTEGER),
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::Bool,
+        ) => Ok(&ADD_STRING_BOOL),
         (
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::String,

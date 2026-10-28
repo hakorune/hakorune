@@ -50,6 +50,10 @@ uint32_t nyrt_dynamic_checked_integer_v1(void *, uint64_t, uint64_t, int64_t *)
  * input alive. Fault leaves the output untouched and publishes no carrier. */
 uint32_t nyrt_dynamic_checked_sub_i64_v1(void *, uint64_t, uint64_t, int64_t, uint64_t *)
     __asm__("nyash.dynamic.checked_sub_i64_v1");
+/* Move one owned String pair, or the null sentinel pair (0, 0), into a fresh
+ * opaque carrier. Fault leaves the pair untouched and publishes no carrier. */
+uint32_t nyrt_dynamic_checked_publish_text_or_null_v1(void *, uint64_t, uint64_t, uint64_t, uint64_t *)
+    __asm__("nyash.dynamic.checked_publish_text_or_null_v1");
 uint32_t nyrt_dynamic_checked_end_v1(void *, uint64_t, uint64_t)
     __asm__("nyash.dynamic.checked_end_v1");
 

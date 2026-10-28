@@ -250,6 +250,16 @@ impl LocalCallObservationV1 {
     pub(crate) fn dynamic_invocation_result_lifecycle_v1(
         &self,
     ) -> Option<crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1> {
+        if let Some(LocalCallResultSourceV1::Ordinary(loan)) = self.result_source.as_ref() {
+            // The static {Text, null} call publishes the same opaque carrier.
+            return (self.result == LocalCallResultClassV1::Dynamic
+                && loan.result() == LocalCallResultClassV1::Dynamic
+                && loan.instance_source().is_some()
+                && self.is_expression_value()
+                && self.owner == self.site.owner()
+                && loan.call_site() == &self.site)
+                .then_some(crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded);
+        }
         let Some(LocalCallResultSourceV1::DynamicInvocation(loan)) = self.result_source.as_ref()
         else {
             return None;

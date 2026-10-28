@@ -81,15 +81,25 @@ pub(super) fn observe<E>(
         // A selected source Loop consumes a complete evaluation frame, too.
         // This purpose does not classify leaves or grant executable input.
         && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);
+    let root_compare = source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
+        super::super::ResolvedBinaryOperatorV1::Equal | super::super::ResolvedBinaryOperatorV1::NotEqual));
     if !arithmetic_requested
         && !root_add
         && !root_reference
+        && !root_compare
         && !matches!(
             source.nodes()[0].source(),
             ExpressionNodeSourceV1::MethodCall
         )
     {
         return declined(statement.site(), 6);
+    }
+    if root_compare {
+        // A comparison is not itself a call root: stage every call under it in
+        // source order from this real Prefix, as the whole-expression consumers do.
+        local_call_flow::stage_expression_actuals_v1(
+            input, statement, &source, locals, prefix_known, homes, local_calls, path_calls, fields, port,
+        )?;
     }
     let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(
         &source,
@@ -180,6 +190,7 @@ pub(super) fn observe<E>(
         && !prepared.has_owned_text_call()
         && !prepared.has_dynamic_invocation_call()
         && !(root_reference && locals.dynamic_invocation_result_reference_v1(site).is_some())
+        && !(root_compare && (has_parent_text || prepared.has_dynamic_invocation_call()))
         && !(root_add && has_parent_text)
         && !signed_entry
         && signed_root_sum.is_none()
@@ -231,7 +242,9 @@ pub(super) fn observe<E>(
         eprintln!("[initializer-expression] statement={:?} installed i64={} dynamic_result={} dynamic_alias={} text={}",
             statement.site(), frame.is_i64(), frame.is_dynamic_invocation_result(), frame.is_dynamic_alias(), frame.is_text_residence());
     }
-    if frame.is_i64() {
+    if frame.is_bool() {
+        locals.install_scalar_call_result(frame.binding(), SourceScalarKind::Bool);
+    } else if frame.is_i64() {
         locals.install_i64_call_result(frame.binding());
     } else if frame.is_dynamic_invocation_result() {
         locals.install_dynamic_invocation_result(frame.binding(), std::rc::Rc::clone(&frame));

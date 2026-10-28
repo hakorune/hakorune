@@ -388,9 +388,15 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 site: site.clone(),
                 issue,
             })?;
-        if original_owned || lexical_result_source {
+        // The runtime has no provider for a user-box member, so an exact static
+        // target at this site is the only executable meaning of the call.
+        let static_target = super::super::lexical_instance_call::original_lexical_target_at_v1(targets, site)
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(), issue,
+            })?.is_some();
+        if original_owned || lexical_result_source || static_target {
             if crate::config::env::builder_debug_enabled() {
-                eprintln!("[dynamic-source] {site:?} not dynamic: original_owned={original_owned} lexical_result_source={lexical_result_source} dynamic_candidates={}",
+                eprintln!("[dynamic-source] {site:?} not dynamic: original_owned={original_owned} lexical_result_source={lexical_result_source} static_target={static_target} dynamic_candidates={}",
                     dynamic_source_calls.iter().filter(|target| target.owner() == input.owner() && target.call_site() == site.site()).count());
             }
             return Ok(None);
@@ -757,9 +763,16 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 site: site.clone(),
                 issue,
             })?;
+        // An exact static target is the only executable meaning (the runtime has
+        // no user-box provider); the Dynamic candidate then lends nothing.
+        let static_target = super::super::lexical_instance_call::original_lexical_target_at_v1(targets, site)
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(), issue,
+            })?.is_some();
         let mut dynamic_targets = dynamic_source_calls.iter().filter(|target| {
             !ordinary
                 && !lexical_result_source
+                && !static_target
                 && target.owner() == input.owner()
                 && target.call_site() == site.site()
         });

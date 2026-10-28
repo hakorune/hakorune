@@ -287,6 +287,7 @@ pub(super) fn encode_ordinary_call(
             InvokeCallResultKind::Bool => "bool",
             InvokeCallResultKind::Map => "map",
             InvokeCallResultKind::OwnedString => "text",
+            InvokeCallResultKind::DynamicCarrier => "nullable_text",
             InvokeCallResultKind::Handle => "handle",
             InvokeCallResultKind::NullableHandle => "nullable_handle",
             InvokeCallResultKind::I64 => "i64",

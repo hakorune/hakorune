@@ -244,7 +244,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     let Some(row) = rows.row(target.target_batch_slot()) else {
         return ordinary_result_absent(site, "the callee has no completed result contract row yet");
     };
-    let Some(text) = row.completed_instance_text_source_v1(selected, &target) else {
+    // A {Text, null} result is the same completed source published as one opaque
+    // Dynamic carrier; the strict Text-only predicate is never widened.
+    let (text, result) = if let Some(text) = row.completed_instance_text_source_v1(selected, &target) {
+        (text, LocalCallResultClassV1::Text)
+    } else if let Some(text) = row.completed_instance_nullable_text_source_v1(selected, &target) {
+        (text, LocalCallResultClassV1::Dynamic)
+    } else {
         return ordinary_result_absent(site, "the callee's completed result does not corroborate an instance Text source");
     };
     let reject = || freeze("borrowed-instance/source-identity");
@@ -265,7 +271,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
                 source: target,
                 text,
             },
-            result: LocalCallResultClassV1::Text,
+            result,
         }),
         arguments,
     }))
@@ -382,6 +388,21 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
         &self,
         source: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
+        self.checked_local_instance_result_source_v1(source, LocalCallResultClassV1::Text)
+    }
+    /// The {Text, null} analogue: the same completed source, published as one
+    /// opaque Dynamic carrier.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_local_instance_nullable_text_result_source_v1(
+        &self,
+        source: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        self.checked_local_instance_result_source_v1(source, LocalCallResultClassV1::Dynamic)
+    }
+    fn checked_local_instance_result_source_v1(
+        &self,
+        source: &LexicalInstanceCallSourceTargetV1,
+        class: LocalCallResultClassV1,
+    ) -> Result<bool, String> {
         let Some(observation) =
             self.local_call_for_owner(source.call_site().owner(), source.call_site().site())
         else {
@@ -398,13 +419,17 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
             return Ok(false);
         };
         let reject = || freeze("borrowed-call/result-not-corroborated");
+        // The other result class's source is simply not this one.
+        if loan.result != class && observation.result() != class {
+            return Ok(false);
+        }
         if original != source
             || observation.site() != source.call_site()
             || observation.owner() != source.call_site().owner()
-            || observation.result() != LocalCallResultClassV1::Text
-            || loan.result != LocalCallResultClassV1::Text
+            || observation.result() != class
+            || loan.result != class
         {
-            return Err(reject());
+            return Err(freeze("borrowed-call/result-not-corroborated"));
         }
         let (selected, signatures) = self
             .original_instance_input_issuance
@@ -421,10 +446,13 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
             .terminal_relation_index
             .get(&source.callee_owner())
             .ok_or_else(reject)?;
-        if !text.matches_retained(completion, terminals)
-            || !text.corroborates_instance(selected, source)
-        {
-            return Err(reject());
+        let corroborated = if class == LocalCallResultClassV1::Dynamic {
+            text.corroborates_instance_nullable(selected, source)
+        } else {
+            text.corroborates_instance(selected, source)
+        };
+        if !text.matches_retained(completion, terminals) || !corroborated {
+            return Err(freeze("borrowed-call/result-not-corroborated"));
         }
         let prepared = self
             .borrowed_formal_source
@@ -438,7 +466,7 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
         if incoming.callee != source.callee_owner()
             || !matches!(&incoming.source, BorrowedIncomingSourceV1::Instance(target) if target == source)
         {
-            return Err(reject());
+            return Err(freeze("borrowed-call/result-not-corroborated"));
         }
         let signature = signatures
             .row(source.target_batch_slot())
@@ -447,12 +475,14 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
             || signature.source_logical_arity() != source.target().arity() || signature.receiver_lane_count() != 1
             || signature.lanes().first().is_none_or(|lane| lane.index() != 0
                 || lane.role() != crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver)
-        { return Err(reject()); }
+        { return Err(freeze("borrowed-call/result-not-corroborated")); }
         let arguments = self
             .checked_completed_original_instance_target_arguments_v1(
                 source, selected, catalog, signatures,
             )?
-            .ok_or_else(|| freeze("borrowed-entry/original-input-not-ready"))?;
+            .ok_or_else(|| format!("{}: callee={:?} call={:?} class={class:?} pending={:?}",
+                freeze("borrowed-entry/original-input-not-ready"), source.callee_owner(), source.call_site(),
+                self.typed_object_input_completion_diagnostic_v1(source.callee_owner())))?;
         if arguments != observation.arguments() {
             return Err(freeze("borrowed-call/disposition-identity"));
         }
@@ -463,9 +493,14 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
         &self,
         row: &LexicalInstanceCallDispositionRowV1,
     ) -> Result<(), String> {
-        if row.result() != Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)
-            || !self.checked_local_instance_text_result_source_v1(row.source_target())?
-        {
+        let corroborated = match row.result() {
+            Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) =>
+                self.checked_local_instance_text_result_source_v1(row.source_target())?,
+            Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier) =>
+                self.checked_local_instance_nullable_text_result_source_v1(row.source_target())?,
+            _ => false,
+        };
+        if !corroborated {
             return Err(freeze("borrowed-call/result-not-corroborated"));
         }
         Ok(())

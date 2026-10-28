@@ -616,7 +616,9 @@ pub(super) fn seed_current_expression_references_with_loop_text_v1(
                 ),
             )
         } else if let Some(read) = scalar_reference(site) {
-            if read.kind() != super::super::SourceScalarKind::Integer && !bool_condition {
+            // An exact Bool Local is a first-class operand (Text display, Bool
+            // equality); no other non-Integer scalar exists.
+            if !matches!(read.kind(), super::super::SourceScalarKind::Integer | super::super::SourceScalarKind::Bool) && !bool_condition {
                 return Err(());
             }
             CheckedExpressionReferenceV1::Scalar(read)

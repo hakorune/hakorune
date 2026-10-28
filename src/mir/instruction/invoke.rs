@@ -195,6 +195,10 @@ impl BorrowedResultSupportV1 {
 pub enum InvokeCallResultKind {
     /// Owned checked String pair, acquired only on the Call Normal edge.
     OwnedString,
+    /// The callee returns an owned String pair or the null sentinel pair; the
+    /// physical Call publishes it as one fresh opaque Dynamic carrier the
+    /// caller must forward or End exactly once.
+    DynamicCarrier,
     Unit,
     I64,
     /// Exact source Bool; machine storage does not grant Integer semantics.
@@ -438,6 +442,7 @@ impl InvokeOperation {
                 ..
             } => Some(InvokeNormalResultKind::Bool),
             Self::Call { result: InvokeCallResultKind::OwnedString, .. } => Some(InvokeNormalResultKind::OwnedString),
+            Self::Call { result: InvokeCallResultKind::DynamicCarrier, .. } => Some(InvokeNormalResultKind::DynamicCarrier),
             Self::Call {
                 result: InvokeCallResultKind::Map,
                 ..

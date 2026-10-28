@@ -633,7 +633,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.uses_object_packet_protocol_v1(row)? {
             return row.checked_object_packet_actuals_v1(self).map(Some);
         }
-        if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString) {
+        if matches!(row.result(), Some(crate::mir::instruction::InvokeCallResultKind::OwnedString | crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)) {
             // Text owns its result protocol, while the SAME original Instance
             // input cohort supplies these actuals (including a proved empty tuple).
             self.corroborate_local_instance_text_call_v1(row)?;

@@ -240,6 +240,54 @@ pub unsafe extern "C" fn subtract_i64(
     }
 }
 
+/// Move one owned String pair, or the null sentinel pair (0, 0), into a fresh
+/// carrier. A String pair is ended only after the carrier exists; any failure
+/// leaves the pair for its Fault cleanup.
+#[export_name = "nyash.dynamic.checked_publish_text_or_null_v1"]
+pub unsafe extern "C" fn publish_text_or_null(
+    storage: *mut c_void,
+    site: u64,
+    handle: u64,
+    token: u64,
+    out: *mut u64,
+) -> u32 {
+    if out.is_null() || !out.is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let frame = match unsafe { frame(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    let published = if handle == 0 && token == 0 {
+        invocation::publish_null_v1()
+    } else {
+        let Some(token) = std::num::NonZeroU64::new(token) else {
+            return Status::InvalidContract as u32;
+        };
+        let Ok(text) = nyash_rust::runtime::dynamic_v2_lease::with_end_authorized_text_pair(
+            handle, token, str::to_owned,
+        ) else {
+            return Status::InvalidContract as u32;
+        };
+        match invocation::publish_string_v1(text) {
+            Ok(carrier) => {
+                if nyash_rust::runtime::dynamic_v2_lease::end_authorized_text_pair(handle, token).is_err() {
+                    return Status::InvalidContract as u32;
+                }
+                Ok(carrier)
+            }
+            Err(failure) => Err(failure),
+        }
+    };
+    match published {
+        Ok(carrier) => {
+            unsafe { out.write(carrier.raw_v1()) };
+            Status::Normal as u32
+        }
+        Err(failure) => record_failure(frame, site, failure),
+    }
+}
+
 /// Consume one opaque carrier. A second End is a source Fault; malformed
 /// tokens are rejected as invalid physical contracts before table access.
 #[export_name = "nyash.dynamic.checked_end_v1"]

@@ -388,10 +388,10 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// Original field roots belong to the same qualified Return field batch,
     /// not to scalar/reference operand authority.
-    fn cover_expression_field_roots_v1(
+    pub(super) fn cover_expression_field_roots_v1(
         &self,
         flow: Option<&crate::mir::resolved_semantics::home_new_prefix::RootHomeFlow>,
-        evaluation: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
+        evaluation: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
         uses: &super::super::borrowed_formal_uses::OriginalFormalUseSourceV1,
         origins: &BTreeMap<BindingRefV1, BindingRefV1>,
         covered: &mut BTreeSet<(crate::mir::resolved_semantics::SourceExprSiteV1, BindingRefV1)>,

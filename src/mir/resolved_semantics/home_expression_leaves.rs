@@ -377,17 +377,17 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             )
         ) {
             let Some(request) = field_request(node.site()) else {
-                return Ok(None);
+                { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=1"); } return Ok(None); }
             };
             if request.node_in_plan(source) != Some(index) {
-                return Ok(None);
+                { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=2"); } return Ok(None); }
             }
             let Some(receiver) = source
                 .nodes()
                 .iter()
                 .position(|node| node.site() == &request.receiver_site)
             else {
-                return Ok(None);
+                { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=3"); } return Ok(None); }
             };
             leaves[receiver] = Leaf::Identity;
             leaves[index] = if request
@@ -419,11 +419,11 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
         if !core.matches_plan(source, core.node())
             || !array.matches_expression_receiver_v1(source)
         {
-            return Ok(None);
+            { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=4"); } return Ok(None); }
         }
         let receiver = core.source().source().receiver_site();
         let Some(index) = source.nodes().iter().position(|node| node.site() == receiver) else {
-            return Ok(None);
+            { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=5"); } return Ok(None); }
         };
         match leaves[index] {
             Leaf::Unresolved => leaves[index] = Leaf::Identity,
@@ -440,17 +440,17 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             continue;
         };
         if !core.matches_plan(core.plan(), core.node()) || !Rc::ptr_eq(read.source_plan(), source) {
-            return Ok(None);
+            { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=6"); } return Ok(None); }
         }
         let Some(leaf) = leaves.get_mut(read.node()) else {
-            return Ok(None);
+            { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=7"); } return Ok(None); }
         };
         if !matches!(source.nodes().get(read.node()), Some(node)
             if node.site() == read.read()
                 && matches!(node.source(), ExpressionNodeSourceV1::Reference(
                     crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == read.binding()))
         {
-            return Ok(None);
+            { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=8"); } return Ok(None); }
         }
         match *leaf {
             Leaf::Unresolved => *leaf = Leaf::Value(Class::String),
@@ -496,10 +496,10 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             ) && leaves[index] == Leaf::Unresolved =>
             {
                 let Some((original, kind)) = scalar_reference(node.site()) else {
-                    return Ok(None);
+                    { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=9"); } return Ok(None); }
                 };
                 if original != *binding || binding.owner() != source.owner() {
-                    return Ok(None);
+                    { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=10"); } return Ok(None); }
                 }
                 leaves[index] = Leaf::Value(match kind {
                     super::super::SourceScalarKind::Integer => Class::I64,
@@ -512,7 +512,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
     }
     let Some(classes) = project_expression_nodes_v1(&source, &transferred, |index| leaves[index])
     else {
-        return Ok(None);
+        { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=11"); } return Ok(None); }
     };
     // A Core result never erases its receiver or argument obligations. Those
     // children were evaluated in the SAME postorder, unlike transferred Calls.
@@ -531,7 +531,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             Leaf::Value(Class::String)
         };
         if class(original.receiver_site()) != Some(expected_receiver) {
-            return Ok(None);
+            { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=12"); } return Ok(None); }
         }
         for (argument, parameter) in original
             .arguments()
@@ -546,7 +546,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 _ => return Ok(None),
             };
             if class(argument.site()) != Some(Leaf::Value(expected)) {
-                return Ok(None);
+                { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=13"); } return Ok(None); }
             }
         }
     }

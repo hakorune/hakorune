@@ -29,13 +29,13 @@ pub(super) fn observe<E>(
         actuals,
     )?;
     if !prefix_known {
-        return Ok(false);
+        return print_declined(statement.site(), 1);
     }
     let Some(shape) = input.body_shape() else {
-        return Ok(false);
+        return print_declined(statement.site(), 2);
     };
     let Ok(source_ledger) = input.forest().callable_source_ledger(input.owner()) else {
-        return Ok(false);
+        return print_declined(statement.site(), 3);
     };
     let Ok(Some(source)) =
         crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
@@ -44,7 +44,7 @@ pub(super) fn observe<E>(
             statement.site(),
         )
     else {
-        return Ok(false);
+        return print_declined(statement.site(), 4);
     };
     if !local_call_flow::stage_expression_actuals_v1(
         input,
@@ -58,7 +58,7 @@ pub(super) fn observe<E>(
         fields,
         actuals,
     )? {
-        return Ok(false);
+        return print_declined(statement.site(), 5);
     }
     let mut installation = None;
     let plan = qualify_print_expression_v1(
@@ -89,7 +89,7 @@ pub(super) fn observe<E>(
         },
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
     )?;
-    let Some(plan) = plan else { return Ok(false) };
+    let Some(plan) = plan else { return print_declined(statement.site(), 99) };
     // The last atomic field batch succeeded. Publication of the exact approved
     // immutable frame and its original call observations cannot reject now.
     let calls = plan
@@ -100,4 +100,12 @@ pub(super) fn observe<E>(
     path_calls.extend(calls.iter().map(|call| call.site().clone()));
     local_calls.extend_from_slice(calls);
     Ok(true)
+}
+
+/// Default-off: which gate left this statement expression uncovered.
+fn print_declined<E>(statement: &SourceStmtSiteV1, gate: u32) -> Result<bool, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[print-expression] statement={statement:?} declined gate={gate}");
+    }
+    Ok(false)
 }

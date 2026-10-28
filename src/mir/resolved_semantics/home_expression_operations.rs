@@ -9,6 +9,43 @@ use crate::mir::resolved_value_profile::{
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
 use std::collections::BTreeSet;
+/// One comparison of exact Text and/or opaque Dynamic operands, or of two exact
+/// Bools, producing a trivial Bool. The shared operator contract owns the law.
+pub(super) fn qualify_comparison_operation_v1(
+    source: &Rc<ExpressionSourcePlanV1>,
+    index: usize,
+    classes: &[Leaf],
+) -> Option<Rc<CheckedExpressionOperationLoanV1>> {
+    let binary = source.nodes()[index].binary()?;
+    let family = match binary.operator() {
+        ResolvedBinaryOperatorV1::Equal => DynamicOperatorFamilyV1::Equal,
+        ResolvedBinaryOperatorV1::NotEqual => DynamicOperatorFamilyV1::NotEqual,
+        _ => return None,
+    };
+    let class = |site| {
+        let position = source.nodes().iter().position(|node| node.site() == site)?;
+        match classes[position] {
+            Leaf::Value(Class::String) => Some(DynamicOperatorValueClassV1::String),
+            Leaf::Value(Class::Dynamic) => Some(DynamicOperatorValueClassV1::Dynamic),
+            Leaf::Value(Class::Bool) => Some(DynamicOperatorValueClassV1::Bool),
+            _ => None,
+        }
+    };
+    let (lhs, rhs) = (class(binary.lhs())?, class(binary.rhs())?);
+    if lhs == DynamicOperatorValueClassV1::Dynamic && rhs == DynamicOperatorValueClassV1::Dynamic {
+        return None;
+    }
+    let envelope = issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(family, lhs, rhs)).ok()?;
+    if envelope.normal_result() != DynamicOperatorNormalResultV1::TrivialBool {
+        return None;
+    }
+    Some(Rc::new(CheckedExpressionOperationLoanV1 {
+        plan: Rc::clone(source),
+        node: index,
+        proof: CheckedExpressionOperationProofV1::Dynamic(vec![envelope].into_boxed_slice()),
+    }))
+}
+
 pub(super) fn qualify_arithmetic_operations_v1(
     source: &Rc<ExpressionSourcePlanV1>,
     order: &[usize],
@@ -19,6 +56,7 @@ pub(super) fn qualify_arithmetic_operations_v1(
     let mut owned_results = Vec::new();
     let class_domain = |class| match class {
         Class::I64 => Some(DynamicOperatorValueClassV1::NormalInteger),
+        Class::Bool => Some(DynamicOperatorValueClassV1::Bool),
         Class::String => Some(DynamicOperatorValueClassV1::String),
         Class::Dynamic => Some(DynamicOperatorValueClassV1::Dynamic),
         _ => None,

@@ -424,8 +424,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 });
             let retained_scalar = self.retained_terminal_scalar_result_v1(&source)?;
             let source_text = self.checked_local_instance_text_result_source_v1(&source)?;
+            let source_nullable_text = self.checked_local_instance_nullable_text_result_source_v1(&source)?;
             let callee_result = if source_text {
                 Some(InvokeCallResultKind::OwnedString)
+            } else if source_nullable_text {
+                Some(InvokeCallResultKind::DynamicCarrier)
             } else if source_bool {
                 retained_scalar.as_ref().filter(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool)
                     .map(|_| InvokeCallResultKind::Bool)

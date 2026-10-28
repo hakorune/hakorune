@@ -209,6 +209,19 @@ pub fn publish_array_get_v1(
     publish_carrier_v1(CarrierPayloadV1::Object(Arc::from(value)))
 }
 
+/// Publish an owned Text value as an independent opaque carrier.
+pub fn publish_string_v1(
+    text: String,
+) -> Result<DynamicCarrierTokenV1, DynamicInvocationFailureV1> {
+    let value: Box<dyn NyashBox> = Box::new(StringBox::new(text));
+    publish_carrier_v1(CarrierPayloadV1::Object(Arc::from(value)))
+}
+
+/// Publish the language `null` as an independent opaque carrier.
+pub fn publish_null_v1() -> Result<DynamicCarrierTokenV1, DynamicInvocationFailureV1> {
+    publish_carrier_v1(CarrierPayloadV1::Null)
+}
+
 type ProviderV1 = fn(
     &CarrierPayloadV1,
     &[CarrierPayloadV1],

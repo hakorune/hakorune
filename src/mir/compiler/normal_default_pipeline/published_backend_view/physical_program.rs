@@ -60,6 +60,12 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
     },
+    /// Owned String pair or the null sentinel pair (0, 0); the caller publishes it
+    /// as one opaque Dynamic carrier. Source permission is checked separately.
+    OrdinaryNullableText {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+    },
     /// Exact Bool result, independent of integer machine storage.
     OrdinaryBool {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
@@ -115,6 +121,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::OrdinaryUnit { .. } => "ordinary_unit",
             Self::OrdinaryI64 { .. } => "ordinary_i64",
             Self::OrdinaryText { .. } => "ordinary_text",
+            Self::OrdinaryNullableText { .. } => "ordinary_nullable_text",
             Self::OrdinaryBool { .. } => "ordinary_bool",
             Self::OrdinaryMap { .. } => "ordinary_map",
             Self::OrdinaryHandle { .. } => "ordinary_handle",
@@ -132,6 +139,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::Root { .. }
             | Self::OrdinaryUnit { .. }
             | Self::OrdinaryText { .. }
+            | Self::OrdinaryNullableText { .. }
             | Self::OrdinaryI64 { .. }
             | Self::OrdinaryBool { .. }
             | Self::OrdinaryMap { .. }
@@ -148,6 +156,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         match self {
             Self::OrdinaryUnit { key, .. }
             | Self::OrdinaryText { key, .. }
+            | Self::OrdinaryNullableText { key, .. }
             | Self::OrdinaryI64 { key, .. }
             | Self::OrdinaryBool { key, .. }
             | Self::OrdinaryMap { key, .. }
@@ -164,6 +173,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::OrdinaryUnit { .. } => Some(InvokeCallResultKind::Unit),
             Self::OrdinaryI64 { .. } => Some(InvokeCallResultKind::I64),
             Self::OrdinaryText { .. } => Some(InvokeCallResultKind::OwnedString),
+            Self::OrdinaryNullableText { .. } => Some(InvokeCallResultKind::DynamicCarrier),
             Self::OrdinaryBool { .. } => Some(InvokeCallResultKind::Bool),
             Self::OrdinaryMap { .. } => Some(InvokeCallResultKind::Map),
             Self::OrdinaryHandle { .. } => Some(InvokeCallResultKind::Handle),
@@ -178,6 +188,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         match self {
             Self::OrdinaryUnit { receiver_object, .. }
             | Self::OrdinaryText { receiver_object, .. }
+            | Self::OrdinaryNullableText { receiver_object, .. }
             | Self::OrdinaryI64 {
                 receiver_object, ..
             }
