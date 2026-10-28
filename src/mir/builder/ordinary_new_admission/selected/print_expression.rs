@@ -38,8 +38,11 @@ pub(in crate::mir::builder) fn emit(
     let normal = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &[])?;
     let fault = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
     let after: Vec<_> = (0..normal.len()).map(|index| ((index + 1)..fault.len()).collect()).collect();
+    // A discarded call's Jump cannot fault. Only actual cleanup steps need
+    // residual Fault suffixes; a Print Invoke also needs its entry-Fault path.
+    let acquisition: Vec<_> = if frame.is_discard() { Vec::new() } else { (0..fault.len()).collect() };
     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame, clean,
-        &normal, &fault, &after, &(0..fault.len()).collect::<Vec<_>>(), &mut bindings)?;
+        &normal, &fault, &after, &acquisition, &mut bindings)?;
     // A discarded statement call has no sink: control falls into the same
     // Normal cleanup that ends the call's owned result.
     let print = if frame.is_discard() {
