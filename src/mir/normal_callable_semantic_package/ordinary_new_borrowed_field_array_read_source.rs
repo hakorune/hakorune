@@ -172,14 +172,24 @@ pub(super) fn capture_field_array_read(
 
 // Home observation consumes only original source evidence, before Completion exists.
 impl BorrowedI64ResultSourceV1 {
+    /// The Core `length`/`keys` loans when this Return expression is exactly
+    /// `me.<map>.keys().length()`.
+    pub(in crate::mir::normal_callable_semantic_package) fn field_keys_count_at_v1(&self, site: &OwnedExprSiteV1)
+        -> Option<(&crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1, &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1)> {
+        self.expressions.iter().filter(|expression| expression.plan().owner() == site.owner()
+            && expression.plan().nodes().first().is_some_and(|node| node.site() == site.site()))
+            .find_map(|expression| expression.field_keys_count_v1())
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn checked_field_array_return_v1(
         &self, input: ResolvedFunctionLoweringInputV1<'_>, site: &OwnedExprSiteV1,
         exit: &crate::mir::resolved_semantics::SourceStmtSiteV1,
         census: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     ) -> Result<bool, String> {
         let mut reads = self.field_array_reads.iter().filter(|read| read.return_sites().contains(site));
-        let Some(read) = reads.next() else { return Ok(false) };
+        let read = reads.next();
         if reads.next().is_some() { return Err(freeze("borrowed-result/array-return-duplicate")); }
+        // A Core `keys().length()` Return retains its own expression source.
+        if read.is_none() && self.field_keys_count_at_v1(site).is_none() { return Ok(false) }
         self.require_source_i64_v1()?;
         let expected = crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
             .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).expr();
@@ -188,7 +198,7 @@ impl BorrowedI64ResultSourceV1 {
                 super::super::super::super::verified_value_return_sites(input, shape))
                 .is_some_and(|sites| sites.contains(site.site()))
         { return Err(freeze("borrowed-result/array-return-identity")); }
-        read.recheck_census(input.owner(), &self.returns, census)?;
+        if let Some(read) = read { read.recheck_census(input.owner(), &self.returns, census)?; }
         Ok(true)
     }
 }

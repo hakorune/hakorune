@@ -142,6 +142,12 @@ impl MirBuilder {
             port.complete_field_array_read_v1(recipe, read, receiver, operation, dst)?;
             return Ok(dst);
         }
+        let keys_count = {
+            let syntax = port.method_call_syntax(input)?;
+            let (method, arity) = (syntax.method().to_owned(), syntax.arguments().len());
+            port.emit_field_keys_count_v1(self, &method, arity)?
+        };
+        if let Some(value) = keys_count { return Ok(value); }
         let route_plan = {
             let syntax = port.method_call_syntax(input)?;
             self.plan_member_call_route(syntax.receiver(), syntax.method())?

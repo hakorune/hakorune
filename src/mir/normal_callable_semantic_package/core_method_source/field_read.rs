@@ -214,3 +214,26 @@ impl PartialEq for EmittedFieldArrayReadV1 {
     }
 }
 impl Eq for EmittedFieldArrayReadV1 {}
+
+/// `length()` over the independent Text-key snapshot of one checked entry Map
+/// field. The snapshot is an acquired temporary: acquire, count, End.
+#[derive(Debug)]
+pub(crate) struct FieldKeysCountRecipeV1 {
+    count: crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+    keys: crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+    caller: CanonicalSameModuleCallableKeyV1,
+}
+impl FieldKeysCountRecipeV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn new(
+        count: crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+        keys: crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+        caller: CanonicalSameModuleCallableKeyV1,
+    ) -> Self { Self { count, keys, caller } }
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 { self.count.source().source().owner() }
+    pub(crate) fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 { &self.caller }
+    pub(crate) fn call_site(&self) -> &SourceExprSiteV1 { self.count.source().source().site() }
+    pub(crate) fn keys_site(&self) -> &SourceExprSiteV1 { self.keys.source().source().site() }
+    pub(crate) fn map(&self) -> &crate::mir::normal_callable_semantic_package::FieldMapReceiverSourceV1 {
+        self.keys.field_map().expect("recipe is issued only with a field Map receiver")
+    }
+}

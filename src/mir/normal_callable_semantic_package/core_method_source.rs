@@ -284,4 +284,4 @@ pub(crate) mod test_witness;
 mod field_read;
 mod field_read_argument;
 pub(crate) use field_read_argument::EmittedFieldArrayReadArgumentV1;
-pub(crate) use field_read::{FieldArrayReadRecipeV1, EmittedFieldArrayReadV1};
+pub(crate) use field_read::{FieldArrayReadRecipeV1, FieldKeysCountRecipeV1, EmittedFieldArrayReadV1};

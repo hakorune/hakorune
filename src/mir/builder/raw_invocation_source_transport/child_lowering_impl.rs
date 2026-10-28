@@ -58,6 +58,19 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.callable_ledger.as_ref().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?.borrow_mut().record_field_array_read_v1(recipe, read, receiver, operation, dst)
     }
 
+    fn emit_field_keys_count_v1(&mut self, builder: &mut MirBuilder, method: &str, arity: usize) -> Result<Option<ValueId>, String> {
+        let (Some(ledger), Some(owner)) = (self.ordinary_new_claim_ledger.clone(), self.callable_owner_v1()) else { return Ok(None) };
+        let Some(node) = self.current_source_site_v1() else { return Ok(None) };
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
+        let Some(recipe) = ledger.field_keys_count_recipe_v1(owner, &site)? else { return Ok(None) };
+        if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity) != Some(crate::boxes::array::ArrayMethodId::Length) {
+            return Err("[freeze:contract][named-array/read-call-shape]".into());
+        }
+        let state = self.callable_ledger.clone().ok_or_else(|| "[freeze:contract][named-array/read-state-missing]".to_owned())?;
+        let mut state = state.borrow_mut();
+        super::super::ordinary_new_admission::selected::terminal_map_get::emit_keys_count(builder, &mut state, &ledger, &recipe).map(Some)
+    }
+
     fn prepare_if_state_observer_v1(&mut self, builder: &MirBuilder)
         -> Result<Option<Box<dyn super::super::if_form::IfFormPhysicalObserverV1>>, String> {
         self.if_state_observer_v1(builder)

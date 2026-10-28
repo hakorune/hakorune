@@ -1,4 +1,5 @@
-//! Stored Map get purposes share the original key/receiver and sole Invoke writer.
+//! Stored Map get purposes share the original key/receiver and sole Invoke writer;
+//! the Map-keys count reads the same receiver proof.
 use super::*;
 use crate::mir::normal_callable_semantic_package::{CallValidationContextV1, StoredMapGetReturnSourceLoanV1,
     StoredMapGetReturnEmissionV1, StoredMapGetReadEmissionV1, StoredMapGetLocalEmissionV1, StoredMapGetSourceLoanV1};
@@ -90,4 +91,33 @@ pub(in crate::mir::builder) fn emit_local(builder: &mut MirBuilder,
     if invoke_rows.len() != 2 { return Err(freeze("map-get-shape")); }
     let invoke = invoke_rows.remove(0);
     Ok(PendingLocalV1 { ordinal, frame, read, value, invoke, normal, faults })
+}
+
+/// `me.<map>.keys().length()`: acquire the independent Text-key snapshot, count
+/// it, End it. The borrowed entry receiver is owed nothing on the Fault edge,
+/// and a failed snapshot acquires nothing.
+pub(in crate::mir::builder) fn emit_keys_count(builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState, ledger: &OrdinaryNewClaimLedgerV1,
+    recipe: &crate::mir::normal_callable_semantic_package::FieldKeysCountRecipeV1,
+) -> Result<ValueId, String> {
+    let map = recipe.map();
+    let receiver = state.take_exact_lexical_read(recipe.owner(), map.receiver_site().node(), map.receiver())
+        .map_err(|error| error.to_string())?;
+    let base = map.require_receiver_v1(CallValidationContextV1::Lowering(ledger),
+        builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, &receiver)?;
+    let frame = state.borrow_fault_frame(builder)?;
+    let mut rows = Vec::new();
+    let outward = builder.next_block_id();
+    append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, &mut rows)?;
+    let (keys, _) = invoke_operation::emit(builder, frame,
+        InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldKeys { field: map.field(), base }),
+        outward, &mut rows)?;
+    let keys = keys.ok_or_else(|| freeze("keys-count-shape"))?;
+    let value = builder.emit_checked_keys_count_v1(keys)?;
+    let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    rows.push((block, MirInstruction::ArrayResidenceRelease { value: keys }));
+    rows.push(fault_frame_binding(builder, state, frame)?);
+    ledger.record_map_read_bindings(recipe.owner(),
+        crate::mir::resolved_semantics::OwnedExprSiteV1::new(recipe.owner(), recipe.call_site().clone()), rows)?;
+    Ok(value)
 }

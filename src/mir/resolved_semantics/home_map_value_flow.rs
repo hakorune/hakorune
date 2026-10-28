@@ -391,6 +391,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_loc
     let Some(BorrowedCallArgumentsV1::StoredMapGetSource(source)) =
         port(at, BorrowedCallActualRequestV1::StoredMapGetSource)?
     else {
+        if crate::config::env::builder_debug_enabled() { eprintln!("[map-get-local] no stored get source owner={:?} site={:?}", input.owner(), at.site()); }
         return Ok(None);
     };
     let unavailable = || {
@@ -401,13 +402,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_loc
             },
         )))
     };
+    let unavailable_because = |why: u32| {
+        if crate::config::env::builder_debug_enabled() { eprintln!("[map-get-local] unavailable owner={:?} site={:?} check={why}", input.owner(), at.site()); }
+        unavailable()
+    };
     if !prefix_known
         || !locals.is_self_rooted_handle(source.receiver().receiver())
         || maps.iter().any(|row| row.site() == at)
     {
-        return Ok(unavailable());
+        return Ok(unavailable_because(0));
     }
-    let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, source.get(), 0) else { return Ok(unavailable()) };
+    let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, source.get(), 0) else { return Ok(unavailable_because(5)) };
     if plan.nodes().len() != 1
         || !matches!(
             plan.nodes()[0].source(),
@@ -416,20 +421,20 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_loc
             )
         )
     {
-        return Ok(unavailable());
+        return Ok(unavailable_because(1));
     }
     let Some(key) = super::super::expression_plan::qualify_text_evaluation_v1(
         input, plan, at, locals, homes, calls, port, None,
     )?
     else {
-        return Ok(unavailable());
+        return Ok(unavailable_because(2));
     };
     if !key.calls().is_empty()
         || !key.cores().is_empty()
         || !key.operations().is_empty()
         || !key.owned_result_nodes().is_empty()
     {
-        return Ok(unavailable());
+        return Ok(unavailable_because(3));
     }
     let frame = std::rc::Rc::new(MapFieldGetLocalV1 {
         site: at.clone(),
@@ -440,7 +445,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_loc
         prior: homes.into(),
     });
     if !locals.install_stored_get_v1(std::rc::Rc::clone(&frame), input) {
-        return Ok(unavailable());
+        return Ok(unavailable_because(4));
     }
     maps.push(MapHomeObservation::FieldGet(frame));
     Ok(Some(Ok(())))

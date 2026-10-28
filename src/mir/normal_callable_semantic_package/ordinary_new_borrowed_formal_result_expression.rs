@@ -72,6 +72,18 @@ impl ResultExpressionSourceV1 {
     pub(super) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.plan
     }
+    /// The whole expression is one Core `length` over the Text-key snapshot of
+    /// one checked Map field of the entry receiver; no other node computes.
+    pub(super) fn field_keys_count_v1(&self) -> Option<(&crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+        &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1)> {
+        let LeafV1::Core(count) = self.leaves.first()? else { return None };
+        if self.plan.nodes().len() != 4 || count.node() != 0 || !count.source().target().checked_array_count_law_v1()
+            || count.field_array_access_v1().is_some() { return None }
+        self.leaves.iter().find_map(|leaf| match leaf {
+            LeafV1::Core(inner) if count.matches_receiver_result_v1(inner) && inner.field_map().is_some() => Some((count, inner)),
+            _ => None,
+        })
+    }
     pub(super) fn prepare(
         input: ResolvedFunctionLoweringInputV1<'_>,
         plan: Rc<ExpressionSourcePlanV1>,

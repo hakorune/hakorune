@@ -134,6 +134,8 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Err("[freeze:contract][named-array/read-consumer-unavailable]".into())
     }
 
+    fn emit_field_keys_count_v1(&mut self, _builder: &mut MirBuilder, _method: &str, _arity: usize) -> Result<Option<ValueId>, String> { Ok(None) }
+
     fn prepare_if_state_observer_v1(&mut self, _builder: &MirBuilder)
         -> Result<Option<Box<dyn super::if_form::IfFormPhysicalObserverV1>>, String> { Ok(None) }
 

@@ -6,7 +6,7 @@
 //! consumption, physical ABI, or fallback route.
 
 mod core_method_source;
-pub(crate) use core_method_source::ExpressionCoreSourceLoanV1;
+pub(crate) use core_method_source::{ExpressionCoreSourceLoanV1, FieldMapReceiverSourceV1};
 #[cfg(test)]
 mod core_method_source_tests;
 #[cfg(test)]
@@ -248,7 +248,7 @@ pub(in crate::mir) use ordinary_new_coseal::FinalizedLexicalCallContextV1;
 pub(crate) use ordinary_new_coseal::{BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1, ResultPathFieldSourceLoanV1};
 pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
 
-pub(crate) use core_method_source::{FieldArrayReadRecipeV1, EmittedFieldArrayReadV1, EmittedFieldArrayReadArgumentV1};
+pub(crate) use core_method_source::{FieldArrayReadRecipeV1, FieldKeysCountRecipeV1, EmittedFieldArrayReadV1, EmittedFieldArrayReadArgumentV1};
 pub(crate) use ordinary_new_coseal::{CheckedFieldArrayAccessSourceV1, ArgumentFieldArrayReadSourceV1};
 
 pub(crate) use ordinary_new_coseal::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};

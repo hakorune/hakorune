@@ -563,6 +563,20 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(source.field_array_reads().to_vec())
     }
 
+    /// Issue the `keys().length()` Return recipe once the whole scalar result
+    /// source (anchors, completion, declaration) has been rechecked.
+    pub(crate) fn field_keys_count_recipe_v1(&self, owner: FunctionOwnerIdV1, site: &OwnedExprSiteV1)
+        -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::FieldKeysCountRecipeV1>>, String> {
+        let Some(Ok(proof)) = self.borrowed_i64_results.get(&owner) else { return Ok(None) };
+        let Some((count, keys)) = proof.field_keys_count_at_v1(site) else { return Ok(None) };
+        let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?;
+        let validation = ScalarSourceValidationV1::new(ingress, &self.borrowed_i64_results);
+        self.checked_callable_scalar_result_source_v1(owner, &validation)?;
+        let caller = self.array_field_original_caller_v1(owner)?.ok_or_else(|| freeze("callable-scalar/keys-count-caller"))?.clone();
+        keys.field_map().ok_or_else(|| freeze("callable-scalar/keys-count-map"))?.require_entry_source_v1(self)?;
+        Ok(Some(Rc::new(crate::mir::normal_callable_semantic_package::FieldKeysCountRecipeV1::new(count.clone(), keys.clone(), caller))))
+    }
+
     fn checked_callable_scalar_result_source_v1(
         &self, owner: FunctionOwnerIdV1, validation: &ScalarSourceValidationV1<'_>,
     ) -> Result<CallableScalarResultSourceLoanV1, String> {

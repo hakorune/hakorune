@@ -131,6 +131,17 @@ impl MirBuilder {
         Ok(read)
     }
 
+    /// Count, then End, one acquired Text-key snapshot; the Integer result is the only survivor.
+    pub(in crate::mir::builder) fn emit_checked_keys_count_v1(&mut self, keys: ValueId) -> Result<ValueId, String> {
+        let dst = self.next_value_id();
+        self.emit_array_read(Some(dst), keys, crate::mir::instruction::ArrayReadOperationV1::Count)?;
+        self.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
+        let function = self.function_state.current_function.as_mut().ok_or_else(|| crate::mir::named_array_obligation::fault("read-function-missing"))?;
+        function.metadata.value_types.insert(dst, MirType::Integer);
+        self.emit_instruction(MirInstruction::ArrayResidenceRelease { value: keys })?;
+        Ok(dst)
+    }
+
     pub(super) fn emit_array_element_read(
         &mut self,
         dst: Option<ValueId>,
