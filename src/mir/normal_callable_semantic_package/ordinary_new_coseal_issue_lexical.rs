@@ -399,6 +399,9 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             target.owner() == input.owner() && target.call_site() == site.site()
         });
         let Some(target) = candidates.next() else {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[dynamic-source] {site:?} has no source-bound dynamic member call");
+            }
             return Ok(None);
         };
         let issue = || OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
