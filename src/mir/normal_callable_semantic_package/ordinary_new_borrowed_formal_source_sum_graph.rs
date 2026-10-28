@@ -60,7 +60,7 @@ pub(super) struct Graph<'a> {
 fn note_invalid(node: usize, why: &str, detail: &dyn std::fmt::Debug) {
     if crate::config::env::builder_debug_enabled() {
         let detail = format!("{detail:?}");
-        eprintln!("[source-sum] node {node} invalid: {why} {}", &detail[..detail.len().min(260)]);
+        eprintln!("[source-sum] node {node} invalid: {why} {}", &detail[..detail.len().min(1400)]);
     }
 }
 

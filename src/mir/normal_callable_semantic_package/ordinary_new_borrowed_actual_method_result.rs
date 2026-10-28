@@ -353,7 +353,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 CallableResultEvidenceV1::SameModuleStatic { source_target, .. }
                     if source_target == target))
             {
-                return None;
+                return proof_declined(method, "call-result evidence names a different static target");
             }
             if let Some(inventory) = inventory {
                 let mut rows = inventory
@@ -361,24 +361,34 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                     .filter(|row| row.call.owner() == input.owner() && row.call.site() == method.site());
                 if let Some(incoming) = rows.next() {
                     if rows.next().is_some() {
-                        return None;
+                        return proof_declined(method, "more than one incoming row for the call site");
                     }
                     let BorrowedIncomingSourceV1::Static(source) = &incoming.source else {
-                        return None;
+                        return proof_declined(method, "incoming row is not a Static source");
                     };
-                    if source.caller() != &self.caller
-                        || source.target() != target.target()
-                        || !Arc::ptr_eq(source.method_source(), method)
-                        || match (source.call_result_evidence(), callrow) {
-                            (Some(evidence), Some(result)) => !std::ptr::eq(evidence, result.as_ref()),
-                            (None, None) => source.source_result().representation().is_none(),
-                            _ => true,
+                    if source.caller() != &self.caller {
+                        return proof_declined(method, "static incoming row has a different caller");
+                    }
+                    if source.target() != target.target() {
+                        return proof_declined(method, "static incoming row has a different target");
+                    }
+                    if !Arc::ptr_eq(source.method_source(), method) {
+                        return proof_declined(method, "static incoming row has a different method source");
+                    }
+                    match (source.call_result_evidence(), callrow) {
+                        (Some(evidence), Some(result)) if !std::ptr::eq(evidence, result.as_ref()) => {
+                            return proof_declined(method, "incoming row and call-result row carry different evidence");
                         }
-                    {
-                        return None;
+                        (Some(_), None) | (None, Some(_)) => {
+                            return proof_declined(method, "only one of the incoming row and the call-result row has result evidence");
+                        }
+                        _ => {}
                     }
                     return Some(OriginalMethodResultProofV1::Static(Rc::clone(source)));
                 }
+            }
+            if callrow.is_none() {
+                return proof_declined(method, if inventory.is_some() { "no incoming row and no call-result row" } else { "no inventory and no call-result row" });
             }
             return callrow.map(|row| OriginalMethodResultProofV1::CallResult(Arc::clone(row)));
         }
@@ -392,6 +402,15 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             }
         }
     }
+}
+
+/// Default-off (builder debug flag): which check withheld a Static method-result proof.
+#[inline(never)]
+fn proof_declined(method: &VerifiedResolvedMethodCallSourceV1, why: &str) -> Option<OriginalMethodResultProofV1> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[method-result] no proof owner={:?} site={:?} selector={}: {why}", method.owner(), method.site(), method.selector());
+    }
+    None
 }
 
 pub(super) enum OriginalMethodResultResolutionV1 {
