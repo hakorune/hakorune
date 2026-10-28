@@ -213,6 +213,50 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 && call.dynamic_invocation_source_v1().is_some()
         })
     }
+    /// Borrow original Array field/operation pairs from the same complete body.
+    /// Purpose owners must validate their full continuation before publishing it.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_operation_bindings_v1(
+        &self, operation: &Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Option<(Binding, Binding)>, String> {
+        let mut cores = self.frame.cores().values().filter(|core| self.node_selected(core.node())
+            && !self.frame.transfers_node(core.node()) && core.field_array_access_v1().is_some_and(|source| source.as_ref() == operation.as_ref()));
+        let Some(core) = cores.next() else { return Ok(None); };
+        if cores.next().is_some() { return Err(freeze("finished-array-field/source-membership")); }
+        let (array, binding) = if operation.is_count() {
+            let array = core.array_count_receiver_v1(self.values)?.ok_or_else(|| freeze("finished-array-field/source-membership"))?;
+            let Some(Some(EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(value)))) = self.values.get(core.node())
+                else { return Err(freeze("finished-array-field/source-membership")); };
+            (array, self.require_unique(|row| matches!(row, MirInstruction::ArrayRead {
+                dst: Some(dst), receiver, operation: crate::mir::instruction::ArrayReadOperationV1::Count, ..
+            } if dst == value && *receiver == array))?.clone())
+        } else {
+            let expected = checked_expression_core_operation_v1(core, self.values)?;
+            let InvokeOperation::DynamicArrayGet { array, .. } = expected else { return Err(freeze("finished-array-field/source-membership")); };
+            let Some(Some(EvaluatedExpressionValueV1::Operand(Operand::DynamicCarrier(value)))) = self.values.get(core.node())
+                else { return Err(freeze("finished-array-field/source-membership")); };
+            let normal = self.require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if dst == value))?;
+            let MirInstruction::InvokeNormalResult { invoke_block, .. } = normal.1 else { unreachable!() };
+            let invoke = self.require_unique(|row| matches!(row, MirInstruction::Invoke { operation, normal_landing, .. }
+                if operation == &expected && *normal_landing == normal.0))?;
+            if invoke.0 != invoke_block { return Err(freeze("finished-array-field/source-membership")); }
+            (array, invoke.clone())
+        };
+        let field = if operation.receiver_alias_v1().is_some() {
+            let mut reads = self.path_reads.iter().filter(|read| read.source_value().0 == *operation.receiver());
+            let read = reads.next().ok_or_else(|| freeze("finished-array-field/source-membership"))?;
+            if reads.next().is_some() { return Err(freeze("finished-array-field/source-membership")); }
+            let (value, original) = context.ledger().array_alias_operation_read_v1(operation, read, context)?;
+            if value != array { return Err(freeze("finished-array-field/source-membership")); }
+            original
+        } else {
+            let original = context.ledger().expression_field_read_emission_v1(operation.receiver(), self.frame.source(), context)?;
+            if original.1.dst_value() != Some(array) { return Err(freeze("finished-array-field/source-membership")); }
+            original
+        };
+        Ok(Some((field, binding)))
+    }
+
     fn comparison_pair(&self) -> Result<Option<Vec<Binding>>, String> {
         let Some((node, result)) = self.comparison else { return Ok(None); };
         scalar_condition_bindings_v1(self.frame, node, self.values, self.scalar_receiver,

@@ -5,7 +5,7 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 選択smoke: MainのHandle返却packetを越え、MIR最終検証の`finished-array-field/source-membership`（bb1341、owner65/Body1.Initializer0、object6.field1、FixedAlias BorrowedArray）と`call-result-contract-not-connected`（bb1154/bb2141）で停止。元LocalConstruction witnessと同じlocal Newを既存返却leaf・teardown・Normal移転/Fault取消・最終allocation/Copy/Return照合へ接続。兄弟Homeをcleanupしてlocal Newを返す一時probeは正規EXE/runで`7`/exit0。次はArray aliasの元initializer/snapshotと完成operationの対応、およびcall結果契約の接続を確認する。アプリEXEは未達。
+- 選択smoke: MainのHandle返却packetを越え、MIR最終検証の`read-argument/emitted-source-kind-drift`（bb1341、保持MapField引数WIPの最終拒否）と`call-result-contract-not-connected`（bb1154/bb2141）で停止。元LocalConstruction witnessと同じlocal Newを既存返却leaf・teardown・Normal移転/Fault取消・最終allocation/Copy/Return照合へ接続。兄弟Homeをcleanupしてlocal Newを返す一時probeは正規EXE/runで`7`/exit0。次は保持MapField引数のslot/child/callee区間を独立検証へ接続し、call結果契約の残停止も確認する。アプリEXEは未達。
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
 - Array aliasと直接receiverは実Count/Get source loanを同じfield descriptorへ保持。直接receiverもReturnを含むsource field census→既存field issuer→exact親read/Copy→記録済みcanonical readへ接続。Countは既存read会計を使用。source-only拒否pin、最終noninteger aliasとdirect Arrayの拒否を保持。
 - 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
@@ -19,6 +19,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - Bool Local: sourceのBool frameを既存評価値・scalar cleanup・exact Copy receipt・最終scalar visitorへ接続。比較の発行は条件式と共通化し、独立検証も同じsource plan/Invoke pairを使用。Text equality local→分岐の一時probeは真exit7/偽exit0、CLI build41.14秒PASS。既存initializer1/8、Text条件1赤は保存済み変更前binaryと同じ失敗集合/forwarded-copy拒否。比較Normal/Fault契約とFault欠落拒否は各1/0。通常callを含む比較、Bool文字列化、primitive比較の一般化は未達。
 - 通常call比較: 比較operationの既存source queryを入力scheduleから分離。条件式の制限とMap receiver順序は維持し、完全expressionは既存order/Normal/Faultを使う。`page.read()==page.read()`のBool Local→分岐はEXE exit7、異なるText版はexit0。CLI build47.12秒、既存比較source8/0・比較Normal/Fault1/0・Fault欠落拒否1/0。アプリは上記MIR最終検証へ進展。
 - 直接Array Return: 同じoperation loanを持つ唯一のReturn Coreから、完成packet全体・DynamicArrayGet/同carrier projection・field-read結果・sole providerを照合。未変更アプリはowner64の直接取得を越えowner65 aliasへ進展。CLI build44.71秒、local field23/3・descriptor4/1は変更前binaryと同じ失敗名、joint Fault欠落拒否1/0。小probeはこの照合を越えるが既存raw Array length publicationで拒否されEXE未達。別purpose/Count/aliasを一括許可しない。
+- Array alias接続: 直接Returnの照合を既存expression bodyへ共通化し、Init/Rebind/PrintとCall引数も同じfield/operation組を貸出。元snapshot＋使用時Copyを照合し、Countは同NamedArray recipe/実read、Getは同Invoke/carrierを必須にする。purpose全体のNormal/Fault・provider最終検証を保持。現appは保持MapFieldの明示的な最終拒否へ進展。CLI39.29秒、local field23/3とdescriptor4/1は変更前と同じ失敗名、Copy改変拒否/最終Fault欠落拒否各1/0。小probeは別のsource境界で拒否され成功扱いにしない。
 - 以前の未解消検証: source-use拒否test1赤は変更前commitでも同じ`p.sink(0)` assertion。Null境界は診断assert赤、Text alias赤は変更前後で同じforwarded-copy/root。Core source family8/3は未分類、initializer i64の3赤は既存失敗名集合内。これらを今回の成功に数えない。
 
 ## 採用設計

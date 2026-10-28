@@ -56,45 +56,42 @@ impl FinalizedRootSourceHandoffV1 {
             for (site, source, original) in &originals {
                 let mut provider_key = None;
                 if let LocalFieldReadResultV1::BorrowedArray(array) = source.result() {
-                    let requirement = array.integer_requirement_v1().ok_or_else(|| format!(
-                        "{} site={site:?} field={:?} borrowed-array requirement unavailable",
-                        freeze("finished-array-field/source-membership"), source.field()))?;
-                    if requirement.owner() != owner || requirement.field_site() != site.site()
-                        || requirement.field() != source.field()
-                    { return Err(freeze("finished-array-field/source-membership")); }
-                    let mut emissions = arrays.iter().filter(|row| matches!(row,
-                        EmittedNamedArrayRequirementV1::Write(write)
-                            if write.borrows_field_residence_v1(requirement)));
-                    let emitted = emissions.next().ok_or_else(|| freeze("finished-array-field/emission-missing"))?;
-                    if emissions.next().is_some() || emitted.owner() != owner || emitted.validate(module)? != symbol {
-                        return Err(freeze("finished-array-field/emission-membership"));
+                    if let Some(requirement) = array.integer_requirement_v1() {
+                        if requirement.owner() != owner || requirement.field_site() != site.site()
+                            || requirement.field() != source.field()
+                        { return Err(freeze("finished-array-field/source-membership")); }
+                        let mut emissions = arrays.iter().filter(|row| matches!(row,
+                            EmittedNamedArrayRequirementV1::Write(write)
+                                if write.borrows_field_residence_v1(requirement)));
+                        let emitted = emissions.next().ok_or_else(|| freeze("finished-array-field/emission-missing"))?;
+                        if emissions.next().is_some() || emitted.owner() != owner || emitted.validate(module)? != symbol {
+                            return Err(freeze("finished-array-field/emission-membership"));
+                        }
+                        provider_key = Some(requirement.provider_caller());
+                    } else {
+                        let (field, _) = array.fixed_source_v1().ok_or_else(|| freeze("finished-array-field/source-membership"))?;
+                        if field.site() != site || field.field() != source.field() || source.array_operation_sources_v1().is_empty() {
+                            return Err(freeze("finished-array-field/source-membership"));
+                        }
+                        for operation in source.array_operation_sources_v1() {
+                            operation.recheck_census(owner, &self.ledger.array_i64_fields)?;
+                            if operation.receiver_alias_v1() != Some(array)
+                                || operation.field() != source.field()
+                                || provider_key.is_some_and(|key| key != operation.provider()) {
+                                return Err(freeze("finished-array-field/source-membership"));
+                            }
+                            self.validate_array_operation_field_v1(owner, module, function, arrays, projection, operation, original)?;
+                            provider_key = Some(operation.provider());
+                        }
                     }
-                    provider_key = Some(requirement.provider_caller());
                 } else if let LocalFieldReadResultV1::ArrayField(array) = source.result() {
                     for operation in source.array_operation_sources_v1() {
                         operation.recheck_census(owner, &self.ledger.array_i64_fields)?;
                         if !operation.borrows_direct_receiver_v1(array) || operation.receiver() != site {
                             return Err(freeze("finished-array-field/source-membership"));
                         }
-                        let exits = self.ledger.root_exits.borrow();
-                        let mut matched = false;
-                        for ((exit_owner, key), progress) in exits.iter().filter(|((exit_owner, _), _)| *exit_owner == owner) {
-                            let order = match progress {
-                                RootHomeExitProgress::Emitted { order, .. } | RootHomeExitProgress::Finalized(order) => order,
-                                _ => continue,
-                            };
-                            let Some(expression) = order.return_expression_v1() else { continue; };
-                            expression.require_source_v1(*exit_owner, key.explicit_site()
-                                .ok_or_else(|| freeze("finished-array-field/source-membership"))?)?;
-                            if let Some(receiver) = expression.array_operation_receiver_v1(operation,
-                                CallValidationContextV1::Finalized(self), function, projection)? {
-                                if matched || original.1.dst_value() != Some(receiver) {
-                                    return Err(freeze("finished-array-field/source-membership"));
-                                }
-                                matched = true;
-                            }
-                        }
-                        if !matched || provider_key.is_some_and(|key| key != operation.provider()) {
+                        self.validate_array_operation_field_v1(owner, module, function, arrays, projection, operation, original)?;
+                        if provider_key.is_some_and(|key| key != operation.provider()) {
                             return Err(freeze("finished-array-field/source-membership"));
                         }
                         provider_key = Some(operation.provider());
@@ -131,6 +128,70 @@ impl FinalizedRootSourceHandoffV1 {
             }
             Ok(result)
         })
+    }
+    /// Each operation must be lent by one existing fully validated purpose.
+    fn validate_array_operation_field_v1(
+        &self, owner: FunctionOwnerIdV1, module: &crate::mir::MirModule, function: &MirFunction,
+        arrays: &[EmittedNamedArrayRequirementV1], projection: &super::super::physical_boundary::FinishedBindings,
+        operation: &Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>, original: &Binding,
+    ) -> Result<(), String> {
+        let check = || -> Result<(), String> {
+            let context = CallValidationContextV1::Finalized(self);
+            let mut selected = None;
+            let mut observe = |pair: (Binding, Binding)| -> Result<(), String> {
+                if selected.is_some() || pair.0 != *original {
+                    return Err(freeze("finished-array-field/source-membership"));
+                }
+                selected = Some(pair.1);
+                Ok(())
+            };
+            {
+                let exits = self.ledger.root_exits.borrow();
+                for ((exit_owner, key), progress) in exits.iter().filter(|((exit_owner, _), _)| *exit_owner == owner) {
+                    let order = match progress {
+                        RootHomeExitProgress::Emitted { order, .. } | RootHomeExitProgress::Finalized(order) => order,
+                        _ => continue,
+                    };
+                    let Some(expression) = order.return_expression_v1() else { continue; };
+                    expression.require_source_v1(*exit_owner, key.explicit_site()
+                        .ok_or_else(|| freeze("finished-array-field/source-membership"))?)?;
+                    if let Some(pair) = expression.array_operation_bindings_v1(operation, context, function, projection)? {
+                        observe(pair)?;
+                    }
+                }
+            }
+            context.with_local_call_group_tree_v2(owner, |groups| {
+                for group in groups {
+                    if let Some(pair) = group.array_operation_bindings_v1(operation, context, function, projection)? {
+                        observe(pair)?;
+                    }
+                    for call in group.lexical_packets() {
+                        if let Some(pair) = call.array_argument_operation_bindings_v1(operation, context)? {
+                            group.validate_recorded_in_context(context, function, Some(projection))?;
+                            observe(pair)?;
+                        }
+                    }
+                }
+                Ok(())
+            })?;
+            let binding = selected.ok_or_else(|| format!("{} consumer unavailable", freeze("finished-array-field/source-membership")))?;
+            if operation.is_count() {
+                let mut emissions = arrays.iter().filter_map(|row| match row {
+                    EmittedNamedArrayRequirementV1::Read(read) if read.recipe().source().as_ref() == operation.as_ref() => Some(read),
+                    _ => None,
+                });
+                let emitted = emissions.next().ok_or_else(|| freeze("finished-array-field/emission-missing"))?;
+                let finished = projection.relation_binding(function, &binding)?
+                    .ok_or_else(|| freeze("finished-array-field/read-removed"))?;
+                if emissions.next().is_some() || emitted.count_binding_v1(module, function)?.as_ref() != Some(&finished) {
+                    return Err(freeze("finished-array-field/emission-membership"));
+                }
+            } else if operation.is_dynamic_get() {
+                projection.required_effect_binding(function, &binding)?;
+            } else { return Err(freeze("finished-array-field/source-membership")); }
+            Ok(())
+        };
+        check().map_err(|issue| format!("{issue} operation={:?} field={:?}", operation.call(), operation.field()))
     }
 }
 

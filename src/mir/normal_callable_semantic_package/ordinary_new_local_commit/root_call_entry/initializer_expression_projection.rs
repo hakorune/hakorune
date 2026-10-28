@@ -353,7 +353,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         Ok(())
     }
-    fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
+    pub(super) fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
             self.frame.evaluation(),
             &self.values,

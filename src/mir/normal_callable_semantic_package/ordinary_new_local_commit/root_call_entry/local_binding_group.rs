@@ -345,16 +345,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir) fn lexical(&self) -> Option<&EmittedLexicalCallProjectionV1> {
         match &self.proof {
             PrefixPhysicalProofV1::Call(packet) => packet.as_deref(),
-            PrefixPhysicalProofV1::FieldMapInstall(_)
-            | PrefixPhysicalProofV1::StoredMapGet(_)
-            | PrefixPhysicalProofV1::Loop(_)
-            | PrefixPhysicalProofV1::DirectScalar(_)
-            | PrefixPhysicalProofV1::EvaluatedBinding(_)
-            | PrefixPhysicalProofV1::BorrowedFieldWrite(_)
-            | PrefixPhysicalProofV1::FieldArrayAppend(_)
-            | PrefixPhysicalProofV1::PrintExpression(_)
-            | PrefixPhysicalProofV1::BoolCondition(_)
-            | PrefixPhysicalProofV1::OwnedArrayAppend(_) => None,
+            _ => None,
         }
     }
 
@@ -456,13 +447,24 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
     }
 
+    /// Reuse a purpose's complete physical body, without a second Core registry.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_operation_bindings_v1(
+        &self, operation: &Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
+        context: CallValidationContextV1<'_>, function: &MirFunction, projection: &super::super::physical_boundary::FinishedBindings,
+    ) -> Result<Option<((BasicBlockId, MirInstruction), (BasicBlockId, MirInstruction))>, String> {
+        let expression = match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => packet.expression(),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) => packet.expression(),
+            PrefixPhysicalProofV1::PrintExpression(packet) => packet.expression(),
+            _ => return Ok(None),
+        };
+        let pair = expression.array_operation_bindings_v1(operation, context)?;
+        if pair.is_some() { self.validate_recorded_in_context(context, function, Some(projection))?; }
+        Ok(pair)
+    }
+
     pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
-        match &self.proof {
-            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
-                packet,
-            )) => Some(packet),
-            _ => None,
-        }
+        self.initializer_rc().map(Rc::as_ref)
     }
     pub(super) fn new_initializer(
         packet: Rc<EmittedInitializerExpressionProjectionV1>,

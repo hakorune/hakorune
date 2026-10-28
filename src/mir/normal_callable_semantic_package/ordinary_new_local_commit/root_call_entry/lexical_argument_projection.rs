@@ -816,6 +816,30 @@ impl EmittedLexicalCallProjectionV1 {
             normal_fault_cancellation,
         )
     }
+    /// Raw loans stay inside the enclosing purpose's complete final validation.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_argument_operation_bindings_v1(
+        &self, operation: &std::rc::Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<Option<(Binding, Binding)>, String> {
+        let mut pairs = Vec::new();
+        for argument in &self.prepared.arguments {
+            match argument {
+                LexicalCallArgumentProjectionV1::Expression(packet) => {
+                    pairs.extend(packet.expression().array_operation_bindings_v1(operation, context)?);
+                    for call in &packet.body.calls {
+                        pairs.extend(call.array_argument_operation_bindings_v1(operation, context)?);
+                    }
+                }
+                LexicalCallArgumentProjectionV1::CallResult(call) => {
+                    pairs.extend(call.array_argument_operation_bindings_v1(operation, context)?);
+                }
+                _ => {}
+            }
+        }
+        if pairs.len() > 1 { return Err(freeze("finished-array-field/source-membership")); }
+        Ok(pairs.pop())
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn validate_expression_arguments_at_source_v1(
         &self,
         context: CallValidationContextV1<'_>,
