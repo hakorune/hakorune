@@ -433,7 +433,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         initializer_frame: Some(frame),
         rebind_frame: None,
         field_write: None,
-        initializer_homes: None,
+        source_field_homes: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
         return Ok(None);

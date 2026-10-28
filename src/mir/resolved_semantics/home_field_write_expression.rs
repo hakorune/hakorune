@@ -388,7 +388,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         source: Rc::clone(&source),
         scalar_operations: operations,
         source_fields: Vec::new(),
-        initializer_homes: None,
+        source_field_homes: None,
         argument_frame: None,
         initializer_frame: None,
         rebind_frame: None,
@@ -434,7 +434,7 @@ impl HomeExpressionPlanV1 {
         });
         let plan = Self {
             source, scalar_operations: Vec::new(), source_fields: Vec::new(),
-            initializer_homes: None, argument_frame: None, initializer_frame: None,
+            source_field_homes: None, argument_frame: None, initializer_frame: None,
             rebind_frame: None, print_frame: None, condition_frame: None, loop_recipe: None,
             field_write: Some(FieldWritePlanV1 { frame, rhs: Some(rhs) }),
         };
@@ -483,7 +483,7 @@ impl HomeExpressionPlanV1 {
             source,
             scalar_operations: Vec::new(),
             source_fields: Vec::new(),
-            initializer_homes: None,
+            source_field_homes: None,
             argument_frame: None,
             initializer_frame: None,
             rebind_frame: None,

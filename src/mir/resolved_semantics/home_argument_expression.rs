@@ -540,7 +540,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         initializer_frame: None,
         rebind_frame: None,
         field_write: None,
-        initializer_homes: None,
+        source_field_homes: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
         return Ok(None);

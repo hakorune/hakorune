@@ -316,7 +316,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         source: Rc::clone(&source),
         scalar_operations: Vec::new(),
         source_fields: Vec::new(),
-        initializer_homes: None,
+        source_field_homes: None,
         argument_frame: None,
         initializer_frame: None,
         rebind_frame: Some(frame),

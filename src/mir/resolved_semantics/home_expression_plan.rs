@@ -9,7 +9,7 @@ use crate::mir::resolved_semantics::{
     SourceStmtSiteV1,
 };
 use crate::mir::resolved_value_profile::expression_plan::{
-    ExpressionNodeSourceV1, ExpressionSourcePlanV1,
+    ExpressionNodeSourceV1, ExpressionPlanRootV1, ExpressionSourcePlanV1,
 };
 use std::rc::Rc;
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -253,7 +253,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
     loop_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     field_write: Option<FieldWritePlanV1>,
-    initializer_homes: Option<Rc<[LiveHomeV1]>>,
+    source_field_homes: Option<Rc<[LiveHomeV1]>>,
 }
 impl HomeExpressionPlanV1 {
     /// Called only after the original scalar preflight proves both Integer
@@ -280,7 +280,7 @@ impl HomeExpressionPlanV1 {
             condition_frame: None,
             loop_recipe: None,
             field_write: None,
-            initializer_homes: None,
+            source_field_homes: None,
         })
     }
     /// Whole initializer preflight supplies value-class proof separately. This
@@ -305,13 +305,32 @@ impl HomeExpressionPlanV1 {
             condition_frame: None,
             loop_recipe: None,
             field_write: None,
-            initializer_homes: None,
+            source_field_homes: None,
         });
-        if !Rc::ptr_eq(&plan.source, &source) || plan.initializer_homes.is_some() {
+        if !Rc::ptr_eq(&plan.source, &source) || plan.source_field_homes.is_some() {
             return None;
         }
-        plan.initializer_homes = Some(Rc::from(homes));
+        plan.source_field_homes = Some(Rc::from(homes));
         plan.with_source_field_requirements(requests)
+    }
+    /// Keep only the original field requirement and evaluation-time Homes.
+    /// Source observation grants no executable or nonnull object operand.
+    pub(super) fn borrowed_argument_reads_v1(
+        source: Rc<ExpressionSourcePlanV1>, homes: &[LiveHomeV1],
+        requests: &[LocalFieldReadRequestV1],
+    ) -> Option<Self> {
+        if source.has_opaque_obligations()
+            || !matches!(source.root(), ExpressionPlanRootV1::CallArgument { .. })
+            || requests.len() != 1 || requests[0].node_in_plan(&source) != Some(0)
+            || !matches!(requests[0].received,
+                Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }))
+        { return None; }
+        Self {
+            source, scalar_operations: Vec::new(), source_fields: Vec::new(),
+            print_frame: None, argument_frame: None, initializer_frame: None,
+            rebind_frame: None, condition_frame: None, loop_recipe: None,
+            field_write: None, source_field_homes: Some(Rc::from(homes)),
+        }.with_source_field_requirements(requests)
     }
     /// Refine an already qualified whole root after its strict field batch.
     /// Existing declaration-only roots keep an empty requirement list. The
@@ -323,7 +342,7 @@ impl HomeExpressionPlanV1 {
         if !self.source_fields.is_empty() {
             return None;
         }
-        let prior_homes: Rc<[_]> = self.initializer_homes.clone().unwrap_or_else(|| {
+        let prior_homes: Rc<[_]> = self.source_field_homes.clone().unwrap_or_else(|| {
             Rc::from(
                 self.print_frame()
                     .map(|frame| frame.prior_homes())
@@ -371,7 +390,7 @@ impl HomeExpressionPlanV1 {
             condition_frame: None,
             loop_recipe: None,
             field_write: None,
-            initializer_homes: None,
+            source_field_homes: None,
         };
         let transferred = evaluation
             .ordered_nodes()
@@ -510,14 +529,15 @@ impl HomeExpressionPlanV1 {
             self.print_frame.is_some(),
             self.condition_frame.is_some(),
             self.field_write.is_some(),
-            self.initializer_homes.is_some(),
+            self.source_field_homes.is_some(),
         ]
         .into_iter()
         .filter(|present| *present)
         .count()
             <= 1
-            && self.initializer_homes.as_ref().is_none_or(|homes| {
-                self.source.root().initializer().is_some()
+            && self.source_field_homes.as_ref().is_none_or(|homes| {
+                (self.source.root().initializer().is_some()
+                    || matches!(self.source.root(), ExpressionPlanRootV1::CallArgument { .. }))
                     && homes.iter().all(|home| home.owner() == self.source.owner())
                     && homes
                         .iter()
@@ -595,7 +615,7 @@ impl super::RootHomeFlow {
         };
         if !refined.is_consistent()
             || !original.source_fields().is_empty()
-            || match (&original.initializer_homes, &refined.initializer_homes) {
+            || match (&original.source_field_homes, &refined.source_field_homes) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
                 _ => true,

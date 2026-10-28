@@ -135,6 +135,7 @@ pub(super) fn observe<E>(
             // Static calls may return no expression-source loan for a literal.
             BorrowedCallActualValueV1::Integer(_)
             | BorrowedCallActualValueV1::Expression
+            | BorrowedCallActualValueV1::FieldAccess
             | BorrowedCallActualValueV1::MethodCall(_)
             | BorrowedCallActualValueV1::String(_)
             | BorrowedCallActualValueV1::SelfRooted { .. }
@@ -202,6 +203,19 @@ pub(super) fn observe<E>(
                 .first()
                 .is_none_or(|node| node.site() != &actual.site)
         {
+            continue;
+        }
+        if matches!(actual.value, BorrowedCallActualValueV1::FieldAccess) {
+            let source = std::rc::Rc::clone(loan.plan());
+            let Some(request) = field_read::expression_field_read_request(input, &source, &actual.site, locals) else { continue; };
+            let Some(candidate) = HomeExpressionPlanV1::borrowed_argument_reads_v1(
+                std::rc::Rc::clone(&source), homes, std::slice::from_ref(&request),
+            ) else { continue; };
+            let mut installation = locals.expression_installation();
+            if !installation.approve(&candidate) { continue; }
+            if fields(std::slice::from_ref(&request), LocalFieldReadDemandV1::SourceExpression {
+                probe: false, plan: source,
+            })?.is_some() { installation.commit(); }
             continue;
         }
         let mut reads = Vec::new();

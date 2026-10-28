@@ -11,6 +11,7 @@ enum StatementFieldValueV1 {
     Numeric(ClosedNumericFieldSourceLoanV1),
     /// The final Text hop of one checked field: an independent copy is acquired later.
     Text(Rc<super::super::TextFieldValueSourceV1>),
+    BorrowedObject(Rc<super::super::DynamicStoredChildFieldV1>),
 }
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) struct StatementFieldPathSourceV1 {
@@ -61,6 +62,10 @@ impl StatementFieldPathSourceV1 {
                 ClosedNumericFieldSourceLoanV1::from_declaration(results, ingress, declaration.field(),
                     declaration.declared_type_name(), &request.field)?),
             LocalFieldReadResultV1::Text(text) if !path.is_intermediate() => StatementFieldValueV1::Text(Rc::clone(text)),
+            LocalFieldReadResultV1::BorrowedObject(child) if !path.is_intermediate()
+                && matches!(path.plan().root(), ExpressionPlanRootV1::CallArgument { .. })
+                && matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }))
+                && child.field() == declaration.field() => StatementFieldValueV1::BorrowedObject(Rc::clone(child)),
             _ => return Err(fault("expression-path/value-role")),
         };
         let source = Self { request: request.clone(), declaration, parent, root, value };
@@ -105,6 +110,8 @@ impl StatementFieldPathSourceV1 {
             },
             StatementFieldValueV1::Numeric(source) => source.container_class(),
             StatementFieldValueV1::Text(_) => self.root.class(),
+            StatementFieldValueV1::BorrowedObject(source) if source.field() == self.declaration.field() => self.root.class(),
+            StatementFieldValueV1::BorrowedObject(_) => return Err(fault("expression-path/declaration-drift")),
         };
         if expected.is_some_and(|expected| expected != actual) { return Err(fault("expression-path/container-class")); }
         Ok(())
@@ -123,6 +130,7 @@ impl StatementFieldPathSourceV1 {
                 (StatementFieldValueV1::Returned(a), StatementFieldValueV1::Returned(b)) => a == b,
                 (StatementFieldValueV1::Numeric(a), StatementFieldValueV1::Numeric(b)) => a.same_source(b),
                 (StatementFieldValueV1::Text(a), StatementFieldValueV1::Text(b)) => a == b,
+                (StatementFieldValueV1::BorrowedObject(a), StatementFieldValueV1::BorrowedObject(b)) => Rc::ptr_eq(a, b),
                 _ => false,
             }
     }
@@ -168,6 +176,27 @@ impl StatementFieldPathSourceV1 {
                     .as_ref().map_err(Clone::clone)?;
                 if source.field() != self.declaration.field()
                     || !source.recheck(ingress, &ledger.field_write_claims, &self.request.field) {
+                    return Err(fault("expression-path/declaration-drift"));
+                }
+                Ok(())
+            },
+            StatementFieldValueV1::BorrowedObject(source) => {
+                let ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = path.plan().root() else {
+                    return Err(fault("expression-path/source-role"));
+                };
+                let Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, .. }) = &self.request.received else {
+                    return Err(fault("expression-path/root-source-drift"));
+                };
+                let ingress = ledger.borrowed_formal_source.as_ref().ok_or_else(|| fault("expression-path/received-ingress"))?
+                    .as_ref().map_err(Clone::clone)?;
+                let call_site = OwnedExprSiteV1::new(path.plan().owner(), call.site().clone());
+                let original = ingress.original_map_field_actual_source_v1(&call_site, *ordinal, path.site().site())?
+                    .ok_or_else(|| fault("expression-path/source-drift"))?;
+                if !matches!(self.declaration.result(), LocalFieldReadResultV1::BorrowedObject(retained) if Rc::ptr_eq(retained, source))
+                    || source.field() != self.declaration.field()
+                    || original.1 != frame.source() || original.2.field() != source.field()
+                    || ingress.field_value_class_v1(original.2).as_deref() != Some(source.child_class())
+                    || !source.recheck_v1(&ledger.callable_result_classes, &self.request.field) {
                     return Err(fault("expression-path/declaration-drift"));
                 }
                 Ok(())

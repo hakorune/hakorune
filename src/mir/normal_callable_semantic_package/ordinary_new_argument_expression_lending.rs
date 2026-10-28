@@ -287,6 +287,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     }) {
         return Err(freeze("borrowed-static/core-source-identity"));
     }
+    // Lend the same original plan only; field/lifetime/ABI remain separate.
+    if formal.kind.is_ordinary_borrowed_handle()
+        && matches!(identity.candidates.get(ordinal as usize).map(|actual| &actual.value),
+            Some(BorrowedCallActualValueV1::FieldAccess))
+        && prepared.original_map_field_actual_source_v1(site, ordinal, arg.site())?.is_some()
+    {
+        return lend_argument_expression_source_v1(prepared, pending, contracts, site, ordinal);
+    }
     if matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
         || matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
             && matches!(

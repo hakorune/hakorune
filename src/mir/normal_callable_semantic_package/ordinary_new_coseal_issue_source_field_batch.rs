@@ -154,10 +154,45 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         } else {
             request.alias_class.clone()
         };
-        let object_obligation = matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
+        let map_argument_field = match (&demand, &request.received) {
+            (LocalFieldReadDemandV1::SourceExpression { plan, .. },
+             Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, .. })) => {
+                match plan.root() {
+                    crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal, .. }
+                        if plan.nodes().first().is_some_and(|node| node.site() == request.site.site()) => {
+                        let call_site = OwnedExprSiteV1::new(plan.owner(), call.site().clone());
+                        let source = ingress.as_ref().map_err(Clone::clone).map_err(|issue|
+                            OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
+                        source.original_map_field_actual_source_v1(&call_site, *ordinal, request.site.site())
+                            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?
+                            .and_then(|(_, get, field)| (get == frame.source()).then(||
+                                source.field_value_class_v1(field).map(|class| (field.field(), class))).flatten())
+                    }
+                    _ => None,
+                }
+            }
+            _ => None,
+        };
+        if matches!((&demand, &request.received),
+            (LocalFieldReadDemandV1::SourceExpression { plan, .. },
+             Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }))
+                if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }))
+            && map_argument_field.is_none() {
+            return Ok(None);
+        }
+        let object_obligation = map_argument_field.is_some() || matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
             if request.is_nullable_object_comparison_v1(plan));
         let object_source = if object_obligation {
             match (received_context, receiver_proof) {
+                (Some((batch, _, classes, _, _)), _) if map_argument_field.is_some() => {
+                    let Some(parent) = alias_class.as_deref() else { return Ok(None); };
+                    super::field_source::dynamic_stored_child_field_v1(batch, constructors, classes, parent, &request.field)
+                        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?
+                        .filter(|loan| map_argument_field.as_ref().is_some_and(|(field, class)|
+                            loan.field() == *field && loan.child_class() == class.as_ref()))
+                        .map(|loan| LocalFieldReadSourceV1::from_declaration(loan.field(),
+                            LocalFieldReadResultV1::BorrowedObject(Rc::new(loan)), None))
+                }
                 (Some((batch, _, classes, _, _)), Some((binding, parent)))
                     if binding == request.home && binding == request.receiver
                         && !request.nullable && !request.formal && alias_class.is_none() =>
