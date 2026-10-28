@@ -78,6 +78,40 @@ impl PreparedBorrowedFormalIngressV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Select input demand from the original Unit source and canonical body.
+    /// This lends no executable actuals; the existing input issuer must finish them.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_original_unit_input_v1(
+        &self, source: &LexicalInstanceCallSourceTargetV1,
+    ) -> bool {
+        let LexicalCallSourceResultRequirementV1::UnitDiscardSource(original) = &source.result_requirement
+            else { return false; };
+        self.completion_index.get(&source.callee_owner()).and_then(|row| row.as_ref().ok())
+            .is_some_and(|completion| original.matches_unit_completion_v1(completion))
+    }
+
+    /// Original whole-cohort demand for a canonical implicit Unit exit.
+    /// The input owner still verifies its cleanup and finishes actuals.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_unit_implicit_input_request_v1(
+        &self, ingress: &PreparedBorrowedFormalIngressV1,
+        catalog: &[OwnedCallableParameterContractDeclarationV1],
+        completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    ) -> Result<bool, String> {
+        if completion.implicit_body_end().is_none() { return Ok(false); }
+        let owner = completion.owner();
+        let incoming = Self::original_instance_input_calls_v1(ingress, catalog, owner)?;
+        if !Self::original_finite_instance_input_request_v1(ingress, catalog, owner)?
+            && !incoming.iter().any(|row| row.source.instance()
+                .is_some_and(|target| self.has_original_unit_input_v1(target))) {
+            return Ok(false);
+        }
+        if incoming.is_empty() || completion.returns_value()
+            || incoming.iter().any(|row| row.source.unit_discard_source_v1()
+                .is_none_or(|original| !original.matches_unit_completion_v1(completion))) {
+            return Err(freeze("unit-call/completion-source-drift"));
+        }
+        Ok(true)
+    }
+
     /// Lend the canonical completion selected by original Unit call sources.
     /// The caller Home flow retains sources after affine call-row consumption.
     pub(in crate::mir) fn unit_completion_source_v1(

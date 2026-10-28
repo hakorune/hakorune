@@ -113,7 +113,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|call| call.callee == owner)
         {
             let target = call.source.require_instance()?;
-            source_result_request |= source.original_object_producer_source_v1(target)?.is_some()
+            source_result_request |= self.has_original_unit_input_v1(target)
+                || source.original_object_producer_source_v1(target)?.is_some()
                 || source.original_mixed_input_source_v1(target)?.is_some()
                 || match owning_request {
                     Some(owning) => owning,
@@ -633,18 +634,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .original_parameter_contracts
                 .as_deref()
                 .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
-            if Self::original_finite_instance_input_request_v1(ingress, catalog, owner)? {
-                let incoming = Self::original_instance_input_calls_v1(ingress, catalog, owner)?;
-                if incoming.is_empty()
-                    || completion.returns_value()
-                    || incoming.iter().any(|row| {
-                        row.source
-                            .unit_discard_source_v1()
-                            .is_none_or(|original| !original.matches_unit_completion_v1(completion))
-                    })
-                {
-                    return Err(freeze("unit-call/completion-source-drift"));
-                }
+            if self.original_unit_implicit_input_request_v1(ingress, catalog, completion)? {
                 match flow.implicit_exit() {
                     None => {
                         return Ok(ObjectInputCompletionGateV1::Pending(
