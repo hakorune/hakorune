@@ -13,9 +13,8 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
   - 次（大）: handle値のCore callの一時結果（`MapKeys`）を評価leafとして受け、`ArrayLen`が消費した後のEnd（Normal/Fault両方）を既存のDynamic carrier/Array Home契約に接続する。`keys`のC側emit（`same_module_generic_method_collection_emit`）の戻りhandleの所有規則を先に確認する。.hakoの書換えで避けない。
   - 実験（コミットしない）: `lowering.rs`のscalar型検査を一時的にUnknownも許すと、`chunkCount`の先で `ordinary-new/borrowed-entry/source-use-completion-pending`（slot 51〜54、`ContentChunk`/store側）に進む。未カバーの読みは`Map.get(cid)`等のkey引数で、`cid`のSUMが`{Text, Null}`（呼び出し元の`ids.get(i)`がArray範囲外のNullを保持）。既存の「Array loop bounds証明（同一Array・非縮小・支持Homeの生存）」が未接続のまま。`chunkCount`のhandle lane、Array範囲外Nullの除去、は独立した2本の大きな接続で、どちらもこのappの完了に必要。
 - 最新実行は `HakoAllocHeap.release`: `borrowed-entry/original-input-not-ready`。入力 cohort 未完、MIR 構築で停止し EXE 未生成。
-- 上流の `BoxTorrentManifest.releaseFrom` / `materialize` は `ids = me.chunk_ids; n = ids.length(); loop(i < n)` 内で `ids.get(i)` を Text key の受け手へ渡す。元の element SUM は Text だが、範囲外 Null が残る。
-- 現行の範囲証明は定数添字と直前の終了 guard 用。Loop の全 backedge、同じ Array、非縮小、支持 Home の生存をまだ結んでいない。
-- 固定 suite は共有dispatch統合後に 9/11、617.729s（実 EXE 8本＋空 marker、timeout/SKIP なし）。JSON と boxtorrent が赤。mimalloc-lite・allocator-stress・binary-treesはPASS。
+- 上流の `BoxTorrentManifest.releaseFrom` / `materialize` は `ids = me.chunk_ids; n = ids.length(); loop(i < n)` 内で `ids.get(i)` を Text key の受け手へ渡す。元の element SUM は Text だが、範囲外 Null が残る。 現行の範囲証明は定数添字と直前の終了 guard 用。Loop の全 backedge、同じ Array、非縮小、支持 Home の生存をまだ結んでいない。
+- 固定 suite は 10/11（合計11、SKIP/timeoutなし、JSON着地後の2026-10-28）。失敗はboxtorrent-miniのみ。mimalloc-lite・allocator-stress・binary-trees・JSONはPASS。
 
 ## 採用設計
 - **既存仕様を維持して実装する。null-key の仕様回答はこのアプリの着手条件ではない。** 一般 Dynamic→Map の null 受理は別の未決事項であり、Text-only key の現在の経路へ勝手に stringify / TypeError を導入しない。
