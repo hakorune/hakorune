@@ -847,9 +847,8 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 if !effects.iter().all(|binding| covered.contains(&binding.0)) {
                     return Err(freeze("argument-expression/call-effect-uncovered"));
                 }
-                if operation.normal_result_kind()
-                    == Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString)
-                {
+                if matches!(operation.normal_result_kind(), Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString
+                    | crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier)) {
                     let original = call.invoke_binding();
                     let main = match finishing {
                         Some(projection) => projection
@@ -864,7 +863,13 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                         let MirInstruction::InvokeNormalResult { dst, .. } = projection.1 else {
                             return Err(freeze("print-expression/call-value"));
                         };
-                        live.push(ExpressionOwnedTemporaryV1::String(dst));
+                        let temporary = match operation.normal_result_kind() {
+                            Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString) => ExpressionOwnedTemporaryV1::String(dst),
+                            Some(crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier) => ExpressionOwnedTemporaryV1::DynamicCarrier(dst),
+                            _ => unreachable!("checked owned call result"),
+                        };
+                        if live.contains(&temporary) { return Err(freeze("dynamic-expression/result-lifecycle")); }
+                        live.push(temporary);
                     }
                 }
                 continue;

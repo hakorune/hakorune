@@ -244,9 +244,9 @@ impl LocalCallObservationV1 {
     pub(crate) fn result_source(&self) -> Option<&LocalCallResultSourceV1> {
         self.result_source.as_ref()
     }
-    /// The exact Dynamic invocation result lifecycle, if this expression call
-    /// publishes the language-wide opaque carrier. This is source evidence
-    /// only; it does not authorize a provider, physical slot, or runtime call.
+    /// Opaque result lifetime for both ordinary and Dynamic dispatch. Select
+    /// dispatch with `dynamic_invocation_source_v1`, never this lifetime law.
+    /// This lends no provider, physical slot or runtime-call authority.
     pub(crate) fn dynamic_invocation_result_lifecycle_v1(
         &self,
     ) -> Option<crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1> {

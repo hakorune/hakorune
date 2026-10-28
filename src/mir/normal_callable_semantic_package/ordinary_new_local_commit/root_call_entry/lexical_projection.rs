@@ -393,13 +393,25 @@ impl PreparedLexicalCallProjectionV1 {
                 }
                 let receiver = match (&self.receiver, instance.source_target().stored_receiver()) {
                     (LexicalReceiverProjectionV1::Lexical(read), None) => {
-                        if let Some(ledger) = ledger.filter(|_| instance.source_target().owning_object_local_input_v1().is_some()) {
+                        if let Some(ledger) = ledger {
                             let binding = instance.receiver_binding()?;
                             let formal = ledger.original_parameter_contracts.as_deref().is_some_and(|rows|
                                 rows.iter().any(|row| row.owner == owner
                                     && row.parameters.iter().any(|formal| formal.binding == binding)));
-                            if formal && !ledger.borrowed_entry_receiver_matches_class_v1(owner, binding, instance.target().owner())? {
-                                return Err(freeze("lexical-terminal/receiver-arm-drift"));
+                            if formal {
+                                if !ledger.borrowed_entry_receiver_matches_class_v1(owner, binding, instance.target().owner())? {
+                                    return Err(freeze("lexical-terminal/receiver-arm-drift"));
+                                }
+                                let values = ledger.borrowed_ordinary_entry_values_v1(owner)?;
+                                let mut entries = values.iter().filter(|(_, formal, _)| *formal == binding);
+                                let (_, _, value) = entries.next()
+                                    .ok_or_else(|| freeze("lexical-terminal/receiver-arm-drift"))?;
+                                if entries.next().is_some() {
+                                    return Err(freeze("lexical-terminal/receiver-arm-drift"));
+                                }
+                                // Finished receiver validation independently checks these
+                                // retained Copies against the actual entry and Call.
+                                read.loan_forwarded_copies(binding, *value)?;
                             }
                         }
                         if instance

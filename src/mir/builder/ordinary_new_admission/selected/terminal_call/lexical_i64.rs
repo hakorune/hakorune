@@ -132,7 +132,7 @@ fn emit_lexical_i64_call(
         prefix.consume_receiver(instance)?;
     }
     let kind = match row.result() {
-        Some(kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Unit | InvokeCallResultKind::OwnedString)) => kind,
+        Some(kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Unit | InvokeCallResultKind::OwnedString | InvokeCallResultKind::DynamicCarrier)) => kind,
         Some(InvokeCallResultKind::Bool) => match row {
             SourceLoan::Instance(instance)
                 if ledger.checked_local_scalar_call_result_v1(instance)? == InvokeCallResultKind::Bool => InvokeCallResultKind::Bool,
@@ -157,6 +157,14 @@ fn emit_lexical_i64_call(
             Some((binding, _, _, _)) => binding,
             None => instance.receiver_binding()?,
         };
+        // Borrowed entry receivers have a checked class and call-only lifetime,
+        // not an owned Home. This permission is independent of result transport.
+        let borrowed_formal_receiver = instance.source_target().stored_receiver().is_none()
+            && ledger.local_call_for_owner(owner, row.call_site().site()).is_some_and(|observation|
+                observation.site() == row.call_site()
+                    && observation.prior_homes() == prior_homes
+                    && observation.arguments() == sealed_arguments)
+            && ledger.borrowed_entry_receiver_matches_class_v1(owner, binding, instance.target().owner())?;
         let borrowed_scalar_receiver = ledger.lexical_i64_call_source(row.call_site())
                 .filter(|observation| observation.prior_homes() == prior_homes
                     && observation.arguments() == sealed_arguments)
@@ -196,7 +204,7 @@ fn emit_lexical_i64_call(
             && kind == InvokeCallResultKind::I64
             && ledger.lexical_i64_call_source(row.call_site()).is_some_and(|observation|
                 observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments);
-        if !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !direct_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
+        if !borrowed_formal_receiver && !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !direct_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
             return Err(freeze("lexical-i64-receiver-home-missing"));
         }
     }
@@ -241,11 +249,15 @@ fn emit_lexical_i64_call(
         consume_receiver,
         expression.and_then(|prefix| prefix.static_source()).or(static_source),
     )?;
-    let cancellation = if kind == InvokeCallResultKind::OwnedString {
-        vec![InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
+    let cancellation = match kind {
+        InvokeCallResultKind::OwnedString => vec![InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
             value: result.ok_or_else(|| freeze("lexical-i64-result-mismatch"))?,
-        })]
-    } else { Vec::new() };
+        })],
+        InvokeCallResultKind::DynamicCarrier => vec![InvokeOperation::DynamicCarrierEnd {
+            carrier: result.ok_or_else(|| freeze("lexical-i64-result-mismatch"))?,
+        }],
+        _ => Vec::new(),
+    };
     let (fault_landing, cleanup) = prepare_argument_cleanup_v1(
         builder, ledger, &prepared, frame, outward, unwind, &cancellation, bindings)?;
     if let Some(read) = stored_read { prepared = prepared.with_stored_receiver(read)?; }

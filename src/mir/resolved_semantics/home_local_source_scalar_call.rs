@@ -623,3 +623,15 @@ pub(crate) fn issue_static_bool_local_call_v1<E>(
         arguments,
     )))
 }
+
+impl LocalCallObservationV1 {
+    /// Dispatch comes from the original source variant, independently of the
+    /// result's opaque carrier transport and lifetime obligation.
+    pub(crate) fn dynamic_invocation_source_v1(&self)
+        -> Option<&crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1> {
+        match self.result_source() {
+            Some(LocalCallResultSourceV1::DynamicInvocation(loan)) => Some(loan),
+            _ => None,
+        }
+    }
+}

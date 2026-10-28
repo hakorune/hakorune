@@ -132,6 +132,18 @@ impl EmittedInitializerExpressionProjectionV1 {
             self.frame.source().owner(),
             root.site().clone(),
         );
+        let mut ordinary = self.calls.iter().filter(|call| call.call_site() == &site
+            && call.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier));
+        if let Some(call) = ordinary.next() {
+            if ordinary.next().is_some() || self.dynamic_calls.iter().any(|call| call.source().site() == &site) {
+                return Err(freeze("initializer-expression/dynamic-result-pair"));
+            }
+            let (_, normal) = call.outer_bindings()?;
+            if !matches!(normal.1, MirInstruction::InvokeNormalResult { dst, .. } if dst == self.value) {
+                return Err(freeze("initializer-expression/dynamic-result-pair"));
+            }
+            return Ok(normal);
+        }
         let mut calls = self
             .dynamic_calls
             .iter()

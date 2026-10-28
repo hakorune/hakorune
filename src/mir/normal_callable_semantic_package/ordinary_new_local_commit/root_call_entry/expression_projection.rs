@@ -196,7 +196,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .iter()
                 .position(|node| node.site() == call.site().site())
                 .is_some_and(|node| self.node_selected(node))
-                && call.dynamic_invocation_result_lifecycle_v1().is_none()
+                && call.dynamic_invocation_source_v1().is_none()
         })
     }
     fn source_dynamic_calls(
@@ -210,7 +210,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .iter()
                 .position(|node| node.site() == call.site().site())
                 .is_some_and(|node| self.node_selected(node))
-                && call.dynamic_invocation_result_lifecycle_v1().is_some()
+                && call.dynamic_invocation_source_v1().is_some()
         })
     }
     fn comparison_pair(&self) -> Result<Option<Vec<Binding>>, String> {
@@ -411,6 +411,11 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64 => {
                     Operand::NormalInteger(value)
                 }
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Dynamic
+                    if observed.dynamic_invocation_source_v1().is_none()
+                        && observed.dynamic_invocation_result_lifecycle_v1().is_some()
+                        && packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)
+                        && self.frame.owned_result_nodes().contains(&index) => Operand::DynamicCarrier(value),
                 _ => return Err(freeze("print-expression/call-value")),
             };
             if self.values[index] != Some(expected.into()) {
@@ -527,7 +532,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         return Err(freeze("expression-core/producer"));
                     }
                 }
-                (Node::MethodCall, Some(Operand::NormalInteger(_) | Operand::OwnedString(_)))
+                (Node::MethodCall, Some(Operand::NormalInteger(_) | Operand::OwnedString(_) | Operand::DynamicCarrier(_)))
                     if self
                         .calls()
                         .any(|packet| packet.call_site().site() == node.site()) => {}

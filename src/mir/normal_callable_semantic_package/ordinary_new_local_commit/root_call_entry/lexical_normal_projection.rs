@@ -396,9 +396,8 @@ impl EmittedLexicalCallProjectionV1 {
         use super::super::super::root_cleanup_graph::ordered_paths as paths;
         // Every wrapper and nested Call uses the same original result projection.
         // An outer expression may corroborate this cancellation, never replace it.
-        let result_cancellation = if self.row.loan().result()
-            == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)
-        {
+        let result_cancellation = if matches!(self.row.loan().result(),
+            Some(InvokeCallResultKind::OwnedString | InvokeCallResultKind::DynamicCarrier)) {
             let (block, MirInstruction::InvokeNormalResult { dst, invoke_block }) =
                 self.projection.value()?
             else {
@@ -406,14 +405,16 @@ impl EmittedLexicalCallProjectionV1 {
             };
             if *invoke_block != self.invoke.0
                 || !matches!(&self.invoke.1,
-                MirInstruction::Invoke { normal_landing, operation: InvokeOperation::Call { result: crate::mir::instruction::InvokeCallResultKind::OwnedString, .. }, .. }
-                    if normal_landing == block)
+                MirInstruction::Invoke { normal_landing, operation: InvokeOperation::Call { result, .. }, .. }
+                    if normal_landing == block && Some(*result) == self.row.loan().result())
             {
                 return Err(freeze("call-argument/invoke-shape"));
             }
-            vec![InvokeOperation::String(
-                crate::mir::instruction::StringInvokeOperation::End { value: *dst },
-            )]
+            if self.row.loan().result() == Some(InvokeCallResultKind::OwnedString) {
+                vec![InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: *dst })]
+            } else {
+                vec![InvokeOperation::DynamicCarrierEnd { carrier: *dst }]
+            }
         } else if let CallPacketSourceLoanV1::Instance(row) = self.row.loan() {
             if matches!(row.result(), Some(InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle))
                 && context.ledger().uses_object_packet_protocol_v1(row)? {

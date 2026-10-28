@@ -724,7 +724,7 @@ impl CallableLoopSourceTargetProbeV1 {
                 }
             }
             for observation in evaluation.calls() {
-                if observation.dynamic_invocation_result_lifecycle_v1().is_none() {
+                if observation.dynamic_invocation_source_v1().is_none() {
                     continue;
                 }
                 let source = CallableLoopDynamicInvocationSourceV1::from_checked_observation(

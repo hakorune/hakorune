@@ -186,7 +186,7 @@ fn observe_dynamic_call_v2(
         crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
     >,
 ) -> Result<(), CallableLoopSourceRouteRejectV1> {
-    if call.dynamic_invocation_result_lifecycle_v1().is_none() {
+    if call.dynamic_invocation_source_v1().is_none() {
         return Ok(());
     }
     let site = call.site().site();

@@ -440,11 +440,20 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         let packet = Rc::new(packet);
                         let value = packet.value_with_ledger(owner, call.arguments(), ledger)?;
                         let owned = frame.owned_result_nodes().contains(&index);
-                        if owned != (packet.original_source().result() == Some(crate::mir::instruction::InvokeCallResultKind::OwnedString)) {
+                        let result = packet.original_source().result();
+                        if owned != matches!(result, Some(crate::mir::instruction::InvokeCallResultKind::OwnedString
+                            | crate::mir::instruction::InvokeCallResultKind::DynamicCarrier)) {
                             return Err(freeze("print-expression/call-source-missing"));
                         }
                         calls.push(packet);
-                        if owned {
+                        if result == Some(crate::mir::instruction::InvokeCallResultKind::DynamicCarrier) {
+                            if call.dynamic_invocation_result_lifecycle_v1().is_none() {
+                                return Err(freeze("print-expression/call-source-missing"));
+                            }
+                            dynamic_carriers.push((index, value));
+                            temporary_order.push(index);
+                            Operand::DynamicCarrier(value)
+                        } else if owned {
                             acquired.push((index, value));
                             temporary_order.push(index);
                             Operand::OwnedString(value)
