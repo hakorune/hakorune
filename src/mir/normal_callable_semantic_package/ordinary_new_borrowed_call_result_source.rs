@@ -187,6 +187,15 @@ impl OrdinaryResultSourceLoanV1 {
 }
 
 /// Select the retained source role once; a selected refusal never tries another writer.
+/// Default-off (builder debug flag): why no ordinary instance Text result was lent for a call.
+#[inline(never)]
+fn ordinary_result_absent<T>(site: &OwnedExprSiteV1, why: &str) -> Result<Option<T>, String> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[ordinary-result] none site={site:?}: {why}");
+    }
+    Ok(None)
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
@@ -200,7 +209,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     >,
 ) -> Result<Option<BorrowedCallArgumentsV1>, String> {
     let Ok(prepared) = source else {
-        return Ok(None);
+        return ordinary_result_absent(site, "the prepared source ingress is unavailable");
     };
     if original_static_source_v1(prepared, site)?.is_some() {
         return source_static_result_arguments_v1(
@@ -210,7 +219,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     // An unrelated scalar consumer must keep its original scalar demand/refusal.
     // This passive loan needs the SAME original Text-purpose expression.
     let Some(expression) = expression else {
-        return Ok(None);
+        return ordinary_result_absent(site, "no text-purpose expression was supplied");
     };
     if expression.owner() != site.owner()
         || !(matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
@@ -220,18 +229,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
                 if assignment.form() == crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain))
         || !expression.nodes().iter().any(|node| node.site() == site.site()
             && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall))
-    { return Ok(None); }
+    { return ordinary_result_absent(site, "the expression is not a Print, CallArgument or plain Assignment root with this method call"); }
     let Some(original) = crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1::original_instance_input_call_v1(prepared, contracts, site)?
-        else { return Ok(None) };
+        else { return ordinary_result_absent(site, "no original instance input call for the site") };
     // Do not project SelectedStored/PendingStored into this ordinary Instance role.
     let BorrowedIncomingSourceV1::Instance(target) = original.source else {
-        return Ok(None);
+        return ordinary_result_absent(site, "the original call is not a plain Instance source (stored or pending stored child)");
     };
-    let Some(text) = completed
-        .and_then(|rows| rows.row(target.target_batch_slot()))
-        .and_then(|row| row.completed_instance_text_source_v1(selected, &target))
-    else {
-        return Ok(None);
+    let Some(rows) = completed else {
+        return ordinary_result_absent(site, "no completed result contract is available yet (caller walked before its callees complete)");
+    };
+    let Some(row) = rows.row(target.target_batch_slot()) else {
+        return ordinary_result_absent(site, "the callee has no completed result contract row yet");
+    };
+    let Some(text) = row.completed_instance_text_source_v1(selected, &target) else {
+        return ordinary_result_absent(site, "the callee's completed result does not corroborate an instance Text source");
     };
     let reject = || freeze("borrowed-instance/source-identity");
     let retained =
