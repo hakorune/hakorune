@@ -137,11 +137,13 @@ impl CheckedExpressionEvaluationV1 {
     ) -> Option<Vec<usize>> {
         self.comparison_input_order_v1(comparison, true)
     }
-    fn comparison_input_order_v1(
+    /// Operation eligibility is independent of a purpose's input schedule.
+    /// The complete expression and a conditional subtree lend the same source loan.
+    pub(crate) fn text_comparison_operation_v1(
         &self,
         comparison: usize,
         allow_dynamic_call: bool,
-    ) -> Option<Vec<usize>> {
+    ) -> Option<()> {
         use crate::mir::dynamic_operator_contract::{
             DynamicOperatorNormalResultV1 as ResultKind, DynamicOperatorValueClassV1 as Class,
         };
@@ -164,6 +166,13 @@ impl CheckedExpressionEvaluationV1 {
         {
             return None;
         }
+        Some(())
+    }
+    fn comparison_input_order_v1(
+        &self, comparison: usize, allow_dynamic_call: bool,
+    ) -> Option<Vec<usize>> {
+        self.text_comparison_operation_v1(comparison, allow_dynamic_call)?;
+        let root = self.source.nodes().get(comparison)?;
         let prefix = root.site().node().segments();
         let order: Vec<_> = self
             .order

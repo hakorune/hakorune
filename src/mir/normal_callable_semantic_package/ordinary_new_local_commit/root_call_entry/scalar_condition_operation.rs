@@ -12,12 +12,13 @@ fn checked_scalar_base_operation_v1(
     use crate::mir::instruction::{
         StringInvokeOperand as Operand, StringInvokeOperation as Operation,
     };
-    if values.len() != frame.source().nodes().len()
-        || frame.scalar_invoke_input_order_v1(node).is_none()
-    {
+    if values.len() != frame.source().nodes().len() {
         return Err(freeze("bool-condition/text-comparison-source"));
     }
     if let Some(core) = frame.cores().get(&node) {
+        if frame.scalar_invoke_input_order_v1(node).is_none() {
+            return Err(freeze("bool-condition/text-comparison-source"));
+        }
         let field = core
             .field_map()
             .ok_or_else(|| freeze("expression-core/source-identity"))?;
@@ -54,6 +55,8 @@ fn checked_scalar_base_operation_v1(
     if receiver.is_some() {
         return Err(freeze("expression-core/source-identity"));
     }
+    frame.text_comparison_operation_v1(node, true)
+        .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
     let binary = frame.source().nodes()[node]
         .binary()
         .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
