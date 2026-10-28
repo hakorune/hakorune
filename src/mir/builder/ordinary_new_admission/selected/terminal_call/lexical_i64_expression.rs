@@ -37,6 +37,12 @@ enum ExpressionCallPrefixKindV1<'a> {
     Bool { frame: &'a CheckedBoolConditionFrameV1, call: &'a LocalCallObservationV1 },
 }
 impl<'a> ExpressionCallPrefixV1<'a> {
+    pub(super) fn original_observation_v1(&self) -> Option<&LocalCallObservationV1> {
+        match &self.kind {
+            ExpressionCallPrefixKindV1::Evaluation(prefix) => prefix.original_observation_v1(),
+            ExpressionCallPrefixKindV1::Bool { call, .. } => Some(call),
+        }
+    }
     pub(super) fn for_argument(prefix: ExpressionCallTransientPrefixV1<'a>, consume_receiver: &'a dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>, static_source: Option<&'a StaticExpressionCallIssuerV1<'a>>) -> Self {
         Self { kind: ExpressionCallPrefixKindV1::Evaluation(prefix), consume_receiver, static_source }
     }

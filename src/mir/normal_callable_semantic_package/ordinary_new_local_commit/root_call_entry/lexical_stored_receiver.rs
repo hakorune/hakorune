@@ -135,3 +135,37 @@ impl EmittedLexicalCallProjectionV1 {
         }
     }
 }
+
+impl EmittedLexicalCallProjectionV1 {
+    /// Independently tie the same self source to the actual implicit receiver
+    /// parameter and retained Copy chain, including the finished function.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_self_entry_receiver_v1(
+        &self, observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+        context: CallValidationContextV1<'_>, function: &crate::mir::MirFunction,
+        finishing: Option<&FinishedBindings>,
+    ) -> Result<(), String> {
+        let CallPacketSourceLoanV1::Instance(row) = self.row.loan() else { return Ok(()); };
+        if !row.source_target().is_self_receiver()
+            || !matches!(observation.result_source(), Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(_))) {
+            return Ok(());
+        }
+        if !context.ledger().checked_self_entry_receiver_v1(row.source_target(), observation)? {
+            return Err(freeze("lexical-terminal/receiver-arm-drift"));
+        }
+        let binding = row.receiver_binding()?;
+        let value = *function.params.first().ok_or_else(|| freeze("lexical-terminal/receiver-arm-drift"))?;
+        let read = self.lexical_receiver_read_v1().ok_or_else(|| freeze("lexical-terminal/receiver-arm-drift"))?;
+        read.value_for(row.call_site().owner(), row.receiver_site().node(), binding).map_err(|issue| issue.to_string())?;
+        for original in read.loan_forwarded_copies(binding, value)? {
+            let actual = match finishing {
+                Some(projection) => projection.relation_binding(function, original)?
+                    .ok_or_else(|| freeze("lexical-terminal/receiver-arm-drift"))?,
+                None => original.clone(),
+            };
+            if !super::super::super::physical_boundary::check_binding(function, None, actual.0, &actual.1)? {
+                return Err(freeze("lexical-terminal/receiver-arm-drift"));
+            }
+        }
+        Ok(())
+    }
+}

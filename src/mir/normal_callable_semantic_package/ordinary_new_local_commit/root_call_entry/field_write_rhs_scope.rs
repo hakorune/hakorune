@@ -8,7 +8,7 @@ impl EmittedFieldWriteRhsV1 {
         post_rhs_prefix: &[Binding],
     ) -> Result<(), String> {
         let root = self
-            .nodes
+            .recursive_nodes()
             .iter()
             .find(|node| node.node == 0)
             .ok_or_else(|| freeze("field-write-rhs/root-scope"))?;
@@ -17,7 +17,7 @@ impl EmittedFieldWriteRhsV1 {
         if whole.iter().any(|row| !inventory.contains(row)) {
             return Err(freeze("field-write-rhs/unowned-effect"));
         }
-        for node in &self.nodes {
+        for node in self.recursive_nodes() {
             let rows = interval(function, node.entry, node.exit, post_rhs_prefix)?;
             match &node.proof {
                 FieldWriteRhsProofV1::Reference { .. }
@@ -41,7 +41,7 @@ impl EmittedFieldWriteRhsV1 {
                         .binary()
                         .ok_or_else(|| freeze("field-write-rhs/binary-scope"))?;
                     let child = |site: &SourceExprSiteV1| {
-                        self.nodes
+                        self.recursive_nodes()
                             .iter()
                             .find(|node| self.recipe.source().nodes()[node.node].site() == site)
                             .ok_or_else(|| freeze("field-write-rhs/child-scope"))

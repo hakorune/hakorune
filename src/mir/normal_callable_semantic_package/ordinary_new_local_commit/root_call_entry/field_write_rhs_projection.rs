@@ -44,14 +44,65 @@ pub(in crate::mir) struct FieldWriteRhsNodeV1 {
     pub(in crate::mir) proof: FieldWriteRhsProofV1,
 }
 #[derive(Debug)]
+enum FieldWriteRhsObservationsV1 {
+    Recursive(Box<[FieldWriteRhsNodeV1]>),
+    Owned(Box<OwnedFieldWriteRhsV1>),
+}
+#[derive(Debug)]
+struct OwnedFieldWriteRhsV1 {
+    body: crate::mir::builder::EmittedExpressionBodyV1,
+    acquisition: Option<[Binding; 2]>,
+    terminal: Binding,
+    continuation: Binding,
+}
+#[derive(Debug)]
 pub(in crate::mir) struct EmittedFieldWriteRhsV1 {
     recipe: Rc<QualifiedFieldWriteRhsV1>,
-    nodes: Box<[FieldWriteRhsNodeV1]>,
+    observations: FieldWriteRhsObservationsV1,
     value: crate::mir::ValueId,
 }
 #[path = "field_write_rhs_scope.rs"]
 mod scope;
 impl EmittedFieldWriteRhsV1 {
+    fn recursive_nodes(&self) -> &[FieldWriteRhsNodeV1] {
+        match &self.observations {
+            FieldWriteRhsObservationsV1::Recursive(nodes) => nodes,
+            FieldWriteRhsObservationsV1::Owned(_) => &[],
+        }
+    }
+    pub(in crate::mir) fn from_owned_expression_v1(
+        recipe: Rc<QualifiedFieldWriteRhsV1>, body: crate::mir::builder::EmittedExpressionBodyV1,
+        value: crate::mir::ValueId, acquisition: Option<[Binding; 2]>,
+        terminal: Binding, continuation: Binding,
+        ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
+    ) -> Result<Self, String> {
+        let result = Self { recipe, value, observations: FieldWriteRhsObservationsV1::Owned(
+            Box::new(OwnedFieldWriteRhsV1 { body, acquisition, terminal, continuation })) };
+        result.validate(CallValidationContextV1::Lowering(ledger), function, None)?;
+        Ok(result)
+    }
+    fn owned_expression_ref_v1<'a>(&'a self, owned: &'a OwnedFieldWriteRhsV1)
+        -> Result<super::super::expression_projection::ExpressionPhysicalProjectionRefV1<'a>, String> {
+        let evaluation = self.recipe.evaluation().ok_or_else(|| freeze("field-write-rhs/source-coverage"))?;
+        Ok(super::super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
+            evaluation, &owned.body.values, &owned.body.calls, &owned.body.dynamic_calls,
+            &owned.body.path_reads, &owned.body.reference_reads, &owned.body.bindings))
+    }
+    pub(in crate::mir) fn deferred_child_ends_v1(&self, context: CallValidationContextV1<'_>)
+        -> Result<Vec<crate::mir::instruction::InvokeOperation>, String> {
+        let FieldWriteRhsObservationsV1::Owned(owned) = &self.observations else { return Ok(Vec::new()); };
+        if !self.recipe.is_consistent(self.recipe.source()) { return Err(freeze("field-write-rhs/source-coverage")); }
+        let view = self.owned_expression_ref_v1(owned)?;
+        view.validate_source(context)?;
+        let materializes = self.recipe.evaluation().unwrap().owned_text_root_node_v1().is_none();
+        view.validate_effective_root_v1(self.value, true, materializes, owned.acquisition.as_ref())?;
+        let mut temporaries = owned.body.ordered_owned_temporaries_v1(
+            self.recipe.evaluation().unwrap(), self.value, materializes)?;
+        if temporaries.pop() != Some(crate::mir::builder::ExpressionOwnedTemporaryV1::String(self.value)) {
+            return Err(freeze("field-write-rhs/root-scope"));
+        }
+        Ok(temporaries.into_iter().rev().map(crate::mir::builder::ExpressionOwnedTemporaryV1::end_operation).collect())
+    }
     pub(in crate::mir) fn new(
         recipe: Rc<QualifiedFieldWriteRhsV1>,
         nodes: Vec<FieldWriteRhsNodeV1>,
@@ -61,11 +112,15 @@ impl EmittedFieldWriteRhsV1 {
     ) -> Result<Self, String> {
         let result = Self {
             recipe,
-            nodes: nodes.into_boxed_slice(),
+            observations: FieldWriteRhsObservationsV1::Recursive(nodes.into_boxed_slice()),
             value,
         };
         result.validate(CallValidationContextV1::Lowering(ledger), function, None)?;
         Ok(result)
+    }
+    pub(in crate::mir) fn lexical_calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+        let body = match &self.observations { FieldWriteRhsObservationsV1::Owned(owned) => Some(&owned.body), _ => None };
+        body.into_iter().flat_map(|body| body.calls.iter().map(Rc::as_ref))
     }
     pub(in crate::mir) fn value(&self) -> crate::mir::ValueId {
         self.value
@@ -74,7 +129,7 @@ impl EmittedFieldWriteRhsV1 {
         &self.recipe
     }
     pub(in crate::mir) fn relations(&self) -> Vec<Relation> {
-        self.nodes
+        self.recursive_nodes()
             .iter()
             .filter_map(|node| match &node.proof {
                 FieldWriteRhsProofV1::Binary { operands, .. } => Some(operands.iter().cloned()),
@@ -84,8 +139,11 @@ impl EmittedFieldWriteRhsV1 {
             .collect()
     }
     pub(in crate::mir) fn bindings(&self) -> Result<Vec<Binding>, String> {
+        if let FieldWriteRhsObservationsV1::Owned(owned) = &self.observations {
+            return Ok(owned.body.bindings.clone());
+        }
         let mut rows = Vec::new();
-        for node in &self.nodes {
+        for node in self.recursive_nodes() {
             match &node.proof {
                 FieldWriteRhsProofV1::Literal(row) => rows.push(row.clone()),
                 FieldWriteRhsProofV1::Reference {
@@ -131,7 +189,7 @@ impl EmittedFieldWriteRhsV1 {
             .iter()
             .position(|node| node.site() == site)
             .ok_or_else(|| freeze("field-write-rhs/child-site"))?;
-        self.nodes
+        self.recursive_nodes()
             .iter()
             .find(|node| node.node == index)
             .map(|node| node.value)
@@ -160,11 +218,29 @@ impl EmittedFieldWriteRhsV1 {
         post_rhs_prefix: &[Binding],
     ) -> Result<(), String> {
         let source = self.recipe.source();
+        if let FieldWriteRhsObservationsV1::Owned(owned) = &self.observations {
+            if !self.recipe.is_consistent(source) { return Err(freeze("field-write-rhs/source-coverage")); }
+            let view = self.owned_expression_ref_v1(owned)?;
+            let materializes = self.recipe.evaluation().unwrap().owned_text_root_node_v1().is_none();
+            if owned.acquisition.is_some() != materializes { return Err(freeze("field-write-rhs/source-coverage")); }
+            view.validate_effective_root_v1(self.value, true, materializes, owned.acquisition.as_ref())?;
+            let covered = view.validate_deferred_owned_continuation_v1(context, function, finishing,
+                &owned.body.entry, &owned.terminal, &owned.continuation, None, owned.acquisition.as_ref())?;
+            if finishing.is_none() && post_rhs_prefix.is_empty() {
+                let mut ordered = view.ordered_bindings_in_context(context)?;
+                if let Some(pair) = &owned.acquisition { ordered.extend(pair.iter().cloned()); }
+                ordered.push(owned.terminal.clone());
+                view.validate_original_scope(context.ledger(), function, &covered,
+                    &owned.body.entry, &owned.terminal, &owned.continuation, &ordered)?;
+            }
+            return Ok(());
+        }
+        if self.recipe.evaluation().is_some() { return Err(freeze("field-write-rhs/source-coverage")); }
         let expected_nodes = self.recipe.ordered_nodes().iter().copied().filter(|index|
             self.recipe.node_class(*index) != Some(crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Identity)
                 || self.recipe.owned_array().is_some());
-        if !self.recipe.is_consistent(source) || self.nodes.iter().map(|node| node.node).ne(expected_nodes)
-            || self.nodes.iter().find(|node| node.node == 0).map(|node| node.value) != Some(self.value) {
+        if !self.recipe.is_consistent(source) || self.recursive_nodes().iter().map(|node| node.node).ne(expected_nodes)
+            || self.recursive_nodes().iter().find(|node| node.node == 0).map(|node| node.value) != Some(self.value) {
             return Err(freeze("field-write-rhs/source-coverage"));
         }
         let mut ordered = Vec::new();
@@ -206,7 +282,7 @@ impl EmittedFieldWriteRhsV1 {
             }
             Ok(())
         };
-        for node in &self.nodes {
+        for node in self.recursive_nodes() {
             let original = &source.nodes()[node.node];
             match (original.source(), &node.proof) {
                 (Node::Literal(literal), FieldWriteRhsProofV1::Literal(row)) => {

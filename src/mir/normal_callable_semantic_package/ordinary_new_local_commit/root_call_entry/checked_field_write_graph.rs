@@ -13,6 +13,7 @@ pub(crate) struct CheckedFieldWriteGraphV1 {
     completed: OnceCell<Vec<Binding>>,
     fault_bindings: Vec<Binding>,
     post_rhs_prefix: Vec<Binding>,
+    normal_cleanup: Option<(Binding, Vec<Binding>)>,
 }
 impl CheckedFieldWriteGraphV1 {
     pub(in crate::mir) fn new(
@@ -22,6 +23,7 @@ impl CheckedFieldWriteGraphV1 {
         original: Vec<Binding>,
         fault_bindings: Vec<Binding>,
         post_rhs_prefix: Vec<Binding>,
+        normal_cleanup: Option<(Binding, Vec<Binding>)>,
     ) -> Self {
         Self {
             pins,
@@ -31,6 +33,7 @@ impl CheckedFieldWriteGraphV1 {
             original,
             fault_bindings,
             post_rhs_prefix,
+            normal_cleanup,
             completed: OnceCell::new(),
         }
     }
@@ -147,6 +150,7 @@ impl CheckedFieldWriteGraphV1 {
         expected_field: hakorune_mir_defs::CanonicalFieldRefV1,
         expected_mode: crate::mir::instruction::FieldSetModeV1,
         prior_homes: &[LiveHomeV1],
+        deferred: &[InvokeOperation], finalized: bool,
     ) -> Result<(), String> {
         for original in self.bindings() {
             let observed = self.resolve_observed_binding_v1(original, false)?;
@@ -208,18 +212,59 @@ impl CheckedFieldWriteGraphV1 {
         {
             return Err(freeze("borrowed-field-write/invoke-operands"));
         }
-        let operations = ledger.prior_home_unwind_for(prior_homes)?;
+        let prior = ledger.prior_home_unwind_for(prior_homes)?;
+        if deferred.is_empty() != self.normal_cleanup.is_none()
+            || !deferred.is_empty() && !expected_mode.consumes_text_candidate_on_fault_v1() {
+            return Err(freeze("borrowed-field-write/invoke-operands"));
+        }
+        if let Some((end, origins)) = &self.normal_cleanup {
+            let stop = match finishing {
+                Some(boundary) => {
+                    boundary.structural_jump_binding(function, end, finalized)?;
+                    boundary.destination(end.0).ok_or_else(|| freeze("borrowed-field-write/mandatory-binding"))?
+                }
+                None => {
+                    if !super::super::super::physical_boundary::check_binding(function, None, end.0, &end.1)? {
+                        return Err(freeze("borrowed-field-write/mandatory-binding"));
+                    }
+                    end.0
+                }
+            };
+            if origins.len() != deferred.len() { return Err(freeze("borrowed-field-write/invoke-operands")); }
+            let mut normal = *normal_landing;
+            for (index, operation) in deferred.iter().enumerate() {
+                use super::super::super::root_cleanup_graph::ordered_paths as paths;
+                normal = paths::skip_until(function, normal, Some(stop))?;
+                let observed = map(&origins[index])?;
+                if observed.0 != normal || !super::super::super::physical_boundary::check_binding(
+                    function, None, observed.0, &observed.1)? {
+                    return Err(freeze("borrowed-field-write/invoke-operands"));
+                }
+                let (next, fault) = paths::release(function, normal, operation, Some(*fault_frame))?;
+                let residual = deferred[index + 1..].iter().chain(&prior).cloned().collect::<Vec<_>>();
+                paths::pending_operations(function, fault, &residual, Some(*fault_frame))?;
+                normal = next;
+            }
+            if super::super::super::root_cleanup_graph::ordered_paths::skip_until(function, normal, Some(stop))? != stop {
+                return Err(freeze("borrowed-field-write/invoke-operands"));
+            }
+        }
+        let operations = deferred.iter().chain(&prior).cloned().collect::<Vec<_>>();
         super::super::super::root_cleanup_graph::ordered_paths::pending_operations(
             function,
             *fault_landing,
             &operations,
             Some(*fault_frame),
         )?;
-        let expected = self
-            .fault_bindings
-            .iter()
-            .map(map)
-            .collect::<Result<Vec<_>, _>>()?;
+        let mut expected = Vec::new();
+        for original in &self.fault_bindings {
+            let row = match finishing {
+                Some(boundary) if matches!(original.1, MirInstruction::Jump { edge_args: None, .. }) =>
+                    boundary.structural_jump_binding(function, original, finalized)?,
+                _ => Some(map(original)?),
+            };
+            if let Some(row) = row { expected.push(row); }
+        }
         super::validate_fault_inventory_v1(
             function,
             *fault_landing,

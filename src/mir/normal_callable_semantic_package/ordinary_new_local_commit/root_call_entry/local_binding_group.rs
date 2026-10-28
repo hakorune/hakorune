@@ -397,6 +397,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
                     .into_iter()
                     .flat_map(|packet| packet.argument_calls_v1()),
             )
+            .chain(self.borrowed_field_write().into_iter().flat_map(|packet| packet.lexical_calls_v1()))
             .chain(print.into_iter().flat_map(|packet| packet.calls()))
             .chain(self.rebind().into_iter().flat_map(|packet| packet.calls()))
             .chain(

@@ -85,6 +85,9 @@ enum TransientPrefixOriginV1<'a> {
     },
 }
 impl<'a> ExpressionCallTransientPrefixV1<'a> {
+    pub(in crate::mir) fn original_observation_v1(&self) -> Option<&LocalCallObservationV1> {
+        match &self.origin { TransientPrefixOriginV1::Evaluation { call, .. } => Some(call), _ => None }
+    }
     pub(in crate::mir) fn for_prepared_new_argument_v1(
         current: &'a crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1,
         earlier: &'a [crate::mir::normal_callable_semantic_package::EmittedNewArgumentV1],
@@ -593,7 +596,8 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 || !live.last().is_some_and(|temporary| temporary.is_string(root))
                 || !matches!(self.frame.source().root(),
                     crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
-                    | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::NewArgument { .. }) {
+                    | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::NewArgument { .. }
+                    | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { .. }) {
                 return Err(freeze("argument-expression/deferred-source-acquisition"));
             }
         }
@@ -1099,7 +1103,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             carrier,
         )
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_deferred_argument_continuation_v1(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_deferred_owned_continuation_v1(
         &self,
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
@@ -1207,7 +1211,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         terminal: &Binding,
         continuation: &Binding,
     ) {
-        self.validate_deferred_argument_continuation_v1(
+        self.validate_deferred_owned_continuation_v1(
             context,
             function,
             None,
@@ -1237,7 +1241,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             edge_args: None,
         });
         assert!(
-            self.validate_deferred_argument_continuation_v1(
+            self.validate_deferred_owned_continuation_v1(
                 context,
                 &changed,
                 None,
@@ -1304,6 +1308,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         self.validate_source(context)?;
         for (&node, observed) in self.reference_reads {
             observed.validate_dependencies_v1(self.frame, node, context, function, finishing)?;
+        }
+        for (observation, packet) in self.source_calls().zip(self.calls()) {
+            packet.validate_self_entry_receiver_v1(observation, context, function, finishing)?;
         }
         let source = self.frame.source();
         let roots = self.original_field_roots_v1(context)?;

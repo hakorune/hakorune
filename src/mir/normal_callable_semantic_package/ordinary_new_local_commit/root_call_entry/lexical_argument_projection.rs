@@ -414,7 +414,7 @@ impl EmittedArgumentExpressionProjectionV1 {
             }
             ArgumentCompletionV1::OwnedTextDeferred => self
                 .expression()
-                .validate_deferred_argument_continuation_v1(
+                .validate_deferred_owned_continuation_v1(
                     context,
                     function,
                     finishing,

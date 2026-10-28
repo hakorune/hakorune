@@ -285,6 +285,7 @@ impl EmittedBoolConditionProjectionV1 {
                         .iter()
                         .find(|call| call.site().site() == original.site())
                         .ok_or_else(|| freeze("bool-condition/call-source"))?;
+                    packet.validate_self_entry_receiver_v1(observation, context, function, finishing)?;
                     if packet.call_site() != observation.site()
                         || ledger.lexical_i64_call_source(packet.call_site()) != Some(observation)
                         || packet.value_in_context_v1(

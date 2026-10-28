@@ -33,6 +33,21 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][field-write-rhs/no-ledger]")?;
         source.require_current_execution(crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(&ledger))?;
+        if recipe.evaluation().is_some() {
+            let state = self.callable_ledger.clone().ok_or("[freeze:contract][field-write-rhs/no-state]")?;
+            let consume = self.lexical_self_receiver_locator_consumer_v1()?;
+            let port = RefCell::new(self);
+            let issue_static = |builder: &mut MirBuilder,
+                original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+                frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+                observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+                crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                    &mut port.borrow_mut(), builder, original, frame, observation, &ledger)
+            };
+            let result = crate::mir::builder::ordinary_new_admission::selected::borrowed_field_write::emit_owned_rhs_v1(
+                builder, &mut state.borrow_mut(), &ledger, source, &consume, &issue_static);
+            return result;
+        }
         let emission = Rc::new(RefCell::new(FieldWriteRhsEmissionV1 {
             recipe: Rc::clone(recipe), nodes: Vec::new(), binary: BTreeMap::new(),
         }));

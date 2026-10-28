@@ -5,7 +5,7 @@ use crate::mir::normal_callable_semantic_package::CheckedFieldWriteGraphV1;
 pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
     field: hakorune_mir_defs::CanonicalFieldRefV1, mode: crate::mir::instruction::FieldSetModeV1,
     receiver: ValueId, value: ValueId,
-    operations: Vec<InvokeOperation>,
+    operations: Vec<InvokeOperation>, deferred: Vec<InvokeOperation>,
 ) -> Result<CheckedFieldWriteGraphV1, String> {
     // Pin/cache targets and the Fault frame may be inserted ahead of an
     // already observed RHS. Retain only this writer's genuinely new prefixes.
@@ -13,7 +13,14 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
     let prior_values: std::collections::BTreeSet<_> = function.params.iter().copied().chain(
         function.blocks.values().flat_map(|body| body.all_instructions()).filter_map(|row| row.dst_value())).collect();
     let pinned_receiver = builder.local_field_base(receiver);
-    let pinned_value = builder.local_arg(value);
+    // An owned Text candidate is an affine pair, not a scalar word to Copy.
+    // Its exact producer already dominates the store; retain an identity
+    // relation and let FieldSet consume that same acquisition.
+    let pinned_value = if mode.has_owned_text_candidate_v1() {
+        value
+    } else {
+        builder.local_arg(value)
+    };
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
     let index = &mut builder.function_state.local_ssa_correspondence;
     let pins = [index.loan(function, receiver, pinned_receiver).ok_or_else(|| freeze("borrowed-field-write/receiver-pin"))?,
@@ -31,8 +38,8 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
     }
     let mut fault_bindings = Vec::new();
     let outward = builder.next_block_id();
-    append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, &mut fault_bindings)?;
-    let fault = cleanup_chain(builder, frame, operations, outward, &mut fault_bindings)?;
+    let (fault, cleanup) = super::root_graph::prepare_operation_cleanup_v1(
+        builder, frame, outward, deferred, operations, &[], &mut fault_bindings)?;
     bindings.extend(fault_bindings.iter().cloned());
     let mut invoke = Vec::new();
     let (result, projection) = super::invoke_operation::emit(builder, frame,
@@ -41,11 +48,16 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder, state: &mut Callab
     let invoke = invoke.pop().ok_or_else(|| freeze("borrowed-field-write/invoke-missing"))?;
     bindings.push(invoke.clone());
     let normal = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-    let next = builder.next_block_id();
-    let continuation = MirInstruction::Jump { target: next, edge_args: None };
+    let (next, normal_cleanup) = match cleanup {
+        Some((clean, next, continuation, origins)) => (next, Some((clean, continuation, origins))),
+        None => (builder.next_block_id(), None),
+    };
+    let target = normal_cleanup.as_ref().map_or(next, |(clean, _, _)| *clean);
+    let continuation = MirInstruction::Jump { target, edge_args: None };
     builder.emit_instruction(continuation.clone())?;
     let continuation = (normal, continuation);
     bindings.push(continuation.clone());
     builder.start_new_block(next)?;
-    Ok(CheckedFieldWriteGraphV1::new(pins, invoke, continuation, bindings, fault_bindings, post_rhs_prefix))
+    Ok(CheckedFieldWriteGraphV1::new(pins, invoke, continuation, bindings, fault_bindings, post_rhs_prefix,
+        normal_cleanup.map(|(_, continuation, origins)| (continuation, origins))))
 }

@@ -29,6 +29,10 @@ impl EmittedBorrowedFieldWriteV1 {
     pub(crate) fn source(&self) -> &FieldWriteSourceLoanV1 {
         &self.source
     }
+    pub(in crate::mir) fn lexical_calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
+        let rhs = match &self.value { FieldWriteValueV1::Expression(rhs) => Some(rhs), _ => None };
+        rhs.into_iter().flat_map(|rhs| rhs.lexical_calls_v1())
+    }
     pub(crate) fn invoke_binding(&self) -> &Binding {
         self.graph.invoke_binding()
     }
@@ -165,6 +169,10 @@ impl EmittedBorrowedFieldWriteV1 {
             _ => return Err(freeze("field-write-rhs/operand-origin")),
         };
         self.graph.validate_operand(1, value, function, finishing)?;
+        let deferred = match &self.value {
+            FieldWriteValueV1::Expression(rhs) => rhs.deferred_child_ends_v1(context)?,
+            _ => Vec::new(),
+        };
         self.graph.validate_paths(
             ledger,
             function,
@@ -172,6 +180,8 @@ impl EmittedBorrowedFieldWriteV1 {
             field,
             mode,
             self.source.frame().prior_homes(),
+            &deferred,
+            matches!(context, CallValidationContextV1::Finalized(_)),
         )
     }
 }

@@ -62,7 +62,35 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let Some((selected, _)) = &self.original_instance_input_issuance else { return Ok(false) };
         let Some(identity) = selected.identity_for_batch_slot(contract.batch_slot) else { return Ok(false) };
-        self.checked_field_alias_entry_root_v1(root, contract.batch_slot, identity, owner)
+        self.checked_instance_entry_root_v1(root, contract.batch_slot, identity, owner)
+    }
+
+    /// A self receiver borrows the same declaration's unique receiver lane.
+    /// Result transport neither creates nor removes this entry permission.
+    pub(crate) fn checked_self_entry_receiver_v1(
+        &self, target: &LexicalInstanceCallSourceTargetV1, observation: &LocalCallObservationV1,
+    ) -> Result<bool, String> {
+        if !target.is_self_receiver() || target.stored_receiver().is_some()
+            || observation.site() != target.call_site() {
+            return Ok(false);
+        }
+        let Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(original)) = observation.result_source()
+            else { return Ok(false); };
+        if original.instance_source() != Some(target) { return Ok(false); }
+        let root = target.receiver_binding()?;
+        let owner = target.call_site().owner();
+        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| fault("alias/entry-root-empty"))?;
+        let mut rows = catalog.iter().filter(|row| row.owner == owner);
+        let Some(contract) = rows.next() else { return Ok(false); };
+        if rows.next().is_some() || catalog.iter().filter(|row| row.batch_slot == contract.batch_slot).count() != 1 {
+            return Err(fault("alias/entry-root-field-drift"));
+        }
+        let Some((selected, _)) = &self.original_instance_input_issuance else { return Ok(false); };
+        let Some(identity) = selected.identity_for_batch_slot(contract.batch_slot) else { return Ok(false); };
+        if !matches!(selected.key_for_batch_slot(contract.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.owner() == target.target().owner()) { return Ok(false); }
+        self.checked_instance_entry_root_v1(root, contract.batch_slot, identity, owner)
     }
 
     /// Hand back the SAME completed initializer to its existing read row. Other
@@ -138,7 +166,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     )
             }
             FieldAliasRootSourceV1::InstanceEntry { batch_slot, identity } => {
-                self.checked_field_alias_entry_root_v1(path.root, *batch_slot, identity, observation.owner())?
+                self.checked_instance_entry_root_v1(path.root, *batch_slot, identity, observation.owner())?
                     && !observation.prior_homes().contains(
                         &crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(path.root),
                     )
@@ -210,7 +238,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(true)
     }
 
-    fn checked_field_alias_entry_root_v1(
+    fn checked_instance_entry_root_v1(
         &self,
         root: BindingRefV1,
         batch_slot: u32,

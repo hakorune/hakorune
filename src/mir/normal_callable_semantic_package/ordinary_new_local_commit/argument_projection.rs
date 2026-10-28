@@ -217,7 +217,7 @@ impl EmittedNewExpressionV1 {
                 inherited,
             )?
         } else {
-            view.validate_deferred_argument_continuation_v1(
+            view.validate_deferred_owned_continuation_v1(
                 context,
                 function,
                 finishing,

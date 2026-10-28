@@ -72,6 +72,15 @@ impl FieldWriteSourceLoanV1 {
         let ledger = context.ledger();
         self.validate_source(ledger)?;
         if self.borrowed().is_some() { return Ok(FieldSetModeV1::ExactSlot); }
+        if self.frame().entry().is_some_and(|entry| entry.text_value().is_some())
+            && self.qualified_rhs().is_some_and(|rhs| rhs.evaluation().is_some()) {
+            use crate::mir::instruction::{DynamicFieldSetContractV1 as Contract,
+                DynamicFieldWriteIntentV1 as Intent, DynamicFieldValueTagV1 as Tag,
+                DynamicFieldResidenceV1 as Residence};
+            return Contract::issue(Intent::Replace, Tag::Text, Residence::TextHome)
+                .map(FieldSetModeV1::DynamicValue)
+                .ok_or_else(|| self.original_source_error("execution-storage"));
+        }
         self.require_signed_rhs_v1(context)?;
         let fail = || self.original_source_error("execution-storage");
         if let Some(entry) = self.frame().entry() {
