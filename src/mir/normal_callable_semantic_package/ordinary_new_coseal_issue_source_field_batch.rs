@@ -587,7 +587,10 @@ fn borrow_fixed_array_alias_source(
         if field.binding() != receiver || field.name() != request.field.as_ref() { return Ok(None); }
         let canonical = field.field();
         let declared = field.declared_type_name().map(Into::into);
-        Ok(Some(LocalFieldReadSourceV1::from_declaration(canonical, LocalFieldReadResultV1::BorrowedArray(alias), declared)))
+        let reads = super::super::super::field_array_read_source::capture_alias_reads_v1(
+            input, caller, &alias, selected, batch, constructors, writes)?;
+        let source = LocalFieldReadSourceV1::from_declaration(canonical, LocalFieldReadResultV1::BorrowedArray(alias), declared);
+        LocalFieldReadSourceV1::with_array_reads(&source, reads).map(Some)
     }).map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
     result.map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })
 }

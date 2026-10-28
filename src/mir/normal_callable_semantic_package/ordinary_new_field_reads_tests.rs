@@ -395,6 +395,35 @@ fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement(
             "source alias alone must not issue a physical Array read");
     }
 
+    // Real Count/Get calls lend only their exact initializer alias. Merely
+    // declaring another Array field does not transfer that operation evidence.
+    let package = issue_with_brand_catalog(r#"box Pool { init { values, other }
+        birth() { me.values = new ArrayBox() me.other = new ArrayBox() }
+        seed() { local a = me.values local b = me.other
+            local n = a.length() local x = a.get(0) return n }
+    } static box Main { main() { local pool = new Pool() return pool.seed() } }"#).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let rows = ledger.local_field_reads.borrow();
+    let aliases: Vec<_> = rows.values().filter_map(|row| match row.source.result() {
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(alias)
+            if alias.fixed_source_v1().is_some() => Some((&row.source, alias)),
+        _ => None,
+    }).collect();
+    assert_eq!(aliases.len(), 2);
+    for (source, alias) in aliases {
+        let name = alias.fixed_source_v1().unwrap().0.name();
+        if name == "values" {
+            assert_eq!(source.array_reads.len(), 2);
+            assert!(source.array_reads.iter().any(|read| read.is_count()));
+            assert!(source.array_reads.iter().any(|read| read.is_dynamic_get()));
+            assert!(source.array_reads.iter().all(|read| read.receiver_alias_v1() == Some(alias)
+                && read.field() == source.field()));
+        } else {
+            assert_eq!(name, "other");
+            assert!(source.array_reads.is_empty());
+        }
+    }
+
     // Direct Text append borrows the original canonical field, whereas the
     // Loop Integer origin above keeps its established FieldGet protocol.
     let package = issue_with_brand_catalog(r#"box Pool { values: ArrayBox = new ArrayBox() birth() {} seed() {

@@ -57,7 +57,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let source = Rc::new(LocalFieldReadSourceV1 { field: original.field(),
             result: LocalFieldReadResultV1::Alias(class.into()), declared_type_name: None,
-            expression_path: None, received: None, returned: Some(retained), owned_ready: None });
+            expression_path: None, received: None, returned: Some(retained), owned_ready: None, array_reads: Vec::new() });
         let row = LocalFieldRead { local: None, receiver_site: original.receiver_site().clone(),
             receiver: parent, home: parent, source, numeric_source: None, progress: LocalReadProgress::Pending };
         super::super::coseal_issue::source_claims::stage_local_field_read_batch(

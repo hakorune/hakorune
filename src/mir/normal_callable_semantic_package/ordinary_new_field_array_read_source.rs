@@ -462,6 +462,32 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_read(
     Ok(Some(source))
 }
 
+/// Retain actual provider operations on this exact initializer alias. Other
+/// receivers and unsupported methods do not become operation permissions.
+#[allow(clippy::too_many_arguments)]
+pub(in crate::mir::normal_callable_semantic_package) fn capture_alias_reads_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, caller: &CanonicalSameModuleCallableKeyV1,
+    alias: &crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1, constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    writers: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+) -> Result<Vec<Rc<CheckedFieldArrayAccessSourceV1>>, String> {
+    let ledger = input.forest().callable_source_ledger(input.owner())
+        .map_err(|_| freeze("array-read/original-call-missing"))?;
+    let mut reads = Vec::new();
+    for (_, method) in ledger.method_calls() {
+        if input.function().variable_ref(method.receiver_site()) != Some(ResolvedLexicalRefV1::Local(alias.binding())) {
+            continue;
+        }
+        let Some(read) = capture_exact_read(input, caller, method.site(), selected, batch, constructors, writers)? else { continue; };
+        if read.receiver_alias_v1() != Some(alias) || !read.matches_original_call_v1(input) {
+            return Err(freeze("array-read/receiver-source-binding"));
+        }
+        reads.push(read);
+    }
+    Ok(reads)
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(in crate::mir::normal_callable_semantic_package) fn capture_exact_count(
     input: ResolvedFunctionLoweringInputV1<'_>, caller: &CanonicalSameModuleCallableKeyV1,
