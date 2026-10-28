@@ -625,3 +625,35 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
         });
     }
 }
+
+#[test]
+fn nullable_child_guard_never_infers_cross_field_correlation() {
+    for (fields, writes, args, accepted) in [
+        ("one", "me.one = a", "item", true),
+        ("one, two", "me.one = a me.two = b", "item, item", false),
+    ] {
+        let parameters = if accepted { "a" } else { "a, b" };
+        let text = format!("box Item {{ birth() {{ }} }}
+            box Holder {{ init {{ {fields} }} birth({parameters}) {{ {writes} }} }}
+            box Maker {{ birth() {{ }} value(n) {{ if n == 0 {{ return null }} return new Item() }}
+                make(n) {{ local item = me.value(n) return new Holder({args}) }} }}
+            static box Main {{ main() {{ return 0 }} }}");
+        super::super::super::result_class_claim::with_source_claims_fixture(
+            &text, |batch, selected, constructors, parameters, main, writers| {
+                let (_, _, facts, _) = super::prepare_source_claims(batch, selected, main,
+                    constructors, parameters, std::rc::Rc::clone(writers), None).unwrap();
+                let relations: Vec<_> = facts.construction_child_relations()
+                    .filter(|relation| relation.is_unqualified_dynamic_v1()).collect();
+                assert_eq!(relations.len(), if accepted { 1 } else { 2 });
+                for relation in relations {
+                    use super::super::super::result_class_claim::ResultValueOriginV1 as Origin;
+                    assert!(relation.witnesses().iter().any(|w| matches!(w.origin(), Origin::Null)));
+                    assert!(relation.witnesses().iter().any(|w| matches!(w.origin(), Origin::Fresh(_))));
+                }
+                let source = super::field_source::dynamic_stored_child_field_v1(
+                    batch, constructors, &facts, "Holder", "one").unwrap();
+                assert_eq!(source.is_some(), accepted, "{text} relations={:?}", facts.construction_child_relations().collect::<Vec<_>>());
+                if let Some(source) = source { assert!(source.recheck_v1(&facts, "one")); }
+            });
+    }
+}
