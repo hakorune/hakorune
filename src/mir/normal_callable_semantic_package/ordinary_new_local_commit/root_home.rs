@@ -480,16 +480,19 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("source-loop/frame-source"));
         }
         let rows = self.root_exits.borrow();
-        let Some(RootHomeExitProgress::Emitted { bindings, entry: RootHomeExitEntry::Plain { .. }, .. })
+        let Some(RootHomeExitProgress::Emitted { order, bindings, entry: RootHomeExitEntry::Plain { .. }, .. })
             = rows.get(&(owner, source.site.clone().into())) else { return Err(freeze("source-loop/original-write")); };
         let mut bindings = bindings.clone();
-        if let Some(producer) = self.terminal_literal_producer_v1(owner, &source.site)? {
-            if !bindings.contains(&producer) {
+        let literal = self.terminal_literal_producer_v1(owner, &source.site)?;
+        // Null is already retained by the same prepared exit's source loan;
+        // include that exact append in Loop accounting, without re-emission.
+        for producer in literal.as_ref().into_iter().chain(order.null_return_binding()) {
+            if !bindings.contains(producer) {
                 let entry_jump = bindings
                     .len()
                     .checked_sub(1)
                     .ok_or_else(|| freeze("source-loop/original-write"))?;
-                bindings.insert(entry_jump, producer);
+                bindings.insert(entry_jump, producer.clone());
             }
         }
         Ok(bindings)
