@@ -42,10 +42,51 @@ static int interval(const char* release, const char* left, const char* right,
   return interval_with_slot_parent(release, left, right, finish, discharged, 0);
 }
 
+/* This is physical CFG evidence; no source admission or Home is issued. */
+static int map_guard(const char* predicate, uint32_t use, int extra_edge, int reentry, int foreign) {
+  char json[8192];
+  int size = snprintf(json, sizeof(json),
+      "{\"entry\":0,\"blocks\":["
+      "{\"id\":0,\"instructions\":[],\"terminator\":{\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"map_field_get_indexed\"}}},\"edges\":[{\"target\":1}]},"
+      "{\"id\":1,\"instructions\":[{\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":1}},{\"instruction\":{\"op\":\"const_null\",\"dst\":2}},{\"instruction\":{\"op\":\"borrowed_null_compare\",\"dst\":3,\"lhs\":%d,\"rhs\":2,\"predicate\":\"%s\"}}],\"terminator\":{\"instruction\":{\"op\":\"branch\",\"condition\":3,\"then\":2,\"else\":3}},\"edges\":[{\"target\":2},{\"target\":3}]},"
+      "{\"id\":2,\"instructions\":[],\"terminator\":{\"instruction\":{}},\"edges\":[{\"target\":4}%s]},"
+      "{\"id\":3,\"instructions\":[],\"terminator\":{\"instruction\":{}},\"edges\":[{\"target\":5}%s]},"
+      "{\"id\":4,\"instructions\":[],\"terminator\":{\"instruction\":{}},\"edges\":[]},"
+      "{\"id\":5,\"instructions\":[],\"terminator\":{\"instruction\":{}},\"edges\":[]},"
+      "{\"id\":6,\"instructions\":[],\"terminator\":{\"instruction\":{}},\"edges\":[]}]}",
+      foreign ? 4 : 1, predicate, reentry ? ",{\"target\":0}" : "", extra_edge ? ",{\"target\":2}" : "");
+  assert(size > 0 && (size_t)size < sizeof(json));
+  yyjson_doc* doc = yyjson_read(json, (size_t)size, 0); assert(doc);
+  hako_lv4_function_index fn = {0}; hako_lv4_block blocks[7]; hako_lv4_value values[4] = {{0}};
+  fn.function = yyjson_doc_get_root(doc); fn.blocks = blocks; fn.block_count = 7;
+  fn.values = values; fn.value_count = 4;
+  for (size_t i = 0; i < 7; i++) {
+    blocks[i].id = (uint32_t)i; blocks[i].ordinal = i;
+    blocks[i].block = yyjson_arr_get(yyjson_obj_get(fn.function, "blocks"), i);
+  }
+  yyjson_val* rows = yyjson_obj_get(blocks[1].block, "instructions");
+  for (size_t i = 0; i < 4; i++) values[i].id = (uint32_t)i + 1;
+  for (size_t i = 0; i < 3; i++) {
+    values[i].instruction = yyjson_obj_get(yyjson_arr_get(rows, i), "instruction");
+    values[i].definition_block = blocks[1].block;
+  }
+  values[0].kind = LV4_SLOT_BORROW; values[3].kind = LV4_SLOT_BORROW;
+  int valid = lv4_map_slot_guarded(&fn, &values[0], use);
+  yyjson_doc_free(doc); return valid;
+}
+
 #define END "{\"op\":\"invoke\",\"operation\":{\"kind\":\"object_field_release\",\"base\":1,\"object_id\":7,\"field_ordinal\":3,\"child_object_id\":11}}"
 #define EMPTY "{}"
 
 int main(void) {
+  assert(map_guard("ne", 4, 0, 0, 0));
+  assert(map_guard("eq", 5, 0, 0, 0));
+  assert(!map_guard("eq", 4, 0, 0, 0));
+  assert(!map_guard("slt", 4, 0, 0, 0));
+  assert(!map_guard("ne", 6, 0, 0, 0));
+  assert(!map_guard("ne", 4, 1, 0, 0));
+  assert(!map_guard("ne", 4, 0, 1, 0));
+  assert(!map_guard("ne", 4, 0, 0, 1));
   /* One predecessor End discharges both its Normal and Fault landings. */
   assert(interval(END, EMPTY, EMPTY, EMPTY, 1));
   assert(!interval(END, EMPTY, EMPTY, EMPTY, 0));
@@ -80,6 +121,8 @@ int main(void) {
   assert(!interval(EMPTY, call, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
   assert(!interval(EMPTY, write, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
   assert(!interval(EMPTY, END, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
+  assert(!interval(EMPTY, invalid[1], EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
+  assert(!interval(EMPTY, "{\"operation\":{\"kind\":\"object_end_if_owned\"}}", EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
   /* Another get may alias this payload; a same-field write must refuse. */
   const char* other_slot_write = "{\"operation\":{\"kind\":\"field_set\",\"base\":2,\"object_id\":7,\"field_ordinal\":3}}";
   const char* other_slot_end = "{\"operation\":{\"kind\":\"home_release\",\"value\":2}}";

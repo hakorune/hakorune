@@ -28,6 +28,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
     if (!prefix) {
       yyjson_val* op = yyjson_obj_get(lv4_term(current->block), "operation");
       if (slot && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call") ||
+          lv4_is(op, "kind", "object_end_if_owned") ||
           lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_field_delete_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
           lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
           lv4_is(op, "kind", "map_install_borrowed_array") || lv4_is(op, "kind", "map_end"))) return 0;
@@ -42,7 +43,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
         if (same != 0) return 0; /* Never borrow a previous lifetime's drain. */
       }
       if ((drain || write) && lv4_u(op, "object_id") == object &&
-          (full || lv4_u(op, "field_ordinal") == field)) {
+          (full || slot || lv4_u(op, "field_ordinal") == field)) {
         hako_lv4_value* actual = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(op, "base")));
         int same = lv4_field_borrow_same_path(fn, actual, base);
         if (same < 0 || (!released && same)) return 0;

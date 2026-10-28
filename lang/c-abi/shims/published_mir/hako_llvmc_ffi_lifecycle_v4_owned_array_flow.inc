@@ -147,6 +147,16 @@ static int lv4_slot_borrow_readable(const hako_lv4_input* in,
       !value->object_id_set || value->object_id != lv4_u(op, object_borrow ? "expected_object_id" : "payload_object_id") ||
       !lv4_layout(in, value->object_id) || !lv4_birth_dynamic(in, op) || lv4_slot(in, op) < 0) return 0;
   hako_lv4_value* base = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(op, "base")));
+  if (object_borrow && base && base->kind == LV4_SLOT_BORROW) {
+    /* The Map payload stays borrowed for the whole child interval. The
+     * checked field read needs the original nonnull edge at its producer;
+     * the child's slot and the parent's Map slot must both remain live. */
+    return base->object_id_set && base->object_id == lv4_u(op, "object_id") &&
+        lv4_map_slot_guarded(fn, base, producer->id) &&
+        lv4_slot_borrow_readable(in, fn, base, state, use) &&
+        lv4_field_interval(fn, use, lv4_u(term, "normal"), base,
+            lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), 0, LV4_FIELD_BORROW_SLOT);
+  }
   return base && base->kind == LV4_HANDLE &&
       lv4_readable_object(in, fn, base->id, state, use, lv4_u(op, "object_id"), 1) &&
       lv4_field_interval(fn, use, lv4_u(term, "normal"), base,

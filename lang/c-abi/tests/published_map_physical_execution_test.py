@@ -366,6 +366,84 @@ def field_keys_program(text_snapshot=False, text_replace=False):
     return data
 
 
+def guarded_map_field_program(has_payload):
+    """Physical-only Map slot guard and nested nullable field borrow."""
+    data, graph = field_keys_program(), Graph()
+    parent = graph.invoke(dict(kind="new_box", object_id=0), [], True)
+    release = dict(kind="home_release", object_id=0, value=parent)
+    graph.invoke(dict(kind="birth_call", call=dict(target=1, receiver=parent, args=[], dst=None)),
+                 [dict(kind="reclaim_unpublished", object_id=0, value=parent)])
+    field_end = dict(kind="field_residence_release", object_id=0, field_ordinal=0,
+                     base=parent, transaction="take_dynamic")
+    if has_payload:
+        payload = graph.invoke(dict(kind="new_box", object_id=1), [field_end, release], True)
+        null = graph.value; graph.value += 1; graph.row(graph.current, dict(op="const_null", dst=null))
+        graph.invoke(dict(kind="birth_call", call=dict(target=2, receiver=payload,
+                     args=[dict(kind=0, value=null)], dst=None)),
+                     [dict(kind="reclaim_unpublished", object_id=1, value=payload), field_end, release])
+        payload_end = dict(kind="home_release", object_id=1, value=payload)
+        payload_field_end = dict(kind="field_residence_release", object_id=1, field_ordinal=0,
+                                 base=payload, transaction="take_dynamic")
+        outcome = graph.invoke(dict(kind="map_field_install_indexed", object_id=0, field_ordinal=0,
+            base=parent, key=dict(kind="static_text", utf8="k"), payload_object_id=1, value=payload),
+            [payload_field_end, payload_end, field_end, release], True)
+        graph.invoke(dict(kind="map_end_outcome", outcome=outcome), [field_end, release])
+    value = graph.invoke(dict(kind="map_field_get_indexed", object_id=0, field_ordinal=0,
+        base=parent, key=dict(kind="static_text", utf8="k"), payload_object_id=1), [field_end, release], True)
+    null = graph.value; graph.value += 1; graph.row(graph.current, dict(op="const_null", dst=null))
+    compare = graph.value; graph.value += 1
+    graph.row(graph.current, dict(op="borrowed_null_compare", dst=compare, lhs=value, rhs=null, predicate="eq"))
+    missing, present = graph.block(), graph.block()
+    graph.term(graph.current, {"op": "branch", "condition": compare, "then": missing["id"],
+                               "else": present["id"], "then_args": None, "else_args": None})
+    graph.current["edges"] = [dict(target=missing["id"], args=None), dict(target=present["id"], args=None)]
+    graph.current = present
+    child = graph.invoke(dict(kind="object_field_borrow", object_id=1, field_ordinal=0, base=value,
+                              expected_object_id=2, nullable=True), [field_end, release], True)
+    child_null = graph.value; graph.value += 1
+    graph.row(graph.current, dict(op="borrowed_null_compare", dst=child_null, lhs=child, rhs=null, predicate="eq"))
+    child_missing, child_present = graph.block(), graph.block()
+    graph.term(graph.current, {"op": "branch", "condition": child_null, "then": child_missing["id"],
+                               "else": child_present["id"], "then_args": None, "else_args": None})
+    graph.current["edges"] = [dict(target=child_missing["id"], args=None), dict(target=child_present["id"], args=None)]
+    for block, result in ((child_missing, 30), (child_present, 2)):
+        graph.current = block
+        output = graph.value; graph.value += 1
+        graph.row(graph.current, dict(op="const_i64", dst=output, value=result))
+        graph.invoke(field_end, [release]); graph.invoke(release, [])
+        graph.term(graph.current, dict(op="return", value=output))
+    graph.current = missing
+    zero = graph.value; graph.value += 1; graph.row(graph.current, dict(op="const_i64", dst=zero, value=0))
+    graph.invoke(field_end, [release]); graph.invoke(release, [])
+    graph.term(graph.current, dict(op="return", value=zero))
+    data["functions"][0]["blocks"] = graph.blocks
+    data["layouts"].extend([
+        dict(object_id=1, runtime_type_id=901, field_count=1,
+             fields=[dict(declaration_ordinal=0, runtime_slot=0, storage_kind=12)],
+             owned_residences=[], owned_object_residences=[]),
+        dict(object_id=2, runtime_type_id=902, field_count=0, fields=[],
+             owned_residences=[], owned_object_residences=[])])
+    if has_payload:
+        birth = Graph()
+        birth.current["instructions"][0]["instruction"]["mode"] = "borrowed"
+        birth.current["instructions"][1]["instruction"] = dict(op="const_unit", dst=1)
+        birth.invoke(dict(kind="field_set", object_id=1, field_ordinal=0, base=10, value=11,
+            transaction="dynamic_value_initialize", value_tag="nullable_object", residence="object_home",
+            residence_object_id=2, exact_numeric_runtime_check=dict(kind="none")), [])
+        birth.term(birth.current, dict(op="return", value=1))
+        data["functions"].append(dict(name="Payload.birth/1", role="birth_unit", entry=0,
+            params=[dict(value=11, representation="nullable_kind_payload_v1")], receiver=10,
+            receiver_object=None, blocks=birth.blocks))
+    site = 0
+    for function in data["functions"]:
+        for block in function["blocks"]:
+            op = block["terminator"]["instruction"].get("operation", {})
+            if "site" in op:
+                op["site"] = site; site += 1
+    data["process_result_site"] = site
+    return data
+
+
 with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     work = Path(directory)
     library_dir = Path(os.environ.get("HAKO_TEST_FFI_DIR", ROOT / "target/release"))
@@ -393,6 +471,70 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
         result = compile_input(data, False)
         assert marker in result.stderr, (marker, result.stderr)
         return result
+
+    # The same nullable Map Get selects the correct branch, and only the
+    # nonnull branch can read a child field. These are physical inputs.
+    for present in (False, True):
+        guarded = guarded_map_field_program(present)
+        compile_input(guarded)
+        checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+        result = run([exe], env=env)
+        assert result.returncode == (30 if present else 0), (present, result.returncode, result.stderr)
+        if present:
+            fault_main = work / "guard-fault.c"
+            fault_main.write_text('''#include "nyrt_fault_v1.h"
+#include <assert.h>
+extern long ny_main(void);
+static int faulted, sequence[8], count;
+extern uint32_t real_take(void*, uint32_t, uint64_t, int64_t, int64_t, size_t, void*)
+    __asm__("__real_nyash.object.checked_dynamic_take_v1");
+uint32_t wrap_take(void*, uint32_t, uint64_t, int64_t, int64_t, size_t, void*)
+    __asm__("__wrap_nyash.object.checked_dynamic_take_v1");
+uint32_t wrap_take(void* f, uint32_t p, uint64_t s, int64_t v, int64_t t, size_t k, void* out) {
+  if (faulted) { assert(count < 8); sequence[count++] = (int)t; }
+  return real_take(f, p, s, v, t, k, out);
+}
+extern uint32_t real_home(void*, uint32_t, uint64_t, int64_t, int64_t)
+    __asm__("__real_nyash.object.home_release_completed_fields_v1");
+uint32_t wrap_home(void*, uint32_t, uint64_t, int64_t, int64_t)
+    __asm__("__wrap_nyash.object.home_release_completed_fields_v1");
+uint32_t wrap_home(void* f, uint32_t p, uint64_t s, int64_t v, int64_t t) {
+  if (faulted) { assert(count < 8); sequence[count++] = 1000 + (int)t; }
+  return real_home(f, p, s, v, t);
+}
+extern int32_t real_report(const void*) __asm__("__real_nyash.fault.report_final_v1");
+int32_t wrap_report(const void*) __asm__("__wrap_nyash.fault.report_final_v1");
+int32_t wrap_report(const void* frame) {
+  const NyrtFaultFrameV1* f = frame;
+  assert(f->primary.reason == 9901);
+  assert(count == 4 && sequence[0] == 900 && sequence[1] == 901 &&
+         sequence[2] == 1901 && sequence[3] == 1900);
+  return real_report(frame);
+}
+uint32_t fail_borrow(void*, uint32_t, uint64_t, int64_t, int64_t, size_t, int64_t, uint32_t, int64_t*)
+    __asm__("__wrap_nyash.object.checked_object_field_borrow_v1");
+uint32_t fail_borrow(void* frame, uint32_t profile, uint64_t site, int64_t base,
+    int64_t type, size_t field, int64_t child, uint32_t nullable, int64_t* out) {
+  (void)profile; (void)base; (void)type; (void)field; (void)child; (void)nullable; (void)out;
+  faulted = 1; count = 0;
+  return nyrt_fault_record_static_v1(frame, 9901, site, 0, 0);
+}
+int main(void) { return (int)ny_main(); }
+''')
+            checked(["cc", fault_main, obj, ARCHIVE, "-I" + str(ROOT / "include"),
+                     "-Wl,--wrap=nyash.object.checked_object_field_borrow_v1",
+                     "-Wl,--wrap=nyash.object.checked_dynamic_take_v1",
+                     "-Wl,--wrap=nyash.object.home_release_completed_fields_v1",
+                     "-Wl,--wrap=nyash.fault.report_final_v1",
+                     "-ldl", "-lpthread", "-lm", "-o", exe])
+            result = run([exe], env=env)
+            assert result.returncode == 70, (result.returncode, result.stderr)
+        wrong_edge = copy.deepcopy(guarded)
+        compare = next(row["instruction"] for b in wrong_edge["functions"][0]["blocks"]
+                       for row in b["instructions"] if row["instruction"]["op"] == "borrowed_null_compare")
+        compare["predicate"] = "ne"
+        compile_input(wrong_edge, False)
+    print("Map payload null guard -> child borrow: present/missing execute; wrong edge rejects")
 
     # Padding puts the Map transfer beyond the former256-block/state domain.
     for keys, padding in [([], 0), (["a"], 0), (["a", "b"], 0), (["a", "a"], 0),

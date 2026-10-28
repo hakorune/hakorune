@@ -186,6 +186,74 @@ static yyjson_val* lv4_object_field_borrow_operation(hako_lv4_function_index* fn
   return lv4_is(op, "kind", "object_field_borrow") ? op : NULL;
 }
 
+/* A path query over the indexed physical CFG. A negative result is a proven
+ * absence, while malformed edges or allocation failure remain unknown. */
+static int lv4_guard_path(hako_lv4_function_index* fn, uint32_t start, uint32_t target,
+    int cut, uint32_t guard, uint32_t use) {
+  hako_lv4_block* first = lv4_index_block(fn, start);
+  if (!first || !lv4_index_block(fn, target) || !fn->block_count) return -1;
+  unsigned char* seen = lv4_checked_calloc(fn->block_count, sizeof(*seen));
+  size_t* queue = lv4_checked_calloc(fn->block_count, sizeof(*queue));
+  if (!seen || !queue) { free(seen); free(queue); return -1; }
+  size_t head = 0, tail = 0, ordinal = (size_t)(first - fn->blocks);
+  seen[ordinal] = 1; queue[tail++] = ordinal;
+  int result = 0;
+  while (head < tail) {
+    hako_lv4_block* current = &fn->blocks[queue[head++]];
+    if (current->id == target) { result = 1; break; }
+    if (cut && (current->id == guard || current->id == use)) continue;
+    yyjson_val* edges = yyjson_obj_get(current->block, "edges");
+    if (!yyjson_is_arr(edges)) { result = -1; break; }
+    yyjson_arr_iter iter = yyjson_arr_iter_with(edges); yyjson_val* edge;
+    while ((edge = yyjson_arr_iter_next(&iter))) {
+      uint32_t id;
+      if (!hako_physical_u32(yyjson_obj_get(edge, "target"), &id)) { result = -1; break; }
+      hako_lv4_block* next = lv4_index_block(fn, id);
+      if (!next) { result = -1; break; }
+      ordinal = (size_t)(next - fn->blocks);
+      if (!seen[ordinal]) { seen[ordinal] = 1; queue[tail++] = ordinal; }
+    }
+    if (result < 0) break;
+  }
+  free(seen); free(queue); return result;
+}
+
+/* Only an actual comparison and its nonnull edge lend a Map payload view.
+ * This checks no lifetime or callee effects; the slot owner still does so. */
+static int lv4_map_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t use) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (!root || root->kind != LV4_SLOT_BORROW ||
+      !lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
+  hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+  if (!lv4_is(op, "kind", "map_field_get_indexed") ||
+      lv4_guard_path(fn, lv4_u(fn->function, "entry"), use, 0, 0, 0) != 1) return 0;
+  for (size_t i = 0; i < fn->block_count; i++) {
+    hako_lv4_block* block = &fn->blocks[i]; yyjson_val* term = lv4_term(block->block);
+    if (!lv4_is(term, "op", "branch")) continue;
+    hako_lv4_value* condition = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(term, "condition")));
+    if (!condition || condition->definition_block != block->block ||
+        !lv4_is(condition->instruction, "op", "borrowed_null_compare")) continue;
+    yyjson_val* cmp = condition->instruction;
+    hako_lv4_value* left = lv4_index_value(fn, lv4_u(cmp, "lhs"));
+    hako_lv4_value* right = lv4_index_value(fn, lv4_u(cmp, "rhs"));
+    if (!left || !right) continue;
+    int left_null = lv4_is(left->instruction, "op", "const_null");
+    int right_null = lv4_is(right->instruction, "op", "const_null");
+    if (left_null == right_null || lv4_value_alias_root(fn, left_null ? right : left) != root) continue;
+    int eq = lv4_is(cmp, "predicate", "eq"), ne = lv4_is(cmp, "predicate", "ne");
+    if (eq == ne) continue;
+    uint32_t present = lv4_u(term, eq ? "else" : "then");
+    if (lv4_u(term, "then") == lv4_u(term, "else") ||
+        hako_physical_predecessor_count(fn->function, present) != 1 ||
+        !hako_physical_block_dominates(fn->function, producer->id, block->id) ||
+        !hako_physical_block_dominates(fn->function, present, use) ||
+        lv4_guard_path(fn, present, producer->id, 1, block->id, use) != 0) continue;
+    return 1;
+  }
+  return 0;
+}
+
 static int lv4_readable_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
     uint32_t id, const hako_lv4_state* state, uint32_t use, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
