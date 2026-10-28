@@ -168,3 +168,24 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 }
+
+impl LocalFieldReadSourceV1 {
+    /// Operation loans retain the original alias and sole provider; they do not
+    /// themselves grant emission or extend the supporting receiver's lifetime.
+    pub(in crate::mir::normal_callable_semantic_package) fn with_array_reads(
+        original: &Rc<Self>, reads: Vec<Rc<super::super::CheckedFieldArrayAccessSourceV1>>,
+    ) -> Result<Rc<Self>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
+        let LocalFieldReadResultV1::BorrowedArray(alias) = original.result() else {
+            return Err(fault("array-source-drift"));
+        };
+        if alias.fixed_source_v1().is_none() || !original.array_reads.is_empty()
+            || reads.iter().any(|read| read.receiver_alias_v1() != Some(alias)
+                || read.field() != original.field || !(read.is_count() || read.is_dynamic_get())) {
+            return Err(fault("array-source-drift"));
+        }
+        let mut source = original.as_ref().clone();
+        source.array_reads = reads;
+        Ok(Rc::new(source))
+    }
+}
