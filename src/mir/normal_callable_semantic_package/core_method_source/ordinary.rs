@@ -13,6 +13,17 @@ pub(in crate::mir::normal_callable_semantic_package) struct OrdinaryCoreSourceCa
     source: VerifiedResolverOrdinaryCoreMethodSourceV1,
 }
 impl OrdinaryCoreSourceCallV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn is_array_dynamic_get_v1(&self) -> bool {
+        self.source.target().schema()
+                == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead
+            && self.source.target().row().row().op
+                == crate::mir::core_method_op::CoreMethodOp::ArrayGet
+            && self.operands.field_array_access_v1().is_some_and(|access| access.is_dynamic_get())
+    }
+    /// A payload class only; the physical Get result remains an owned carrier.
+    pub(in crate::mir::normal_callable_semantic_package) fn proves_text_result_v1(&self) -> bool {
+        self.operands.result_sum_v1().text_only()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn source(
         &self,
     ) -> &VerifiedResolverOrdinaryCoreMethodSourceV1 {
@@ -298,7 +309,7 @@ impl ExpressionCoreSourceLoanV1 {
     }
     /// A payload class only; the physical Get result remains an owned carrier.
     pub(crate) fn proves_text_result_v1(&self) -> bool {
-        self.original.operands.result_sum_v1().text_only()
+        self.original.proves_text_result_v1()
     }
     pub(crate) fn field_array_access_v1(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>> {
         self.original.operands.field_array_access_v1()
@@ -312,11 +323,7 @@ impl ExpressionCoreSourceLoanV1 {
             self.source().target().result() == Result::DynamicToCaller && self.is_array_dynamic_get_v1()
     }
     pub(crate) fn is_array_dynamic_get_v1(&self) -> bool {
-        self.source().target().schema()
-                == crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::ArrayDynamicRead
-            && self.source().target().row().row().op
-                == crate::mir::core_method_op::CoreMethodOp::ArrayGet
-            && self.field_array_access_v1().is_some_and(|access| access.is_dynamic_get())
+        self.original.is_array_dynamic_get_v1()
     }
 }
 

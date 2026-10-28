@@ -324,6 +324,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
     {
         if core.source().target().result()
             != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller
+            && !(core.is_array_dynamic_get_v1() && core.proves_text_result_v1())
         {
             return Ok(None);
         }

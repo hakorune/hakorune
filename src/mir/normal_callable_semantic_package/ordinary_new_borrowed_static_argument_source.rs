@@ -175,7 +175,7 @@ impl ArgumentExpressionSourceLoanV1 {
     }
     pub(crate) fn text_operand_is(&self, site: &SourceExprSiteV1) -> bool {
         self.calls.values().filter_map(ArgumentMethodSourceV1::core).any(|receipt| {
-            let core = receipt.source(); site == core.source().receiver_site()
+            let core = receipt.source(); site == core.source().receiver_site() && !receipt.is_array_dynamic_get_v1()
                 || core.source().arguments().iter().zip(core.target().parameters()).any(|(arg, kind)|
                     *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
         }) || !self.i64_result && self.resolver_source().is_none() && self.plan.nodes_outside_calls().any(|(_, node)| node.site() == site
