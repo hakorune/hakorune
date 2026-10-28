@@ -36,7 +36,7 @@ pub(super) struct EmittedExpressionBodyV1 {
     pub(super) values: Vec<Option<EvaluatedExpressionValueV1>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     pub(super) dynamic_calls: Vec<Rc<EmittedDynamicInvocationCallProjectionV1>>,
-    pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
+    pub(super) path_reads: Vec<Rc<crate::mir::builder::ExactLexicalReadV1>>,
     pub(super) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     pub(super) acquired: Vec<(usize, ValueId)>,
     pub(super) dynamic_carriers: Vec<(usize, ValueId)>,
@@ -568,7 +568,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     }
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
-    Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls, path_reads, reference_reads, acquired,
+    Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls,
+        path_reads: path_reads.into_values().collect(), reference_reads, acquired,
         dynamic_carriers, temporary_order, homes, fault_frame, entry, bindings })
 }
 

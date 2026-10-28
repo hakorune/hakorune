@@ -51,7 +51,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     };
     let body = expression.body;
     ledger.retain_return_expression_v1(source, value, body.values, body.calls,
-        body.path_reads.into_values().collect(), body.reference_reads, body.entry, terminal, continuation,
+        body.path_reads, body.reference_reads, body.entry, terminal, continuation,
         expression.purpose_acquisition, after_residency, body.bindings,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     emit_root_home_exit(builder, state, ledger, owner, &site, value)

@@ -57,7 +57,7 @@ pub(in crate::mir::builder) fn emit(
     let mut unique = Vec::with_capacity(bindings.len());
     for binding in bindings { if !unique.contains(&binding) { unique.push(binding); } }
     let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-    let packet = Rc::new(EmittedPrintExpressionProjectionV1::new(frame, values, calls, path_reads.into_values().collect(), reference_reads, entry, print,
+    let packet = Rc::new(EmittedPrintExpressionProjectionV1::new(frame, values, calls, path_reads, reference_reads, entry, print,
         continuation, unique.clone(), ledger, function)?);
     ledger.prepare_print_expression_bindings(owner, packet, unique)?.commit()
 }

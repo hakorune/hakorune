@@ -167,7 +167,7 @@ pub(in crate::mir::builder) fn emit_with_checked_frame(
         expression.body.values,
         expression.body.calls,
         expression.body.dynamic_calls,
-        expression.body.path_reads.into_values().collect(),
+        expression.body.path_reads,
         expression.body.reference_reads,
         expression.body.entry,
         terminal,

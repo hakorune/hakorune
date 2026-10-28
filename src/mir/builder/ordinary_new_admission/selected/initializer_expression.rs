@@ -67,7 +67,7 @@ impl PendingEvaluatedInitializerV1 {
         if let Some(copy) = receipt.copy() { bindings.push(copy.clone()); }
         let packet = Rc::new(EmittedInitializerExpressionProjectionV1::new(self.frame,
             receipt.initializer(), receipt.local(), receipt.copy().cloned(), expression.body.values,
-            expression.body.calls, expression.body.dynamic_calls, expression.body.path_reads.into_values().collect(), expression.body.reference_reads,
+            expression.body.calls, expression.body.dynamic_calls, expression.body.path_reads, expression.body.reference_reads,
             expression.body.entry, self.terminal, self.continuation, self.loop_residency, expression.purpose_acquisition,
             expression.body.bindings, ledger, function)?);
         ledger.prepare_initializer_expression_bindings(packet, bindings)?.commit()

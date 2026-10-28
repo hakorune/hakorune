@@ -40,7 +40,7 @@ pub(super) fn materialize_arguments(
             let payload = BirthArgumentV1::Text(expression.value.as_operand()?.clone());
             let body = expression.body;
             let packet = Rc::new(EmittedNewExpressionV1::new(Rc::clone(evaluation), body.values, body.calls,
-                body.path_reads.into_values().collect(), body.reference_reads, body.acquired,
+                body.path_reads, body.reference_reads, body.acquired,
                 body.entry, terminal, continuation, body.bindings));
             packet.validate_emitted_v1(row, &payload, ledger,
                 builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, Some(&inherited))?;
@@ -501,7 +501,7 @@ mod tests {
                         assert!(crate::mir::normal_callable_semantic_package::validate_expression_acquisition_prefix_v1(frame.evaluation(), None, &acquired, &values, &changed).is_err(),
                             "source acquisition/physical producer mutation {mutation}");
                     }
-                    let reads: Vec<_> = std::mem::take(&mut emitted.body.path_reads).into_values().collect();
+                    let reads: Vec<_> = std::mem::take(&mut emitted.body.path_reads);
                     let view = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.body.values, &emitted.body.calls, &reads, &emitted.body.reference_reads, &emitted.body.bindings);
                     let context = CallValidationContextV1::Lowering(&ledger);
                     view.validate_source(context).unwrap();
