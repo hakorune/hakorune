@@ -56,7 +56,9 @@ impl FinalizedRootSourceHandoffV1 {
             for (site, source, original) in &originals {
                 let mut provider_key = None;
                 if let LocalFieldReadResultV1::BorrowedArray(array) = source.result() {
-                    let requirement = array.integer_requirement_v1().ok_or_else(|| freeze("finished-array-field/source-membership"))?;
+                    let requirement = array.integer_requirement_v1().ok_or_else(|| format!(
+                        "{} site={site:?} field={:?} borrowed-array requirement unavailable",
+                        freeze("finished-array-field/source-membership"), source.field()))?;
                     if requirement.owner() != owner || requirement.field_site() != site.site()
                         || requirement.field() != source.field()
                     { return Err(freeze("finished-array-field/source-membership")); }
@@ -69,10 +71,33 @@ impl FinalizedRootSourceHandoffV1 {
                     }
                     provider_key = Some(requirement.provider_caller());
                 } else if let LocalFieldReadResultV1::ArrayField(array) = source.result() {
-                    // Direct Core receivers still owe final operation/residence
-                    // correspondence. Canonical field identity alone is no lease.
-                    if !source.array_operation_sources_v1().is_empty() {
-                        return Err(freeze("finished-array-field/source-membership"));
+                    for operation in source.array_operation_sources_v1() {
+                        operation.recheck_census(owner, &self.ledger.array_i64_fields)?;
+                        if !operation.borrows_direct_receiver_v1(array) || operation.receiver() != site {
+                            return Err(freeze("finished-array-field/source-membership"));
+                        }
+                        let exits = self.ledger.root_exits.borrow();
+                        let mut matched = false;
+                        for ((exit_owner, key), progress) in exits.iter().filter(|((exit_owner, _), _)| *exit_owner == owner) {
+                            let order = match progress {
+                                RootHomeExitProgress::Emitted { order, .. } | RootHomeExitProgress::Finalized(order) => order,
+                                _ => continue,
+                            };
+                            let Some(expression) = order.return_expression_v1() else { continue; };
+                            expression.require_source_v1(*exit_owner, key.explicit_site()
+                                .ok_or_else(|| freeze("finished-array-field/source-membership"))?)?;
+                            if let Some(receiver) = expression.array_operation_receiver_v1(operation,
+                                CallValidationContextV1::Finalized(self), function, projection)? {
+                                if matched || original.1.dst_value() != Some(receiver) {
+                                    return Err(freeze("finished-array-field/source-membership"));
+                                }
+                                matched = true;
+                            }
+                        }
+                        if !matched || provider_key.is_some_and(|key| key != operation.provider()) {
+                            return Err(freeze("finished-array-field/source-membership"));
+                        }
+                        provider_key = Some(operation.provider());
                     }
                     if array.site() != site || array.field() != source.field() || !module.canonical_array_field(source.field()) {
                         return Err(freeze("finished-array-field/source-membership"));

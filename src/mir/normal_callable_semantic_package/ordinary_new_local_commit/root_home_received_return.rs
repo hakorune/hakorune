@@ -479,6 +479,34 @@ impl ReturnExpressionEmissionV1 {
         Ok(count == 1)
     }
 
+    /// Lend one retained Return Core's receiver after complete final validation.
+    /// Operation equality includes its original call, provider and writer loans.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_operation_receiver_v1(
+        &self, operation: &std::rc::Rc<super::super::super::CheckedFieldArrayAccessSourceV1>,
+        context: CallValidationContextV1<'_>, function: &MirFunction, projection: &FinishedBindings,
+    ) -> Result<Option<ValueId>, String> {
+        let mut cores = self.source.cores().values().filter(|core|
+            core.field_array_access_v1().is_some_and(|source| source.as_ref() == operation.as_ref()));
+        let Some(core) = cores.next() else { return Ok(None); };
+        if cores.next().is_some() { return Err(freeze("finished-array-field/source-membership")); }
+        self.validate(context, function, Some(projection))?;
+        let expected = super::super::super::checked_expression_core_operation_v1(core, &self.values)?;
+        let InvokeOperation::DynamicArrayGet { array, .. } = expected else {
+            return Err(freeze("finished-array-field/source-membership"));
+        };
+        let Some(Some(EvaluatedExpressionValueV1::Operand(crate::mir::instruction::StringInvokeOperand::DynamicCarrier(value))))
+            = self.values.get(core.node()) else { return Err(freeze("finished-array-field/source-membership")); };
+        let expression = self.expression();
+        let normal = expression.require_unique(|row| matches!(row,
+            MirInstruction::InvokeNormalResult { dst, .. } if dst == value))?;
+        let MirInstruction::InvokeNormalResult { invoke_block, .. } = normal.1 else { unreachable!() };
+        expression.require_unique(|row| matches!(row, MirInstruction::Invoke { operation, normal_landing, .. }
+            if operation == &expected && *normal_landing == normal.0))
+            .and_then(|invoke| if invoke.0 == invoke_block { Ok(()) }
+                else { Err(freeze("finished-array-field/source-membership")) })?;
+        Ok(Some(array))
+    }
+
     fn expression(&self) -> super::ExpressionPhysicalProjectionRefV1<'_> {
         super::ExpressionPhysicalProjectionRefV1::new(
             &self.source,
