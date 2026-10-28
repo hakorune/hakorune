@@ -175,7 +175,7 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                     }
                 }
                 if matches!(candidate.value, BorrowedCallActualValueV1::FieldAccess) {
-                    if let Some((read, _get, declared)) =
+                    if let Some((read, get, declared)) =
                         ingress.original_map_field_actual_source_v1(&call.call, ordinal, site)?
                     {
                         if read.site() != site {
@@ -186,7 +186,7 @@ pub(super) fn reconstruct_instance_source_actuals_v1(
                             .ok_or_else(|| freeze("borrowed-instance/map-field-class"))?;
                         return Ok(Some(BorrowedFormalActualSourceV1::Read(
                             crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_map_field_v1(
-                                read.clone(), class,
+                                read.clone(), class, get.clone(), Rc::clone(declared),
                             ),
                         )));
                     }

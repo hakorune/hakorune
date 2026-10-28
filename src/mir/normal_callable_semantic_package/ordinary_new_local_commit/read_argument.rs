@@ -12,10 +12,23 @@ type Binding = (BasicBlockId, MirInstruction);
 enum ReadSourceKindV1 {
     Array(OwnedArrayReadSourceLoanV1),
     Field(Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>),
-    /// Original Map-held payload field read. The seed owner keeps the get and
-    /// declared field source; this loan carries only the read site and class.
-    MapField { read: crate::mir::resolved_semantics::OwnedExprSiteV1, class: Box<str> },
+    /// Original Map-held payload field read, without any live-borrow authority.
+    MapField(MapFieldSourceV1),
 }
+#[derive(Debug, Clone)]
+struct MapFieldSourceV1 {
+    read: OwnedExprSiteV1,
+    class: Box<str>,
+    get: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
+    field: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>,
+}
+impl PartialEq for MapFieldSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.read == other.read && self.class == other.class && self.get == other.get
+            && Rc::ptr_eq(&self.field, &other.field)
+    }
+}
+impl Eq for MapFieldSourceV1 {}
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ReadActualSourceLoanV1 {
     kind: ReadSourceKindV1,
@@ -35,18 +48,20 @@ impl ReadActualSourceLoanV1 {
         Ok(Self { kind: ReadSourceKindV1::Field(source) })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn from_map_field_v1(
-        read: crate::mir::resolved_semantics::OwnedExprSiteV1, class: Box<str>,
+        read: OwnedExprSiteV1, class: Box<str>,
+        get: crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1,
+        field: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>,
     ) -> Self {
-        Self { kind: ReadSourceKindV1::MapField { read, class } }
+        Self { kind: ReadSourceKindV1::MapField(MapFieldSourceV1 { read, class, get, field }) }
     }
     pub(crate) fn is_map_field_v1(&self) -> bool {
-        matches!(self.kind, ReadSourceKindV1::MapField { .. })
+        matches!(self.kind, ReadSourceKindV1::MapField(_))
     }
     /// Only the read-argument emitter borrows this specialized issuer input.
     pub(crate) fn array_source_v1(&self) -> Option<&OwnedArrayReadSourceLoanV1> {
         match &self.kind {
             ReadSourceKindV1::Array(source) => Some(source),
-            ReadSourceKindV1::Field(_) | ReadSourceKindV1::MapField { .. } => None,
+            ReadSourceKindV1::Field(_) | ReadSourceKindV1::MapField(_) => None,
         }
     }
     pub(in crate::mir) fn field_parts_v1(&self) -> Option<(
@@ -54,7 +69,7 @@ impl ReadActualSourceLoanV1 {
         BindingRefV1, &crate::mir::resolved_semantics::SourceExprSiteV1,
     )> {
         match &self.kind {
-            ReadSourceKindV1::Array(_) | ReadSourceKindV1::MapField { .. } => None,
+            ReadSourceKindV1::Array(_) | ReadSourceKindV1::MapField(_) => None,
             ReadSourceKindV1::Field(source) => {
                 let loan = source.returned_argument_v1().expect("checked Field source").2;
                 Some((source, loan.parent(), loan.receiver_site()))
@@ -65,7 +80,7 @@ impl ReadActualSourceLoanV1 {
         match &self.kind {
             ReadSourceKindV1::Array(source) => source.site(),
             ReadSourceKindV1::Field(source) => source.returned_argument_v1().expect("checked Field source").2.read(),
-            ReadSourceKindV1::MapField { read, .. } => read,
+            ReadSourceKindV1::MapField(source) => &source.read,
         }
     }
     pub(crate) fn class(&self) -> &str {
@@ -73,7 +88,7 @@ impl ReadActualSourceLoanV1 {
             ReadSourceKindV1::Array(source) => source.class(),
             ReadSourceKindV1::Field(source) => source.returned_argument_v1().expect("checked Field source").2.class()
                 .expect("checked Field class"),
-            ReadSourceKindV1::MapField { class, .. } => class,
+            ReadSourceKindV1::MapField(source) => &source.class,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates_method_source_v1(
@@ -82,7 +97,7 @@ impl ReadActualSourceLoanV1 {
         match &self.kind {
             ReadSourceKindV1::Array(source) => source.recipe.original_read_v1(source.site())
                 .is_some_and(|original| original.corroborates_method_source_v1(method)),
-            ReadSourceKindV1::Field(_) | ReadSourceKindV1::MapField { .. } => false,
+            ReadSourceKindV1::Field(_) | ReadSourceKindV1::MapField(_) => false,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates_array_input_v1(
@@ -91,7 +106,7 @@ impl ReadActualSourceLoanV1 {
         match &self.kind {
             ReadSourceKindV1::Array(source) => source.site() == original.read()
                 && source.recipe.original_read_v1(source.site()) == Some(original),
-            ReadSourceKindV1::Field(_) | ReadSourceKindV1::MapField { .. } => false,
+            ReadSourceKindV1::Field(_) | ReadSourceKindV1::MapField(_) => false,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates_field_input_v1(
@@ -101,7 +116,7 @@ impl ReadActualSourceLoanV1 {
         match &self.kind {
             ReadSourceKindV1::Field(source) => source.returned_argument_v1()
                 .is_some_and(|(actual_call, actual_ordinal, loan)| actual_call == call && actual_ordinal == ordinal && loan == original),
-            ReadSourceKindV1::Array(_) | ReadSourceKindV1::MapField { .. } => false,
+            ReadSourceKindV1::Array(_) | ReadSourceKindV1::MapField(_) => false,
         }
     }
 }
@@ -150,7 +165,7 @@ impl EmittedReadArgumentV1 {
             (EmittedReadKindV1::Field(read), ReadSourceKindV1::Field(source)) => read.value(call, source, context),
             (EmittedReadKindV1::Array(_), ReadSourceKindV1::Field(_))
             | (EmittedReadKindV1::Field(_), ReadSourceKindV1::Array(_))
-            | (_, ReadSourceKindV1::MapField { .. }) => Err(freeze("read-argument/emitted-source-kind-drift")),
+            | (_, ReadSourceKindV1::MapField(_)) => Err(freeze("read-argument/emitted-source-kind-drift")),
         }
     }
     pub(super) fn validate_field_anchor_ends_v1(
