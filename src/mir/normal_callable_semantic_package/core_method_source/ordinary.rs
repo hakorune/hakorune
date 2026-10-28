@@ -165,6 +165,25 @@ impl PartialEq for ExpressionCoreSourceLoanV1 {
 }
 impl Eq for ExpressionCoreSourceLoanV1 {}
 impl ExpressionCoreSourceLoanV1 {
+    /// A Count has no acquisition/Fault edge. Its receiver must be an evaluated
+    /// source operand, not inferred from a Box name or MIR result type.
+    pub(crate) fn array_count_receiver_v1(&self,
+        values: &[Option<crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1>],
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        if !self.source().target().checked_array_count_law_v1() { return Ok(None); }
+        if !self.matches_plan(self.plan(), self.node()) || self.owns_result()
+            || !self.source().source().arguments().is_empty() || values.len() != self.plan().nodes().len() {
+            return Err("[freeze:contract][expression-core/source-identity]".into());
+        }
+        let receiver = self.source().source().receiver_site();
+        let value = self.plan().nodes().iter().position(|node| node.site() == receiver)
+            .and_then(|node| values[node].as_ref()).and_then(|value| value.as_operand().ok());
+        match value {
+            Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value)) => Ok(Some(*value)),
+            _ => Err("[freeze:contract][ordinary-new/local-commit/expression-core/array-receiver-domain]".into()),
+        }
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn borrows_original_v1(&self, original: &Rc<OrdinaryCoreSourceCallV1>) -> bool {
         Rc::ptr_eq(&self.original, original)
     }

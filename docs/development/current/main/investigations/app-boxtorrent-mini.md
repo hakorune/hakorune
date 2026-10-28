@@ -5,14 +5,14 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 選択smokeはslot65 `chunkListText` の `local ids = me.chunk_ids`（非Integer BorrowedArray）で `ordinary-field-read/checked-dispatch`。現CLIでも同じ停止、EXE未生成。
+- 現CLIの選択smokeはArray alias初期化・Countを通過し、`chunkListText` Loop内Text再代入の `source-loop/text-point-binding`（`phi_lifecycle/txn_abort`）で停止。EXE未生成。
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
-- Array aliasの既存descriptorへ、同じinitializerを使う実Count/DynamicGetと唯一Birth providerのsource loanを保持。物理発行はまだ開かず、source-only拒否pinを維持。原call一覧を到達・生存・完成済みoperationの証拠にしない。
-- 次: 既存expression/Loop packetとsource loanを照合し、初期化時の一回のcanonical readとoperationの親root/field/provider対応をfinalまで接続する。整数専用recipe/仮想ValueIdへ流用しない。共通Core射影のArrayLenとfield alias receiverの物理接続も必要。
+- Array aliasは実Count/Get source loanがある場合だけ初期化時にcanonical readを一回発行。既存exact-read poolで実alias値をCoreへ渡し、Countは既存read recipe/marker/emission会計を使用。snapshot・initializer Copy・使用Copyを実MIR/finisherで照合。source-only拒否pinと最終noninteger aliasの拒否を保持。
+- 次: 分岐後Text carrierのcleanupを既存Loop/branch sourceへ接続する。続けてArrayの全実operationとsnapshotの親root/field/provider・生存を最終consumerで検証する。Count receiptをDynamicGet証明の代用にせず、非integerの最終gateはそれまで開けない。
 - entry loanだけで未知callee中の親生存は証明できない。snapshotとfield再読の同一性、支持Home、Normal/Faultを別々に閉じる。
 - 着地済み: C Map null guard→child borrow（空Map/nullable child/Fault/誤分岐）、異なるslot借用の保守的alias検査、nullable slotの実payload null比較。Rust完成guardの到達・支配・再実行検査は完成時だけ行い、構築中の局所検査を維持。
 - 既存接続: stored-child scalar return、Map keys count、put/readData/refCount、nullable Text需要、Text連結Loop、Null return、DiscardValue、delete。chunkCount独立validator、nullable Text C transport、Bool物理、全体cleanupとEXE実行は未完。
-- 最後の固定suiteは今回WIP前のpinned CLIで10/11（boxtorrentのみ赤）。現ツリーのsuite結果ではない。今回CLI build PASS、既存descriptor test 1/0（Count/Getと未使用aliasを含む）、選択smokeは上記停止。追加既存caseは実Count/Getと別の未使用aliasの非混同を守るため（既存pinだけでは未検証）。
+- 最後の固定suiteは今回WIP前のpinned CLIで10/11（boxtorrentのみ赤）。現ツリーのsuite結果ではない。今回CLI build PASS。descriptor、field-array return、i64物理driftは各1/0。Core source familyは8/3（3赤は未分類、成功扱いしない）。initializer i64の3赤は既存失敗名集合に含まれる。選択smokeは上記停止。追加既存caseは実Count/Getと別の未使用aliasの非混同を守るため（既存pinだけでは未検証）。
 
 ## 採用設計
 - **既存仕様を維持して実装する。null-key の仕様回答はこのアプリの着手条件ではない。** 一般 Dynamic→Map の null 受理は別の未決事項であり、Text-only key の現在の経路へ勝手に stringify / TypeError を導入しない。

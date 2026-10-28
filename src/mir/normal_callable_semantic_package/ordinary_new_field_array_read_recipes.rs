@@ -4,17 +4,57 @@ use crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::named_array_obligation::fault as array_fault;
 impl OrdinaryNewClaimLedgerV1 {
+    /// Borrow the emitted initializer snapshot for this exact operation alias.
+    /// This establishes value identity only; interval/lifetime checks stay final.
+    pub(crate) fn array_alias_operation_read_v1(&self,
+        operation: &super::super::CheckedFieldArrayAccessSourceV1,
+        read: &crate::mir::builder::ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<(ValueId, (BasicBlockId, MirInstruction)), String> {
+        context.require_ledger(self)?;
+        let alias = operation.receiver_alias_v1().ok_or_else(|| array_fault("receiver-source-owner"))?;
+        let (field, _) = alias.fixed_source_v1().ok_or_else(|| array_fault("receiver-source-owner"))?;
+        let rows = self.local_field_reads.borrow();
+        let row = rows.get(field.site()).ok_or_else(|| array_fault("read-original-contract-missing"))?;
+        if row.source.field() != operation.field() || !row.source.array_operation_sources_v1().iter().any(|source| source.as_ref() == operation)
+            || !matches!(row.source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(original) if original == alias) {
+            return Err(array_fault("read-original-caller-drift"));
+        }
+        self.recheck_local_field_source_v1(field.site(), row, context)?;
+        let super::LocalReadProgress::Emitted { block, instruction, source } = &row.progress else {
+            return Err(array_fault("read-physical-cardinality"));
+        };
+        let MirInstruction::ObjectFieldGet { dst, field: actual, .. } = instruction else {
+            return Err(array_fault("read-field-receiver-drift"));
+        };
+        if !Rc::ptr_eq(source, &row.source) || *actual != field.field()
+            || read.loan_local_initializer_v1(alias.binding())?.0 != *dst {
+            return Err(array_fault("read-field-receiver-drift"));
+        }
+        let value = read.value_for(operation.call().owner(), operation.receiver().site().node(), alias.binding())
+            .map_err(|error| error.to_string())?;
+        Ok((value, (*block, instruction.clone())))
+    }
     fn field_array_read_sources_for_owner_v1(&self, owner: FunctionOwnerIdV1)
         -> Result<Vec<Rc<super::super::CheckedFieldArrayAccessSourceV1>>, String> {
         let mut sources = BTreeMap::<OwnedExprSiteV1, Rc<super::super::CheckedFieldArrayAccessSourceV1>>::new();
         let mut insert = |source: &Rc<super::super::CheckedFieldArrayAccessSourceV1>| -> Result<(), String> {
             source.recheck_census(owner, &self.array_i64_fields)?;
             if let Some(original) = sources.get(source.call()) {
-                if !Rc::ptr_eq(original, source) { return Err(array_fault("read-source-conflict")); }
+                if original.as_ref() != source.as_ref() { return Err(array_fault("read-source-conflict")); }
             } else { sources.insert(source.call().clone(), Rc::clone(source)); }
             Ok(())
         };
         for read in self.field_array_return_reads_v1(owner)? { insert(read.read())?; }
+        for (site, row) in self.local_field_reads.borrow().iter().filter(|(site, _)| site.owner() == owner) {
+            for source in row.source.array_operation_sources_v1().iter().filter(|source| source.is_count()) {
+                if source.receiver_alias_v1().and_then(|alias| alias.fixed_source_v1())
+                    .is_none_or(|(field, _)| field.site() != site) {
+                    return Err(array_fault("read-source-conflict"));
+                }
+                insert(source)?;
+            }
+        }
         let mut arguments = |rows: &[OrdinaryNewTrivialArgumentV1]| -> Result<(), String> {
             for row in rows.iter().filter(|row| row.owner() == owner) {
                 if let Some(source) = row.field_array_read() { insert(source.read())?; }

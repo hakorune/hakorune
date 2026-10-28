@@ -194,6 +194,16 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let mut path_slots = std::collections::BTreeMap::new();
     let mut reference_slots = std::collections::BTreeMap::new();
     let mut direct_fields = std::collections::BTreeMap::new();
+    for core in frame.cores().values().filter(|core| order.contains(&core.node())) {
+        let Some(access) = core.field_array_access_v1() else { continue; };
+        let Some(alias) = access.receiver_alias_v1() else { continue; };
+        let site = access.receiver();
+        if path_slots.contains_key(site) { continue; }
+        let read = state.prepare_exact_lexical_read(owner, site.site().node(), alias.binding())
+            .map_err(|error| error.to_string())?;
+        path_slots.insert(site.clone(), pending.len());
+        pending.push(read);
+    }
     // Fulfill every field-root read before any FaultFrame, CFG or value effect.
     // Reservation remains in original source order; binding nested receivers
     // still waits for the actual ancestor field writer below.
@@ -262,8 +272,16 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let mut calls = Vec::new();
     let mut dynamic_calls = Vec::new();
     for &index in &order {
-        if frame.transfers_node(index) { continue; }
         let node = &source.nodes()[index];
+        if let Some(access) = frame.cores().values().filter(|core| order.contains(&core.node()))
+            .filter_map(|core| core.field_array_access_v1())
+            .find(|access| access.receiver_alias_v1().is_some() && access.receiver().site() == node.site()) {
+            let read = path_reads.get(access.receiver()).ok_or_else(|| freeze("expression-value/read-slot"))?;
+            let (value, _) = ledger.array_alias_operation_read_v1(access, read, CallValidationContextV1::Lowering(ledger))?;
+            values[index] = Some(Operand::NormalInteger(value).into());
+            continue;
+        }
+        if frame.transfers_node(index) { continue; }
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
         let site = OwnedExprSiteV1::new(owner, node.site().clone());
@@ -367,6 +385,24 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 observed.operand(frame, index, CallValidationContextV1::Lowering(ledger))?
             }
             Node::MethodCall if frame.cores().contains_key(&index) => {
+                if let Some(receiver) = frame.cores()[&index].array_count_receiver_v1(&values)? {
+                    let dst = builder.next_value_id();
+                    let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+                    let recipe = ledger.field_array_read_recipe_v1(owner, &site)?
+                        .ok_or_else(|| freeze("expression-core/source-identity"))?;
+                    if frame.cores()[&index].field_array_access_v1().is_none_or(|source|
+                        source.as_ref() != recipe.source().as_ref()) {
+                        return Err(freeze("expression-core/source-identity"));
+                    }
+                    let operation = crate::mir::instruction::ArrayReadOperationV1::Count;
+                    let site_id = builder.emit_checked_field_array_read_v1(&recipe, receiver, operation, dst)?;
+                    state.record_field_array_read_v1(recipe, site_id, receiver, operation, dst)?;
+                    bindings.push((block, MirInstruction::ArrayRead { site_id, dst: Some(dst), receiver,
+                        operation: crate::mir::instruction::ArrayReadOperationV1::Count }));
+                    values[index] = Some(Operand::NormalInteger(dst).into());
+                    state.complete_expression_core_source_v1(&frame.cores()[&index])?;
+                    continue;
+                }
                 let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;
                 let value = match operation {
                     InvokeOperation::String(operation) => emit_string_value(builder, &mut writer, operation,

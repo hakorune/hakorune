@@ -229,7 +229,7 @@ impl super::MirBuilder {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
                 | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_) => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array)
-                    if array.integer_requirement_v1().is_none() => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
+                    if array.integer_requirement_v1().is_none() && source.array_operation_sources_v1().is_empty() => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)
@@ -237,7 +237,7 @@ impl super::MirBuilder {
             },
         };
         if let PreparedExactFieldReadClaimV1::Local(source) = &claim {
-            if matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(array)
+            if !source.array_operation_sources_v1().is_empty() || matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(array)
                 if array.text_append_origin_v1().is_some()) {
                 let (dst, binding) = self.append_exact_object_field_read_with_destination_v1(base, field, ty, destination)?;
                 ledger.record_local_field_read_binding(site, binding.0, binding.1.clone(), source)?;

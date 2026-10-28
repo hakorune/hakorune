@@ -124,6 +124,11 @@ impl EmittedFieldArrayReadV1 {
         // Finishing may copy the receiver. Normalize through the shared MIR owner,
         // retaining unique physical definitions rather than granting an alias by name.
         let definitions = crate::mir::value_origin::build_value_def_map(function);
+        let (receiver_root, receiver_chain) = crate::mir::value_origin::trace_value_origin(function, &definitions, self.receiver);
+        if receiver_chain.iter().any(|value| function.blocks.values().flat_map(|block| block.all_instructions())
+            .filter(|instruction| instruction.dst_value() == Some(*value)).count() != 1) {
+            return Err(fault("read-field-receiver-drift"));
+        }
         let is_self = |base| {
             let (root, chain) =
                 crate::mir::value_origin::trace_value_origin(function, &definitions, base);
@@ -157,7 +162,7 @@ impl EmittedFieldArrayReadV1 {
                     }
                     count += 1;
                 }
-                MirInstruction::ObjectFieldGet { dst, base, field } if *dst == self.receiver => {
+                MirInstruction::ObjectFieldGet { dst, base, field } if *dst == receiver_root => {
                     if *field != self.recipe.field() || !is_self(*base) {
                         return Err(fault("read-field-receiver-drift"));
                     }
@@ -165,7 +170,7 @@ impl EmittedFieldArrayReadV1 {
                 }
                 MirInstruction::FieldGet {
                     dst, base, field, ..
-                } if *dst == self.receiver => {
+                } if *dst == receiver_root => {
                     if field != self.recipe.source.field_name() || !is_self(*base) {
                         return Err(fault("read-field-receiver-drift"));
                     }

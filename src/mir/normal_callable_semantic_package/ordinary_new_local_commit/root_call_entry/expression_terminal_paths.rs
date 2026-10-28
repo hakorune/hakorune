@@ -1326,6 +1326,33 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         let roots = self.original_field_roots_v1(context)?;
         for read in self.path_reads {
             let (site, _, _) = read.source_value();
+            if let Some(access) = self.frame.cores().values().filter(|core| self.node_selected(core.node()))
+                .filter_map(|core| core.field_array_access_v1())
+                .find(|access| access.receiver_alias_v1().is_some() && access.receiver() == &site) {
+                let (_, original) = context.ledger().array_alias_operation_read_v1(access, read, context)?;
+                let alias = access.receiver_alias_v1().ok_or_else(|| freeze("print-expression/path-root-source"))?;
+                for dependency in read.loan_local_initializer_v1(alias.binding())?.1.iter()
+                    .chain(read.original_copy_dependencies_v1()?) {
+                    let actual = match finishing {
+                        Some(projection) => projection.relation_binding(function, dependency)?,
+                        None => Some(dependency.clone()),
+                    };
+                    if let Some(actual) = actual {
+                        if !super::super::physical_boundary::check_binding(function, None, actual.0, &actual.1)? {
+                            return Err(freeze("print-expression/path-copy-missing"));
+                        }
+                    }
+                }
+                let actual = match finishing {
+                    Some(projection) => projection.relation_binding(function, &original)?
+                        .ok_or_else(|| freeze("print-expression/required-producer-removed"))?,
+                    None => original,
+                };
+                if !super::super::physical_boundary::check_binding(function, None, actual.0, &actual.1)? {
+                    return Err(freeze("print-expression/path-copy-missing"));
+                }
+                continue;
+            }
             let (_, first) = roots
                 .get(&site)
                 .ok_or_else(|| freeze("print-expression/path-root-source"))?;

@@ -280,6 +280,15 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
             }
         }
+        for access in self.frame.cores().values().filter(|core| self.node_selected(core.node()))
+            .filter_map(|core| core.field_array_access_v1()) {
+            let Some(alias) = access.receiver_alias_v1() else { continue; };
+            let (field, _) = alias.fixed_source_v1().ok_or_else(|| freeze("print-expression/path-root-source"))?;
+            let expected = (alias.binding(), field.site().clone());
+            if roots.insert(access.receiver().clone(), expected.clone()).is_some_and(|previous| previous != expected) {
+                return Err(freeze("print-expression/path-root-source"));
+            }
+        }
         Ok(roots)
     }
 
@@ -330,6 +339,16 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             let value = read
                 .value_for(source.owner(), site.site().node(), *binding)
                 .map_err(|error| error.to_string())?;
+            if let Some(access) = self.frame.cores().values().filter_map(|core| core.field_array_access_v1())
+                .find(|access| access.receiver_alias_v1().is_some() && access.receiver() == &site) {
+                let (actual, _) = ledger.array_alias_operation_read_v1(access, read, context)?;
+                let node = source.nodes().iter().position(|node| node.site() == site.site())
+                    .ok_or_else(|| freeze("print-expression/path-root-source"))?;
+                if actual != value || self.values[node] != Some(Operand::NormalInteger(value).into()) {
+                    return Err(freeze("print-expression/path-root-value"));
+                }
+                continue;
+            }
             ledger.validate_statement_field_root_read_v1(first, read, context)?;
             let emitted = ledger.expression_field_read_bindings_v1(first, source, context)?;
             let mut operations = emitted.iter().filter_map(|(_, row)| match row {
@@ -408,7 +427,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         {
             let node = &source.nodes()[index];
             let value = self.values[index].as_ref();
-            if self.frame.transfers_node(index) {
+            let alias_receiver = self.frame.cores().values().filter(|core| self.node_selected(core.node()))
+                .filter_map(|core| core.field_array_access_v1()).any(|access|
+                    access.receiver_alias_v1().is_some() && access.receiver().site() == node.site());
+            if self.frame.transfers_node(index) && !alias_receiver {
                 if value.is_some() {
                     return Err(freeze("print-expression/transferred-value"));
                 }
@@ -433,6 +455,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             match (node.source(), value) {
                 (Node::Literal(Literal::String(text)), Some(Operand::StaticText { utf8 }))
                     if utf8.as_str() == text.as_ref() => {}
+                (Node::Reference(_), Some(Operand::NormalInteger(_))) if self.frame.node_is_identity(index)
+                    && self.frame.cores().values().filter_map(|core| core.field_array_access_v1())
+                        .any(|access| access.receiver_alias_v1().is_some() && access.receiver().site() == node.site()) => {}
                 (Node::Reference(_), Some(value)) => {
                     let observed = self
                         .reference_reads
@@ -450,6 +475,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     let core = &self.frame.cores()[&index];
                     if !core.matches_plan(source, index) {
                         return Err(freeze("expression-core/source-identity"));
+                    }
+                    if let Some(receiver) = core.array_count_receiver_v1(self.values)? {
+                        let Operand::NormalInteger(dst) = value else { return Err(freeze("expression-core/result-domain")); };
+                        self.require_unique(|row| matches!(row, MirInstruction::ArrayRead { dst: Some(actual), receiver: array,
+                            operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. } if actual == dst && *array == receiver))?;
+                        continue;
                     }
                     let expected = checked_expression_core_operation_v1(core, self.values)?;
                     let dst = match (value, expected.normal_result_kind()) {
@@ -848,6 +879,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     .and_then(EvaluatedExpressionValueV1::value)
                     .ok_or_else(|| freeze("expression-core/result-missing"))?;
                 let result = self.require_unique(|row| row.dst_value() == Some(value))?;
+                if self.frame.cores()[&index].array_count_receiver_v1(self.values)?.is_some() {
+                    ordered.push(result.clone());
+                    continue;
+                }
                 let MirInstruction::InvokeNormalResult { invoke_block, .. } = result.1 else {
                     return Err(freeze("expression-core/projection"));
                 };

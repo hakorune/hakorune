@@ -133,6 +133,9 @@ impl LocalFieldReadSourceV1 {
     pub(crate) fn result(&self) -> &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1 {
         &self.result
     }
+    pub(crate) fn array_operation_sources_v1(&self) -> &[Rc<CheckedFieldArrayAccessSourceV1>] {
+        &self.array_reads
+    }
     pub(crate) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
     fn corroborates_instruction(&self, instruction: &MirInstruction) -> bool {
         use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
@@ -140,6 +143,8 @@ impl LocalFieldReadSourceV1 {
         match (self.result(), instruction) {
             (LocalFieldReadResultV1::BorrowedArray(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
                 source.integer_requirement_v1().is_some_and(|source| source.field() == self.field() && source.field_name() == field && class == "ArrayBox"),
+            (LocalFieldReadResultV1::BorrowedArray(_), MirInstruction::ObjectFieldGet { field, .. }) =>
+                !self.array_reads.is_empty() && *field == self.field(),
             (LocalFieldReadResultV1::BorrowedArray(_), _) => false,
             (LocalFieldReadResultV1::ArrayField(source), MirInstruction::ObjectFieldGet { field, .. })
                 if source.text_append_origin_v1().is_some() => source.field() == self.field() && *field == self.field(),
