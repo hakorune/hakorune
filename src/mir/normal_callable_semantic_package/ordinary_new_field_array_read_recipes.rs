@@ -170,18 +170,23 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl LocalFieldReadSourceV1 {
-    /// Operation loans retain the original alias and sole provider; they do not
-    /// themselves grant emission or extend the supporting receiver's lifetime.
+    /// Actual operation loans grant neither lifetime nor a second physical owner.
     pub(in crate::mir::normal_callable_semantic_package) fn with_array_reads(
         original: &Rc<Self>, reads: Vec<Rc<super::super::CheckedFieldArrayAccessSourceV1>>,
     ) -> Result<Rc<Self>, String> {
         use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
-        let LocalFieldReadResultV1::BorrowedArray(alias) = original.result() else {
-            return Err(fault("array-source-drift"));
+        let admissible = match original.result() {
+            LocalFieldReadResultV1::BorrowedArray(alias) => alias.fixed_source_v1().is_some(),
+            LocalFieldReadResultV1::ArrayField(field) => field.fixed_origin_v1().is_some() && !reads.is_empty(),
+            _ => false,
         };
-        if alias.fixed_source_v1().is_none() || !original.array_reads.is_empty()
-            || reads.iter().any(|read| read.receiver_alias_v1() != Some(alias)
-                || read.field() != original.field || !(read.is_count() || read.is_dynamic_get())) {
+        if !admissible || !original.array_reads.is_empty() || reads.iter().any(|read| {
+            read.field() != original.field || !(read.is_count() || read.is_dynamic_get()) || !match original.result() {
+                LocalFieldReadResultV1::BorrowedArray(alias) => alias.fixed_source_v1().is_some() && read.receiver_alias_v1() == Some(alias),
+                LocalFieldReadResultV1::ArrayField(field) => read.borrows_direct_receiver_v1(field),
+                _ => false,
+            }
+        }) || !matches!(original.result(), LocalFieldReadResultV1::BorrowedArray(_) | LocalFieldReadResultV1::ArrayField(_)) {
             return Err(fault("array-source-drift"));
         }
         let mut source = original.as_ref().clone();

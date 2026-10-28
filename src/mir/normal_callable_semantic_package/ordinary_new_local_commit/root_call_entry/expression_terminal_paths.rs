@@ -1356,6 +1356,22 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             let (_, first) = roots
                 .get(&site)
                 .ok_or_else(|| freeze("print-expression/path-root-source"))?;
+            if source.nodes().iter().enumerate().any(|(index, node)| node.site() == first.site()
+                && self.frame.direct_array_receiver_v1(index).is_some_and(|core| self.node_selected(core.node()))) {
+                let (binding, _) = roots.get(&site).ok_or_else(|| freeze("print-expression/path-root-source"))?;
+                let entry = *function.params.first().ok_or_else(|| freeze("print-expression/path-root-source"))?;
+                for dependency in read.loan_forwarded_copies(*binding, entry)? {
+                    let actual = match finishing {
+                        Some(projection) => projection.relation_binding(function, dependency)?,
+                        None => Some(dependency.clone()),
+                    };
+                    if let Some(actual) = actual {
+                        if !super::super::physical_boundary::check_binding(function, None, actual.0, &actual.1)? {
+                            return Err(freeze("print-expression/path-copy-missing"));
+                        }
+                    }
+                }
+            }
             let bindings = context
                 .ledger()
                 .expression_field_read_bindings_v1(first, source, context)?;

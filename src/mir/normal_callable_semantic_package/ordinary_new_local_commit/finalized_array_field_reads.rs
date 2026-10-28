@@ -69,6 +69,11 @@ impl FinalizedRootSourceHandoffV1 {
                     }
                     provider_key = Some(requirement.provider_caller());
                 } else if let LocalFieldReadResultV1::ArrayField(array) = source.result() {
+                    // Direct Core receivers still owe final operation/residence
+                    // correspondence. Canonical field identity alone is no lease.
+                    if !source.array_operation_sources_v1().is_empty() {
+                        return Err(freeze("finished-array-field/source-membership"));
+                    }
                     if array.site() != site || array.field() != source.field() || !module.canonical_array_field(source.field()) {
                         return Err(freeze("finished-array-field/source-membership"));
                     }

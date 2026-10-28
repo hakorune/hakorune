@@ -271,6 +271,7 @@ fn source_target_for_loop(
         Some(product) => probe
             .with_checked_recipe_call_dispositions_v2(&items, product)
             .map_err(|error| {
+                if crate::config::env::builder_debug_enabled() { eprintln!("[loop-source-target] stage=checked owner={:?} loop={:?} issue={error:?}", callable_ledger.borrow().owner(), product.source.source.site()); }
                 format!("[freeze:contract][callable-loop/source-target] {error:?}")
             }),
         None => Ok(probe),
@@ -282,6 +283,7 @@ fn source_target_for_loop(
             &dynamic_source_calls,
         )
         .map_err(|error| {
+            if crate::config::env::builder_debug_enabled() { eprintln!("[loop-source-target] stage=dynamic owner={:?} issue={error:?}", callable_ledger.borrow().owner()); }
             format!("[freeze:contract][callable-loop/source-target] {error:?}")
         })
 }

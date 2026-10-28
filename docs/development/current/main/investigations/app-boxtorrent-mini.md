@@ -5,15 +5,15 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 現CLIの選択smokeはLoop Text cleanupと取得prefixを通過し、`expression-core/operand-missing`。既定OFF診断でslot64 `firstChunkId`、`return me.chunk_ids.get(0)` の直接field receiverと特定。local alias経由のArray receiverとは別の不足で、EXE未生成。
+- 現CLIは`firstChunkId`の直接Array receiverを通過。選択smokeは`callable-loop/source-target SourceItemForeign`、既定OFF診断でslot66 `materialize` のLoop Body(4)、checked-disposition段と特定。EXE未生成。
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
-- Array aliasは実Count/Get source loanがある場合だけ初期化時にcanonical readを一回発行。既存exact-read poolで実alias値をCoreへ渡し、Countは既存read recipe/marker/emission会計を使用。snapshot・initializer Copy・使用Copyを実MIR/finisherで照合。source-only拒否pinと最終noninteger aliasの拒否を保持。
+- Array aliasと直接receiverは実Count/Get source loanを同じfield descriptorへ保持。直接receiverもReturnを含むsource field census→既存field issuer→exact親read/Copy→記録済みcanonical readへ接続。Countは既存read会計を使用。source-only拒否pin、最終noninteger aliasとdirect Arrayの拒否を保持。
 - 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
-- 次: 直接Array field receiverの元Core sourceを既存field ownerへ接続する。続けて全実operationとsnapshotの親root/field/provider・生存を最終consumerで検証する。Count receiptをDynamicGet証明の代用にせず、非integerの最終gateはそれまで開けない。
+- 次: static nullable Text callのcarrier lifecycleをDynamic dispatch選別へ流用している箇所を修正する。dispatchは元result-source variantで選び、carrier取得/Endは保持。続けて全Array operationと親root/field/provider・生存を最終検証する。CountをDynamicGetの証明に流用せず、未完の最終gateは開けない。
 - entry loanだけで未知callee中の親生存は証明できない。snapshotとfield再読の同一性、支持Home、Normal/Faultを別々に閉じる。
 - 着地済み: C Map null guard→child borrow（空Map/nullable child/Fault/誤分岐）、異なるslot借用の保守的alias検査、nullable slotの実payload null比較。Rust完成guardの到達・支配・再実行検査は完成時だけ行い、構築中の局所検査を維持。
 - 既存接続: stored-child scalar return、Map keys count、put/readData/refCount、nullable Text需要、Text連結Loop、Null return、DiscardValue、delete。chunkCount独立validator、nullable Text C transport、Bool物理、全体cleanupとEXE実行は未完。
-- 最後の固定suiteは今回WIP前のpinned CLIで10/11（boxtorrentのみ赤）。現ツリーのsuite結果ではない。今回CLI build PASS。descriptor、field-array return、i64物理driftは各1/0。Core source familyは8/3（3赤は未分類、成功扱いしない）。initializer i64の3赤は既存失敗名集合に含まれる。選択smokeは上記停止。追加既存caseは実Count/Getと別の未使用aliasの非混同を守るため（既存pinだけでは未検証）。
+- 最後の固定suiteは今回WIP前のpinned CLIで10/11（boxtorrentのみ赤）。現ツリーのsuite結果ではない。今回CLI build PASS。descriptor、field-array return、i64物理drift、Loop回帰は各1/0。Core source familyは8/3（3赤は未分類、成功扱いしない）。initializer i64の3赤は既存失敗名集合に含まれる。選択smokeは上記停止。追加既存caseは実Count/Getと別の未使用aliasの非混同を守るため（既存pinだけでは未検証）。
 
 ## 採用設計
 - **既存仕様を維持して実装する。null-key の仕様回答はこのアプリの着手条件ではない。** 一般 Dynamic→Map の null 受理は別の未決事項であり、Text-only key の現在の経路へ勝手に stringify / TypeError を導入しない。

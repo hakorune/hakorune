@@ -87,7 +87,14 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(());
         }
         if let Some((caller, source)) = original.fixed_origin_v1() {
-            if self.source_field_requirement_v1(site)?.is_some() { return Err(fault("fixed-array-required-expression-source")); }
+            match self.source_field_requirement_v1(site)? {
+                Some(required) if !row.source.array_operation_sources_v1().is_empty()
+                    && required.request().site == *site
+                    && row.source.array_operation_sources_v1().iter().all(|read|
+                        read.borrows_direct_receiver_v1(original) && read.matches_expression_receiver_v1(required.plan())) => {}
+                None if row.source.array_operation_sources_v1().is_empty() => {}
+                _ => return Err(fault("fixed-array-required-expression-source")),
+            }
             let current = self.field_write_claims.array_source(caller.owner(), original.name())
                 .ok_or_else(|| fault("fixed-array-source-missing"))?;
             let expected_receiver = crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())

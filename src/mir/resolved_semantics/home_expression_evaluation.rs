@@ -317,6 +317,15 @@ impl CheckedExpressionEvaluationV1 {
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String))
             && self.text_snapshot_root_v1().is_none()).then_some(node)
     }
+    pub(crate) fn direct_array_receiver_v1(&self, node: usize)
+        -> Option<&crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1> {
+        let site = self.source.nodes().get(node)?.site();
+        let mut cores = self.cores.values().filter(|core| core.matches_plan(&self.source, core.node())
+            && core.field_array_access_v1().is_some_and(|array| array.receiver_alias_v1().is_none()
+                && array.receiver().site() == site && array.matches_expression_receiver_v1(&self.source)));
+        let core = cores.next()?;
+        cores.next().is_none().then_some(core)
+    }
     pub(crate) fn node_is_identity(&self, node: usize) -> bool {
         self.classes.get(node) == Some(&ExpressionLeafClassV1::Identity)
     }

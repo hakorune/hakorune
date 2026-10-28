@@ -208,7 +208,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         } else { None };
         // A syntactic handle obligation cannot fall back to an Integer view.
         if object_obligation && object_source.is_none() { return Ok(None); }
-        let source = if object_source.is_some() { object_source } else if request.owned_ready.is_some() {
+        let array_receiver = match &demand {
+            LocalFieldReadDemandV1::SourceExpression { plan, .. } =>
+                borrow_fixed_array_source(constructors, receiver_proof, request, received_context, Some(plan))?,
+            _ => None,
+        };
+        let source = if array_receiver.is_some() { array_receiver } else if object_source.is_some() { object_source } else if request.owned_ready.is_some() {
             let Some((field, declared)) = terminal_home::local_read_field_declaration(
                 constructors,
                 candidates,
@@ -324,7 +329,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 .as_ref()
                 .is_some_and(|path| path.is_intermediate()),
         };
-        if scalar_only && *source.result() != LocalFieldReadResultV1::Scalar
+        if scalar_only && source.array_operation_sources_v1().is_empty() && *source.result() != LocalFieldReadResultV1::Scalar
             && !(matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. })
                 && matches!(source.result(), LocalFieldReadResultV1::Text(_)))
             && !(object_obligation && matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_))) {
@@ -406,7 +411,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         let numeric_source = match &demand {
             LocalFieldReadDemandV1::Declared { .. } => None,
             LocalFieldReadDemandV1::SourceExpression { .. }
-                if request.path.is_some() || request.owned_ready.is_some()
+                if request.path.is_some() || request.owned_ready.is_some() || !source.array_operation_sources_v1().is_empty()
                     || matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_) | LocalFieldReadResultV1::Text(_)) =>
             {
                 None
@@ -529,7 +534,7 @@ fn borrow_array_field_source(
         }
     }
     let Some(original) = original else {
-        return borrow_fixed_array_alias_source(constructors, receiver_proof, request, context);
+        return borrow_fixed_array_source(constructors, receiver_proof, request, context, None);
     };
     let Some((field, declared)) = terminal_home::local_read_field_declaration(
         constructors,
@@ -558,18 +563,21 @@ fn borrow_array_field_source(
     )))
 }
 
-/// A local may borrow its exact fixed provider without an Integer operation.
-/// The existing descriptor retains the same field source and initializer;
-/// neither operation permissions nor a new Home are issued here.
-fn borrow_fixed_array_alias_source(
+/// One fixed field source serves both initializer aliases and exact Core
+/// receivers. Actual operation loans stay on the same descriptor; neither
+/// route creates a Home or grants the final lifetime proof.
+fn borrow_fixed_array_source(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     request: &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1,
     context: Option<field_reads::ReceivedFieldContextV1<'_>>,
+    plan: Option<&Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>>,
 ) -> Result<Option<Rc<LocalFieldReadSourceV1>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
     let (Some((receiver, box_source)), Some((batch, selected, _, _, writes))) = (receiver_proof, context)
         else { return Ok(None); };
+    if plan.is_some() && request.site.site().node().segments().last()
+        != Some(&crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver) { return Ok(None); }
     if request.receiver != receiver || request.home != receiver || request.nullable || request.formal
         || request.alias_class.is_some() || request.received.is_some() || request.path.is_some()
         || request.alias_path.is_some() || request.owned_ready.is_some() { return Ok(None); }
@@ -581,6 +589,22 @@ fn borrow_fixed_array_alias_source(
     if caller.owner() != box_source.name()
         || caller.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod { return Ok(None); }
     let result = batch.with_lowering_input(row.batch_slot(), |input| -> Result<_, String> {
+        if let Some(plan) = plan {
+            let Some((crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver, parent)) = request.site.site().node().segments().split_last() else { return Ok(None); };
+            let call = crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(parent.to_vec());
+            let call = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(call);
+            let Some(read) = super::super::super::field_array_read_source::capture_exact_read(
+                input, caller, &call, selected, batch, constructors, writes)? else { return Ok(None); };
+            if read.receiver_alias_v1().is_some() || read.receiver() != &request.site
+                || !read.matches_expression_receiver_v1(plan) { return Ok(None); }
+            let Some(class) = writes.array_source(caller.owner(), &request.field) else { return Ok(None); };
+            let Some(field) = super::super::super::CanonicalArrayFieldReadSourceV1::fixed_receiver_v1(
+                input, caller.clone(), &request.site, &request.field, class)? else { return Ok(None); };
+            if field.binding() != receiver || !read.borrows_direct_receiver_v1(&field) { return Ok(None); }
+            let declared = field.declared_type_name().map(Into::into);
+            let source = LocalFieldReadSourceV1::from_declaration(field.field(), LocalFieldReadResultV1::ArrayField(Rc::new(field)), declared);
+            return LocalFieldReadSourceV1::with_array_reads(&source, vec![read]).map(Some);
+        }
         let Some(alias) = super::super::super::field_array_read_source::capture_fixed_alias_v1(
             input, caller, request.site.site(), selected, batch, constructors, writes)? else { return Ok(None); };
         let Some((field, _)) = alias.fixed_source_v1() else { return Ok(None); };

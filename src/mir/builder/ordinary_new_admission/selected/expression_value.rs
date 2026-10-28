@@ -208,7 +208,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     // Reservation remains in original source order; binding nested receivers
     // still waits for the actual ancestor field writer below.
     for &index in &order {
-        if frame.transfers_node(index) { continue; }
+        if frame.transfers_node(index) && !frame.direct_array_receiver_v1(index)
+            .is_some_and(|core| order.contains(&core.node())) { continue; }
         let node = &source.nodes()[index];
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
@@ -242,6 +243,12 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let read = state.prepare_exact_lexical_read(owner, object.node(), binding).map_err(|error| error.to_string())?;
                 let value = read.value_for(owner, object.node(), binding).map_err(|error| error.to_string())?;
                 slot = Some(pending.len());
+                if frame.direct_array_receiver_v1(index).is_some() {
+                    let root_site = OwnedExprSiteV1::new(owner, object.clone());
+                    if path_slots.insert(root_site, pending.len()).is_some() {
+                        return Err(freeze("expression-value/read-slot"));
+                    }
+                }
                 pending.push(read);
                 Ok(value)
             })?.ok_or_else(|| freeze("print-expression/field-source-missing"))?;
@@ -281,7 +288,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             values[index] = Some(Operand::NormalInteger(value).into());
             continue;
         }
-        if frame.transfers_node(index) { continue; }
+        if frame.transfers_node(index) && !frame.direct_array_receiver_v1(index)
+            .is_some_and(|core| order.contains(&core.node())) { continue; }
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
         let site = OwnedExprSiteV1::new(owner, node.site().clone());

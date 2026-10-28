@@ -286,6 +286,14 @@ impl OrdinaryNewClaimLedgerV1 {
         context.require_ledger(self)?;
         let rows = self.local_field_reads.borrow();
         let row = rows.get(site).ok_or_else(|| fault("expression-path/root-read-missing"))?;
+        if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(source) = row.source.result() {
+            if !row.source.array_operation_sources_v1().is_empty() {
+                self.recheck_declared_array_read_v1(site, row, source)?;
+                read.value_for(site.owner(), source.receiver().site().node(), source.binding())
+                    .map_err(|error| error.to_string())?;
+                return Ok(());
+            }
+        }
         self.recheck_result_path_field_v1(site, row, context)?;
         let source = row.source.statement_path().ok_or_else(|| fault("expression-path/root-source-missing"))?;
         if source.parent.is_some() { return Err(fault("expression-path/root-read-parent")); }
@@ -300,6 +308,9 @@ impl OrdinaryNewClaimLedgerV1 {
     )>, String> {
         self.validate_statement_field_root_read_v1(site, read, context)?;
         let rows = self.local_field_reads.borrow();
+        if rows.get(site).is_some_and(|row| !row.source.array_operation_sources_v1().is_empty()) {
+            return Ok(None);
+        }
         let source = rows.get(site).and_then(|row| row.source.statement_path())
             .ok_or_else(|| fault("expression-path/root-source-missing"))?;
         Ok(source.root.stored_get_v1().map(|(frame, exclusion)| (Rc::clone(frame), Rc::clone(exclusion))))

@@ -425,6 +425,11 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
         let Some(index) = source.nodes().iter().position(|node| node.site() == receiver) else {
             { if crate::config::env::builder_debug_enabled() { eprintln!("[expression-leaves] declined gate=5"); } return Ok(None); }
         };
+        if array.receiver_alias_v1().is_none() {
+            let Some(request) = field_request(receiver) else { return Ok(None); };
+            if request.node_in_plan(source) != Some(index) { return Ok(None); }
+            fields.push(request);
+        }
         match leaves[index] {
             Leaf::Unresolved => leaves[index] = Leaf::Identity,
             Leaf::Identity => {}

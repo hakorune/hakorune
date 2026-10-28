@@ -280,6 +280,20 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
             }
         }
+        for (index, _) in source.nodes().iter().enumerate().filter(|(index, _)| self.node_selected(*index)) {
+            let Some(core) = self.frame.direct_array_receiver_v1(index).filter(|core| self.node_selected(core.node())) else { continue; };
+            let access = core.field_array_access_v1().ok_or_else(|| freeze("print-expression/path-root-source"))?;
+            let required = ledger.source_field_requirement_v1(access.receiver())?
+                .ok_or_else(|| freeze("print-expression/path-root-source"))?;
+            if !Rc::ptr_eq(required.plan(), source) || required.request().node_in_plan(source) != Some(index) {
+                return Err(freeze("print-expression/path-root-source"));
+            }
+            let root = OwnedExprSiteV1::new(source.owner(), required.request().receiver_site.clone());
+            let expected = (required.request().receiver, access.receiver().clone());
+            if roots.insert(root, expected.clone()).is_some_and(|previous| previous != expected) {
+                return Err(freeze("print-expression/path-root-source"));
+            }
+        }
         for access in self.frame.cores().values().filter(|core| self.node_selected(core.node()))
             .filter_map(|core| core.field_array_access_v1()) {
             let Some(alias) = access.receiver_alias_v1() else { continue; };
@@ -430,7 +444,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             let alias_receiver = self.frame.cores().values().filter(|core| self.node_selected(core.node()))
                 .filter_map(|core| core.field_array_access_v1()).any(|access|
                     access.receiver_alias_v1().is_some() && access.receiver().site() == node.site());
-            if self.frame.transfers_node(index) && !alias_receiver {
+            let direct_receiver = self.frame.direct_array_receiver_v1(index)
+                .is_some_and(|core| self.node_selected(core.node()));
+            if self.frame.transfers_node(index) && !alias_receiver && !direct_receiver {
                 if value.is_some() {
                     return Err(freeze("print-expression/transferred-value"));
                 }
@@ -855,7 +871,8 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             .iter()
             .filter(|node| self.node_selected(**node))
         {
-            if self.frame.transfers_node(index) {
+            if self.frame.transfers_node(index) && !self.frame.direct_array_receiver_v1(index)
+                .is_some_and(|core| self.node_selected(core.node())) {
                 continue;
             }
             if self.frame.node_is_identity(index)

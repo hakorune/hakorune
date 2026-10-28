@@ -97,6 +97,11 @@ impl CheckedFieldArrayAccessSourceV1 {
     }
     pub(crate) fn is_dynamic_get(&self) -> bool { matches!(self.operation, FieldArrayReadSourceOperationV1::DynamicGet(_)) }
     pub(crate) fn get_is_in_bounds_v1(&self) -> bool { self.is_dynamic_get() && self.bounds.is_some() }
+    pub(in crate::mir::normal_callable_semantic_package) fn borrows_direct_receiver_v1(&self, field: &CanonicalArrayFieldReadSourceV1) -> bool {
+        self.receiver_alias.is_none() && self.receiver == *field.site() && self.receiver_root == field.binding()
+            && self.field() == field.field() && self.field_name() == field.name()
+            && field.fixed_origin_v1().is_some_and(|(caller, _)| caller == self.caller())
+    }
     pub(crate) fn receiver_alias_v1(&self)
         -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1> { self.receiver_alias.as_ref() }
     pub(crate) fn receiver_root_binding_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> Option<BindingRefV1> {

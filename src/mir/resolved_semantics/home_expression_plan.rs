@@ -364,7 +364,7 @@ impl HomeExpressionPlanV1 {
                     .ordered_nodes()
                     .iter()
                     .copied()
-                    .filter(|node| evaluation.transfers_node(*node))
+                    .filter(|node| evaluation.transfers_node(*node) && evaluation.direct_array_receiver_v1(*node).is_none())
                     .collect()
             })
             .unwrap_or_default();
@@ -396,7 +396,7 @@ impl HomeExpressionPlanV1 {
             .ordered_nodes()
             .iter()
             .copied()
-            .filter(|node| evaluation.transfers_node(*node))
+            .filter(|node| evaluation.transfers_node(*node) && evaluation.direct_array_receiver_v1(*node).is_none())
             .collect();
         plan.with_source_field_basis_v1(requests, Rc::from(evaluation.prior_homes()), &transferred)
     }

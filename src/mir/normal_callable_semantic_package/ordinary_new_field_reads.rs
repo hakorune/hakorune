@@ -129,7 +129,7 @@ impl LocalFieldReadSourceV1 {
                 !self.array_reads.is_empty() && *field == self.field(),
             (LocalFieldReadResultV1::BorrowedArray(_), _) => false,
             (LocalFieldReadResultV1::ArrayField(source), MirInstruction::ObjectFieldGet { field, .. })
-                if source.text_append_origin_v1().is_some() => source.field() == self.field() && *field == self.field(),
+                if source.text_append_origin_v1().is_some() || !self.array_reads.is_empty() => source.field() == self.field() && *field == self.field(),
             (LocalFieldReadResultV1::ArrayField(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
                 source.text_append_origin_v1().is_none() && source.field() == self.field() && source.name() == field && class == "ArrayBox",
             (LocalFieldReadResultV1::ArrayField(_), _) => false,
