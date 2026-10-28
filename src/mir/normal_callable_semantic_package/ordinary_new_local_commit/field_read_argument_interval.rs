@@ -106,6 +106,13 @@ pub(super) fn check(
 }
 impl ReadIntervalV1<'_, '_> {
     pub(crate) fn check(&self, start: &Binding, finish: &Binding) -> Result<(), String> {
+        self.check_with_effects(start, finish, |_, _| Ok(false))
+    }
+    /// The parent source owner adds its own destructive effects to the same
+    /// reachable interval; this does not replace field/child lifetime checks.
+    pub(crate) fn check_with_effects(&self, start: &Binding, finish: &Binding,
+        mut invalid_effect: impl FnMut((BasicBlockId, usize), &MirInstruction) -> Result<bool, String>,
+    ) -> Result<(), String> {
         let function = self.view.function;
         let start = locate(function, start)?;
         let finish = locate(function, finish)?;
@@ -140,7 +147,9 @@ impl ReadIntervalV1<'_, '_> {
                 if (id, position) == finish { break; }
                 let invalid = match instruction {
                     MirInstruction::Invoke { operation, .. } => match operation {
-                        InvokeOperation::HomeRelease { value, .. }
+                        InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }
+                            | crate::mir::instruction::StringInvokeOperation::EndIfOwned { value })
+                        | InvokeOperation::HomeRelease { value, .. }
                         | InvokeOperation::HomeReleaseIfLive { value, .. }
                         | InvokeOperation::ObjectEndIfOwned { value, .. }
                         | InvokeOperation::ReclaimUnpublished { value, .. }
@@ -163,7 +172,9 @@ impl ReadIntervalV1<'_, '_> {
                     MirInstruction::FieldSet { base, .. } => parent_alias(*base)?,
                     _ => false,
                 };
-                if invalid { return Err(freeze("field-argument/parent-or-child-invalidated")); }
+                if invalid || invalid_effect((id, position), instruction)? {
+                    return Err(freeze("field-argument/parent-or-child-invalidated"));
+                }
             }
             if id != finish.0 {
                 pending.extend(block.successors_from_terminator().into_iter().map(|next| (next, 0)));
@@ -212,6 +223,8 @@ mod tests {
         for operation in [
             InvokeOperation::HomeRelease { object, value: ValueId(1) },
             InvokeOperation::DynamicCarrierEnd { carrier: ValueId(1) },
+            InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value: ValueId(5) }),
+            InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::EndIfOwned { value: ValueId(6) }),
             InvokeOperation::HomeReleaseIfLive { object, value: ValueId(5) },
             InvokeOperation::ReclaimUnpublished { object, value: ValueId(6) },
             InvokeOperation::OwnedObjectFieldRelease { base: ValueId(1), field: other, child: object },
