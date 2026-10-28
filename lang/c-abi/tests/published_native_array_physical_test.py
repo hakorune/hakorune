@@ -511,6 +511,27 @@ uint32_t wrap_dispose(void* f) {
     by_id[0]["instructions"][1]["instruction"]["value"] = 1
     execute(stored_null, 1, ends=(1,))
     execute(stored_null, 70, ["-DTEST_FAIL_APPEND_AT=2"], ends=(1,), primary=9401)
+    # Compare the borrowed Get itself, including its Copy, before ending the
+    # array. Missing and stored Null must differ from a real object payload.
+    for original, index, ends in [(base, 0, (2, 1)), (base, 2, (2, 1)), (stored_null, 1, (1,))]:
+        for predicate in ("eq", "ne"):
+            data = copy.deepcopy(original)
+            blocks = {b["id"]: b for b in data["functions"][0]["blocks"]}
+            blocks[0]["instructions"][1]["instruction"]["value"] = index
+            read = blocks[5]
+            for row in [{"op": "const_null", "dst": 32},
+                        {"op": "borrowed_null_compare", "dst": 33, "lhs": 31, "rhs": 32,
+                         "predicate": predicate}]:
+                read["instructions"].append({"index": len(read["instructions"]), "instruction": row})
+            read["terminator"]["index"] = len(read["instructions"])
+            blocks[7]["terminator"]["instruction"] = {"op": "branch", "condition": 33,
+                "then": 97, "else": 98, "then_args": None, "else_args": None}
+            blocks[7]["edges"] = [{"target": 97, "args": None}, {"target": 98, "args": None}]
+            data["functions"][0]["blocks"].extend([
+                block(97, {"op": "return", "value": 34}, [{"op": "const_i64", "dst": 34, "value": 1}]),
+                block(98, {"op": "return", "value": 35}, [{"op": "const_i64", "dst": 35, "value": 0}])])
+            is_null = index != 0
+            execute(data, int(is_null == (predicate == "eq")), ends=ends)
     mutations = []
     def mutate(change):
         data = copy.deepcopy(base); change(data); mutations.append(data)
