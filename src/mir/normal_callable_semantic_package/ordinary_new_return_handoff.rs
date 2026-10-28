@@ -216,7 +216,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let mut missing = None;
             for (witness, terminal) in callee.iter() {
                 match witness.step() {
-                    ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::NullLiteral => {
+                    ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::LocalConstruction(_) | ResultWitnessStepV1::NullLiteral => {
                         match self.checked_object_return_leaf_v1(loan.key(), witness)? {
                             Some(leaf) => {
                                 alternatives.push(VerifiedObjectReturnAlternativeV1::Leaf(leaf))
@@ -250,7 +250,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             }
                         }
                     }
-                    ResultWitnessStepV1::LocalConstruction(_) | ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => {
+                    ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => {
                         missing.get_or_insert(ObjectReturnHandoffUnavailableV1::BorrowedOrigin);
                     }
                 }

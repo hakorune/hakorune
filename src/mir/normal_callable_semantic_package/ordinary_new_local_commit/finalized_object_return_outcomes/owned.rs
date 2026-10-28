@@ -73,7 +73,36 @@ impl FinalizedRootSourceHandoffV1 {
                         )?.ok_or_else(|| freeze("owned-return/fresh-producer"))?;
                         checked_projection_membership(function, projection, &producer)?;
                         checked_projection_membership(function, projection, &allocation)?;
-                        field_supports = self.owned_fresh_field_supports_v1(site, function, actuals)?;
+                        field_supports = self.owned_fresh_field_supports_v1(site, None, function, actuals)?;
+                        FinalizedObjectReturnOriginV1::Fresh { producer, allocation }
+                    }
+                    TerminalReturnedSourceV1::Home { binding, acquisition } => {
+                        let commits = self.ledger.local_commits.borrow();
+                        let source = commits.get(acquisition).ok_or_else(|| freeze("owned-return/fresh-producer"))?;
+                        let LocalCommitV1::Ordinary(local) = source else { return Err(freeze("owned-return/source-kind")); };
+                        if local.binding != *binding { return Err(freeze("owned-return/fresh-producer")); }
+                        self.ledger.validate_ordinary_new_row_emission_projected(owner, acquisition, source,
+                            function, Some(projection), CallValidationContextV1::Finalized(self))?;
+                        let NewEmissionProgress::Emitted { result, bindings: acquired,
+                            progress: EmittedLocalProgress::Checked { local: installed }, .. } = &local.emission
+                            else { return Err(freeze("owned-return/fresh-producer")); };
+                        let mut allocations = acquired.iter().filter(|(_, row)| matches!(row,
+                            MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::NewBox { object, .. }, .. }
+                                if *object == local.object));
+                        let allocation = allocations.next().ok_or_else(|| freeze("owned-return/fresh-producer"))?;
+                        if allocations.next().is_some() { return Err(freeze("owned-return/fresh-producer")); }
+                        let mut producers = acquired.iter().filter(|(_, row)| matches!(row,
+                            MirInstruction::InvokeNormalResult { invoke_block, dst } if *invoke_block == allocation.0 && dst == result));
+                        let producer = producers.next().ok_or_else(|| freeze("owned-return/fresh-producer"))?;
+                        if producers.next().is_some() { return Err(freeze("owned-return/fresh-producer")); }
+                        if let Some(copy) = projection.source_local_copy_binding_v1(function, *installed, *result)? {
+                            // Local Copies are captured value relations, not
+                            // recorded lifecycle capabilities.
+                            projection.relation_binding(function, &copy)?;
+                        }
+                        let producer = checked_projection(function, projection, producer)?;
+                        let allocation = checked_projection(function, projection, allocation)?;
+                        field_supports = self.owned_fresh_field_supports_v1(acquisition, Some(*binding), function, actuals)?;
                         FinalizedObjectReturnOriginV1::Fresh { producer, allocation }
                     }
                     TerminalReturnedSourceV1::OwnedCall(source) => {
@@ -138,11 +167,11 @@ impl FinalizedRootSourceHandoffV1 {
     }
 
     fn owned_fresh_field_supports_v1(
-        &self, site: &OwnedExprSiteV1, function: &MirFunction, actuals: &[FinalizedBirthActualsV1],
+        &self, site: &OwnedExprSiteV1, destination: Option<BindingRefV1>, function: &MirFunction, actuals: &[FinalizedBirthActualsV1],
     ) -> Result<Vec<FinalizedObjectReturnFieldSupportV1>, String> {
         let required = self.ledger.returned_new_field_supports_v1(site)?;
         if required.is_empty() { return Ok(Vec::new()); }
-        let mut matching = actuals.iter().filter(|actual| actual.site() == site && actual.destination().is_none());
+        let mut matching = actuals.iter().filter(|actual| actual.site() == site && actual.destination() == destination);
         let actual = matching.next().ok_or_else(|| freeze("owned-return/field-actuals"))?;
         if matching.next().is_some() { return Err(freeze("owned-return/field-actuals-duplicate")); }
         let mut projected = Vec::new();

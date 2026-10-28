@@ -74,6 +74,16 @@ pub(crate) struct LocalConstructionResultSourceV1 {
     pub(super) acquisition: OwnedExprSiteV1,
     pub(super) construction: crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
 }
+impl LocalConstructionResultSourceV1 {
+    /// Compare the immutable original New with its current source loan only.
+    /// This carries no construction, Home or physical execution permission.
+    pub(crate) fn matches_local_new_v1(&self, binding: BindingRefV1, acquisition: &OwnedExprSiteV1,
+        class: &str, arity: usize) -> bool {
+        self.binding == binding && &self.acquisition == acquisition
+            && self.construction.site() == acquisition.site()
+            && self.construction.class() == class && self.construction.arguments().len() == arity
+    }
+}
 pub(super) fn capture_local_construction_result_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     binding: BindingRefV1, returned: &OwnedExprSiteV1,

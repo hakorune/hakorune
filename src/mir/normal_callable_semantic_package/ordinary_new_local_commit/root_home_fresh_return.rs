@@ -38,6 +38,33 @@ impl OrdinaryNewClaimLedgerV1 {
                 }],
             )));
         }
+        if let TerminalReturnedSourceV1::Home { binding, acquisition } = terminal.returned() {
+            if terminal.owner() != owner || terminal.return_site() != exit
+                || self.checked_local_home_return_leaf_v1(terminal)?.is_none() {
+                return Err(freeze("fresh-result-cleanup/source"));
+            }
+            let rows = self.local_commits.borrow();
+            let source = rows.get(acquisition).ok_or_else(|| freeze("fresh-result-cleanup/commit"))?;
+            let LocalCommitV1::Ordinary(row) = source else { return Err(freeze("fresh-result-cleanup/commit")); };
+            if row.binding != *binding { return Err(freeze("fresh-result-cleanup/source")); }
+            // Installed Homes already lend End to later New/Return cleanup;
+            // whole-emission Checked remains mandatory at final publication.
+            let NewEmissionProgress::Emitted { progress: EmittedLocalProgress::Installed { local }
+                | EmittedLocalProgress::Checked { local }, .. } = &row.emission
+                else { return Ok(None); };
+            if !source.end_available() { return Ok(None); }
+            let origins = source.end_plan().into_vec().into_iter().map(|(subject, operation)| {
+                let subject = match subject {
+                    RootHomeReleaseSubjectV1::Binding(original) if original == *binding =>
+                        RootHomeReleaseSubjectV1::DirectResult { site: acquisition.clone() },
+                    RootHomeReleaseSubjectV1::FieldResidence { binding: original, field } if original == *binding =>
+                        RootHomeReleaseSubjectV1::DirectResultField { site: acquisition.clone(), field },
+                    _ => return Err(freeze("fresh-result-cleanup/source")),
+                };
+                Ok(RootHomeReleaseOriginV1 { subject, operation, exit: exit.clone().into() })
+            }).collect::<Result<Vec<_>, String>>()?;
+            return Ok(Some((*local, origins)));
+        }
         let TerminalReturnedSourceV1::Construction(site) = terminal.returned() else {
             return Ok(None);
         };

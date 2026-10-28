@@ -216,7 +216,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for (witness, value) in exits.iter() {
             let mut supports = Vec::new();
             match witness.step() {
-                ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::NullLiteral => {
+                ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::LocalConstruction(_) | ResultWitnessStepV1::NullLiteral => {
                     match self.checked_object_return_leaf_v1(source.target(), witness)? {
                         None => {
                             missing = true;
@@ -266,7 +266,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         }
                     }
                 }
-                ResultWitnessStepV1::LocalConstruction(_) | ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => missing = true,
+                ResultWitnessStepV1::Formal { .. } | ResultWitnessStepV1::MapStored { .. } => missing = true,
             }
             field_supports.push(ObjectCallFieldSupportRequirementV1 {
                 root: Rc::clone(witness), exit: value.return_site().clone(), supports: supports.into_boxed_slice(),

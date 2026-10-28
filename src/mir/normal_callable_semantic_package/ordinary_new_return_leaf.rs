@@ -111,6 +111,22 @@ impl PartialEq for ObjectReturnFieldSupportV1 {
 impl Eq for ObjectReturnFieldSupportV1 {}
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Select the exact original local-New Return witness, never a same-class
+    /// acquisition or a result inferred from the emitted value.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_local_home_return_leaf_v1(
+        &self, value: &crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1,
+    ) -> Result<Option<VerifiedObjectReturnLeafV1>, String> {
+        let TerminalReturnedSourceV1::Home { .. } = value.returned() else { return Ok(None); };
+        let mut originals = self.callable_result_classes.source_rows().flat_map(|(key, rows)|
+            rows.iter().flat_map(move |row| row.witnesses().iter().map(move |witness| (key, witness))))
+            .filter(|(_, witness)| witness.site().owner() == value.owner()
+                && witness.site().site() == value.value_site()
+                && matches!(witness.step(), ResultWitnessStepV1::LocalConstruction(_)));
+        let Some((key, witness)) = originals.next() else { return Ok(None); };
+        if originals.next().is_some() { return Err(freeze("object-return/leaf-exit-identity")); }
+        self.checked_object_return_leaf_v1(key, witness)
+    }
+
     /// Corroborate only the exact immutable leaf named by the original Facts.
     pub(in crate::mir::normal_callable_semantic_package) fn checked_object_return_leaf_v1(
         &self,
@@ -141,14 +157,21 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn returned_new_field_supports_v1(
         &self, site: &OwnedExprSiteV1,
     ) -> Result<Vec<ObjectReturnFieldSupportV1>, String> {
-        let mut original = self.callable_result_classes.source_rows().flat_map(|(key, rows)|
+        let original = self.callable_result_classes.source_rows().flat_map(|(key, rows)|
             rows.iter().flat_map(move |row| row.witnesses().iter().map(move |witness| (key, witness))))
-            .filter(|(_, witness)| witness.site() == site
-                && matches!(witness.step(), ResultWitnessStepV1::FreshConstruction));
-        let (key, witness) = original.next().ok_or_else(|| freeze("object-return/field-support-leaf-missing"))?;
-        if original.next().is_some() { return Err(freeze("object-return/field-support-leaf-duplicate")); }
-        let leaf = self.checked_object_return_leaf_v1(key, witness)?
-            .ok_or_else(|| freeze("object-return/field-support-leaf-unavailable"))?;
+            .filter(|(_, witness)| witness.construction_site_v1() == Some(site));
+        let mut seen = std::collections::BTreeSet::new();
+        let mut agreed = None;
+        for (key, witness) in original {
+            if !seen.insert(witness.site().clone()) { return Err(freeze("object-return/field-support-leaf-duplicate")); }
+            let leaf = self.checked_object_return_leaf_v1(key, witness)?
+                .ok_or_else(|| freeze("object-return/field-support-leaf-unavailable"))?;
+            if agreed.as_ref().is_some_and(|previous| previous != &leaf) {
+                return Err(freeze("object-return/field-support-leaf-duplicate"));
+            }
+            agreed = Some(leaf);
+        }
+        let leaf = agreed.ok_or_else(|| freeze("object-return/field-support-leaf-missing"))?;
         self.object_return_leaf_supports_v1(&leaf)
     }
 
@@ -264,7 +287,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         if !matches!(
             witness.step(),
-            ResultWitnessStepV1::NullLiteral | ResultWitnessStepV1::FreshConstruction
+            ResultWitnessStepV1::NullLiteral | ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::LocalConstruction(_)
         ) {
             return Ok(None);
         }
@@ -310,6 +333,33 @@ impl OrdinaryNewClaimLedgerV1 {
                 ResultValueOriginV1::Null,
                 TerminalReturnedSourceV1::NullLiteral,
             ) => Ok(Some(VerifiedObjectReturnLeafV1::Null)),
+            (ResultWitnessStepV1::LocalConstruction(original), ResultValueOriginV1::Fresh(name),
+                TerminalReturnedSourceV1::Home { binding, acquisition }) => {
+                if name.as_ref() != class || witness.construction_site_v1() != Some(acquisition)
+                    || homes.homes().iter().any(|home| home.binding() == *binding) {
+                    return Err(freeze("object-return/leaf-construction-identity"));
+                }
+                self.with_local_new_source_v1(acquisition, *binding, |source| {
+                    let (Ok(prefix), Ok(arguments)) = (source.prefix, source.arguments) else { return Ok(None); };
+                    if !original.matches_local_new_v1(*binding, acquisition, source.box_source.name(), arguments.len())
+                        || source.box_source.name() != class || prefix.destination() != *binding
+                        || prefix.required_unwind() != acquisition {
+                        return Err(freeze("object-return/leaf-claim-identity"));
+                    }
+                    if super::super::new_execution_profile_v1(
+                        source.construction, source.allocation_execution, source.object).is_err() {
+                        return Ok(None);
+                    }
+                    self.check_return_argument_relations_v1(acquisition, arguments)?;
+                    Ok(Some(VerifiedObjectReturnLeafV1::Fresh {
+                        site: acquisition.clone(), arguments: arguments.clone(),
+                        teardown: ObjectReturnTeardownDescriptorV1 {
+                            object: source.object, destruction: source.destruction,
+                            children: source.children.map(Into::into),
+                        },
+                    }))
+                }).map(Option::flatten)
+            }
             (
                 ResultWitnessStepV1::FreshConstruction,
                 ResultValueOriginV1::Fresh(name),

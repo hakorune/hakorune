@@ -72,6 +72,10 @@ impl OrdinaryNewClaimLedgerV1 {
 
 /// Borrowed source view: allocation semantics and execution eligibility are distinct.
 pub(in crate::mir::normal_callable_semantic_package) struct LocalNewSourceRefV1<'a> {
+    pub(in crate::mir::normal_callable_semantic_package) destruction: super::super::ObjectDestructionDispositionV1,
+    pub(in crate::mir::normal_callable_semantic_package) prefix: &'a Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
+    pub(in crate::mir::normal_callable_semantic_package) arguments: &'a Result<Box<[super::super::OrdinaryNewTrivialArgumentV1]>, crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1>,
+    pub(in crate::mir::normal_callable_semantic_package) children: Option<&'a [super::super::OwnedFieldChildV1]>,
     pub(in crate::mir::normal_callable_semantic_package) box_source: &'a crate::parser::ParserOrdinaryBoxSourceRowV1,
     pub(in crate::mir::normal_callable_semantic_package) object: CanonicalObjectIdV1,
     pub(in crate::mir::normal_callable_semantic_package) construction: &'a super::super::ConstructionEligibilityV1,
@@ -94,7 +98,8 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let claims = self.claims.borrow();
         let commits = self.local_commits.borrow();
-        let (binding, box_source, object, construction, construction_source, allocation_execution, declaration) =
+        let (binding, box_source, object, construction, construction_source, allocation_execution, declaration,
+            destruction, prefix, arguments, children) =
             match (claims.get(acquisition), commits.get(acquisition)) {
                 (Some(_), Some(_)) => return Err(freeze("home-source/duplicate-store")),
                 (Some(claim), None) => {
@@ -111,6 +116,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         &claim.core.construction_source,
                         claim.core.allocation_execution.as_ref(),
                         &claim.declaration,
+                        claim.core.destruction(), &claim.home_prefix, &claim.core.argument_rows, claim.core.children(),
                     )
                 }
                 (None, Some(LocalCommitV1::Ordinary(row))) => (
@@ -121,6 +127,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     &row.construction_source,
                     row.allocation_execution.as_ref(),
                     &row.declaration,
+                    row.destruction, &row.home_prefix, &row.argument_rows, row.children.as_deref(),
                 ),
                 (None, Some(_)) => return Err(freeze("home-source/commit-kind")),
                 (None, None) => return Ok(None),
@@ -128,7 +135,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if binding != root {
             return Err(freeze("home-source/domain"));
         }
-        read(LocalNewSourceRefV1 { box_source, object, construction, construction_source, allocation_execution, declaration }).map(Some)
+        read(LocalNewSourceRefV1 { box_source, object, construction, construction_source, allocation_execution, declaration,
+            destruction, prefix, arguments, children }).map(Some)
     }
 
     /// Executable actual classification preserves its stronger construction gate.

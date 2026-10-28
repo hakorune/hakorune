@@ -198,6 +198,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 Cow::Owned(original.homes().iter().filter(|home| *home != &returned).cloned().collect())
             }
             TerminalRelationV1::Value(value)
+                if matches!(value.returned(), TerminalReturnedSourceV1::Home { .. }) =>
+            {
+                if disposition.is_some() { return Err(freeze("projection-spurious-disposition")); }
+                if self.checked_local_home_return_leaf_v1(value)?.is_none() { return Ok(None); }
+                // The source walk has already moved this Home into the Return
+                // result. Pending-result cancellation owns later cleanup Faults.
+                Cow::Borrowed(original.homes())
+            }
+            TerminalRelationV1::Value(value)
                 if matches!(value.returned(), TerminalReturnedSourceV1::OwnedCall(_)) =>
             {
                 let TerminalReturnedSourceV1::OwnedCall(obligation) = value.returned() else {
