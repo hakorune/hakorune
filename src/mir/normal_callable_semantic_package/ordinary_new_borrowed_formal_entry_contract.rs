@@ -300,8 +300,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     None => (instance.receiver_binding()?, instance.receiver_site()),
                 };
                 if let Some(formal) = origins.get(&binding) {
-                    if structure.evidence.original_object_receiver_v1(structure.source, contract.owner,
-                        observation.site(), read_site, binding, instance.target().owner())? != Some(*formal) {
+                    if structure.evidence.original_object_receiver_v1(structure.source, contract.owner, instance)? != Some(*formal) {
                         input_use_pending!("instance-receiver-is-entry")
                     }
                 }

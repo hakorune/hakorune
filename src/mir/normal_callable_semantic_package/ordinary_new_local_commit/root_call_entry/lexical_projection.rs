@@ -399,7 +399,7 @@ impl PreparedLexicalCallProjectionV1 {
                                 rows.iter().any(|row| row.owner == owner
                                     && row.parameters.iter().any(|formal| formal.binding == binding)));
                             if formal {
-                                if !ledger.borrowed_entry_receiver_matches_class_v1(owner, binding, instance.target().owner())? {
+                                if !ledger.prepared_entry_receiver_matches_source_v1(instance.source_target())? {
                                     return Err(freeze("lexical-terminal/receiver-arm-drift"));
                                 }
                                 let values = ledger.borrowed_ordinary_entry_values_v1(owner)?;

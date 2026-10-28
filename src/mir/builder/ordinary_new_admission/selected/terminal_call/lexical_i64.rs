@@ -164,7 +164,7 @@ fn emit_lexical_i64_call(
                 observation.site() == row.call_site()
                     && observation.prior_homes() == prior_homes
                     && observation.arguments() == sealed_arguments)
-            && ledger.borrowed_entry_receiver_matches_class_v1(owner, binding, instance.target().owner())?;
+            && ledger.prepared_entry_receiver_matches_source_v1(instance.source_target())?;
         let borrowed_self_receiver = expression.and_then(|prefix| prefix.original_observation_v1())
             .map(|observation| ledger.checked_self_entry_receiver_v1(instance.source_target(), observation))
             .transpose()?.unwrap_or(false);

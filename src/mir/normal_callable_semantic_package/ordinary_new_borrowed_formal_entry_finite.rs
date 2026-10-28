@@ -3,6 +3,41 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// A complete original source-use cohort can select input preparation;
+    /// only the existing finisher can promote its actuals to executable input.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_object_input_parameter_frame_v1(
+        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
+    ) -> Result<bool, String> {
+        if let Some(contract) = self.original_parameter_contracts.as_deref()
+            .and_then(|catalog| catalog.iter().find(|row| row.owner == owner))
+            .filter(|row| row.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod) {
+            if let Some(structure) = self.finite_entry_for_owner_v1(owner)? {
+                if !std::ptr::eq(source, structure.source) { return Err(freeze("borrowed-entry/foreign-source-loan")); }
+                return Ok(self.checked_input_use_source_v1(contract)?.is_some());
+            }
+        }
+        Ok(super::super::owner_view::checked_original_instance_parameter_frame_v1(
+            source, self.original_parameter_contracts.as_deref(), owner)?.is_some())
+    }
+
+    /// Preparation borrows only original receiver identity and the installed
+    /// entry correspondence. Finished Call validation still closes all actuals.
+    pub(crate) fn prepared_entry_receiver_matches_source_v1(
+        &self, target: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        if target.stored_receiver().is_some() || target.is_self_receiver() { return Ok(false); }
+        let owner = target.call_site().owner();
+        let binding = target.receiver_binding()?;
+        let Some(structure) = self.finite_entry_for_owner_v1(owner)? else {
+            return self.borrowed_entry_receiver_matches_class_v1(owner, binding, target.target().owner());
+        };
+        let Some(formal) = structure.evidence.original_object_receiver_v1(structure.source, owner, target)?
+            else { return Ok(false); };
+        let entries = self.borrowed_ordinary_entry_values_v1(owner)?;
+        structure.check_finite_entry_values_v1(&entries)?;
+        Ok(entries.iter().filter(|(_, root, _)| *root == formal).count() == 1)
+    }
+
     /// A source domain selects only structural entry work. Unsupported uses
     /// remain unfulfilled; this is never an executable incoming projection.
     pub(super) fn finite_input_entry_structure_v1<'a>(
@@ -140,9 +175,13 @@ impl EntryStructureEvidenceV1<'_> {
     /// use coverage and the completed receiver domain. No MIR class is a source.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_entry) fn original_object_receiver_v1(
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
-        call: &OwnedExprSiteV1, site: &SourceExprSiteV1, binding: BindingRefV1, class: &str,
+        expected: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<BindingRefV1>, String> {
         let Self::FiniteInput { uses, domains, .. } = self else { return Ok(None); };
+        let call = expected.call_site();
+        let site = expected.receiver_site();
+        let binding = expected.receiver_binding()?;
+        let class = expected.target().owner();
         if call.owner() != owner || binding.owner() != owner {
             return Err(freeze("static-input/qualified-use-identity"));
         }
@@ -152,7 +191,7 @@ impl EntryStructureEvidenceV1<'_> {
         let mut incoming = source.source_incoming.source_rows_v1().filter(|row| &row.call == call);
         let Some(original) = incoming.next() else { return Ok(None); };
         let target = original.source.require_instance()?;
-        if incoming.next().is_some() || target.call_site() != call || target.callee_owner() != original.callee {
+        if incoming.next().is_some() || target != expected || target.call_site() != call || target.callee_owner() != original.callee {
             return Err(freeze("static-input/qualified-use-identity"));
         }
         if target.stored_receiver().is_some() || target.is_self_receiver()

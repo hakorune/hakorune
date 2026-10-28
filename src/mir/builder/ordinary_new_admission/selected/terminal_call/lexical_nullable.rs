@@ -99,11 +99,7 @@ fn emit_object(
     let borrowed_alias_receiver = !stored_receiver
         && ledger.checked_field_alias_receiver_v1(&row, relation, None)?;
     let receiver_is_borrowed_formal = !borrowed_receiver && !receiver_has_home && !stored_receiver
-        && ledger.borrowed_entry_receiver_matches_class_v1(
-            owner,
-            receiver_binding,
-            row.target().owner(),
-        )?;
+        && ledger.prepared_entry_receiver_matches_source_v1(row.source_target())?;
     if borrowed_receiver != entry.is_some()
         || (!borrowed_receiver && !receiver_has_home && !receiver_is_borrowed_formal
             && !borrowed_alias_receiver && !stored_entry_receiver)

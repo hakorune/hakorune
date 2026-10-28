@@ -783,14 +783,8 @@ mod mixed_instance;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 use mixed_instance::checked_forwarding_instance_source_v1;
 
-impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_object_input_parameter_frame_v1(
-        &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
-    ) -> Result<bool, String> {
-        Ok(mixed_instance::checked_original_instance_parameter_frame_v1(
-            source, self.original_parameter_contracts.as_deref(), owner)?.is_some())
-    }
-}
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_entry)
+use mixed_instance::checked_original_instance_parameter_frame_v1;
 
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal)

@@ -123,6 +123,7 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                 if matches!(
                     value.returned(),
                     TerminalReturnedSourceV1::Construction(_)
+                        | TerminalReturnedSourceV1::Home { .. }
                         | TerminalReturnedSourceV1::OwnedCall(_)
                         | TerminalReturnedSourceV1::BorrowedNullableLocal(_)
                         | TerminalReturnedSourceV1::StoredMapGet { .. }

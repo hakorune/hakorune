@@ -587,11 +587,15 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     /// Completed Uses keeps its original receiver purpose. A singleton class
     /// supplies nonnull input agreement, not a new generic use permission.
     pub(in crate::mir::normal_callable_semantic_package) fn completed_receiver_domain_v1(
-        &self, call: &OwnedExprSiteV1, site: &SourceExprSiteV1, binding: BindingRefV1, class: &str,
+        &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<BorrowedFormalDomainV1>, String> {
+        let call = target.call_site();
+        let site = target.receiver_site();
+        let binding = target.receiver_binding()?;
+        let class = target.target().owner();
         let EntryStructureEvidenceV1::Uses(view) = &self.evidence else {
-            let Some(formal) = self.evidence.original_object_receiver_v1(
-                self.source, self.owner, call, site, binding, class)? else { return Ok(None); };
+            let Some(formal) = self.evidence.original_object_receiver_v1(self.source, self.owner, target)?
+                else { return Ok(None); };
             let (ordinal, _) = self.formals.iter().find(|(_, root)| *root == formal)
                 .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
             return Ok(self.formal_domain_v1(*ordinal, formal)?

@@ -533,7 +533,7 @@ impl FinalizedRootSourceHandoffV1 {
         if !self.has_borrowed_ordinary_entry_v1(owner) { return Ok(None); }
         let binding = row.receiver_binding()?;
         let entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        let Some(domain) = entry.completed_receiver_domain_v1(row.call_site(), row.receiver_site(), binding, row.target().owner())?
+        let Some(domain) = entry.completed_receiver_domain_v1(row.source_target())?
             else { return Ok(None); };
         let expected = if binding == domain.binding() {
             self.borrowed_ordinary_entry_values_v1(owner)?.iter()
