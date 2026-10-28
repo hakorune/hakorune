@@ -438,6 +438,18 @@ pub(super) fn seal_provider_owned_children_v1(
     Ok(())
 }
 
+/// Default-off (builder debug flag): why no stored-child receiver source was issued.
+#[inline(never)]
+fn stored_child_declined<T>(
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    why: &str,
+) -> Result<Option<T>, String> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[stored-child] no source owner={:?} site={:?} selector={}: {why}", call.owner(), call.site(), call.selector());
+    }
+    Ok(None)
+}
+
 /// Borrow original receiver identity and residence; issue no child inventory.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue) fn stored_child_source_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -456,7 +468,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
 ) -> Result<Option<super::super::super::lexical_instance_call::StoredReceiverSourceV1>, String> {
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
     let Some(shape) = input.body_shape() else {
-        return Ok(None);
+        return stored_child_declined(call, "the function has no body shape");
     };
     let Some(BodyExpressionShapeV1::FieldAccess {
         object: parent_site,
@@ -464,7 +476,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         ..
     }) = shape.expression_shape(call.receiver_site())
     else {
-        return Ok(None);
+        return stored_child_declined(call, "the receiver is not a field access");
     };
     let (parent_binding, parent_class, parent_new) = if let Some(BodyExpressionShapeV1::Me {
         receiver: BodyMeReceiverV1::Lexical(parent_binding),
@@ -474,30 +486,30 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         let Some((receiver, source)) = super::super::super::terminal_home::entry_receiver_box_proof(
             selected, batch, entry, slot,
         ) else {
-            return Ok(None);
+            return stored_child_declined(call, "the entry receiver box proof is missing");
         };
         if receiver != *parent_binding
             || receiver.owner() != input.owner()
             || entry.is_none_or(|loan| loan.owner() != input.owner() || loan.batch_slot() != slot)
         {
-            return Ok(None);
+            return stored_child_declined(call, "the entry receiver or home loan does not match this owner");
         }
         (*parent_binding, source.name().into(), None)
     } else {
         let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) =
             input.function().variable_ref(parent_site)
         else {
-            return Ok(None);
+            return stored_child_declined(call, "the field's parent is not a local binding");
         };
         let Some(rows) = candidates.get(&slot) else {
-            return Ok(None);
+            return stored_child_declined(call, "no local `new` candidates for this slot");
         };
         let rows = rows.as_ref().map_err(|issue| {
             format!("[freeze:contract][stored-child/local-new-candidates]{issue:?}")
         })?;
         let mut rows = rows.iter().filter(|row| row.destination == binding);
         let Some(row) = rows.next() else {
-            return Ok(None);
+            return stored_child_declined(call, "no local `new` row for the parent binding");
         };
         if rows.next().is_some() {
             return Err("[freeze:contract][stored-child/local-new-ambiguous]".into());
@@ -513,17 +525,20 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
             let Some(dynamic) = dynamic_stored_child_field_v1(
                 batch, constructors, facts, &key.0, &key.1,
             )? else {
-                return Ok(None);
+                return stored_child_declined(call, "the field is not a Provider and has no dynamic stored-child class (declared type, or construction origins are not one Null/Fresh class)");
             };
             if dynamic.nullable() && !dynamic_child_nonnull_guard_v1(
                 batch, constructors, input, call, parent_binding, parent_site,
                 &key.0, &dynamic,
             )? {
-                return Ok(None);
+                return stored_child_declined(call, "the dynamic stored child fails its nonnull guard");
             }
             dynamic.child_class().into()
         }
     };
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[stored-child] source issued owner={:?} site={:?} selector={} class={class:?}", call.owner(), call.site(), call.selector());
+    }
     Ok(Some(
         super::super::super::lexical_instance_call::StoredReceiverSourceV1 {
             origin:

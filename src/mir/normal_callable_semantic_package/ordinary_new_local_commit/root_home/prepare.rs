@@ -55,6 +55,15 @@ pub(crate) struct PreparedRootHomeGraphPlanV1 {
     pub(crate) order: PreparedRootHomeOrderV1,
 }
 
+/// Default-off (builder debug flag): why a root home exit was not selected for an owner.
+#[inline(never)]
+fn root_home_not_selected(owner: FunctionOwnerIdV1, why: &str) -> Result<RootHomePreparationV1, String> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[root-home] not selected owner={owner:?}: {why}");
+    }
+    Ok(RootHomePreparationV1::NotSelected)
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn preview_root_home_exit_v1(
         &self,
@@ -62,23 +71,23 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &SourceNodeSiteV1,
     ) -> Result<RootHomePreparationV1, String> {
         if !self.object_return_construction_ready_v1(owner)? {
-            return Ok(RootHomePreparationV1::NotSelected);
+            return root_home_not_selected(owner, "object return construction is not ready");
         }
         let Some(completion) = self.completion_for_owner(owner) else {
-            return Ok(RootHomePreparationV1::NotSelected);
+            return root_home_not_selected(owner, "no completion for the owner");
         };
         let Some(flow) = completion.cleanup().root_flow() else {
-            return Ok(RootHomePreparationV1::NotSelected);
+            return root_home_not_selected(owner, "no root flow in the completion cleanup");
         };
         if !self.root_home_flow_ready_v1(completion)? {
-            return Ok(RootHomePreparationV1::NotSelected);
+            return root_home_not_selected(owner, "the root home flow is not ready");
         }
         let exit = SourceStmtSiteV1::from_node(site.clone());
         if !completion.explicit_sites().contains(&exit) {
             return Err(freeze("root-exit-site-mismatch"));
         }
         let Some(row) = self.normal_exit_projection_v1(owner, &exit)? else {
-            return Ok(RootHomePreparationV1::NotSelected);
+            return root_home_not_selected(owner, "no normal exit projection for the exit");
         };
         let rows = self.local_commits.borrow();
         let Some(mut order) = RootHomeCleanupOrderV1::from_home_end_plans(

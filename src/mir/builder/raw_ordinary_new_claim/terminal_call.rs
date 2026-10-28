@@ -16,6 +16,10 @@ pub(super) fn emit_terminal_i64_call_exit(
         .current_source_site_v1()
         .ok_or("[freeze:contract][terminal-call/site-missing]")?;
     let stmt_site = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[terminal-call] consulted owner={owner:?} site={stmt_site:?} return-expression={} root-instance-expected={}",
+            ledger.return_expression_evaluation_v1(owner, &stmt_site)?.is_some(), ledger.root_instance_call_expected(owner));
+    }
     if let Some(source) = ledger.return_expression_evaluation_v1(owner, &stmt_site)? {
         let consume = port.lexical_self_receiver_locator_consumer_v1()?;
         let state = std::rc::Rc::clone(port.callable_ledger.as_ref()

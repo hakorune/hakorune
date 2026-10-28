@@ -65,6 +65,15 @@ fn received_normal_homes(
         .collect())
 }
 
+/// Default-off (builder debug flag): why no normal exit projection exists for a return.
+#[inline(never)]
+fn projection_absent<T>(owner: FunctionOwnerIdV1, exit: &SourceStmtSiteV1, why: &str) -> Result<Option<T>, String> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[normal-exit] no projection owner={owner:?} exit={exit:?}: {why}");
+    }
+    Ok(None)
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Borrow the original non-owning LOCAL return relation. This source view
     /// never issues a result value, Home, transfer, or executable Call packet.
@@ -134,10 +143,10 @@ impl OrdinaryNewClaimLedgerV1 {
         exit: &SourceStmtSiteV1,
     ) -> Result<Option<NormalExitProjectionV1<'_>>, String> {
         let Some(dispositions) = &self.normal_return_dispositions else {
-            return Ok(None);
+            return projection_absent(owner, exit, "no normal return dispositions were issued");
         };
         let Some(completion) = self.completion_index.get(&owner) else {
-            return Ok(None);
+            return projection_absent(owner, exit, "no completion for the owner");
         };
         let completion = completion
             .as_ref()
@@ -150,7 +159,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .root_flow()
             .and_then(|flow| flow.exit_row(exit))
         else {
-            return Ok(None);
+            return projection_absent(owner, exit, "no root-flow exit row for the exit");
         };
         let original = row.map_err(|issue| {
             if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
@@ -159,7 +168,7 @@ impl OrdinaryNewClaimLedgerV1 {
             format!("{}: {issue:?}", freeze("projection-exit"))
         })?;
         let Some(relation) = self.terminal_relation_for_owner_at(owner, exit) else {
-            return Ok(None);
+            return projection_absent(owner, exit, "no terminal relation for the return");
         };
         if relation.owner() != owner || relation.return_site() != exit {
             return Err(freeze("projection-terminal-owner"));
