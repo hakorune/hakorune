@@ -283,11 +283,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-input/qualified-use-identity"));
             }
             if let Some(instance) = original.and_then(|row| row.source.instance()) {
-                let binding = instance.receiver_binding()?;
+                // A stored Provider child is read through its parent `me.<field>`.
+                let (binding, read_site) = match instance.stored_receiver() {
+                    Some((parent, parent_site, _, _)) => (parent, parent_site),
+                    None => (instance.receiver_binding()?, instance.receiver_site()),
+                };
                 if origins.contains_key(&binding) { input_use_pending!("instance-receiver-is-entry") }
-                if uses.reads().any(|(site, reference)| site == instance.receiver_site()
+                if uses.reads().any(|(site, reference)| site == read_site
                     && *reference == ResolvedLexicalRefV1::Local(binding)) {
-                    covered.insert((instance.receiver_site().clone(), binding));
+                    covered.insert((read_site.clone(), binding));
                 }
             }
             let scalar_reads = match original.and_then(|row| row.source.instance()) {

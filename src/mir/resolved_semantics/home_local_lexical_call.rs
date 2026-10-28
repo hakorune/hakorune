@@ -202,10 +202,19 @@ pub(crate) fn issue_received_producer_local_call_with_alias_v1<E>(
     let formal_receiver = receiver_binding.is_some_and(|binding| binding.owner() == input.owner()
         && input.function().binding(binding).is_some_and(|row|
             matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Parameter { .. })));
-    if !claim_local && !self_receiver && !formal_receiver {
+    // Structural candidate only: `me.<field>.m(..)`. The package must affirm the
+    // stored-child source and the Nullable input loan; the child is never a Home.
+    let stored_receiver = receiver_alias.is_none() && input.body_shape().is_some_and(|shape| {
+        use crate::mir::resolved_semantics::BodyExpressionShapeV1 as Shape;
+        input.function().method_call(site.site()).is_some_and(|call|
+            matches!(shape.expression_shape(call.receiver_site()),
+                Some(Shape::FieldAccess { object, .. })
+                    if matches!(shape.expression_shape(&object), Some(Shape::Me { .. }))))
+    });
+    if !claim_local && !self_receiver && !formal_receiver && !stored_receiver {
         return Ok(None);
     }
-    let exact_initializer = if self_receiver || formal_receiver {
+    let exact_initializer = if self_receiver || formal_receiver || stored_receiver {
         corroborate_local_initializer_v1(
             input,
             statement,

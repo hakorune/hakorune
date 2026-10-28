@@ -201,7 +201,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<bool, E> {
     if !prefix_known || !matches!(statement.node(), ASTNode::MethodCall { .. }) {
-        return Ok(false);
+        return install_declined(input, statement, 0);
     }
     let site = OwnedExprSiteV1::new(
         input.owner(),
@@ -210,14 +210,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     let Some(BorrowedCallArgumentsV1::StoredMapSource(source)) =
         port(&site, BorrowedCallActualRequestV1::StoredMapSource)?
     else {
-        return Ok(false);
+        return install_declined(input, statement, 1);
     };
     let Some((binding, construction, set)) = source.installed_local_v1(&site) else {
-        return Ok(false);
+        return install_declined(input, statement, 2);
     };
     let Some((actual_binding, acquired)) = locals.direct_available_home(set.arguments()[1].site())
     else {
-        return Ok(false);
+        return install_declined(input, statement, 3);
     };
     if binding != actual_binding
         || acquired.owner() != input.owner()
@@ -225,23 +225,23 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
         || !locals.is_self_rooted_handle(source.receiver_v1().receiver())
         || maps.iter().any(|row| row.site() == &site)
     {
-        return Ok(false);
+        return install_declined(input, statement, 4);
     }
     let acquisition = acquired.clone();
     let Some(shape) = input.body_shape() else {
-        return Ok(false);
+        return install_declined(input, statement, 5);
     };
     let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess {
         object: read,
         ..
     }) = shape.expression_shape(set.receiver_site())
     else {
-        return Ok(false);
+        return install_declined(input, statement, 6);
     };
     if input.function().variable_ref(read)
         != Some(ResolvedLexicalRefV1::Local(source.receiver_v1().receiver()))
     {
-        return Ok(false);
+        return install_declined(input, statement, 7);
     }
     let read = read.clone();
     let Ok(plan) = crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(input, set, 0) else { return Ok(false) };
@@ -253,25 +253,25 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
             )
         )
     {
-        return Ok(false);
+        return install_declined(input, statement, 8);
     }
     let Some(key) = super::super::expression_plan::qualify_text_evaluation_v1(
         input, plan, &site, locals, homes, calls, port, None,
     )?
     else {
-        return Ok(false);
+        return install_declined(input, statement, 9);
     };
     if !key.calls().is_empty()
         || !key.cores().is_empty()
         || !key.operations().is_empty()
         || !key.owned_result_nodes().is_empty()
     {
-        return Ok(false);
+        return install_declined(input, statement, 10);
     }
     let prior = homes.clone().into_boxed_slice();
     let mut normal = homes.clone();
     if transfer_home_v1(locals, &mut normal, binding).is_err() {
-        return Ok(false);
+        return install_declined(input, statement, 11);
     }
     let row = std::rc::Rc::new(MapFieldInstallV1 {
         statement: statement.site().clone(),
@@ -496,4 +496,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_get_loc
     }
     maps.push(MapHomeObservation::FieldGet(frame));
     Ok(Some(Ok(())))
+}
+
+/// Default-off (builder debug flag): which numbered check declined a Map field install.
+#[inline(never)]
+fn install_declined<E>(input: ResolvedFunctionLoweringInputV1<'_>, statement: &crate::mir::compiler::located::LocatedStmtV1<'_>, check: u32) -> Result<bool, E> {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[map-install] declined owner={:?} statement={:?} check={check}", input.owner(), statement.site());
+    }
+    Ok(false)
 }
