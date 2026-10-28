@@ -103,13 +103,13 @@ where
         OrdinaryNewCoSealIssueV1,
     > {
         let (Some(caller), Some(receiver)) = (self.caller, self.receiver) else {
-            return Ok(None);
+            return entry_write_declined(input, site, 100);
         };
         let Some(call) = input.function().method_call(site) else {
-            return Ok(None);
+            return entry_write_declined(input, site, 101);
         };
         let Some(argument) = call.arguments().first() else {
-            return Ok(None);
+            return entry_write_declined(input, site, 102);
         };
         let text = matches!(
             input
@@ -118,9 +118,10 @@ where
                 .literal(argument.site()),
             Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_))
         ) || matches!(input.function().variable_ref(argument.site()), Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
-                if self.ingress.as_ref().is_ok_and(|ingress| ingress.source_value_sum_v1(binding).is_some_and(|sum| sum.text_only())));
+                if self.ingress.as_ref().is_ok_and(|ingress| ingress.source_value_sum_v1(binding).is_some_and(|sum| sum.text_only())
+                    || ingress.lend_read_sum_v1(argument.site(), binding).is_some_and(|sum| sum.text_only())));
         if !text {
-            return Ok(None);
+            return entry_write_declined(input, site, 103);
         }
         crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_array_read_source::capture_text_append(input, caller, receiver.1, site, self.constructors, self.writes)
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: OwnedExprSiteV1::new(input.owner(),site.clone()), issue })

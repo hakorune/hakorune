@@ -402,6 +402,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 owed += bindings.iter().filter(|(_, emitted)| matches!(emitted,
                     MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)).count();
             })?;
+            let owed_exit = owed;
             if let Some(view) = pending {
                 owed += view
                     .roots()
@@ -419,6 +420,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     })
                     .count();
             }
+            let owed_pending = owed;
             owed += rows
                 .iter()
                 .filter(|(site, other)| other.owner() == row.owner && !shared_received.contains(site))
@@ -449,6 +451,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     )
                 })
                 .count();
+            let owed_rows = owed;
             // A recorded lexical-call binding group's fault-unwind chain
             // discharges the binding exactly like a commit row's own
             // emitted unwind — both are recorded emissions, never
@@ -457,11 +460,18 @@ impl OrdinaryNewClaimLedgerV1 {
                 .flat_map(|group| group.bindings())
                 .filter(|(_, instruction)| matches!(instruction,
                     MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)).count()))?;
+            if crate::config::env::builder_debug_enabled() && actual != owed {
+                eprintln!("[release-count] breakdown exit={owed_exit} pending={} rows={} groups={}", owed_pending - owed_exit, owed_rows - owed_pending, owed - owed_rows);
+            }
             // A release of the wrong shape is just as fatal as a missing
             // one: unconditional `HomeRelease` on a `Void`-carrying value
             // would release the sentinel, and an extra field-residence op
             // would double-free.
             if actual != owed {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[release-count] owner={:?} operation={operation:?} actual={actual} owed={owed} release={:?}", row.owner, row.release);
+                    eprintln!("[release-count] function:\n{}", crate::mir::MirPrinter::new().print_function(function));
+                }
                 return Err(freeze(if actual < owed {
                     match row.release {
                         CallReceivedReleaseV1::Handle => "handle-release-missing",

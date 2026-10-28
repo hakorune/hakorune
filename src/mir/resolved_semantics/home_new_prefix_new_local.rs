@@ -94,6 +94,9 @@ pub(super) fn observe_selected_new_local<E>(
     // Argument moves complete on the invoke's Normal edge —
     // `prior_homes` above kept each binding so a Fault unwind
     // still discharges it.
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[new-local] site={:?} moved={:?} homes_before={:?}", owned, moved_arguments, homes);
+    }
     for moved in moved_arguments {
         homes.retain(|home| home.binding() != moved);
         locals.consume_home(moved);

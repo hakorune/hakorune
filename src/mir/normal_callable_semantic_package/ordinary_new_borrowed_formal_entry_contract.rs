@@ -464,7 +464,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 input_use_pending!("missing-read-source")
             }
-            if !uses.corroborates_non_entry_source_read_v1(site, *binding, &origins) {
+            if !uses.corroborates_non_entry_source_read_v1(site, *binding, &origins,
+                &|read| structure.source.read_consumed_by_scalar_core_v1(contract.owner, read)) {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[entry-input-use] uncorroborated non-entry read site={site:?} binding={binding:?}");
                 }

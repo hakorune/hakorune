@@ -217,6 +217,7 @@ impl OriginalFormalUseSourceV1 {
         site: &SourceExprSiteV1,
         binding: BindingRefV1,
         entry_origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+        consumed: &dyn Fn(&SourceExprSiteV1) -> bool,
     ) -> bool {
         use crate::mir::resolved_semantics::source_value_flow::{
             SourceValueOriginV1, SourceValueRefV1, VerifiedSourceValueFlowV1,
@@ -227,6 +228,7 @@ impl OriginalFormalUseSourceV1 {
             flow: &VerifiedSourceValueFlowV1,
             reads: &[(SourceExprSiteV1, ResolvedLexicalRefV1)],
             entry_origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+            consumed: &dyn Fn(&SourceExprSiteV1) -> bool,
             active: &mut BTreeSet<SourceValueRefV1>,
             complete: &mut BTreeSet<SourceValueRefV1>,
         ) -> bool {
@@ -246,6 +248,8 @@ impl OriginalFormalUseSourceV1 {
                             read_site.node().segments().starts_with(root_path)
                         })
                         .all(|(read_site, reference)| {
+                            // A read swallowed by a scalar-result Core call flows nowhere.
+                            if consumed(read_site) { return true; }
                             let ResolvedLexicalRefV1::Local(read_binding) = reference else {
                                 return false;
                             };
@@ -268,6 +272,7 @@ impl OriginalFormalUseSourceV1 {
                                     flow,
                                     reads,
                                     entry_origins,
+                                    consumed,
                                     active,
                                     complete,
                                 )
@@ -282,6 +287,7 @@ impl OriginalFormalUseSourceV1 {
                                 flow,
                                 reads,
                                 entry_origins,
+                                consumed,
                                 active,
                                 complete,
                             )
@@ -324,6 +330,7 @@ impl OriginalFormalUseSourceV1 {
             flow,
             &self.reads,
             entry_origins,
+            consumed,
             &mut BTreeSet::new(),
             &mut BTreeSet::new(),
         )

@@ -48,10 +48,22 @@ pub(crate) struct VerifiedSourceCallableResultFactsV1 {
         (OwnedExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1),
         std::rc::Rc<super::child_relation::SourceConstructionChildRelationV1>,
     >,
+    /// Statement-form Map installs, by their original set call site.
+    map_installs: BTreeMap<OwnedExprSiteV1, std::rc::Rc<super::witness::MapStoredResultSourceV1>>,
 }
 impl VerifiedSourceCallableResultFactsV1 {
     pub(crate) fn new() -> Self {
         Self::default()
+    }
+    pub(super) fn set_map_installs(&mut self, installs: BTreeMap<OwnedExprSiteV1, std::rc::Rc<super::witness::MapStoredResultSourceV1>>) {
+        self.map_installs = installs;
+    }
+    /// Constructions whose just-built payload a statement-form Map install keeps.
+    pub(super) fn map_install_constructions_v1(&self) -> impl Iterator<Item = OwnedExprSiteV1> + '_ {
+        self.map_installs.values().flat_map(|source| source.installed_constructions_v1())
+    }
+    pub(super) fn map_install_v1(&self, at: &OwnedExprSiteV1) -> Option<std::rc::Rc<super::witness::MapStoredResultSourceV1>> {
+        self.map_installs.get(at).cloned()
     }
     pub(crate) fn get(
         &self,

@@ -125,6 +125,15 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         } else { acquisition }
     } else { acquisition };
     if let Some(acquisition) = acquisition {
+        if crate::config::env::builder_debug_enabled() {
+            let kind = match entry {
+                RootHomeExitEntry::Call { invoke, .. } => format!("Call invoke={:?}", invoke),
+                RootHomeExitEntry::MapGet { invoke, .. } => format!("MapGet invoke={:?}", invoke),
+                RootHomeExitEntry::FieldGet { invoke, .. } => format!("FieldGet invoke={:?}", invoke),
+                RootHomeExitEntry::Plain { .. } => "Plain".to_owned(),
+            };
+            eprintln!("[ordered-path] function={} entry={kind} acquisition_fault={acquisition:?}", function.signature.name);
+        }
         pending(function, acquisition, &order.acquisition_fault(), frame)?;
     }
     let normal: Vec<_> = order.normal().iter().map(|origin| origin.operation().clone()).collect();
@@ -188,7 +197,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         } if operation == expected && Some(*fault_frame) == frame => {
             Ok((*normal_landing, *fault_landing))
         }
-        _ => Err(fault("ordered-path/operation")),
+        other => {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[TMP-BT] {}", std::backtrace::Backtrace::force_capture());
+                eprintln!("[ordered-path] block={id:?} expected={expected:?} frame={frame:?} found={other:?}");
+            }
+            Err(fault("ordered-path/operation"))
+        }
     }
 }
 fn pending(

@@ -346,7 +346,13 @@ impl OrdinaryNewClaimLedgerV1 {
             let borrowed_nullable = source.borrowed_nullable_local_source().is_some();
             let mixed = source.mixed_local_source().is_some();
             // Slot result law and holder/key lifetime must precede a packet.
-            let borrowed_receiver = source.has_borrowed_receiver_source_v1();
+            // A Map element receiver of a scalar-result call carries no result slot
+            // law of its own: the callee's numeric-only field writes are checked
+            // here, then the ordinary scalar disposition below applies.
+            let direct_scalar = source.direct_map_receiver_source_v1().is_some()
+                && self.lexical_i64_call_source(&call_site).is_some()
+                && self.check_direct_map_numeric_effects_v1(&source).is_ok();
+            let borrowed_receiver = source.has_borrowed_receiver_source_v1() && !direct_scalar;
             if borrowed_nullable || mixed || borrowed_receiver || self.requires_object_packet_v1(&source)? {
                 if borrowed_nullable || mixed || borrowed_receiver {
                     self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());

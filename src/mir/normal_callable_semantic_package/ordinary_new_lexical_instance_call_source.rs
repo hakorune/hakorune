@@ -63,6 +63,7 @@ impl DirectMapReceiverSourceV1 {
             initializer: OwnedExprSiteV1::new(input.owner(), initializer) })
     }
     pub(crate) fn source(&self) -> &super::super::StoredMapGetSourceLoanV1 { &self.source }
+    pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     /// The mint admission is the one observation of this owner's immutable
     /// source; later consumers only confirm they sit on the same owner.
     pub(crate) fn matches_original_v1(&self,

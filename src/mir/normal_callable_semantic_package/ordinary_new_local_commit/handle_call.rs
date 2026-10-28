@@ -154,7 +154,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 Ok(row) if row.end_available() => {
                     operations.extend(row.end_operations());
                 }
-                _ => return None,
+                other => {
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!("[prior-home] unavailable home={binding:?}: {}", match &other {
+                            Ok(row) => format!("end operations unavailable: {}", row.end_unavailable_reason()),
+                            Err(issue) => format!("not installed: {issue:?}"),
+                        });
+                    }
+                    return None;
+                }
             }
         }
         Some(operations)

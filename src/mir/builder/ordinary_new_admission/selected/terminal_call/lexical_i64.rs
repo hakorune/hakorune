@@ -190,7 +190,13 @@ fn emit_lexical_i64_call(
                 observation.unit_source() == Some(instance.source_target())
                     && observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments)
             && ledger.checked_borrowed_map_receiver_source_v1(instance.source_target())?;
-        if !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
+        // A Map element alias is not a Home: its slot support was proven by the
+        // direct-map receiver source and the numeric-only callee writes above.
+        let direct_map_receiver = instance.source_target().direct_map_receiver_source_v1().is_some()
+            && kind == InvokeCallResultKind::I64
+            && ledger.lexical_i64_call_source(row.call_site()).is_some_and(|observation|
+                observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments);
+        if !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !direct_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
             return Err(freeze("lexical-i64-receiver-home-missing"));
         }
     }

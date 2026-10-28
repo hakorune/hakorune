@@ -192,6 +192,26 @@ impl LocalCommitV1 {
             Self::TextResidence(_) | Self::DynamicCarrierResidence(_) => unreachable!("initializer Home publishes only through its completed Local receipt"),
         }
     }
+    /// Default-off diagnostic text for a Home whose End operations are unavailable.
+    pub(in crate::mir::normal_callable_semantic_package) fn end_unavailable_reason(&self) -> String {
+        match self {
+            Self::Ordinary(row) => format!("ordinary destruction_complete={} children_known={} emission={}",
+                row.destruction.supports_complete_execution(row.children.is_some()), row.children.is_some(),
+                match &row.emission {
+                    NewEmissionProgress::Unprepared => "unprepared",
+                    NewEmissionProgress::RetainedUnavailable { .. } => "retained-unavailable",
+                    NewEmissionProgress::Prepared { .. } => "prepared",
+                    NewEmissionProgress::Emitting => "emitting",
+                    NewEmissionProgress::Emitted { .. } => "emitted",
+                }),
+            Self::Result(_) => "result".to_owned(),
+            Self::Map(_) => "map".to_owned(),
+            Self::OwnedArray(_) => "owned-array".to_owned(),
+            Self::TextResidence(_) => "text-residence".to_owned(),
+            Self::DynamicCarrierResidence(_) => "dynamic-carrier".to_owned(),
+            Self::CallReceived(_) => "call-received".to_owned(),
+        }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn end_available(&self) -> bool {
         match self {
             Self::Ordinary(row) => {

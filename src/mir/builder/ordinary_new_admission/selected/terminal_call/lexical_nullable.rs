@@ -85,13 +85,20 @@ fn emit_object(
     }
     .ok_or_else(|| freeze("lexical-nullable/source-missing"))?;
     let borrowed_receiver = row.source_target().is_self_receiver();
-    let receiver_binding = row.receiver_binding()?;
+    // A stored Provider child is read through the entry `me`; it is never a Home.
+    let stored_receiver = row.source_target().stored_receiver().is_some();
+    let stored_entry_receiver = stored_receiver && entry.is_none()
+        && ledger.checked_stored_entry_receiver_v1(row.source_target())?;
+    let receiver_binding = match row.source_target().stored_receiver() {
+        Some((parent, _, _, _)) => parent,
+        None => row.receiver_binding()?,
+    };
     let receiver_has_home = relation.prior_homes().contains(
         &crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(receiver_binding),
     );
-    let borrowed_alias_receiver =
-        ledger.checked_field_alias_receiver_v1(&row, relation, None)?;
-    let receiver_is_borrowed_formal = !borrowed_receiver && !receiver_has_home
+    let borrowed_alias_receiver = !stored_receiver
+        && ledger.checked_field_alias_receiver_v1(&row, relation, None)?;
+    let receiver_is_borrowed_formal = !borrowed_receiver && !receiver_has_home && !stored_receiver
         && ledger.borrowed_entry_receiver_matches_class_v1(
             owner,
             receiver_binding,
@@ -99,7 +106,7 @@ fn emit_object(
         )?;
     if borrowed_receiver != entry.is_some()
         || (!borrowed_receiver && !receiver_has_home && !receiver_is_borrowed_formal
-            && !borrowed_alias_receiver)
+            && !borrowed_alias_receiver && !stored_entry_receiver)
     {
         return Err(freeze("lexical-nullable/receiver-home-missing"));
     }
@@ -133,18 +140,19 @@ fn emit_object(
     .ok_or_else(|| freeze("lexical-nullable/class-drift"))?;
     let result_type = result_type(result_kind, Some(class))?;
     let (receiver, locator) = match entry {
-        Some((key, expected, read)) => (read, Some((key, expected))),
+        Some((key, expected, read)) => (Some(read), Some((key, expected))),
+        None if stored_receiver => (None, None),
         None => (
-            state
+            Some(state
                 .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding()?)
                 .map_err(|error| {
                     format!("[freeze:contract][lexical-nullable/receiver/{error:?}]")
-                })?,
+                })?),
             None,
         ),
     };
     if borrowed_alias_receiver {
-        let value = receiver
+        let value = receiver.as_ref().ok_or_else(|| freeze("lexical-nullable/receiver-alias-drift"))?
             .value_for(owner, row.receiver_site().node(), receiver_binding)
             .map_err(|error| error.to_string())?;
         if !ledger.checked_field_alias_receiver_v1(&row, relation, Some(value))? {
@@ -153,7 +161,7 @@ fn emit_object(
     }
     if let Some((key, expected)) = locator {
         if row.target() != key
-            || receiver
+            || receiver.as_ref().ok_or_else(|| freeze("receiver-object/locator-drift"))?
                 .value_for(owner, row.receiver_site().node(), row.receiver_binding()?)
                 .map_err(|error| error.to_string())?
                 != expected
@@ -190,11 +198,18 @@ fn emit_object(
             _ => ledger.begin_nullable_call_emission(&owned_site, row.target())?,
         }
     }
+    let mut bindings = Vec::new();
+    let (receiver, stored_read) = match receiver {
+        Some(receiver) => (receiver, None),
+        None => lexical_receiver::prepare(builder, state, owner, &row, ledger,
+            lexical_receiver::Fault::Call(&unwind), &mut bindings)?,
+    };
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();
     let outward = builder.next_block_id();
     let result = builder.next_value_id();
-    let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
+    let shared_frame = fault_frame_binding(builder, state, frame)?;
+    if !bindings.contains(&shared_frame) { bindings.insert(0, shared_frame); }
     let prepared = lexical_i64::prepare_arguments_for_source(
         builder,
         state,
@@ -207,6 +222,10 @@ fn emit_object(
         Some(consume_receiver),
         None,
     )?;
+    let prepared = match stored_read {
+        Some(read) => prepared.with_stored_receiver(read)?,
+        None => prepared,
+    };
     let cancellation = match &object_packet {
         Some(packet) => packet.cancellation_operations_v1(result),
         None => {

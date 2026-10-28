@@ -266,6 +266,10 @@ impl ConstructionPlanV1 {
                         (mode, None)
                     } else {
                         let sum = qualify(store);
+                        if crate::config::env::builder_debug_enabled() && !sum.as_ref().is_some_and(|sum| sum.text_only()) {
+                            eprintln!("[construction-store] field={:?} object={:?}: dynamic source mode unavailable (available={source_dynamic_available}) and SUM is not Text-only: {:?}",
+                                store.field(), source.object(), sum.as_ref().map(|sum| format!("{sum:?}")));
+                        }
                         let sum = sum.filter(|sum| sum.text_only()).ok_or(U::FieldContractUnsupported)?;
                         (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum))
                     }

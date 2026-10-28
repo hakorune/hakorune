@@ -692,6 +692,9 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                 claims.insert(key, claim);
             }
         }
+        if let Some(entries) = entry_home {
+            claims.set_map_installs(witness::map_install_sources_v1(batch, selected, constructors, entries, field_write_claims));
+        }
         claims
     }
 }

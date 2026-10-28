@@ -51,7 +51,7 @@ impl OrdinaryNewClaimLedgerV1 {
         use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalUseCoverageV1 as Uses;
 
         let ConstructionStoreRhsV1::Parameter { site, binding, provided: None } = store.rhs() else {
-            return None;
+            return store_mode_declined(0);
         };
         let source = row.construction_source().as_ref().ok()?;
         let (constructor, owner) = source.constructor()?;
@@ -60,14 +60,14 @@ impl OrdinaryNewClaimLedgerV1 {
             || !source.stores().iter().any(|original| std::ptr::eq(original, store))
             || source.stores().iter().filter(|other| other.field() == store.field()).count() != 1
         {
-            return None;
+            return store_mode_declined(1);
         }
-        let formal = row.formal_contracts().iter().find(|formal| formal.binding() == *binding)?;
+        let formal = row.formal_contracts().iter().find(|formal| formal.binding() == *binding).or_else(|| { let _ = store_mode_declined::<()>(50); None })?;
         let Uses::UnqualifiedFieldStores { sites } = formal.uses() else { return None };
         if formal.binding() != *binding || formal.ordinal() as usize >= row.source_arity() as usize
             || sites.len() != 1 || !sites.contains(site)
         {
-            return None;
+            return store_mode_declined(2);
         }
 
         let mut child = None;
@@ -87,7 +87,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || relation.unqualified_field_source_v1(row.box_name()).is_err()
                 || relation.witnesses().is_empty()
             {
-                return None;
+                return store_mode_declined(3);
             }
             for witness in relation.witnesses() {
                 match witness.origin() {
@@ -99,7 +99,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
             if child.is_some_and(|prior| prior != relation.child()) {
-                return None;
+                return store_mode_declined(4);
             }
             child = Some(relation.child());
         }
@@ -755,4 +755,11 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Option<&[result_class_claim::ResultExitOriginV1]> {
         self.callable_result_classes.outcomes(key)
     }
+}
+
+/// Default-off (builder debug flag): which numbered check declined a dynamic constructor store mode.
+#[inline(never)]
+fn store_mode_declined<T>(check: u32) -> Option<T> {
+    if crate::config::env::builder_debug_enabled() { eprintln!("[constructor-store-mode] declined check={check}"); }
+    None
 }

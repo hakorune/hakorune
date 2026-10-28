@@ -129,6 +129,14 @@ pub(super) struct DisjointFieldAppendSourceV1 {
 impl MapStoredResultSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn payload_source_v1(&self)
         -> &Rc<super::super::container_field_uses::MapFieldPayloadSourceV1> { &self.payload }
+    /// Original `new` sites kept by this source's installed locals.
+    pub(super) fn installed_constructions_v1(&self) -> impl Iterator<Item = OwnedExprSiteV1> + '_ {
+        self.returns.values().filter_map(|row| match row {
+            MapStoredReturnV1::InstalledLocal { construction, set, .. } =>
+                Some(OwnedExprSiteV1::new(set.owner(), construction.site().clone())),
+            MapStoredReturnV1::Present { .. } => None,
+        })
+    }
     pub(crate) fn payload_class_v1(&self) -> &str { &self.payload.class }
     pub(crate) fn payload_object_v1(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.payload.object }
     /// Logical support from the original slot; this never issues a Call ABI.
@@ -301,6 +309,68 @@ pub(super) fn map_stored_result_source_v1(
 }
 
 
+/// Plain `me.<map>.set(key, local)` statements that install a just-constructed
+/// local payload, independent of any returned value. The local is constructed by
+/// the statement immediately before the set, the key is a never-rebound local or
+/// formal, and the same whole-Box payload census as the get-or-create form
+/// (has/get/delete/keys/set, one payload class) must hold. Install only: the
+/// `key` ordinal is not a result-support ordinal here.
+pub(super) fn map_install_sources_v1(
+    batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    entries: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
+    fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+) -> std::collections::BTreeMap<OwnedExprSiteV1, Rc<MapStoredResultSourceV1>> {
+    use crate::mir::resolved_semantics::{BodyExpressionShapeV1 as Shape, ResolvedLexicalRefV1 as Ref,
+        SourcePathSegmentV1 as Part};
+    use super::super::container_field_uses::{MapFieldPayloadSourceV1, original_payload_new_v1};
+    let mut found = std::collections::BTreeMap::new();
+    for declaration in batch.declarations() {
+        let slot = declaration.batch_slot();
+        let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(slot) else { continue };
+        if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod { continue; }
+        let Some(entry) = entries.for_batch_slot(slot) else { continue };
+        let Some(proof) = super::super::entry_receiver_box_proof(selected, batch, Some(entry), slot) else { continue };
+        let _ = batch.with_lowering_input(slot, |input| {
+            let (Some(shape), Ok(ledger)) = (input.body_shape(), input.forest().callable_source_ledger(input.owner())) else { return };
+            for (site, call) in input.function().method_calls() {
+                if call.selector() != "set" || call.arity() != 2 { continue; }
+                let Some(Shape::FieldAccess { object, field: name, .. }) = shape.expression_shape(call.receiver_site()) else { continue };
+                if !matches!(shape.expression_shape(&object), Some(Shape::Me { .. })) { continue; }
+                let Some(first) = input.function().method_call_source_v1(site) else { continue };
+                // Statement form only: the set call is itself a statement.
+                let [prefix @ .., statement] = site.node().segments() else { continue };
+                let ordinal = |segment: &Part| match segment { Part::Body(i) | Part::IfThen(i) | Part::IfElse(i) => Some(*i), _ => None };
+                let Some(set_index) = ordinal(statement) else { continue };
+                if prefix.iter().any(|part| matches!(part, Part::LoopBody(_) | Part::LambdaBody(_) | Part::TryBody(_) | Part::CatchBody(_))) { continue; }
+                let symbolic = |argument: usize| {
+                    let site = call.arguments().get(argument)?.site();
+                    let Ref::Local(binding) = input.function().variable_ref(site)? else { return None };
+                    (super::binding_is_unrebound(input.function(), binding) && ledger.uncaptured_binding(binding)).then_some(binding)
+                };
+                let (Some(key_binding), Some(value_binding)) = (symbolic(0), symbolic(1)) else { continue };
+                let Some(init) = super::sole_initializer_site(input.function(), value_binding) else { continue };
+                let [init_prefix @ .., init_statement, Part::Initializer(_)] = init.node().segments() else { continue };
+                if init_prefix != prefix || std::mem::discriminant(init_statement) != std::mem::discriminant(statement)
+                    || ordinal(init_statement).map(|i| i + 1) != Some(set_index) { continue; }
+                let Some(construction) = original_payload_new_v1(input, &init) else { continue };
+                let Ok(receiver) = crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1::issue(
+                    input, key, first, constructors, fields, proof, entry) else { continue };
+                let Some(payload) = MapFieldPayloadSourceV1::issue(batch, selected, constructors, fields, key.owner(), name.as_ref()) else { continue };
+                if payload.source.field() != receiver.field() || construction.class() != payload.class.as_ref() { continue; }
+                let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+                let mut returns = std::collections::BTreeMap::new();
+                returns.insert(owned.clone(), MapStoredReturnV1::InstalledLocal {
+                    binding: value_binding, construction, set: std::sync::Arc::clone(first), intervening: Box::new([]) });
+                found.insert(owned, Rc::new(MapStoredResultSourceV1 {
+                    receiver: Rc::new(receiver), key: key_binding, ordinal: 0, payload: Rc::new(payload), returns }));
+            }
+        });
+    }
+    found
+}
+
 impl super::OrdinaryNewResultClassClaimsV1 {
     /// Select storage by its exact original get, then independently recheck
     /// the producer's WHOLE Return roots. Caller and producer owners may differ.
@@ -334,7 +404,8 @@ impl super::OrdinaryNewResultClassClaimsV1 {
             exit.site() == value || exit.witnesses().iter().any(|root|
                 matches!(root.step(), ResultWitnessStepV1::MapStored { source }
                     if source.installed_local_v1(value).is_some()))));
-        let Some((key, _)) = rows.next() else { return Ok(None) };
+        // A Return-derived source owns its set; a plain set statement falls back to its install source.
+        let Some((key, _)) = rows.next() else { return Ok(self.map_install_v1(value)) };
         if rows.next().is_some() { return Err("callee-facts-identity"); }
         let roots = self.checked_original_source_roots_v1(key, value.owner())?;
         let Some(first) = roots.first() else { return Ok(None) };

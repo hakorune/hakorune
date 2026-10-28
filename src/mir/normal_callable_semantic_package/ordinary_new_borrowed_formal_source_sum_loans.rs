@@ -424,6 +424,16 @@ impl PreparedBorrowedFormalIngressV1 {
             .map(|row| self.lend_source_value_sum_v1(row.binding))
             .collect()
     }
+    /// The SUM at one exact original read of a Local, from the same original flow.
+    pub(in crate::mir::normal_callable_semantic_package) fn lend_read_sum_v1(
+        &self,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        let product = &self.original_formal_seeds;
+        let flow = product.source_sums.as_ref()?.flows.get(&binding.owner())?;
+        lend_original_point_sum(product, &self.source_incoming, flow, site, binding)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn lend_source_value_sum_v1(
         &self,
         formal: BindingRefV1,
@@ -437,6 +447,20 @@ impl PreparedBorrowedFormalIngressV1 {
             .values
             .get(&formal)
             .map(Rc::clone)
+    }
+    /// The read is the receiver or an argument of an original Core call whose
+    /// whole result is a signed or Bool scalar; the value cannot flow onward.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn read_consumed_by_scalar_core_v1(
+        &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1, read: &SourceExprSiteV1,
+    ) -> bool {
+        use crate::mir::resolved_semantics::SourcePathSegmentV1 as Part;
+        let segments = read.node().segments();
+        let [parent @ .., Part::Receiver | Part::Argument(_)] = segments else { return false };
+        let call = SourceExprSiteV1::from_node(crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(parent.to_vec()));
+        self.closed_core_source_v1(&OwnedExprSiteV1::new(owner, call)).is_some_and(|core| {
+            let sum = core.result_sum_v1();
+            sum.signed_only() || sum.bool_only()
+        })
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn closed_core_source_v1(
         &self,

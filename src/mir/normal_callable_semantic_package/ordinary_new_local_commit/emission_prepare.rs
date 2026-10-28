@@ -72,6 +72,10 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         };
         let mut operands = Vec::new();
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[new-emission] site={site:?} execution={:?} destruction_complete={} prior_homes_known={}",
+                execution.as_ref().map(|_| ()), destruction.supports_complete_execution(children.is_some()), prior_homes.is_some());
+        }
         let mut available = execution.is_ok();
         // Owned publication still requires sealed residences for Normal
         // Home teardown. Birth owns partial-field Fault cleanup; its
@@ -88,6 +92,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         HomeLookupError::Missing => freeze("prior-home-not-installed"),
                         HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
                     })?;
+                    if crate::config::env::builder_debug_enabled() && !prior.end_available() {
+                        eprintln!("[new-emission] site={site:?} prior Home {binding:?} End unavailable: {}", prior.end_unavailable_reason());
+                    }
                     available &= prior.end_available();
                     operands.extend(prior.end_operations());
                 }
@@ -193,6 +200,14 @@ impl OrdinaryNewClaimLedgerV1 {
         // A non-trivial argument co-seal is a retained claim, not a take-time
         // freeze: the site keeps its raw-lane emission and the row records
         // the truthful unavailable terminal.
+        if crate::config::env::builder_debug_enabled() {
+            if let Err(issue) = claim.argument_rows() {
+                eprintln!("[new-emission] argument rows unavailable site={:?}: {issue:?}", claim.site());
+            }
+            if !matches!(next, NewEmissionProgress::Prepared { .. }) {
+                eprintln!("[new-emission] not prepared site={:?} (prior Home or constructor unavailable)", claim.site());
+            }
+        }
         if claim.argument_rows().is_err()
             && matches!(next, NewEmissionProgress::Prepared { .. })
         {

@@ -521,6 +521,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 _ => return Err(freeze("argument-source-unavailable")),
             }
         };
+        // The New home prefix stores its Homes newest-first; the shared unwind
+        // takes oldest-first input and walks it newest-first.
+        let homes: Vec<_> = homes.into_iter().rev().collect();
         self.prior_home_unwind_for(&homes)
     }
     pub(in crate::mir) fn new_argument_object_cleanup_v1(

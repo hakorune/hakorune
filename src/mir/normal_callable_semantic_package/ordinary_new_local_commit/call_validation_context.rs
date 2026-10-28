@@ -318,7 +318,11 @@ impl<'a> CallValidationContextV1<'a> {
         for ((exit_owner, site), progress) in self.ledger().root_exits.borrow().iter() {
             if *exit_owner != owner { continue; }
             match progress {
-                RootHomeExitProgress::Emitted { bindings, .. } => visit(bindings),
+                RootHomeExitProgress::Emitted { bindings, order, .. } => {
+                    visit(bindings);
+                    // The return expression's own Fault chain also discharges live Homes.
+                    visit(&order.return_expression_bindings_v1(self)?);
+                }
                 RootHomeExitProgress::Finalized(_) => {
                     if let Self::Finalized(source) = self {
                         let exit = site.explicit_site().ok_or_else(|| freeze("call-validation/finalized-exit-site"))?;
@@ -347,6 +351,19 @@ impl<'a> CallValidationContextV1<'a> {
         self, row: &LexicalInstanceCallDispositionRowV1,
         read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(), String> {
+        if let Some(direct) = row.source_target().direct_map_receiver_source_v1() {
+            // The alias is the SAME original Map get Local: the receiver read must
+            // be that packet's own LocalSSA copy, never another value.
+            let owner = row.call_site().owner();
+            let receiver = read.value_for(owner, row.receiver_site().node(), direct.binding())
+                .map_err(|_| freeze("borrowed-return/original-contract"))?;
+            let locals = self.with_local_call_group_tree_v2(owner, |groups| {
+                Ok(groups.iter().filter_map(|group| group.stored_map_get())
+                    .filter(|packet| packet.frame().binding() == direct.binding())
+                    .map(|packet| packet.copy_receipt().0).collect::<Vec<_>>())
+            })?;
+            return if locals.as_slice() == [receiver] { Ok(()) } else { Err(freeze("borrowed-return/original-contract")) };
+        }
         let Some(loan) = row.source_target().borrowed_call_receiver_source_v1() else {
             return if row.source_target().has_borrowed_receiver_source_v1() {
                 Err(freeze("borrowed-return/original-loan"))

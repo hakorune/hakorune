@@ -117,6 +117,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
     let result_construction_sites: BTreeSet<_> = facts.source_rows().flat_map(|(_, rows)| rows.iter())
         .flat_map(|row| row.witnesses())
         .filter_map(|witness| witness.construction_site_v1().cloned())
+        .chain(facts.map_install_constructions_v1())
         .collect();
     for declaration in batch.declarations() {
         let slot = declaration.batch_slot();
@@ -171,25 +172,22 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
         }).map_err(|_| super::super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
     }
 
+    // Per (site, field): 0 = only Null, 1 = only Fresh child, 2 = Null or Fresh child.
     let mut dynamic_fields = BTreeMap::<
         CanonicalObjectIdV1,
-        BTreeMap<OwnedExprSiteV1, BTreeMap<CanonicalFieldRefV1, Option<bool>>>,
+        BTreeMap<OwnedExprSiteV1, BTreeMap<CanonicalFieldRefV1, Option<u8>>>,
     >::new();
     for relation in relations.values().filter(|relation| relation.unqualified_dynamic) {
-        let category = relation.witnesses().first().and_then(|first| {
-            let category = match first.origin() {
-                ResultValueOriginV1::Null => false,
-                ResultValueOriginV1::Fresh(_) => true,
-                _ => return None,
-            };
-            relation.witnesses().iter().all(|witness| match (category, witness.origin()) {
-                (false, ResultValueOriginV1::Null) => true,
-                (true, ResultValueOriginV1::Fresh(class)) => batch.ordinary_box_coverage()
-                    .row_for(class).ok().flatten()
-                    .and_then(|source| constructors.object_for(&source).ok()) == Some(relation.child()),
-                _ => false,
-            }).then_some(category)
+        let witnesses = relation.witnesses();
+        let all_valid = !witnesses.is_empty() && witnesses.iter().all(|witness| match witness.origin() {
+            ResultValueOriginV1::Null => true,
+            ResultValueOriginV1::Fresh(class) => batch.ordinary_box_coverage()
+                .row_for(class).ok().flatten()
+                .and_then(|source| constructors.object_for(&source).ok()) == Some(relation.child()),
+            _ => false,
         });
+        let nulls = witnesses.iter().filter(|witness| matches!(witness.origin(), ResultValueOriginV1::Null)).count();
+        let category = all_valid.then(|| if nulls == 0 { 1 } else if nulls == witnesses.len() { 0 } else { 2 });
         dynamic_fields.entry(relation.field.object()).or_default()
             .entry(relation.outer.clone()).or_default().insert(relation.field, category);
     }
@@ -271,6 +269,7 @@ fn join_outer(
     }
     for store in plan.stores() {
         let ConstructionStoreRhsV1::Parameter { site, binding, provided } = store.rhs() else {
+            note_relation_declined(outer, store.field(), 99);
             continue;
         };
         if plan
@@ -290,20 +289,22 @@ fn join_outer(
             .iter()
             .find(|formal| formal.binding() == *binding)
         else {
+            note_relation_declined(outer, store.field(), 99);
             continue;
         };
         let (child, unqualified_dynamic) = match (provided, formal.uses()) {
             (Some(child), BirthFormalUseCoverageV1::ObjectFieldStores { sites }) if sites.contains(site) => (*child, false),
             (None, BirthFormalUseCoverageV1::UnqualifiedFieldStores { sites }) if sites.contains(site) => {
-                let Some(child) = dynamic_classes.get(&store.field()).copied() else { continue; };
+                let Some(child) = dynamic_classes.get(&store.field()).copied() else { note_relation_declined(outer, store.field(), 98); continue; };
                 (child, true)
             }
-            _ => continue,
+            _ => { note_relation_declined(outer, store.field(), 97); continue; }
         };
         let Ok(actual) = input
             .source()
             .child_expr_from_expr(&located, ExprChildRoleV1::CallArgument(formal.ordinal()))
         else {
+            note_relation_declined(outer, store.field(), 99);
             continue;
         };
         let actual = OwnedExprSiteV1::new(actual.owner(), actual.site().clone());
@@ -313,6 +314,7 @@ fn join_outer(
         let Some(witnesses) = actual_witnesses(
             &actual, input, slot, key, facts, batch, selected, fields, parameters,
         ) else {
+            note_relation_declined(outer, store.field(), 99);
             continue;
         };
         if witnesses.is_empty()
@@ -420,7 +422,7 @@ fn dynamic_child_classes_for_outer(
         if actual.owner() != input.owner() { continue; }
         let Some(witnesses) = actual_witnesses(
             &actual, input, slot, key, facts, batch, selected, fields, parameters,
-        ) else { continue; };
+        ) else { note_relation_declined(outer, store.field(), 200); continue; };
         let mut children = BTreeSet::new();
         let valid = !witnesses.is_empty() && witnesses.iter().all(|witness| match witness.origin() {
             ResultValueOriginV1::Null => true,
@@ -573,3 +575,11 @@ pub(super) fn class_agrees(
 #[cfg(test)]
 #[path = "child_relation_tests.rs"]
 mod tests;
+
+/// Default-off (builder debug flag): a store of a construction was not joined to a child relation.
+#[inline(never)]
+fn note_relation_declined(outer: &OwnedExprSiteV1, field: CanonicalFieldRefV1, check: u32) {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[child-relation] declined outer={outer:?} field={field:?} check={check}");
+    }
+}
