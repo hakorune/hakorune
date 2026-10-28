@@ -455,9 +455,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             if origins.contains_key(binding) {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[entry-input-use] uncovered entry read site={site:?} binding={binding:?}");
+                }
                 input_use_pending!("missing-read-source")
             }
             if !uses.corroborates_non_entry_source_read_v1(site, *binding, &origins) {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[entry-input-use] uncorroborated non-entry read site={site:?} binding={binding:?}");
+                }
                 input_use_pending!("missing-read-source")
             }
             covered.insert((site.clone(), *binding));
