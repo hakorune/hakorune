@@ -60,6 +60,9 @@ static int lv4_field_borrow_same_path(hako_lv4_function_index* fn,
   for (size_t depth = 0; left && right; depth++) {
     if (left == right) return 1;
     if (depth >= fn->value_count) return -1;
+    /* Different slot reads may still denote the same stored object. Without
+     * a common producer proof they cannot establish distinct paths. */
+    if (left->kind == LV4_SLOT_BORROW || right->kind == LV4_SLOT_BORROW) return -1;
     if (left->origin != LV4_OWNED_FIELD_BORROW || right->origin != LV4_OWNED_FIELD_BORROW) return 0;
     if (!lv4_is(left->instruction, "op", "object_field_get") ||
         !lv4_is(right->instruction, "op", "object_field_get")) return -1;

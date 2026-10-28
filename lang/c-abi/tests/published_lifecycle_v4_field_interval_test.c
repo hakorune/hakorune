@@ -2,8 +2,8 @@
 #include "../shims/hako_llvmc_ffi.c"
 #include <assert.h>
 
-static int interval(const char* release, const char* left, const char* right,
-    const char* finish, int discharged) {
+static int interval_with_slot_parent(const char* release, const char* left, const char* right,
+    const char* finish, int discharged, int slot_parent) {
   char json[8192];
   int size = snprintf(json, sizeof(json),
       "{\"entry\":0,\"blocks\":["
@@ -18,21 +18,28 @@ static int interval(const char* release, const char* left, const char* right,
   assert(doc);
   hako_lv4_function_index fn = {0};
   hako_lv4_block blocks[5];
-  hako_lv4_value parent = {0};
+  hako_lv4_value values[2] = {{0}};
+  hako_lv4_value* parent = &values[0];
   fn.function = yyjson_doc_get_root(doc); fn.blocks = blocks; fn.block_count = 5;
   /* Physical identity for same-path comparison; this test issues no lease. */
-  parent.id = 1; parent.kind = LV4_HANDLE;
-  fn.values = &parent; fn.value_count = 1;
+  parent->id = 1; parent->kind = slot_parent ? LV4_SLOT_BORROW : LV4_HANDLE;
+  values[1].id = 2; values[1].kind = LV4_SLOT_BORROW;
+  fn.values = values; fn.value_count = 2;
   for (size_t i = 0; i < 5; i++) {
     blocks[i].id = (uint32_t)i; blocks[i].ordinal = i;
     blocks[i].block = yyjson_arr_get(yyjson_obj_get(fn.function, "blocks"), i);
   }
   int valid = discharged >= LV4_FIELD_ARRAY_DRAIN ?
-      lv4_field_interval(&fn, 4, 0, &parent, 7, 3, 11, (hako_lv4_field_interval_kind)discharged) :
-      discharged ? lv4_field_dependency_discharged(&fn, 4, 0, &parent, 7, 3, 11) :
-      lv4_field_borrow_suffix(&fn, 4, 0, &parent, 7, 3);
+      lv4_field_interval(&fn, 4, 0, parent, 7, 3, 11, (hako_lv4_field_interval_kind)discharged) :
+      discharged ? lv4_field_dependency_discharged(&fn, 4, 0, parent, 7, 3, 11) :
+      lv4_field_borrow_suffix(&fn, 4, 0, parent, 7, 3);
   yyjson_doc_free(doc);
   return valid;
+}
+
+static int interval(const char* release, const char* left, const char* right,
+    const char* finish, int discharged) {
+  return interval_with_slot_parent(release, left, right, finish, discharged, 0);
 }
 
 #define END "{\"op\":\"invoke\",\"operation\":{\"kind\":\"object_field_release\",\"base\":1,\"object_id\":7,\"field_ordinal\":3,\"child_object_id\":11}}"
@@ -73,6 +80,13 @@ int main(void) {
   assert(!interval(EMPTY, call, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
   assert(!interval(EMPTY, write, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
   assert(!interval(EMPTY, END, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
+  /* Another get may alias this payload; a same-field write must refuse. */
+  const char* other_slot_write = "{\"operation\":{\"kind\":\"field_set\",\"base\":2,\"object_id\":7,\"field_ordinal\":3}}";
+  const char* other_slot_end = "{\"operation\":{\"kind\":\"home_release\",\"value\":2}}";
+  assert(interval_with_slot_parent(EMPTY, EMPTY, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT, 1));
+  assert(!interval_with_slot_parent(EMPTY, other_slot_write, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT, 1));
+  assert(!interval_with_slot_parent(EMPTY, other_slot_end, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT, 1));
+  assert(!interval(EMPTY, other_slot_write, EMPTY, EMPTY, LV4_FIELD_BORROW_SLOT));
   assert(interval(dynamic, EMPTY, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
   assert(interval(write, dynamic, dynamic, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
   assert(!interval(dynamic, write, EMPTY, EMPTY, LV4_FIELD_DYNAMIC_DRAIN));
