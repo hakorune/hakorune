@@ -7,7 +7,7 @@ static int hako_physical_map_field_text_access(yyjson_val* op) {
   return hako_physical_map_field_text_read(op) ||
       hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_install_indexed");
 }
-static int hako_physical_string_operand(yyjson_val*, yyjson_val*, uint32_t, uint32_t, int, int);
+static int hako_physical_string_operand(yyjson_val*, yyjson_val*, uint32_t, uint32_t, int, int, int);
 /* Checked Map operation shape validation. The V4 flow owns lifetime and
  * result-kind checks; this file only validates exact physical JSON fields. */
 static int hako_physical_map_kind(const char* kind) {
@@ -63,7 +63,7 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
         hako_physical_field_storage(layouts, object, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC &&
         hako_physical_u32(yyjson_obj_get(op, "base"), &value) &&
         hako_physical_value_available_at(function, value, block, index) &&
-        hako_physical_string_operand(function, yyjson_obj_get(op, "key"), block, index, 1, 0);
+        hako_physical_string_operand(function, yyjson_obj_get(op, "key"), block, index, 1, 0, 0);
   }
   if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_new"))
     return hako_physical_exact_keys(op, new_keys, 2);

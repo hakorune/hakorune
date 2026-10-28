@@ -330,8 +330,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn finite_entry_return<E
     use crate::mir::resolved_semantics::home_new_prefix::{
         BorrowedCallActualRequestV1 as Request, BorrowedCallArgumentsV1 as Response,
     };
+    // The same entry-formal lookup as the initializer expression: a Text entry
+    // reference, else an untyped (opaque) entry formal.
     let Some((binding, root)) =
-        super::super::argument_expression::text_reference(input, locals, value_site)
+        super::super::argument_expression::text_reference(input, locals, value_site).or_else(|| {
+            super::super::argument_expression::dynamic_formal_reference(input, locals, value_site)
+        })
     else {
         return Ok(None);
     };
