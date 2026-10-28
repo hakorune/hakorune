@@ -9,7 +9,7 @@
 use super::{BasicBlockId, MirBuilder, ValueId};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-/// Existing values may cross a complete reachable join without a new Phi.
+/// Entry parameters or dominating values may cross a complete join without a new Phi.
 /// This is physical correspondence only; it issues no type or source authority.
 pub(super) fn reusable_join_values(
     function: &crate::mir::MirFunction,
@@ -25,8 +25,6 @@ pub(super) fn reusable_join_values(
             (edge.target == merge).then_some(*pred))).collect();
     if exits.len() < 2 || expected.len() != exits.len() || actual.len() != exits.len()
         || actual.into_iter().collect::<BTreeSet<_>>() != expected
-        || !dominance.is_reachable(merge)
-        || !expected.iter().all(|pred| dominance.is_reachable(*pred))
     { return BTreeSet::new(); }
     let mut counts: HashMap<ValueId, usize> = HashMap::new();
     for param in &function.params { *counts.entry(*param).or_default() += 1; }
@@ -35,10 +33,14 @@ pub(super) fn reusable_join_values(
             if let Some(dst) = row.dst_value() { *counts.entry(dst).or_default() += 1; }
         }
     }
+    // A unique parameter is available on every execution of this function,
+    // including a nested If whose enclosing entry edge is still being built.
+    let reachable = dominance.is_reachable(merge)
+        && expected.iter().all(|pred| dominance.is_reachable(*pred));
     defs.iter().filter_map(|(value, block)|
         (counts.get(value) == Some(&1) && *block != merge
-            && dominance.is_reachable(*block)
-            && dominance.dominates(*block, merge)).then_some(*value)).collect()
+            && (function.params.contains(value) || (reachable && dominance.is_reachable(*block)
+                && dominance.dominates(*block, merge)))).then_some(*value)).collect()
 }
 
 /// PHI Merge Helper - 統一PHI挿入ロジック（Conservative戦略）

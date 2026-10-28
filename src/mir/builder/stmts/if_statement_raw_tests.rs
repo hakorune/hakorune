@@ -562,7 +562,7 @@ fn if_merge_reuses_only_complete_reachable_unique_dominating_values() {
     let other = ValueId::new(10);
     for multi in [false, true] {
     for case in ["complete", "different", "duplicate_exit", "extra_pred",
-        "unreachable", "duplicate_definition", "non_dominating", "sanitized", "self_phi"] {
+        "unreachable", "unreachable_local", "duplicate_definition", "non_dominating", "sanitized", "self_phi"] {
         if multi && case == "duplicate_exit" { continue; } // BTreeMap keys cannot duplicate.
         let mut builder = builder(&format!("if_merge_alias_{case}/1"));
         {
@@ -575,12 +575,18 @@ fn if_merge_reuses_only_complete_reachable_unique_dominating_values() {
             function.blocks.get_mut(&bb(0)).unwrap().add_instruction(MirInstruction::Const {
                 dst: ValueId::new(9), value: ConstValue::Bool(true),
             });
-            function.blocks.get_mut(&bb(0)).unwrap().set_terminator(if case == "unreachable" {
+            function.blocks.get_mut(&bb(0)).unwrap().set_terminator(if matches!(case, "unreachable" | "unreachable_local") {
                 MirInstruction::Return { value: None }
             } else {
                 MirInstruction::Branch { condition: ValueId::new(9), then_bb: bb(1), else_bb: bb(2),
                     then_edge_args: None, else_edge_args: None }
             });
+            if case == "unreachable_local" {
+                function.params.clear(); function.signature.params.clear();
+                function.blocks.get_mut(&bb(1)).unwrap().add_instruction(MirInstruction::Const {
+                    dst: value, value: ConstValue::Integer(7),
+                });
+            }
             for id in 1..=2 {
                 function.blocks.get_mut(&bb(id)).unwrap().set_terminator(MirInstruction::Jump {
                     target: bb(3), edge_args: None,
@@ -626,7 +632,7 @@ fn if_merge_reuses_only_complete_reachable_unique_dominating_values() {
                 &mut builder, Some(bb(1)), Some(else_exit),
             ).merge_all_vars(&before, &before, &Some(otherwise), None)
         };
-        if case == "complete" {
+        if matches!(case, "complete" | "unreachable") {
             result.unwrap();
             assert_eq!(builder.function_state.variable_ctx.variable_map.get("kept"), Some(&value));
             assert!(builder.function_state.current_function.as_ref().unwrap().blocks[&bb(3)]
