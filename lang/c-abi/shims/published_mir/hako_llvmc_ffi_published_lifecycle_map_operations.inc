@@ -5,13 +5,14 @@ static int hako_physical_map_field_text_read(yyjson_val* op) {
 /* Key operand classification is shared; install keeps a distinct mutation flow. */
 static int hako_physical_map_field_text_access(yyjson_val* op) {
   return hako_physical_map_field_text_read(op) ||
-      hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_install_indexed");
+      hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_install_indexed") ||
+      hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_delete_indexed");
 }
 static int hako_physical_string_operand(yyjson_val*, yyjson_val*, uint32_t, uint32_t, int, int, int);
 /* Checked Map operation shape validation. The V4 flow owns lifetime and
  * result-kind checks; this file only validates exact physical JSON fields. */
 static int hako_physical_map_kind(const char* kind) {
-  return kind && (!strcmp(kind, "map_field_keys") || !strcmp(kind, "map_field_has") || !strcmp(kind, "map_field_get_indexed") || !strcmp(kind, "map_field_install_indexed") || !strcmp(kind, "map_new") || !strcmp(kind, "map_prepare_key") ||
+  return kind && (!strcmp(kind, "map_field_keys") || !strcmp(kind, "map_field_has") || !strcmp(kind, "map_field_get_indexed") || !strcmp(kind, "map_field_install_indexed") || !strcmp(kind, "map_field_delete_indexed") || !strcmp(kind, "map_new") || !strcmp(kind, "map_prepare_key") ||
       (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) ||
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
       !strcmp(kind, "map_install_borrowed_array") ||
@@ -52,7 +53,8 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
     static const char* const install_keys[] = {"kind", "site", "object_id", "field_ordinal", "base", "key", "payload_object_id", "value"};
     uint32_t ordinal, payload;
     int install = hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_install_indexed");
-    int get = hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_get_indexed");
+    int get = hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_get_indexed") ||
+        hako_physical_string(yyjson_obj_get(op, "kind"), "map_field_delete_indexed");
     return hako_physical_exact_keys(op, install ? install_keys : get ? get_keys : keys, install ? 8 : get ? 7 : 6) &&
         (!install || (hako_physical_u32(yyjson_obj_get(op, "value"), &value) &&
             hako_physical_value_available_at(function, value, block, index))) &&

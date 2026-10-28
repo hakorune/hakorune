@@ -38,6 +38,7 @@ const FIELD_SYMBOLS: &[&str] = &[
     "nyash.object.checked_map_field_has_v1",
     "nyash.object.checked_map_field_get_v1",
     "nyash.object.checked_map_field_install_indexed_v1",
+    "nyash.object.checked_map_field_delete_indexed_v1",
 ];
 pub(super) fn require_checked_map_symbols(archive: &Path, fields: bool) -> Result<(), String> {
     let output = Command::new("nm")

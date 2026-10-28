@@ -22,6 +22,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
   int field_read = hako_physical_map_field_text_read(op);
   int field_install = lv4_is(op, "kind", "map_field_install_indexed");
+  int field_delete = lv4_is(op, "kind", "map_field_delete_indexed");
   int field_get = lv4_is(op, "kind", "map_field_get_indexed");
   int field_keys = lv4_is(op, "kind", "map_field_keys");
   int make_map = lv4_is(op, "kind", "map_new");
@@ -36,7 +37,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   int array_index = lv4_is(op, "kind", "map_array_index_map");
   int get_text = lv4_is(op, "kind", "map_get_text");
   int end_map = lv4_is(op, "kind", "map_end");
-  if (make_map || make_key || install) {
+  if (make_map || make_key || install || field_delete) {
     const char* storage = make_map ? "map" : make_key ? "key" : "outcome";
     lv4_map_bookkeeping(f, make_map ? "storage_init" : make_key ? "key_init" : "outcome_init",
         storage, b, b, 0);
@@ -52,11 +53,14 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
           b, i, len, b, i, value, b, i);
     }
   }
-  if (field_read || field_install) lv4_string_operand_emit(f, yyjson_obj_get(op, "key"), fi, b, 0);
+  if (field_read || field_install || field_delete) lv4_string_operand_emit(f, yyjson_obj_get(op, "key"), fi, b, 0);
   fprintf(f, "  %%status%u = call i32 ", b);
   if (field_keys) {
     fprintf(f, "@\"nyash.object.checked_map_field_keys_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %u, ptr %%get_out%u)\n",
         in->profile, site, lv4_u(op, "base"), lv4_type_id(in, op), lv4_u(op, "field_ordinal"), b);
+  } else if (field_delete) {
+    fprintf(f, "@\"nyash.object.checked_map_field_delete_indexed_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %u, ptr %%strarg%u_0, ptr %%outcome%u)\n",
+        in->profile, site, lv4_u(op, "base"), lv4_type_id(in, op), lv4_u(op, "field_ordinal"), b, b);
   } else if (field_install) {
     uint32_t payload = lv4_u(op, "payload_object_id");
     fprintf(f, "@\"nyash.object.checked_map_field_install_indexed_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %u, i64 %u, ptr %%strarg%u_0, i64 %%v%u, i64 %llu, ptr @hako_lifecycle_object_end_descriptor_%u, ptr %%outcome%u)\n",
@@ -127,13 +131,13 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
     lv4_map_dispatch(f, b, normal, fault);
     return;
   }
-  if (!make_map && !make_key && !install) {
+  if (!make_map && !make_key && !install && !field_delete) {
     lv4_map_bookkeeping(f, end_map ? "storage_dispose" : "outcome_dispose", "v",
         lv4_u(op, end_map ? "map" : "outcome"), b, 1);
     lv4_map_dispatch(f, b, normal, fault);
     return;
   }
-  if (install && !field_install) lv4_map_bookkeeping(f, "key_dispose", "v", lv4_u(op, "key"), b, 1);
+  if (install && !field_install && !field_delete) lv4_map_bookkeeping(f, "key_dispose", "v", lv4_u(op, "key"), b, 1);
   fprintf(f, "  %%map_normal%u = icmp eq i32 %%status%u, 0\n"
       "  br i1 %%map_normal%u, label %%%s, label %%map_failed%u\nmap_failed%u:\n",
       b, b, b, normal, b, b);
@@ -157,7 +161,7 @@ static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,
   else if (lv4_is(op, "kind", "map_get_text")) {
     name = "text"; size = (uint32_t)sizeof(NyrtTextViewStorageV1); align = (uint32_t)_Alignof(NyrtTextViewStorageV1);
   }
-  else if (lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
+  else if (lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_field_delete_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
       lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
       lv4_is(op, "kind", "map_install_borrowed_array")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
   if (name) fprintf(f, "  %%%s%u = alloca [%u x i8], align %u\n", name, b, size, align);
@@ -182,6 +186,7 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.array.checked_text_end_v1\"(ptr, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_map_field_get_v1\"(ptr, i32, i64, i64, i64, i64, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_map_field_install_indexed_v1\"(ptr, i32, i64, i64, i64, i64, ptr, i64, i64, ptr, ptr)\n"
+      "declare i32 @\"nyash.object.checked_map_field_delete_indexed_v1\"(ptr, i32, i64, i64, i64, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.map.storage_init_v1\"(ptr)\n"
       "declare i32 @\"nyash.map.key_init_v1\"(ptr)\n"
       "declare i32 @\"nyash.map.outcome_init_v1\"(ptr)\n"

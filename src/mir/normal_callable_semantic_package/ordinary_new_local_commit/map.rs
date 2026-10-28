@@ -276,8 +276,15 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return false;
         };
-        let Some((binding, construction, set)) = source.installed_local_v1(install.site()) else {
-            return false;
+        let installed = source.installed_local_v1(install.site());
+        let (call, same) = match installed {
+            Some((binding, construction, set)) => (set, install.binding() == Some(binding)
+                && install.site().owner() == binding.owner()
+                && install.acquisition().map(|site| site.site()) == Some(construction.site())),
+            None => match source.deleted_v1(install.site()) {
+                Some(call) => (call, install.binding().is_none()),
+                None => return false,
+            },
         };
         let matching = super::CallValidationContextV1::Lowering(self)
             .with_local_call_group_tree_v2(install.site().owner(), |groups| {
@@ -285,11 +292,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     .filter(|packet| std::ptr::eq(packet.frame().as_ref(), install)).count())
             }).unwrap_or(0);
         matching == 1 && Rc::ptr_eq(&source, install.source())
-            && install.site().owner() == install.binding().owner()
-            && binding == install.binding()
-            && construction.site() == install.acquisition().site()
-            && set.owner() == install.site().owner()
-            && set.site() == install.site().site()
+            && same
+            && call.owner() == install.site().owner()
+            && call.site() == install.site().site()
     }
 
     fn map_field_get_consumed_v1(

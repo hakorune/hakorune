@@ -474,6 +474,70 @@ unsafe fn install_candidate(
     }
 }
 
+/// Detach the entry at one decoded Text key into an initialized, unissued
+/// outcome. A missing key still publishes an (empty) Ready outcome so the caller
+/// owes exactly one `outcome_end`; ending it later never restores the entry.
+/// Nothing is written on Fault or InvalidContract.
+pub(super) unsafe fn delete(
+    frame: *mut c_void, profile: u32, site: u64, map_ptr: *mut c_void,
+    bytes: *const u8, len: usize, out_ptr: *mut c_void,
+) -> u32 {
+    if profile != 1 || len > isize::MAX as usize
+        || !separate(&[
+            (frame as usize, size_of::<FaultFrame>()),
+            (map_ptr as usize, size_of::<MapStorage>()),
+            (bytes as usize, len),
+            (out_ptr as usize, size_of::<OutcomeStorage>()),
+        ])
+        || !unsafe { valid_frame(frame) }
+    {
+        return Status::InvalidContract as u32;
+    }
+    let map = match unsafe { admit::<CheckedMap>(map_ptr, MAP_TAG) } {
+        Ok(v) => v,
+        Err(s) => return s as u32,
+    };
+    if map.require_live().is_err() {
+        return Status::InvalidContract as u32;
+    }
+    let outcome = match unsafe { admit::<Mutex<OutcomeState>>(out_ptr, OUT_TAG) } {
+        Ok(v) => v,
+        Err(s) => return s as u32,
+    };
+    let mut outcome = match outcome.lock() {
+        Ok(v) => v,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    if !matches!(*outcome, OutcomeState::Unissued) {
+        return Status::InvalidContract as u32;
+    }
+    let slice = if len == 0 { &[] } else { unsafe { std::slice::from_raw_parts(bytes, len) } };
+    let text = match std::str::from_utf8(slice) {
+        Ok(text) => text,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    let key = match MapKeyDomain::try_from_text(text) {
+        Ok(key) => key,
+        Err(_) => {
+            drop(outcome);
+            return unsafe { failed(frame, site, 100) };
+        }
+    };
+    match map.detach(&key) {
+        Ok(old) => {
+            *outcome = OutcomeState::Ready(old);
+            Status::Normal as u32
+        }
+        Err(error) => {
+            drop(outcome);
+            match root_reason(error) {
+                Some(reason) => unsafe { failed(frame, site, reason) },
+                None => Status::InvalidContract as u32,
+            }
+        }
+    }
+}
+
 fn array_read_reason(error: CheckedMapArrayReadError) -> Option<u32> {
     match error {
         CheckedMapArrayReadError::Missing => Some(MAP_ARRAY_MISSING_REASON),

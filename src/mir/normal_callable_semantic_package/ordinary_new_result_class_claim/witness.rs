@@ -116,6 +116,8 @@ impl Eq for MapStoredResultSourceV1 {}
 pub(super) enum MapStoredReturnV1 {
     Present { get: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
         has: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> },
+    /// Statement-form `me.<map>.delete(key)`: no payload local, only the original call.
+    Deleted { call: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> },
     InstalledLocal { binding: BindingRefV1,
         construction: crate::mir::resolved_semantics::ResolvedNewExpressionSourceV1,
         set: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
@@ -134,8 +136,13 @@ impl MapStoredResultSourceV1 {
         self.returns.values().filter_map(|row| match row {
             MapStoredReturnV1::InstalledLocal { construction, set, .. } =>
                 Some(OwnedExprSiteV1::new(set.owner(), construction.site().clone())),
-            MapStoredReturnV1::Present { .. } => None,
+            MapStoredReturnV1::Present { .. } | MapStoredReturnV1::Deleted { .. } => None,
         })
+    }
+    /// The original statement-form delete call recorded at this site.
+    pub(crate) fn deleted_v1(&self, at: &OwnedExprSiteV1)
+        -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
+        match self.returns.get(at)? { MapStoredReturnV1::Deleted { call } => Some(call), _ => None }
     }
     pub(crate) fn payload_class_v1(&self) -> &str { &self.payload.class }
     pub(crate) fn payload_object_v1(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.payload.object }
@@ -160,7 +167,7 @@ impl MapStoredResultSourceV1 {
         -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
         match self.returns.get(value)? {
             MapStoredReturnV1::Present { get, .. } => Some(get),
-            MapStoredReturnV1::InstalledLocal { .. } => None,
+            MapStoredReturnV1::InstalledLocal { .. } | MapStoredReturnV1::Deleted { .. } => None,
         }
     }
     /// Lend the guarding call from the SAME original Return census.
@@ -168,7 +175,7 @@ impl MapStoredResultSourceV1 {
         -> Option<&std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>> {
         match self.returns.get(value)? {
             MapStoredReturnV1::Present { has, .. } => Some(has),
-            MapStoredReturnV1::InstalledLocal { .. } => None,
+            MapStoredReturnV1::InstalledLocal { .. } | MapStoredReturnV1::Deleted { .. } => None,
         }
     }
     /// One exact original get in the WHOLE field-use census, including callers
@@ -363,6 +370,27 @@ pub(super) fn map_install_sources_v1(
                 let mut returns = std::collections::BTreeMap::new();
                 returns.insert(owned.clone(), MapStoredReturnV1::InstalledLocal {
                     binding: value_binding, construction, set: std::sync::Arc::clone(first), intervening: Box::new([]) });
+                found.insert(owned, Rc::new(MapStoredResultSourceV1 {
+                    receiver: Rc::new(receiver), key: key_binding, ordinal: 0, payload: Rc::new(payload), returns }));
+            }
+            // Statement-form delete: the same receiver/payload census, no payload local.
+            for (site, call) in input.function().method_calls() {
+                if call.selector() != "delete" || call.arity() != 1 { continue; }
+                let Some(Shape::FieldAccess { object, field: name, .. }) = shape.expression_shape(call.receiver_site()) else { continue };
+                if !matches!(shape.expression_shape(&object), Some(Shape::Me { .. })) { continue; }
+                let Some(first) = input.function().method_call_source_v1(site) else { continue };
+                let [prefix @ .., statement] = site.node().segments() else { continue };
+                if !matches!(statement, Part::Body(_) | Part::IfThen(_) | Part::IfElse(_))
+                    || prefix.iter().any(|part| matches!(part, Part::LoopBody(_) | Part::LambdaBody(_) | Part::TryBody(_) | Part::CatchBody(_))) { continue; }
+                let Some(Ref::Local(key_binding)) = call.arguments().first().and_then(|argument| input.function().variable_ref(argument.site())) else { continue };
+                if !(super::binding_is_unrebound(input.function(), key_binding) && ledger.uncaptured_binding(key_binding)) { continue; }
+                let Ok(receiver) = crate::mir::normal_callable_semantic_package::core_method_source::FieldMapReceiverSourceV1::issue(
+                    input, key, first, constructors, fields, proof, entry) else { continue };
+                let Some(payload) = MapFieldPayloadSourceV1::issue(batch, selected, constructors, fields, key.owner(), name.as_ref()) else { continue };
+                if payload.source.field() != receiver.field() { continue; }
+                let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+                let mut returns = std::collections::BTreeMap::new();
+                returns.insert(owned.clone(), MapStoredReturnV1::Deleted { call: std::sync::Arc::clone(first) });
                 found.insert(owned, Rc::new(MapStoredResultSourceV1 {
                     receiver: Rc::new(receiver), key: key_binding, ordinal: 0, payload: Rc::new(payload), returns }));
             }

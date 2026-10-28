@@ -302,6 +302,12 @@ uint32_t nyrt_object_checked_map_field_install_indexed_v1(void *, uint32_t, uint
     int64_t, int64_t, size_t, const NyrtStringOperandV1 *, int64_t, int64_t,
     const NyrtDynamicFieldEndDescriptorV1 *, void *)
     __asm__("nyash.object.checked_map_field_install_indexed_v1");
+/* Field receiver then Text key: detach the entry into an initialized, unissued
+ * outcome (empty if absent). Normal publishes only that outcome; the detached
+ * payload's complete End is the caller's explicit map.outcome_end. */
+uint32_t nyrt_object_checked_map_field_delete_indexed_v1(void *, uint32_t, uint64_t,
+    int64_t, int64_t, size_t, const NyrtStringOperandV1 *, void *)
+    __asm__("nyash.object.checked_map_field_delete_indexed_v1");
 uint32_t nyrt_object_field_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.object.field_outcome_end_v1");
 uint32_t nyrt_object_field_outcome_dispose_v1(void *) __asm__("nyash.object.field_outcome_dispose_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,

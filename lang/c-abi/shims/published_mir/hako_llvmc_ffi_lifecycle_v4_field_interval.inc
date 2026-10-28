@@ -28,7 +28,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
     if (!prefix) {
       yyjson_val* op = yyjson_obj_get(lv4_term(current->block), "operation");
       if (slot && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call") ||
-          lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
+          lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_field_delete_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
           lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
           lv4_is(op, "kind", "map_install_borrowed_array") || lv4_is(op, "kind", "map_end"))) return 0;
       if (full && !discharged && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")))

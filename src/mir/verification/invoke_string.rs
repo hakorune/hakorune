@@ -51,7 +51,8 @@ fn text_operands(operation: &InvokeOperation) -> Vec<&Operand> {
         InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(value), .. } => vec![value],
         InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { key, .. }
             | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { key, .. }
-            | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { key, .. }) => vec![key],
+            | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { key, .. }
+            | crate::mir::instruction::MapInvokeOperation::FieldDeleteIndexed { key, .. }) => vec![key],
         _ => Vec::new(),
     }
 }

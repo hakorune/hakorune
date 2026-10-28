@@ -41,17 +41,15 @@ pub(in crate::mir::builder) fn emit(
     let frame = body.fault_frame;
     let (terminal, continuation) =
         expression_value::finish_value_continuation_v1(builder, &mut body)?;
-    let (_, _, set) = source
-        .source()
-        .installed_local_v1(source.site())
-        .ok_or_else(|| freeze("map-get-shape"))?;
-    let candidate = state
-        .take_exact_lexical_read(
-            set.owner(),
-            set.arguments()[1].site().node(),
-            source.binding(),
-        )
-        .map_err(|error| error.to_string())?;
+    let candidate = match (source.source().installed_local_v1(source.site()), source.binding()) {
+        (Some((_, _, set)), Some(binding)) => Some(
+            state
+                .take_exact_lexical_read(set.owner(), set.arguments()[1].site().node(), binding)
+                .map_err(|error| error.to_string())?,
+        ),
+        (None, None) => None,
+        _ => return Err(freeze("map-get-shape")),
+    };
     let prepared = PreparedMapFieldInstallV1::issue(
         Rc::clone(&source),
         receiver,

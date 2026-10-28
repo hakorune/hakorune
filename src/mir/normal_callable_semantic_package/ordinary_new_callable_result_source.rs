@@ -117,7 +117,7 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
                                     statement, call, ordinal: 0 } if statement == returned.return_site() && std::sync::Arc::ptr_eq(call, get))) => {},
                         Returned::StoredMapInstalled(install) if Rc::ptr_eq(install.source(), source)
                             && source.installed_local_v1(&at).is_some_and(|(binding, construction, set)|
-                                binding == install.binding() && construction.site() == install.acquisition().site()
+                                Some(binding) == install.binding() && Some(construction.site()) == install.acquisition().map(|site| site.site())
                                     && set.owner() == install.site().owner() && set.site() == install.site().site())
                             && flow.maps().iter().any(|row| matches!(row,
                                 crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation::FieldInstall(same)
@@ -158,10 +158,10 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
                     .ok_or_else(|| freeze("callable-result/nullable-return-coverage"))?
                     .map_err(|_| freeze("callable-result/nullable-return-coverage"))?;
                 if let crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::StoredMapInstalled(install) = returned.returned() {
-                    if install.prior_homes().iter().filter(|home| home.binding() == install.binding()).count() != 1
+                    if install.prior_homes().iter().filter(|home| Some(home.binding()) == install.binding()).count() != 1
                         || !install.normal_homes().iter().eq(install.prior_homes().iter()
-                            .filter(|home| home.binding() != install.binding()))
-                        || exit.homes().iter().any(|home| home.binding() == install.binding()) {
+                            .filter(|home| Some(home.binding()) != install.binding()))
+                        || exit.homes().iter().any(|home| Some(home.binding()) == install.binding()) {
                         return Err(freeze("callable-result/nullable-root-role"));
                     }
                 }

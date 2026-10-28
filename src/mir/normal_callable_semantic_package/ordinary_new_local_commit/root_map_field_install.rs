@@ -15,13 +15,13 @@ type Finished = super::super::physical_boundary::FinishedBindings;
 pub(crate) struct PreparedMapFieldInstallV1 {
     frame: Rc<MapFieldInstallV1>,
     key: FieldMapKeyReadEmissionV1,
-    candidate: ExactLexicalReadV1,
+    candidate: Option<ExactLexicalReadV1>,
 }
 impl PreparedMapFieldInstallV1 {
     pub(in crate::mir) fn issue(
         frame: Rc<MapFieldInstallV1>,
         receiver: ExactLexicalReadV1,
-        candidate: ExactLexicalReadV1,
+        candidate: Option<ExactLexicalReadV1>,
         values: Vec<Option<EvaluatedExpressionValueV1>>,
         reads: BTreeMap<usize, ExpressionReferenceReadV1>,
         entry: Binding,
@@ -63,12 +63,19 @@ impl PreparedMapFieldInstallV1 {
             return Err(freeze("map-get-shape"));
         }
         let source = self.frame.source();
-        let (binding, construction, set) = source
-            .installed_local_v1(self.frame.site())
-            .ok_or_else(|| freeze("map-get-shape"))?;
-        if binding != self.frame.binding()
-            || construction.site() != self.frame.acquisition().site()
-            || set.arguments().len() != 2
+        let installed = source.installed_local_v1(self.frame.site());
+        let set = match installed {
+            Some((binding, construction, set))
+                if self.frame.binding() == Some(binding)
+                    && self.frame.acquisition().map(|site| site.site()) == Some(construction.site())
+                    && set.arguments().len() == 2 => set,
+            None if self.frame.binding().is_none() => source
+                .deleted_v1(self.frame.site())
+                .filter(|call| call.arguments().len() == 1)
+                .ok_or_else(|| freeze("map-get-shape"))?,
+            _ => return Err(freeze("map-get-shape")),
+        };
+        if self.candidate.is_some() != installed.is_some()
             || self.key.values.len() != 1
             || self.key.key.source().nodes().len() != 1
             || self.key.key.source().owner() != set.owner()
@@ -84,8 +91,26 @@ impl PreparedMapFieldInstallV1 {
             &self.key.receiver,
             self.frame.receiver_read(),
         )?;
+        let key = self.key.values[0]
+            .as_ref()
+            .map(|value| value.as_operand())
+            .transpose()?
+            .cloned()
+            .filter(|key| key.is_text())
+            .ok_or_else(|| freeze("map-get-key-drift"))?;
+        let field = source.receiver_v1().field();
+        let object = source.payload_object_v1();
+        let (Some(candidate), Some(binding), Some(acquisition)) =
+            (&self.candidate, self.frame.binding(), self.frame.acquisition())
+        else {
+            return Ok(InvokeOperation::Map(
+                crate::mir::instruction::MapInvokeOperation::FieldDeleteIndexed {
+                    field, base, key, object,
+                },
+            ));
+        };
         let rows = ledger.local_commits.borrow();
-        let Some(LocalCommitV1::Ordinary(row)) = rows.get(self.frame.acquisition()) else {
+        let Some(LocalCommitV1::Ordinary(row)) = rows.get(acquisition) else {
             return Err(freeze("map-get-source-missing"));
         };
         if row.binding != binding || row.object != source.payload_object_v1() {
@@ -95,24 +120,16 @@ impl PreparedMapFieldInstallV1 {
             .emission
             .local()
             .ok_or_else(|| freeze("map-get-source-missing"))?;
-        self.candidate.loan_forwarded_copies(binding, local)?;
-        let value = self
-            .candidate
+        candidate.loan_forwarded_copies(binding, local)?;
+        let value = candidate
             .value_for(set.owner(), set.arguments()[1].site().node(), binding)
             .map_err(|error| error.to_string())?;
-        let key = self.key.values[0]
-            .as_ref()
-            .map(|value| value.as_operand())
-            .transpose()?
-            .cloned()
-            .filter(|key| key.is_text())
-            .ok_or_else(|| freeze("map-get-key-drift"))?;
-        Ok(InvokeOperation::Map(
+Ok(InvokeOperation::Map(
             crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed {
-                field: source.receiver_v1().field(),
+                field,
                 base,
                 key,
-                object: source.payload_object_v1(),
+                object,
                 value,
             },
         ))
@@ -144,7 +161,9 @@ impl MapFieldInstallEmissionV1 {
         function: &MirFunction,
     ) -> Result<Self, String> {
         let mut original = prepared.key.copy_dependencies()?;
-        original.extend_from_slice(prepared.candidate.original_copy_dependencies_v1()?);
+        if let Some(candidate) = &prepared.candidate {
+            original.extend_from_slice(candidate.original_copy_dependencies_v1()?);
+        }
         for row in prepared
             .key
             .original

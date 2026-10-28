@@ -95,7 +95,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
       !strcmp(kind, "map_install_borrowed_array") ||
       !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_length") || !strcmp(kind, "map_field_has") ||
-      !strcmp(kind, "map_field_keys") || !strcmp(kind, "map_field_get_indexed") || !strcmp(kind, "map_field_install_indexed") || !strcmp(kind, "map_array_index_map") ||
+      !strcmp(kind, "map_field_keys") || !strcmp(kind, "map_field_get_indexed") || !strcmp(kind, "map_field_install_indexed") || !strcmp(kind, "map_field_delete_indexed") || !strcmp(kind, "map_array_index_map") ||
       !strcmp(kind, "map_get_text") || !strcmp(kind, "array_owned_get") ||
       (!strcmp(kind, "ordinary_call") && !hako_physical_string(yyjson_obj_get(op, "result"), "unit"));
 }

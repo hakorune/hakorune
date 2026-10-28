@@ -286,7 +286,8 @@ pub(super) fn check(
                     || matches!(operation, InvokeOperation::String(_)
                     | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldHas { .. }
                         | crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { .. }
-                        | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { .. })
+                        | crate::mir::instruction::MapInvokeOperation::FieldInstallIndexed { .. }
+                        | crate::mir::instruction::MapInvokeOperation::FieldDeleteIndexed { .. })
                     | InvokeOperation::ArrayElementWrite { value: crate::mir::instruction::ArrayElementWriteValueV1::Text(_), .. })
                     || operation.normal_result_kind() == Some(InvokeNormalResultKind::OwnedString))
         };

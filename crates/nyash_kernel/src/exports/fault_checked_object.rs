@@ -546,6 +546,25 @@ pub unsafe extern "C" fn map_field_install_indexed(
     status
 }
 
+/// Synchronous field-entry delete: receiver field, then Text key. Normal publishes
+/// only the detached outcome (empty when the key was absent); its complete End is a
+/// separate caller operation and a later End Fault never restores the entry.
+#[export_name = "nyash.object.checked_map_field_delete_indexed_v1"]
+pub unsafe extern "C" fn map_field_delete_indexed(
+    frame: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
+    slot: usize, key: *const super::checked_string::Operand, out: *mut c_void,
+) -> u32 {
+    use super::checked_map::OutcomeStorage;
+    if out.is_null() || !out.cast::<OutcomeStorage>().is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    let (map, text) = match unsafe { map_field_text_input(frame, profile, site, handle, type_id, slot, key,
+        (out as usize, size_of::<OutcomeStorage>()), None) } {
+        Ok(value) => value, Err(status) => return status,
+    };
+    unsafe { super::checked_map::delete(frame, profile, site, map, text.as_ptr(), text.len(), out) }
+}
+
 /// Shared synchronous input admission, not a published Map view. The copied
 /// Text has released any lease-registry guard before Map/object guards begin.
 unsafe fn map_field_text_input(

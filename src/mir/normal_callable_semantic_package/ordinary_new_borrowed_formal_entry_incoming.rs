@@ -438,10 +438,15 @@ impl OrdinaryNewClaimLedgerV1 {
         }) {
             let field = install.source().receiver_v1();
             field.require_entry_source_v1(self)?;
-            let (binding, construction, set) = install.source().installed_local_v1(install.site())
-                .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
-            if install.site().owner() != owner || binding != install.binding()
-                || construction.site() != install.acquisition().site() || set.site() != install.site().site()
+            let installed = install.source().installed_local_v1(install.site());
+            let call = match installed {
+                Some((_, _, set)) => set,
+                None => install.source().deleted_v1(install.site())
+                    .ok_or_else(|| freeze("static-input/qualified-use-identity"))?,
+            };
+            if install.site().owner() != owner || call.site() != install.site().site()
+                || installed.map(|(binding, construction, _)| (binding, construction.site()))
+                    != install.binding().zip(install.acquisition().map(|site| site.site()))
                 || origins.contains_key(&field.receiver())
                 || !uses.reads().any(|(at, original)| at == install.receiver_read()
                     && *original == ResolvedLexicalRefV1::Local(field.receiver()))
@@ -450,13 +455,15 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             // The same installed candidate owns this source read. The Map
             // receiver/key do not cover its original value argument.
-            let value = set.arguments().get(1)
-                .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
-            if origins.contains_key(&binding)
-                || !uses.reads().any(|(at, original)| at == value.site()
-                    && *original == ResolvedLexicalRefV1::Local(binding))
-                || !covered.insert((value.site().clone(), binding)) {
-                return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+            if let Some((binding, _, set)) = installed {
+                let value = set.arguments().get(1)
+                    .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
+                if origins.contains_key(&binding)
+                    || !uses.reads().any(|(at, original)| at == value.site()
+                        && *original == ResolvedLexicalRefV1::Local(binding))
+                    || !covered.insert((value.site().clone(), binding)) {
+                    return Err(freeze("static-input/read-use-duplicate-or-foreign"));
+                }
             }
             let evaluation = install.key().as_ref();
             if !evaluations.iter().any(|old| std::ptr::eq(*old, evaluation)) { evaluations.push(evaluation); }
@@ -521,7 +528,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         let at = OwnedExprSiteV1::new(owner, value.value_site().clone());
                         let (binding, construction, set) = install.source().installed_local_v1(&at)
                             .ok_or_else(|| freeze("static-input/qualified-use-identity"))?;
-                        if binding != install.binding() || construction.site() != install.acquisition().site()
+                        if Some(binding) != install.binding() || Some(construction.site()) != install.acquisition().map(|site| site.site())
                             || set.owner() != install.site().owner() || set.site() != install.site().site()
                             || origins.contains_key(&binding)
                             || !uses.reads().any(|(site, original)| site == value.value_site()

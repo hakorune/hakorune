@@ -126,6 +126,9 @@ pub(super) fn encode_invoke(
                     "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
                     "base":value(base), "key":encode_string_operand_v1(key),
                     "payload_object_id":object.declaration_index(), "value":value(stored)}),
+                Map::FieldDeleteIndexed { field, base, key, object } => json!({"kind":"map_field_delete_indexed",
+                    "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
+                    "base":value(base), "key":encode_string_operand_v1(key), "payload_object_id":object.declaration_index()}),
                 Map::PrepareKey { utf8 } => json!({"kind": "map_prepare_key", "utf8": utf8}),
                 Map::InstallIndexed {
                     map,

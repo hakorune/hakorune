@@ -37,6 +37,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     MapFieldKeys,
     MapFieldGetIndexed,
     MapFieldInstallIndexed,
+    MapFieldDeleteIndexed,
     MapPrepareKey,
     MapInstall,
     MapCheckedGet,
@@ -137,6 +138,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 MapInvokeOperation::FieldHas { .. } => Self::MapFieldHas,
                 MapInvokeOperation::FieldGetIndexed { .. } => Self::MapFieldGetIndexed,
                 MapInvokeOperation::FieldInstallIndexed { .. } => Self::MapFieldInstallIndexed,
+                MapInvokeOperation::FieldDeleteIndexed { .. } => Self::MapFieldDeleteIndexed,
                 MapInvokeOperation::PrepareKey { .. } => Self::MapPrepareKey,
                 MapInvokeOperation::InstallIndexed { .. }
                 | MapInvokeOperation::InstallValue { .. }
@@ -635,7 +637,7 @@ fn referenced_objects(
                         | InvokeOperation::ReclaimUnpublished { object, .. } => {
                             ids.insert(object.declaration_index());
                         }
-                        InvokeOperation::Map(MapInvokeOperation::FieldInstallIndexed { field, object, .. }) => {
+                        InvokeOperation::Map(MapInvokeOperation::FieldInstallIndexed { field, object, .. } | MapInvokeOperation::FieldDeleteIndexed { field, object, .. }) => {
                             ids.insert(field.object().declaration_index());
                             ids.insert(object.declaration_index());
                         }

@@ -568,9 +568,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
             maps.iter().filter_map(|row| {
                 match row {
             crate::mir::resolved_semantics::home_new_prefix::MapHomeObservation::FieldInstall(row)
-                if std::rc::Rc::ptr_eq(row.source(), &source) && row.binding() == binding
+                if std::rc::Rc::ptr_eq(row.source(), &source) && row.binding() == Some(binding)
                     && row.site().owner() == set.owner() && row.site().site() == set.site()
-                    && row.acquisition().site() == construction.site() => Some(row),
+                    && row.acquisition().map(|site| site.site()) == Some(construction.site()) => Some(row),
             _ => None,
         }
             });

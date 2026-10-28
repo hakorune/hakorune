@@ -140,7 +140,7 @@ pub(super) fn check_module_with_source(
                 }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
-                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. } | MapInvokeOperation::FieldGetIndexed { object, .. } | MapInvokeOperation::FieldInstallIndexed { object, .. })
+                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. } | MapInvokeOperation::FieldGetIndexed { object, .. } | MapInvokeOperation::FieldInstallIndexed { object, .. } | MapInvokeOperation::FieldDeleteIndexed { object, .. })
                         | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::HomeReleaseIfLive { object, .. }
@@ -167,7 +167,7 @@ pub(super) fn check_module_with_source(
                             if !key.is_text() || !dynamic_field(module, *field) || root.is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
                         { errors.push(error(*id, "object-field-read-definition-invalid")); }
-                        InvokeOperation::Map(MapInvokeOperation::FieldInstallIndexed { field, key, .. })
+                        InvokeOperation::Map(MapInvokeOperation::FieldInstallIndexed { field, key, .. } | MapInvokeOperation::FieldDeleteIndexed { field, key, .. })
                             if !key.is_text() || !dynamic_field(module, *field) || root.is_none()
                                 || !image.field_writes.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
                         { errors.push(error(*id, "object-field-write-definition-invalid")); }

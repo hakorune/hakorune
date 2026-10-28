@@ -338,6 +338,22 @@ impl CheckedMap {
         Ok(DetachedMapEntry(old.map(|entry| entry.payload)))
     }
 
+    /// Detach the entry at one prepared key, if any. Nothing is allocated, so
+    /// the detached outcome (possibly empty) is the only fallible-free result;
+    /// ending it is a separate caller operation exactly like an install outcome.
+    pub fn detach(&self, key: &MapKeyDomain) -> Result<DetachedMapEntry, CheckedMapError> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| CheckedMapError::StorageUnavailable)?;
+        if state.phase != Phase::Live {
+            return Err(CheckedMapError::InvalidState);
+        }
+        let old = state.entries.remove(key);
+        drop(state);
+        Ok(DetachedMapEntry(old.map(|entry| entry.payload)))
+    }
+
     /// No self-contained native projection of an Owned residence is authorized.
     /// Missing is distinct from refusal; this API publishes no clone or handle.
     pub fn observe_native(

@@ -76,6 +76,15 @@ pub enum MapInvokeOperation {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         value: ValueId,
     },
+    /// Detach the entry at one exact field/key slot on Normal only. The
+    /// detached payload (absent when the key was missing) has a separate
+    /// MapOutcome End obligation; no Home or Map value is published.
+    FieldDeleteIndexed {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        key: super::StringInvokeOperand,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+    },
     PrepareKey {
         utf8: String,
     },
@@ -156,6 +165,7 @@ impl MapInvokeOperation {
             Self::FieldGetIndexed { .. } => Some(InvokeNormalResultKind::BorrowedNullableHandle),
             Self::PrepareKey { .. } => Some(InvokeNormalResultKind::MapKey),
             Self::FieldInstallIndexed { .. }
+            | Self::FieldDeleteIndexed { .. }
             | Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
@@ -182,6 +192,7 @@ impl MapInvokeOperation {
             | Self::InstallBorrowedArray { .. } => {
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control)
             }
+            Self::FieldDeleteIndexed { .. } => EffectMask::WRITE.add(Effect::Control),
             Self::CheckedGetI64 { .. } | Self::ArrayLength { .. } => {
                 EffectMask::READ.add(Effect::Control)
             }
@@ -198,7 +209,8 @@ impl MapInvokeOperation {
         match self {
             Self::New | Self::PrepareKey { .. } => vec![],
             Self::FieldKeys { base, .. } => vec![*base],
-            Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => std::iter::once(*base).chain(key.value()).collect(),
+            Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. }
+            | Self::FieldDeleteIndexed { base, key, .. } => std::iter::once(*base).chain(key.value()).collect(),
             Self::FieldInstallIndexed { base, key, value, .. } => std::iter::once(*base)
                 .chain(key.value()).chain(std::iter::once(*value)).collect(),
             Self::InstallIndexed {
@@ -224,7 +236,8 @@ impl MapInvokeOperation {
         match self {
             Self::New | Self::PrepareKey { .. } => {}
             Self::FieldKeys { base, .. } => rewrite(base),
-            Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. } => { rewrite(base); key.rewrite_value(rewrite); }
+            Self::FieldHas { base, key, .. } | Self::FieldGetIndexed { base, key, .. }
+            | Self::FieldDeleteIndexed { base, key, .. } => { rewrite(base); key.rewrite_value(rewrite); }
             Self::FieldInstallIndexed { base, key, value, .. } => {
                 rewrite(base);
                 rewrite(value);

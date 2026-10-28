@@ -151,8 +151,8 @@ pub(crate) struct MapFieldInstallV1 {
     source: std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,
     receiver_read: SourceExprSiteV1,
     key: std::rc::Rc<CheckedExpressionEvaluationV1>,
-    binding: BindingRefV1,
-    acquisition: OwnedExprSiteV1,
+    /// The installed child and its acquisition; a statement `delete` has none.
+    install: Option<(BindingRefV1, OwnedExprSiteV1)>,
     prior: Box<[LiveHomeV1]>,
     normal: Box<[LiveHomeV1]>,
 }
@@ -172,11 +172,11 @@ impl MapFieldInstallV1 {
     pub(crate) fn key(&self) -> &std::rc::Rc<CheckedExpressionEvaluationV1> {
         &self.key
     }
-    pub(crate) fn binding(&self) -> BindingRefV1 {
-        self.binding
+    pub(crate) fn binding(&self) -> Option<BindingRefV1> {
+        self.install.as_ref().map(|(binding, _)| *binding)
     }
-    pub(crate) fn acquisition(&self) -> &OwnedExprSiteV1 {
-        &self.acquisition
+    pub(crate) fn acquisition(&self) -> Option<&OwnedExprSiteV1> {
+        self.install.as_ref().map(|(_, acquisition)| acquisition)
     }
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         &self.prior
@@ -212,22 +212,30 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     else {
         return install_declined(input, statement, 1);
     };
-    let Some((binding, construction, set)) = source.installed_local_v1(&site) else {
+    let installed = source.installed_local_v1(&site);
+    let Some(set) = installed.map(|(_, _, set)| set).or_else(|| source.deleted_v1(&site)) else {
         return install_declined(input, statement, 2);
     };
-    let Some((actual_binding, acquired)) = locals.direct_available_home(set.arguments()[1].site())
-    else {
-        return install_declined(input, statement, 3);
-    };
-    if binding != actual_binding
-        || acquired.owner() != input.owner()
-        || acquired.site() != construction.site()
-        || !locals.is_self_rooted_handle(source.receiver_v1().receiver())
+    let mut install = None;
+    if let Some((binding, construction, _)) = installed {
+        let Some((actual_binding, acquired)) =
+            locals.direct_available_home(set.arguments()[1].site())
+        else {
+            return install_declined(input, statement, 3);
+        };
+        if binding != actual_binding
+            || acquired.owner() != input.owner()
+            || acquired.site() != construction.site()
+        {
+            return install_declined(input, statement, 4);
+        }
+        install = Some((binding, acquired.clone()));
+    }
+    if !locals.is_self_rooted_handle(source.receiver_v1().receiver())
         || maps.iter().any(|row| row.site() == &site)
     {
         return install_declined(input, statement, 4);
     }
-    let acquisition = acquired.clone();
     let Some(shape) = input.body_shape() else {
         return install_declined(input, statement, 5);
     };
@@ -270,8 +278,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     }
     let prior = homes.clone().into_boxed_slice();
     let mut normal = homes.clone();
-    if transfer_home_v1(locals, &mut normal, binding).is_err() {
-        return install_declined(input, statement, 11);
+    if let Some((binding, _)) = &install {
+        if transfer_home_v1(locals, &mut normal, *binding).is_err() {
+            return install_declined(input, statement, 11);
+        }
     }
     let row = std::rc::Rc::new(MapFieldInstallV1 {
         statement: statement.site().clone(),
@@ -279,8 +289,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
         source,
         receiver_read: read,
         key,
-        binding,
-        acquisition,
+        install,
         prior,
         normal: normal.clone().into_boxed_slice(),
     });
