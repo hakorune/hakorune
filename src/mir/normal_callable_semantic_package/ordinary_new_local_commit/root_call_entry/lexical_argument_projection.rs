@@ -281,7 +281,11 @@ impl EmittedArgumentExpressionProjectionV1 {
                     .1
                     .dst_value()
                     .ok_or_else(|| freeze("argument-expression/result"))?;
-                if !input.is_text()
+                let snapshot = matches!(input, crate::mir::instruction::StringInvokeOperand::DynamicCarrier(_))
+                    && self.frame.evaluation().text_snapshot_root_v1().is_some_and(|node|
+                        self.values.get(node).and_then(Option::as_ref)
+                            .and_then(|value| value.as_operand().ok()) == Some(input));
+                if !(input.is_text() || snapshot)
                     || !matches!(&invoke.1, MirInstruction::Invoke {
                     operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
                     normal_landing, .. } if value == input && *normal_landing == normal.0)
