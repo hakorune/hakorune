@@ -5,7 +5,7 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 選択smoke: Main.mainの`local first = chunker.ingest(store, "payload-a", source, 8)`（Body3 initializer）で`placement-handle-result-drift`。ingestの元source/entry/cohortと返却terminalは通過したが、LOCAL owning-object callの正規packet記録が未接続。EXE未生成。次は既存ReceivedHandleArgumentsへ同じ元Local loanとtarget共通actual lenderを接続し、placement guardを保持する。
+- 選択smoke: Main.mainの`local first = chunker.ingest(store, "payload-a", source, 8)`（Body3 initializer）で`lexical-instance-call/source-pending`。既存producerはHandle観測を発行済み。pending Object localの正規route保持漏れを修正し、plain Call/placement driftへの流出は止めた。次は元LocalConstruction witnessと同じlocal New sourceを、既存返却leaf/teardown・Normal移転/Fault保持・最終allocation/Return照合まで同じ変更で接続する。packet未完成の拒否は保持、EXE未生成。
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
 - Array aliasと直接receiverは実Count/Get source loanを同じfield descriptorへ保持。直接receiverもReturnを含むsource field census→既存field issuer→exact親read/Copy→記録済みcanonical readへ接続。Countは既存read会計を使用。source-only拒否pin、最終noninteger aliasとdirect Arrayの拒否を保持。
 - 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
@@ -14,7 +14,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - entry loanだけで未知callee中の親生存は証明できない。snapshotとfield再読の同一性、支持Home、Normal/Faultを別々に閉じる。
 - 着地済み: C Map null guard→child borrow（空Map/nullable child/Fault/誤分岐）、異なるslot借用の保守的alias検査、nullable slotの実payload null比較。Rust完成guardの到達・支配・再実行検査は完成時だけ行い、構築中の局所検査を維持。
 - 既存接続: stored-child scalar return、Map keys count、put/readData/refCount、nullable Text需要、Text連結Loop、Null return、DiscardValue、delete。chunkCount独立validator、nullable Text C transport、Bool物理、全体cleanupとEXE実行は未完。
-- 固定suite: `target/quick/hakorune-acceptance-original-entry`＋同じquick runtime（元Return read会計まで、prepared receiver変更前、保持Map WIP込み）で**10/11、834.01秒**。実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現CLI build47.69秒PASS、選択smokeは上記placement guardでFAIL。
+- 固定suite: `target/quick/hakorune-acceptance-original-entry`＋同じquick runtime（元Return read会計まで、prepared receiver変更前、保持Map WIP込み）で**10/11、834.01秒**。実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現CLI build PASS、選択smokeは上記canonical source-pendingでFAIL。route修正は既存Object slot family26/0（変更前後とも同じ26件）。
 - 今回の既存検証: entry21/0、discard4/0、String Normal/Fault1/0、child terminal filter1/0、構築完了4/0。terminal value family6/2とfinished-discard visitor1赤は保存済み変更前binaryで同じ失敗。object input11/2も同じ失敗名。Text保存→discard→Printの一時probeはEXE/runで`abc`/exit0。単純Text-return probeは既存header/source境界で拒否、成功扱いにしない。
 - 以前の未解消検証: source-use拒否test1赤は変更前commitでも同じ`p.sink(0)` assertion。Null境界は診断assert赤、Text alias赤は変更前後で同じforwarded-copy/root。Core source family8/3は未分類、initializer i64の3赤は既存失敗名集合内。これらを今回の成功に数えない。
 

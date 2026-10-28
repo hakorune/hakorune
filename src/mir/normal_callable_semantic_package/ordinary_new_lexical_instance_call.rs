@@ -354,7 +354,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 && self.check_direct_map_numeric_effects_v1(&source).is_ok();
             let borrowed_receiver = source.has_borrowed_receiver_source_v1() && !direct_scalar;
             if borrowed_nullable || mixed || borrowed_receiver || self.requires_object_packet_v1(&source)? {
-                if borrowed_nullable || mixed || borrowed_receiver {
+                // A selected Object local remains on its canonical route while
+                // its packet is pending. The affine take owns that refusal;
+                // missing readiness must not send it to a plain Call writer.
+                if borrowed_nullable || mixed || borrowed_receiver
+                    || (!source.is_self_receiver()
+                        && (self.handle_call_source(&call_site).is_some()
+                            || self.nullable_call_source(&call_site).is_some())) {
                     self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
                 }
                 if self
