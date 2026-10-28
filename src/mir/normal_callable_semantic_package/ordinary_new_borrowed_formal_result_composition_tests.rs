@@ -908,6 +908,39 @@ fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
 }
 
 #[test]
+fn counted_loop_certifies_only_the_exact_index_read() {
+    // `loop(i < n)` with a never-rebound `n = ids.length()` and `i` only ever stepped by
+    // one after the read certifies that read; every other shape keeps the Null alternative.
+    for (body, expected) in [
+        ("local ids = me.values local i = 0 local n = ids.length() loop(i < n) { local v = ids.get(i) i = i + 1 }", true),
+        ("local ids = me.values local i = 0 local n = ids.length() loop(i < n) { local v = ids.get(i) i = i + 2 }", false),
+        ("local ids = me.values local i = 0 local n = ids.length() loop(i < n) { i = i + 1 local v = ids.get(i) }", false),
+        ("local ids = me.values local i = 0 local n = ids.length() loop(i < n) { local v = ids.get(i) n = n + 1 i = i + 1 }", false),
+        ("local ids = me.values local i = 0 local n = ids.length() loop(i <= n) { local v = ids.get(i) i = i + 1 }", false),
+        ("local ids = me.values local i = 0 - 1 local n = ids.length() loop(i < n) { local v = ids.get(i) i = i + 1 }", false),
+    ] {
+        let text = format!("box Page {{ init {{ values }} birth() {{ me.values = new ArrayBox() }}
+            seed() {{ me.values.push(\"x\") }} read() {{ {body} return \"\" }} }}
+            static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let contract = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.owner() == "Page" && key.name() == "read")).unwrap();
+        let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let gets: Vec<_> = package.batch().with_lowering_input(contract.batch_slot, |input| {
+            input.function().method_calls().filter(|(_, method)| method.selector() == "get")
+                .map(|(site, _)| site.clone()).collect()
+        }).unwrap();
+        assert_eq!(gets.len(), 1, "{body}");
+        let certified = ingress.ordinary_core_source_v1(&OwnedExprSiteV1::new(contract.owner, gets[0].clone()))
+            .and_then(|core| core.operands().field_array_access_v1().map(|access| access.get_is_in_bounds_v1()))
+            .unwrap_or(false);
+        assert_eq!(certified, expected, "{body}");
+    }
+}
+
+#[test]
 fn forwarded_constructor_field_preserves_original_object_class() {
     let program = "box Handle { birth() {} } box Maker { birth() {} make(flag) { if flag == 0 { return null } return new Handle() } } box Chunk { init { handle } birth(h) { me.handle = h } } static box Main { main() { local m = new Maker() local h = m.make(1) if h == null { return 0 } local c = new Chunk(h) return 0 } }";
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(program).unwrap();
