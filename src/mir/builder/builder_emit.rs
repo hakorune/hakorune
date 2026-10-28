@@ -50,6 +50,13 @@ impl MirBuilder {
             .current_block
             .ok_or("No current basic block")?;
 
+        if emit_debug_policy.builder_debug_enabled() {
+            if let MirInstruction::Call(call) = &instruction {
+                let callee: String = format!("{:?}", call.callee).chars().take(160).collect();
+                eprintln!("[emit-call] dst={:?} at {}:{} callee={callee}", call.dst, caller.file(), caller.line());
+            }
+        }
+
         let receiverless_method = match &instruction {
             MirInstruction::Call(call) => matches!(
                 &call.callee,
