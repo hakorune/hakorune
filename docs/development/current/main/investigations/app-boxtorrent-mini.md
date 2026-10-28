@@ -6,6 +6,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 
 ## 現在地
 - 2026-10-28 JSON着地後のtree（`claude/json-substring-20261028`）では、MIR compileはsemantic packageの段（基準binaryは slot 57 `original-return/source-unproven` で停止）を通過し、後段の `[freeze:contract][callable-scalar/return-type-mismatch]` `BoxTorrentStore.allocatorBlocks/0`（slot 56、expected Integer、返り値のclassがUnknown）で止まる。以下のowner38記述より先にここを確認する。
+  - 原因（読取りのみ、未実行）: 静的callのdestinationは`static_result_publication.rs`の`PreparedStaticCallResultPublicationV1::commit`が公開済みExactI64からIntegerを書くが、`me.<field>.m()`のinstance callは`unified_emitter.rs`の`emit_canonical_instance_value_terminal_v1`/標準method経路を通り、header宣言型（未注釈ならUnknown）以外から型が付かない。次: 同じ検証済み`callable_result_representation`を、callee key（owner/name/arity）が一致するinstance callのdestinationにも`commit_external_destination`で適用する。証拠が無いdestinationは変更しない。
 - 最新実行は `HakoAllocHeap.release`: `borrowed-entry/original-input-not-ready`。入力 cohort 未完、MIR 構築で停止し EXE 未生成。
 - 上流の `BoxTorrentManifest.releaseFrom` / `materialize` は `ids = me.chunk_ids; n = ids.length(); loop(i < n)` 内で `ids.get(i)` を Text key の受け手へ渡す。元の element SUM は Text だが、範囲外 Null が残る。
 - 現行の範囲証明は定数添字と直前の終了 guard 用。Loop の全 backedge、同じ Array、非縮小、支持 Home の生存をまだ結んでいない。
