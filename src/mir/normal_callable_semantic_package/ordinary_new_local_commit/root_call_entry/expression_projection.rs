@@ -16,7 +16,7 @@ pub(in crate::mir) use reference_read::{
 #[path = "expression_terminal_paths.rs"]
 mod terminal_paths;
 pub(in crate::mir) use terminal_paths::{
-    ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1,
+    ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1, ExpressionOwnedTemporaryV1,
 };
 
 /// Internal evaluation values keep Bool separate from String/I64 operands.

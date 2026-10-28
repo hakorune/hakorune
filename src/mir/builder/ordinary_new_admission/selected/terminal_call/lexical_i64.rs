@@ -444,7 +444,7 @@ fn prepare_arguments_with_prefix(
                 let prefix = original.map(|original| ExpressionCallTransientPrefixV1::for_prepared_call_argument(
                     original, position, &arguments, CallValidationContextV1::Lowering(ledger),
                     expression.and_then(|prefix| prefix.transient()))).transpose()?;
-                if consume_receiver.is_none() && arguments.iter().map(|argument| argument.deferred_text_values_v1(
+                if consume_receiver.is_none() && arguments.iter().map(|argument| argument.deferred_temporaries_v1(
                     CallValidationContextV1::Lowering(ledger))).collect::<Result<Vec<_>, _>>()?.iter().any(|values| !values.is_empty()) {
                     return Err(freeze("lexical-i64/argument-receiver-scope"));
                 }

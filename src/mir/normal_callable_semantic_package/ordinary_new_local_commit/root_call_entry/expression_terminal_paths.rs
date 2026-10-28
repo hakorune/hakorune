@@ -8,18 +8,21 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     LocalCallObservationV1,
 };
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ExpressionOwnedTemporaryV1 {
+pub(in crate::mir) enum ExpressionOwnedTemporaryV1 {
     String(ValueId),
     DynamicCarrier(ValueId),
 }
 impl ExpressionOwnedTemporaryV1 {
-    fn end_operation(self) -> InvokeOperation {
+    pub(in crate::mir) fn end_operation(self) -> InvokeOperation {
         match self {
             Self::String(value) => InvokeOperation::String(
                 crate::mir::instruction::StringInvokeOperation::End { value },
             ),
             Self::DynamicCarrier(carrier) => InvokeOperation::DynamicCarrierEnd { carrier },
         }
+    }
+    pub(in crate::mir) fn value(self) -> ValueId {
+        match self { Self::String(value) | Self::DynamicCarrier(value) => value }
     }
     fn is_string(self, value: ValueId) -> bool {
         self == Self::String(value)
@@ -86,7 +89,7 @@ enum TransientPrefixOriginV1<'a> {
     },
     Emitted {
         call: &'a EmittedLexicalCallProjectionV1,
-        live: &'a [ValueId],
+        live: &'a [ExpressionOwnedTemporaryV1],
         prior_homes: &'a [LiveHomeV1],
     },
     Arguments {
@@ -216,7 +219,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 call.prior_homes(),
                 context,
             )?;
-            packet.deferred_text_values_v1(context)?;
+            packet.deferred_temporaries_v1(context)?;
         }
         if let Some(parent) = parent {
             parent.unwind_for_call(call.site(), call.prior_homes())?;
@@ -298,7 +301,7 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 operations
             }
             TransientPrefixOriginV1::Emitted { live, .. } => {
-                live.iter().rev().map(|value| end(*value)).collect()
+                live.iter().rev().map(|temporary| temporary.end_operation()).collect()
             }
             TransientPrefixOriginV1::Evaluation { acquired, .. } => acquired
                 .iter()
@@ -312,10 +315,10 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
                 for argument in earlier.iter().rev() {
                     operations.extend(
                         argument
-                            .deferred_text_values_v1(*context)?
+                            .deferred_temporaries_v1(*context)?
                             .into_iter()
                             .rev()
-                            .map(end),
+                            .map(ExpressionOwnedTemporaryV1::end_operation),
                     );
                 }
                 operations
@@ -329,9 +332,8 @@ impl<'a> ExpressionCallTransientPrefixV1<'a> {
         // overlapping stack: that would hide a double owner and alter faults.
         let mut seen = std::collections::BTreeSet::new();
         for operation in &operations {
-            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
-                value,
-            }) = operation
+            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
+                | InvokeOperation::DynamicCarrierEnd { carrier: value } = operation
             {
                 if !seen.insert(*value) {
                     return Err(freeze("argument-expression/prefix-duplicate-acquisition"));
@@ -823,14 +825,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                     .any(|binding| binding == &(*id, instruction.clone()))
             }) {
                 if validated_calls.insert(call.invoke_binding().0) {
-                    let live_values = live.iter().map(|temporary| match temporary {
-                        ExpressionOwnedTemporaryV1::String(value) => Ok(*value),
-                        ExpressionOwnedTemporaryV1::DynamicCarrier(_) => Err(freeze("dynamic-expression/transient-prefix-order")),
-                    }).collect::<Result<Vec<_>, String>>()?;
                     let prefix = ExpressionCallTransientPrefixV1 {
                         origin: TransientPrefixOriginV1::Emitted {
                             call,
-                            live: &live_values,
+                            live: &live,
                             prior_homes: self.frame.prior_homes(),
                         },
                         parent: inherited,

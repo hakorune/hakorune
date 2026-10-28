@@ -1,6 +1,6 @@
 //! Tie an observed argument value to the original lexical argument meaning.
 use super::super::expression_projection::{
-    ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1,
+    ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1, ExpressionOwnedTemporaryV1,
 };
 use super::*;
 use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
@@ -625,51 +625,41 @@ impl LexicalCallArgumentProjectionV1 {
         Ok((value, call_packet.invoke_binding().clone()))
     }
     /// Source-bound live-out observations, never a second acquisition inventory.
-    pub(in crate::mir) fn deferred_text_values_v1(
+    pub(in crate::mir) fn deferred_temporaries_v1(
         &self,
         context: CallValidationContextV1<'_>,
-    ) -> Result<Vec<ValueId>, String> {
-        let Self::Expression(packet) = self else {
-            return Ok(Vec::new());
-        };
+    ) -> Result<Vec<ExpressionOwnedTemporaryV1>, String> {
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        let Self::Expression(packet) = self else { return Ok(Vec::new()); };
         let root = packet.validate_source(context)?;
-        if packet.completion == ArgumentCompletionV1::ScalarCompleted {
-            return Ok(Vec::new());
+        match packet.completion {
+            ArgumentCompletionV1::ScalarCompleted => return Ok(Vec::new()),
+            // This continuation has already ended every child temporary;
+            // only the affine root is deferred to the append consumer.
+            ArgumentCompletionV1::DynamicCarrierDeferred => {
+                return Ok(vec![ExpressionOwnedTemporaryV1::DynamicCarrier(root)]);
+            }
+            ArgumentCompletionV1::OwnedTextDeferred => {}
         }
         let mut values = Vec::new();
         let mut seen = std::collections::BTreeSet::new();
         for &node in packet.frame.evaluation().ordered_nodes() {
-            if !packet
-                .frame
-                .evaluation()
-                .owned_result_nodes()
-                .contains(&node)
-            {
-                continue;
-            }
-            let Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)) = packet
-                .values
-                .get(node)
-                .and_then(Option::as_ref)
-                .map(|value| value.as_operand())
-                .transpose()?
-            else {
-                return Err(freeze("argument-expression/deferred-value"));
+            if !packet.frame.evaluation().owned_result_nodes().contains(&node) { continue; }
+            let temporary = match packet.values.get(node).and_then(Option::as_ref)
+                .map(|value| value.as_operand()).transpose()? {
+                Some(Operand::OwnedString(value)) => ExpressionOwnedTemporaryV1::String(*value),
+                Some(Operand::DynamicCarrier(value)) => ExpressionOwnedTemporaryV1::DynamicCarrier(*value),
+                _ => return Err(freeze("argument-expression/deferred-value")),
             };
-            if !seen.insert(*value) {
-                return Err(freeze("argument-expression/deferred-duplicate"));
-            }
-            values.push(*value);
+            if !seen.insert(temporary.value()) { return Err(freeze("argument-expression/deferred-duplicate")); }
+            values.push(temporary);
         }
         if packet.purpose_acquisition.is_some() {
-            if !seen.insert(root) {
-                return Err(freeze("argument-expression/deferred-duplicate"));
-            }
-            values.push(root);
+            if !seen.insert(root) { return Err(freeze("argument-expression/deferred-duplicate")); }
+            values.push(ExpressionOwnedTemporaryV1::String(root));
         }
-        if values.last() != Some(&root) {
-            return Err(freeze("argument-expression/deferred-root-order"));
-        }
+        let expected = ExpressionOwnedTemporaryV1::String(root);
+        if values.last() != Some(&expected) { return Err(freeze("argument-expression/deferred-root-order")); }
         Ok(values)
     }
     /// Ownership-prefix corroboration only. Non-expression arguments add no
@@ -945,7 +935,7 @@ impl EmittedLexicalCallProjectionV1 {
                 });
                 let has_deferred = self.prepared.arguments[..ordinal]
                     .iter()
-                    .map(|argument| argument.deferred_text_values_v1(context))
+                    .map(|argument| argument.deferred_temporaries_v1(context))
                     .collect::<Result<Vec<_>, _>>()?
                     .iter()
                     .any(|values| !values.is_empty());
@@ -1125,22 +1115,14 @@ impl PreparedLexicalCallProjectionV1 {
         let mut values = Vec::new();
         let mut seen = std::collections::BTreeSet::new();
         for argument in &self.arguments {
-            for value in argument.deferred_text_values_v1(context)? {
-                if !seen.insert(value) {
+            for temporary in argument.deferred_temporaries_v1(context)? {
+                if !seen.insert(temporary.value()) {
                     return Err(freeze("call-argument/duplicate-acquisition"));
                 }
-                values.push(value);
+                values.push(temporary);
             }
         }
-        Ok(values
-            .into_iter()
-            .rev()
-            .map(|value| {
-                InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
-                    value,
-                })
-            })
-            .collect())
+        Ok(values.into_iter().rev().map(ExpressionOwnedTemporaryV1::end_operation).collect())
     }
 }
 
