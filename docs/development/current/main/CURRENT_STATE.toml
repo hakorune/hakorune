@@ -1,9 +1,9 @@
 date = "2026-10-27"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "APP-json-stream-aggregator"
+current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "json-stream-aggregator: smoke PASS on this tree, fixed suite pending; boxtorrent parked on terminal-relation lookup"
+current_blocker_token = "boxtorrent-mini: MIR compile callable-scalar/return-type-mismatch at BoxTorrentStore.allocatorBlocks/0 (slot 56); json-stream-aggregator landed"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,19 +13,19 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
-latest_card = "app-json-stream-aggregator"
-latest_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
+current_execution_design = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+latest_card = "app-boxtorrent-mini"
+latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-json-stream-aggregator: unchanged EXE smoke PASSes (quick CLI, target/quick archive, CFFI rebuilt from this tree); fixed suite being re-measured (last 9/11).
-boxtorrent-mini parked: zero-arg stored-child I64 relation is issued (demand_v1) but the emission-time lookup misses it.
-Fixed: omitted-owner walk, text operand site, Static result proof, entry-formal lookups, stale CFFI declarations.
-Next: confirm the suite count, then return to the failing apps in the order of the goal.
+APP-boxtorrent-mini selected; JSON landed (smoke PASS). Fixed suite 10/11 (total 11, no SKIP/timeout); only boxtorrent-mini fails.
+Stop: MIR compile passes the semantic package (base stops at slot 57 source-unproven), then callable-scalar/return-type-mismatch at BoxTorrentStore.allocatorBlocks/0 (return class Unknown).
+Diagnostics are default-off: NYASH_BUILDER_DEBUG ([source-sum], [entry-input-use], [finite-reads], [method-result], [closed-app-omission]).
+Next: trace why allocatorBlocks' return value is Unknown (result/source-sum class), then the owner38 chain.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "APP-json-stream-aggregator"
-next_execution_card_path = "docs/development/current/main/investigations/app-json-stream-aggregator.md"
+next_execution_card = "APP-boxtorrent-mini"
+next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
