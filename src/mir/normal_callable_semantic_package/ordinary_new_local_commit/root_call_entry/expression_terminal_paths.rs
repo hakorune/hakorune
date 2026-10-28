@@ -7,27 +7,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     ArgumentCallObservationV1, CheckedArgumentExpressionFrameV1, LocalCallArgumentV1,
     LocalCallObservationV1,
 };
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum ExpressionOwnedTemporaryV1 {
-    String(ValueId),
-    DynamicCarrier(ValueId),
-}
-impl ExpressionOwnedTemporaryV1 {
-    pub(in crate::mir) fn end_operation(self) -> InvokeOperation {
-        match self {
-            Self::String(value) => InvokeOperation::String(
-                crate::mir::instruction::StringInvokeOperation::End { value },
-            ),
-            Self::DynamicCarrier(carrier) => InvokeOperation::DynamicCarrierEnd { carrier },
-        }
-    }
-    pub(in crate::mir) fn value(self) -> ValueId {
-        match self { Self::String(value) | Self::DynamicCarrier(value) => value }
-    }
-    fn is_string(self, value: ValueId) -> bool {
-        self == Self::String(value)
-    }
-}
+pub(in crate::mir) use crate::mir::builder::ExpressionOwnedTemporaryV1;
 /// Borrow original ordered arguments and live Homes across Call purposes;
 /// an expression result never gains a synthetic local destination.
 #[derive(Clone, Copy)]

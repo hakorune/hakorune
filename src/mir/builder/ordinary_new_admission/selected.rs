@@ -17,6 +17,7 @@ pub(in crate::mir::builder) mod bool_condition;
 #[path = "selected/expression_value.rs"]
 mod expression_value;
 pub(in crate::mir::builder) use expression_value::emit_scalar_operation_to_landing_v1;
+pub(in crate::mir) use expression_value::{EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1};
 #[path = "selected/return_expression.rs"]
 mod return_expression;
 #[path = "selected/terminal_map_get.rs"]

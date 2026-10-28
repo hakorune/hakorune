@@ -3,7 +3,6 @@ use super::super::expression_projection::{
     ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1, ExpressionOwnedTemporaryV1,
 };
 use super::*;
-use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
@@ -34,7 +33,7 @@ impl LexicalCallArgumentProjectionV1 {
             .ok_or_else(|| freeze("array-append/dynamic-expression-root"))?
             .site();
         let mut calls = packet
-            .dynamic_calls
+            .body.dynamic_calls
             .iter()
             .filter(|call| call.source().site().site() == root);
         let entry = calls
@@ -174,18 +173,9 @@ pub(in crate::mir) struct EmittedArgumentExpressionProjectionV1 {
     frame: std::rc::Rc<
         crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
     >,
-    values: Vec<Option<EvaluatedExpressionValueV1>>,
-    calls: Vec<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
-    dynamic_calls: Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1>>,
-    path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-    reference_reads: std::collections::BTreeMap<
-        usize,
-        super::super::expression_projection::ExpressionReferenceReadV1,
-    >,
-    entry: Binding,
+    body: crate::mir::builder::EmittedExpressionBodyV1,
     terminal: Binding,
     continuation: Binding,
-    original: Vec<Binding>,
     purpose_acquisition: Option<[Binding; 2]>,
     completion: ArgumentCompletionV1,
     retained_argument_frames: Option<
@@ -207,12 +197,12 @@ impl EmittedArgumentExpressionProjectionV1 {
     ) -> super::super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
         super::super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
             self.frame.evaluation(),
-            &self.values,
-            &self.calls,
-            &self.dynamic_calls,
-            &self.path_reads,
-            &self.reference_reads,
-            &self.original,
+            &self.body.values,
+            &self.body.calls,
+            &self.body.dynamic_calls,
+            &self.body.path_reads,
+            &self.body.reference_reads,
+            &self.body.bindings,
         )
     }
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
@@ -272,7 +262,7 @@ impl EmittedArgumentExpressionProjectionV1 {
         let materialized = match &self.purpose_acquisition {
             Some([invoke, normal]) => {
                 let input = self
-                    .values
+                    .body.values
                     .first()
                     .and_then(Option::as_ref)
                     .ok_or_else(|| freeze("argument-expression/result"))?
@@ -283,7 +273,7 @@ impl EmittedArgumentExpressionProjectionV1 {
                     .ok_or_else(|| freeze("argument-expression/result"))?;
                 let snapshot = matches!(input, crate::mir::instruction::StringInvokeOperand::DynamicCarrier(_))
                     && self.frame.evaluation().text_snapshot_root_v1().is_some_and(|node|
-                        self.values.get(node).and_then(Option::as_ref)
+                        self.body.values.get(node).and_then(Option::as_ref)
                             .and_then(|value| value.as_operand().ok()) == Some(input));
                 if !(input.is_text() || snapshot)
                     || !matches!(&invoke.1, MirInstruction::Invoke {
@@ -294,8 +284,8 @@ impl EmittedArgumentExpressionProjectionV1 {
                             invoke_block: invoke.0,
                             dst: value,
                         })
-                    || !self.original.contains(invoke)
-                    || !self.original.contains(normal)
+                    || !self.body.bindings.contains(invoke)
+                    || !self.body.bindings.contains(normal)
                 {
                     return Err(freeze("argument-expression/result"));
                 }
@@ -305,7 +295,7 @@ impl EmittedArgumentExpressionProjectionV1 {
         };
         let value = match (
             self.completion,
-            self.values
+            self.body.values
                 .first()
                 .and_then(Option::as_ref)
                 .map(|value| value.as_operand())
@@ -347,7 +337,7 @@ impl EmittedArgumentExpressionProjectionV1 {
         ordered.push(self.terminal.clone());
 
         let mut copies = self.copy_dependencies_in_context_v1(context)?;
-        for call in &self.calls {
+        for call in &self.body.calls {
             copies.extend(
                 call.copy_dependencies_in_context(context)?
                     .into_iter()
@@ -363,13 +353,13 @@ impl EmittedArgumentExpressionProjectionV1 {
         let (ordered, copies) = self.scope_bindings_in_context_v1(context)?;
         let mut bindings = ordered;
         bindings.extend(copies);
-        for read in self.reference_reads.values() {
+        for read in self.body.reference_reads.values() {
             bindings.extend(read.dependencies()?);
         }
-        for call in &self.calls {
+        for call in &self.body.calls {
             bindings.extend(call.source_loop_argument_bindings_in_context_v1(context)?);
         }
-        for call in &self.dynamic_calls {
+        for call in &self.body.dynamic_calls {
             let (ordered, copies) = call.scope_bindings_in_context_v1(context)?;
             bindings.extend(ordered);
             bindings.extend(copies);
@@ -387,10 +377,10 @@ impl EmittedArgumentExpressionProjectionV1 {
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
         let mut copies = Vec::new();
-        for read in &self.path_reads {
+        for read in &self.body.path_reads {
             copies.extend_from_slice(read.original_copy_dependencies_v1()?);
         }
-        for read in self.reference_reads.values() {
+        for read in self.body.reference_reads.values() {
             copies.extend_from_slice(read.original_copy_dependencies_v1()?);
         }
         copies.extend(self.expression().scalar_copy_dependencies_v1(context)?);
@@ -416,7 +406,7 @@ impl EmittedArgumentExpressionProjectionV1 {
                     context,
                     function,
                     finishing,
-                    &self.entry,
+                    &self.body.entry,
                     &self.terminal,
                     &self.continuation,
                     inherited,
@@ -428,7 +418,7 @@ impl EmittedArgumentExpressionProjectionV1 {
                     context,
                     function,
                     finishing,
-                    &self.entry,
+                    &self.body.entry,
                     &self.terminal,
                     &self.continuation,
                     inherited,
@@ -441,7 +431,7 @@ impl EmittedArgumentExpressionProjectionV1 {
                         context,
                         function,
                         finishing,
-                        &self.entry,
+                        &self.body.entry,
                         &self.terminal,
                         &self.continuation,
                         inherited,
@@ -502,19 +492,10 @@ impl LexicalCallArgumentProjectionV1 {
         frame: std::rc::Rc<
             crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
         >,
-        values: Vec<Option<EvaluatedExpressionValueV1>>,
-        calls: Vec<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
-        dynamic_calls: Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedDynamicInvocationCallProjectionV1>>,
-        path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
-        reference_reads: std::collections::BTreeMap<
-            usize,
-            super::super::expression_projection::ExpressionReferenceReadV1,
-        >,
-        entry: Binding,
+        body: crate::mir::builder::EmittedExpressionBodyV1,
         terminal: Binding,
         continuation: Binding,
         purpose_acquisition: Option<[Binding; 2]>,
-        original: Vec<Binding>,
         retained_argument_frames: &[std::rc::Rc<
             crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
         >],
@@ -544,15 +525,9 @@ impl LexicalCallArgumentProjectionV1 {
             completion,
             purpose_acquisition,
             frame,
-            values,
-            calls,
-            dynamic_calls,
-            path_reads,
-            reference_reads,
-            entry,
+            body,
             terminal,
             continuation,
-            original,
             retained_argument_frames,
         };
         let context = CallValidationContextV1::Lowering(ledger);
@@ -566,7 +541,7 @@ impl LexicalCallArgumentProjectionV1 {
             ledger,
             function,
             &covered,
-            &packet.entry,
+            &packet.body.entry,
             &packet.terminal,
             &packet.continuation,
             &ordered,
@@ -608,7 +583,7 @@ impl LexicalCallArgumentProjectionV1 {
             return Err(freeze("array-append/dynamic-expression-source"));
         }
         let root_call = packet
-            .dynamic_calls
+            .body.dynamic_calls
             .iter()
             .filter(|call| call.source().site().site() == root.site());
         let mut root_calls = root_call;
@@ -629,7 +604,6 @@ impl LexicalCallArgumentProjectionV1 {
         &self,
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<ExpressionOwnedTemporaryV1>, String> {
-        use crate::mir::instruction::StringInvokeOperand as Operand;
         let Self::Expression(packet) = self else { return Ok(Vec::new()); };
         let root = packet.validate_source(context)?;
         match packet.completion {
@@ -641,26 +615,9 @@ impl LexicalCallArgumentProjectionV1 {
             }
             ArgumentCompletionV1::OwnedTextDeferred => {}
         }
-        let mut values = Vec::new();
-        let mut seen = std::collections::BTreeSet::new();
-        for &node in packet.frame.evaluation().ordered_nodes() {
-            if !packet.frame.evaluation().owned_result_nodes().contains(&node) { continue; }
-            let temporary = match packet.values.get(node).and_then(Option::as_ref)
-                .map(|value| value.as_operand()).transpose()? {
-                Some(Operand::OwnedString(value)) => ExpressionOwnedTemporaryV1::String(*value),
-                Some(Operand::DynamicCarrier(value)) => ExpressionOwnedTemporaryV1::DynamicCarrier(*value),
-                _ => return Err(freeze("argument-expression/deferred-value")),
-            };
-            if !seen.insert(temporary.value()) { return Err(freeze("argument-expression/deferred-duplicate")); }
-            values.push(temporary);
-        }
-        if packet.purpose_acquisition.is_some() {
-            if !seen.insert(root) { return Err(freeze("argument-expression/deferred-duplicate")); }
-            values.push(ExpressionOwnedTemporaryV1::String(root));
-        }
-        let expected = ExpressionOwnedTemporaryV1::String(root);
-        if values.last() != Some(&expected) { return Err(freeze("argument-expression/deferred-root-order")); }
-        Ok(values)
+        packet.body.ordered_owned_temporaries_v1(
+            packet.frame.evaluation(), root, packet.purpose_acquisition.is_some(),
+        )
     }
     /// Ownership-prefix corroboration only. Non-expression arguments add no
     /// retained stack; the enclosing materializer still checks every original
@@ -699,7 +656,7 @@ impl LexicalCallArgumentProjectionV1 {
     }
     pub(in crate::mir) fn expression_bindings_v1(&self) -> &[Binding] {
         match self {
-            Self::Expression(packet) => &packet.original,
+            Self::Expression(packet) => &packet.body.bindings,
             _ => &[],
         }
     }
@@ -761,7 +718,7 @@ impl LexicalCallArgumentProjectionV1 {
             _ => None,
         }
         .into_iter()
-        .flat_map(|packet| packet.calls.iter().map(std::rc::Rc::as_ref))
+        .flat_map(|packet| packet.body.calls.iter().map(std::rc::Rc::as_ref))
     }
 
     pub(super) fn visit_expression_calls_v1(
@@ -775,7 +732,7 @@ impl LexicalCallArgumentProjectionV1 {
     ) -> Result<(), String> {
         if let Self::Expression(packet) = self {
             packet.validate_source(context)?;
-            for (source, call) in packet.frame.evaluation().calls().iter().zip(&packet.calls) {
+            for (source, call) in packet.frame.evaluation().calls().iter().zip(&packet.body.calls) {
                 call.visit_original_nodes_in_context_v1(owner, source.arguments(), context, visit)?;
             }
         }
@@ -1058,19 +1015,15 @@ mod tests {
         let projection = LexicalCallArgumentProjectionV1::Expression(Box::new(
             EmittedArgumentExpressionProjectionV1 {
                 frame: std::rc::Rc::clone(&frames[0]),
-                values: Vec::new(),
-                calls: Vec::new(),
-                dynamic_calls: Vec::new(),
+                body: crate::mir::builder::EmittedExpressionBodyV1 {
+                    values: Vec::new(), calls: Vec::new(), dynamic_calls: Vec::new(),
+                    path_reads: Vec::new(), reference_reads: Default::default(),
+                    acquired: Vec::new(), dynamic_carriers: Vec::new(),
+                    temporary_order: Vec::new(), homes: Vec::new(), fault_frame: crate::mir::ValueId(0),
+                    entry: (BasicBlockId(1), MirInstruction::Jump { target: BasicBlockId(2), edge_args: None }),
+                    bindings: Vec::new(),
+                },
                 retained_argument_frames: None,
-                path_reads: Vec::new(),
-                reference_reads: Default::default(),
-                entry: (
-                    BasicBlockId(1),
-                    MirInstruction::Jump {
-                        target: BasicBlockId(2),
-                        edge_args: None,
-                    },
-                ),
                 terminal: (
                     BasicBlockId(2),
                     MirInstruction::Jump {
@@ -1085,7 +1038,6 @@ mod tests {
                         edge_args: None,
                     },
                 ),
-                original: Vec::new(),
                 completion: ArgumentCompletionV1::ScalarCompleted,
                 purpose_acquisition: None,
             },
@@ -1129,7 +1081,7 @@ impl PreparedLexicalCallProjectionV1 {
 impl LexicalCallArgumentProjectionV1 {
     fn original_argument_boundaries_v1(&self) -> Result<Option<(Binding, Binding)>, String> {
         Ok(match self {
-            Self::Expression(packet) => Some((packet.entry.clone(), packet.continuation.clone())),
+            Self::Expression(packet) => Some((packet.body.entry.clone(), packet.continuation.clone())),
             Self::CallResult(packet) => {
                 let mut entry = packet.invoke.clone();
                 for argument in &packet.prepared.arguments {

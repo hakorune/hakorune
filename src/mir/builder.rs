@@ -458,6 +458,7 @@ mod control_flow; // thin wrappers to centralize control-flow entrypoints
 pub(in crate::mir) use emission::constant::CompletedConstV1;
 pub(in crate::mir) use control_flow::plan::lowerer::{VerifiedLoopCondAfterPhysicalRoleV1, EmittedSourceLoopGraphV2, capture_exact_loop_phis_v2};
 pub(in crate::mir) use normal_callable_loop_source_facts::{CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2};
+pub(in crate::mir) use ordinary_new_admission::selected::{EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1};
 pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::{EmittedSourceLoopCleanupV2, CleanupOperationLoanV2};
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {

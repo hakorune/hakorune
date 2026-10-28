@@ -32,19 +32,72 @@ pub(super) struct EmittedExpressionValueV1 {
 
 /// One evaluated source scope. A comparison borrows its inputs without
 /// inventing a root value or re-rooting the original source expression.
-pub(super) struct EmittedExpressionBodyV1 {
-    pub(super) values: Vec<Option<EvaluatedExpressionValueV1>>,
-    pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
-    pub(super) dynamic_calls: Vec<Rc<EmittedDynamicInvocationCallProjectionV1>>,
-    pub(super) path_reads: Vec<Rc<crate::mir::builder::ExactLexicalReadV1>>,
-    pub(super) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
-    pub(super) acquired: Vec<(usize, ValueId)>,
-    pub(super) dynamic_carriers: Vec<(usize, ValueId)>,
-    pub(super) temporary_order: Vec<usize>,
-    pub(super) homes: Vec<InvokeOperation>,
-    pub(super) fault_frame: ValueId,
-    pub(super) entry: Binding,
-    pub(super) bindings: Vec<Binding>,
+#[derive(Debug)]
+pub(in crate::mir) struct EmittedExpressionBodyV1 {
+    pub(in crate::mir) values: Vec<Option<EvaluatedExpressionValueV1>>,
+    pub(in crate::mir) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
+    pub(in crate::mir) dynamic_calls: Vec<Rc<EmittedDynamicInvocationCallProjectionV1>>,
+    pub(in crate::mir) path_reads: Vec<Rc<crate::mir::builder::ExactLexicalReadV1>>,
+    pub(in crate::mir) reference_reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
+    pub(in crate::mir) acquired: Vec<(usize, ValueId)>,
+    pub(in crate::mir) dynamic_carriers: Vec<(usize, ValueId)>,
+    pub(in crate::mir) temporary_order: Vec<usize>,
+    pub(in crate::mir) homes: Vec<InvokeOperation>,
+    pub(in crate::mir) fault_frame: ValueId,
+    pub(in crate::mir) entry: Binding,
+    pub(in crate::mir) bindings: Vec<Binding>,
+}
+
+impl EmittedExpressionBodyV1 {
+    /// Borrow the same source-ordered acquisitions for an owned Text destination.
+    /// Callers first corroborate this body against its retained checked frame;
+    /// this view is not a second source or acquisition inventory.
+    pub(in crate::mir) fn ordered_owned_temporaries_v1(
+        &self, frame: &CheckedExpressionEvaluationV1, root: ValueId, materialized: bool,
+    ) -> Result<Vec<ExpressionOwnedTemporaryV1>, String> {
+        let mut values = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for &node in frame.ordered_nodes() {
+            if !frame.owned_result_nodes().contains(&node) { continue; }
+            let temporary = match self.values.get(node).and_then(Option::as_ref)
+                .map(|value| value.as_operand()).transpose()? {
+                Some(Operand::OwnedString(value)) => ExpressionOwnedTemporaryV1::String(*value),
+                Some(Operand::DynamicCarrier(value)) => ExpressionOwnedTemporaryV1::DynamicCarrier(*value),
+                _ => return Err(freeze("argument-expression/deferred-value")),
+            };
+            if !seen.insert(temporary.value()) { return Err(freeze("argument-expression/deferred-duplicate")); }
+            values.push(temporary);
+        }
+        if materialized {
+            if !seen.insert(root) { return Err(freeze("argument-expression/deferred-duplicate")); }
+            values.push(ExpressionOwnedTemporaryV1::String(root));
+        }
+        let expected = ExpressionOwnedTemporaryV1::String(root);
+        if values.last() != Some(&expected) { return Err(freeze("argument-expression/deferred-root-order")); }
+        Ok(values)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum ExpressionOwnedTemporaryV1 {
+    String(ValueId),
+    DynamicCarrier(ValueId),
+}
+impl ExpressionOwnedTemporaryV1 {
+    pub(in crate::mir) fn end_operation(self) -> InvokeOperation {
+        match self {
+            Self::String(value) => InvokeOperation::String(
+                crate::mir::instruction::StringInvokeOperation::End { value },
+            ),
+            Self::DynamicCarrier(carrier) => InvokeOperation::DynamicCarrierEnd { carrier },
+        }
+    }
+    pub(in crate::mir) fn value(self) -> ValueId {
+        match self { Self::String(value) | Self::DynamicCarrier(value) => value }
+    }
+    pub(in crate::mir) fn is_string(self, value: ValueId) -> bool {
+        self == Self::String(value)
+    }
 }
 
 pub(in crate::mir::builder) enum ExpressionCallEmissionV1 {

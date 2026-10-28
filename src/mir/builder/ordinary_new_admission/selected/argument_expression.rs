@@ -164,16 +164,10 @@ pub(in crate::mir::builder) fn emit_with_checked_frame(
     }};
     let projection = Projection::from_expression_v1(
         frame,
-        expression.body.values,
-        expression.body.calls,
-        expression.body.dynamic_calls,
-        expression.body.path_reads,
-        expression.body.reference_reads,
-        expression.body.entry,
+        expression.body,
         terminal,
         continuation,
         expression.purpose_acquisition,
-        expression.body.bindings,
         nested_argument_frames,
         ledger,
         builder
