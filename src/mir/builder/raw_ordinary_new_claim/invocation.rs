@@ -21,6 +21,13 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             owner,
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
         );
+        if let Some(frame) = ledger.discard_expression_frame_v1(
+            owner,
+            &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.site().node().clone()),
+        ) {
+            self.emit_checked_print_value_v1(builder, frame)?;
+            return Ok(true);
+        }
         let constructor = match &self.callable_ledger {
             Some(state) => state.borrow().has_next_constructor_call_v1(&site)?,
             None => false,

@@ -545,7 +545,8 @@ pub(crate) fn issue_source_expression_call_v1<E>(
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                     role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
-                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })) => None,
+                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue
+                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::DiscardValue, .. })) => None,
         LocalCallResultSourceV1::DynamicInvocation(_) => None,
         _ => return expression_call_declined(site, 90),
     };

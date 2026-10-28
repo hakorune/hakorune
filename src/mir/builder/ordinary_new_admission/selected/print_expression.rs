@@ -40,10 +40,16 @@ pub(in crate::mir::builder) fn emit(
     let after: Vec<_> = (0..normal.len()).map(|index| ((index + 1)..fault.len()).collect()).collect();
     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame, clean,
         &normal, &fault, &after, &(0..fault.len()).collect::<Vec<_>>(), &mut bindings)?;
-    let print = writer.emit_current(builder, MirInstruction::Invoke {
-        operation: InvokeOperation::String(Operation::Print { value: value.as_operand()?.clone() }), fault_frame,
-        normal_landing: graph.clean, fault_landing: graph.acquisition_fault,
-    })?;
+    // A discarded statement call has no sink: control falls into the same
+    // Normal cleanup that ends the call's owned result.
+    let print = if frame.is_discard() {
+        writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?
+    } else {
+        writer.emit_current(builder, MirInstruction::Invoke {
+            operation: InvokeOperation::String(Operation::Print { value: value.as_operand()?.clone() }), fault_frame,
+            normal_landing: graph.clean, fault_landing: graph.acquisition_fault,
+        })?
+    };
     bindings.push(print.clone());
     builder.start_new_block(next)?;
     // Shared FaultFrame/read observations may be lent by several call nodes;

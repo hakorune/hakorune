@@ -316,6 +316,21 @@ pub(super) fn scan_statement_flow<'a, E>(
                     local_calls.push(call);
                     continue;
                 }
+                // A result-owning call whose value is dropped at the statement end.
+                if super::print::observe(
+                    input,
+                    &statement,
+                    locals,
+                    homes,
+                    unavailable.is_none(),
+                    local_calls,
+                    path_calls,
+                    local_field_read,
+                    borrowed_actuals,
+                )? {
+                    locals.record_source_loop_expression_v1(statement.site());
+                    continue;
+                }
             }
             // The source effect and its original RHS plan share this Home
             // walk. The existing raw writer remains the sole FieldSet emitter.

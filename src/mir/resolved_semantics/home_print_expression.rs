@@ -19,6 +19,12 @@ pub(crate) struct CheckedPrintExpressionFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
 }
 impl CheckedPrintExpressionFrameV1 {
+    /// A bare statement call whose owned result ends with the statement.
+    pub(crate) fn is_discard(&self) -> bool {
+        matches!(self.source().root(), ExpressionPlanRootV1::Statement {
+            role: StatementExpressionRoleV1::DiscardValue, ..
+        })
+    }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
         &self.evaluation
     }
@@ -86,7 +92,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
         return Ok(None);
     }
     let ExpressionPlanRootV1::Statement {
-        role: StatementExpressionRoleV1::PrintValue,
+        role: StatementExpressionRoleV1::PrintValue | StatementExpressionRoleV1::DiscardValue,
         value,
         ..
     } = source.root()

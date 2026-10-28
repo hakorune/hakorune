@@ -223,7 +223,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     };
     if expression.owner() != site.owner()
         || !(matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
-            role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })
+            role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
+                | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::DiscardValue, .. })
             || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. })
             || matches!(expression.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment }

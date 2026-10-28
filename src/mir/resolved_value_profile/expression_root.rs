@@ -10,6 +10,9 @@ use crate::mir::resolved_semantics::{
 pub(crate) enum StatementExpressionRoleV1 {
     PrintValue,
     ReturnValue,
+    /// A bare statement call: the statement node is the value and its result
+    /// is a temporary that ends with the statement.
+    DiscardValue,
 }
 
 #[derive(Debug)]
@@ -41,8 +44,18 @@ pub(crate) fn statement_expression_root_v1<'a>(
         BodyStatementShapeV1::Return { value: Some(value), .. } => {
             (StatementExpressionRoleV1::ReturnValue, value)
         }
-        BodyStatementShapeV1::SequenceItem { .. }
-        | BodyStatementShapeV1::Return { value: None, .. } => return Ok(None),
+        BodyStatementShapeV1::SequenceItem { site } => {
+            let value = SourceExprSiteV1::from_node(site.node().clone());
+            if !matches!(shape.expression_shape(&value),
+                Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::MethodCall { .. }))
+                || !inventory.contains_expression(&value)
+            {
+                return Ok(None);
+            }
+            let value = shape.expression_shape(&value).map(|row| row.site()).ok_or(Issue::ChildIdentity)?;
+            return Ok(Some(StatementExpressionRootV1 { role: StatementExpressionRoleV1::DiscardValue, value }));
+        }
+        BodyStatementShapeV1::Return { value: None, .. } => return Ok(None),
     };
     let expected = SourcePathV1::from_node(statement.node())
         .child(SourcePathSegmentV1::Value)

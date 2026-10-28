@@ -83,9 +83,13 @@ impl EmittedPrintExpressionProjectionV1 {
 
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         self.expression().validate_source(context)?;
-        if !matches!((&self.print.1, self.values.first()),
-            (MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Print { value }), .. }, Some(Some(root))) if root.as_operand().is_ok_and(|root| value == root))
-            || !matches!(self.continuation.1, MirInstruction::Jump { .. })
+        let sink = if self.frame.is_discard() {
+            matches!(self.print.1, MirInstruction::Jump { edge_args: None, .. })
+        } else {
+            matches!((&self.print.1, self.values.first()),
+                (MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Print { value }), .. }, Some(Some(root))) if root.as_operand().is_ok_and(|root| value == root))
+        };
+        if !sink || !matches!(self.continuation.1, MirInstruction::Jump { .. })
         {
             return Err(freeze("print-expression/print-or-continuation"));
         }
@@ -101,7 +105,9 @@ impl EmittedPrintExpressionProjectionV1 {
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
         let mut ordered = self.expression().ordered_bindings_in_context(context)?;
-        ordered.push(self.print.clone());
+        if !self.frame.is_discard() {
+            ordered.push(self.print.clone());
+        }
         Ok(ordered)
     }
 
@@ -201,6 +207,19 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("print-expression/duplicate-source-frame"));
         }
         Ok(frame)
+    }
+
+    /// The retained frame of a bare statement call that drops an owned result.
+    /// Absent for every other statement, which never reports unavailability here.
+    pub(crate) fn discard_expression_frame_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        statement: &SourceStmtSiteV1,
+    ) -> Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>> {
+        let flow = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow())?;
+        flow.expression_plans().iter().filter_map(|plan| plan.print_frame())
+            .find(|frame| frame.is_discard() && frame.source().root().statement() == statement)
+            .cloned()
     }
 
     pub(crate) fn validate_print_expression_source_v1(
