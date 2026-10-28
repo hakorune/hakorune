@@ -578,16 +578,90 @@ impl EmittedBoolConditionProjectionV1 {
             Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual) => then_bb,
             _ => return Err(freeze("bool-condition/outer-branch-source")),
         };
-        let dom = crate::mir::verification::utils::compute_dominators(function);
-        if !dom.dominates(branch.0, consumer.0) || !dom.dominates(nonnull, consumer.0) {
-            return Err(freeze("bool-condition/outer-branch-source"));
-        }
-        if let Some(producer) = producer {
+        let (producer, execution) = if let Some(producer) = producer {
             require_binding(function, producer, finishing)?;
             let producer = mapped(producer, finishing)?.ok_or_else(|| freeze("bool-condition/required-producer-removed"))?;
-            if !dom.dominates(producer.0, branch.0) { return Err(freeze("bool-condition/outer-branch-source")); }
+            let execution = match &producer.1 {
+                MirInstruction::InvokeNormalResult { invoke_block, .. } => *invoke_block,
+                _ => producer.0,
+            };
+            (Some(producer.0), Some(execution))
+        } else { (None, None) };
+        // During nested If emission the enclosing edge has not been written.
+        // Keep the existing local checks here; committed groups repeat this
+        // check with FinishedBindings before lifecycle publication.
+        let dom = crate::mir::verification::utils::compute_dominators(function);
+        if !dom.dominates(branch.0, consumer.0) || !dom.dominates(nonnull, consumer.0)
+            || producer.is_some_and(|producer| !dom.dominates(producer, branch.0))
+            || (finishing.is_some() && !nonnull_geometry_v1(function, branch.0, nonnull, consumer.0, execution)) {
+            return Err(freeze("bool-condition/outer-branch-source"));
         }
         Ok(())
+    }
+}
+
+/// A guard belongs to one reaching value: no other edge can enter its
+/// nonnull arm, and a new producer cannot execute before the guarded use.
+fn nonnull_geometry_v1(function: &MirFunction, branch: BasicBlockId, nonnull: BasicBlockId,
+    consumer: BasicBlockId, producer: Option<BasicBlockId>,
+) -> bool {
+    if !matches!(function.blocks.get(&branch).and_then(|block| block.terminator.as_ref()),
+        Some(MirInstruction::Branch { then_bb, else_bb, .. })
+            if then_bb != else_bb && (*then_bb == nonnull || *else_bb == nonnull))
+        || function.blocks.values().any(|block| block.successors != block.successors_from_terminator()
+            || block.successors.iter().any(|target| !function.blocks.contains_key(target))) { return false; }
+    let dom = crate::mir::verification::utils::compute_dominators(function);
+    if !dom.is_reachable(branch) || !dom.is_reachable(nonnull) || !dom.is_reachable(consumer)
+        || !dom.dominates(branch, consumer) || !dom.dominates(nonnull, consumer) { return false; }
+    let predecessors: Vec<_> = function.blocks.iter().flat_map(|(id, block)|
+        block.successors_from_terminator().into_iter().filter_map(move |next| (next == nonnull).then_some(*id))).collect();
+    if predecessors.as_slice() != [branch] { return false; }
+    let Some(producer) = producer else { return true };
+    if !dom.is_reachable(producer) || !dom.dominates(producer, branch) { return false; }
+    let mut pending = vec![nonnull];
+    let mut seen = std::collections::BTreeSet::new();
+    while let Some(block) = pending.pop() {
+        if block == producer { return false; }
+        if block == branch || block == consumer || !seen.insert(block) { continue; }
+        let Some(body) = function.blocks.get(&block) else { return false };
+        pending.extend(body.successors_from_terminator());
+    }
+    true
+}
+
+#[cfg(test)]
+mod nonnull_geometry_tests {
+    use super::*;
+    use crate::mir::{BasicBlock, EffectMask, FunctionSignature, MirType};
+
+    #[test]
+    fn guard_rejects_foreign_entry_unreachable_use_and_reexecuted_producer() {
+        let b = BasicBlockId::new;
+        let mut f = MirFunction::new(FunctionSignature { name: "nonnull-geometry".into(),
+            params: vec![], return_type: MirType::Void, effects: EffectMask::CONTROL }, b(0));
+        for id in 0..=5 { f.add_block(BasicBlock::new(b(id))); }
+        let jump = |target| MirInstruction::Jump { target, edge_args: None };
+        let branch = |then_bb, else_bb| MirInstruction::Branch { condition: ValueId::new(0),
+            then_bb, else_bb, then_edge_args: None, else_edge_args: None };
+        f.blocks.get_mut(&b(0)).unwrap().set_terminator(jump(b(1)));
+        f.blocks.get_mut(&b(1)).unwrap().set_terminator(branch(b(2), b(3)));
+        f.blocks.get_mut(&b(2)).unwrap().set_terminator(jump(b(4)));
+        for id in [3, 4, 5] { f.blocks.get_mut(&b(id)).unwrap().set_terminator(MirInstruction::Return { value: None }); }
+        assert!(nonnull_geometry_v1(&f, b(1), b(2), b(4), Some(b(0))));
+        assert!(!nonnull_geometry_v1(&f, b(1), b(2), b(3), Some(b(0))));
+        assert!(!nonnull_geometry_v1(&f, b(1), b(2), b(5), Some(b(0))));
+        let mut same = f.clone();
+        same.blocks.get_mut(&b(1)).unwrap().set_terminator(branch(b(2), b(2)));
+        assert!(!nonnull_geometry_v1(&same, b(1), b(2), b(4), Some(b(0))));
+        let mut stale = f.clone();
+        stale.blocks.get_mut(&b(3)).unwrap().successors.insert(b(2));
+        assert!(!nonnull_geometry_v1(&stale, b(1), b(2), b(4), Some(b(0))));
+        let mut extra = f.clone();
+        extra.blocks.get_mut(&b(3)).unwrap().set_terminator(jump(b(2)));
+        assert!(!nonnull_geometry_v1(&extra, b(1), b(2), b(4), Some(b(0))));
+        let mut reentry = f;
+        reentry.blocks.get_mut(&b(2)).unwrap().set_terminator(branch(b(0), b(4)));
+        assert!(!nonnull_geometry_v1(&reentry, b(1), b(2), b(4), Some(b(0))));
     }
 }
 
