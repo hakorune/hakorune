@@ -108,6 +108,16 @@ impl OriginalReturnSourceLoanV1 {
             |flow, site, binding| ingress.lend_original_read_sum_v1(flow, site, binding).is_some_and(|sum| sum.text_only()),
             |class, name| ingress.source_declared_field_sum_v1(class, name).is_some_and(|sum| sum.text_only()),
             |site| ingress.ordinary_core_source_v1(site).is_some_and(|core| core.operands().result_sum_v1().text_only()),
+            false,
+        )
+    }
+    /// Select demand only; completion and all-exit coverage remain independent.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_nullable_text_return_request_v1(&self, ingress: &PreparedBorrowedFormalIngressV1) -> bool {
+        self.text_returns_with_sums_v1(
+            |flow, site, binding| ingress.lend_original_read_sum_v1(flow, site, binding).is_some_and(|sum| sum.text_only()),
+            |class, name| ingress.source_declared_field_sum_v1(class, name).is_some_and(|sum| sum.text_only()),
+            |site| ingress.ordinary_core_source_v1(site).is_some_and(|core| core.operands().result_sum_v1().text_only()),
+            true,
         )
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_original_text_return_v1(
@@ -117,6 +127,7 @@ impl OriginalReturnSourceLoanV1 {
             |flow, site, binding| source.lend_original_read_sum_v1(flow, site, binding).is_some_and(|sum| sum.text_only()),
             |class, name| source.source_declared_field_sum_v1(class, name).is_some_and(|sum| sum.text_only()),
             |site| source.ordinary_core_source_v1(site).is_some_and(|core| core.operands().result_sum_v1().text_only()),
+            false,
         )
     }
     fn text_returns_with_sums_v1(
@@ -124,12 +135,18 @@ impl OriginalReturnSourceLoanV1 {
         mut read_is_text: impl FnMut(&std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>, &SourceExprSiteV1, BindingRefV1) -> bool,
         mut field_is_text: impl FnMut(&str, &str) -> bool,
         mut core_is_text: impl FnMut(&OwnedExprSiteV1) -> bool,
+        nullable: bool,
     ) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
         let plans = self.plans();
+        let mut null_count = 0usize;
         let answer = !plans.is_empty() && plans.iter().all(|plan| {
             let Some(root) = plan.nodes().first() else { return false; };
             if plan.owner() != self.0.owner { return false; }
+            if matches!(root.source(), Node::Literal(ResolvedLiteralSourceV1::Null)) {
+                null_count += 1;
+                return nullable && plan.nodes().len() == 1;
+            }
             match root.source() {
                 Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => return true,
                 Node::MethodCall => return core_is_text(&OwnedExprSiteV1::new(plan.owner(), root.site().clone())),
@@ -147,7 +164,7 @@ impl OriginalReturnSourceLoanV1 {
                     | Node::Shape(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == self.0.receiver))
                 && field_is_text(self.0.key.owner(), field)
         });
-        answer
+        answer && (!nullable || (null_count > 0 && null_count < plans.len()))
     }
     pub(super) fn plan(&self, value: &SourceExprSiteV1) -> Option<&Rc<ExpressionSourcePlanV1>> {
         self.plans().iter().find(|plan| {

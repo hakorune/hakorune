@@ -722,12 +722,14 @@ fn original_field_request_rejects_lost_retained_return_before_lending() {
 
 #[test]
 fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
-    for (body, text_only) in [
-        ("local out = \"雪\" return out", true),
-        ("local out = \"雪\" out = \"🐱\" return out", true),
-        ("local out = \"\" local i = 0 loop(i < 2) { out = out + \"x\" i = i + 1 } return out", true),
-        ("local out = 7 return out", false),
-        ("local out = \"雪\" out = 7 return out", false),
+    for (body, text_only, nullable_text) in [
+        ("local out = \"雪\" return out", true, false),
+        ("local out = \"雪\" out = \"🐱\" return out", true, false),
+        ("local out = \"\" local i = 0 loop(i < 2) { out = out + \"x\" i = i + 1 } return out", true, false),
+        ("local out = 7 return out", false, false),
+        ("local out = \"雪\" out = 7 return out", false, false),
+        ("if true { return null } return \"x\"", false, true),
+        ("if true { return null } return 7", false, false),
     ] {
         let text = format!("box Counter {{ birth() {{ }} read() {{ {body} }} }} static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
@@ -737,6 +739,7 @@ fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
             Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.owner() == "Counter" && key.name() == "read")).unwrap().owner;
         let original = ledger.borrowed_i64_results.original_return_source_v1(&owner).unwrap().unwrap();
         assert_eq!(original.is_text_return_v1(ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()), text_only, "{body}");
+        assert_eq!(original.is_nullable_text_return_request_v1(ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()), nullable_text, "{body}");
         let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
         assert!(!original.is_text_return_v1(foreign.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()),
             "an equal-shaped foreign flow cannot lend this local Return class");

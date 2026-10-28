@@ -102,7 +102,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .original_returned_field_participant_request_v1(owner)?
             .is_some()
             || self.borrowed_i64_results.original_return_source_v1(&owner)?
-                .is_some_and(|original| original.is_text_return_v1(source));
+                .is_some_and(|original| original.is_text_return_v1(source)
+                    || original.is_nullable_text_return_request_v1(source));
         // Owning selection checks the whole callee, including every target and
         // root; share that result only within this immutable selection scan.
         let mut owning_request = None;
