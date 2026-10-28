@@ -457,3 +457,47 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
         argument_cleanup,
     })
 }
+
+/// Physical cleanup delimiters shared by owned operation consumers.
+pub(in crate::mir::builder) type OperationCleanupV1 = (
+    BasicBlockId, BasicBlockId, (BasicBlockId, MirInstruction), Vec<(BasicBlockId, MirInstruction)>,
+);
+
+/// End the caller's deferred acquisitions on Normal and before prior Homes on
+/// Fault. Source owners supply the exact operations; this writer adds no rights.
+pub(in crate::mir::builder) fn prepare_operation_cleanup_v1(
+    builder: &mut MirBuilder, frame: ValueId, outward: BasicBlockId,
+    normal_ends: Vec<InvokeOperation>, unwind: Vec<InvokeOperation>,
+    normal_fault_cancellation: &[InvokeOperation], bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<(BasicBlockId, Option<OperationCleanupV1>), String> {
+    let result = if normal_ends.is_empty() {
+        append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, bindings)?;
+        (cleanup_chain(builder, frame, unwind, outward, bindings)?, None)
+    } else {
+        let mut fault_operations = normal_ends.clone();
+        fault_operations.extend_from_slice(normal_fault_cancellation);
+        fault_operations.extend(unwind);
+        let mut seen = std::collections::BTreeSet::new();
+        for operation in &fault_operations {
+            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
+                | InvokeOperation::DynamicCarrierEnd { carrier: value } = operation {
+                if !seen.insert(*value) { return Err(freeze("call-argument/duplicate-acquisition")); }
+            }
+        }
+        let clean = builder.next_block_id();
+        let next = builder.next_block_id();
+        let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
+        append_block(builder, clean, continuation.1.clone(), bindings)?;
+        let after_normal: Vec<_> = (0..normal_ends.len())
+            .map(|index| ((index + 1)..fault_operations.len()).collect()).collect();
+        // A result exists only after operation Normal. Its cancellation belongs
+        // to Normal cleanup Fault suffixes, never the original operation Fault.
+        let call_fault: Vec<_> = (0..normal_ends.len())
+            .chain((normal_ends.len() + normal_fault_cancellation.len())..fault_operations.len()).collect();
+        let graph = emit_cleanup_suffixes_with_writer(
+            &mut RawRootGraphWriterV1, builder, frame, clean, &normal_ends, &fault_operations,
+            &after_normal, &call_fault, bindings)?;
+        (graph.acquisition_fault, Some((graph.clean, next, continuation, graph.normal_origins)))
+    };
+    Ok(result)
+}

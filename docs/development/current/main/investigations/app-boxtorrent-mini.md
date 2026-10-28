@@ -1,6 +1,6 @@
 # APP-boxtorrent-mini
 
-Status: selected; design reviewed, implementation incomplete. Date: 2026-10-27
+Status: selected; design reviewed, implementation incomplete. Date: 2026-10-29
 Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
@@ -9,11 +9,11 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - Map実引数WIPは元get・writer・引数siteを保持してchecked child readを発行し、source-kind/forwarded-copyを通過。最終Map slot・child field・callee実行中の区間検証は未実装なので拒否を保持。
 - Array aliasと直接receiverは実Count/Get source loanを同じfield descriptorへ保持。直接receiverもReturnを含むsource field census→既存field issuer→exact親read/Copy→記録済みcanonical readへ接続。Countは既存read会計を使用。source-only拒否pin、最終noninteger aliasとdirect Arrayの拒否を保持。
 - 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
-- 静的call選別は元result-source variantへ統合し、carrier lifecycleをdispatch判定に流用する2箇所を置換。通常callのcarrier取得/Endと結果取消を既存packetへ接続。借用formal receiverは結果型と分離し、元class・entry値/Copyを照合。独立完成検証も同じLoop内callを巡回。initializer継続の重複Invoke探索も一つへ統合。Loop未会計は既存exitに保持済みのNull定数1命令で、同じ記録を再利用して解消。一時診断は撤去。Unit入力は元Unit source＋canonical Completionから選択し、全incoming一致・implicit cleanup検証を保持して既存issuerで実行用actualへ接続。Unit要求判定は既存Unit ownerへ統合。引数snapshot検証は既存rebindと同じ元Text snapshot証拠/同一carrierで接続。deferred Text専用一覧/変換を共通temporaryへ置換し、外側callのNormal/Faultと後続引数prefixを同じ逆順Endへ統一。carrier appendは既に終了済みの子を含めずrootだけを保持。common expression bodyのpath readは完成時に一度Vec化し、全purpose consumerへ直move。次は既存Text field loan＋同bodyを持つRHS packet→FieldSet TextHome入口移転と残childのNormal/Fault cleanup（pre/postcommit Faultを保持）。Array operation/provider・生存の最終gateは未完拒否を保持。
+- 静的call選別は元result-source variantへ統合し、carrier lifecycleをdispatch判定に流用する2箇所を置換。通常callのcarrier取得/Endと結果取消を既存packetへ接続。借用formal receiverは結果型と分離し、元class・entry値/Copyを照合。独立完成検証も同じLoop内callを巡回。initializer継続の重複Invoke探索も一つへ統合。Loop未会計は既存exitに保持済みのNull定数1命令で、同じ記録を再利用して解消。一時診断は撤去。Unit入力は元Unit source＋canonical Completionから選択し、全incoming一致・implicit cleanup検証を保持して既存issuerで実行用actualへ接続。Unit要求判定は既存Unit ownerへ統合。引数snapshot検証は既存rebindと同じ元Text snapshot証拠/同一carrierで接続。deferred Text専用一覧/変換を共通temporaryへ置換し、外側callのNormal/Faultと後続引数prefixを同じ逆順Endへ統一。carrier appendは既に終了済みの子を含めずrootだけを保持。common expression bodyのpath readは完成時に一度Vec化し、全purpose consumerへ直move。Normal/Faultの共通operation cleanup writerを既存root_graphへ移し、call consumerを切替（String/carrier両Endの重複拒否を保持）。次は既存Text field loan＋同bodyを持つRHS packet→FieldSet TextHome入口移転と残childのNormal/Fault cleanup（pre/postcommit Faultを保持）。Array operation/provider・生存の最終gateは未完拒否を保持。
 - entry loanだけで未知callee中の親生存は証明できない。snapshotとfield再読の同一性、支持Home、Normal/Faultを別々に閉じる。
 - 着地済み: C Map null guard→child borrow（空Map/nullable child/Fault/誤分岐）、異なるslot借用の保守的alias検査、nullable slotの実payload null比較。Rust完成guardの到達・支配・再実行検査は完成時だけ行い、構築中の局所検査を維持。
 - 既存接続: stored-child scalar return、Map keys count、put/readData/refCount、nullable Text需要、Text連結Loop、Null return、DiscardValue、delete。chunkCount独立validator、nullable Text C transport、Bool物理、全体cleanupとEXE実行は未完。
-- 固定suite再計測: 直接Array接続着地時のpinned CLI＋保持Map WIPで10/11、775.16秒、実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現在の静的carrier変更は含まない。現CLI build48.22秒PASS、body read-view整理後のordered拒否2/0・field-array source/Loop各1/0、ordered projection拒否2/0、foreign argument frame・String Normal/Fault/escape・Loop回帰各1/0、field-array result source検証1/0、input owner family11/2（Unit差分なしとの比較で同じ2失敗・同じ診断を確認）、Loop回帰1/0。Null境界testは最終return-value診断assertが赤（既存失敗名集合に含まれ、成功扱いしない）。owned_text_initializerのalias.length赤は変更前pinned CLIと現CLIで同入力/forwarded-copy/rootを再現。前commitはdynamic_invocation_contract6/0、引数順/foreign receiver拒否とstored print最終consumerは各1/0。選択smokeは上記停止。Core source family8/3の赤は未分類、initializer i64の3赤は既存失敗名集合に含まれる。
+- 固定suite再計測: `target/quick/hakorune-acceptance-mixed-temporaries`＋同じquick runtime（保持Map WIP込み、後続read-view/operation cleanup整理前）で**10/11、780.71秒**。実EXE9本＋空marker、boxtorrentのみ赤、SKIP/timeoutなし。現CLI build41.24秒PASS。operation cleanup整理のfocused7/0、typed temporary整理のfocused5/0、read-view整理のfocused4/0。input family11/2はUnit差分なしとの比較で同じ2失敗・同じ診断。Null境界testは診断assert赤、Text alias赤は変更前後で同入力/forwarded-copy/rootを再現。Core source family8/3の赤は未分類、initializer i64の3赤は既存失敗名集合内。
 
 ## 採用設計
 - **既存仕様を維持して実装する。null-key の仕様回答はこのアプリの着手条件ではない。** 一般 Dynamic→Map の null 受理は別の未決事項であり、Text-only key の現在の経路へ勝手に stringify / TypeError を導入しない。
@@ -35,7 +35,7 @@ original resolver + source value flow + existing Home/call contracts
 
 ## 実装タスク（同じ APP row 内）
 
-先に下記のMap借用整理seriesを実施し、完了後に1〜5の機能接続へ戻る。
+Map借用整理seriesは完了。以下1〜5の機能接続を進める。
 1〜3は一本の縦の実装series。1で元sourceの支持条件と後段照合義務を構成し、2はそのsource条件だけを使う。実命令の独立照合は3のlower後に閉じ、物理PASSを2の着手条件へ戻さない。
 
 1. [ ] **支持 Home と呼び出し区間を既存 source に接続する。**
@@ -60,7 +60,7 @@ original resolver + source value flow + existing Home/call contracts
    未完の free_stack/use_counts、integer ArrayGet の source/physical 不一致、NoIncoming formal は記録を再利用する。call closure に不要な全 allocator graph を先に閉じないが、選択 consumer が必要とする境界を省略もしない。
    完了条件: 下記 smoke 全契約と期待 stdout/exit が PASS。続けて固定 suite、必要な shared regression、局所退役を確認して対象変更を commit。JSON と有限ゴール全体の後続条件は残る。
 
-## 次に実施するMap借用整理series
+## 完了したMap借用整理series
 - MapLocalは元getを生成時に検証し、不変payloadの後段再走査を退役。別packageの同名field拒否は未検証の独立境界だったため既存composition caseへ最小追加。CLI・focused PASS、smokeは同じowner38停止。
 - Map payload/receiverの同一Birth provider判定をfield-sourceへ統合し、旧2判定を退役。共有cache試作は17 files・production純増68行で未完、採用せず戻した。query共有と区間統合は残る。
 - Map payloadはresult facts構築・lexical・Homeで繰り返し発行される。既存field-source ownerにco-seal単位でsource/selection/constructorを束縛し、要求時に共通化する。各get・entry・intervalは別照合。effect一覧とcall/newの一般対応は未sealなので走査削除の根拠にしない。
@@ -75,17 +75,9 @@ original resolver + source value flow + existing Home/call contracts
 - [x] series全体のproduction純減: `d2a32dd08c..1a19885659` の src は production +111/−157（**net −46**）、test +79（別記）。旧caller切替と削除分岐は上記のとおり。→ **series完了。**
 - [ ] 残る任意の重複: `source_call_arguments_v1` の `StoredMapGetSource` はmint済みloanを共有できるが、+10/−4程度で純減に寄与しないため今回は採らない。構造整理queueへ送る（機能追加の前提にしない）。
 
-## owner38停止点の実体（次タスク4の入口）
-- `entry_owner_view:306` → `checked_completed_original_instance_target_arguments_v1` が None。内側は owner38 `HakoAllocHeap.release` で `instance_source::reconstruct_instance_source_actuals_v1` が None（`pending_expression` 分岐: 元source slotが未qualify）。owner60/62も同経路、62はcall siteのactuals欠落が併発。
-- 未qualifyの実引数は nullable child（`chunk.alloc_handle` の field read / Map local borrow）で、card タスク4の区間接続が次の実装。ここを閉じるまで新機能・別アプリへ進まない。
-- [x] Map-held field 実引数を原source read として接続: `ReadActualSourceLoanV1::MapField`（read site + class）、pending gate/closure、executable constructor、`require_executable_v1` の ordinal 会計、class は field writer SUM から（null併存は単一classのみ許可）。owner38 の input cohort は通過。
-- これで停止点が前進: `BoxTorrentStore.allocatorBlocks/0` の `callable-scalar/return-type-mismatch`（expected Integer / returns Unknown）。次はこの Integer return 推論。
-- 残: map-field read の emission/interval（`EmittedReadArgumentV1` は MapField を kind-drift で拒否）＝タスク4後半。今回の admission だけではEXEに届かない。
-- 新停止の切り分け: `allocatorBlocks` は**borrowed walkが走っていない**（`borrowed_terminal_arguments_v1` が owner56 で一度も呼ばれない）。よって zero-arg stored-child の Ready I64 row を terminal 経由で使う案は現状のownerでは到達不能。標準laneの `UnknownBox.outstandingBlocks/0` signature missが直接原因。
-- 追加判明(2): owner56 の `verified_walk=true`（`stored_term=true`, `scalar_src=true`）。よって walk 自体は走っている。しかし `raw_ordinary_new_claim/terminal_call.rs` の**最初の分岐** `return_expression_evaluation_v1` が Some を返し、`take_borrowed_lexical_call_for_return_v1` に到達しない（＝expression評価経路が型をUnknownのまま出す）。実測追記: `emit_return_expression_v1` の call emitter（`lexical_i64_expression::emit_with_prefix`）も owner56 では**呼ばれない**。return文dispatchは `build_return_with_port_v1` で、`prepare_root_home_exit` が false の枝に terminal i64 **call** exit の試行が無いことを確認。fallback枝へ `emit_terminal_i64_call_exit` を追加＋zero-arg stored-child の Ready I64 row を terminal 引数として許す2点を一時実装したところ、`emit_terminal_i64_call_exit` への**到達は実測**できたが内部で None のまま（terminal relation/arguments 不在）で停止点は不変。両実装は撤回。`home_new_prefix_terminal` には `terminal_call` predicate（`observe_terminal_statement` の引数）を使う terminal-literal 分岐が既にあり、ここが false のため relation が発行されない。**確定（実測）**: 担当は `source_scalar_call::demand_v1`。owner56 で `demand_v1=Ready` となり `issue_borrowed_i64_terminal_call` が `TerminalI64CallReturnV1::issue_source_scalar` を発行している。`seal_lexical_i64_arguments_at` と `local_lexical_i64_call` は関与しない（seal到達なし・Ready armで return）。よって relation 自体は存在する。
-**実測**: HEAD では `emit_terminal_i64_call_exit` 自体が呼ばれず（非root-homeの return 枝に call exit が無い）、fallback を足して呼ばせても `call_source_completion_for_owner_at(owner,[Body(0)])` が None（`scalar=false`）で relation を取得できない。relation は scan 側で `demand_v1=Ready` から発行済みなので、**格納先の写像と emission 側 lookup の不一致**が残件。ここで一旦停止し、suite 9/11 を維持したまま json_stream_aggregator へ移る（ユーザー境界判断）。再開時は scan の `terminal_relations` 挿入箇所と `terminal_relation_for_owner_at` の owner/site キーを照合する。
-- 追加判明: owner56 には lexical target row が**既に在る**（call site `[Body(0), Value]`、stored_receiver=true、uses_existing_borrowed_result=true、result cohort も在り）。したがって `has_stored_terminal_v1` の入力側は揃っており、欠けているのは **zero-arg stored-child scalar return の terminal relation が発行されない**点（`borrowed_terminal_arguments_v1` が owner56 で一度も呼ばれない）。次は `home_new_prefix_terminal` 側でこの形に terminal を発行し、既存の borrowed result owner に型を出させる（walk trigger 追加や標準laneの型付けは採らない）。
-- 直近suite: **9/11**（`--timeout 420`、mimalloc PASS 242s、FAILは json / boxtorrent、SKIP/timeoutなし）。
+## 完了履歴の参照
+- owner38の入力、allocatorBlocksのterminal lookup、旧9/11停止の詳細はこのcardのGit履歴へ圧縮。現在の停止と保持変更は冒頭だけを正本とする。
+
 ## 検証・整理
 - 既存 `ordinary_new_borrowed_formal_result_composition_tests.rs` の count guard/OOB/別配列/途中 call、`container_field_uses.rs` の全 writer/capture、既存 Map/field interval のケースを再利用する。
 - Map は既存 `direct_map_receiver_numeric_writes_close_the_original_callee_effects`、`field_argument_interval_rejects_early_end_mutation_and_transfer_but_allows_terminating_fault`、C の `published_lifecycle_v4_borrowed_source_execution_test.py` / `published_lifecycle_v4_borrowed_ingress_test.py` を再利用し、実際の slot 境界が未網羅なら同 family で補う。

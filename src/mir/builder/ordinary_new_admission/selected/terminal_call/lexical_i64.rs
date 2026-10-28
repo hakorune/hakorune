@@ -277,7 +277,7 @@ fn emit_lexical_i64_call(
     finish_argument_cleanup_v1(builder, normal_landing, packet, cleanup, bindings)
 }
 
-pub(super) type ArgumentCleanupV1 = (BasicBlockId, BasicBlockId, Binding, Vec<Binding>);
+pub(super) type ArgumentCleanupV1 = super::super::root_graph::OperationCleanupV1;
 
 /// The same Call argument stack ends on Normal and before prior Homes on Fault.
 pub(super) fn prepare_argument_cleanup_v1(
@@ -286,35 +286,9 @@ pub(super) fn prepare_argument_cleanup_v1(
     normal_fault_cancellation: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<(BasicBlockId, Option<ArgumentCleanupV1>), String> {
     let normal_ends = prepared.deferred_argument_ends_v1(CallValidationContextV1::Lowering(ledger))?;
-    let result = if normal_ends.is_empty() {
-        append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, bindings)?;
-        (cleanup_chain(builder, frame, unwind, outward, bindings)?, None)
-    } else {
-        let mut fault_operations = normal_ends.clone();
-        fault_operations.extend_from_slice(normal_fault_cancellation);
-        fault_operations.extend(unwind);
-        let mut seen = std::collections::BTreeSet::new();
-        for operation in &fault_operations {
-            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value }) = operation {
-                if !seen.insert(*value) { return Err(freeze("call-argument/duplicate-acquisition")); }
-            }
-        }
-        let clean = builder.next_block_id();
-        let next = builder.next_block_id();
-        let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
-        append_block(builder, clean, continuation.1.clone(), bindings)?;
-        let after_normal: Vec<_> = (0..normal_ends.len())
-            .map(|index| ((index + 1)..fault_operations.len()).collect()).collect();
-        // A result exists only after Call Normal. Its cancellation belongs to
-        // Normal cleanup Fault suffixes, never the original Call Fault edge.
-        let call_fault: Vec<_> = (0..normal_ends.len())
-            .chain((normal_ends.len() + normal_fault_cancellation.len())..fault_operations.len()).collect();
-        let graph = super::super::root_graph::emit_cleanup_suffixes_with_writer(
-            &mut RawRootGraphWriterV1, builder, frame, clean, &normal_ends, &fault_operations,
-            &after_normal, &call_fault, bindings)?;
-        (graph.acquisition_fault, Some((graph.clean, next, continuation, graph.normal_origins)))
-    };
-    Ok(result)
+    super::super::root_graph::prepare_operation_cleanup_v1(
+        builder, frame, outward, normal_ends, unwind, normal_fault_cancellation, bindings,
+    )
 }
 
 pub(super) fn finish_argument_cleanup_v1(
