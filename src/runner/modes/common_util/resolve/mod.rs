@@ -18,7 +18,6 @@
  * - strip: Legacy functions (preserved for compatibility)
  * - using_resolution: 🎯 UsingResolutionBox - using文解析専門家！
  * - prelude_manager: 📚 PreludeManagerBox - プレリュード統合専門家！
- * - selfhost_pipeline: 🚀 SelfhostPipelineBox - パイプライン管理専門家！
  * - seam: seam logging and optional boundary markers (for diagnostics).
  */
 
@@ -27,7 +26,6 @@ pub mod path_util;
 pub mod prelude_manager;
 pub mod root;
 pub mod seam;
-pub mod selfhost_pipeline;
 pub mod strip;
 pub mod using_resolution;
 
@@ -36,7 +34,6 @@ pub use using_resolution::{UsingConfig, UsingResolutionBox, UsingTarget};
 
 pub use prelude_manager::{MergeResult, MergeStrategy, PreludeManagerBox};
 
-pub use selfhost_pipeline::{CompilationResult, PipelineConfig, SelfhostPipelineBox};
 
 // 🔧 Legacy functions (preserved for compatibility)
 pub use strip::{
