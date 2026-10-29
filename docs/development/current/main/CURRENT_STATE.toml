@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "none: APP-boxtorrent-mini acceptance reached (fixed suite 11/11); ownership successor decided (ownership.md §0, ADR-002 order); maintainer selects next: ownership step 1, legacy retirement, or compile speed"
+current_blocker_token = "legacy retirement selected: safe caller-zero assets landed; live features, inventoried Rust sources and parked allocator/safety guard families retained pending their owner contracts"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini: boxtorrent_mini_exe PASS; fixed real-apps-exe-boundary 11/11 (optimized target/quick/hakorune, now 1m35), no SKIP/timeout.
-Landed: nullable-Text carrier, Text+Bool, loop-carrier End/replacement order across Rust+C verifiers, Map-element receiver, scalar-leaf call interval.
-Optimization part 2 done: boxtorrent compile 140s -> ~32s, tiny apps 11s -> 2.3s (reused corroboration, mold, Rc site paths, C v2 index); next speed ideas need design.
-Ownership successor decided 2026-10-30 (ownership.md §0; ADR-002 order; cutover before selfhost, apps unchanged until then).
-Open: files over 800 lines are listed in the app card; VM is retired and is not a verification route.
+APP-boxtorrent-mini acceptance remains green: fixed suite 11/11 in 98.71s, 10 real EXEs plus marker, no SKIP/timeout.
+Selected legacy retirement: delete unused archives/tools, unlinked Rust/bin, five empty features and five disabled CI jobs.
+Retire two obsolete historical inventory guards; keep workload sources and correctness/lifecycle checks (public count 1563, floor unchanged).
+Retain live legacy feature callers and inventoried extern_box/LAYER_GUARD; remaining allocator retirement needs parked workload/safety ownership decisions.
+Optimized CLI/compat check pass; cohort failure sets unchanged (84/1/21). Required finite-product R6/R7/Loop/physical closeout remains open.
 """
 next_design_card = "none"
 next_design_card_path = "none"
