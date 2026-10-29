@@ -767,4 +767,4 @@ pub(in crate::mir) use root_home::{SourceLoopCleanupPlanV2, SourceLoopPhysicalPr
 pub(crate) use root_home::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use root_home::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
 
-pub(crate) use self::root_home::fault_indices_after_normal_step_v2;
+pub(crate) use self::root_home::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};

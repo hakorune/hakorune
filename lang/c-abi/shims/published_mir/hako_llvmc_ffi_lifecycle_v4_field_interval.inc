@@ -4,6 +4,14 @@ typedef enum {
   LV4_FIELD_ARRAY_DRAIN, LV4_FIELD_OBJECT_DRAIN, LV4_FIELD_DYNAMIC_DRAIN, LV4_FIELD_BORROW_SLOT
 } hako_lv4_field_interval_kind;
 
+/* An argument-free Call to a scalar-leaf body mutates no Map slot or residence. */
+static int lv4_call_scalar_leaf(const hako_lv4_function_index* fn, yyjson_val* op) {
+  yyjson_val* call = yyjson_obj_get(op, "call");
+  uint32_t target = lv4_u(call, "target");
+  return fn->peers && target && target < fn->peer_count && fn->peers[target].leaf_scalar &&
+      !yyjson_arr_size(yyjson_obj_get(call, "args"));
+}
+
 /* One reverse interval owner. Reads require an unchanged residence; wrapper
  * Home cleanup requires exactly one child discharge after the SAME Normal. */
 static int lv4_field_interval_walk(hako_lv4_function_index* fn,
@@ -27,7 +35,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
      * visit that same block's full terminator, just as the read suffix does. */
     if (!prefix) {
       yyjson_val* op = yyjson_obj_get(lv4_term(current->block), "operation");
-      if (slot && (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call") ||
+      if (slot && ((lv4_is(op, "kind", "ordinary_call") && !lv4_call_scalar_leaf(fn, op)) || lv4_is(op, "kind", "birth_call") ||
           lv4_is(op, "kind", "object_end_if_owned") ||
           lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_field_delete_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
           lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||

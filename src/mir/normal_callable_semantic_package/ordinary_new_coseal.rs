@@ -726,7 +726,7 @@ pub(crate) use lexical_instance_call::{ArgumentExpressionSourceLoanV1, DynamicEn
 pub(crate) use lexical_instance_call::BorrowedTextEntryReadRequirementV1;
 pub(crate) use lexical_instance_call::BorrowedFormalEntryReadRequirementV1;
 
-pub(crate) use local_commit::fault_indices_after_normal_step_v2;
+pub(crate) use local_commit::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};
 
 pub(in crate::mir) use lexical_instance_call::{SourceValueSumV1, SourceValueAlternativeV1};
 

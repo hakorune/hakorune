@@ -25,7 +25,7 @@ impl FinalizedRootSourceHandoffV1 {
             else { return Ok(None) };
         let binding = *binding;
         let argument_value = argument.value_only_v1()?;
-        if actual.destination().is_some() || actual.owner() != binding.owner() {
+        if actual.owner() != binding.owner() {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!("[received-birth] result-source required function={} ordinal={ordinal} binding={binding:?} destination={} owner={:?}",
                     function.signature.name, actual.destination().is_some(), actual.owner());
@@ -79,20 +79,51 @@ impl FinalizedRootSourceHandoffV1 {
         self.ledger.with_finished_projection(binding.owner(), |symbol, finishing| {
             if function.signature.name != symbol { return Err(freeze("received-birth/function")); }
             let commits = self.ledger.local_commits.borrow();
-            let Some(LocalCommitV1::Result(outer)) = commits.get(actual.site()) else {
-                return Err(freeze("received-birth/outer-source"));
+            // A returned New has no destination; a local New is the Ordinary row of the
+            // same binding. Both keep the received handle's move in their Home prefix.
+            struct Outer<'a> {
+                prior: &'a [crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+                normal: &'a [crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+                rows: &'a [crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1],
+                plan: &'a crate::mir::normal_callable_semantic_package::instance_construction::ConstructionPlanV1,
+                birth_target: Option<&'a CanonicalSameModuleCallableKeyV1>,
+                object: hakorune_mir_defs::CanonicalObjectIdV1,
+                emission: &'a NewEmissionProgress,
+                same_site: bool,
+            }
+            let outer = match commits.get(actual.site()) {
+                Some(LocalCommitV1::Result(row)) if actual.destination().is_none() => {
+                    let prefix = row.home_prefix.as_ref().map_err(|_| freeze("received-birth/prefix"))?;
+                    Outer {
+                        prior: prefix.prior_homes(), normal: prefix.normal_homes(),
+                        rows: row.argument_rows.as_ref().map_err(|_| freeze("received-birth/source-arguments"))?,
+                        plan: row.construction.as_ref().map_err(|_| freeze("received-birth/construction"))?,
+                        birth_target: row.birth_target.as_ref(), object: row.object, emission: &row.emission,
+                        same_site: row.site == *actual.site(),
+                    }
+                }
+                Some(LocalCommitV1::Ordinary(row)) if actual.destination() == Some(row.binding) => {
+                    let prefix = row.home_prefix.as_ref().map_err(|_| freeze("received-birth/prefix"))?;
+                    Outer {
+                        prior: prefix.prior_homes(), normal: prefix.normal_homes(),
+                        rows: row.argument_rows.as_ref().map_err(|_| freeze("received-birth/source-arguments"))?,
+                        plan: row.construction.as_ref().map_err(|_| freeze("received-birth/construction"))?,
+                        birth_target: row.birth_target.as_ref(), object: row.object, emission: &row.emission,
+                        same_site: true,
+                    }
+                }
+                _ => return Err(freeze("received-birth/outer-source")),
             };
-            let prefix = outer.home_prefix.as_ref().map_err(|_| freeze("received-birth/prefix"))?;
-            let rows = outer.argument_rows.as_ref().map_err(|_| freeze("received-birth/source-arguments"))?;
+            let rows = outer.rows;
             let source = rows.iter().find(|row| row.ordinal() == ordinal)
                 .ok_or_else(|| freeze("received-birth/source-argument"))?;
             self.ledger.check_return_argument_relations_v1(actual.site(), rows)?;
-            let plan = outer.construction.as_ref().map_err(|_| freeze("received-birth/construction"))?;
-            if outer.site != *actual.site() || outer.birth_target.as_ref() != Some(actual.target())
+            let plan = outer.plan;
+            if !outer.same_site || outer.birth_target != Some(actual.target())
                 || source != argument.source()
-                || prefix.prior_homes().iter().filter(|home| home.binding() == binding).count() != 1
-                || prefix.normal_homes().contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding))
-                || !matches!(&outer.emission, NewEmissionProgress::Emitted {
+                || outer.prior.iter().filter(|home| home.binding() == binding).count() != 1
+                || outer.normal.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding))
+                || !matches!(outer.emission, NewEmissionProgress::Emitted {
                     result, arguments, progress: EmittedLocalProgress::Checked { .. }, ..
                 } if *result == actual.receiver() && arguments.as_ref() == actual.arguments())
             { return Err(freeze("received-birth/original-move")); }
@@ -180,7 +211,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let copies = copies.iter().map(|copy| finishing.relation_binding(function, copy)?
                     .ok_or_else(|| freeze("received-birth/field-support-copy")))
                     .collect::<Result<Vec<_>, String>>()?;
-                let NewEmissionProgress::Emitted { bindings: construction_bindings, .. } = &outer.emission
+                let NewEmissionProgress::Emitted { bindings: construction_bindings, .. } = outer.emission
                     else { return Err(freeze("received-birth/construction-bindings")); };
                 let mut birth = construction_bindings.iter().filter(|(_, row)| matches!(row,
                     MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Birth(call), .. }

@@ -63,6 +63,8 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
     yyjson_val* op = yyjson_obj_get(lv4_term(origin), "operation");
     if (lv4_is(op, "kind", "ordinary_call") && lv4_is(op, "result", "text"))
       return LV4_OWNED_STRING;
+    if (lv4_is(op, "kind", "ordinary_call") && lv4_is(op, "result", "nullable_text"))
+      return LV4_DYNAMIC_CARRIER;
     int result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(yyjson_obj_get(lv4_term(origin), "operation"), "kind")));
     return result == 1 ? LV4_OWNED_STRING : result == 2 ? LV4_I64 : result == 3 ? LV4_BOOL : LV4_HANDLE;
   }
@@ -180,12 +182,17 @@ static int lv4_null_lane_present(hako_lv4_function_index* fn) {
   return 0;
 }
 
+static int lv4_dynamic_operand_live(hako_lv4_function_index* fn, yyjson_val* operand,
+    const hako_lv4_state* state);
+
 static int lv4_string_indexed_operand(hako_lv4_function_index* fn, yyjson_val* operand,
     const hako_lv4_state* state) {
   if (lv4_is(operand, "kind", "static_text")) return 1;
+  if (lv4_is(operand, "kind", "dynamic_carrier")) return lv4_dynamic_operand_live(fn, operand, state);
   hako_lv4_value* value = lv4_index_value(fn, lv4_u(operand, "value"));
   if (lv4_is(operand, "kind", "text_operand")) return lv4_text_readable(fn, value, state);
   if (lv4_is(operand, "kind", "normal_integer")) return value && value->kind == LV4_I64;
+  if (lv4_is(operand, "kind", "normal_bool")) return value && value->kind == LV4_BOOL;
   if (lv4_is(operand, "kind", "borrowed_text")) return lv4_borrowed_text_formal(fn, value);
   if (lv4_is(operand, "kind", "tagged_dynamic"))
     return hako_physical_finite_domain(lv4_borrowed_formal_parameter(fn, value)) != 0;
@@ -306,7 +313,17 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
       failed_block = bi;
       valid = lv4_indexed_flow_block(in, fi, bi, &work);
     }
-    if (valid == LV4_FLOW_RECEIVER_MISMATCH) { lv4_work_close(&work); return valid; }
+    if (valid == LV4_FLOW_RECEIVER_MISMATCH) {
+      if (getenv("HAKO_PHYSICAL_DEBUG")) {
+        const char* name = yyjson_get_str(yyjson_obj_get(fn->function, "name"));
+        char* json = yyjson_val_write(lv4_term(fn->blocks[failed_block].block), 0, NULL);
+        fprintf(stderr, "[lifecycle-v4-receiver-mismatch] function=%zu name=%s block=%u %s\n", fi,
+            name ? name : "?", fn->blocks[failed_block].id, json ? json : "?");
+        free(json);
+      }
+      lv4_work_close(&work);
+      return valid;
+    }
     for (size_t bi = 0; valid && bi < count; bi++) if (work.faults[bi] < 0) {
       failed_block = bi; failed_phase = "unreachable"; valid = 0;
     }
@@ -315,9 +332,16 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
       char message[320];
       const char* name = yyjson_get_str(yyjson_obj_get(fn->function, "name"));
       const char* op = yyjson_get_str(yyjson_obj_get(lv4_term(fn->blocks[failed_block].block), "op"));
+      const char* kind = yyjson_get_str(yyjson_obj_get(yyjson_obj_get(lv4_term(fn->blocks[failed_block].block), "operation"), "kind"));
       snprintf(message, sizeof(message),
-          "[freeze:contract][published-lifecycle-v4/unsupported-cohort] function=%zu name=%.120s block=%u phase=%s terminator=%.40s",
-          fi, name ? name : "<invalid>", fn->blocks[failed_block].id, failed_phase, op ? op : "<invalid>");
+          "[freeze:contract][published-lifecycle-v4/unsupported-cohort] function=%zu name=%.120s block=%u phase=%s terminator=%.40s operation=%.40s",
+          fi, name ? name : "<invalid>", fn->blocks[failed_block].id, failed_phase, op ? op : "<invalid>", kind ? kind : "-");
+      if (getenv("HAKO_PHYSICAL_DEBUG")) {
+        char* json = yyjson_val_write(lv4_term(fn->blocks[failed_block].block), 0, NULL);
+        char* edges = yyjson_val_write(yyjson_obj_get(fn->blocks[failed_block].block, "edges"), 0, NULL);
+        fprintf(stderr, "[lifecycle-v4-refused] %s edges=%s\n", json ? json : "?", edges ? edges : "?");
+        free(json); free(edges);
+      }
       set_err_owned(error, message);
       return 0;
     }

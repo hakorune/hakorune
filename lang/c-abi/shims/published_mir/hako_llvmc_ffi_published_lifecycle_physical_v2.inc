@@ -522,6 +522,20 @@ static int hako_physical_storage_profile(yyjson_val* value) {
   return hako_physical_u32(value, &profile) && (profile == 1u || profile == 2u);
 }
 
+/* Default-off: with HAKO_PHYSICAL_DEBUG set, name the refused instruction. */
+static int hako_physical_traced_instruction(yyjson_val* function, yyjson_val* functions, yyjson_val* layouts,
+    yyjson_val* instruction, int terminal, const char* mode, uint32_t block, uint32_t index, int native) {
+  int ok = hako_physical_validate_instruction(function, functions, layouts, instruction, terminal, mode, block, index, native);
+  if (!ok && getenv("HAKO_PHYSICAL_DEBUG")) {
+    char* text = yyjson_val_write(instruction, 0, NULL);
+    fprintf(stderr, "[physical-refused] function=%.80s block=%u index=%u %s\n",
+        yyjson_get_str(yyjson_obj_get(function, "name")) ? yyjson_get_str(yyjson_obj_get(function, "name")) : "?",
+        block, index, text ? text : "?");
+    free(text);
+  }
+  return ok;
+}
+
 static int hako_physical_validate_function(yyjson_val* function, yyjson_val* functions, yyjson_val* layouts, size_t ordinal, int native) {
   static const char* const keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks"};
   static const char* const borrowed_keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks", "result_formal_ordinal"};
@@ -565,6 +579,7 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_i64") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_map") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_text") ||
+      hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_nullable_text") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_handle") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_nullable_handle") || borrowed) {
     yyjson_val* receiver = yyjson_obj_get(function, "receiver");
@@ -581,9 +596,9 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
     yyjson_val* block = yyjson_arr_get(blocks, bi); yyjson_val* rows; yyjson_val* term; yyjson_val* edges; uint32_t block_id;
     if (!hako_physical_exact_keys(block, block_keys, 4) || !hako_physical_u32(yyjson_obj_get(block, "id"), &block_id) || !(rows = yyjson_obj_get(block, "instructions")) || !yyjson_is_arr(rows) || !(term = yyjson_obj_get(block, "terminator")) || !yyjson_is_obj(term) || !(edges = yyjson_obj_get(block, "edges")) || !yyjson_is_arr(edges)) return 0;
     for (i = 0; i < yyjson_arr_size(rows); i++) { static const char* const row_keys[] = {"index", "instruction"}; yyjson_val* row = yyjson_arr_get(rows, i); uint32_t index;
-      if (!hako_physical_exact_keys(row, row_keys, 2) || !hako_physical_u32(yyjson_obj_get(row, "index"), &index) || index != i || !hako_physical_validate_instruction(function, functions, layouts, yyjson_obj_get(row, "instruction"), 0, mode, block_id, index, native)) return 0; }
+      if (!hako_physical_exact_keys(row, row_keys, 2) || !hako_physical_u32(yyjson_obj_get(row, "index"), &index) || index != i || !hako_physical_traced_instruction(function, functions, layouts, yyjson_obj_get(row, "instruction"), 0, mode, block_id, index, native)) return 0; }
     { static const char* const row_keys[] = {"index", "instruction"}; uint32_t index;
-      if (!hako_physical_exact_keys(term, row_keys, 2) || !hako_physical_u32(yyjson_obj_get(term, "index"), &index) || index != yyjson_arr_size(rows) || !hako_physical_validate_instruction(function, functions, layouts, yyjson_obj_get(term, "instruction"), 1, mode, block_id, index, native)) return 0; }
+      if (!hako_physical_exact_keys(term, row_keys, 2) || !hako_physical_u32(yyjson_obj_get(term, "index"), &index) || index != yyjson_arr_size(rows) || !hako_physical_traced_instruction(function, functions, layouts, yyjson_obj_get(term, "instruction"), 1, mode, block_id, index, native)) return 0; }
     if (!hako_physical_validate_edges(function, edges) || !hako_physical_validate_terminal_edges(term, edges)) return 0;
     for (i = 0; i < yyjson_arr_size(rows); i++) { yyjson_val* dst = hako_physical_instruction_dst(yyjson_obj_get(yyjson_arr_get(rows, i), "instruction")); uint32_t value; if (hako_physical_u32(dst, &value) && !hako_physical_has_value(function, value)) return 0; }
   }

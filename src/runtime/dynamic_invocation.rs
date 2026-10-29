@@ -54,6 +54,11 @@ impl DynamicCarrierTokenV1 {
         }
     }
 
+    /// Whether this live carrier holds the null value; it is not consumed.
+    pub fn is_null_v1(&self) -> Result<bool, DynamicInvocationFailureV1> {
+        Ok(matches!(self.snapshot_v1()?, CarrierPayloadV1::Null))
+    }
+
     /// Copy an exact StringBox payload while borrowing the carrier. The token
     /// remains live and keeps its caller-owned End obligation.
     pub fn text_snapshot_v1(&self) -> Result<String, DynamicInvocationFailureV1> {

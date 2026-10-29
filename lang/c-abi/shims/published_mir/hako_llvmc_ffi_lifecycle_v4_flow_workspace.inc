@@ -103,6 +103,22 @@ static int lv4_text_edge(hako_lv4_function_index* fn, uint32_t predecessor,
   return 1;
 }
 
+/* A join of the same sole live Home at two acquisition ranks (a replacement
+ * End that succeeded versus faulted) orders nothing: no other rank exists. */
+static int lv4_sole_home_rank_join(const hako_lv4_state* saved, const hako_lv4_state* state,
+    size_t count, size_t slot) {
+  if (slot >= count) return 0;
+  hako_lv4_state a = lv4_string_rank(saved[slot]), b = lv4_string_rank(state[slot]);
+  if (a <= LV4_STRING_HOME_BASE || a >= LV4_STRING_LIMIT || b <= LV4_STRING_HOME_BASE || b >= LV4_STRING_LIMIT ||
+      (saved[slot] ^ a) != (state[slot] ^ b)) return 0;
+  for (size_t j = 0; j < count; j++) {
+    hako_lv4_state other = lv4_string_rank(saved[j]);
+    if (j == slot) continue;
+    if (saved[j] != state[j] || (other > LV4_STRING_RANK_BASE && other < LV4_STRING_LIMIT)) return 0;
+  }
+  return 1;
+}
+
 static int lv4_indexed_deliver(hako_lv4_worklist* work, size_t target,
     const hako_lv4_state* state, int faulted) {
   if (target >= work->count || target == work->entry) return 0;
@@ -112,6 +128,7 @@ static int lv4_indexed_deliver(hako_lv4_worklist* work, size_t target,
     int changed = 0;
     for (size_t i = 0; i < work->stride; i++) {
       if (saved[i] == state[i]) continue;
+      if (lv4_sole_home_rank_join(saved, state, work->count, i)) continue;
       if (i < work->count || !(saved[i] & LV4_STRING_POSSIBLE) || !(state[i] & LV4_STRING_POSSIBLE) ||
           ((saved[i] ^ state[i]) & ~LV4_STRING_POSSIBLE)) return 0;
       hako_lv4_state joined = saved[i] | state[i];

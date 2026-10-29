@@ -175,12 +175,25 @@ unsafe fn publish(frame: &mut FaultFrame, site: u64, result: String, out: *mut O
 /// Exact Text comparison. The wire opcode preserves the original comparison;
 /// malformed descriptors/opcodes never publish a result or consume a lease.
 #[export_name = "nyash.string.checked_compare_v1"]
-pub unsafe extern "C" fn compare(storage: *mut c_void, _site: u64, op: u32,
+pub unsafe extern "C" fn compare(storage: *mut c_void, site: u64, op: u32,
     left: *const Operand, right: *const Operand, out: *mut i64) -> u32 {
     if out.is_null() || !out.is_aligned() || op > 5 { return Status::InvalidContract as u32; }
-    if let Err(s) = unsafe { frame(storage) } { return s as u32; }
-    let left = match unsafe { text_operand(left) } { Ok(v) => v, Err(s) => return s as u32 };
-    let right = match unsafe { text_operand(right) } { Ok(v) => v, Err(s) => return s as u32 };
+    let frame = match unsafe { frame(storage) } { Ok(v) => v, Err(s) => return s as u32 };
+    let left = match unsafe { comparable(frame, site, left) } { Ok(v) => v, Err(status) => return status };
+    let right = match unsafe { comparable(frame, site, right) } { Ok(v) => v, Err(status) => return status };
+    let (left, right) = match (left, right) {
+        (Some(left), Some(right)) => (left, right),
+        // A null carrier equals only null; ordering a null is a TypeError.
+        (left, right) => {
+            return match op {
+                0 | 1 => {
+                    unsafe { out.write(i64::from((left.is_none() && right.is_none()) == (op == 0))) };
+                    Status::Normal as u32
+                }
+                _ => fault(frame, site, TYPE_ERROR),
+            };
+        }
+    };
     let order = left.chars().cmp(right.chars());
     let result = match op {
         0 => order.is_eq(), 1 => !order.is_eq(), 2 => order.is_lt(),
@@ -189,6 +202,32 @@ pub unsafe extern "C" fn compare(storage: *mut c_void, _site: u64, op: u32,
     };
     unsafe { out.write(i64::from(result)) };
     Status::Normal as u32
+}
+
+/// A comparison operand: Text, or the language null of a Dynamic carrier (`None`).
+unsafe fn comparable(frame: &mut FaultFrame, site: u64, value: *const Operand) -> Result<Option<String>, u32> {
+    let descriptor = unsafe { operand(value) }.map_err(|status| status as u32)?;
+    if descriptor.kind != DYNAMIC_CARRIER {
+        return unsafe { text_operand(value) }.map(Some).map_err(|status| status as u32);
+    }
+    if !descriptor.bytes.is_null() || descriptor.len != 0 || descriptor.handle != 0
+        || descriptor.integer != 0 || descriptor.token == 0 || descriptor.reserved != 0 {
+        return Err(Status::InvalidContract as u32);
+    }
+    let carrier = nyash_rust::runtime::dynamic_invocation::DynamicCarrierTokenV1::from_raw_v1(descriptor.token)
+        .map_err(|_| Status::InvalidContract as u32)?;
+    match carrier.is_null_v1() {
+        Ok(true) => return Ok(None),
+        Ok(false) => {}
+        Err(_) => return Err(Status::InvalidContract as u32),
+    }
+    match carrier.text_snapshot_v1() {
+        Ok(text) => Ok(Some(text)),
+        Err(nyash_rust::runtime::dynamic_invocation::DynamicInvocationFailureV1::ArgumentTypeMismatch) => {
+            Err(fault(frame, site, TYPE_ERROR))
+        }
+        Err(_) => Err(Status::InvalidContract as u32),
+    }
 }
 
 /// Fixed CodePoint contract. No legacy indexing toggle or handle dispatch.

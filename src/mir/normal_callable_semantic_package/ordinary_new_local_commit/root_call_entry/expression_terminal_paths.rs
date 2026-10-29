@@ -659,6 +659,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         } else {
             (0..live.len()).collect()
         };
+        let mut displaced_after = None;
         if let Some(old) = displaced {
             let index = full
                 .iter()
@@ -678,6 +679,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                 full.remove(index);
                 full.insert(0, old.clone());
                 normal_indices = (0..=live.len()).collect();
+                let position = (index + 1).checked_sub(live.len() + 2)
+                    .ok_or_else(|| freeze("rebind-expression/old-home-order"))?;
+                displaced_after = Some(super::super::displaced_replacement_fault_sequences_v2(
+                    &mut full, live.len() + 1, position)?);
             }
         }
         let stop = match finishing {
@@ -690,11 +695,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             normal = paths::skip_until(function, normal, Some(stop))?;
             let (next, fault) = paths::release(function, normal, &full[*index], Some(fault_frame))?;
             covered.insert(normal);
-            let residual = super::super::fault_indices_after_normal_step_v2(
-                full.len(),
-                &normal_indices,
-                step,
-            )?
+            let residual = match displaced_after.as_ref() {
+                Some(after) => after[step].clone(),
+                None => super::super::fault_indices_after_normal_step_v2(full.len(), &normal_indices, step)?,
+            }
             .into_iter()
             .map(|index| full[index].clone())
             .collect::<Vec<_>>();

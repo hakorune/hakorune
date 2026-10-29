@@ -26,6 +26,8 @@ static void lv4_invocation_declarations(FILE* f) {
       "declare i32 @\"nyash.dynamic.checked_array_get_v1\"(ptr, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_integer_v1\"(ptr, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_sub_i64_v1\"(ptr, i64, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.dynamic.checked_publish_text_or_null_v1\"(ptr, i64, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.dynamic.checked_is_null_v1\"(ptr, i64, i64, ptr)\n"
       "declare i32 @\"nyash.dynamic.checked_end_v1\"(ptr, i64, i64)\n");
 }
 
@@ -36,7 +38,8 @@ static void lv4_invocation_alloca(FILE* f, yyjson_val* op, uint32_t block) {
     if (count) fprintf(f,
         "  %%dynargs%u = alloca [%zu x %%nyrt.dynamic.operand], align 8\n", block, count);
     fprintf(f, "  %%dynout%u = alloca i64, align 8\n", block);
-  } else if (lv4_is(op, "kind", "dynamic_array_get")) {
+  } else if (lv4_is(op, "kind", "dynamic_array_get") ||
+      (lv4_is(op, "kind", "ordinary_call") && lv4_is(op, "result", "nullable_text"))) {
     fprintf(f, "  %%dynout%u = alloca i64, align 8\n", block);
   } else if (lv4_is(op, "kind", "dynamic_carrier_integer")) {
     fprintf(f, "  %%dynint%u = alloca i64, align 8\n", block);

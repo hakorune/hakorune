@@ -706,6 +706,8 @@ impl super::source_loop_v2::VerifiedSourceLoopRecipeProductV2 {
             }
         }
         let mut homes = port.homes().to_vec();
+        let loop_prior = self.source.condition.prior_homes().iter()
+            .filter(|home| !selected.iter().any(|fresh| fresh.binding() == home.binding())).count();
         let mut inserted = 0;
         let mut prior_len = 0;
         for lifecycle in self.execution.iter() {
@@ -726,7 +728,10 @@ impl super::source_loop_v2::VerifiedSourceLoopRecipeProductV2 {
             // Each actual rebind root is already installed and retains its
             // own original LocalCommit. It has not transferred into the Phi
             // until the Normal port edge, so Fault still owes its exact End.
-            homes.insert(prior.len() + inserted, LiveHomeV1::Text(acquisition.clone()));
+            // The replacement holds the displaced carrier's slot: older than this
+            // iteration's Homes, younger than the Homes live at loop entry.
+            let at = (loop_prior + inserted).min(homes.len());
+            homes.insert(at, LiveHomeV1::Text(acquisition.clone()));
             inserted += 1;
             prior_len = prior.len();
         }

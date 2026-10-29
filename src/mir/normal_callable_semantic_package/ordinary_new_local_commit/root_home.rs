@@ -19,7 +19,7 @@ pub(crate) use prepare::{PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1};
 mod pending;
 pub(crate) use pending::PendingRootHomeExitV1;
 pub(in crate::mir::normal_callable_semantic_package) use cleanup_order::{RootHomeCleanupOrderV1, source_home_end_plans_v1, source_home_end_selection_v2};
-pub(crate) use cleanup_order::fault_indices_after_normal_step_v2;
+pub(crate) use cleanup_order::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};
 pub(crate) use cleanup_order::RootCleanupActionV1;
 #[path = "root_home_null_return.rs"]
 mod null_return;

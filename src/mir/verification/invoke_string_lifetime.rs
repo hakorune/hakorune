@@ -606,6 +606,7 @@ pub(super) fn check(
             {
                 return Err("string-effect-before-replacement-end");
             }
+            let displaced_replacement = live.replacement;
             if let MirInstruction::Invoke { operation, .. } = term {
                 if !text_operands(operation).is_empty()
                     && (faulted
@@ -636,8 +637,9 @@ pub(super) fn check(
                     }
                 }
                 if let InvokeOperation::String(Op::End { value }) = operation {
+                    let before = crate::config::env::builder_debug_enabled().then(|| format!("{live:?}"));
                     if !live.end(*value, faulted, source.retained_for(id, term), source) {
-                        return Err("string-end-order-or-not-live");
+                        return Err(domain_refusal("string-end-order-or-not-live", &id, &(operation, faulted, before)));
                     }
                 }
             }
@@ -709,6 +711,23 @@ pub(super) fn check(
                 } = term
                 {
                     next_faulted |= target == *fault_landing;
+                    // A carrier replaced on Normal passes its slot to the new Home
+                    // (older than Homes acquired later); a Fault of that End keeps
+                    // acquisition order.
+                    if let (true, false, Some((new, old)), InvokeOperation::String(Op::EndIfOwned { value })) =
+                        (target == *normal_landing, faulted, displaced_replacement, operation)
+                    {
+                        if *value == old {
+                            if let Some(Origin::Slot(slot)) = source.origin(old) {
+                                if let Some(index) = next.homes.iter().position(|home| *home == Residence::Carrier(slot)) {
+                                    if next.homes.last() == Some(&Residence::Home(new)) {
+                                        next.homes.pop();
+                                        next.homes[index] = Residence::Home(new);
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // Source corroboration remains mandatory in the module checker.
                     // Initialize transfers only on Normal. Text Replace takes
                     // the candidate at entry and disposes it internally on a

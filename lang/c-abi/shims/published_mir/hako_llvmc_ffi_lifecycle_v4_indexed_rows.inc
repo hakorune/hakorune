@@ -23,6 +23,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       } else if (value->kind == LV4_HANDLE) {
         if (!lv4_value_alias_root(fn, value) ||
             !lv4_handle_alias_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
+      } else if (value->kind == LV4_SLOT_BORROW) {
+        /* A transparent Phi over one slot borrow only renames it: every consumer
+           re-proves the borrow readable at its own use. */
+        if (!lv4_value_alias_root(fn, value)) return 0;
       } else if (value->kind != LV4_I64 && value->kind != LV4_BOOL) return 0;
       continue;
     }
@@ -40,7 +44,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (faulted || birth || !value || value->kind != LV4_OWNED_STRING ||
           (previous && (!old || (old->kind != LV4_OWNED_STRING && old->kind != LV4_TEXT_OPERAND) || lv4_text_origin(fn, old) < 0)) ||
           (yyjson_is_true(yyjson_obj_get(ins, "returning"))
-              ? (previous || !lv4_is(fn->function, "role", "ordinary_text") ||
+              ? (previous || (!lv4_is(fn->function, "role", "ordinary_text") && !lv4_is(fn->function, "role", "ordinary_nullable_text")) ||
                   !lv4_string_hold(state, lv4_state_count(fn), value->origin))
               : !lv4_string_install(state, lv4_state_count(fn), value->origin, old ? lv4_text_origin(fn, old) : -1))) return 0;
     } else if (lv4_is(ins, "op", "array_residence_release")) {
@@ -64,6 +68,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          callee or inside a function carrying the admitted borrowed/null
          equality; it seeds a handle-lane slot that never owns a lease. */
       if (!lv4_is(fn->function, "role", "ordinary_nullable_handle") &&
+          !lv4_is(fn->function, "role", "ordinary_nullable_text") &&
           !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") &&
           !lv4_is(fn->function, "role", "ordinary_mixed_handle") &&
           !lv4_null_lane_present(fn)) return 0;
@@ -76,7 +81,11 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       }
       if (!source || (source->kind != LV4_I64 && source->kind != LV4_BOOL &&
           source->kind != LV4_HANDLE && source->kind != LV4_TAGGED && source->kind != LV4_SLOT_BORROW &&
-          source->kind != LV4_BORROWED_OBJECT && source->kind != LV4_MIXED_OBJECT)) return 0;
+          source->kind != LV4_BORROWED_OBJECT && source->kind != LV4_MIXED_OBJECT &&
+          source->kind != LV4_DYNAMIC_CARRIER)) return 0;
+      /* A Copy of a carrier is a read alias of the one live lease. */
+      if (source->kind == LV4_DYNAMIC_CARRIER &&
+          (faulted || source->origin < 0 || state[source->origin] != LV4_DYNAMIC_CARRIER_LIVE)) return 0;
       if (source->kind == LV4_MIXED_OBJECT &&
           (faulted || !lv4_mixed_result_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_BORROWED_OBJECT &&
@@ -133,7 +142,11 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (lv4_borrowed_text_formal(fn, carrier) || lv4_installed_return_alias(fn, carrier->id, NULL)) return 0;
       if (carrier->kind != LV4_TAGGED && carrier->kind != LV4_HANDLE &&
           carrier->kind != LV4_I64 && carrier->kind != LV4_BOOL && carrier->kind != LV4_SLOT_BORROW &&
-          carrier->kind != LV4_BORROWED_OBJECT && carrier->kind != LV4_MIXED_OBJECT) return 0;
+          carrier->kind != LV4_BORROWED_OBJECT && carrier->kind != LV4_MIXED_OBJECT &&
+          carrier->kind != LV4_DYNAMIC_CARRIER) return 0;
+      /* An opaque carrier answers by its runtime null kind while it is still live. */
+      if (carrier->kind == LV4_DYNAMIC_CARRIER &&
+          (faulted || carrier->origin < 0 || state[carrier->origin] != LV4_DYNAMIC_CARRIER_LIVE)) return 0;
       if (carrier->kind == LV4_SLOT_BORROW &&
           (faulted || !lv4_slot_borrow_readable(in, fn, carrier, state, lv4_u(block, "id")))) return 0;
       if (carrier->kind == LV4_MIXED_OBJECT &&

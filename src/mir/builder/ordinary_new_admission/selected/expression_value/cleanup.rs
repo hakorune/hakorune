@@ -400,6 +400,7 @@ fn finish_body_cleanup(
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
     let mut normal_indices: Vec<_> = (0..normal.len()).collect();
     let mut fault = fault;
+    let mut displaced_after = None;
     if let Some(old) = displaced {
         let index = fault.iter().position(|operation| *operation == old)
             .ok_or_else(|| freeze("rebind-expression/old-home-missing"))?;
@@ -412,15 +413,23 @@ fn finish_body_cleanup(
         } else {
             // The installed replacement owes the displaced End before any
             // temporary's End, on Normal and on Fault alike.
+            let installed = normal.len();
             fault.remove(index);
             fault.insert(0, old.clone());
             normal.insert(0, old);
             normal_indices = (0..normal.len()).collect();
+            let position = (index + 1).checked_sub(installed + 2)
+                .ok_or_else(|| freeze("rebind-expression/old-home-order"))?;
+            displaced_after = Some(crate::mir::normal_callable_semantic_package::displaced_replacement_fault_sequences_v2(
+                &mut fault, normal.len(), position)?);
         }
     }
-    let after = (0..normal.len()).map(|step|
-        crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &normal_indices, step))
-        .collect::<Result<Vec<_>, _>>()?;
+    let after = match displaced_after {
+        Some(after) => after,
+        None => (0..normal.len()).map(|step|
+            crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &normal_indices, step))
+            .collect::<Result<Vec<_>, _>>()?,
+    };
     // The Local terminal is an infallible Jump. Its child acquisitions already
     // own their Fault paths; do not emit a detached terminal-acquisition suffix.
     // Without child cleanup, there is no new fallible operation and no Fault

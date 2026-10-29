@@ -13,6 +13,8 @@ pub enum StringInvokeOperand {
     /// This is neither a formal borrow nor an owned String Home.
     TextOperand(ValueId),
     NormalInteger(ValueId),
+    /// Exact source Bool displayed by Text Add; never an integer view.
+    NormalBool(ValueId),
     /// Original tag/payload pair from a verified untyped formal; not Text.
     Dynamic(ValueId),
     /// Opaque result of a checked Dynamic invocation; never a tag/payload pair.
@@ -27,6 +29,7 @@ impl serde::Serialize for StringInvokeOperand {
             Self::OwnedString(value) => serde_json::json!({"kind":"owned_string", "value":value.as_u32()}),
             Self::TextOperand(value) => serde_json::json!({"kind":"text_operand", "value":value.as_u32()}),
             Self::NormalInteger(value) => serde_json::json!({"kind":"normal_integer", "value":value.as_u32()}),
+            Self::NormalBool(value) => serde_json::json!({"kind":"normal_bool", "value":value.as_u32()}),
             Self::Dynamic(value) => serde_json::json!({"kind":"tagged_dynamic", "value":value.as_u32()}),
             Self::DynamicCarrier(value) => serde_json::json!({"kind":"dynamic_carrier", "value":value.as_u32()}),
         };
@@ -38,7 +41,7 @@ impl StringInvokeOperand {
         match self {
             Self::StaticText { .. } => None,
             Self::OwnedString(value) | Self::BorrowedText(value) | Self::TextOperand(value)
-                | Self::NormalInteger(value) | Self::Dynamic(value) => Some(*value),
+                | Self::NormalInteger(value) | Self::NormalBool(value) | Self::Dynamic(value) => Some(*value),
             Self::DynamicCarrier(value) => Some(*value),
         }
     }
@@ -46,12 +49,12 @@ impl StringInvokeOperand {
         match self {
             Self::StaticText { .. } => {}
             Self::OwnedString(value) | Self::BorrowedText(value) | Self::TextOperand(value)
-                | Self::NormalInteger(value) | Self::Dynamic(value) => rewrite(value),
+                | Self::NormalInteger(value) | Self::NormalBool(value) | Self::Dynamic(value) => rewrite(value),
             Self::DynamicCarrier(value) => rewrite(value),
         }
     }
     pub fn is_text(&self) -> bool {
-        !matches!(self, Self::NormalInteger(_) | Self::Dynamic(_) | Self::DynamicCarrier(_))
+        !matches!(self, Self::NormalInteger(_) | Self::NormalBool(_) | Self::Dynamic(_) | Self::DynamicCarrier(_))
     }
 }
 

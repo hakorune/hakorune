@@ -183,6 +183,38 @@ pub(crate) fn fault_indices_after_normal_step_v2(
         .collect())
 }
 
+/// Fault order after a displaced End of a replaced Home. `full` is
+/// [displaced, temporaries.., replacement, homes..] and `old_position` is the
+/// displaced Home's slot among those homes. A Fault of the displaced End itself
+/// keeps acquisition order (replacement first); once it succeeded, the
+/// replacement holds the displaced slot, so younger homes unwind before it.
+pub(crate) fn displaced_replacement_fault_sequences_v2<T: Clone>(
+    full: &mut Vec<T>,
+    normal_len: usize,
+    old_position: usize,
+) -> Result<Vec<Vec<usize>>, String> {
+    let installed = normal_len;
+    let homes = installed + 1;
+    if normal_len < 2 || full.len() <= installed || old_position > full.len() - homes {
+        return Err(freeze("root-cleanup-order/displaced-shape"));
+    }
+    let duplicate = full.len();
+    full.push(full[installed].clone());
+    Ok((0..normal_len)
+        .map(|step| {
+            if step == 0 {
+                (1..duplicate).collect()
+            } else {
+                (step + 1..installed)
+                    .chain(homes..homes + old_position)
+                    .chain(std::iter::once(duplicate))
+                    .chain(homes + old_position..duplicate)
+                    .collect()
+            }
+        })
+        .collect())
+}
+
 impl RootHomeCleanupOrderV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn text_return_hold_binding(
         &self,

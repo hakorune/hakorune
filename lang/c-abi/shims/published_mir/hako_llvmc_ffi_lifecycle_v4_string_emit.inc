@@ -70,7 +70,7 @@ static void lv4_string_result_emit(FILE* f, uint32_t dst, uint32_t producer_id) 
 
 static void lv4_string_alloca(FILE* f, yyjson_val* op, uint32_t b) {
   if (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")) {
-    if (lv4_is(op, "result", "text"))
+    if (lv4_is(op, "result", "text") || lv4_is(op, "result", "nullable_text"))
       fprintf(f, "  %%strout%u = alloca %%nyrt.string.owned, align 8\n", b);
     yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
     for (size_t i = 0; i < yyjson_arr_size(args); i++)
@@ -101,6 +101,16 @@ static void lv4_string_operand_emit(FILE* f, yyjson_val* operand,
   uint32_t value = lv4_u(operand, "value");
   if (lv4_is(operand, "kind", "text_operand")) {
     fprintf(f, "  store %%nyrt.string.operand %%text%u, ptr %%strarg%u_%u, align 8\n", value,b,role);
+    return;
+  }
+  if (lv4_is(operand, "kind", "normal_bool")) {
+    /* Bool displays through the tagged Dynamic spelling: tag 2, payload 0/1. */
+    fprintf(f,
+        "  %%str%u_%u_0 = insertvalue %%nyrt.string.operand zeroinitializer, i32 4, 0\n"
+        "  %%str%u_%u_1 = insertvalue %%nyrt.string.operand %%str%u_%u_0, i32 2, 1\n"
+        "  %%str%u_%u_2 = insertvalue %%nyrt.string.operand %%str%u_%u_1, i64 %%v%u, 6\n"
+        "  store %%nyrt.string.operand %%str%u_%u_2, ptr %%strarg%u_%u, align 8\n",
+        b,role,b,role,b,role,b,role,b,role,value,b,role,b,role);
     return;
   }
   if (carrier) {

@@ -74,9 +74,12 @@ impl CheckedExpressionEvaluationV1 {
         operand: crate::mir::instruction::StringInvokeOperand,
     ) -> crate::mir::instruction::StringInvokeOperand {
         use crate::mir::instruction::StringInvokeOperand as Operand;
-        let Operand::Dynamic(carrier) = operand else { return operand };
-        match self.source.nodes().iter().position(|node| node.site() == site) {
-            Some(node) if self.dynamic_local_carrier_read_v1(node) => Operand::DynamicCarrier(carrier),
+        let Some(node) = self.source.nodes().iter().position(|node| node.site() == site) else { return operand };
+        match operand {
+            Operand::Dynamic(carrier) if self.dynamic_local_carrier_read_v1(node) => Operand::DynamicCarrier(carrier),
+            Operand::NormalInteger(value) if matches!(self.references.get(&node),
+                Some(CheckedExpressionReferenceV1::Scalar(read)) if read.kind() == super::super::SourceScalarKind::Bool) =>
+                Operand::NormalBool(value),
             _ => operand,
         }
     }

@@ -78,7 +78,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   int birth = lv4_is(fn, "role", "birth_unit");
   int ordinary_unit = lv4_is(fn, "role", "ordinary_unit");
   int ordinary_map = lv4_is(fn, "role", "ordinary_map");
-  int ordinary_text = lv4_is(fn, "role", "ordinary_text");
+  int ordinary_text = lv4_is(fn, "role", "ordinary_text") || lv4_is(fn, "role", "ordinary_nullable_text");
   int ordinary = lv4_is_ordinary(fn);
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_%zu(ptr %%frame", fi);
@@ -134,7 +134,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
        caller's sealed provider-argument calls are ExactI64 only — the
        flow arm already closed every other result kind. */
     if ((ordinary || birth) && lv4_is(op, "kind", "ordinary_call") &&
-        !lv4_is(op, "result", "map") && !lv4_is(op, "result", "unit") && !lv4_is(op, "result", "text"))
+        !lv4_is(op, "result", "map") && !lv4_is(op, "result", "unit") && !lv4_is(op, "result", "text") &&
+        !lv4_is(op, "result", "nullable_text"))
       fprintf(f, "  %%call_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (hako_physical_object_result_call(op))
       fprintf(f, "  %%call_outcome%u = alloca i32, align 4\n", lv4_u(block, "id"));
@@ -146,6 +147,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     if (!lv4_dynamic_alloca(f, in, op, lv4_u(block, "id"), session)) return 0;
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
+      if (lv4_is(ins, "op", "borrowed_null_compare"))
+        fprintf(f, "  %%nulout%u = alloca i64, align 8\n", lv4_u(ins, "dst"));
       if (lv4_is(ins, "op", "object_field_get"))
         fprintf(f, "  %%read%u = alloca { i64, i32, i32 }, align 8\n", lv4_u(ins, "dst"));
     }
@@ -302,6 +305,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%nul%u = icmp %s i64 %%v%u, 0\n"
               "  %%v%u = zext i1 %%nul%u to i64\n", dst,
               yyjson_get_str(yyjson_obj_get(ins, "predicate")), carrier->id, dst, dst);
+        else if (carrier->kind == LV4_DYNAMIC_CARRIER)
+          fprintf(f,
+              "  %%nulst%u = call i32 @\"nyash.dynamic.checked_is_null_v1\"(ptr %%frame, i64 0, i64 %%v%u, ptr %%nulout%u)\n"
+              "  %%nulok%u = icmp eq i32 %%nulst%u, 0\n"
+              "  br i1 %%nulok%u, label %%nulstep%u, label %%invalid\nnulstep%u:\n"
+              "  %%nulraw%u = load i64, ptr %%nulout%u, align 8\n"
+              "  %%v%u = %s i64 %%nulraw%u, %d\n",
+              dst, carrier->id, dst, dst, dst, dst, dst, dst, dst, dst, dst,
+              lv4_is(ins, "predicate", "ne") ? "xor" : "add", dst, lv4_is(ins, "predicate", "ne") ? 1 : 0);
         else
           fprintf(f, "  %%v%u = add i64 0, %d\n", dst,
               lv4_is(ins, "predicate", "ne") ? 1 : 0);
@@ -333,6 +345,20 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             kind == LV4_TEXT_VIEW ? "text" : NULL;
         if (kind == LV4_OWNED_STRING) {
           lv4_string_result_emit(f, dst, lv4_u(ins, "invoke_block"));
+        } else if (kind == LV4_DYNAMIC_CARRIER && lv4_is(producer_op, "kind", "ordinary_call") &&
+            lv4_is(producer_op, "result", "nullable_text")) {
+          /* The callee wrote an owned Text pair or the null pair (0, 0); publishing moves
+             it into an independent carrier. A publication failure is a broken contract. */
+          uint32_t pb = lv4_u(ins, "invoke_block");
+          fprintf(f,
+              "  %%pubh%u = load i64, ptr %%strout%u, align 8\n"
+              "  %%pubtp%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
+              "  %%pubt%u = load i64, ptr %%pubtp%u, align 8\n"
+              "  %%pub%u = call i32 @\"nyash.dynamic.checked_publish_text_or_null_v1\"(ptr %%frame, i64 0, i64 %%pubh%u, i64 %%pubt%u, ptr %%dynout%u)\n"
+              "  %%pubok%u = icmp eq i32 %%pub%u, 0\n"
+              "  br i1 %%pubok%u, label %%pubstep%u_%zu, label %%invalid\npubstep%u_%zu:\n"
+              "  %%v%u = load i64, ptr %%dynout%u, align 8\n",
+              pb, pb, pb, pb, pb, pb, pb, pb, pb, pb, pb, pb, pb, b, ri, b, ri, dst, pb);
         } else if (kind == LV4_DYNAMIC_CARRIER &&
             (lv4_is(producer_op, "kind", "dynamic_invoke") ||
              lv4_is(producer_op, "kind", "dynamic_array_get") ||
@@ -508,7 +534,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         else if (lv4_is(op, "result", "map"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%map%u",
               b, lv4_u(call, "target"), b);
-        else if (lv4_is(op, "result", "text"))
+        else if (lv4_is(op, "result", "text") || lv4_is(op, "result", "nullable_text"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%strout%u",
               b, lv4_u(call, "target"), b);
         else if (ordinary || birth)

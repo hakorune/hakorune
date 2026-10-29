@@ -245,6 +245,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                 if (!lv4_mixed_result_readable_depth(in, fn, value, state, lv4_u(block, "id"),
                     fn->value_count + 1, class_domain ? (uint32_t)yyjson_get_uint(view) : 0,
                     class_domain)) return 0;
+              } else if (array_borrow && lv4_object_field_borrow_operation(fn, value)) {
+                /* A nullable object field borrow lends its handle lane for this Call. */
+                if ((class_domain && (!value->object_id_set || value->object_id != yyjson_get_uint(view))) ||
+                    !lv4_slot_borrow_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
               } else if (array_borrow) {
                 if (!class_domain || !lv4_owned_array_borrow_live(fn, value, state) ||
                     !value->object_id_set || value->object_id != yyjson_get_uint(view)) return 0;
@@ -308,6 +312,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           }
           normal[bi] = (top - size + 1) | LV4_STRING_CALL_HELD;
         }
+      } else if (lv4_is(op, "result", "nullable_text")) {
+        /* Publication moves the callee pair into one caller-owned carrier. */
+        normal[bi] = LV4_DYNAMIC_CARRIER_LIVE;
       } else if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
         normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;
     } else if (lv4_is(op, "kind", "dynamic_array_get")) {
@@ -478,7 +485,17 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
            a non-null actual only when Birth returns Normal. */
         int nullable_object = lv4_is(op, "value_tag", "nullable_object") &&
             lv4_is(op, "residence", "object_home");
-        if (nullable_object) {
+        if (lv4_is(op, "value_tag", "object") && lv4_is(op, "residence", "object_home")) {
+          /* A live provider child moves into the Dynamic slot on Normal;
+             Fault keeps it live for the existing Birth cleanup. */
+          uint32_t child_object = lv4_u(op, "residence_object_id");
+          if (!birth || faulted || !value || value->kind != LV4_HANDLE || value->origin < 0 ||
+              !lv4_layout(in, child_object) || !lv4_birth_dynamic(in, op) ||
+              !lv4_is(range, "kind", "none") ||
+              !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, child_object, 1) ||
+              !lv4_birth_commit(in, fn, op, normal, bi, 0)) return 0;
+          normal[value->origin] = 0;
+        } else if (nullable_object) {
           yyjson_val* params = yyjson_obj_get(fn->function, "params");
           uint32_t child_object = lv4_u(op, "residence_object_id");
           int formal = 0;

@@ -27,6 +27,11 @@ typedef struct hako_lv4_function_index {
   uint32_t return_object;
   int return_object_state;
   int has_text_carriers;
+  /* Sibling table and the scalar-leaf fact: a body whose only effects are
+     scalar field reads/writes can never mutate a Map slot or any residence. */
+  const struct hako_lv4_function_index* peers;
+  size_t peer_count;
+  int leaf_scalar;
 } hako_lv4_function_index;
 
 static size_t lv4_state_count(const hako_lv4_function_index* fn) {
@@ -119,6 +124,7 @@ static int lv4_operation_result(yyjson_val* op) {
        release. */
     return lv4_is(op, "result", "bool") ? LV4_BOOL
         : lv4_is(op, "result", "text") ? LV4_OWNED_STRING
+        : lv4_is(op, "result", "nullable_text") ? LV4_DYNAMIC_CARRIER
         : lv4_is(op, "result", "map") ? LV4_MAP
         : lv4_is(op, "result", "borrowed_nullable_handle") ? LV4_BORROWED_OBJECT
         : lv4_is(op, "result", "mixed_handle") ? LV4_MIXED_OBJECT
@@ -298,14 +304,17 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     if (!lv4_is(value->instruction, "op", "phi") ||
         value->kind == LV4_I64 || value->kind == LV4_BOOL || value->kind == LV4_TEXT_OPERAND) continue;
     hako_lv4_value* root = lv4_value_alias_root(fn, value);
-    if (value->kind != LV4_HANDLE || !root || root == value || root->kind != LV4_HANDLE) return 0;
+    /* A transparent Phi over one slot borrow stays that borrow's alias. */
+    if ((value->kind != LV4_HANDLE && value->kind != LV4_SLOT_BORROW) || !root || root == value ||
+        root->kind != value->kind) return 0;
   }
   /* Kind equality grants no identity. Only original Copy and unanimous
    * HANDLE Phi paths lend the independently checked producer's provenance. */
   for (size_t i = 0; i < fn->value_count; i++) {
     hako_lv4_value* value = &fn->values[i];
     if (!lv4_is(value->instruction, "op", "copy") &&
-        !(value->kind == LV4_HANDLE && lv4_is(value->instruction, "op", "phi"))) continue;
+        !((value->kind == LV4_HANDLE || value->kind == LV4_SLOT_BORROW) &&
+          lv4_is(value->instruction, "op", "phi"))) continue;
     if (value->kind == LV4_TEXT_OPERAND) continue;
     if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME ||
         value->kind == LV4_MAP_VIEW || value->kind == LV4_TEXT_VIEW || value->kind == LV4_OWNED_STRING)
@@ -316,6 +325,24 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     value->origin = source->origin;
     value->object_id = source->object_id;
     value->object_id_set = source->object_id_set;
+  }
+  return 1;
+}
+
+static int lv4_body_leaf_scalar(hako_lv4_function_index* fn) {
+  if (lv4_is(fn->function, "role", "birth_unit")) return 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* rows = yyjson_obj_get(fn->blocks[bi].block, "instructions");
+    for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
+      yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
+      if (lv4_is(ins, "op", "array_set") || lv4_is(ins, "op", "array_residence_release") ||
+          lv4_is(ins, "op", "string_residence_install")) return 0;
+    }
+    yyjson_val* term = lv4_term(fn->blocks[bi].block);
+    if (!lv4_is(term, "op", "invoke")) continue;
+    yyjson_val* op = yyjson_obj_get(term, "operation");
+    if (!(lv4_is(op, "kind", "field_get") || (lv4_is(op, "kind", "field_set") &&
+          (!yyjson_obj_get(op, "transaction") || lv4_is(op, "transaction", "dynamic_i64_replace"))))) return 0;
   }
   return 1;
 }
@@ -431,6 +458,11 @@ static int lv4_index_open(hako_lv4_input* in) {
       if (fn->values[i-1].id == fn->values[i].id) return 0;
     for (size_t i = 1; i < fn->block_count; i++)
       if (fn->blocks[i-1].id == fn->blocks[i].id) return 0;
+  }
+  for (size_t fi = 0; fi < functions; fi++) {
+    in->index[fi].peers = in->index;
+    in->index[fi].peer_count = functions;
+    in->index[fi].leaf_scalar = lv4_body_leaf_scalar(&in->index[fi]);
   }
   return 1;
 }

@@ -280,7 +280,7 @@ pub(crate) use ordinary_new_coseal::BorrowedFormalEntryReadRequirementV1;
 
 pub(crate) use ordinary_new_coseal::ObjectFieldClassSourceV1;
 
-pub(crate) use ordinary_new_coseal::fault_indices_after_normal_step_v2;
+pub(crate) use ordinary_new_coseal::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};
 
 pub(in crate::mir) use ordinary_new_coseal::{SourceValueSumV1, SourceValueAlternativeV1};
 

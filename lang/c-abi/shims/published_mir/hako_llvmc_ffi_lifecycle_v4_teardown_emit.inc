@@ -196,7 +196,8 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
        lv4_is(op, "value_tag", "array") && lv4_is(op, "residence", "empty_array_home") &&
        yyjson_is_null(yyjson_obj_get(op, "residence_object_id"))) ? 5 :
       (lv4_is(op, "transaction", "dynamic_value_initialize") &&
-       lv4_is(op, "value_tag", "nullable_object") && lv4_is(op, "residence", "object_home") &&
+       (lv4_is(op, "value_tag", "nullable_object") || lv4_is(op, "value_tag", "object")) &&
+       lv4_is(op, "residence", "object_home") &&
        yyjson_is_uint(yyjson_obj_get(op, "residence_object_id"))) ? 6 : 0;
   int take_text = hako_physical_text_field_replace(op);
   if (!(replace ? (initialize || take_text || lv4_is(op, "transaction", "dynamic_i64_replace")) :
@@ -213,7 +214,9 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
   if (initialize == 6) {
     if (!hako_physical_u32(yyjson_obj_get(op, "residence_object_id"), &residence_object) ||
         !lv4_layout(in, residence_object)) return 0;
-    snprintf(candidate_kind, sizeof(candidate_kind), "%%k%u", lv4_u(op, "value"));
+    /* An owned Object candidate is never Null: canonical class one. */
+    if (lv4_is(op, "value_tag", "object")) snprintf(candidate_kind, sizeof(candidate_kind), "1");
+    else snprintf(candidate_kind, sizeof(candidate_kind), "%%k%u", lv4_u(op, "value"));
     candidate_kind_operand = candidate_kind;
   }
   return lv4_emit_dynamic_transaction(f, name, in->profile, site, base,

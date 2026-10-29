@@ -254,6 +254,8 @@ static int lv4_map_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* val
   return 0;
 }
 
+static int lv4_map_present_guarded(hako_lv4_function_index*, hako_lv4_value*, uint32_t);
+
 static int lv4_readable_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
     uint32_t id, const hako_lv4_state* state, uint32_t use, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
@@ -261,12 +263,57 @@ static int lv4_readable_object(const hako_lv4_input* in, hako_lv4_function_index
     return lv4_slot_result_readable(in, fn, value, state, use, object, check_object);
   if (value && value->kind == LV4_SLOT_BORROW) {
     yyjson_val* op = lv4_object_field_borrow_operation(fn, value);
+    if (!op && (lv4_map_present_guarded(fn, value, use) || lv4_map_slot_guarded(fn, value, use)))
+      return (!check_object || (value->object_id_set && value->object_id == object)) &&
+          lv4_slot_borrow_readable(in, fn, value, state, use);
     return op && yyjson_is_false(yyjson_obj_get(op, "nullable")) &&
         (!check_object || (value->object_id_set && value->object_id == object)) &&
         lv4_slot_borrow_readable(in, fn, value, state, use);
   }
   return lv4_object_base_readable(in, fn, id, state, use, object, check_object) &&
       lv4_object_field_dependencies_live(in, fn, lv4_index_value(fn, id), state, use);
+}
+
+static int lv4_map_slot_interval(hako_lv4_function_index*, uint32_t, uint32_t,
+    const hako_lv4_value*, uint32_t, uint32_t);
+
+/* A Map element borrow whose Get is dominated by the Then edge of a Has branch
+ * over the same Map slot and key, with no slot mutation in between. */
+static int lv4_map_present_guarded(hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t use) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (!root || root->kind != LV4_SLOT_BORROW || !lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
+  uint32_t get_block = lv4_u(root->instruction, "invoke_block");
+  hako_lv4_block* producer = lv4_index_block(fn, get_block);
+  yyjson_val* get = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+  if (!lv4_is(get, "kind", "map_field_get_indexed")) return 0;
+  hako_lv4_value* receiver = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(get, "base")));
+  yyjson_val* key = yyjson_obj_get(get, "key");
+  hako_lv4_value* key_root = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(key, "value")));
+  if (!receiver || !key_root) return 0;
+  for (size_t i = 0; i < fn->block_count; i++) {
+    hako_lv4_block* branch = &fn->blocks[i]; yyjson_val* term = lv4_term(branch->block);
+    if (!lv4_is(term, "op", "branch")) continue;
+    hako_lv4_value* condition = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(term, "condition")));
+    if (!condition || !lv4_is(condition->instruction, "op", "invoke_normal_result")) continue;
+    hako_lv4_block* has_block = lv4_index_block(fn, lv4_u(condition->instruction, "invoke_block"));
+    yyjson_val* has_term = has_block ? lv4_term(has_block->block) : NULL;
+    yyjson_val* has = has_term ? yyjson_obj_get(has_term, "operation") : NULL;
+    yyjson_val* has_key = yyjson_obj_get(has, "key");
+    if (!lv4_is(has, "kind", "map_field_has") ||
+        lv4_u(has, "object_id") != lv4_u(get, "object_id") || lv4_u(has, "field_ordinal") != lv4_u(get, "field_ordinal") ||
+        lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(has, "base"))) != receiver ||
+        !lv4_is(has_key, "kind", yyjson_get_str(yyjson_obj_get(key, "kind"))) ||
+        lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(has_key, "value"))) != key_root) continue;
+    uint32_t normal = lv4_u(has_term, "normal"), present = lv4_u(term, "then");
+    if (hako_physical_predecessor_count(fn->function, normal) != 1 ||
+        hako_physical_predecessor_count(fn->function, present) != 1 ||
+        !hako_physical_block_dominates(fn->function, normal, branch->id) ||
+        !hako_physical_block_dominates(fn->function, present, get_block) ||
+        !hako_physical_block_dominates(fn->function, present, use) ||
+        !lv4_map_slot_interval(fn, get_block, normal, receiver, lv4_u(get, "object_id"), lv4_u(get, "field_ordinal"))) continue;
+    return 1;
+  }
+  return 0;
 }
 
 /* Nullable residence payload read/borrow only. No receiver, move or End grant. */

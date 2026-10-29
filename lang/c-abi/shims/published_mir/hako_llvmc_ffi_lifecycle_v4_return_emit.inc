@@ -4,7 +4,15 @@ static int lv4_emit_return(FILE* f, const hako_lv4_input* in,
     yyjson_val* fn, yyjson_val* term, uint32_t b,
     int birth, int ordinary_map, int ordinary) {
   if (birth || lv4_is(fn, "role", "ordinary_unit")) fprintf(f, "  ret i32 0\n");
-  else if (lv4_is(fn, "role", "ordinary_text")) {
+  else if (lv4_is(fn, "role", "ordinary_nullable_text") &&
+      lv4_is(lv4_def(fn, lv4_u(term, "value")), "op", "const_null")) {
+    /* The null pair (0, 0) owns nothing; the common Fault path writes neither. */
+    fprintf(f,
+        "  store i64 0, ptr %%out_text, align 8\n"
+        "  %%return_token%u = getelementptr inbounds %%nyrt.string.owned, ptr %%out_text, i32 0, i32 1\n"
+        "  store i64 0, ptr %%return_token%u, align 8\n  ret i32 0\n", b, b);
+  }
+  else if (lv4_is(fn, "role", "ordinary_text") || lv4_is(fn, "role", "ordinary_nullable_text")) {
     uint32_t value = lv4_u(term, "value");
     /* Both words belong to one live source residence. Only the admitted
        Normal Return moves them; the common Fault path writes neither. */

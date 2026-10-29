@@ -144,7 +144,7 @@ static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* f
            lv4_is(store, "transaction", "dynamic_map_initialize") ||
            lv4_is(store, "transaction", "dynamic_text_initialize") ||
            (lv4_is(store, "transaction", "dynamic_value_initialize") &&
-            lv4_is(store, "value_tag", "nullable_object") &&
+            (lv4_is(store, "value_tag", "nullable_object") || lv4_is(store, "value_tag", "object")) &&
             lv4_is(store, "residence", "object_home")))) matched++;
     }
     if (matched != 1) return 0;

@@ -6,7 +6,8 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   int birth = lv4_is(fn->function, "role", "birth_unit");
   int ordinary_bool = lv4_is(fn->function, "role", "ordinary_bool");
   int ordinary_map = lv4_is(fn->function, "role", "ordinary_map");
-  int ordinary_text = lv4_is(fn->function, "role", "ordinary_text");
+  int nullable_text = lv4_is(fn->function, "role", "ordinary_nullable_text");
+  int ordinary_text = lv4_is(fn->function, "role", "ordinary_text") || nullable_text;
   int ordinary_handle = lv4_is(fn->function, "role", "ordinary_handle");
   int ordinary_nullable = lv4_is(fn->function, "role", "ordinary_nullable_handle");
   /* This lane owns only local keys temporaries; no array result/handoff
@@ -15,15 +16,20 @@ static int lv4_indexed_return(const hako_lv4_input* in,
       lv4_map_keys_root(fn, lv4_u(term, "value"))) return 0;
   if (ordinary_text && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+    int null_return = nullable_text && !faulted && result && result->kind == LV4_HANDLE && result->origin < 0 &&
+        lv4_is(result->instruction, "op", "const_null");
     /* The source return transfers the SAME installed residence after all
-       Normal cleanup. Pending replacements and Fault never publish a pair. */
-    if (faulted || !result || result->kind != LV4_OWNED_STRING || result->origin < 0 ||
+       Normal cleanup. Pending replacements and Fault never publish a pair.
+       A nullable-text null return owns nothing and transfers nothing. */
+    if (null_return) {
+      /* Every Home was already ended by the Normal cleanup; the state scan below checks it. */
+    } else if (faulted || !result || result->kind != LV4_OWNED_STRING || result->origin < 0 ||
         (size_t)result->origin >= count || lv4_string_pending(state, count) ||
         lv4_string_rank(state[result->origin]) <= LV4_STRING_HOME_BASE ||
         lv4_string_rank(state[result->origin]) >= LV4_STRING_LIMIT ||
         (lv4_string_held(state, count) && !(state[result->origin] & LV4_STRING_RETURN)))
       return 0;
-    state[result->origin] = 0;
+    else state[result->origin] = 0;
   }
   if (ordinary_map && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
@@ -110,6 +116,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
       lv4_borrowed_tagged_formal(fn, result);
   return !faulted && result && (tagged_i64 ||
       result->kind == (birth ? LV4_UNIT : ordinary_bool ? LV4_BOOL : ordinary_map ? LV4_MAP :
+          nullable_text ? (result->kind == LV4_HANDLE ? LV4_HANDLE : LV4_OWNED_STRING) :
           ordinary_text ? LV4_OWNED_STRING :
           (ordinary_handle || ordinary_nullable) ? LV4_HANDLE : LV4_I64));
 }

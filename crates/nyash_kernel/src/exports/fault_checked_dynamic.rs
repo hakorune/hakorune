@@ -292,6 +292,30 @@ pub unsafe extern "C" fn publish_text_or_null(
     }
 }
 
+/// Borrow an opaque carrier and report whether it holds null (1) or not (0).
+/// This neither consumes the carrier nor records a Fault; a stale or malformed
+/// token is an invalid physical contract.
+#[export_name = "nyash.dynamic.checked_is_null_v1"]
+pub unsafe extern "C" fn is_null(storage: *mut c_void, _site: u64, raw: u64, out: *mut i64) -> u32 {
+    if out.is_null() || !out.is_aligned() {
+        return Status::InvalidContract as u32;
+    }
+    if let Err(status) = unsafe { frame(storage) } {
+        return status as u32;
+    }
+    let token = match DynamicCarrierTokenV1::from_raw_v1(raw) {
+        Ok(token) => token,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    match token.is_null_v1() {
+        Ok(null) => {
+            unsafe { out.write(i64::from(null)) };
+            Status::Normal as u32
+        }
+        Err(_) => Status::InvalidContract as u32,
+    }
+}
+
 /// Consume one opaque carrier. A second End is a source Fault; malformed
 /// tokens are rejected as invalid physical contracts before table access.
 #[export_name = "nyash.dynamic.checked_end_v1"]

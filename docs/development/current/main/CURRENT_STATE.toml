@@ -17,11 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini: final Map borrow verification rejects unproved Array Set in HakoAllocPage.release; EXE not generated.
-Map child source/emission and final call-effect closure are connected; unknown mutation/destruction stays rejected.
-Next pass SUM-proven integer array fields to the Set arm (no cycle; do not drop the element proof); then materialize cohort and nullable-text C shim; see app card tasks 1-6.
-Fixed suite on this quick binary/runtime: 10/11, 9 real EXEs plus marker; only boxtorrent fails, no timeout/SKIP.
-User requested handoff; stop implementation/build after commit/push. Goal remains paused.
+APP-boxtorrent-mini: boxtorrent_mini_exe PASS; fixed real-apps-exe-boundary 11/11 (optimized target/quick/hakorune, 5m50s), no SKIP/timeout.
+Landed: nullable-Text carrier, Text+Bool, loop-carrier End/replacement order across Rust+C verifiers, Map-element receiver, scalar-leaf call interval.
+Next (soon): optimization phase - compile is 140s optimized / 9m48s opt0, 89% in Rust semantic verification (repeated derivation); keep checks, compute once.
+Open: raw VM run of json-stream-aggregator is refused (smoke EXE route passes); files over 800 lines listed in the app card.
 """
 next_design_card = "none"
 next_design_card_path = "none"
