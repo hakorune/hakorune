@@ -48,6 +48,38 @@ impl CheckedExpressionEvaluationV1 {
     > {
         &self.cores
     }
+    /// A Dynamic local may act as an opaque String carrier only when this
+    /// exact read is backed by its live, checked invocation-result Home.
+    /// This keeps arbitrary Dynamic values out of the String operation domain.
+    pub(crate) fn dynamic_local_carrier_read_v1(&self, node: usize) -> bool {
+        let Some(reference @ CheckedExpressionReferenceV1::DynamicInvocationResult(initializer)) =
+            self.references.get(&node)
+        else {
+            return false;
+        };
+        reference.matches_node(&self.source, node)
+            && initializer.is_dynamic_value()
+            && initializer.binding().owner() == self.source.owner()
+            && initializer.source().owner() == self.source.owner()
+            && !self.owned_result_nodes().contains(&node)
+            && initializer
+                .dynamic_home_binding_v1()
+                .is_some_and(|owner| self.prior_homes.contains(&LiveHomeV1::Stable(owner)))
+    }
+    /// A Dynamic invocation-result local read on the String Add right side is
+    /// consumed as an opaque carrier, never as a tagged formal.
+    pub(crate) fn string_add_right_operand_v1(
+        &self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        operand: crate::mir::instruction::StringInvokeOperand,
+    ) -> crate::mir::instruction::StringInvokeOperand {
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        let Operand::Dynamic(carrier) = operand else { return operand };
+        match self.source.nodes().iter().position(|node| node.site() == site) {
+            Some(node) if self.dynamic_local_carrier_read_v1(node) => Operand::DynamicCarrier(carrier),
+            _ => operand,
+        }
+    }
     pub(crate) fn references(
         &self,
     ) -> &std::collections::BTreeMap<usize, CheckedExpressionReferenceV1> {

@@ -574,6 +574,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         Operand::NormalInteger(value)
                     }
                     ResultKind::OwnedStringValue => {
+                        let right = frame.string_add_right_operand_v1(binary.rhs(), right);
                         emit_string_value(builder, &mut writer, Operation::Add { left, right }, index,
                             fault_frame, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
                             &homes, &mut bindings)?

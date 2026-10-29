@@ -80,7 +80,7 @@ fn checked_scalar_base_operation_v1(
         match (frame.class(index), &value) {
             (Some(Leaf::Value(Class::String)), operand) if operand.is_text() => Ok(value),
             (Some(Leaf::Value(Class::Dynamic)), Operand::Dynamic(value))
-                if source::dynamic_local_carrier_read_v1(frame, index) =>
+                if frame.dynamic_local_carrier_read_v1(index) =>
             {
                 Ok(Operand::DynamicCarrier(*value))
             }

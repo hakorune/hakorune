@@ -616,6 +616,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 (Node::Binary(binary), Some(value)) => {
                     let left = find_value(binary.lhs())?;
                     let right = find_value(binary.rhs())?;
+                    let right = self.frame.string_add_right_operand_v1(binary.rhs(), right);
                     match (value, left, right) {
                         (
                             Operand::NormalInteger(dst),

@@ -337,7 +337,7 @@ pub(super) fn check(
                     } = operation
                     {
                         if !value.valid_for(*kind, *producer, *index) {
-                            return Err("string-text-operand-domain");
+                            return Err(domain_refusal("string-text-operand-domain", &site, operation));
                         }
                     }
                     if matches!(operation, InvokeOperation::FieldSet { mode, value, .. }
@@ -347,27 +347,27 @@ pub(super) fn check(
                     }
                     if let InvokeOperation::String(operation) = operation {
                         if !operation.valid_operand_domains() {
-                            return Err(if matches!(operation, Op::Add { .. }) {
+                            return Err(domain_refusal(if matches!(operation, Op::Add { .. }) {
                                 "string-add-left-domain"
                             } else {
                                 "string-text-operand-domain"
-                            });
+                            }, &site, operation));
                         }
                         if let Op::Substring { start, end, .. } = operation {
                             for operand in [start, end] {
                                 let Some(value) = operand.value() else {
-                                    return Err("string-integer-domain");
+                                    return Err(domain_refusal("string-integer-domain", &site, operation));
                                 };
                                 if results.contains_key(&value)
                                     || matches!(operand, Operand::NormalInteger(_)
                                 if check_borrowed_operand(function, value).is_ok())
                                 {
-                                    return Err("string-integer-domain");
+                                    return Err(domain_refusal("string-integer-domain", &site, operation));
                                 }
                                 if matches!(operand, Operand::Dynamic(_))
                                     && !is_tagged_dynamic_formal(function, value)
                                 {
-                                    return Err("string-dynamic-source-domain");
+                                    return Err(domain_refusal("string-dynamic-source-domain", &site, operation));
                                 }
                             }
                         }
@@ -378,7 +378,11 @@ pub(super) fn check(
                                 if !source.permits_operation(block.id, instruction)
                                     || !matches!(source.origin(*value), Some(Origin::Slot(_))) =>
                             {
-                                return Err("string-text-operand-domain");
+                                if crate::config::env::builder_debug_enabled() {
+                                    eprintln!("[string-domain] text-operand value={value:?} permits={} origin_slot={}",
+                                        source.permits_operation(block.id, instruction), matches!(source.origin(*value), Some(Origin::Slot(_))));
+                                }
+                                return Err(domain_refusal("string-text-operand-domain", &site, operation));
                             }
                             Operand::OwnedString(value) if !results.contains_key(value) => {
                                 return Err("string-owned-result-missing");
@@ -390,12 +394,12 @@ pub(super) fn check(
                                 if results.contains_key(value)
                                     || check_borrowed_operand(function, *value).is_ok() =>
                             {
-                                return Err("string-integer-domain");
+                                return Err(domain_refusal("string-integer-domain", &site, operation));
                             }
                             Operand::Dynamic(value)
                                 if !is_tagged_dynamic_formal(function, *value) =>
                             {
-                                return Err("string-dynamic-source-domain");
+                                return Err(domain_refusal("string-dynamic-source-domain", &site, operation));
                             }
                             _ => {}
                         }
@@ -689,7 +693,10 @@ pub(super) fn check(
             let targets = block.successors_from_terminator();
             if targets.is_empty() && !live.is_empty() {
                 outstanding = Some(format!("outstanding={live:?}"));
-                return Err("string-missing-end");
+                let preds: Vec<_> = function.blocks.iter()
+                    .filter(|(_, other)| other.successors_from_terminator().contains(&id))
+                    .map(|(pred, other)| (pred, &other.instructions, &other.terminator)).collect();
+                return Err(domain_refusal("string-missing-end", &id, &(&block.instructions, term, preds)));
             }
             for target in targets.into_iter().rev() {
                 let mut next = live.clone();
@@ -757,4 +764,12 @@ pub(super) fn check(
         Ok(())
     })();
     result.map_err(|reason| (site, reason, outstanding))
+}
+
+/// Default-off: name the operation behind a static string-domain refusal.
+fn domain_refusal(reason: &'static str, block: &BasicBlockId, operation: &impl std::fmt::Debug) -> &'static str {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[string-domain] {reason} block={block:?} operation={operation:?}");
+    }
+    reason
 }

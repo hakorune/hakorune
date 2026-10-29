@@ -446,7 +446,8 @@ fn check_function_inner(
                         | ResultKind::Map
                         | ResultKind::Handle
                         | ResultKind::NullableHandle
-                        | ResultKind::OwnedString,
+                        | ResultKind::OwnedString
+                        | ResultKind::DynamicCarrier,
                     ) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len()

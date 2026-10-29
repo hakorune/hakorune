@@ -135,31 +135,6 @@ pub(in crate::mir) fn borrowed_source_loop_phi_relations_v2(
     Ok(relations)
 }
 
-/// A Dynamic local may act as an opaque String-comparison carrier only when
-/// this exact read is backed by its live, checked invocation-result Home.
-/// This keeps arbitrary Dynamic values out of the String operation domain.
-pub(super) fn dynamic_local_carrier_read_v1(
-    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
-    node: usize,
-) -> bool {
-    use crate::mir::resolved_semantics::home_new_prefix::{
-        CheckedExpressionReferenceV1, LiveHomeV1,
-    };
-
-    let Some(reference @ CheckedExpressionReferenceV1::DynamicInvocationResult(initializer)) =
-        frame.references().get(&node)
-    else {
-        return false;
-    };
-    reference.matches_node(frame.source(), node)
-        && initializer.is_dynamic_value()
-        && initializer.binding().owner() == frame.source().owner()
-        && initializer.source().owner() == frame.source().owner()
-        && !frame.owned_result_nodes().contains(&node)
-        && initializer.dynamic_home_binding_v1().is_some_and(|owner|
-            frame.prior_homes().contains(&LiveHomeV1::Stable(owner)))
-}
-
 impl EmittedBoolConditionProjectionV1 {
     pub(super) fn validate_source(
         &self,

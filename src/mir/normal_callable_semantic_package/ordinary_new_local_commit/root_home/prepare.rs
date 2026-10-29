@@ -89,6 +89,11 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(row) = self.normal_exit_projection_v1(owner, &exit)? else {
             return root_home_not_selected(owner, "no normal exit projection for the exit");
         };
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[root-home] exit={exit:?} fault_homes={:?} homes={:?}",
+                row.fault_homes().iter().map(|home| home.binding()).collect::<Vec<_>>(),
+                row.homes().iter().map(|home| home.binding()).collect::<Vec<_>>());
+        }
         let rows = self.local_commits.borrow();
         let Some(mut order) = RootHomeCleanupOrderV1::from_home_end_plans(
             &rows,

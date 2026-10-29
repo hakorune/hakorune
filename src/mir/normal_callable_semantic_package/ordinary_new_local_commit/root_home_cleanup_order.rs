@@ -223,6 +223,9 @@ impl RootHomeCleanupOrderV1 {
         else {
             return Ok(None);
         };
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[root-home] plans exit={exit:?} {:?}", plans.iter().map(|(home, _, operation)| (home.binding(), operation)).collect::<Vec<_>>());
+        }
         for (index, (_, subject, operation)) in plans.into_iter().enumerate() {
             let origin = RootHomeReleaseOriginV1 {
                 subject,
