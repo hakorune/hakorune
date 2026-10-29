@@ -250,6 +250,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let static_terminal_sites = observation::static_terminal_sites_v1(batch, selected, contracts, app_main)?;
     Ok(PreparedBorrowedFormalIngressV1 {
+        original_corroboration: std::cell::Cell::new(None),
         static_terminal_sites,
         app_main_owner: contracts
             .iter()

@@ -123,6 +123,9 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     /// Complete original incoming agreement; never execution or payload permission.
     pub(super) integer_agreements: BTreeSet<BindingRefV1>,
     original_formal_seeds: source_seeds::OriginalFormalSeedProductV1,
+    /// `(inventory revision, verdict)` of corroborating these seeds against
+    /// `source_incoming`; see `corroborated_original_v1`.
+    original_corroboration: std::cell::Cell<Option<(u64, bool)>>,
     /// Source-only, least-fixed-point proof that the tagged formal is checked
     /// before numeric payload use, including exact Static forward chains.
     pub(super) checked_static_inputs: BTreeSet<BindingRefV1>,

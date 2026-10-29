@@ -35,9 +35,7 @@ impl PreparedBorrowedFormalIngressV1 {
                     if loan.source().call_site() != target.call_site() {
                         continue;
                     }
-                    if !self
-                        .original_formal_seeds
-                        .corroborate_original_v1(&self.source_incoming)
+                    if !self.corroborated_original_v1()
                         || loan.source() != target
                         || destination.owner() != target.call_site().owner()
                         || self.object_source_target_at_v1(target.call_site())? != Some(target)

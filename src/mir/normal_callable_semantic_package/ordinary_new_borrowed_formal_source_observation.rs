@@ -12,7 +12,7 @@ impl PreparedBorrowedFormalIngressV1 {
             (loan.destination() == binding).then_some((row, loan))
         });
         let Some((row, loan)) = loans.next() else { return Ok(None); };
-        if loans.next().is_some() || !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+        if loans.next().is_some() || !self.corroborated_original_v1() {
             return Err(freeze("nullable-input/original-source-drift"));
         }
         let reference = row.source.original_instance_reference_v1()
@@ -29,7 +29,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn stored_local_new_root_v1(
         &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<(u32, &std::rc::Rc<super::super::super::LocalNewRootSourceV1>)>, String> {
-        if !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+        if !self.corroborated_original_v1() {
             return Err(freeze("stored-child/original-incoming-census-drift"));
         }
         let mut originals = self.source_incoming.exact_rows().filter(|row| &row.call == target.call_site());
@@ -44,7 +44,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self, target: &'a LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<&'a super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>, String> {
         let loan = self.original_owning_object_input_target_v1(target)?;
-        if loan.is_some() && !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+        if loan.is_some() && !self.corroborated_original_v1() {
             return Err(freeze("nullable-input/original-source-drift"));
         }
         Ok(loan)
@@ -80,7 +80,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_owning_object_input_callee_sources_v1(
         &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Vec<&super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>, String> {
-        if !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+        if !self.corroborated_original_v1() {
             return Err(freeze("nullable-input/original-incoming-census-drift"));
         }
         self.original_owning_object_input_target_v1(target)?;

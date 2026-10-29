@@ -19,7 +19,7 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 APP-boxtorrent-mini: boxtorrent_mini_exe PASS; fixed real-apps-exe-boundary 11/11 (optimized target/quick/hakorune, 5m50s), no SKIP/timeout.
 Landed: nullable-Text carrier, Text+Bool, loop-carrier End/replacement order across Rust+C verifiers, Map-element receiver, scalar-leaf call interval.
-Optimization phase part 1 done: boxtorrent compile 140s -> 83s, tiny apps 11s -> 2.3s (mold linker, Rc site paths, C predecessor tables); next ideas need design (see app card).
+Optimization phase part 2 done: boxtorrent compile 140s -> 34s, tiny apps 11s -> 2.3s, fixed suite 1m37 (reused corroboration, mold, Rc site paths); next ideas need design (see app card).
 Open: files over 800 lines are listed in the app card; VM is retired and is not a verification route.
 """
 next_design_card = "none"

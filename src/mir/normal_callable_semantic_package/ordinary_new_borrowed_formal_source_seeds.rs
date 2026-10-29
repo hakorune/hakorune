@@ -454,10 +454,7 @@ impl PreparedBorrowedFormalIngressV1 {
         let Some(first) = rows.next() else {
             return Ok(None);
         };
-        if !self
-            .original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-        {
+        if !self.corroborated_original_v1() {
             return Err(freeze("returned-field/original-incoming-census-drift"));
         }
         for row in std::iter::once(first).chain(rows) {
@@ -485,6 +482,25 @@ impl PreparedBorrowedFormalIngressV1 {
     }
 }
 
+impl PreparedBorrowedFormalIngressV1 {
+    /// A finished Prepared never mutates its seeds or inventory outside
+    /// `#[cfg(test)]` helpers, so corroborating this pair is a pure function
+    /// of it. Reuse the verdict while `source_incoming` keeps its
+    /// process-unique revision; the seeds-side test helper clears it. Foreign
+    /// or stale evidence still fails inside the one real corroboration.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborated_original_v1(&self) -> bool {
+        let revision = self.source_incoming.revision_v1();
+        if let Some((seen, verdict)) = self.original_corroboration.get() {
+            if seen == revision {
+                return verdict;
+            }
+        }
+        let verdict = self.original_formal_seeds.corroborate_original_v1(&self.source_incoming);
+        self.original_corroboration.set(Some((revision, verdict)));
+        verdict
+    }
+}
+
 #[cfg(test)]
 impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn with_replaced_original_new_evidence_for_test<
@@ -497,8 +513,11 @@ impl PreparedBorrowedFormalIngressV1 {
         let original = Rc::clone(&self.original_formal_seeds.new_calls);
         self.original_formal_seeds.new_calls =
             Rc::new(original.corrupted_provider_evidence_for_test(erase_rows));
+        self.original_corroboration.set(None);
         let result = execute(self);
         self.original_formal_seeds.new_calls = original;
+        // Never restore the verdict of the corrupted or the earlier evidence.
+        self.original_corroboration.set(None);
         result
     }
 }
@@ -508,10 +527,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         provider: &Rc<crate::mir::normal_callable_semantic_package::ProviderStaticArgumentSourceV1>,
     ) -> Result<(), String> {
-        if !self
-            .original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-        {
+        if !self.corroborated_original_v1() {
             return Err(freeze("provider-static/original-input-product-drift"));
         }
         self.original_formal_seeds
@@ -633,10 +649,7 @@ impl PreparedBorrowedFormalIngressV1 {
         Option<&Rc<crate::mir::normal_callable_semantic_package::ArgumentFieldArrayReadSourceV1>>,
         String,
     > {
-        if !self
-            .original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-        {
+        if !self.corroborated_original_v1() {
             return Err(freeze("array-read/original-seed-drift"));
         }
         self.original_formal_seeds
@@ -701,10 +714,7 @@ impl PreparedBorrowedFormalIngressV1 {
         ordinal: u32,
     ) -> Result<Option<&super::super::super::result_class_claim::ReturnedFieldSourceLoanV1>, String>
     {
-        if !self
-            .original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-        {
+        if !self.corroborated_original_v1() {
             return Err(freeze("returned-field/original-incoming-census-drift"));
         }
         let mut rows = self
@@ -740,10 +750,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<&Rc<OriginalFormalUseSourceV1>, String> {
-        if !self
-            .original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-        {
+        if !self.corroborated_original_v1() {
             return Err(freeze("borrowed-use/original-census-drift"));
         }
         let originals = self

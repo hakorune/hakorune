@@ -42,7 +42,7 @@ impl OriginalFormalObjectBasisV1 {
         source: &PreparedBorrowedFormalIngressV1,
     ) -> bool {
         let seeds = &source.original_formal_seeds;
-        seeds.corroborate_original_v1(&source.source_incoming)
+        source.corroborated_original_v1()
             && seeds
                 .source_objects
                 .as_ref()
@@ -117,8 +117,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         formal: BindingRefV1,
     ) -> Option<&str> {
-        self.original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
+        self.corroborated_original_v1()
             .then(|| {
                 self.original_formal_seeds
                     .source_objects
@@ -158,7 +157,7 @@ impl PreparedBorrowedFormalIngressV1 {
         let mut rows = seeds.rows.iter().filter(|row| &row.incoming.call == call);
         let Some(row) = rows.next() else { return Ok(None); };
         if !row.seeds.iter().any(|seed| matches!(seed, OriginalFormalActualSeedV1::MapField { .. })) { return Ok(None); }
-        if rows.next().is_some() || !seeds.corroborate_original_v1(&self.source_incoming) {
+        if rows.next().is_some() || !self.corroborated_original_v1() {
             return Err(freeze("borrowed-view/original-seed-identity"));
         }
         let target = row.incoming.source.original_instance_reference_v1()
@@ -196,7 +195,7 @@ impl PreparedBorrowedFormalIngressV1 {
         if self.source_definition_for(formal.owner()).is_none() { return Ok(None); }
         let selected = self.source_object_view_v1(formal)?;
         let seeds = &self.original_formal_seeds;
-        if !seeds.corroborate_original_v1(&self.source_incoming) {
+        if !self.corroborated_original_v1() {
             return Err(freeze("borrowed-view/original-seed-identity"));
         }
         let original = seeds.source_objects.as_ref().and_then(|domain| domain.views.get(&formal));

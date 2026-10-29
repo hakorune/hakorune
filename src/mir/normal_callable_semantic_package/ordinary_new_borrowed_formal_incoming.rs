@@ -624,6 +624,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             Err(BorrowedIncomingDraftErrorV1::NoIncoming(*owner))));
     }
     let inventory = BorrowedIncomingInventoryV1 {
+        revision: Default::default(),
         owners: legacy_owners,
         source_owners: definitions.keys().copied().collect(),
         unsupported_static_spelling,

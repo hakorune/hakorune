@@ -349,6 +349,7 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
         let receipt = census.source_refusals_v1();
         assert!(census.corroborates_refusals_v1(&receipt));
         let mut mutated = BorrowedIncomingInventoryV1 {
+            revision: Default::default(),
             owners: census.owners.clone(), source_owners: census.source_owners.clone(),
             unsupported_static_spelling: census.unsupported_static_spelling.clone(),
             unsupported_static_context: census.unsupported_static_context.clone(),
@@ -373,6 +374,7 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
     let owners = BTreeSet::from([row.callee]);
     use inventory::{IncomingObservationScopeV1 as Scope, IncomingObservationV1 as Observation};
     let mut census = BorrowedIncomingInventoryV1 {
+        revision: Default::default(),
         owners: owners.clone(), source_owners: owners.clone(),
         unsupported_static_spelling: Default::default(), unsupported_static_context: Default::default(),
         static_observations: BTreeMap::new(),

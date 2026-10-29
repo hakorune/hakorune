@@ -425,6 +425,7 @@ fn source_graph_empty_declaration_requires_clean_registered_scan_sentinel() {
     let call = source.incoming[0].clone();
     for mutation in 0..9 {
         let mut inventory = BorrowedIncomingInventoryV1 {
+            revision: Default::default(),
             source_owners: original.source_owners.clone(),
             owners: original.owners.clone(),
             unsupported_static_spelling: Default::default(),
@@ -513,6 +514,7 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
         BorrowedIncomingDraftErrorV1::NoIncoming(row.callee),
     ] {
         let inventory = BorrowedIncomingInventoryV1 {
+            revision: Default::default(),
             unsupported_static_spelling: Default::default(),
             unsupported_static_context: Default::default(),
             source_owners: owners.clone(),
@@ -527,6 +529,7 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
         assert!(inventory.project(&Default::default()).unwrap().is_empty());
     }
     let inventory = BorrowedIncomingInventoryV1 {
+        revision: Default::default(),
         unsupported_static_spelling: Default::default(),
         unsupported_static_context: Default::default(),
         source_owners: owners.clone(),
@@ -710,6 +713,7 @@ fn source_graph_partial_scan_preserves_global_loan_fault_before_orphan_check() {
         main: None,
     };
     let mut inventory = BorrowedIncomingInventoryV1 {
+        revision: Default::default(),
         unsupported_static_spelling: Default::default(),
         unsupported_static_context: Default::default(),
         source_owners: Default::default(),

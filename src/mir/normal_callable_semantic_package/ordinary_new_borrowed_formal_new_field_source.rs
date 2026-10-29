@@ -149,7 +149,7 @@ impl OriginalNewI64InputsLoanV1 {
     ) -> bool {
         let seeds = &source.original_formal_seeds;
         Rc::ptr_eq(&self.original, &seeds.new_calls)
-            && seeds.corroborate_original_v1(&source.source_incoming)
+            && source.corroborated_original_v1()
             && self.origins.iter().all(|origin| source.candidate_i64_source_agreement(*origin))
             && self.array_rows.iter().all(|index| self.original.rows[*index].array_reads[self.ordinal].as_ref()
                 .is_some_and(|read| read.binding().owner() == self.original.rows[*index].site.owner()

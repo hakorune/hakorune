@@ -55,6 +55,18 @@ impl From<IncomingObservationResultV1> for IncomingObservationV1 {
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct SourceIncomingRefusalsV1(Box<[IncomingObservationV1]>);
 
+/// Process-unique identity of one inventory state. Every literal and every
+/// mutation draws a new one, so a verdict cached for one state is never read
+/// for an edited or a replaced inventory.
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package) struct IncomingInventoryRevisionV1(u64);
+impl Default for IncomingInventoryRevisionV1 {
+    fn default() -> Self {
+        static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+        Self(NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed))
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct BorrowedIncomingInventoryV1
@@ -65,9 +77,13 @@ struct BorrowedIncomingInventoryV1
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) static_observations:
         BTreeMap<OwnedExprSiteV1, static_inventory::StaticIncomingObservationV1>,
     pub(super) observations: Vec<IncomingObservationV1>,
+    pub(super) revision: IncomingInventoryRevisionV1,
     pub(super) source_owners: std::collections::BTreeSet<FunctionOwnerIdV1>,
 }
 impl BorrowedIncomingInventoryV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn revision_v1(&self) -> u64 {
+        self.revision.0
+    }
     pub(super) fn legacy_observations(&self) -> impl Iterator<Item = &IncomingObservationResultV1> {
         self.observations
             .iter()
@@ -153,6 +169,7 @@ impl BorrowedIncomingInventoryV1 {
         &mut self,
         site: &OwnedExprSiteV1,
     ) {
+        self.revision = Default::default();
         let (_, row) = &mut self
             .observations
             .iter_mut()
@@ -169,6 +186,7 @@ impl BorrowedIncomingInventoryV1 {
         &mut self,
         site: &OwnedExprSiteV1,
     ) {
+        self.revision = Default::default();
         let observation = self
             .observations
             .iter()
@@ -183,6 +201,7 @@ impl BorrowedIncomingInventoryV1 {
         &mut self,
         site: &OwnedExprSiteV1,
     ) {
+        self.revision = Default::default();
         self.observations
             .retain(|row| !row.original.1.as_ref().is_ok_and(|row| &row.call == site));
     }
@@ -294,6 +313,7 @@ impl BorrowedIncomingInventoryV1 {
         &mut self,
         calls: &BTreeMap<OwnedExprSiteV1, &super::super::super::LexicalInstanceCallSourceTargetV1>,
     ) -> Result<(), BorrowedIncomingDraftErrorV1> {
+        self.revision = Default::default();
         let mut seen = std::collections::BTreeSet::new();
         for observation in self.observations.iter_mut().filter(|row| row.scope.legacy()) {
             let Ok(row) = &mut observation.original.1 else {

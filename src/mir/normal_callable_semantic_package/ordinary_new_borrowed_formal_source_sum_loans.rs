@@ -74,7 +74,7 @@ impl PreparedBorrowedFormalIngressV1 {
         source: &Rc<FieldSource>,
     ) -> Option<Rc<SourceValueSumV1>> {
         let product = &self.original_formal_seeds;
-        if !product.corroborate_original_v1(&self.source_incoming) || !source.same_inventory(claims) { return None; }
+        if !self.corroborated_original_v1() || !source.same_inventory(claims) { return None; }
         let (original, sum) = product.source_sums.as_ref()?.fields.get(&source.field())?;
         Rc::ptr_eq(original, source).then(|| Rc::clone(sum))
     }
@@ -85,7 +85,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self, field: &hakorune_mir_defs::CanonicalFieldRefV1,
     ) -> Option<Rc<SourceValueSumV1>> {
         let product = &self.original_formal_seeds;
-        product.corroborate_original_v1(&self.source_incoming).then_some(())?;
+        self.corroborated_original_v1().then_some(())?;
         product.source_sums.as_ref()?.array_elements.get(field).map(Rc::clone)
     }
     /// Declaration lookup in the already checked all-writer graph. This lends
@@ -132,7 +132,7 @@ impl PreparedBorrowedFormalIngressV1 {
             }
         }
         let product = &self.original_formal_seeds;
-        if !product.corroborate_original_v1(&self.source_incoming) {
+        if !self.corroborated_original_v1() {
             return false;
         }
         let Some(sums) = &product.source_sums else {
@@ -185,7 +185,7 @@ impl PreparedBorrowedFormalIngressV1 {
         source: &Rc<super::FieldSource>,
     ) -> Option<Box<str>> {
         let product = &self.original_formal_seeds;
-        if !product.corroborate_original_v1(&self.source_incoming) {
+        if !self.corroborated_original_v1() {
             return None;
         }
         let sums = product.source_sums.as_ref()?;
@@ -229,7 +229,7 @@ impl PreparedBorrowedFormalIngressV1 {
         expected_binding: Option<BindingRefV1>,
     ) -> Option<&SourceValueSumV1> {
         let product = &self.original_formal_seeds;
-        if !product.corroborate_original_v1(&self.source_incoming) {
+        if !self.corroborated_original_v1() {
             return None;
         }
         let mut incoming_rows = self
@@ -352,9 +352,7 @@ impl PreparedBorrowedFormalIngressV1 {
         owner: FunctionOwnerIdV1,
     ) -> Option<std::rc::Rc<SourceValueClassFactsV1>> {
         let product = &self.original_formal_seeds;
-        product
-            .corroborate_original_v1(&self.source_incoming)
-            .then_some(())?;
+        self.corroborated_original_v1().then_some(())?;
         let sums = product.source_sums.as_ref()?;
         let flow = std::sync::Arc::clone(sums.flows.get(&owner)?);
         if flow.owner() != owner || !flow.is_complete() {
@@ -430,9 +428,7 @@ impl PreparedBorrowedFormalIngressV1 {
     ) -> Option<Vec<Rc<SourceValueSumV1>>> {
         // One corroboration covers the whole census: nothing mutates the pair
         // between the per-formal lookups below.
-        self.original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-            .then_some(())?;
+        self.corroborated_original_v1().then_some(())?;
         parameters
             .iter()
             .filter(|row| row.kind.is_ordinary_borrowed_handle())
@@ -453,9 +449,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         formal: BindingRefV1,
     ) -> Option<Rc<SourceValueSumV1>> {
-        self.original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-            .then_some(())?;
+        self.corroborated_original_v1().then_some(())?;
         self.original_formal_seeds
             .source_sums
             .as_ref()?
@@ -487,9 +481,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ordinary_core_source_v1(
         &self, site: &OwnedExprSiteV1,
     ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>{
-        self.original_formal_seeds
-            .corroborate_original_v1(&self.source_incoming)
-            .then_some(())?;
+        self.corroborated_original_v1().then_some(())?;
         self.original_formal_seeds.ordinary_core.get(site)
     }
 }
