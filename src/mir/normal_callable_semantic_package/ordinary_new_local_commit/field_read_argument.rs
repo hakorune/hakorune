@@ -267,18 +267,22 @@ fn validate_map_completion_effects_v1(
             let box_name = symbol.split('.').next().unwrap_or("");
             // The array a write targets is either the field read itself or the
             // Normal result of that read; both name the same declared field.
-            let array_owner_field = |value: crate::mir::ValueId| -> Option<(crate::mir::ValueId, hakorune_mir_defs::CanonicalFieldRefV1)> {
+            let array_owner_target = |value: crate::mir::ValueId| -> Option<ArrayFieldTargetV1> {
                 let (block, index) = *def_map.get(&value)?;
                 let instruction = function.blocks.get(&block)?.instructions.get(index)?;
                 match instruction {
                     MirInstruction::ObjectFieldGet { base, field, .. }
                     | MirInstruction::Invoke { operation: InvokeOperation::FieldGet { base, field }, .. } =>
-                        Some((*base, *field)),
+                        Some(ArrayFieldTargetV1::Canonical { base: *base, field: *field }),
+                    MirInstruction::FieldGet { base, field, .. } =>
+                        Some(ArrayFieldTargetV1::Named { base: *base, name: field.clone().into() }),
                     MirInstruction::InvokeNormalResult { invoke_block, .. } => {
                         let block = function.blocks.get(invoke_block)?;
                         let mut rows = block.instructions.iter().filter_map(|row| match row {
                             MirInstruction::Invoke { operation: InvokeOperation::FieldGet { base, field }, .. } =>
-                                Some((*base, *field)),
+                                Some(ArrayFieldTargetV1::Canonical { base: *base, field: *field }),
+                            MirInstruction::FieldGet { base, field, .. } =>
+                                Some(ArrayFieldTargetV1::Named { base: *base, name: field.clone().into() }),
                             _ => None,
                         });
                         let first = rows.next()?;
@@ -320,16 +324,19 @@ fn validate_map_completion_effects_v1(
                                         == Some(&crate::mir::MirType::Integer)
                             };
                             let allowed = me_value.is_some_and(|me| {
-                                array_owner_field(*receiver).is_some_and(|(base, field)| {
-                                    origins.origin(base) == Some(me)
-                                        && view
-                                            .ledger
+                                array_owner_target(*receiver)
+                                    .and_then(|row| {
+                                        let (base, field) = row.resolve(module, box_name)?;
+                                        (origins.origin(base) == Some(me)).then_some(field)
+                                    })
+                                    .is_some_and(|field| {
+                                        view.ledger
                                             .array_i64_fields
                                             .get(box_name)
                                             .is_some_and(|fields| fields.contains(&field))
-                                        && numeric(*index)
-                                        && numeric(*value)
-                                })
+                                            && numeric(*index)
+                                            && numeric(*value)
+                                    })
                             });
                             if !allowed && crate::config::env::builder_debug_enabled() {
                                 let raw_def = def_map.get(receiver).and_then(|(block, index)|
@@ -340,7 +347,11 @@ fn validate_map_completion_effects_v1(
                                     });
                                 eprintln!(
                                     "[field-argument/array-set] callee={symbol} box={box_name} receiver={receiver:?} receiver_def={:?} raw={raw_def:?} numeric_index={} numeric_value={}",
-                                    array_owner_field(*receiver),
+                                    {
+                                        let row = array_owner_target(*receiver);
+                                        let resolved = row.map(|row| row.resolve(module, box_name));
+                                        format!("{resolved:?} census={:?}", view.ledger.array_i64_fields.get(box_name).map(|fields| fields.iter().map(|field| field.declaration_ordinal()).collect::<Vec<_>>()))
+                                    },
                                     numeric(*index),
                                     numeric(*value)
                                 );
@@ -367,4 +378,53 @@ fn validate_map_completion_effects_v1(
         checked.insert(target);
     }
     Ok(())
+}
+
+/// The array a write targets: the canonical field read itself, or the
+/// compatibility read, which names a declaration and is resolved through that
+/// declaration (never through a runtime type or a bare name guess).
+#[derive(Debug)]
+enum ArrayFieldTargetV1 {
+    Canonical { base: crate::mir::ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1 },
+    Named { base: crate::mir::ValueId, name: Box<str> },
+}
+impl ArrayFieldTargetV1 {
+    fn resolve(
+        self,
+        module: &crate::mir::MirModule,
+        box_name: &str,
+    ) -> Option<(crate::mir::ValueId, hakorune_mir_defs::CanonicalFieldRefV1)> {
+        match self {
+            Self::Canonical { base, field } => Some((base, field)),
+            Self::Named { base, name } => {
+                let definitions = module.canonical_object_definitions()?;
+                let mut objects = definitions
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, definition)| definition.diagnostic_name() == box_name);
+                let (object_index, definition) = objects.next()?;
+                if objects.next().is_some() {
+                    return None;
+                }
+                let mut fields = definition
+                    .fields()
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, field)| field.name == name.as_ref());
+                let (ordinal, field) = fields.next()?;
+                if fields.next().is_some() || field.is_weak {
+                    return None;
+                }
+                let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(
+                    object_index,
+                )?;
+                Some((
+                    base,
+                    hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                        object, ordinal,
+                    )?,
+                ))
+            }
+        }
+    }
 }
