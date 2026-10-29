@@ -20,12 +20,10 @@
 
 ## 実行方法
 
-これらのテストは主に `tools/archive/manual-smokes/llvm_smoke.sh` から実行されます：
+旧LLVM手動smokeは退役済みです。現行EXE受け入れは次を使用します。
 
 ```bash
-# 環境変数でテストを有効化
-NYASH_LLVM_MAP_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh
-NYASH_LLVM_VINVOKE_RET_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh
+tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary
 ```
 
 ## 注意事項

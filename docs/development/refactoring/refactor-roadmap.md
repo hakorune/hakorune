@@ -57,9 +57,8 @@ Phased migration (mechanical, testable per phase):
    - Remove `ArrayGet/Set, RefNew/Get/Set, PluginInvoke, TypeCheck, Cast, Copy, Debug, Print, Nop, Throw, Catch, Safepoint`.
    - Update discriminant printer and state dumps accordingly.
 
-Historical helper evidence is archived at
-`tools/archive/manual-tools/mir13-migration-helper.sh`. Do not use it as a
-current migration entrypoint without adding a new owner and acceptance gate.
+The historical mir13 migration helper has been retired; consult Git history.
+It is not a current migration entrypoint.
 
 ## Commonization Opportunities
 

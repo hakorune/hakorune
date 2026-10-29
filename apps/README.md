@@ -6,15 +6,6 @@
 
 ## 🚀 実装済みアプリケーション
 
-### 🎮 ゲーム・エミュレータ
-
-#### CHIP-8エミュレータ
-**場所**: `chip8_nyash/chip8_emulator.hako`  
-**特徴**: 完全なゲーム機エミュレータ、グラフィック表示対応
-```bash
-./target/release/hakorune apps/chip8_nyash/chip8_emulator.hako
-```
-
 ### 📝 エディタ・開発ツール
 
 #### Enhanced Kilo Editor

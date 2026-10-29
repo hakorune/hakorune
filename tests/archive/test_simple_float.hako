@@ -1,3 +1,0 @@
-local f1
-f1 = new FloatBox(3.14)
-print(f1)

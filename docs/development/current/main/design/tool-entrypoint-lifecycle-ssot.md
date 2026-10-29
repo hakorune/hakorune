@@ -7,8 +7,6 @@ Related:
   - docs/development/current/main/phases/phase-29cv/README.md
   - docs/development/current/main/phases/phase-29cv/P52-ROOT-HELPER-PROTECTED-CATEGORY-POLICY.md
   - tools/ROOT_SURFACE.md
-  - tools/archive/manual-smokes/README.md
-  - tools/archive/manual-tools/README.md
 ---
 
 # Tool Entrypoint Lifecycle SSOT
@@ -22,6 +20,9 @@ This policy is for shell/PowerShell/Python helper entrypoints. It does not
 change compiler behavior.
 
 The current root helper inventory lives in `tools/ROOT_SURFACE.md`.
+
+Retired manual smoke/tool buckets were deleted on 2026-10-30 after caller review.
+Their source of history is Git; this document does not require restoring them.
 
 ## Archive/Delete Rule
 

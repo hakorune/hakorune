@@ -40,7 +40,7 @@
 
 ## CIスモークテストでの使用
 
-`tools/archive/manual-smokes/llvm_smoke.sh`で以下の環境変数により制御：
+旧LLVM手動smokeは退役済み（実装はGit履歴参照）。以下は当時の環境変数であり、現行CIの実行方法ではありません：
 
 ```bash
 # 基本テスト（問題があるためデフォルトOFF）

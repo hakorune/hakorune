@@ -528,13 +528,13 @@ Safe first buckets:
     - `llvm.err`
     - `vm.err`
     - `boxbase_identity_consultation_bundle.zip`
-    - -> `tools/archive/root-hygiene/`
+    - 上記の旧root-hygiene bucketは退役済み。履歴はGitを参照。
 
 Rule:
 
 - root の非 allowlist 新規追加は禁止
-- 一時物は `tools/archive/root-hygiene/` or scratch
-- 履歴物は archive
+- 一時物は追跡外のscratchへ置く
+- 退役コード・ツールの履歴はGitを正本とする（docsのarchive方針は別）
 
 ### P1. `CURRENT_TASK.md` slim
 

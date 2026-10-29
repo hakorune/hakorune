@@ -11,7 +11,4 @@
    - `NYASH_LLVM_VINVOKE_SMOKE=1` → `VInvokeRc: 42`
    - `NYASH_LLVM_VINVOKE_RET_SMOKE=1` → `Result: 42`
 
-代表コマンド
-- `LLVM_SYS_180_PREFIX=$(llvm-config-18 --prefix) NYASH_LLVM_BITOPS_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release`
-- `NYASH_LLVM_VINVOKE_TRACE=1 NYASH_LLVM_VINVOKE_SMOKE=1 ./tools/archive/manual-smokes/llvm_smoke.sh release`
-
+旧LLVM手動smokeは退役済み。上記は2025年時点の調査記録です。現行の受け入れ・作業は `../main/CURRENT_STATE.toml` と選択app cardを参照してください。
