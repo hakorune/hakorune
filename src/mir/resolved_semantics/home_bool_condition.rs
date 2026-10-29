@@ -388,7 +388,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         }
         // A dynamic invocation result is a tagged value; comparing it with the
         // exact source null observes the tag only and takes no payload view.
-        if matches!(binary.operator(), Op::Equal | Op::NotEqual) {
+        if binary.operator() == Op::Equal {
             let result_null = [(left, right), (right, left)].into_iter().any(|(reference, null)| {
                 matches!(reference_proofs.get(&reference),
                     Some(CheckedExpressionReferenceV1::DynamicInvocationResult(_)))

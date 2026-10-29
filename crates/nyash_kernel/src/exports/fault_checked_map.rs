@@ -490,6 +490,7 @@ pub(super) unsafe fn delete(
             (out_ptr as usize, size_of::<OutcomeStorage>()),
         ])
         || !unsafe { valid_frame(frame) }
+        || store::check_indexed_profile(TypedObjectStoreBackend::SafeMutex).is_err()
     {
         return Status::InvalidContract as u32;
     }

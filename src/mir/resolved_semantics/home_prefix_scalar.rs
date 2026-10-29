@@ -397,6 +397,11 @@ impl PrefixLocalFlow<'_> {
                 _ => return None,
             }
         };
+        // A Bool read is produced by its Local initializer frame alone; rebinds
+        // and joins have no Bool producer law.
+        if kind == SourceScalarKind::Bool && !matches!(producer, CurrentScalarProducerV1::Initializer(_)) {
+            return None;
+        }
         Some((origin, producer))
     }
 }

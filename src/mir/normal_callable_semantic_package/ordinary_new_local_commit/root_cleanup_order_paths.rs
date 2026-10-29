@@ -199,7 +199,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         }
         other => {
             if crate::config::env::builder_debug_enabled() {
-                eprintln!("[TMP-BT] {}", std::backtrace::Backtrace::force_capture());
                 eprintln!("[ordered-path] block={id:?} expected={expected:?} frame={frame:?} found={other:?}");
             }
             Err(fault("ordered-path/operation"))
