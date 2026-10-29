@@ -352,6 +352,50 @@ static const char* hako_aot_link_pie_avoid_flag(void) {
 #endif
 }
 
+/* The system ld spends seconds re-reading the large runtime archive per link;
+ * mold links the same inputs in a fraction of that. Auto-select it only when it
+ * is installed; HAKO_AOT_FUSE_LD=default keeps the compiler default and
+ * HAKO_AOT_FUSE_LD=<name> picks that linker. A linker that fails fails the link. */
+static int hako_aot_exe_in_path(const char* name) {
+  const char* path = getenv("PATH");
+  if (!path || !*path) return 0;
+  char dir[1024];
+  while (*path) {
+    const char* end = strchr(path, ':');
+    size_t len = end ? (size_t)(end - path) : strlen(path);
+    if (len > 0 && len + strlen(name) + 2 < sizeof(dir)) {
+      memcpy(dir, path, len);
+      snprintf(dir + len, sizeof(dir) - len, "/%s", name);
+      if (access(dir, X_OK) == 0) return 1;
+    }
+    if (!end) break;
+    path = end + 1;
+  }
+  return 0;
+}
+
+static const char* hako_aot_link_driver_flags(void) {
+  static char flags[96];
+  static int ready = 0;
+  if (ready) return flags;
+  ready = 1;
+  const char* fuse = "";
+#if defined(__linux__)
+  const char* want = getenv("HAKO_AOT_FUSE_LD");
+  if (want && *want) {
+    int valid = strcmp(want, "default") != 0;
+    for (const char* c = want; valid && *c; c++)
+      if (!((*c >= 'a' && *c <= 'z') || (*c >= '0' && *c <= '9') || *c == '-' || *c == '_')) valid = 0;
+    if (valid) fuse = want;
+  } else if (hako_aot_exe_in_path("mold")) {
+    fuse = "mold";
+  }
+#endif
+  snprintf(flags, sizeof(flags), "%s%s%s", hako_aot_link_pie_avoid_flag(),
+      *fuse ? " -fuse-ld=" : "", fuse);
+  return flags;
+}
+
 static const char* hako_aot_link_gc_sections_flag(void) {
 #if defined(__linux__)
   return " -Wl,--gc-sections";
@@ -640,7 +684,7 @@ static int hako_aot_link_obj_with_archive(
           cmd,
           sizeof(cmd),
           linker,
-          hako_aot_link_pie_avoid_flag(),
+          hako_aot_link_driver_flags(),
           hako_aot_link_gc_sections_flag(),
           exe_path,
           obj_path,
