@@ -311,27 +311,6 @@ static int hako_physical_validate_terminal_edges(yyjson_val* terminal, yyjson_va
   return 0;
 }
 
-static int hako_physical_value_def_block(yyjson_val* function, uint32_t wanted, uint32_t* out) {
-  yyjson_val* params = yyjson_obj_get(function, "params"); yyjson_val* blocks = hako_physical_blocks(function); size_t i; int count = 0; uint32_t block = 0;
-  for (i = 0; params && i < hako_physical_formal_count(function); i++) { uint32_t value;
-    if (hako_physical_u32(hako_physical_formal_value(function, i), &value) && value == wanted) { count++; if (!hako_physical_u32(yyjson_obj_get(function, "entry"), &block)) return 0; }
-  }
-  yyjson_arr_iter block_iter = yyjson_arr_iter_with(blocks);
-  yyjson_val* item;
-  while ((item = yyjson_arr_iter_next(&block_iter))) {
-    uint32_t id;
-    if (!hako_physical_u32(yyjson_obj_get(item, "id"), &id)) return 0;
-    yyjson_arr_iter row_iter = yyjson_arr_iter_with(yyjson_obj_get(item, "instructions"));
-    yyjson_val* row;
-    while ((row = yyjson_arr_iter_next(&row_iter))) {
-      uint32_t value;
-      yyjson_val* dst = hako_physical_instruction_dst(yyjson_obj_get(row, "instruction"));
-      if (hako_physical_u32(dst, &value) && value == wanted) { count++; block = id; }
-    }
-  }
-  if (count != 1) return 0; if (out) *out = block; return 1;
-}
-
 /* Query-local geometry borrows the same function/edges; it issues no facts. */
 typedef struct { uint32_t id; yyjson_val* block; } hako_physical_dom_block;
 static int hako_physical_dom_block_compare(const void* left, const void* right) {
@@ -344,7 +323,104 @@ static hako_physical_dom_block* hako_physical_dom_find(
   hako_physical_dom_block key = {id, NULL};
   return bsearch(&key, blocks, count, sizeof(key), hako_physical_dom_block_compare);
 }
-static int hako_physical_block_dominates(yyjson_val* function, uint32_t def, uint32_t use) {
+/* Answers for ONE hako_physical_validate_function call, built once from the
+ * same yyjson function and freed when that call returns. Every answer equals
+ * the scanning helpers below; a shape they would refuse (bad ids, duplicate
+ * ids, missing entry) leaves it unbuilt, and those helpers then scan. */
+typedef struct { uint32_t value, block, row; int count, formal; } hako_physical_def_row;
+typedef struct {
+  yyjson_val* function; uint32_t entry; size_t count, entry_ordinal, def_count;
+  hako_physical_dom_block* blocks; hako_physical_def_row* defs;
+  size_t *succ_off, *succ; unsigned char* bad; /* bad: a malformed edge */
+  unsigned char** reach; /* per def ordinal (+1 for a non-block def), lazy */
+} hako_physical_geometry;
+#if defined(_MSC_VER)
+__declspec(thread) static hako_physical_geometry* hako_physical_geometry_current;
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+static _Thread_local hako_physical_geometry* hako_physical_geometry_current;
+#else
+static __thread hako_physical_geometry* hako_physical_geometry_current;
+#endif
+static hako_physical_geometry* hako_physical_geometry_for(yyjson_val* function) {
+  hako_physical_geometry* g = hako_physical_geometry_current;
+  return g && g->function == function ? g : NULL;
+}
+static int hako_physical_def_row_compare(const void* left, const void* right) {
+  uint32_t a = ((const hako_physical_def_row*)left)->value, b = ((const hako_physical_def_row*)right)->value;
+  return (a > b) - (a < b);
+}
+static void hako_physical_geometry_free(hako_physical_geometry* g) {
+  if (!g) return;
+  for (size_t i = 0; g->reach && i <= g->count; i++) free(g->reach[i]);
+  free(g->blocks); free(g->defs); free(g->succ_off); free(g->succ); free(g->bad); free(g->reach); free(g);
+}
+static hako_physical_geometry* hako_physical_geometry_build(yyjson_val* function) {
+  yyjson_val* blocks = hako_physical_blocks(function); yyjson_val* params = yyjson_obj_get(function, "params");
+  hako_physical_geometry* g = calloc(1, sizeof(*g)); size_t i, rows = 0, edges = 0, n = 0;
+  if (!g || !blocks || !yyjson_is_arr(blocks) || !(g->count = yyjson_arr_size(blocks)) ||
+      !hako_physical_u32(yyjson_obj_get(function, "entry"), &g->entry)) goto fail;
+  g->function = function;
+  for (i = 0; i < g->count; i++) { yyjson_val* block = yyjson_arr_get(blocks, i);
+    rows += yyjson_arr_size(yyjson_obj_get(block, "instructions")); edges += yyjson_arr_size(yyjson_obj_get(block, "edges")); }
+  rows += params ? hako_physical_formal_count(function) : 0;
+  if (!(g->blocks = calloc(g->count, sizeof(*g->blocks))) || !(g->defs = calloc(rows + 1, sizeof(*g->defs))) ||
+      !(g->succ_off = calloc(g->count + 1, sizeof(size_t))) || !(g->succ = calloc(edges + 1, sizeof(size_t))) ||
+      !(g->bad = calloc(g->count, 1)) || !(g->reach = calloc(g->count + 1, sizeof(*g->reach)))) goto fail;
+  for (i = 0; i < g->count; i++) { g->blocks[i].block = yyjson_arr_get(blocks, i);
+    if (!hako_physical_u32(yyjson_obj_get(g->blocks[i].block, "id"), &g->blocks[i].id)) goto fail; }
+  qsort(g->blocks, g->count, sizeof(*g->blocks), hako_physical_dom_block_compare);
+  for (i = 1; i < g->count; i++) if (g->blocks[i - 1].id == g->blocks[i].id) goto fail;
+  hako_physical_dom_block* first = hako_physical_dom_find(g->blocks, g->count, g->entry);
+  if (!first) goto fail;
+  g->entry_ordinal = (size_t)(first - g->blocks);
+  for (i = 0; params && i < hako_physical_formal_count(function); i++) { uint32_t value;
+    if (hako_physical_u32(hako_physical_formal_value(function, i), &value))
+      g->defs[n++] = (hako_physical_def_row){value, g->entry, 0, 1, 1}; }
+  edges = 0;
+  for (i = 0; i < g->count; i++) { yyjson_val* list = yyjson_obj_get(g->blocks[i].block, "instructions"); size_t r;
+    for (r = 0; r < yyjson_arr_size(list); r++) { uint32_t value;
+      if (hako_physical_u32(hako_physical_instruction_dst(yyjson_obj_get(yyjson_arr_get(list, r), "instruction")), &value))
+        g->defs[n++] = (hako_physical_def_row){value, g->blocks[i].id, (uint32_t)r, 1, 0}; }
+    yyjson_arr_iter iter = yyjson_arr_iter_with(yyjson_obj_get(g->blocks[i].block, "edges")); yyjson_val* edge;
+    g->succ_off[i] = edges;
+    while (!g->bad[i] && (edge = yyjson_arr_iter_next(&iter))) { uint32_t next; hako_physical_dom_block* to;
+      if (!hako_physical_u32(yyjson_obj_get(edge, "target"), &next) || !(to = hako_physical_dom_find(g->blocks, g->count, next))) g->bad[i] = 1;
+      else g->succ[edges++] = (size_t)(to - g->blocks); }
+    g->succ_off[i + 1] = edges; }
+  qsort(g->defs, n, sizeof(*g->defs), hako_physical_def_row_compare);
+  for (i = 0; i < n; i++) { /* one row per value; count keeps the duplicates */
+    if (g->def_count && g->defs[g->def_count - 1].value == g->defs[i].value) g->defs[g->def_count - 1].count++;
+    else g->defs[g->def_count++] = g->defs[i]; }
+  return g;
+fail:
+  hako_physical_geometry_free(g);
+  return NULL;
+}
+static const hako_physical_def_row* hako_physical_geometry_def(hako_physical_geometry* g, uint32_t value) {
+  hako_physical_def_row key = {value, 0, 0, 0, 0};
+  return bsearch(&key, g->defs, g->def_count, sizeof(key), hako_physical_def_row_compare);
+}
+/* Blocks the scan reaches from entry without expanding def; [count] marks a
+ * malformed edge on the way, which makes the scan refuse every use. */
+static int hako_physical_geometry_dominates(hako_physical_geometry* g, uint32_t def, uint32_t use, int* answered) {
+  hako_physical_dom_block* d = hako_physical_dom_find(g->blocks, g->count, def);
+  hako_physical_dom_block* u = hako_physical_dom_find(g->blocks, g->count, use);
+  size_t slot = d ? (size_t)(d - g->blocks) : g->count, head = 0, tail = 0, *queue;
+  unsigned char* seen = g->reach[slot];
+  *answered = 1;
+  if (def == use) return 1;
+  if (!seen) {
+    if (!(seen = calloc(g->count + 1, 1)) || !(queue = calloc(g->count, sizeof(size_t)))) { free(seen); *answered = 0; return 0; }
+    queue[tail++] = g->entry_ordinal; seen[g->entry_ordinal] = 1;
+    while (head < tail) { size_t at = queue[head++];
+      if (g->blocks[at].id == def) continue;
+      if (g->bad[at]) seen[g->count] = 1;
+      for (size_t e = g->succ_off[at]; e < g->succ_off[at + 1]; e++)
+        if (!seen[g->succ[e]]) { seen[g->succ[e]] = 1; queue[tail++] = g->succ[e]; } }
+    free(queue); g->reach[slot] = seen; }
+  return !seen[g->count] && !(u && seen[u - g->blocks]);
+}
+static int hako_physical_block_dominates_scan(yyjson_val* function, uint32_t def, uint32_t use) {
   yyjson_val* blocks = hako_physical_blocks(function);
   uint32_t entry;
   size_t count, head = 0, tail = 0;
@@ -401,6 +477,36 @@ done:
   return result;
 }
 
+static int hako_physical_value_def_block(yyjson_val* function, uint32_t wanted, uint32_t* out) {
+  hako_physical_geometry* g = hako_physical_geometry_for(function);
+  if (g) { const hako_physical_def_row* row = hako_physical_geometry_def(g, wanted);
+    if (!row || row->count != 1) return 0; if (out) *out = row->block; return 1; }
+  yyjson_val* params = yyjson_obj_get(function, "params"); yyjson_val* blocks = hako_physical_blocks(function); size_t i; int count = 0; uint32_t block = 0;
+  for (i = 0; params && i < hako_physical_formal_count(function); i++) { uint32_t value;
+    if (hako_physical_u32(hako_physical_formal_value(function, i), &value) && value == wanted) { count++; if (!hako_physical_u32(yyjson_obj_get(function, "entry"), &block)) return 0; }
+  }
+  yyjson_arr_iter block_iter = yyjson_arr_iter_with(blocks);
+  yyjson_val* item;
+  while ((item = yyjson_arr_iter_next(&block_iter))) {
+    uint32_t id;
+    if (!hako_physical_u32(yyjson_obj_get(item, "id"), &id)) return 0;
+    yyjson_arr_iter row_iter = yyjson_arr_iter_with(yyjson_obj_get(item, "instructions"));
+    yyjson_val* row;
+    while ((row = yyjson_arr_iter_next(&row_iter))) {
+      uint32_t value;
+      yyjson_val* dst = hako_physical_instruction_dst(yyjson_obj_get(row, "instruction"));
+      if (hako_physical_u32(dst, &value) && value == wanted) { count++; block = id; }
+    }
+  }
+  if (count != 1) return 0; if (out) *out = block; return 1;
+}
+
+static int hako_physical_block_dominates(yyjson_val* function, uint32_t def, uint32_t use) {
+  hako_physical_geometry* g = hako_physical_geometry_for(function); int answered = 0, result;
+  if (g && (result = hako_physical_geometry_dominates(g, def, use, &answered), answered)) return result;
+  return hako_physical_block_dominates_scan(function, def, use);
+}
+
 static int hako_physical_value_available_on_edge(yyjson_val* function, uint32_t value, uint32_t predecessor) {
   uint32_t def;
   return hako_physical_value_def_block(function, value, &def) && hako_physical_block_dominates(function, def, predecessor);
@@ -417,6 +523,11 @@ static int hako_physical_is_const_unit(yyjson_val* function, uint32_t value) {
 }
 
 static int hako_physical_value_available_at(yyjson_val* function, uint32_t value, uint32_t block_id, uint32_t index) {
+  hako_physical_geometry* g = hako_physical_geometry_for(function);
+  if (g) { const hako_physical_def_row* row = hako_physical_geometry_def(g, value);
+    if (!row || row->count != 1) return 0;
+    if (row->formal) return 1;
+    return row->block != block_id ? hako_physical_block_dominates(function, row->block, block_id) : row->row < index; }
   yyjson_val* block = hako_physical_block_by_id(function, block_id); yyjson_val* rows = block ? yyjson_obj_get(block, "instructions") : NULL;
   uint32_t def; size_t i;
   yyjson_val* params = yyjson_obj_get(function, "params");
@@ -631,7 +742,12 @@ static int hako_llvmc_validate_published_lifecycle_physical_v2_doc(yyjson_val* r
        !hako_physical_validate_layouts(layouts)))) return hako_physical_fail(err_out, "abi-layout");
   for (size_t i = 0; i < yyjson_arr_size(functions); i++) {
     yyjson_val* function = yyjson_arr_get(functions, i);
-    if (!hako_physical_validate_function(function, functions, layouts, i, native)) {
+    hako_physical_geometry* geometry = hako_physical_geometry_build(function);
+    hako_physical_geometry_current = geometry;
+    int valid = hako_physical_validate_function(function, functions, layouts, i, native);
+    hako_physical_geometry_current = NULL;
+    hako_physical_geometry_free(geometry);
+    if (!valid) {
       const char* name = yyjson_get_str(yyjson_obj_get(function, "name"));
       const char* role = yyjson_get_str(yyjson_obj_get(function, "role"));
       char message[320];
