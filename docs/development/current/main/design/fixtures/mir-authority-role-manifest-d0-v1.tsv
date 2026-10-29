@@ -87,7 +87,6 @@ src/mir/loop_recipe_contract	meaning	src/mir root census + module README	mir sem
 src/mir/loop_route_detection	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
 src/mir/loop_route_policy	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
 src/mir/loop_structural_facts	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
-src/mir/lowerers	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
 src/mir/map_repr_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
 src/mir/normal_callable_semantic_package	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
 src/mir/numeric_substrate	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)

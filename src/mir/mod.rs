@@ -212,7 +212,6 @@ pub(crate) mod strict_json_tree_backend_capability; // SnapshotV0 strict JSON tr
 pub(crate) mod type_contracts; // Language v1 annotation guarantee matrix/proof vocabulary
 pub mod types; // core MIR enums (ConstValue, Ops, MirType)
 pub mod utils; // Phase 15 control flow utilities for root treatment
-               // pub mod lowerers; // reserved: Stage-3 loop lowering (while/for-range)
 pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
 pub mod control_form;
 pub mod control_tree; // Phase 110: Structure-only SSOT (StepTree)
