@@ -14,10 +14,8 @@ categories = ["development-tools::parsing", "interpreters"]
 [features]
 default = ["cli", "plugins"]
 # Legacy features removed - archive cleaned up
-e2e = []
 cli = []
 plugins-only = []
-builtin-core = []
 builtin-filebox = []  # Enable built-in FileBox provider (SSOT)
 ## Silence check-cfg warnings for historical cfg guards (kept off by default)
 vm-legacy = []
@@ -31,7 +29,6 @@ jit-direct-only = []
 gui = ["dep:egui", "dep:eframe", "dep:egui_extras", "dep:image"]
 gui-examples = ["gui"]
 all-examples = ["gui-examples"]
-dynamic-file = []
 wasm-backend = ["dep:wasmtime", "dep:wabt", "dep:hakorune-backend-aot"]
 # TLV C shim wiring (default OFF): enables optional dependency `nyash-tlv`
 tlv-shim = ["dep:nyash-tlv"]
@@ -43,9 +40,6 @@ perf-observe = []
 # Test/perf-only wire issuer used to execute caller-zero pinned-Text artifacts.
 # Default builds and the production C ABI do not expose this surface.
 promotion-test-support = []
-# MIR instruction diet PoC flags (scaffolding only; off by default)
-mir_typeop_poc = []
-mir_refbarrier_unify_poc = []
 # Phase 29z P0: RC insertion pass opt-in (default OFF)
 rc-insertion-minimal = []
 # LLVM features split
@@ -92,12 +86,6 @@ doctest = false
 [[bin]]
 name = "nyash"
 path = "src/main.rs"
-
-# Test binary for multi-box plugin loader
-[[bin]]
-name = "test-plugin-loader-v2"
-path = "src/bin/test_plugin_loader_v2.rs"
-required-features = ["dynamic-file"]
 
 [[bin]]
 name = "ny_mir_builder"
