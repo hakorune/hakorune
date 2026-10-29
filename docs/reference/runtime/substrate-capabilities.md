@@ -339,8 +339,8 @@ Live operations:
   retry loop over the same pointer store/load/CAS route facts. It injects one
   competing push to force a CAS failure, then retries to publish the requested
   block. Production allocator policy remains future work.
-- `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` locks the
-  M20-M37 mimalloc allocator proof coverage as a closeout inventory guard.
+- The former M38 closeout inventory is retired into the M44 guard below;
+  the M20-M37 executable proof checks remain in the allocator family steps.
 - `tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh` locks
   the M20-M43 substrate proof coverage before production allocator port work.
 

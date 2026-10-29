@@ -39,6 +39,13 @@ require_file "$CARD"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$REAL_APP_TASKBOARD"
+# The public entry dispatches readable scripts through bash; family includes
+# are the execution inventory, not copies of their names in dev_gate.sh.
+require_text "$DEV_GATE" 'bash tools/checks/k2_wide_allocator_gate.sh'
+expanded_steps="$(bash tools/checks/k2_wide_allocator_gate.sh --list)"
+require_step() {
+  grep -Fqx -- "  - $1" <<<"$expanded_steps" || fail "missing allocator step: $1"
+}
 
 required_apps=(
   "apps/mimalloc-raw-page-proof"
@@ -96,14 +103,11 @@ done
 for guard in "${required_guards[@]}"; do
   require_file "$guard"
   require_text "$INDEX" "$guard"
-  require_text "$DEV_GATE" "$guard"
+  require_step "$guard"
 done
 
-require_file "tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh"
-require_text "$INDEX" "tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh"
-require_text "$DEV_GATE" "tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh"
 require_text "$INDEX" "tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh"
-require_text "$DEV_GATE" "tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh"
+require_step "tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh"
 
 require_text "$TASKBOARD" '| `M44 mimalloc allocator substrate closeout guard` | `live-narrow` |'
 require_text "$CARD" "M44 Mimalloc Allocator Substrate Closeout Guard"

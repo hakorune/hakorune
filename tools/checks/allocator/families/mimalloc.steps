@@ -26,7 +26,6 @@ tools/checks/k2_wide_pointer_atomic_vocab_guard.sh
 tools/checks/k2_wide_mimalloc_ptr_atomic_store_exe_guard.sh
 tools/checks/k2_wide_mimalloc_tls_ptr_remote_free_exe_guard.sh
 tools/checks/k2_wide_mimalloc_remote_free_policy_exe_guard.sh
-tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh
 tools/checks/k2_wide_mimalloc_ptr_atomic_load_exe_guard.sh
 tools/checks/k2_wide_mimalloc_ptr_atomic_cas_exe_guard.sh
 tools/checks/k2_wide_mimalloc_ptr_remote_free_list_exe_guard.sh

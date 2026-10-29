@@ -7,7 +7,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 ## 現在地
 - `boxtorrent_mini_exe` が PASS（期待出力13行＋`Result: 0`、exit 0）。固定 `real-apps-exe-boundary` は**11/11 PASS**（当初5分50秒、現在1分35秒）（2026-10-30、`target/quick/hakorune`=`cargo quick-build --bin hakorune` の最適化版＋同`target/quick` runtime、`tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420`）。実EXE10本＋空marker1本、SKIP/timeoutなし。（最適化後の値は残件1）
 - 共有Rust検証: `ordinary_new`/`resolved_semantics`/`loop_recipe` は変更前と同じ 失敗84/1/21（成功640/375/245）。JSON appは `json_stream_aggregator_exe_runtime_boundary` smoke PASS（検証はEXE経路。VMはactive laneとして撤退済みで検証対象外）。
-- 所有モデルの次段を2026-10-30に決定: 仕様は[ownership.md §0](../../../../reference/language/ownership.md)、順序は[ADR-002](../../../adr/adr-002-explicit-ownership-and-compiler-migration.md)の移行表（切替はselfhostより前、それまで既存アプリの意味は不変）。最初の実装候補は`move x`の受理＋移転後使用の拒否とShared型の追加。maintainerは今回レガシー退役(1)(2)を選択。残るparked workload/唯一の安全guardの削除は保持契約と代替検証の判断待ちで、所有step 1へ自動切替しない。
+- 所有モデルの次段を2026-10-30に決定: 仕様は[ownership.md §0](../../../../reference/language/ownership.md)、順序は[ADR-002](../../../adr/adr-002-explicit-ownership-and-compiler-migration.md)の移行表（切替はselfhostより前、それまで既存アプリの意味は不変）。最初の実装候補は`move x`の受理＋移転後使用の拒否とShared型の追加。maintainerは今回レガシー退役(1)(2)を選択。promotion workloadの保持境界を既存gate cardに固定。残る独立した安全guardを保持し、所有step 1へ自動切替しない。
 
 ## この着地の内容（共有ownerへの追加と理由）
 - `{Text,null}`静的callを`DynamicCarrier`/`ordinary_nullable_text`で運ぶ。native: kernel `checked_publish_text_or_null_v1`/`checked_is_null_v1`、Text比較のcarrier operand、C shimの返却/呼出し/null比較/Return。理由: 返却Textがnullを取り得る`readData`/`get`を実EXEで動かすため。
@@ -24,6 +24,8 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- レガシー退役(2b): worker3件＋主担当のcaller再照合により、旧性能ablation3 app・3 guard・2解析toolを退役（安全検証の等価統合ではない）。promotion gate cardに実object-lifecycle workload/8192回・比較runner・remote/mixed/huge・安全性chainの保持境界を記録。Rust直接fixture3本と旧report readerは保持。
+- レガシー退役(2c): M38集約をM44へ統合し、15件が20件の部分集合であること、matcher/pointer-atomic禁止の不変を確認。再帰step照合を現ownerに直しM44 PASS、必須step欠落を拒否。他95 stepは順序も不変。manifest dry-run74/212行PASS、public guard1559（下限300不変）。同じ最適化CLI/runtimeでsuite11/11・92.58秒、実EXE10＋空marker・SKIP/timeoutなし。Rust/C/runtime変更なし、Cargo再実行なし。docs-slim024は実行bit要求の既存赤が前後同一。
 - 退役着地検証: `cargo quick-build --bin hakorune`28.53秒PASS、`cargo check --profile quick --features llvmlite-compat --lib`PASS、削除featureのcfg残存0・unexpected_cfgs警告0。固定suite11/11（98.71秒、実EXE10＋空marker、SKIP/timeoutなし）、cohortの失敗名不変。旧guard inventoryの未登録44件は前後同一、naming既存赤は未変更。
 - レガシー退役(2): caller-zeroを再確認した歴史的状態/記録だけのguard2本（149行）を退役、入力workloadは保持。public k2 wideは1565→1563で下限300を維持。166候補の一部は実callerがあり、残りの実行/MIR/Fault/lifecycle・parked workload guardとRust直接fixture3本は保持。
 - レガシー退役(1b): 未接続Rust6 filesと孤立plugin-loader bin（src合計1082行、非test882行）、空feature5件を削除。cohortは失敗84/1/21・成功640/375/245、失敗名も前後一致。旧LLVM/JIT・plugins-only/aot-plan-importは現役callerがあり保持。extern_box/LAYER_GUARDは既存manifest未同期の再生成が約2万行を巻き込むため保持し、手編集なし。

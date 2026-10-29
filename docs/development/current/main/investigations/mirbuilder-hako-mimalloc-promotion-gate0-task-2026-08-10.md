@@ -51,6 +51,13 @@ It must close before `HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0` or any broader
    mimalloc-specific lowering branch, `.hako` workaround, legacy route, or
    silent fallback.
 
+## Retention boundary during legacy retirement (2026-10-30)
+
+- Keep the existing measured front: `tools/allocator/hako_mimalloc_direct_exact_pair.sh` and its default `apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako`, workload `representative-object-lifecycle-small-block-v0`, in-process repeat8192 / outer repeat1. Keep its direct-exact environment, Hako/C runners, C source, timing adapter and transitive `.hako` dependencies. This identifies the retained comparison front, not a new keeper or promotion PASS; execution still pins revision, matched C and the pre-cutover artifact.
+- Keep the full small-block input, remote-free local/publish/collect/cycle benchmark inputs, mixed-small and huge-ish EXE workloads and their live guards. Observer-light omits publication and cannot replace the full workload.
+- Keep the memory/atomic/provider/Fault/lifecycle checks reached from `tools/checks/dev_gate.sh allocator-wide` through the recursive family `.steps`. Retiring a duplicate inventory wrapper must preserve its substantive checks in the surviving owner; fixed compiler suite PASS is not allocator-wide PASS.
+- Loop-shell/reset-only/reset-alloc-only ablation apps and their synthetic timing-report guards/analyzers have no production caller and are retired together. Their intermediate state assertions belong to that discarded diagnostic experiment; no equivalence with full-workload safety coverage is claimed. Historical reports and readers remain in Git/current reader tools respectively.
+
 ## Admission criteria
 
 ```text
