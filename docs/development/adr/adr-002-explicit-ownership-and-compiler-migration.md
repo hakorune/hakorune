@@ -1,7 +1,7 @@
 # ADR-002: 明示する所有操作と共通ownership passへの移行
 
-Status: 設計方向を採用。意味契約の一部と新構文・全面切替の実装は未選択。
-Date: 2026-10-24
+Status: 設計方向を採用。2026-10-30に表面契約を決定（[ownership.md §0](../../reference/language/ownership.md)）。実装・切替は未着手。
+Date: 2026-10-30
 Scope: 次期所有モデルの判断・未決点・移行タスクをここへ集約する。
 
 現在の言語意味論は[ownership.md](../../reference/language/ownership.md)、
@@ -16,10 +16,14 @@ Array carrier格納はownership.mdの独立した採用済みtargetとして先�
 全Boxへの暗黙RC、最終使用位置による暗黙move、推論失敗時のDynamic化は採用しない。
 
 1. `=` は右辺の結果を左辺へ格納する。
-2. 所有値を手放す操作は `move`、値の複製は `copy`、同じ対象の共有は `share`。
-3. 新しい所有値を返す式は直接渡せる。数値・Boolは暗黙コピー。
-4. 引数は既定 `read`。変更を許す引数は `mut`、所有権を受け取る引数は `take`。
-5. `return`は所有結果を呼出し元へ渡すのでmove不要。借用値は返さない。
+2. 所有値を手放す操作は `move`。複製はcopy契約を宣言した型だけ（`copy x`を`.copy()`へ綴り替えるかは保留）。
+   共有は `Shared(move x)` / `Shared(新しい値)` で作る。`share x`前置形と`.share()`は作らない。
+3. 新しい所有値を返す式は直接渡せる（`cache.put(Image.load(p))`）。数値・Bool・Shared handleは暗黙コピーの値カテゴリで、サイズでは決めない。
+   Shared handleをtake引数へ渡すとhandleが一つ増え、`move shared`は増やさず移す。Sharedは当面読み取り専用で、共有変更とthread越えは別契約。
+4. 引数は既定 `read`（書かない）。`mut` と `take` は定義側で宣言する。receiverのread/mut借用も宣言から決まり、呼出し側に書かない。
+   receiverの消費だけ呼出し側で明示する（`(move image).into_bytes()`）。
+5. `return`は所有ローカル全体と新しい所有値に限りmove不要。借用値は、定義側で支持元を宣言した
+   `from me` / `from <引数>` の結果だけ返せる（2026-10-30改訂。制約はownership.md §0）。
    その他の場所では最終使用でもmoveを明記し、ブロック末尾やbreakにも省略を広げない。
 6. 部分moveは禁止し、要素を取り出す操作は契約を持つ `remove` / `replace` に限定する。
 
@@ -30,11 +34,11 @@ local q = move p
 local r = copy q
 arr.push(move r)
 arr.push(Point(1, 2))
-translate(mut q, 10)
+translate(q, 10)        // mutは定義側。呼出し側の印は未決（案: 書かない）
 return q
 ```
 
-裸の `local b = a` は、所有値なら暗黙alias/move/copyにせず診断する方向。
+裸の `local b = a` は、所有値なら暗黙alias/move/copyにせず診断する方向。field読み `local x = me.field` は注釈なしの `from me` 読み借用で、借用結果と同じ検査器が扱う。
 `return q`の省略は所有可能なローカル全体に限り、借用引数やfieldからの部分moveを許可しない。
 明示Dynamicは独立した契約として残す。静的検査を基本にすることと、Dynamicの禁止は別である。
 
@@ -43,13 +47,13 @@ return q
 | 項目 | 決めること |
 | --- | --- |
 | record / box | recordの値意味論とboxのidentityを区別。Boxまで一律MVSへ変える決定はしない。 |
-| copy | 複製可能な型、Boxの新identity、入れ子の所有値・Shared・弱参照・失敗時の扱い。 |
-| share / mut | Sharedの変更手段と同期、read/mutの排他区間、再入・FFI・suspendとの関係。shareだけでは安全性を発行しない。 |
-| 構文と借用 | 宣言側read/mut/takeと呼出し側の表記、受け側takeとmove実引数の照合、借用を保存できる場所。 |
+| copy | 決定: copy契約を宣言した型だけ。残り: Boxの新identity、入れ子の所有値・Shared・弱参照・失敗時の扱い、`.copy()`への綴り。 |
+| Shared / mut | 決定: Sharedは当面読み取り専用。残り: 共有変更の手段と同期、thread越え（atomic RCは中身のthread安全を意味しない）、read/mutの排他区間、再入・FFI・suspendとの関係。Sharedだけでは安全性を発行しない。 |
+| 構文と借用 | 決定: 宣言側read（省略）/mut/take、呼出し側は所有を失う所だけ`move`、借用結果は`from`宣言付きでlocal・分岐・read引数まで（field/global保存・escape closure・保持FFI・suspend越えは不可）。未決: 通常引数の呼出し側`mut`印（案: 書かない）、§3のcomposite anchored resultsとfield保存制限の関係。 |
 | Dynamic carrierのread | 生存中の`SelfContainedDynamicCarrier`を通常callableの`read`入力へ渡す時、callerがcarrierを保持してcall終了後に一度だけEndし、calleeは保持・escape・returnしない。`take`/`share`や追加ownerを発行しない。このsource/ABI/lifecycle接続を明示して検証する。 |
 | 型検査 | 推論対象・注釈必須境界・明示Dynamic・診断時点。未解決型を暗黙Dynamicにしない。 |
-| 再代入と失敗 | RHSを評価して成功後にcommit、旧値のEnd。moveの消費時点、copy失敗、Fault時の責任を各辺で保持。 |
-| 既存互換 | alias、destination-demand移転、anchored borrowed returnを置換する範囲と一回の切替条件。 |
+| 再代入と失敗 | RHSを評価して成功後にcommit、旧値のEnd。moveの消費時点、copy失敗、Fault時の責任を各辺で保持。 未決: take実引数の後の引数評価がFaultした時（案: 所有はcallerに残り、既存Normal/Fault cleanup規則に従う）。 |
+| 既存互換 | 決定（案A）: 通常Boxの意味（現行SharedV1）は切替まで変えず、切替はselfhostコードを書く前に一度だけ。切替seriesで「take引数へ`move`なしで所有Boxを渡す」をエラーにし、固定suite 11アプリの該当箇所（container格納 約6箇所、bare alias行 上限17）を同seriesで直して11/11を保つ。新旧間のsilent fallbackなし。anchored borrowed returnは`from`結果へ置換。 |
 | MIRを使う比較 | 挙動不変の整理では旧MIRを診断資料として比較する。所有規則自体を変える移行では採用済みの新source契約と明示migration例を正解とし、旧MIRの挙動を規範にしない。 |
 
 既存Mapの削除はBool結果である。上のremove/replace方針から、既存APIを所有値返却へ
@@ -85,12 +89,11 @@ LLVM noaliasはmutの綴りから発行せず、実際の排他区間と到達�
 
 | 順 | 選択・作業 | 完了証拠と置換対象 |
 | --- | --- | --- |
-| 現在 | CURRENT_STATEが選択する受け入れアプリのsource・ABI・lifecycle接続を完了 | 既存EXE smokeの全契約と出力/exit。新所有構文へ入力を書換えない。 |
-| 準備 | 既存record/box契約を参照し、copy対象の未決境界を紙上移行で確定 | 数値record、所有payload付きrecord、identity BoxとArray/Mapの少数例で、新identity・入れ子所有・Shared/Weak・失敗時責任を比較。copyの意味を決める前に単なる語数で評価しない。 |
-| 1 | 代表recordのmove/returnをsource→ownership検査→End→EXEへ接続 | 移転後使用とborrowed returnを拒否。同じ入力で既存SSAを本番consumerへ接続し、未接続passを作らない。置換した同一source専用edgeは検証後同seriesで退役。 |
-| 2 | 同じ型のcopyとread/mut/take callをEXEまで接続 | copy後の独立性、mut競合拒否、takeの消費時点、Normal/Faultの責任。Dynamic carrierのreadはcallerがEnd責任を維持し、calleeへownerを渡さない。旧の同一source/ABI専用adapterを切替と同じseriesで退役。 |
-| 3 | 同じ所有型のEndを分岐/loop/再代入/Invokeへ拡張 | Return/Faultでの終了順と一度だけの消費。必要時だけdrop flag。意味が一致しcaller-zeroとなった専有HomeRelease等だけ削除。 |
-| 後続 | Box/container/Sharedへ同じ契約を広げる | 型別identity・slot commit・read支持・Endを各既存ownerで閉じる。未選択機能を現行finite goalへ追加しない。 |
+| 済 | 2026-10-30の決定をownership.md §0とこのADRへ記録 | docsのみ。コンパイル速度（Text End台帳の`SourceLoopCleanupPlanV2`統合、サイトの整数ID化）は別に続ける。 |
+| 1 | `move x`の受理と移転後使用の拒否、Shared型の追加 | 既存アプリの入力・挙動は不変。同じ入力で既存SSAを本番consumerへ接続し、未接続passを作らない。 |
+| 2 | 一つのpayload型をsource→ownership検査→End→EXEまで直接メモリ配置で接続（fieldはruntime object-store呼出しでなくload/store） | 規模を上げたbinary-treesのbenchmarkで測定。copy後の独立性、mut競合拒否、takeの消費時点、Normal/Faultの責任、宣言なしborrowed returnの拒否。copyの残る境界はこの型で紙上移行して確定。Dynamic carrierのreadはcallerがEnd責任を維持。置換した同一source/ABI専用edge・adapterは同seriesで退役。 |
+| 3 | 切替（selfhostコードより前） | 上の「既存互換」の条件。Endの分岐/loop/再代入/Invokeへの拡張（終了順、一度だけの消費、必要時だけdrop flag、caller-zeroの専有HomeRelease等だけ削除）は切替までに閉じる。 |
+| 後続 | selfhostは明示moveで書く。Box/container/Sharedへ同じ契約を広げる | 型別identity・slot commit・read支持・Endを各既存ownerで閉じる。未選択機能を現行finite goalへ追加しない。 |
 
 数値のみのPointがTrivialなら、それだけでは所有移転やEndの証拠にならない。Trivial分類を
 確定し、構文/value copyのcanaryと所有payloadを持つ代表入力を区別する。
@@ -110,6 +113,6 @@ fixture専用の固定キー・定数制約とproductionの制約を区別して
 
 ## 不採用と理由
 
-暗黙copy/move、最終使用での省略、全Boxの暗黙RCは、局所的な意味とコストを曖昧にする。
+暗黙copy/move、最終使用での省略、全Boxの暗黙RCは、局所的な意味とコストを曖昧にする。`share x`前置形、`.share()`、サイズで決める暗黙copy、本体からの借用結果推論も同じ理由で採用しない。
 source `copy`を既存CopyOwnedへ単純対応させる案は、値の複製と共有を混同する。
 毎stopのfixture/ADR作成や時間だけでの保留は採用せず、現行の1アプリ単位のRULESを維持する。

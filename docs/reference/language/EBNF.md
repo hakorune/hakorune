@@ -80,12 +80,14 @@ Ownership grammar status (2026-08-04):
 - The parked order is
   `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
   Support status is reported by `stage-profiles.md`.
+- Successor (ownership.md §0, decided 2026-10-30): `Shared(...)` replaces the
+  `share` target and `move x` is added; their rows land with ADR-002 step 1.
 
 Accepted ownership grammar and implementation status:
 
 ```ebnf
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
-target_share_expr    := IDENT("share") HTRIVIA non_group_postfix_expr
+target_share_expr    := IDENT("share") HTRIVIA non_group_postfix_expr  (* superseded 2026-10-30 by Shared(...); do not implement *)
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)
 explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_list? ')'
 ```

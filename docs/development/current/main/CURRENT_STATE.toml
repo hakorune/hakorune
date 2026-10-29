@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "none: APP-boxtorrent-mini acceptance reached (fixed suite 11/11); next is the compile-time optimization phase, then the maintainer selects the next APP"
+current_blocker_token = "none: APP-boxtorrent-mini acceptance reached (fixed suite 11/11); ownership successor decided (ownership.md §0, ADR-002 order); maintainer selects next: ownership step 1, legacy retirement, or compile speed"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,9 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini: boxtorrent_mini_exe PASS; fixed real-apps-exe-boundary 11/11 (optimized target/quick/hakorune, 5m50s), no SKIP/timeout.
+APP-boxtorrent-mini: boxtorrent_mini_exe PASS; fixed real-apps-exe-boundary 11/11 (optimized target/quick/hakorune, now 1m35), no SKIP/timeout.
 Landed: nullable-Text carrier, Text+Bool, loop-carrier End/replacement order across Rust+C verifiers, Map-element receiver, scalar-leaf call interval.
-Optimization phase part 2 done: boxtorrent compile 140s -> 34s, tiny apps 11s -> 2.3s, fixed suite 1m37 (reused corroboration, mold, Rc site paths); next ideas need design (see app card).
+Optimization part 2 done: boxtorrent compile 140s -> ~32s, tiny apps 11s -> 2.3s (reused corroboration, mold, Rc site paths, C v2 index); next speed ideas need design.
+Ownership successor decided 2026-10-30 (ownership.md §0; ADR-002 order; cutover before selfhost, apps unchanged until then).
 Open: files over 800 lines are listed in the app card; VM is retired and is not a verification route.
 """
 next_design_card = "none"

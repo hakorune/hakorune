@@ -1,21 +1,22 @@
 # Ownership and Home Flow (SSOT)
 
-Status: Language semantics SSOT; Home direction and bounded take/share/release
-target accepted; `release root` parser/source carriage live, Home semantics 0
+Status: Language semantics SSOT; Home direction and bounded take/release
+target accepted; `release root` parser/source carriage live, Home semantics 0;
+successor surface (§0) decided, production 0
 
 Decision: accepted on 2026-08-04 as the successor to the earlier
 `move/share/view` target; C′ terminal Home finalization and contextual
 whole-root `release root` amendments accepted on 2026-08-05; bounded
-take/share contextual syntax accepted on 2026-08-09.
+take/share contextual syntax accepted on 2026-08-09; successor surface (§0)
+decided on 2026-10-30, superseding the contextual `share` target.
 
 This page is the source-language authority for ownership, ordinary aliases,
 Home transfer, and the explicit boundary that adds an independent owner.
 
-Successor design direction (2026-10-23):
+Successor surface (decided 2026-10-30): §0 is the next-model specification;
 [ADR-002](../../development/adr/adr-002-explicit-ownership-and-compiler-migration.md)
-records explicit `move`/`copy`/`share` and `read`/`mut`/`take` as a proposed
-replacement surface. Its implementation is unselected; until an explicit
-cutover, the existing source rules below remain in force. The separately
+owns its rationale, staging and task order. It is not implemented; until the
+cutover in §10, the existing source rules below remain in force. The separately
 accepted Array carrier destination amendment below applies now as a target.
 
 Related authorities:
@@ -35,8 +36,9 @@ Related authorities:
   parked decision and implementation order.
 
 The old sparse ownership, Anchored View, and grammar inventory cards remain
-historical evidence only. They do not restore `move`, source `view`, source
-`owned/shared` modes, or a second production ownership authority.
+historical evidence only. They do not restore source `view`, source
+`owned/shared` modes, or a second production ownership authority; the
+successor `move` (§0) is its own decision, not a revival of those cards.
 
 ## Availability
 
@@ -46,7 +48,7 @@ historical evidence only. They do not restore `move`, source `view`, source
 | C′ last-Home finalization direction | accepted target; production 0 |
 | explicit `release root` direction | parser/source carrier live; Home semantics 0 |
 | generic/composite release | provisional; exact capability D0 open |
-| bounded HomeV1 source grammar | `release root` live; `take`/`share` inactive |
+| bounded HomeV1 source grammar | `release root` live; `take` inactive; `share` prefix superseded (§0) |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | inactive / absent |
 | resolver Home-demand/root and Home Flow | inactive / absent |
@@ -54,12 +56,62 @@ historical evidence only. They do not restore `move`, source `view`, source
 | canonical Builder/source producers | 0 |
 | passive Ownership SSA / ownership opcodes | existing narrow infrastructure only |
 | current ordinary Box assignment | transitional SharedV1 behavior |
+| successor surface (§0) | decided 2026-10-30; parser/production 0; SharedV1 stays until the §10 cutover |
 
 The live `EBNF.md` and grammar registry remain syntax authority. Only
 `release root` currently has a Rust/Hako parser and parser-owned source row;
 the other examples remain targets. Parser acceptance does not issue Home
 meaning. Unsupported lookalikes fail fast until their exact shared grammar row
 lands.
+
+## 0. Successor surface (decided 2026-10-30; production 0)
+
+Next-model specification agreed with the maintainer on 2026-10-30. Nothing
+here is parser-live or implemented; behavior changes only at the §10 cutover.
+Sections 1-11 keep the current/HomeV1 text. The contextual `share x` target is
+superseded now: text below that uses it describes a target that will not land.
+
+1. Move: an owned binding gives up ownership only through explicit `move x`;
+   there is no implicit last-use move. `return` of a whole owned local or of a
+   fresh owned value needs no `move`, and a fresh value passes directly
+   (`cache.put(Image.load(p))`). Use after move is a compile error.
+2. Parameters and receivers: `read` is the default and is not written; `mut`
+   and `take` are declared at the definition. A receiver's read/mut borrow
+   follows the method declaration and is not written at the call. Consuming a
+   receiver is explicit at the call: `(move image).into_bytes()`.
+3. Shared: `Shared(move x)` wraps an owned value and consumes `x`;
+   `Shared(expr)` wraps a fresh value. A Shared handle is an implicitly
+   duplicable value category, like numbers: passing it to a `take` parameter
+   adds one handle without a marker; `move shared` transfers without adding
+   one. There is no `.share()` method. Contents are read through the handle
+   (`shared.width()`). Shared starts read-only; shared mutation and thread
+   crossing need a later separate contract (an atomic count does not make the
+   contents thread-safe). At cutover this amends durable law 5: sharing starts
+   only at an explicit `Shared(...)`.
+4. Borrowed results: a result may be borrowed only with a declared support,
+   `: T from me` or `: T from <param>`; it is never inferred from the body.
+   The body must satisfy the declared relation. While the borrow is live, no
+   mutation may invalidate its support or slot. The support is never a local
+   that dies in the callee. The borrow is not stored into a field or global,
+   captured by an escaping closure, retained by FFI, or carried across a
+   suspend. The caller may keep it in a local, use it across branches (not
+   limited to one basic block), and pass it to a `read` parameter.
+5. Field read: `local x = me.field` is an implicit `from me` read borrow,
+   checked by the same checker as rule 4; it needs no annotation.
+6. Copy: only a type with a declared copy contract can be copied. Implicit
+   copy follows the specified value category (numbers, Bool, Shared handle),
+   never the value's size. Respelling `copy x` as `.copy()` is deferred.
+
+Open, with the current proposal:
+
+- call-site marker for `mut` arguments: the caller writes only `move`, so only
+  lost ownership is marked;
+- a `take` argument when a later argument evaluation faults: ownership stays
+  with the caller under the existing Normal/Fault cleanup rule;
+- the accepted composite anchored results of §3 (2026-10-07: a fresh outer
+  holding a child field borrowed from a formal) conflict with rule 4's
+  no-field-store limit; they stay in force until the cutover decides whether
+  they become a declared `from` contract or retire.
 
 ## 1. Thirty-second rule
 
@@ -72,7 +124,7 @@ local alias = node       // alias only sees node's object; no new owner
 
 inspect(node)            // ordinary handle input; node keeps its Home
 adopt(node)              // if adopt declares a Home demand, node is consumed
-adopt(share node)        // when the ABI admits a Shared Home; node remains
+adopt(share node)        // superseded target; successor: Shared(move node), §0
 release node             // end node's verified whole-root Home now
 ```
 
@@ -493,14 +545,12 @@ getRoot(): Node {
     return me.root          // handle supported by receiver Home
 }
 
-getIndependent(): Node {
-    return share me.root    // independent owner, when share is verified
-}
+// the former `return share me.root` target is superseded by §0 rule 3
 ```
 
 ClosedCallable bodies may infer a candidate result relation and verify it
-locally. A ContractBoundary must state the exact relation. The candidate
-borrowed result spelling is:
+locally. A ContractBoundary must state the exact relation. In the successor
+(§0 rule 4) a borrowed result is never inferred; it declares its support:
 
 ```hako
 getRoot(): Node from me
@@ -592,31 +642,17 @@ or constructor Fault. This adds no `take`/`share` syntax or implicit RC.
 
 ### Independent owner
 
-`share` is the only ordinary source operation that may add another owner for
-the same identity:
+An explicit source operation is the only way to add another owner for the
+same identity. The exact physical operation depends on a verified
+representation plan. It may be RC/control-cell work, another Shared
+mechanism, or a rejected route. No runtime tag or observed reference count
+selects it.
 
-```hako
-registry.adopt(share service) // only when its ABI admits the Shared result
-use(service)
-```
-
-The exact physical operation depends on a verified representation plan. It
-may be RC/control-cell work, another Shared mechanism, or a rejected route.
-No runtime tag or observed reference count selects it.
-
-Contextual ownership `share` is a prefix over one non-group postfix operand.
-Postfix binds inside the request and infix operators bind outside it:
-
-```text
-share obj.field() = Share(MethodCall(obj, field))
-share obj + y     = Add(Share(obj), y)
-```
-
-`adopt(share node)` is ordinary call composition, not a second ownership
-grammar. `share(...)` and `share (expr)` are permanently ordinary function
-calls; a future grouped ownership form must choose another spelling. The
-contextual head does not cross a line terminator. `share`, `obj.share()`, and
-bindings named `share` remain ordinary outside the exact prefix position.
+Superseded target (2026-10-30): the contextual prefix `share x`, including
+`adopt(share node)` and `registry.adopt(share service)`, never became
+parser-live and is replaced by `Shared(move x)` / `Shared(expr)` (§0 rule 3).
+Do not implement the prefix. `share`, `share(...)`, `obj.share()` and bindings
+named `share` stay ordinary; the successor adds no `.share()` method.
 
 ### Explicit early Home release
 
@@ -1005,9 +1041,10 @@ birth work. The grammar alone is not a performance claim. Representation
 selection remains downstream of semantic Home verification and must be judged
 by the repository perf/assembly method.
 
-The exact Shared representation is unresolved. A nominal `shared box` and
-per-instance promotion are alternatives to be decided by
-`OWN-HOME-REPRESENTATION-D0`; neither is accepted by this page.
+The successor source surface is the explicit `Shared` value (§0 rule 3).
+Its physical representation (RC/control cell, same-thread versus
+cross-thread) remains `OWN-HOME-REPRESENTATION-D0`; whether a nominal
+`shared box` is still needed is left to that D0.
 
 ## 10. Compatibility profile
 
@@ -1024,6 +1061,13 @@ Migration laws:
    bridges, fallback attempts, and source users have exact zero/parked counts.
 
 The manifest/edition spelling for profile selection remains a separate D0.
+
+Successor cutover (decided 2026-10-30): ordinary Box semantics stay
+transitional SharedV1 until one cutover series, which lands before selfhost
+code is written. That series makes passing an owned Box to a `take` parameter
+without `move` an error and fixes the affected fixed-suite call sites, so
+`real-apps-exe-boundary` stays 11/11. Old and new behavior never fall back to
+each other. Staging lives in ADR-002.
 
 ## 11. Diagnostics
 
