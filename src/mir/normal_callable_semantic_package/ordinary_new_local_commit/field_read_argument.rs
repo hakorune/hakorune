@@ -261,6 +261,18 @@ fn validate_map_completion_effects_v1(
         view.ledger.with_finished_projection(owner, |symbol, _| {
             if symbol != target.mir_symbol_projection() { return Err(freeze("field-argument/source-missing")); }
             let function = module.functions.get(symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;
+            let origins = crate::mir::value_origin::AcyclicUnanimousValueOrigins::new(function);
+            let me_value = function.params.first().copied();
+            let mut field_reads: std::collections::BTreeMap<
+                crate::mir::ValueId,
+                (crate::mir::ValueId, hakorune_mir_defs::CanonicalFieldRefV1),
+            > = std::collections::BTreeMap::new();
+            for instruction in function.blocks.values().flat_map(|block| block.all_instructions()) {
+                if let MirInstruction::ObjectFieldGet { dst, base, field, .. } = instruction {
+                    field_reads.insert(*dst, (*base, *field));
+                }
+            }
+            let box_name = symbol.split('.').next().unwrap_or("");
             for (block, body) in &function.blocks {
                 for (index, instruction) in body.all_instructions().enumerate() {
                     let allowed = match instruction {
@@ -277,6 +289,42 @@ fn validate_map_completion_effects_v1(
                                     | crate::mir::instruction::FieldSetModeV1::DynamicI64Replace)
                                 && module.canonical_field_definition(*field).and_then(|field| field.declared_type_name.as_deref())
                                     .is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name),
+                        // A Set on an integer-array field of this same `me`: the
+                        // field census owns the all-writer integer proof, the origin
+                        // owns the receiver, and the numeric facts own index/value.
+                        MirInstruction::ArrayElementWrite {
+                            kind: crate::mir::ArrayElementWriteKind::Set,
+                            producer: crate::mir::ArrayWriteProducerKind::MethodCall,
+                            receiver,
+                            index: Some(index),
+                            value,
+                            ..
+                        } => {
+                            let numeric = |value: crate::mir::ValueId| {
+                                function.metadata.exact_numeric_value_facts.contains_key(&value)
+                            };
+                            let allowed = me_value.is_some_and(|me| {
+                                field_reads.get(receiver).is_some_and(|(base, field)| {
+                                    origins.origin(*base) == Some(me)
+                                        && view
+                                            .ledger
+                                            .array_i64_fields
+                                            .get(box_name)
+                                            .is_some_and(|fields| fields.contains(field))
+                                        && numeric(*index)
+                                        && numeric(*value)
+                                })
+                            });
+                            if !allowed && crate::config::env::builder_debug_enabled() {
+                                eprintln!(
+                                    "[field-argument/array-set] callee={symbol} box={box_name} receiver_def={:?} numeric_index={} numeric_value={}",
+                                    field_reads.get(receiver),
+                                    numeric(*index),
+                                    numeric(*value)
+                                );
+                            }
+                            allowed
+                        }
                         MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }
                             | InvokeOperation::ObjectFieldBorrow { .. }, .. }
                         | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. } | MirInstruction::Const { .. } | MirInstruction::Copy { .. }
