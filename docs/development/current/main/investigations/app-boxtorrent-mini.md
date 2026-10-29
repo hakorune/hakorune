@@ -8,7 +8,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 停止引継ぎ（ユーザー依頼）: 未変更appは最終Map借用検証の `field-argument/parent-or-child-invalidated`、`HakoAllocPage.release/1` 内の `ArrayElementWrite(Set)` で停止。別途 `call-result-contract-not-connected` 2件も残る。EXE未達。Cargo/rustc停止確認済み。次は下記Setのsource/実命令照合。再開許可まで実装/buildしない。
 - 引継ぎ整理: MapField source→emitted read、get/nonnull/child/引数slotと最終投影、呼出し構造と借用検証の分離、到達callee全体のeffect検査を既存ownerへ接続（8 Rust files、production +263/−26、機能追加であり純減整理の主張なし）。Map mutation/End・未知call・未証明Array writeは拒否を維持。一時 `[map-borrow-effects]` dumpは撤去済み。
 - `d04bc06fb3`+`b1ff43dfbe`+`011d3f2462`: Set receipt arm（def mapでfield read/FieldGet/唯一Normal result、互換`FieldGet`は**宣言経由**でcanonical fieldへ解決、整数証拠はexact numeric facts又はfinalized value types）＋既定OFF診断。受理変化なし、累積production **+141**で純増。退役は`BorrowedArraySetSourceLoanV1`(formal-index専用)とNamedArray Push markerのまま。実測: `requested_sizes`はordinal 6へ解決するが、HakoAllocPageの整数Array censusは**[3,4,5]**。= この配列はdynamic writerを持ち整数証明の対象外。次は`array_i64_fields`の整数fixpointへ**untyped parameter writerのsource SUM**を渡すこと。同moduleは`issue_array_i64_fields_v1`がingress生成前に走るためSUMを持たず、plumbingは順序変更（cycle注意）を伴う設計規模。代替の「own boxのArrayBox Setを無条件許可」は記録済み設計（未証明Array write拒否）を覆すため採らない。
-- 次手: 既存ArrayFieldWriteCandidateの元call Arc＋同canonical fieldのinteger censusを既存Set receipt ownerへ接続する。候補には非integer fieldも含むため候補保持だけで許可しない。3 SSA対応だけでも不足し、元receiver/引数site→field read/整数literal→実operandを照合する。既存BorrowedArraySet sourceはformal field index専用、NamedArray markerはPush専用なのでそのままSetに流用しない。Set後にguarded caller/Normal/Faultと残る結果契約を閉じる。
+- 次手: 下の実装タスク1〜6。要点: integer census は SUM graph を入力にしない（循環ではない）。解けた`{SignedI64}`field集合を別集合でSet armへ渡し、要素クラス証明の省略は採らない（Set receipt armは受理を広げているため証明を絞る）。boxtorrent側は`materialize`入力cohortとnullable textのC shim。
 - Array aliasと直接receiverは実Count/Get source loanを同じfield descriptorへ保持。直接receiverもReturnを含むsource field census→既存field issuer→exact親read/Copy→記録済みcanonical readへ接続。Countは既存read会計を使用。source-only拒否pin、最終noninteger aliasとdirect Arrayの拒否を保持。
 - 分岐後Textは既存branch Phi/両incomingを検証し、元Home suffixから各incomingのcleanup候補を計算。全候補が一致する場合だけ一つのEndIfOwnedへ統合（順序推測なし）。Text取得prefixは別管理のDynamic carrierを除き、carrierの独立owned-flow検証は保持。既存Loop回帰・String Normal/Fault/escape検証は各1/0。
 - 共通化済み: 元result-sourceによるdispatch、同じCall/Normal継続、Loop Null定数会計、Unit入力/暗黙終了、引数snapshot、String/carrier temporary順序、共通expression body、operation cleanup。Text field移転は同じRHS bodyを消費しscalar Copyを通さない。詳細はGit履歴へ圧縮。Array operation/provider・生存の最終gateは未完拒否を保持。
@@ -45,30 +45,14 @@ original resolver + source value flow + existing Home/call contracts
 
 ## 実装タスク（同じ APP row 内）
 
-Map借用整理seriesは完了。以下1〜5の機能接続を進める。
-1〜3は一本の縦の実装series。1で元sourceの支持条件と後段照合義務を構成し、2はそのsource条件だけを使う。実命令の独立照合は3のlower後に閉じ、物理PASSを2の着手条件へ戻さない。
-
-1. [ ] **支持 Home と呼び出し区間を既存 source に接続する。**
-   `home_prefix_field_alias.rs` の `OwnedHome` / `InstanceEntry` 区別と、`ordinary_new_field_array_read_source.rs` の field/alias 正本を再利用。count/get が参照する同じ residence と caller の支持 Home を保持する。
-   resolver の全 call observation を対象に、既存 incoming/target 情報を照合して実際の call closure を閉じる。incoming 成功行だけでは全 call の網羅にならない。未解決 direct/method、捕捉、外部効果、支持 root/field の置換・End を無視しない。
-   effect は「長さを縮めない」と「支持を無効化しない」を別に判定する。`Map.delete` は payload の破棄を含み、支持経路への影響が不明なら後者は不成立。再帰/SCCは影響の閉鎖を別途確認し、未閉鎖なら未証明。SUMの収束をeffect証明に流用しない。
-   完了条件: 元の実 call/引数/receiver と対応する支持が、get までの全経路と caller Normal/Fault で保持され、独立した最終 use 検証にも渡ること。source-only の未使用 receipt を成果にしない。
-2. [ ] **Loop 範囲証明を初回 Core 発行前に接続する（1に依存）。**
-   `source_value_flow` の LoopEntry/Backedge/Continue 全 predecessor を使い、i の初期0・同一 binding の更新・条件 i<n・n の同じ ArrayLen・再束縛不在を確認。非縮小と長さの非負/i64範囲から overflow も除外する。
-   `ordinary_new_field_array_read_bounds.rs` を既存 source proof 内で拡張する。`ordinary_new_borrowed_formal_source_seed_preparation.rs` の初回 Core 発行前に、同じ graph へ証明を反映して必要な SUM/SCC を再解決する。
-   証明の前提は OOB を残した元 source 情報で成立させる。自分の Text-only 結論を先に仮定して call/lifetime を証明しない。target identity は元 receiver/宣言/call から照合し、Text-only 引数の受理や完成済み入力・実行可能packetを前提にしない。未確定targetは未証明。既発行 Core receipt を後段で差し替えない。
-   完了条件: 実アプリの get で OOB 由来の Null/strict Text だけが不要となり、element 本来の Null は残る。別配列、縮小、失効、未知 call、未完 predecessor では絞り込まない。
-3. [ ] **既存 Text snapshot → key の不足接続だけを閉じる（2に依存）。**
-   `home_expression_evaluation.rs::text_snapshot_root_v1` → `expression_value.rs::materialize_text_root` → 既存 Map key/ordinary argument consumer を通す。新しい materializer、専用 producer、並列台帳は作らない。
-   完了条件: source Text-only と元取得を `root_call_entry/expression_projection.rs` が照合し、receiver-first/引数評価順、carrier と OwnedText 各一回の End、取得失敗時の out 不変と Normal/Fault cleanup が Rust/C の実命令でも一致する。
-4. [ ] **Map local borrow を child 引数の最後の use まで接続する（3の key 接続後）。**
-   `home_map_value_flow.rs::MapFieldGetLocalV1` の関数全体 veto を、元 get の identity と use-scoped lifetime に分離。`ordinary_new_lexical_instance_call_provenance.rs::borrowed_receiver_interval_v1` の既存 get→chunk.release 証拠を再利用する。
-   `chunk.alloc_handle` は親が nonnull でも nullable。元 get/guard/field read/outer-call argument ordinal と支持 Map slot を同じ論理計画で保持し、allocator.release の呼び出し完了まで子の借用を守る。ReturnedField や owned Home へ付け替えない。
-   `ordinary_new_local_commit/field_read_argument_interval.rs` と C `lifecycle_v4_field_interval.inc` に同じ区間/実 call 対応を独立検証させる。body index だけで nested argument の終端を決めず、途中の同じ slot の置換/delete/End・未知 call は拒否する。
-   完了条件: use 後の `me.chunks.delete(cid)` を許し、use 前/途中なら拒否。Normal/Fault と支配関係を保つ。今回不要な Map-slot 関数外 Return ABI 拡張を前提にしない。
-5. [ ] **未変更アプリを EXE/run まで通し、実際に残る依存だけを解く。**
-   未完の free_stack/use_counts、integer ArrayGet の source/physical 不一致、NoIncoming formal は記録を再利用する。call closure に不要な全 allocator graph を先に閉じないが、選択 consumer が必要とする境界を省略もしない。
-   完了条件: 下記 smoke 全契約と期待 stdout/exit が PASS。続けて固定 suite、必要な shared regression、局所退役を確認して対象変更を commit。JSON と有限ゴール全体の後続条件は残る。
+Map借用・Loop範囲・Text snapshot・delete・Loop null・DiscardValue・{Text,null}静的call・Bool Localは着地済み（履歴参照）。残りは次の6点。担当: A=Array Set系(DeepSeek)、B=boxtorrent系(Claude)。同じworktreeの同時編集を避け、1担当ずつ動かす。
+1. [ ] **A: integer array fieldをSUM証明で通す（循環は無い）。** census(`array_i64_fields`)は入力にせず、SUM graph(`graph.array_fields`、書込seedは型なしformalも含む)の解を、要素が`{SignedI64}`だけに閉じたfield集合として`prepare_source_preflight_v1`の外へ出し、ledgerの別集合`array_i64_sum_fields`に保持。Set arm(`field_read_argument.rs`)は census又は この集合のfieldだけ許可。Conflict/書込欠け/別名漏れは従来どおり拒否。案2(要素クラス証明の省略)は採らない。
+   完了条件: `requested_sizes`の4書込(`page_heap_box.hako` 69/93/116/174)がSignedI64に閉じるか実測。閉じなければ停止点を記録。他4appの結果が不変。
+2. [ ] **A: Set receipt armの証明を絞る（1の前でも可）。** Box名の文字列分解をやめ宣言/instance receiverで決める。index/valueは`exact_numeric_value_facts`のみ(`value_types`は不可)。配列がMap親子と別名でない確認を足す。受理を広げる変更は診断と別commitにする。
+3. [ ] **B: `materialize`(slot 66)の入力cohort。** `selected_original_instance_input_kind_v1`(`ordinary_new_borrowed_object_input_finish.rs`)のsource result requestに、Local初期化子call＋calleeが`{Text,null}`完了結果の場合を足し、`[instance-input]`診断で確認。アンカーは古い可能性があるので再確認。
+4. [ ] **B: `ordinary_nullable_text`のC shim。** callee返却は`ordinary_text`と同じ`out_text`(null=(0,0))、call後に`nyash.dynamic.checked_publish_text_or_null_v1`でcarrier化。対象`lang/c-abi/shims/published_mir/`のemit/return_emit/indexed_return/indexed_flow/index/instruction_schema/result_transport/physical_v2/indexed_rows。入れたら`nullable-text-native-pending`拒否(`physical_program_json_call_transport.rs`)を外す。
+5. [ ] **B: EXE/run。** Bool物理(`StringInvokeOperand`のBool: JSON/C/kernel display)、`chunkCount`独立validator、deleteの実行時確認(欠けたkeyの空Ready解放、outcome_init)、Bool producerのif/else join test。FFI(`tools/build_hako_llvmc_ffi.sh`)とkernel(`cargo quick-build-lifecycle-fast`)を再build。完了条件: 下記smoke全契約と期待stdout/exit。
+6. [ ] **着地確認と退役。** 固定suite全PASS(現HEADで再実測)、production行の純増減(Claude src +2395/−548、署名なし +3031/−1259、DeepSeek +433/−53)の集計、退役条件(`BorrowedArraySetSourceLoanV1`、NamedArray Push marker、不要診断`[if-refused]`等)を記録。800行超`home_prefix_source_loop_control.rs`(1201)・`source_loop_schedule.rs`(885)・`root_home.rs`(802)は整理候補。goal完了にはR6/R7・Loop・物理退役・最終pipeline(未着手)が別途必要。
 
 ## 完了したMap借用整理series
 - MapLocalは元getを生成時に検証し、不変payloadの後段再走査を退役。別packageの同名field拒否は未検証の独立境界だったため既存composition caseへ最小追加。CLI・focused PASS、smokeは同じowner38停止。

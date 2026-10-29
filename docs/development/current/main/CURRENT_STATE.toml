@@ -19,7 +19,7 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 APP-boxtorrent-mini: final Map borrow verification rejects unproved Array Set in HakoAllocPage.release; EXE not generated.
 Map child source/emission and final call-effect closure are connected; unknown mutation/destruction stays rejected.
-Next connect original integer-array writer census and exact Set operands through the existing receipt owner; see app card.
+Next pass SUM-proven integer array fields to the Set arm (no cycle; do not drop the element proof); then materialize cohort and nullable-text C shim; see app card tasks 1-6.
 Fixed suite on this quick binary/runtime: 10/11, 9 real EXEs plus marker; only boxtorrent fails, no timeout/SKIP.
 User requested handoff; stop implementation/build after commit/push. Goal remains paused.
 """
