@@ -24,7 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
-1. [ ] **最適化フェーズ（優先・なるべく早く）**: 検証は減らさず計算を1回にする。`corroborate_original_v1`の再構築、`borrowed_formal_*`の導き直し、同じ不変入力の結果再利用（RULES §8）。結果キャッシュは、テストが同じ inventory を書き換えるため検査を弱めるので不可。目標: boxtorrent最適化版140秒→大幅短縮、opt0版9分48秒の解消。
+1. [~] **最適化フェーズ（第1弾完了、続きは設計規模）**: boxtorrentの最適化版コンパイルは約140秒→**96秒**、固定suiteは5分50秒→4分48秒。効いたのは (a) C側 lifecycle-v4 のpredecessor前計算（約-10〜15%）、(b) `SourceNodeSiteV1` を `Box<[..]>`→`Rc<[..]>`（複製が確保なしになり約-20%）。検査は一つも減らしていない。試して**採用しなかった**もの: `corroborate_original_v1` の一時マップを`HashMap`化（SipHashのパス全体ハッシュが重く約+25秒の悪化）、重複確認の`BTreeSet`確保の除去（約1%で誤差）。**検証結果の再利用（キャッシュ）は不可**: seed productは検証後も`join_instance_result_classes_v1`(`source_sums`)/`refresh_source_objects_v1`(`source_objects`)で書き換わり、テスト用の`new_calls`差し替えは再検証の失敗を期待するため、古い「検証済み」を残すと検査を弱める。次の候補（設計が要る）: サイトを小さな整数IDに交換して比較を一定時間にする、`corroborate_original_v1`が呼ばれる約40箇所のうち同じ(product,inventory)を繰り返し検証する経路を構造的に1回へ寄せる（書き換え点ごとに無効化する版数を持たせる）、Rust前半(約85秒)の`borrowed_formal_*`再導出。測定は静かな状態で2回以上、`target/quick/hakorune`を`cargo quick-build --bin hakorune`で作る。
 2. [ ] 残る重い関数の整理（上の800行超）と、順序規約の一元化。
 3. [ ] 次アプリへpointerを切り替える前に、finite_product_goalの未完（R6/R7・Loop・物理退役・最終pipeline）は別goalとして維持。
 
