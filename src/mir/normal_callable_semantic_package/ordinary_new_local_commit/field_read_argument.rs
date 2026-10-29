@@ -188,7 +188,7 @@ pub(super) fn validate_map_field_v1(
                 view.ledger.with_finished_projection(row.callee_owner(), |symbol, _| {
                     if symbol != row.target().mir_symbol_projection() { return Err(freeze("field-argument/source-missing")); }
                     let callee = module.functions.get(symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;
-                    validate_map_scalar_callee_v1(callee, original.field.field())
+                    validate_map_scalar_callee_v1(module, callee, original.field.field())
                 })?;
                 calls.insert(interval::locate(function, &invoke)?);
             }
@@ -217,7 +217,15 @@ pub(super) fn validate_map_field_v1(
 
 /// Recheck the source-approved numeric receiver effects on the actual callee.
 /// Neither a method name nor an advertised effect mask authorizes this body.
-fn validate_map_scalar_callee_v1(function: &MirFunction, protected: hakorune_mir_defs::CanonicalFieldRefV1) -> Result<(), String> {
+fn validate_map_scalar_callee_v1(module: &crate::mir::MirModule, function: &MirFunction, protected: hakorune_mir_defs::CanonicalFieldRefV1) -> Result<(), String> {
+    // A named field access is resolved only through the declaration of the
+    // protected field's own object, so a bare name never selects another Box.
+    let named_ordinal = |name: &str| -> Option<usize> {
+        let definition = module.canonical_object_definitions()?.get(protected.object().declaration_index() as usize)?;
+        let mut rows = definition.fields().iter().enumerate().filter(|(_, field)| field.name == name && !field.is_weak);
+        let (ordinal, _) = rows.next()?;
+        rows.next().is_none().then_some(ordinal)
+    };
     let receiver = *function.params.first().ok_or_else(|| freeze("field-argument/source-missing"))?;
     let origins = crate::mir::value_origin::AcyclicUnanimousValueOrigins::new(function);
     for instruction in function.blocks.values().flat_map(|block| block.all_instructions()) {
@@ -227,6 +235,11 @@ fn validate_map_scalar_callee_v1(function: &MirFunction, protected: hakorune_mir
             MirInstruction::Invoke { operation: InvokeOperation::FieldSet { base, field, mode, .. }, .. } =>
                 origins.origin(*base) == Some(receiver) && field.object() == protected.object() && *field != protected
                     && matches!(mode, crate::mir::instruction::FieldSetModeV1::ExactSlot | crate::mir::instruction::FieldSetModeV1::DynamicI64Replace),
+            MirInstruction::FieldGet { base, field, .. } =>
+                origins.origin(*base) == Some(receiver) && named_ordinal(field).is_some(),
+            MirInstruction::FieldSet { base, field, declared_type: Some(crate::mir::MirType::Integer), .. } =>
+                origins.origin(*base) == Some(receiver)
+                    && named_ordinal(field).is_some_and(|ordinal| ordinal as u32 != protected.declaration_ordinal()),
             MirInstruction::Const { .. } | MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
             | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::InvokeNormalResult { .. }
@@ -307,6 +320,19 @@ fn validate_map_completion_effects_v1(
                                     | crate::mir::instruction::FieldSetModeV1::DynamicI64Replace)
                                 && module.canonical_field_definition(*field).and_then(|field| field.declared_type_name.as_deref())
                                     .is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name),
+                        // The named form of the same integer slot write: the field is
+                        // resolved through the declaration of the callee's own Box and
+                        // must be a declared-integer slot of `me`, never the protected ones.
+                        MirInstruction::FieldSet { base, field, declared_type: Some(crate::mir::MirType::Integer), .. } =>
+                            me_value.is_some_and(|me| {
+                                ArrayFieldTargetV1::Named { base: *base, name: field.clone().into() }
+                                    .resolve(module, box_name)
+                                    .is_some_and(|(base, field)| origins.origin(base) == Some(me)
+                                        && field != map_field && field != child_field
+                                        && module.canonical_field_definition(field)
+                                            .and_then(|definition| definition.declared_type_name.as_deref())
+                                            .is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name))
+                            }),
                         // A Set on an integer-array field of this same `me`: the
                         // field census owns the all-writer integer proof, the origin
                         // owns the receiver, and the numeric facts own index/value.
@@ -330,10 +356,17 @@ fn validate_map_completion_effects_v1(
                                         (origins.origin(base) == Some(me)).then_some(field)
                                     })
                                     .is_some_and(|field| {
-                                        view.ledger
+                                        let census = view.ledger
                                             .array_i64_fields
                                             .get(box_name)
-                                            .is_some_and(|fields| fields.contains(&field))
+                                            .is_some_and(|fields| fields.contains(&field));
+                                        // Otherwise the same all-writer solve must close the
+                                        // element class to signed integers (formals included).
+                                        let solved = || view.ledger.borrowed_formal_source.as_ref()
+                                            .and_then(|source| source.as_ref().ok())
+                                            .and_then(|source| source.source_array_element_sum_v1(&field))
+                                            .is_some_and(|sum| sum.signed_only());
+                                        (census || solved())
                                             && numeric(*index)
                                             && numeric(*value)
                                     })

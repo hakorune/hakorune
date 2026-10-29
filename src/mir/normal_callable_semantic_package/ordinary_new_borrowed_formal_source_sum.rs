@@ -107,6 +107,8 @@ pub(super) struct OriginalSourceSumsV1 {
     pub(super) new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
     pub(super) values: BTreeMap<BindingRefV1, Rc<SourceValueSumV1>>,
     fields: ClosedFieldSumsV1,
+    /// The solved element union of each array field whose every writer is captured.
+    array_elements: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, Rc<SourceValueSumV1>>,
     pub(super) core_calls: BTreeMap<OwnedExprSiteV1, Rc<ClosedOriginalCoreSourceV1>>,
     pub(super) static_sources: BTreeMap<OwnedExprSiteV1, Rc<StaticSource>>,
     pub(super) return_sites: BTreeMap<FunctionOwnerIdV1, Box<[OwnedExprSiteV1]>>,
@@ -535,8 +537,12 @@ pub(super) fn resolve_original_source_sums_v1(
         &resolved_graph.array_fields,
     );
     let fields = project_field_sums_v1(&resolved_graph, &all, None);
+    let array_elements = resolved_graph.array_fields.iter()
+        .filter_map(|(field, node)| all[*node].as_ref().map(|sum| (*field, Rc::new(sum.clone()))))
+        .collect();
     Ok(OriginalSourceSumsV1 {
         fields,
+        array_elements,
         new_calls: Rc::clone(&source.new_calls),
         static_sources,
         return_sites,

@@ -78,6 +78,16 @@ impl PreparedBorrowedFormalIngressV1 {
         let (original, sum) = product.source_sums.as_ref()?.fields.get(&source.field())?;
         Rc::ptr_eq(original, source).then(|| Rc::clone(sum))
     }
+    /// The closed element class of one array field from the SAME all-writer solve
+    /// (untyped writer formals included). It lends a class only: no read, no
+    /// residence, no permission to write.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_array_element_sum_v1(
+        &self, field: &hakorune_mir_defs::CanonicalFieldRefV1,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        let product = &self.original_formal_seeds;
+        product.corroborate_original_v1(&self.source_incoming).then_some(())?;
+        product.source_sums.as_ref()?.array_elements.get(field).map(Rc::clone)
+    }
     /// Declaration lookup in the already checked all-writer graph. This lends
     /// only a class, never a field read or a result execution disposition.
     pub(in crate::mir::normal_callable_semantic_package) fn source_declared_field_sum_v1(
