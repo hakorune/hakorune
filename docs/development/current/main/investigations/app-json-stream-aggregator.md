@@ -1,5 +1,5 @@
 # APP-json-stream-aggregator
-Status: landed; canonical EXE smoke PASS and fixed suite 10/11 on 2026-10-28. Date: 2026-10-28
+Status: landed; canonical EXE smoke PASS and fixed suite 11/11 (see app-boxtorrent-mini) on 2026-10-28. Date: 2026-10-28
 Related: [RULES](../../../RULES.md), [current state](../CURRENT_STATE.toml), [Dynamic invocation](../../../../reference/language/dynamic-invocation.md), [pipeline](../design/mirbuilder-final-pipeline-ssot.md).
 
 ## Current stop (2026-10-28, measured)

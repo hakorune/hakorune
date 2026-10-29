@@ -490,8 +490,8 @@ Phase ごとの記録・完了サマリ・実装チェックリストを置く�
 
 - 推奨構造:
   - `docs/development/archive/phases/phase-131/`
-  - `docs/development/archive/phases/phase-131/131-03-llvm-lowering-inventory.md`
-  - `docs/development/archive/phases/phase-131/131-11-case-c-summary.md`
+  - `docs/development/archive/phases/phase-131/README.md`
+  - `docs/development/archive/phases/phase-131/README.md`
 
 ### `docs/development/current/main/phases/archive/`（transitional historical fronts）
 
@@ -565,7 +565,7 @@ stubを残さない。stable external entrypointを移せない場合だけ、�
 # Moved
 
 Status: Historical
-Moved to: docs/development/archive/phases/phase-131/131-03-llvm-lowering-inventory.md
+Moved to: docs/development/archive/phases/phase-131/README.md
 ```
 
 ## 命名（推奨）

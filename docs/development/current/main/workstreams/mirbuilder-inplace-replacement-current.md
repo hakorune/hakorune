@@ -345,9 +345,9 @@ callers/contracts. No completion-date estimate is established.
 
 | order / existing owner | responsibility and dependency | acceptance / retirement / unresolved boundary |
 | --- | --- | --- |
-| 1 `APP-mimalloc-lite` / [app card][app-bundle] | Direct EXE passed; full smoke precheck remains open. ObjectForward/field/initialization contracts remain required; Text work is retained for the later JSON app. | Existing smoke and source-to-consumer acceptance, attributed regressions and proved local retirement remain owed; first milestone does not close the full pipeline. |
-| 2 [mimalloc bundle D0][app-bundle] / Gate1 dependency | Existing ObjectFieldReceiver/new-object-args/forwarded-result, callable-loop and callee Home/result/cleanup dependencies. | First unchanged app milestone PASS; required field/initialization and final consumer coverage remain. Retire proved exclusive old edges/temp assets in-series; no invented deletion for added coverage. |
-| 3 `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` | Fixed11-entry manifest remains product acceptance; scope selection was Closed. | All existing stdout/exit/boundary expectations; failed programs stay open with storage/usize/Loop owners. Suite exclusions do not waive the later required selfhost handoff. |
+| 1 `APP-boxtorrent-mini` (done) -> compile-time optimization / [app card](../investigations/app-boxtorrent-mini.md) | Fixed suite **11/11** (2026-10-30, optimized `target/quick/hakorune`). Next: keep every check, compute each derivation once (`corroborate_original_v1`, `borrowed_formal_*`); then one unwind order and the 800+ line files. | Compile time drops without weakening Rust/C verifiers; no result caching (tests mutate the inventory). Then the maintainer picks the next APP. |
+| 2 [mimalloc bundle D0][app-bundle] / Gate1 dependency | Closed for the fixed11 apps (mimalloc-lite, allocator-stress, boxtorrent-mini all PASS). Remaining ObjectFieldReceiver/forwarded-result/callable-loop obligations stay owned by Gate1 only where a later app needs them. | Retire proved exclusive old edges/temp assets in-series; no invented deletion for added coverage. |
+| 3 `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` | Fixed11-entry manifest is product acceptance and currently **passes 11/11**. | Keep all existing stdout/exit/boundary expectations; the finite_product_goal retirements below remain a separate goal and are not waived by this pass. |
 | 4 `MIR-CALL-MANDATORY-CALLEE-R6` -> `MIR-CALL-LEGACY-READER-STOP-R0` | Close remaining family cutovers and finite ingress/egress callers: typed consume, pre-artifact rejection or isolated compatibility. | Same source authority, existing contracts and selected old-edge deletion. Shared ownership is eligible; caller-zero is output, not an entry prerequisite. Actual caller disposition remains owed. |
 | 5 `MIR-CALL-COMPATIBILITY-RETIRE-R7` | After all required legacy writers/reissuers/readers close, remove shared carrier/repair. | LegacyCallV0 and its schema/readers stay until that proof; durable reject tests remain. Wire compatibility spelling alone is not legacy-carrier debt. |
 | 6 `LOOP-PRODUCTION-SELECTION-D0` | Select first unmet named Loop dependency; M10 B3 D2/D3 and LoopCond remain unresolved. | Existing route/provider/source-outcome authorities; production cutover and selected deletion. Reuse landed M8/M11/M12 evidence; M9 producer gaps/declined shapes are not accepted source coverage. |
@@ -368,7 +368,7 @@ parser -> pinned, non-delegating Stage1/Stage2 selfcompile and fixed acceptance.
 These later required gates retain their reopen conditions. C-1 measurement
 alone may precede convergence; it does not activate the Language-v1 lane.
 
-The fixed11 suite **was measured on 2026-10-17**, V835/CLI175/C831e/runtime808b:
+The fixed11 suite is **11/11 as of 2026-10-30** (see order 1). The older 2026-10-17 measurement below is kept as history only: V835/CLI175/C831e/runtime808b:
 4PASS/7FAIL, exit1,333.949828s. Three are EXE positives; the fourth is an empty
 marker. Two failed smokes stop in their generic-MIR negative prechecks, leaving
 their subsequent EXE assertions untested by that run. Canonical mimalloc-lite

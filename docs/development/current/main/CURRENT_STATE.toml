@@ -1,9 +1,9 @@
-date = "2026-10-29"
-development_branch_ssot = "codex/birth-definition-publication"
+date = "2026-10-30"
+development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "boxtorrent-mini: final Map borrow effects refuse HakoAllocPage.release Array Set; call-result contracts remain unconnected"
+current_blocker_token = "none: APP-boxtorrent-mini acceptance reached (fixed suite 11/11); next is the compile-time optimization phase, then the maintainer selects the next APP"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -26,7 +26,7 @@ next_design_card = "none"
 next_design_card_path = "none"
 next_execution_card = "APP-boxtorrent-mini"
 next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
-active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
+active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
@@ -40,7 +40,5 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-10-25: Unchanged mimalloc-lite canonical LLVM C API/pure-first EXE/run/expected stdout/exit0 PASS; allocator-stress also PASS. Fixed suite9/11 in459.647s (--timeout420),8realEXEs+marker,no timeout/SKIP. Original guarded pair retains Call-site kind1 checking and caller Fault cleanup; signed entry reads keep correct Birth/usize representations. Final-use18PASS, publication9/1prior red, C borrowed ingress positives/negatives/Normal/Fault PASS. Next APP-boxtorrent-mini source stored-child receiver; JSON source completion and required finite-product retirement/closeout remain open.",
-  "2026-10-25: Unchanged binary-trees passes canonical LLVM C API EXE/run/exact output/exit0, including fixed-suite smoke50.764s. Suite7/11 in122.454s (6realEXEs+marker), no timeout/SKIP; remaining JSON/boxtorrent/mimalloc/allocator source failures. Original Loop Compare evidence and local condition reuse close Rust publication; same source-backed signed ABI/Birth transport, provided-field borrow lifetime and class0 emission close native consumers. Existing C source/Normal/Fault/negative checks pass; prior independent verification reds remain open. Next APP-mimalloc-lite entry-formal site proof.",
-  "2026-10-24: Untyped-field-min source-backed Dynamic FieldGet/Array Home transfer now emits and runs the unchanged EXE (exit7); physical exact-key validation no longer caps schemas at8 keys, and V4 Normal/Fault flow consumes the exact array Home only on Normal. `cargo quick-build --bin hakorune`4m16s and FFI C build PASS; fixed suite9/11 in142.476s, no timeout/SKIP. Remaining failures: boxtorrent-mini receiver-unavailable; binary-trees source-not-i64 in iterationCheck. Next APP-binary-trees.",
+  "2026-10-30: boxtorrent-mini canonical LLVM C API EXE PASS; fixed suite real-apps-exe-boundary 11/11 in 5m50s (optimized target/quick/hakorune, --timeout420), no timeout/SKIP. Earlier suite counts (4/11..10/11) are in Git history.",
 ]
