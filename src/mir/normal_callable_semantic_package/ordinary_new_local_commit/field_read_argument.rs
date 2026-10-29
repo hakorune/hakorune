@@ -263,16 +263,30 @@ fn validate_map_completion_effects_v1(
             let function = module.functions.get(symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;
             let origins = crate::mir::value_origin::AcyclicUnanimousValueOrigins::new(function);
             let me_value = function.params.first().copied();
-            let mut field_reads: std::collections::BTreeMap<
-                crate::mir::ValueId,
-                (crate::mir::ValueId, hakorune_mir_defs::CanonicalFieldRefV1),
-            > = std::collections::BTreeMap::new();
-            for instruction in function.blocks.values().flat_map(|block| block.all_instructions()) {
-                if let MirInstruction::ObjectFieldGet { dst, base, field, .. } = instruction {
-                    field_reads.insert(*dst, (*base, *field));
-                }
-            }
+            let def_map = crate::mir::value_origin::build_value_def_map(function);
             let box_name = symbol.split('.').next().unwrap_or("");
+            // The array a write targets is either the field read itself or the
+            // Normal result of that read; both name the same declared field.
+            let array_owner_field = |value: crate::mir::ValueId| -> Option<(crate::mir::ValueId, hakorune_mir_defs::CanonicalFieldRefV1)> {
+                let (block, index) = *def_map.get(&value)?;
+                let instruction = function.blocks.get(&block)?.instructions.get(index)?;
+                match instruction {
+                    MirInstruction::ObjectFieldGet { base, field, .. }
+                    | MirInstruction::Invoke { operation: InvokeOperation::FieldGet { base, field }, .. } =>
+                        Some((*base, *field)),
+                    MirInstruction::InvokeNormalResult { invoke_block, .. } => {
+                        let block = function.blocks.get(invoke_block)?;
+                        let mut rows = block.instructions.iter().filter_map(|row| match row {
+                            MirInstruction::Invoke { operation: InvokeOperation::FieldGet { base, field }, .. } =>
+                                Some((*base, *field)),
+                            _ => None,
+                        });
+                        let first = rows.next()?;
+                        rows.next().is_none().then_some(first)
+                    }
+                    _ => None,
+                }
+            };
             for (block, body) in &function.blocks {
                 for (index, instruction) in body.all_instructions().enumerate() {
                     let allowed = match instruction {
@@ -302,23 +316,31 @@ fn validate_map_completion_effects_v1(
                         } => {
                             let numeric = |value: crate::mir::ValueId| {
                                 function.metadata.exact_numeric_value_facts.contains_key(&value)
+                                    || function.metadata.value_types.get(&value)
+                                        == Some(&crate::mir::MirType::Integer)
                             };
                             let allowed = me_value.is_some_and(|me| {
-                                field_reads.get(receiver).is_some_and(|(base, field)| {
-                                    origins.origin(*base) == Some(me)
+                                array_owner_field(*receiver).is_some_and(|(base, field)| {
+                                    origins.origin(base) == Some(me)
                                         && view
                                             .ledger
                                             .array_i64_fields
                                             .get(box_name)
-                                            .is_some_and(|fields| fields.contains(field))
+                                            .is_some_and(|fields| fields.contains(&field))
                                         && numeric(*index)
                                         && numeric(*value)
                                 })
                             });
                             if !allowed && crate::config::env::builder_debug_enabled() {
+                                let raw_def = def_map.get(receiver).and_then(|(block, index)|
+                                    function.blocks.get(block).and_then(|body| body.instructions.get(*index)))
+                                    .map(|instruction| {
+                                        let text = format!("{instruction:?}");
+                                        text.chars().take(120).collect::<String>()
+                                    });
                                 eprintln!(
-                                    "[field-argument/array-set] callee={symbol} box={box_name} receiver_def={:?} numeric_index={} numeric_value={}",
-                                    field_reads.get(receiver),
+                                    "[field-argument/array-set] callee={symbol} box={box_name} receiver={receiver:?} receiver_def={:?} raw={raw_def:?} numeric_index={} numeric_value={}",
+                                    array_owner_field(*receiver),
                                     numeric(*index),
                                     numeric(*value)
                                 );
