@@ -105,7 +105,7 @@ pub(super) fn check_module_with_source(
                             }
                         })
                     {
-                        errors.push(error(*id, "object-field-read-definition-invalid"));
+                        errors.push(explain(function, *id, instruction, "object-field-read-definition-invalid"));
                     }
                 }
                 let call = match instruction {
@@ -161,12 +161,18 @@ pub(super) fn check_module_with_source(
                         | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, .. })
                             if !dynamic_field(module, *field) || root.is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
-                        { errors.push(error(*id, "object-field-read-definition-invalid")); }
+                        {
+                            if crate::config::env::builder_debug_enabled() {
+                                eprintln!("[invoke-verify] field-read dynamic_field={} root={} in_image={}", dynamic_field(module, *field), root.is_some(),
+                                    image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))));
+                            }
+                            errors.push(explain(function, *id, instruction, "object-field-read-definition-invalid"));
+                        }
                         InvokeOperation::Map(MapInvokeOperation::FieldHas { field, key, .. }
                             | MapInvokeOperation::FieldGetIndexed { field, key, .. })
                             if !key.is_text() || !dynamic_field(module, *field) || root.is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
-                        { errors.push(error(*id, "object-field-read-definition-invalid")); }
+                        { errors.push(explain(function, *id, instruction, "object-field-read-definition-invalid")); }
                         InvokeOperation::Map(MapInvokeOperation::FieldInstallIndexed { field, key, .. } | MapInvokeOperation::FieldDeleteIndexed { field, key, .. })
                             if !key.is_text() || !dynamic_field(module, *field) || root.is_none()
                                 || !image.field_writes.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
@@ -240,7 +246,7 @@ pub(super) fn check_module_with_source(
                             if !dynamic_field(module, *field)
                                 || module.canonical_object_definition(*child).is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
-                        { errors.push(error(*id, "object-field-read-definition-invalid")); }
+                        { errors.push(explain(function, *id, instruction, "object-field-read-definition-invalid")); }
                         InvokeOperation::FieldGet { field, .. }
                             if !module.canonical_field_definition(*field).is_some_and(|definition|
                                 !definition.is_weak && (definition.declared_type_name.as_deref().is_some_and(
@@ -742,6 +748,13 @@ fn call_argument_drift(
     }
 }
 
+/// Default-off: name the function and instruction behind a field-read refusal.
+fn explain(function: &MirFunction, block: BasicBlockId, instruction: &MirInstruction, reason: &str) -> VerificationError {
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[invoke-verify] {reason} function={} block={block:?} instruction={instruction:?}", function.signature.name);
+    }
+    error(block, reason)
+}
 fn error(block: BasicBlockId, reason: &str) -> VerificationError {
     VerificationError::ControlFlowError {
         block,

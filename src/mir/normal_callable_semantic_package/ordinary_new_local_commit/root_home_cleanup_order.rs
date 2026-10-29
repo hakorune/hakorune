@@ -321,6 +321,40 @@ impl RootHomeCleanupOrderV1 {
         self.replace_sequences(full, &normal, &acquisition_fault)
     }
 
+    /// Younger than the loop's prior Homes, older than its own: the carrier
+    /// Ends sit just before the first prior-Home obligation (or last).
+    pub(super) fn insert_loop_text_carrier_ends(
+        &mut self,
+        prior: &[crate::mir::resolved_semantics::BindingRefV1],
+        ends: &[RootHomeReleaseOriginV1],
+    ) -> Result<(), String> {
+        let at = self
+            .full
+            .iter()
+            .position(|origin| origin.binding().is_some_and(|binding| prior.contains(&binding)))
+            .unwrap_or(self.full.len());
+        let mut full = self.full.to_vec();
+        full.splice(at..at, ends.iter().cloned());
+        let with_ends = |indices: &[usize]| {
+            let mut sequence = Vec::with_capacity(indices.len() + ends.len());
+            let mut placed = false;
+            for index in indices {
+                if *index >= at && !placed {
+                    sequence.extend_from_slice(ends);
+                    placed = true;
+                }
+                sequence.push(self.full[*index].clone());
+            }
+            if !placed {
+                sequence.extend_from_slice(ends);
+            }
+            sequence
+        };
+        let normal = with_ends(&self.normal);
+        let acquisition_fault = with_ends(&self.acquisition_fault);
+        self.replace_sequences(full, &normal, &acquisition_fault)
+    }
+
     /// A completed pending Return result transfers only after prior cleanup.
     /// Its End belongs to later Fault residuals, never Normal/acquisition.
     pub(super) fn prepend_fault_only_result(

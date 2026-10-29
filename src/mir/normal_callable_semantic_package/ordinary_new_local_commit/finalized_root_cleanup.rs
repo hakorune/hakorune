@@ -36,6 +36,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let mut expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
                     &self.ledger.local_commits.borrow(), &site.clone().into(), source.fault_homes(), source.homes())?
                     .ok_or_else(|| freeze("root-home-end-unavailable"))?;
+                self.ledger.adopt_loop_return_text_ends_v1(owner, &site.clone().into(), &mut expected)?;
                 expected.include_fresh_result_prefix_v1(&self.ledger, owner, site, order)?;
                 if order.full() != expected.full() || order.normal() != expected.normal()
                     || order.normal() != origins.iter().map(|origin| origin.origin().clone()).collect::<Vec<_>>() {
@@ -68,10 +69,11 @@ impl FinalizedRootSourceHandoffV1 {
                 let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) =
                     exits.get(&(owner, site.clone().into()))
                 else { return Err(freeze("root-exit-unconsumed")); };
-                let expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+                let mut expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
                     &self.ledger.local_commits.borrow(), &site.clone().into(),
                     source.homes(), source.homes(),
                 )?.ok_or_else(|| freeze("root-home-end-unavailable"))?;
+                self.ledger.adopt_loop_return_text_ends_v1(owner, &site.clone().into(), &mut expected)?;
                 if order.full() != expected.full() || order.normal() != expected.normal()
                     || order.normal() != origins.iter().map(|origin| origin.origin().clone()).collect::<Vec<_>>() {
                     return Err(freeze("root-exit-origin-order"));

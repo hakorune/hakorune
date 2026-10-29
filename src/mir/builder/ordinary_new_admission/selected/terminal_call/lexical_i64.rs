@@ -217,6 +217,7 @@ fn emit_lexical_i64_call(
         None => Vec::new(),
     };
     unwind.extend(ledger.prior_home_unwind_for(prior_homes)?);
+    ledger.with_loop_call_text_ends_v2(row.call_site(), prior_homes, &mut unwind)?;
     if sealed_arguments.len() != row.argument_sites().len()
         || row.argument_sites().len() != row.target().arity() as usize
     {

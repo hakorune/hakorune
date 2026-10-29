@@ -240,7 +240,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let mut homes = inherited.map(|prefix| prefix.for_argument(frame)).transpose()?.unwrap_or_default();
     match prior_home_unwind {
         Some(unwind) => homes.extend_from_slice(unwind),
-        None => homes.extend(ledger.prior_home_unwind_for(frame.prior_homes())?),
+        None => {
+            homes.extend(ledger.prior_home_unwind_for(frame.prior_homes())?);
+            ledger.with_loop_call_text_ends_for_frame_v2(frame, &mut homes)?;
+        }
     }
     let source = frame.source();
     let mut pending = Vec::new();

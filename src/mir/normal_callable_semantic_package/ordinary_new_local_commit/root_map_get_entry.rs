@@ -311,6 +311,27 @@ impl StoredMapGetReadEmissionV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// The `FieldKeys` snapshot of a recorded `keys().length()` read group,
+    /// as its finished binding. Other recorded Map reads have their own visitors.
+    pub(in crate::mir::normal_callable_semantic_package) fn visit_keys_count_reads_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        finishing: &super::super::physical_boundary::FinishedBindings,
+        mut visit: impl FnMut((BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let groups = self.map_read_bindings.borrow();
+        for (_, bindings) in groups.get(&owner).into_iter().flatten() {
+            let mut keys = bindings.iter().filter(|(_, row)| matches!(row, MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldKeys { .. }), .. }));
+            let Some(keys) = keys.next() else { continue };
+            let mapped = finishing.binding(keys.0, &keys.1)?.ok_or_else(|| freeze("map-get-binding-missing"))?;
+            if !finishing.recorded().contains(&mapped) {
+                return Err(freeze("keys-count-binding-unrecorded"));
+            }
+            visit(mapped)?;
+        }
+        Ok(())
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn visit_stored_map_get_groups_v1(
         &self,
         owner: FunctionOwnerIdV1,

@@ -93,6 +93,19 @@ impl SourceLoopPhysicalProofV2 {
                 }
             }
         }
+        // A Text branch join inside the Loop body carries the same slot: its
+        // inputs are the arms' exit values of the carrier it merges.
+        for fork in &self.graph.forks {
+            for point in &fork.text_joins {
+                let slot = self.points.text_phi_v2(point.source().binding(), self.header())?.1.dst_value()
+                    .ok_or_else(|| freeze("source-loop/phi-kind"))?;
+                let phi = point.relation().identity_phi_binding_v1()?;
+                let MirInstruction::Phi { inputs, .. } = &phi.1 else { return Err(freeze("source-loop/phi-kind")); };
+                for (predecessor, incoming) in inputs {
+                    visit(slot, phi, *predecessor, *incoming, &[], &[])?;
+                }
+            }
+        }
         Ok(())
     }
 }

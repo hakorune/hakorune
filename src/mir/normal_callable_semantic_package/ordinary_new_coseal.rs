@@ -380,6 +380,14 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_exits: RefCell<
         BTreeMap<(FunctionOwnerIdV1, RootHomeExitKeyV1), local_commit::RootHomeExitProgress>,
     >,
+    // Live Text carriers' Ends for a loop-body Call's Fault unwind, keyed by
+    // call site: (loop prior Home count, Ends in unwind order).
+    loop_call_text_ends: RefCell<BTreeMap<OwnedExprSiteV1, (usize, Vec<crate::mir::instruction::InvokeOperation>)>>,
+    // Text carriers still conditionally owned at an in-loop `return`: their
+    // Ends join that exit's order once the header values are readable.
+    loop_return_text_ends: RefCell<
+        BTreeMap<(FunctionOwnerIdV1, RootHomeExitKeyV1), (Vec<BindingRefV1>, Vec<local_commit::RootHomeReleaseOriginV1>)>,
+    >,
     // Physical bindings for the bounded source-local Call prefix. These are
     // consumed by the existing root Call entry; they do not issue a target or
     // create a second lifecycle owner.

@@ -532,7 +532,7 @@ fn merge_text_carrier_branches(
 
 fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Body,
     mut homes: Vec<LiveHomeV1>, mut text_carriers: BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>,
-    output: &mut Vec<SourceLoopEvaluationLifecycleV2>,
+    output: &mut Vec<SourceLoopEvaluationLifecycleV2>, returns: &mut SourceLoopReturnCarriersV2,
 ) -> Result<Option<(Vec<LiveHomeV1>, BTreeMap<crate::mir::resolved_semantics::BindingRefV1, SourceLoopTextCarrierStateV2>)>, String> {
     for statement in tree.statements.iter() {
         match statement {
@@ -540,12 +540,14 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
                 if !source.corroborates(input) || source.homes.homes().iter().ne(homes.iter().rev()) {
                     return Err(reject("execution-normal-home-closure"));
                 }
+                returns.push((SourceLoopCarrierPointV2::Return(Rc::clone(source)), text_carriers.values().cloned().collect()));
                 return Ok(None);
             }
             Statement::Call { observation, .. } => {
                 if observation.prior_homes() != homes.as_slice() {
                     return Err(reject("execution-prior-homes"));
                 }
+                returns.push((SourceLoopCarrierPointV2::Call(observation.site().clone()), text_carriers.values().cloned().collect()));
                 if matches!(observation.result(), LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable) {
                     let (_, binding) = observation.local_binding()
                         .ok_or_else(|| reject("execution-initializer-owned-result"))?;
@@ -623,9 +625,9 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
             }
             Statement::If { site, condition, then_body, else_body, .. } => {
                 output.push(bool_condition_execution(input, condition, &homes, &text_carriers)?);
-                let then_homes = body(input, source, then_body, homes.clone(), text_carriers.clone(), output)?;
+                let then_homes = body(input, source, then_body, homes.clone(), text_carriers.clone(), output, returns)?;
                 let else_homes = match else_body {
-                    Some(branch) => body(input, source, branch, homes.clone(), text_carriers.clone(), output)?,
+                    Some(branch) => body(input, source, branch, homes.clone(), text_carriers.clone(), output, returns)?,
                     None => Some((homes.clone(), text_carriers.clone())),
                 };
                 let (joined_homes, joined_carriers) = match (then_homes, else_homes) {
@@ -647,8 +649,15 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
     }
     Ok(Some((homes, text_carriers)))
 }
+/// Text carrier state at each in-loop `return`, in source order.
+pub(crate) type SourceLoopReturnCarriersV2 = Vec<(SourceLoopCarrierPointV2, Vec<SourceLoopTextCarrierStateV2>)>;
+#[derive(Debug, Clone)]
+pub(crate) enum SourceLoopCarrierPointV2 {
+    Return(Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>),
+    Call(crate::mir::resolved_semantics::OwnedExprSiteV1),
+}
 pub(super) fn verify(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary)
-    -> Result<Box<[SourceLoopEvaluationLifecycleV2]>, String> {
+    -> Result<(Box<[SourceLoopEvaluationLifecycleV2]>, SourceLoopReturnCarriersV2), String> {
     let mut text_carriers = BTreeMap::new();
     for (&binding, basis) in &source.headers {
         if basis.entry_producer().class() != Class::String { continue; }
@@ -657,8 +666,9 @@ pub(super) fn verify(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summar
         if text_carriers.insert(binding, state).is_some() { return Err(reject("execution-text-entry-duplicate")); }
     }
     let mut output = vec![bool_condition_execution(input, &source.condition, source.condition.prior_homes(), &text_carriers)?];
+    let mut returns = Vec::new();
     let normal = body(input, source, source.control.as_ref().map_err(|reason| reject(reason))?,
-        source.condition.prior_homes().to_vec(), text_carriers, &mut output)?;
+        source.condition.prior_homes().to_vec(), text_carriers, &mut output, &mut returns)?;
     if let Some((homes, text_carriers)) = normal {
         let mut ports = source.ports.iter().enumerate().filter(|(_, port)|
             matches!(port.kind, crate::mir::resolved_semantics::home_new_prefix::SourceLoopPortKindV1::Backedge));
@@ -666,7 +676,7 @@ pub(super) fn verify(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summar
         if ports.next().is_some() { return Err(reject("execution-backedge-duplicate")); }
         normal_port(input, source, index, &homes, &text_carriers)?;
     }
-    Ok(output.into_boxed_slice())
+    Ok((output.into_boxed_slice(), returns))
 }
 
 impl super::source_loop_v2::VerifiedSourceLoopRecipeProductV2 {
@@ -727,6 +737,24 @@ impl super::source_loop_v2::VerifiedSourceLoopRecipeProductV2 {
 }
 
 impl super::source_loop_v2::VerifiedSourceLoopRecipeProductV2 {
+    /// Text carriers and their producers at this exact in-loop `return`.
+    pub(crate) fn return_text_carriers_v2(
+        &self, returned: &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
+    ) -> Result<Vec<(crate::mir::resolved_semantics::BindingRefV1, TextProducer)>, String> {
+        let mut rows = self.returns.iter().filter(|(point, _)| matches!(point, SourceLoopCarrierPointV2::Return(row) if Rc::ptr_eq(row, returned)));
+        let (_, carriers) = rows.next().ok_or_else(|| reject("execution-return-carriers-missing"))?;
+        if rows.next().is_some() { return Err(reject("execution-return-carriers-duplicate")); }
+        Ok(carriers.iter().map(|state| (state.basis.binding(), state.producer.clone())).collect())
+    }
+    /// Text carriers and their producers when this Call's Fault can occur.
+    pub(crate) fn call_text_carriers_v2(
+        &self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ) -> Result<Vec<(crate::mir::resolved_semantics::BindingRefV1, TextProducer)>, String> {
+        let mut rows = self.returns.iter().filter(|(point, _)| matches!(point, SourceLoopCarrierPointV2::Call(row) if row == site));
+        let (_, carriers) = rows.next().ok_or_else(|| reject("execution-call-carriers-missing"))?;
+        if rows.next().is_some() { return Err(reject("execution-call-carriers-duplicate")); }
+        Ok(carriers.iter().map(|state| (state.basis.binding(), state.producer.clone())).collect())
+    }
     pub(crate) fn expression_text_fault_producers_v2(&self, source: &Rc<Source>)
         -> Result<Vec<(crate::mir::resolved_semantics::BindingRefV1, TextProducer)>, String> {
         let mut rows = self.schedule().frames().iter().zip(self.execution.iter())

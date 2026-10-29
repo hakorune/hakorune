@@ -123,6 +123,8 @@ pub(crate) enum RootHomeReleaseSubjectV1 {
         binding: BindingRefV1,
         field: hakorune_mir_defs::CanonicalFieldRefV1,
     },
+    /// A Loop Text carrier with no Home of its own at an in-loop `return`.
+    LoopTextCarrier(BindingRefV1),
 }
 
 /// One source-issued root Home obligation after its existing local value has
@@ -143,7 +145,8 @@ impl RootHomeReleaseOriginV1 {
     pub(crate) fn binding(&self) -> Option<BindingRefV1> {
         match &self.subject {
             RootHomeReleaseSubjectV1::Binding(binding)
-            | RootHomeReleaseSubjectV1::FieldResidence { binding, .. } => Some(*binding),
+            | RootHomeReleaseSubjectV1::FieldResidence { binding, .. }
+            | RootHomeReleaseSubjectV1::LoopTextCarrier(binding) => Some(*binding),
             RootHomeReleaseSubjectV1::Text(source) => Some(source.binding()),
             RootHomeReleaseSubjectV1::ArgumentMap { .. }
             | RootHomeReleaseSubjectV1::DirectResult { .. }
@@ -360,6 +363,104 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 
+    /// Record the Header/Residence Text carriers an in-loop `return` still owes
+    /// (older than the loop's own Homes, younger than its prior Homes).
+    pub(crate) fn attach_loop_return_text_carrier_ends_v2(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+        prior: Vec<BindingRefV1>,
+        ends: Vec<(BindingRefV1, InvokeOperation)>,
+    ) -> Result<(), String> {
+        if ends.is_empty() {
+            return Ok(());
+        }
+        let exit: RootHomeExitKeyV1 = site.clone().into();
+        let origins = ends
+            .into_iter()
+            .map(|(binding, operation)| RootHomeReleaseOriginV1 {
+                subject: RootHomeReleaseSubjectV1::LoopTextCarrier(binding),
+                exit: exit.clone(),
+                operation,
+            })
+            .collect();
+        if self.loop_return_text_ends.borrow_mut().insert((owner, exit), (prior, origins)).is_some() {
+            return Err(freeze("loop-return-text-ends/duplicate"));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn record_loop_call_text_carrier_ends_v2(
+        &self,
+        call: OwnedExprSiteV1,
+        prior_len: usize,
+        ends: Vec<InvokeOperation>,
+    ) -> Result<(), String> {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[loop-call-ends] record call={call:?} prior_len={prior_len} ends={ends:?}");
+        }
+        if ends.is_empty() {
+            return Ok(());
+        }
+        if self.loop_call_text_ends.borrow_mut().insert(call, (prior_len, ends)).is_some() {
+            return Err(freeze("loop-call-text-ends/duplicate"));
+        }
+        Ok(())
+    }
+
+    /// Place the recorded carrier Ends just before the loop's prior-Home
+    /// suffix of `unwind` (oldest-first `homes`, newest-first operations).
+    pub(crate) fn with_loop_call_text_ends_v2(
+        &self,
+        call: &OwnedExprSiteV1,
+        homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+        unwind: &mut Vec<InvokeOperation>,
+    ) -> Result<(), String> {
+        let recorded = self.loop_call_text_ends.borrow();
+        let Some((prior_len, ends)) = recorded.get(call) else {
+            return Ok(());
+        };
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[loop-call-ends] apply call={call:?} unwind={unwind:?}");
+        }
+        let suffix = self.prior_home_unwind_for(homes.get(..*prior_len).ok_or_else(|| freeze("loop-call-text-ends/homes"))?)?;
+        if !unwind.ends_with(&suffix) {
+            return Err(freeze("loop-call-text-ends/suffix"));
+        }
+        let at = unwind.len() - suffix.len();
+        unwind.splice(at..at, ends.iter().cloned());
+        Ok(())
+    }
+
+    /// Call-argument expressions Fault with their enclosing Call's carriers.
+    pub(crate) fn with_loop_call_text_ends_for_frame_v2(
+        &self,
+        frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+        unwind: &mut Vec<InvokeOperation>,
+    ) -> Result<(), String> {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1 as Root;
+        if let Root::CallArgument { call, .. } = frame.source().root() {
+            let site = OwnedExprSiteV1::new(frame.source().owner(), call.site().clone());
+            self.with_loop_call_text_ends_v2(&site, frame.prior_homes(), unwind)?;
+        }
+        Ok(())
+    }
+
+    /// Apply the recorded loop-return carrier Ends to `order`; validators
+    /// rebuild their expected order through this same insertion.
+    pub(in crate::mir::normal_callable_semantic_package) fn adopt_loop_return_text_ends_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &RootHomeExitKeyV1,
+        order: &mut RootHomeCleanupOrderV1,
+    ) -> Result<(), String> {
+        let recorded = self.loop_return_text_ends.borrow();
+        match recorded.get(&(owner, exit.clone())) {
+            Some((prior, ends)) => order.insert_loop_text_carrier_ends(prior, ends),
+            None => Ok(()),
+        }
+    }
+
     pub(crate) fn begin_root_home_exit(
         &self,
         owner: FunctionOwnerIdV1,
@@ -445,6 +546,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("root-exit-not-emitting"));
         };
         order.prepend_argument_maps(operations)?;
+        self.adopt_loop_return_text_ends_v1(owner, exit, order)?;
         let operations = order.normal();
         Ok(operations)
     }
@@ -651,7 +753,17 @@ impl OrdinaryNewClaimLedgerV1 {
                     let expected_plans = source_home_end_plans_v1(&rows, expected_homes)?
                         .ok_or_else(|| freeze("root-home-end-unavailable"))?;
                     expected_subjects.extend(expected_plans.iter().map(|(_, subject, _)| subject.clone()));
+                    if let Some((prior, ends)) = self.loop_return_text_ends.borrow().get(&(owner, expected_exit.clone().into())) {
+                        let at = expected_subjects.len() - expected_plans.len()
+                            + expected_plans.iter().position(|(home, _, _)| prior.contains(&home.binding()))
+                                .unwrap_or(expected_plans.len());
+                        expected_subjects.splice(at..at, ends.iter().map(|origin| origin.subject().clone()));
+                    }
                     if origins.len() != expected_subjects.len() {
+                        if crate::config::env::builder_debug_enabled() {
+                            eprintln!("[root-home] origin-count exit={expected_exit:?} emitted={:?} expected={expected_subjects:?}",
+                                origins.iter().map(|emitted| emitted.origin.subject()).collect::<Vec<_>>());
+                        }
                         return Err(freeze("root-exit-origin-count"));
                     }
                     let expected_subjects = expected_subjects.into_iter();

@@ -483,6 +483,7 @@ impl EmittedLexicalCallProjectionV1 {
                 .ledger()
                 .prior_home_unwind_for(source.prior_homes())?,
         );
+        context.ledger().with_loop_call_text_ends_v2(self.call_site(), source.prior_homes(), &mut suffix)?;
         let operations: Vec<_> = ends.iter().chain(&suffix).cloned().collect();
         let mut seen = std::collections::BTreeSet::new();
         for operation in &operations {

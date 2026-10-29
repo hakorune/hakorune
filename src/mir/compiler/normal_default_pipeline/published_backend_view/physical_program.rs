@@ -749,7 +749,9 @@ fn validate_instruction_with_context(
                         | InvokeOperation::OwnedFieldResidenceRelease { .. }
                         | InvokeOperation::OwnedObjectFieldRelease { .. }
                         | InvokeOperation::ReclaimUnpublished { .. }
-                        | InvokeOperation::Birth(_),
+                        | InvokeOperation::Birth(_)
+                        | InvokeOperation::DynamicArrayGet { .. }
+                        | InvokeOperation::DynamicCarrierEnd { .. },
                     ..
                 }
                 | MirInstruction::InvokeNormalResult { .. }

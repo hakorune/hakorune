@@ -94,6 +94,14 @@ pub(in crate::mir::builder) fn emit(
     let unwind = loop_residency.as_ref().map(|(product, reads)|
         ledger.prepare_loop_expression_text_unwind_v2(frame.evaluation(), product, reads,
             builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)).transpose()?;
+    if let (Some(unwind), Some((product, _))) = (&unwind, &loop_residency) {
+        // Every call of this loop expression Faults with the same live Text carriers.
+        let plain = ledger.prior_home_unwind_for(frame.prior_homes())?;
+        let ends: Vec<_> = unwind.iter().filter(|operation| !plain.contains(operation)).cloned().collect();
+        for call in frame.evaluation().calls() {
+            ledger.record_loop_call_text_carrier_ends_v2(call.site().clone(), product.source.condition.prior_homes().len(), ends.clone())?;
+        }
+    }
     let mut expression = expression_value::emit_with_dynamic_calls(builder, state, ledger, frame.evaluation(), None, unwind.as_deref(),
         &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call_with_dynamic_and_argument_frames(
             builder, state, ledger, frame.evaluation(), call, acquired, values, bindings,

@@ -41,6 +41,7 @@ pub(crate) struct VerifiedSourceLoopRecipeProductV2 {
     pub(crate) source: Summary,
     schedule: VerifiedSourceLoopScheduleV2,
     pub(crate) execution: Box<[super::source_loop_execution::SourceLoopEvaluationLifecycleV2]>,
+    pub(super) returns: super::source_loop_execution::SourceLoopReturnCarriersV2,
     pub(crate) recipe: VerifiedLoopRecipeV2,
     pub(crate) closure: Closure,
     pub(crate) values: Box<[SourceLoopValueV2]>,
@@ -559,7 +560,7 @@ pub(super) fn verify_text_add_source_v2(frame: &Evaluation, node: usize,
 pub(crate) fn produce_source_loop_recipe_v2(input: ResolvedFunctionLoweringInputV1<'_>, source: Summary)
     -> Result<VerifiedSourceLoopRecipeProductV2, String> {
     source.validate_for_recipe_v1(input).map_err(reject)?;
-    let execution = super::source_loop_execution::verify(input, &source)?;
+    let (execution, returns) = super::source_loop_execution::verify(input, &source)?;
     let root = LoopNodeKeyV1::new(0);
     let mut projector = Projector { source: &source, schedule: SourceLoopScheduleDraftV2::default(), recipe: LoopRecipeV2 {
         root_loop: root, loops: Vec::new(), blocks: Vec::new(), items: Vec::new(), bindings: Vec::new(), values: Vec::new(),
@@ -595,7 +596,7 @@ pub(crate) fn produce_source_loop_recipe_v2(input: ResolvedFunctionLoweringInput
     let values = projector.values.into_boxed_slice();
     let control = projector.control.into_boxed_slice();
     let bindings = projector.bindings;
-    Ok(VerifiedSourceLoopRecipeProductV2 { source, schedule, execution, recipe, closure, values, control, bindings })
+    Ok(VerifiedSourceLoopRecipeProductV2 { source, schedule, execution, returns, recipe, closure, values, control, bindings })
 }
 
 /// Match every original incoming edge to the SAME JoinSig transfer and result.

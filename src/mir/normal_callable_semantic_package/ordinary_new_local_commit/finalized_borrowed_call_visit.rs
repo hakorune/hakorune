@@ -99,6 +99,15 @@ impl FinalizedRootSourceHandoffV1 {
                     projection, module, |row| visit(function, row))
             })?;
         }
+        // A `keys().length()` read needs no Local Call group, so its owner may
+        // be absent from the Call census above.
+        let owners: Vec<_> = self.ledger.map_read_bindings.borrow().keys().copied().collect();
+        for owner in owners {
+            self.ledger.with_finished_projection(owner, |symbol, projection| {
+                let function = module.functions.get(symbol).ok_or_else(|| freeze("final-provider/function-missing"))?;
+                self.ledger.visit_keys_count_reads_v1(owner, projection, |row| visit(function, row))
+            })?;
+        }
         Ok(())
     }
 

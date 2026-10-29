@@ -77,6 +77,12 @@ pub(super) fn emit_return(
     if !exit_prepared && !claims.prepare_root_home_exit(input.owner(), source.site.node())? { return Err(freeze("call-source-missing")); }
     let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
     let mut state = state.borrow_mut();
+    // Text carriers not owned as Homes (Header/branch/transferred Residence) still owe
+    // their End here; the Ends join the exit order before it is emitted.
+    let ends = text_carrier_ends(&claims, &state, product.return_text_carriers_v2(source)?,
+        &source.homes.homes().iter().map(|home| home.binding()).collect::<Vec<_>>())?;
+    let prior = product.source.condition.prior_homes().iter().map(|home| home.binding()).collect();
+    claims.attach_loop_return_text_carrier_ends_v2(input.owner(), &source.site, prior, ends)?;
     crate::mir::builder::ordinary_new_admission::selected::emit_root_home_exit(
         builder, &mut state, &claims, input.owner(), &source.site, value)?;
     Ok((value, read, claims.source_loop_return_bindings_v2(product, source)?))
@@ -186,6 +192,41 @@ pub(super) fn emit_array_append(
 
 /// Delegate the original Local statement or discarded Call to its sole writer.
 /// The schedule's CallSlot is a slot, never an empty receiver/argument list.
+/// The End each Text carrier still owes at one Fault/exit point: conditionally
+/// owned Headers and transferred Residences have no Home of their own.
+fn text_carrier_ends(
+    claims: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    state: &crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+    carriers: Vec<(crate::mir::resolved_semantics::BindingRefV1, crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1)>,
+    homes: &[crate::mir::resolved_semantics::BindingRefV1],
+) -> Result<Vec<(crate::mir::resolved_semantics::BindingRefV1, crate::mir::instruction::InvokeOperation)>, String> {
+    use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1, SourceLoopTextProducerV1 as Producer, SourceLoopValueProducerV1 as ValueProducer};
+    use crate::mir::instruction::{InvokeOperation, StringInvokeOperation as Op};
+    let mut ends = Vec::new();
+    for (binding, producer) in carriers {
+        let read = state.observe_binding_value_v2(binding).map_err(|error| error.to_string())?;
+        let end = match &producer {
+            Producer::Static { .. } => continue,
+            Producer::Header(basis) => match basis.entry_producer() {
+                ValueProducer::Text(Producer::Static { .. }) =>
+                    InvokeOperation::String(Op::EndIfOwned { value: read.loan_text_join_v1(&producer)?.value() }),
+                _ => continue,
+            },
+            Producer::Residence(acquisition) if !homes.contains(&binding) => {
+                let operations = claims.prior_home_unwind_for(&[LiveHomeV1::Text(acquisition.clone())])?;
+                let [end] = operations.as_slice() else { return Err(freeze("loop-text-carrier/end")); };
+                end.clone()
+            }
+            Producer::Residence(_) => continue,
+            Producer::BranchNormal(_) =>
+                InvokeOperation::String(Op::EndIfOwned { value: read.loan_text_branch_v1(&producer)?.relation().values().0 }),
+            _ => return Err(freeze("loop-text-carrier/producer")),
+        };
+        ends.push((binding, end));
+    }
+    Ok(ends)
+}
+
 pub(super) fn emit_call(
     builder: &mut MirBuilder, port: &mut RawInvocationChildPortV1<'_, '_>, product: &Rc<Product>,
     statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
@@ -200,6 +241,15 @@ pub(super) fn emit_call(
         return Err(freeze("call-source-drift"));
     }
     let claims = port.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("claim-ledger-missing"))?;
+    {
+        // The Call's Fault unwind also owes the live Text carriers' Ends.
+        let state = port.callable_ledger.clone().ok_or_else(|| freeze("state-missing"))?;
+        let state = state.borrow();
+        let ends = text_carrier_ends(&claims, &state, product.call_text_carriers_v2(observation.site())?,
+            &observation.prior_homes().iter().map(|home| home.binding()).collect::<Vec<_>>())?;
+        claims.record_loop_call_text_carrier_ends_v2(observation.site().clone(),
+            product.source.condition.prior_homes().len(), ends.into_iter().map(|(_, end)| end).collect())?;
+    }
         let value = if let Some((declaration, binding)) = observation.local_binding() {
         let SourceBindingSiteV1::Local { statement: original_statement, ordinal } = declaration
             else { return Err(freeze("call-local-declaration")); };

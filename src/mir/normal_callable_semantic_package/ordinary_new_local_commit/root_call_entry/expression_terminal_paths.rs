@@ -562,7 +562,10 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             .unwrap_or_default();
         match self.prior_home_unwind {
             Some(unwind) => homes.extend_from_slice(unwind),
-            None => homes.extend(ledger.prior_home_unwind_for(self.frame.prior_homes())?),
+            None => {
+                homes.extend(ledger.prior_home_unwind_for(self.frame.prior_homes())?);
+                ledger.with_loop_call_text_ends_for_frame_v2(self.frame, &mut homes)?;
+            }
         }
         let (mut live, mut covered) = self.validate_acquisition_paths_v1(
             context,
@@ -643,7 +646,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         } else {
             None
         };
-        let full: Vec<_> = live
+        let mut full: Vec<_> = live
             .iter()
             .rev()
             .copied()
@@ -667,7 +670,15 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             {
                 return Err(freeze("rebind-expression/old-home-duplicate"));
             }
-            normal_indices.push(index);
+            if normal_indices.is_empty() {
+                normal_indices.push(index);
+            } else {
+                // The installed replacement owes the displaced End before any
+                // temporary's End, on Normal and on Fault alike.
+                full.remove(index);
+                full.insert(0, old.clone());
+                normal_indices = (0..=live.len()).collect();
+            }
         }
         let stop = match finishing {
             Some(projection) => projection

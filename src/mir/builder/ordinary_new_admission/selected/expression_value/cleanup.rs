@@ -399,14 +399,24 @@ fn finish_body_cleanup(
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
     let mut normal_indices: Vec<_> = (0..normal.len()).collect();
+    let mut fault = fault;
     if let Some(old) = displaced {
         let index = fault.iter().position(|operation| *operation == old)
             .ok_or_else(|| freeze("rebind-expression/old-home-missing"))?;
         if fault.iter().filter(|operation| **operation == old).count() != 1 || normal_indices.contains(&index) {
             return Err(freeze("rebind-expression/old-home-duplicate"));
         }
-        normal_indices.push(index);
-        normal.push(old);
+        if normal.is_empty() {
+            normal_indices.push(index);
+            normal.push(old);
+        } else {
+            // The installed replacement owes the displaced End before any
+            // temporary's End, on Normal and on Fault alike.
+            fault.remove(index);
+            fault.insert(0, old.clone());
+            normal.insert(0, old);
+            normal_indices = (0..normal.len()).collect();
+        }
     }
     let after = (0..normal.len()).map(|step|
         crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &normal_indices, step))
