@@ -86,6 +86,16 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
       if (released && !discharged) return 0;
       reached = 1; continue;
     }
+    if (fn->pred_valid) {
+      size_t at = (size_t)(current - fn->blocks);
+      for (size_t k = fn->pred_off[at]; k < fn->pred_off[at + 1]; k++) {
+        size_t state = 2 * fn->pred_idx[k] + discharged;
+        if (seen[state]) continue;
+        if (tail >= 2 * fn->block_count + 1) return 0;
+        seen[state] = 1; queue[tail++] = state;
+      }
+      continue;
+    }
     for (size_t pi = 0; pi < fn->block_count; pi++) {
       yyjson_arr_iter edges = yyjson_arr_iter_with(yyjson_obj_get(fn->blocks[pi].block, "edges"));
       yyjson_val* edge;

@@ -36,7 +36,7 @@ static int lv4_field_array_readable(const hako_lv4_input* in,
           !in->index[target].receiver_object_set || in->index[target].receiver_object != root->object_id) return 0;
       born = lv4_u(term, "normal");
     }
-    if (births != 1 || hako_physical_predecessor_count(fn->function, born) != 1) return 0;
+    if (births != 1 || lv4_pred_count(fn, born) != 1) return 0;
   }
   return lv4_field_borrow_suffix(fn, lv4_u(array->definition_block, "id"), born, base, object, field) &&
       lv4_field_borrow_suffix(fn, use, born, base, object, field);

@@ -291,7 +291,7 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
       if (lv4_operation_result(yyjson_obj_get(term, "operation")) != LV4_BAD) {
         uint32_t id = fn->blocks[bi].id, normal = lv4_u(term, "normal");
         size_t projections = 0;
-        if (hako_physical_predecessor_count(fn->function, normal) != 1) return 0;
+        if (lv4_pred_count(fn, normal) != 1) return 0;
         for (size_t vi = 0; vi < fn->value_count; vi++) {
           yyjson_val* ins = fn->values[vi].instruction;
           projections += lv4_is(ins, "op", "invoke_normal_result") && lv4_u(ins, "invoke_block") == id;
@@ -302,7 +302,7 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
     /* Root initializes its frame. A Birth with no frame uses may omit the
        borrowed-frame projection; SSA validation still rejects undefined uses. */
     if (!entry || frames > 1 || (!fi && frames != 1) ||
-        hako_physical_predecessor_count(fn->function, entry->id)) return 0;
+        lv4_pred_count(fn, entry->id)) return 0;
     if (!lv4_work_open(&work, count, lv4_state_count(fn), entry->ordinal)) return 0;
     int valid = 1;
     size_t failed_block = entry->ordinal;

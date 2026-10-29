@@ -10,7 +10,7 @@ static uint32_t lv4_received_field_parent(const hako_lv4_input* in,
   uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
   if (!lv4_is(op, "kind", "ordinary_call") || !lv4_is(op, "result", "handle") ||
       !root->definition_block || lv4_u(term, "normal") != lv4_u(root->definition_block, "id") ||
-      hako_physical_predecessor_count(fn->function, lv4_u(term, "normal")) != 1 ||
+      lv4_pred_count(fn, lv4_u(term, "normal")) != 1 ||
       !target || target >= in->index_count ||
       !lv4_is(in->index[target].function, "role", "ordinary_handle")) return 0;
   return target;
@@ -33,7 +33,7 @@ static int lv4_received_field_fresh(const hako_lv4_input* in,
     if (birth) return 0;
     birth = term;
   }
-  if (!birth || hako_physical_predecessor_count(fn->function, lv4_u(birth, "normal")) != 1 ||
+  if (!birth || lv4_pred_count(fn, lv4_u(birth, "normal")) != 1 ||
       !lv4_field_borrow_suffix(fn, returned_block, lv4_u(birth, "normal"), root, object, field)) return 0;
   yyjson_val* call = yyjson_obj_get(yyjson_obj_get(birth, "operation"), "call");
   uint32_t target = lv4_u(call, "target");

@@ -65,7 +65,7 @@ static int lv4_slot_return_origin(const hako_lv4_input* in,
         !lv4_is(yyjson_obj_get(has_op, "key"), "kind", "borrowed_text") ||
         lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(yyjson_obj_get(has_op, "key"), "value"))) != key ||
         !lv4_is(normal, "op", "invoke_normal_result") || lv4_u(normal, "invoke_block") != has_block ||
-        lv4_u(has, "normal") != normal_block || hako_physical_predecessor_count(fn->function, normal_block) != 1 ||
+        lv4_u(has, "normal") != normal_block || lv4_pred_count(fn, normal_block) != 1 ||
         !lv4_is(branch, "op", "branch") ||
         !lv4_result_copy_chain(fn, present, lv4_u(normal, "dst"), lv4_u(branch, "condition")) ||
         !hako_physical_block_dominates(fn->function, normal_block, branch_block) ||
@@ -74,7 +74,7 @@ static int lv4_slot_return_origin(const hako_lv4_input* in,
         !lv4_map_slot_interval(fn, invoke_block, normal_block, receiver, support.receiver_object, support.field) ||
         !lv4_is(op, "kind", "map_field_get_indexed") ||
         !lv4_is(producer, "op", "invoke_normal_result") || lv4_u(producer, "invoke_block") != invoke_block ||
-        producer_block != born || hako_physical_predecessor_count(fn->function, born) != 1) return 0;
+        producer_block != born || lv4_pred_count(fn, born) != 1) return 0;
   } else {
     uint32_t normal_block = 0, end_block = 0;
     yyjson_val* normal = lv4_result_coordinate(fn, yyjson_obj_get(installed, "normal"), &normal_block);
@@ -86,12 +86,12 @@ static int lv4_slot_return_origin(const hako_lv4_input* in,
         lv4_u(producer, "src") != lv4_u(op, "value") || value == lv4_u(op, "value") ||
         !lv4_owned_value_object(in, fn, candidate, 0) || candidate->object_id != support.payload_object ||
         !lv4_is(normal, "op", "invoke_normal_result") || lv4_u(normal, "invoke_block") != invoke_block ||
-        normal_block != born || hako_physical_predecessor_count(fn->function, born) != 1 ||
+        normal_block != born || lv4_pred_count(fn, born) != 1 ||
         !lv4_is(end, "op", "invoke") || !lv4_is(yyjson_obj_get(end, "operation"), "kind", "map_end_outcome") ||
         lv4_u(yyjson_obj_get(end, "operation"), "outcome") != lv4_u(normal, "dst") ||
         lv4_u(end, "fault_frame") != lv4_u(invoke, "fault_frame") ||
         !hako_physical_block_dominates(fn->function, born, end_block) ||
-        hako_physical_predecessor_count(fn->function, lv4_u(end, "normal")) != 1 ||
+        lv4_pred_count(fn, lv4_u(end, "normal")) != 1 ||
         !hako_physical_block_dominates(fn->function, lv4_u(end, "normal"), producer_block)) return 0;
     hako_lv4_value* acquired = lv4_value_alias_root(fn, candidate);
     hako_lv4_block* allocation = acquired ? lv4_index_block(fn, lv4_u(acquired->instruction, "invoke_block")) : NULL;
@@ -108,7 +108,7 @@ static int lv4_slot_return_origin(const hako_lv4_input* in,
       if (++births != 1 || !target || target >= in->index_count ||
           !lv4_is(in->index[target].function, "role", "birth_unit") ||
           !in->index[target].receiver_object_set || in->index[target].receiver_object != support.payload_object ||
-          hako_physical_predecessor_count(fn->function, lv4_u(birth, "normal")) != 1 ||
+          lv4_pred_count(fn, lv4_u(birth, "normal")) != 1 ||
           !hako_physical_block_dominates(fn->function, lv4_u(birth, "normal"), invoke_block)) return 0;
     }
     if (births != 1) return 0;

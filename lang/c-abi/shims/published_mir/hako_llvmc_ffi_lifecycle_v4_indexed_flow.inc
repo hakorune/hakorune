@@ -546,7 +546,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
            * No borrowed entries or unproved contents escape into a field. */
           if (!lv4_is(yyjson_obj_get(producer, "operation"), "kind", "map_new") ||
               lv4_u(producer, "normal") != lv4_u(block, "id") ||
-              hako_physical_predecessor_count(fn->function, lv4_u(block, "id")) != 1) return 0;
+              lv4_pred_count(fn, lv4_u(block, "id")) != 1) return 0;
           normal[value->origin] = 0; /* Fault still owns the in-flight candidate. */
         } else if (value->kind != LV4_I64) return 0;
       } else if (lv4_is(op, "transaction", "dynamic_i64_replace")) {

@@ -30,7 +30,7 @@ static int lv4_slot_result_readable(const hako_lv4_input* in,
       in->index[target].return_object_state != 2 || in->index[target].return_object != support.payload_object ||
       (check_object && object != support.payload_object) ||
       lv4_u(term, "normal") != lv4_u(value->definition_block, "id") ||
-      hako_physical_predecessor_count(fn->function, lv4_u(term, "normal")) != 1) return 0;
+      lv4_pred_count(fn, lv4_u(term, "normal")) != 1) return 0;
   hako_lv4_value* receiver = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(call, "receiver")));
   return receiver && receiver->kind == LV4_HANDLE &&
       lv4_readable_object(in, fn, receiver->id, state, use, support.receiver_object, 1) &&
@@ -53,7 +53,7 @@ static hako_lv4_value* lv4_borrowed_result_anchor(const hako_lv4_input* in,
     uint32_t target, ordinal, declared;
     if (!block || value->origin != (int)block->ordinal ||
         !value->definition_block || lv4_u(term, "normal") != lv4_u(value->definition_block, "id") ||
-        hako_physical_predecessor_count(fn->function, lv4_u(term, "normal")) != 1 ||
+        lv4_pred_count(fn, lv4_u(term, "normal")) != 1 ||
         !lv4_is(term, "op", "invoke") || !lv4_is(op, "kind", "ordinary_call") ||
         !lv4_is(op, "result", "borrowed_nullable_handle") ||
         !hako_physical_u32(yyjson_obj_get(call, "target"), &target) ||

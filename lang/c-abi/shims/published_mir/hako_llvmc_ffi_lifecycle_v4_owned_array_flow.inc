@@ -140,7 +140,7 @@ static int lv4_slot_borrow_readable(const hako_lv4_input* in,
   yyjson_val* op = yyjson_obj_get(term, "operation");
   if (!producer || value->origin != (int)producer->ordinal || !value->definition_block ||
       !lv4_is(term, "op", "invoke") || lv4_u(term, "normal") != lv4_u(value->definition_block, "id") ||
-      hako_physical_predecessor_count(fn->function, lv4_u(term, "normal")) != 1) return 0;
+      lv4_pred_count(fn, lv4_u(term, "normal")) != 1) return 0;
   if (lv4_is(op, "kind", "array_owned_get")) return lv4_owned_array_borrow_live(fn, value, state);
   int object_borrow = lv4_is(op, "kind", "object_field_borrow");
   if ((!object_borrow && !lv4_is(op, "kind", "map_field_get_indexed")) || (!object_borrow && in->profile != LV4_INDEXED_SAFE_MUTEX) ||

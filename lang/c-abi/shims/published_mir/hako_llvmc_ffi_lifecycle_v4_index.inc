@@ -32,6 +32,12 @@ typedef struct hako_lv4_function_index {
   const struct hako_lv4_function_index* peers;
   size_t peer_count;
   int leaf_scalar;
+  /* Predecessors by sorted block position, built once from the same edges the
+     physical count scans; pred_valid is 0 when any edge target is malformed. */
+  int pred_valid;
+  uint32_t* pred_count;
+  size_t* pred_off;
+  size_t* pred_idx;
 } hako_lv4_function_index;
 
 static size_t lv4_state_count(const hako_lv4_function_index* fn) {
@@ -347,10 +353,46 @@ static int lv4_body_leaf_scalar(hako_lv4_function_index* fn) {
   return 1;
 }
 
+static int lv4_pred_build(hako_lv4_function_index* fn) {
+  size_t n = fn->block_count, total = 0;
+  fn->pred_count = calloc(n, sizeof(*fn->pred_count));
+  fn->pred_off = calloc(n + 1, sizeof(*fn->pred_off));
+  if (!fn->pred_count || !fn->pred_off) return 0;
+  for (int pass = 0; pass < 2; pass++) {
+    size_t* cursor = pass ? calloc(n, sizeof(*cursor)) : NULL;
+    if (pass && (!cursor || !(fn->pred_idx = calloc(total ? total : 1, sizeof(*fn->pred_idx))))) { free(cursor); return 0; }
+    for (size_t bi = 0; bi < n; bi++) {
+      yyjson_val* edges = yyjson_obj_get(fn->blocks[bi].block, "edges");
+      for (size_t ei = 0; edges && ei < yyjson_arr_size(edges); ei++) {
+        uint32_t target;
+        if (!hako_physical_u32(yyjson_obj_get(yyjson_arr_get(edges, ei), "target"), &target)) { free(cursor); return 1; }
+        hako_lv4_block* tb = lv4_index_block(fn, target);
+        if (!tb) continue;
+        size_t at = (size_t)(tb - fn->blocks);
+        if (!pass) { fn->pred_count[at]++; total++; }
+        else fn->pred_idx[fn->pred_off[at] + cursor[at]++] = bi;
+      }
+    }
+    free(cursor);
+    if (!pass) for (size_t i = 0; i < n; i++) fn->pred_off[i + 1] = fn->pred_off[i] + fn->pred_count[i];
+  }
+  fn->pred_valid = 1;
+  return 1;
+}
+
+/* Same answer as the physical scan, without rescanning every block. */
+static size_t lv4_pred_count(hako_lv4_function_index* fn, uint32_t id) {
+  hako_lv4_block* block = fn->pred_valid ? lv4_index_block(fn, id) : NULL;
+  return block ? fn->pred_count[block - fn->blocks] : hako_physical_predecessor_count(fn->function, id);
+}
+
 static void lv4_index_close(hako_lv4_input* in) {
   for (size_t fi = 0; fi < in->index_count; fi++) {
     free(in->index[fi].values);
     free(in->index[fi].blocks);
+    free(in->index[fi].pred_count);
+    free(in->index[fi].pred_off);
+    free(in->index[fi].pred_idx);
   }
   free(in->index); in->index = NULL; in->index_count = 0;
   free(in->layouts); in->layouts = NULL; in->layout_count = 0;
@@ -463,6 +505,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     in->index[fi].peers = in->index;
     in->index[fi].peer_count = functions;
     in->index[fi].leaf_scalar = lv4_body_leaf_scalar(&in->index[fi]);
+    if (!lv4_pred_build(&in->index[fi])) return 0;
   }
   return 1;
 }

@@ -214,9 +214,9 @@ static int lv4_birth_field_borrow_live(const hako_lv4_input* in,
   }
   yyjson_val* store_block = fn->blocks[found].block;
   uint32_t committed = lv4_u(lv4_term(store_block), "normal");
-  return births == 1 && hako_physical_predecessor_count(fn->function, born) == 1 &&
+  return births == 1 && lv4_pred_count(fn, born) == 1 &&
       hako_physical_block_dominates(fn->function, born, lv4_u(store_block, "id")) &&
-      hako_physical_predecessor_count(fn->function, committed) == 1 &&
+      lv4_pred_count(fn, committed) == 1 &&
       lv4_field_borrow_suffix(fn, lv4_u(edge->definition_block, "id"), committed, base,
           base->object_id, lv4_u(read, "field_ordinal")) &&
       lv4_field_borrow_suffix(fn, use, committed, base, base->object_id, lv4_u(read, "field_ordinal"));

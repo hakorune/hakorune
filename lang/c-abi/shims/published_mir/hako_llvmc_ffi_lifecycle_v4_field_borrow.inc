@@ -146,7 +146,7 @@ static int lv4_object_base_readable_mode(const hako_lv4_input* in, hako_lv4_func
             in->index[target].receiver_object != root->object_id) return 0;
         born = lv4_u(term, "normal");
       }
-      if (births != 1 || hako_physical_predecessor_count(fn->function, born) != 1) return 0;
+      if (births != 1 || lv4_pred_count(fn, born) != 1) return 0;
       }
     }
     if (!edge->definition_block ||
@@ -245,7 +245,7 @@ static int lv4_map_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* val
     if (eq == ne) continue;
     uint32_t present = lv4_u(term, eq ? "else" : "then");
     if (lv4_u(term, "then") == lv4_u(term, "else") ||
-        hako_physical_predecessor_count(fn->function, present) != 1 ||
+        lv4_pred_count(fn, present) != 1 ||
         !hako_physical_block_dominates(fn->function, producer->id, block->id) ||
         !hako_physical_block_dominates(fn->function, present, use) ||
         lv4_guard_path(fn, present, producer->id, 1, block->id, use) != 0) continue;
@@ -305,8 +305,8 @@ static int lv4_map_present_guarded(hako_lv4_function_index* fn, hako_lv4_value* 
         !lv4_is(has_key, "kind", yyjson_get_str(yyjson_obj_get(key, "kind"))) ||
         lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(has_key, "value"))) != key_root) continue;
     uint32_t normal = lv4_u(has_term, "normal"), present = lv4_u(term, "then");
-    if (hako_physical_predecessor_count(fn->function, normal) != 1 ||
-        hako_physical_predecessor_count(fn->function, present) != 1 ||
+    if (lv4_pred_count(fn, normal) != 1 ||
+        lv4_pred_count(fn, present) != 1 ||
         !hako_physical_block_dominates(fn->function, normal, branch->id) ||
         !hako_physical_block_dominates(fn->function, present, get_block) ||
         !hako_physical_block_dominates(fn->function, present, use) ||

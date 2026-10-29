@@ -91,7 +91,7 @@ static int lv4_field_dependency_group(const hako_lv4_input* in,
   if (!block || lv4_term(block->block) != invoke || !lv4_is(invoke, "op", "invoke") ||
       !lv4_is(producer, "op", "invoke_normal_result") || lv4_u(producer, "invoke_block") != invoke_block ||
       lv4_u(invoke, "normal") != producer_block ||
-      hako_physical_predecessor_count(fn->function, producer_block) != 1 ||
+      lv4_pred_count(fn, producer_block) != 1 ||
       !lv4_is(op, "kind", "ordinary_call") ||
       !hako_physical_u32(yyjson_obj_get(call, "target"), &target) || !target || target >= in->index_count ||
       !yyjson_is_arr(args) || inner >= yyjson_arr_size(args) ||
@@ -113,7 +113,7 @@ static int lv4_field_dependency_group(const hako_lv4_input* in,
     uint32_t constructor, ordinal = lv4_u(field, "constructor_formal_ordinal");
     if (!birth_index || lv4_term(birth_index->block) != birth || !lv4_is(birth, "op", "invoke") ||
         !lv4_is(birth_op, "kind", "birth_call") || !fresh ||
-        hako_physical_predecessor_count(fn->function, lv4_u(birth, "normal")) != 1 ||
+        lv4_pred_count(fn, lv4_u(birth, "normal")) != 1 ||
         lv4_u(birth_call, "receiver") != lv4_u(fresh, "dst") ||
         !hako_physical_u32(yyjson_obj_get(birth_call, "target"), &constructor) ||
         !constructor || constructor >= in->index_count || !yyjson_is_arr(birth_args) ||

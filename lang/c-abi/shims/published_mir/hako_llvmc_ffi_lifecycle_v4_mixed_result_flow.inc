@@ -15,7 +15,7 @@ static int lv4_mixed_result_readable_depth(const hako_lv4_input* in,
   uint32_t target, inner, declared;
   if (!block || value->origin != (int)block->ordinal || !lv4_is(invoke, "op", "invoke") ||
       lv4_u(invoke, "normal") != lv4_u(value->definition_block, "id") ||
-      hako_physical_predecessor_count(fn->function, lv4_u(invoke, "normal")) != 1 ||
+      lv4_pred_count(fn, lv4_u(invoke, "normal")) != 1 ||
       !lv4_is(op, "kind", "ordinary_call") || !lv4_is(op, "result", "mixed_handle") ||
       !hako_physical_u32(yyjson_obj_get(call, "target"), &target) || !target || target >= in->index_count ||
       !hako_physical_u32(yyjson_obj_get(op, "result_formal_ordinal"), &inner)) return 0;
@@ -133,7 +133,7 @@ static int lv4_complete_fields_discharged(const hako_lv4_input* in,
     }
     if (births != 1) return 0;
   }
-  if (hako_physical_predecessor_count(fn->function, born) != 1) return 0;
+  if (lv4_pred_count(fn, born) != 1) return 0;
   yyjson_val* arrays = yyjson_obj_get(layout, "owned_residences");
   yyjson_val* objects = yyjson_obj_get(layout, "owned_object_residences");
   size_t ai = 0, oi = 0;
