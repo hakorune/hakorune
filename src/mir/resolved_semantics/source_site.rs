@@ -86,11 +86,11 @@ pub enum SourcePathSegmentV1 {
 
 /// Structural node provenance relative to one function root.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct SourceNodeSiteV1(Box<[SourcePathSegmentV1]>);
+pub struct SourceNodeSiteV1(std::rc::Rc<[SourcePathSegmentV1]>);
 
 impl SourceNodeSiteV1 {
     pub(crate) fn from_segments(segments: Vec<SourcePathSegmentV1>) -> Self {
-        Self(segments.into_boxed_slice())
+        Self(std::rc::Rc::from(segments))
     }
 
     pub fn segments(&self) -> &[SourcePathSegmentV1] {
