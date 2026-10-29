@@ -20,7 +20,7 @@ latest_card_summary = """
 APP-boxtorrent-mini: boxtorrent_mini_exe PASS; fixed real-apps-exe-boundary 11/11 (optimized target/quick/hakorune, 5m50s), no SKIP/timeout.
 Landed: nullable-Text carrier, Text+Bool, loop-carrier End/replacement order across Rust+C verifiers, Map-element receiver, scalar-leaf call interval.
 Next (soon): optimization phase - compile is 140s optimized / 9m48s opt0, 89% in Rust semantic verification (repeated derivation); keep checks, compute once.
-Open: raw VM run of json-stream-aggregator is refused (smoke EXE route passes); files over 800 lines listed in the app card.
+Open: files over 800 lines are listed in the app card; VM is retired and is not a verification route.
 """
 next_design_card = "none"
 next_design_card_path = "none"

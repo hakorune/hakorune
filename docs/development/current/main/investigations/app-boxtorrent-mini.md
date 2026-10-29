@@ -6,7 +6,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 
 ## 現在地
 - `boxtorrent_mini_exe` が PASS（期待出力13行＋`Result: 0`、exit 0）。固定 `real-apps-exe-boundary` は**11/11 PASS、5分50秒**（2026-10-30、`target/quick/hakorune`=`cargo quick-build --bin hakorune` の最適化版＋同`target/quick` runtime、`tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420`）。SKIP/空marker/timeoutなし。boxtorrentは139.7秒、他は11〜57秒。
-- 共有Rust検証: `ordinary_new`/`resolved_semantics`/`loop_recipe` は変更前と同じ 失敗84/1/21（成功640/375/245）。JSON appは `json_stream_aggregator_exe_runtime_boundary` smoke PASS。素の `hakorune apps/json-stream-aggregator/main.hako`（VM実行）は `borrowed-dynamic-entry/physical-formal` で拒否される（`finalized_received_birth_actual.rs` を戻しても同じ。この着地の前からか未確認。smokeのEXE経路は影響なし）。
+- 共有Rust検証: `ordinary_new`/`resolved_semantics`/`loop_recipe` は変更前と同じ 失敗84/1/21（成功640/375/245）。JSON appは `json_stream_aggregator_exe_runtime_boundary` smoke PASS（検証はEXE経路。VMはactive laneとして撤退済みで検証対象外）。
 - 次の主題は**最適化フェーズ（なるべく早く）**。boxtorrentのコンパイルは最適化版140秒・開発用`quick-build-fast`(opt0)で9分48秒。時間の89%はRust側の意味検証（`corroborate_original_v1` 約40箇所から呼ばれ毎回BTreeMapを再構築、`borrowed_formal_*`の導き直し）で、Cは4%。
 
 ## この着地の内容（共有ownerへの追加と理由）
@@ -25,9 +25,8 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 
 ## 残件
 1. [ ] **最適化フェーズ（優先・なるべく早く）**: 検証は減らさず計算を1回にする。`corroborate_original_v1`の再構築、`borrowed_formal_*`の導き直し、同じ不変入力の結果再利用（RULES §8）。結果キャッシュは、テストが同じ inventory を書き換えるため検査を弱めるので不可。目標: boxtorrent最適化版140秒→大幅短縮、opt0版9分48秒の解消。
-2. [ ] VM実行の拒否（上記）が着地前から存在するかを切り分け、必要なら直す。
-3. [ ] 残る重い関数の整理（上の800行超）と、順序規約の一元化。
-4. [ ] 次アプリへpointerを切り替える前に、finite_product_goalの未完（R6/R7・Loop・物理退役・最終pipeline）は別goalとして維持。
+2. [ ] 残る重い関数の整理（上の800行超）と、順序規約の一元化。
+3. [ ] 次アプリへpointerを切り替える前に、finite_product_goalの未完（R6/R7・Loop・物理退役・最終pipeline）は別goalとして維持。
 
 ## 検証コマンド
 - 選択smoke: `HAKO_ROOT=$PWD NYASH_ROOT=$PWD NYASH_BIN=$PWD/target/quick/hakorune NYASH_EMIT_EXE_NYRT=$PWD/target/quick BUILD_TIMEOUT_SECS=1200 bash tools/smokes/v2/profiles/integration/apps/boxtorrent_mini_exe.sh`（最適化版で約140秒。opt0版は`BUILD_TIMEOUT_SECS`既定300秒を超えるので使わない）。
