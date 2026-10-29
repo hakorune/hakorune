@@ -515,21 +515,6 @@ loop_coverage_parity = "n/a"
 legacy_joinmodule_disposition = "n/a"
 
 [[record]]
-path = "tools/checks/mir_root_import_hygiene_guard.sh"
-role = "guard"
-owner = "MIR-ROOT-MODULE-SURFACE0-G0"
-lifecycle = "durable"
-caller_class = "guarded-tools"
-default_fallback = "none"
-retire_when = "retire with the facade surface owner row"
-evidence = [
-  "tools/checks/mir_root_import_hygiene_guard.sh",
-  "docs/tools/check-scripts-index.md",
-]
-loop_coverage_parity = "n/a"
-legacy_joinmodule_disposition = "n/a"
-
-[[record]]
 path = "tools/checks/mir_context_owner_split_guard.sh"
 role = "guard"
 owner = "MIR-CONTEXT-OWNER-SPLIT0-S0"
