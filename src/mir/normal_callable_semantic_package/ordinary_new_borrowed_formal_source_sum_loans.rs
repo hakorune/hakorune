@@ -428,10 +428,15 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         parameters: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
     ) -> Option<Vec<Rc<SourceValueSumV1>>> {
+        // One corroboration covers the whole census: nothing mutates the pair
+        // between the per-formal lookups below.
+        self.original_formal_seeds
+            .corroborate_original_v1(&self.source_incoming)
+            .then_some(())?;
         parameters
             .iter()
             .filter(|row| row.kind.is_ordinary_borrowed_handle())
-            .map(|row| self.lend_source_value_sum_v1(row.binding))
+            .map(|row| self.original_formal_seeds.source_sums.as_ref()?.values.get(&row.binding).map(Rc::clone))
             .collect()
     }
     /// The SUM at one exact original read of a Local, from the same original flow.

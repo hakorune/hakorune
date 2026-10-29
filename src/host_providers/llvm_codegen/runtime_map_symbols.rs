@@ -47,6 +47,8 @@ pub(super) fn require_checked_map_symbols(archive: &Path, fields: bool) -> Resul
             "--defined-only",
             "--format=posix",
             "--no-demangle",
+            // Rows are counted by name; sorting a ~480MB archive costs seconds.
+            "--no-sort",
         ])
         .arg(archive)
         .output()
