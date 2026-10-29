@@ -456,6 +456,11 @@ impl RootLifecyclePrefixBindingGroupV1 {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) => packet.expression(),
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) => packet.expression(),
             PrefixPhysicalProofV1::PrintExpression(packet) => packet.expression(),
+            PrefixPhysicalProofV1::BoolCondition(packet) => {
+                let pair = packet.array_operation_bindings_v1(operation)?;
+                if pair.is_some() { self.validate_recorded_in_context(context, function, Some(projection))?; }
+                return Ok(pair);
+            }
             _ => return Ok(None),
         };
         let pair = expression.array_operation_bindings_v1(operation, context)?;

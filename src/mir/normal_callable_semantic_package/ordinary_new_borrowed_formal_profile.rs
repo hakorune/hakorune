@@ -393,6 +393,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                         .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?,
                     Err(_) => false,
                 };
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[result-class] joined={joined} classes={:?}", classes.iter().map(|(reference, class)| (&reference.call_site, class)).collect::<Vec<_>>());
+                }
                 if joined { previous = classes; }
                 joined
             };

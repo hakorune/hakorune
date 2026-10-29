@@ -556,6 +556,13 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Vec<Rc<pending::field_array_read::CheckedFieldArrayReadSourceV1>>, String> {
         let selected = self.borrowed_i64_results.get(&owner).and_then(|row| row.as_ref().ok())
             .is_some_and(|proof| !proof.field_array_reads.is_empty());
+        if !selected && crate::config::env::builder_debug_enabled() {
+            eprintln!("[field-array-return] owner={owner:?} not selected: {}", match self.borrowed_i64_results.get(&owner) {
+                None => "no borrowed result row".to_owned(),
+                Some(Err(reason)) => format!("row refused: {reason}"),
+                Some(Ok(proof)) => format!("no field array reads (class {:?})", proof.class),
+            });
+        }
         if !selected { return Ok(Vec::new()); }
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?;
         let validation = ScalarSourceValidationV1::new(ingress, &self.borrowed_i64_results);

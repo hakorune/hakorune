@@ -48,8 +48,11 @@ impl OrdinaryNewClaimLedgerV1 {
         for read in self.field_array_return_reads_v1(owner)? { insert(read.read())?; }
         for (site, row) in self.local_field_reads.borrow().iter().filter(|(site, _)| site.owner() == owner) {
             for source in row.source.array_operation_sources_v1().iter().filter(|source| source.is_count()) {
-                if source.receiver_alias_v1().and_then(|alias| alias.fixed_source_v1())
-                    .is_none_or(|(field, _)| field.site() != site) {
+                let aliased = source.receiver_alias_v1().and_then(|alias| alias.fixed_source_v1())
+                    .is_some_and(|(field, _)| field.site() == site);
+                // A direct `me.<array>` receiver is its own field read.
+                let direct = source.receiver_alias_v1().is_none() && source.receiver() == site;
+                if !aliased && !direct {
                     return Err(array_fault("read-source-conflict"));
                 }
                 insert(source)?;

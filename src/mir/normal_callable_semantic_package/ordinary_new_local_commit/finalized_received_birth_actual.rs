@@ -26,6 +26,10 @@ impl FinalizedRootSourceHandoffV1 {
         let binding = *binding;
         let argument_value = argument.value_only_v1()?;
         if actual.destination().is_some() || actual.owner() != binding.owner() {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[received-birth] result-source required function={} ordinal={ordinal} binding={binding:?} destination={} owner={:?}",
+                    function.signature.name, actual.destination().is_some(), actual.owner());
+            }
             return Err(freeze("received-birth/result-source-required"));
         }
         let completion = self.ledger.completion_for_owner(binding.owner())

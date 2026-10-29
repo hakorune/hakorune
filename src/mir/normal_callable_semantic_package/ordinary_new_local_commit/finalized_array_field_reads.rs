@@ -36,6 +36,38 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(())
     }
 
+    /// The Count and Release of a `keys()` snapshot, as finished bindings in `function`.
+    pub(in crate::mir) fn finished_keys_count_reads_v1(
+        &self, module: &crate::mir::MirModule, function: &MirFunction,
+    ) -> Result<Vec<Binding>, String> {
+        let owners: Vec<_> = self.ledger.map_read_bindings.borrow().keys().copied().collect();
+        let mut result = Vec::new();
+        for owner in owners {
+            self.ledger.with_finished_projection(owner, |symbol, projection| {
+                if module.functions.get(symbol).is_none_or(|current| !std::ptr::eq(current, function)) {
+                    return Ok(());
+                }
+                for (_, rows) in self.ledger.map_read_bindings.borrow().get(&owner).into_iter().flatten() {
+                    if !rows.iter().any(|(_, row)| matches!(row, MirInstruction::Invoke {
+                        operation: crate::mir::instruction::InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldKeys { .. }), .. })) {
+                        continue;
+                    }
+                    // The Count and the End of the acquired snapshot it counts.
+                    for (block, row) in rows.iter().filter(|(_, row)| matches!(row, MirInstruction::ArrayRead {
+                        operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. }
+                        | MirInstruction::ArrayResidenceRelease { .. })) {
+                        let finished = projection.binding(*block, row)?
+                            .ok_or_else(|| freeze("keys-count/read-removed"))?;
+                        if !projection.recorded().contains(&finished) { return Err(freeze("keys-count/read-unrecorded")); }
+                        result.push(finished);
+                    }
+                }
+                Ok(())
+            })?;
+        }
+        Ok(result)
+    }
+
     /// The caller lends already-validated named-array emissions from this view.
     /// A passive declaration or an unrelated tagged formal grants no read.
     pub(in crate::mir) fn finished_array_field_reads_v1(

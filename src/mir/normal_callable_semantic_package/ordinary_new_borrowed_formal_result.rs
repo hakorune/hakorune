@@ -709,11 +709,29 @@ pub(super) fn instance_result_classes_v1(
     super::source::CallTargetReferenceV1,
     BTreeSet<super::borrowed_formal_source::SourceValueAlternativeV1>,
 )> {
+    // Default-off: why a Call need stays without a result class.
+    let unclassified = |reference: &super::source::CallTargetReferenceV1, why: &str| {
+        if crate::config::env::builder_debug_enabled() {
+            eprintln!("[result-class] unclassified call={:?} callee={:?}: {why}", reference.call_site, reference.callee_owner);
+        }
+    };
     needs
         .iter()
         .filter_map(|row| {
-            let need = row.as_ref().ok()?.as_ref()?;
+            if crate::config::env::builder_debug_enabled() {
+                if let Err(error) = row { eprintln!("[result-class] need refused: {error}"); }
+            }
+            let need = match row.as_ref().ok()?.as_ref() {
+                Some(need) => need,
+                None => {
+                    if crate::config::env::builder_debug_enabled() { eprintln!("[result-class] no need row"); }
+                    return None;
+                }
+            };
             let reference = need.reference();
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[result-class] need call={:?} callee={:?}", reference.call_site, reference.callee_owner);
+            }
             if let Some(original) = pending.original_return_source_v1(&reference.callee_owner).ok().flatten() {
                 if original.matches(&reference)
                     && source.is_some_and(|source| original.is_original_text_return_v1(source))
@@ -722,6 +740,7 @@ pub(super) fn instance_result_classes_v1(
                 }
             }
             let PreparedSourceCallNeedV1::Lexical(target) = need else {
+                unclassified(&reference, "not a lexical need");
                 return None;
             };
             // Result classes belong to the original Return cohort, including
@@ -729,12 +748,23 @@ pub(super) fn instance_result_classes_v1(
             let original = match &target.result_requirement {
                 LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) => original,
                 LexicalCallSourceResultRequirementV1::ExistingBorrowedResult =>
-                    pending.original_return_source_v1(&reference.callee_owner).ok().flatten()?,
-                _ => return None,
+                    match pending.original_return_source_v1(&reference.callee_owner).ok().flatten() {
+                        Some(original) => original,
+                        None => {
+                            unclassified(&reference, "no original return source for the callee");
+                            return None;
+                        }
+                    },
+                _ => {
+                    unclassified(&reference, "result requirement is not a scalar return source");
+                    return None;
+                }
             };
-            pending
-                .source_value_alternative_for_v1(&reference, original)
-                .map(|class| (reference, BTreeSet::from([class])))
+            let class = pending.source_value_alternative_for_v1(&reference, original);
+            if class.is_none() {
+                unclassified(&reference, "return source has no single value class");
+            }
+            class.map(|class| (reference, BTreeSet::from([class])))
         })
         .collect()
 }

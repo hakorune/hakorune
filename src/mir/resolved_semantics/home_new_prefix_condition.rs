@@ -324,7 +324,33 @@ fn selects(
         || (matches!(
             binary.operator(),
             Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
-        ) && instance_calls(input, source, 0).is_some_and(|count| count > 0));
+        ) && instance_calls(input, source, 0).is_some_and(|count| count > 0))
+        // `<field array>.length()` compared with a scalar: the Count is read by
+        // the checked field-array writer, not by a Call lane.
+        || (matches!(
+            binary.operator(),
+            Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
+        ) && source.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
+            && input.function().method_call(node.site()).is_some_and(|call| {
+                call.selector() == "length" && call.arguments().is_empty()
+                    && input.body_shape().is_some_and(|shape| matches!(
+                        shape.expression_shape(call.receiver_site()),
+                        Some(BodyExpressionShapeV1::FieldAccess { .. })))
+            })))
+        // `me.<field> <op> <scalar>`: the field is read by the checked field
+        // reader, so the comparison borrows its exact read, not a legacy FieldGet.
+        || (matches!(
+            binary.operator(),
+            Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
+        ) && source.nodes().iter().all(|node| matches!(node.source(),
+            Node::Binary(_) | Node::Literal(Literal::Integer(_) | Literal::Bool(_))
+                | Node::Reference(ResolvedLexicalRefV1::Local(_))
+                | Node::Shape(BodyExpressionShapeV1::FieldAccess { .. } | BodyExpressionShapeV1::Me { .. })))
+            && source.nodes().iter().any(|node| matches!(node.source(),
+                Node::Shape(BodyExpressionShapeV1::FieldAccess { .. }))));
+    if crate::config::env::builder_debug_enabled() {
+        eprintln!("[condition-select] owner={:?} statement={statement:?} selected={selected} supported={}", input.owner(), supported(source, 0));
+    }
     selected && supported(source, 0)
 }
 
@@ -652,7 +678,8 @@ fn install_source<E>(
             Ok(fields(requests, demand)?.is_some_and(|results| {
                 results.len() == requests.len()
                     && results.iter().all(|result| matches!(result,
-                        LocalFieldReadResultV1::Scalar | LocalFieldReadResultV1::BorrowedObject(_)))
+                        LocalFieldReadResultV1::Scalar | LocalFieldReadResultV1::BorrowedObject(_)
+                            | LocalFieldReadResultV1::ArrayField(_)))
             }))
         },
     )?;

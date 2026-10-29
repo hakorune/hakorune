@@ -54,7 +54,9 @@ impl RawInvocationChildPortV1<'_, '_> {
         let source = frame.source();
         let index = source.nodes().iter().position(|node| node.site() == &site)
             .ok_or("[freeze:contract][bool-condition/foreign-source-node]")?;
-        if frame.transfers_node(index) { return Err("[freeze:contract][bool-condition/transferred-node-emitted]".into()); }
+        if frame.transfers_node(index) && frame.evaluation().direct_array_receiver_v1(index).is_none() {
+            return Err("[freeze:contract][bool-condition/transferred-node-emitted]".into());
+        }
         let entry = physical::cursor(builder)?;
         let state = self.callable_ledger.clone().ok_or("[freeze:contract][bool-condition/no-state]")?;
         let ledger = self.ordinary_new_claim_ledger.clone().ok_or("[freeze:contract][bool-condition/no-ledger]")?;
@@ -126,6 +128,17 @@ impl RawInvocationChildPortV1<'_, '_> {
                 physical::emit_scalar_condition_v1(builder, &mut state.borrow_mut(), &ledger, &frame, index,
                     &consume_receiver, &retained_argument_frames)?
             },
+            Node::MethodCall if frame.evaluation().cores().get(&index).is_some_and(|core| core.field_array_access_v1().is_some_and(|access| access.is_count())) => {
+                // The checked field-array writer emits the Count read; the node keeps it as its proof.
+                let value = self.lower_expression_unobserved_v1(builder, input)?;
+                let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][bool-condition/no-function]")?;
+                let read = physical::definition(function, value)?.ok_or("[freeze:contract][bool-condition/array-count-writer]")?;
+                let mut receivers = std::mem::take(&mut emission.borrow_mut().receiver_reads);
+                let (Some(field), None) = (receivers.pop(), receivers.pop()) else {
+                    return Err("[freeze:contract][bool-condition/array-count-receiver]".into());
+                };
+                (value, Proof::FieldArrayCount { field, read })
+            },
             Node::MethodCall => {
                 let observation = frame.calls().iter().find(|call| call.site().site() == &site)
                     .ok_or("[freeze:contract][bool-condition/call-source]")?;
@@ -187,6 +200,12 @@ impl RawInvocationChildPortV1<'_, '_> {
             _ => return Err("[freeze:contract][bool-condition/node-consumer-missing]".into()),
         };
         let exit = physical::cursor(builder)?;
+        if frame.transfers_node(index) {
+            // A direct array receiver is read for its Count node, not projected on its own.
+            let Proof::Field(binding) = proof else { return Err("[freeze:contract][bool-condition/array-count-receiver]".into()); };
+            emission.borrow_mut().receiver_reads.push(binding);
+            return Ok(value);
+        }
         emission.borrow_mut().nodes.push(BoolConditionNodeProjectionV1 { node: index, entry, exit, value, proof });
         Ok(value)
     }

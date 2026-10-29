@@ -38,6 +38,8 @@ pub(in crate::mir) enum BoolConditionValueProofV1 {
     },
     OriginalReference(super::expression_projection::ExpressionReferenceReadV1),
     Field(Binding),
+    /// The direct `me.<array>` receiver read and the checked Count read of one node.
+    FieldArrayCount { field: Binding, read: Binding },
     Call {
         packet: Rc<EmittedLexicalCallProjectionV1>,
         bindings: Box<[Binding]>,
@@ -315,6 +317,21 @@ impl EmittedBoolConditionProjectionV1 {
             BoolConditionValueProofV1::ScalarInvocation { dynamic_calls, .. } => dynamic_calls.iter().map(Rc::as_ref).collect::<Vec<_>>(),
             _ => Vec::new(),
         })
+    }
+    /// The direct-receiver field read and checked Count of one Array operation.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_operation_bindings_v1(
+        &self, operation: &Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>,
+    ) -> Result<Option<(Binding, Binding)>, String> {
+        let mut pairs = self.nodes.iter().filter_map(|node| match &node.proof {
+            BoolConditionValueProofV1::FieldArrayCount { field, read }
+                if self.frame.evaluation().cores().get(&node.node)
+                    .and_then(|core| core.field_array_access_v1())
+                    .is_some_and(|source| source.as_ref() == operation.as_ref()) => Some((field.clone(), read.clone())),
+            _ => None,
+        });
+        let pair = pairs.next();
+        if pairs.next().is_some() { return Err(freeze("finished-array-field/source-membership")); }
+        Ok(pair)
     }
     fn node(&self, index: usize) -> Result<&BoolConditionNodeProjectionV1, String> {
         let mut nodes = self.nodes.iter().filter(|node| node.node == index);

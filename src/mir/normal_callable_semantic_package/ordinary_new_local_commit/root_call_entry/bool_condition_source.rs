@@ -253,6 +253,21 @@ impl EmittedBoolConditionProjectionV1 {
                     }
                     require_binding(function, binding, finishing)?;
                 }
+                (Node::MethodCall, BoolConditionValueProofV1::FieldArrayCount { field, read }) => {
+                    let core = self.frame.evaluation().cores().get(&node.node)
+                        .ok_or_else(|| freeze("bool-condition/array-count-source"))?;
+                    let access = core.field_array_access_v1()
+                        .filter(|access| access.is_count() && access.receiver_alias_v1().is_none())
+                        .ok_or_else(|| freeze("bool-condition/array-count-source"))?;
+                    let MirInstruction::ArrayRead { dst: Some(dst), receiver, operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. } = &read.1
+                        else { return Err(freeze("bool-condition/array-count-writer")); };
+                    if *dst != node.value || field.1.dst_value() != Some(*receiver)
+                        || ledger.expression_field_read_emission_v1(access.receiver(), source, context)? != *field {
+                        return Err(freeze("bool-condition/array-count-source"));
+                    }
+                    require_binding(function, field, finishing)?;
+                    require_binding(function, read, finishing)?;
+                }
                 (Node::MethodCall, BoolConditionValueProofV1::Call { packet, bindings }) => {
                     let observation = self
                         .frame

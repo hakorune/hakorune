@@ -115,6 +115,11 @@ pub(in crate::mir::builder) fn emit_keys_count(builder: &mut MirBuilder,
     let keys = keys.ok_or_else(|| freeze("keys-count-shape"))?;
     let value = builder.emit_checked_keys_count_v1(keys)?;
     let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    let count = builder.function_state.current_function.as_ref().and_then(|function| function.blocks.get(&block))
+        .and_then(|body| body.instructions.iter().rev().find(|row| matches!(row, MirInstruction::ArrayRead { dst: Some(dst), .. } if *dst == value)))
+        .cloned()
+        .ok_or_else(|| freeze("keys-count-shape"))?;
+    rows.push((block, count));
     rows.push((block, MirInstruction::ArrayResidenceRelease { value: keys }));
     rows.push(fault_frame_binding(builder, state, frame)?);
     ledger.record_map_read_bindings(recipe.owner(),

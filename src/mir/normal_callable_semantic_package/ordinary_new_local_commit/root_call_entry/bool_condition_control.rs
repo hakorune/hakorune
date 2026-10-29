@@ -374,6 +374,13 @@ impl EmittedBoolConditionProjectionV1 {
                         allowed.push(row.clone());
                     }
                 }
+                Proof::FieldArrayCount { field, read } => {
+                    if !matches!(read.1, MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. }) {
+                        return Err(freeze("bool-condition/array-count-writer"));
+                    }
+                    allowed.push(field.clone());
+                    allowed.push(read.clone());
+                }
                 Proof::Reference { producer, .. } => allowed.extend(producer.iter().cloned()),
                 // Retain the shared producer/Copy dependency census without reissuing it.
                 Proof::OriginalReference(read) => allowed.extend(read.dependencies()?),

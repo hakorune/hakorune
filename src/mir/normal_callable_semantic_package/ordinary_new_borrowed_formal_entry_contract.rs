@@ -604,7 +604,16 @@ impl OrdinaryNewClaimLedgerV1 {
         if contract.mode == Mode::StaticBoxMethod { return self.checked_static_input_domains_for_owner_v1(owner); }
         let sums: Vec<_> = contract.parameters.iter().filter(|row| row.kind.is_ordinary_borrowed_handle())
             .map(|row| (row, source.lend_source_value_sum_v1(row.binding))).collect();
-        if !sums.iter().any(|(_, sum)| sum.as_ref().is_some_and(|sum| sum.text_only() || sum.signed_only() || sum.bool_only())) { return Ok(Box::new([])); }
+        if !sums.iter().any(|(_, sum)| sum.as_ref().is_some_and(|sum| sum.text_only() || sum.signed_only() || sum.bool_only())) {
+            // Object-only entry: a single-class receiver formal keeps its own domain, with
+            // no scalar prerequisite; every other formal stays without one.
+            return Ok(sums.into_iter().filter_map(|(formal, sum)| sum
+                .filter(|sum| sum.nullable_object_class_v1().is_some() && sum.alternatives().len() == 1
+                    && view.definition.uses.iter().any(|row| row.formal == formal.binding && matches!(&row.kind,
+                        super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::InstanceMethodReceiver { .. })))
+                .map(|sum| BorrowedFormalDomainV1::from_source_v1(formal.ordinal, formal.binding, sum)))
+                .collect::<Vec<_>>().into_boxed_slice());
+        }
         if !matches!(incoming, BorrowedEntryActualsV1::Executable(rows) if !rows.is_empty())
             || !source.source_incoming.source_registered_owners_v1().contains(&owner)
             || source.source_incoming.sum_vetoed_owners_v1().contains(&owner) {

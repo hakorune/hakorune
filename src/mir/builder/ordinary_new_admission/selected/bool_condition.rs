@@ -18,6 +18,8 @@ pub(in crate::mir::builder) struct BoolConditionEmissionV1 {
     pub(in crate::mir::builder) nodes: Vec<Node>,
     pub(in crate::mir::builder) binary: BTreeMap<SourceExprSiteV1, Binding>,
     pub(in crate::mir::builder) logical: BTreeMap<SourceExprSiteV1, crate::mir::builder::ops::CompletedLogicalShortCircuitV1>,
+    /// Direct array receiver reads: proofs of transferred nodes, consumed by their Count node.
+    pub(in crate::mir::builder) receiver_reads: Vec<Binding>,
     entry: Binding,
 }
 impl BoolConditionEmissionV1 {
@@ -33,7 +35,7 @@ impl BoolConditionEmissionV1 {
             function.blocks.get(&from)).and_then(|block| block.terminator.clone())
             .ok_or_else(|| freeze("bool-condition/entry-not-emitted"))?);
         builder.start_new_block(entry)?;
-        Ok(Self { frame, retained_argument_frames, nodes: Vec::new(), binary: BTreeMap::new(), logical: BTreeMap::new(), entry: binding })
+        Ok(Self { frame, retained_argument_frames, nodes: Vec::new(), binary: BTreeMap::new(), logical: BTreeMap::new(), receiver_reads: Vec::new(), entry: binding })
     }
     pub(in crate::mir::builder) fn value_at(&self, site: &SourceExprSiteV1) -> Result<ValueId, String> {
         let index = self.frame.source().nodes().iter().position(|node| node.site() == site)
@@ -85,6 +87,7 @@ impl LoweredBoolConditionV1 {
                         prefix.push(binding.clone());
                     }
                 }
+                Proof::FieldArrayCount { field, read } => { prefix.push(field.clone()); prefix.push(read.clone()); }
                 Proof::Reference { producer, .. } => prefix.extend(producer.iter().cloned()),
                 // Retain the shared producer/Copy dependency census without reissuing it.
                 Proof::OriginalReference(read) => prefix.extend(read.dependencies()?),

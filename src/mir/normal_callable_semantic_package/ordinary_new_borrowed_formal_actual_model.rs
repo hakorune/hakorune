@@ -774,7 +774,19 @@ pub(super) fn validate_computed_actual_source_v1(
                 && binding.owner() == call.owner()
                 && formal.ordinal == actual.ordinal
                 && formal.kind.is_ordinary_borrowed_handle() => {}
-        _ => return Err(freeze("borrowed-actual/expression-or-read-required")),
+        _ => {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[borrowed-actual] expression-or-read required call={call:?} ordinal={} site={:?} value={:?} source_kind={}",
+                    actual.ordinal, actual.site, actual.value, match source {
+                        BorrowedFormalActualSourceV1::Read(_) => "read",
+                        BorrowedFormalActualSourceV1::Expression(_) => "expression",
+                        BorrowedFormalActualSourceV1::Scalar { .. } => "scalar",
+                        BorrowedFormalActualSourceV1::LocalObjectBinding { .. } => "local-object",
+                        _ => "other",
+                    });
+            }
+            return Err(freeze("borrowed-actual/expression-or-read-required"));
+        }
     }
     Ok(())
 }

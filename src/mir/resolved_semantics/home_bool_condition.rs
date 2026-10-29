@@ -551,6 +551,9 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                     .evaluation()
                     .scalar_invoke_input_order_v1(*node)
                     .is_some())
+            // A direct-receiver field Array Count is an Integer operand of its
+            // comparison; it is read by the checked field-array writer.
+            && !core.field_array_access_v1().is_some_and(|access| access.is_count() && access.receiver_alias_v1().is_none())
     }) || frame
         .evaluation()
         .owned_result_nodes()

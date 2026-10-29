@@ -467,10 +467,25 @@ fn explain_open_premise(
 
 /// Default-off (builder debug flag): the solved SUM of every formal.
 #[inline(never)]
-fn report_formal_sums(formal_nodes: &BTreeMap<BindingRefV1, usize>, values: &[Option<SourceValueSumV1>]) {
+fn report_formal_sums(nodes: &[Node], formal_nodes: &BTreeMap<BindingRefV1, usize>, values: &[Option<SourceValueSumV1>]) {
     if crate::config::env::builder_debug_enabled() {
         for (binding, node) in formal_nodes {
             eprintln!("[source-sum] formal {binding:?} sum={:?}", values[*node]);
+            if values[*node].is_none() {
+                // Name the dependency chain that keeps this formal unresolved.
+                let mut visited = BTreeSet::new();
+                let mut pending = vec![(*node, 1usize)];
+                while let Some((next, depth)) = pending.pop() {
+                    if depth > 6 || !visited.insert(next) {
+                        continue;
+                    }
+                    eprintln!("[source-sum]   {:indent$}node {next} sum={:?} atoms={:?} invalid={} binary={} instance_result={} required(i64={:?} text={:?} core={:?})",
+                        "", values[next], nodes[next].atoms, nodes[next].invalid, nodes[next].binary.is_some(),
+                        nodes[next].instance_result.is_some(), nodes[next].required_i64, nodes[next].required_text,
+                        nodes[next].required_core, indent = depth * 2);
+                    pending.extend(nodes[next].dependencies().collect::<Vec<_>>().into_iter().rev().map(|dependency| (dependency, depth + 1)));
+                }
+            }
         }
     }
 }
@@ -549,7 +564,7 @@ pub(super) fn project_graph_v1(
         .iter()
         .filter_map(|(point, node)| values[*node].clone().map(|value| (point.clone(), Rc::new(value))))
         .collect();
-    report_formal_sums(formal_nodes, &values);
+    report_formal_sums(nodes, formal_nodes, &values);
     let formals = formal_nodes
         .iter()
         .filter_map(|(binding, node)| values[*node].clone().map(|value| (*binding, Rc::new(value))))

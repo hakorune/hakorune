@@ -29,6 +29,9 @@ pub(super) fn source_array_counts(
             if let Some(binding) = read.count_binding_v1(module, function)? { result.push(binding); }
         }
     }
+    if let Some(source) = view.retained_root_source() {
+        result.extend(source.finished_keys_count_reads_v1(module, function)?);
+    }
     Ok(result)
 }
 
