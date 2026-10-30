@@ -82,7 +82,7 @@ Audit rule (active運用):
 
 Single entry pipeline for loop routing (no bypass):
 
-`route_loop` → `single_planner::try_build_outcome` → recipe/composer adopt path → plan lowerer
+Selected source Loop facts → `single_planner::try_build_source_outcome` → recipe/composer adopt path → plan lowerer. The former route-context wrapper is retired.
 
 Router: active module surface `crate::mir::builder::control_flow::joinir::route_entry::router`
 (physical path: `src/mir/builder/control_flow/joinir/route_entry/router.rs`)  

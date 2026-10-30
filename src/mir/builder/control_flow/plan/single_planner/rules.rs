@@ -4,7 +4,6 @@
 //! Router-level recipe entries still emit planner-first tags via `PlanRuleId`.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
@@ -108,18 +107,6 @@ fn planner_candidate_present(outcome: &PlanBuildOutcome) -> bool {
         .facts
         .as_ref()
         .is_some_and(|facts| facts.facts.loop_cond_continue_with_return().is_some())
-}
-
-pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutcome, String> {
-    let policy = LoopFactsPolicyFrameV1::from_environment();
-    try_build_outcome_with_policy(ctx, policy)
-}
-
-pub(super) fn try_build_outcome_with_policy(
-    ctx: &LoopRouteContext,
-    policy: LoopFactsPolicyFrameV1,
-) -> Result<PlanBuildOutcome, String> {
-    try_build_outcome_with_policy_parts(ctx.condition, ctx.body, ctx.func_name, ctx.debug, policy)
 }
 
 pub(super) fn try_build_source_outcome(

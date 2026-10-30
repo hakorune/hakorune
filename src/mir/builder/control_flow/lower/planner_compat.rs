@@ -13,7 +13,7 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::planner
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::single_planner::{
-    planner_rule_route_label, try_build_outcome, PlanRuleId,
+    planner_rule_route_label, PlanRuleId,
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{
