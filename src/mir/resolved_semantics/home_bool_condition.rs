@@ -303,6 +303,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             Op::LessEqual => DynamicOperatorFamilyV1::LessEqual,
             Op::GreaterEqual => DynamicOperatorFamilyV1::GreaterEqual,
             Op::Add => DynamicOperatorFamilyV1::Add,
+            Op::Multiply => DynamicOperatorFamilyV1::Mul,
             _ => return Ok(None),
         };
         if binary.operator() == Op::Equal {

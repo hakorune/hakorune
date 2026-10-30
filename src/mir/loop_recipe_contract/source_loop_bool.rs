@@ -1,6 +1,7 @@
 //! The SAME checked condition projected once into the portable closed region.
 //! References and a direct root call use imports; nested calls remain effect
 //! nodes in the Bool tree so the source BoolCondition owner preserves reach.
+use super::schema_v2::LoopBinaryI64OpV2;
 use super::{LoopBoolCompareV1 as Compare, LoopBoolCompareDomainV1 as Domain,
     LoopBoolNodeV1 as Node, LoopBoolRegionV1, LoopValueClassV2 as Class,
     LoopOperationV2, LoopValueKeyV1};
@@ -193,12 +194,16 @@ pub(crate) fn project_source_loop_bool_v1(frame: Rc<CheckedBoolConditionFrameV1>
                     let envelope = loan.single_envelope().ok_or_else(|| reject("operator-domain"))?;
                     let domain = envelope.domain();
                     operations += 1;
-                    if binary.operator() == Op::Add {
-                        if current_class != Class::I64 || domain.family() != Family::Add
+                    if let Some((op, family)) = match binary.operator() {
+                        Op::Add => Some((LoopBinaryI64OpV2::Add, Family::Add)),
+                        Op::Multiply => Some((LoopBinaryI64OpV2::Mul, Family::Mul)),
+                        _ => None,
+                    } {
+                        if current_class != Class::I64 || domain.family() != family
                             || domain.left() != Operand::NormalInteger || domain.right() != Operand::NormalInteger {
-                            return Err(reject("add-domain"));
+                            return Err(reject("arith-domain"));
                         }
-                        Node::AddI64 { left, right }
+                        Node::BinaryI64 { op, left, right }
                     } else {
                         let (op, family) = compare(binary.operator())?;
                         let operand = match (domain.left(), domain.right()) {

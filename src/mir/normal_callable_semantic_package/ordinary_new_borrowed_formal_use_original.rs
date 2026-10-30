@@ -154,7 +154,7 @@ impl OriginalFormalUseSourceV1 {
         -> Result<bool, BorrowedFormalUseDraftErrorV1> {
         use crate::mir::resolved_value_profile::expression_plan::{
             assignment_expression_source_plan_v1, condition_expression_source_plan_v1,
-            local_expression_source_plan_v1, ExpressionNodeSourceV1,
+            local_expression_source_plan_v1, loop_condition_expression_source_plan_v1, ExpressionNodeSourceV1,
         };
         if self.roots.is_empty() { return Ok(false); }
         let reject = |_| BorrowedFormalUseDraftErrorV1::SourceIdentity;
@@ -165,7 +165,9 @@ impl OriginalFormalUseSourceV1 {
                 Some(ResolvedAssignmentTargetV1::FieldWrite { .. })))
             .map(|assignment| assignment_expression_source_plan_v1(&ledger, shape, assignment));
         let conditions = input.function().if_region_sites()
-            .map(|site| condition_expression_source_plan_v1(input, site));
+            .map(|site| condition_expression_source_plan_v1(input, site))
+            .chain(input.function().loop_sites()
+                .map(|site| loop_condition_expression_source_plan_v1(input, site)));
         let initializers = input.function().expression_source().initializers().filter(|row| row.initializer_site().is_some())
             .map(|row| local_expression_source_plan_v1(&ledger, Some(shape), row));
         for plan in assignments.chain(conditions).chain(initializers) {

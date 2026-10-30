@@ -2,7 +2,7 @@
 //! write Loop bindings or invent Loop exits. Imports are ordinary value uses;
 //! source correspondence is sealed separately by the same checked-frame owner.
 use serde::{Deserialize, Serialize};
-use super::schema_v2::LoopValueClassV2 as Class;
+use super::schema_v2::{LoopBinaryI64OpV2, LoopValueClassV2 as Class};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -28,7 +28,7 @@ pub(crate) enum LoopBoolNodeV1 {
     TextLength { value: u32 },
     TextSubstring { value: u32, start: u32, end: u32 },
     TextIndexOf { value: u32, needle: u32 },
-    AddI64 { left: u32, right: u32 },
+    BinaryI64 { op: LoopBinaryI64OpV2, left: u32, right: u32 },
     Compare { op: LoopBoolCompareV1, domain: LoopBoolCompareDomainV1, left: u32, right: u32 },
     And { left: u32, right: u32 },
     Or { left: u32, right: u32 },
@@ -53,7 +53,7 @@ impl LoopBoolNodeV1 {
             Self::TextLength { value } => [Some(*value), None, None],
             Self::TextSubstring { value, start, end } => [Some(*value), Some(*start), Some(*end)],
             Self::TextIndexOf { value, needle } => [Some(*value), Some(*needle), None],
-            Self::AddI64 { left, right } | Self::Compare { left, right, .. }
+            Self::BinaryI64 { left, right, .. } | Self::Compare { left, right, .. }
             | Self::And { left, right } | Self::Or { left, right } => [Some(*left), Some(*right), None],
             _ => [None; 3],
         };
@@ -140,7 +140,7 @@ impl LoopBoolRegionV1 {
                     if classes[*value as usize] != Class::Text || classes[*needle as usize] != Class::Text { return Err(Reject::Domain); }
                     Class::I64
                 }
-                LoopBoolNodeV1::AddI64 { left, right } => {
+                LoopBoolNodeV1::BinaryI64 { left, right, .. } => {
                     if classes[*left as usize] != Class::I64 || classes[*right as usize] != Class::I64 { return Err(Reject::Domain); }
                     Class::I64
                 }
