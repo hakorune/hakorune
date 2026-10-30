@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A準備: R7字句censusを現行sourceへ再生成（Legacy 243→235: test-only 6除外、時点差純減2）。親`cfg(test)`を確認し、代入文の誤コメント分類を訂正。完全な到達解析は非主張。R7 guard・現役PHI focused 7件・suite 11/11（90.80秒、実EXE10＋marker）PASS。Rust/test行増減0。旧mergeの残るinventory/guardと安全性を確認して削除する。
 - 退役A準備: allocation-policy観測を現行scratch/引数ownerへ同期し、旧JoinIRだけのproducer・集合・寿命は未証明とした。membership/消費/retry・oracleは保持、4 guardと生成Hako整合PASS。最適化CLI/runtimeでsuite 11/11（91.31秒、実EXE10＋marker）。旧mergeのPHI安全性と他guardを確認して退役する。Rust/test増減0。
 - 退役A: 未接続fact session・PHI remat候補と専用test/seamを削除（Rust非test約−589行、test約−810行、`for_test`定義−1）。現役sessionの失敗・cleanup・panic後の復元を既存3 testで保持。最適化CLI・all-targets・convergence guard PASS、suite 11/11（100.81秒、実EXE10＋marker）、cohort失敗名84/1/0不変。SSA inventoryと保持したsyntax guardは無関係な既存anchor driftでFAIL。
 - 退役A: caller-zeroの旧PHI builder・未接続module候補等4 filesを削除（1068行: 非test 855、test 213、`_for_test`定義増減0）。最適化CLI・all-targets PASS、固定suite 11/11、cohort 84/1/0の失敗名不変、既存PHI/access focused 15 PASS。関連guard 3本は削除前後で同一の既存FAIL。共有APIの外部利用は未確認。

@@ -20,8 +20,8 @@ from typing import Any
 KIND = "MirR7LegacyCensusManifestV1"
 SCHEMA_VERSION = 1
 LEGACY_TOKEN = "LegacyCallV0"
-LEGACY_EXPECTED = 243
-LEGACY_FILES_EXPECTED = 127
+LEGACY_EXPECTED = 235
+LEGACY_FILES_EXPECTED = 124
 ENV_EXPECTED = 4
 LOOP_EXPECTED = 4
 LOOP_LOC_EXPECTED = 1009
@@ -32,10 +32,10 @@ DECL_RE = re.compile(
 )
 
 ENV_ANCHORS = (
-    ("src/host_providers/llvm_codegen/capi_transport.rs", 247, "compile_via_capi", "rust_capi"),
+    ("src/host_providers/llvm_codegen/capi_transport.rs", 269, "compile_via_capi", "rust_capi"),
     ("src/host_providers/llvm_codegen/static_invocation.rs", 6, "compile_published_static_v2", "rust_static"),
-    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 358, "hako_llvmc_forward_link_to_aot_without_ffi", "c_route"),
-    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 372, "hako_llvmc_forward_link_to_aot_v2_without_ffi", "c_route"),
+    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 384, "hako_llvmc_forward_link_to_aot_without_ffi", "c_route"),
+    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 398, "hako_llvmc_forward_link_to_aot_v2_without_ffi", "c_route"),
 )
 
 LOOP_FILES = (
@@ -141,6 +141,8 @@ def enclosing_symbols(lines: list[str]) -> list[str | None]:
 
 
 def legacy_role(path: str, line: str) -> tuple[str, str, bool]:
+    if line.lstrip().startswith(("//", "/*", "* ", "*/")):
+        return "comment_or_contract", "non-executable reference", False
     if path.endswith("calls/unified_emitter/compat_entrypoints.rs"):
         return "compatibility_constructor", "explicit compatibility", False
     if path == "src/runner/mir_json_v0/module.rs":
@@ -153,19 +155,46 @@ def legacy_role(path: str, line: str) -> tuple[str, str, bool]:
         return "canonicalizer_input", "selected native corridor input", True
     if path.endswith("inline_leaf.rs") or "backend_core_ops" in path:
         return "diagnostic_or_contract", "reject/contract observation", False
-    if line.lstrip().startswith(("//", "*", "//!")):
-        return "comment_or_contract", "non-executable reference", False
     return "production_surface", "production lexical surface", False
 
 
 def legacy_rows(root: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
+    # The out-of-line merge subtree inherits cfg(test) from its parent module.
+    # A per-file lexical scan cannot see that attribute, so verify it before
+    # excluding the subtree from the production census.
+    merge_parent = root / "src/mir/builder/control_flow/joinir/mod.rs"
+    merge_dir = root / "src/mir/builder/control_flow/joinir/merge"
+    if merge_dir.exists():
+        parent_text = merge_parent.read_text(encoding="utf-8")
+        if not re.search(r"#\[cfg\(test\)\]\s*pub\(in crate::mir::builder\) mod merge\s*;", parent_text):
+            fail("JoinIR merge subtree is no longer directly gated by cfg(test)")
+    test_only_files = {
+        root / "src/mir/builder/joinir_id_remapper.rs",
+        root / "src/mir/builder/joinir_id_remapper_values.rs",
+        root / "src/mir/compiler/module_postprocess_failure_p0.rs",
+    }
+    if (root / "src/mir/builder/joinir_id_remapper.rs").exists():
+        builder = (root / "src/mir/builder.rs").read_text(encoding="utf-8")
+        remapper = (root / "src/mir/builder/joinir_id_remapper.rs").read_text(encoding="utf-8")
+        if not re.search(r"#\[cfg\(test\)\]\s*pub mod joinir_id_remapper\s*;", builder):
+            fail("JoinIR ID remapper is no longer directly gated by cfg(test)")
+        if not re.search(r'#\[path\s*=\s*"joinir_id_remapper_values\.rs"\]', remapper):
+            fail("JoinIR ID remapper values path changed")
+    elif (root / "src/mir/builder/joinir_id_remapper_values.rs").exists():
+        fail("JoinIR ID remapper values lost its test-only parent")
+    if (root / "src/mir/compiler/module_postprocess_failure_p0.rs").exists():
+        compiler = (root / "src/mir/compiler/mod.rs").read_text(encoding="utf-8")
+        if not re.search(r"#\[cfg\(test\)\]\s*mod module_postprocess_failure_p0\s*;", compiler):
+            fail("module postprocess failure fixture is no longer gated by cfg(test)")
     for base in (root / "src", root / "crates"):
         if not base.is_dir():
             continue
         for path in sorted(base.rglob("*.rs")):
             rel = path.relative_to(root).as_posix()
             if is_test_path(rel):
+                continue
+            if path.is_relative_to(merge_dir) or path in test_only_files:
                 continue
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
             skipped = cfg_test_lines(lines)
@@ -290,8 +319,8 @@ def build_manifest(root: Path) -> dict[str, Any]:
         "observed_commit": git_revision(root),
         "scope": {
             "roots": ["src (Rust production scope)", "crates (Rust production scope)", "lang/c-abi route (fixed env anchors)"],
-            "excludes": ["tests and fixtures", "#[cfg(test)] modules", "unrelated runtime/startup env", "runtime hook registry", "future VM/WASM parity"],
-            "classifier": "lexical LegacyCallV0 rows + fixed compile-env anchors + fixed test-only Loop-PHI files",
+            "excludes": ["tests and fixtures", "in-file #[cfg(test)] blocks and selected verified out-of-line test modules", "unrelated runtime/startup env", "runtime hook registry", "future VM/WASM parity"],
+            "classifier": "lexical LegacyCallV0 rows (not a complete module-reachability analysis) + fixed compile-env anchors + fixed test-only Loop-PHI files",
             "scope_sha256": scope_digest,
         },
         "counts": {
