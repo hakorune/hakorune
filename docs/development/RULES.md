@@ -45,8 +45,8 @@ commitは短い件名と必要な変更・検証・残件だけにする。通�
 - 旧Compatibility経路のMIRは移植の調査資料として使う。仕様・既存期待出力・終了値・Fault/所有権契約を正しさの基準にし、生JSON一致を要求しない。
 - 参照経路は明示的な別実行に限る。新経路の失敗後に旧経路へretryせず、旧経路の成功をcanonical実行の証拠にしない。
 - 置換した専有edge・一時adapterは、caller切替または停止、caller-zero、必要検証が成立した同じ変更seriesで削除する。局所退役を全アプリ成功まで延期しない。
-- 共有Compatibility・schema・backendの大規模退役は、その既存callerと契約が閉じた後に行う。固定suite成功だけで共有ownerや未接続資産を一括削除しない。
-- 現在のアプリに不要なwarning整理・全repo削減・caller-zero資産の追加作業は選ばない。既存の恒久的な安全性検証は残す。
+- 共有Compatibility・schema・backendの退役は、既存callerの切替または停止とcaller-zeroを確認した塊ごとに、同じseriesでまとめて行ってよい。根拠は固定suite 11/11・対象cohortの失敗名不変・既存の恒久的な安全性検証。固定suite成功だけでは足りない。新経路が共有ownerを置き換える時は、旧callerの切替先と退役の見込みをcardに1行書く。
+- maintainerが退役seriesを選んでいる間は、その範囲でcaller-zero資産と試験専用資産をまとめて退役する。選ばれていない間は、現在のアプリに不要なwarning整理・全repo削減を追加しない。既存の恒久的な安全性検証は残す。
 
 ## 5. 詰まりと設計停止
 
@@ -62,7 +62,7 @@ commitは短い件名と必要な変更・検証・残件だけにする。通�
 
 - test/fixture/guardは原則増やさない。既存test・既存acceptanceを使い、positive/negative証拠を新規test追加の要求へ読み替えない。
 - 既存ケースの行・分岐・パラメータ追加も増加として扱う。追加は既存証拠で守れない独立した意味・失敗境界に必要な最小差分だけとし、理由をcardへ一行残す。
-- 新規testファイル・checker入口はfamily内の統合・削除と組にして原則純増ゼロ。既存安全性検証を帳尻で消さず、この規則用のcheckerや台帳も作らない。
+- 新規testファイル・checker入口はfamily内の統合・削除と組にして原則純増ゼロ。既存安全性検証を帳尻で消さず、この規則用のcheckerや台帳も作らない。退役seriesは、消す対象だけを検査するtestと、そのtestだけが使う`_for_test`フックを同じ変更で削除する。Fault/所有権/借用区間/生成後MIR独立検証のtestは後継へ移し、消さない。test行は純増させない。
 - 実装を写すtest、専用`_for_test`フック、内部配置・エラー全文の固定を追加しない。source→MIR/実行/構造化refusalを優先する。
 - Rc同一性等の検証は、それ自体が所有・権限契約で外から検証できない場合だけ。等価fixtureは既存test-supportへ統合し、独立した失敗診断・filterを保つ。
 - アプリ修正に不要なfreezeトークンを増やさない。必要な失敗境界は既存診断ownerを優先し、既知の拒否を通すために無効化しない。
