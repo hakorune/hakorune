@@ -18781,11 +18781,23 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_script_block_expr_tests.rs:98:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_script_block_expr_tests.rs:118:mir_return",
       "evidence": "prelude_stmts: vec![ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 98,
+      "line": 118,
+      "pending_reason": "ControlFlowOwnerPending",
+      "resolution": "Pending",
+      "site_ref": null,
+      "source_path": "src/mir/builder/normal_script_block_expr_tests.rs",
+      "token": "mir_return"
+    },
+    {
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/normal_script_block_expr_tests.rs:57:mir_return",
+      "evidence": "\"function empty_block() { return { 7 } }\\n static box Main { main() { return 0 } }\",",
+      "evidence_kind": "mir_return",
+      "family": "return_unit",
+      "line": 57,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19477,11 +19489,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/block_expr_tests.rs:168:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/block_expr_tests.rs:146:mir_return",
       "evidence": "ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 168,
+      "line": 146,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19489,11 +19501,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/block_expr_tests.rs:85:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/block_expr_tests.rs:84:mir_return",
       "evidence": "vec![ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 85,
+      "line": 84,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,

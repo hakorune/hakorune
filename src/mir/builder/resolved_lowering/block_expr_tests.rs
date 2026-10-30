@@ -5,7 +5,6 @@ use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
 use crate::mir::compiler::source_view::ExprChildRoleV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::ResolvedScopeRegionLookupErrorV1;
-use crate::mir::{ConstValue, MirInstruction};
 
 use super::identity::ResolvedIdentityStateV1;
 use super::semantic_stack::ResolvedSemanticStackV1;
@@ -130,27 +129,6 @@ fn execute_integer(root: ASTNode, function_name: &str) -> i64 {
         panic!("expected Integer result")
     };
     value
-}
-
-#[test]
-fn empty_prelude_tail_is_lowered_exactly_once() {
-    let module = build(returning("empty_block", block(Vec::new(), int(7))));
-    let function = &module.functions["empty_block/0"];
-    let tail_constants = function
-        .blocks
-        .values()
-        .flat_map(|block| &block.instructions)
-        .filter(|instruction| {
-            matches!(
-                instruction,
-                MirInstruction::Const {
-                    value: ConstValue::Integer(7),
-                    ..
-                }
-            )
-        })
-        .count();
-    assert_eq!(tail_constants, 1);
 }
 
 #[cfg(feature = "vm-reference")]

@@ -52,6 +52,26 @@ fn selected_normal_pure_block_expr_matches_legacy() {
     };
 
     assert_selected_program_parity(program, "script-blockexpr-pure.hako");
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        "function empty_block() { return { 7 } }\n static box Main { main() { return 0 } }",
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("block expression source parses");
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+        crate::r#macro::transform_normal_callable_program_v1(parsed).expect("source transform")
+    else { panic!("block expression must remain source-backed") };
+    let result = MirCompiler::with_options(false).compile_normal(
+        NormalCompileRequestV1::for_mir_mode_callable_source(source, None, std::collections::HashMap::new()),
+    )
+    .expect("block expression compiles");
+    assert!(result.verification_result.is_ok());
+    let function = &result.module.functions["empty_block/0"];
+    let count = function.blocks.values().flat_map(|block| &block.instructions).filter(|instruction| {
+        matches!(instruction, crate::mir::MirInstruction::Const { value: crate::mir::ConstValue::Integer(7), .. })
+    })
+    .count();
+    assert_eq!(count, 1);
 }
 
 #[test]
