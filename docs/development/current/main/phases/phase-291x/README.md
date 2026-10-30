@@ -55,8 +55,8 @@ allowance sweep.
   `291x-792` plus the navigation/dead-dust closeout through `291x-793`. Do not
   reopen compiler cleanup unless a new owner-backed seam appears.
 
-No-action inventory: moved-stub / traceability docs and `src/ring0/LAYER_GUARD.rs`
-metadata are intentional and outside this cleanup lane.
+No-action inventory for this lane: moved-stub / traceability docs. The disconnected
+`src/ring0` metadata was retired later in the selected A1 cleanup.
 
 ## Cleanup Closeout Through 291x-791
 
