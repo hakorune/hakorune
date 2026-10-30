@@ -51,7 +51,6 @@ pub mod object_storage_plan;
 pub mod operator_traits; // trait-based operator overloading
 pub mod parser; // using historical parser.rs
 pub mod rune_profile_registry;
-pub mod stdlib;
 pub mod tokenizer;
 pub mod type_abi;
 #[path = "core/type_box.rs"]

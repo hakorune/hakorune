@@ -10853,10 +10853,10 @@
       "evidence": "pub use box_trait::{BoolBox, IntegerBox, NyashBox, StringBox, VoidBox};",
       "evidence_kind": "null_like_box",
       "family": "null_like_box",
-      "line": 138,
+      "line": 137,
       "pending_reason": "S1SiteReferenceMissing",
       "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/lib.rs:138:null_like_box",
+      "runtime_evidence_id": "runtime.null_like_box.src/lib.rs:137:null_like_box",
       "site_ref": null,
       "source_path": "src/lib.rs",
       "token": "null_like_box"
@@ -10865,10 +10865,10 @@
       "evidence": "pub use boxes::null_box::{null, NullBox};",
       "evidence_kind": "null_like_box",
       "family": "null_like_box",
-      "line": 143,
+      "line": 142,
       "pending_reason": "S1SiteReferenceMissing",
       "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/lib.rs:143:null_like_box",
+      "runtime_evidence_id": "runtime.null_like_box.src/lib.rs:142:null_like_box",
       "site_ref": null,
       "source_path": "src/lib.rs",
       "token": "null_like_box"
@@ -11351,30 +11351,6 @@
       "runtime_evidence_id": "runtime.null_like_box.src/runtime/semantics.rs:42:null_like_box",
       "site_ref": null,
       "source_path": "src/runtime/semantics.rs",
-      "token": "null_like_box"
-    },
-    {
-      "evidence": "use crate::box_trait::VoidBox;",
-      "evidence_kind": "null_like_box",
-      "family": "null_like_box",
-      "line": 241,
-      "pending_reason": "S1SiteReferenceMissing",
-      "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/stdlib/mod.rs:241:null_like_box",
-      "site_ref": null,
-      "source_path": "src/stdlib/mod.rs",
-      "token": "null_like_box"
-    },
-    {
-      "evidence": "Ok(Box::new(VoidBox::new()))",
-      "evidence_kind": "null_like_box",
-      "family": "null_like_box",
-      "line": 242,
-      "pending_reason": "S1SiteReferenceMissing",
-      "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/stdlib/mod.rs:242:null_like_box",
-      "site_ref": null,
-      "source_path": "src/stdlib/mod.rs",
       "token": "null_like_box"
     },
     {

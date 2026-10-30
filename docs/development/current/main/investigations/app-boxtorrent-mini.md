@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A2: repo内caller・登録のない旧`BuiltinStdlib`を削除（production純減248行、test一覧不変）。公開Rust APIのrepo外利用は未確認。runtime inventoryは既存generatorでPending観測2件消滅のみを反映、6 family・exhaustivenessと関連15 test PASS。最適化CLI・all-targets・suite 11/11（103.75秒、実EXE10＋marker）、cohort結果は直前と同一（84/1/0 FAIL）。
 - S6C既存test修正: semantic-only fixtureの空object definitionsを完了前に一度受領する手順を3件に追加（test +3行、production変更なし）。S6C 68/68 PASS、foreign context・二重取得・未受領拒否の既存test PASS。未接続のproduction retirementは別途継続。
 - 基準修正: S6C source closureにresolver発行済みLoop/If条件relationを追加し、完全一致を維持。既存1439 test中、前回FAILの60件がPASS・新規FAILなし（全lib再測定は未実施）。foreign owner・余分な文・誤条件の既存負例を保持、relation単独の欠落/余分の直接負例は未確認。最適化CLI・all-targets・suite 11/11（97.20秒、実EXE10＋marker）PASS。production純増16行、retirementではない。
 - 全lib基準再計測（quick opt1・incremental off・1 thread・stack 16MiB）: build 7分41秒、test 75.88秒、8862 PASS/360 FAIL/56 ignored。旧台帳126 FAILとの差は新規238名・解消4名、一覧は803追加/32削除。`ordinary_new`/`resolved_semantics`/`loop_recipe`の84/1/21失敗名は退役前と一致。他の新赤の発生時点は未検証で、台帳の一括更新・PASS扱いはしない。
