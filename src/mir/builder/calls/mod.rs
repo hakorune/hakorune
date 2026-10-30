@@ -42,8 +42,6 @@ mod function_session; // Closure-scoped function transaction and cleanup owner
 pub(in crate::mir::builder) mod instance_method_draft_preparation;
 pub(in crate::mir::builder) use function_session::CanonicalFunctionLoweringSessionV1;
 pub(in crate::mir) use function_session::CanonicalFunctionSessionErrorV1;
-#[cfg(test)]
-pub(in crate::mir::builder) use function_session::FunctionSessionP0TerminalV1;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use function_session::{
     CanonicalFunctionSessionRestorationReceiptV1, LegacyFunctionPayloadPendingSessionV1,

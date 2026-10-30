@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A: 未接続fact session・PHI remat候補と専用test/seamを削除（Rust非test約−589行、test約−810行、`for_test`定義−1）。現役sessionの失敗・cleanup・panic後の復元を既存3 testで保持。最適化CLI・all-targets・convergence guard PASS、suite 11/11（100.81秒、実EXE10＋marker）、cohort失敗名84/1/0不変。SSA inventoryと保持したsyntax guardは無関係な既存anchor driftでFAIL。
 - 退役A: caller-zeroの旧PHI builder・未接続module候補等4 filesを削除（1068行: 非test 855、test 213、`_for_test`定義増減0）。最適化CLI・all-targets PASS、固定suite 11/11、cohort 84/1/0の失敗名不変、既存PHI/access focused 15 PASS。関連guard 3本は削除前後で同一の既存FAIL。共有APIの外部利用は未確認。
 - 退役A: caller-zeroの旧JoinIR coordinator 7 filesを一括削除（test/reference側1370行、production 0、test名不変、`_for_test`増減0）。native-owner inventoryはgeneratorで対象観測1件を除去。CLI・all-targets・suite 11/11（99.41秒、実EXE10＋marker）、cohort 84/1/0不変。旧merge focusedのRing0未初期化4 FAILは削除前opt1／後opt0で同名、remapper guardの既存FAILも前後一致。PHI/CFG等の残る安全testは保持。
 - 退役A前提: 既存native-owner候補inventoryをgeneratorで再同期（旧source rows 1677→2387、生成fixture純増6698行）。機械的な探索資料であり意味authorityではない。既存source変化による候補判定6件の変化は本番採用の証拠にせず、対象coordinatorの1行は退役時に再生成する。

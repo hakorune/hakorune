@@ -6600,24 +6600,6 @@
     },
     {
       "candidate_kind": "display_formatter",
-      "display_target": "FactSessionIssuerErrorV1",
-      "function": "Display::fmt",
-      "line": 74,
-      "path": "src/mir/builder/fact_session.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "ModuleFactSessionErrorV1",
-      "function": "Display::fmt",
-      "line": 107,
-      "path": "src/mir/builder/fact_session.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
       "display_target": "FastMemMemOpReceiptPreparationErrorV1",
       "function": "Display::fmt",
       "line": 15,
@@ -8130,42 +8112,6 @@
       "function": "is_reachable",
       "line": 122,
       "path": "src/mir/builder/ssa/phi_input_materializer/edge_verifier.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "ExactProducerReceiptErrorV1",
-      "function": "Display::fmt",
-      "line": 80,
-      "path": "src/mir/builder/ssa/phi_input_materializer/remat_fact.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "ExactProducerReceiptLookupErrorV1",
-      "function": "Display::fmt",
-      "line": 164,
-      "path": "src/mir/builder/ssa/phi_input_materializer/remat_fact.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "CandidateFactReservationErrorV1",
-      "function": "Display::fmt",
-      "line": 243,
-      "path": "src/mir/builder/ssa/phi_input_materializer/remat_fact.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "PhiRematExactTypeProjectionErrorV1",
-      "function": "Display::fmt",
-      "line": 288,
-      "path": "src/mir/builder/ssa/phi_input_materializer/remat_fact.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -16040,7 +15986,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "duplicate_function_name",
-      "line": 104,
+      "line": 90,
       "path": "src/mir/builder/calls/function_session.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -26635,10 +26581,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1342,
+        "candidate": 1336,
         "rejected": 1040
       },
-      "surface_count": 2383
+      "surface_count": 2377
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"
