@@ -49,12 +49,10 @@ MODULE_FINAL_ONCE = ROOT / "src/mir/builder/module_finalization_once.rs"
 MODULE_FINAL_ONCE_P0 = ROOT / "src/mir/builder/module_finalization_once_p0.rs"
 MODULE_INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 MODULE_INVOCATION_DRAIN_S0_TESTS = ROOT / "src/mir/builder/module_invocation_drain_s0_tests.rs"
-BORROW_ROOT_P0 = ROOT / "src/mir/builder/module_lowering_borrow_root_p0.rs"
 ROOT_BATCH_COMMIT = ROOT / "src/mir/builder/module_draft_collector/root_batch.rs"
 ROOT_BATCH_COMMIT_P0 = ROOT / "src/mir/builder/root_draft_batch_commit_p0.rs"
 DECL_FACT_COMMIT = ROOT / "src/mir/builder/module_lowering_shell/declaration_fact_commit.rs"
 DECL_FACT_COMMIT_P0 = ROOT / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs"
-BORROW_ROOT_P0D = ROOT / "src/mir/builder/module_lowering_borrow_root_p0d.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -319,7 +317,6 @@ def main() -> int:
             ROOT_BATCH_COMMIT_P0,
             DECL_FACT_COMMIT,
             DECL_FACT_COMMIT_P0,
-            BORROW_ROOT_P0D,
             ACCESS_IMPL,
             BUILDER_MOD,
         ):
@@ -512,12 +509,10 @@ def main() -> int:
             MODULE_FINAL_ONCE,
             MODULE_FINAL_ONCE_P0,
             MODULE_INVOCATION_DRAIN,
-            BORROW_ROOT_P0,
             ROOT_BATCH_COMMIT,
             ROOT_BATCH_COMMIT_P0,
             DECL_FACT_COMMIT,
             DECL_FACT_COMMIT_P0,
-            BORROW_ROOT_P0D,
             ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):

@@ -27,7 +27,6 @@ MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 MATRIX_CONSUMERS = (ROOT / "src/mir/builder/route_owned_invocation_inventory.rs",)
-BORROW_ROOT_P0D = ROOT / "src/mir/builder/module_lowering_borrow_root_p0d.rs"
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACY_TERM = ROOT / "src/mir/builder/module_lowering_invocation_legacy_term.rs"
@@ -295,7 +294,7 @@ def main() -> int:
             INVOCATION,
             MODULE_SHELL,
             ROUTE_MATRIX,
-            BORROW_ROOT_P0D, ROUTE_MATRIX_P0E,
+            ROUTE_MATRIX_P0E,
             *MATRIX_CONSUMERS,
             INVOCATION_STATE,
             INVOCATION_CANDIDATE,

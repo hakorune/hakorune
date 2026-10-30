@@ -6798,14 +6798,6 @@
     },
     {
       "candidate_kind": "boolean_classifier",
-      "function": "is_fallible",
-      "line": 124,
-      "path": "src/mir/builder/module_lowering_borrow_schedule.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
       "function": "is_primary_session",
       "line": 154,
       "path": "src/mir/builder/module_lowering_invocation.rs",
@@ -16884,17 +16876,6 @@
       "status": "rejected"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_live_pre_drain_loan",
-      "line": 34,
-      "path": "src/mir/builder/module_lowering_borrow_schedule.rs",
-      "reject_reasons": [
-        "depends_on_builder",
-        "depends_on_collection"
-      ],
-      "status": "rejected"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "every_failure_stage_has_the_same_no_publication_law",
       "line": 365,
@@ -26289,8 +26270,8 @@
       "by_reject_reason": {
         "backend_surface": 22,
         "carrier_surface": 503,
-        "depends_on_builder": 75,
-        "depends_on_collection": 116,
+        "depends_on_builder": 74,
+        "depends_on_collection": 115,
         "depends_on_context": 52,
         "depends_on_emission": 67,
         "depends_on_lowering": 125,
@@ -26303,10 +26284,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1326,
-        "rejected": 1021
+        "candidate": 1325,
+        "rejected": 1020
       },
-      "surface_count": 2348
+      "surface_count": 2346
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

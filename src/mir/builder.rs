@@ -358,12 +358,6 @@ pub(in crate::mir) use normal_default_root_catalog_lifecycle::CompletedNormalDef
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleStageV1;
 #[allow(dead_code)]
 mod cataloged_box_method_collector_handoff;
-#[cfg(test)]
-mod module_lowering_borrow_root_p0; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT proof
-#[cfg(test)]
-mod module_lowering_borrow_root_p0d; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT-P0d proof
-#[allow(dead_code)]
-mod module_lowering_borrow_schedule; // HEADERPORT0 WIRING-I0-BORROW-S0 passive schedule
 mod module_lowering_invocation;
 #[allow(dead_code)]
 mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle

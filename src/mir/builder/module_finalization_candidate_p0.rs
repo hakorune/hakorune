@@ -155,6 +155,7 @@ mod tests {
     #[test]
     fn root_batch_shell_drain_and_finalizer_failures_have_no_fallback_route() {
         let expected = [
+            ModuleFinalizationFailureStageV1::RootCompletion,
             ModuleFinalizationFailureStageV1::RootBatchPreflight,
             ModuleFinalizationFailureStageV1::DeclarationFactsSeal,
             ModuleFinalizationFailureStageV1::DrainPreflight,
