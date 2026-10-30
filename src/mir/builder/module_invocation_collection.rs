@@ -78,9 +78,6 @@ pub(in crate::mir::builder) enum InvocationCollectionSealErrorV1 {
     ReplacementHistoryMismatch {
         symbol: String,
     },
-    CanonicalReplacementForbidden {
-        symbol: String,
-    },
 }
 
 impl std::fmt::Display for InvocationCollectionSealErrorV1 {
@@ -110,23 +107,6 @@ impl RawCollectedInvocationDraftSetV1 {
 
 #[derive(Debug)]
 struct RawCollectedInvocationDraftSetSealV1;
-
-#[derive(Debug)]
-pub(in crate::mir::builder) struct CanonicalSingleCollectedInvocationDraftSetV1 {
-    source: CanonicalSingleInvocationSourceProofV1,
-    collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
-    receipt: InvocationPhysicalReceiptV1,
-    _seal: CanonicalSingleCollectedInvocationDraftSetSealV1,
-}
-
-#[derive(Debug)]
-struct CanonicalSingleCollectedInvocationDraftSetSealV1;
-
-impl CanonicalSingleCollectedInvocationDraftSetV1 {
-    pub(in crate::mir::builder) fn collector_symbol_count(&self) -> usize {
-        self.collector.payload().symbol_count()
-    }
-}
 
 fn check_brand(
     expected: ModuleInvocationBrandV1,
@@ -269,66 +249,6 @@ pub(in crate::mir::builder) fn seal_raw(
         collector,
         receipts: receipts.into_boxed_slice(),
         _seal: RawCollectedInvocationDraftSetSealV1,
-    })
-}
-
-pub(in crate::mir::builder) fn seal_canonical_single(
-    source: CanonicalSingleInvocationSourceProofV1,
-    collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
-    receipt: InvocationPhysicalReceiptV1,
-) -> Result<CanonicalSingleCollectedInvocationDraftSetV1, InvocationCollectionSealErrorV1> {
-    let brand = source.brand();
-    check_brand(brand, collector.brand())?;
-    check_brand(brand, receipt.brand())?;
-    if collector.payload().symbol_count() != 1 {
-        return Err(InvocationCollectionSealErrorV1::CardinalityMismatch {
-            expected: 1,
-            actual: collector.payload().symbol_count(),
-        });
-    }
-    let physical = physical_receipt(&receipt);
-    let expected_symbol = source.payload().header.symbol().as_mir_name();
-    let expected_key = FunctionDraftKeyV1::CanonicalResolvedOwner(source.payload().header.owner());
-    if physical.symbol() != expected_symbol {
-        return Err(InvocationCollectionSealErrorV1::SymbolMismatch {
-            expected: expected_symbol.to_owned(),
-            actual: physical.symbol().to_owned(),
-        });
-    }
-    if physical.key() != &expected_key
-        || collector.payload().key_for_symbol(physical.symbol()) != Some(physical.key())
-    {
-        return Err(InvocationCollectionSealErrorV1::KeyMismatch {
-            symbol: physical.symbol().to_owned(),
-        });
-    }
-    if physical.arity() != source.payload().header.arity() {
-        return Err(InvocationCollectionSealErrorV1::ArityMismatch {
-            symbol: physical.symbol().to_owned(),
-            expected: source.payload().header.arity(),
-            actual: physical.arity(),
-        });
-    }
-    if physical.policy() != DraftPublicationPolicyV1::CanonicalRejectDuplicate {
-        return Err(InvocationCollectionSealErrorV1::PolicyMismatch {
-            symbol: physical.symbol().to_owned(),
-        });
-    }
-    if !matches!(
-        physical.replacement(),
-        super::module_draft_collector::CollectedDraftReplacementDispositionV1::Inserted
-    ) {
-        return Err(
-            InvocationCollectionSealErrorV1::CanonicalReplacementForbidden {
-                symbol: physical.symbol().to_owned(),
-            },
-        );
-    }
-    Ok(CanonicalSingleCollectedInvocationDraftSetV1 {
-        source,
-        collector,
-        receipt,
-        _seal: CanonicalSingleCollectedInvocationDraftSetSealV1,
     })
 }
 

@@ -19,6 +19,8 @@ FIXTURE = SRC / "module_invocation_collect0_s0_p0.rs"
 OWNER_CHAIN = SRC / "module_invocation_owner_chain.rs"
 COLLECTOR = SRC / "module_draft_collector.rs"
 RAW_LEDGER = SRC / "raw_expansion_receipt_ledger.rs"
+CANONICAL_DRAIN = SRC / "module_draft_collector/drain.rs"
+CANONICAL_FIXTURE = ROOT / "src/mir/compiler/source_bound_package_p0.rs"
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -50,24 +52,24 @@ def main() -> int:
         ("CanonicalSingleInvocationSourceProofV1", "canonical source wrapper"),
         ("InvocationPhysicalReceiptV1", "physical receipt"),
         ("RawCollectedInvocationDraftSetV1", "raw collected set"),
-        ("CanonicalSingleCollectedInvocationDraftSetV1", "canonical collected set"),
         ("pub(in crate::mir::builder) fn seal_raw", "raw seal terminal"),
-        ("pub(in crate::mir::builder) fn seal_canonical_single", "canonical seal terminal"),
         ("SourceFamilyMismatch", "family rejection"),
         ("ForeignOwner", "foreign brand rejection"),
         ("CardinalityMismatch", "cardinality rejection"),
         ("ReplacementHistoryMismatch", "raw replacement check"),
-        ("CanonicalReplacementForbidden", "canonical replacement check"),
     ):
         require(collection, fragment, label)
     for fragment, label in (
         ("raw_seal_checks_final_ledger_and_replacement_history", "raw success"),
-        ("canonical_a_plus_and_trivial_each_seal_one_exact_row", "A+/trivial success"),
         ("foreign_brand_family_and_wrong_policy_fail_before_co_seal", "failure matrix"),
     ):
         require(fixture, fragment, label)
     require(builder, "mod module_invocation_collection;", "collection registration")
     require(builder, "mod module_invocation_collect0_s0_p0;", "fixture registration")
+    require(CANONICAL_DRAIN.read_text(), "CanonicalCollectorDrainErrorV1::LegacyAdmission", "canonical policy refusal")
+    require(CANONICAL_DRAIN.read_text(), "CanonicalCollectorDrainErrorV1::ReplacedAdmission", "canonical replacement refusal")
+    require(CANONICAL_DRAIN.read_text(), "keyed_prepare_rejects_foreign_receipt_before_consuming_collector", "canonical refusal fixture")
+    require(CANONICAL_FIXTURE.read_text(), "canonical_source_binding_collect0_retains_same_brand_and_receipt", "canonical source fixture")
     require(COLLECTOR.read_text(), "fn key_for_symbol", "collector key projection")
     require(RAW_LEDGER.read_text(), "fn policy", "raw policy projection")
 
@@ -98,7 +100,7 @@ def main() -> int:
     if consumers:
         raise AssertionError("COLLECT0-S0 production consumers: " + ", ".join(consumers))
 
-    print("[cut0-i0-collect0-s0-guard] ok raw=1 canonical_single=1 production_consumers=0")
+    print("[cut0-i0-collect0-s0-guard] ok raw=1 canonical_drain=1 production_consumers=0")
     return 0
 
 

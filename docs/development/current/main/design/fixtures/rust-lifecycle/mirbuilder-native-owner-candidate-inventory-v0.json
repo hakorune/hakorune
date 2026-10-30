@@ -6748,7 +6748,7 @@
       "candidate_kind": "display_formatter",
       "display_target": "InvocationCollectionSealErrorV1",
       "function": "Display::fmt",
-      "line": 86,
+      "line": 83,
       "path": "src/mir/builder/module_invocation_collection.rs",
       "reject_reasons": [],
       "status": "candidate"

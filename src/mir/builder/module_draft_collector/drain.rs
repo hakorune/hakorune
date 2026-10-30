@@ -603,5 +603,29 @@ mod tests {
         let (collector, error) = rejected.into_parts();
         assert_eq!(error, CanonicalCollectorDrainErrorV1::BrandMismatch);
         assert!(collector.signature("owner/0").is_some());
+
+        let mut legacy = ModuleDraftCollectorV1::with_brand(brand);
+        let receipt = legacy
+            .prepare_admission(
+                FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                "owner/0".into(),
+                0,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            )
+            .unwrap()
+            .seal(draft("owner/0"))
+            .unwrap()
+            .collect_branded()
+            .unwrap();
+        let rejected = legacy
+            .prepare_canonical_drain(
+                &manifest,
+                CanonicalCollectorReceiptViewV1::Single(&receipt),
+                brand,
+            )
+            .unwrap_err();
+        let (legacy, error) = rejected.into_parts();
+        assert!(matches!(error, CanonicalCollectorDrainErrorV1::LegacyAdmission { .. }));
+        assert!(legacy.signature("owner/0").is_some());
     }
 }

@@ -6,7 +6,7 @@ use super::module_draft_collector::{
 };
 use super::module_invocation_collection::{
     canonical_source_from_parts, physical_receipt_from_test, raw_source_from_parts,
-    seal_canonical_single, seal_raw, CanonicalSingleCollectedInvocationDraftSetV1,
+    seal_raw,
     InvocationCollectionSealErrorV1, InvocationPhysicalReceiptV1,
 };
 use super::module_invocation_identity::TestInvocationPreflightFactoryV1;
@@ -189,32 +189,6 @@ fn header(name: &str, typed: bool, a_plus: bool) -> VerifiedResolvedOwnerHeaderV
         .unwrap()
 }
 
-fn canonical_case(
-    family: InvocationRootFamilyV1,
-    header: VerifiedResolvedOwnerHeaderV1,
-) -> Result<CanonicalSingleCollectedInvocationDraftSetV1, InvocationCollectionSealErrorV1> {
-    let mut factory = TestInvocationPreflightFactoryV1::new();
-    let token = factory.mint(family).unwrap();
-    let brand = token.brand();
-    let symbol = header.symbol().as_mir_name();
-    let key = FunctionDraftKeyV1::CanonicalResolvedOwner(header.owner());
-    let arity = header.arity();
-    let mut collector = ModuleDraftCollectorV1::default();
-    let receipt = collect(
-        &mut collector,
-        key,
-        symbol,
-        arity,
-        DraftPublicationPolicyV1::CanonicalRejectDuplicate,
-    );
-    let source = canonical_source_from_parts(token, header)?;
-    seal_canonical_single(
-        source,
-        InvocationBranded::from_test(brand, collector),
-        physical_receipt_from_test(brand, receipt),
-    )
-}
-
 #[test]
 fn raw_seal_checks_final_ledger_and_replacement_history() {
     let (ledger, receipts, collector) = raw_source_and_rows();
@@ -233,22 +207,6 @@ fn raw_seal_checks_final_ledger_and_replacement_history() {
     )
     .unwrap();
     assert_eq!(sealed.receipt_count(), 3);
-}
-
-#[test]
-fn canonical_a_plus_and_trivial_each_seal_one_exact_row() {
-    let a_plus = canonical_case(
-        InvocationRootFamilyV1::CanonicalAPlus,
-        header("a_plus_collect", false, true),
-    )
-    .unwrap();
-    assert_eq!(a_plus.collector_symbol_count(), 1);
-    let trivial = canonical_case(
-        InvocationRootFamilyV1::BindingSsaTrivial,
-        header("trivial_collect", true, false),
-    )
-    .unwrap();
-    assert_eq!(trivial.collector_symbol_count(), 1);
 }
 
 #[test]
@@ -285,28 +243,5 @@ fn foreign_brand_family_and_wrong_policy_fail_before_co_seal() {
         InvocationCollectionSealErrorV1::SourceFamilyMismatch { .. }
     ));
 
-    let mut factory = TestInvocationPreflightFactoryV1::new();
-    let token = factory
-        .mint(InvocationRootFamilyV1::CanonicalAPlus)
-        .unwrap();
-    let brand = token.brand();
-    let selected_header = header("wrong_policy", false, true);
-    let symbol = selected_header.symbol().as_mir_name();
-    let mut collector = ModuleDraftCollectorV1::default();
-    let receipt = collect(
-        &mut collector,
-        FunctionDraftKeyV1::CanonicalResolvedOwner(selected_header.owner()),
-        symbol,
-        selected_header.arity(),
-        DraftPublicationPolicyV1::LegacyReplaceWholePair,
-    );
-    let source = canonical_source_from_parts(token, selected_header).unwrap();
-    assert!(matches!(
-        seal_canonical_single(
-            source,
-            InvocationBranded::from_test(brand, collector),
-            physical_receipt_from_test(brand, receipt),
-        ),
-        Err(InvocationCollectionSealErrorV1::PolicyMismatch { .. })
-    ));
+    // Wrong-policy refusal is exercised by the existing canonical drain test.
 }
