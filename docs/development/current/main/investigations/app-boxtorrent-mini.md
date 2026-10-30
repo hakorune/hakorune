@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A一括: 未使用`VmSemantics`・PHI relay・registry reset（production純減242行）と未リンク`extern_box.rs`（196行）を削除、test一覧不変。inventoryは既存generatorで同期しPending/family保持、19 test PASS。最適化CLI・all-targets・suite 11/11（103.58秒、実EXE10＋marker）、cohort結果84/1/0は直前と一致。`vm-reference` checkは`type_ops.rs`のTextOperand/DynamicCarrier未網羅で前後同じFAIL。公開VmSemanticsのrepo外callerは未確認。native-owner inventoryは削除前からstale、関係する候補は保持。
 - 退役A2: repo内caller・登録のない旧`BuiltinStdlib`を削除（production純減248行、test一覧不変）。公開Rust APIのrepo外利用は未確認。runtime inventoryは既存generatorでPending観測2件消滅のみを反映、6 family・exhaustivenessと関連15 test PASS。最適化CLI・all-targets・suite 11/11（103.75秒、実EXE10＋marker）、cohort結果は直前と同一（84/1/0 FAIL）。
 - S6C既存test修正: semantic-only fixtureの空object definitionsを完了前に一度受領する手順を3件に追加（test +3行、production変更なし）。S6C 68/68 PASS、foreign context・二重取得・未受領拒否の既存test PASS。未接続のproduction retirementは別途継続。
 - 基準修正: S6C source closureにresolver発行済みLoop/If条件relationを追加し、完全一致を維持。既存1439 test中、前回FAILの60件がPASS・新規FAILなし（全lib再測定は未実施）。foreign owner・余分な文・誤条件の既存負例を保持、relation単独の欠落/余分の直接負例は未確認。最適化CLI・all-targets・suite 11/11（97.20秒、実EXE10＋marker）PASS。production純増16行、retirementではない。

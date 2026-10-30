@@ -9926,66 +9926,6 @@
       "token": "null_like_box"
     },
     {
-      "evidence": "Box::new(VoidBox::new())",
-      "evidence_kind": "null_like_box",
-      "family": "null_like_box",
-      "line": 117,
-      "pending_reason": "S1SiteReferenceMissing",
-      "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/boxes/extern_box.rs:117:null_like_box",
-      "site_ref": null,
-      "source_path": "src/boxes/extern_box.rs",
-      "token": "null_like_box"
-    },
-    {
-      "evidence": "Box::new(VoidBox::new())",
-      "evidence_kind": "null_like_box",
-      "family": "null_like_box",
-      "line": 140,
-      "pending_reason": "S1SiteReferenceMissing",
-      "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/boxes/extern_box.rs:140:null_like_box",
-      "site_ref": null,
-      "source_path": "src/boxes/extern_box.rs",
-      "token": "null_like_box"
-    },
-    {
-      "evidence": "Box::new(VoidBox::new())",
-      "evidence_kind": "null_like_box",
-      "family": "null_like_box",
-      "line": 163,
-      "pending_reason": "S1SiteReferenceMissing",
-      "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/boxes/extern_box.rs:163:null_like_box",
-      "site_ref": null,
-      "source_path": "src/boxes/extern_box.rs",
-      "token": "null_like_box"
-    },
-    {
-      "evidence": "Box::new(VoidBox::new())",
-      "evidence_kind": "null_like_box",
-      "family": "null_like_box",
-      "line": 172,
-      "pending_reason": "S1SiteReferenceMissing",
-      "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/boxes/extern_box.rs:172:null_like_box",
-      "site_ref": null,
-      "source_path": "src/boxes/extern_box.rs",
-      "token": "null_like_box"
-    },
-    {
-      "evidence": "use crate::box_trait::{NyashBox, StringBox, BoolBox, VoidBox, IntegerBox, BoxCore, BoxBase};",
-      "evidence_kind": "null_like_box",
-      "family": "null_like_box",
-      "line": 5,
-      "pending_reason": "S1SiteReferenceMissing",
-      "resolution": "Pending",
-      "runtime_evidence_id": "runtime.null_like_box.src/boxes/extern_box.rs:5:null_like_box",
-      "site_ref": null,
-      "source_path": "src/boxes/extern_box.rs",
-      "token": "null_like_box"
-    },
-    {
       "evidence": "use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox, VoidBox};",
       "evidence_kind": "null_like_box",
       "family": "null_like_box",

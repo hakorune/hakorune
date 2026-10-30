@@ -144,52 +144,6 @@ impl<'a> PhiMergeHelper<'a> {
         }
     }
 
-    /// Merge a variable with explicit destination ValueId (for primary result)
-    ///
-    /// # Arguments
-    /// * `dst` - Destination ValueId for PHI result
-    /// * `then_v` - Value from then-branch
-    /// * `else_v` - Value from else-branch
-    ///
-    /// # Returns
-    /// Ok(()) on success, Err(String) on failure
-    #[allow(dead_code)] // Reserved: explicit dst PHI merge for future use
-    pub fn merge_with_dst(
-        &mut self,
-        dst: ValueId,
-        then_v: ValueId,
-        else_v: ValueId,
-    ) -> Result<(), String> {
-        let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
-        if let Some(tp) = self.then_exit {
-            inputs.push((tp, then_v));
-        }
-        if let Some(ep) = self.else_exit {
-            inputs.push((ep, else_v));
-        }
-
-        match inputs.len() {
-            0 | 1 => {
-                // Should not happen for explicit dst merge
-                Ok(())
-            }
-            _ => {
-                // Insert PHI with explicit dst
-                if let Some(func) = self.builder.function_state.current_function.as_mut() {
-                    func.update_cfg();
-                }
-                if let (Some(func), Some(cur_bb)) = (
-                    &self.builder.function_state.current_function,
-                    self.builder.function_state.current_block,
-                ) {
-                    crate::mir::phi_core::common::debug_verify_phi_inputs(func, cur_bb, &inputs);
-                }
-                self.builder.insert_phi_with_dst(dst, inputs)?;
-                Ok(())
-            }
-        }
-    }
-
     /// Merge all variables from both branches (Conservative strategy)
     ///
     /// # Arguments

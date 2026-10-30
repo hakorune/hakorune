@@ -267,28 +267,4 @@ impl TypeRegistry {
         ));
     }
 
-    // ============================================================
-    // 🧹 クリア系メソッド（BoxCompilationContext用）
-    // ============================================================
-
-    /// 起源情報のみクリア（型情報は保持）
-    #[allow(dead_code)] // ASTCLEAN-005: staged reset hook for scoped builder contexts.
-    pub fn clear_origins(&mut self) {
-        self.origins.clear();
-        if self.trace_enabled {
-            get_global_ring0()
-                .log
-                .debug("[type-registry] cleared origins");
-        }
-    }
-
-    /// 全情報クリア
-    #[allow(dead_code)] // ASTCLEAN-005: staged reset hook for scoped builder contexts.
-    pub fn clear_all(&mut self) {
-        self.origins.clear();
-        self.types.clear();
-        if self.trace_enabled {
-            get_global_ring0().log.debug("[type-registry] cleared all");
-        }
-    }
 }

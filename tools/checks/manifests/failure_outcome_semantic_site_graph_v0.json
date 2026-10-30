@@ -5097,14 +5097,6 @@
       "token": "VMValue::Void"
     },
     {
-      "evidence": "VMValue::Void",
-      "evidence_id": "src/semantics/vm_impl.rs:39:VMValue::Void",
-      "evidence_kind": "runtime_value_carrier",
-      "line": 39,
-      "source_path": "src/semantics/vm_impl.rs",
-      "token": "VMValue::Void"
-    },
-    {
       "evidence": "ASTNode::Variable { name, .. } => Ok(env.get(name)),",
       "evidence_id": "src/stage1/program_json_v0/brand_checker.rs:272:env.get",
       "evidence_kind": "provider_optional_or_missing",
@@ -5291,8 +5283,7 @@
       "evidence_refs": [
         "src/runner/repl/repl_runner.rs:163:VMValue::Void",
         "src/runner/repl/repl_runner.rs:200:VMValue::Void",
-        "src/runtime/host_api/host_box_ops.rs:40:VMValue::Void",
-        "src/semantics/vm_impl.rs:39:VMValue::Void"
+        "src/runtime/host_api/host_box_ops.rs:40:VMValue::Void"
       ],
       "layer": "implementation",
       "migration_action": "",
