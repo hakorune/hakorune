@@ -28,7 +28,6 @@ MAIN_PENDING_P0 = ROOT / "src/mir/builder/main_pending_draft_p0.rs"
 ROOT_BATCH = ROOT / "src/mir/builder/root_draft_batch.rs"
 ROOT_BATCH_P0 = ROOT / "src/mir/builder/root_draft_batch_p0.rs"
 MAIN_ROOT_WIRING = ROOT / "src/mir/builder/main_root_wiring.rs"
-ACCESS_VOCAB = ROOT / "src/mir/builder/module_lowering_access_port.rs"
 ACCESS_IMPL = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
 ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
@@ -88,7 +87,6 @@ def main() -> int:
     root_batch = ROOT_BATCH.read_text()
     root_batch_p0 = ROOT_BATCH_P0.read_text()
     main_root_wiring = MAIN_ROOT_WIRING.read_text()
-    access_vocab = ACCESS_VOCAB.read_text()
     access_impl = ACCESS_IMPL.read_text()
     access_live = ACCESS_LIVE.read_text()
     wiring_p0 = WIRING_P0.read_text()
@@ -105,6 +103,8 @@ def main() -> int:
     module_final_p0 = MODULE_FINAL_P0.read_text()
     module_final_candidate_p0 = MODULE_FINAL_CANDIDATE_P0.read_text()
     builder_mod = BUILDER_MOD.read_text()
+    if "mod module_lowering_access_port" in builder_mod:
+        raise AssertionError("retired ACCESS0-S0 module must not re-enter")
     card = CARD.read_text()
     state = STATE.read_text()
 
@@ -229,18 +229,6 @@ def main() -> int:
         "compatibility_child_is_optional_but_root_body_is_not",
     ):
         require(main_root_wiring, fragment, "WIRING-S0 Main/root order vocabulary/fixtures")
-
-    for fragment in (
-        "ModuleLoweringAccessSurfaceV1",
-        "ModuleLoweringHeaderOperationV1",
-        "ModuleLoweringShellOperationV1",
-        "ModuleLoweringTerminalOperationV1",
-        "ModuleLoweringAccessPortV1",
-        "access_port_contract_has_exact_three_surfaces",
-        "shell_contract_names_current_metadata_holes",
-        "terminal_contract_is_commit_only",
-    ):
-        require(access_vocab, fragment, "ACCESS0-S0 capability vocabulary/fixtures")
 
     require(access_impl, "with_access_port", "WIRING-S0 live access bundle/fixture")
     for fragment in (
@@ -543,7 +531,6 @@ def main() -> int:
             ROOT_BATCH,
             ROOT_BATCH_P0,
             MAIN_ROOT_WIRING,
-            ACCESS_VOCAB,
             ACCESS_IMPL,
             ACCESS_LIVE,
             WIRING_P0,
@@ -715,7 +702,6 @@ def main() -> int:
     ):
         for path in (ROOT / "src/mir/builder").rglob("*.rs"):
             if path in (
-                ACCESS_VOCAB,
                 ACCESS_IMPL,
                 ACCESS_LIVE,
                 MAIN_ROOT_WIRING,

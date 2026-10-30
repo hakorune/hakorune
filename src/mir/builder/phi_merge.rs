@@ -179,9 +179,7 @@ impl<'a> PhiMergeHelper<'a> {
             };
 
         // ========================================
-        // Phase 58: ConservativeMerge::analyze インライン化
         // ========================================
-        // 旧: crate::mir::phi_core::conservative::ConservativeMerge::analyze(...)
         // 新: 以下のロジックを直接ここに記述
 
         // 1. all_vars: 全ブランチに存在する変数のユニオン（Conservative戦略）

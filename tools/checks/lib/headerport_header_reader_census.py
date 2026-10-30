@@ -152,8 +152,6 @@ ROWS = (
 NON_READER_ANCHORS = (
     ("src/mir/builder/builder_init.rs", "current_module: None"),
     ("src/mir/builder/indexing.rs", "builder.current_module = Some(module)"),
-    ("src/mir/builder/module_completion_candidate.rs", "all_current_module_products"),
-    ("src/mir/builder/module_lowering_access_port.rs", "reach through `current_module`"),
     ("src/mir/builder/module_lowering_invocation_candidate.rs", "a `current_module` view"),
     ("src/mir/builder/module_lowering_shell.rs", "reach through `current_module`"),
 )
@@ -173,9 +171,7 @@ EXPECTED_OCCURRENCE_COUNTS = {
     "src/mir/builder/calls/static_resolution.rs": 1,
     "src/mir/builder/indexing.rs": 2,
     "src/mir/builder/located_legacy_lowering.rs": 1,
-    "src/mir/builder/module_completion_candidate.rs": 2,
     "src/mir/builder/module_lifecycle.rs": 3,
-    "src/mir/builder/module_lowering_access_port.rs": 1,
     "src/mir/builder/module_lowering_invocation_candidate.rs": 1,
     "src/mir/builder/module_lowering_shell.rs": 1,
     "src/mir/builder/recursive_child_lowering.rs": 1,

@@ -381,23 +381,7 @@ impl LoopFormBuilder {
 /// This trait abstracts the underlying MIR builder operations,
 /// allowing LoopFormBuilder to work with both Rust MIR builder
 /// and selfhost compiler's JSON-based approach.
-/// Phase 26-E-3: LoopFormOps と PhiBuilderOps の関係（委譲設計）
-///
-/// **Design Rationale (ChatGPT + Claude consensus, 2025-11-22):**
-/// - PhiBuilderOps = 低レベル「PHI命令発行」道具箱
-/// - LoopFormOps = 高レベル「ループ構造構築」作業場
-/// - 関係: **has-a（委譲）** ではなく is-a（継承）
-///
-/// **実装方針:**
-/// - LoopFormOps trait: そのまま（継承なし）
-/// - PhiBuilderOps 実装: 必要な型に個別実装
-///   - `impl<'a> PhiBuilderOps for LoopBuilder<'a>` で委譲
-///   - HashSet → Vec 変換 + ソートで決定性保証
-///
-/// **段階的統合:**
-/// 1. If側: PhiBuilderBox 経由（既に完了）
-/// 2. Loop側: LoopFormOps + ExitPhiBuilder/HeaderPhiBuilder（現状維持）
-/// 3. 将来: 必要に応じて LoopBuilder に PhiBuilderOps 実装追加
+/// LoopFormOps owns the operations needed by loop-form construction.
 pub trait LoopFormOps {
     /// Allocate a new ValueId
     fn new_value(&mut self) -> ValueId;

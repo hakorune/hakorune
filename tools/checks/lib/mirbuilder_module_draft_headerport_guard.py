@@ -30,7 +30,6 @@ ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 MATRIX_CONSUMERS = tuple(ROOT / f"src/mir/builder/{name}.rs" for name in ("module_wiring_parity_p0", "route_owned_invocation_inventory"))
 BORROW_ROOT_P0D = ROOT / "src/mir/builder/module_lowering_borrow_root_p0d.rs"
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
-ACCESS_PORT = ROOT / "src/mir/builder/module_lowering_access_port.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACY_TERM = ROOT / "src/mir/builder/module_lowering_invocation_legacy_term.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
@@ -189,7 +188,6 @@ def main() -> int:
     invocation_drain = read(INVOCATION_DRAIN)
     route_matrix = read(ROUTE_MATRIX)
     invocation_state = read(INVOCATION_STATE)
-    access_port = read(ACCESS_PORT)
     builder = read(BUILDER)
     method_index = read(METHOD_INDEX)
     compilation = read(COMPILATION)
@@ -262,22 +260,6 @@ def main() -> int:
     ):
         require(invocation_state, fragment, "HEADERPORT0 I0-STATE0-S0 vocabulary")
     for fragment in (
-        "ModuleLoweringAccessSurfaceV1",
-        "ModuleLoweringHeaderOperationV1",
-        "ModuleLoweringShellOperationV1",
-        "ModuleLoweringTerminalOperationV1",
-        "ModuleLoweringAccessPortV1",
-        "InternClosureBody",
-        "StaticDataPlanLookup",
-        "CapturePending",
-        "PrepareAdmission",
-        "SealPending",
-        "CollectPending",
-        "DrainInvocation",
-        "access_port_contract_has_exact_three_surfaces",
-    ):
-        require(access_port, fragment, "HEADERPORT0 I0-ACCESS0-S0 vocabulary")
-    for fragment in (
         "annotate_call_result_from_func_name_with_lookup",
         "FunctionSignatureLookupV1",
         "lookup\n        .and_then(|view| view.signature(func_name.as_ref()))",
@@ -295,14 +277,11 @@ def main() -> int:
         "shell_metadata_port_owns_closure_and_static_plan_operations",
     ):
         require(module_shell, fragment, "HEADERPORT0 I0-ACCESS0-P0 shell surface")
-    require(
-        builder,
-        "mod module_lowering_access_port",
-        "HEADERPORT0 I0-ACCESS0-S0 module registration",
-    )
     access_port_consumers = []
+    if "mod module_lowering_access_port" in builder:
+        raise AssertionError("retired ACCESS0-S0 module must not re-enter")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (ACCESS_PORT, BUILDER) or path.name.endswith("_tests.rs"):
+        if path == BUILDER or path.name.endswith("_tests.rs"):
             continue
         if "ModuleLoweringAccessPortV1" in read(path):
             access_port_consumers.append(path)

@@ -17103,16 +17103,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "function_names",
-      "line": 118,
-      "path": "src/mir/builder/module_completion_candidate.rs",
-      "reject_reasons": [
-        "depends_on_collection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "cataloged_box_method_key_preserves_owner_namespace_and_duplicate_policy",
       "line": 23,
       "path": "src/mir/builder/module_draft_collector/tests.rs",
@@ -17138,17 +17128,6 @@
       "path": "src/mir/builder/module_invocation_cut0_p0.rs",
       "reject_reasons": [
         "carrier_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "shell_contract_names_current_metadata_holes",
-      "line": 142,
-      "path": "src/mir/builder/module_lowering_access_port.rs",
-      "reject_reasons": [
-        "depends_on_lowering",
-        "depends_on_metadata"
       ],
       "status": "rejected"
     },
@@ -24611,21 +24590,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "compute_modified_names_if",
-      "line": 312,
-      "path": "src/mir/phi_core/phi_builder_box.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_builder",
-        "depends_on_collection",
-        "depends_on_context",
-        "may_mutate_state",
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "classify_balanced_depth_scan",
       "line": 50,
       "path": "src/mir/policies/balanced_depth_scan/classify.rs",
@@ -26656,25 +26620,25 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 22,
-        "carrier_surface": 505,
-        "depends_on_builder": 76,
-        "depends_on_collection": 119,
-        "depends_on_context": 53,
+        "carrier_surface": 504,
+        "depends_on_builder": 75,
+        "depends_on_collection": 117,
+        "depends_on_context": 52,
         "depends_on_emission": 69,
-        "depends_on_lowering": 126,
-        "depends_on_metadata": 83,
+        "depends_on_lowering": 125,
+        "depends_on_metadata": 82,
         "depends_on_resolution": 230,
         "depends_on_route_selection": 135,
-        "may_mutate_state": 210,
-        "phi_or_localssa_surface": 97,
+        "may_mutate_state": 209,
+        "phi_or_localssa_surface": 96,
         "takes_mut_self": 36
       },
       "by_status": {
         "already_adopted_name_match": 1,
         "candidate": 1342,
-        "rejected": 1043
+        "rejected": 1040
       },
-      "surface_count": 2386
+      "surface_count": 2383
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"
