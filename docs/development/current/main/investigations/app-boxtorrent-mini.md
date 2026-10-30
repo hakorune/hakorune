@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A4: outbox metadata検証を同一sourceのnormal入口へ移行（focused PASS、test行増減0）。cohort失敗名84/1/0不変、固定suite 11/11（最適化CLI/runtime、92.19秒、実EXE10＋marker）。normal top-levelは引数にlegacy binding allocatorを使うため、旧A+の「legacy allocatorを使わない」検証の代替ではない。旧testとlowererは保持し、退役は未完。
 - 退役A4準備: Float加算とBool比較の既存2 testをsource-backed `compile_normal`へ移し型・release検査を保持（test純減53行、production変更なし）。focused 2 PASS、familyは既知A+ 1 FAIL、cohort失敗名84/1/0不変、固定suite 11/11（最適化CLI/runtime、92.99秒、実EXE10＋marker）。旧lowererは未退役。
 - 退役A4準備: A+旧`compile_resolved`の公開MIR検証を同じ関数のparser由来source-backed `compile_normal`へ移行し、他の旧testとfixtureを共有（test純減33行、production変更なし）。8 test中7 PASS・旧A+下位test 1件は同じ型投影FAIL。cohort失敗名84/1/0不変、固定suite 11/11（最適化CLI/runtime、92.93秒、実EXE10＋marker）。旧test名はbaselineに残存し一括更新しない。旧lowerer・他の失敗境界は未退役。
 - 退役A準備: raw ledgerの未完予約拒否と現役drainの欠落・過剰draft拒否・collector保持へ旧collectionの件数2ケースを移行（test純減1行、production増減0）。関連3 test PASS、cohort失敗84/1/0不変、固定suite 11/11（最適化CLI/runtime、92.63秒、実EXE10＋marker）。旧family/brand/policyは保持、旧guardは既存state anchor欠落でFAIL。旧test名は責務に合わせ変更、旧inventoryは未更新。

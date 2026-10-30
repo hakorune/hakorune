@@ -35,8 +35,6 @@ fn closed_family_uses_resolver_bindings_without_legacy_allocation() {
     assert_eq!(builder.core_ctx.next_binding_id, 0);
     assert!(builder.function_state.binding_ctx.is_empty());
     assert!(builder.function_state.variable_ctx.variable_map.is_empty());
-    let function = &module.functions["canonical_fixture/1"];
-    assert_eq!(function.metadata.outbox_bindings, vec!["result"]);
 }
 
 fn compile_source(text: &str) -> crate::mir::compiler::MirCompileResult {
@@ -72,6 +70,8 @@ fn source_backed_route_produces_verifier_clean_mir() {
         result.verification_result
     );
     assert!(result.module.functions.contains_key("canonical_fixture/1"));
+    let function = &result.module.functions["canonical_fixture/1"];
+    assert_eq!(function.metadata.outbox_bindings, vec!["result"]);
 }
 
 #[test]
