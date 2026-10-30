@@ -7,64 +7,16 @@ use crate::mir::{MirInstruction, MirType};
 use super::identity::ResolvedIdentityStateV1;
 use super::*;
 
-fn literal(value: i64) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::Integer(value),
-        span: Span::unknown(),
-    }
-}
-
-fn variable(name: &str) -> ASTNode {
-    ASTNode::Variable {
-        name: name.into(),
-        span: Span::unknown(),
-    }
-}
-
-fn add(left: ASTNode, right: ASTNode) -> ASTNode {
-    ASTNode::BinaryOp {
-        operator: BinaryOperator::Add,
-        left: Box::new(left),
-        right: Box::new(right),
-        span: Span::unknown(),
-    }
-}
+const FIXTURE_SOURCE: &str = "static function canonical_fixture(arg) { local x = arg + 1\n x = x + 1\n outbox result\n return x }";
 
 fn fixture() -> ASTNode {
-    ASTNode::FunctionDeclaration {
-        name: "canonical_fixture".into(),
-        params: vec!["arg".into()],
-        param_decls: Vec::new(),
-        return_type_name: None,
-        body: vec![
-            ASTNode::Local {
-                variables: vec!["x".into()],
-                initial_values: vec![Some(Box::new(add(variable("arg"), literal(1))))],
-                declared_type_names: vec![None],
-                span: Span::unknown(),
-            },
-            ASTNode::Assignment {
-                target: Box::new(variable("x")),
-                value: Box::new(add(variable("x"), literal(1))),
-                span: Span::unknown(),
-            },
-            ASTNode::Outbox {
-                variables: vec!["result".into()],
-                initial_values: vec![None],
-                span: Span::unknown(),
-            },
-            ASTNode::Return {
-                value: Some(Box::new(variable("x"))),
-                span: Span::unknown(),
-            },
-        ],
-        uses: Vec::new(),
-        contracts: Vec::new(),
-        is_static: true,
-        is_override: false,
-        attrs: DeclarationAttrs::default(),
-        span: Span::unknown(),
-    }
+    let ASTNode::Program { mut statements, .. } =
+        crate::parser::NyashParser::parse_from_string(FIXTURE_SOURCE).expect("fixture parses")
+    else {
+        panic!("fixture must be a program")
+    };
+    assert_eq!(statements.len(), 1);
+    statements.remove(0)
 }
 
 fn trivial_returning(name: &str, value: ASTNode) -> ASTNode {
@@ -107,11 +59,26 @@ fn closed_family_uses_resolver_bindings_without_legacy_allocation() {
 }
 
 #[test]
-fn public_resolved_route_produces_verifier_clean_mir() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
+fn source_backed_route_produces_verifier_clean_mir() {
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        FIXTURE_SOURCE,
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("fixture parses");
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+        crate::r#macro::transform_normal_callable_program_v1(parsed).expect("fixture transform")
+    else {
+        panic!("fixture must retain source identity")
+    };
     let mut compiler = crate::mir::MirCompiler::with_options(false);
     let result = compiler
-        .compile_resolved(unit.lowering_input(), Some("canonical_fixture.hako"))
+        .compile_normal(
+            crate::mir::compiler::NormalCompileRequestV1::for_mir_mode_callable_source(
+                source,
+                Some("canonical_fixture.hako"),
+                std::collections::HashMap::new(),
+            ),
+        )
         .unwrap();
 
     assert!(
