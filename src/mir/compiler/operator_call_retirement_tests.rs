@@ -4,8 +4,8 @@
 //! the parser helper alone.  A rejected selector must leave the compiler
 //! reusable and must not open a Builder module before the terminal.
 
-use super::{MirCompiler, NormalCompileRequestV1, VerifiedResolvedSourceUnitV1};
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use super::{MirCompiler, NormalCompileRequestV1};
+use crate::ast::{ASTNode, Span};
 
 const SELECTORS: [(&str, Option<&str>); 3] = [
     ("NYASH_BUILDER_OPERATOR_BOX_ALL_CALL", None),
@@ -18,29 +18,6 @@ fn empty_program() -> ASTNode {
         statements: Vec::new(),
         span: Span::unknown(),
     }
-}
-
-fn resolved_function() -> VerifiedResolvedSourceUnitV1 {
-    VerifiedResolvedSourceUnitV1::resolve_function(ASTNode::FunctionDeclaration {
-        name: "operator_retirement_fixture".into(),
-        params: Vec::new(),
-        param_decls: Vec::new(),
-        return_type_name: None,
-        body: vec![ASTNode::Return {
-            value: Some(Box::new(ASTNode::Literal {
-                value: LiteralValue::Integer(1),
-                span: Span::unknown(),
-            })),
-            span: Span::unknown(),
-        }],
-        uses: Vec::new(),
-        contracts: Vec::new(),
-        is_static: true,
-        is_override: false,
-        attrs: DeclarationAttrs::default(),
-        span: Span::unknown(),
-    })
-    .expect("operator retirement fixture resolves")
 }
 
 fn with_selectors(all: Option<&str>, add: Option<&str>, compare: Option<&str>, f: impl FnOnce()) {
@@ -97,7 +74,7 @@ fn raw_ingress_rejects_malformed_selector_before_source_binding() {
 }
 
 #[test]
-fn resolved_ingress_rejects_non_unicode_selector_before_candidate_open() {
+fn normal_ingress_rejects_non_unicode_selector_before_candidate_open() {
     #[cfg(unix)]
     {
         use std::ffi::OsString;
@@ -112,10 +89,15 @@ fn resolved_ingress_rejects_non_unicode_selector_before_candidate_open() {
             ],
             || {
                 std::env::set_var(SELECTORS[2].0, &raw);
-                let unit = resolved_function();
                 let mut compiler = MirCompiler::new();
+                let request = NormalCompileRequestV1::for_mir_mode(
+                    empty_program(),
+                    Some("operator-nonunicode.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .expect("empty Program request");
                 let error = compiler
-                    .compile_resolved(unit.lowering_input(), Some("operator-nonunicode.hako"))
+                    .compile_normal(request)
                     .expect_err("non-Unicode selector must fail closed");
                 assert!(error.to_string().contains("operator-call/non-unicode"));
                 assert!(compiler.builder.current_module.is_none());
