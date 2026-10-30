@@ -60,15 +60,6 @@ pub(in crate::mir::builder) fn emit_add_i64_at_with_dst(
     Ok(())
 }
 
-pub(in crate::mir::builder) fn emit_sub_i64(
-    builder: &mut MirBuilder,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<ValueId, String> {
-    let block = require_current_block(builder)?;
-    emit_binary_i64_at(builder, block, BinaryOp::Sub, lhs, rhs)
-}
-
 pub(in crate::mir::builder) fn emit_sub_i64_at(
     builder: &mut MirBuilder,
     block: crate::mir::BasicBlockId,

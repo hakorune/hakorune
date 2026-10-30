@@ -107,16 +107,6 @@ impl MirBuilder {
             .unwrap_or_default()
     }
 
-    #[allow(dead_code)]
-    pub(super) fn method_candidates_tail<S: AsRef<str>>(&mut self, tail: S) -> Vec<String> {
-        self.ensure_method_tail_index();
-        self.comp_ctx
-            .method_tail_index
-            .index
-            .get(tail.as_ref())
-            .cloned()
-            .unwrap_or_default()
-    }
 }
 
 #[cfg(test)]

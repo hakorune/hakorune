@@ -1,21 +1,10 @@
 use super::{BasicBlockId, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
 
 impl super::MirBuilder {
-    // Peek expression lowering
-    pub(super) fn build_peek_expression(
-        &mut self,
-        scrutinee: ASTNode,
-        arms: Vec<(LiteralValue, ASTNode)>,
-        else_expr: ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_peek_expression_with_port_v1(&mut port, scrutinee, arms, else_expr)
-    }
-
     /// Lower a match/peek expression without dropping the raw child port.
     pub(in crate::mir::builder) fn build_peek_expression_with_port_v1<Port>(
         &mut self,

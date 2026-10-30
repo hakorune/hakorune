@@ -232,39 +232,4 @@ impl TypeRegistry {
             .collect()
     }
 
-    /// 全トレースログを表示
-    #[allow(dead_code)] // ASTCLEAN-005: debug-only trace dump, called manually when tracing.
-    pub fn dump_trace(&self) {
-        get_global_ring0().log.debug(&format!(
-            "[type-registry] === Trace Log ({} entries) ===",
-            self.trace_log.len()
-        ));
-        for entry in &self.trace_log {
-            get_global_ring0().log.debug(&format!(
-                "[type-registry] #{:04} %{} ← {}",
-                entry.timestamp, entry.vid.0, entry.source
-            ));
-        }
-    }
-
-    /// 統計情報を表示
-    #[allow(dead_code)] // ASTCLEAN-005: debug-only stats dump, called manually when tracing.
-    pub fn dump_stats(&self) {
-        get_global_ring0()
-            .log
-            .debug("[type-registry] === Statistics ===");
-        get_global_ring0().log.debug(&format!(
-            "[type-registry] Origins: {} entries",
-            self.origins.len()
-        ));
-        get_global_ring0().log.debug(&format!(
-            "[type-registry] Types: {} entries",
-            self.types.len()
-        ));
-        get_global_ring0().log.debug(&format!(
-            "[type-registry] Trace log: {} entries",
-            self.trace_log.len()
-        ));
-    }
-
 }

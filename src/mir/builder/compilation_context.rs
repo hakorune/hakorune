@@ -482,13 +482,6 @@ impl CompilationContext {
         self.field_origin_class.insert((base_id, field), class);
     }
 
-    /// Get field origin by box (class-level)
-    pub fn get_field_origin_by_box(&self, base_box: &str, field: &str) -> Option<&str> {
-        self.field_origin_by_box
-            .get(&(base_box.to_string(), field.to_string()))
-            .map(|s| s.as_str())
-    }
-
     /// Set field origin by box (class-level)
     pub fn set_field_origin_by_box(&mut self, base_box: String, field: String, origin: String) {
         self.field_origin_by_box.insert((base_box, field), origin);
@@ -497,11 +490,6 @@ impl CompilationContext {
     /// Replace imported static-box alias bindings for the next compilation.
     pub fn set_using_import_boxes(&mut self, imports: HashMap<String, String>) {
         self.using_import_boxes = imports;
-    }
-
-    /// Clear imported static-box alias bindings.
-    pub fn clear_using_import_boxes(&mut self) {
-        self.using_import_boxes.clear();
     }
 
     /// Resolve an imported static-box alias to a concrete box name.
@@ -537,22 +525,6 @@ impl CompilationContext {
     pub fn clear_method_tail_index(&mut self) {
         self.method_tail_index.index.clear();
         self.method_tail_index.source_len = 0;
-    }
-
-    /// Get plugin method signature
-    pub fn get_plugin_method_sig(&self, box_name: &str, method_name: &str) -> Option<&MirType> {
-        self.plugin_method_sigs
-            .get(&(box_name.to_string(), method_name.to_string()))
-    }
-
-    /// Set current slot registry
-    pub fn set_slot_registry(&mut self, registry: FunctionSlotRegistry) {
-        self.current_slot_registry = Some(registry);
-    }
-
-    /// Take current slot registry (consumes it)
-    pub fn take_slot_registry(&mut self) -> Option<FunctionSlotRegistry> {
-        self.current_slot_registry.take()
     }
 
     /// Clear current slot registry
