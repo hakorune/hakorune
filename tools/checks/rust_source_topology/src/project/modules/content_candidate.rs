@@ -356,7 +356,7 @@ mod tests {
             ("host-default-dev", 0),
             ("host-default-release", 0),
             ("host-llvm-harness-dev", 0),
-            ("host-test-unit-default", 11),
+            ("host-test-unit-default", 10),
             ("host-vm-reference-dev", 0),
             ("wasm32-default-dev", 0),
         ];
@@ -398,7 +398,6 @@ mod tests {
                 "src/mir/builder/resolved_lowering/void_tests.rs",
                 "src/mir/compiler/acyclic_callable_module_activation_tests.rs",
                 "src/mir/compiler/recursive_callable_module_activation_tests.rs",
-                "src/mir/compiler/sibling_call_tests.rs",
                 "src/tests/functionbox_call_tests.rs",
                 "src/tests/plugin_hygiene.rs",
                 "src/tests/refcell_assignment_test.rs",

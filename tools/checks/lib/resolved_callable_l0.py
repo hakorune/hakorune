@@ -56,7 +56,7 @@ recursive_activation_tests = (
 )
 function_input = root / "src/mir/compiler/function_input.rs"
 callable_module_input = root / "src/mir/compiler/resolved_callable_module_input.rs"
-sibling_tests = root / "src/mir/compiler/sibling_call_tests.rs"
+sibling_tests = root / "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs"
 module_transaction = (
     root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
 )
@@ -196,9 +196,9 @@ required = {
         "lowering_input",
     ],
     sibling_tests: [
-        "exact_sibling_call_is_order_independent_and_executes",
-        "activation_rejects_zero_self_or_recursive_edges_without_poisoning_compiler",
-        "sibling_call_keeps_the_vm_only_backend_capability",
+        "cataloged_static_direct_call_observation_rejects_before_install",
+        "static function caller(n: i64)",
+        "UnissuedDirectCallObservation",
     ],
     compiler_mod: [
         "compile_resolved_callable_module",

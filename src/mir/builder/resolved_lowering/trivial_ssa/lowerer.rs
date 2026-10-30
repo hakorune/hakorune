@@ -162,10 +162,6 @@ impl<'builder, 'source, 'port> CanonicalTrivialSsaLowererV1<'builder, 'source, '
             .map_err(|error| error.to_string())
     }
 
-    fn completion_is_implicit(&self) -> bool {
-        self.session.completion_is_implicit()
-    }
-
     fn lower_body(
         &mut self,
         body: &LocatedBodyV1<'source>,

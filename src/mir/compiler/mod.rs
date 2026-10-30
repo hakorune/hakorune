@@ -107,8 +107,6 @@ mod resolved_callable_module_tests;
 #[cfg(test)]
 mod resolved_direct_accum_hardening_p0;
 #[cfg(test)]
-mod sibling_call_tests;
-#[cfg(test)]
 mod source_bound_package_p0;
 #[cfg(test)]
 mod source_view_tests;

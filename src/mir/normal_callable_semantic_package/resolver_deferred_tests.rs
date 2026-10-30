@@ -186,6 +186,19 @@ fn cataloged_static_direct_call_observation_rejects_before_install() {
         other => panic!("expected cataloged unissued direct-call terminal, got {other:?}"),
     };
     assert_eq!(reject, ());
+
+    for fixture in [
+        "static function caller(n: i64): i64 { return callee(n) } static function callee(n: i64): i64 { return n + 1 }",
+        "static function callee(n: i64): i64 { return n + 1 } static function caller(n: i64): i64 { return callee(n) }",
+    ] {
+        let mut resolver = FunctionSemanticResolverSessionV1::new(99).unwrap();
+        assert!(matches!(
+            issue_normal_callable_semantic_package_v1(&mut resolver, final_source(fixture)),
+            Err(NormalCallableSemanticPackageIssueV1::Batch {
+                _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+            })
+        ));
+    }
 }
 
 #[test]
