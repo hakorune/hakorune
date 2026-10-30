@@ -392,7 +392,8 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             );
         }
         if self.selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
-            && !(self.source_recipe.is_some() && self.selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody))
+            && !(self.source_recipe.is_some() && matches!(self.selection.sole_family(),
+                Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody | CallableLoopSoleFamilyV1::LoopTrueBreakContinue)))
         {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/route-selection-mismatch]".to_owned(),
@@ -414,6 +415,13 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             &self.body,
             &self.body_source,
         )?;
+        // A retained LoopTrue product is lowered from its checked recipe; the
+        // LoopCond exit-if items below belong to the facts-driven lowerer only.
+        if self.source_recipe.is_some()
+            && self.selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue)
+        {
+            return Ok(());
+        }
         let facts = self.loop_cond_facts()?;
         let body = self
             .source_port
@@ -709,6 +717,9 @@ fn checked_source_shape_v2(outcome: &PlanBuildOutcome, selection: &CallableLoopR
         Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody) => checked.is_some_and(|product| product.schedule().returns_v2().next().is_some())
             && facts.facts.loop_cond_return_in_body().is_some_and(|facts|
                 &facts.condition == condition && facts.recipe.body.body.as_slice() == body),
+        Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) => checked.is_some()
+            && matches!(condition, ASTNode::Literal { value: crate::ast::LiteralValue::Bool(true), .. })
+            && facts.facts.loop_true_break_continue().is_some_and(|facts| facts.recipe.body.body.as_slice() == body),
         _ => false,
     }
 }

@@ -261,10 +261,13 @@ impl CallableLoopSourceRouteTokenV1 {
             .as_ref()
             .ok_or(CallableLoopSourceRouteRejectV1::FactsMissing)?;
         let checked_return = checked.is_some_and(|product|
-            selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody)
-                && facts.facts.loop_cond_return_in_body().is_some()
-                && product.source.source.matches_identity_v1(owner, &parent_site, function_origin, source_kind)
-                && product.schedule().returns_v2().next().is_some());
+            product.source.source.matches_identity_v1(owner, &parent_site, function_origin, source_kind)
+                && match selection.sole_family() {
+                    Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody) =>
+                        facts.facts.loop_cond_return_in_body().is_some() && product.schedule().returns_v2().next().is_some(),
+                    Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) => facts.facts.loop_true_break_continue().is_some(),
+                    _ => false,
+                });
         if !checked_return && facts.facts.loop_cond_break_continue().is_none() {
             return Err(CallableLoopSourceRouteRejectV1::LoopCondFactsMissing);
         }
@@ -485,10 +488,15 @@ impl CallableLoopSourceRouteTokenV1 {
             }
         }
         let checked_return = matches!(&source_coverage, CallableLoopSourceCallCoverageV1::CheckedRecipe(product)
-            if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody)
-                && outcome.facts.as_ref().is_some_and(|facts| facts.facts.loop_cond_return_in_body().is_some())
-                && product.source.source.owner() == owner && product.source.source.site().node() == &parent_site
-                && product.schedule().returns_v2().next().is_some());
+            if product.source.source.owner() == owner && product.source.source.site().node() == &parent_site
+                && match selection.sole_family() {
+                    Some(CallableLoopSoleFamilyV1::LoopCondReturnInBody) =>
+                        outcome.facts.as_ref().is_some_and(|facts| facts.facts.loop_cond_return_in_body().is_some())
+                            && product.schedule().returns_v2().next().is_some(),
+                    Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) =>
+                        outcome.facts.as_ref().is_some_and(|facts| facts.facts.loop_true_break_continue().is_some()),
+                    _ => false,
+                });
         if !checked_return && selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
                 routes: selection.matched_routes().into(),

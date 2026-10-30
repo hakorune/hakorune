@@ -249,13 +249,16 @@ impl PreissuedCallableLoopSourcePlanV1 {
         let (expected_condition, expected_body) = match self.planned.selection.as_ref()?.sole_family()? {
             CallableLoopSoleFamilyV1::LoopCondBreakContinue => {
                 let facts = canonical.loop_cond_break_continue.as_ref()?;
-                (&facts.condition, facts.recipe.body.body.as_slice())
+                (Some(&facts.condition), facts.recipe.body.body.as_slice())
             }
             CallableLoopSoleFamilyV1::LoopCondReturnInBody => {
                 let facts = canonical.loop_cond_return_in_body.as_ref()?;
-                (&facts.condition, facts.recipe.body.body.as_slice())
+                (Some(&facts.condition), facts.recipe.body.body.as_slice())
             }
-            CallableLoopSoleFamilyV1::LoopTrueBreakContinue => return None,
+            CallableLoopSoleFamilyV1::LoopTrueBreakContinue => {
+                let facts = canonical.loop_true_break_continue.as_ref()?;
+                (None, facts.recipe.body.body.as_slice())
+            }
         };
         let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
         let membership = ledger.resolved_loop_source(self.site()).ok()?;
@@ -264,7 +267,11 @@ impl PreissuedCallableLoopSourcePlanV1 {
         let statement = source.stmt_at(&membership).ok()?;
         let body = source.child_body_from_stmt(&statement, BodyChildRoleV1::LoopBody).ok()?;
         let condition = source.child_expr_from_stmt(&statement, ExprChildRoleV1::LoopCondition).ok()?;
-        (expected_condition == condition.node() && expected_body == body.statements()).then_some(())
+        let condition_matches = match expected_condition {
+            Some(expected) => expected == condition.node(),
+            None => matches!(condition.node(), crate::ast::ASTNode::Literal { value: crate::ast::LiteralValue::Bool(true), .. }),
+        };
+        (condition_matches && expected_body == body.statements()).then_some(())
     }
 
     /// The existing Array Home consumer requires the complete flat NoExitBody;
