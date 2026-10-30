@@ -1,6 +1,6 @@
-# JoinIR Merge Coordinator（箱の地図）
+# JoinIR Merge（reference-only）
 
-責務: JoinIR 生成物をホスト MIR に統合するフェーズ（block/ValueId remap → rewrite → PHI/ExitLine 再接続）。
+この module は既存テスト用の旧 helper を保持する。未使用の coordinator は退役済み。
 
 主な箱と入口:
 - `instruction_rewriter.rs` — JoinIR→MIR 命令を書き換えつつブロックを組み立てるメイン導線
@@ -28,11 +28,6 @@ MIR cleanup may reduce path depth here, but only after the owner seam is clear.
 Current owner groups:
 
 ```text
-coordinator/:
-  phase orchestration for merge_into_host
-  may call remap / rewrite / phi / exit-line helpers
-  must not absorb helper-specific contracts
-
 rewriter/:
   JoinIR block rewrite pipeline
   Plan stage is pure transformation

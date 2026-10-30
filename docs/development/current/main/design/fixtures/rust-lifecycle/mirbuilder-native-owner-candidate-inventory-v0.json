@@ -16268,17 +16268,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "collect_value_to_func_name",
-      "line": 92,
-      "path": "src/mir/builder/control_flow/joinir/merge/coordinator/phase_4_5.rs",
-      "reject_reasons": [
-        "depends_on_collection",
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "region_name",
       "line": 271,
       "path": "src/mir/builder/control_flow/joinir/merge/debug_assertions.rs",
@@ -26669,23 +26658,23 @@
         "backend_surface": 22,
         "carrier_surface": 505,
         "depends_on_builder": 76,
-        "depends_on_collection": 120,
+        "depends_on_collection": 119,
         "depends_on_context": 53,
         "depends_on_emission": 69,
         "depends_on_lowering": 126,
         "depends_on_metadata": 83,
         "depends_on_resolution": 230,
         "depends_on_route_selection": 135,
-        "may_mutate_state": 211,
+        "may_mutate_state": 210,
         "phi_or_localssa_surface": 97,
         "takes_mut_self": 36
       },
       "by_status": {
         "already_adopted_name_match": 1,
         "candidate": 1342,
-        "rejected": 1044
+        "rejected": 1043
       },
-      "surface_count": 2387
+      "surface_count": 2386
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

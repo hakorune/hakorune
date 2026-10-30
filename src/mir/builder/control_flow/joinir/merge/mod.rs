@@ -1,16 +1,4 @@
-//! JoinIR MIR Block Merging Coordinator
-//!
-//! This module coordinates the merging of JoinIR-generated MIR functions
-//! into the host MIR builder. The process is broken into 6 phases:
-//!
-//! 1. Block ID allocation (block_allocator.rs)
-//! 2. Value collection (value_collector.rs)
-//! 3. ValueId remapping (uses JoinIrIdRemapper)
-//! 4. Instruction rewriting (instruction_rewriter.rs)
-//! 5. Exit PHI construction (exit_phi_builder.rs)
-//! 6. Boundary reconnection (coordinator.rs)
-//!
-//! Phase 4 Refactoring: Breaking down 714-line merge_joinir_mir_blocks() into focused modules
+//! Reference-only JoinIR merge helpers retained for their existing tests.
 
 mod block_allocator;
 mod block_remapper; // Phase 284 P1: Block ID remap SSOT
@@ -19,7 +7,6 @@ mod boundary_logging; // Phase 287 P0.5: Boundary logging consolidation
 mod carrier_init_builder;
 mod config;
 mod contract_checks;
-mod coordinator;
 mod debug_assertions; // Phase 286C-4.3: Debug-only assertions (split from contract_checks)
 mod dev_log; // Phase 29ae: Dev logging SSOT
 mod entry_selector; // Phase 287 P0.3: Entry function selection (SSOT)
