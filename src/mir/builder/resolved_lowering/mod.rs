@@ -168,8 +168,6 @@ pub(in crate::mir::builder) fn lower_resolved_trivial_body_with_qualified_method
 #[cfg(test)]
 mod block_expr_tests;
 #[cfg(test)]
-mod callable_module_transaction_tests;
-#[cfg(test)]
 mod common_v2_condition_bool_tests;
 #[cfg(test)]
 mod common_v2_if_continuation_target_tests;

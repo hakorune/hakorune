@@ -23,9 +23,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
     plan_tests = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
     transaction = root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
-    transaction_tests = (
-        root / "src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs"
-    )
 
     allowed_by_pattern = {
         r"TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls": {
@@ -57,7 +54,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         },
         r"VerifiedAcyclicCallableModulePlanV1::verify": {
             plan_tests,
-            transaction_tests,
             root / "src/mir/builder/module_invocation_callable_batch.rs",
             root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
             root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
@@ -66,10 +62,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
             root / "src/mir/compiler/canonical_finalization_p0.rs",
             root / "src/mir/compiler/canonical_physical_completion_p0.rs",
             root / "src/mir/compiler/source_bound_package_p0.rs",
-        },
-        r"build_acyclic_callable_module_candidate\(": {
-            transaction,
-            transaction_tests,
         },
     }
     for pattern, allowed in allowed_by_pattern.items():
@@ -101,7 +93,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         plan,
         plan_tests,
         transaction,
-        transaction_tests,
         root / "tools/checks/lib/resolved_callable_l0.py",
         root / "tools/checks/lib/resolved_callable_p0c_f.py",
     ]:
@@ -226,8 +217,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     for marker in [
         "collect_acyclic_with",
         "collect_typed_with",
-        "build_acyclic_callable_module_candidate",
-        "publish_callable_drafts",
     ]:
         if marker not in transaction_text:
             fail(f"P0c-F-I1 typed transaction seam missing: {marker}")

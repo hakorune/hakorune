@@ -294,33 +294,6 @@ impl MirBuilder {
         })
     }
 
-    pub(in crate::mir) fn build_acyclic_callable_module_candidate(
-        &mut self,
-        plan: VerifiedAcyclicCallableModulePlanV1<'_>,
-    ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
-        self.build_acyclic_callable_module_candidate_with(plan, |builder, _key, plan| {
-            builder.lower_resolved_trivial_function_draft(plan)
-        })
-    }
-
-    pub(super) fn build_acyclic_callable_module_candidate_with<'a>(
-        &mut self,
-        plan: VerifiedAcyclicCallableModulePlanV1<'a>,
-        mut lower: impl FnMut(
-            &mut MirBuilder,
-            &CanonicalCallableKeyV1,
-            CanonicalTrivialBindingSsaPlanV1<'a>,
-        ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1>,
-    ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
-        self.prepare_module()
-            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })?;
-        let drafts =
-            VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |key, plan| {
-                lower(self, key, plan)
-            })?;
-        self.publish_callable_drafts(drafts)
-    }
-
     pub(in crate::mir) fn build_recursive_callable_module_candidate(
         &mut self,
         plan: VerifiedRecursiveCallableModulePlanV1<'_>,
@@ -369,23 +342,7 @@ impl MirBuilder {
             .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })
     }
 
-    fn publish_callable_drafts(
-        &mut self,
-        drafts: VerifiedUnpublishedCallableDraftSetV1<'_>,
-    ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
-        let module = self.current_module.as_mut().ok_or_else(|| {
-            CallableModuleTransactionErrorV1::BuilderContract {
-                _detail: "[freeze:contract][callable_module_transaction/module_missing]"
-                    .to_string(),
-            }
-        })?;
-        drafts.publish_into(module)?;
 
-        let entry = crate::mir::builder::emission::constant::emit_void(self)
-            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })?;
-        self.finalize_module(entry)
-            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })
-    }
 }
 
 #[cfg(test)]

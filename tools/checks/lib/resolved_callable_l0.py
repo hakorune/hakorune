@@ -60,9 +60,6 @@ sibling_tests = root / "src/mir/normal_callable_semantic_package/resolver_deferr
 module_transaction = (
     root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
 )
-module_transaction_tests = (
-    root / "src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs"
-)
 function_session = root / "src/mir/builder/calls/function_session.rs"
 function_module_impl = root / "src/mir/function/module_impl.rs"
 function_module_tests = root / "src/mir/function/tests.rs"
@@ -202,18 +199,11 @@ required = {
     ],
     module_transaction: [
         "VerifiedUnpublishedCallableDraftSetV1",
-        "build_acyclic_callable_module_candidate",
         "collect_typed_with",
         "try_add_functions_atomic",
         "SymbolMismatch",
         "SignatureArityMismatch",
         "CardinalityMismatch",
-    ],
-    module_transaction_tests: [
-        "lowers_all_drafts_before_atomic_candidate_publication",
-        "declaration_reorder_preserves_the_published_callable_symbol_set",
-        "typed_acyclic_plan_late_failure_keeps_atomic_publication_at_zero",
-        "symbol_drift_rejects_before_candidate_publication",
     ],
     function_session: [
         "with_resolved_function_draft_session",
@@ -421,7 +411,6 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module_tests,
         callable_module_input,
         module_preflight_tests,
-        module_transaction_tests,
         root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
@@ -448,7 +437,6 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module_tests,
         callable_module_input,
         module_preflight_tests,
-        module_transaction_tests,
         root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
@@ -474,7 +462,6 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module,
         resolved_module_tests,
         module_preflight_tests,
-        module_transaction_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -502,7 +489,6 @@ for path in (root / "src").rglob("*.rs"):
         module_preflight,
         module_preflight_tests,
         module_transaction,
-        module_transaction_tests,
         callable_module_input,
         callable_graph_inventory,
         callable_graph_inventory_tests,
@@ -532,7 +518,7 @@ if sorted(resolved_module_users) != expected_resolved_module_users:
 
 transaction_callers = []
 for path in (root / "src").rglob("*.rs"):
-    if path in {module_transaction, module_transaction_tests}:
+    if path in {module_transaction}:
         continue
     if "build_resolved_callable_module_candidate" in path.read_text():
         transaction_callers.append(str(path.relative_to(root)))
@@ -715,7 +701,6 @@ for path in [
     sibling_tests,
     compiler_mod,
     module_transaction,
-    module_transaction_tests,
     function_session,
     function_module_impl,
     function_module_tests,

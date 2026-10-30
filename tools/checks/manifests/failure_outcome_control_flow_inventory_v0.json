@@ -19525,30 +19525,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs:30:mir_return",
-      "evidence": "body: vec![ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 30,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs:48:mir_return",
-      "evidence": "*body = vec![ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 48,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/canonical_cfg/pinned_text_finish.rs:103:mir_return",
       "evidence": ".set_terminator(MirInstruction::Return {",
       "evidence_kind": "mir_return",
@@ -20137,35 +20113,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/tests.rs:56:mir_return",
-      "evidence": "ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 56,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/tests.rs:76:mir_return",
-      "evidence": "body: vec![ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 76,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/tests.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:207:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:203:mir_return",
       "evidence": "ASTNode::Return { .. } => {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 207,
+      "line": 203,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -20173,11 +20125,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:227:mir_return",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs:223:mir_return",
       "evidence": "if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 227,
+      "line": 223,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,

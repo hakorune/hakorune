@@ -136,12 +136,6 @@ ROWS = (
         "recursive callable batch publication",
     ),
     ReaderRow(
-        "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
-        "fn publish_callable_drafts",
-        "canonical_catalog",
-        "acyclic/trivial callable batch publication",
-    ),
-    ReaderRow(
         "src/mir/builder/resolved_lowering/mod.rs",
         ".try_add_function(draft)",
         "canonical_catalog",
@@ -175,7 +169,7 @@ EXPECTED_OCCURRENCE_COUNTS = {
     "src/mir/builder/module_lowering_invocation_candidate.rs": 1,
     "src/mir/builder/module_lowering_shell.rs": 1,
     "src/mir/builder/recursive_child_lowering.rs": 1,
-    "src/mir/builder/resolved_lowering/callable_module_transaction.rs": 2,
+    "src/mir/builder/resolved_lowering/callable_module_transaction.rs": 1,
     "src/mir/builder/resolved_lowering/mod.rs": 1,
     "src/mir/builder/rewrite/known.rs": 3,
 }
