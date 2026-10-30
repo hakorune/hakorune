@@ -56,10 +56,28 @@ fn published_consumer_runs_once_and_propagates_failure_without_retry() {
             |view, verification| {
                 calls += 1;
                 assert!(verification.is_ok());
-                assert_eq!(view.static_method_calls().len(), 1);
                 let root = view
                     .retained_root()
                     .expect("source validator retained the exact root");
+                let targets: Vec<_> = root
+                    .blocks
+                    .values()
+                    .flat_map(|block| block.all_instructions())
+                    .filter_map(|instruction| match instruction {
+                        crate::mir::MirInstruction::Invoke {
+                            operation: crate::mir::instruction::InvokeOperation::Call { call, .. },
+                            ..
+                        } => Some(&call.callee),
+                        _ => None,
+                    })
+                    .collect();
+                let target =
+                    hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+                        "Main", "helper", 1,
+                    )
+                    .canonical_global_target_v1()
+                    .expect("static helper target");
+                assert_eq!(targets, vec![&crate::mir::Callee::Global(target)]);
                 assert!(view
                     .module()
                     .functions
