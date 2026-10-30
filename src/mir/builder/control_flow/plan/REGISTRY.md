@@ -127,7 +127,7 @@ Closed entry exceptions:
 | Closed | Boundary now |
 | --- | --- |
 | `route_entry/router.rs` direct import of `plan::composer::shadow_pre_plan_guard_error` | `control_flow/lower/planner_compat.rs::router_shadow_pre_plan_guard_error` |
-| `route_entry/router.rs` direct import of `plan::facts::feature_facts::detect_nested_loop` | `control_flow/lower/planner_compat.rs::loop_body_has_nested_loop` |
+| `route_entry/router.rs` direct import of `plan::facts::feature_facts::detect_nested_loop` | retired |
 
 Rejected bypasses:
 

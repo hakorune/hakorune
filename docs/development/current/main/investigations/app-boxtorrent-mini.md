@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A3: caller-zeroのnested-loop relayを削除し、実際に使用される`detect_nested_loop`は保持（production純減4行、test変更なし）。最適化CLI・all-targets・suite 11/11（103.22秒、実EXE10＋marker）、cohort失敗名84/1/21不変。A4は現行sourceのpreflightとGenericG0に共有判定が残り、旧draft-seal時の原子性と同一境界の後継testを確認後に切替・退役する。
 - 退役A4準備: 既存return 3 testを`compile_resolved`からparser由来のsource-backed `compile_normal`へ移し、canonical関数登録・MIR検証・return数を確認（8 test PASS）。site/target/claimとdraft原子性の既存testおよび現行production callerは保持し、A4退役は未完。production変更なし。
 - 退役A3: caller-zeroの旧shadow-adopt relayとexpectationsを削除（production純減255行、test変更なし）。control-flow inventoryは既存generatorで観測1件減を反映、網羅性・関連14 test PASS。最適化CLI・all-targets・固定suite 11/11（102.77秒、実EXE10＋marker）、cohort失敗名84/1/21不変。履歴guardの旧generic_loop欠損は以前と同じ残件。
 - manifest同期の部分着地: site/runtime/control/semantic graphは既存generatorの再生成と各check、関連22 test、exhaustiveness PASS。projectionは既存6件固定と実在7件が不一致で未着地、7件ともPendingを維持し基準は変更しない。履歴projection guardは独立の旧source欠損として保持。

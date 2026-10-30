@@ -3,7 +3,6 @@
 //! Ownership still lives under `plan/`; this module keeps the lower-side wiring
 //! grouped explicitly until the actual move happens.
 
-use crate::ast::ASTNode;
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 #[allow(unused_imports)]
@@ -19,7 +18,3 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{
     CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan, CorePlan,
     LoopStepMode, LoweredRecipe,
 };
-
-pub(in crate::mir::builder) fn loop_body_has_nested_loop(body: &[ASTNode]) -> bool {
-    crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop(body)
-}
