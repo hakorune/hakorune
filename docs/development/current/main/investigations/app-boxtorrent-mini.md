@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A1: module木に未接続の`loop_route_detection/tests.rs`を削除（未コンパイルtest 260行、production・実行test数は増減0）。現役break条件test 12 PASS、all-targets PASS、最適化CLI/runtimeのsuite 11/11（92.29秒）・cohort失敗名84/1/0不変。native inventoryは対象3観測を除き既存5観測の位置だけ同期、分類は不変。
 - 退役の確認待ち: A4のBool PHI等価sourceはvariable-site拒否（source-site欠落、位置未特定）。旧A+の`closed_family_uses_resolver_bindings_without_legacy_allocation`は保持指定のFAIL 126名に含まれる。B1のprobeは保留GenericG0と共有、B2はstrict拒否に影響、B3は現役route callerあり。受理追加・FAIL集合変更・安全検査の弱体化は行わず、先の確認への回答待ち。
 - 退役A2: repo内callerと使用例のない`AotConfigBox`を削除（production約107実コード行、raw 116行、test増減0）。同じ環境変数の現役設定・読取は保持、公開Rust APIのrepo外利用は未確認。最適化CLI・all-targets PASS、suite 11/11（92.87秒）、cohort失敗名84/1/0不変。残る6 Boxはexamples利用があるため保持。
 - 退役A2: repo内では相互参照のみの旧IntentBox/messaging/transportを削除（production約384実コード行、raw 574行、test増減0）。言語側のIntentBox名と使用例は保持し、その旧例の実行は未検証。公開Rust APIのrepo外利用は未確認。最適化CLI・all-targets PASS、suite 11/11（93.29秒）、cohort失敗名84/1/0不変。env catalogは既存policy guard参照のため保持。

@@ -8951,7 +8951,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "vm_hako_post_macro_preserves_named_source_and_exact_imports",
-      "line": 607,
+      "line": 625,
       "path": "src/mir/compiler/normal_default_pipeline_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8959,7 +8959,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "vm_fallback_post_macro_preserves_named_source_and_empty_imports",
-      "line": 624,
+      "line": 642,
       "path": "src/mir/compiler/normal_default_pipeline_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8967,7 +8967,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "vm_keep_post_macro_preserves_named_source_and_exact_imports",
-      "line": 639,
+      "line": 657,
       "path": "src/mir/compiler/normal_default_pipeline_tests.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -17851,7 +17851,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "stage",
-      "line": 336,
+      "line": 334,
       "path": "src/mir/builder/resolved_lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -18566,7 +18566,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "callable_program_stage_error",
-      "line": 756,
+      "line": 716,
       "path": "src/mir/compiler/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -21614,36 +21614,6 @@
       "reject_reasons": [
         "depends_on_collection",
         "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "classify_body",
-      "line": 108,
-      "path": "src/mir/loop_route_detection/tests.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "parse_number_like_loop_is_classified_as_loop_break",
-      "line": 151,
-      "path": "src/mir/loop_route_detection/tests.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "atoi_loop_is_classified_as_loop_break",
-      "line": 220,
-      "path": "src/mir/loop_route_detection/tests.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
       ],
       "status": "rejected"
     },
@@ -26326,7 +26296,7 @@
         "depends_on_lowering": 125,
         "depends_on_metadata": 80,
         "depends_on_resolution": 229,
-        "depends_on_route_selection": 130,
+        "depends_on_route_selection": 127,
         "may_mutate_state": 209,
         "phi_or_localssa_surface": 87,
         "takes_mut_self": 36
@@ -26334,9 +26304,9 @@
       "by_status": {
         "already_adopted_name_match": 1,
         "candidate": 1326,
-        "rejected": 1024
+        "rejected": 1021
       },
-      "surface_count": 2351
+      "surface_count": 2348
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

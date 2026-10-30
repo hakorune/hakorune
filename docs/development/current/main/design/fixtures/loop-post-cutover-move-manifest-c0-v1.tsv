@@ -557,7 +557,6 @@ src/mir/loop_route_detection/support/locals/mutable_accumulator.rs	durable-produ
 src/mir/loop_route_detection/support/locals/pinned.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
 src/mir/loop_route_detection/support/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
 src/mir/loop_route_detection/support/trim.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
-src/mir/loop_route_detection/tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
 src/mir/loop_route_policy/all_route_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
 src/mir/loop_route_policy/all_route_observation_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
 src/mir/loop_route_policy/direct_accum_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
