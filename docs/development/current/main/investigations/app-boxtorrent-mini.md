@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A2: repo内callerとbuiltin登録のない旧AotCompilerBoxと宣言・再exportを削除（production 91行）。公開Rust APIのrepo外利用は未確認。最適化CLI・all-targets check・固定suite11/11（102.58秒、実EXE10＋marker）PASS、cohort失敗名84/1/21は不変。
 - 退役A2: repo内callerのない旧SelfhostPipelineBoxと再exportを削除（production 193行＋親3行）。別のlive selfhost経路は保持。公開Rust APIから削除されるためrepo外callerへの互換性は未検証。最適化CLI、all-targets check、suite11/11（102.65秒、実EXE10＋marker）PASS、cohort失敗名84/1/21は不変。
 - 退役A候補の再確認: loop_route_detection未接続testは生成inventoryが削除前から未同期（再生成 +12268/−5562）なので同期・照合まで保持。Box候補8個は公開Rust APIで、言語exampleにも型名利用がありcaller-zeroとして一括削除しない。
 - 退役A manifest同期: 既存generatorで再生成。site/graph/runtime/control/exhaustiveness check PASS、projectionは旧基準6件に対して7件で拒否。追加は2026-08-14の `env.codegen.emit_object_compat_harness` のprovider不在fallbackで、Pending契約は維持。旧6経路はselector単位で全て残り、旧243行と新243行は別経路。semantic graphは3 site追加・1 site削除、共通siteの分類は不変。基準を緩めずownerを確認中。 現行revisionと同じsourceの最適化CLI/runtimeでsuite 11/11・91.66秒（実EXE10＋marker、SKIP/timeoutなし）。lowerers未接続2 filesはfixture 1行と予約コメントも一緒に退役。コンパイル済みproductionの行削減には数えない。cargo check PASS、固定suite 11/11・91.39秒（実EXE10＋marker）。既存repo-final-convergence guardは、既に後継へ統合済みの欠損guardを台帳から整理しPASS。
