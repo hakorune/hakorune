@@ -93,6 +93,8 @@ fn post_drain_input_consumes_both_owners_once() {
     let input = DrainedModuleFinalizationInputV1::new(candidate(), declaration_facts());
     let (candidate, facts) = input.into_parts();
     assert!(candidate.module().functions.contains_key("main"));
+    assert_eq!(candidate.inventory().symbols(), ["main"]);
+    assert_eq!(candidate.inventory().root_body().result(), RootBodyResultV1::NoValue);
     assert!(facts.user_box_decls().contains_key("Main"));
 }
 

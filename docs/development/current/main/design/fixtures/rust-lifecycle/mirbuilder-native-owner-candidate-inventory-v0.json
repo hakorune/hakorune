@@ -16859,7 +16859,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "failure_stage",
-      "line": 184,
+      "line": 182,
       "path": "src/mir/builder/module_invocation_cut0_p0.rs",
       "reject_reasons": [
         "carrier_surface"

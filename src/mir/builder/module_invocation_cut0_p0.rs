@@ -12,7 +12,6 @@ use super::module_declaration_facts::SealedModuleDeclarationFactsV1;
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
 };
-use super::module_finalization_once::{finalize_drained_module_once, FinalizedModuleCandidateV1};
 use super::module_finalization_split::DrainedModuleFinalizationInputV1;
 use super::module_invocation_drain::{
     ConditionFnPolicyV1, InvocationDrainExpectationV1, ModuleLoweringInvocationDrainOwnerV1,
@@ -93,7 +92,7 @@ struct ExternalCommitProbeV1 {
 }
 
 impl ExternalCommitProbeV1 {
-    fn commit(&mut self, _candidate: FinalizedModuleCandidateV1) {
+    fn commit(&mut self, _candidate: DrainedModuleFinalizationInputV1) {
         self.count += 1;
     }
 }
@@ -174,9 +173,8 @@ impl Cut0P0OuterAdapterV1 {
             drop(input);
             return (Cut0P0TerminalV1::Failed(Cut0P0ScenarioV1::Finalizer), 0);
         }
-        let finalized = finalize_drained_module_once(input);
         let mut commit = ExternalCommitProbeV1::default();
-        commit.commit(finalized);
+        commit.commit(input);
         (Cut0P0TerminalV1::Success, commit.count)
     }
 }

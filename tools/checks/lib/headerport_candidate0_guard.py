@@ -45,8 +45,6 @@ DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
 MODULE_FINAL = ROOT / "src/mir/builder/module_finalization_split.rs"
 MODULE_FINAL_P0 = ROOT / "src/mir/builder/module_finalization_split_p0.rs"
 MODULE_FINAL_CANDIDATE_P0 = ROOT / "src/mir/builder/module_finalization_candidate_p0.rs"
-MODULE_FINAL_ONCE = ROOT / "src/mir/builder/module_finalization_once.rs"
-MODULE_FINAL_ONCE_P0 = ROOT / "src/mir/builder/module_finalization_once_p0.rs"
 MODULE_INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 MODULE_INVOCATION_DRAIN_S0_TESTS = ROOT / "src/mir/builder/module_invocation_drain_s0_tests.rs"
 ROOT_BATCH_COMMIT = ROOT / "src/mir/builder/module_draft_collector/root_batch.rs"
@@ -487,8 +485,6 @@ def main() -> int:
             MODULE_FINAL,
             MODULE_FINAL_P0,
             MODULE_FINAL_CANDIDATE_P0,
-            MODULE_FINAL_ONCE,
-            MODULE_FINAL_ONCE_P0,
             MODULE_INVOCATION_DRAIN,
             ROOT_BATCH_COMMIT,
             ROOT_BATCH_COMMIT_P0,

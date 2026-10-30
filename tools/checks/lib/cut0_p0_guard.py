@@ -39,7 +39,7 @@ def main() -> int:
         ("complete_success", "success handoff"),
         ("prepare_complete", "same-state drain"),
         ("drain_candidate", "typed drain"),
-        ("finalize_drained_module_once", "Builder-free finalizer"),
+        ("DrainedModuleFinalizationInputV1::new", "post-drain input"),
         ("ExternalCommitProbeV1", "external commit probe"),
         ("catch_unwind(AssertUnwindSafe", "panic boundary"),
         ("9 * 8", "nine-by-eight execution evidence"),

@@ -237,10 +237,6 @@ mod module_draft_collector_receipt_tests; // ROUTEINV-P0a-RECEIPT-S0 fixtures
 #[cfg(test)]
 mod module_finalization_candidate_p0; // HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 matrix
 #[allow(dead_code)]
-mod module_finalization_once; // CUT0-S0 Builder-free finalizer
-#[cfg(test)]
-mod module_finalization_once_p0; // CUT0-S0 finalizer fixtures
-#[allow(dead_code)]
 mod module_finalization_split; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0 input
 #[cfg(test)]
 mod module_finalization_split_p0; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 fixtures
