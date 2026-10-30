@@ -11,20 +11,20 @@ use crate::mir::{BasicBlockId, ValueId};
 
 #[test]
 fn explicit_value_return_is_emitted_exactly_once() {
-    let function = compile("completion_value", vec![return_stmt(Some(literal(7)))]);
+    let function = compile("completion_value", "return 7");
     assert_eq!(return_count(&function), 1);
 }
 
 #[test]
 fn explicit_void_return_is_emitted_exactly_once() {
-    let function = compile("completion_explicit_void", vec![return_stmt(None)]);
+    let function = compile("completion_explicit_void", "return");
     assert_eq!(return_count(&function), 1);
 }
 
 #[test]
 fn empty_and_nonempty_implicit_fallthrough_emit_one_return_each() {
-    let empty = compile("completion_empty", Vec::new());
-    let nonempty = compile("completion_nonempty", vec![literal(1)]);
+    let empty = compile("completion_empty", "");
+    let nonempty = compile("completion_nonempty", "1");
     assert_eq!(return_count(&empty), 1);
     assert_eq!(return_count(&nonempty), 1);
 }

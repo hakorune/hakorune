@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
-use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::compiler::NormalCompileRequestV1;
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
 use crate::mir::{MirCompiler, MirInstruction};
 
@@ -64,13 +64,33 @@ pub(super) fn function(name: &str, body: Vec<ASTNode>) -> ASTNode {
     }
 }
 
-pub(super) fn compile(name: &str, body: Vec<ASTNode>) -> crate::mir::MirFunction {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(name, body)).unwrap();
-    let mut compiler = MirCompiler::with_options(false);
-    let result = compiler
-        .compile_resolved(unit.lowering_input(), Some("completion_fixture.hako"))
+pub(super) fn compile(name: &str, body: &str) -> crate::mir::MirFunction {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let text =
+        format!("function {name}() {{ {body} }}\nstatic box Main {{ main() {{ return 0 }} }}");
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        &text,
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .unwrap();
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+        crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+    else {
+        panic!("completion fixture must remain source-backed");
+    };
+    let result = MirCompiler::with_options(false)
+        .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
+            source,
+            Some("completion_fixture.hako"),
+            std::collections::HashMap::new(),
+        ))
         .unwrap();
     assert!(result.verification_result.is_ok());
+    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function(name, 0);
+    assert_eq!(
+        result.module.canonical_callable_definition_symbol(&key),
+        Some(format!("{name}/0").as_str())
+    );
     result.module.functions[&format!("{name}/0")].clone()
 }
 
