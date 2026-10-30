@@ -18,7 +18,6 @@ def verify_borrow_canonical_p0(root: pathlib.Path, card: str, state: str) -> Non
     matrix_path = root / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
     function_input_path = root / "src/mir/compiler/function_input.rs"
     direct_call_path = root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs"
-    acyclic_path = root / "src/mir/compiler/acyclic_callable_module_activation_tests.rs"
     recursive_path = root / "src/mir/compiler/recursive_callable_module_activation_tests.rs"
     compiler = compiler_path.read_text()
     session = session_path.read_text()
@@ -34,13 +33,10 @@ def verify_borrow_canonical_p0(root: pathlib.Path, card: str, state: str) -> Non
     first = compiler.split("fn compile_resolved_first_family(", 1)[1].split(
         "fn finish_built_canonical_module(", 1
     )[0]
-    acyclic = compiler.split("pub fn compile_resolved_callable_module(", 1)[1].split(
-        "pub fn compile_resolved_recursive_callable_module(", 1
-    )[0]
     recursive = compiler.split("pub fn compile_resolved_recursive_callable_module(", 1)[1].split(
         "pub fn compile_legacy(", 1
     )[0]
-    for route, label in ((first, "first-family"), (acyclic, "acyclic"), (recursive, "recursive")):
+    for route, label in ((first, "first-family"), (recursive, "recursive")):
         phases = (
             "CanonicalModuleLoweringSessionV1::open(&self.builder)",
             "finish_built_canonical_module(",
@@ -79,7 +75,6 @@ def verify_borrow_canonical_p0(root: pathlib.Path, card: str, state: str) -> Non
         require(function_input, fragment, "canonical immutable catalog authority")
     require(direct_call, "input.callable_header()", "canonical direct-call header authority")
     for path, fixture in (
-        (acyclic_path, "zero_call_and_recursive_graphs_reject_without_poisoning_the_compiler"),
         (recursive_path, "recursive_ingress_rejects_acyclic_input_without_poisoning_compiler"),
     ):
         require(path.read_text(), fixture, "canonical compiler reuse")

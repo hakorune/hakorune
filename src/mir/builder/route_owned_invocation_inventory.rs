@@ -211,8 +211,10 @@ fn route_policy(
         ),
         InvocationRootFamilyV1::BindingSsaAcyclic => (
             ExactInvocationSourceSymbolsV2 {
-                ingress: "MirCompiler::compile_resolved_callable_module",
-                lowering_root: "MirBuilder::build_acyclic_callable_module_candidate",
+                // The remaining source-bound proof is test-only; it does not
+                // establish source acceptance or production publication.
+                ingress: "MirCompiler::bind_canonical_source",
+                lowering_root: "MirBuilder::lower_acyclic_callable_drafts",
             },
             ModuleInvocationPolicyV1::policy_for_family(family),
         ),
@@ -308,6 +310,18 @@ mod tests {
         assert_eq!(
             raw.policy().source_symbols().lowering_root(),
             "RawRootBodyInvocationV1::prepare_root_batch"
+        );
+
+        let acyclic =
+            RouteOwnedInvocationInventoryV2::derive(InvocationRootFamilyV1::BindingSsaAcyclic)
+                .unwrap();
+        assert_eq!(
+            acyclic.policy().source_symbols().ingress(),
+            "MirCompiler::bind_canonical_source"
+        );
+        assert_eq!(
+            acyclic.policy().source_symbols().lowering_root(),
+            "MirBuilder::lower_acyclic_callable_drafts"
         );
 
         let recursive =

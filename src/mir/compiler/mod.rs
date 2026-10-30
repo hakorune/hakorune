@@ -17,8 +17,6 @@ use std::time::Instant;
 include!("module_registry.in.rs");
 
 #[cfg(test)]
-mod acyclic_callable_module_activation_tests;
-#[cfg(test)]
 mod callable_batch_correspondence_test_support;
 #[cfg(test)]
 mod callable_catalog_cutover_tests;
@@ -478,42 +476,6 @@ impl MirCompiler {
         validate_builder_operator_call_ingress_once_v1()
             .map_err(map_operator_call_ingress_error)?;
         self.compile_resolved_first_family(input, source_file)
-    }
-
-    /// Compile one exact P0c-F acyclic callable Program.
-    ///
-    /// This is an explicit canonical ingress. It never retries the legacy
-    /// route, and every header/body/plan/draft is sealed before the caller's
-    /// Builder is mutated.
-    pub fn compile_resolved_callable_module(
-        &mut self,
-        input: ResolvedCallableModuleLoweringInputV1<'_>,
-        source_file: Option<&str>,
-    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        validate_builder_operator_call_ingress_once_v1()
-            .map_err(map_operator_call_ingress_error)?;
-        if self.builder.repl_mode {
-            return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
-        }
-        let plan = acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-            input.program().module(),
-        )
-        .map_err(|error| callable_program_stage_error("acyclic_activation", error))?;
-
-        let stage_start = Instant::now();
-        let mut module_session = CanonicalModuleLoweringSessionV1::open(&self.builder);
-        set_candidate_source_hint(module_session.builder_mut(), source_file);
-        let candidate = module_session
-            .builder_mut()
-            .build_acyclic_callable_module_candidate(plan)
-            .map_err(|error| callable_program_stage_error("module_transaction", error))?;
-        super::compile_timing::trace_stage("build_resolved_callable_module", stage_start.elapsed());
-        let result = self.finish_built_canonical_module(
-            candidate,
-            CanonicalFinishScheduleV1::TrivialBindingSsa,
-        )?;
-        module_session.commit(&mut self.builder);
-        Ok(result)
     }
 
     /// Compile one exact P0c-MR recursive callable Program.

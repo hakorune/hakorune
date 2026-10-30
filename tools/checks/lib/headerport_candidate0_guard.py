@@ -340,8 +340,8 @@ def main() -> int:
         "MirCompiler::compile_resolved_first_family",
         "MirBuilder::build_resolved_function_module",
         "MirBuilder::build_resolved_trivial_function_module",
-        "MirCompiler::compile_resolved_callable_module",
-        "MirBuilder::build_acyclic_callable_module_candidate",
+        "MirCompiler::bind_canonical_source",
+        "MirBuilder::lower_acyclic_callable_drafts",
         "MirCompiler::compile_resolved_recursive_callable_module",
         "MirBuilder::build_recursive_callable_module_candidate",
     ):
@@ -353,10 +353,10 @@ def main() -> int:
             "src/mir/builder/resolved_lowering/mod.rs",
             "fn build_resolved_trivial_function_module",
         ),
-        ("src/mir/compiler/mod.rs", "fn compile_resolved_callable_module"),
+        ("src/mir/compiler/mod.rs", "fn bind_canonical_source"),
         (
             "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
-            "fn build_acyclic_callable_module_candidate",
+            "fn lower_acyclic_callable_drafts",
         ),
         (
             "src/mir/compiler/mod.rs",
@@ -372,6 +372,13 @@ def main() -> int:
             fragment,
             f"WIRING-I0 source symbol {relative}",
         )
+    source_bound = (ROOT / "src/mir/compiler/source_bound_package.rs").read_text()
+    require(
+        source_bound,
+        "ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {\n"
+        "                match builder.lower_acyclic_callable_drafts(plan)",
+        "source-bound acyclic variant and lowering",
+    )
     inventory_struct = route_inventory.split(
         "pub(in crate::mir::builder) struct RouteOwnedInventoryPolicyV2", 1
     )[1].split("struct RouteOwnedInventoryPolicySealV2", 1)[0]

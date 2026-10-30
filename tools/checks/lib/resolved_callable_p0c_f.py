@@ -22,7 +22,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     graph_tests = root / "src/mir/compiler/acyclic_callable_graph/tests.rs"
     plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
     plan_tests = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
-    activation_tests = root / "src/mir/compiler/acyclic_callable_module_activation_tests.rs"
     transaction = root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
     transaction_tests = (
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs"
@@ -58,7 +57,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         },
         r"VerifiedAcyclicCallableModulePlanV1::verify": {
             plan_tests,
-            compiler_mod,
             transaction_tests,
             root / "src/mir/builder/module_invocation_callable_batch.rs",
             root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
@@ -72,7 +70,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         r"build_acyclic_callable_module_candidate\(": {
             transaction,
             transaction_tests,
-            compiler_mod,
         },
     }
     for pattern, allowed in allowed_by_pattern.items():
@@ -103,7 +100,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         graph_tests,
         plan,
         plan_tests,
-        activation_tests,
         transaction,
         transaction_tests,
         root / "tools/checks/lib/resolved_callable_l0.py",
@@ -119,7 +115,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         inventory_tests: 2,
         graph_tests: 3,
         plan_tests: 3,
-        activation_tests: 4,
     }
     for path, expected in expected_tests.items():
         actual = path.read_text().count("#[test]")
@@ -219,8 +214,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
 
     compiler_text = compiler_mod.read_text()
     for marker in [
-        'callable_program_stage_error("acyclic_activation"',
-        "build_acyclic_callable_module_candidate(plan)",
         "canonical_callable_module/{stage}",
     ]:
         if marker not in compiler_text:

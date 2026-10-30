@@ -1187,7 +1187,11 @@ each function's graph-site count and its verified direct-call profile rows.
 It does not own Builder, MIR, callable symbols, effects, draft publication, or
 backend activation. Production callers remain zero through V0.
 
-## P0c-F-I1 atomic acyclic-module ingress
+## P0c-F-I1 atomic acyclic-module ingress (historical)
+
+The explicit `compile_resolved_callable_module` ingress described below has
+been retired. The source-bound proof path remains test-only; it does not
+establish current source acceptance or production publication.
 
 `compile_resolved_callable_module` consumes
 `VerifiedAcyclicCallableModulePlanV1` directly. The V0 typed plan is the sole

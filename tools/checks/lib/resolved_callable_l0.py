@@ -200,11 +200,6 @@ required = {
         "static function caller(n: i64)",
         "UnissuedDirectCallObservation",
     ],
-    compiler_mod: [
-        "compile_resolved_callable_module",
-        "VerifiedAcyclicCallableModulePlanV1::verify",
-        "build_acyclic_callable_module_candidate",
-    ],
     module_transaction: [
         "VerifiedUnpublishedCallableDraftSetV1",
         "build_acyclic_callable_module_candidate",
