@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A準備: raw ledgerの未完予約拒否と現役drainの欠落・過剰draft拒否・collector保持へ旧collectionの件数2ケースを移行（test純減1行、production増減0）。関連3 test PASS、cohort失敗84/1/0不変、固定suite 11/11（最適化CLI/runtime、92.63秒、実EXE10＋marker）。旧family/brand/policyは保持、旧guardは既存state anchor欠落でFAIL。旧test名は責務に合わせ変更、旧inventoryは未更新。
 - 既存publication consumer testの旧Call一覧期待を、現行Invokeの正確な呼び先検証へ修正。consumer一度実行・失敗伝播・compiler再利用とstrict MIR検証を保持しfocused 1 PASS（production変更なし、test +19/−1行）。
 - 退役A: caller-zeroの旧completion errorと未接続route proof模型を削除（production約−277行、test約−73行、模型専用2 test退役）。現役parent復元・publication停止・retry禁止3 testとall-targets PASS、固定suite 11/11（106.54秒、実EXE10＋marker）、cohort失敗名84/1/0不変。既存headerport guard 2本のFAILは前後同一。9 routeのproduction parityは未主張。
 - 未リンク`tests/hako_mem.rs`はparked mimalloc steps配下のguardが旧test名をfilterするため保持（現状filter 0件）。現役NoPayload検査は保持し、guardの再開条件と入口切替が明確になるまで退役しない。

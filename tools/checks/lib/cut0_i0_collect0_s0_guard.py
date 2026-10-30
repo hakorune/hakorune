@@ -63,7 +63,7 @@ def main() -> int:
     for fragment, label in (
         ("raw_seal_checks_final_ledger_and_replacement_history", "raw success"),
         ("canonical_a_plus_and_trivial_each_seal_one_exact_row", "A+/trivial success"),
-        ("foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal", "failure matrix"),
+        ("foreign_brand_family_and_wrong_policy_fail_before_co_seal", "failure matrix"),
     ):
         require(fixture, fragment, label)
     require(builder, "mod module_invocation_collection;", "collection registration")

@@ -357,8 +357,9 @@ mod tests {
         use crate::mir::builder::module_lowering_shell::ModuleLoweringShellV1;
         use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
         use crate::mir::raw_physical_drain::{
-            RawPhysicalCallableMainDispositionV1, RawPhysicalDrainManifestV1,
-            RawPhysicalDrainRouteV1,
+            RawPhysicalCallableMainDispositionV1, RawPhysicalDrainKeyV1,
+            RawPhysicalDrainManifestV1, RawPhysicalDrainPolicyV1, RawPhysicalDrainRoleV1,
+            RawPhysicalDrainRouteV1, RawPhysicalDrainRowV1, RawPhysicalReceiptProvenanceV1,
         };
         let brand = ModuleInvocationBrandV1::test_with_ordinal(91);
         let make = || {
@@ -423,6 +424,49 @@ mod tests {
             super::super::RawCollectorDrainErrorV1::RetainedConstruction
         );
         assert!(collector.has_retained_construction());
+        // A missing or surplus draft must not be published or consumed.
+        let mut surplus = ModuleDraftCollectorV1::with_brand(brand);
+        surplus
+            .prepare_admission(
+                FunctionDraftKeyV1::Main,
+                "main".to_owned(),
+                0,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            )
+            .unwrap()
+            .seal(draft("main"))
+            .unwrap()
+            .collect();
+        let (surplus, error) = surplus.prepare_raw_drain(&raw, brand).unwrap_err().into_parts();
+        assert_eq!(
+            error,
+            super::super::RawCollectorDrainErrorV1::CountMismatch { expected: 0, actual: 1 }
+        );
+        assert!(surplus.signature("main").is_some());
+        let row = RawPhysicalDrainRowV1::new(
+            0,
+            RawPhysicalDrainRoleV1::RootMain,
+            RawPhysicalDrainKeyV1::RootMain,
+            "main".into(),
+            0,
+            RawPhysicalDrainPolicyV1::LegacyReplaceWholePair,
+            RawPhysicalReceiptProvenanceV1::Inserted,
+        );
+        let one = RawPhysicalDrainManifestV1::new(
+            brand,
+            RawPhysicalDrainRouteV1::Script,
+            Box::new([row]),
+            RawPhysicalCallableMainDispositionV1::NotSelected,
+        );
+        let (empty, error) = ModuleDraftCollectorV1::with_brand(brand)
+            .prepare_raw_drain(&one, brand)
+            .unwrap_err()
+            .into_parts();
+        assert_eq!(
+            error,
+            super::super::RawCollectorDrainErrorV1::CountMismatch { expected: 1, actual: 0 }
+        );
+        assert_eq!(empty.symbol_count(), 0);
         let shell =
             ModuleLoweringShellV1::from_empty_module(crate::mir::MirModule::new("empty".into()))
                 .unwrap();

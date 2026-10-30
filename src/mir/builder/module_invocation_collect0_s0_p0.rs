@@ -252,7 +252,7 @@ fn canonical_a_plus_and_trivial_each_seal_one_exact_row() {
 }
 
 #[test]
-fn foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal() {
+fn foreign_brand_family_and_wrong_policy_fail_before_co_seal() {
     let (ledger, receipts, collector) = raw_source_and_rows();
     let mut factory = TestInvocationPreflightFactoryV1::new();
     let source_token = factory.mint(InvocationRootFamilyV1::Raw).unwrap();
@@ -269,51 +269,6 @@ fn foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal() {
             receipts
         ),
         Err(InvocationCollectionSealErrorV1::ForeignOwner { .. })
-    ));
-
-    let (ledger, mut receipts, collector) = raw_source_and_rows();
-    receipts.pop();
-    let mut factory = TestInvocationPreflightFactoryV1::new();
-    let token = factory.mint(InvocationRootFamilyV1::Raw).unwrap();
-    let brand = token.brand();
-    let source = raw_source_from_parts(token, ledger).unwrap();
-    let receipts = receipts
-        .into_iter()
-        .map(|receipt| InvocationBranded::from_test(brand, receipt.into_payload()))
-        .collect();
-    assert!(matches!(
-        seal_raw(
-            source,
-            InvocationBranded::from_test(brand, collector),
-            receipts
-        ),
-        Err(InvocationCollectionSealErrorV1::CardinalityMismatch { .. })
-    ));
-
-    let (ledger, mut receipts, mut collector) = raw_source_and_rows();
-    let extra = collect(
-        &mut collector,
-        FunctionDraftKeyV1::LegacySymbol("extra/0".into()),
-        "extra/0",
-        0,
-        DraftPublicationPolicyV1::LegacyReplaceWholePair,
-    );
-    let mut factory = TestInvocationPreflightFactoryV1::new();
-    let token = factory.mint(InvocationRootFamilyV1::Raw).unwrap();
-    let brand = token.brand();
-    let source = raw_source_from_parts(token, ledger).unwrap();
-    receipts.push(physical_receipt_from_test(brand, extra));
-    let receipts = receipts
-        .into_iter()
-        .map(|receipt| InvocationBranded::from_test(brand, receipt.into_payload()))
-        .collect();
-    assert!(matches!(
-        seal_raw(
-            source,
-            InvocationBranded::from_test(brand, collector),
-            receipts
-        ),
-        Err(InvocationCollectionSealErrorV1::CardinalityMismatch { .. })
     ));
 
     let mut factory = TestInvocationPreflightFactoryV1::new();
