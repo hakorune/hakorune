@@ -5,12 +5,11 @@
 
 mod planner_compat;
 
-pub(in crate::mir::builder) mod expectations;
 pub(in crate::mir::builder) mod normalize;
 
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use self::planner_compat::{
-    loop_body_has_nested_loop, planner_rule_route_label, router_shadow_pre_plan_guard_error, tags,
+    loop_body_has_nested_loop, planner_rule_route_label, tags,
     CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan,
     CorePlan, Freeze, LoopStepMode, LoweredRecipe, PlanBuildOutcome, PlanLowerer, PlanRuleId,
 };

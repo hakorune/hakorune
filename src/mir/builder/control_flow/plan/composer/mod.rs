@@ -4,10 +4,5 @@
 //! Old cfg-test versioned coreloop shelves retired in 291x-754.
 
 mod branchn_return;
-mod shadow_adopt;
 
 pub(in crate::mir::builder) use branchn_return::{compose_match_return_branchn, MatchReturnPlan};
-pub(in crate::mir::builder) use shadow_adopt::{
-    shadow_pre_plan_guard_error, strict_nested_loop_guard,
-    strict_nested_loop_guard_from_observations,
-};

@@ -16897,18 +16897,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/control_flow/plan/composer/shadow_adopt.rs:127:mir_return",
-      "evidence": "if !facts.exit_usage.has_continue || facts.exit_usage.has_break || facts.exit_usage.has_return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 127,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/control_flow/plan/composer/shadow_adopt.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs:238:mir_return",
       "evidence": "then_body: vec![ASTNode::Return {",
       "evidence_kind": "mir_return",

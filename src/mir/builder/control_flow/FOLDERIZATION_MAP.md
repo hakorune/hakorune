@@ -233,7 +233,6 @@ run targeted planner/facts tests
 - rationale:
   - route orchestration, adoption, and MIR emission surface
 - actual owner surface already landed:
-  - `lower::expectations`
   - `lower::normalize`
 - next actual move:
   - `none confirmed`
