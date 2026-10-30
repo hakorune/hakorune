@@ -78,7 +78,6 @@ pub enum RejectReason {
 
     // loop_cond_no_exit
     ExitSignalPresent => "exit_signal_present",
-    VariableAccumFamily => "variable_accum_family",
 
     // Phase 29ca (generic_loop)
     InBodyStepWithContinue => "in_body_step_with_continue",
