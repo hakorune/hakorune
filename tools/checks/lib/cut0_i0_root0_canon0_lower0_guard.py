@@ -55,8 +55,7 @@ def main() -> int:
     require(state, "CANON-FIXTURE0-DESIGN-STOP-20260722", "successor blocker")
     require(source_task, "Status: **Closed — SOURCE-BIND0", "source-bind predecessor")
     require(task, "private consume_lowering(package)", "LOWER0 terminal contract")
-    require(compiler, "pub(in crate::mir) fn lower_canonical_source", "compiler lower terminal")
-    require(package, "pub(super) fn consume", "package consumer")
+    require(package, "fn consume_parts", "physical package lowering")
     for fragment, label in (
         ("builder.lower_resolved_function_draft(plan)", "A+ draft consumer"),
         ("builder.lower_resolved_trivial_function_draft(plan)", "trivial draft consumer"),
@@ -92,12 +91,12 @@ def main() -> int:
             continue
         if "package.consume(" in path.read_text():
             consumers.append(path.relative_to(ROOT))
-    if consumers != [COMPILER.relative_to(ROOT)]:
-        raise AssertionError(f"expected one package consumer, got {consumers}")
+    if consumers:
+        raise AssertionError(f"retired package consumer remains: {consumers}")
 
     print(
         "[cut0-i0-root0-canon0-lower0-guard] ok "
-        "package_consumer=1 draft_routes=4 publication=0 production_consumers=0"
+        "package_consumer=0 draft_routes=4 publication=0"
     )
     return 0
 

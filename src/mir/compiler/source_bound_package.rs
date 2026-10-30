@@ -537,21 +537,6 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
         self.token.brand()
     }
 
-    /// LOWER0's only package consumer.  The source-bound plan is moved into
-    /// the existing draft lowerers; no module finalization or publication is
-    /// reachable from this terminal.
-    pub(super) fn consume(
-        self,
-        builder: &mut MirBuilder,
-    ) -> Result<LoweredCanonicalPlanV1<'a>, RejectedCanonicalLoweringV1<'a>> {
-        let Self {
-            token,
-            plan,
-            continuation,
-        } = self;
-        Self::consume_parts(token, plan, continuation, builder)
-    }
-
     fn consume_parts(
         token: ModuleInvocationTokenV1,
         plan: ExactCanonicalPreflightPlanV1<'a>,

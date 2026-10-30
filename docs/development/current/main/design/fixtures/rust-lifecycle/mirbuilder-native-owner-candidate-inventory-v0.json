@@ -18547,7 +18547,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "callable_program_stage_error",
-      "line": 716,
+      "line": 695,
       "path": "src/mir/compiler/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"

@@ -139,7 +139,7 @@ pub use resolved_callable_module_input::{
 };
 use source_bound_package::{
     CanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
-    LoweredCanonicalPlanV1, RejectedCanonicalLoweringV1, RejectedCanonicalPhysicalOpenV1,
+    RejectedCanonicalPhysicalOpenV1,
     RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
 };
 
@@ -300,13 +300,6 @@ pub struct MirCompiler {
     invocation_identity: InvocationIdentityIssuerV1,
 }
 
-/// Unpublished LOWER0 result.  The candidate session stays owned until a
-/// later collector/publication row consumes this product.
-pub(in crate::mir) struct CanonicalLoweringCandidateV1<'a> {
-    session: CanonicalModuleLoweringSessionV1,
-    lowered: LoweredCanonicalPlanV1<'a>,
-}
-
 impl MirCompiler {
     /// Create a new MIR compiler
     pub fn new() -> Self {
@@ -402,20 +395,6 @@ impl MirCompiler {
         module_name: String,
     ) -> Result<CanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalOpenV1<'a>> {
         package.open_physical(&self.builder, config, module_name)
-    }
-
-    /// LOWER0's disconnected plan-consuming terminal.  It opens only the
-    /// candidate session, moves the package into a draft lowerer, and keeps
-    /// the live Builder untouched on every failure.
-    pub(in crate::mir) fn lower_canonical_source<'a>(
-        &mut self,
-        package: SourceBoundCanonicalPackageV1<'a>,
-        source_file: Option<&str>,
-    ) -> Result<CanonicalLoweringCandidateV1<'a>, RejectedCanonicalLoweringV1<'a>> {
-        let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);
-        set_candidate_source_hint(session.builder_mut(), source_file);
-        let lowered = package.consume(session.builder_mut())?;
-        Ok(CanonicalLoweringCandidateV1 { session, lowered })
     }
 
     /// Phase 288 P2: Set REPL mode flag
