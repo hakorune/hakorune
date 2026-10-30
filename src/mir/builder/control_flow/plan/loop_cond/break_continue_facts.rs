@@ -248,7 +248,7 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         log_accept("loop_cond_break_continue", "program_block_no_exit");
     }
     if continue_only && continue_if_seen == 0 {
-        if exit_if_seen == 0 || nested_seen == 0 {
+        if exit_if_seen == 0 {
             log_reject(
                 "loop_cond_break_continue",
                 RejectReason::ContinueOnly,

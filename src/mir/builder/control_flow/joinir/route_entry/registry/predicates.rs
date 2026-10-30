@@ -67,7 +67,9 @@ pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool 
     !prefer_return_in_body && !scan.blocks_loop_cond_break()
 }
 pub(crate) fn pred_loop_cond_continue_only(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_cond_continue_only().is_some() && !pred_loop_continue_only(facts)
+    facts.facts.loop_cond_continue_only().is_some()
+        && !pred_loop_continue_only(facts)
+        && facts.facts.loop_cond_break_continue().is_none()
 }
 pred_accessor!(
     pred_loop_cond_continue_with_return,
