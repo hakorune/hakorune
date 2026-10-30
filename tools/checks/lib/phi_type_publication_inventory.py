@@ -145,13 +145,11 @@ def main() -> None:
         },
         "define_phi_batch_prepend(": {
             "src/mir/builder/emission/phi_lifecycle.rs": 2,
-            "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs": 1,
             "src/mir/builder/emission/phi_lifecycle/batch_type_publication.rs": 1,
         },
         "define_provisional_phi(": {
             "src/mir/builder/emission/phi_lifecycle.rs": 3,
             "src/mir/builder/control_flow/plan/lowerer/loop_preparation.rs": 1,
-            "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs": 2,
             "src/mir/builder/ssa/binding/adapter.rs": 1,
             "src/mir/builder/ssa/binding/mod.rs": 2,
             "src/mir/builder/ssa/binding/mir_adapter.rs": 2,
@@ -159,7 +157,6 @@ def main() -> None:
         "patch_phi_inputs(": {
             "src/mir/builder/emission/phi_lifecycle.rs": 3,
             "src/mir/builder/control_flow/plan/lowerer/phi_processing.rs": 1,
-            "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs": 2,
             "src/mir/builder/ssa/binding/adapter.rs": 1,
             "src/mir/builder/ssa/binding/mod.rs": 2,
             "src/mir/builder/ssa/binding/mir_adapter.rs": 2,

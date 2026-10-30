@@ -27,24 +27,23 @@ from mirbuilder_type_fact_call_post_success_guard import (
 
 
 EXPECTED_COUNTS = {
-    "writer_paths": 47,
-    "writer_occurrences": 99,
-    "partitions": 47,
-    "slices": 58,
-    "profiles": 38,
-    "profile_linked_occurrences": 101,
+    "writer_paths": 46,
+    "writer_occurrences": 96,
+    "partitions": 46,
+    "slices": 57,
+    "profiles": 37,
+    "profile_linked_occurrences": 98,
 }
 EXPECTED_STATUS_COUNTS = {
     "scoped_cutover": 1,
     "candidate": 6,
     "legacy": 14,
-    "unsafe": 9,
+    "unsafe": 8,
     "retire": 8,
 }
 EXPECTED_PROFILE_FREEZE = {
     "receiver_param0_rcv0": ("parameter", "scoped_cutover", "RCV0", 1, 1),
     "explicit_static_legacy": ("parameter", "legacy", "PARAMETER-UNKNOWN0-D0", 1, 1),
-    "phi_carrier_precompletion_unsafe": ("phi", "unsafe", "PHI0-CUT0", 3, 1),
     "phi_provisional_unknown_legacy": ("phi", "retire", "PHI0-CUT0", 1, 1),
     "phi_rollback_teardown": ("phi", "retire", "PHI0-CUT0", 1, 1),
     "phi_postcompletion_bool_legacy": ("phi", "legacy", "PHI0-CUT0", 1, 1),
@@ -91,7 +90,7 @@ EXPECTED_SHARED_PROFILE_SETS = {
     ("compat_name_heuristic", "signature_annotation_mixed_legacy"),
     ("explicit_static_legacy", "receiver_param0_rcv0"),
 }
-EXPECTED_PARTITION_DIGEST = "344339695ca2d0cdc057fc014442c27e20bc22ac45929ba07f20567b60500b1c"
+EXPECTED_PARTITION_DIGEST = "249a151f0974d5f3b98e5698b989fd715c589c14e6d5713f58ffbb35ab7b45ec"
 
 def partition_projection_v1(fixture: dict[str, object]) -> dict[str, object]:
     profiles = fixture.get("partition_profiles")
@@ -489,8 +488,8 @@ def check(root: Path) -> None:
         require_anchor(root, row)
     print(
         "[mirbuilder-type-fact-partition-guard] ok "
-        "baseline_writer_paths=47 baseline_writer_occurrences=99 "
-        "slices=58 profiles=38 "
+        "baseline_writer_paths=46 baseline_writer_occurrences=96 "
+        "slices=57 profiles=37 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
         "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed "

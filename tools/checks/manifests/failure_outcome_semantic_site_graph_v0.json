@@ -2329,14 +2329,6 @@
       "token": "ConstValue::Void"
     },
     {
-      "evidence": "&ConstValue::Void",
-      "evidence_id": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs:109:ConstValue::Void",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 109,
-      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
-      "token": "ConstValue::Void"
-    },
-    {
       "evidence": "LiteralValue::Null => Ok(ConstValue::Null),",
       "evidence_id": "src/mir/builder/control_flow/plan/composer/branchn_return.rs:104:ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
@@ -5666,7 +5658,6 @@
       "backend_policy": "",
       "current_carrier": "mixed",
       "evidence_refs": [
-        "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs:109:ConstValue::Void",
         "src/mir/builder/control_flow/plan/composer/branchn_return.rs:104:ConstValue::Null",
         "src/mir/builder/control_flow/plan/composer/branchn_return.rs:105:ConstValue::Void",
         "src/mir/builder/control_flow/plan/lowerer/source_loop_control.rs:12:ConstValue::Void",
@@ -5792,7 +5783,6 @@
       "backend_policy": "",
       "current_carrier": "ConstValue::Void",
       "evidence_refs": [
-        "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs:109:ConstValue::Void",
         "src/mir/builder/control_flow/plan/composer/branchn_return.rs:105:ConstValue::Void",
         "src/mir/builder/control_flow/plan/lowerer/source_loop_control.rs:12:ConstValue::Void",
         "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs:114:ConstValue::Void",

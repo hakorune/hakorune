@@ -517,7 +517,6 @@ use control_flow::edgecfg::api::FragEmitSession;
 mod declaration_order; // Deterministic box-member traversal owner
 #[cfg(test)]
 pub mod joinir_id_remapper; // Reference-only JoinIR ID remapping (ValueId/BlockId translation)
-mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
 mod mir_value_id_inventory; // Active lifecycle ValueId inventory; no remap authority
 mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot

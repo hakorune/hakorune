@@ -73,15 +73,6 @@ guard_expect_fixed_in_file "$TAG" \
   "$PHI_CLOSEOUT_CARD" \
   "closeout card must keep serialized MIR import out of builder lifecycle"
 guard_expect_fixed_in_file "$TAG" \
-  "remap_existing_phi_block_ids" \
-  "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs" \
-  "existing-PHI transforms must use an explicit transform boundary name"
-if rg -n "remap_phi_instruction" src/mir/builder/control_flow/joinir/merge src/mir/builder/control_flow/joinir/merge/rewriter -g '*.rs' >/tmp/coreplan_phi_old_remap_name.txt; then
-  echo "[$TAG] ERROR: stale generic PHI transform name remains"
-  cat /tmp/coreplan_phi_old_remap_name.txt
-  exit 1
-fi
-guard_expect_fixed_in_file "$TAG" \
   "$SELF_SCRIPT" \
   "$INDEX" \
   "check index must list this guard"
@@ -101,24 +92,6 @@ guard_expect_fixed_in_file "$TAG" \
   "$LOCAL_PATCH_SSOT" \
   "docs/development/current/main/design/compiler-expressivity-first-policy.md" \
   "compiler expressivity policy must point to local patch prevention SSOT"
-
-python3 - <<'PY'
-from pathlib import Path
-
-path = Path("src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs")
-text = path.read_text()
-for forbidden in (
-    "instructions.push(MirInstruction::Phi",
-    "add_instruction(MirInstruction::Phi",
-    "emit_instruction(MirInstruction::Phi",
-    "MirInstruction::Phi {",
-):
-    if forbidden in text:
-        raise SystemExit(
-            "[coreplan-phi-binding-boundary] ERROR: exit_phi_builder must construct PHIs through phi_lifecycle/PhiTxn: "
-            f"{forbidden}"
-        )
-PY
 
 python3 - <<'PY'
 from pathlib import Path
@@ -196,9 +169,6 @@ allowed_prefixes = (
     "src/mir/builder/ssa/phi_input_materializer/function_repair_tests.rs:",
     "src/mir/builder/record_helper_args.rs:",
     "src/runner/json_v1_bridge/parse/instruction.rs:",
-    "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs:",
-    "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs:",
-    "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/instruction_rewrite.rs:",
     "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs:",
     "src/mir/builder/control_flow/plan/features/if_join.rs:",
     "src/mir/builder/control_flow/edgecfg/api/emit/tests.rs:",
@@ -260,7 +230,6 @@ PY
 echo "[$TAG] recipe_only_whole_body_fallback=0"
 echo "[$TAG] phi_low_level_callsite_owner=phi_lifecycle"
 echo "[$TAG] phi_transaction_boundary_defined=1"
-echo "[$TAG] joinir_exit_phi_builder_direct_phi_construction=0"
 echo "[$TAG] joinir_loop_header_phi_builder_direct_phi_construction=0"
 echo "[$TAG] joinir_vm_bridge_direct_phi_construction=0"
 echo "[$TAG] json_import_boundary_allowed=1"

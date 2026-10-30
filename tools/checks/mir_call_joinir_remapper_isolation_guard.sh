@@ -9,7 +9,6 @@ JOINIR="$ROOT_DIR/src/mir/builder/control_flow/joinir/mod.rs"
 LIFECYCLE="$ROOT_DIR/src/mir/builder/emission/value_lifecycle.rs"
 LIFECYCLE_DEFINITION="$ROOT_DIR/src/mir/builder/emission/value_lifecycle_definition.rs"
 REMAP="$ROOT_DIR/src/mir/builder/joinir_id_remapper.rs"
-MERGE="$ROOT_DIR/src/mir/builder/control_flow/joinir/merge"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -44,7 +43,6 @@ require_cfg_test_module() {
 for file in "$BUILDER" "$INVENTORY" "$JOINIR" "$LIFECYCLE" "$LIFECYCLE_DEFINITION" "$REMAP"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
-[[ -d "$MERGE" ]] || fail "missing reference-only merge surface"
 
 require "$BUILDER" "mod mir_value_id_inventory;"
 require "$BUILDER" "pub mod joinir_id_remapper;"
@@ -55,12 +53,10 @@ require "$LIFECYCLE" "MirValueIdInventory"
 require "$LIFECYCLE_DEFINITION" "MirValueIdInventory"
 
 require_cfg_test_module "$BUILDER" "pub mod joinir_id_remapper; // Reference-only JoinIR ID remapping (ValueId/BlockId translation)"
-require_cfg_test_module "$JOINIR" "pub(in crate::mir::builder) mod merge; // Reference-only legacy JoinIR merger"
 
 if rg -n --glob '*.rs' \
     --glob '!builder.rs' \
     --glob '!joinir_id_remapper.rs' \
-    --glob '!**/control_flow/joinir/merge/**' \
     'JoinIrIdRemapper|joinir_id_remapper' "$ROOT_DIR/src/mir/builder"; then
   fail "legacy JoinIR remapper escaped its test/reference surface"
 fi

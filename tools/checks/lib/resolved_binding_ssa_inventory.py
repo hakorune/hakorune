@@ -182,6 +182,19 @@ def main() -> None:
         if row["disposition"] not in EXPECTED_DISPOSITIONS:
             fail(f"{row_id}: unknown disposition")
         path = root / row["current_path"]
+        # These two rows are retained in the historical seam snapshot. Their
+        # reference-only owners have been retired; do not reinterpret the
+        # snapshot as a current source path or permit either owner to reappear.
+        retired_joinir = {
+            "phi.joinir-exit-transaction": "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs",
+            "phi.joinir-loop-batch": "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs",
+        }
+        if row_id in retired_joinir:
+            if row["current_path"] != retired_joinir[row_id] or path.exists():
+                fail(f"{row_id}: retired reference-only owner drifted or reappeared")
+            if not isinstance(row["anchors"], list) or not row["anchors"]:
+                fail(f"{row_id}: historical anchors must be a non-empty list")
+            continue
         if not path.is_file():
             fail(f"{row_id}: missing current_path {path}")
         anchors = row["anchors"]

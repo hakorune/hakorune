@@ -5887,62 +5887,6 @@
     },
     {
       "candidate_kind": "boolean_classifier",
-      "function": "is_entry_like_source",
-      "line": 8,
-      "path": "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_skippable_continuation",
-      "line": 31,
-      "path": "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "should_skip_function_name_const",
-      "line": 47,
-      "path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_should_skip_function_name_const",
-      "line": 98,
-      "path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_loop_entry_source",
-      "line": 16,
-      "path": "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "diagnostic_label",
-      "line": 22,
-      "path": "src/mir/builder/control_flow/joinir/structural_port.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_direct_child",
-      "line": 154,
-      "path": "src/mir/builder/control_flow/joinir/structural_port.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
       "function": "is_mainline_enabled",
       "line": 108,
       "path": "src/mir/builder/control_flow/joinir/trace.rs",
@@ -16204,117 +16148,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "ordered_names",
-      "line": 37,
-      "path": "src/mir/builder/control_flow/joinir/merge/boundary_carrier_layout.rs",
-      "reject_reasons": [
-        "depends_on_collection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "region_name",
-      "line": 271,
-      "path": "src/mir/builder/control_flow/joinir/merge/debug_assertions.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "resolve_entry_func_name",
-      "line": 20,
-      "path": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_resolution"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "classify_tail_call",
-      "line": 45,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_classify_loop_entry",
-      "line": 82,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_classify_back_edge",
-      "line": 94,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_classify_exit_jump",
-      "line": 106,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_classify_no_boundary",
-      "line": 118,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_classify_continuation_target",
-      "line": 130,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_classify_inner_step_recursion",
-      "line": 144,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_classify_entry_like_but_not_loop_entry_target",
-      "line": 158,
-      "path": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "choose_route_kind",
       "line": 37,
       "path": "src/mir/builder/control_flow/joinir/routing.rs",
@@ -26566,25 +26399,25 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 22,
-        "carrier_surface": 504,
+        "carrier_surface": 503,
         "depends_on_builder": 75,
-        "depends_on_collection": 117,
+        "depends_on_collection": 116,
         "depends_on_context": 52,
         "depends_on_emission": 69,
         "depends_on_lowering": 125,
         "depends_on_metadata": 82,
-        "depends_on_resolution": 230,
+        "depends_on_resolution": 229,
         "depends_on_route_selection": 135,
         "may_mutate_state": 209,
-        "phi_or_localssa_surface": 96,
+        "phi_or_localssa_surface": 87,
         "takes_mut_self": 36
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1336,
-        "rejected": 1040
+        "candidate": 1329,
+        "rejected": 1029
       },
-      "surface_count": 2377
+      "surface_count": 2359
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

@@ -7,7 +7,6 @@
     "src/mir/builder/calls/build.rs": 1,
     "src/mir/builder/calls/parameter_setup.rs": 1,
     "src/mir/builder/collection_literals.rs": 2,
-    "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs": 3,
     "src/mir/builder/control_flow/plan/composer/branchn_return.rs": 5,
     "src/mir/builder/control_flow/plan/lowerer/emission_port.rs": 1,
     "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs": 8,
@@ -92,7 +91,6 @@
       "id": "phi_lifecycle_controls",
       "next_owner": "PHI0",
       "source_files": [
-        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs",
         "src/mir/builder/ssa/binding/mir_adapter.rs"
       ]
     },
@@ -131,7 +129,6 @@
   "partition_profiles": {
     "receiver_param0_rcv0": {"family": "parameter", "evidence_owner": "method skeleton signature Box(owner)", "commit_boundary": "receiver identity commit", "failure_residual": "preflight leaves receiver unpublished", "retirement_prerequisite": "RCV0", "status": "scoped_cutover"},
     "explicit_static_legacy": {"family": "parameter", "evidence_owner": "legacy formal annotation", "commit_boundary": "parameter identity commit", "failure_residual": "legacy Unknown remains permitted", "retirement_prerequisite": "PARAMETER-UNKNOWN0-D0", "status": "legacy"},
-    "phi_carrier_precompletion_unsafe": {"family": "phi", "evidence_owner": "header carrier construction", "commit_boundary": "before completed Phi input coverage", "failure_residual": "entry incoming can publish while the backedge is absent", "retirement_prerequisite": "PHI0-CUT0", "status": "unsafe"},
     "phi_provisional_unknown_legacy": {"family": "phi", "evidence_owner": "provisional Binding SSA adapter", "commit_boundary": "provisional Phi definition", "failure_residual": "Unknown is published before completion", "retirement_prerequisite": "PHI0-CUT0", "status": "retire"},
     "phi_rollback_teardown": {"family": "phi", "evidence_owner": "Binding SSA rollback", "commit_boundary": "failed provisional-Phi teardown", "failure_residual": "clears a provisional type without publication", "retirement_prerequisite": "PHI0-CUT0", "status": "retire"},
     "phi_postcompletion_bool_legacy": {"family": "phi", "evidence_owner": "short-circuit branch result", "commit_boundary": "after legacy insert_phi", "failure_residual": "Bool is published outside the unified completion owner", "retirement_prerequisite": "PHI0-CUT0", "status": "legacy"},
@@ -209,7 +206,6 @@
     {"source_file": "src/mir/builder/calls/build.rs", "slices": [{"first_ordinal": 1, "last_ordinal": 1, "producer_profiles": ["extern_return_table_legacy"]}]},
     {"source_file": "src/mir/builder/calls/parameter_setup.rs", "slices": [{"first_ordinal": 1, "last_ordinal": 1, "producer_profiles": ["receiver_param0_rcv0", "explicit_static_legacy"], "shared_site_reason": "one identity commit serves the RCV0 receiver and legacy explicit/static paths"}]},
     {"source_file": "src/mir/builder/collection_literals.rs", "slices": [{"first_ordinal": 1, "last_ordinal": 2, "producer_profiles": ["newbox_lifecycle"]}]},
-    {"source_file": "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs", "slices": [{"first_ordinal": 1, "last_ordinal": 3, "producer_profiles": ["phi_carrier_precompletion_unsafe"]}]},
     {"source_file": "src/mir/builder/control_flow/plan/composer/branchn_return.rs", "slices": [{"first_ordinal": 1, "last_ordinal": 5, "producer_profiles": ["plan_preemit_legacy"]}]},
     {"source_file": "src/mir/builder/control_flow/plan/lowerer/emission_port.rs", "slices": [{"first_ordinal": 1, "last_ordinal": 1, "producer_profiles": ["plan_selected_call"]}]},
     {"source_file": "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs", "slices": [{"first_ordinal": 1, "last_ordinal": 8, "producer_profiles": ["plan_preemit_legacy"]}]},

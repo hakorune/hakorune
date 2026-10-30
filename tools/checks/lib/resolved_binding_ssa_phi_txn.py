@@ -22,17 +22,12 @@ def main() -> None:
     root = Path(sys.argv[1]).resolve()
     lifecycle_path = root / "src/mir/builder/emission/phi_lifecycle.rs"
     tests_path = root / "src/mir/builder/emission/phi_lifecycle_tests.rs"
-    caller_path = (
-        root
-        / "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs"
-    )
-    for path in (lifecycle_path, tests_path, caller_path):
+    for path in (lifecycle_path, tests_path):
         if not path.is_file():
             fail(f"missing required file {path}")
 
     lifecycle = lifecycle_path.read_text()
     tests = tests_path.read_text()
-    caller = caller_path.read_text()
 
     for anchor in (
         "struct PhiRollbackFailureV1",
@@ -65,12 +60,6 @@ def main() -> None:
     if "rollback_provisional_phi(" in abort_body and ")?;" in abort_body:
         fail("abort regained first-error early return")
 
-    for anchor in (
-        "txn.commit(builder).map_err(|error| error.to_string())?",
-        "Err(txn.abort_on_err(builder, err).to_string())",
-    ):
-        require(caller, anchor, "legacy caller adapter")
-
     test_count = tests.count("#[test]")
     if test_count != 6:
         fail(f"focused fixture count must remain 6, got {test_count}")
@@ -82,7 +71,7 @@ def main() -> None:
     ):
         require(tests, anchor, "focused fixtures")
 
-    for path in (lifecycle_path, tests_path, caller_path, Path(__file__)):
+    for path in (lifecycle_path, tests_path, Path(__file__)):
         lines = len(path.read_text().splitlines())
         if lines >= 800:
             fail(f"source/check reached the 800-line stop boundary: {path} ({lines})")

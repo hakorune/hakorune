@@ -4,21 +4,13 @@
 //! - Route lowerers (active module surface and physical path: route_entry/)
 //! - Routing logic (routing.rs) ✅
 //! - Parity verification (parity_checker.rs) ✅ Phase 138
-//! - Loop processing context (loop_context.rs) ✅ Phase 140-P5
-//! - MIR block merging (merge/) ✅ Phase 4
 //! - Unified tracing (trace.rs) ✅ Phase 195
 //! - Control tree capability guard (control_tree_capability_guard.rs) ✅ Phase 112
 
 pub(in crate::mir::builder) mod control_tree_capability_guard;
-#[cfg(test)]
-pub(in crate::mir::builder) mod loop_context;
-#[cfg(test)]
-pub(in crate::mir::builder) mod merge; // Reference-only legacy JoinIR merger
 pub(in crate::mir::builder) mod parity_checker;
 pub(in crate::mir::builder) mod route_entry;
 pub(in crate::mir::builder) mod routing;
-#[cfg(test)]
-pub(in crate::mir::builder) mod structural_port;
 pub(in crate::mir::builder) mod trace;
 
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
