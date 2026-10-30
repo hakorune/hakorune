@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::resolved_region_flow::ResolvedElseFallthroughV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
@@ -323,6 +323,82 @@ fn resolved_owner_header_seals_zero_arity_binding_ssa_before_plan_consumption() 
     };
     let (input, ..) = plan.into_parts();
     assert_eq!(header.owner(), input.owner());
+
+    let make = |first: &str, second: &str| {
+        let mut root = named_function(
+            "binding_header",
+            vec![
+                local(first, literal(if first == "a" { 1 } else { 2 })),
+                local(second, literal(if second == "a" { 1 } else { 2 })),
+                ASTNode::Return {
+                    value: Some(Box::new(variable("n"))),
+                    span: Span::unknown(),
+                },
+            ],
+        );
+        let ASTNode::FunctionDeclaration {
+            params,
+            param_decls,
+            ..
+        } = &mut root
+        else {
+            unreachable!()
+        };
+        params.push("n".into());
+        param_decls.push(ParamDecl {
+            name: "n".into(),
+            declared_type_name: Some("i64".into()),
+        });
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+        CanonicalLoweringPreflightV1::verify(&unit)
+            .unwrap()
+            .seal_resolved_owner_header_v1()
+            .unwrap()
+    };
+    let first = make("a", "b");
+    let reordered = make("b", "a");
+    assert_eq!(
+        first.family(),
+        ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+    );
+    assert_eq!(first.family(), reordered.family());
+    assert_eq!(first.symbol().as_mir_name(), "binding_header/1");
+    assert_eq!(first.symbol(), reordered.symbol());
+    assert_eq!(first.arity(), 1);
+    assert_eq!(first.arity(), reordered.arity());
+    assert_ne!(first.owner(), reordered.owner());
+
+    let mut root = named_function(
+        "binding_header",
+        vec![ASTNode::Return {
+            value: Some(Box::new(variable("n"))),
+            span: Span::unknown(),
+        }],
+    );
+    let ASTNode::FunctionDeclaration {
+        params,
+        param_decls,
+        ..
+    } = &mut root
+    else {
+        unreachable!()
+    };
+    params.push("n".into());
+    param_decls.push(ParamDecl {
+        name: "n".into(),
+        declared_type_name: Some("i64".into()),
+    });
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let direct = CanonicalLoweringPreflightV1::verify(&unit)
+        .unwrap()
+        .seal_resolved_owner_header_v1()
+        .unwrap();
+    assert_eq!(
+        direct.family(),
+        ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+    );
+    assert_eq!(direct.symbol().as_mir_name(), "binding_header/1");
+    assert_eq!(direct.arity(), 1);
 }
 
 #[test]
@@ -346,6 +422,38 @@ fn resolved_owner_header_seals_a_plus_family_without_exact_i64_profile() {
     assert_eq!(header.symbol().as_mir_name(), "a_plus_header/0");
     assert_eq!(header.arity(), 0);
     header.require_same_plan(&plan).unwrap();
+
+    let mut root = named_function(
+        "a_plus_header",
+        vec![
+            local("x", literal(0)),
+            if_stmt(literal(1), vec![assignment("x", 1)], None),
+        ],
+    );
+    let ASTNode::FunctionDeclaration {
+        params,
+        param_decls,
+        ..
+    } = &mut root
+    else {
+        unreachable!()
+    };
+    params.push("n".into());
+    param_decls.push(ParamDecl {
+        name: "n".into(),
+        declared_type_name: None,
+    });
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+    let header = CanonicalLoweringPreflightV1::verify(&unit)
+        .unwrap()
+        .seal_resolved_owner_header_v1()
+        .unwrap();
+    assert_eq!(
+        header.family(),
+        ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus
+    );
+    assert_eq!(header.symbol().as_mir_name(), "a_plus_header/1");
+    assert_eq!(header.arity(), 1);
 }
 
 #[test]
@@ -366,6 +474,69 @@ fn resolved_owner_header_rejects_foreign_plan_pairing() {
     assert!(matches!(
         header.require_same_plan(&foreign_plan),
         Err(ResolvedOwnerHeaderSealErrorV1::ForeignPlan { .. })
+    ));
+    let a_plus = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("x", literal(0)),
+        if_stmt(literal(1), vec![assignment("x", 1)], None),
+    ]))
+    .unwrap();
+    let a_plus_plan = CanonicalLoweringPreflightV1::verify(&a_plus).unwrap();
+    assert!(matches!(
+        header.require_same_plan(&a_plus_plan),
+        Err(ResolvedOwnerHeaderSealErrorV1::ForeignPlan { .. })
+    ));
+    let with_param = |mut root: ASTNode, declared_type_name: Option<&str>| {
+        let ASTNode::FunctionDeclaration {
+            params,
+            param_decls,
+            ..
+        } = &mut root
+        else {
+            unreachable!()
+        };
+        params.push("n".into());
+        param_decls.push(ParamDecl {
+            name: "n".into(),
+            declared_type_name: declared_type_name.map(str::to_owned),
+        });
+        VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap()
+    };
+    let binding = with_param(
+        named_function(
+            "foreign_header",
+            vec![ASTNode::Return {
+                value: Some(Box::new(variable("n"))),
+                span: Span::unknown(),
+            }],
+        ),
+        Some("i64"),
+    );
+    let foreign = with_param(
+        named_function(
+            "foreign_header",
+            vec![
+                local("x", literal(0)),
+                if_stmt(literal(1), vec![assignment("x", 1)], None),
+            ],
+        ),
+        None,
+    );
+    let binding_plan = CanonicalLoweringPreflightV1::verify(&binding).unwrap();
+    let foreign_plan = CanonicalLoweringPreflightV1::verify(&foreign).unwrap();
+    let header = binding_plan.seal_resolved_owner_header_v1().unwrap();
+    assert!(matches!(
+        header.require_same_plan(&foreign_plan),
+        Err(ResolvedOwnerHeaderSealErrorV1::ForeignPlan { .. })
+    ));
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(named_function(
+        "bad/name",
+        vec![literal(1)],
+    ))
+    .unwrap();
+    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+    assert!(matches!(
+        plan.seal_resolved_owner_header_v1(),
+        Err(ResolvedOwnerHeaderSealErrorV1::SourceNameContainsPhysicalSeparator { .. })
     ));
 }
 

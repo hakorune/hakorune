@@ -391,8 +391,6 @@ mod raw_loop_child_port; // single located-source Loop child-entry boundary
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 #[allow(dead_code)]
 mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks
-#[cfg(test)]
-mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
 #[allow(dead_code)]
 mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
 pub(in crate::mir) use root_batch_slot::raw_main_entry_target;

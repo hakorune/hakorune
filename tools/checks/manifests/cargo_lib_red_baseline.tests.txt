@@ -2602,10 +2602,6 @@ mir::builder::resolved_lowering::trivial_ssa::operation_type::tests::conflicting
 mir::builder::resolved_lowering::trivial_ssa::operation_type::tests::every_sealed_trivial_representation_has_one_exact_mir_type
 mir::builder::resolved_lowering::trivial_ssa::operation_type::tests::matching_void_is_idempotent_for_both_void_representations
 mir::builder::resolved_lowering::trivial_ssa::operation_type::tests::missing_or_unknown_destination_prepares_the_exact_profile_type
-mir::builder::resolved_owner_header_p0::single_header_exact_families_nonzero_arity_and_source_reorder_are_stable
-mir::builder::resolved_owner_header_p0::single_header_family_selection_remains_exact_before_collector_projection
-mir::builder::resolved_owner_header_p0::single_header_projects_canonical_duplicate_symbol_and_arity_failures
-mir::builder::resolved_owner_header_p0::single_header_rejects_separator_and_foreign_owner_family_pairing
 mir::builder::return_type_strategy::tests::if_else_return_main_infers_integer_signature
 mir::builder::return_type_strategy::tests::known_instance_method_return_types_use_existing_annotation_policy
 mir::builder::return_type_strategy::tests::known_return_definition_typeop_policy_is_exact

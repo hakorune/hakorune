@@ -235,6 +235,21 @@ fn resolved_owner_key_is_distinct_from_legacy_symbol_identity() {
         .unwrap()
         .collect();
 
+    let before = collector.receipt_proof_snapshot();
+    let error = collector
+        .prepare_admission(
+            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+            "other_header/1".into(),
+            1,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap_err();
+    assert!(matches!(
+        error,
+        ModuleDraftAdmissionErrorV1::DuplicateKey(_)
+    ));
+    assert_eq!(collector.receipt_proof_snapshot(), before);
+
     let error = collector
         .prepare_admission(
             FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
@@ -270,6 +285,8 @@ fn canonical_symbol_collision_rejects_a_distinct_resolved_owner_key() {
         .unwrap()
         .collect();
 
+    let before = collector.receipt_proof_snapshot();
+
     let error = collector
         .prepare_admission(
             FunctionDraftKeyV1::CanonicalResolvedOwner(second_owner),
@@ -284,6 +301,7 @@ fn canonical_symbol_collision_rejects_a_distinct_resolved_owner_key() {
     ));
     assert_eq!(collector.symbol_count(), 1);
     assert!(collector.contains_symbol("same_symbol/0"));
+    assert_eq!(collector.receipt_proof_snapshot(), before);
 }
 
 #[test]
@@ -303,6 +321,53 @@ fn signature_or_arity_drift_rejects_without_collector_mutation() {
         ModuleDraftAdmissionErrorV1::ArityMismatch { .. }
     ));
     assert!(collector.signature("main").is_none());
+
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+    let initial = issuer.issue().unwrap();
+    collector
+        .prepare_admission(
+            FunctionDraftKeyV1::CanonicalResolvedOwner(initial),
+            "initial/0".into(),
+            0,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap()
+        .seal(draft("initial/0", 0))
+        .unwrap()
+        .collect();
+    let before = collector.receipt_proof_snapshot();
+    let symbol_owner = issuer.issue().unwrap();
+    let error = collector
+        .prepare_admission(
+            FunctionDraftKeyV1::CanonicalResolvedOwner(symbol_owner),
+            "symbol/0".into(),
+            0,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap()
+        .seal(draft("wrong_symbol/0", 0))
+        .unwrap_err();
+    assert!(matches!(
+        error,
+        ModuleDraftAdmissionErrorV1::SymbolMismatch { .. }
+    ));
+    assert_eq!(collector.receipt_proof_snapshot(), before);
+    let arity_owner = issuer.issue().unwrap();
+    let error = collector
+        .prepare_admission(
+            FunctionDraftKeyV1::CanonicalResolvedOwner(arity_owner),
+            "arity/0".into(),
+            0,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap()
+        .seal(draft("arity/0", 1))
+        .unwrap_err();
+    assert!(matches!(
+        error,
+        ModuleDraftAdmissionErrorV1::ArityMismatch { .. }
+    ));
+    assert_eq!(collector.receipt_proof_snapshot(), before);
 }
 
 #[test]

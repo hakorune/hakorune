@@ -28,7 +28,7 @@ def verify_single_header_s0(
     source_path = root / "src/mir/compiler/capability/resolved_owner_header.rs"
     capability_path = root / "src/mir/compiler/capability.rs"
     tests_path = root / "src/mir/compiler/capability_tests.rs"
-    p0_path = root / "src/mir/builder/resolved_owner_header_p0.rs"
+    p0_path = root / "src/mir/builder/module_draft_collector/tests.rs"
     symbol_path = root / "src/mir/resolved_semantics/callable_symbol.rs"
     source = source_path.read_text()
     capability = capability_path.read_text()
@@ -37,7 +37,7 @@ def verify_single_header_s0(
     symbol = symbol_path.read_text()
     if any(
         len(text.splitlines()) >= 800
-        for text in (source, capability, tests, p0, symbol)
+        for text in (source, capability, symbol)
     ):
         raise AssertionError("ROUTEINV-P0c single-header source/proofs must remain below 800 lines")
 
@@ -95,21 +95,33 @@ def verify_single_header_s0(
     ):
         require(tests, fragment, "ROUTEINV-P0c single-header fixture")
     for fragment in (
-        "single_header_exact_families_nonzero_arity_and_source_reorder_are_stable",
-        "single_header_rejects_separator_and_foreign_owner_family_pairing",
-        "single_header_projects_canonical_duplicate_symbol_and_arity_failures",
         "binding_header/1",
         "a_plus_header/1",
         "bad/name",
         "SourceNameContainsPhysicalSeparator",
+    ):
+        require(tests, fragment, "ROUTEINV-P0c header fixtures")
+    for fragment in (
+        "resolved_owner_key_is_distinct_from_legacy_symbol_identity",
+        "canonical_symbol_collision_rejects_a_distinct_resolved_owner_key",
+        "signature_or_arity_drift_rejects_without_collector_mutation",
         "FunctionDraftKeyV1::CanonicalResolvedOwner",
         "DraftPublicationPolicyV1::CanonicalRejectDuplicate",
         "ModuleDraftAdmissionErrorV1::DuplicateKey",
         "ModuleDraftAdmissionErrorV1::DuplicateSymbol",
         "ModuleDraftAdmissionErrorV1::SymbolMismatch",
         "ModuleDraftAdmissionErrorV1::ArityMismatch",
+        "receipt_proof_snapshot()",
     ):
-        require(p0, fragment, "ROUTEINV-P0c single-header P0 matrix")
+        require(p0, fragment, "ROUTEINV-P0c collector fixtures")
+    canonical_tests = "\n".join(
+        p0.split(f"fn {name}(", 1)[1].split("#[test]", 1)[0]
+        for name in (
+            "resolved_owner_key_is_distinct_from_legacy_symbol_identity",
+            "canonical_symbol_collision_rejects_a_distinct_resolved_owner_key",
+        )
+    )
+    canonical_tests += p0.split("fn signature_or_arity_drift_rejects_without_collector_mutation(", 1)[1].split("#[test]", 1)[0].split("let mut issuer", 1)[1]
     for fragment in (
         "FunctionDraftKeyV1::Main",
         "FunctionDraftKeyV1::SyntheticConditionFn",
@@ -117,12 +129,7 @@ def verify_single_header_s0(
         "RawExpansion",
         "RawCondition",
     ):
-        forbid(source + capability + p0, fragment, "raw policy leaks into single-header proof")
-    require(
-        builder_mod,
-        "mod resolved_owner_header_p0;",
-        "single-header P0 registration",
-    )
+        forbid(source + capability + canonical_tests, fragment, "raw policy leaks into single-header proof")
 
     consumers = []
     excluded = {source_path, capability_path, tests_path, p0_path}

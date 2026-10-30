@@ -20221,18 +20221,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_owner_header_p0.rs:57:mir_return",
-      "evidence": "ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 57,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_owner_header_p0.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/return_type_strategy.rs:54:mir_return",
       "evidence": "Some(MirInstruction::Return { value: Some(value) }) => Some((*bid, *value)),",
       "evidence_kind": "mir_return",
