@@ -67,10 +67,11 @@ def verify_borrow_root_p0(
     for fragment in (
         "PreparedRootDraftBatchV1",
         "SealedModuleDeclarationFactsV1",
-        "PreparedInvocationDrainV1",
         "RawDrainedPhysicalV1",
     ):
         require(owners, fragment, "BORROW-P0-ROOT existing owner")
+    require(final_path.read_text(), "root_receipts_match_manifest", "live root receipt check")
+    require(final_path.read_text(), "published_shell_rejection_is_owned_by_drain0", "live root negative fixture")
     batch_commit = batch_commit_path.read_text()
     batch_commit_proof = batch_commit_proof_path.read_text()
     for fragment in (
@@ -159,11 +160,6 @@ def verify_borrow_root_p0(
             fact_commit,
             "pub(in crate::mir::builder) fn prepare_declaration_fact_commit",
             "shell declaration-fact preparation owner",
-        ),
-        (
-            drain_path.read_text(),
-            "pub(in crate::mir::builder) struct PreparedInvocationDrainV1",
-            "invocation drain owner",
         ),
         (
             final_path.read_text(),

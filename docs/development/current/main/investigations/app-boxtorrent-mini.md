@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A4: 未接続drain/candidate模型と専用testを削除し現役`ConditionFnPolicyV1`を保持（概算production 325行・test 380行純減）。重複manifest・root欠落・順序を既存現役testへ移行、拒否段階は旧模型と異なる。focused・all-targets・最適化CLI/runtime suite 11/11（93.76秒、実EXE10＋marker）PASS、cohort失敗名84/1/0と旧FAIL 126名不変、旧台帳はPASS 14件のみ除外。関連履歴guardの旧anchor欠落は以前と同じ。
 - 退役A1: module木に未接続の`loop_route_detection/tests.rs`を削除（未コンパイルtest 260行、production・実行test数は増減0）。現役break条件test 12 PASS、all-targets PASS、最適化CLI/runtimeのsuite 11/11（92.29秒）・cohort失敗名84/1/0不変。native inventoryは対象3観測を除き既存5観測の位置だけ同期、分類は不変。
 - Bool PHI: 正規経路は`callable-semantic-lowering/variable-site`で名前付き拒否。旧testと必要lowererは保持し、APP-loop-basicsで扱う。
 - 旧FAIL保持: `mir::builder::resolved_lowering::tests::closed_family_uses_resolver_bindings_without_legacy_allocation` と必要lowererを保持。

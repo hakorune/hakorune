@@ -547,6 +547,27 @@ mod tests {
     #[test]
     fn published_shell_rejection_is_owned_by_drain0() {
         let (brand, invocation) = raw_complete();
+        // The real root preflight requires both root receipts, even if the
+        // remaining row is otherwise well formed.
+        use crate::mir::raw_physical_drain::{
+            RawPhysicalDrainKeyV1, RawPhysicalDrainPolicyV1, RawPhysicalDrainRowV1,
+            RawPhysicalReceiptProvenanceV1,
+        };
+        for (role, key, symbol, arity) in [
+            (RawPhysicalDrainRoleV1::RootMain, RawPhysicalDrainKeyV1::RootMain, "main", 0),
+            (RawPhysicalDrainRoleV1::RequiredCondition, RawPhysicalDrainKeyV1::RequiredCondition, "condition_fn", 1),
+        ] {
+            let row = RawPhysicalDrainRowV1::new(
+                0, role, key, symbol.into(), arity,
+                RawPhysicalDrainPolicyV1::LegacyReplaceWholePair,
+                RawPhysicalReceiptProvenanceV1::Inserted,
+            );
+            let manifest = RawPhysicalDrainManifestV1::new(
+                brand, RawPhysicalDrainRouteV1::Script, Box::new([row]),
+                RawPhysicalCallableMainDispositionV1::NotSelected,
+            );
+            assert!(!root_receipts_match_manifest(invocation.root(), &manifest, brand));
+        }
         let mut shell =
             ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap();
         shell.publish_function_for_test(draft("already/0", 0));

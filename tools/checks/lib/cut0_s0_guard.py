@@ -26,7 +26,6 @@ def main() -> int:
         for name in (
             "module_lowering_invocation_state.rs",
             "module_invocation_drain.rs",
-            "module_invocation_drain_s0_tests.rs",
         )
     }
     for name, text in files.items():
@@ -36,9 +35,8 @@ def main() -> int:
     require(files["module_lowering_invocation_state.rs"], "capture_main", "root capture transition")
     require(files["module_lowering_invocation_state.rs"], "complete_root", "root complete transition")
     require(files["module_lowering_invocation_state.rs"], "fn from_state", "complete state handoff")
-    require(files["module_invocation_drain.rs"], "prepare_complete", "same-state drain admission")
-    require(files["module_invocation_drain.rs"], "drain_candidate", "typed drain terminal")
-    require(files["module_invocation_drain_s0_tests.rs"], "without_rebuilding_state", "same-state fixture")
+    require(files["module_invocation_drain.rs"], "ConditionFnPolicyV1", "live condition policy")
+    require((SRC / "raw_root_physical/drain_terminal.rs").read_text(), "published_shell_rejection_is_owned_by_drain0", "raw drain rejection fixture")
 
     require((SRC / "raw_root_environment_install.rs").read_text(), "root_batch_terminal_consumes_body_owner_without_publishing_shell", "raw drain witness fixture")
 

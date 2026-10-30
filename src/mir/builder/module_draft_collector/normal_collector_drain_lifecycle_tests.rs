@@ -387,6 +387,12 @@ fn prepared_normal_drain_preserves_final_legacy_key_order_until_commit() {
         .commit();
 
     assert_eq!(target.function_names(), vec!["Alpha.run/0", "Zeta.run/0"]);
+    let mut ordered = ModuleDraftCollectorV1::with_brand(brand());
+    collect(&mut ordered, "Alpha.run/0");
+    collect(&mut ordered, "Zeta.run/0");
+    let mut ordered_target = MirModule::new("normal".to_owned());
+    ordered.prepare_normal_collector_drain(&mut ordered_target, brand()).unwrap().commit();
+    assert_eq!(ordered_target.function_names(), target.function_names());
 }
 
 #[test]

@@ -359,7 +359,7 @@ impl PreparedModuleLoweringShellDrainV1 {
         Ok(self.shell.module)
     }
 
-    /// Commit after `PreparedInvocationDrainV1` has checked every symbol.
+    /// Commit after the caller has checked every symbol.
     ///
     /// This path deliberately has no fallible checks.  The reusable guard
     /// keeps it disconnected from every caller except the invocation-drain

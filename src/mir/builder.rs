@@ -117,10 +117,6 @@ pub(in crate::mir) use normal_callable_package_bridge::{
 };
 mod compound_assignment; // evaluated Place read-modify-write lowering
 mod decls; // declarations lowering split
-#[allow(dead_code)]
-mod drained_module_candidate; // HEADERPORT0-I0-DRAIN0-S0 disconnected candidate
-#[cfg(test)]
-mod drained_module_candidate_p0; // HEADERPORT0-I0-DRAIN0-P0 fixtures
 mod emit_debug_policy;
 mod entry_materialization; // source-only callable Main materialization facts
 mod enum_match_scopebox;
@@ -242,8 +238,6 @@ mod module_invocation_brand0; // CUT0-I0-ROOT0-BRAND0 real owner
 mod module_invocation_brand_p0; // CUT0-I0-ID0-P0 fixtures
 #[allow(dead_code)]
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
-#[cfg(test)]
-mod module_invocation_drain_s0_tests; // CUT0-S0 same-state drain fixtures
 #[allow(dead_code)]
 mod module_invocation_identity; // CUT0-I0-ID0-S0 disconnected identity/token
 #[cfg(test)]

@@ -215,22 +215,11 @@ def main() -> int:
         "InventoryMismatch",
     ):
         require(module_shell, fragment, "HEADERPORT0 I0-SHELL-S0 vocabulary")
-    for fragment in (
-        "ConditionFnPolicyV1",
-        "InvocationDrainExpectationV1",
-        "ModuleLoweringInvocationDrainOwnerV1",
-        "PreparedInvocationDrainV1",
-        "InventoryMismatch",
-        "commit_preflighted",
-        "fn drain(self)",
-    ):
-        require(invocation_drain, fragment, "HEADERPORT0 I0-SHELL-I0-S0 vocabulary")
-    for fragment in (
-        "drain_preflights_complete_inventory_and_required_roots",
-        "drain_rejects_missing_main_before_consuming_the_candidate",
-        "drain_rejects_inventory_mismatch_before_any_shell_mutation",
-    ):
-        require(invocation_drain, fragment, "HEADERPORT0 I0-SHELL-I0-S0 fixture")
+    require(invocation_drain, "ConditionFnPolicyV1", "live condition policy")
+    live_drain = read(ROOT / "src/mir/builder/module_draft_collector/drain.rs")
+    require(live_drain, "retained_construction_rejects_all_alternative_drain_preflights", "live drain refusal fixture")
+    require(live_drain, "DuplicateManifestKey", "duplicate manifest key refusal")
+    require(live_drain, "DuplicateManifestSymbol", "duplicate manifest symbol refusal")
     for fragment in (
         "InvocationRootFamilyV1",
         "InvocationEntryV1",
@@ -321,11 +310,11 @@ def main() -> int:
             continue
         if "ModuleLoweringInvocationStateV1" in read(path):
             state_consumers.append(path)
-    expected_state_consumers = {INVOCATION, INVOCATION_DRAIN}
+    expected_state_consumers = {INVOCATION}
     if set(state_consumers) != expected_state_consumers:
         actual = sorted(str(path.relative_to(ROOT)) for path in state_consumers)
         raise AssertionError(
-            f"STATE0-I0 state consumers drifted: expected two owners, actual={actual}"
+            f"STATE0-I0 state consumers drifted: expected remaining candidate owner, actual={actual}"
         )
     for path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE):
         forbid(

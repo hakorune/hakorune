@@ -350,11 +350,6 @@ mod tests {
 
     #[test]
     fn retained_construction_rejects_all_alternative_drain_preflights() {
-        use crate::mir::builder::module_invocation_drain::{
-            ConditionFnPolicyV1, InvocationDrainExpectationV1, InvocationDrainPreflightErrorV1,
-            ModuleLoweringInvocationDrainOwnerV1,
-        };
-        use crate::mir::builder::module_lowering_shell::ModuleLoweringShellV1;
         use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
         use crate::mir::raw_physical_drain::{
             RawPhysicalCallableMainDispositionV1, RawPhysicalDrainKeyV1,
@@ -467,19 +462,34 @@ mod tests {
             super::super::RawCollectorDrainErrorV1::CountMismatch { expected: 1, actual: 0 }
         );
         assert_eq!(empty.symbol_count(), 0);
-        let shell =
-            ModuleLoweringShellV1::from_empty_module(crate::mir::MirModule::new("empty".into()))
-                .unwrap();
-        let expectation = InvocationDrainExpectationV1::new(
-            Vec::<String>::new(),
-            false,
-            ConditionFnPolicyV1::Forbidden,
-        )
-        .unwrap();
-        let error = ModuleLoweringInvocationDrainOwnerV1::new(shell, collector)
-            .prepare(expectation)
-            .unwrap_err();
-        assert_eq!(error, InvocationDrainPreflightErrorV1::RetainedConstruction);
+        // Duplicate keys and symbols must be rejected before consuming the collector.
+        let row = |key, symbol| RawPhysicalDrainRowV1::new(
+            0, RawPhysicalDrainRoleV1::RootMain, key, symbol, 0,
+            RawPhysicalDrainPolicyV1::LegacyReplaceWholePair,
+            RawPhysicalReceiptProvenanceV1::Inserted,
+        );
+        for (rows, expected) in [
+            (
+                [row(RawPhysicalDrainKeyV1::RootMain, "main".into()),
+                 row(RawPhysicalDrainKeyV1::RootMain, "other".into())],
+                super::super::RawCollectorDrainErrorV1::DuplicateManifestKey,
+            ),
+            (
+                [row(RawPhysicalDrainKeyV1::RootMain, "main".into()),
+                 row(RawPhysicalDrainKeyV1::RequiredCondition, "main".into())],
+                super::super::RawCollectorDrainErrorV1::DuplicateManifestSymbol("main".into()),
+            ),
+        ] {
+            let manifest = RawPhysicalDrainManifestV1::new(
+                brand, RawPhysicalDrainRouteV1::Script, Box::new(rows),
+                RawPhysicalCallableMainDispositionV1::NotSelected,
+            );
+            let (remaining, error) = ModuleDraftCollectorV1::with_brand(brand)
+                .prepare_raw_drain(&manifest, brand).unwrap_err().into_parts();
+            assert_eq!(error, expected);
+            assert_eq!(remaining.symbol_count(), 0);
+        }
+
     }
 
     #[test]

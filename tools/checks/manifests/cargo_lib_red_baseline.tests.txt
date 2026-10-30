@@ -1339,16 +1339,6 @@ mir::builder::control_flow::verify::verifier::tests::tests::test_verify_loop_bod
 mir::builder::declaration_order::tests::sorted_method_entries_ignore_hashmap_order
 mir::builder::decls::tests::normal_callable_main_materialization_rejects_a_missing_exact_catalog_row
 mir::builder::decls::tests::normal_callable_main_materialization_seals_the_exact_catalog_target
-mir::builder::drained_module_candidate::tests::candidate_does_not_expose_a_bare_module_consumer
-mir::builder::drained_module_candidate::tests::exact_inventory_and_root_policy_co_seal_candidate
-mir::builder::drained_module_candidate::tests::inventory_and_condition_failures_happen_before_candidate_issue
-mir::builder::drained_module_candidate_p0::candidate_rejects_inventory_mismatch_without_exposing_module
-mir::builder::drained_module_candidate_p0::candidate_rejects_missing_main_even_when_inventory_matches
-mir::builder::drained_module_candidate_p0::drain_condition_policy_matrix_is_explicit
-mir::builder::drained_module_candidate_p0::drain_inventory_order_is_deterministic_before_candidate_issue
-mir::builder::drained_module_candidate_p0::drain_rejects_missing_main_before_candidate_issue
-mir::builder::drained_module_candidate_p0::duplicate_inventory_is_rejected_before_drain_candidate_creation
-mir::builder::drained_module_candidate_p0::exact_drain_inventory_and_candidate_policy_co_seal
 mir::builder::emission::compare::tests::absent_builder_context_returns_before_bool_publication
 mir::builder::emission::compare::tests::stale_current_block_rejects_before_instruction_or_bool_publication
 mir::builder::emission::compare::tests::valid_builder_compare_emits_one_instruction_and_keeps_bool_receipt
@@ -1589,10 +1579,6 @@ mir::builder::module_invocation_brand_p0::one_token_brands_actual_session_shell_
 mir::builder::module_invocation_brand_p0::prepared_commit_keeps_the_invocation_brand
 mir::builder::module_invocation_collect0_s0_p0::foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal
 mir::builder::module_invocation_collect0_s0_p0::raw_seal_checks_final_ledger_and_replacement_history
-mir::builder::module_invocation_drain::tests::drain_preflights_complete_inventory_and_required_roots
-mir::builder::module_invocation_drain::tests::drain_rejects_inventory_mismatch_before_any_shell_mutation
-mir::builder::module_invocation_drain::tests::drain_rejects_missing_main_before_consuming_the_candidate
-mir::builder::module_invocation_drain_s0_tests::completed_candidate_drains_to_typed_candidate_without_rebuilding_state
 mir::builder::module_invocation_identity_p0::foreign_source_family_is_rejected_before_token_creation
 mir::builder::module_invocation_identity_p0::invocation_ids_are_distinct_and_not_clone_authority
 mir::builder::module_invocation_identity_p0::one_factory_mints_each_existing_family_once

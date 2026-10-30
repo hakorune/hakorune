@@ -83,8 +83,6 @@ def main() -> int:
     collector_receipt_p0 = COLLECTOR_RECEIPT_P0.read_text()
     shell_facts = SHELL_FACTS.read_text()
     shell_facts_p0 = SHELL_FACTS_P0.read_text()
-    drained_candidate = DRAINED_CANDIDATE.read_text()
-    drained_candidate_p0 = DRAINED_CANDIDATE_P0.read_text()
     module_final_candidate_p0 = MODULE_FINAL_CANDIDATE_P0.read_text()
     builder_mod = BUILDER_MOD.read_text()
     if "mod module_lowering_access_port" in builder_mod:
@@ -120,10 +118,6 @@ def main() -> int:
         raise AssertionError("SHELLFACT0-S0 source must remain below 800 lines")
     if len(shell_facts_p0.splitlines()) >= 800:
         raise AssertionError("SHELLFACT0-P0 fixture source must remain below 800 lines")
-    if len(drained_candidate.splitlines()) >= 800:
-        raise AssertionError("DRAIN0-S0 source must remain below 800 lines")
-    if len(drained_candidate_p0.splitlines()) >= 800:
-        raise AssertionError("DRAIN0-P0 fixture source must remain below 800 lines")
     if len(module_final_candidate_p0.splitlines()) >= 800:
         raise AssertionError("MODULEFINAL0-CANDIDATE0-P0 source must remain below 800 lines")
 
@@ -393,26 +387,12 @@ def main() -> int:
         "empty_and_nonempty_lane_shapes_remain_explicit",
     ):
         require(shell_facts_p0, fragment, "SHELLFACT0-P0 lane/failure fixtures")
-    for fragment in (
-        "CompletedInvocationInventoryV1",
-        "DrainedModuleCandidateV1",
-        "DrainedModuleCandidateErrorV1",
-        "from_drained_module",
-        "exact_inventory_and_root_policy_co_seal_candidate",
-        "inventory_and_condition_failures_happen_before_candidate_issue",
-        "candidate_does_not_expose_a_bare_module_consumer",
-    ):
-        require(drained_candidate, fragment, "DRAIN0-S0 source product/fixtures")
-    for fragment in (
-        "exact_drain_inventory_and_candidate_policy_co_seal",
-        "drain_inventory_order_is_deterministic_before_candidate_issue",
-        "drain_rejects_missing_main_before_candidate_issue",
-        "drain_condition_policy_matrix_is_explicit",
-        "candidate_rejects_inventory_mismatch_without_exposing_module",
-        "candidate_rejects_missing_main_even_when_inventory_matches",
-        "duplicate_inventory_is_rejected_before_drain_candidate_creation",
-    ):
-        require(drained_candidate_p0, fragment, "DRAIN0-P0 failure matrix fixtures")
+    raw_drain = (ROOT / "src/mir/builder/module_draft_collector/drain.rs").read_text()
+    require(raw_drain, "retained_construction_rejects_all_alternative_drain_preflights", "live drain refusal fixture")
+    require(raw_drain, "DuplicateManifestKey", "duplicate key refusal")
+    require(raw_drain, "DuplicateManifestSymbol", "duplicate symbol refusal")
+    normal_drain_tests = (ROOT / "src/mir/builder/module_draft_collector/normal_collector_drain_lifecycle_tests.rs").read_text()
+    require(normal_drain_tests, "prepared_normal_drain_preserves_final_legacy_key_order_until_commit", "live drain order fixture")
     raw_handoff = (ROOT / "src/mir/builder/raw_root_environment_install.rs").read_text()
     facts_tests = (ROOT / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs").read_text()
     require(raw_handoff, "root_batch_terminal_consumes_body_owner_without_publishing_shell", "raw root witness fixture")
@@ -539,8 +519,8 @@ def main() -> int:
     )
     require(builder_mod, "mod module_declaration_facts;", "SHELLFACT0-S0 module registration")
     require(builder_mod, "mod module_declaration_facts_p0;", "SHELLFACT0-P0 fixture registration")
-    require(builder_mod, "mod drained_module_candidate;", "DRAIN0-S0 module registration")
-    require(builder_mod, "mod drained_module_candidate_p0;", "DRAIN0-P0 fixture registration")
+    if "mod drained_module_candidate;" in builder_mod or "mod drained_module_candidate_p0;" in builder_mod:
+        raise AssertionError("retired drain candidate must not re-enter")
     require(builder_mod, "mod module_finalization_candidate_p0;", "MODULEFINAL0-CANDIDATE0-P0 registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
