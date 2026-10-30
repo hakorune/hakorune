@@ -271,6 +271,7 @@ mod tests {
             ));
         })
         .expect("one S6C callback");
+        assert!(port.take_object_definitions(&context).unwrap().is_empty());
         port.complete().expect("selected child coverage");
     }
 }
