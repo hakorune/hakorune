@@ -5675,24 +5675,6 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "display_formatter",
-      "display_target": "CanonicalSourceBindingErrorV1",
-      "function": "Display::fmt",
-      "line": 21,
-      "path": "src/mir/builder/canonical_root_completion_error.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "CanonicalCompletionErrorV1",
-      "function": "Display::fmt",
-      "line": 78,
-      "path": "src/mir/builder/canonical_root_completion_error.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "boolean_classifier",
       "function": "is_user_defined_box",
       "line": 248,
@@ -6853,15 +6835,6 @@
       "function": "stage",
       "line": 106,
       "path": "src/mir/builder/module_lowering_invocation_candidate.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "InvocationCandidateRouteProofErrorV1",
-      "function": "Display::fmt",
-      "line": 24,
-      "path": "src/mir/builder/module_lowering_invocation_candidate_p0.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -16935,26 +16908,6 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "route_name",
-      "line": 42,
-      "path": "src/mir/builder/module_lowering_invocation_candidate_p0.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "stage_for",
-      "line": 202,
-      "path": "src/mir/builder/module_lowering_invocation_candidate_p0.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "route_name",
       "line": 26,
       "path": "src/mir/builder/new_expression_tests.rs",
       "reject_reasons": [
@@ -26373,17 +26326,17 @@
         "depends_on_lowering": 125,
         "depends_on_metadata": 80,
         "depends_on_resolution": 229,
-        "depends_on_route_selection": 132,
+        "depends_on_route_selection": 130,
         "may_mutate_state": 209,
         "phi_or_localssa_surface": 87,
         "takes_mut_self": 36
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1329,
-        "rejected": 1026
+        "candidate": 1326,
+        "rejected": 1024
       },
-      "surface_count": 2356
+      "surface_count": 2351
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

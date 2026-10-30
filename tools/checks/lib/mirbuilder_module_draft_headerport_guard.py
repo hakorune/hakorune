@@ -18,7 +18,6 @@ COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 METHOD_INDEX = ROOT / "src/mir/builder/builder_method_index.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 INVOCATION_CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
-INVOCATION_CANDIDATE_P0 = ROOT / "src/mir/builder/module_lowering_invocation_candidate_p0.rs"
 DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
 MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 ANNOTATION = ROOT / "src/mir/builder/calls/annotation.rs"
@@ -300,7 +299,6 @@ def main() -> int:
             *MATRIX_CONSUMERS,
             INVOCATION_STATE,
             INVOCATION_CANDIDATE,
-            INVOCATION_CANDIDATE_P0,
             MODULE_DRAFT,
             DRAINED_CANDIDATE_P0,
         ) or path.name.endswith("_tests.rs"):

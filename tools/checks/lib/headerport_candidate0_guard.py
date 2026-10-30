@@ -19,7 +19,6 @@ from headerport_method_tail_compat_guard import verify_method_tail_compat
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
-CANDIDATE_P0 = ROOT / "src/mir/builder/module_lowering_invocation_candidate_p0.rs"
 MAIN_EXPANSION = ROOT / "src/mir/builder/main_expansion.rs"
 ROOT_BODY = ROOT / "src/mir/builder/root_body_completion.rs"
 ROOT_BODY_P0 = ROOT / "src/mir/builder/root_body_completion_p0.rs"
@@ -76,7 +75,6 @@ def forbid(text: str, fragment: str, label: str) -> None:
 
 def main() -> int:
     candidate = CANDIDATE.read_text()
-    candidate_p0 = CANDIDATE_P0.read_text()
     main_expansion = MAIN_EXPANSION.read_text()
     root_body = ROOT_BODY.read_text()
     root_body_p0 = ROOT_BODY_P0.read_text()
@@ -106,8 +104,6 @@ def main() -> int:
 
     if len(candidate.splitlines()) >= 800:
         raise AssertionError("Candidate0 source must remain below 800 lines")
-    if len(candidate_p0.splitlines()) >= 800:
-        raise AssertionError("Candidate0 P0 source must remain below 800 lines")
     if len(main_expansion.splitlines()) >= 800:
         raise AssertionError("MAINROLE0-S0 source must remain below 800 lines")
     if len(root_body.splitlines()) >= 800:
@@ -571,18 +567,6 @@ def main() -> int:
         "builder_borrow_is_scoped_to_active_lowering_only",
     ):
         require(candidate, fragment, "Candidate0-S0 vocabulary/fixture")
-    for fragment in (
-        "InvocationCandidateRouteProofBuilderV1",
-        "InvocationCandidateRouteProofV1",
-        "UnexpectedRoute",
-        "candidate_abort_proof_co_seals_all_nine_route_rows",
-        "duplicate_route_is_rejected_before_seal",
-        "InvocationRouteMatrixV1::rows()",
-        "InvocationCandidatePublicationV1::Unchanged",
-        "InvocationCandidateRetryV1::Forbidden",
-    ):
-        require(candidate_p0, fragment, "Candidate0-P0 route co-seal/fixture")
-
     # The candidate may mention MirBuilder only as a short-lived method
     # parameter.  It must not store a Builder or expose a module map.
     struct = candidate.split("pub(in crate::mir::builder) struct ModuleLoweringInvocationCandidateV1", 1)[1]
@@ -631,7 +615,6 @@ def main() -> int:
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (
             CANDIDATE,
-            CANDIDATE_P0,
             BUILDER_MOD,
             MODULE_INVOCATION_DRAIN_S0_TESTS,
             ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",
@@ -649,7 +632,7 @@ def main() -> int:
         "InvocationCandidateRouteProofV1",
     ):
         for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-            if path in (CANDIDATE_P0, BUILDER_MOD) or path.name.endswith("_tests.rs"):
+            if path == BUILDER_MOD or path.name.endswith("_tests.rs"):
                 continue
             if symbol in path.read_text():
                 raise AssertionError(

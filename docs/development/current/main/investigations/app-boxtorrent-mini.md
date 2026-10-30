@@ -24,6 +24,8 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A: caller-zeroの旧completion errorと未接続route proof模型を削除（production約−277行、test約−73行、模型専用2 test退役）。現役parent復元・publication停止・retry禁止3 testとall-targets PASS、固定suite 11/11（106.54秒、実EXE10＋marker）、cohort失敗名84/1/0不変。既存headerport guard 2本のFAILは前後同一。9 routeのproduction parityは未主張。
+- 未リンク`tests/hako_mem.rs`はparked mimalloc steps配下のguardが旧test名をfilterするため保持（現状filter 0件）。現役NoPayload検査は保持し、guardの再開条件と入口切替が明確になるまで退役しない。
 - 退役A: caller-zeroの`canonical_root_completion.rs`を削除（production−738行、test増減0）。receipt・brand/family・recursive/acyclicの残存fixtureとguardを保持し、旧owner固有の参照を除去。recursive/receipt各3 PASS、physical/bridgeの既存FAIL 1/2とcohort 84/1/0は失敗名不変、all-targets PASS、固定suite 11/11（100.37秒、実EXE10＋marker）。旧guardの既存pointer/issuer driftは保持。source-boundのproduction切替・A4完了は未主張。
 - 退役A: 未リンクarray slot 4試験のABI symbol・key/value・結果・arity・effectを現役4 testへ統合し旧fixtureを削除（test純減78行、production増減0、実行test名不変）。focused 4 PASS、all-targets・suite 11/11（108.45秒、実EXE10＋marker）、cohort失敗名84/1/0不変。残る未リンクABI fixtureは個別契約を確認してから退役する。
 - 退役A: 未接続root wiring/route parityを削除（production約−407行）。hostbridge GlobalとStage1の旧4試験を現役2試験へ統合し、自己照合specsも退役（test純減約221行、実行test名は旧観測表5件減・ABI 2件増）。現役root順序/失敗停止・child retry禁止・ABI試験PASS、publication consumerの既存FAILは前後同一。最適化CLI・all-targets PASS、suite 11/11（100.85秒、実EXE10＋marker）、cohort失敗名84/1/0不変。inline testのenv evidenceをmir層とする既存誤分類は本番根拠にしない。

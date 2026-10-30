@@ -308,7 +308,6 @@ pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
     RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1,
     RawPostprocessedPhysicalV1,
 };
-mod canonical_root_completion_error; // CUT0-I0-ROOT0-CANON0 shared error vocabulary
 #[allow(dead_code)]
 mod module_invocation_callable_batch; // CUT0-I0-COLLECT0-BATCH0 source/co-seal
 #[cfg(test)]
@@ -372,8 +371,6 @@ mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
 mod module_lowering_invocation_access_tests;
 #[allow(dead_code)]
 mod module_lowering_invocation_candidate; // HEADERPORT0 CANDIDATE0-S0 disconnected abort owner
-#[allow(dead_code)]
-mod module_lowering_invocation_candidate_p0; // HEADERPORT0 CANDIDATE0-P0 route co-seal
 #[allow(dead_code)]
 mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
