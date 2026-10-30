@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A準備: 未リンクextern route testのdst/引数欠落3条件を現役testに移し旧`guards.rs`を削除（test純増減0、production増減0）。現役test・all-targets・suite 11/11（95.47秒、実EXE10＋marker）PASS、cohort失敗名84/1/0不変。hostbridge/atomic/OSVM/TLS/Stage1の旧testは独立契約を照合するまで保持。
 - 退役A準備: 非Unicode operator selectorの拒否testを旧`compile_resolved`から同じingress validatorを通る`compile_normal`へ移行（test純減18行、production増減0、旧test名→normal名）。同一拒否・Builder未開始を保持、focused 4 PASS、all-targets・suite 11/11（108.18秒、実EXE10＋marker）、cohort失敗名84/1/0不変。旧resolved入口の他callerは残る。
 - 退役A: caller-zero旧JoinIR merge（test/reference Rust 7612行）・context/structural 496行・未使用injector 365行を削除。専用test 71件（merge 65/context 5/structural 1）退役、現役PHI rollback/検証7件とpartition test 6件保持。最適化CLI・all-targets・固定suite 11/11（99.50秒、実EXE10＋marker）PASS、cohort失敗名84/1/0不変。既存inventory/remapper赤とprojectionの6対7不一致は保持。
 - 退役A準備: R7字句censusを現行sourceへ再生成（Legacy 243→235: test-only 6除外、時点差純減2）。親`cfg(test)`を確認し、代入文の誤コメント分類を訂正。完全な到達解析は非主張。R7 guard・現役PHI focused 7件・suite 11/11（90.80秒、実EXE10＋marker）PASS。Rust/test行増減0。旧mergeの残るinventory/guardと安全性を確認して削除する。

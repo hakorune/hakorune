@@ -1,6 +1,5 @@
 mod array_slot;
 mod common;
-mod guards;
 mod hako_atomic;
 mod hako_mem;
 mod hako_osvm;

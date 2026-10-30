@@ -3105,22 +3105,6 @@
       "token": "env.get"
     },
     {
-      "evidence": "let mut missing_arg = make_function_with_call(\"env.get/1\", vec![], Some(ValueId::new(2)));",
-      "evidence_id": "src/mir/extern_call_route_plan/tests/guards.rs:11:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 11,
-      "source_path": "src/mir/extern_call_route_plan/tests/guards.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "let mut missing_dst = make_function_with_call(\"env.get/1\", vec![ValueId::new(1)], None);",
-      "evidence_id": "src/mir/extern_call_route_plan/tests/guards.rs:7:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 7,
-      "source_path": "src/mir/extern_call_route_plan/tests/guards.rs",
-      "token": "env.get"
-    },
-    {
       "evidence": "value: ConstValue::Void,",
       "evidence_id": "src/mir/function_emission.rs:50:ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
@@ -3359,6 +3343,22 @@
       "line": 242,
       "source_path": "src/mir/global_call_route_plan/tests/builder_registry_dispatch.rs",
       "token": "ConstValue::Void"
+    },
+    {
+      "evidence": "(\"env.get/1\", vec![ValueId::new(1)], None),",
+      "evidence_id": "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs:125:env.get",
+      "evidence_kind": "provider_optional_or_missing",
+      "line": 125,
+      "source_path": "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs",
+      "token": "env.get"
+    },
+    {
+      "evidence": "(\"env.get/1\", vec![], Some(ValueId::new(2))),",
+      "evidence_id": "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs:126:env.get",
+      "evidence_kind": "provider_optional_or_missing",
+      "line": 126,
+      "source_path": "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs",
+      "token": "env.get"
     },
     {
       "evidence": "callee: Some(Callee::Extern(\"env.get\".to_string())),",
@@ -7074,26 +7074,6 @@
       "backend_policy": "",
       "current_carrier": "env.get",
       "evidence_refs": [
-        "src/mir/extern_call_route_plan/tests/guards.rs:11:env.get",
-        "src/mir/extern_call_route_plan/tests/guards.rs:7:env.get"
-      ],
-      "layer": "test",
-      "migration_action": "",
-      "operation": "env_get",
-      "outcome_branch": "provider_missing",
-      "owner": "",
-      "owner_domain": "extern",
-      "profile": "implementation",
-      "review_status": "pending",
-      "semantic_class": "",
-      "site_id": "test.extern.env_get.provider_missing",
-      "site_kind": "operation_outcome",
-      "target_carrier": ""
-    },
-    {
-      "backend_policy": "",
-      "current_carrier": "env.get",
-      "evidence_refs": [
         "src/mir/builder/calls/function_call_preflight_source_identity_tests.rs:12:env.get",
         "src/mir/builder/calls/function_call_preflight_source_identity_tests.rs:13:env.get",
         "src/mir/builder/calls/function_call_preflight_source_identity_tests.rs:6:env.get",
@@ -7102,6 +7082,8 @@
         "src/mir/extern_call_route_plan/tests/env.rs:16:env.get",
         "src/mir/extern_call_route_plan/tests/env.rs:25:env.get",
         "src/mir/extern_call_route_plan/tests/env.rs:8:env.get",
+        "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs:125:env.get",
+        "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs:126:env.get",
         "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs:53:env.get",
         "src/mir/global_call_route_plan/tests/shape_reasons/generic_string_shapes.rs:181:env.get",
         "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs:81:env.get",

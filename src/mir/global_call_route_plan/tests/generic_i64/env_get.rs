@@ -120,4 +120,24 @@ fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target_with_e
         .global_call_routes[0];
     assert_eq!(wrapper_route.target_shape(), Some("generic_i64_body"));
     assert_eq!(wrapper_route.proof(), "typed_global_call_generic_i64");
+
+    for (symbol, args, dst) in [
+        ("env.get/1", vec![ValueId::new(1)], None),
+        ("env.get/1", vec![], Some(ValueId::new(2))),
+        ("env.set/2", vec![ValueId::new(1)], Some(ValueId::new(2))),
+    ] {
+        let mut function = make_function_with_global_call_args(symbol, dst, args);
+        let block = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        let MirInstruction::LegacyCallV0 { callee, .. } = &mut block.instructions[0] else {
+            panic!("expected call")
+        };
+        *callee = Some(Callee::Extern(symbol.to_string()));
+        let mut module = MirModule::new("invalid_extern_route".to_string());
+        module.add_function(function);
+        crate::mir::extern_call_route_plan::refresh_module_extern_call_routes(&mut module);
+        assert!(
+            module.functions["main"].metadata.extern_call_routes.is_empty(),
+            "{symbol}"
+        );
+    }
 }
