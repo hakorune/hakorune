@@ -17,7 +17,6 @@ BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 METHOD_INDEX = ROOT / "src/mir/builder/builder_method_index.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
-INVOCATION_CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
 DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
 MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 ANNOTATION = ROOT / "src/mir/builder/calls/annotation.rs"
@@ -26,7 +25,7 @@ PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
-MATRIX_CONSUMERS = (ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",)
+MATRIX_CONSUMERS = ()
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACY_TERM = ROOT / "src/mir/builder/module_lowering_invocation_legacy_term.rs"
@@ -278,7 +277,6 @@ def main() -> int:
     access_port_consumers = []
     if "mod module_lowering_access_port" in builder:
         raise AssertionError("retired ACCESS0-S0 module must not re-enter")
-    require(builder, "#[cfg(test)]\nmod module_invocation_cut0_p0;", "test-only matrix consumer")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path == BUILDER or path.name.endswith("_tests.rs"):
             continue
@@ -298,7 +296,6 @@ def main() -> int:
             ROUTE_MATRIX_P0E,
             *MATRIX_CONSUMERS,
             INVOCATION_STATE,
-            INVOCATION_CANDIDATE,
             MODULE_DRAFT,
             DRAINED_CANDIDATE_P0,
         ) or path.name.endswith("_tests.rs"):
@@ -324,11 +321,11 @@ def main() -> int:
             continue
         if "ModuleLoweringInvocationStateV1" in read(path):
             state_consumers.append(path)
-    expected_state_consumers = {INVOCATION, INVOCATION_DRAIN, INVOCATION_CANDIDATE}
+    expected_state_consumers = {INVOCATION, INVOCATION_DRAIN}
     if set(state_consumers) != expected_state_consumers:
         actual = sorted(str(path.relative_to(ROOT)) for path in state_consumers)
         raise AssertionError(
-            f"STATE0-I0 state consumers drifted: expected three owners, actual={actual}"
+            f"STATE0-I0 state consumers drifted: expected two owners, actual={actual}"
         )
     for path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE):
         forbid(

@@ -6781,23 +6781,6 @@
     },
     {
       "candidate_kind": "display_formatter",
-      "display_target": "InvocationCandidateCompletionErrorV1",
-      "function": "Display::fmt",
-      "line": 33,
-      "path": "src/mir/builder/module_lowering_invocation_candidate.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "stage",
-      "line": 106,
-      "path": "src/mir/builder/module_lowering_invocation_candidate.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
       "display_target": "RootCompletionTransitionErrorV1",
       "function": "Display::fmt",
       "line": 24,
@@ -16824,27 +16807,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "failure_stage",
-      "line": 182,
-      "path": "src/mir/builder/module_invocation_cut0_p0.rs",
-      "reject_reasons": [
-        "carrier_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "every_failure_stage_has_the_same_no_publication_law",
-      "line": 365,
-      "path": "src/mir/builder/module_lowering_invocation_candidate.rs",
-      "reject_reasons": [
-        "depends_on_collection",
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "route_name",
       "line": 26,
       "path": "src/mir/builder/new_expression_tests.rs",
@@ -26226,12 +26188,12 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 22,
-        "carrier_surface": 503,
+        "carrier_surface": 502,
         "depends_on_builder": 74,
-        "depends_on_collection": 115,
+        "depends_on_collection": 114,
         "depends_on_context": 52,
         "depends_on_emission": 67,
-        "depends_on_lowering": 125,
+        "depends_on_lowering": 124,
         "depends_on_metadata": 80,
         "depends_on_resolution": 229,
         "depends_on_route_selection": 127,
@@ -26241,10 +26203,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1320,
-        "rejected": 1020
+        "candidate": 1318,
+        "rejected": 1018
       },
-      "surface_count": 2341
+      "surface_count": 2337
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

@@ -25,7 +25,6 @@ def main() -> int:
         name: (SRC / name).read_text()
         for name in (
             "module_lowering_invocation_state.rs",
-            "module_lowering_invocation_candidate.rs",
             "module_invocation_drain.rs",
             "module_finalization_split.rs",
             "module_invocation_drain_s0_tests.rs",
@@ -38,7 +37,7 @@ def main() -> int:
 
     require(files["module_lowering_invocation_state.rs"], "capture_main", "root capture transition")
     require(files["module_lowering_invocation_state.rs"], "complete_root", "root complete transition")
-    require(files["module_lowering_invocation_candidate.rs"], "complete_success", "candidate success handoff")
+    require(files["module_lowering_invocation_state.rs"], "fn from_state", "complete state handoff")
     require(files["module_invocation_drain.rs"], "prepare_complete", "same-state drain admission")
     require(files["module_invocation_drain.rs"], "drain_candidate", "typed drain terminal")
     require(files["module_finalization_split.rs"], "DrainedModuleFinalizationInputV1", "post-drain input")
@@ -60,7 +59,7 @@ def main() -> int:
         path
         for path in SRC.glob("*.rs")
         if not (path.name.endswith("_tests.rs") or path.name.endswith("_p0.rs") or path.name.endswith("_p0d.rs"))
-        and path.name not in {"module_invocation_drain.rs", "module_lowering_invocation_candidate.rs"}
+        and path.name not in {"module_invocation_drain.rs"}
     ]
     forbidden_calls = (
         "ModuleLoweringInvocationCandidateV1::open(",

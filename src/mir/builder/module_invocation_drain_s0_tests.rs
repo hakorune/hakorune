@@ -5,7 +5,7 @@ use super::module_draft_collector::{DraftPublicationPolicyV1, FunctionDraftKeyV1
 use super::module_invocation_drain::{
     ConditionFnPolicyV1, InvocationDrainExpectationV1, ModuleLoweringInvocationDrainOwnerV1,
 };
-use super::module_lowering_invocation_candidate::ModuleLoweringInvocationCandidateV1;
+use super::module_lowering_invocation_state::{CompleteInvocationV1, ModuleLoweringInvocationStateV1};
 use super::module_lowering_shell::ModuleLoweringShellV1;
 use super::root_body_completion::{RootBodyCompletionTrackerV1, RootBodyResultV1};
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
@@ -46,9 +46,10 @@ fn expectation() -> InvocationDrainExpectationV1 {
 #[test]
 fn completed_candidate_drains_to_typed_candidate_without_rebuilding_state() {
     let shell = ModuleLoweringShellV1::from_empty_module(MirModule::new("s0".into())).unwrap();
-    let mut candidate = ModuleLoweringInvocationCandidateV1::open(shell, collector());
-    candidate.capture_main().unwrap();
-    let complete = candidate.complete_success().unwrap();
+    let mut state = ModuleLoweringInvocationStateV1::new(shell, collector());
+    state.capture_main().unwrap();
+    state.complete_root().unwrap();
+    let complete = CompleteInvocationV1::from_state(state);
     let prepared =
         ModuleLoweringInvocationDrainOwnerV1::prepare_complete(complete, expectation()).unwrap();
     let root = RootBodyCompletionTrackerV1::new()

@@ -18,7 +18,6 @@ from headerport_method_tail_compat_guard import verify_method_tail_compat
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
 MAIN_EXPANSION = ROOT / "src/mir/builder/main_expansion.rs"
 ROOT_BODY = ROOT / "src/mir/builder/root_body_completion.rs"
 ROOT_BODY_P0 = ROOT / "src/mir/builder/root_body_completion_p0.rs"
@@ -70,7 +69,6 @@ def forbid(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    candidate = CANDIDATE.read_text()
     main_expansion = MAIN_EXPANSION.read_text()
     root_body = ROOT_BODY.read_text()
     root_body_p0 = ROOT_BODY_P0.read_text()
@@ -98,8 +96,6 @@ def main() -> int:
     card = CARD.read_text()
     state = STATE.read_text()
 
-    if len(candidate.splitlines()) >= 800:
-        raise AssertionError("Candidate0 source must remain below 800 lines")
     if len(main_expansion.splitlines()) >= 800:
         raise AssertionError("MAINROLE0-S0 source must remain below 800 lines")
     if len(root_body.splitlines()) >= 800:
@@ -490,7 +486,6 @@ def main() -> int:
             ROOT_BATCH_COMMIT_P0,
             DECL_FACT_COMMIT,
             DECL_FACT_COMMIT_P0,
-            ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):
             continue
@@ -532,31 +527,14 @@ def main() -> int:
                 f"WIRING-I0-ROUTEINV-S0 production consumer exists: {path.relative_to(ROOT)}"
             )
 
+    real_fault_tests = (ROOT / "src/mir/builder/calls/function_session_tests.rs").read_text()
+    real_fault_tests += (ROOT / "src/mir/builder/calls/function_session_tail_tests.rs").read_text()
     for fragment in (
-        "ModuleLoweringInvocationCandidateV1",
-        "InvocationCandidateFailureStageV1",
-        "InvocationCandidateAbortProofV1",
-        "with_active_lowering",
-        "boundary_unchanged",
-        "InvocationCandidatePublicationV1::Unchanged",
-        "InvocationCandidateRetryV1::Forbidden",
-        "pub(in crate::mir::builder) fn abort",
-        "pub(in crate::mir::builder) fn discard",
-        "candidate_owns_shell_and_collector_until_abort",
-        "builder_borrow_is_scoped_to_active_lowering_only",
+        "every_fallible_checkpoint_restores_caller_and_publishes_nothing",
+        "primary_and_cleanup_errors_are_both_preserved",
+        "panic_backstop_restores_without_publishing",
     ):
-        require(candidate, fragment, "Candidate0-S0 vocabulary/fixture")
-    # The candidate may mention MirBuilder only as a short-lived method
-    # parameter.  It must not store a Builder or expose a module map.
-    struct = candidate.split("pub(in crate::mir::builder) struct ModuleLoweringInvocationCandidateV1", 1)[1]
-    struct = struct.split("impl ModuleLoweringInvocationCandidateV1", 1)[0]
-    forbid(struct, "MirBuilder", "candidate-stored Builder")
-    forbid(candidate, "self.current_module", "candidate ambient module authority")
-    forbid(candidate, "builder.current_module", "candidate ambient module authority")
-    forbid(candidate, "ModuleLoweringPortV1", "candidate-owned collector port")
-    forbid(candidate, "fn retry(", "candidate retry implementation")
-
-    require(builder_mod, "mod module_lowering_invocation_candidate;", "Candidate0 module registration")
+        require(real_fault_tests, fragment, "live failure fixture")
     require(builder_mod, "mod root_body_completion;", "BODYDRAIN0-S0 module registration")
     require(builder_mod, "mod root_body_completion_p0;", "BODYDRAIN0-P0 fixture registration")
     require(builder_mod, "mod main_pending_draft;", "MAINPENDING0-S0 module registration")
@@ -588,10 +566,8 @@ def main() -> int:
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (
-            CANDIDATE,
             BUILDER_MOD,
             MODULE_INVOCATION_DRAIN_S0_TESTS,
-            ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",
         ):
             continue
         if "ModuleLoweringInvocationCandidateV1" in path.read_text():
@@ -674,7 +650,6 @@ def main() -> int:
 
     print(
         "[headerport-candidate0-guard] ok disconnected=1 "
-        f"source_lines={len(candidate.splitlines())} "
         f"route_policy_lines={len(route_policy.splitlines())} "
         "production_consumers=0"
     )

@@ -122,7 +122,6 @@ def verify_borrow_root_p0(
         root / "src/mir/builder/module_finalization_split_p0.rs",
         root / "src/mir/builder/module_invocation_drain.rs",
         root / "src/mir/builder/module_invocation_drain_s0_tests.rs",
-        root / "src/mir/builder/module_invocation_cut0_p0.rs",
         batch_commit_path,
         batch_commit_proof_path,
         fact_commit_path,

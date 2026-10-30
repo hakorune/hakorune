@@ -358,8 +358,6 @@ mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
 #[cfg(test)]
 mod module_lowering_invocation_access_tests;
 #[allow(dead_code)]
-mod module_lowering_invocation_candidate; // HEADERPORT0 CANDIDATE0-S0 disconnected abort owner
-#[allow(dead_code)]
 mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
 mod module_lowering_invocation_reentrant_tests;
@@ -500,8 +498,6 @@ mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot
 mod module_compat_policy_p0; // CUT0-S0-COMPAT0 typed failure fixtures
 mod module_finalization_declaration_metadata; // Shared finalizer declaration-metadata handoff
 mod module_finalization_function_metadata; // Shared finalizer function-metadata handoff
-#[cfg(test)]
-mod module_invocation_cut0_p0; // CUT0-P0 disconnected all-route adapter
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 #[cfg(test)]
 mod module_lifecycle_capture_tests;
