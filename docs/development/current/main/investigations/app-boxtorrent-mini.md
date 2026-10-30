@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 全lib基準再計測（quick opt1・incremental off・1 thread・stack 16MiB）: build 7分41秒、test 75.88秒、8862 PASS/360 FAIL/56 ignored。旧台帳126 FAILとの差は新規238名・解消4名、一覧は803追加/32削除。`ordinary_new`/`resolved_semantics`/`loop_recipe`の84/1/21失敗名は退役前と一致。他の新赤の発生時点は未検証で、台帳の一括更新・PASS扱いはしない。
 - 退役A4準備: 旧If draft-seal失敗・状態不変の検査を保持し、失敗後の同一compiler再利用だけsource-backed canonical入口へ移行（既存3 test PASS、production変更なし、test純増32行）。call/PHI 2件の同移行は`UnissuedDirectCallObservation`で未対応のため旧入口を保持。現行入口から同じlate-seal失敗を起こす接点は未確認。
 - 退役A3: caller-zeroのnested-loop relayを削除し、実際に使用される`detect_nested_loop`は保持（production純減4行、test変更なし）。最適化CLI・all-targets・suite 11/11（103.22秒、実EXE10＋marker）、cohort失敗名84/1/21不変。A4は現行sourceのpreflightとGenericG0に共有判定が残り、旧draft-seal時の原子性と同一境界の後継testを確認後に切替・退役する。
 - 退役A4準備: 既存return 3 testを`compile_resolved`からparser由来のsource-backed `compile_normal`へ移し、canonical関数登録・MIR検証・return数を確認（8 test PASS）。site/target/claimとdraft原子性の既存testおよび現行production callerは保持し、A4退役は未完。production変更なし。
