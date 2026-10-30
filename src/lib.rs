@@ -60,8 +60,6 @@ pub mod typed_array_contract_spec;
 #[path = "core/value.rs"]
 pub mod value;
 
-pub mod messaging;
-pub mod transport;
 
 // MIR (Mid-level Intermediate Representation)
 pub mod mir;

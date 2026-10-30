@@ -159,7 +159,6 @@ pub mod socket_box;
 pub mod stream;
 
 // P2P通信Box群 (NEW! - Completely rewritten)
-pub mod intent_box;
 
 // null関数も再エクスポート
 pub use missing_box::MissingBox;
@@ -180,4 +179,3 @@ pub use socket_box::SocketBox;
 pub use stream::{NyashStreamBox, StreamBox};
 
 // P2P通信Boxの再エクスポート
-pub use intent_box::IntentBox;
