@@ -19849,11 +19849,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_test_support.rs:27:mir_return",
-      "evidence": "ASTNode::Return {",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_test_support.rs:104:mir_return",
+      "evidence": "Some(MirInstruction::Return { .. })",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 27,
+      "line": 104,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
@@ -19861,11 +19861,11 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_test_support.rs:84:mir_return",
-      "evidence": "Some(MirInstruction::Return { .. })",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/completion_test_support.rs:27:mir_return",
+      "evidence": "ASTNode::Return {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 84,
+      "line": 27,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,

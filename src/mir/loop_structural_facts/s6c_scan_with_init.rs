@@ -140,7 +140,7 @@ fn validate_source_closure(
         return Err(S6CScanWithInitFactsRejectV1::EffectCoverage);
     }
 
-    let expected_relations = expected_relations(source);
+    let expected_relations = expected_relations(source, typed);
     let actual_relations = body
         .relations()
         .iter()
@@ -222,12 +222,28 @@ fn expected_effects(
 
 fn expected_relations(
     source: S6CExitTailSourceCoSealRefV1<'_>,
+    typed: &crate::mir::callable_semantic_batch::VerifiedS6CTypedInputRelationV1,
 ) -> BTreeSet<(
     crate::mir::resolved_semantics::SourceNodeSiteV1,
     SourcePathSegmentV1,
     SourceExprSiteV1,
 )> {
     let mut relations = BTreeSet::new();
+    for binary in typed.binaries() {
+        let parent_and_role = match binary.role() {
+            crate::mir::callable_semantic_batch::S6CBinaryRoleV1::LoopConditionLess => Some((
+                typed.membership().source().site().node(),
+                SourcePathSegmentV1::LoopCondition,
+            )),
+            crate::mir::callable_semantic_batch::S6CBinaryRoleV1::TextEqual => {
+                Some((source.if_site().node(), SourcePathSegmentV1::IfCondition))
+            }
+            _ => None,
+        };
+        if let Some((parent, role)) = parent_and_role {
+            relations.insert((parent.clone(), role, binary.source().site().clone()));
+        }
+    }
     let calls = source.calls();
     for call in [calls.length(), calls.substring()] {
         relations.insert((
