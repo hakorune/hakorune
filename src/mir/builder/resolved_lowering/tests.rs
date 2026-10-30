@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::ASTNode;
 use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::{BindingKindV1, SourceBindingSiteV1};
@@ -17,25 +17,6 @@ fn fixture() -> ASTNode {
     };
     assert_eq!(statements.len(), 1);
     statements.remove(0)
-}
-
-fn trivial_returning(name: &str, value: ASTNode) -> ASTNode {
-    ASTNode::FunctionDeclaration {
-        name: name.into(),
-        params: Vec::new(),
-        param_decls: Vec::new(),
-        return_type_name: None,
-        body: vec![ASTNode::Return {
-            value: Some(Box::new(value)),
-            span: Span::unknown(),
-        }],
-        uses: Vec::new(),
-        contracts: Vec::new(),
-        is_static: true,
-        is_override: false,
-        attrs: DeclarationAttrs::default(),
-        span: Span::unknown(),
-    }
 }
 
 #[test]
@@ -58,10 +39,9 @@ fn closed_family_uses_resolver_bindings_without_legacy_allocation() {
     assert_eq!(function.metadata.outbox_bindings, vec!["result"]);
 }
 
-#[test]
-fn source_backed_route_produces_verifier_clean_mir() {
+fn compile_source(text: &str) -> crate::mir::compiler::MirCompileResult {
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-        FIXTURE_SOURCE,
+        text,
         crate::parser::ParserBuildConfig::default(),
     )
     .expect("fixture parses");
@@ -71,7 +51,7 @@ fn source_backed_route_produces_verifier_clean_mir() {
         panic!("fixture must retain source identity")
     };
     let mut compiler = crate::mir::MirCompiler::with_options(false);
-    let result = compiler
+    compiler
         .compile_normal(
             crate::mir::compiler::NormalCompileRequestV1::for_mir_mode_callable_source(
                 source,
@@ -79,7 +59,12 @@ fn source_backed_route_produces_verifier_clean_mir() {
                 std::collections::HashMap::new(),
             ),
         )
-        .unwrap();
+        .unwrap()
+}
+
+#[test]
+fn source_backed_route_produces_verifier_clean_mir() {
+    let result = compile_source(FIXTURE_SOURCE);
 
     assert!(
         result.verification_result.is_ok(),
@@ -91,26 +76,7 @@ fn source_backed_route_produces_verifier_clean_mir() {
 
 #[test]
 fn trivial_float_route_keeps_exact_type_and_emits_no_legacy_release() {
-    let expression = ASTNode::BinaryOp {
-        operator: BinaryOperator::Add,
-        left: Box::new(ASTNode::Literal {
-            value: LiteralValue::Float(1.5),
-            span: Span::unknown(),
-        }),
-        right: Box::new(ASTNode::Literal {
-            value: LiteralValue::Float(2.5),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(trivial_returning(
-        "trivial_float",
-        expression,
-    ))
-    .unwrap();
-    let result = crate::mir::MirCompiler::with_options(false)
-        .compile_resolved(unit.lowering_input(), Some("trivial_float.hako"))
-        .unwrap();
+    let result = compile_source("static function trivial_float() { return 1.5 + 2.5 }");
     let function = &result.module.functions["trivial_float/0"];
     let binop_dst = function
         .blocks
@@ -135,26 +101,7 @@ fn trivial_float_route_keeps_exact_type_and_emits_no_legacy_release() {
 
 #[test]
 fn trivial_comparison_route_keeps_the_profile_sealed_bool_result() {
-    let expression = ASTNode::BinaryOp {
-        operator: BinaryOperator::Equal,
-        left: Box::new(ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        }),
-        right: Box::new(ASTNode::Literal {
-            value: LiteralValue::Bool(false),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(trivial_returning(
-        "trivial_bool_compare",
-        expression,
-    ))
-    .unwrap();
-    let result = crate::mir::MirCompiler::with_options(false)
-        .compile_resolved(unit.lowering_input(), Some("trivial_bool_compare.hako"))
-        .unwrap();
+    let result = compile_source("static function trivial_bool_compare() { return true == false }");
     let function = &result.module.functions["trivial_bool_compare/0"];
     let comparison = function
         .blocks
