@@ -2633,10 +2633,6 @@ mir::builder::root_draft_batch_commit_p0::prepared_root_batch_commits_main_and_c
 mir::builder::root_draft_batch_commit_p0::second_root_admission_failure_preserves_exact_collector_prefix
 mir::builder::root_draft_batch_p0::condition_identity_failures_are_typed_before_batch_creation
 mir::builder::root_draft_batch_p0::condition_policy_matrix_has_one_primary_result
-mir::builder::route_owned_invocation_inventory::tests::exact_ingress_and_lowering_root_symbols_are_sealed_per_family
-mir::builder::route_owned_invocation_inventory::tests::raw_and_canonical_policies_keep_distinct_root_and_condition_laws
-mir::builder::route_owned_invocation_inventory::tests::route_matrix_projects_to_four_policy_lanes_without_merging_families
-mir::builder::route_owned_invocation_inventory::tests::unknown_or_unreachable_source_topology_cannot_issue_a_policy
 mir::builder::router::catalog::tests::array_catalog_rows_accept_known_value_paths
 mir::builder::router::catalog::tests::map_catalog_rows_accept_known_value_paths
 mir::builder::router::catalog::tests::non_catalog_core_box_rows_reject

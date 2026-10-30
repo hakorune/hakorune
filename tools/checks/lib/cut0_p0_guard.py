@@ -34,7 +34,7 @@ def main() -> int:
         ("fn execute(", "shared adapter entry"),
         ("InvocationRouteMatrixV1::rows()", "all route rows"),
         ("SCENARIOS", "fault scenario matrix"),
-        ("RouteOwnedInvocationInventoryV2::derive", "opaque authority lane"),
+        ("ModuleInvocationPolicyV1::policy_for_family", "authority lane policy"),
         ("ModuleLoweringInvocationCandidateV1::open", "candidate owner"),
         ("complete_success", "success handoff"),
         ("prepare_complete", "same-state drain"),

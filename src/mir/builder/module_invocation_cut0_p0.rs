@@ -23,8 +23,8 @@ use super::module_lowering_invocation_candidate::{
 };
 use super::module_lowering_shell::ModuleLoweringShellV1;
 use super::root_body_completion::{RootBodyCompletionTrackerV1, RootBodyResultV1};
-use super::route_owned_invocation_inventory::{
-    InvocationInventoryAuthorityV2, RouteOwnedInvocationInventoryV2,
+use crate::mir::module_invocation_policy::{
+    InvocationInventoryAuthorityV1, ModuleInvocationPolicyV1,
 };
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
 
@@ -48,13 +48,12 @@ enum Cut0P0AuthorityLaneV1 {
 }
 
 fn authority_lane(route: InvocationRouteMatrixRowV1) -> Cut0P0AuthorityLaneV1 {
-    let inventory = RouteOwnedInvocationInventoryV2::derive(route.family()).unwrap();
-    match inventory.policy().inventory_authority() {
-        InvocationInventoryAuthorityV2::RawExpansionReceipts => Cut0P0AuthorityLaneV1::RawLedger,
-        InvocationInventoryAuthorityV2::CanonicalResolvedOwner => {
+    match ModuleInvocationPolicyV1::policy_for_family(route.family()).inventory_authority() {
+        InvocationInventoryAuthorityV1::RawExpansionReceipts => Cut0P0AuthorityLaneV1::RawLedger,
+        InvocationInventoryAuthorityV1::CanonicalResolvedOwner => {
             Cut0P0AuthorityLaneV1::SingleOwnerHeader
         }
-        InvocationInventoryAuthorityV2::CanonicalCallableCatalog => {
+        InvocationInventoryAuthorityV1::CanonicalCallableCatalog => {
             Cut0P0AuthorityLaneV1::CallableBatch
         }
     }

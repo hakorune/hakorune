@@ -318,7 +318,7 @@ def verify_route_matrix_g0(
     card: str,
 ) -> None:
     proof_path = root / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
-    policy_path = root / "src/mir/builder/route_owned_invocation_inventory.rs"
+    policy_path = root / "src/mir/module_invocation_policy.rs"
     matrix_path = root / "src/mir/builder/module_invocation_route_matrix.rs"
     raw_port_path = root / "src/mir/builder/recursive_child_lowering.rs"
     raw_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
@@ -343,7 +343,7 @@ def verify_route_matrix_g0(
 
     for fragment in (
         "InvocationRouteMatrixV1::rows()",
-        "RouteOwnedInvocationInventoryV2::derive(family)",
+        "ModuleInvocationPolicyV1::policy_for_family(family)",
         "RouteAuthorityLaneV1::RawLedger",
         "RouteAuthorityLaneV1::SingleOwnerHeader",
         "RouteAuthorityLaneV1::CallableBatch",
@@ -384,10 +384,10 @@ def verify_route_matrix_g0(
         "pub(in crate::mir::builder) const fn rows()",
         "route-matrix SSOT",
     )
-    require(policy, "pub(in crate::mir::builder) fn derive(", "family policy projection")
+    require(policy, "fn policy_for_family(", "family policy projection")
     require(
         policy,
-        "fallback: RouteFallbackPolicyV2::Forbidden",
+        "fallback_policy: InvocationFallbackPolicyV1::Forbidden",
         "route fallback prohibition",
     )
 

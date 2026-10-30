@@ -7892,15 +7892,6 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "display_formatter",
-      "display_target": "RouteOwnedInventorySealErrorV2",
-      "function": "Display::fmt",
-      "line": 61,
-      "path": "src/mir/builder/route_owned_invocation_inventory.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "boolean_classifier",
       "function": "is_core_box",
       "line": 21,
@@ -16868,7 +16859,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "failure_stage",
-      "line": 185,
+      "line": 184,
       "path": "src/mir/builder/module_invocation_cut0_p0.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -26284,10 +26275,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1325,
+        "candidate": 1324,
         "rejected": 1020
       },
-      "surface_count": 2346
+      "surface_count": 2345
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

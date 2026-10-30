@@ -1,14 +1,14 @@
 //! HEADERPORT0 WIRING-I0-ROUTEINV-P0e: test-only route closure.
 //!
-//! The production route matrix and route-owned policy remain the only route
+//! The production route matrix and invocation policy remain the only route
 //! authorities. This proof projects those existing products to P0b/P0c/P0d;
 //! it owns no caller-authored symbol inventory or production consumer.
 
 use super::module_invocation_route_matrix::{
     InvocationRootFamilyV1, InvocationRouteMatrixRowV1, InvocationRouteMatrixV1,
 };
-use super::route_owned_invocation_inventory::{
-    InvocationInventoryAuthorityV2, RouteFallbackPolicyV2, RouteOwnedInvocationInventoryV2,
+use crate::mir::module_invocation_policy::{
+    InvocationFallbackPolicyV1, InvocationInventoryAuthorityV1, ModuleInvocationPolicyV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -38,13 +38,13 @@ const FAMILIES: [InvocationRootFamilyV1; 5] = [
     InvocationRootFamilyV1::BindingSsaRecursive,
 ];
 
-fn authority_lane(authority: InvocationInventoryAuthorityV2) -> RouteAuthorityLaneV1 {
+fn authority_lane(authority: InvocationInventoryAuthorityV1) -> RouteAuthorityLaneV1 {
     match authority {
-        InvocationInventoryAuthorityV2::RawExpansionReceipts => RouteAuthorityLaneV1::RawLedger,
-        InvocationInventoryAuthorityV2::CanonicalResolvedOwner => {
+        InvocationInventoryAuthorityV1::RawExpansionReceipts => RouteAuthorityLaneV1::RawLedger,
+        InvocationInventoryAuthorityV1::CanonicalResolvedOwner => {
             RouteAuthorityLaneV1::SingleOwnerHeader
         }
-        InvocationInventoryAuthorityV2::CanonicalCallableCatalog => {
+        InvocationInventoryAuthorityV1::CanonicalCallableCatalog => {
             RouteAuthorityLaneV1::CallableBatch
         }
     }
@@ -55,23 +55,29 @@ fn project_existing_authorities() -> (Vec<RouteAuthorityProjectionV1>, [usize; 4
     let mut policy_lane_counts = [0; 4];
 
     for family in FAMILIES {
-        let inventory = RouteOwnedInvocationInventoryV2::derive(family).unwrap();
-        let lane = match &inventory {
-            RouteOwnedInvocationInventoryV2::Raw(_) => 0,
-            RouteOwnedInvocationInventoryV2::CanonicalSingle(_) => 1,
-            RouteOwnedInvocationInventoryV2::BindingSsaAcyclic(_) => 2,
-            RouteOwnedInvocationInventoryV2::BindingSsaRecursive(_) => 3,
+        let lane = match family {
+            InvocationRootFamilyV1::Raw => 0,
+            InvocationRootFamilyV1::CanonicalAPlus | InvocationRootFamilyV1::BindingSsaTrivial => {
+                1
+            }
+            InvocationRootFamilyV1::BindingSsaAcyclic => 2,
+            InvocationRootFamilyV1::BindingSsaRecursive => 3,
         };
-        let policy = inventory.policy();
+        let policy = ModuleInvocationPolicyV1::policy_for_family(family);
         assert_eq!(policy.family(), family);
-        assert_eq!(policy.fallback(), RouteFallbackPolicyV2::Forbidden);
-        policy_lane_counts[lane] += policy.matrix_rows().len();
+        assert_eq!(
+            policy.fallback_policy(),
+            InvocationFallbackPolicyV1::Forbidden
+        );
+        let matrix_rows = InvocationRouteMatrixV1::rows()
+            .iter()
+            .filter(|row| row.family() == family);
+        assert!(matrix_rows.clone().next().is_some());
+        policy_lane_counts[lane] += matrix_rows.clone().count();
 
         let authority = authority_lane(policy.inventory_authority());
         rows.extend(
-            policy
-                .matrix_rows()
-                .iter()
+            matrix_rows
                 .copied()
                 .map(|route| RouteAuthorityProjectionV1 { route, authority }),
         );

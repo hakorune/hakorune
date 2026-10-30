@@ -29,7 +29,7 @@ ROOT_BATCH_P0 = ROOT / "src/mir/builder/root_draft_batch_p0.rs"
 ACCESS_IMPL = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
 ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
-ROUTE_INVENTORY = ROOT / "src/mir/builder/route_owned_invocation_inventory.rs"
+ROUTE_POLICY = ROOT / "src/mir/module_invocation_policy.rs"
 ROUTE_MATRIX_P0E = ROOT / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
 COLLECTOR_RECEIPT = ROOT / "src/mir/builder/module_draft_collector/receipt.rs"
@@ -82,7 +82,7 @@ def main() -> int:
     root_batch_p0 = ROOT_BATCH_P0.read_text()
     access_impl = ACCESS_IMPL.read_text()
     access_live = ACCESS_LIVE.read_text()
-    route_inventory = ROUTE_INVENTORY.read_text()
+    route_policy = ROUTE_POLICY.read_text()
     collector = COLLECTOR.read_text()
     collector_receipt = COLLECTOR_RECEIPT.read_text()
     collector_receipt_tests = COLLECTOR_RECEIPT_TESTS.read_text()
@@ -116,8 +116,8 @@ def main() -> int:
         raise AssertionError("ROOTBATCH0-S0 source must remain below 800 lines")
     if len(root_batch_p0.splitlines()) >= 800:
         raise AssertionError("ROOTBATCH0-P0 fixture source must remain below 800 lines")
-    if len(route_inventory.splitlines()) >= 800:
-        raise AssertionError("WIRING-I0-ROUTEINV-S0 source must remain below 800 lines")
+    if len(route_policy.splitlines()) >= 800:
+        raise AssertionError("invocation policy source must remain below 800 lines")
     if len(collector.splitlines()) >= 800:
         raise AssertionError("MODULEDRAFT0 collector source must remain below 800 lines")
     if len(collector_receipt.splitlines()) >= 800:
@@ -217,23 +217,15 @@ def main() -> int:
     )
 
     for fragment in (
-        "RouteOwnedInvocationInventoryV2",
-        "RouteOwnedInventoryPolicyV2",
-        "StaticRouteReachabilityV2",
-        "InvocationInventoryAuthorityV2",
-        "InvocationRootPolicyV2",
-        "RouteConditionPolicyV2",
-        "ExactInvocationSourceSymbolsV2",
-        "InvocationRouteMatrixV1::rows()",
+        "ModuleInvocationPolicyV1",
+        "InvocationInventoryAuthorityV1",
+        "InvocationRootPolicyV1",
+        "InvocationConditionPolicyV1",
         "RawExpansionReceipts",
         "CanonicalResolvedOwner",
         "CanonicalCallableCatalog",
-        "route_matrix_projects_to_four_policy_lanes_without_merging_families",
-        "raw_and_canonical_policies_keep_distinct_root_and_condition_laws",
-        "exact_ingress_and_lowering_root_symbols_are_sealed_per_family",
-        "unknown_or_unreachable_source_topology_cannot_issue_a_policy",
     ):
-        require(route_inventory, fragment, "WIRING-I0-ROUTEINV-S0 product/fixtures")
+        require(route_policy, fragment, "invocation policy")
     for fragment in (
         "CollectedDraftAdmissionReceiptV1",
         "CollectedDraftReplacementDispositionV1",
@@ -333,16 +325,6 @@ def main() -> int:
             "ROUTEINV-P0a production receipt consumer exists: "
             + ", ".join(receipt_consumers)
         )
-    for fragment in (
-        "MirCompiler::compile_resolved_first_family",
-        "MirBuilder::build_resolved_function_module",
-        "MirBuilder::build_resolved_trivial_function_module",
-        "MirCompiler::bind_canonical_source",
-        "MirBuilder::lower_acyclic_callable_drafts",
-        "MirCompiler::compile_resolved_recursive_callable_module",
-        "MirBuilder::build_recursive_callable_module_candidate",
-    ):
-        require(route_inventory, fragment, "WIRING-I0 exact ingress/root symbol")
     for relative, fragment in (
         ("src/mir/compiler/mod.rs", "fn compile_resolved_first_family"),
         ("src/mir/builder/resolved_lowering/mod.rs", "fn build_resolved_function_module"),
@@ -376,9 +358,9 @@ def main() -> int:
         "                match builder.lower_acyclic_callable_drafts(plan)",
         "source-bound acyclic variant and lowering",
     )
-    inventory_struct = route_inventory.split(
-        "pub(in crate::mir::builder) struct RouteOwnedInventoryPolicyV2", 1
-    )[1].split("struct RouteOwnedInventoryPolicySealV2", 1)[0]
+    inventory_struct = route_policy.split(
+        "pub(crate) struct ModuleInvocationPolicyV1", 1
+    )[1].split("impl ModuleInvocationPolicyV1", 1)[0]
     for fragment in (
         "MirBuilder",
         "ModuleDraftCollectorV1",
@@ -497,7 +479,6 @@ def main() -> int:
             ROOT_BATCH_P0,
             ACCESS_IMPL,
             ACCESS_LIVE,
-            ROUTE_INVENTORY,
             ROUTE_MATRIX_P0E,
             SHELL_FACTS,
             SHELL_FACTS_P0,
@@ -586,11 +567,6 @@ def main() -> int:
     require(builder_mod, "mod main_pending_draft_p0;", "MAINPENDING0-P0 fixture registration")
     require(builder_mod, "mod root_draft_batch;", "ROOTBATCH0-S0 module registration")
     require(builder_mod, "mod root_draft_batch_p0;", "ROOTBATCH0-P0 fixture registration")
-    require(
-        builder_mod,
-        "mod route_owned_invocation_inventory;",
-        "WIRING-I0-ROUTEINV-S0 registration",
-    )
     require(
         builder_mod,
         "mod module_draft_collector_receipt_tests;",
@@ -703,7 +679,7 @@ def main() -> int:
     print(
         "[headerport-candidate0-guard] ok disconnected=1 "
         f"source_lines={len(candidate.splitlines())} "
-        f"route_inventory_lines={len(route_inventory.splitlines())} "
+        f"route_policy_lines={len(route_policy.splitlines())} "
         "production_consumers=0"
     )
     return 0

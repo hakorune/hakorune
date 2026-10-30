@@ -26,7 +26,7 @@ PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
-MATRIX_CONSUMERS = (ROOT / "src/mir/builder/route_owned_invocation_inventory.rs",)
+MATRIX_CONSUMERS = (ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",)
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACY_TERM = ROOT / "src/mir/builder/module_lowering_invocation_legacy_term.rs"
@@ -278,6 +278,7 @@ def main() -> int:
     access_port_consumers = []
     if "mod module_lowering_access_port" in builder:
         raise AssertionError("retired ACCESS0-S0 module must not re-enter")
+    require(builder, "#[cfg(test)]\nmod module_invocation_cut0_p0;", "test-only matrix consumer")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path == BUILDER or path.name.endswith("_tests.rs"):
             continue
