@@ -690,6 +690,22 @@ impl ExpressionReferenceReadV1 {
         Ok(dependencies)
     }
 
+    /// The writer-owned Phi relation behind a scalar edge producer, if any.
+    /// Later validation resolves provisional Phi dependencies through THIS
+    /// relation, never by searching the final MIR for a matching Phi.
+    pub(in crate::mir) fn scalar_binding_join_v2(
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        source: &Producer,
+        read: &BindingValueObservationV2,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+    ) -> Result<Option<std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>>, String> {
+        Ok(match prepare_scalar_binding_producer(binding, source, read, context, function)? {
+            ReferenceProducerV1::Phi(point) => Some(point),
+            _ => None,
+        })
+    }
+
     /// Validate the existing Text producer at a source Loop edge. Static and
     /// Owned keep their original physical producer; Header/After require the
     /// exact prior typed descriptor PHI. No source class is inferred from MIR.

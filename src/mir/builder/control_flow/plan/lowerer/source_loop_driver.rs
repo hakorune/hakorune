@@ -20,6 +20,7 @@ pub(in crate::mir) struct EmittedLoopIncomingV2 {
     pub(in crate::mir) logical: LoopValueKeyV1,
     pub(in crate::mir) observation: BindingValueObservationV2,
     pub(in crate::mir) dependencies: Vec<(BasicBlockId, MirInstruction)>,
+    pub(in crate::mir) joins: Vec<Rc<LocalSsaPhysicalRelationV1>>,
     pub(in crate::mir) localized: Rc<LocalSsaPhysicalRelationV1>,
     pub(in crate::mir) canonical: Option<Rc<LocalSsaPhysicalRelationV1>>,
 }
@@ -266,6 +267,7 @@ impl Driver<'_, '_, '_, '_, '_> {
         let relation = builder.function_state.local_ssa_correspondence.loan(function, canonical, value)
             .ok_or_else(|| reject("frame-alias-correspondence"))?;
         relation.verify(function)?;
+        if canonical != value { self.values.insert(frame.result(), value); }
         if let Prefix::BindingRebind { frame: original, .. } = frame.prefix() {
             if let Some(binding) = self.product.bindings.get(&original.target()) {
                 if self.product.recipe.as_recipe().carriers.iter().any(|row| row.binding == *binding)
@@ -612,6 +614,12 @@ impl Driver<'_, '_, '_, '_, '_> {
                     crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_dynamic_binding_v2(
                         binding, source, &observation, context, function)?,
             };
+            let joins = match &expected.producer {
+                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Scalar(source) =>
+                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::scalar_binding_join_v2(
+                        binding, source, &observation, context, function)?.into_iter().collect(),
+                _ => Vec::new(),
+            };
             let value = crate::mir::builder::ssa::local::try_ensure(builder, before, crate::mir::builder::ssa::local::LocalKind::Arg)?;
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
             let localized = builder.function_state.local_ssa_correspondence.loan(function, before, value)
@@ -626,7 +634,7 @@ impl Driver<'_, '_, '_, '_, '_> {
                 relation.verify(function)?;
                 Some(relation)
             };
-            values.push(EmittedLoopIncomingV2 { binding, logical, observation, dependencies, localized, canonical });
+            values.push(EmittedLoopIncomingV2 { binding, logical, observation, dependencies, joins, localized, canonical });
         }
         crate::mir::builder::emission::branch::emit_jump(builder, target)?;
         self.edges.push(EmittedLoopEdgeV2 { source, predecessor, target, cleanup, values });

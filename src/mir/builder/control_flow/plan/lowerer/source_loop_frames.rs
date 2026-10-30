@@ -420,6 +420,12 @@ pub(super) fn emit_binding(
                 .iter()
                 .find(|row| row.ordinal() == *ordinal)
                 .ok_or_else(|| freeze("initializer-completed-ordinal"))?;
+            if receipt.initializer() != receipt.local() {
+                let (block, _) = receipt.copy().ok_or_else(|| freeze("initializer-completed-local"))?;
+                let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+                builder.function_state.local_ssa_correspondence.record_pin_copy(
+                    function, receipt.initializer(), receipt.local(), *block)?;
+            }
             Ok(receipt.initializer())
         }
         Prefix::BindingRebind { frame, .. } => {

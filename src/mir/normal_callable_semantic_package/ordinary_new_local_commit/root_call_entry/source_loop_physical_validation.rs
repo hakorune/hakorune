@@ -213,7 +213,7 @@ impl SourceLoopPhysicalProofV2 {
                 }
                 for dependency in dependencies {
                     let mut current = dependency;
-                    for relation in &relations {
+                    for relation in relations.iter().copied().chain(&value.joins) {
                         if let Some(resolved) =
                             relation.resolve_observed_binding_v1(&current, true)?
                         {
@@ -479,7 +479,7 @@ impl SourceLoopPhysicalProofV2 {
                     }
                 }
                 for dependency in &value.dependencies {
-                    let resolved = match &source.producer {
+                    let mut resolved = match &source.producer {
                         LoopProducer::Scalar(producer @ (Producer::LoopHeader(_) | Producer::LoopAfter { .. })) =>
                             value.observation.loan_scalar_join_v1(producer)?.relation()
                                 .resolve_observed_binding_v1(dependency, true)?.unwrap_or_else(|| dependency.clone()),
@@ -493,6 +493,14 @@ impl SourceLoopPhysicalProofV2 {
                                 .resolve_observed_binding_v1(dependency, true)?.unwrap_or_else(|| dependency.clone()),
                         _ => dependency.clone(),
                     };
+                    if resolved == *dependency {
+                        for join in &value.joins {
+                            if let Some(row) = join.resolve_observed_binding_v1(dependency, true)? {
+                                resolved = row;
+                                break;
+                            }
+                        }
+                    }
                     match finishing {
                         Some(projection) => {
                             projection.relation_binding(function, &resolved)?;
