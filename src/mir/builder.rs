@@ -308,7 +308,6 @@ pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
     RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1,
     RawPostprocessedPhysicalV1,
 };
-mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 mod canonical_root_completion_error; // CUT0-I0-ROOT0-CANON0 shared error vocabulary
 #[allow(dead_code)]
 mod module_invocation_callable_batch; // CUT0-I0-COLLECT0-BATCH0 source/co-seal

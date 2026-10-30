@@ -493,7 +493,6 @@ if sorted(catalog_users) != expected_catalog_users:
 
 resolved_module_users = []
 expected_resolved_module_users = [
-    "src/mir/builder/canonical_root_completion.rs",
     "src/mir/builder/module_invocation_callable_batch.rs",
     "src/mir/compiler/callable_batch_correspondence_test_support.rs",
     "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",

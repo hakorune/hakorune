@@ -10,7 +10,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
 PRODUCT = ROOT / "src/mir/builder/module_draft_collector/collected_product.rs"
 BATCH = ROOT / "src/mir/builder/module_draft_collector/callable_batch.rs"
-COMPLETION = ROOT / "src/mir/builder/canonical_root_completion.rs"
+COMPLETION = ROOT / "src/mir/compiler/canonical_physical_completion.rs"
 FIXTURE = ROOT / "src/mir/builder/canonical_root_completion_receipt0_p0.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 TASK = ROOT / (
@@ -46,11 +46,10 @@ def main() -> int:
     require(product, "collect_canonical_single", "single collector terminal")
     require(batch, "CollectedCallableCollectorBatchV1", "batch receipt product")
     require(batch, "collect_all_branded", "batch collector terminal")
-    require(completion, "CanonicalSingleCollectedInvocationV1", "single collected state")
-    require(completion, "CallableBatchCollectedInvocationV1", "batch collected state")
-    require(completion, "collected.into_parts()", "by-value receipt consumption")
-    require(completion, "receipt,\n                _seal: CanonicalSingleRootWitnessSealV1", "single root receipt retention")
-    require(completion, "receipt,\n                capability,", "batch root receipt retention")
+    require(completion, "CollectedCanonicalPhysicalInvocationV1", "collected physical owner")
+    require(completion, "physical.receipt_brand()", "receipt brand validation")
+    require(completion, "CanonicalPhysicalCompletionErrorV1::ForeignBrand", "foreign receipt rejection")
+    require(completion, "CanonicalPhysicalCompletionErrorV1::CapabilityMismatch", "capability rejection")
     require(builder, "mod canonical_root_completion_receipt0_p0", "focused fixture registration")
     require(fixture, "single_collection_moves_collector_and_exact_receipt_together", "single fixture")
     require(fixture, "foreign_or_duplicate_single_collection_rejects_without_prefix_mutation", "rejection fixture")

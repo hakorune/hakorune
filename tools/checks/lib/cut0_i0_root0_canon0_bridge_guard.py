@@ -127,9 +127,6 @@ def main() -> int:
     ):
         require(source, fragment, label)
 
-    legacy_completion = (ROOT / "src/mir/builder/canonical_root_completion.rs").read_text()
-    if "TestInvocationPreflightFactoryV1" in legacy_completion or "ModuleInvocationTokenV1::from_test" in legacy_completion:
-        raise AssertionError("canonical completion still mints test identity")
     if "ModuleInvocationBrandV1 {" in builder_id or "ModuleInvocationTokenV1 {" in builder_id:
         raise AssertionError("Builder shim reconstructs shared identity")
     if "ordinal copy" in source.lower() or "from_source(brand" in source:

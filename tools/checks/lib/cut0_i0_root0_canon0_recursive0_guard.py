@@ -8,7 +8,9 @@ import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
-COMPLETION = ROOT / "src/mir/builder/canonical_root_completion.rs"
+COMPLETION = ROOT / "src/mir/compiler/canonical_physical_completion.rs"
+BRAND = ROOT / "src/mir/builder/module_invocation_brand0.rs"
+SOURCE = ROOT / "src/mir/compiler/source_bound_package.rs"
 FIXTURE = ROOT / "src/mir/builder/canonical_root_completion_recursive0_p0.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 LEGACY = ROOT / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
@@ -17,7 +19,7 @@ TASK = ROOT / (
     "cut0-i0-root0-canon0-recursive0-execution-task-2026-07-22.md"
 )
 STATE = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
-MANIFEST = (SHELL, COMPLETION, FIXTURE, BUILDER, LEGACY, TASK, pathlib.Path(__file__))
+MANIFEST = (SHELL, COMPLETION, BRAND, SOURCE, FIXTURE, BUILDER, LEGACY, TASK, pathlib.Path(__file__))
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -38,6 +40,8 @@ def production_rust_files() -> list[pathlib.Path]:
 def main() -> int:
     shell = SHELL.read_text()
     completion = COMPLETION.read_text()
+    brand = BRAND.read_text()
+    source = SOURCE.read_text()
     fixture = FIXTURE.read_text()
     builder = BUILDER.read_text()
     legacy = LEGACY.read_text()
@@ -56,13 +60,15 @@ def main() -> int:
         ("install_callable_batch_shell_fact(", "private shell install terminal"),
         ("install_callable_batch_capability(", "branded shell wrapper"),
         ("CanonicalRecursiveCallableModuleCapabilityV1::install_for_module", "marker install"),
-        ("CapabilityBrandMismatch", "brand co-seal rejection"),
-        ("CapabilityWitnessFamilyMismatch", "family co-seal rejection"),
+        ("CanonicalPhysicalCompletionErrorV1::ForeignBrand", "brand co-seal rejection"),
+        ("CanonicalPhysicalCompletionErrorV1::CapabilityMismatch", "family co-seal rejection"),
     ):
         require(shell + completion, fragment, label)
-    require(completion, ".install_callable_batch_capability(family)", "source-driven production caller")
-    require(completion, "CallableBatchCapabilityDispositionV1::Recursive(receipt)", "recursive completion witness")
-    require(completion, "CallableBatchCapabilityDispositionV1::Acyclic(absence)", "acyclic completion witness")
+    require(brand, ".install_callable_batch_capability(family)", "branded shell caller")
+    require(brand, "CanonicalCallableCapabilityWitnessV1::Recursive(receipt)", "recursive witness")
+    require(brand, "CanonicalCallableCapabilityWitnessV1::Acyclic(witness)", "acyclic witness")
+    require(source, "physical.install_callable_capability(token.family())", "source-bound family dispatch")
+    require(completion, "capability.brand() != token.brand() || capability.family() != token.family()", "capability co-seal")
     require(builder, "mod canonical_root_completion_recursive0_p0", "focused fixture registration")
     for fragment, label in (
         ("recursive_install_returns_exact_brand_and_family_once", "recursive fixture"),
@@ -75,8 +81,8 @@ def main() -> int:
     for path in production_rust_files():
         if ".install_callable_batch_capability(" in path.read_text():
             production_calls.append(path.relative_to(ROOT))
-    if production_calls != [COMPLETION.relative_to(ROOT)]:
-        raise AssertionError(f"expected one branded production caller, got {production_calls}")
+    if production_calls != [BRAND.relative_to(ROOT)]:
+        raise AssertionError(f"expected one branded shell caller, got {production_calls}")
 
     require(legacy, "publish_recursive_callable_drafts", "legacy recursive path census")
     if "install_callable_batch_shell_fact(family)" in shell:
@@ -101,7 +107,7 @@ def main() -> int:
 
     print(
         "[cut0-i0-root0-canon0-recursive0-guard] ok "
-        "branded_terminal=1 production_caller=1 legacy_path=allowlisted witness_checks=2"
+        "branded_terminal=1 branded_shell_caller=1 legacy_path=allowlisted witness_checks=2"
     )
     return 0
 
