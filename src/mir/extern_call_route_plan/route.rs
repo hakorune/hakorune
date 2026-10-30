@@ -374,6 +374,29 @@ mod tests {
             scalar_function.metadata.value_types.get(&ValueId::new(3)),
             Some(&MirType::Integer)
         );
+        for (function, route_id, op, symbol, source, value, result, arity, shape, demand, effect) in [
+            (&string_function, "extern.env.get", "EnvGet", "nyash.env.get", "env.get/1", None, 2, 1, "string_handle_or_null", "runtime_i64_or_handle", "read.env"),
+            (&scalar_function, "extern.env.set", "EnvSet", "nyash.env.set", "env.set/2", Some(ValueId::new(2)), 3, 2, "scalar_i64", "runtime_i64", "write.env"),
+        ] {
+            assert_eq!(function.metadata.extern_call_routes.len(), 1);
+            let route = &function.metadata.extern_call_routes[0];
+            assert_eq!(route.route_id(), route_id);
+            assert_eq!(route.core_op(), op);
+            assert_eq!(route.symbol(), symbol);
+            assert_eq!(route.lowering_tier(), crate::mir::core_method_op::LoweringPlanTier::ColdRuntime);
+            assert_eq!(route.tier(), "ColdRuntime");
+            assert_eq!(route.lowering_emit_kind(), crate::mir::core_method_op::LoweringPlanEmitKind::RuntimeCall);
+            assert_eq!(route.emit_kind(), "runtime_call");
+            assert_eq!(route.proof(), "extern_registry");
+            assert_eq!(route.source_symbol(), source);
+            assert_eq!(route.key_value(), ValueId::new(1));
+            assert_eq!(route.value_value(), value);
+            assert_eq!(route.result_value(), ValueId::new(result));
+            assert_eq!(route.arity(), arity);
+            assert_eq!(route.return_shape(), shape);
+            assert_eq!(route.value_demand(), demand);
+            assert_eq!(route.effect_tags(), &[effect]);
+        }
     }
 
     #[test]
