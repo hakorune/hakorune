@@ -70,7 +70,6 @@ pub mod string_box;
 pub mod string_ops;
 pub mod time_box;
 // These boxes use web APIs that require special handling in WASM
-pub mod aot_config_box;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod audio_box;
 #[cfg(not(target_arch = "wasm32"))]
@@ -106,7 +105,6 @@ pub mod egui_box;
 // pub use string_box::StringBox; // レガシー実装、box_trait::StringBoxを使用すること
 // pub use integer_box::IntegerBox; // レガシー実装、box_trait::IntegerBoxを使用すること
 // pub use bool_box::BoolBox; // レガシー実装、box_trait::BoolBoxを使用すること
-pub use aot_config_box::AotConfigBox;
 #[cfg(not(target_arch = "wasm32"))]
 pub use audio_box::AudioBox;
 #[cfg(not(target_arch = "wasm32"))]
