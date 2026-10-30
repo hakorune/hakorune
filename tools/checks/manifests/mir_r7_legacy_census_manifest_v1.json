@@ -15,7 +15,7 @@
     "loop_phi_loc": 1009
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "2a19b8cd966c80dd75340868583a11b8b5c6d14e",
+  "observed_commit": "67d873715230c576bc4f98d944bb3c39eac4f5ba",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -1229,7 +1229,7 @@
       "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
       "role": "production_surface",
       "selected_corridor": false,
-      "source_sha256": "b80ac7065323660cf72459e4b3d2d3efed901a2b3e29f9a5b1ad993f53103546",
+      "source_sha256": "960ccec4d9eeb8ef8d0709f70fb946a004b2e3f890c8bf73e295e0b36f6419b2",
       "symbol": "refresh_function_extern_call_routes",
       "token": "LegacyCallV0"
     },

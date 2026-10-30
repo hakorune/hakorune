@@ -19585,6 +19585,18 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
+      "function": "stage1_extern_routes_preserve_their_abi_contracts",
+      "line": 330,
+      "path": "src/mir/extern_call_route_plan/route.rs",
+      "reject_reasons": [
+        "depends_on_emission",
+        "depends_on_metadata",
+        "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
       "function": "kind",
       "line": 75,
       "path": "src/mir/extern_call_route_plan/route_spec.rs",
@@ -19631,52 +19643,6 @@
       "function": "is_hostbridge_extern_invoke_symbol",
       "line": 75,
       "path": "src/mir/extern_call_route_plan/route_spec/catalog_lookup.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "refresh_function_extern_call_routes_records_stage1_emit_program_json_extern_route",
-      "line": 47,
-      "path": "src/mir/extern_call_route_plan/tests/hostbridge_stage1.rs",
-      "reject_reasons": [
-        "depends_on_emission",
-        "depends_on_metadata",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "refresh_function_extern_call_routes_records_stage1_emit_mir_from_source_extern_route",
-      "line": 75,
-      "path": "src/mir/extern_call_route_plan/tests/hostbridge_stage1.rs",
-      "reject_reasons": [
-        "depends_on_emission",
-        "depends_on_metadata",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "refresh_function_extern_call_routes_records_stage1_emit_mir_from_program_json_extern_route",
-      "line": 106,
-      "path": "src/mir/extern_call_route_plan/tests/hostbridge_stage1.rs",
-      "reject_reasons": [
-        "depends_on_emission",
-        "depends_on_metadata",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "extern_call_route_specs_are_complete_and_self_classifying",
-      "line": 4,
-      "path": "src/mir/extern_call_route_plan/tests/specs.rs",
       "reject_reasons": [
         "depends_on_route_selection"
       ],
@@ -26403,11 +26369,11 @@
         "depends_on_builder": 75,
         "depends_on_collection": 116,
         "depends_on_context": 52,
-        "depends_on_emission": 69,
+        "depends_on_emission": 67,
         "depends_on_lowering": 125,
-        "depends_on_metadata": 82,
+        "depends_on_metadata": 80,
         "depends_on_resolution": 229,
-        "depends_on_route_selection": 135,
+        "depends_on_route_selection": 132,
         "may_mutate_state": 209,
         "phi_or_localssa_surface": 87,
         "takes_mut_self": 36
@@ -26415,9 +26381,9 @@
       "by_status": {
         "already_adopted_name_match": 1,
         "candidate": 1329,
-        "rejected": 1029
+        "rejected": 1026
       },
-      "surface_count": 2359
+      "surface_count": 2356
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

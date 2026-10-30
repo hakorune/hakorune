@@ -4,8 +4,6 @@ mod hako_atomic;
 mod hako_mem;
 mod hako_osvm;
 mod hako_tls;
-mod hostbridge_stage1;
-mod specs;
 
 #[allow(unused_imports)]
 pub(crate) use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};

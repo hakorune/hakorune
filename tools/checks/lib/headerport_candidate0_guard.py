@@ -27,11 +27,9 @@ MAIN_PENDING = ROOT / "src/mir/builder/main_pending_draft.rs"
 MAIN_PENDING_P0 = ROOT / "src/mir/builder/main_pending_draft_p0.rs"
 ROOT_BATCH = ROOT / "src/mir/builder/root_draft_batch.rs"
 ROOT_BATCH_P0 = ROOT / "src/mir/builder/root_draft_batch_p0.rs"
-MAIN_ROOT_WIRING = ROOT / "src/mir/builder/main_root_wiring.rs"
 ACCESS_IMPL = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
 ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
-WIRING_P0 = ROOT / "src/mir/builder/module_wiring_parity_p0.rs"
 ROUTE_INVENTORY = ROOT / "src/mir/builder/route_owned_invocation_inventory.rs"
 ROUTE_MATRIX_P0E = ROOT / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
@@ -86,10 +84,8 @@ def main() -> int:
     main_pending_p0 = MAIN_PENDING_P0.read_text()
     root_batch = ROOT_BATCH.read_text()
     root_batch_p0 = ROOT_BATCH_P0.read_text()
-    main_root_wiring = MAIN_ROOT_WIRING.read_text()
     access_impl = ACCESS_IMPL.read_text()
     access_live = ACCESS_LIVE.read_text()
-    wiring_p0 = WIRING_P0.read_text()
     route_inventory = ROUTE_INVENTORY.read_text()
     collector = COLLECTOR.read_text()
     collector_receipt = COLLECTOR_RECEIPT.read_text()
@@ -126,10 +122,6 @@ def main() -> int:
         raise AssertionError("ROOTBATCH0-S0 source must remain below 800 lines")
     if len(root_batch_p0.splitlines()) >= 800:
         raise AssertionError("ROOTBATCH0-P0 fixture source must remain below 800 lines")
-    if len(main_root_wiring.splitlines()) >= 800:
-        raise AssertionError("WIRING-S0 source must remain below 800 lines")
-    if len(wiring_p0.splitlines()) >= 800:
-        raise AssertionError("WIRING-P0 source must remain below 800 lines")
     if len(route_inventory.splitlines()) >= 800:
         raise AssertionError("WIRING-I0-ROUTEINV-S0 source must remain below 800 lines")
     if len(collector.splitlines()) >= 800:
@@ -218,18 +210,6 @@ def main() -> int:
     ):
         require(root_batch_p0, fragment, "ROOTBATCH0-P0 policy/failure fixtures")
 
-    for fragment in (
-        "MainRootWiringPlanV1",
-        "MainRootWiringStepV1",
-        "MainRootFunctionIdentityV1",
-        "StaticChildren",
-        "CallableMainCompatibility",
-        "InlineRootBody",
-        "root_is_distinct_and_children_precede_inline_body",
-        "compatibility_child_is_optional_but_root_body_is_not",
-    ):
-        require(main_root_wiring, fragment, "WIRING-S0 Main/root order vocabulary/fixtures")
-
     require(access_impl, "with_access_port", "WIRING-S0 live access bundle/fixture")
     for fragment in (
         "ModuleLoweringInvocationAccessPortV1",
@@ -241,21 +221,6 @@ def main() -> int:
         "access_port_keeps_shell_metadata_and_headers_as_short_separate_loans",
         "WIRING-S0 live access fixture",
     )
-
-    for fragment in (
-        "HeaderPortWiringParityV1",
-        "WiringParityRowV1",
-        "WiringSurfaceV1",
-        "WiringSourceAnchorV1",
-        "WiringSourceSiteV1",
-        "WiringOwnerV1",
-        "WiringObservationV1",
-        "ConditionPolicyObservationV1",
-        "parity_derives_all_route_rows_without_redeclaring_route_identity",
-        "main_and_condition_routes_keep_root_batch_and_drain_boundaries",
-        "canonical_and_raw_children_require_capture_without_a_fallback_surface",
-    ):
-        require(wiring_p0, fragment, "WIRING-P0 route parity product/fixtures")
 
     for fragment in (
         "RouteOwnedInvocationInventoryV2",
@@ -530,10 +495,8 @@ def main() -> int:
             MAIN_PENDING_P0,
             ROOT_BATCH,
             ROOT_BATCH_P0,
-            MAIN_ROOT_WIRING,
             ACCESS_IMPL,
             ACCESS_LIVE,
-            WIRING_P0,
             ROUTE_INVENTORY,
             ROUTE_MATRIX_P0E,
             SHELL_FACTS,
@@ -637,8 +600,6 @@ def main() -> int:
     require(builder_mod, "mod main_pending_draft_p0;", "MAINPENDING0-P0 fixture registration")
     require(builder_mod, "mod root_draft_batch;", "ROOTBATCH0-S0 module registration")
     require(builder_mod, "mod root_draft_batch_p0;", "ROOTBATCH0-P0 fixture registration")
-    require(builder_mod, "mod main_root_wiring;", "WIRING-S0 Main/root order registration")
-    require(builder_mod, "mod module_wiring_parity_p0;", "WIRING-P0 parity registration")
     require(
         builder_mod,
         "mod route_owned_invocation_inventory;",
@@ -704,8 +665,6 @@ def main() -> int:
             if path in (
                 ACCESS_IMPL,
                 ACCESS_LIVE,
-                MAIN_ROOT_WIRING,
-                WIRING_P0,
                 BUILDER_MOD,
             ):
                 continue
