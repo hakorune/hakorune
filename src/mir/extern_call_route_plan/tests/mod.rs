@@ -1,4 +1,3 @@
-mod array_slot;
 mod common;
 mod hako_atomic;
 mod hako_mem;
