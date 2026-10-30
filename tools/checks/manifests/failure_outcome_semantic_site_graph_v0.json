@@ -3961,78 +3961,6 @@
       "token": "VMValue::Void"
     },
     {
-      "evidence": "assert!(env.get(\"digits\").is_some());",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs:81:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 81,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "let var = env.get(\"digits\").unwrap();",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs:82:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 82,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "assert!(env.get(\"s\").is_some());",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:150:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 150,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "let var = env.get(\"s\").unwrap();",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:151:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 151,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "assert!(env.get(\"len\").is_some());",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:311:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 311,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "assert!(env.get(\"s\").is_some());",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:312:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 312,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "assert!(env.get(\"digits\").is_some());",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:313:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 313,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "assert!(env.get(\"len\").is_some());",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:64:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 64,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs",
-      "token": "env.get"
-    },
-    {
-      "evidence": "let var = env.get(\"len\").unwrap();",
-      "evidence_id": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:65:env.get",
-      "evidence_kind": "provider_optional_or_missing",
-      "line": 65,
-      "source_path": "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs",
-      "token": "env.get"
-    },
-    {
       "evidence": "assert!(env.get(\"digits\").is_none());",
       "evidence_id": "src/mir/loop_route_detection/support/function_scope/types.rs:108:env.get",
       "evidence_kind": "provider_optional_or_missing",
@@ -7059,15 +6987,6 @@
         "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs:126:env.get",
         "src/mir/global_call_route_plan/tests/generic_i64/env_get.rs:53:env.get",
         "src/mir/global_call_route_plan/tests/shape_reasons/generic_string_shapes.rs:181:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs:81:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs:82:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:150:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:151:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:311:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:312:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:313:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:64:env.get",
-        "src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs:65:env.get",
         "src/mir/verification/invoke_owned_array_tests.rs:340:env.get",
         "src/parser/explicit_externcall_source_tests.rs:18:env.get",
         "src/parser/explicit_externcall_source_tests.rs:22:env.get",

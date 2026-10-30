@@ -4844,15 +4844,6 @@ mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_i
 mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_is_outer_scope_variable_with_no_scope
 mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_scope_header_and_latch_variable
 mir::loop_route_detection::support::condition_scope::var_analyzer::tests::test_scope_priority_in_add_var
-mir::loop_route_detection::support::function_scope::analyzers::tests::v1::test_capture_after_loop_rejected
-mir::loop_route_detection::support::function_scope::analyzers::tests::v1::test_capture_method_call_init_rejected
-mir::loop_route_detection::support::function_scope::analyzers::tests::v1::test_capture_reassigned_rejected
-mir::loop_route_detection::support::function_scope::analyzers::tests::v1::test_capture_simple_digits
-mir::loop_route_detection::support::function_scope::analyzers::tests::v1::test_capture_unused_in_loop_rejected
-mir::loop_route_detection::support::function_scope::analyzers::tests::v2::test_capture_function_param_reassigned_rejected
-mir::loop_route_detection::support::function_scope::analyzers::tests::v2::test_capture_function_param_used_in_condition
-mir::loop_route_detection::support::function_scope::analyzers::tests::v2::test_capture_function_param_used_in_method_call
-mir::loop_route_detection::support::function_scope::analyzers::tests::v2::test_capture_mixed_locals_and_params
 mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_add_and_get
 mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_empty
 mir::loop_route_detection::support::function_scope::types::tests::test_captured_env_insert_explicit

@@ -11283,30 +11283,6 @@
     },
     {
       "candidate_kind": "boolean_classifier",
-      "function": "is_reassigned_in_fn",
-      "line": 101,
-      "path": "src/mir/loop_route_detection/support/function_scope/helpers.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_used_in_loop",
-      "line": 193,
-      "path": "src/mir/loop_route_detection/support/function_scope/helpers.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_used_in_loop_parts",
-      "line": 255,
-      "path": "src/mir/loop_route_detection/support/function_scope/helpers.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
       "function": "is_empty",
       "line": 63,
       "path": "src/mir/loop_route_detection/support/function_scope/types.rs",
@@ -21470,27 +21446,6 @@
       "status": "rejected"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_safe_const_init",
-      "line": 84,
-      "path": "src/mir/loop_route_detection/support/function_scope/helpers.rs",
-      "reject_reasons": [
-        "carrier_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "collect_names_in_loop_parts",
-      "line": 318,
-      "path": "src/mir/loop_route_detection/support/function_scope/helpers.rs",
-      "reject_reasons": [
-        "depends_on_collection",
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "as_metadata_name",
       "line": 34,
@@ -26161,25 +26116,25 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 22,
-        "carrier_surface": 502,
+        "carrier_surface": 501,
         "depends_on_builder": 74,
-        "depends_on_collection": 114,
+        "depends_on_collection": 113,
         "depends_on_context": 52,
         "depends_on_emission": 67,
         "depends_on_lowering": 124,
         "depends_on_metadata": 80,
         "depends_on_resolution": 229,
         "depends_on_route_selection": 127,
-        "may_mutate_state": 209,
+        "may_mutate_state": 208,
         "phi_or_localssa_surface": 87,
         "takes_mut_self": 36
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1315,
-        "rejected": 1018
+        "candidate": 1312,
+        "rejected": 1016
       },
-      "surface_count": 2334
+      "surface_count": 2329
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

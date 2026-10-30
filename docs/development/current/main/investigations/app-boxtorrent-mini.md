@@ -24,12 +24,12 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
-- 退役A4: 未接続invocation状態・drain/candidate模型を退役。安全検査の対応と検証結果はGit履歴を参照。
+- 退役B3: 未接続function-scope analyzer/helperと専用9 testを削除（production raw 858行・test raw 671行純減）。現役CapturedEnv/collectorとroute・strict拒否を保持。focused 15 test・all-targets・suite 11/11（93.09秒、実EXE10＋marker）PASS、cohort失敗名84/1/0・旧FAIL 126名不変。生成inventoryを同期、2026-09-25のLoop census/move TSVは当時のsnapshotとして残る。
+- 退役A4: 未接続invocation状態・drain/candidate・passive borrow scheduleを退役。安全検査の対応と検証結果はGit履歴を参照。
 - A4残りの旧所有権test・旧lowerer・安全境界は保持。退役は所有モデルstep 1で新契約と本線検査ができ、旧testの責務を後継へ移せた時。
 - 退役A1: module木に未接続の`loop_route_detection/tests.rs`を削除（未コンパイルtest 260行、production・実行test数は増減0）。現役break条件test 12 PASS、all-targets PASS、最適化CLI/runtimeのsuite 11/11（92.29秒）・cohort失敗名84/1/0不変。native inventoryは対象3観測を除き既存5観測の位置だけ同期、分類は不変。
 - Bool PHI: 正規経路は`callable-semantic-lowering/variable-site`で名前付き拒否。旧testと必要lowererは保持し、APP-loop-basicsで扱う。
 - 旧FAIL保持: `mir::builder::resolved_lowering::tests::closed_family_uses_resolver_bindings_without_legacy_allocation` と必要lowererを保持。
-- 退役A4: caller-zeroのpassive borrow scheduleと専用testを削除（production raw 509行・test raw 334行純減）。架空route表は退役、現役collectorの状態保持・失敗伝播と再試行禁止の既存test 6件を確認。suite 11/11、cohort失敗名84/1/0不変、旧FAIL 126名不変。旧baselineは退役PASS 11件のみ除外。
 - 退役A4: test専用の非公開`lower_canonical_source`と`consume`を退役（production raw 36行・test raw 29行純減）。現役physical loweringとbrand一致・未公開の既存testを保持。suite 11/11、cohort失敗名84/1/0不変、旧FAIL 126名不変。旧baselineは退役PASS 1件のみ除外。LOWER0 guardは変更前後とも旧state anchor欠落でFAIL。
 - 退役A4: 未接続route inventory模型を退役し、既存fixtureを現役policy/matrixへ直接接続（production raw 232行・test raw 140行純減）。family各行・fallback・失敗と未公開の既存7 test PASS。suite 11/11、cohort失敗名84/1/0不変、旧FAIL 126名不変。模型の固定reachabilityは実経路の到達証明ではない。関連3 guardの既存欠落は前後同じ。
 - 退役A4: 未接続finalizer wrapperと専用testを退役（production raw 44行・test raw 68行純減）。split入力の所有・inventory・root witnessと模型の失敗/未公開を既存11 testで保持、production finalizerの検証は非主張。suite 11/11、cohort失敗名84/1/0と旧FAIL 126名不変。関連3 guardの既存欠落は前後同じ。
