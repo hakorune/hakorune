@@ -83,7 +83,7 @@ fn function(else_body: Option<Vec<ASTNode>>) -> ASTNode {
     }
 }
 
-fn assert_candidate_abort_reuses_compiler(unit: VerifiedResolvedSourceUnitV1, source_file: &str) {
+fn assert_candidate_abort_reuses_compiler(unit: VerifiedResolvedSourceUnitV1, source_file: &str, source: &str) {
     let mut compiler = MirCompiler::with_options(false);
     compiler.builder.set_source_file_hint("before.hako");
     compiler.builder.next_value_id();
@@ -115,7 +115,7 @@ fn assert_candidate_abort_reuses_compiler(unit: VerifiedResolvedSourceUnitV1, so
 
     let result = compile_reuse_source(
         &mut compiler,
-        "function if_abort_d2() { local x = 0\n if true { x = 1 }\n return x }\n static box Main { main() { return 0 } }",
+        source,
         source_file,
     )
         .expect("same compiler must accept a fresh If request");
@@ -156,5 +156,8 @@ fn compile_reuse_source(
 fn implicit_if_candidate_discards_after_late_draft_seal_failure() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(None))
         .expect("implicit If fixture resolves");
-    assert_candidate_abort_reuses_compiler(unit, "implicit-if-reused.hako");
+    assert_candidate_abort_reuses_compiler(unit, "implicit-if-reused.hako", "function if_abort_d2() { local x = 0\n if true { x = 1 }\n return x }\n static box Main { main() { return 0 } }");
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(Some(vec![assignment("x", 2)])))
+        .expect("explicit If fixture resolves");
+    assert_candidate_abort_reuses_compiler(unit, "explicit-if-reused.hako", "function if_abort_d2() { local x = 0\n if true { x = 1 } else { x = 2 }\n return x }\n static box Main { main() { return 0 } }");
 }
