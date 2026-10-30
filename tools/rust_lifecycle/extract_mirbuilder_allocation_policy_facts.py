@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 from typing import Any
 
@@ -20,8 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ID_ALLOC = ROOT / "src/mir/builder/utils/id_alloc.rs"
 FUNCTION_IMPL = ROOT / "src/mir/function/function_impl.rs"
 PARAMETER_SETUP = ROOT / "src/mir/builder/calls/parameter_setup.rs"
-HEADER_PHI_PREBUILD = ROOT / "src/mir/builder/control_flow/joinir/merge/header_phi_prebuild.rs"
-COMPILATION_CONTEXT = ROOT / "src/mir/builder/compilation_context.rs"
+COMPILATION_CONTEXT = ROOT / "src/mir/builder/function_lowering_state.rs"
 VALUE_ID = ROOT / "crates/hakorune_mir_core/src/value_id.rs"
 REFERENCE = (
     ROOT
@@ -44,7 +44,6 @@ def _source_refs() -> dict[str, str]:
         "id_alloc": str(ID_ALLOC.relative_to(ROOT)),
         "function_impl": str(FUNCTION_IMPL.relative_to(ROOT)),
         "parameter_setup": str(PARAMETER_SETUP.relative_to(ROOT)),
-        "header_phi_prebuild": str(HEADER_PHI_PREBUILD.relative_to(ROOT)),
         "compilation_context": str(COMPILATION_CONTEXT.relative_to(ROOT)),
         "value_id": str(VALUE_ID.relative_to(ROOT)),
     }
@@ -54,7 +53,6 @@ def extract_facts() -> dict[str, Any]:
     id_alloc = _read(ID_ALLOC)
     function_impl = _read(FUNCTION_IMPL)
     parameter_setup = _read(PARAMETER_SETUP)
-    header_phi = _read(HEADER_PHI_PREBUILD)
     compilation_context = _read(COMPILATION_CONTEXT)
     value_id = _read(VALUE_ID)
 
@@ -63,13 +61,17 @@ def extract_facts() -> dict[str, Any]:
         [
             ("pub(crate) fn next_value_id(&mut self)", "MirBuilder::next_value_id"),
             ("loop {", "candidate retry loop"),
-            ("if let Some(ref mut f) = self.scope_ctx.current_function", "current_function selector"),
+            ("if let Some(ref mut f) = self.function_state.current_function", "current_function selector"),
             ("f.next_value_id() // Function context", "function-local candidate source"),
             ("self.core_ctx.next_value()", "module-global candidate source"),
-            ("if !self.comp_ctx.reserved_value_ids.contains(&candidate)", "reserved membership predicate"),
+            (".reserved_value_ids\n                .contains(&candidate)", "reserved membership predicate"),
             ("return candidate;", "accepted candidate return"),
             ("Reserved ID - try next one (loop continues)", "reserved retry comment"),
         ],
+    )
+    require(
+        re.search(r"if\s*!\s*self\s*\.function_state\s*\.compilation\s*\.reserved_value_ids\s*\.contains\(&candidate\)", id_alloc) is not None,
+        "missing allocation policy source shape: negated reserved membership predicate",
     )
     _require_all(
         function_impl,
@@ -90,38 +92,26 @@ def extract_facts() -> dict[str, Any]:
     _require_all(
         parameter_setup,
         [
-            ("if param_idx < f.params.len()", "static parameter binding reuse predicate"),
-            ("f.params[param_idx]", "static parameter binding reuse"),
-            ("let new_pid = f.next_value_id();", "static compatibility fallback allocation"),
-            ("if f.params.is_empty()", "instance compatibility fallback predicate"),
-            ("let me_id = ValueId(0);", "instance me fallback id"),
-            ("let me_id = f.params[0];", "instance me binding reuse"),
-            ("let pid = f.params[param_idx];", "instance parameter binding reuse"),
-            ("let pid = f.next_value_id();", "instance compatibility fallback allocation"),
-        ],
-    )
-    _require_all(
-        header_phi,
-        [
-            ("function_params: &BTreeMap<String, Vec<ValueId>>", "JoinIR parameter input"),
-            ("let reserved_phi_dsts = loop_header_phi_info.reserved_value_ids();", "PHI destination source"),
-            ("let mut reserved_value_ids = reserved_phi_dsts.clone();", "reserved set starts from PHI destinations"),
-            ("for params in function_params.values()", "JoinIR parameter union loop"),
-            ("reserved_value_ids.insert(param);", "JoinIR parameter inserted into reserved set"),
-            ("builder.comp_ctx.reserved_value_ids = reserved_value_ids.clone();", "reserved set ReplaceSnapshot"),
-            ("Ok((loop_header_phi_info, merge_entry_block, reserved_value_ids))", "reserved set returned"),
+            ("let receiver_offset = usize::from(function.params.len() > params.len());", "receiver offset"),
+            ("let formal_index = receiver_offset + source_index;", "static formal index"),
+            ("formal_index < function.params.len()", "static parameter reuse predicate"),
+            ("function.params[formal_index]", "formal identity reuse"),
+            ("let value = function.next_value_id();", "missing formal allocation"),
+            ("function.params.push(value);", "missing formal insertion"),
+            ("self.prepare_instance_receiver_parameter(box_name)?", "receiver preflight"),
+            ("while function.params.len() < required_count", "instance formal allocation"),
+            ("let formal_index = source_index + 1;", "instance formal index"),
+            (".params.first().ok_or_else", "receiver parameter required"),
         ],
     )
     _require_all(
         compilation_context,
         [
-            ("pub reserved_value_ids: HashSet<ValueId>", "reserved set storage owner"),
-            ("pub fn is_reserved_value_id(&self, id: ValueId) -> bool", "reserved membership helper"),
+            ("pub(super) reserved_value_ids: HashSet<ValueId>", "reserved set storage owner"),
+            ("pub(super) fn is_reserved_value_id(&self, id: ValueId) -> bool", "reserved membership helper"),
             ("self.reserved_value_ids.contains(&id)", "reserved membership observation"),
-            ("pub fn reserve_value_id(&mut self, id: ValueId)", "manual reserve helper"),
+            ("pub(super) fn reserve_value_id(&mut self, id: ValueId)", "manual reserve helper"),
             ("self.reserved_value_ids.insert(id);", "manual reserve effect"),
-            ("pub fn clear_reserved_value_ids(&mut self)", "reserved set clear helper"),
-            ("self.reserved_value_ids.clear();", "reserved set clear effect"),
         ],
     )
     _require_all(
@@ -162,16 +152,16 @@ def extract_facts() -> dict[str, Any]:
             "transport": "ValueIdAsI64",
         },
         "exclusion_set": {
-            "storage_owner": "CompilationContext",
-            "producer": "JoinIrHeaderPhiPrebuild",
-            "members": ["PhiDestinations", "JoinIrFunctionParameters"],
-            "update_kind": "ReplaceSnapshot",
+            "storage_owner": "FunctionCompilationScratchV1",
+            "producer": "Unproven",
+            "members": None,
+            "update_kind": "Unproven",
             "consumer": "MirBuilder::next_value_id",
             "predicate": "CandidateNotInReservedSet",
             "observation": "MembershipOnly",
             "rejected_candidate_effect": "Consumed",
             "retry": "GenerateNextCandidate",
-            "lifetime": "JoinIrMergeTemporary",
+            "lifetime": "Unproven",
         },
         "parameter_initialization": {
             "prepopulation": "ParameterIdPrepopulation",

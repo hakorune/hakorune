@@ -137,12 +137,12 @@ def validate_allocation_policy_facts(facts: dict[str, Any]) -> None:
     )
 
     exclusion = facts["exclusion_set"]
-    require(exclusion["storage_owner"] == "CompilationContext", "reserved set owner drift")
-    require(exclusion["producer"] == "JoinIrHeaderPhiPrebuild", "reserved set producer drift")
-    require(exclusion["members"] == ["PhiDestinations", "JoinIrFunctionParameters"], "reserved set member union drift")
-    require(exclusion["update_kind"] == "ReplaceSnapshot", "reserved set update kind drift")
+    require(exclusion["storage_owner"] == "FunctionCompilationScratchV1", "reserved set owner drift")
+    require(exclusion["producer"] == "Unproven", "reserved set producer drift")
+    require(exclusion["members"] is None, "reserved set members must remain unproven")
+    require(exclusion["update_kind"] == "Unproven", "reserved set update kind drift")
     require(exclusion["observation"] == "MembershipOnly", "reserved set observation drift")
-    require(exclusion["lifetime"] == "JoinIrMergeTemporary", "reserved set lifetime drift")
+    require(exclusion["lifetime"] == "Unproven", "reserved set lifetime drift")
 
     sentinel = facts["sentinel_policy"]
     require(sentinel["function_initial_floor"] == 1, "function initial floor drift")

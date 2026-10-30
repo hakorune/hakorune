@@ -4,17 +4,14 @@
   "subject": "hakorune_mir_builder::MirBuilder::next_value_id.reserved_exclusion",
   "source_facts": "MirBuilderAllocationPolicyFactsV1.exclusion_set",
   "storage": {
-    "owner": "CompilationContext",
-    "lifetime": "JoinIrMergeTemporary",
+    "owner": "FunctionCompilationScratchV1",
+    "lifetime": "Unproven",
     "concrete_representation": "Unselected"
   },
   "producer": {
-    "source": "JoinIrHeaderPhiPrebuild",
-    "members": [
-      "PhiDestinations",
-      "JoinIrFunctionParameters"
-    ],
-    "update_kind": "ReplaceSnapshot"
+    "source": "Unproven",
+    "members": null,
+    "update_kind": "Unproven"
   },
   "consumer": {
     "source": "MirBuilder::next_value_id",

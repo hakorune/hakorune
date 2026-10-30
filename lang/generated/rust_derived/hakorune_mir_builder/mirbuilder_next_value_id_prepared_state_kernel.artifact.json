@@ -64,7 +64,7 @@
     "rust_files": [
       {
         "path": "src/mir/builder/utils/id_alloc.rs",
-        "sha256": "300fe48fe9fb231909caa7376a92fd6d194a18f0e2a60f2b3afa89de399758b6"
+        "sha256": "f33011b7fb75c77acd23f898e1cb54caa096c376426e9ec982d231468bad11f1"
       }
     ]
   },

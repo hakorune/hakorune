@@ -28,19 +28,19 @@ REFERENCE = (
 def project_reserved_exclusion_policy(facts: dict[str, Any]) -> dict[str, Any]:
     exclusion = facts["exclusion_set"]
 
-    require(exclusion["storage_owner"] == "CompilationContext", "reserved set owner drift")
-    require(exclusion["producer"] == "JoinIrHeaderPhiPrebuild", "reserved set producer drift")
+    require(exclusion["storage_owner"] == "FunctionCompilationScratchV1", "reserved set owner drift")
+    require(exclusion["producer"] == "Unproven", "reserved set producer drift")
     require(
-        exclusion["members"] == ["PhiDestinations", "JoinIrFunctionParameters"],
-        "reserved set member union drift",
+        exclusion["members"] is None,
+        "reserved set members must remain unproven",
     )
-    require(exclusion["update_kind"] == "ReplaceSnapshot", "reserved set update kind drift")
+    require(exclusion["update_kind"] == "Unproven", "reserved set update kind drift")
     require(exclusion["consumer"] == "MirBuilder::next_value_id", "reserved set consumer drift")
     require(exclusion["predicate"] == "CandidateNotInReservedSet", "reserved predicate drift")
     require(exclusion["observation"] == "MembershipOnly", "reserved observation drift")
     require(exclusion["rejected_candidate_effect"] == "Consumed", "rejected candidate effect drift")
     require(exclusion["retry"] == "GenerateNextCandidate", "reserved retry policy drift")
-    require(exclusion["lifetime"] == "JoinIrMergeTemporary", "reserved lifetime drift")
+    require(exclusion["lifetime"] == "Unproven", "reserved lifetime drift")
 
     return {
         "schema_version": 0,
@@ -117,14 +117,15 @@ def _simulate_vector(vector: dict[str, Any]) -> dict[str, list[int]]:
 def validate_reserved_exclusion_policy(plan: dict[str, Any]) -> None:
     require(plan["schema_version"] == 0, "unsupported reserved-exclusion plan schema")
     require(plan["kind"] == "ReservedValueExclusionPolicyPlanV1", "wrong reserved-exclusion plan kind")
-    require(plan["storage"]["owner"] == "CompilationContext", "reserved storage owner drift")
+    require(plan["storage"]["owner"] == "FunctionCompilationScratchV1", "reserved storage owner drift")
+    require(plan["storage"]["lifetime"] == "Unproven", "reserved lifetime must remain unproven")
     require(plan["storage"]["concrete_representation"] == "Unselected", "reserved representation must stay unselected")
-    require(plan["producer"]["source"] == "JoinIrHeaderPhiPrebuild", "reserved producer drift")
+    require(plan["producer"]["source"] == "Unproven", "reserved producer drift")
     require(
-        plan["producer"]["members"] == ["PhiDestinations", "JoinIrFunctionParameters"],
-        "reserved members must include PHI destinations and JoinIR parameters",
+        plan["producer"]["members"] is None,
+        "reserved members must remain unproven",
     )
-    require(plan["producer"]["update_kind"] == "ReplaceSnapshot", "reserved update kind drift")
+    require(plan["producer"]["update_kind"] == "Unproven", "reserved update kind drift")
     require(plan["consumer"]["source"] == "MirBuilder::next_value_id", "reserved consumer drift")
     require(plan["consumer"]["predicate"] == "CandidateNotInReservedSet", "reserved predicate drift")
     require(plan["consumer"]["observation"] == "MembershipOnly", "reserved observation drift")

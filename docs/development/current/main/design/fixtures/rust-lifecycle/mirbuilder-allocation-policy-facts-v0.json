@@ -6,8 +6,7 @@
     "id_alloc": "src/mir/builder/utils/id_alloc.rs",
     "function_impl": "src/mir/function/function_impl.rs",
     "parameter_setup": "src/mir/builder/calls/parameter_setup.rs",
-    "header_phi_prebuild": "src/mir/builder/control_flow/joinir/merge/header_phi_prebuild.rs",
-    "compilation_context": "src/mir/builder/compilation_context.rs",
+    "compilation_context": "src/mir/builder/function_lowering_state.rs",
     "value_id": "crates/hakorune_mir_core/src/value_id.rs"
   },
   "candidate_selection": {
@@ -31,19 +30,16 @@
     "transport": "ValueIdAsI64"
   },
   "exclusion_set": {
-    "storage_owner": "CompilationContext",
-    "producer": "JoinIrHeaderPhiPrebuild",
-    "members": [
-      "PhiDestinations",
-      "JoinIrFunctionParameters"
-    ],
-    "update_kind": "ReplaceSnapshot",
+    "storage_owner": "FunctionCompilationScratchV1",
+    "producer": "Unproven",
+    "members": null,
+    "update_kind": "Unproven",
     "consumer": "MirBuilder::next_value_id",
     "predicate": "CandidateNotInReservedSet",
     "observation": "MembershipOnly",
     "rejected_candidate_effect": "Consumed",
     "retry": "GenerateNextCandidate",
-    "lifetime": "JoinIrMergeTemporary"
+    "lifetime": "Unproven"
   },
   "parameter_initialization": {
     "prepopulation": "ParameterIdPrepopulation",
