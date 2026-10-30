@@ -17,8 +17,6 @@ FIXTURES = ROOT / "src/mir/builder/module_invocation_identity_p0.rs"
 BRAND_CHAIN = ROOT / "src/mir/builder/module_invocation_owner_chain.rs"
 COLLECTION = ROOT / "src/mir/builder/module_invocation_collection.rs"
 COLLECT_FIXTURE = ROOT / "src/mir/builder/module_invocation_collect0_s0_p0.rs"
-CALLABLE_BATCH = ROOT / "src/mir/builder/module_invocation_callable_batch.rs"
-CALLABLE_BATCH_FIXTURE = ROOT / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
 SESSION_FIXTURE = ROOT / "src/mir/builder/module_invocation_session_p0.rs"
@@ -32,8 +30,6 @@ ALLOWED = {
     BRAND_CHAIN.relative_to(ROOT),
     COLLECTION.relative_to(ROOT),
     COLLECT_FIXTURE.relative_to(ROOT),
-    CALLABLE_BATCH.relative_to(ROOT),
-    CALLABLE_BATCH_FIXTURE.relative_to(ROOT),
     BUILDER.relative_to(ROOT),
     SESSION.relative_to(ROOT),
     SESSION_FIXTURE.relative_to(ROOT),

@@ -364,7 +364,9 @@ fn reject_callable(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::module_draft_collector::{FunctionDraftKeyV1, ModuleDraftCollectorV1};
+    use crate::mir::builder::module_draft_collector::{
+        CompletedDraftSignatureViewV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
+    };
     use crate::mir::builder::module_invocation_identity::ModuleInvocationFamilyV1;
     use crate::mir::canonical_physical_drain::{
         CanonicalInsertedDispositionV1, CanonicalPhysicalCallableRowV1,
@@ -625,5 +627,86 @@ mod tests {
                 CanonicalCollectorDrainErrorV1::SurplusKey(_)
             )
         ));
+
+        // The source and receipt belong to one invocation, the collector to another.
+        let source_brand = ModuleInvocationBrandV1::test_with_ordinal(101);
+        let foreign_brand = ModuleInvocationBrandV1::test_with_ordinal(102);
+        let (physical, keys) = callable_fixture(source_brand);
+        let (_, _, receipt) = physical.into_parts();
+        let (foreign, _) = callable_fixture(foreign_brand);
+        let (_, foreign_collector, _) = foreign.into_parts();
+        let rejected = foreign_collector
+            .into_payload()
+            .prepare_canonical_drain(
+                &callable_manifest(source_brand, &keys),
+                CanonicalCollectorReceiptViewV1::Callable(&receipt),
+                source_brand,
+            )
+            .unwrap_err();
+        let (foreign_collector, error) = rejected.into_parts();
+        assert_eq!(error, CanonicalCollectorDrainErrorV1::BrandMismatch);
+        assert_eq!(foreign_collector.symbol_count(), 2);
+
+        let (physical, keys) = callable_fixture(source_brand);
+        let CanonicalPhysicalDrainManifestV1::Callable { rows, .. } =
+            callable_manifest(source_brand, &keys)
+        else {
+            unreachable!()
+        };
+        let wrong_family = CanonicalPhysicalDrainManifestV1::callable(
+            source_brand,
+            ModuleInvocationFamilyV1::Raw,
+            rows,
+        );
+        let rejected = physical.prepare_drain(wrong_family).unwrap_err();
+        assert!(matches!(
+            rejected.error(),
+            CanonicalPhysicalDrainPrepareErrorV1::WrongFamily {
+                family: ModuleInvocationFamilyV1::Raw
+            }
+        ));
+
+        // A collision in the second batch row must leave the first uncommitted.
+        use super::super::module_draft_collector::{
+            CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
+            DraftPublicationPolicyV1,
+        };
+        let alpha = CanonicalCallableKeyV1::free_static_for_test("alpha", 0);
+        let zeta = CanonicalCallableKeyV1::free_static_for_test("zeta", 0);
+        let mut collector = ModuleDraftCollectorV1::default();
+        collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CanonicalCallable(zeta.clone()),
+                "zeta/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap()
+            .seal(draft("zeta/0"))
+            .unwrap()
+            .collect();
+        let entries = vec![
+            CallableCollectorDraftEntryV1::new(
+                FunctionDraftKeyV1::CanonicalCallable(alpha),
+                "alpha/0".into(),
+                0,
+                draft("alpha/0"),
+            ),
+            CallableCollectorDraftEntryV1::new(
+                FunctionDraftKeyV1::CanonicalCallable(zeta),
+                "zeta/0".into(),
+                0,
+                draft("zeta/0"),
+            ),
+        ];
+        let rejected = collector.prepare_callable_batch(entries).unwrap_err();
+        let (collector, error) = rejected.into_parts();
+        assert!(matches!(
+            error,
+            CallableCollectorBatchPrepareErrorV1::Admission { ordinal: 1, .. }
+        ));
+        assert_eq!(collector.symbol_count(), 1);
+        assert!(collector.signature("zeta/0").is_some());
+        assert!(collector.signature("alpha/0").is_none());
     }
 }

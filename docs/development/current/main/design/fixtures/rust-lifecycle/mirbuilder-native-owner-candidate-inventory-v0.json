@@ -6711,40 +6711,6 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_recursive",
-      "line": 44,
-      "path": "src/mir/builder/module_invocation_callable_batch.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "CallableBatchSourceErrorV1",
-      "function": "Display::fmt",
-      "line": 58,
-      "path": "src/mir/builder/module_invocation_callable_batch.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "CallableBatchSealErrorV1",
-      "function": "Display::fmt",
-      "line": 105,
-      "path": "src/mir/builder/module_invocation_callable_batch.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_recursive",
-      "line": 129,
-      "path": "src/mir/builder/module_invocation_callable_batch.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "display_formatter",
       "display_target": "InvocationCollectionSealErrorV1",
       "function": "Display::fmt",
@@ -26275,10 +26241,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1324,
+        "candidate": 1320,
         "rejected": 1020
       },
-      "surface_count": 2345
+      "surface_count": 2341
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

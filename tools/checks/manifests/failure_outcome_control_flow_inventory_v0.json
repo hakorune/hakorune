@@ -19513,18 +19513,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs:50:mir_return",
-      "evidence": "body: vec![ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 50,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs:46:mir_return",
       "evidence": "body: vec![ASTNode::Return {",
       "evidence_kind": "mir_return",

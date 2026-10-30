@@ -23,7 +23,7 @@ PHYSICAL = ROOT / "src/mir/builder/module_invocation_owner_chain.rs"
 SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
 CALLABLE_TX = ROOT / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
 COLLISION_FIXTURE = (
-    ROOT / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs"
+    ROOT / "src/mir/builder/canonical_physical_drain.rs"
 )
 COLLISION_OWNER = (
     ROOT / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
@@ -206,15 +206,16 @@ def main() -> int:
     # registration part of the real census rather than a prose assertion.
     require(
         collision_owner,
-        "mod callable_batch_collection_p0;",
-        "late-collision fixture registration",
+        "fn prepare_collector_batch(",
+        "callable batch preparation",
     )
     require(
         collision,
-        "fn late_collector_collision_rejects_without_delta",
+        "fn callable_row_cardinality_rejects_missing_and_surplus_manifest_rows",
         "late callable collision fixture",
     )
     require(collision, "symbol_count(), 1", "collector delta remains zero")
+    require(collision, 'signature("alpha/0").is_none()', "earlier row remains uncommitted")
     require(collision, "CallableCollectorBatchPrepareErrorV1::Admission", "typed collision error")
 
     # Prove the intended bridge surface exists, but compute production caller

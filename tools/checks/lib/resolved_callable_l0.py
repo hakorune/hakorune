@@ -411,7 +411,6 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module_tests,
         callable_module_input,
         module_preflight_tests,
-        root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
@@ -437,7 +436,6 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module_tests,
         callable_module_input,
         module_preflight_tests,
-        root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
@@ -475,7 +473,6 @@ if sorted(catalog_users) != expected_catalog_users:
 
 resolved_module_users = []
 expected_resolved_module_users = [
-    "src/mir/builder/module_invocation_callable_batch.rs",
     "src/mir/compiler/callable_batch_correspondence_test_support.rs",
     "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",
     "src/mir/compiler/normal_source_plan/normal_callable_transaction_handoff.rs",
@@ -500,7 +497,6 @@ for path in (root / "src").rglob("*.rs"):
         recursive_plan_tests,
         recursive_activation_tests,
         compiler_mod,
-        root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
         root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
     }:
         continue

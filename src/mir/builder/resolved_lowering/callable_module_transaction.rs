@@ -346,8 +346,5 @@ impl MirBuilder {
 }
 
 #[cfg(test)]
-#[path = "callable_batch_collection_p0.rs"]
-mod callable_batch_collection_p0;
-#[cfg(test)]
 #[path = "callable_module_transaction_p0d_tests.rs"]
 mod p0d_tests;

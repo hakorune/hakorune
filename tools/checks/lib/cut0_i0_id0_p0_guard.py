@@ -17,8 +17,6 @@ CHAIN = SRC / "module_invocation_owner_chain.rs"
 FIXTURE = SRC / "module_invocation_brand_p0.rs"
 COLLECTION = SRC / "module_invocation_collection.rs"
 COLLECT_FIXTURE = SRC / "module_invocation_collect0_s0_p0.rs"
-CALLABLE_BATCH = SRC / "module_invocation_callable_batch.rs"
-CALLABLE_BATCH_FIXTURE = SRC / "resolved_lowering/callable_batch_collection_p0.rs"
 SESSION = SRC / "module_invocation_session.rs"
 SESSION_FIXTURE = SRC / "module_invocation_session_p0.rs"
 
@@ -41,8 +39,6 @@ def main() -> int:
         FIXTURE,
         COLLECTION,
         COLLECT_FIXTURE,
-        CALLABLE_BATCH,
-        CALLABLE_BATCH_FIXTURE,
         SESSION,
         SESSION_FIXTURE,
         pathlib.Path(__file__),
@@ -78,8 +74,6 @@ def main() -> int:
         FIXTURE.relative_to(ROOT),
         COLLECTION.relative_to(ROOT),
         COLLECT_FIXTURE.relative_to(ROOT),
-        CALLABLE_BATCH.relative_to(ROOT),
-        CALLABLE_BATCH_FIXTURE.relative_to(ROOT),
         SESSION.relative_to(ROOT),
         SESSION_FIXTURE.relative_to(ROOT),
         BUILDER.resolve().relative_to(ROOT),

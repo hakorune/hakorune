@@ -54,8 +54,6 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         },
         r"VerifiedAcyclicCallableModulePlanV1::verify": {
             plan_tests,
-            root / "src/mir/builder/module_invocation_callable_batch.rs",
-            root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
             root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
             root / "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
             root / "src/mir/compiler/canonical_drain_manifest_p0.rs",

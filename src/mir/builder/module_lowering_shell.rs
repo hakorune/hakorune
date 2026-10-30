@@ -315,14 +315,6 @@ impl ModuleLoweringShellPortV1<'_> {
         }
     }
 
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn install_callable_batch_shell_fact_for_test(
-        &mut self,
-        family: ModuleInvocationFamilyV1,
-    ) -> Result<(), &'static str> {
-        self.install_callable_batch_shell_fact(ModuleInvocationBrandV1::legacy_test(), family)
-            .map(|_| ())
-    }
 }
 
 impl InvocationBranded<ModuleLoweringShellV1> {
