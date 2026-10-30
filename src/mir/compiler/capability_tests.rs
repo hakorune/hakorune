@@ -455,23 +455,11 @@ fn preflight_selects_trivial_binding_ssa_with_carrier_free_if_control() {
 
 #[test]
 fn if_recipe_selected_shape_preserves_branch_merge_and_phi_receipt() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
-        local("x", literal(0)),
-        if_stmt(
-            bool_literal(true),
-            vec![assignment("x", 1)],
-            Some(vec![assignment("x", 2)]),
-        ),
-        ASTNode::Return {
-            value: Some(Box::new(variable("x"))),
-            span: Span::unknown(),
-        },
-    ]))
-    .expect("If fixture resolves");
     let mut compiler = MirCompiler::with_options(false);
-    let result = compiler
-        .compile_resolved(unit.lowering_input(), Some("if-receipt.hako"))
-        .expect("selected If physicalization");
+    let result = super::if_recipe_candidate_abort_d2_tests::compile_reuse_source(
+        &mut compiler, "function capability_fixture() { local x = 0\n if true { x = 1 } else { x = 2 }\n return x }\n static box Main { main() { return 0 } }", "if-receipt.hako",
+    ).expect("selected If physicalization");
+    assert!(result.verification_result.is_ok());
     let function = result
         .module
         .functions
@@ -577,9 +565,10 @@ fn if_recipe_selected_implicit_fallthrough_uses_header_baseline_phi_input() {
     };
 
     let mut compiler = MirCompiler::with_options(false);
-    let result = compiler
-        .compile_resolved(unit.lowering_input(), Some("if-implicit-receipt.hako"))
-        .expect("selected implicit If physicalization");
+    let result = super::if_recipe_candidate_abort_d2_tests::compile_reuse_source(
+        &mut compiler, "function capability_fixture() { local x = 0\n if true { x = 1 }\n return x }\n static box Main { main() { return 0 } }", "if-implicit-receipt.hako",
+    ).expect("selected implicit If physicalization");
+    assert!(result.verification_result.is_ok());
     let function = result
         .module
         .functions

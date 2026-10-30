@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A4準備: 明示elseの整数PHIと暗黙elseのbaseline PHIを同じ検査条件のまま正規source入口へ移行（test純減11行、production変更なし）。focused 3 PASS、suite 11/11（92.62秒）、cohort失敗名84/1/0不変。Bool PHIの等価sourceは現行入口でvariable-site拒否のため旧testを保持、受理追加は行わない。
 - 退役A4準備: If の明示・暗黙elseでlate draft seal失敗後の状態不変と再利用を既存testへ統合、再利用は正規source入口に変更（test純減49行、production変更なし）。focused PASS、suite 11/11（92.57秒）・cohort失敗名84/1/0不変。旧baselineの統合対象PASS 1名のみ除きFAIL 126名は不変。旧入口のIf PHI検査と共有ownerは保持。
 - 退役A4: 旧 sibling-call 専用 acyclic candidate/publication と4 testを削除（production実コード41行・test 189行純減）。現役の未公開破棄・symbol/arity拒否・commit前module非変更の3 testは保持しPASS（旧testと同一入口ではない）。最適化CLI・all-targets PASS、固定suite 11/11（92.66秒）・cohort失敗名84/1/0不変。旧baselineは退役対象PASS 4名のみ除きFAIL 126名不変。共有draft/recursiveと現行受理形の安全検査は保持、A4残り未完。
 - 退役A: repo内callerのない旧BID FileBox pluginを専用testとともに削除（production実コード132行・test 42行純減）。公開Rust APIのrepo外利用は未確認。最適化CLI・all-targets、固定suite 11/11（93.31秒、実EXE10＋marker）、cohort失敗名84/1/0不変。旧baselineは退役したPASS 1件のみ除きFAIL 126名不変。旧acyclicの残る原子性testは現役側の完全同位が未確認のため保持。

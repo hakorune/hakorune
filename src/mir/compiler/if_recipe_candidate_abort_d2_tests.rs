@@ -128,7 +128,7 @@ fn assert_candidate_abort_reuses_compiler(unit: VerifiedResolvedSourceUnitV1, so
     );
 }
 
-fn compile_reuse_source(
+pub(super) fn compile_reuse_source(
     compiler: &mut MirCompiler,
     text: &str,
     source_file: &str,
