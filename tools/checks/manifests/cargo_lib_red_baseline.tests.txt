@@ -81,7 +81,6 @@ benchmarks::tests::test_benchmark_light
 bid::metadata::tests::test_host_vtable
 bid::metadata::tests::test_plugin_metadata_creation
 bid::plugin_api::tests::test_plugin_handle
-bid::plugins::filebox::tests::test_filebox_plugin
 bid::tlv::tests::test_encode_decode_handle
 bid::tlv::tests::test_encode_decode_primitives
 bid::types::tests::test_arg_type_mapping

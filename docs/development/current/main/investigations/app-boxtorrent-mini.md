@@ -24,6 +24,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 800行超（既存＋今回追加）: `expression_terminal_paths.rs` 1411、`root_home.rs` 914、`home_expression_evaluation.rs` 830、`hako_llvmc_ffi_lifecycle_v4_emit.inc` 813、`home_prefix_source_loop_control.rs` 1201、`source_loop_schedule.rs` 885。行数だけの分割はせず責務で再編する。
 
 ## 残件
+- 退役A: repo内callerのない旧BID FileBox pluginを専用testとともに削除（production実コード132行・test 42行純減）。公開Rust APIのrepo外利用は未確認。最適化CLI・all-targets、固定suite 11/11（93.31秒、実EXE10＋marker）、cohort失敗名84/1/0不変。旧baselineは退役したPASS 1件のみ除きFAIL 126名不変。旧acyclicの残る原子性testは現役側の完全同位が未確認のため保持。
 - 退役候補再照合: 未呼出し `bid/plugins` 218行と normalized-shadow の `exit_reconnector` 204行・`parity_contract` 191行は公開Rust APIで、専用test計12件はいずれも前回全lib実測PASS。現WIPで旧baselineと同条件の全lib実測は8841 PASS・283 FAIL・56 ignored（build 7分30秒、実行75秒、stack 16MiB、1 thread、incremental 0）。旧失敗126名との差は追加166・消失9（7 PASS・2名は移行/改名後PASS。後者は完成Phiの型期待をUnknown→Boolに変更）。追加166の名前別内訳はordinary_new_coseal 74・他semantic package 37・root lifecycle 19・default pipeline 19等。負例の一部は期待拒否に至る前に前提構築で停止するため、旧testと決めて削除しない。条件不明の過去実測360 FAILとは区別。旧baselineは承認された範囲で一覧の順序・hashと退役対象PASS 2名だけ更新、FAIL 126名は不変。実測283・過去360との差は未分類のまま保持。現役guard・repo外利用と安全性を引き続き確認。
 - 退役A: 未接続env route testを現役testへ統合し、旧66行を削除（test純減43行、production増減0、`_for_test`増減0）。route ID/ABI/引数/結果/effectを保持。focused 1 PASS、all-targets check・manifest再生成/check PASS、A4を退避した最適化CLI/runtimeで固定suite 11/11（92.25秒、実EXE10＋marker）、cohort失敗名84/1/0不変。
 - RULES §4/§6 の退役・test整理3箇所は依頼指示どおり適用済み（Git履歴を正本とする）。caller-zeroの塊単位で安全性検査とtest純増なしを確認する。

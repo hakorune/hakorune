@@ -7,7 +7,6 @@ pub mod generic_plugin_box;
 pub mod loader;
 pub mod metadata;
 pub mod plugin_api;
-pub mod plugins;
 pub mod tlv;
 pub mod types;
 
