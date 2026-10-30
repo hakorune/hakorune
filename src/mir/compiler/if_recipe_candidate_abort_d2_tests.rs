@@ -204,11 +204,43 @@ fn assert_candidate_abort_reuses_compiler(unit: VerifiedResolvedSourceUnitV1, so
     assert!(compiler.builder.current_function_name().is_none());
     assert!(compiler.builder.current_function_entry_block().is_none());
 
-    let result = compiler
-        .compile_resolved(unit.lowering_input(), Some(source_file))
+    let result = compile_reuse_source(
+        &mut compiler,
+        "function if_abort_d2() { local x = 0\n if true { x = 1 }\n return x }\n static box Main { main() { return 0 } }",
+        source_file,
+    )
         .expect("same compiler must accept a fresh If request");
     assert!(result.verification_result.is_ok());
     assert!(result.module.functions.contains_key("if_abort_d2/0"));
+    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function("if_abort_d2", 0);
+    assert_eq!(
+        result.module.canonical_callable_definition_symbol(&key),
+        Some("if_abort_d2/0")
+    );
+}
+
+fn compile_reuse_source(
+    compiler: &mut MirCompiler,
+    text: &str,
+    source_file: &str,
+) -> Result<crate::mir::compiler::MirCompileResult, String> {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        text,
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("reuse source parses");
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+        crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("reuse source transform")
+    else {
+        panic!("reuse source must remain source-backed");
+    };
+    compiler.compile_normal(super::NormalCompileRequestV1::for_mir_mode_callable_source(
+        source,
+        Some(source_file),
+        std::collections::HashMap::new(),
+    ))
 }
 
 fn assert_call_candidate_abort_reuses_compiler(
