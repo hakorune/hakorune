@@ -6747,7 +6747,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_primary_session",
-      "line": 154,
+      "line": 153,
       "path": "src/mir/builder/module_lowering_invocation.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6756,17 +6756,8 @@
       "candidate_kind": "display_formatter",
       "display_target": "ModuleLoweringPortChildErrorV1",
       "function": "Display::fmt",
-      "line": 162,
+      "line": 161,
       "path": "src/mir/builder/module_lowering_invocation.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "RootCompletionTransitionErrorV1",
-      "function": "Display::fmt",
-      "line": 24,
-      "path": "src/mir/builder/module_lowering_invocation_state.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -26185,10 +26176,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 1316,
+        "candidate": 1315,
         "rejected": 1018
       },
-      "surface_count": 2335
+      "surface_count": 2334
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

@@ -184,7 +184,6 @@ def main() -> int:
     module_shell = read(MODULE_SHELL)
     invocation_drain = read(INVOCATION_DRAIN)
     route_matrix = read(ROUTE_MATRIX)
-    invocation_state = read(INVOCATION_STATE)
     builder = read(BUILDER)
     method_index = read(METHOD_INDEX)
     compilation = read(COMPILATION)
@@ -236,15 +235,13 @@ def main() -> int:
     ):
         require(route_matrix, fragment, "HEADERPORT0 I0-SHELL-I0-P0 route matrix")
     for fragment in (
-        "RootCompletionStateV1",
-        "ModuleLoweringInvocationStateV1",
         "shell: ModuleLoweringShellV1",
         "collector: ModuleDraftCollectorV1",
-        "root: RootCompletionStateV1",
-        "state_owns_empty_shell_and_collector_without_exposing_function_map",
-        "state_parts_are_consumed_together_at_the_drain_boundary",
+        "fresh_invocation_exposes_the_same_empty_prefix_as_a_new_module",
+        "read_borrow_ends_before_prepared_admission_and_updates_the_same_prefix",
+        "rejected_post_read_admission_keeps_the_collected_prefix_unchanged",
     ):
-        require(invocation_state, fragment, "HEADERPORT0 I0-STATE0-S0 vocabulary")
+        require(invocation, fragment, "invocation shell/collector safety")
     for fragment in (
         "annotate_call_result_from_func_name_with_lookup",
         "FunctionSignatureLookupV1",
@@ -304,24 +301,13 @@ def main() -> int:
             "ModuleLoweringInvocationStateV1",
             f"HEADERPORT0 I0-STATE0-S0 disconnected state consumer {path.relative_to(ROOT)}",
         )
-    state_consumers = []
-    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (INVOCATION_STATE,) or path.name.endswith("_tests.rs"):
-            continue
-        if "ModuleLoweringInvocationStateV1" in read(path):
-            state_consumers.append(path)
-    expected_state_consumers = {INVOCATION}
-    if set(state_consumers) != expected_state_consumers:
-        actual = sorted(str(path.relative_to(ROOT)) for path in state_consumers)
-        raise AssertionError(
-            f"STATE0-I0 state consumers drifted: expected remaining candidate owner, actual={actual}"
-        )
-    for path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE):
-        forbid(
-            read(path),
-            "current_module",
-            f"STATE0-G0 current_module fallback in state seam {path.relative_to(ROOT)}",
-        )
+    state_consumers = [path for path in (ROOT / "src/mir/builder").rglob("*.rs")
+                       if not path.name.endswith("_tests.rs")
+                       and "ModuleLoweringInvocationStateV1" in read(path).split("#[cfg(test)]", 1)[0]]
+    if state_consumers:
+        raise AssertionError(f"retired STATE0 has callers: {state_consumers}")
+    for path in (INVOCATION, INVOCATION_DRAIN):
+        forbid(read(path), "current_module", f"STATE0-G0 fallback in {path.relative_to(ROOT)}")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE, DRAINED_CANDIDATE_P0) or path.name.endswith(
             "_tests.rs"

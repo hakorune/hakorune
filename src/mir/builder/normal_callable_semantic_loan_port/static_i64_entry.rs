@@ -275,7 +275,7 @@ mod tests {
                             );
                         });
                         if !missing_route && !duplicate_collector && !pending_negatives {
-                            let (_, collector, _) = invocation.into_state().into_parts();
+                            let (_, collector) = invocation.into_parts();
                             let function = collector
                                 .into_single_observation_draft("SizeClassBox.size_to_bin/1")
                                 .unwrap();

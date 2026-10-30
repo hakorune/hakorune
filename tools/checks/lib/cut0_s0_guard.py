@@ -24,7 +24,6 @@ def main() -> int:
     files = {
         name: (SRC / name).read_text()
         for name in (
-            "module_lowering_invocation_state.rs",
             "module_invocation_drain.rs",
         )
     }
@@ -32,9 +31,10 @@ def main() -> int:
         if len(text.splitlines()) >= 800:
             raise AssertionError(f"CUT0-S0 source must remain below 800 lines: {name}")
 
-    require(files["module_lowering_invocation_state.rs"], "capture_main", "root capture transition")
-    require(files["module_lowering_invocation_state.rs"], "complete_root", "root complete transition")
-    require(files["module_lowering_invocation_state.rs"], "fn from_state", "complete state handoff")
+    root = (SRC / "root_body_completion.rs").read_text()
+    require(root, "begin_root_body", "live root capture transition")
+    require(root, "seal_root_body", "live root completion transition")
+    require((SRC / "raw_root_physical/root_batch_terminal.rs").read_text(), "prepare_raw_root_batch", "live root batch admission")
     require(files["module_invocation_drain.rs"], "ConditionFnPolicyV1", "live condition policy")
     require((SRC / "raw_root_physical/drain_terminal.rs").read_text(), "published_shell_rejection_is_owned_by_drain0", "raw drain rejection fixture")
 

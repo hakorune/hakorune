@@ -16,7 +16,6 @@ use super::module_draft_collector::{
     PreparedFunctionDraftAdmissionV1,
 };
 use super::module_lowering_invocation_access::ModuleLoweringInvocationAccessPortV1;
-use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
 use super::module_lowering_shell::ModuleLoweringShellV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
@@ -418,7 +417,8 @@ impl ModuleLoweringPortV1<'_> {
 /// child terminal; production collection remains an I0 responsibility.
 pub(in crate::mir::builder) struct ModuleLoweringInvocationV1<'builder> {
     builder: &'builder mut MirBuilder,
-    state: ModuleLoweringInvocationStateV1,
+    shell: ModuleLoweringShellV1,
+    collector: ModuleDraftCollectorV1,
     _seal: ModuleLoweringInvocationSealV1,
 }
 
@@ -451,7 +451,8 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
     ) -> Self {
         Self {
             builder,
-            state: ModuleLoweringInvocationStateV1::new(shell, collector),
+            shell,
+            collector,
             _seal: ModuleLoweringInvocationSealV1,
         }
     }
@@ -467,7 +468,7 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
     ) -> R {
         let builder = &mut *self.builder;
         let mut port = ModuleLoweringPortV1 {
-            collector: self.state.collector_mut(),
+            collector: &mut self.collector,
             _seal: ModuleLoweringPortSealV1,
         };
         lower(builder, &mut port)
@@ -484,7 +485,7 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         ) -> R,
     ) -> R {
         let builder = &mut *self.builder;
-        let (shell, collector) = self.state.split_shell_collector_mut();
+        let (shell, collector) = (&mut self.shell, &mut self.collector);
         let mut access = ModuleLoweringInvocationAccessPortV1::new(shell, collector);
         lower(builder, &mut access)
     }
@@ -512,13 +513,12 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         expected_arity: usize,
         policy: DraftPublicationPolicyV1,
     ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
-        self.state
-            .collector_mut()
+        self.collector
             .prepare_admission(key, expected_symbol, expected_arity, policy)
     }
 
-    pub(in crate::mir::builder) fn into_state(self) -> ModuleLoweringInvocationStateV1 {
-        self.state
+    pub(in crate::mir::builder) fn into_parts(self) -> (ModuleLoweringShellV1, ModuleDraftCollectorV1) {
+        (self.shell, self.collector)
     }
 }
 
@@ -527,7 +527,8 @@ mod tests {
     use super::{ModuleLoweringInvocationV1, ResolvedChildDraftAdmissionV1};
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::module_draft_collector::{
-        DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
+        CompletedDraftSignatureViewV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
+        ModuleDraftCollectorV1,
     };
     use crate::mir::resolved_semantics::{
         FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, VerifiedResolvedFunctionV1,
@@ -626,6 +627,8 @@ mod tests {
     fn fresh_invocation_exposes_the_same_empty_prefix_as_a_new_module() {
         let mut builder = MirBuilder::new();
         let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+        assert!(!invocation.shell.has_published_functions());
+        assert_eq!(invocation.collector.symbol_count(), 0);
 
         invocation.with_header_port(|_builder, headers| {
             assert_eq!(headers.symbol_count(), 0);

@@ -352,8 +352,6 @@ mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
 mod module_lowering_invocation_reentrant_tests;
 #[allow(dead_code)]
-mod module_lowering_invocation_state; // HEADERPORT0 I0-STATE0-S0 disconnected seam
-#[allow(dead_code)]
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
 #[cfg(test)]
 mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure

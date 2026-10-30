@@ -404,7 +404,7 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
     })
     .expect("selected loan");
     if let Some(path) = std::env::var_os("HAKO_INSPECT_SELECTED_DYNAMIC_PRODUCER_DIR") {
-        let (_shell, collector, _root) = invocation.into_state().into_parts();
+        let (_shell, collector) = invocation.into_parts();
         let helper = collector
             .into_single_observation_draft(observation_fixture::FUNCTION)
             .expect("one selected Dynamic observation draft");
