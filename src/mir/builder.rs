@@ -237,10 +237,6 @@ mod module_draft_collector_receipt_tests; // ROUTEINV-P0a-RECEIPT-S0 fixtures
 #[cfg(test)]
 mod module_finalization_candidate_p0; // HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 matrix
 #[allow(dead_code)]
-mod module_finalization_split; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0 input
-#[cfg(test)]
-mod module_finalization_split_p0; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 fixtures
-#[allow(dead_code)]
 mod module_invocation_brand0; // CUT0-I0-ROOT0-BRAND0 real owner
 #[cfg(test)]
 mod module_invocation_brand_p0; // CUT0-I0-ID0-P0 fixtures

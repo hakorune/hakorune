@@ -26,9 +26,7 @@ def main() -> int:
         for name in (
             "module_lowering_invocation_state.rs",
             "module_invocation_drain.rs",
-            "module_finalization_split.rs",
             "module_invocation_drain_s0_tests.rs",
-            "module_finalization_split_p0.rs",
         )
     }
     for name, text in files.items():
@@ -40,10 +38,9 @@ def main() -> int:
     require(files["module_lowering_invocation_state.rs"], "fn from_state", "complete state handoff")
     require(files["module_invocation_drain.rs"], "prepare_complete", "same-state drain admission")
     require(files["module_invocation_drain.rs"], "drain_candidate", "typed drain terminal")
-    require(files["module_finalization_split.rs"], "DrainedModuleFinalizationInputV1", "post-drain input")
-    require(files["module_finalization_split.rs"], "fn into_parts", "consume-once boundary")
     require(files["module_invocation_drain_s0_tests.rs"], "without_rebuilding_state", "same-state fixture")
-    require(files["module_finalization_split_p0.rs"], "post_drain_input_consumes_both_owners_once", "consume-once fixture")
+
+    require((SRC / "raw_root_environment_install.rs").read_text(), "root_batch_terminal_consumes_body_owner_without_publishing_shell", "raw drain witness fixture")
 
     state = STATE.read_text()
     card = CARD.read_text()

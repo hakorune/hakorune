@@ -41,8 +41,6 @@ SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
 DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
-MODULE_FINAL = ROOT / "src/mir/builder/module_finalization_split.rs"
-MODULE_FINAL_P0 = ROOT / "src/mir/builder/module_finalization_split_p0.rs"
 MODULE_FINAL_CANDIDATE_P0 = ROOT / "src/mir/builder/module_finalization_candidate_p0.rs"
 MODULE_INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 MODULE_INVOCATION_DRAIN_S0_TESTS = ROOT / "src/mir/builder/module_invocation_drain_s0_tests.rs"
@@ -87,8 +85,6 @@ def main() -> int:
     shell_facts_p0 = SHELL_FACTS_P0.read_text()
     drained_candidate = DRAINED_CANDIDATE.read_text()
     drained_candidate_p0 = DRAINED_CANDIDATE_P0.read_text()
-    module_final = MODULE_FINAL.read_text()
-    module_final_p0 = MODULE_FINAL_P0.read_text()
     module_final_candidate_p0 = MODULE_FINAL_CANDIDATE_P0.read_text()
     builder_mod = BUILDER_MOD.read_text()
     if "mod module_lowering_access_port" in builder_mod:
@@ -128,10 +124,6 @@ def main() -> int:
         raise AssertionError("DRAIN0-S0 source must remain below 800 lines")
     if len(drained_candidate_p0.splitlines()) >= 800:
         raise AssertionError("DRAIN0-P0 fixture source must remain below 800 lines")
-    if len(module_final.splitlines()) >= 800:
-        raise AssertionError("MODULEFINAL0-SPLIT0 source must remain below 800 lines")
-    if len(module_final_p0.splitlines()) >= 800:
-        raise AssertionError("MODULEFINAL0-SPLIT0-P0 fixture source must remain below 800 lines")
     if len(module_final_candidate_p0.splitlines()) >= 800:
         raise AssertionError("MODULEFINAL0-CANDIDATE0-P0 source must remain below 800 lines")
 
@@ -421,19 +413,10 @@ def main() -> int:
         "duplicate_inventory_is_rejected_before_drain_candidate_creation",
     ):
         require(drained_candidate_p0, fragment, "DRAIN0-P0 failure matrix fixtures")
-    for fragment in (
-        "DrainedModuleFinalizationInputV1",
-        "into_parts",
-        "post-drain finalization input",
-    ):
-        require(module_final, fragment, "MODULEFINAL0-SPLIT0 source product")
-    for fragment in (
-        "post_drain_input_co_seals_candidate_and_declaration_facts",
-        "post_drain_input_consumes_both_owners_once",
-        "post_drain_input_preserves_all_declaration_lanes_without_refresh",
-        "post_drain_input_keeps_root_value_witness_separate_from_module_facts",
-    ):
-        require(module_final_p0, fragment, "MODULEFINAL0-SPLIT0 boundary fixtures")
+    raw_handoff = (ROOT / "src/mir/builder/raw_root_environment_install.rs").read_text()
+    facts_tests = (ROOT / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs").read_text()
+    require(raw_handoff, "root_batch_terminal_consumes_body_owner_without_publishing_shell", "raw root witness fixture")
+    require(facts_tests, "prepared_shell_commit_moves_all_four_declaration_lanes_once", "declaration lane fixture")
     for fragment in (
         "ModuleFinalizationFailureStageV1",
         "ModuleFinalizationCandidateDispositionV1",
@@ -478,8 +461,6 @@ def main() -> int:
             SHELL_FACTS_P0,
             DRAINED_CANDIDATE,
             DRAINED_CANDIDATE_P0,
-            MODULE_FINAL,
-            MODULE_FINAL_P0,
             MODULE_FINAL_CANDIDATE_P0,
             MODULE_INVOCATION_DRAIN,
             ROOT_BATCH_COMMIT,
@@ -560,8 +541,6 @@ def main() -> int:
     require(builder_mod, "mod module_declaration_facts_p0;", "SHELLFACT0-P0 fixture registration")
     require(builder_mod, "mod drained_module_candidate;", "DRAIN0-S0 module registration")
     require(builder_mod, "mod drained_module_candidate_p0;", "DRAIN0-P0 fixture registration")
-    require(builder_mod, "mod module_finalization_split;", "MODULEFINAL0-SPLIT0 module registration")
-    require(builder_mod, "mod module_finalization_split_p0;", "MODULEFINAL0-SPLIT0 fixture registration")
     require(builder_mod, "mod module_finalization_candidate_p0;", "MODULEFINAL0-CANDIDATE0-P0 registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):

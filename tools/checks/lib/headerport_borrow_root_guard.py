@@ -29,7 +29,7 @@ def verify_borrow_root_p0(
     batch_path = root / "src/mir/builder/root_draft_batch.rs"
     facts_path = root / "src/mir/builder/module_declaration_facts.rs"
     drain_path = root / "src/mir/builder/module_invocation_drain.rs"
-    final_path = root / "src/mir/builder/module_finalization_split.rs"
+    final_path = root / "src/mir/builder/raw_root_physical/drain_terminal.rs"
     batch_commit_path = root / "src/mir/builder/module_draft_collector/root_batch.rs"
     batch_commit_proof_path = root / "src/mir/builder/root_draft_batch_commit_p0.rs"
     fact_commit_path = root / "src/mir/builder/module_lowering_shell/declaration_fact_commit.rs"
@@ -68,7 +68,7 @@ def verify_borrow_root_p0(
         "PreparedRootDraftBatchV1",
         "SealedModuleDeclarationFactsV1",
         "PreparedInvocationDrainV1",
-        "DrainedModuleFinalizationInputV1",
+        "RawDrainedPhysicalV1",
     ):
         require(owners, fragment, "BORROW-P0-ROOT existing owner")
     batch_commit = batch_commit_path.read_text()
@@ -119,7 +119,6 @@ def verify_borrow_root_p0(
         root / "src/mir/builder/root_draft_batch_p0.rs",
         root / "src/mir/builder/module_declaration_facts_p0.rs",
         root / "src/mir/builder/drained_module_candidate_p0.rs",
-        root / "src/mir/builder/module_finalization_split_p0.rs",
         root / "src/mir/builder/module_invocation_drain.rs",
         root / "src/mir/builder/module_invocation_drain_s0_tests.rs",
         batch_commit_path,
@@ -168,7 +167,7 @@ def verify_borrow_root_p0(
         ),
         (
             final_path.read_text(),
-            "pub(in crate::mir::builder) struct DrainedModuleFinalizationInputV1",
+            "pub(in crate::mir) struct RawDrainedPhysicalV1",
             "post-drain finalization owner",
         ),
     ):

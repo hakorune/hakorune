@@ -581,14 +581,68 @@ mod tests {
             .into_raw_root_batch_input()
             .prepare_raw_root_batch(token)
             .unwrap();
-        assert!(batch
+        let drained = batch
             .prepare_raw_drain(
                 crate::mir::raw_physical_drain::RawPhysicalDrainRouteV1::Script,
                 crate::mir::raw_physical_drain::RawPhysicalCallableMainDispositionV1::NotSelected,
             )
-            .is_ok());
-    }
+            .unwrap()
+            .drain();
+        assert_eq!(
+            drained.witness.root().root_body().result(),
+            RootBodyResultV1::NoValue
+        );
+        let module = drained.candidate.finalize().into_postprocess_module();
+        assert!(module.metadata.user_box_decls.is_empty());
+        assert!(module.metadata.user_box_field_decls.is_empty());
+        assert!(module.metadata.record_decls.is_empty());
+        assert!(module.metadata.enum_decls.is_empty());
 
+        use crate::mir::raw_root_body_recipe::{
+            RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodySourceSiteV1,
+        };
+        let (token, installed) = self::installed(RawRootSourceRouteV1::Script);
+        let site = |path: &[usize]| RawRootBodySourceSiteV1::new(path, crate::ast::Span::unknown());
+        let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
+            crate::mir::raw_root_body_recipe::RawRootBodyEntryContractV1::script(),
+            vec![RawLinearScalarStmtV1::Expr {
+                expression: RawLinearScalarExprV1::Literal {
+                    value: crate::ast::LiteralValue::Integer(9),
+                    site: site(&[0, 0]),
+                },
+                site: site(&[0]),
+            }]
+            .into_boxed_slice(),
+        )
+        .unwrap();
+        let (session, physical, draft, completion, exit) =
+            installed.drive_root_body(recipe).unwrap().into_parts();
+        let RootBodyResultV1::Value(value) = completion.result() else {
+            panic!("literal must carry a root value")
+        };
+        let input = super::super::raw_root_physical::root_batch_terminal::RawRootBatchPhysicalInputV1 {
+            session,
+            physical,
+            draft,
+            completion,
+            exit,
+        };
+        let drained = input
+            .prepare_raw_root_batch(token)
+            .unwrap()
+            .prepare_raw_drain(
+                crate::mir::raw_physical_drain::RawPhysicalDrainRouteV1::Script,
+                crate::mir::raw_physical_drain::RawPhysicalCallableMainDispositionV1::NotSelected,
+            )
+            .unwrap()
+            .drain();
+        assert_eq!(
+            drained.witness.root().root_body().result(),
+            RootBodyResultV1::Value(value)
+        );
+        let module = drained.candidate.finalize().into_postprocess_module();
+        assert!(module.metadata.record_decls.is_empty());
+    }
     #[test]
     fn root_batch_rejects_legacy_main_slash_zero_before_any_commit() {
         let (token, installed) = installed(RawRootSourceRouteV1::Script);
