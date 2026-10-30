@@ -15,7 +15,6 @@ pub mod vm {
 }
 // Core backend modules
 pub mod abi_util; // Shared ABI/utility helpers
-pub mod gc_helpers;
 #[cfg(feature = "vm-reference")]
 pub mod mir_interpreter;
 pub mod runtime_type_spec; // Runtime type spec (semantic SSOT for type matching)

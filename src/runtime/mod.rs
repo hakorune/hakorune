@@ -73,7 +73,6 @@ pub mod text_formal_residence;
 pub mod thread_capability;
 pub mod thread_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
-pub mod type_meta;
 pub mod type_registry; // Versioned generation-checked callable Text formal lane
                        // Deprecation warnings with warn-once guards.
 pub mod unified_registry;
