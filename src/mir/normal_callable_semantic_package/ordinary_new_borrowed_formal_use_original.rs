@@ -153,7 +153,8 @@ impl OriginalFormalUseSourceV1 {
     fn observe_scalar_expression_use_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>)
         -> Result<bool, BorrowedFormalUseDraftErrorV1> {
         use crate::mir::resolved_value_profile::expression_plan::{
-            assignment_expression_source_plan_v1, condition_expression_source_plan_v1, ExpressionNodeSourceV1,
+            assignment_expression_source_plan_v1, condition_expression_source_plan_v1,
+            local_expression_source_plan_v1, ExpressionNodeSourceV1,
         };
         if self.roots.is_empty() { return Ok(false); }
         let reject = |_| BorrowedFormalUseDraftErrorV1::SourceIdentity;
@@ -165,7 +166,9 @@ impl OriginalFormalUseSourceV1 {
             .map(|assignment| assignment_expression_source_plan_v1(&ledger, shape, assignment));
         let conditions = input.function().if_region_sites()
             .map(|site| condition_expression_source_plan_v1(input, site));
-        for plan in assignments.chain(conditions) {
+        let initializers = input.function().expression_source().initializers().filter(|row| row.initializer_site().is_some())
+            .map(|row| local_expression_source_plan_v1(&ledger, Some(shape), row));
+        for plan in assignments.chain(conditions).chain(initializers) {
             let plan = plan.map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
             for (_, node) in plan.nodes_outside_calls() {
                 let ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() else { continue };

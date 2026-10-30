@@ -269,7 +269,7 @@ impl Projector<'_> {
                 Node::Literal(Literal::String(value)) if value_class == LoopValueClassV2::Text => {
                     let result = self.value(value_class); self.operation(block, source, LoopOperationV2::ConstText { result, value: value.to_string() }); result
                 }
-                Node::Binary(binary) if matches!(binary.operator(), Binary::Add | Binary::Multiply | Binary::Divide | Binary::Modulo)
+                Node::Binary(binary) if matches!(binary.operator(), Binary::Add | Binary::Subtract | Binary::Multiply | Binary::Divide | Binary::Modulo)
                     && value_class == LoopValueClassV2::I64 => {
                     let op = integer_operation_v2(frame, node).ok_or_else(|| reject("add-domain"))?;
                     let left = by_site(binary.lhs())?; let right = by_site(binary.rhs())?;

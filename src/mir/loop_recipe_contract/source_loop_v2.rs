@@ -265,6 +265,7 @@ pub(super) fn integer_operation_v2(frame: &Evaluation, node: usize) -> Option<Lo
     if loans.next().is_some() || !Rc::ptr_eq(loan.source(), frame.source()) { return None; }
     match loan.integer_operator_v1()? {
         crate::mir::BinaryOp::Add => Some(LoopBinaryI64OpV2::Add),
+        crate::mir::BinaryOp::Sub => Some(LoopBinaryI64OpV2::Sub),
         crate::mir::BinaryOp::Mul => Some(LoopBinaryI64OpV2::Mul),
         crate::mir::BinaryOp::Div => Some(LoopBinaryI64OpV2::Div),
         crate::mir::BinaryOp::Mod => Some(LoopBinaryI64OpV2::Mod),
