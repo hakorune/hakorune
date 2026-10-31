@@ -119,10 +119,14 @@ impl FinalizedRootSourceHandoffV1 {
             return Ok(None);
         };
         let moves: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.move_initializer_v1()).collect();
-        let shared: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.shared_move_initializer_v1()).collect();
-        let clones: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.shared_clone_initializer_v1()).collect();
-        let fresh: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.shared_fresh_initializer_v1()).collect();
-        if moves.is_empty() && shared.is_empty() && clones.is_empty() && fresh.is_empty() { return Ok(None); }
+        use crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1 as P;
+        let shared_rows: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.shared_initializer_v1()).collect();
+        let existing = |wanted_clone: bool| shared_rows.iter().filter_map(move |(_, payload, _)| match payload {
+            P::Existing { acquisition, is_clone, .. } if *is_clone == wanted_clone => Some(acquisition), _ => None,
+        }).collect::<Vec<_>>();
+        let (shared, clones) = (existing(false), existing(true));
+        let fresh: Vec<_> = shared_rows.iter().filter_map(|(_, payload, _)| match payload { P::Fresh { site } => Some(site), _ => None }).collect();
+        if moves.is_empty() && shared_rows.is_empty() { return Ok(None); }
         self.ledger.with_finished_projection(owner, |symbol, projection| {
             if symbol != function.signature.name { return Err(freeze("move-verifier/function-drift")); }
             let commits = self.ledger.local_commits.borrow();
@@ -131,17 +135,17 @@ impl FinalizedRootSourceHandoffV1 {
                     return Err(freeze("move-verifier/acquisition-missing"));
                 }
             }
-            for (_, _, acquisition, _) in &shared {
+            for acquisition in &shared {
                 if !matches!(commits.get(*acquisition), Some(LocalCommitV1::Ordinary(_))) {
                     return Err(freeze("shared-verifier/acquisition-missing"));
                 }
             }
-            for (_, _, acquisition, _) in &clones {
+            for acquisition in &clones {
                 if !matches!(commits.get(*acquisition), Some(LocalCommitV1::Shared(_))) {
                     return Err(freeze("shared-verifier/handle-acquisition-missing"));
                 }
             }
-            for (_, site, _) in &fresh {
+            for site in &fresh {
                 if !matches!(commits.get(*site), Some(LocalCommitV1::Result(NewResultCommitV1 {
                     emission: NewEmissionProgress::Emitted { progress: EmittedLocalProgress::Checked { .. }, .. }, ..
                 }))) {
@@ -150,7 +154,7 @@ impl FinalizedRootSourceHandoffV1 {
             }
             let mut aliases = std::collections::BTreeMap::new();
             let mut initially_published = std::collections::BTreeSet::new();
-            for (_, site, _) in &fresh {
+            for site in &fresh {
                 let Some(LocalCommitV1::Result(row)) = commits.get(*site) else { return Err(freeze("shared-verifier/fresh-acquisition-missing")); };
                 if row.birth_target.is_none() && row.birth_abi.is_none() {
                     let NewEmissionProgress::Emitted { result, .. } = &row.emission else { return Err(freeze("shared-verifier/fresh-acquisition-missing")); };

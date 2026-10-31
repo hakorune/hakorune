@@ -178,61 +178,51 @@ impl RawInvocationChildPortV1<'_, '_> {
         let (Some(claims), Some(state)) = (self.ordinary_new_claim_ledger.clone(), self.callable_ledger.clone()) else { return Ok(None) };
         let site = self.current_callable_site_v1("initializer-expression/statement-site")?;
         let owner = state.borrow().owner();
-        if let Some((plan, payload_site, prior_homes)) = claims.shared_fresh_initializer_v1(owner, &site)? {
-            use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
-            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
-                return Err(freeze("shared-fresh/exact-source-required"));
+        if let Some((plan, payload_source, prior_homes)) = claims.shared_initializer_v1(owner, &site)? {
+            use crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1 as P;
+            let (from, acquisition, is_clone) = match payload_source {
+                P::Fresh { site: payload_site } => {
+                    use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
+                    let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+                        return Err(freeze("shared-fresh/exact-source-required"));
+                    };
+                    let ASTNode::Local { initial_values, .. } = statement else { return Err(freeze("shared-fresh/local-source")); };
+                    let Some(unary) = initial_values.get(ordinal as usize).and_then(Option::as_deref)
+                        else { return Err(freeze("shared-fresh/unary-source")); };
+                    let ASTNode::UnaryOp { operator: crate::ast::UnaryOperator::Shared, operand, .. } = unary
+                        else { return Err(freeze("shared-fresh/unary-source")); };
+                    let initializer = plan.root().initializer().ok_or_else(|| freeze("shared-fresh/source-missing"))?;
+                    if context.site() != Some(plan.nodes()[0].site().node())
+                        || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal) {
+                        return Err(freeze("shared-fresh/source-drift"));
+                }
+                    let binding = initializer.binding();
+                    let child = context.child_expression(unary, ExprChildRoleV1::UnaryOperand)?;
+                    if child.site() != Some(payload_site.site().node()) { return Err(freeze("shared-fresh/payload-site")); }
+                    let payload = self.with_prepared_child_source_v1(
+                        super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(child),
+                        |port| lower_raw_expression_with_recursion_guard_v1(builder, port, (**operand).clone()),
+                    )?;
+                    let shared_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, plan.nodes()[0].site().clone());
+                    let pending = super::ordinary_new_admission::selected::initializer_expression::emit_shared_fresh_initializer_v1(
+                        builder, &mut state.borrow_mut(), &claims, ordinal, plan, payload_site, shared_site, binding, prior_homes, payload)?;
+                    return Ok(Some(pending));
+                }
+                P::Existing { from, acquisition, is_clone } => (from, acquisition, is_clone),
             };
-            let ASTNode::Local { initial_values, .. } = statement else { return Err(freeze("shared-fresh/local-source")); };
-            let Some(unary) = initial_values.get(ordinal as usize).and_then(Option::as_deref)
-                else { return Err(freeze("shared-fresh/unary-source")); };
-            let ASTNode::UnaryOp { operator: crate::ast::UnaryOperator::Shared, operand, .. } = unary
-                else { return Err(freeze("shared-fresh/unary-source")); };
-            let initializer = plan.root().initializer().ok_or_else(|| freeze("shared-fresh/source-missing"))?;
-            if context.site() != Some(plan.nodes()[0].site().node())
-                || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal) {
-                return Err(freeze("shared-fresh/source-drift"));
-            }
-            let binding = initializer.binding();
-            let child = context.child_expression(unary, ExprChildRoleV1::UnaryOperand)?;
-            if child.site() != Some(payload_site.site().node()) { return Err(freeze("shared-fresh/payload-site")); }
-            let payload = self.with_prepared_child_source_v1(
-                super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(child),
-                |port| lower_raw_expression_with_recursion_guard_v1(builder, port, (**operand).clone()),
-            )?;
-            let shared_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, plan.nodes()[0].site().clone());
-            let pending = super::ordinary_new_admission::selected::initializer_expression::emit_shared_fresh_initializer_v1(
-                builder, &mut state.borrow_mut(), &claims, ordinal, plan, payload_site, shared_site, binding, prior_homes, payload)?;
-            return Ok(Some(pending));
-        }
-        if let Some((plan, from, acquisition, prior_homes)) = claims.shared_move_initializer_v1(owner, &site)? {
             let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
                 return Err(freeze("shared-initializer/exact-source-required"));
             };
+            let read_node = plan.nodes()[if is_clone { 0 } else { 2 }].site().node();
             let initializer = plan.root().initializer().ok_or_else(|| freeze("shared-initializer/source-missing"))?;
             if context.site() != Some(plan.nodes()[0].site().node())
                 || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)
-                || state.borrow().source_read_binding(plan.nodes()[2].site().node())? != from {
+                || state.borrow().source_read_binding(read_node)? != from {
                 return Err(freeze("shared-initializer/source-drift"));
             }
-            let value = state.borrow_mut().read_variable(plan.nodes()[2].site().node())?;
+            let value = state.borrow_mut().read_variable(read_node)?;
             let pending = super::ordinary_new_admission::selected::initializer_expression::emit_shared_initializer_v1(
-                builder, &mut state.borrow_mut(), &claims, ordinal, plan, from, acquisition, prior_homes, value, false)?;
-            return Ok(Some(pending));
-        }
-        if let Some((plan, from, acquisition, prior_homes)) = claims.shared_clone_initializer_v1(owner, &site)? {
-            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
-                return Err(freeze("shared-clone/exact-source-required"));
-            };
-            let initializer = plan.root().initializer().ok_or_else(|| freeze("shared-clone/source-missing"))?;
-            if context.site() != Some(plan.nodes()[0].site().node())
-                || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)
-                || state.borrow().source_read_binding(plan.nodes()[0].site().node())? != from {
-                return Err(freeze("shared-clone/source-drift"));
-            }
-            let value = state.borrow_mut().read_variable(plan.nodes()[0].site().node())?;
-            let pending = super::ordinary_new_admission::selected::initializer_expression::emit_shared_initializer_v1(
-                builder, &mut state.borrow_mut(), &claims, ordinal, plan, from, acquisition, prior_homes, value, true)?;
+                builder, &mut state.borrow_mut(), &claims, ordinal, plan, from, acquisition, prior_homes, value, is_clone)?;
             return Ok(Some(pending));
         }
         if let Some((plan, from, _acquisition)) = claims.move_initializer_v1(owner, &site)? {

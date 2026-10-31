@@ -9,6 +9,18 @@ fn source(body: &str) -> String {
     format!("box Page {{}} static box Main {{ main() {{ {body} }} }}")
 }
 
+/// Existing-payload Shared rows (`is_clone` selects clone vs move) of one Home flow.
+fn existing_shared_rows(flow: &crate::mir::resolved_semantics::home_new_prefix::RootHomeFlow, is_clone: bool) -> Vec<(
+    &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    crate::mir::resolved_semantics::BindingRefV1, &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1])> {
+    use crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1 as P;
+    flow.expression_plans().iter().filter_map(|plan| plan.shared_initializer_v1()).filter_map(|(source, payload, prior)| match payload {
+        P::Existing { from, acquisition, is_clone: row } if *row == is_clone => Some((source, *from, acquisition, prior)),
+        _ => None,
+    }).collect()
+}
+
 #[test]
 fn explicit_move_preserves_the_original_home_order_and_source() {
     let package = issue(&source(
@@ -36,7 +48,7 @@ fn shared_move_retains_original_payload_and_fault_homes() {
         .expect("Shared retains the original source and pre-operation Homes");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().expect("root Home flow");
-    let rows = flow.expression_plans().iter().filter_map(|plan| plan.shared_move_initializer_v1()).collect::<Vec<_>>();
+    let rows = existing_shared_rows(flow, false);
     let [(plan, from, acquisition, prior)] = rows.as_slice() else { panic!("one Shared source plan") };
     let destination = plan.root().initializer().unwrap().binding();
     assert_eq!(prior.len(), 2);
@@ -49,7 +61,7 @@ fn shared_move_retains_original_payload_and_fault_homes() {
     let alias = issue(&source("local a = new Page() local alias = a local b = Shared(move a) return 30"))
         .expect("inspect the selected source flow");
     let alias_flow = alias.ordinary_new_claim_ledger.root_completion_for_test().cleanup().root_flow().unwrap();
-    assert!(alias_flow.expression_plans().iter().all(|plan| plan.shared_move_initializer_v1().is_none()),
+    assert!(alias_flow.expression_plans().iter().all(|plan| plan.shared_initializer_v1().is_none()),
         "a live alias cannot be silently converted into Shared");
 }
 
@@ -59,7 +71,7 @@ fn shared_clone_adds_a_distinct_home_with_original_handle_on_fault() {
         .expect("Shared clone is source selected");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().unwrap();
-    let rows = flow.expression_plans().iter().filter_map(|plan| plan.shared_clone_initializer_v1()).collect::<Vec<_>>();
+    let rows = existing_shared_rows(flow, true);
     let [(plan, from, acquisition, prior)] = rows.as_slice() else { panic!("one Shared clone plan") };
     let destination = plan.root().initializer().unwrap().binding();
     assert_eq!(prior.len(), 1);
@@ -76,7 +88,7 @@ fn shared_move_transfers_one_existing_handle_without_a_clone() {
         .expect("Shared handle move is source selected");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().unwrap();
-    let clones = flow.expression_plans().iter().filter_map(|plan| plan.shared_clone_initializer_v1()).count();
+    let clones = existing_shared_rows(flow, true).len();
     let moves = flow.expression_plans().iter().filter_map(|plan| plan.move_initializer_v1()).count();
     assert_eq!((clones, moves), (1, 1));
     assert_eq!(flow.terminal_homes().unwrap().len(), 2);
@@ -85,7 +97,7 @@ fn shared_move_transfers_one_existing_handle_without_a_clone() {
         .expect("fresh Shared payload retains its own construction source");
     let completion = fresh.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().unwrap();
-    assert_eq!(flow.expression_plans().iter().filter_map(|plan| plan.shared_fresh_initializer_v1()).count(), 1);
+    assert_eq!(flow.expression_plans().iter().filter(|plan| matches!(plan.shared_initializer_v1(), Some((_, crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1::Fresh { .. }, _)))).count(), 1);
     assert_eq!(flow.terminal_homes().unwrap().len(), 1);
 }
 

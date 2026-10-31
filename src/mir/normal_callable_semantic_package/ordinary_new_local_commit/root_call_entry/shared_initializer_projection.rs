@@ -109,47 +109,20 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok((descriptor, payload, unwind))
     }
 
-    pub(crate) fn shared_fresh_initializer_v1(
-        &self, owner: FunctionOwnerIdV1, statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-    ) -> Result<Option<(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, OwnedExprSiteV1, Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>)>, String> {
-        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) else { return Ok(None); };
-        let mut rows = flow.expression_plans().iter().filter_map(|plan| plan.shared_fresh_initializer_v1())
-            .filter(|(source, _, _)| source.root().statement().node() == statement);
-        let row = rows.next().map(|(source, payload, prior)| (Rc::clone(source), payload.clone(), prior.into()));
-        if rows.next().is_some() || row.as_ref().is_some_and(|(source, payload, _)| source.owner() != owner || payload.owner() != owner) {
-            return Err(freeze("shared-fresh/source-owner-or-duplicate"));
-        }
-        Ok(row)
-    }
-
-    pub(crate) fn shared_clone_initializer_v1(
-        &self, owner: FunctionOwnerIdV1, statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-    ) -> Result<Option<(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, OwnedExprSiteV1, Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>)>, String> {
-        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) else { return Ok(None); };
-        let mut rows = flow.expression_plans().iter().filter_map(|plan| plan.shared_clone_initializer_v1())
-            .filter(|(source, _, _, _)| source.root().statement().node() == statement);
-        let row = rows.next().map(|(source, from, acquisition, prior)| (Rc::clone(source), from, acquisition.clone(), prior.into()));
-        if rows.next().is_some() || row.as_ref().is_some_and(|(source, from, acquisition, _)|
-            source.owner() != owner || from.owner() != owner || acquisition.owner() != owner) {
-            return Err(freeze("shared-clone/source-owner-or-duplicate"));
-        }
-        Ok(row)
-    }
-
     /// Retain the exact Shared expression and its pre-New Fault Homes; this
     /// projection does not itself authorize a physical Shared operation.
-    pub(crate) fn shared_move_initializer_v1(
+    pub(crate) fn shared_initializer_v1(
         &self, owner: FunctionOwnerIdV1, statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-    ) -> Result<Option<(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, OwnedExprSiteV1, Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>)>, String> {
-        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) else {
-            return Ok(None);
-        };
-        let mut rows = flow.expression_plans().iter()
-            .filter_map(|plan| plan.shared_move_initializer_v1())
-            .filter(|(source, _, _, _)| source.root().statement().node() == statement);
-        let row = rows.next().map(|(source, from, acquisition, prior)| (Rc::clone(source), from, acquisition.clone(), prior.into()));
-        if rows.next().is_some() || row.as_ref().is_some_and(|(source, from, acquisition, _)|
-            source.owner() != owner || from.owner() != owner || acquisition.owner() != owner) {
+    ) -> Result<Option<(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1, Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>)>, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1 as P;
+        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) else { return Ok(None); };
+        let mut rows = flow.expression_plans().iter().filter_map(|plan| plan.shared_initializer_v1())
+            .filter(|(source, _, _)| source.root().statement().node() == statement);
+        let row = rows.next().map(|(source, payload, prior)| (Rc::clone(source), payload.clone(), prior.into()));
+        if rows.next().is_some() || row.as_ref().is_some_and(|(source, payload, _)| source.owner() != owner || match payload {
+            P::Existing { from, acquisition, .. } => from.owner() != owner || acquisition.owner() != owner,
+            P::Fresh { site } => site.owner() != owner,
+        }) {
             return Err(freeze("shared-initializer/source-owner-or-duplicate"));
         }
         Ok(row)
@@ -162,27 +135,20 @@ impl SharedLocalCommitV1 {
         projection: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         use crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1;
+        let (source, actual_payload, prior) = ledger.shared_initializer_v1(self.binding.owner(), self.source.root().statement().node())?
+            .ok_or_else(|| freeze("shared-initializer/source-missing"))?;
+        if !Rc::ptr_eq(&source, &self.source) || actual_payload != self.payload_source || prior != self.prior_homes {
+            return Err(freeze("shared-initializer/source-drift"));
+        }
         let (descriptor, payload, unwind, is_clone) = match &self.payload_source {
             SharedPayloadSourceV1::Existing { from, acquisition, is_clone } => {
-                let selected = if *is_clone {
-                    ledger.shared_clone_initializer_v1(self.binding.owner(), self.source.root().statement().node())?
-                } else { ledger.shared_move_initializer_v1(self.binding.owner(), self.source.root().statement().node())? };
-                let (source, actual_from, actual_acquisition, prior) = selected.ok_or_else(|| freeze("shared-initializer/source-missing"))?;
-                if !Rc::ptr_eq(&source, &self.source) || actual_from != *from || actual_acquisition != *acquisition || prior != self.prior_homes {
-                    return Err(freeze("shared-initializer/source-drift"));
-                }
                 let (descriptor, payload, unwind) = if *is_clone {
                     ledger.prepare_shared_clone_handle_v1(*from, acquisition, &prior)?
                 } else { ledger.prepare_shared_move_payload_v1(*from, acquisition, &prior)? };
                 (descriptor, payload, unwind, *is_clone)
             }
             SharedPayloadSourceV1::Fresh { site } => {
-                let (source, payload_site, prior) = ledger.shared_fresh_initializer_v1(self.binding.owner(), self.source.root().statement().node())?
-                    .ok_or_else(|| freeze("shared-fresh/source-missing"))?;
-                if !Rc::ptr_eq(&source, &self.source) || &payload_site != site || prior != self.prior_homes {
-                    return Err(freeze("shared-fresh/source-drift"));
-                }
-                let shared_site = OwnedExprSiteV1::new(self.binding.owner(), source.nodes().first().ok_or_else(|| freeze("shared-fresh/source-missing"))?.site().clone());
+                let shared_site = OwnedExprSiteV1::new(self.binding.owner(), source.nodes().first().ok_or_else(|| freeze("shared-initializer/source-missing"))?.site().clone());
                 let (descriptor, payload, unwind) = ledger.prepare_shared_fresh_payload_v1(site, &shared_site, self.binding, &prior)?;
                 (descriptor, payload, unwind, false)
             }
