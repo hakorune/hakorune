@@ -59,7 +59,6 @@ D0_DISPOSITIONS = {"portable-owner", "accepted-typed-reject"}
 PARITY_GATES = {
     "not-run",
     "phase29bq_portable_owner_source_backed_gate_mir",
-    "phase29bq_typed_terminal_source_backed_gate_mir",
 }
 CASE_RETENTION = "GENERIC-LEGACY-CORPUS-UNIVERSE-P0"
 UNKNOWN = "unknown"

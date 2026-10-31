@@ -180,7 +180,6 @@ run_bq_gates() {
   # per-row contract was pinned to the retired ordered-scheduler route. Each
   # row's canonical contract now lives in
   #   phase29bq_portable_owner_source_backed_cases.tsv    (accepted rows)
-  #   phase29bq_typed_terminal_source_backed_cases.tsv    (typed-reject rows)
   # verified by the two --backend mir gates; the TSV remains the corpus
   # inventory consumed by generic_legacy_corpus_universe_guard.
   # --only <case_id> still resolves rows for manual debugging.

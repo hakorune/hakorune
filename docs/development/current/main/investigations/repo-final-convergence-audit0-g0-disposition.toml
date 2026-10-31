@@ -353,21 +353,6 @@ loop_coverage_parity = "parity-held"
 legacy_joinmodule_disposition = "n/a"
 
 [[record]]
-path = "tools/smokes/v2/profiles/integration/joinir/phase29bq_typed_terminal_source_backed_cases.tsv"
-role = "parity-fixture"
-owner = "M10b-I0-R0 source-backed gate lane"
-lifecycle = "durable"
-caller_class = "guarded-tools"
-default_fallback = "none"
-retire_when = "retire when the typed-terminal corpus contract is superseded by a successor source-backed gate"
-evidence = [
-  "tools/smokes/v2/profiles/integration/joinir/phase29bq_typed_terminal_source_backed_gate_mir.sh",
-  "docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv",
-]
-loop_coverage_parity = "parity-gate"
-legacy_joinmodule_disposition = "n/a"
-
-[[record]]
 path = "tools/smokes/v2/profiles/integration/joinir/phase29bq_portable_owner_source_backed_cases.tsv"
 role = "parity-fixture"
 owner = "M10b-I0-R0 source-backed gate lane"
