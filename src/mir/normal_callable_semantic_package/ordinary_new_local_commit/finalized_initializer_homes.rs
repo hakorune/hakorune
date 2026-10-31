@@ -2,6 +2,58 @@
 use super::*;
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Lend only the finished physical Shared initializers retained by the
+    /// exact source group and its existing cleanup proof.
+    pub(in crate::mir) fn finished_shared_initializers_v1(
+        &self, module: &crate::mir::MirModule, function: &MirFunction,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        if !module.functions.get(&function.signature.name).is_some_and(|stored| std::ptr::eq(stored, function)) {
+            return Err(freeze("shared-initializer/function-membership"));
+        }
+        // Source remains authoritative even if both a physical instruction
+        // and its packet were accidentally removed together.
+        for completion in self.ledger.completion_index.values().filter_map(|row| row.as_ref().ok())
+            .chain(self.ledger.root_completion.iter().filter_map(|row| row.as_ref().ok())) {
+            if completion.owner() != self.owner && !self.ledger.child_physical_validation.borrow().contains_key(&completion.owner()) {
+                continue;
+            }
+            let Some(flow) = completion.cleanup().root_flow() else { continue };
+            let sources: Vec<_> = flow.expression_plans().iter().filter_map(|plan|
+                plan.shared_initializer_source_v1()).collect();
+            if sources.is_empty() { continue; }
+            let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(
+                self.local_calls.get(&completion.owner()).map(Vec::as_slice).unwrap_or(&[]));
+            let packets: Vec<_> = groups.iter().filter_map(|group| group.shared_initializer_v1()).collect();
+            if packets.len() != sources.len() || sources.iter().any(|source|
+                packets.iter().filter(|packet| std::rc::Rc::ptr_eq(&packet.source, source)).count() != 1) {
+                return Err(freeze("shared-initializer/source-coverage"));
+            }
+        }
+        let mut result = Vec::new();
+        for owner in self.local_calls.keys() {
+            self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                if symbol != function.signature.name { return Ok(()); }
+                CallValidationContextV1::Finalized(self).with_local_call_group_tree_v2(*owner, |groups| {
+                for group in groups {
+                    if group.shared_initializer_v1().is_none() { continue; }
+                    group.check_physical_bindings_v1(function, Some(projection))?;
+                    group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
+                    for binding in projection.bindings(group.bindings())? {
+                        if !matches!(binding.1, MirInstruction::Invoke {
+                            operation: crate::mir::instruction::InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::New { .. } | crate::mir::instruction::SharedInvokeOperation::Clone { .. }), .. }) { continue; }
+                        if !projection.recorded().contains(&binding)
+                            || !physical_boundary::check_binding(function, None, binding.0, &binding.1)?
+                            || result.contains(&binding) { return Err(freeze("shared-initializer/finished-membership")); }
+                        result.push(binding);
+                    }
+                }
+                Ok(())
+                })
+            })?;
+        }
+        Ok(result)
+    }
+
     /// Exact scalar and receiver lanes from the original selected callable;
     /// physical types or names never decide whether a parameter is owned.
     pub(crate) fn move_parameter_kinds_v1(
@@ -53,7 +105,8 @@ impl FinalizedRootSourceHandoffV1 {
         self.ledger.completion_index.values().filter_map(|row| row.as_ref().ok())
             .chain(self.ledger.root_completion.iter().filter_map(|row| row.as_ref().ok()))
             .filter(|completion| completion.cleanup().root_flow().is_some_and(|flow|
-                flow.expression_plans().iter().any(|plan| plan.move_initializer_v1().is_some())))
+                flow.expression_plans().iter().any(|plan| plan.move_initializer_v1().is_some()
+                    || plan.shared_initializer_source_v1().is_some())))
             .map(|completion| completion.owner()).collect()
     }
     /// Lend the finished, source-issued New/local relations only when this
@@ -66,17 +119,44 @@ impl FinalizedRootSourceHandoffV1 {
             return Ok(None);
         };
         let moves: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.move_initializer_v1()).collect();
-        if moves.is_empty() { return Ok(None); }
+        let shared: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.shared_move_initializer_v1()).collect();
+        let clones: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.shared_clone_initializer_v1()).collect();
+        let fresh: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.shared_fresh_initializer_v1()).collect();
+        if moves.is_empty() && shared.is_empty() && clones.is_empty() && fresh.is_empty() { return Ok(None); }
         self.ledger.with_finished_projection(owner, |symbol, projection| {
             if symbol != function.signature.name { return Err(freeze("move-verifier/function-drift")); }
             let commits = self.ledger.local_commits.borrow();
             for (_, _, acquisition) in &moves {
-                if !matches!(commits.get(*acquisition), Some(LocalCommitV1::Ordinary(_))) {
+                if !matches!(commits.get(*acquisition), Some(LocalCommitV1::Ordinary(_) | LocalCommitV1::Shared(_))) {
                     return Err(freeze("move-verifier/acquisition-missing"));
+                }
+            }
+            for (_, _, acquisition, _) in &shared {
+                if !matches!(commits.get(*acquisition), Some(LocalCommitV1::Ordinary(_))) {
+                    return Err(freeze("shared-verifier/acquisition-missing"));
+                }
+            }
+            for (_, _, acquisition, _) in &clones {
+                if !matches!(commits.get(*acquisition), Some(LocalCommitV1::Shared(_))) {
+                    return Err(freeze("shared-verifier/handle-acquisition-missing"));
+                }
+            }
+            for (_, site, _) in &fresh {
+                if !matches!(commits.get(*site), Some(LocalCommitV1::Result(NewResultCommitV1 {
+                    emission: NewEmissionProgress::Emitted { progress: EmittedLocalProgress::Checked { .. }, .. }, ..
+                }))) {
+                    return Err(freeze("shared-verifier/fresh-acquisition-missing"));
                 }
             }
             let mut aliases = std::collections::BTreeMap::new();
             let mut initially_published = std::collections::BTreeSet::new();
+            for (_, site, _) in &fresh {
+                let Some(LocalCommitV1::Result(row)) = commits.get(*site) else { return Err(freeze("shared-verifier/fresh-acquisition-missing")); };
+                if row.birth_target.is_none() && row.birth_abi.is_none() {
+                    let NewEmissionProgress::Emitted { result, .. } = &row.emission else { return Err(freeze("shared-verifier/fresh-acquisition-missing")); };
+                    initially_published.insert(*result);
+                }
+            }
             for row in commits.values().filter(|row| row.owner() == owner) {
                 let LocalCommitV1::Ordinary(row) = row else { continue };
                 let NewEmissionProgress::Emitted { result, progress: EmittedLocalProgress::Checked { local }, .. } = &row.emission else {
@@ -100,7 +180,8 @@ impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn initializer_lifecycle_owners_v1(&self) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
         let mut owners: std::collections::BTreeSet<_> = self.local_calls.iter().filter_map(|(owner, roots)|
             RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots).iter()
-                .any(|group| group.text_residence_v1().is_some() || group.dynamic_carrier_residence_v1().is_some())
+                .any(|group| group.text_residence_v1().is_some() || group.dynamic_carrier_residence_v1().is_some()
+                    || group.shared_initializer_v1().is_some())
                 .then_some(*owner)).collect();
         owners.extend(self.ledger.terminal_relation_index.iter().filter_map(|(owner, terminals)|
             ((*owner == self.owner || self.ledger.child_physical_validation.borrow().contains_key(owner))

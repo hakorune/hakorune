@@ -9,9 +9,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type ExpressionInput = ASTNode;
 
     fn lower_checked_local_initializer_v1(&mut self, builder: &mut MirBuilder,
-        source: &super::super::raw_structured_child_scope::PreparedRawChildSourceV1, ordinal: u32,
+        source: &super::super::raw_structured_child_scope::PreparedRawChildSourceV1, statement: &ASTNode, ordinal: u32,
     ) -> Result<Option<super::super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String> {
-        self.emit_checked_local_initializer_v1(builder, source, ordinal)
+        self.emit_checked_local_initializer_v1(builder, source, statement, ordinal)
     }
 
     fn observe_borrowed_field_write_guard_binary_v1(&mut self, builder: &mut MirBuilder,

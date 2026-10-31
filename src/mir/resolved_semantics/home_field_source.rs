@@ -16,6 +16,12 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
     > {
         Ok(None)
     }
+    /// Exact destination-less Shared payload construction; no local New is invented.
+    fn shared_payload_construction_source(
+        &mut self, _site: &OwnedExprSiteV1,
+    ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>, E> {
+        Ok(None)
+    }
     fn scalar_field(
         &mut self,
         site: &OwnedExprSiteV1,

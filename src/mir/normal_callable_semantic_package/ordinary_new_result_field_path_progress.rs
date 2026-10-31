@@ -14,7 +14,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let site = loan.site();
             let (field, kind, declared) = loan.descriptor()?;
             let source = Rc::new(LocalFieldReadSourceV1 { field, result: kind,
-                declared_type_name: declared.map(Into::into), expression_path: Some(FieldPathSourceV1::Return(loan.clone())), received: None, owned_ready: None, returned: None, array_reads: Vec::new() });
+                declared_type_name: declared.map(Into::into), expression_path: Some(FieldPathSourceV1::Return(loan.clone())), received: None, owned_ready: None, returned: None, shared_support: None, array_reads: Vec::new() });
             if staged.insert(site, LocalFieldRead { local: None, receiver_site: loan.receiver_site().clone(),
                 receiver: loan.root(), home: loan.root(), source, numeric_source: None,
                 progress: LocalReadProgress::Pending }).is_some() { return Err(fault("result-path/duplicate")); }

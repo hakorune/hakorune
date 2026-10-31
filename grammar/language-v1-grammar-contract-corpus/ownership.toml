@@ -2,6 +2,60 @@
 # capability and flow remain outside this grammar corpus.
 
 [[fixtures]]
+fixture_id = "shared_constructor_canonical"
+row_id = "shared_constructor_expr"
+profile = "Canonical"
+source = "Shared(value)"
+accepted = true
+normalized_form = { kind = "SharedExpr", children = [{ kind = "Variable", value = "value", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "shared_constructor_compat"
+row_id = "shared_constructor_expr"
+profile = "Compat2025"
+source = "Shared(value)"
+accepted = true
+normalized_form = { kind = "SharedExpr", children = [{ kind = "Variable", value = "value", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "shared_empty_canonical_reject"
+row_id = "shared_constructor_expr"
+profile = "Canonical"
+source = "Shared()"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/shared_one_operand"
+
+[[fixtures]]
+fixture_id = "shared_empty_compat_reject"
+row_id = "shared_constructor_expr"
+profile = "Compat2025"
+source = "Shared()"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/shared_one_operand"
+
+[[fixtures]]
+fixture_id = "shared_multiple_canonical_reject"
+row_id = "shared_constructor_expr"
+profile = "Canonical"
+source = "Shared(a, b)"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/shared_one_operand"
+
+[[fixtures]]
+fixture_id = "shared_multiple_compat_reject"
+row_id = "shared_constructor_expr"
+profile = "Compat2025"
+source = "Shared(a, b)"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/shared_one_operand"
+
+[[fixtures]]
 fixture_id = "move_unary_expr_canonical"
 row_id = "move_unary_expr"
 profile = "Canonical"

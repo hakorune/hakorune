@@ -66,6 +66,10 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     ScriptArgumentsNew,
     ArrayClaim,
     ArrayWrite,
+    SharedNew,
+    SharedClone,
+    SharedBorrow,
+    SharedRelease,
     OwnedArrayClaim,
     OwnedArrayAppend,
     OwnedArrayGet,
@@ -105,6 +109,12 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             return None;
         };
         match operation {
+            InvokeOperation::Shared(operation) => Some(match operation {
+                crate::mir::instruction::SharedInvokeOperation::New { .. } => Self::SharedNew,
+                crate::mir::instruction::SharedInvokeOperation::Clone { .. } => Self::SharedClone,
+                crate::mir::instruction::SharedInvokeOperation::Borrow { .. } => Self::SharedBorrow,
+                crate::mir::instruction::SharedInvokeOperation::Release { .. } => Self::SharedRelease,
+            }),
             InvokeOperation::OwnedArray(operation) => Some(match operation {
                 crate::mir::instruction::OwnedArrayInvokeOperation::Claim { .. } => Self::OwnedArrayClaim,
                 crate::mir::instruction::OwnedArrayInvokeOperation::Append { .. } => Self::OwnedArrayAppend,
@@ -664,6 +674,17 @@ fn referenced_objects(
                         | InvokeOperation::ObjectFieldSet { field, child, .. } => {
                             ids.insert(field.object().declaration_index());
                             ids.insert(child.declaration_index());
+                        }
+                        InvokeOperation::Shared(operation) => {
+                            let descriptor = operation.descriptor();
+                            ids.insert(descriptor.payload.declaration_index());
+                            for step in descriptor.end.iter() {
+                                match step {
+                                    crate::mir::instruction::ObjectEndStepV1::FieldResidence { field, .. } => { ids.insert(field.object().declaration_index()); }
+                                    crate::mir::instruction::ObjectEndStepV1::ObjectField { field, child } => { ids.insert(field.object().declaration_index()); ids.insert(child.declaration_index()); }
+                                    crate::mir::instruction::ObjectEndStepV1::ReleaseOuter => {}
+                                }
+                            }
                         }
                         InvokeOperation::OwnedArray(operation) => {
                             ids.insert(operation.descriptor().object().declaration_index());

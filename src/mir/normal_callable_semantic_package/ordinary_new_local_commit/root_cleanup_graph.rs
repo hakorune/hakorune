@@ -215,7 +215,8 @@ fn edges(terminal: &MirInstruction) -> Result<Vec<(usize, BasicBlockId)>, String
                 | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { .. }
                     | crate::mir::instruction::StringInvokeOperation::EndIfOwned { .. })
                 | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { .. })
-                | InvokeOperation::OwnedArray(crate::mir::instruction::OwnedArrayInvokeOperation::End { .. }),
+                | InvokeOperation::OwnedArray(crate::mir::instruction::OwnedArrayInvokeOperation::End { .. })
+                | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { .. }),
             normal_landing,
             fault_landing,
             ..

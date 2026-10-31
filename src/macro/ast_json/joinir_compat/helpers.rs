@@ -86,6 +86,7 @@ pub(super) fn str_to_un(s: &str) -> Option<UnaryOperator> {
         "~" => UnaryOperator::BitNot,
         "weak" => UnaryOperator::Weak,
         "move" => UnaryOperator::Move,
+        "shared" => UnaryOperator::Shared,
         _ => return None,
     })
 }

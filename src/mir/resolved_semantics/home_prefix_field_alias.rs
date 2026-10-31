@@ -43,6 +43,9 @@ impl PrefixLocalFlow<'_> {
     ) -> Option<FieldReadReceiverV1> {
         match self.locals.get(&binding)? {
             StoredLocal::Home { .. } => Some(FieldReadReceiverV1::OwnedHome),
+            StoredLocal::Shared { acquisition, payload_acquisition, .. } => Some(FieldReadReceiverV1::Shared {
+                acquisition: acquisition.clone(), payload: payload_acquisition.clone(),
+            }),
             StoredLocal::Handle(root) if self.field_root_is_live(*root) => {
                 if *root == binding
                     && self.nonnull.contains(&binding)

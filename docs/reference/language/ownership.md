@@ -54,9 +54,9 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | resolver Home-demand/root and Home Flow | bounded same-scope `move` of a `new`-derived local is implemented; general Home demand remains a target |
 | callable Home ABI | bounded declaration-only receipt exists; source `take` linkage absent |
 | canonical Builder/source producers | bounded explicit local `move` is connected through the published EXE route |
-| Ownership SSA / ownership opcodes | published local-move MIR is independently checked; general ownership and Shared remain targets |
+| Ownership SSA / ownership opcodes | published local-move and bounded local Shared MIR are independently checked; general ownership remains a target |
 | current ordinary Box assignment | transitional SharedV1 behavior |
-| successor surface (§0) | decided 2026-10-30; bounded local `move` is live, Hako parity pending; SharedV1 stays until the §10 cutover |
+| successor surface (§0) | decided 2026-10-30; bounded local `move` and `Shared` (new/clone/borrow read/release) are live, Hako parity pending; SharedV1 stays until the §10 cutover |
 
 The live `EBNF.md` and grammar registry remain syntax authority. `release root`
 and `move root` have parser-owned source rows; Hako `move` runtime parity remains

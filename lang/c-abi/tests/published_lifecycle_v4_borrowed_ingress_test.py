@@ -374,6 +374,63 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             assert obj.read_bytes() == marker
         assert not list(work.glob('borrowed.o.*'))
 
+    # Physical Shared admission and its supporting-handle borrow; the source
+    # Pair input supplies the constructor and layout, not a source cutover.
+    shared = json.loads(Path(sys.argv[1]).read_text())
+    root = shared['functions'][0]
+    original = {row['id']: row for row in root['blocks']}
+    def shared_op(kind, value, site):
+        return {'kind': kind, 'value': value, 'object_id': OBJECT,
+                'profile': 'thread_local_v1', 'abi': 1,
+                'end': [{'kind': 'release_outer'}], 'site': site}
+    def term(op, normal, fault):
+        return {'op': 'invoke', 'operation': op, 'fault_frame': 6,
+                'normal': normal, 'fault': fault}
+    root['blocks'] = [original[i] for i in (0, 5, 6, 7, 8, 9, 12)] + [
+        block(10, [{'op': 'copy', 'dst': 8, 'src': 7}],
+              term(shared_op('shared_new', 8, 20), 16, 13), (16, 13)),
+        block(13, [], term({'kind': 'home_release', 'object_id': OBJECT, 'value': 8, 'site': 21}, 12, 12), (12, 12)),
+        block(16, [{'op': 'invoke_normal_result', 'invoke_block': 10, 'dst': 20}],
+              term(shared_op('shared_borrow', 20, 22), 17, 19), (17, 19)),
+        block(17, [{'op': 'invoke_normal_result', 'invoke_block': 16, 'dst': 21}],
+              term({'kind': 'field_get', 'object_id': OBJECT, 'field_ordinal': FIELD, 'base': 21, 'site': 23}, 18, 19), (18, 19)),
+        block(18, [{'op': 'invoke_normal_result', 'invoke_block': 17, 'dst': 22}],
+              term(shared_op('shared_release', 20, 24), 11, 12), (11, 12)),
+        block(19, [], term(shared_op('shared_release', 20, 25), 12, 12), (12, 12)),
+        block(11, [], {'op': 'return', 'value': 22}),
+    ]
+    compile_input(shared)
+    checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+             *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+             '-lpthread', '-ldl', '-lm', '-o', exe])
+    result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+    assert result.returncode == 10, result
+    premature_birth = copy.deepcopy(shared)
+    birth = next(b for b in premature_birth['functions'][0]['blocks'] if b['id'] == 9)
+    birth['terminator']['instruction']['normal'] = 13
+    birth['terminator']['instruction']['fault'] = 10
+    birth['edges'] = [{'target': 13, 'args': None}, {'target': 10, 'args': None}]
+    compile_input(premature_birth, False)
+    released_support = copy.deepcopy(shared)
+    rows = released_support['functions'][0]['blocks']
+    by_id = {row['id']: row for row in rows}
+    by_id[17]['terminator'] = {'index': 1, 'instruction': term(shared_op('shared_release', 20, 26), 23, 12)}
+    by_id[17]['edges'] = [{'target': 23, 'args': None}, {'target': 12, 'args': None}]
+    rows.append(block(23, [], term({'kind': 'field_get', 'object_id': OBJECT, 'field_ordinal': FIELD, 'base': 21, 'site': 27}, 18, 12), (18, 12)))
+    by_id[18]['instructions'][0]['instruction']['invoke_block'] = 23
+    by_id[18]['terminator'] = {'index': 1, 'instruction': {'op': 'return', 'value': 22}}
+    by_id[18]['edges'] = []
+    compile_input(released_support, False)
+    repeated_read = copy.deepcopy(shared)
+    rows = repeated_read['functions'][0]['blocks']
+    by_id = {row['id']: row for row in rows}
+    by_id[18]['terminator'] = {'index': 1, 'instruction': term({'kind': 'field_get', 'object_id': OBJECT, 'field_ordinal': FIELD, 'base': 21, 'site': 28}, 24, 19)}
+    by_id[18]['edges'] = [{'target': 24, 'args': None}, {'target': 19, 'args': None}]
+    rows.append(block(24, [{'op': 'invoke_normal_result', 'invoke_block': 18, 'dst': 23}],
+                      term(shared_op('shared_release', 20, 29), 11, 12), (11, 12)))
+    compile_input(repeated_read, False)
+    print('Shared read retains its supporting handle and requires completed Birth')
+
     for owned, result_kind in [(False, 'i64'), (True, 'i64'), (True, 'unit'), (True, 'bool')]:
         data, text = borrowed_text_graph(owned, result=result_kind)
         compile_input(data)

@@ -31,6 +31,65 @@ fn explicit_move_preserves_the_original_home_order_and_source() {
 }
 
 #[test]
+fn shared_move_retains_original_payload_and_fault_homes() {
+    let package = issue(&source("local a = new Page() local z = new Page() local b = Shared(move a) return 30"))
+        .expect("Shared retains the original source and pre-operation Homes");
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().expect("root Home flow");
+    let rows = flow.expression_plans().iter().filter_map(|plan| plan.shared_move_initializer_v1()).collect::<Vec<_>>();
+    let [(plan, from, acquisition, prior)] = rows.as_slice() else { panic!("one Shared source plan") };
+    let destination = plan.root().initializer().unwrap().binding();
+    assert_eq!(prior.len(), 2);
+    assert_eq!(prior[0].binding(), *from);
+    assert_ne!(prior[1].binding(), *from);
+    assert_eq!(acquisition.owner(), destination.owner());
+    let homes = flow.terminal_homes().expect("Normal exit is covered");
+    assert_eq!(homes.len(), 2);
+    assert_eq!(homes[0].binding(), destination);
+    let alias = issue(&source("local a = new Page() local alias = a local b = Shared(move a) return 30"))
+        .expect("inspect the selected source flow");
+    let alias_flow = alias.ordinary_new_claim_ledger.root_completion_for_test().cleanup().root_flow().unwrap();
+    assert!(alias_flow.expression_plans().iter().all(|plan| plan.shared_move_initializer_v1().is_none()),
+        "a live alias cannot be silently converted into Shared");
+}
+
+#[test]
+fn shared_clone_adds_a_distinct_home_with_original_handle_on_fault() {
+    let package = issue(&source("local a = new Page() local b = Shared(move a) local c = b return 30"))
+        .expect("Shared clone is source selected");
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    let rows = flow.expression_plans().iter().filter_map(|plan| plan.shared_clone_initializer_v1()).collect::<Vec<_>>();
+    let [(plan, from, acquisition, prior)] = rows.as_slice() else { panic!("one Shared clone plan") };
+    let destination = plan.root().initializer().unwrap().binding();
+    assert_eq!(prior.len(), 1);
+    assert_eq!(prior[0].binding(), *from);
+    assert_eq!(acquisition.owner(), destination.owner());
+    let homes = flow.terminal_homes().unwrap();
+    assert_eq!(homes.len(), 2);
+    assert_ne!(homes[0].binding(), homes[1].binding());
+}
+
+#[test]
+fn shared_move_transfers_one_existing_handle_without_a_clone() {
+    let package = issue(&source("local a = new Page() local b = Shared(move a) local c = b local d = move c return 30"))
+        .expect("Shared handle move is source selected");
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    let clones = flow.expression_plans().iter().filter_map(|plan| plan.shared_clone_initializer_v1()).count();
+    let moves = flow.expression_plans().iter().filter_map(|plan| plan.move_initializer_v1()).count();
+    assert_eq!((clones, moves), (1, 1));
+    assert_eq!(flow.terminal_homes().unwrap().len(), 2);
+
+    let fresh = issue(&source("local a = Shared(new Page()) return 30"))
+        .expect("fresh Shared payload retains its own construction source");
+    let completion = fresh.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    assert_eq!(flow.expression_plans().iter().filter_map(|plan| plan.shared_fresh_initializer_v1()).count(), 1);
+    assert_eq!(flow.terminal_homes().unwrap().len(), 1);
+}
+
+#[test]
 fn explicit_move_rejects_later_reads_and_a_second_move() {
     use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
     for body in [

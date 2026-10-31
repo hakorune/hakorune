@@ -48,6 +48,8 @@ pub(crate) struct OwnershipFunctionAbiV1 {
     /// Exact finished New-local copies selected by the source handoff.
     aliases: BTreeMap<ValueId, ValueId>,
     initially_published: BTreeSet<ValueId>,
+    /// Exact complete End contracts retained from this function's source owner.
+    shared_descriptors: Vec<crate::mir::instruction::SharedDescriptorV1>,
 }
 
 impl OwnershipFunctionAbiV1 {
@@ -62,6 +64,7 @@ impl OwnershipFunctionAbiV1 {
             result,
             aliases: BTreeMap::new(),
             initially_published: BTreeSet::new(),
+            shared_descriptors: Vec::new(),
         }
     }
 
@@ -88,6 +91,13 @@ impl OwnershipFunctionAbiV1 {
         self
     }
     pub(super) fn initially_published(&self) -> &BTreeSet<ValueId> { &self.initially_published }
+    pub(crate) fn with_source_shared_descriptors(mut self, rows: Vec<crate::mir::instruction::SharedDescriptorV1>) -> Self {
+        self.shared_descriptors = rows;
+        self
+    }
+    pub(super) fn admits_shared_descriptor(&self, row: &crate::mir::instruction::SharedDescriptorV1) -> bool {
+        self.shared_descriptors.contains(row)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -105,13 +115,14 @@ pub(crate) enum OwnershipDispositionV1 {
     },
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum OwnershipOperationKindV1 {
     CopyOwned { dst: ValueId, src: ValueId },
     DestroyOwned { value: ValueId },
+    Shared { operation: crate::mir::instruction::SharedInvokeOperation, normal: BasicBlockId, fault: BasicBlockId },
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct OwnershipOperationV1 {
     block: BasicBlockId,
     instruction_index: usize,
@@ -119,16 +130,16 @@ pub(crate) struct OwnershipOperationV1 {
 }
 
 impl OwnershipOperationV1 {
-    pub(crate) const fn block(self) -> BasicBlockId {
+    pub(crate) const fn block(&self) -> BasicBlockId {
         self.block
     }
 
-    pub(crate) const fn instruction_index(self) -> usize {
+    pub(crate) const fn instruction_index(&self) -> usize {
         self.instruction_index
     }
 
-    pub(crate) const fn kind(self) -> OwnershipOperationKindV1 {
-        self.kind
+    pub(crate) const fn kind(&self) -> &OwnershipOperationKindV1 {
+        &self.kind
     }
 }
 
@@ -201,6 +212,18 @@ pub(super) fn collect_ownership_operations(function: &MirFunction) -> Box<[Owner
                 block: *block_id,
                 instruction_index,
                 kind,
+            });
+        }
+        if let Some(MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::Shared(operation),
+            normal_landing, fault_landing, ..
+        }) = &block.terminator {
+            operations.push(OwnershipOperationV1 {
+                block: *block_id,
+                instruction_index: block.instructions.len(),
+                kind: OwnershipOperationKindV1::Shared {
+                    operation: operation.clone(), normal: *normal_landing, fault: *fault_landing,
+                },
             });
         }
     }

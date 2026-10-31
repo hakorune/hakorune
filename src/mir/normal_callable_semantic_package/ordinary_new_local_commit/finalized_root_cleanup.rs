@@ -135,7 +135,8 @@ impl FinalizedRootSourceHandoffV1 {
             let mut candidates = bindings.to_vec();
             entry.append_bindings(&mut candidates);
             if !candidates.iter().any(|(_, row)| matches!(row,
-                MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }, .. }))
+                MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }
+                    | crate::mir::instruction::InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { .. }), .. }))
             { continue; }
             self.ledger.with_finished_projection(*owner, |symbol, projection| {
                 if symbol != function.signature.name { return Ok(()); }
@@ -181,7 +182,8 @@ impl FinalizedRootSourceHandoffV1 {
             if !matches!(row, LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_)) { continue; }
             let Some(NewEmissionProgress::Emitted { bindings, .. }) = row.new_emission() else { continue; };
             if !bindings.iter().any(|(_, row)| matches!(row, MirInstruction::Invoke {
-                operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }, .. }))
+                operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }
+                    | crate::mir::instruction::InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { .. }), .. }))
             { continue; }
             self.ledger.with_finished_projection(row.owner(), |symbol, projection| {
                 if symbol != function.signature.name { return Ok(()); }
@@ -189,6 +191,22 @@ impl FinalizedRootSourceHandoffV1 {
                     row, function, Some(projection), CallValidationContextV1::Finalized(self))?;
                 lend_conditional_end_bindings(&mut result, function, projection,
                     bindings, Some(projection))
+            })?;
+        }
+        // Checked field reads already retain their source-validated Fault
+        // cleanup. Lend its actual End rows to the same physical census.
+        for owner in self.ledger.checked_field_read_owners_v1() {
+            self.ledger.with_finished_projection(owner, |symbol, projection| {
+                if symbol != function.signature.name { return Ok(()); }
+                let context = CallValidationContextV1::Finalized(self);
+                for site in self.ledger.checked_local_field_sites_v1(owner) {
+                    self.ledger.validate_checked_field_cleanup_v1(&site, function, context, &mut |original| {
+                        projection.binding(original.0, &original.1)
+                    })?;
+                    let bindings = self.ledger.checked_field_cleanup_bindings_v1(&site)?;
+                    lend_conditional_end_bindings(&mut result, function, projection, &bindings, Some(projection))?;
+                }
+                Ok(())
             })?;
         }
         Ok(result)
@@ -578,7 +596,8 @@ fn lend_conditional_end_bindings(
     let finished = match finishing { Some(projection) => projection.bindings(bindings)?, None => bindings.to_vec() };
     for binding in finished {
         if !matches!(binding.1, MirInstruction::Invoke {
-            operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }, .. })
+            operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }
+                | crate::mir::instruction::InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { .. }), .. })
         { continue; }
         if !projection.recorded().contains(&binding)
             || !physical_boundary::check_binding(function, None, binding.0, &binding.1)?

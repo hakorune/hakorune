@@ -565,6 +565,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             let bindings = match row {
                 LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => continue,
+                LocalCommitV1::Shared(row) => row.bindings.as_slice(),
                 LocalCommitV1::Map(map) => map.checked_bindings()?,
                 LocalCommitV1::OwnedArray(row) => row.checked_bindings()?,
                 LocalCommitV1::CallReceived(row) => row.checked_bindings()?,

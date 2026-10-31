@@ -141,6 +141,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%call_outcome%u = alloca i32, align 4\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "array_owned_get"))
       fprintf(f, "  %%owned_get%u = alloca i64, align 8\n", lv4_u(block, "id"));
+    if (lv4_shared_kind(op) && !lv4_is(op, "kind", "shared_release"))
+      fprintf(f, "  %%shared_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
     lv4_string_alloca(f, op, lv4_u(block, "id"));
     lv4_invocation_alloca(f, op, lv4_u(block, "id"));
@@ -369,6 +371,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         else if ((kind == LV4_I64 || kind == LV4_BOOL) &&
             hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == (kind == LV4_BOOL ? 3 : 2))
           fprintf(f, "  %%v%u = load i64, ptr %%strout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if (lv4_shared_kind(producer_op))
+          fprintf(f, "  %%v%u = load i64, ptr %%shared_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_SLOT_BORROW)
           fprintf(f, "  %%v%u = load i64, ptr %%%s%u, align 8\n", dst,
               lv4_is(producer_op, "kind", "map_field_get_indexed") ? "get_out" :
@@ -667,7 +671,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           lv4_object_residence(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal")) &&
           !lv4_emit_object_residence_outcome(f, in, fn, op, b)) return 0;
       fprintf(f, "  %%status%u = call i32 ", b);
-      if (lv4_owned_array_kind(op)) {
+      if (lv4_shared_kind(op)) {
+        lv4_shared_emit_call(f, op, b, site);
+      } else if (lv4_owned_array_kind(op)) {
         lv4_owned_array_emit_call(f, op, b, site);
       } else if (lv4_carrier_array_kind(op)) {
         lv4_carrier_array_emit_call(f, op, b, site);
@@ -800,6 +806,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
   lv4_invocation_declarations(f);
   lv4_map_declarations(f, in);
   lv4_owned_array_globals(f, in);
+  lv4_shared_globals(f, in);
   lv4_carrier_array_globals(f, in);
   lv4_object_layout_globals(f, in);
   /* Complete End symbols cover plain and marked admitted layouts. Recursive

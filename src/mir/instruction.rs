@@ -24,7 +24,7 @@ pub use invoke::{
     DynamicFieldValueTagV1, DynamicFieldResidenceV1, DynamicFieldWriteIntentV1,
     FieldResidenceEndModeV1, ObjectEndStepV1, FaultFrameMode, BorrowedResultSupportV1,
     InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation, StringInvokeOperand, StringInvokeOperation,
-    MapInvokeOperation, MapValueKind, DynamicCarrierArrayInvokeOperation, OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1,
+    MapInvokeOperation, MapValueKind, DynamicCarrierArrayInvokeOperation, OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1, SharedInvokeOperation, SharedDescriptorV1,
     DynamicInvocationOperandV1, DynamicInvocationOperationV1,
 };
 

@@ -9,6 +9,8 @@ use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalFieldRefV1;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "ordinary_new_field_reads_shared.rs"]
+mod shared;
 #[path = "ordinary_new_result_field_path_progress.rs"]
 mod result_path;
 #[path = "ordinary_new_expression_field_path_source.rs"]
@@ -67,6 +69,7 @@ pub(crate) struct LocalFieldReadSourceV1 {
     received: Option<ReceivedFieldReadSourceV1>,
     returned: Option<returned::ReturnedFieldArgumentSourceV1>,
     owned_ready: Option<OwnedReadyFieldReadSourceV1>,
+    shared_support: Option<(OwnedExprSiteV1, OwnedExprSiteV1)>,
     array_reads: Vec<Rc<CheckedFieldArrayAccessSourceV1>>,
 }
 impl LocalFieldReadSourceV1 {
@@ -75,7 +78,7 @@ impl LocalFieldReadSourceV1 {
         result: crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
         declared_type_name: Option<Box<str>>,
     ) -> Rc<Self> {
-        Rc::new(Self { field, result, declared_type_name, expression_path: None, received: None, returned: None, owned_ready: None, array_reads: Vec::new() })
+        Rc::new(Self { field, result, declared_type_name, expression_path: None, received: None, returned: None, owned_ready: None, shared_support: None, array_reads: Vec::new() })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn with_received(
         original: &Rc<Self>, received: ReceivedFieldReadSourceV1,
@@ -94,7 +97,7 @@ impl LocalFieldReadSourceV1 {
             | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_))
             || (self.declared_type_name.is_none()
             && self.result == crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar)
-            || self.owned_ready.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
+            || self.owned_ready.is_some() || self.shared_support.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn received_root_source_v1(&self) -> Option<&ReceivedFieldReadSourceV1> {
         self.received.as_ref().or_else(|| self.statement_path().and_then(|path| path.received_root_v1()))
@@ -112,6 +115,9 @@ impl LocalFieldReadSourceV1 {
         }
     }
     pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
+    pub(in crate::mir) fn shared_support_v1(&self) -> Option<&(OwnedExprSiteV1, OwnedExprSiteV1)> {
+        self.shared_support.as_ref()
+    }
     pub(crate) fn result(&self) -> &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1 {
         &self.result
     }
@@ -466,6 +472,7 @@ impl OrdinaryNewClaimLedgerV1 {
         context: CallValidationContextV1<'_>, recheck_path: impl FnOnce() -> Result<(), String>,
     ) -> Result<(), String> {
         context.require_ledger(self)?;
+        if row.source.shared_support.is_some() { return self.recheck_shared_field_read_v1(site, row); }
         if row.source.owned_ready.is_some() { return self.recheck_owned_local_read_v1(site, row, context); }
         if row.source.returned.is_some() { return self.recheck_returned_field_read_v1(site, row); }
         if row.source.expression_path.is_some() { return recheck_path(); }

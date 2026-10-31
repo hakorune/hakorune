@@ -20,6 +20,9 @@ mod checked_string;
 #[path = "fault_checked_dynamic.rs"]
 mod checked_dynamic;
 
+#[path = "fault_checked_shared.rs"]
+mod checked_shared;
+
 mod runtime_abi_target {
     include!(concat!(env!("OUT_DIR"), "/runtime_abi_target.rs"));
 }

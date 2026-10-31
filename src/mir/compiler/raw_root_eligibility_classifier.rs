@@ -521,7 +521,7 @@ impl RawScalarControl0ClassifierV1 {
             UnaryOperator::Minus => RawScalarUnaryOperator0V1::Minus,
             UnaryOperator::Not => RawScalarUnaryOperator0V1::Not,
             UnaryOperator::BitNot => RawScalarUnaryOperator0V1::BitNot,
-            UnaryOperator::Weak | UnaryOperator::Move => {
+            UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => {
                 return Err(RawScalarControl0ErrorV1::UnsupportedUnary {
                     path: path.clone().into_boxed_slice(),
                     operator: operator.clone(),

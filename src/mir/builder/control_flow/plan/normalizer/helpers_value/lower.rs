@@ -232,6 +232,9 @@ impl super::super::PlanNormalizer {
                 UnaryOperator::Move => Err(
                     "[freeze:contract][ownership/move-not-supported] move has not reached the Home owner".to_string(),
                 ),
+                UnaryOperator::Shared => Err(
+                    "[freeze:contract][ownership/shared-not-supported] Shared has not reached the Home owner".to_string(),
+                ),
             },
             ASTNode::MethodCall {
                 object,

@@ -1,9 +1,5 @@
 //! Function-owned, path-sensitive Ownership SSA verification.
 
-// SSA-RC-V0 lands the sealed verifier before A1b/SSA-I1 consumers. Remove
-// these scoped allowances when the first production consumer is connected.
-#![allow(dead_code, unused_imports)]
-
 mod classify;
 mod error;
 mod model;

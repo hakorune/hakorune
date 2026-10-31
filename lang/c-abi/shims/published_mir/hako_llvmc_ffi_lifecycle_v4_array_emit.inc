@@ -1,5 +1,44 @@
 /* One physical Array projection: scalar/Text copies and owned-slot moves.
  * Child End uses the complete source-layout thunk, never a registry. */
+/* Do not change the generated module at all when Shared is absent. */
+static void lv4_shared_globals(FILE* f, const hako_lv4_input* in) {
+  int any = 0;
+  for (size_t li = 0; li < in->layout_count; li++) {
+    uint32_t object = in->layouts[li].id;
+    int needed = 0;
+    for (size_t fi = 0; fi < in->index_count && !needed; fi++) {
+      hako_lv4_function_index* fn = &in->index[fi];
+      for (size_t bi = 0; bi < fn->block_count; bi++) {
+        yyjson_val* op = yyjson_obj_get(lv4_term(fn->blocks[bi].block), "operation");
+        if (lv4_shared_kind(op) && lv4_u(op, "object_id") == object) { needed = 1; break; }
+      }
+    }
+    if (!needed) continue;
+    if (!any) {
+      fprintf(f,
+          "declare i32 @\"nyash.shared.checked_new_v1\"(ptr, i64, ptr, i64, ptr)\n"
+          "declare i32 @\"nyash.shared.checked_clone_v1\"(ptr, i64, ptr, i64, ptr)\n"
+          "declare i32 @\"nyash.shared.checked_borrow_v1\"(ptr, i64, ptr, i64, ptr)\n"
+          "declare i32 @\"nyash.shared.checked_release_v1\"(ptr, i64, ptr, i64)\n");
+      any = 1;
+    }
+    fprintf(f, "@hako_shared_%u = private constant { i32, i32, i64, ptr } "
+        "{ i32 1, i32 %u, i64 %llu, ptr @hako_lifecycle_end_%u }, align 8\n",
+        object, in->profile,
+        (unsigned long long)yyjson_get_uint(yyjson_obj_get(in->layouts[li].row, "runtime_type_id")), object);
+  }
+}
+
+static void lv4_shared_emit_call(FILE* f, yyjson_val* op, uint32_t block, unsigned long long site) {
+  const char* name = lv4_is(op, "kind", "shared_new") ? "new" :
+      lv4_is(op, "kind", "shared_clone") ? "clone" :
+      lv4_is(op, "kind", "shared_borrow") ? "borrow" : "release";
+  fprintf(f, "@\"nyash.shared.checked_%s_v1\"(ptr %%frame, i64 %llu, ptr @hako_shared_%u, i64 %%v%u",
+      name, site, lv4_u(op, "object_id"), lv4_u(op, "value"));
+  if (!lv4_is(op, "kind", "shared_release")) fprintf(f, ", ptr %%shared_out%u", block);
+  fprintf(f, ")\n");
+}
+
 static void lv4_owned_array_globals(FILE* f, const hako_lv4_input* in) {
   fprintf(f,
       "declare i32 @\"nyash.array.checked_owned_claim_v1\"(ptr, i64, i64, ptr)\n"

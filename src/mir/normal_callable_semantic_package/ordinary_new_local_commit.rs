@@ -222,7 +222,7 @@ use owned_array::OwnedArrayLocalProgress;
 
 #[path = "ordinary_new_local_commit/local_entry.rs"]
 mod local_entry;
-use local_entry::{DynamicCarrierResidencePacketV1, TextResidencePacketV1};
+use local_entry::{DynamicCarrierResidencePacketV1, SharedLocalCommitV1, TextResidencePacketV1};
 pub(super) use local_entry::LocalCommitV1;
 
 /// Exact source relation retained after its matching physical root passed
@@ -530,7 +530,7 @@ pub(super) fn installed_source_home<'a>(
         }
         LiveHomeV1::Moved { origin, .. } => {
             let row = installed_home(rows, *origin)?;
-            if !matches!(row, LocalCommitV1::Ordinary(_)) { return Err(HomeLookupError::Missing); }
+            if !matches!(row, LocalCommitV1::Ordinary(_) | LocalCommitV1::Shared(_)) { return Err(HomeLookupError::Missing); }
             Ok(row)
         }
         LiveHomeV1::Text(acquisition) => {
@@ -617,7 +617,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let emission = match row {
                 LocalCommitV1::Ordinary(row) => Some(&row.emission),
                 LocalCommitV1::Result(row) => Some(&row.emission),
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => None,
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => None,
             };
             emission.is_some_and(|emission| {
                 matches!(emission, NewEmissionProgress::RetainedUnavailable { .. })

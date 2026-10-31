@@ -85,7 +85,7 @@ pub(in crate::mir::builder) trait QualifiedStaticMethodHandoffPortV1 {
 }
 
 pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
-    fn lower_checked_local_initializer_v1(&mut self, _builder: &mut MirBuilder, _source: &PreparedRawChildSourceV1, _ordinal: u32)
+    fn lower_checked_local_initializer_v1(&mut self, _builder: &mut MirBuilder, _source: &PreparedRawChildSourceV1, _statement: &ASTNode, _ordinal: u32)
         -> Result<Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>, String> { Ok(None) }
 
     type BodyInput;

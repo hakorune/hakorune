@@ -110,6 +110,13 @@ enum StoredLocal {
         >,
         ready: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, super::FieldWritePlanV1>,
     },
+    /// An independently owned Shared handle, not the payload's New Home.
+    Shared {
+        acquisition: super::OwnedExprSiteV1,
+        payload_acquisition: super::OwnedExprSiteV1,
+        construction_source: std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>,
+        ready: BTreeMap<hakorune_mir_defs::CanonicalFieldRefV1, super::FieldWritePlanV1>,
+    },
     /// A call-result handle the caller received as an owned Home. It owes
     /// the caller's exit exactly one release like a `Home`, but its
     /// acquisition is a call site — never a `new` site — so the
@@ -179,6 +186,9 @@ enum StoredLocal {
 pub(super) enum FieldReadReceiverV1 {
     /// A claim-local selected `new` Home — the binding is its own root.
     OwnedHome,
+    /// Exact Shared handle and original payload acquisition; a read must
+    /// borrow the payload through this handle, never reinterpret the handle.
+    Shared { acquisition: OwnedExprSiteV1, payload: OwnedExprSiteV1 },
     /// A handle alias or self-rooted entry/param binding — the payload is
     /// the movable handle root the candidate/entry proof consults.
     RootedHandle(BindingRefV1),
@@ -417,6 +427,10 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
         (StoredLocal::MovedOut, StoredLocal::MovedOut) => true,
+        (StoredLocal::Shared { acquisition: a, payload_acquisition: ap, construction_source: ac, ready: ar },
+         StoredLocal::Shared { acquisition: b, payload_acquisition: bp, construction_source: bc, ready: br }) =>
+            a == b && ap == bp && std::rc::Rc::ptr_eq(ac, bc) && ar.len() == br.len()
+                && ar.iter().all(|(field, frame)| br.get(field).is_some_and(|other| frame.same_source(other))),
         (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
         (
             StoredLocal::FieldAlias {
@@ -942,6 +956,7 @@ impl<'source> PrefixLocalFlow<'source> {
             // A field-read alias names borrowed storage, never a movable
             // value — every observation lane stays fail-closed on it.
             StoredLocal::StaticText { .. }
+            | StoredLocal::Shared { .. }
             | StoredLocal::Text { .. }
             | StoredLocal::TextBranch { .. }
             | StoredLocal::LoopText { .. }
@@ -1192,12 +1207,15 @@ impl<'source> PrefixLocalFlow<'source> {
         if from.owner() != self.input.owner() || to.owner() != self.input.owner() {
             return false;
         }
-        let Some(local @ StoredLocal::Home { .. }) = self.locals.get(&from).cloned() else {
+        let Some(local @ (StoredLocal::Home { .. } | StoredLocal::Shared { .. })) = self.locals.get(&from).cloned() else {
             return false;
         };
-        let StoredLocal::Home { acquisition, .. } = &local else { unreachable!() };
+        let acquisition = match &local {
+            StoredLocal::Home { acquisition, .. } | StoredLocal::Shared { acquisition, .. } => acquisition,
+            _ => unreachable!(),
+        };
         if homes.iter().any(|home| home.binding() != from
-            && self.home_acquisition(home.binding()) == Some(acquisition)) {
+            && self.movable_acquisition_v1(home.binding()) == Some(acquisition)) {
             return false;
         }
         let mut matches = homes.iter().enumerate().filter(|(_, home)| home.binding() == from);
@@ -1332,3 +1350,5 @@ mod received_call_tests;
 mod named_array;
 #[path = "home_prefix_received_call.rs"]
 mod received_call;
+#[path = "home_prefix_local_flow_shared.rs"]
+mod shared;

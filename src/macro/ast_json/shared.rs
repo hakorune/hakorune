@@ -90,6 +90,7 @@ pub(crate) fn un_to_str(op: &UnaryOperator) -> &'static str {
         UnaryOperator::BitNot => "~",
         UnaryOperator::Weak => "weak",
         UnaryOperator::Move => "move",
+        UnaryOperator::Shared => "shared",
     }
 }
 
@@ -100,6 +101,7 @@ pub(crate) fn str_to_un(s: &str) -> Option<UnaryOperator> {
         "~" => UnaryOperator::BitNot,
         "weak" => UnaryOperator::Weak,
         "move" => UnaryOperator::Move,
+        "shared" => UnaryOperator::Shared,
         _ => return None,
     })
 }

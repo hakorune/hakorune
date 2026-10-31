@@ -3,6 +3,7 @@ use super::*;
 use super::expression_value::{self, EmittedExpressionValueV1};
 use crate::mir::normal_callable_semantic_package::{EmittedInitializerExpressionProjectionV1, LexicalInstanceCallDispositionRowV1};
 use crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1;
+use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
@@ -11,19 +12,29 @@ pub(in crate::mir::builder) enum PendingInitializerExpressionV1 {
     Expression(PendingEvaluatedInitializerV1),
     StoredMapGet(terminal_map_get::PendingLocalV1),
     Move { ordinal: u32, value: ValueId },
+    Shared {
+        ordinal: u32,
+        source: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        payload_source: crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1,
+        prior_homes: Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>,
+        descriptor: crate::mir::instruction::SharedDescriptorV1,
+        payload: ValueId,
+        value: ValueId,
+        bindings: Vec<Binding>,
+    },
 }
 impl PendingInitializerExpressionV1 {
     pub(in crate::mir::builder) fn ordinal(&self) -> u32 {
-        match self { Self::Expression(p) => p.ordinal(), Self::StoredMapGet(p) => p.ordinal(), Self::Move { ordinal, .. } => *ordinal }
+        match self { Self::Expression(p) => p.ordinal(), Self::StoredMapGet(p) => p.ordinal(), Self::Move { ordinal, .. } | Self::Shared { ordinal, .. } => *ordinal }
     }
     pub(in crate::mir::builder) fn value(&self) -> ValueId {
-        match self { Self::Expression(p) => p.value(), Self::StoredMapGet(p) => p.value(), Self::Move { value, .. } => *value }
+        match self { Self::Expression(p) => p.value(), Self::StoredMapGet(p) => p.value(), Self::Move { value, .. } | Self::Shared { value, .. } => *value }
     }
     pub(in crate::mir::builder) fn placement(&self, value: ValueId) -> Result<crate::mir::builder::stmts::variable_stmt::LocalValuePlacement, String> {
         match self {
             Self::Expression(p) => p.placement(value),
             Self::StoredMapGet(p) if p.value() == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy),
-            Self::Move { value: source, .. } if *source == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::ReuseInitializer),
+            Self::Move { value: source, .. } | Self::Shared { value: source, .. } if *source == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::ReuseInitializer),
             _ => Err(freeze("initializer-expression/placement-value")),
         }
     }
@@ -36,8 +47,66 @@ impl PendingInitializerExpressionV1 {
             Self::StoredMapGet(p) => p.publish(receipt, ledger, function),
             Self::Move { ordinal, value } if receipt.ordinal() == ordinal && receipt.initializer() == value && receipt.local() == value && receipt.copy().is_none() => Ok(()),
             Self::Move { .. } => Err(freeze("move-initializer/local-receipt")),
+            Self::Shared { ordinal, source, payload_source, prior_homes, descriptor, payload, value, bindings } => {
+                if receipt.ordinal() != ordinal || receipt.initializer() != value || receipt.local() != value || receipt.copy().is_some() {
+                    return Err(freeze("shared-initializer/local-receipt"));
+                }
+                ledger.prepare_shared_initializer_bindings_v1(source, payload_source, prior_homes,
+                    descriptor, payload, value, bindings, function)?.commit()
+            }
         }
     }
+}
+
+pub(in crate::mir::builder) fn emit_shared_initializer_v1(
+    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState, ledger: &OrdinaryNewClaimLedgerV1,
+    ordinal: u32, source: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    from: crate::mir::resolved_semantics::BindingRefV1, acquisition: OwnedExprSiteV1,
+    prior_homes: Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>, value: ValueId, is_clone: bool,
+) -> Result<PendingInitializerExpressionV1, String> {
+    let (descriptor, payload, unwind) = if is_clone {
+        ledger.prepare_shared_clone_handle_v1(from, &acquisition, &prior_homes)?
+    } else {
+        ledger.prepare_shared_move_payload_v1(from, &acquisition, &prior_homes)?
+    };
+    if payload != value { return Err(freeze("shared-initializer/payload-value-drift")); }
+    let payload_source = crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1::Existing { from, acquisition, is_clone };
+    emit_shared_initializer_common_v1(builder, state, ordinal, source, payload_source, prior_homes, descriptor, payload, unwind, is_clone)
+}
+
+pub(in crate::mir::builder) fn emit_shared_fresh_initializer_v1(
+    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState, ledger: &OrdinaryNewClaimLedgerV1,
+    ordinal: u32, source: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    site: OwnedExprSiteV1, shared_site: OwnedExprSiteV1, binding: crate::mir::resolved_semantics::BindingRefV1,
+    prior_homes: Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>, value: ValueId,
+) -> Result<PendingInitializerExpressionV1, String> {
+    let (descriptor, payload, unwind) = ledger.prepare_shared_fresh_payload_v1(&site, &shared_site, binding, &prior_homes)?;
+    if payload != value { return Err(freeze("shared-fresh/payload-value-drift")); }
+    let payload_source = crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1::Fresh { site };
+    emit_shared_initializer_common_v1(builder, state, ordinal, source, payload_source, prior_homes, descriptor, payload, unwind, false)
+}
+
+fn emit_shared_initializer_common_v1(
+    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState, ordinal: u32,
+    source: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    payload_source: crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1,
+    prior_homes: Box<[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]>,
+    descriptor: crate::mir::instruction::SharedDescriptorV1, payload: ValueId,
+    unwind: Vec<InvokeOperation>, is_clone: bool,
+) -> Result<PendingInitializerExpressionV1, String> {
+    let frame = state.borrow_fault_frame(builder)?;
+    let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
+    let outward = builder.next_block_id();
+    append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, &mut bindings)?;
+    let fault = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
+    let operation = if is_clone {
+        crate::mir::instruction::SharedInvokeOperation::Clone { descriptor: descriptor.clone(), handle: payload }
+    } else {
+        crate::mir::instruction::SharedInvokeOperation::New { descriptor: descriptor.clone(), payload }
+    };
+    let result = super::invoke_operation::emit(builder, frame, InvokeOperation::Shared(operation),
+        fault, &mut bindings)?.0.ok_or_else(|| freeze("shared-initializer/result-missing"))?;
+    Ok(PendingInitializerExpressionV1::Shared { ordinal, source, payload_source, prior_homes, descriptor, payload, value: result, bindings })
 }
 
 pub(in crate::mir::builder) struct PendingEvaluatedInitializerV1 {

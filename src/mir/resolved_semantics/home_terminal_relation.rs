@@ -379,6 +379,7 @@ pub(super) fn return_scalar<E>(
                 receiver_site: receiver.site().clone(),
                 receiver: binding,
                 home,
+                shared_support: None,
                 alias_class: None,
                 nullable: false,
                 formal: false,

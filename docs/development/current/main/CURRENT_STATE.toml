@@ -1,10 +1,10 @@
 date = "2026-10-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 1: Shared cell needs a source-backed physical allocation and End contract"
-current_design_stop = "Shared cell allocation: typed MIR operation versus explicit object identity contract extension"
+current_blocker_token = "ownership step 1: S7 Shared landed; remaining Shared initializer unification and step 2"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini and APP-loop-basics: fixed suite 8/8 (canonical_app_exe_cases runs the 4 typed-object seeds and loop-basics).
-Ownership step 1 selected: move to EXE, independent published MIR verification, then Shared; see active card.
-A4 ownership tests, old lowerer and safety boundaries remain until ownership step 1 successor coverage.
-Preserve current safety checks, parked lanes, and both local stashes; see active card for remaining boundaries.
+S7 Shared landed: SharedInvokeOperation New/Clone/Borrow/Release run source to EXE with independent verification.
+Fixed suite 8/8, 19 shapes keep identical program-owned code and exits (section hashes drift with runtime growth), cohort 84/1/0.
+Carry-over: unify Fresh/Clone/Move initializer plans; Hako parser parity pending an execution path.
+A4 ownership tests, old lowerer, safety checks and parked lanes remain protected.
 """
-next_design_card = "APP-boxtorrent-mini"
-next_design_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "APP-boxtorrent-mini"
+next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

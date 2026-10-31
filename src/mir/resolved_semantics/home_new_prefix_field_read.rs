@@ -202,7 +202,7 @@ pub(super) fn observe_local_field_read<E>(
     let Some(request) = field_read_request(input, site, locals) else {
         return Ok(None);
     };
-    let plan = if request.owned_ready.is_some() {
+    let plan = if request.owned_ready.is_some() || request.shared_support.is_some() {
         let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
             return Ok(None);
         };
@@ -288,6 +288,8 @@ pub(crate) struct LocalFieldReadRequestV1 {
     pub(crate) receiver_site: SourceExprSiteV1,
     pub(crate) receiver: BindingRefV1,
     pub(crate) home: BindingRefV1,
+    /// Exact owning handle and payload construction for a Shared read.
+    pub(crate) shared_support: Option<(OwnedExprSiteV1, OwnedExprSiteV1)>,
     pub(crate) alias_class: Option<Box<str>>,
     /// The receiver is a non-null-narrowed received nullable: the scanner
     /// proved liveness, and the issuer must resolve the class from the
@@ -385,8 +387,13 @@ pub(super) fn field_read_request(
         return None;
     };
     let mut received = None;
+    let mut shared_support = None;
     let (home, alias_class, nullable, formal) = match provenance {
         local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None, false, false),
+        local_flow::FieldReadReceiverV1::Shared { acquisition, payload } => {
+            shared_support = Some((acquisition, payload));
+            (receiver, None, false, false)
+        },
         local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None, false, false),
         local_flow::FieldReadReceiverV1::Alias { class, root } => (root, Some(class), false, false),
         local_flow::FieldReadReceiverV1::ReceivedNullable => (receiver, None, true, false),
@@ -409,6 +416,7 @@ pub(super) fn field_read_request(
         receiver_site: object.clone(),
         receiver,
         home,
+        shared_support,
         alias_class,
         nullable,
         formal,

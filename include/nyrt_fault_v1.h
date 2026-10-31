@@ -371,6 +371,23 @@ typedef struct NyrtArrayOwnedDescriptorV1 {
     int64_t type_id;
     NyrtArrayOwnedEndV1 end;
 } NyrtArrayOwnedDescriptorV1;
+/* Compiler-issued immutable descriptor; profile selects the payload store,
+ * while the Shared cell and each of its handle tokens are thread-confined.
+ * New transfers only on Normal; Release consumes on Normal and Fault. */
+typedef struct NyrtSharedDescriptorV1 {
+    uint32_t abi;
+    uint32_t profile;
+    int64_t type_id;
+    uint32_t (*end)(void *, int64_t, uint64_t);
+} NyrtSharedDescriptorV1;
+uint32_t nyrt_shared_checked_new_v1(void *, uint64_t, const NyrtSharedDescriptorV1 *, int64_t, int64_t *)
+    __asm__("nyash.shared.checked_new_v1");
+uint32_t nyrt_shared_checked_clone_v1(void *, uint64_t, const NyrtSharedDescriptorV1 *, int64_t, int64_t *)
+    __asm__("nyash.shared.checked_clone_v1");
+uint32_t nyrt_shared_checked_borrow_v1(void *, uint64_t, const NyrtSharedDescriptorV1 *, int64_t, int64_t *)
+    __asm__("nyash.shared.checked_borrow_v1");
+uint32_t nyrt_shared_checked_release_v1(void *, uint64_t, const NyrtSharedDescriptorV1 *, int64_t)
+    __asm__("nyash.shared.checked_release_v1");
 uint32_t nyrt_array_checked_owned_claim_v1(void *, uint64_t, int64_t, const NyrtArrayOwnedDescriptorV1 *)
     __asm__("nyash.array.checked_owned_claim_v1");
 uint32_t nyrt_array_checked_owned_append_v1(void *, uint64_t, int64_t, const NyrtArrayOwnedDescriptorV1 *, int64_t)

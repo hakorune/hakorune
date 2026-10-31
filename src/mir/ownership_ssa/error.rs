@@ -7,6 +7,8 @@ pub(crate) enum OwnershipSsaErrorV1 {
     InvalidSourceAlias { value: ValueId },
     UnsupportedManagedInstruction { block: BasicBlockId },
     InvalidObjectLifecycle { block: BasicBlockId, value: ValueId },
+    InvalidSharedLifecycle { block: BasicBlockId, value: ValueId },
+    InvalidSharedCfg { block: BasicBlockId },
     ParameterArity {
         expected: usize,
         actual: usize,

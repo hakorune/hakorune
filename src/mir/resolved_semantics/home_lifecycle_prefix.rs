@@ -45,6 +45,10 @@ pub(crate) enum LifecyclePrefixSourceV1 {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedInitializerExpressionFrameV1>,
     },
+    SharedInitializer {
+        site: OwnedExprSiteV1,
+        source: std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    },
     PrintExpression {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedPrintExpressionFrameV1>,
@@ -62,6 +66,7 @@ impl LifecyclePrefixSourceV1 {
             | Self::Loop { site, .. }
             | Self::BindingRebind { site, .. }
             | Self::InitializerExpression { site, .. }
+            | Self::SharedInitializer { site, .. }
             | Self::BorrowedFieldWrite { site, .. }
             | Self::Call { site, .. }
             | Self::FieldArrayAppend { site, .. }
@@ -81,6 +86,7 @@ impl LifecyclePrefixSourceV1 {
             Self::FieldTextAppend { frame, .. } => frame.statement(),
             Self::BindingRebind { frame, .. } => frame.source().root().statement(),
             Self::InitializerExpression { frame, .. } => frame.source().root().statement(),
+            Self::SharedInitializer { source, .. } => source.root().statement(),
             Self::PrintExpression { frame, .. } => frame.source().root().statement(),
             Self::BoolCondition { frame, .. } => frame.source().root().statement(),
             Self::BorrowedFieldWrite { frame, .. } => frame.source().root().statement(),
@@ -94,6 +100,7 @@ impl LifecyclePrefixSourceV1 {
             | Self::Loop { .. }
             | Self::BindingRebind { .. }
             | Self::InitializerExpression { .. }
+            | Self::SharedInitializer { .. }
             | Self::BorrowedFieldWrite { .. }
             | Self::FieldArrayAppend { .. }
             | Self::FieldTextAppend { .. }
@@ -243,6 +250,12 @@ impl RootHomeFlow {
                 frame: std::rc::Rc::clone(frame),
             }
         }));
+        prefixes.extend(self.expression_plans.iter().filter(standalone)
+            .filter_map(HomeExpressionPlanV1::shared_initializer_source_v1)
+            .map(|source| LifecyclePrefixSourceV1::SharedInitializer {
+                site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
+                source: std::rc::Rc::clone(source),
+            }));
         prefixes.extend(
             rebinds
                 .into_iter()

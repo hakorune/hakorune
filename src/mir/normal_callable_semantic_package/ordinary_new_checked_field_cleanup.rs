@@ -52,7 +52,7 @@ impl OrdinaryNewClaimLedgerV1 {
             _ => Err(fault_error("source-cleanup/unconsumed")),
         }
     }
-    pub(super) fn validate_checked_field_cleanup_v1(&self, site: &OwnedExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_checked_field_cleanup_v1(&self, site: &OwnedExprSiteV1,
         function: &MirFunction, context: CallValidationContextV1<'_>,
         project: &mut impl FnMut(&Binding) -> Result<Option<Binding>, String>,
     ) -> Result<(), String> {
@@ -92,6 +92,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|(site, _)| site.clone()).collect();
         let mut result = Vec::new();
         for site in sites {
+            result.extend(self.checked_field_normal_prefix_v1(&site)?);
             if let Some(pair) = self.checked_field_pair_v1(&site, CallValidationContextV1::Lowering(self))? { result.extend(pair); }
             result.extend(self.checked_field_cleanup_bindings_v1(&site)?);
         }

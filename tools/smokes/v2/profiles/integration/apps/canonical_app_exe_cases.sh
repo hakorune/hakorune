@@ -25,6 +25,7 @@ CASES=(
   "typed_object_method_min|typed-object-method-min|30||"
   "typed_object_birth_param_min|typed-object-birth-param-min|30||"
   "ownership_move_min|ownership-move-min|30||"
+  "ownership_shared_min|ownership-shared-min|10||"
   "loop_basics|loop-basics|0|loop-basics failures=0|"
 )
 ONLY_CASE="${1:-}"

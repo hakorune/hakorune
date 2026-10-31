@@ -511,6 +511,14 @@ canonical = { status = "canonical", normalization_mode = "canonical_shape", norm
 compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "MoveExpr", semantic_owner = "ownership", stable_reject_tag = "parser/move_exact_root_required", positive_fixture_ids = ["move_unary_expr_compat"], negative_fixture_ids = ["move_projected_root_compat_reject", "move_missing_root_compat_reject"] }
 
 [[rows]]
+row_id = "shared_constructor_expr"
+family = "ownership"
+spelling_id = "shared_constructor_expr"
+production = "Shared ( expression )"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "SharedExpr", semantic_owner = "ownership", stable_reject_tag = "parser/shared_one_operand", positive_fixture_ids = ["shared_constructor_canonical"], negative_fixture_ids = ["shared_empty_canonical_reject", "shared_multiple_canonical_reject"] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "SharedExpr", semantic_owner = "ownership", stable_reject_tag = "parser/shared_one_operand", positive_fixture_ids = ["shared_constructor_compat"], negative_fixture_ids = ["shared_empty_compat_reject", "shared_multiple_compat_reject"] }
+
+[[rows]]
 row_id = "weak_unary_expr"
 family = "weak"
 spelling_id = "weak_unary_expr"

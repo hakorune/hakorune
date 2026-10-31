@@ -229,6 +229,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
               ? state[value->origin] <= LV4_STRING_RANK_BASE
               : value->kind == LV4_DYNAMIC_CARRIER
                   ? state[value->origin] != LV4_DYNAMIC_CARRIER_LIVE
+                  : value->kind == LV4_SHARED_BORROW
+                      ? state[value->origin] != LV4_SHARED_BORROW_LIVE
                   : state[value->origin] != LV4_LIVE))) return 0;
       if (value->kind == LV4_MIXED_OBJECT &&
           !lv4_mixed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;

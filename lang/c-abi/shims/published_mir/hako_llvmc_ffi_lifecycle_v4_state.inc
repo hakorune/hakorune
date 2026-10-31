@@ -8,6 +8,7 @@ typedef uint64_t hako_lv4_state;
  * it from owned object/string/map state and Return requires it to be ended. */
 #define LV4_DYNAMIC_CARRIER_LIVE (UINT64_C(5) << 32)
 #define LV4_CARRIER_ARRAY_LIVE (UINT64_C(6) << 32)
+#define LV4_SHARED_BORROW_LIVE (UINT64_C(7) << 32)
 
 static hako_lv4_state lv4_map_transfer(int origin) {
   return LV4_TRANSFER_BASE + (uint32_t)origin;

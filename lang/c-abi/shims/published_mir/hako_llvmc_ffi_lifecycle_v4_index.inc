@@ -115,6 +115,8 @@ static int lv4_canonical_receiver(hako_lv4_function_index* fn, const hako_lv4_va
       (lv4_is_ordinary(fn->function) || lv4_is(fn->function, "role", "birth_unit"));
 }
 static int lv4_operation_result(yyjson_val* op) {
+  if (lv4_is(op, "kind", "shared_new") || lv4_is(op, "kind", "shared_clone")) return LV4_SHARED_HANDLE;
+  if (lv4_is(op, "kind", "shared_borrow")) return LV4_SHARED_BORROW;
   if (lv4_is(op, "kind", "field_get")) return LV4_I64;
   if (lv4_is(op, "kind", "dynamic_invoke") || lv4_is(op, "kind", "dynamic_array_get")) return LV4_DYNAMIC_CARRIER;
   if (lv4_is(op, "kind", "dynamic_carrier_integer")) return LV4_I64;
@@ -233,7 +235,7 @@ static int lv4_index_seed(const hako_lv4_input* in,
     if (!block || !op) return 0;
     value->kind = lv4_operation_result(op);
     value->origin = (int)block->ordinal;
-    if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_owned_get")) {
+    if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_owned_get") || lv4_is(op, "kind", "shared_new") || lv4_is(op, "kind", "shared_clone") || lv4_is(op, "kind", "shared_borrow")) {
       value->object_id = lv4_u(op, "object_id"); value->object_id_set = 1;
     } else if (lv4_is(op, "kind", "object_field_borrow")) {
       value->object_id = lv4_u(op, "expected_object_id"); value->object_id_set = 1;

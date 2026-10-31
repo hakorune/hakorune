@@ -404,6 +404,10 @@ def _map_literal(program: dict[str, Any]) -> dict[str, Any]:
 
 def _remaining_expression(program: dict[str, Any], row_id: str) -> dict[str, Any]:
     expression = _single_statement(program)
+    if row_id == "shared_constructor_expr":
+        if expression.get("kind") != "UnaryOp" or expression.get("op") != "shared":
+            raise RustProjectionError("Rust Shared constructor evidence is missing")
+        return _node("SharedExpr", children=[_expression_node(expression.get("operand"))])
     if row_id == "move_unary_expr":
         if expression.get("kind") != "UnaryOp" or expression.get("op") != "move":
             raise RustProjectionError("Rust move unary evidence is missing")
@@ -463,6 +467,7 @@ def project_rust_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _release_statement(program)
     if row_id in {
         "move_unary_expr",
+        "shared_constructor_expr",
         "weak_unary_expr",
         "record_literal",
         "record_with_update",

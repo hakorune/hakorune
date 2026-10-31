@@ -11,7 +11,7 @@ pub(super) fn build_ownership_ssa_json(function: &MirFunction) -> Option<Value> 
     let operations = witness
         .operations()
         .iter()
-        .map(|operation| match operation.kind() {
+        .map(|operation| Some(match operation.kind() {
             OwnershipOperationKindV1::CopyOwned { dst, src } => json!({
                 "block": operation.block().as_u32(),
                 "instruction_index": operation.instruction_index(),
@@ -25,8 +25,10 @@ pub(super) fn build_ownership_ssa_json(function: &MirFunction) -> Option<Value> 
                 "op": "destroy_owned",
                 "value": value.as_u32(),
             }),
-        })
-        .collect::<Vec<_>>();
+            // Legacy llvm_py witness has no Shared representation, so no witness is emitted; published verification owns Shared.
+            OwnershipOperationKindV1::Shared { .. } => return None,
+        }))
+        .collect::<Option<Vec<_>>>()?;
     Some(json!({
         "schema": "VerifiedOwnershipSsaV1",
         "producer": "rust_ownership_ssa_verifier_v1",

@@ -35,6 +35,16 @@ pub(super) fn classify(
                             if *normal_landing != block.id { return Err(OwnershipSsaErrorV1::InvalidAcquisition { block: block.id }); }
                             insert_kind(&mut kinds, *dst, MirOwnershipKindV1::Owned)?;
                         }
+                        Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Shared(operation), normal_landing, .. }) => {
+                            use crate::mir::instruction::SharedInvokeOperation;
+                            if *normal_landing != block.id { return Err(OwnershipSsaErrorV1::InvalidAcquisition { block: block.id }); }
+                            let kind = match operation {
+                                SharedInvokeOperation::New { .. } | SharedInvokeOperation::Clone { .. } => MirOwnershipKindV1::Owned,
+                                SharedInvokeOperation::Borrow { .. } => MirOwnershipKindV1::Borrowed,
+                                SharedInvokeOperation::Release { .. } => return Err(OwnershipSsaErrorV1::InvalidAcquisition { block: block.id }),
+                            };
+                            insert_kind(&mut kinds, *dst, kind)?;
+                        }
                         Some(MirInstruction::Invoke { operation, .. }) if matches!(operation.normal_result_kind(),
                             Some(crate::mir::instruction::InvokeNormalResultKind::I64 | crate::mir::instruction::InvokeNormalResultKind::Bool)) => {
                             insert_kind(&mut kinds, *dst, MirOwnershipKindV1::None)?;

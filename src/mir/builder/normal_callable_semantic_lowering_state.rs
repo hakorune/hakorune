@@ -393,6 +393,15 @@ impl CallableSemanticLoweringState {
             let mut source = relation
                 .initializer_site()
                 .and_then(|initializer| self.variables.get(initializer.node()).copied());
+            if let Some(claims) = &self.ordinary_new_claim_ledger {
+                if let Some((plan, _, _, _)) = claims.shared_clone_initializer_v1(self.owner, site)? {
+                    if plan.root().initializer().is_none_or(|initializer| initializer.binding() != *binding) {
+                        return Err(freeze("shared-clone/local-binding"));
+                    }
+                    // Clone acquires a new token; it is not an alias of the input.
+                    source = None;
+                }
+            }
             if source.is_none() {
                 if let Some(claims) = &self.ordinary_new_claim_ledger {
                     if let Some((plan, from, _)) = claims.move_initializer_v1(self.owner, site)? {

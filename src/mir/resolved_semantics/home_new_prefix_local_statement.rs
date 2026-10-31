@@ -9,6 +9,8 @@ pub(super) fn observe<'a, E>(
     input: ResolvedFunctionLoweringInputV1<'a>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'a>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    result_sites: &BTreeSet<OwnedExprSiteV1>,
+    result_prefixes: &mut BTreeMap<OwnedExprSiteV1, Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>>,
     results: &mut BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     maps: &mut Vec<MapHomeObservation>,
     local_calls: &mut Vec<LocalCallObservationV1>,
@@ -116,7 +118,117 @@ pub(super) fn observe<'a, E>(
             continue;
         };
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+        if let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(site) {
+            if let Some(acquisition) = locals.shared_acquisition_v1(source).cloned() {
+                let scope = function.binding(binding).map(|row| row.owner_scope());
+                if scope.is_none() || function.binding(source).map(|row| row.owner_scope()) != scope
+                    || function.exact_scope_containing(statement.site().node()) != scope
+                    || source == binding || homes.iter().filter(|home| home.binding() == source).count() != 1
+                    || homes.iter().any(|home| home.binding() == binding) {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+                    continue;
+                }
+                let prior_homes = homes.to_vec().into();
+                let plan = input.forest().callable_source_ledger(input.owner()).ok()
+                    .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
+                    .and_then(|source_plan| super::expression_plan::HomeExpressionPlanV1::shared_clone_initializer(source_plan, source, acquisition, prior_homes));
+                if !plan.is_some_and(|plan| locals.retain_expression_plan(plan))
+                    || !locals.install_shared_clone_v1(source, binding, owned, homes) {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+                }
+                continue;
+            }
+        }
         if let Some(unary) = function.expression_source().unary(site) {
+            let proves_original_move = |read_site: &SourceExprSiteV1, source: BindingRefV1, acquisition: &OwnedExprSiteV1| {
+                let Some(flow) = function.expression_source().value_flow() else { return false };
+                let Some(value) = flow.read(read_site, source) else { return false };
+                let terminal = flow.alias_terminal_with_read_site(value, |origin| {
+                    let read = match function.expression_source().unary(origin) {
+                        Some(previous) if previous.operator() == super::super::ResolvedUnaryOperatorV1::Move => previous.operand(),
+                        _ => origin,
+                    };
+                    function.variable_ref(read).map(|reference| (read.clone(), reference))
+                }, |origin| origin == acquisition.site());
+                terminal.and_then(|value| flow.origin(value)).is_some_and(|origin|
+                    matches!(origin, super::super::source_value_flow::SourceValueOriginV1::Expression(site) if site == acquisition.site()))
+            };
+            if unary.operator() == super::super::ResolvedUnaryOperatorV1::Shared {
+                let payload = OwnedExprSiteV1::new(input.owner(), unary.operand().clone());
+                if result_sites.contains(&payload) {
+                    let Some(construction) = function.expression_source().construction(unary.operand()) else {
+                        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue;
+                    };
+                    let Some(construction_source) = scalar_field.shared_payload_construction_source(&payload)?
+                        .filter(|source| source.shared_trivial_payload_v1()) else {
+                        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue;
+                    };
+                    let (observation, moved, issue) = super::new_local::observe_new_arguments_v1(
+                        input, &payload, construction.arguments().len(), locals, homes, local_calls, argument_i64_field, borrowed_actuals)?;
+                    argument_observations.insert(payload.clone(), observation);
+                    if unavailable.is_some() || issue.is_some() || !moved.is_empty() || !construction.field_initializers().is_empty() {
+                        unavailable.get_or_insert_with(|| issue.unwrap_or(HomePrefixUnavailableV1::SourceMismatch)); continue;
+                    }
+                    let prior_homes = homes.to_vec();
+                    let shared_site = owned.clone();
+                    let prefix = issue_shared_new_fault_continuation_v1(input, &payload, &shared_site, binding)
+                        .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
+                        .map(|outward_fault| ResultNewHomePrefixV1 {
+                            purpose: ResultNewPurposeV1::SharedPayload { shared_site: shared_site.clone(), binding },
+                            prior_homes: homes.iter().rev().cloned().collect(),
+                            normal_homes: homes.iter().rev().cloned().collect(), outward_fault,
+                            covered_statements: covered_statements.clone().into_boxed_slice(),
+                        });
+                    if prefix.is_err() { unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue; }
+                    let plan = input.forest().callable_source_ledger(input.owner()).ok()
+                        .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
+                        .and_then(|source| super::expression_plan::HomeExpressionPlanV1::shared_fresh_initializer(source, unary, payload.clone(), prior_homes.into()));
+                    if !plan.is_some_and(|plan| locals.retain_expression_plan(plan))
+                        || !locals.install_shared_fresh_v1(binding, shared_site, payload.clone(), construction_source, homes) {
+                        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue;
+                    }
+                    result_prefixes.insert(payload, prefix);
+                    continue;
+                }
+                let Some(moved) = function.expression_source().unary(unary.operand())
+                    .filter(|row| row.operator() == super::super::ResolvedUnaryOperatorV1::Move) else {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+                    continue;
+                };
+                let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(moved.operand()) else {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone()));
+                    continue;
+                };
+                if locals.was_moved_out(source) {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::UseAfterMove(moved.operand().clone()));
+                    continue;
+                }
+                let scope = function.binding(binding).map(|row| row.owner_scope());
+                if scope.is_none() || function.binding(source).map(|row| row.owner_scope()) != scope
+                    || function.exact_scope_containing(statement.site().node()) != scope {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone()));
+                    continue;
+                }
+                let acquisition = locals.home_acquisition(source).cloned();
+                let proven = acquisition.as_ref().is_some_and(|row| proves_original_move(moved.operand(), source, row));
+                let Some(acquisition) = acquisition.filter(|_| proven) else {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone()));
+                    continue;
+                };
+                if locals.shared_move_preflight_v1(source, binding, &owned, homes).is_none() {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+                    continue;
+                }
+                let prior_homes = homes.to_vec().into();
+                let plan = input.forest().callable_source_ledger(input.owner()).ok()
+                    .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
+                    .and_then(|source_plan| super::expression_plan::HomeExpressionPlanV1::shared_move_initializer(source_plan, unary, moved, source, acquisition, prior_homes));
+                if !plan.is_some_and(|plan| locals.retain_expression_plan(plan))
+                    || !locals.install_shared_move_v1(source, binding, owned, homes) {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+                }
+                continue;
+            }
             if unary.operator() == super::super::ResolvedUnaryOperatorV1::Move {
                 let source = match function.variable_ref(unary.operand()) {
                     Some(ResolvedLexicalRefV1::Local(source)) => source,
@@ -137,20 +249,10 @@ pub(super) fn observe<'a, E>(
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(site.clone()));
                     continue;
                 }
-                let acquisition = locals.home_acquisition(source).cloned();
-                let flow = function.expression_source().value_flow();
-                let proven = acquisition.as_ref().zip(flow).is_some_and(|(acquisition, flow)| {
-                    let Some(value) = flow.read(unary.operand(), source) else { return false };
-                    let terminal = flow.alias_terminal_with_read_site(value, |origin| {
-                        let read = match function.expression_source().unary(origin) {
-                            Some(previous) if previous.operator() == super::super::ResolvedUnaryOperatorV1::Move => previous.operand(),
-                            _ => origin,
-                        };
-                        function.variable_ref(read).map(|reference| (read.clone(), reference))
-                    }, |origin| origin == acquisition.site());
-                    terminal.and_then(|value| flow.origin(value)).is_some_and(|origin|
-                        matches!(origin, super::super::source_value_flow::SourceValueOriginV1::Expression(site) if site == acquisition.site()))
-                });
+                let acquisition = locals.movable_acquisition_v1(source).cloned();
+                let proven = acquisition.as_ref().is_some_and(|row| if locals.shared_acquisition_v1(source).is_some() {
+                    function.expression_source().value_flow().is_some_and(|flow| flow.read(unary.operand(), source).is_some())
+                } else { proves_original_move(unary.operand(), source, row) });
                 if !proven {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(site.clone()));
                     continue;

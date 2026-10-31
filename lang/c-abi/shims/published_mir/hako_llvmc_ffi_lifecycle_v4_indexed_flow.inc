@@ -68,6 +68,9 @@ static int lv4_borrowed_typed_live(const hako_lv4_input* in,
 #include "hako_llvmc_ffi_lifecycle_v4_borrowed_result_anchor.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_field_dependency_liveness.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_mixed_result_flow.inc"
+
+#include "hako_llvmc_ffi_lifecycle_v4_shared_flow.inc"
+
 #include "hako_llvmc_ffi_lifecycle_v4_received_field_read.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_field_array_flow.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_rows.inc"
@@ -101,7 +104,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
     if (lv4_string_pending(state, count) && !(lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned"))) return 0;
     if ((lv4_string_held(state, count) || lv4_string_call_pending(state, count)) && (lv4_is(op, "kind", "ordinary_call") ||
         hako_physical_array_text_append(op) || hako_physical_map_field_text_access(op) || (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) && !(lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "string_end_if_owned"))))) return 0;
-    if (lv4_owned_array_kind(op)) {
+    if (lv4_shared_kind(op)) {
+      if (!lv4_shared_step(in, fn, op, block, birth, faulted, state, normal, bi)) return 0;
+    } else if (lv4_owned_array_kind(op)) {
       if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
     } else if (lv4_carrier_array_kind(op)) {
       if (birth || !lv4_carrier_array_step(fn, op, faulted, state, normal)) return 0;
@@ -463,6 +468,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "field_get")) {
       if (faulted || birth || !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id"))) return 0;
+      hako_lv4_value* view = lv4_index_value(fn, lv4_u(op, "base"));
+      if (view && view->kind == LV4_SHARED_BORROW) normal[view->origin] = state[view->origin] = 0;
       /* The receiver's original nullable/conditional obligation is untouched.
          The I64 result is available exclusively on Normal. */
       normal[bi] = LV4_LIVE;

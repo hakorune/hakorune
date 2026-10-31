@@ -86,6 +86,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
   if (hako_physical_string_result(kind)) return 1;
   if (!strcmp(kind, "dynamic_invoke") || !strcmp(kind, "dynamic_array_get") || !strcmp(kind, "dynamic_carrier_integer") ||
       !strcmp(kind, "dynamic_carrier_sub_i64")) return 1;
+  if (!native && (!strcmp(kind, "shared_new") || !strcmp(kind, "shared_clone") || !strcmp(kind, "shared_borrow"))) return 1;
   if (native) return !strcmp(kind, "array_new");
   if (!strcmp(kind, "field_get") || !strcmp(kind, "object_field_borrow")) return 1;
   /* `array_new` outside the native lane is the proven provider `new
@@ -221,6 +222,18 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         ? hako_physical_string_operand(function, yyjson_obj_get(operation, "value"), block, index, 0, 0, 0)
         : hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
             hako_physical_value_available_at(function, value, block, index);
+  }
+  if (!strcmp(kind, "shared_new") || !strcmp(kind, "shared_clone") || !strcmp(kind, "shared_borrow") || !strcmp(kind, "shared_release")) {
+    static const char* const keys[] = {"kind", "value", "object_id", "profile", "abi", "end", "site"};
+    return !native && hako_physical_exact_keys(operation, keys, 7)
+        && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)
+        && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id)
+        && hako_physical_layout_has_object(layouts, object_id)
+        && hako_physical_string(yyjson_obj_get(operation, "profile"), "thread_local_v1")
+        && yyjson_is_uint(yyjson_obj_get(operation, "abi")) && yyjson_get_uint(yyjson_obj_get(operation, "abi")) == 1
+        && yyjson_is_arr(yyjson_obj_get(operation, "end"))
+        && hako_physical_u32(yyjson_obj_get(operation, "value"), &value)
+        && hako_physical_value_available_at(function, value, block, index);
   }
   if (!strcmp(kind, "array_owned_claim") || !strcmp(kind, "array_owned_append") ||
       !strcmp(kind, "array_owned_get") || !strcmp(kind, "array_owned_end")) {

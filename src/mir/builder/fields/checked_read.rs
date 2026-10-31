@@ -76,7 +76,7 @@ impl crate::mir::MirBuilder {
         let function = self.function_state.current_function.as_ref().ok_or("[freeze:contract][ordinary-field-read/no-function]")?;
         let frame = state.fault_frame_binding(function)?;
         // Capture only rows this writer actually appended on the Normal path.
-        let normal_prefix: Vec<_> = function.blocks[&entry].instructions[start..].iter()
+        let mut normal_prefix: Vec<_> = function.blocks[&entry].instructions[start..].iter()
             .map(|row| (entry, row.clone())).collect();
         if normal_prefix.iter().any(|row| row != &frame) {
             return Err("[freeze:contract][ordinary-field-read/checked-frame-append]".into());
@@ -85,6 +85,26 @@ impl crate::mir::MirBuilder {
         let outward = self.next_block_id();
         append_block(self, outward, MirInstruction::ReturnFault { fault_frame }, &mut fault)?;
         let landing = cleanup_chain(self, fault_frame, operations, outward, &mut fault)?;
+        let base = if let Some(support) = source.shared_support_v1() {
+            let (descriptor, handle, _) = ledger.prepare_shared_clone_handle_v1(required.request().receiver, &support.0, required.prior_homes())?;
+            if handle != base || descriptor.payload != field.object() {
+                return Err("[freeze:contract][shared-field/support-drift]".into());
+            }
+            let block = self.function_state.current_block.ok_or("[freeze:contract][shared-field/no-block]")?;
+            let normal = self.next_block_id();
+            let invoke = MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::Shared(
+                    crate::mir::instruction::SharedInvokeOperation::Borrow { descriptor, handle }),
+                fault_frame, normal_landing: normal, fault_landing: landing,
+            };
+            self.emit_instruction(invoke.clone())?;
+            self.start_new_block(normal)?;
+            let value = self.next_value_id();
+            let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst: value };
+            self.emit_instruction(projection.clone())?;
+            normal_prefix.extend([(block, invoke), (normal, projection)]);
+            value
+        } else { base };
         let normal = self.next_block_id();
         let (value, pair) = self.append_checked_field_read_with_destination_v1(base, source, fault_frame, normal, landing, destination)?;
         ledger.record_source_checked_local_field_read_v1(site, source, read, pair[0].clone(), pair[1].clone(), frame,

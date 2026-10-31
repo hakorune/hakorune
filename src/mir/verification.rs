@@ -22,7 +22,7 @@ mod awaits;
 mod barrier;
 mod cfg;
 mod contract_carriers;
-mod dom;
+pub(crate) mod dom;
 mod fastmem;
 mod hako_alloc_metadata;
 mod hako_alloc_page_lifecycle;
@@ -33,7 +33,7 @@ mod module_metadata;
 mod numeric_substrate;
 pub(crate) mod return_outcome;
 mod rune_contracts;
-mod ssa;
+pub(crate) mod ssa;
 mod string_kernel;
 pub(crate) mod utils; // Phase 257 P1-2: Made public for loop_header_phi_builder
 

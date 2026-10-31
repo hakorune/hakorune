@@ -9,7 +9,8 @@ pub(super) fn bindings(
 ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
     let actual: Vec<_> = function.blocks.iter().flat_map(|(block, body)| {
         body.all_instructions().filter_map(move |row| matches!(row,
-            MirInstruction::Invoke { operation: InvokeOperation::ObjectEndIfOwned { .. }, .. }
+            MirInstruction::Invoke { operation: InvokeOperation::ObjectEndIfOwned { .. }
+                | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { .. }), .. }
         ).then(|| (*block, row.clone())))
     }).collect();
     let Some(view) = view else {

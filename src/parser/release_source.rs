@@ -198,4 +198,17 @@ mod tests {
         NyashParser::parse_from_string("static box Main { main() { move(a)\n return 0 } }")
             .expect("ordinary move call remains a call");
     }
+
+    #[test]
+    fn shared_constructor_retains_source_operator_and_checks_arity() {
+        let program = NyashParser::parse_from_string("Shared(move value)").unwrap();
+        let ASTNode::Program { statements, .. } = program else { panic!("program") };
+        assert!(matches!(statements.as_slice(), [ASTNode::UnaryOp {
+            operator: crate::ast::UnaryOperator::Shared, operand, ..
+        }] if matches!(operand.as_ref(), ASTNode::UnaryOp { operator: crate::ast::UnaryOperator::Move, .. })));
+        for source in ["Shared()", "Shared(a, b)"] {
+            let error = NyashParser::parse_from_string(source).expect_err("Shared needs one operand");
+            assert!(error.to_string().contains("parser/shared_one_operand"), "{error}");
+        }
+    }
 }

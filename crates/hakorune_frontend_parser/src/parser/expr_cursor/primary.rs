@@ -1,5 +1,5 @@
 use super::ExprParserWithCursor;
-use crate::ast::{ASTNode, CheckItem, LiteralValue, Span};
+use crate::ast::{ASTNode, CheckItem, LiteralValue, Span, UnaryOperator};
 use crate::parser::cursor::TokenCursor;
 use crate::parser::ParseError;
 use crate::tokenizer::TokenType;
@@ -100,6 +100,27 @@ impl ExprParserWithCursor {
             }
             TokenType::IDENTIFIER(name) => {
                 let name = name.clone();
+                if name == "Shared" && matches!(cursor.peek_nth_token(1), TokenType::LPAREN) {
+                    cursor.advance();
+                    cursor.advance();
+                    if cursor.match_token(&TokenType::RPAREN) {
+                        return Err(ParseError::UnexpectedToken {
+                            found: cursor.current().token_type.clone(),
+                            expected: "[freeze:contract][parser/shared_one_operand] Shared requires one expression".into(),
+                            line: cursor.current().line,
+                        });
+                    }
+                    let operand = Self::parse_expression(cursor)?;
+                    if !cursor.match_token(&TokenType::RPAREN) {
+                        return Err(ParseError::UnexpectedToken {
+                            found: cursor.current().token_type.clone(),
+                            expected: "[freeze:contract][parser/shared_one_operand] Shared requires one expression".into(),
+                            line: cursor.current().line,
+                        });
+                    }
+                    cursor.advance();
+                    return Ok(ASTNode::UnaryOp { operator: UnaryOperator::Shared, operand: Box::new(operand), span: Span::unknown() });
+                }
                 if name == "check" {
                     return Self::parse_check_or_variable(cursor);
                 }

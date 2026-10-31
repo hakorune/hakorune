@@ -19,6 +19,7 @@ pub(crate) struct RootLifecyclePrefixBindingGroupV1 {
 
 #[derive(Debug, Clone)]
 enum PrefixPhysicalProofV1 {
+    SharedInitializer(Rc<SharedLocalCommitV1>),
     Loop(Rc<source_loop_projection::EmittedSourceLoopProjectionV2>),
     Call(Option<Rc<EmittedLexicalCallProjectionV1>>),
     DirectScalar(Rc<DirectScalarCallProjectionV1>),
@@ -285,6 +286,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
                     let proof = match &self.proof {
                         PrefixPhysicalProofV1::Loop(_) => "loop",
+                        PrefixPhysicalProofV1::SharedInitializer(_) => "shared-initializer",
                         PrefixPhysicalProofV1::Call(_) => "call",
                         PrefixPhysicalProofV1::DirectScalar(_) => "direct-scalar",
                         PrefixPhysicalProofV1::EvaluatedBinding(_) => "evaluated-binding",
@@ -489,7 +491,6 @@ impl RootLifecyclePrefixBindingGroupV1 {
         })
     }
 
-
     pub(in crate::mir) fn rebind(
         &self,
     ) -> Option<&binding_rebind_projection::EmittedBindingRebindProjectionV1> {
@@ -562,19 +563,6 @@ impl RootLifecyclePrefixBindingGroupV1 {
             _ => None,
         }
     }
-    pub(super) fn new_append(
-        packet: Rc<owned_array_append_projection::EmittedOwnedArrayAppendV1>,
-        bindings: Vec<(BasicBlockId, MirInstruction)>,
-    ) -> Result<Self, String> {
-        packet.validate_recorded(&bindings, None)?;
-        Ok(Self {
-            site: packet.source().site().clone(),
-            bindings,
-            proof: PrefixPhysicalProofV1::OwnedArrayAppend(packet),
-            projected: false,
-        })
-    }
-
     pub(in crate::mir) fn borrowed_field_write(&self) -> Option<&EmittedBorrowedFieldWriteV1> {
         match &self.proof {
             PrefixPhysicalProofV1::BorrowedFieldWrite(packet) => Some(packet),
@@ -601,26 +589,6 @@ impl RootLifecyclePrefixBindingGroupV1 {
             _ => None,
         }
     }
-    pub(super) fn field_array_append_packet_v1(
-        &self,
-    ) -> Option<&Rc<field_array_append_projection::EmittedFieldArrayAppendV1>> {
-        match &self.proof {
-            PrefixPhysicalProofV1::FieldArrayAppend(packet) => Some(packet),
-            _ => None,
-        }
-    }
-    pub(super) fn new_field_append(
-        packet: Rc<field_array_append_projection::EmittedFieldArrayAppendV1>,
-        bindings: Vec<(BasicBlockId, MirInstruction)>,
-    ) -> Result<Self, String> {
-        packet.validate_recorded(&bindings, None)?;
-        Ok(Self {
-            site: packet.source().site().clone(),
-            bindings,
-            proof: PrefixPhysicalProofV1::FieldArrayAppend(packet),
-            projected: false,
-        })
-    }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_source(
         &self,
         source: &LifecyclePrefixSourceV1,
@@ -629,6 +597,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
             return false;
         }
         match (&self.proof, source) {
+            (PrefixPhysicalProofV1::SharedInitializer(packet), LifecyclePrefixSourceV1::SharedInitializer { source, .. }) => Rc::ptr_eq(&packet.source, source),
             (PrefixPhysicalProofV1::FieldMapInstall(packet), LifecyclePrefixSourceV1::FieldMapInstall { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
             (
                 PrefixPhysicalProofV1::StoredMapGet(packet),
@@ -710,6 +679,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 .validate_text_residence_home_v1(&home, context)?;
         }
         match &self.proof {
+            PrefixPhysicalProofV1::SharedInitializer(packet) => packet.validate_shared_v1(context.ledger(), function, coordinates),
             PrefixPhysicalProofV1::Loop(packet) => packet.validate_completion_v2(
                 context,
                 function,
@@ -798,3 +768,5 @@ impl RootLifecyclePrefixBindingGroupV1 {
 
 #[path = "local_binding_group_map.rs"]
 mod map_groups;
+#[path = "local_binding_group_packets.rs"]
+mod packets;

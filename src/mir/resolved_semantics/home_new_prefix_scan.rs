@@ -593,6 +593,8 @@ pub(super) fn scan_statement_flow<'a, E>(
             input,
             &statement,
             selected,
+            result_sites,
+            result_prefixes,
             results,
             maps,
             local_calls,

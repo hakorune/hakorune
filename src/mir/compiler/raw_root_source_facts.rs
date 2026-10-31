@@ -500,7 +500,7 @@ fn classify_expr(
                 UnaryOperator::Minus => RawScalarUnaryOperatorV1::Minus,
                 UnaryOperator::Not => RawScalarUnaryOperatorV1::Not,
                 UnaryOperator::BitNot => RawScalarUnaryOperatorV1::BitNot,
-                UnaryOperator::Weak | UnaryOperator::Move => {
+                UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => {
                     return Err(RawRootSourceFactsErrorV1::Scalar { path: path.into() })
                 }
             };

@@ -20,7 +20,7 @@ pub(crate) fn enforce_published_lifecycle_backend_supported(
 ) -> Result<(), String> {
     validate_published_ingress(view)?;
     view.validate_lifecycle_input_handoff(input)?;
-    verify_source_moves_on_published_mir(input)?;
+    verify_source_moves_on_published_mir(view.module(), input)?;
     crate::mir::ownership_backend_capability::enforce(view.module(), "ny-llvmc-obj")?;
     crate::mir::exact_numeric_backend_capability::enforce_lifecycle_input(view.module(), input)?;
     enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(
@@ -40,12 +40,21 @@ pub(crate) fn enforce_published_lifecycle_backend_supported(
 }
 
 fn verify_source_moves_on_published_mir(
+    module: &MirModule,
     input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<(), String> {
     use crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1 as Role;
     use crate::mir::ownership_ssa::{FunctionResultOwnershipV1, OwnershipFunctionAbiV1, OwnershipFunctionOwnerV1};
     let handoff = input.program().handoff();
-    let Some(source) = handoff.root_source() else { return Ok(()) };
+    let has_shared = |function: &crate::mir::MirFunction| function.blocks.values()
+        .flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction,
+            crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Shared(_), .. }));
+    let Some(source) = handoff.root_source() else {
+        if input.program().functions().iter().any(|physical| has_shared(physical.function())) {
+            return Err("[ownership/shared-source-handoff-not-connected]".into());
+        }
+        return Ok(());
+    };
     let mut remaining = source.move_ownership_owners_v1();
     for physical in input.program().functions() {
         let owner = match physical.role() {
@@ -53,8 +62,14 @@ fn verify_source_moves_on_published_mir(
             Role::BirthUnit { abi } => Some(abi.owner()),
             role => role.ordinary_target().and_then(|key| handoff.callables()?.owner_for_canonical_key(key)),
         };
-        let Some(owner) = owner else { continue };
-        let Some((aliases, initially_published)) = source.move_ownership_aliases_v1(owner, physical.function())? else { continue };
+        let Some(owner) = owner else {
+            if has_shared(physical.function()) { return Err("[ownership/shared-owner-missing]".into()); }
+            continue;
+        };
+        let Some((aliases, initially_published)) = source.move_ownership_aliases_v1(owner, physical.function())? else {
+            if has_shared(physical.function()) { return Err("[ownership/shared-owner-missing]".into()); }
+            continue;
+        };
         if !matches!(physical.role(), Role::Root { .. } | Role::OrdinaryI64 { .. } | Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. }) {
             return Err("[ownership/move-abi-not-supported]".into());
         }
@@ -63,8 +78,14 @@ fn verify_source_moves_on_published_mir(
             role => source.move_parameter_kinds_v1(owner, role.ordinary_target().ok_or("[ownership/move-abi-not-supported]")?,
                 role.receiver_object(), physical.params().len())?,
         };
+        let descriptors = source.finished_shared_initializers_v1(module, physical.function())?.into_iter().filter_map(|(_, row)| match row {
+            crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Shared(
+                crate::mir::instruction::SharedInvokeOperation::New { descriptor, .. }), .. } => Some(descriptor),
+            _ => None,
+        }).collect();
         let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), parameters, FunctionResultOwnershipV1::None)
-            .with_source_aliases(aliases).with_initially_published(initially_published);
+            .with_source_aliases(aliases).with_initially_published(initially_published)
+            .with_source_shared_descriptors(descriptors);
         crate::mir::ownership_ssa::verify_ownership_ssa_v1(physical.function(), &abi)
             .map_err(|error| format!("[ownership/published-mir] {error:?}"))?;
         if !remaining.remove(&owner) { return Err("[ownership/move-owner-duplicate]".into()); }

@@ -27,6 +27,8 @@ mod projection;
 mod scalar;
 #[path = "physical_program_object_end.rs"]
 mod object_end;
+#[path = "physical_program_shared_initializer.rs"]
+mod shared_initializer;
 
 #[path = "physical_program_call_helpers.rs"]
 mod call_helpers;
@@ -486,6 +488,9 @@ fn issue_function_with_module<'module>(
     };
     let source_initializer_install = |block, instruction: &MirInstruction| initializer_installs
         .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
+    let shared_initializers = shared_initializer::bindings(module, function, selected_view)?;
+    let source_shared_binding = |block, instruction: &MirInstruction| shared_initializers
+        .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
     let end_bindings = object_end::bindings(module, function, selected_view)?;
     let source_end_binding = |block, instruction: &MirInstruction| end_bindings
         .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
@@ -580,7 +585,7 @@ fn issue_function_with_module<'module>(
                 }
             }
             let field_ref = prepare_field_ref(module, function, block.id, index, instruction, &source_field_reads)?;
-            if !source_count_binding(id, instruction) && !source_initializer_install(id, instruction) && !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
+            if !source_count_binding(id, instruction) && !source_initializer_install(id, instruction) && !source_shared_binding(id, instruction) && !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
                 .iter()
                 .any(|(bound_block, bound)| *bound_block == id && bound == instruction)
             {
@@ -599,7 +604,7 @@ fn issue_function_with_module<'module>(
         let terminator_index = block.instructions.len();
         let terminator_field_ref =
             prepare_field_ref(module, function, block.id, terminator_index, terminator, &source_field_reads)?;
-        if !source_end_binding(id, terminator) && !main_argument_binding(id, terminator) && !source_array_binding(id, terminator) {
+        if !source_end_binding(id, terminator) && !source_shared_binding(id, terminator) && !main_argument_binding(id, terminator) && !source_array_binding(id, terminator) {
             validate_instruction_with_context(
                 terminator_field_ref,
                 terminator,
@@ -719,7 +724,7 @@ fn validate_instruction_with_context(
     let field_get = matches!(instruction, MirInstruction::FieldGet { .. }) && field_ref.is_some();
     let field_set = matches!(instruction, MirInstruction::FieldSet { .. }) && field_ref.is_some();
     let supported = ordinary
-        || received_field && matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { .. }, .. })
+        || received_field && matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { .. } | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. })
         || field_get
         || field_set
         || matches!(

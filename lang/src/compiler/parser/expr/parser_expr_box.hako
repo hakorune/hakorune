@@ -445,6 +445,23 @@ static box ParserExprBox {
 
       local node = "{\"type\":\"Var\",\"name\":\"" + name + "\"}"
 
+      // The unqualified constructor is a source operator, not a free call.
+      if name == "Shared" && k < src.length() && src.substring(k, k+1) == "(" {
+        local operand_start = ctx.skip_ws(src, k + 1)
+        if operand_start >= src.length() || src.substring(operand_start, operand_start+1) == ")" {
+          ctx.gpos_set(operand_start)
+          return ctx.freeze_contract("parser/shared_one_operand", "Shared requires one expression")
+        }
+        local operand = ParserExprBox.parse_expr2(src, operand_start, ctx)
+        k = ctx.skip_ws(src, ctx.gpos_get())
+        if k >= src.length() || src.substring(k, k+1) != ")" {
+          ctx.gpos_set(k)
+          return ctx.freeze_contract("parser/shared_one_operand", "Shared requires one expression")
+        }
+        k = k + 1
+        node = "{\"type\":\"Unary\",\"op\":\"shared\",\"operand\":" + operand + "}"
+      }
+
       // MirBuilder-friendly: explicit continue/break instead of flag
       local loop_guard = 0
       local max = 200000

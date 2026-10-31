@@ -28,7 +28,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let row_emission = match row {
             LocalCommitV1::Ordinary(row) => &row.emission,
             LocalCommitV1::Result(row) => &row.emission,
-            LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => {
+            LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) | LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => {
                 unreachable!("map and call-received rows returned above")
             }
         };
@@ -42,7 +42,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 bindings,
                 ..
             } => {
-                if let LocalCommitV1::Result(_) = row {
+                if let LocalCommitV1::Result(result_row) = row {
+                    use crate::mir::resolved_semantics::home_new_prefix::{ResultNewPurposeV1, SharedPayloadSourceV1};
+                    let purpose = result_row.home_prefix.as_ref().map_err(|_| freeze("result-source-unavailable"))?.purpose();
                     // Result exit contract: the emitted object identity
                     // reaches `Return { value }` exactly once — this is
                     // the transfer edge the claim stands for.
@@ -60,8 +62,20 @@ impl OrdinaryNewClaimLedgerV1 {
                             )
                         })
                         .count();
-                    if returns != 1 {
-                        return Err(freeze("result-return-drift"));
+                    match purpose {
+                        ResultNewPurposeV1::Return if returns == 1 => {},
+                        ResultNewPurposeV1::Return => return Err(freeze("result-return-drift")),
+                        ResultNewPurposeV1::SharedPayload { shared_site, binding } => {
+                            let rows = self.local_commits.borrow();
+                            let Some(LocalCommitV1::Shared(shared)) = rows.get(shared_site) else { return Err(freeze("shared-fresh/commit-missing")); };
+                            if returns != 0 || shared.binding != *binding || shared.payload != *result
+                                || shared.payload_source != (SharedPayloadSourceV1::Fresh { site: site.clone() }) {
+                                return Err(freeze("shared-fresh/transfer-drift"));
+                            }
+                            let uses = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|instruction| matches!(instruction,
+                                MirInstruction::Invoke { operation: InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::New { payload, .. }), .. } if payload == result)).count();
+                            if uses != 1 { return Err(freeze("shared-fresh/transfer-drift")); }
+                        }
                     }
                 } else {
                     let local = row_emission

@@ -82,7 +82,7 @@ Ownership grammar status (2026-08-04):
   Support status is reported by `stage-profiles.md`.
 - Successor (ownership.md §0, decided 2026-10-30): `Shared(...)` replaces the
   `share` target; bounded Rust `move` semantics are live, while Hako parity
-  and Shared semantics remain pending.
+  and bounded local `Shared(move x)` / `Shared(fresh)` with clone and read are live (independent MIR verification); Shared sharing across calls and threads remain pending.
 
 Accepted ownership grammar and implementation status:
 

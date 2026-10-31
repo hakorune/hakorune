@@ -54,6 +54,14 @@ pub(crate) struct ConstructionSourceStructureV1 {
 impl ConstructionSourceStructureV1 {
     pub(crate) fn completion(&self) -> &ConstructionCompletionV1 { &self.completion }
 
+    /// Narrow Shared payload candidate: the original construction contains
+    /// no owned/borrowed field demand and no child call that could escape it.
+    pub(crate) fn shared_trivial_payload_v1(&self) -> bool {
+        self.field_demands.as_ref().is_ok_and(|demands|
+            demands.iter().all(|demand| matches!(demand, HomeDemandV1::Trivial)))
+            && self.steps.iter().all(|step| matches!(step, ConstructionSourceStepV1::Store(_)))
+    }
+
     pub(crate) fn allocation_only_fields(&self) -> Option<&[ConstructionFieldSourceV1]> {
         match self.completion() {
             ConstructionCompletionV1::AllocationOnly { fields } => Some(fields),

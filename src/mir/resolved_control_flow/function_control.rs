@@ -172,6 +172,43 @@ pub(crate) fn issue_result_new_fault_continuation_v1(
     if !matches!(located.node(), ASTNode::New { .. }) {
         return Err("source-not-new");
     }
+    issue_destinationless_new_fault_v1(input, site)
+}
+
+/// A Shared payload is the exact New operand of one original Local initializer.
+pub(crate) fn issue_shared_new_fault_continuation_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    shared: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    binding: crate::mir::resolved_semantics::BindingRefV1,
+) -> Result<NewFaultContinuationV1, &'static str> {
+    use crate::mir::resolved_semantics::{ResolvedUnaryOperatorV1, SourceBindingSiteV1};
+    let function = input.function();
+    if shared.owner() != input.owner() || binding.owner() != input.owner() { return Err("foreign-source-owner"); }
+    let unary = function.expression_source().unary(shared.site()).ok_or("shared-source-missing")?;
+    if unary.operator() != ResolvedUnaryOperatorV1::Shared || unary.operand() != site.site() {
+        return Err("shared-payload-source-mismatch");
+    }
+    let mut relations = function.expression_source().initializers().filter(|row|
+        row.initializer_site() == Some(shared.site()) && row.binding() == binding);
+    let relation = relations.next().ok_or("shared-initializer-missing")?;
+    if relations.next().is_some() || !matches!(relation.declaration_site(), SourceBindingSiteV1::Local { .. })
+        || function.declaration_binding(relation.declaration_site()) != Some(binding)
+        || !matches!(input.source().expr_at(site).map_err(|_| "source-site-missing")?.node(), ASTNode::New { .. }) {
+        return Err("shared-initializer-mismatch");
+    }
+    issue_destinationless_new_fault_v1(input, site)
+}
+
+fn issue_destinationless_new_fault_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+) -> Result<NewFaultContinuationV1, &'static str> {
+    let function = input.function();
+    if input.owner() != function.owner() || site.owner() != input.owner()
+        || !input.forest().owner(input.owner()).is_some_and(|owner| std::ptr::eq(owner, function)) {
+        return Err("foreign-source-owner");
+    }
     let scope = function
         .exact_scope_containing(site.site().node())
         .ok_or("source-scope-missing")?;

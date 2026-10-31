@@ -28,6 +28,25 @@ pub(super) fn encode_invoke(
                 "object_id": object.declaration_index(), "value": value(ended), "end": steps }),
                 required_site(diagnostic_site, true)?)?
         }
+        InvokeOperation::Shared(operation) => {
+            use crate::mir::instruction::{ObjectEndStepV1 as Step, SharedInvokeOperation as Op};
+            let descriptor = operation.descriptor();
+            let steps = descriptor.end.iter().map(|step| match step {
+                Step::FieldResidence { mode, field } => json!({"kind": match mode {
+                    crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence => "array_field",
+                    crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence => "dynamic_field",
+                }, "field_ordinal": field.declaration_ordinal()}),
+                Step::ObjectField { field, child } => json!({"kind":"object_field", "field_ordinal":field.declaration_ordinal(), "child_object_id":child.declaration_index()}),
+                Step::ReleaseOuter => json!({"kind":"release_outer"}),
+            }).collect::<Vec<_>>();
+            let (kind, operand) = match operation {
+                Op::New { payload, .. } => ("shared_new", payload),
+                Op::Clone { handle, .. } => ("shared_clone", handle),
+                Op::Borrow { handle, .. } => ("shared_borrow", handle),
+                Op::Release { handle, .. } => ("shared_release", handle),
+            };
+            with_site(json!({"kind":kind, "value":value(operand), "object_id":descriptor.payload.declaration_index(), "profile":"thread_local_v1", "abi":1, "end":steps}), required_site(diagnostic_site, true)?)?
+        }
         InvokeOperation::OwnedArray(operation) => {
             use crate::mir::instruction::OwnedArrayInvokeOperation as Op;
             let descriptor = operation.descriptor();

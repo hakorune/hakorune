@@ -277,7 +277,7 @@ where
             ExprChildRoleV1::LocalInitializer(index),
         )?;
         let observation_source = source.clone();
-        if let Some(emission) = self.lower_checked_local_initializer_v1(builder, &source, index)? {
+        if let Some(emission) = self.lower_checked_local_initializer_v1(builder, &source, input.statement(), index)? {
             let value = emission.value();
             take_initializer(input, index as usize)?;
             input.observe_initializer(index as usize, observation_source, value, None)?;

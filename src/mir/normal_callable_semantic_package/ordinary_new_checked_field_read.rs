@@ -7,6 +7,44 @@ use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
 type Binding = (BasicBlockId, MirInstruction);
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Recheck the source handle and the exact Borrow/Normal pair retained by
+    /// the same checked read. A different clone cannot replace its support.
+    fn shared_field_base_v1(
+        &self, site: &OwnedExprSiteV1, row: &LocalFieldRead,
+        cleanup: &CheckedFieldReadCleanupV1,
+    ) -> Result<Option<ValueId>, String> {
+        let Some(support) = row.source.shared_support_v1() else { return Ok(None); };
+        let CheckedFieldReadCleanupV1::SourceHomes { requirement, normal_prefix, .. } = cleanup
+            else { return Err(fault("shared-field/cleanup-missing")); };
+        if requirement.request().shared_support.as_ref() != Some(support) || requirement.request().site != *site {
+            return Err(fault("shared-field/requirement-drift"));
+        }
+        let (descriptor, handle, _) = self.prepare_shared_clone_handle_v1(row.receiver, &support.0, requirement.prior_homes())?;
+        let mut invokes = normal_prefix.iter().filter_map(|(block, instruction)| match instruction {
+            MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Shared(
+                crate::mir::instruction::SharedInvokeOperation::Borrow { descriptor: actual, handle: source }),
+                normal_landing, fault_landing, .. } if actual == &descriptor && *source == handle && normal_landing != fault_landing =>
+                Some((*block, *normal_landing, *fault_landing)),
+            _ => None,
+        });
+        let (origin, landing, fault_landing) = invokes.next().ok_or_else(|| fault("shared-field/borrow-missing"))?;
+        if invokes.next().is_some() { return Err(fault("shared-field/borrow-duplicate")); }
+        let mut results = normal_prefix.iter().filter_map(|(block, instruction)| match instruction {
+            MirInstruction::InvokeNormalResult { invoke_block, dst } if *invoke_block == origin && *block == landing => Some(*dst),
+            _ => None,
+        });
+        let value = results.next().ok_or_else(|| fault("shared-field/borrow-result-missing"))?;
+        if results.next().is_some() { return Err(fault("shared-field/borrow-result-duplicate")); }
+        match &row.progress {
+            LocalReadProgress::Taken { base, .. } if *base == handle => {},
+            LocalReadProgress::CheckedEmitted { read: Some(read), invoke, .. }
+                if read.value_for(site.owner(), row.receiver_site.node(), row.receiver).ok() == Some(handle)
+                    && invoke.0 == landing
+                    && matches!(&invoke.1, MirInstruction::Invoke { fault_landing: field_fault, .. } if *field_fault == fault_landing) => {},
+            _ => return Err(fault("shared-field/support-drift")),
+        }
+        Ok(Some(value))
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn validate_nullable_field_operation_v1(
         &self, loan: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1,
         context: CallValidationContextV1<'_>,
@@ -63,10 +101,11 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let mut rows = self.local_field_reads.borrow_mut();
         let row = rows.get_mut(site).ok_or_else(|| fault("received/read-missing"))?;
+        let LocalReadProgress::Taken { source: taken, base } = &row.progress else { return Err(fault("received/emission-source")); };
+        let field_base = self.shared_field_base_v1(site, row, &cleanup)?.unwrap_or(*base);
         if !source.requires_checked_field_read_v1() || !Rc::ptr_eq(source, &row.source)
-            || !matches!(&row.progress, LocalReadProgress::Taken { source: taken, base }
-                if Rc::ptr_eq(taken, source) && read.as_ref().is_none_or(|read| read.source_value().2 == *base)
-                    && matches!(&invoke.1, MirInstruction::Invoke { operation, .. } if source.matches_checked_operation_v1(operation, *base))) {
+            || !Rc::ptr_eq(taken, source) || read.as_ref().is_some_and(|read| read.source_value().2 != *base)
+            || !matches!(&invoke.1, MirInstruction::Invoke { operation, .. } if source.matches_checked_operation_v1(operation, field_base)) {
             return Err(fault("received/emission-source"));
         }
         self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
@@ -85,10 +124,12 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(row) = rows.get(site) else { return Ok(None); };
         if !row.source.requires_checked_field_read_v1() { return Ok(None); }
         self.recheck_local_field_source_v1(site, row, context)?;
-        let LocalReadProgress::CheckedEmitted { source, invoke, normal, read, .. } = &row.progress
+        let LocalReadProgress::CheckedEmitted { source, invoke, normal, read, cleanup } = &row.progress
             else { return Err(fault("received/unconsumed-read")); };
         if !Rc::ptr_eq(source, &row.source) { return Err(fault("received/descriptor-drift")); }
-        let base = if let Some(path) = source.statement_path().filter(|path| path.requires_checked_scalar_v1()) {
+        let base = if let Some(base) = self.shared_field_base_v1(site, row, cleanup)? {
+            base
+        } else if let Some(path) = source.statement_path().filter(|path| path.requires_checked_scalar_v1()) {
             if read.is_some() { return Err(fault("received/nested-lexical-read")); }
             let parent = path.checked_parent_v1().ok_or_else(|| fault("received/nested-parent"))?;
             let plan = self.source_field_requirement_v1(site)?.ok_or_else(|| fault("received/expression-source-missing"))?.plan();
@@ -155,7 +196,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(received) = row.source.received.as_ref() else {
             // checked_field_pair replays the same complete numeric/source loan
             // and exact lexical receiver. A direct Self read has no Call result.
-            if row.numeric_source.is_none() && !matches!(row.source.result(),
+            if row.numeric_source.is_none() && row.source.shared_support_v1().is_none() && !matches!(row.source.result(),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
                     | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_)) {
                 return Err(fault("received/source-missing"));
@@ -206,6 +247,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect()
     }
 
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_local_field_sites_v1(&self, owner: FunctionOwnerIdV1) -> Vec<OwnedExprSiteV1> {
+        self.local_field_reads.borrow().iter()
+            .filter(|(site, row)| site.owner() == owner && row.source.requires_checked_field_read_v1())
+            .map(|(site, _)| site.clone()).collect()
+    }
+
     /// Every checked read and Normal result must be the same original row after
     /// finishing. Instruction shape alone never creates source membership.
     pub(in crate::mir::normal_callable_semantic_package) fn validate_checked_field_census_v1(
@@ -218,6 +265,17 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut expected = Vec::new();
         for site in sites {
             self.validate_checked_field_cleanup_v1(&site, function, context, &mut project)?;
+            let prefix = self.checked_field_normal_prefix_v1(&site)?;
+            let borrow_origins: Vec<_> = prefix.iter().filter_map(|(block, instruction)| matches!(instruction,
+                MirInstruction::Invoke { operation: InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. })
+                .then_some(*block)).collect();
+            for binding in prefix.iter().filter(|(_, instruction)| matches!(instruction,
+                MirInstruction::Invoke { operation: InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. })
+                || matches!(instruction, MirInstruction::InvokeNormalResult { invoke_block, .. } if borrow_origins.contains(invoke_block))) {
+                let mapped = project(binding)?.ok_or_else(|| fault("shared-field/finished-binding-missing"))?;
+                if expected.contains(&mapped) { return Err(fault("shared-field/duplicate-binding")); }
+                expected.push(mapped);
+            }
             let pair = self.checked_field_pair_v1(&site, context)?.ok_or_else(|| fault("received/pair-missing"))?;
             for binding in pair {
                 let mapped = project(&binding)?.ok_or_else(|| fault("received/finished-binding-missing"))?;
@@ -243,10 +301,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let published = expected.clone();
         for (block, body) in &function.blocks {
             for row in body.all_instructions() {
-                let checked = matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })
+                let checked = matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. } | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. })
                     || matches!(row, MirInstruction::InvokeNormalResult { invoke_block, .. }
                         if function.blocks.get(invoke_block).and_then(|body| body.terminator.as_ref()).is_some_and(|row|
-                            matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }, .. })));
+                            matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. } | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. })));
                 if !checked { continue; }
                 let index = expected.iter().position(|binding| binding == &(*block, row.clone()))
                     .ok_or_else(|| fault("received/unowned-or-drifted-read"))?;

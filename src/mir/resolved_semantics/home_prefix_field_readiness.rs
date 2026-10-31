@@ -218,13 +218,10 @@ impl PrefixLocalFlow<'_> {
         root: BindingRefV1,
         name: &str,
     ) -> Option<Option<FieldWritePlanV1>> {
-        let Some(StoredLocal::Home {
-            construction_source: Some(source),
-            ready,
-            ..
-        }) = self.locals.get(&root)
-        else {
-            return Some(None);
+        let (source, ready) = match self.locals.get(&root) {
+            Some(StoredLocal::Home { construction_source: Some(source), ready, .. }) => (source, ready),
+            Some(StoredLocal::Shared { construction_source: source, ready, .. }) => (source, ready),
+            _ => return Some(None),
         };
         if source.allocation_only_fields().is_none() {
             return Some(None);

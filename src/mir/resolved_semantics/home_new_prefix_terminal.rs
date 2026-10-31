@@ -616,6 +616,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                             None => issue_result_new_fault_continuation_v1(input, owned)
                                                                 .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
                                                                 .map(|outward_fault| ResultNewHomePrefixV1 {
+                                                                    purpose: ResultNewPurposeV1::Return,
                                                                     prior_homes,
                                                                     normal_homes: homes.iter().rev().cloned().collect(),
                                                                     outward_fault,

@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::ast::{ASTNode, LiteralValue, Span, UnaryOperator};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -287,6 +287,27 @@ impl NyashParser {
             }
             TokenType::FROM => self.parse_from_call(),
             TokenType::IDENTIFIER(name) => {
+                if name == "Shared" && matches!(self.peek_nth_token(1), TokenType::LPAREN) {
+                    self.advance();
+                    self.advance();
+                    if self.match_token(&TokenType::RPAREN) {
+                        return Err(ParseError::UnexpectedToken {
+                            found: self.current_token().token_type.clone(),
+                            expected: "[freeze:contract][parser/shared_one_operand] Shared requires one expression".into(),
+                            line: self.current_token().line,
+                        });
+                    }
+                    let operand = self.parse_expression()?;
+                    if !self.match_token(&TokenType::RPAREN) {
+                        return Err(ParseError::UnexpectedToken {
+                            found: self.current_token().token_type.clone(),
+                            expected: "[freeze:contract][parser/shared_one_operand] Shared requires one expression".into(),
+                            line: self.current_token().line,
+                        });
+                    }
+                    self.advance();
+                    return Ok(ASTNode::UnaryOp { operator: UnaryOperator::Shared, operand: Box::new(operand), span: Span::unknown() });
+                }
                 if name == "check"
                     && matches!(
                         self.peek_nth_token(1),

@@ -160,6 +160,8 @@ impl CheckedExpressionOperationLoanV1 {
     }
 }
 
+#[path = "home_expression_shared.rs"]
+mod shared;
 #[path = "home_expression_leaves.rs"]
 mod leaves;
 pub(crate) use leaves::ExpressionCallSourceV1;
@@ -249,6 +251,26 @@ enum InitializerFrameV1 {
         unary: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
         from: crate::mir::resolved_semantics::BindingRefV1,
         acquisition: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    },
+    SharedMove {
+        source: Rc<ExpressionSourcePlanV1>,
+        shared: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+        moved: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+        from: crate::mir::resolved_semantics::BindingRefV1,
+        acquisition: crate::mir::resolved_semantics::OwnedExprSiteV1,
+        prior_homes: Rc<[LiveHomeV1]>,
+    },
+    SharedClone {
+        source: Rc<ExpressionSourcePlanV1>,
+        from: crate::mir::resolved_semantics::BindingRefV1,
+        acquisition: crate::mir::resolved_semantics::OwnedExprSiteV1,
+        prior_homes: Rc<[LiveHomeV1]>,
+    },
+    SharedFresh {
+        source: Rc<ExpressionSourcePlanV1>,
+        shared: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+        payload: crate::mir::resolved_semantics::OwnedExprSiteV1,
+        prior_homes: Rc<[LiveHomeV1]>,
     },
 }
 
@@ -517,14 +539,36 @@ impl HomeExpressionPlanV1 {
     pub(crate) fn initializer_frame(&self) -> Option<&Rc<CheckedInitializerExpressionFrameV1>> {
         match self.initializer_frame.as_ref()? {
             InitializerFrameV1::Evaluation(frame) => Some(frame),
-            InitializerFrameV1::Move { .. } => None,
+            InitializerFrameV1::Move { .. } | InitializerFrameV1::SharedMove { .. } | InitializerFrameV1::SharedClone { .. } | InitializerFrameV1::SharedFresh { .. } => None,
         }
     }
     pub(crate) fn move_initializer_v1(&self) -> Option<(&Rc<ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, &crate::mir::resolved_semantics::OwnedExprSiteV1)> {
         match self.initializer_frame.as_ref()? {
             InitializerFrameV1::Move { source, from, acquisition, .. } => Some((source, *from, acquisition)),
-            InitializerFrameV1::Evaluation(_) => None,
+            InitializerFrameV1::Evaluation(_) | InitializerFrameV1::SharedMove { .. } | InitializerFrameV1::SharedClone { .. } | InitializerFrameV1::SharedFresh { .. } => None,
         }
+    }
+    pub(crate) fn shared_move_initializer_v1(&self) -> Option<(&Rc<ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, &crate::mir::resolved_semantics::OwnedExprSiteV1, &[LiveHomeV1])> {
+        match self.initializer_frame.as_ref()? {
+            InitializerFrameV1::SharedMove { source, from, acquisition, prior_homes, .. } => Some((source, *from, acquisition, prior_homes)),
+            _ => None,
+        }
+    }
+    pub(crate) fn shared_clone_initializer_v1(&self) -> Option<(&Rc<ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, &crate::mir::resolved_semantics::OwnedExprSiteV1, &[LiveHomeV1])> {
+        match self.initializer_frame.as_ref()? {
+            InitializerFrameV1::SharedClone { source, from, acquisition, prior_homes } => Some((source, *from, acquisition, prior_homes)),
+            _ => None,
+        }
+    }
+    pub(crate) fn shared_fresh_initializer_v1(&self) -> Option<(&Rc<ExpressionSourcePlanV1>, &crate::mir::resolved_semantics::OwnedExprSiteV1, &[LiveHomeV1])> {
+        match self.initializer_frame.as_ref()? {
+            InitializerFrameV1::SharedFresh { source, payload, prior_homes, .. } => Some((source, payload, prior_homes)),
+            _ => None,
+        }
+    }
+    pub(crate) fn shared_initializer_source_v1(&self) -> Option<&Rc<ExpressionSourcePlanV1>> {
+        self.shared_move_initializer_v1().map(|row| row.0).or_else(|| self.shared_clone_initializer_v1().map(|row| row.0))
+            .or_else(|| self.shared_fresh_initializer_v1().map(|row| row.0))
     }
     pub(crate) fn rebind_frame(&self) -> Option<&Rc<CheckedBindingRebindFrameV1>> {
         self.rebind_frame.as_ref()
@@ -637,6 +681,28 @@ impl HomeExpressionPlanV1 {
                         && unary.site() == source.nodes()[0].site()
                         && unary.operand() == source.nodes()[1].site()
                 }
+                InitializerFrameV1::SharedMove { source, shared, moved, from, acquisition, prior_homes } => {
+                    Rc::ptr_eq(source, &self.source) && from.owner() == source.owner()
+                        && acquisition.owner() == source.owner() && source.nodes().len() == 3
+                        && shared.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared
+                        && moved.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
+                        && shared.site() == source.nodes()[0].site() && shared.operand() == moved.site()
+                        && moved.site() == source.nodes()[1].site() && moved.operand() == source.nodes()[2].site()
+                        && prior_homes.iter().filter(|home| home.binding() == *from).count() == 1
+                }
+                InitializerFrameV1::SharedClone { source, from, acquisition, prior_homes } => {
+                    Rc::ptr_eq(source, &self.source) && from.owner() == source.owner()
+                        && acquisition.owner() == source.owner() && source.nodes().len() == 1
+                        && matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == *from)
+                        && prior_homes.iter().filter(|home| home.binding() == *from).count() == 1
+                }
+                InitializerFrameV1::SharedFresh { source, shared, payload, .. } => {
+                    Rc::ptr_eq(source, &self.source) && payload.owner() == source.owner()
+                        && shared.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared
+                        && source.nodes().first().is_some_and(|node| node.site() == shared.site())
+                        && shared.operand() == payload.site()
+                        && source.nodes().iter().any(|node| node.site() == payload.site())
+                }
             })
             && self
                 .rebind_frame
@@ -698,6 +764,23 @@ impl super::RootHomeFlow {
                 (None, None) => false,
                 (Some((a, from_a, acquisition_a)), Some((b, from_b, acquisition_b))) =>
                     !Rc::ptr_eq(a, b) || from_a != from_b || acquisition_a != acquisition_b,
+                _ => true,
+            }
+            || match (original.shared_move_initializer_v1(), refined.shared_move_initializer_v1()) {
+                (None, None) => false,
+                (Some((a, from_a, acquisition_a, prior_a)), Some((b, from_b, acquisition_b, prior_b))) =>
+                    !Rc::ptr_eq(a, b) || from_a != from_b || acquisition_a != acquisition_b || prior_a != prior_b,
+                _ => true,
+            }
+            || match (original.shared_clone_initializer_v1(), refined.shared_clone_initializer_v1()) {
+                (None, None) => false,
+                (Some((a, from_a, acquisition_a, prior_a)), Some((b, from_b, acquisition_b, prior_b))) =>
+                    !Rc::ptr_eq(a, b) || from_a != from_b || acquisition_a != acquisition_b || prior_a != prior_b,
+                _ => true,
+            }
+            || match (original.shared_fresh_initializer_v1(), refined.shared_fresh_initializer_v1()) {
+                (None, None) => false,
+                (Some((a, pa, ha)), Some((b, pb, hb))) => !Rc::ptr_eq(a, b) || pa != pb || ha != hb,
                 _ => true,
             }
             || match (original.rebind_frame(), refined.rebind_frame()) {

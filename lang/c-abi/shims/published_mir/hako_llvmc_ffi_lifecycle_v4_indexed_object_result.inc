@@ -72,6 +72,32 @@ static int lv4_owned_return_object(const hako_lv4_input* in,
   return 1;
 }
 
+/* A live NewBox is not yet a completed object. Require the one matching
+ * constructor's successful edge to dominate the requested use. */
+static int lv4_original_birth_completed(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* acquired, uint32_t object, uint32_t use) {
+  if (!acquired || !acquired->object_id_set || acquired->object_id != object ||
+      !lv4_is(acquired->instruction, "op", "invoke_normal_result")) return 0;
+  hako_lv4_block* allocation = lv4_index_block(fn, lv4_u(acquired->instruction, "invoke_block"));
+  yyjson_val* creation = allocation ? yyjson_obj_get(lv4_term(allocation->block), "operation") : NULL;
+  if (!lv4_is(creation, "kind", "new_box") || lv4_u(creation, "object_id") != object) return 0;
+  size_t births = 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* birth = lv4_term(fn->blocks[bi].block);
+    yyjson_val* op = yyjson_obj_get(birth, "operation");
+    yyjson_val* call = yyjson_obj_get(op, "call");
+    if (!lv4_is(op, "kind", "birth_call") ||
+        lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(call, "receiver"))) != acquired) continue;
+    uint32_t target = lv4_u(call, "target");
+    if (++births != 1 || !target || target >= in->index_count ||
+        !lv4_is(in->index[target].function, "role", "birth_unit") ||
+        !in->index[target].receiver_object_set || in->index[target].receiver_object != object ||
+        lv4_pred_count(fn, lv4_u(birth, "normal")) != 1 ||
+        !hako_physical_block_dominates(fn->function, lv4_u(birth, "normal"), use)) return 0;
+  }
+  return births == 1;
+}
+
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_object_return_origin.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_borrowed_return_origin.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_field_dependencies.inc"

@@ -61,7 +61,8 @@ impl PreparedLifecyclePrefixBindingGroupV1<'_> {
             "scoped publication requires its prepared transaction"
         );
         assert!(
-            self.group.initializer_rc().is_none() && self.group.text_residence_v1().is_none(),
+            self.group.initializer_rc().is_none() && self.group.text_residence_v1().is_none()
+                && self.group.shared_initializer_v1().is_none(),
             "Text publication requires its prepared transaction"
         );
         self.ledger
@@ -780,6 +781,8 @@ pub(in crate::mir) use borrowed_field_write_projection::{
 
 #[path = "root_call_entry/initializer_expression_projection.rs"]
 mod initializer_expression_projection;
+#[path = "root_call_entry/shared_initializer_projection.rs"]
+mod shared_initializer_projection;
 
 #[path = "root_call_entry/initializer_home_publication.rs"]
 mod publication;

@@ -13,7 +13,8 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
     }
     let home = prepared.group.text_residence_v1();
     let dynamic_carrier = prepared.group.dynamic_carrier_residence_v1();
-    let mut homes = if home.is_some() || dynamic_carrier.is_some() {
+    let shared = prepared.group.shared_initializer_v1();
+    let mut homes = if home.is_some() || dynamic_carrier.is_some() || shared.is_some() {
         Some(ledger.local_commits.borrow_mut())
     } else {
         None
@@ -37,6 +38,12 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
             || rows.values().any(|row| row.binding() == Some(packet.binding()))
         {
             return Err(freeze("initializer-expression/dynamic-home-publication-conflict"));
+        }
+    }
+    if let (Some(packet), Some(rows)) = (&shared, &homes) {
+        if packet.binding.owner() != prepared.owner || rows.contains_key(prepared.group.site())
+            || rows.values().any(|row| row.binding() == Some(packet.binding)) {
+            return Err(freeze("shared-initializer/home-publication-conflict"));
         }
     }
     let mut rows = ledger.root_local_call_bindings.borrow_mut();
@@ -91,6 +98,9 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
             prepared.group.site().clone(),
             LocalCommitV1::DynamicCarrierResidence(packet),
         );
+    }
+    if let (Some(packet), Some(homes)) = (shared, &mut homes) {
+        homes.insert(prepared.group.site().clone(), LocalCommitV1::Shared(packet));
     }
     match &mut children {
         Some(groups) => groups.push(prepared.group),

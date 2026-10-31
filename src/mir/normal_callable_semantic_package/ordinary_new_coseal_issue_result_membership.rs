@@ -1,6 +1,5 @@
-//! Return-position `new` membership for the ordinary source cohort.
-//! The original construction must be the exact Value child of a Return;
-//! a nested expression or builtin construction cannot borrow this lane.
+//! Destination-less `new` membership for the ordinary source cohort.
+//! Return and Shared operands retain their exact, distinct source positions.
 
 use super::*;
 use crate::ast::ASTNode;
@@ -18,25 +17,25 @@ pub(super) fn issue_return_new_membership_v1(
     let mut sites = BTreeSet::new();
     for construction in input.function().expression_source().constructions() {
         let segments = construction.site().node().segments();
-        let Some((SourcePathSegmentV1::Value, parent)) = segments.split_last() else {
-            continue;
+        let return_parent = match segments.split_last() {
+            Some((SourcePathSegmentV1::Value, parent)) => Some(parent), _ => None,
         };
+        let is_return = return_parent.is_some_and(|parent| {
+            let statement = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(parent.to_vec()));
+            input.source().exact_stmt(&statement).is_ok_and(|row| matches!(row.node(), ASTNode::Return { value: Some(_), .. }))
+        });
+        let is_shared_payload = input.function().expression_source().initializers().any(|initializer| {
+            initializer.initializer_site().and_then(|site| input.function().expression_source().unary(site))
+                .is_some_and(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared
+                    && unary.operand() == construction.site())
+        });
+        if !is_return && !is_shared_payload { continue; }
         let site = OwnedExprSiteV1::new(input.owner(), construction.site().clone());
         if candidates.iter().any(|row| row.site == site) || !sites.insert(site.clone()) {
             if candidates.iter().any(|row| row.site == site) {
                 continue;
             }
             return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
-        }
-        let parent_site =
-            SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(parent.to_vec()));
-        let Ok(statement) = input.source().exact_stmt(&parent_site) else {
-            sites.remove(&site);
-            continue;
-        };
-        if !matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
-            sites.remove(&site);
-            continue;
         }
         if let Some(resolution) = OrdinaryNewCandidate::resolve_site(
             batch,

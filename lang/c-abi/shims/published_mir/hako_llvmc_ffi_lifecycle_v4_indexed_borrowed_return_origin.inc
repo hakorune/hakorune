@@ -94,24 +94,7 @@ static int lv4_slot_return_origin(const hako_lv4_input* in,
         lv4_pred_count(fn, lv4_u(end, "normal")) != 1 ||
         !hako_physical_block_dominates(fn->function, lv4_u(end, "normal"), producer_block)) return 0;
     hako_lv4_value* acquired = lv4_value_alias_root(fn, candidate);
-    hako_lv4_block* allocation = acquired ? lv4_index_block(fn, lv4_u(acquired->instruction, "invoke_block")) : NULL;
-    yyjson_val* creation = allocation ? yyjson_obj_get(lv4_term(allocation->block), "operation") : NULL;
-    if (!acquired || !lv4_is(creation, "kind", "new_box") || lv4_u(creation, "object_id") != support.payload_object) return 0;
-    size_t births = 0;
-    for (size_t bi = 0; bi < fn->block_count; bi++) {
-      yyjson_val* birth = lv4_term(fn->blocks[bi].block);
-      yyjson_val* birth_op = yyjson_obj_get(birth, "operation");
-      yyjson_val* call = yyjson_obj_get(birth_op, "call");
-      if (!lv4_is(birth_op, "kind", "birth_call") ||
-          lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(call, "receiver"))) != acquired) continue;
-      uint32_t target = lv4_u(call, "target");
-      if (++births != 1 || !target || target >= in->index_count ||
-          !lv4_is(in->index[target].function, "role", "birth_unit") ||
-          !in->index[target].receiver_object_set || in->index[target].receiver_object != support.payload_object ||
-          lv4_pred_count(fn, lv4_u(birth, "normal")) != 1 ||
-          !hako_physical_block_dominates(fn->function, lv4_u(birth, "normal"), invoke_block)) return 0;
-    }
-    if (births != 1) return 0;
+    if (!lv4_original_birth_completed(in, fn, acquired, support.payload_object, invoke_block)) return 0;
   }
   return lv4_map_slot_interval(fn, producer_block, born, receiver, support.receiver_object, support.field) &&
       lv4_map_slot_interval(fn, return_block, born, receiver, support.receiver_object, support.field);

@@ -1,5 +1,124 @@
 use super::*;
 
+thread_local! { static SHARED_ENDS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+thread_local! { static SHARED_NESTED: std::cell::Cell<(usize, i64)> = const { std::cell::Cell::new((0, 0)) }; }
+
+unsafe extern "C" fn shared_test_end(frame: *mut std::ffi::c_void, payload: i64, site: u64) -> u32 {
+    SHARED_ENDS.with(|n| n.set(n.get() + 1));
+    let profile = match crate::exports::typed_object_store_backend::selected_backend() {
+        crate::exports::typed_object_store_backend::TypedObjectStoreBackend::SafeMutex => 1,
+        crate::exports::typed_object_store_backend::TypedObjectStoreBackend::SingleThreadExact => 2,
+        _ => return 2,
+    };
+    unsafe { checked_object::home_release(frame, profile, site, payload, 10) }
+}
+
+unsafe extern "C" fn shared_test_faulting_end(frame: *mut std::ffi::c_void, payload: i64, site: u64) -> u32 {
+    if unsafe { shared_test_end(frame, payload, site) } != 0 { return 2; }
+    unsafe { &mut *frame.cast::<FaultFrame>() }
+        .record(Diagnostic::new(205, site, [0, 0])).unwrap_or(Status::InvalidContract) as u32
+}
+
+unsafe extern "C" fn shared_test_reentrant_end(frame: *mut std::ffi::c_void, payload: i64, site: u64) -> u32 {
+    let (descriptor, handle) = SHARED_NESTED.with(|nested| nested.replace((0, 0)));
+    if descriptor != 0 && unsafe {
+        checked_shared::release(frame, site, descriptor as *const checked_shared::Descriptor, handle)
+    } != 0 { return 2; }
+    unsafe { shared_test_end(frame, payload, site) }
+}
+
+#[test]
+fn shared_handles_keep_distinct_obligations_and_end_payload_once() {
+    use crate::exports::typed_object_store_backend::{selected_backend, TypedObjectStoreBackend};
+    let profile = match selected_backend() {
+        TypedObjectStoreBackend::SafeMutex => 1,
+        TypedObjectStoreBackend::SingleThreadExact => 2,
+        _ => return,
+    };
+    SHARED_ENDS.with(|n| n.set(0));
+    let mut frame = FaultFrame::new();
+    let frame = (&mut frame as *mut FaultFrame).cast();
+    let descriptor = checked_shared::Descriptor { abi: 1, profile, type_id: 10, end: Some(shared_test_end) };
+    let mut payload = 0;
+    let (mut first, mut second, mut observed) = (0, 0, 0);
+    unsafe {
+        assert_eq!(checked_object::allocate(frame, profile, 1, 10, [1].as_ptr(), 1, &mut payload), 0);
+        assert_eq!(checked_shared::new(frame, 2, &descriptor, payload, &mut first), 0);
+        assert_eq!(checked_shared::clone_handle(frame, 3, &descriptor, first, &mut second), 0);
+        assert_ne!(first, second);
+        std::thread::scope(|scope| {
+            scope.spawn(|| {
+                let mut foreign_frame = FaultFrame::new();
+                let foreign_frame = (&mut foreign_frame as *mut FaultFrame).cast();
+                let mut foreign_read = 777;
+                assert_eq!(checked_shared::borrow(foreign_frame, 3, &descriptor, first, &mut foreign_read), 2);
+                assert_eq!(foreign_read, 777);
+            }).join().unwrap();
+        });
+        assert_eq!(checked_shared::release(frame, 4, &descriptor, first), 0);
+        assert_eq!(checked_shared::release(frame, 5, &descriptor, first), 2);
+        assert_eq!(checked_shared::borrow(frame, 6, &descriptor, second, &mut observed), 0);
+        assert_eq!(observed, payload);
+        SHARED_ENDS.with(|n| assert_eq!(n.get(), 0));
+        assert_eq!(checked_shared::release(frame, 7, &descriptor, second), 0);
+        SHARED_ENDS.with(|n| assert_eq!(n.get(), 1));
+        assert_eq!(checked_shared::release(frame, 8, &descriptor, second), 2);
+        SHARED_ENDS.with(|n| assert_eq!(n.get(), 1));
+    }
+}
+
+#[test]
+fn shared_faulting_final_end_is_not_retried_and_other_cell_survives() {
+    use crate::exports::typed_object_store_backend::{selected_backend, TypedObjectStoreBackend};
+    let profile = match selected_backend() {
+        TypedObjectStoreBackend::SafeMutex => 1,
+        TypedObjectStoreBackend::SingleThreadExact => 2,
+        _ => return,
+    };
+    SHARED_ENDS.with(|n| n.set(0));
+    let mut frame = FaultFrame::new();
+    let frame = (&mut frame as *mut FaultFrame).cast();
+    let descriptor = checked_shared::Descriptor { abi: 1, profile, type_id: 10, end: Some(shared_test_faulting_end) };
+    let (mut p1, mut p2, mut h1, mut h2, mut read) = (0, 0, 0, 0, 0);
+    unsafe {
+        assert_eq!(checked_object::allocate(frame, profile, 1, 10, [1].as_ptr(), 1, &mut p1), 0);
+        assert_eq!(checked_object::allocate(frame, profile, 2, 10, [1].as_ptr(), 1, &mut p2), 0);
+        assert_eq!(checked_shared::new(frame, 3, &descriptor, p1, &mut h1), 0);
+        assert_eq!(checked_shared::new(frame, 4, &descriptor, p2, &mut h2), 0);
+        assert_eq!(checked_shared::release(frame, 5, &descriptor, h1), 1);
+        assert_eq!(checked_shared::release(frame, 6, &descriptor, h1), 2);
+        assert_eq!(checked_shared::borrow(frame, 7, &descriptor, h2, &mut read), 0);
+        assert_eq!(read, p2);
+        assert_eq!(checked_shared::release(frame, 8, &descriptor, h2), 1);
+        SHARED_ENDS.with(|n| assert_eq!(n.get(), 2));
+    }
+}
+
+#[test]
+fn shared_final_end_can_release_another_cell_without_borrowing_slab() {
+    use crate::exports::typed_object_store_backend::{selected_backend, TypedObjectStoreBackend};
+    let profile = match selected_backend() {
+        TypedObjectStoreBackend::SafeMutex => 1,
+        TypedObjectStoreBackend::SingleThreadExact => 2,
+        _ => return,
+    };
+    SHARED_ENDS.with(|n| n.set(0));
+    let mut frame = FaultFrame::new();
+    let frame = (&mut frame as *mut FaultFrame).cast();
+    let descriptor = checked_shared::Descriptor { abi: 1, profile, type_id: 10, end: Some(shared_test_reentrant_end) };
+    let (mut p1, mut p2, mut h1, mut h2) = (0, 0, 0, 0);
+    unsafe {
+        assert_eq!(checked_object::allocate(frame, profile, 1, 10, [1].as_ptr(), 1, &mut p1), 0);
+        assert_eq!(checked_object::allocate(frame, profile, 2, 10, [1].as_ptr(), 1, &mut p2), 0);
+        assert_eq!(checked_shared::new(frame, 3, &descriptor, p1, &mut h1), 0);
+        assert_eq!(checked_shared::new(frame, 4, &descriptor, p2, &mut h2), 0);
+        SHARED_NESTED.with(|nested| nested.set((&descriptor as *const _ as usize, h2)));
+        assert_eq!(checked_shared::release(frame, 5, &descriptor, h1), 0);
+        assert_eq!(checked_shared::release(frame, 6, &descriptor, h2), 2);
+        SHARED_ENDS.with(|n| assert_eq!(n.get(), 2));
+    }
+}
+
 #[test]
 fn exact_field_read_distinguishes_zero_and_preserves_output_on_contract_failure() {
     use super::checked_object as api;

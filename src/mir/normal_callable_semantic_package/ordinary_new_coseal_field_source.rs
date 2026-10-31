@@ -37,6 +37,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     results: &'a BorrowedResultCohortV1,
     ingress: &'a Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
     candidates: &'a [OrdinaryNewCandidate],
+    result_constructions: &'a [OrdinaryNewSiteResolutionV1],
     writes: &'a super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 }
 
@@ -55,6 +56,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn sca
     results: &'a BorrowedResultCohortV1,
     ingress: &'a Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
     candidates: &'a [OrdinaryNewCandidate],
+    result_constructions: &'a [OrdinaryNewSiteResolutionV1],
     writes: &'a super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     reads: F,
 ) -> ScalarFieldsWithOriginalWritesV1<'a, F>
@@ -77,6 +79,7 @@ where
         results,
         ingress,
         candidates,
+        result_constructions,
         writes,
     }
 }
@@ -144,6 +147,14 @@ where
         if rows.next().is_some() {
             return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
         }
+        Ok(row.construction_source.as_ref().ok().map(Rc::clone))
+    }
+    fn shared_payload_construction_source(
+        &mut self, site: &OwnedExprSiteV1,
+    ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>, OrdinaryNewCoSealIssueV1> {
+        let mut rows = self.result_constructions.iter().filter(|row| &row.site == site);
+        let Some(row) = rows.next() else { return Ok(None); };
+        if rows.next().is_some() { return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() }); }
         Ok(row.construction_source.as_ref().ok().map(Rc::clone))
     }
     fn scalar_field(

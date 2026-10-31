@@ -40,7 +40,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 | LocalCommitV1::OwnedArray(_)
                 | LocalCommitV1::CallReceived(_)
                 | LocalCommitV1::TextResidence(_)
-                | LocalCommitV1::DynamicCarrierResidence(_) => continue,
+                | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => continue,
             };
             if parent_owner != site.owner() || parent_site.owner() != site.owner() {
                 continue;
@@ -148,6 +148,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 LocalCommitV1::DynamicCarrierResidence(packet) => {
                     self.validate_dynamic_carrier_residence_home_v1(packet, CallValidationContextV1::Lowering(self))?;
                     packet.validate_paths(CallValidationContextV1::Lowering(self), function, projection)?;
+                    continue;
+                }
+                LocalCommitV1::Shared(packet) => {
+                    packet.validate_shared_v1(self, function, projection)?;
                     continue;
                 }
                 LocalCommitV1::OwnedArray(_) => {
@@ -439,7 +443,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     },
                     LocalCommitV1::Map(other) => other.emitted_bindings(),
                     LocalCommitV1::OwnedArray(other) => other.emitted_bindings(),
-                    LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) => &[],
+                    LocalCommitV1::TextResidence(_) | LocalCommitV1::DynamicCarrierResidence(_) | LocalCommitV1::Shared(_) => &[],
                 })
                 .filter(|(_, instruction)| {
                     matches!(

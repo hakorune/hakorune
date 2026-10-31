@@ -31,7 +31,7 @@ pub(crate) enum SelectedLoopHomeLoanV1 {
 }
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
 use crate::mir::resolved_control_flow::{
-    issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1, NewFaultContinuationV1,
+    issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1, issue_shared_new_fault_continuation_v1, NewFaultContinuationV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -144,13 +144,28 @@ impl CallerNewHomePrefixV1 {
 /// Both outcome projections come from the same original terminal walk.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ResultNewHomePrefixV1 {
+    purpose: ResultNewPurposeV1,
     prior_homes: Box<[LiveHomeV1]>,
     normal_homes: Box<[LiveHomeV1]>,
     outward_fault: NewFaultContinuationV1,
     covered_statements: Box<[SourceStmtSiteV1]>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ResultNewPurposeV1 {
+    Return,
+    SharedPayload { shared_site: OwnedExprSiteV1, binding: BindingRefV1 },
+}
+
+/// Original source of one Shared handle; fresh payloads have no fake local.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum SharedPayloadSourceV1 {
+    Existing { from: BindingRefV1, acquisition: OwnedExprSiteV1, is_clone: bool },
+    Fresh { site: OwnedExprSiteV1 },
+}
+
 impl ResultNewHomePrefixV1 {
+    pub(crate) fn purpose(&self) -> &ResultNewPurposeV1 { &self.purpose }
     pub(crate) fn normal_homes(&self) -> &[LiveHomeV1] {
         &self.normal_homes
     }

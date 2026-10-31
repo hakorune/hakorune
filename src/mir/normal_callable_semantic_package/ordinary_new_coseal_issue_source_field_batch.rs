@@ -213,7 +213,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 borrow_fixed_array_source(constructors, receiver_proof, request, received_context, Some(plan))?,
             _ => None,
         };
-        let source = if array_receiver.is_some() { array_receiver } else if object_source.is_some() { object_source } else if request.owned_ready.is_some() {
+        let source = if let Some(support) = &request.shared_support {
+            if request.owned_ready.is_some() || request.path.is_some() || request.received.is_some()
+                || !matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) { return Ok(None); }
+            let mut matching = candidates.iter().filter(|candidate| candidate.site == support.1);
+            let Some(candidate) = matching.next() else { return Ok(None); };
+            if matching.next().is_some() || candidate.site.owner() != request.site.owner() { return Ok(None); }
+            let Some(source) = terminal_home::local_read_field(constructors, candidates, coverage,
+                receiver_proof, &request.site, candidate.destination, None, &request.field)? else { return Ok(None); };
+            if source.field().object() != candidate.object { return Ok(None); }
+            LocalFieldReadSourceV1::with_shared_support(&source, support)
+        } else if array_receiver.is_some() { array_receiver } else if object_source.is_some() { object_source } else if request.owned_ready.is_some() {
             let Some((field, declared)) = terminal_home::local_read_field_declaration(
                 constructors,
                 candidates,
@@ -411,7 +421,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         let numeric_source = match &demand {
             LocalFieldReadDemandV1::Declared { .. } => None,
             LocalFieldReadDemandV1::SourceExpression { .. }
-                if request.path.is_some() || request.owned_ready.is_some() || !source.array_operation_sources_v1().is_empty()
+                if request.path.is_some() || request.owned_ready.is_some() || request.shared_support.is_some() || !source.array_operation_sources_v1().is_empty()
                     || matches!(source.result(), LocalFieldReadResultV1::BorrowedObject(_) | LocalFieldReadResultV1::Text(_)) =>
             {
                 None

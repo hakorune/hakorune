@@ -59,6 +59,7 @@ pub(in crate::mir::builder) struct PreparedRawUnaryV1 {
 
 enum PreparedRawUnaryRouteV1 {
     UnsupportedMove,
+    UnsupportedShared,
     Weak {
         operand: ASTNode,
     },
@@ -79,6 +80,7 @@ impl PreparedRawUnaryV1 {
     pub(in crate::mir::builder) fn prepare(operator: UnaryOperator, operand: ASTNode) -> Self {
         let route = match operator {
             UnaryOperator::Move => PreparedRawUnaryRouteV1::UnsupportedMove,
+            UnaryOperator::Shared => PreparedRawUnaryRouteV1::UnsupportedShared,
             UnaryOperator::Weak => PreparedRawUnaryRouteV1::Weak { operand },
             UnaryOperator::Minus => PreparedRawUnaryRouteV1::Ordinary {
                 operator: PreparedRawOrdinaryUnaryOperatorV1::Minus,
@@ -130,6 +132,9 @@ where
         PreparedRawUnaryRouteV1::UnsupportedMove => Err(
             "[freeze:contract][ownership/move-not-supported] move has not reached the Home owner"
                 .to_string(),
+        ),
+        PreparedRawUnaryRouteV1::UnsupportedShared => Err(
+            "[freeze:contract][ownership/shared-not-supported] Shared has not reached the Home owner".to_string(),
         ),
         PreparedRawUnaryRouteV1::Weak { operand } => {
             let box_value = drive_legacy_expression_v1(builder, port, operand)?;
@@ -247,6 +252,7 @@ mod tests {
     fn route(prepared: PreparedRawUnaryV1) -> &'static str {
         match prepared.route {
             PreparedRawUnaryRouteV1::UnsupportedMove => "move-unsupported",
+            PreparedRawUnaryRouteV1::UnsupportedShared => "shared-unsupported",
             PreparedRawUnaryRouteV1::Weak { .. } => "weak",
             PreparedRawUnaryRouteV1::Ordinary {
                 operator: PreparedRawOrdinaryUnaryOperatorV1::Minus,
@@ -267,6 +273,8 @@ mod tests {
     fn source_operator_partition_is_total_and_disjoint() {
         let routes = [
             route(PreparedRawUnaryV1::prepare(UnaryOperator::Weak, operand())),
+            route(PreparedRawUnaryV1::prepare(UnaryOperator::Move, operand())),
+            route(PreparedRawUnaryV1::prepare(UnaryOperator::Shared, operand())),
             route(PreparedRawUnaryV1::prepare(UnaryOperator::Minus, operand())),
             route(PreparedRawUnaryV1::prepare(UnaryOperator::Not, operand())),
             route(PreparedRawUnaryV1::prepare(
@@ -274,6 +282,6 @@ mod tests {
                 operand(),
             )),
         ];
-        assert_eq!(routes, ["weak", "minus", "not", "bit-not"]);
+        assert_eq!(routes, ["weak", "move-unsupported", "shared-unsupported", "minus", "not", "bit-not"]);
     }
 }
