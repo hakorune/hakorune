@@ -331,6 +331,23 @@ Initial rule:
   or independently owned result until a separate synchronized-handle contract
   is designed.
 
+Pre-cutover target (ADR-002, decided 2026-10-31; not active until its
+implementation row lands — the rules above stay authoritative until then):
+
+- A serialized section performs no suspend, wait, task dispatch, event pump,
+  or implicit cooperative yield. The current `safepoint_and_poll` scheduler
+  poll counts as task dispatch; required safepoint work stays and task
+  execution is split out.
+- `me.helper()` is accepted as a call that borrows the live guard of the exact
+  same receiver. Callback or other-handle paths are not internal calls.
+  External re-entry Faults; reentrant locks are not adopted.
+- The same-thread profile may enter a different `sync box` object; entering the
+  same object Faults. The thread profile enters only in strict lock-class
+  ascending order with try-acquire (no waiting while a guard is held).
+  Same-thread acceptance does not imply thread-profile acceptance.
+- A section exited by Fault becomes poisoned; unlock always runs and the first
+  Fault is kept. Cleanup / `fini` never enters a new section.
+
 This is stricter than exposing `lock<T>` directly, but it gives the compiler a
 clear boundary for verifier facts, effect checks, and backend lowering.
 

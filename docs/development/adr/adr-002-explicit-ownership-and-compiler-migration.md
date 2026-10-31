@@ -1,7 +1,8 @@
 # ADR-002: 明示する所有操作と共通ownership passへの移行
 
-Status: 設計方向を採用。2026-10-30に表面契約を決定（[ownership.md §0](../../reference/language/ownership.md)）。実装・切替は未着手。
-Date: 2026-10-30
+Status: 設計方向を採用。2026-10-30に表面契約を決定（[ownership.md §0](../../reference/language/ownership.md)）。
+2026-10-31にShared・`sync box`・threadの実装方向を決定。step 1を実装中（S1 parser着地）。切替は未着手。
+Date: 2026-10-30（改訂 2026-10-31）
 Scope: 次期所有モデルの判断・未決点・移行タスクをここへ集約する。
 
 現在の言語意味論は[ownership.md](../../reference/language/ownership.md)、
@@ -48,7 +49,9 @@ return q
 | --- | --- |
 | record / box | recordの値意味論とboxのidentityを区別。Boxまで一律MVSへ変える決定はしない。 |
 | copy | 決定: copy契約を宣言した型だけ。残り: Boxの新identity、入れ子の所有値・Shared・弱参照・失敗時の扱い、`.copy()`への綴り。 |
-| Shared / mut | 決定: Sharedは当面読み取り専用。残り: 共有変更の手段と同期、thread越え（atomic RCは中身のthread安全を意味しない）、read/mutの排他区間、再入・FFI・suspendとの関係。Sharedだけでは安全性を発行しない。 |
+| Shared / mut | 決定: `Shared<通常Box>`は読み取り専用（readメソッドとfield読みは可、mut/take/field代入は不可）。Sharedだけでは安全性を発行しない。表現は**Shared専用の非原子RC**を物理表現を隠すopaque境界の内側に置く（Unique Boxにheaderを要求しない、Rust `Arc`を境界に出さない）。操作契約: 構築成功＝handle 1でpayloadの所有・End義務を一度だけ取り込む／暗黙複製・take通常渡し＝+1／`move shared`＝0／read・借用＝0（支持元Homeに依存）／handleのEnd＝−1、`1→0`だけがpayload終了へ進む（wrap・0からの復活・Fault後のEnd再試行は禁止）。独立MIR検証には型付きの複製・移転・解放、借用の支持元、実CFG辺との対応を残す（生のinc/decやHome記録だけの検証にしない）。cycle: 構築中の自己参照・可変alias経由の再接続・証明不能な所有循環は公開前に拒否、weakは後送り（strong＝0以降のupgradeは失敗）。残り: header配置・inline化、weak、公開型名。 |
+| 共有変更 / sync box | 決定: 基本は単独owner＋必要時`mut`借用、外へ渡すのはID・snapshot・独立所有結果。共有変更は既存`sync box`（[boundary-model](../../reference/concurrency/boundary-model.md)）へ集約し、`Shared<sync box>`は宣言された同期メソッドへの入場だけを許して区間内でのみ排他的な`me`を得る。区間内はsuspend・待ち・task dispatch・event pump・暗黙yield（現`safepoint_and_poll`のscheduler pollを含む）をしない。cleanup/fini（暗黙Endと呼び先を含む）から新規入場しない。`me.helper()`は同じreceiverの生存guardを借りる証拠で許可し、callback・別handle経由は内部呼出しと認定しない。外部再入はFault、再入可能ロックは採らない。同一thread版は別objectへの入れ子を許し同一objectはFault（boundary-modelの現行拒否を切替前に明示改訂）。guardは公開値にせず全終了辺で一度だけ退場。Faultで退出した入場済み区間をpoison（解錠は必ず、最初のFaultを保持、`Result::Err`では付けない）。区間内の効果（suspend・待ち・task実行・取得lock順位・escape上限）は関数契約に持ち、独立verifierが実CFGと呼出しグラフ（挿入End/fini含む）から再集計。未知Dynamic/FFIは区間内で拒否。残り: 条件待ち`wait`（区間を一度終える操作）、poison回復API。 |
+| thread | 決定: `move`は所有移転で、越境許可は別（既存`HakoSend`/`HakoShare`/`ThreadRoot` descriptorを検査へ育てる。Dynamicは既定で越境不可）。非原子Sharedと越境用Sharedは型・ABIで別物にし、build設定で同じ型の意味を切り替えない。非原子Sharedを含むtaskはthread固定。thread版`sync box`は型/lock class単位の厳密な昇順＋try取得のみ（guard保持中は待たない）。同一thread版で受理した入れ子をthread版で自動受理しない。チャネルは送信→queue→受信の所有commitと、失敗・cancel・未受信終了のcleanup担当を一意にする。atomic RCは中身のthread安全を意味しない。残り: atomicのmemory ordering、順位付きblocking取得、公平性。整理: thread gateの`thread_registry_gc_roots_enabled`と`safepoint_and_poll`の`gc.safepoint()`は、GCなし方針の「workerが保持する所有・handleと終了責任」要件へ置き換える（名前だけで検査を省かない）。 |
 | 構文と借用 | 決定: 宣言側read（省略）/mut/take、呼出し側は所有を失う所だけ`move`、借用結果は`from`宣言付きでlocal・分岐・read引数まで（field/global保存・escape closure・保持FFI・suspend越えは不可）。未決: 通常引数の呼出し側`mut`印（案: 書かない）、§3のcomposite anchored resultsとfield保存制限の関係。 |
 | Dynamic carrierのread | 生存中の`SelfContainedDynamicCarrier`を通常callableの`read`入力へ渡す時、callerがcarrierを保持してcall終了後に一度だけEndし、calleeは保持・escape・returnしない。`take`/`share`や追加ownerを発行しない。このsource/ABI/lifecycle接続を明示して検証する。 |
 | 型検査 | 推論対象・注釈必須境界・明示Dynamic・診断時点。未解決型を暗黙Dynamicにしない。 |
@@ -90,10 +93,11 @@ LLVM noaliasはmutの綴りから発行せず、実際の排他区間と到達�
 | 順 | 選択・作業 | 完了証拠と置換対象 |
 | --- | --- | --- |
 | 済 | 2026-10-30の決定をownership.md §0とこのADRへ記録 | docsのみ。コンパイル速度（Text End台帳の`SourceLoopCleanupPlanV2`統合、サイトの整数ID化）は別に続ける。 |
-| 1 | `move x`の受理と移転後使用の拒否、Shared型の追加 | 既存アプリの入力・挙動は不変。同じ入力で既存SSAを本番consumerへ接続し、未接続passを作らない。 |
-| 2 | 一つのpayload型をsource→ownership検査→End→EXEまで直接メモリ配置で接続（fieldはruntime object-store呼出しでなくload/store） | 規模を上げたbinary-treesのbenchmarkで測定。copy後の独立性、mut競合拒否、takeの消費時点、Normal/Faultの責任、宣言なしborrowed returnの拒否。copyの残る境界はこの型で紙上移行して確定。Dynamic carrierのreadはcallerがEnd責任を維持。置換した同一source/ABI専用edge・adapterは同seriesで退役。 |
-| 3 | 切替（selfhostコードより前） | 上の「既存互換」の条件。Endの分岐/loop/再代入/Invokeへの拡張（終了順、一度だけの消費、必要時だけdrop flag、caller-zeroの専有HomeRelease等だけ削除）は切替までに閉じる。 |
+| 1 | `move x`の受理と移転後使用の拒否、Shared型の追加 | 既存アプリの入力・挙動は不変。同じ入力で既存SSAを本番consumerへ接続し、未接続passを作らない（consumerはpublished検証側。退役予定のVM interpreterに置かない）。`move`は新MIR命令を足さずbindingの付け替えで表す。SharedはopaqueなShared cell（カウント＋受理済みpayloadの所有・End義務）で上の操作契約をEXEまで一つ実装する（意味の模型検証だけでは完了にしない）。暫定cellの退役条件は、直接配置版が同じ契約を満たした時点。 |
+| 2 | 一つのpayload型をsource→ownership検査→End→EXEまで直接メモリ配置で接続（fieldはruntime object-store呼出しでなくload/store） | 規模を上げたbinary-treesのbenchmarkで測定。Sharedは read/moveのみ（RC 0）、同一objectの複製・非最終解放、多数objectへの複製・回収、最終解放と子の連鎖Endを分けて測り、RC単体比較とEXE全体比較を分ける（現host-handle retainはArc複製＋handle割当を含む）。copy後の独立性、mut競合拒否、takeの消費時点、Normal/Faultの責任、宣言なしborrowed returnの拒否。copyの残る境界はこの型で紙上移行して確定。Dynamic carrierのreadはcallerがEnd責任を維持。置換した同一source/ABI専用edge・adapterは同seriesで退役。 |
+| 3 | 切替（selfhostコードより前） | 上の「既存互換」の条件。Endの分岐/loop/再代入/Invokeへの拡張（終了順、一度だけの消費、必要時だけdrop flag、caller-zeroの専有HomeRelease等だけ削除）は切替までに閉じる。切替前に同一threadの`sync box`を一例だけsource→独立MIR検証→EXEまで接続（複数ownerからの更新・参照、再入拒否、Fault cleanupとpoison、区間内task非実行）し、証拠を既存smokeへ統合する。 |
 | 後続 | selfhostは明示moveで書く。Box/container/Sharedへ同じ契約を広げる | 型別identity・slot commit・read支持・Endを各既存ownerで閉じる。未選択機能を現行finite goalへ追加しない。 |
+| thread導入 | Send/Share/affinityの実検査、送受信の所有commit、task終了責任 | その後にatomic Sharedとthread版`sync box`を開く。生存中のcellに非原子/原子アクセスを混在させず、表現を変える時はlayout/profileの版と再コンパイルを要求する。 |
 
 数値のみのPointがTrivialなら、それだけでは所有移転やEndの証拠にならない。Trivial分類を
 確定し、構文/value copyのcanaryと所有payloadを持つ代表入力を区別する。
