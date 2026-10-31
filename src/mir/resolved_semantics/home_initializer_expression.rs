@@ -208,6 +208,9 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     dynamic_entry_reads: &[crate::mir::normal_callable_semantic_package::DynamicEntryReadV1],
     dynamic_local_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<Rc<CheckedInitializerExpressionFrameV1>>,
     signed_root_sum: Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+    // A selected source Loop body evaluates even a scalar literal or plain
+    // read through one complete frame; the caller proves that context.
+    loop_scalar_frame: bool,
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     entry_refinement: &mut impl FnMut(
         &SourceExprSiteV1,
@@ -368,6 +371,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
                 .iter()
                 .any(|read| read.requirement().node() == 0 && read.signed_only())
             && !signed_current
+            && !loop_scalar_frame
             && source.nodes()[0].binary().is_none())
     {
         return Ok(None);

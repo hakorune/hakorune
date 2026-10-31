@@ -1174,7 +1174,7 @@ fn original_loop_header_body_break_and_backedge_keep_one_basis_and_exact_home_sc
         let text = if expected_control {
             text.to_owned()
         } else {
-            text.replace("i = i + 1", "i = i + 1 local unused = 1")
+            text.replace("i = i + 1", "i = i + 1 local unused = null")
         };
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
         &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();

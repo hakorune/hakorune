@@ -1318,6 +1318,7 @@ mod installation_tests {
                 &[],
                 &mut |_| None,
                 None,
+                false,
                 &mut |_| None,
                 &mut |_, _, _| None,
                 &mut |_| None,

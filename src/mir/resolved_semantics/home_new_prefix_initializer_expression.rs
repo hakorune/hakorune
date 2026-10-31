@@ -83,7 +83,12 @@ pub(super) fn observe<E>(
         && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);
     let root_compare = source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
         super::super::ResolvedBinaryOperatorV1::Equal | super::super::ResolvedBinaryOperatorV1::NotEqual));
+    // Every Local of a selected source Loop body needs its complete
+    // evaluation frame, including a scalar literal or a plain read.
+    let loop_scalar_requested = locals.in_source_loop_v1() && (root_reference || matches!(source.nodes()[0].source(),
+        ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_) | ResolvedLiteralSourceV1::Bool(_))));
     if !arithmetic_requested
+        && !loop_scalar_requested
         && !root_add
         && !root_reference
         && !root_compare
@@ -195,6 +200,7 @@ pub(super) fn observe<E>(
         && !signed_entry
         && signed_root_sum.is_none()
         && !arithmetic_requested
+        && !loop_scalar_requested
     {
         if debug {
             eprintln!("[initializer-expression] statement={:?} site={site:?} no admissible call or root", statement.site());
@@ -208,6 +214,7 @@ pub(super) fn observe<E>(
         &dynamic_reads,
         &mut |site| locals.dynamic_invocation_result_reference_v1(site),
         signed_root_sum,
+        loop_scalar_requested,
         &mut |site| super::argument_expression::entry_formal_reference(input, locals, site),
         &mut |site, binding, root| locals.entry_null_exclusion(site, binding, root),
         &mut |site| locals.text_reference(site),
