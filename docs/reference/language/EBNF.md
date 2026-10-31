@@ -73,15 +73,15 @@ Ownership grammar status (2026-08-04):
   them.
 - Composite/generic classification, Shared representation, owning storage,
   callable boundaries, and CFG Home Flow must close before grammar activation.
-- Therefore the live EBNF below contains only the bounded Release syntax row;
+- The grammar contains bounded Release and successor `move IDENT` syntax;
   the other accepted target grammar remains recorded in `OWN-HOME-SYNTAX-D0`.
-  Current parsers must reject inactive ownership spellings and former
-  `move/view/shared` lookalikes. Accidental parsing is not support.
+  Hako `move` parity is pending validation; parsing `move` does not yet provide
+  Home transfer semantics.
 - The parked order is
   `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
   Support status is reported by `stage-profiles.md`.
 - Successor (ownership.md §0, decided 2026-10-30): `Shared(...)` replaces the
-  `share` target and `move x` is added; their rows land with ADR-002 step 1.
+  `share` target; Rust `move x` is parser-live, with Hako parity and semantics pending.
 
 Accepted ownership grammar and implementation status:
 
@@ -256,6 +256,7 @@ compare   := sum (( '==' | '!=' | '<' | '>' | '<=' | '>=' ) sum)?
 sum       := term (('+' | '-') term)*
 term      := unary (('*' | '/') unary)*
 unary     := ( '-' | '!' | 'not' | '~' ) unary
+           | 'move' HSPACE IDENT
            | weak_unary
            | factor
 

@@ -1,6 +1,43 @@
 static box ParserExprPrecedenceBox {
   parse_unary2(src, i, ctx, expr_context) {
     local j = ctx.skip_ws(src, i)
+    if ctx.starts_with_kw(src, j, "move") == 1 {
+      local n = src.length()
+      local root_start = j + 4
+      loop(root_start < n) {
+        local space = src.substring(root_start, root_start + 1)
+        if space == " " || space == "\t" { root_start = root_start + 1 } else { break }
+      }
+      local first = ""
+      if root_start < n { first = src.substring(root_start, root_start + 1) }
+      if ctx.is_alpha(first) == 1 || first == "_" {
+        local pair = ctx.read_ident2(src, root_start)
+        local at = pair.lastIndexOf("@")
+        local root = pair.substring(0, at)
+        local end = ctx.to_int(pair.substring(at + 1, pair.length()))
+        if root == "me" || root == "this" {
+          ctx.gpos_set(end)
+          return ctx.freeze_contract("parser/move_exact_root_required", "move requires one whole local name")
+        }
+        local check_end = end
+        loop(check_end < n) {
+          local space = src.substring(check_end, check_end + 1)
+          if space == " " || space == "\t" { check_end = check_end + 1 } else { break }
+        }
+        local next = ""
+        if check_end < n { next = src.substring(check_end, check_end + 1) }
+        if next == "." || next == "[" || next == "(" {
+          ctx.gpos_set(end)
+          return ctx.freeze_contract("parser/move_exact_root_required", "move requires one whole local name")
+        }
+        ctx.gpos_set(end)
+        return "{\"type\":\"Unary\",\"op\":\"move\",\"operand\":{\"type\":\"Var\",\"name\":\"" + ctx.esc_json(root) + "\"}}"
+      }
+      if first == "" || first == "\n" || first == "\r" || first == ";" || first == "}" || first == ")" || first == "," {
+        ctx.gpos_set(root_start)
+        return ctx.freeze_contract("parser/move_exact_root_required", "move requires one whole local name")
+      }
+    }
     if ctx.starts_with_kw(src, j, "weak") == 1 {
       local operand_start = ctx.skip_ws(src, j + 4)
       if src.substring(operand_start, operand_start + 1) == "(" {

@@ -73,7 +73,7 @@ impl NormalizedExprLowererBox {
                 Ok(Some(dst))
             }
             UnaryOperator::BitNot => Ok(None),
-            UnaryOperator::Weak => Ok(None), // Phase 285W-Syntax-0: Not supported in normalized lowering
+            UnaryOperator::Weak | UnaryOperator::Move => Ok(None), // Not supported in normalized lowering
         }
     }
 

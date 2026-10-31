@@ -50,24 +50,26 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | generic/composite release | provisional; exact capability D0 open |
 | bounded HomeV1 source grammar | `release root` live; `take` inactive; `share` prefix superseded (§0) |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
-| Rust/Hako parser and AST Home carriers | inactive / absent |
+| Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako parity and Home transfer pending validation |
 | resolver Home-demand/root and Home Flow | inactive / absent |
 | callable Home ABI | bounded declaration-only receipt exists; source `take` linkage absent |
 | canonical Builder/source producers | 0 |
 | passive Ownership SSA / ownership opcodes | existing narrow infrastructure only |
 | current ordinary Box assignment | transitional SharedV1 behavior |
-| successor surface (§0) | decided 2026-10-30; parser/production 0; SharedV1 stays until the §10 cutover |
+| successor surface (§0) | decided 2026-10-30; Rust `move` parser live, Hako parity pending validation, semantic production 0; SharedV1 stays until the §10 cutover |
 
-The live `EBNF.md` and grammar registry remain syntax authority. Only
-`release root` currently has a Rust/Hako parser and parser-owned source row;
-the other examples remain targets. Parser acceptance does not issue Home
+The live `EBNF.md` and grammar registry remain syntax authority. `release root`
+and `move root` have parser-owned source rows; Hako `move` runtime parity remains
+unverified. The other examples remain targets.
+Parser acceptance does not issue Home
 meaning. Unsupported lookalikes fail fast until their exact shared grammar row
 lands.
 
 ## 0. Successor surface (decided 2026-10-30; production 0)
 
-Next-model specification agreed with the maintainer on 2026-10-30. Nothing
-here is parser-live or implemented; behavior changes only at the §10 cutover.
+Next-model specification agreed with the maintainer on 2026-10-30. The Rust
+`move` surface is parser-live; Hako parity and ownership semantics are pending.
+Existing behavior changes only at the §10 cutover.
 Sections 1-11 keep the current/HomeV1 text. The contextual `share x` target is
 superseded now: text below that uses it describes a target that will not land.
 

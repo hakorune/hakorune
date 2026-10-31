@@ -40,6 +40,7 @@ pub(crate) enum ResolvedBinaryOperatorV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedUnaryOperatorV1 {
+    Move,
     Minus,
     Not,
     BitNot,
@@ -594,6 +595,7 @@ fn map_unary_operator(operator: &UnaryOperator) -> ResolvedUnaryOperatorV1 {
         UnaryOperator::Not => ResolvedUnaryOperatorV1::Not,
         UnaryOperator::BitNot => ResolvedUnaryOperatorV1::BitNot,
         UnaryOperator::Weak => ResolvedUnaryOperatorV1::Weak,
+        UnaryOperator::Move => ResolvedUnaryOperatorV1::Move,
     }
 }
 

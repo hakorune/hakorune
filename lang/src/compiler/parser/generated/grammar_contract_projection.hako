@@ -153,6 +153,11 @@ static box GrammarContractProjection {
       if profile == "compat2025" { return "rejected" }
       return "parser/profile_mismatch"
     }
+    if row_id == "move_unary_expr" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
     if row_id == "weak_unary_expr" {
       if profile == "canonical" { return "canonical" }
       if profile == "compat2025" { return "canonical" }
@@ -372,6 +377,11 @@ static box GrammarContractProjection {
       if profile == "compat2025" { return "" }
       return "parser/profile_mismatch"
     }
+    if row_id == "move_unary_expr" {
+      if profile == "canonical" { return "MoveExpr" }
+      if profile == "compat2025" { return "MoveExpr" }
+      return "parser/profile_mismatch"
+    }
     if row_id == "weak_unary_expr" {
       if profile == "canonical" { return "WeakExpr" }
       if profile == "compat2025" { return "WeakExpr" }
@@ -589,6 +599,11 @@ static box GrammarContractProjection {
     if row_id == "until_loop" {
       if profile == "canonical" { return "parser/until_loop_noncanonical" }
       if profile == "compat2025" { return "parser/until_loop_noncanonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "move_unary_expr" {
+      if profile == "canonical" { return "parser/move_exact_root_required" }
+      if profile == "compat2025" { return "parser/move_exact_root_required" }
       return "parser/profile_mismatch"
     }
     if row_id == "weak_unary_expr" {

@@ -185,4 +185,17 @@ mod tests {
         let catalog = release_catalog("box Owner { finish(root: Node) { release\nroot } }");
         assert!(catalog.rows().is_empty());
     }
+
+    #[test]
+    fn contextual_move_accepts_a_whole_name_and_rejects_partial_or_missing_roots() {
+        NyashParser::parse_from_string("static box Main { main() { local b = move a\n return 0 } }")
+            .expect("whole local move parses");
+        for expression in ["move a.field", "move a[0]", "move me", "move"] {
+            let source = format!("static box Main {{ main() {{ local b = {expression}\n return 0 }} }}");
+            let error = NyashParser::parse_from_string(source).expect_err("invalid move must fail");
+            assert!(error.to_string().contains("parser/move_exact_root_required"), "{error}");
+        }
+        NyashParser::parse_from_string("static box Main { main() { move(a)\n return 0 } }")
+            .expect("ordinary move call remains a call");
+    }
 }

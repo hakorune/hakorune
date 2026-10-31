@@ -58,6 +58,7 @@ pub(in crate::mir::builder) struct PreparedRawUnaryV1 {
 }
 
 enum PreparedRawUnaryRouteV1 {
+    UnsupportedMove,
     Weak {
         operand: ASTNode,
     },
@@ -77,6 +78,7 @@ enum PreparedRawOrdinaryUnaryOperatorV1 {
 impl PreparedRawUnaryV1 {
     pub(in crate::mir::builder) fn prepare(operator: UnaryOperator, operand: ASTNode) -> Self {
         let route = match operator {
+            UnaryOperator::Move => PreparedRawUnaryRouteV1::UnsupportedMove,
             UnaryOperator::Weak => PreparedRawUnaryRouteV1::Weak { operand },
             UnaryOperator::Minus => PreparedRawUnaryRouteV1::Ordinary {
                 operator: PreparedRawOrdinaryUnaryOperatorV1::Minus,
@@ -125,6 +127,10 @@ where
     Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
 {
     match prepared.route {
+        PreparedRawUnaryRouteV1::UnsupportedMove => Err(
+            "[freeze:contract][ownership/move-not-supported] move has not reached the Home owner"
+                .to_string(),
+        ),
         PreparedRawUnaryRouteV1::Weak { operand } => {
             let box_value = drive_legacy_expression_v1(builder, port, operand)?;
             builder.emit_weak_new(box_value)
@@ -240,6 +246,7 @@ mod tests {
 
     fn route(prepared: PreparedRawUnaryV1) -> &'static str {
         match prepared.route {
+            PreparedRawUnaryRouteV1::UnsupportedMove => "move-unsupported",
             PreparedRawUnaryRouteV1::Weak { .. } => "weak",
             PreparedRawUnaryRouteV1::Ordinary {
                 operator: PreparedRawOrdinaryUnaryOperatorV1::Minus,

@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "cleanup series 2-5 landed or retained at verified caller boundaries; next work is not selected"
+current_blocker_token = "ownership step 1: move parser landed; connect Home transfer, published MIR verification, EXE and Shared"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,7 +18,7 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 APP-boxtorrent-mini and APP-loop-basics: fixed suite 8/8 (canonical_app_exe_cases runs the 4 typed-object seeds and loop-basics).
-Cleanup 2-5: typed-terminal gate retired; live LoopTrue and nested callers retained, see active card.
+Ownership step 1 selected: move to EXE, independent published MIR verification, then Shared; see active card.
 A4 ownership tests, old lowerer and safety boundaries remain until ownership step 1 successor coverage.
 Preserve current safety checks, parked lanes, and both local stashes; see active card for remaining boundaries.
 """

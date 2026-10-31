@@ -198,6 +198,56 @@ impl NyashParser {
             });
         }
 
+        // `move root` is contextual and carries only a whole local name.
+        if matches!(&self.current_token().token_type, TokenType::IDENTIFIER(name) if name == "move") {
+            let prefix = self.current_token().clone();
+            if let Some(root) = self.tokens.get(self.current + 1).cloned() {
+                if root.line == prefix.line {
+                    if let TokenType::IDENTIFIER(name) = root.token_type {
+                        if let Some(next) = self.tokens.get(self.current + 2) {
+                            if matches!(
+                                next.token_type,
+                                TokenType::DOT | TokenType::LBRACK | TokenType::LPAREN
+                            ) {
+                                return Err(ParseError::UnexpectedToken {
+                                    found: next.token_type.clone(),
+                                    expected: "[freeze:contract][parser/move_exact_root_required] move requires one whole local name".to_string(),
+                                    line: next.line,
+                                });
+                            }
+                        }
+                        self.advance();
+                        self.advance();
+                        return Ok(ASTNode::UnaryOp {
+                            operator: UnaryOperator::Move,
+                            operand: Box::new(ASTNode::Variable {
+                                name,
+                                span: Span::new(0, 0, root.line, root.column),
+                            }),
+                            span: Span::new(0, 0, prefix.line, prefix.column),
+                        });
+                    }
+                }
+            }
+            if self.tokens.get(self.current + 1).is_some_and(|token| {
+                token.line != prefix.line || matches!(token.token_type, TokenType::ME | TokenType::THIS)
+            }) {
+                return Err(ParseError::UnexpectedToken {
+                    found: self.tokens[self.current + 1].token_type.clone(),
+                    expected: "[freeze:contract][parser/move_exact_root_required] move requires one whole local name".to_string(),
+                    line: prefix.line,
+                });
+            }
+            if matches!(self.tokens.get(self.current + 1).map(|token| &token.token_type),
+                None | Some(TokenType::EOF | TokenType::NEWLINE | TokenType::SEMICOLON | TokenType::RBRACE | TokenType::RPAREN | TokenType::COMMA)) {
+                return Err(ParseError::UnexpectedToken {
+                    found: self.tokens.get(self.current + 1).map(|token| token.token_type.clone()).unwrap_or(TokenType::EOF),
+                    expected: "[freeze:contract][parser/move_exact_root_required] move requires one whole local name".to_string(),
+                    line: prefix.line,
+                });
+            }
+        }
+
         // Phase 285W-Syntax-0: weak <expr> unary operator
         if self.match_token(&TokenType::WEAK) {
             self.advance(); // consume 'weak'

@@ -5,6 +5,8 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
+- 所有step 1 S1: Rust/Hakoの`move` source形とregistry・corpus・witnessを追加、未接続のHome移転は名前付き拒否。Rust正負6例・focused test・生成projection・Python witness PASS、最適化`target/quick/hakorune`と`target/quick` runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。Rust/Hako production +119行、test/corpus/witness +77行。S2〜S4でHome移転と独立MIR検証を接続し、一時的な未対応拒否を退役する。静的substrate guardは基点からのquick-reference naming不整合で停止。
+- Hako parser実行parity: HEADの既存経路が使えない（vm-reference無効＋`ParserBox.add_using`のloop拒否）ため、move fixturesはHako実行経路が戻った時に同じgateで確認する（maintainer判断、固定suiteのSKIPではない）。
 - `boxtorrent_mini_exe` が PASS（期待出力13行＋`Result: 0`、exit 0）。固定 `real-apps-exe-boundary` は**11/11 PASS**（当初5分50秒、現在1分35秒）（2026-10-30、`target/quick/hakorune`=`cargo quick-build --bin hakorune` の最適化版＋同`target/quick` runtime、`tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite real-apps-exe-boundary --timeout 420`）。実EXE10本＋空marker1本、SKIP/timeoutなし。（最適化後の値は残件1）
 - 共有Rust検証: `ordinary_new`/`resolved_semantics`/`loop_recipe` の直近基準は失敗84/1/0。JSON appは `json_stream_aggregator_exe_runtime_boundary` smoke PASS（検証はEXE経路。VMはactive laneとして撤退済みで検証対象外）。
 - 所有モデルの次段を2026-10-30に決定: 仕様は[ownership.md §0](../../../../reference/language/ownership.md)、順序は[ADR-002](../../../adr/adr-002-explicit-ownership-and-compiler-migration.md)の移行表（切替はselfhostより前、それまで既存アプリの意味は不変）。最初の実装候補は`move x`の受理＋移転後使用の拒否とShared型の追加。maintainerは今回レガシー退役(1)(2)を選択。promotion workloadの保持境界を既存gate cardに固定。残る独立した安全guardを保持し、所有step 1へ自動切替しない。

@@ -7,6 +7,7 @@ pub enum UnaryOperator {
     Not,    // not x / !x
     BitNot, // ~x
     Weak,   // weak x
+    Move,   // move x
 }
 
 /// 二項演算子の種類
@@ -39,6 +40,7 @@ impl fmt::Display for UnaryOperator {
             UnaryOperator::Not => "not",
             UnaryOperator::BitNot => "~",
             UnaryOperator::Weak => "weak",
+            UnaryOperator::Move => "move",
         };
         write!(f, "{}", symbol)
     }

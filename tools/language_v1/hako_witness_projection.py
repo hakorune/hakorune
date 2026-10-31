@@ -339,6 +339,10 @@ def _map_literal(program: dict[str, Any]) -> dict[str, Any]:
 
 def _remaining_expression(program: dict[str, Any], row_id: str) -> dict[str, Any]:
     expression = _expression(program)
+    if row_id == "move_unary_expr":
+        if expression.get("type") != "Unary" or expression.get("op") != "move":
+            raise HakoProjectionError("Hako move unary evidence is missing")
+        return _node("MoveExpr", children=[_expression_node(expression.get("operand"))])
     if row_id == "weak_unary_expr":
         if expression.get("type") != "Unary" or expression.get("op") != "weak":
             raise HakoProjectionError("Hako weak unary evidence is missing")
@@ -389,6 +393,7 @@ def project_hako_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
     if row_id == "release_statement":
         return _release_statement(program)
     if row_id in {
+        "move_unary_expr",
         "weak_unary_expr",
         "record_literal",
         "record_with_update",

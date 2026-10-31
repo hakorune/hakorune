@@ -503,6 +503,14 @@ canonical = { status = "rejected", normalization_mode = "none", normalized_shape
 compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/until_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["until_loop_compat_reject"] }
 
 [[rows]]
+row_id = "move_unary_expr"
+family = "ownership"
+spelling_id = "move_unary_expr"
+production = "move identifier"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "MoveExpr", semantic_owner = "ownership", stable_reject_tag = "parser/move_exact_root_required", positive_fixture_ids = ["move_unary_expr_canonical"], negative_fixture_ids = ["move_projected_root_canonical_reject", "move_missing_root_canonical_reject"] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "MoveExpr", semantic_owner = "ownership", stable_reject_tag = "parser/move_exact_root_required", positive_fixture_ids = ["move_unary_expr_compat"], negative_fixture_ids = ["move_projected_root_compat_reject", "move_missing_root_compat_reject"] }
+
+[[rows]]
 row_id = "weak_unary_expr"
 family = "weak"
 spelling_id = "weak_unary_expr"

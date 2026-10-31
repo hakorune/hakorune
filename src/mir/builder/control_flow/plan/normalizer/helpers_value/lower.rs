@@ -229,6 +229,9 @@ impl super::super::PlanNormalizer {
                 UnaryOperator::Weak => {
                     Err("[normalizer] Unary 'weak' is not supported yet".to_string())
                 }
+                UnaryOperator::Move => Err(
+                    "[freeze:contract][ownership/move-not-supported] move has not reached the Home owner".to_string(),
+                ),
             },
             ASTNode::MethodCall {
                 object,
