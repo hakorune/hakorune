@@ -37,6 +37,57 @@ fn published_move_owner_verifies_actual_mir_and_rejects_a_changed_end() {
 }
 
 #[test]
+fn published_move_keeps_original_reverse_home_cleanup_order() {
+    use crate::mir::{MirInstruction, instruction::InvokeOperation};
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Page {} static box Main { main() { local a = new Page() local z = new Page() local b = move a return 30 } }";
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            text, crate::parser::ParserBuildConfig::default()).unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("source") };
+        MirCompiler::with_options(true).compile_normal_with_published(
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
+            |view, _| -> Result<(), String> {
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)?;
+                let source = input.program().handoff().root_source().ok_or("missing root")?;
+                let root = input.program().functions().iter().find(|f| matches!(f.role(), crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::Root { .. })).ok_or("missing root function")?;
+                let function = root.function();
+                let (aliases, _) = source.move_ownership_aliases_v1(source.owner(), function)?.ok_or("missing move")?;
+                let mut block = function.entry_block;
+                let mut acquired = Vec::new();
+                let mut released = Vec::new();
+                for _ in 0..=function.blocks.len() {
+                    let row = function.blocks.get(&block).ok_or("missing block")?;
+                    for instruction in &row.instructions {
+                        if let MirInstruction::InvokeNormalResult { invoke_block, dst } = instruction {
+                            if matches!(function.blocks[invoke_block].terminator, Some(MirInstruction::Invoke { operation: InvokeOperation::NewBox { .. }, .. })) {
+                                acquired.push(*dst);
+                            }
+                        }
+                    }
+                    match row.terminator.as_ref().ok_or("missing terminator")? {
+                        MirInstruction::Invoke { operation, normal_landing, .. } => {
+                            if let InvokeOperation::HomeRelease { value, .. } = operation {
+                                released.push(*aliases.get(value).unwrap_or(value));
+                            }
+                            block = *normal_landing;
+                        }
+                        MirInstruction::Jump { target, .. } => block = *target,
+                        MirInstruction::Return { .. } => break,
+                        _ => return Err("unexpected path".into()),
+                    }
+                }
+                assert_eq!(acquired.len(), 2);
+                acquired.reverse();
+                assert_eq!(released, acquired);
+                Ok(())
+            }).unwrap();
+    });
+}
+
+#[test]
 fn numeric_capability_rejects_drift_in_referenced_physical_layout() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

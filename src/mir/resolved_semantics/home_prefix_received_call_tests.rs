@@ -35,6 +35,24 @@ fn initializers(
 }
 
 #[test]
+fn home_transfer_rejects_foreign_owner_and_duplicate_source_without_consuming() {
+    let source = unit();
+    let input = source.root_function_input().unwrap();
+    let rows = initializers(input);
+    let mut flow = PrefixLocalFlow::new(input);
+    flow.install_selected_normal_home(rows[0].0, rows[0].1.clone(), None);
+    let foreign = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
+    let foreign_destination = BindingRefV1::new(foreign, rows[1].0.binding());
+    let mut homes = vec![LiveHomeV1::Stable(rows[0].0)];
+    assert!(!flow.transfer_home_v1(rows[0].0, foreign_destination, &mut homes));
+    let mut duplicate = vec![LiveHomeV1::Stable(rows[0].0), LiveHomeV1::Stable(rows[0].0)];
+    assert!(!flow.transfer_home_v1(rows[0].0, rows[1].0, &mut duplicate));
+    assert_eq!(flow.home_acquisition(rows[0].0), Some(&rows[0].1));
+    assert!(flow.transfer_home_v1(rows[0].0, rows[1].0, &mut homes));
+    assert_eq!(homes[0].stable_origin(), Some(rows[0].0));
+}
+
+#[test]
 fn received_call_identity_preserves_both_classes_without_direct_new_home() {
     let source = unit();
     let input = source.root_function_input().unwrap();

@@ -345,6 +345,7 @@ mod tests {
     use super::*;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     use crate::mir::resolved_semantics::home_new_prefix::local_flow::PrefixLocalFlow;
+    use crate::mir::resolved_semantics::OwnedExprSiteV1;
     use crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1;
 
     #[test]
@@ -403,6 +404,39 @@ mod tests {
             .unwrap();
             assert_eq!(accepted, case == 0, "destination case {case}");
             assert_eq!(locals.expression_plans().len(), usize::from(case == 0));
+        }
+    }
+
+    #[test]
+    fn object_home_rebind_is_unavailable_without_consuming_the_prior_homes() {
+        for assignment in ["x = new Page()", "x = move y"] {
+            let program = crate::parser::NyashParser::parse_from_string(&format!(
+                "function probe() {{ local x = new Page() local y = new Page() {assignment} return 0 }}"
+            )).unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = program else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let initializers = input.function().expression_source().initializers().take(2).collect::<Vec<_>>();
+            let mut locals = PrefixLocalFlow::new(input);
+            let mut homes = Vec::new();
+            let mut acquisitions = Vec::new();
+            for initializer in initializers {
+                let acquisition = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
+                locals.install_selected_normal_home(initializer.binding(), acquisition.clone(), None);
+                homes.push(super::super::super::LiveHomeV1::Stable(initializer.binding()));
+                acquisitions.push((initializer.binding(), acquisition));
+            }
+            let before = homes.clone();
+            let body = input.source().root_body().unwrap();
+            let statement = input.source().body_stmt(&body, 2).unwrap();
+            let accepted = super::super::super::binding_rebind::observe::<()>(
+                input, &statement, &mut locals, &mut homes, true, &mut Vec::new(), &mut Default::default(),
+                &mut |_, _| panic!("unsupported destination must not evaluate RHS"),
+                &mut |_, _| panic!("unsupported destination must not issue calls"),
+            ).unwrap();
+            assert!(!accepted, "{assignment}");
+            assert_eq!(homes, before);
+            for (binding, acquisition) in acquisitions { assert_eq!(locals.home_acquisition(binding), Some(&acquisition)); }
         }
     }
 

@@ -47,7 +47,6 @@ mod lowerer;
 mod nested_predicate_adapter;
 mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
-mod ownership;
 mod physical_entry_lane_adoption;
 mod physical_entry_session;
 mod selected_dynamic_physical_abi;

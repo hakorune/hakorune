@@ -1189,6 +1189,9 @@ impl<'source> PrefixLocalFlow<'source> {
         to: BindingRefV1,
         homes: &mut [LiveHomeV1],
     ) -> bool {
+        if from.owner() != self.input.owner() || to.owner() != self.input.owner() {
+            return false;
+        }
         let Some(local @ StoredLocal::Home { .. }) = self.locals.get(&from).cloned() else {
             return false;
         };
