@@ -140,6 +140,8 @@ enum StoredLocal {
     /// no End obligation, no ownership transfer back, no map-local return.
     BorrowedMap,
     Consumed,
+    /// Explicit source move, distinct from the legacy implicit take path.
+    MovedOut,
     Handle(BindingRefV1),
     /// A local bound to a proven `receiver.field` read whose declared type
     /// is an ordinary box — a borrowed alias into the receiver's storage.
@@ -414,6 +416,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::ReceivedMixed(a), StoredLocal::ReceivedMixed(b)) => a == b,
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
+        (StoredLocal::MovedOut, StoredLocal::MovedOut) => true,
         (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
         (
             StoredLocal::FieldAlias {
@@ -928,11 +931,11 @@ impl<'source> PrefixLocalFlow<'source> {
             }
             StoredLocal::ReceivedMixed(_) => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Handle(root)
-                if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>
+                if !matches!(self.locals.get(root), Some(StoredLocal::Consumed | StoredLocal::MovedOut)) =>
             {
                 Some(OrdinaryObservation::Handle(*root))
             }
-            StoredLocal::Handle(_) | StoredLocal::Consumed => None,
+            StoredLocal::Handle(_) | StoredLocal::Consumed | StoredLocal::MovedOut => None,
             StoredLocal::TaggedDynamic => self
                 .tagged_dynamic_read_v1(site)
                 .map(|_| OrdinaryObservation::TaggedDynamicLocal(binding)),
@@ -1149,6 +1152,7 @@ impl<'source> PrefixLocalFlow<'source> {
                     | StoredLocal::FieldAlias { .. }
                     | StoredLocal::ReceivedNullable { .. }
                     | StoredLocal::Consumed
+                    | StoredLocal::MovedOut
             )
         )
     }
@@ -1167,6 +1171,41 @@ impl<'source> PrefixLocalFlow<'source> {
 
     pub(super) fn consume_home(&mut self, binding: BindingRefV1) {
         self.store(binding, StoredLocal::Consumed);
+    }
+
+    pub(super) fn was_moved_out(&self, binding: BindingRefV1) -> bool {
+        matches!(self.locals.get(&binding), Some(StoredLocal::MovedOut))
+    }
+
+    pub(super) fn has_moved_out(&self) -> bool {
+        self.locals.values().any(|local| matches!(local, StoredLocal::MovedOut))
+    }
+
+    /// Transfer the existing Home at its original cleanup position. The
+    /// caller has already checked the source site and lexical scope.
+    pub(super) fn transfer_home_v1(
+        &mut self,
+        from: BindingRefV1,
+        to: BindingRefV1,
+        homes: &mut [LiveHomeV1],
+    ) -> bool {
+        let Some(local @ StoredLocal::Home { .. }) = self.locals.get(&from).cloned() else {
+            return false;
+        };
+        let mut matches = homes.iter().enumerate().filter(|(_, home)| home.binding() == from);
+        let Some((index, home)) = matches.next() else { return false };
+        if matches.next().is_some() || homes.iter().any(|home| home.binding() == to) {
+            return false;
+        }
+        let origin = match home {
+            LiveHomeV1::Stable(binding) => *binding,
+            LiveHomeV1::Moved { origin, .. } => *origin,
+            LiveHomeV1::Text(_) => return false,
+        };
+        homes[index] = LiveHomeV1::Moved { origin, binding: to };
+        self.store(from, StoredLocal::MovedOut);
+        self.store(to, local);
+        true
     }
     pub(super) fn install_map(&mut self, binding: BindingRefV1) {
         self.store(binding, StoredLocal::Map);

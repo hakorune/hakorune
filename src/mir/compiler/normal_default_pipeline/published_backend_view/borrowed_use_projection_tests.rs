@@ -5,6 +5,7 @@ use super::*;
 fn project(function: &MirFunction) -> PublishedLifecyclePhysicalFunctionV1<'_> {
     let row = &function.blocks[&function.entry_block];
     PublishedLifecyclePhysicalFunctionV1 {
+        function,
         name: &function.signature.name,
         // The synthetic header is not evidence for instance receiver admission.
         role: PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {

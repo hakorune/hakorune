@@ -8,6 +8,9 @@ use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 type LiveSet = BTreeSet<ValueId>;
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ObjectStage { Unpublished, Published, BirthFaulted }
+type ObjectStates = BTreeMap<ValueId, (hakorune_mir_defs::CanonicalObjectIdV1, ObjectStage)>;
 
 pub(super) fn verify(
     function: &MirFunction,
@@ -22,7 +25,7 @@ pub(super) fn verify(
     }
     reject_edge_arguments(function)?;
     verify_phi_predecessors(function)?;
-    verify_instruction_kinds(function, &kinds)?;
+    verify_instruction_kinds(function, &kinds, abi)?;
 
     let initial = function
         .params
@@ -30,16 +33,71 @@ pub(super) fn verify(
         .copied()
         .filter(|value| kinds.get(value) == Some(&MirOwnershipKindV1::Owned))
         .collect::<LiveSet>();
-    let mut entries = BTreeMap::from([(function.entry_block, initial)]);
+    let mut entries = BTreeMap::from([(function.entry_block, (initial, ObjectStates::new()))]);
     let mut queue = VecDeque::from([function.entry_block]);
 
     while let Some(block_id) = queue.pop_front() {
-        let mut live = entries[&block_id].clone();
+        let (mut live, mut objects) = entries[&block_id].clone();
         let block = &function.blocks[&block_id];
         for instruction in &block.instructions {
-            process_instruction(block_id, instruction, &kinds, &mut live)?;
+            if abi.owner().is_source() && (matches!(instruction, MirInstruction::CopyOwned { .. } | MirInstruction::DestroyOwned { .. })
+                || matches!(instruction, MirInstruction::Phi { dst, .. } if kinds.get(dst) == Some(&MirOwnershipKindV1::Owned))) {
+                return Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { block: block.id });
+            }
+            process_instruction(block_id, instruction, &kinds, abi, &mut live)?;
+            if abi.owner().is_source() {
+                if let MirInstruction::InvokeNormalResult { invoke_block, dst } = instruction {
+                    if let Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::NewBox { object }, .. }) =
+                        function.blocks.get(invoke_block).and_then(|block| block.terminator.as_ref()) {
+                        let stage = if abi.initially_published().contains(dst) { ObjectStage::Published } else { ObjectStage::Unpublished };
+                        if objects.insert(*dst, (*object, stage)).is_some() {
+                            return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value: *dst });
+                        }
+                    }
+                }
+            }
         }
+        let mut birth = None;
         if let Some(terminator) = &block.terminator {
+            if abi.owner().is_source() {
+                if let MirInstruction::Invoke { operation, normal_landing, .. } = terminator {
+                    use crate::mir::instruction::InvokeOperation;
+                    let token = |value: &ValueId| *abi.aliases().get(value).unwrap_or(value);
+                    match operation {
+                        InvokeOperation::Birth(row) => {
+                            let value = token(&row.receiver);
+                            if objects.get(&value).is_none_or(|(_, stage)| *stage != ObjectStage::Unpublished) { return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value }); }
+                            birth = Some((value, *normal_landing));
+                        }
+                        InvokeOperation::HomeRelease { object, value } | InvokeOperation::ObjectEndIfOwned { object, value, .. }
+                        | InvokeOperation::ReclaimUnpublished { object, value } => {
+                            let value = token(value);
+                            let state = objects.remove(&value);
+                            let valid = match (operation, state) {
+                                (InvokeOperation::ReclaimUnpublished { .. }, Some((actual, ObjectStage::Unpublished | ObjectStage::BirthFaulted))) => actual == *object,
+                                (InvokeOperation::HomeRelease { .. } | InvokeOperation::ObjectEndIfOwned { .. }, Some((actual, ObjectStage::Published))) => actual == *object,
+                                _ => false,
+                            };
+                            if !valid {
+                                return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value });
+                            }
+                        }
+                        InvokeOperation::FieldGet { field, base } => {
+                            let value = token(base);
+                            if objects.get(&value) != Some(&(field.object(), ObjectStage::Published)) { return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value }); }
+                        }
+                        InvokeOperation::Call { call, .. } => {
+                            if let Callee::SameModuleInstance { receiver, .. } = &call.callee {
+                                let value = token(receiver);
+                                if objects.get(&value).is_none_or(|(_, stage)| *stage != ObjectStage::Published) {
+                                    return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value });
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
             process_terminator(block_id, terminator, abi, &kinds, &mut live)?;
         }
 
@@ -55,13 +113,19 @@ pub(super) fn verify(
 
         for successor in block.successors.iter().copied() {
             let edge_live = transfer_phi_edge(function, block_id, successor, &kinds, &live)?;
+            let mut edge_objects = objects.clone();
+            if let Some((value, normal)) = birth {
+                edge_objects.get_mut(&value).expect("checked Birth token").1 =
+                    if successor == normal { ObjectStage::Published } else { ObjectStage::BirthFaulted };
+            }
+            let edge_state = (edge_live, edge_objects);
             match entries.get(&successor) {
-                Some(existing) if existing != &edge_live => {
+                Some(existing) if existing != &edge_state => {
                     return Err(OwnershipSsaErrorV1::LiveSetMismatch { block: successor });
                 }
                 Some(_) => {}
                 None => {
-                    entries.insert(successor, edge_live);
+                    entries.insert(successor, edge_state);
                     queue.push_back(successor);
                 }
             }
@@ -81,6 +145,7 @@ pub(super) fn verify(
 fn verify_instruction_kinds(
     function: &MirFunction,
     kinds: &BTreeMap<ValueId, MirOwnershipKindV1>,
+    abi: &OwnershipFunctionAbiV1,
 ) -> Result<(), OwnershipSsaErrorV1> {
     for block in function.blocks.values() {
         for instruction in &block.instructions {
@@ -102,7 +167,8 @@ fn verify_instruction_kinds(
                     });
                 }
                 MirInstruction::Copy { src, .. }
-                    if kinds.get(src) == Some(&MirOwnershipKindV1::Owned) =>
+                    if kinds.get(src) == Some(&MirOwnershipKindV1::Owned)
+                        && !matches!(instruction, MirInstruction::Copy { dst, .. } if abi.aliases().get(dst) == Some(src)) =>
                 {
                     return Err(OwnershipSsaErrorV1::CopyOnOwned {
                         block: block.id,
@@ -166,10 +232,19 @@ fn process_instruction(
     block: BasicBlockId,
     instruction: &MirInstruction,
     kinds: &BTreeMap<ValueId, MirOwnershipKindV1>,
+    abi: &OwnershipFunctionAbiV1,
     live: &mut LiveSet,
 ) -> Result<(), OwnershipSsaErrorV1> {
     match instruction {
         MirInstruction::Phi { .. } => return Ok(()),
+        MirInstruction::InvokeNormalResult { dst, .. } if kinds.get(dst) == Some(&MirOwnershipKindV1::Owned) => {
+            if !live.insert(*dst) { return Err(OwnershipSsaErrorV1::OwnedDestinationAlreadyLive { block, value: *dst }); }
+            return Ok(());
+        }
+        MirInstruction::Copy { dst, src } if abi.aliases().get(dst) == Some(src) => {
+            require_live_if_owned(block, *src, kinds, live)?;
+            return Ok(());
+        }
         MirInstruction::CopyOwned { dst, src } => {
             require_live_if_owned(block, *src, kinds, live)?;
             if !live.insert(*dst) {
@@ -191,8 +266,14 @@ fn process_instruction(
         }
         _ => {}
     }
+    if abi.owner().is_source() && instruction.used_values().into_iter().any(|value| {
+        let token = *abi.aliases().get(&value).unwrap_or(&value);
+        kinds.get(&token) != Some(&MirOwnershipKindV1::None)
+    }) {
+        return Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { block });
+    }
     for value in instruction.used_values() {
-        require_live_if_owned(block, value, kinds, live)?;
+        require_live_if_owned(block, *abi.aliases().get(&value).unwrap_or(&value), kinds, live)?;
     }
     Ok(())
 }
@@ -217,12 +298,43 @@ fn process_terminator(
                 _ => return Err(OwnershipSsaErrorV1::ResultOwnershipMismatch { block }),
             },
             (FunctionResultOwnershipV1::None, None) => {}
+            (FunctionResultOwnershipV1::None, Some(value)) if kinds.get(value) == Some(&MirOwnershipKindV1::None) => {}
             _ => return Err(OwnershipSsaErrorV1::ResultOwnershipMismatch { block }),
         }
         return Ok(());
     }
     for value in terminator.used_values() {
-        require_live_if_owned(block, value, kinds, live)?;
+        require_live_if_owned(block, *abi.aliases().get(&value).unwrap_or(&value), kinds, live)?;
+    }
+    if abi.owner().is_source() && !matches!(terminator, MirInstruction::Invoke { .. })
+        && terminator.used_values().into_iter().any(|value| kinds.get(&value) != Some(&MirOwnershipKindV1::None)) {
+        return Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { block });
+    }
+    if let MirInstruction::Invoke { operation, .. } = terminator {
+        use crate::mir::instruction::InvokeOperation;
+        let has_managed_operand = terminator.used_values().into_iter().any(|value| {
+            let token = *abi.aliases().get(&value).unwrap_or(&value);
+            kinds.get(&token) == Some(&MirOwnershipKindV1::Owned)
+        });
+        let supported = match operation {
+            InvokeOperation::Birth(birth) => terminator.used_values().into_iter().all(|value| {
+                let token = *abi.aliases().get(&value).unwrap_or(&value);
+                value == birth.receiver || kinds.get(&token) == Some(&MirOwnershipKindV1::None)
+            }),
+            InvokeOperation::HomeRelease { .. } | InvokeOperation::ObjectEndIfOwned { .. } | InvokeOperation::ReclaimUnpublished { .. }
+            | InvokeOperation::FieldGet { .. } => true,
+            InvokeOperation::Call { call, .. } => matches!(call.callee, Callee::SameModuleInstance { .. }) && call.args.is_empty(),
+            _ => false,
+        };
+        if has_managed_operand && !supported {
+            return Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { block });
+        }
+        if let InvokeOperation::HomeRelease { value, .. } | InvokeOperation::ObjectEndIfOwned { value, .. } | InvokeOperation::ReclaimUnpublished { value, .. } = operation {
+            let token = *abi.aliases().get(value).unwrap_or(value);
+            if kinds.get(&token) == Some(&MirOwnershipKindV1::Owned) && !live.remove(&token) {
+                return Err(OwnershipSsaErrorV1::OwnedUseAfterConsume { block, value: token });
+            }
+        }
     }
     Ok(())
 }

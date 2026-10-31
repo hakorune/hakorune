@@ -168,6 +168,18 @@ impl RootHomeFlow {
             && !self.exits.is_empty()
             && self.exits.values().all(|row| row.is_ok())
     }
+
+    /// A source ownership violation or the bounded move surface's refusal is
+    /// terminal. Other existing prefix failures keep their previous routing.
+    pub(crate) fn explicit_move_failure(&self) -> Option<HomePrefixUnavailableV1> {
+        self.exits.values().find_map(|row| match row {
+            Err(issue @ (HomePrefixUnavailableV1::UseAfterMove(_) | HomePrefixUnavailableV1::MoveUnsupported(_))) => Some(issue.clone()),
+            Err(HomePrefixUnavailableV1::HomeFlowBranchDivergent { site, then_homes, else_homes })
+                if then_homes.iter().chain(else_homes.iter()).any(|home| matches!(home, LiveHomeV1::Moved { .. })) =>
+                    Some(HomePrefixUnavailableV1::UseAfterMove(SourceExprSiteV1::from_node(site.node().clone()))),
+            _ => None,
+        })
+    }
     pub(crate) fn implicit_exit(
         &self,
     ) -> Option<Result<&RootHomeExitV1, &HomePrefixUnavailableV1>> {

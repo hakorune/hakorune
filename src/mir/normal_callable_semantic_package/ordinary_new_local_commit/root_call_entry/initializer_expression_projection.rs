@@ -8,6 +8,24 @@ use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Borrow the already checked source transfer from the same Home flow.
+    pub(crate) fn move_initializer_v1(
+        &self, owner: FunctionOwnerIdV1, statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<Option<(Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, OwnedExprSiteV1)>, String> {
+        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow()) else {
+            return Ok(None);
+        };
+        let mut rows = flow.expression_plans().iter()
+            .filter_map(|plan| plan.move_initializer_v1())
+            .filter(|(source, _, _)| source.root().statement().node() == statement);
+        let row = rows.next().map(|(source, from, acquisition)| (Rc::clone(source), from, acquisition.clone()));
+        if rows.next().is_some() || row.as_ref().is_some_and(|(source, from, acquisition)|
+            source.owner() != owner || from.owner() != owner || acquisition.owner() != owner) {
+            return Err(freeze("move-initializer/source-owner-or-duplicate"));
+        }
+        Ok(row)
+    }
+
     pub(crate) fn initializer_expression_frame_v1(
         &self, owner: FunctionOwnerIdV1, statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1>>, String>{

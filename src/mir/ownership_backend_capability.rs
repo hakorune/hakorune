@@ -34,7 +34,7 @@ pub(crate) fn enforce(module: &MirModule, backend: &str) -> Result<(), String> {
                 function.signature.name
             ));
         }
-        if witness.owner().as_u64() == u64::MAX {
+        if !witness.owner().is_valid() {
             return Err(format!(
                 "[freeze:contract][ownership-backend:invalid-owner] function={}",
                 function.signature.name

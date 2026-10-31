@@ -1,0 +1,23 @@
+// Move one owned local and call through its new binding.
+
+box Pair {
+  left: i64
+  right: i64
+
+  birth(left, right) {
+    me.left = left
+    me.right = right
+  }
+
+  sum(): i64 {
+    return me.left + me.right
+  }
+}
+
+static box Main {
+  main() {
+    local pair = new Pair(10, 20)
+    local result = move pair
+    return result.sum()
+  }
+}

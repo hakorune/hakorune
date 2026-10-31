@@ -276,7 +276,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let has_expression_source = self.completion_index.values().chain(self.root_completion.iter())
             .filter_map(|row| row.as_ref().ok())
             .filter_map(|completion| completion.cleanup().root_flow())
-            .any(|flow| flow.expression_plans().iter().any(|plan| plan.initializer_frame().is_some() || plan.rebind_frame().is_some() || plan.print_frame().is_some() || plan.condition_frame().is_some() || plan.field_write_frame().is_some() || !plan.source_fields().is_empty()));
+            .any(|flow| flow.expression_plans().iter().any(|plan| plan.initializer_frame().is_some() || plan.move_initializer_v1().is_some() || plan.rebind_frame().is_some() || plan.print_frame().is_some() || plan.condition_frame().is_some() || plan.field_write_frame().is_some() || !plan.source_fields().is_empty()));
         let has_selected_loop_body_calls = !self.selected_loop_body_packets.borrow().is_empty();
         // The source loan follows verified main identity plus retained
         // source evidence — a terminal relation is only one inventory.

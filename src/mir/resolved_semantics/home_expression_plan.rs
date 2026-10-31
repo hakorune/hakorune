@@ -239,6 +239,19 @@ impl ExpressionFieldRequirementV1 {
     }
 }
 
+/// An initializer keeps either its existing evaluated frame or an exact
+/// ownership transfer of an already acquired Home.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum InitializerFrameV1 {
+    Evaluation(Rc<CheckedInitializerExpressionFrameV1>),
+    Move {
+        source: Rc<ExpressionSourcePlanV1>,
+        unary: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+        from: crate::mir::resolved_semantics::BindingRefV1,
+        acquisition: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    },
+}
+
 // Like the previous flow payload, equality compares immutable original facts.
 // It never replaces the physical consumer's explicit Rc membership checks.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -248,7 +261,7 @@ pub(crate) struct HomeExpressionPlanV1 {
     source_fields: Vec<ExpressionFieldRequirementV1>,
     print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
     argument_frame: Option<Rc<CheckedArgumentExpressionFrameV1>>,
-    initializer_frame: Option<Rc<CheckedInitializerExpressionFrameV1>>,
+    initializer_frame: Option<InitializerFrameV1>,
     rebind_frame: Option<Rc<CheckedBindingRebindFrameV1>>,
     condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
     loop_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
@@ -256,6 +269,40 @@ pub(crate) struct HomeExpressionPlanV1 {
     source_field_homes: Option<Rc<[LiveHomeV1]>>,
 }
 impl HomeExpressionPlanV1 {
+    pub(super) fn move_initializer(
+        source: Rc<ExpressionSourcePlanV1>,
+        unary: &crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+        from: crate::mir::resolved_semantics::BindingRefV1,
+        acquisition: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ) -> Option<Self> {
+        let initializer = source.root().initializer()?;
+        if initializer.binding().owner() != source.owner()
+            || from.owner() != source.owner()
+            || acquisition.owner() != source.owner()
+            || source.nodes().len() != 2
+            || !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Unary)
+            || unary.operator() != crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
+            || unary.site() != source.nodes()[0].site()
+            || unary.operand() != source.nodes()[1].site()
+            || !matches!(source.nodes()[1].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == from)
+        {
+            return None;
+        }
+        let plan = Self {
+            source: Rc::clone(&source),
+            scalar_operations: Vec::new(),
+            source_fields: Vec::new(),
+            print_frame: None,
+            argument_frame: None,
+            initializer_frame: Some(InitializerFrameV1::Move { source, unary: unary.clone(), from, acquisition }),
+            rebind_frame: None,
+            condition_frame: None,
+            loop_recipe: None,
+            field_write: None,
+            source_field_homes: None,
+        };
+        plan.is_consistent().then_some(plan)
+    }
     /// Called only after the original scalar preflight proves both Integer
     /// children. The parent still must close its complete field/call batch
     /// before installing this wrapper in the persistent Home flow.
@@ -468,7 +515,16 @@ impl HomeExpressionPlanV1 {
         self.field_write_frame().filter(|frame| frame.is_borrowed())
     }
     pub(crate) fn initializer_frame(&self) -> Option<&Rc<CheckedInitializerExpressionFrameV1>> {
-        self.initializer_frame.as_ref()
+        match self.initializer_frame.as_ref()? {
+            InitializerFrameV1::Evaluation(frame) => Some(frame),
+            InitializerFrameV1::Move { .. } => None,
+        }
+    }
+    pub(crate) fn move_initializer_v1(&self) -> Option<(&Rc<ExpressionSourcePlanV1>, crate::mir::resolved_semantics::BindingRefV1, &crate::mir::resolved_semantics::OwnedExprSiteV1)> {
+        match self.initializer_frame.as_ref()? {
+            InitializerFrameV1::Move { source, from, acquisition, .. } => Some((source, *from, acquisition)),
+            InitializerFrameV1::Evaluation(_) => None,
+        }
     }
     pub(crate) fn rebind_frame(&self) -> Option<&Rc<CheckedBindingRebindFrameV1>> {
         self.rebind_frame.as_ref()
@@ -570,10 +626,18 @@ impl HomeExpressionPlanV1 {
                 .print_frame
                 .as_ref()
                 .is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
-            && self
-                .initializer_frame
-                .as_ref()
-                .is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.initializer_frame.as_ref().is_none_or(|frame| match frame {
+                InitializerFrameV1::Evaluation(frame) => Rc::ptr_eq(frame.source(), &self.source),
+                InitializerFrameV1::Move { source, unary, from, acquisition } => {
+                    Rc::ptr_eq(source, &self.source)
+                        && from.owner() == source.owner()
+                        && acquisition.owner() == source.owner()
+                        && source.nodes().len() == 2
+                        && unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
+                        && unary.site() == source.nodes()[0].site()
+                        && unary.operand() == source.nodes()[1].site()
+                }
+            })
             && self
                 .rebind_frame
                 .as_ref()
@@ -628,6 +692,12 @@ impl super::RootHomeFlow {
             || match (original.initializer_frame(), refined.initializer_frame()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !Rc::ptr_eq(a, b),
+                _ => true,
+            }
+            || match (original.move_initializer_v1(), refined.move_initializer_v1()) {
+                (None, None) => false,
+                (Some((a, from_a, acquisition_a)), Some((b, from_b, acquisition_b))) =>
+                    !Rc::ptr_eq(a, b) || from_a != from_b || acquisition_a != acquisition_b,
                 _ => true,
             }
             || match (original.rebind_frame(), refined.rebind_frame()) {

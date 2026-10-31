@@ -5,6 +5,14 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
+fn conflicting_home(earlier: &LiveHomeV1, current: &LiveHomeV1) -> bool {
+    if earlier == current { return true; }
+    let involves_move = matches!(earlier, LiveHomeV1::Moved { .. })
+        || matches!(current, LiveHomeV1::Moved { .. });
+    involves_move && (earlier.binding() == current.binding()
+        || current.stable_origin().is_some_and(|origin| earlier.stable_origin() == Some(origin)))
+}
+
 /// Physical cleanup selected by a retained source owner. This passive action
 /// never issues ownership; a plain Array End has no semantic Fault edge.
 #[derive(Debug, Clone, PartialEq)]
@@ -55,7 +63,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
     String,
 > {
     for (index, binding) in homes.iter().enumerate() {
-        if homes[..index].contains(binding) {
+        if homes[..index].iter().any(|earlier| conflicting_home(earlier, binding)) {
             return Err(freeze("root-cleanup-order/duplicate-home"));
         }
     }
@@ -86,20 +94,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
         if !home.end_available() {
             continue;
         }
-        result.extend(
-            home.end_plan()
-                .into_vec()
-                .into_iter()
-                .map(|(subject, operation)| {
-                    let subject = match binding {
-                        LiveHomeV1::Text(acquisition) => {
-                            super::RootHomeReleaseSubjectV1::Text(acquisition.clone())
-                        }
-                        LiveHomeV1::Stable(_) => subject,
-                    };
-                    (binding.clone(), subject, operation)
-                }),
-        );
+        for (subject, operation) in home.end_plan().into_vec() {
+            let subject = match binding {
+                LiveHomeV1::Text(acquisition) => super::RootHomeReleaseSubjectV1::Text(acquisition.clone()),
+                LiveHomeV1::Stable(_) => subject,
+                LiveHomeV1::Moved { binding, .. } => match subject {
+                    super::RootHomeReleaseSubjectV1::Binding(_) => super::RootHomeReleaseSubjectV1::Binding(*binding),
+                    super::RootHomeReleaseSubjectV1::FieldResidence { field, .. } => super::RootHomeReleaseSubjectV1::FieldResidence { binding: *binding, field },
+                    _ => return Err(freeze("moved-home/unexpected-end-subject")),
+                },
+            };
+            result.push((binding.clone(), subject, operation));
+        }
     }
     Ok(available.then_some(result))
 }
@@ -122,7 +128,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selectio
     String,
 > {
     for (index, binding) in full_homes.iter().enumerate() {
-        if full_homes[..index].contains(binding) {
+        if full_homes[..index].iter().any(|earlier| conflicting_home(earlier, binding)) {
             return Err(freeze("root-cleanup-order/duplicate-home"));
         }
     }

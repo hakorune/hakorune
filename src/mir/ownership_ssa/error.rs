@@ -3,6 +3,10 @@ use crate::mir::{BasicBlockId, ValueId};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum OwnershipSsaErrorV1 {
+    InvalidAcquisition { block: BasicBlockId },
+    InvalidSourceAlias { value: ValueId },
+    UnsupportedManagedInstruction { block: BasicBlockId },
+    InvalidObjectLifecycle { block: BasicBlockId, value: ValueId },
     ParameterArity {
         expected: usize,
         actual: usize,

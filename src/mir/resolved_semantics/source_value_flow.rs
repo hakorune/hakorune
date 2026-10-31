@@ -153,8 +153,20 @@ impl VerifiedSourceValueFlowV1 {
     /// A join itself is an exact passive terminal, never a selected incoming.
     /// Consumers must independently prove its complete entry/update/exit law.
     pub(crate) fn alias_terminal_with_expression_boundary(
-        &self, mut value: SourceValueRefV1,
+        &self, value: SourceValueRefV1,
         mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+        preserve: impl FnMut(&SourceExprSiteV1) -> bool,
+    ) -> Option<SourceValueRefV1> {
+        self.alias_terminal_with_read_site(value, |site| {
+            reference(site).map(|reference| (site.clone(), reference))
+        }, preserve)
+    }
+
+    /// Follow an exact expression's read site, which may be a child operand.
+    /// This remains passive provenance, never ownership authority.
+    pub(crate) fn alias_terminal_with_read_site(
+        &self, mut value: SourceValueRefV1,
+        mut reference: impl FnMut(&SourceExprSiteV1) -> Option<(SourceExprSiteV1, ResolvedLexicalRefV1)>,
         mut preserve: impl FnMut(&SourceExprSiteV1) -> bool,
     ) -> Option<SourceValueRefV1> {
         let mut seen = BTreeSet::new();
@@ -164,7 +176,7 @@ impl VerifiedSourceValueFlowV1 {
                 SourceValueOriginV1::Expression(site) => {
                     if preserve(site) { return Some(value); }
                     match reference(site) {
-                        Some(ResolvedLexicalRefV1::Local(binding)) => value = self.read(site, binding)?,
+                        Some((read, ResolvedLexicalRefV1::Local(binding))) => value = self.read(&read, binding)?,
                         None => return Some(value),
                         _ => return None,
                     }

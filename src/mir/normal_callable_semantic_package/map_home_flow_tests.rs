@@ -10,6 +10,65 @@ fn source(body: &str) -> String {
 }
 
 #[test]
+fn explicit_move_preserves_the_original_home_order_and_source() {
+    let package = issue(&source(
+        "local a = new Page() local z = new Page() local b = move a return 30",
+    )).expect("source Home flow issues");
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().expect("root Home flow");
+    let moves = flow.expression_plans().iter()
+        .filter_map(|plan| plan.move_initializer_v1()).collect::<Vec<_>>();
+    let [(plan, from, acquisition)] = moves.as_slice() else {
+            panic!("one checked move initializer");
+        };
+    let destination = plan.root().initializer().unwrap().binding();
+    let homes = flow.terminal_homes().expect("normal exit is covered");
+    assert_eq!(homes.len(), 2);
+    assert_eq!(homes[1].binding(), destination);
+    assert_eq!(homes[1].stable_origin(), Some(*from));
+    assert_eq!(acquisition.owner(), destination.owner());
+    assert_ne!(homes[0].binding(), destination);
+}
+
+#[test]
+fn explicit_move_rejects_later_reads_and_a_second_move() {
+    use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
+    for body in [
+        "local a = new Page() local b = move a local c = a return 30",
+        "local a = new Page() local b = move a local c = move a return 30",
+    ] {
+        let error = match issue(&source(body)) {
+            Err(error) => error,
+            Ok(_) => panic!("moved-out binding must be rejected"),
+        };
+        assert!(matches!(error, super::NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+            _error: super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::RootTerminalSource(
+                HomePrefixUnavailableV1::UseAfterMove(_))
+        }), "{body}: {error:?}");
+    }
+}
+
+#[test]
+fn consecutive_explicit_moves_retain_one_original_acquisition() {
+    let package = issue(&source(
+        "local a = new Page() local b = move a local c = move b return 30",
+    )).expect("successive moves have one source acquisition");
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().expect("root Home flow");
+    let moves = flow.expression_plans().iter()
+        .filter_map(|plan| plan.move_initializer_v1()).collect::<Vec<_>>();
+    let [(first, from, acquisition), (second, second_from, second_acquisition)] = moves.as_slice() else {
+        panic!("two checked move initializers");
+    };
+    assert_eq!(first.root().initializer().unwrap().binding(), *second_from);
+    assert_eq!(*acquisition, *second_acquisition);
+    let homes = flow.terminal_homes().expect("normal exit is covered");
+    assert_eq!(homes.len(), 1);
+    assert_eq!(homes[0].binding(), second.root().initializer().unwrap().binding());
+    assert_eq!(homes[0].stable_origin(), Some(*from));
+}
+
+#[test]
 fn non_app_main_map_owner_installs_with_covered_obligations() {
     let package = issue(
         "static box Helper { use(value: i64): i64 {

@@ -528,6 +528,11 @@ pub(super) fn installed_source_home<'a>(
             if matches!(row, LocalCommitV1::TextResidence(_)) { return Err(HomeLookupError::Missing); }
             Ok(row)
         }
+        LiveHomeV1::Moved { origin, .. } => {
+            let row = installed_home(rows, *origin)?;
+            if !matches!(row, LocalCommitV1::Ordinary(_)) { return Err(HomeLookupError::Missing); }
+            Ok(row)
+        }
         LiveHomeV1::Text(acquisition) => {
             let source = acquisition.source();
             let site = OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone());

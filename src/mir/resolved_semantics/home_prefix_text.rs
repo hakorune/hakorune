@@ -14,23 +14,37 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub(crate) enum LiveHomeV1 {
     Stable(BindingRefV1),
+    /// A new-derived Home retains its original acquisition after transfer.
+    Moved { origin: BindingRefV1, binding: BindingRefV1 },
     Text(TextResidenceAcquisitionV1),
 }
 impl LiveHomeV1 {
     pub(crate) fn binding(&self) -> BindingRefV1 {
         match self {
             Self::Stable(binding) => *binding,
+            Self::Moved { binding, .. } => *binding,
             Self::Text(source) => source.binding(),
         }
     }
     pub(crate) fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
         self.binding().owner()
     }
+    pub(crate) fn stable_origin(&self) -> Option<BindingRefV1> {
+        match self {
+            Self::Stable(binding) => Some(*binding),
+            Self::Moved { origin, .. } => Some(*origin),
+            Self::Text(_) => None,
+        }
+    }
+    pub(crate) fn is_stable_binding(&self, binding: BindingRefV1) -> bool {
+        self.stable_origin().is_some() && self.binding() == binding
+    }
 }
 impl PartialEq for LiveHomeV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Stable(a), Self::Stable(b)) => a == b,
+            (Self::Moved { origin: a, binding: x }, Self::Moved { origin: b, binding: y }) => a == b && x == y,
             (Self::Text(a), Self::Text(b)) => a.same_source(b),
             _ => false,
         }

@@ -28,6 +28,23 @@ pub(super) fn classify(
     for block in sorted_blocks(function) {
         for instruction in &block.instructions {
             match instruction {
+                MirInstruction::InvokeNormalResult { invoke_block, dst } => {
+                    let origin = function.blocks.get(invoke_block).and_then(|b| b.terminator.as_ref());
+                    match origin {
+                        Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::NewBox { .. }, normal_landing, .. }) => {
+                            if *normal_landing != block.id { return Err(OwnershipSsaErrorV1::InvalidAcquisition { block: block.id }); }
+                            insert_kind(&mut kinds, *dst, MirOwnershipKindV1::Owned)?;
+                        }
+                        Some(MirInstruction::Invoke { operation, .. }) if matches!(operation.normal_result_kind(),
+                            Some(crate::mir::instruction::InvokeNormalResultKind::I64 | crate::mir::instruction::InvokeNormalResultKind::Bool)) => {
+                            insert_kind(&mut kinds, *dst, MirOwnershipKindV1::None)?;
+                        }
+                        _ => return Err(OwnershipSsaErrorV1::InvalidAcquisition { block: block.id }),
+                    }
+                }
+                MirInstruction::Copy { dst, src } if abi.aliases().get(dst) == Some(src) => {
+                    insert_kind(&mut kinds, *dst, MirOwnershipKindV1::Owned)?;
+                }
                 MirInstruction::CopyOwned { dst, .. } => {
                     insert_kind(&mut kinds, *dst, MirOwnershipKindV1::Owned)?;
                 }
@@ -36,10 +53,30 @@ pub(super) fn classify(
                 }
                 _ => {
                     if let Some(dst) = instruction.dst_value() {
+                        if abi.owner().is_source() && !matches!(instruction,
+                            MirInstruction::Const { value: crate::mir::ConstValue::Integer(_) | crate::mir::ConstValue::Bool(_) | crate::mir::ConstValue::Void, .. }
+                            | MirInstruction::BinOp { .. } | MirInstruction::UnaryOp { .. }
+                            | MirInstruction::Compare { .. } | MirInstruction::Copy { .. }
+                            | MirInstruction::FaultFrameEnter { .. }) {
+                            return Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { block: block.id });
+                        }
                         insert_kind(&mut kinds, dst, MirOwnershipKindV1::None)?;
                     }
                 }
             }
+        }
+    }
+
+    for (alias, source) in abi.aliases() {
+        let copies = function.blocks.values().flat_map(|b| &b.instructions)
+            .filter(|instruction| matches!(instruction, MirInstruction::Copy { dst, src } if dst == alias && src == source)).count();
+        if copies != 1 || kinds.get(source) != Some(&MirOwnershipKindV1::Owned) || abi.aliases().contains_key(source) {
+            return Err(OwnershipSsaErrorV1::InvalidSourceAlias { value: *alias });
+        }
+    }
+    for value in abi.initially_published() {
+        if kinds.get(value) != Some(&MirOwnershipKindV1::Owned) || abi.aliases().contains_key(value) {
+            return Err(OwnershipSsaErrorV1::InvalidSourceAlias { value: *value });
         }
     }
 

@@ -1,6 +1,42 @@
 use crate::mir::{MirCompiler, NormalCompileRequestV1};
 
 #[test]
+fn published_move_owner_verifies_actual_mir_and_rejects_a_changed_end() {
+    use crate::mir::ownership_ssa::{verify_ownership_ssa_v1, FunctionResultOwnershipV1, OwnershipFunctionAbiV1, OwnershipFunctionOwnerV1};
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = include_str!("../../../../../apps/typed-object-method-min/main.hako")
+            .replace("return pair.sum()", "local moved = move pair\n    return moved.sum()");
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            &text, crate::parser::ParserBuildConfig::default()).unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("source") };
+        MirCompiler::with_options(true).compile_normal_with_published(
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
+            |view, _| -> Result<(), String> {
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let source = input.program().handoff().root_source().ok_or("missing root")?;
+                let owner = source.owner();
+                assert_eq!(source.move_ownership_owners_v1().into_iter().collect::<Vec<_>>(), vec![owner]);
+                let root = input.program().functions().iter().find(|f| matches!(f.role(), crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::Root { .. })).ok_or("missing root function")?;
+                let (aliases, initially_published) = source.move_ownership_aliases_v1(owner, root.function())?.ok_or("missing move")?;
+                let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), vec![], FunctionResultOwnershipV1::None)
+                    .with_source_aliases(aliases).with_initially_published(initially_published);
+                crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)?;
+                assert!(verify_ownership_ssa_v1(root.function(), &abi).is_ok());
+                let mut changed = root.function().clone();
+                let end = changed.blocks.values_mut().find_map(|block| match block.terminator.as_mut() {
+                    Some(crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::HomeRelease { value, .. }, .. }) => Some(value),
+                    _ => None,
+                }).ok_or("missing HomeRelease")?;
+                *end = crate::mir::ValueId::new(u32::MAX);
+                assert!(verify_ownership_ssa_v1(&changed, &abi).is_err());
+                Ok(())
+            }).unwrap();
+    });
+}
+
+#[test]
 fn numeric_capability_rejects_drift_in_referenced_physical_layout() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

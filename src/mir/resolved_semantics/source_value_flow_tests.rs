@@ -7,7 +7,7 @@ use super::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ResolvedLexicalRefV1,
     SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1, SourcePathSegmentV1 as P, VerifiedResolvedFunctionV1,
 };
-use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span, UnaryOperator};
 use std::sync::Arc;
 
 fn var() -> ASTNode {
@@ -104,6 +104,33 @@ fn expression(product: &VerifiedResolvedFunctionV1, value: SourceValueRefV1, pat
     assert!(
         matches!(flow(product).origin(value), Some(O::Expression(original)) if original == &site(path))
     );
+}
+
+#[test]
+fn moved_local_provenance_uses_the_original_operand_read() {
+    let product = resolve(vec![
+        ASTNode::Local {
+            variables: vec!["y".into()],
+            initial_values: vec![Some(Box::new(ASTNode::UnaryOp {
+                operator: UnaryOperator::Move,
+                operand: Box::new(var()),
+                span: Span::unknown(),
+            }))],
+            declared_type_names: vec![None],
+            span: Span::unknown(),
+        },
+        ret(ASTNode::Variable { name: "y".into(), span: Span::unknown() }),
+    ]);
+    let value = read(&product, &[P::Body(1), P::Value]);
+    let original = read(&product, &[P::Body(0), P::Initializer(0), P::Operand]);
+    let terminal = flow(&product).alias_terminal_with_read_site(value, |site| {
+        let read = product.expression_source().unary(site)
+            .filter(|row| row.operator() == super::ResolvedUnaryOperatorV1::Move)
+            .map(|row| row.operand()).unwrap_or(site);
+        product.variable_ref(read).map(|reference| (read.clone(), reference))
+    }, |_| false);
+    assert_eq!(terminal, Some(original));
+    assert!(matches!(flow(&product).origin(original), Some(O::Entry(_))));
 }
 fn join(
     product: &VerifiedResolvedFunctionV1,

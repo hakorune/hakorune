@@ -131,6 +131,21 @@ pub(super) fn scan_statement_flow<'a, E>(
         }
         covered_statements.push(statement.site().clone());
         locals.visit_source_loop_statement_v1(body, statement.site(), index);
+        if locals.has_moved_out() {
+            let statement_path = statement.site().node().segments();
+            if let Some((site, _)) = function.variable_refs().find(|(site, reference)| {
+                let Some(suffix) = site.node().segments().strip_prefix(statement_path) else { return false };
+                // Branch/loop bodies are checked by their own path-sensitive
+                // walks after any earlier reinitialization in that body.
+                !suffix.iter().any(|segment| matches!(segment,
+                    SourcePathSegmentV1::IfThenBody | SourcePathSegmentV1::IfThen(_)
+                    | SourcePathSegmentV1::IfElseBody | SourcePathSegmentV1::IfElse(_)
+                    | SourcePathSegmentV1::LoopBodyRoot | SourcePathSegmentV1::LoopBody(_)))
+                    && matches!(reference, ResolvedLexicalRefV1::Local(binding) if locals.was_moved_out(*binding))
+            }) {
+                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::UseAfterMove(site.clone()));
+            }
+        }
         locals.invalidate_dynamic_field_sources(&statement);
         local_call_flow::stage_statement_actuals(
             input,

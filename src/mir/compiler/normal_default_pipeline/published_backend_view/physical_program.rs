@@ -298,6 +298,7 @@ impl<'module> PublishedLifecyclePhysicalBlockV1<'module> {
 
 #[derive(Debug, Clone)]
 pub(crate) struct PublishedLifecyclePhysicalFunctionV1<'module> {
+    function: &'module MirFunction,
     name: &'module str,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     params: &'module [ValueId],
@@ -320,6 +321,7 @@ pub(crate) struct PublishedLifecyclePhysicalFunctionV1<'module> {
 }
 
 impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
+    pub(crate) fn function(&self) -> &'module MirFunction { self.function }
     pub(crate) fn name(&self) -> &'module str {
         self.name
     }
@@ -658,6 +660,7 @@ fn issue_function_with_module<'module>(
         return Err(fault("ordinary-call-membership"));
     }
     Ok(PublishedLifecyclePhysicalFunctionV1 {
+        function,
         name: function.signature.name.as_str(),
         role,
         params: &function.params,

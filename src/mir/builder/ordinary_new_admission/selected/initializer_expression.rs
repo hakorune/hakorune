@@ -10,18 +10,20 @@ type Binding = (BasicBlockId, MirInstruction);
 pub(in crate::mir::builder) enum PendingInitializerExpressionV1 {
     Expression(PendingEvaluatedInitializerV1),
     StoredMapGet(terminal_map_get::PendingLocalV1),
+    Move { ordinal: u32, value: ValueId },
 }
 impl PendingInitializerExpressionV1 {
     pub(in crate::mir::builder) fn ordinal(&self) -> u32 {
-        match self { Self::Expression(p) => p.ordinal(), Self::StoredMapGet(p) => p.ordinal() }
+        match self { Self::Expression(p) => p.ordinal(), Self::StoredMapGet(p) => p.ordinal(), Self::Move { ordinal, .. } => *ordinal }
     }
     pub(in crate::mir::builder) fn value(&self) -> ValueId {
-        match self { Self::Expression(p) => p.value(), Self::StoredMapGet(p) => p.value() }
+        match self { Self::Expression(p) => p.value(), Self::StoredMapGet(p) => p.value(), Self::Move { value, .. } => *value }
     }
     pub(in crate::mir::builder) fn placement(&self, value: ValueId) -> Result<crate::mir::builder::stmts::variable_stmt::LocalValuePlacement, String> {
         match self {
             Self::Expression(p) => p.placement(value),
             Self::StoredMapGet(p) if p.value() == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy),
+            Self::Move { value: source, .. } if *source == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::ReuseInitializer),
             _ => Err(freeze("initializer-expression/placement-value")),
         }
     }
@@ -29,7 +31,12 @@ impl PendingInitializerExpressionV1 {
         receipt: &crate::mir::builder::stmts::CompletedLocalBindingV1,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<(), String> {
-        match self { Self::Expression(p) => p.publish(receipt, ledger, function), Self::StoredMapGet(p) => p.publish(receipt, ledger, function) }
+        match self {
+            Self::Expression(p) => p.publish(receipt, ledger, function),
+            Self::StoredMapGet(p) => p.publish(receipt, ledger, function),
+            Self::Move { ordinal, value } if receipt.ordinal() == ordinal && receipt.initializer() == value && receipt.local() == value && receipt.copy().is_none() => Ok(()),
+            Self::Move { .. } => Err(freeze("move-initializer/local-receipt")),
+        }
     }
 }
 

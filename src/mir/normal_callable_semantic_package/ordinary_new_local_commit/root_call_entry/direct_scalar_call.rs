@@ -42,9 +42,8 @@ impl DirectScalarCallProjectionV1 {
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
         if context.ledger().lexical_i64_call_source(self.source.site()) != Some(&self.source)
             || self.source.result() != LocalCallResultClassV1::I64
-            || !self.source.prior_homes().iter().all(|home| matches!(home,
-                crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)
-                    if binding.owner() == self.source.owner()))
+            || !self.source.prior_homes().iter().all(|home|
+                home.stable_origin().is_some() && home.binding().owner() == self.source.owner())
             || self.source.local_binding().is_none()
         {
             return Err(freeze("direct-scalar/source"));

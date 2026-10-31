@@ -1,5 +1,5 @@
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum MirOwnershipKindV1 {
@@ -15,15 +15,28 @@ pub(crate) enum FunctionResultOwnershipV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct OwnershipFunctionOwnerV1(u64);
+pub(crate) enum OwnershipFunctionOwnerV1 {
+    Legacy(u64),
+    Source(crate::mir::resolved_semantics::FunctionOwnerIdV1),
+}
 
 impl OwnershipFunctionOwnerV1 {
     pub(crate) const fn new(raw: u64) -> Self {
-        Self(raw)
+        Self::Legacy(raw)
     }
 
-    pub(crate) const fn as_u64(self) -> u64 {
-        self.0
+    pub(crate) const fn source(owner: crate::mir::resolved_semantics::FunctionOwnerIdV1) -> Self {
+        Self::Source(owner)
+    }
+
+    pub(crate) const fn is_valid(self) -> bool {
+        !matches!(self, Self::Legacy(u64::MAX))
+    }
+
+    pub(super) const fn is_source(self) -> bool { matches!(self, Self::Source(_)) }
+
+    pub(crate) const fn legacy_id(self) -> Option<u64> {
+        match self { Self::Legacy(value) => Some(value), Self::Source(_) => None }
     }
 }
 
@@ -32,6 +45,9 @@ pub(crate) struct OwnershipFunctionAbiV1 {
     owner: OwnershipFunctionOwnerV1,
     parameter_kinds: Box<[MirOwnershipKindV1]>,
     result: FunctionResultOwnershipV1,
+    /// Exact finished New-local copies selected by the source handoff.
+    aliases: BTreeMap<ValueId, ValueId>,
+    initially_published: BTreeSet<ValueId>,
 }
 
 impl OwnershipFunctionAbiV1 {
@@ -44,6 +60,8 @@ impl OwnershipFunctionAbiV1 {
             owner,
             parameter_kinds: parameter_kinds.into_boxed_slice(),
             result,
+            aliases: BTreeMap::new(),
+            initially_published: BTreeSet::new(),
         }
     }
 
@@ -58,6 +76,18 @@ impl OwnershipFunctionAbiV1 {
     pub(crate) const fn result(&self) -> FunctionResultOwnershipV1 {
         self.result
     }
+
+    pub(crate) fn with_source_aliases(mut self, aliases: BTreeMap<ValueId, ValueId>) -> Self {
+        self.aliases = aliases;
+        self
+    }
+
+    pub(super) fn aliases(&self) -> &BTreeMap<ValueId, ValueId> { &self.aliases }
+    pub(crate) fn with_initially_published(mut self, values: BTreeSet<ValueId>) -> Self {
+        self.initially_published = values;
+        self
+    }
+    pub(super) fn initially_published(&self) -> &BTreeSet<ValueId> { &self.initially_published }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

@@ -207,7 +207,7 @@ fn emit_lexical_i64_call(
             && kind == InvokeCallResultKind::I64
             && ledger.lexical_i64_call_source(row.call_site()).is_some_and(|observation|
                 observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments);
-        if !borrowed_self_receiver && !borrowed_formal_receiver && !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !direct_map_receiver && !prior_homes.contains(&crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Stable(binding)) {
+        if !borrowed_self_receiver && !borrowed_formal_receiver && !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !direct_map_receiver && !prior_homes.iter().any(|home| home.is_stable_binding(binding)) {
             return Err(freeze("lexical-i64-receiver-home-missing"));
         }
     }

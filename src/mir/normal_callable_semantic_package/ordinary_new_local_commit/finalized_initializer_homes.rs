@@ -1,7 +1,55 @@
-//! Exact Text lifecycle events lent by their original binding and Return owners.
+//! Source-owned initializer lifecycle and finalized New relations.
 use super::*;
 
 impl FinalizedRootSourceHandoffV1 {
+    pub(crate) fn move_ownership_owners_v1(&self) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
+        self.ledger.completion_index.values().filter_map(|row| row.as_ref().ok())
+            .chain(self.ledger.root_completion.iter().filter_map(|row| row.as_ref().ok()))
+            .filter(|completion| completion.cleanup().root_flow().is_some_and(|flow|
+                flow.expression_plans().iter().any(|plan| plan.move_initializer_v1().is_some())))
+            .map(|completion| completion.owner()).collect()
+    }
+    /// Lend the finished, source-issued New/local relations only when this
+    /// exact function contains a checked move. These are handle aliases,
+    /// never extra ownership tokens or a representation of move itself.
+    pub(crate) fn move_ownership_aliases_v1(
+        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
+    ) -> Result<Option<(std::collections::BTreeMap<ValueId, ValueId>, std::collections::BTreeSet<ValueId>)>, String> {
+        let Some(flow) = self.ledger.completion_for_owner(owner).and_then(|c| c.cleanup().root_flow()) else {
+            return Ok(None);
+        };
+        let moves: Vec<_> = flow.expression_plans().iter().filter_map(|p| p.move_initializer_v1()).collect();
+        if moves.is_empty() { return Ok(None); }
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            if symbol != function.signature.name { return Err(freeze("move-verifier/function-drift")); }
+            let commits = self.ledger.local_commits.borrow();
+            for (_, _, acquisition) in &moves {
+                if !matches!(commits.get(*acquisition), Some(LocalCommitV1::Ordinary(_))) {
+                    return Err(freeze("move-verifier/acquisition-missing"));
+                }
+            }
+            let mut aliases = std::collections::BTreeMap::new();
+            let mut initially_published = std::collections::BTreeSet::new();
+            for row in commits.values().filter(|row| row.owner() == owner) {
+                let LocalCommitV1::Ordinary(row) = row else { continue };
+                let NewEmissionProgress::Emitted { result, progress: EmittedLocalProgress::Checked { local }, .. } = &row.emission else {
+                    return Err(freeze("move-verifier/acquisition-unfinished"));
+                };
+                if row.birth_target.is_none() && row.birth_abi.is_none() {
+                    initially_published.insert(*result);
+                }
+                if let Some(copy) = projection.source_local_copy_binding_v1(function, *local, *result)? {
+                    let (_, actual) = projection.relation_binding(function, &copy)?
+                        .ok_or_else(|| freeze("move-verifier/source-copy-omitted"))?;
+                    if !matches!(actual, MirInstruction::Copy { dst, src } if dst == *local && src == *result)
+                        || aliases.insert(*local, *result).is_some() {
+                        return Err(freeze("move-verifier/source-copy-drift"));
+                    }
+                }
+            }
+            Ok(Some((aliases, initially_published)))
+        })
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn initializer_lifecycle_owners_v1(&self) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
         let mut owners: std::collections::BTreeSet<_> = self.local_calls.iter().filter_map(|(owner, roots)|
             RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(roots).iter()

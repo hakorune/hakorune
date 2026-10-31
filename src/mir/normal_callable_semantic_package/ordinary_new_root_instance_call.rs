@@ -27,6 +27,7 @@ pub(crate) struct RootInstanceCallDispositionRowV1 {
     call_site: OwnedExprSiteV1,
     receiver_site: SourceExprSiteV1,
     receiver_binding: BindingRefV1,
+    receiver_origin: BindingRefV1,
     receiver_initializer: OwnedExprSiteV1,
     receiver_object: CanonicalObjectIdV1,
     target: CanonicalSameModuleCallableKeyV1,
@@ -46,6 +47,10 @@ impl RootInstanceCallDispositionRowV1 {
 
     pub(crate) const fn receiver_binding(&self) -> BindingRefV1 {
         self.receiver_binding
+    }
+
+    pub(crate) const fn receiver_origin(&self) -> BindingRefV1 {
+        self.receiver_origin
     }
 
     pub(crate) fn receiver_initializer(&self) -> &OwnedExprSiteV1 {
@@ -177,11 +182,17 @@ impl OrdinaryNewClaimLedgerV1 {
         }) {
             return Err(freeze("root-instance-call-reassignment"));
         }
+            // A moved Home keeps its original acquisition while its receiver
+            // is the current binding.  Use the exit's checked Home rather than
+            // interpreting the move initializer as a second allocation.
+            let origin = homes.iter().find(|home| home.binding() == binding)
+                .and_then(|home| home.stable_origin())
+                .unwrap_or(binding);
             let mut initializers = input
                 .function()
                 .expression_source()
                 .initializers()
-                .filter(|initializer| initializer.binding() == binding);
+                .filter(|initializer| initializer.binding() == origin);
             let initializer = initializers
                 .next()
                 .ok_or_else(|| freeze("root-instance-call-initializer-missing"))?;
@@ -196,7 +207,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let claim = claims
                 .get(&owned_initializer)
                 .ok_or_else(|| freeze("root-instance-call-new-missing"))?;
-            if claim.destination != binding {
+            if claim.destination != origin {
                 return Err(freeze("root-instance-call-new-binding"));
             }
             let target_matches = selected
@@ -276,6 +287,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         call_site,
                         receiver_site: call.receiver_site().clone(),
                         receiver_binding: binding,
+                        receiver_origin: origin,
                         receiver_initializer: owned_initializer,
                         receiver_object,
                         target: target.clone(),

@@ -86,6 +86,8 @@ pub(crate) use selected_new_arguments::{
 pub(crate) enum HomePrefixUnavailableV1 {
     EntryDemandMissing,
     SourceMismatch,
+    MoveUnsupported(SourceExprSiteV1),
+    UseAfterMove(SourceExprSiteV1),
     PrefixNotCovered(SourceStmtSiteV1),
     ArgumentNotCovered(SourceExprSiteV1),
     OverridesNotCovered(SourceExprSiteV1),

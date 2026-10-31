@@ -178,6 +178,19 @@ impl RawInvocationChildPortV1<'_, '_> {
         let (Some(claims), Some(state)) = (self.ordinary_new_claim_ledger.clone(), self.callable_ledger.clone()) else { return Ok(None) };
         let site = self.current_callable_site_v1("initializer-expression/statement-site")?;
         let owner = state.borrow().owner();
+        if let Some((plan, from, _acquisition)) = claims.move_initializer_v1(owner, &site)? {
+            let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
+                return Err(freeze("move-initializer/exact-source-required"));
+            };
+            let initializer = plan.root().initializer().ok_or_else(|| freeze("move-initializer/source-missing"))?;
+            if context.site() != Some(plan.nodes()[0].site().node())
+                || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)
+                || state.borrow().source_read_binding(plan.nodes()[1].site().node())? != from {
+                return Err(freeze("move-initializer/source-drift"));
+            }
+            let value = state.borrow_mut().read_variable(plan.nodes()[1].site().node())?;
+            return Ok(Some(super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1::Move { ordinal, value }));
+        }
         if let Some(frame) = claims.stored_map_get_local_source_v1(owner, &site)? {
             let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
                 return Err(freeze("initializer-expression/exact-source-required"));

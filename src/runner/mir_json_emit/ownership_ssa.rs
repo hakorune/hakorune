@@ -30,7 +30,7 @@ pub(super) fn build_ownership_ssa_json(function: &MirFunction) -> Option<Value> 
     Some(json!({
         "schema": "VerifiedOwnershipSsaV1",
         "producer": "rust_ownership_ssa_verifier_v1",
-        "owner": witness.owner().as_u64(),
+        "owner": witness.owner().legacy_id()?,
         "backend": "llvm_py",
         "provider": "nyash_kernel",
         "value_kinds": value_kinds,

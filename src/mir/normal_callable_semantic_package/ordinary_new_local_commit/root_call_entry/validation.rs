@@ -403,14 +403,14 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         row: &crate::mir::normal_callable_semantic_package::RootInstanceCallDispositionRowV1,
     ) -> Result<ValueId, String> {
-        if row.receiver_initializer().owner() != owner || row.receiver_binding().owner() != owner {
+        if row.receiver_initializer().owner() != owner || row.receiver_binding().owner() != owner || row.receiver_origin().owner() != owner {
             return Err(freeze("instance-call-receiver-owner"));
         }
         let commits = self.local_commits.borrow();
         let local = commits
             .get(row.receiver_initializer())
             .ok_or_else(|| freeze("instance-call-new-local-missing"))?;
-        if !local.installs(row.receiver_binding()) {
+        if !local.installs(row.receiver_origin()) {
             return Err(freeze("instance-call-new-local-binding"));
         }
         let object = local

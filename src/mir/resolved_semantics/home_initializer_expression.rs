@@ -434,7 +434,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         condition_frame: None,
         loop_recipe: None,
         argument_frame: None,
-        initializer_frame: Some(frame),
+        initializer_frame: Some(super::InitializerFrameV1::Evaluation(frame)),
         rebind_frame: None,
         field_write: None,
         source_field_homes: None,
