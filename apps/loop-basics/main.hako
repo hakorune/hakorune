@@ -1,0 +1,159 @@
+// loop-basics
+// Purpose: the twelve everyday loop shapes in one small app, each compared
+// with its hand-computed result. Every shape runs through the canonical EXE.
+
+box LoopBasics {
+    sumAccFirst(n) {
+        local i = 0
+        local s = 0
+        loop(i < n) {
+            s = s + i
+            i = i + 1
+        }
+        return s
+    }
+
+    sumIncFirst(n) {
+        local i = 0
+        local s = 0
+        loop(i < n) {
+            i = i + 1
+            s = s + i
+        }
+        return s
+    }
+
+    counter(n) {
+        local i = 0
+        local c = 0
+        loop(i < n) {
+            c = c + 1
+            i = i + 1
+        }
+        return c
+    }
+
+    doubling(n) {
+        local i = 0
+        local out = 1
+        loop(i < n) {
+            out = out * 2
+            i = i + 1
+        }
+        return out
+    }
+
+    factorial(n) {
+        local i = 1
+        local p = 1
+        loop(i <= n) {
+            p = p * i
+            i = i + 1
+        }
+        return p
+    }
+
+    ifInside(n) {
+        local i = 0
+        local s = 0
+        loop(i < n) {
+            if i == 2 {
+                s = s + 10
+            }
+            i = i + 1
+        }
+        return s
+    }
+
+    breakAt(n) {
+        local i = 0
+        loop(true) {
+            if i >= n {
+                break
+            }
+            i = i + 1
+        }
+        return i
+    }
+
+    continueSkip(n) {
+        local i = 0
+        local s = 0
+        loop(i < n) {
+            i = i + 1
+            if i == 2 {
+                continue
+            }
+            s = s + i
+        }
+        return s
+    }
+
+    nested(n) {
+        local i = 0
+        local s = 0
+        loop(i < n) {
+            local j = 0
+            loop(j < n) {
+                s = s + 1
+                j = j + 1
+            }
+            i = i + 1
+        }
+        return s
+    }
+
+    fibonacci(n) {
+        local i = 0
+        local a = 0
+        local b = 1
+        loop(i < n) {
+            local t = a + b
+            a = b
+            b = t
+            i = i + 1
+        }
+        return a
+    }
+
+    countdown(n) {
+        local i = n
+        local s = 0
+        loop(i > 0) {
+            s = s + 2
+            i = i - 1
+        }
+        return s
+    }
+
+    scaledBound(n) {
+        local i = 0
+        local s = 0
+        loop(i * 2 < n * 2) {
+            s = s + 1
+            i = i + 1
+        }
+        return s
+    }
+}
+
+static box Main {
+    main(args) {
+        local loops = new LoopBasics()
+        local failures = 0
+        if loops.sumAccFirst(5) != 10 { failures = failures + 1 }
+        if loops.sumIncFirst(5) != 15 { failures = failures + 1 }
+        if loops.counter(5) != 5 { failures = failures + 1 }
+        if loops.doubling(5) != 32 { failures = failures + 1 }
+        if loops.factorial(5) != 120 { failures = failures + 1 }
+        if loops.ifInside(5) != 10 { failures = failures + 1 }
+        if loops.breakAt(5) != 5 { failures = failures + 1 }
+        if loops.continueSkip(5) != 13 { failures = failures + 1 }
+        if loops.nested(5) != 25 { failures = failures + 1 }
+        if loops.fibonacci(5) != 5 { failures = failures + 1 }
+        if loops.countdown(5) != 10 { failures = failures + 1 }
+        if loops.scaledBound(5) != 5 { failures = failures + 1 }
+        print("loop-basics failures=" + failures)
+        return failures
+    }
+}
