@@ -47,6 +47,11 @@ fn home_transfer_rejects_foreign_owner_and_duplicate_source_without_consuming() 
     assert!(!flow.transfer_home_v1(rows[0].0, foreign_destination, &mut homes));
     let mut duplicate = vec![LiveHomeV1::Stable(rows[0].0), LiveHomeV1::Stable(rows[0].0)];
     assert!(!flow.transfer_home_v1(rows[0].0, rows[1].0, &mut duplicate));
+    let mut duplicate_flow = flow.clone();
+    duplicate_flow.install_selected_normal_home(rows[1].0, rows[0].1.clone(), None);
+    let mut duplicate_token = vec![LiveHomeV1::Stable(rows[0].0), LiveHomeV1::Stable(rows[1].0)];
+    assert!(!duplicate_flow.transfer_home_v1(rows[0].0, rows[2].0, &mut duplicate_token));
+    assert_eq!(duplicate_flow.home_acquisition(rows[0].0), Some(&rows[0].1));
     assert_eq!(flow.home_acquisition(rows[0].0), Some(&rows[0].1));
     assert!(flow.transfer_home_v1(rows[0].0, rows[1].0, &mut homes));
     assert_eq!(homes[0].stable_origin(), Some(rows[0].0));

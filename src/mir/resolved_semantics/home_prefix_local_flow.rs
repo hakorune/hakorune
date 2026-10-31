@@ -1195,6 +1195,11 @@ impl<'source> PrefixLocalFlow<'source> {
         let Some(local @ StoredLocal::Home { .. }) = self.locals.get(&from).cloned() else {
             return false;
         };
+        let StoredLocal::Home { acquisition, .. } = &local else { unreachable!() };
+        if homes.iter().any(|home| home.binding() != from
+            && self.home_acquisition(home.binding()) == Some(acquisition)) {
+            return false;
+        }
         let mut matches = homes.iter().enumerate().filter(|(_, home)| home.binding() == from);
         let Some((index, home)) = matches.next() else { return false };
         if matches.next().is_some() || homes.iter().any(|home| home.binding() == to) {

@@ -2,6 +2,53 @@
 use super::*;
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Exact scalar and receiver lanes from the original selected callable;
+    /// physical types or names never decide whether a parameter is owned.
+    pub(crate) fn move_parameter_kinds_v1(
+        &self, owner: FunctionOwnerIdV1,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>, count: usize,
+    ) -> Result<Vec<crate::mir::ownership_ssa::MirOwnershipKindV1>, String> {
+        use crate::mir::ownership_ssa::MirOwnershipKindV1 as Kind;
+        use crate::mir::callable_parameter_contract::CallableParameterContractKindV1 as Contract;
+        use crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1 as Role;
+        let unsupported = || "[ownership/move-abi-not-supported]".to_owned();
+        let (selected, signatures) = self.ledger.original_instance_input_issuance.as_ref().ok_or_else(unsupported)?;
+        let selected_key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key.clone());
+        let slot = selected.batch_slot(&selected_key).ok_or_else(unsupported)?;
+        let signature = signatures.row(slot).ok_or_else(unsupported)?;
+        let contracts = self.ledger.original_parameter_contracts.as_deref().ok_or_else(unsupported)?;
+        let mut rows = contracts.iter().filter(|row| row.batch_slot == slot);
+        let row = rows.next().ok_or_else(unsupported)?;
+        if rows.next().is_some() || row.owner != owner || signature.owner() != owner || row.mode != signature.mode()
+            || !selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(signature.identity()))
+            || signature.lanes().len() != count || signature.physical_callable_lane_count() as usize != count {
+            return Err(unsupported());
+        }
+        let mut kinds = Vec::with_capacity(count);
+        let mut seen = std::collections::BTreeSet::new();
+        let mut receivers = 0;
+        for (index, lane) in signature.lanes().iter().enumerate() {
+            if lane.index() as usize != index || lane.binding().owner() != owner { return Err(unsupported()); }
+            match lane.role() {
+                Role::InstanceReceiver if index == 0 && receiver_object.is_some() && lane.logical_ordinal().is_none() => {
+                    receivers += 1;
+                    kinds.push(Kind::Borrowed);
+                }
+                Role::OrdinaryScalar => {
+                    let ordinal = lane.logical_ordinal().ok_or_else(unsupported)?;
+                    let mut matching = row.parameters.iter().filter(|p| p.ordinal == ordinal && p.binding == lane.binding());
+                    let parameter = matching.next().ok_or_else(unsupported)?;
+                    if matching.next().is_some() || !seen.insert(ordinal)
+                        || !matches!(&parameter.kind, Contract::ExactTrivial(abi) if abi.is_i64()) { return Err(unsupported()); }
+                    kinds.push(Kind::None);
+                }
+                _ => return Err(unsupported()),
+            }
+        }
+        if receivers != signature.receiver_lane_count() || seen.len() != row.parameters.len() { return Err(unsupported()); }
+        Ok(kinds)
+    }
     pub(crate) fn move_ownership_owners_v1(&self) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
         self.ledger.completion_index.values().filter_map(|row| row.as_ref().ok())
             .chain(self.ledger.root_completion.iter().filter_map(|row| row.as_ref().ok()))

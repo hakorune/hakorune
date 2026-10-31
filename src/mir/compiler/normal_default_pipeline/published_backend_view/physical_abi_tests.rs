@@ -88,6 +88,35 @@ fn published_move_keeps_original_reverse_home_cleanup_order() {
 }
 
 #[test]
+fn published_move_accepts_source_proven_i64_parameter_and_unused_receiver() {
+    use crate::mir::ownership_ssa::MirOwnershipKindV1;
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Transport { flag: i64 birth() { me.flag = 0 } probe(p: i64): i64 { local scratch = new Transport() local moved = move scratch return 7 } wrap(q: i64): i64 { return q } } static box Main { main() { local recv = new Transport() local result = recv.probe(7) return 7 } }";
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            text, crate::parser::ParserBuildConfig::default()).unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("source") };
+        MirCompiler::with_options(true).compile_normal_with_published(
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
+            |view, _| -> Result<(), String> {
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let handoff = input.program().handoff();
+                let source = handoff.root_source().ok_or("missing root")?;
+                let owners = source.move_ownership_owners_v1();
+                assert_eq!(owners.len(), 1);
+                let owner = *owners.iter().next().unwrap();
+                let physical = input.program().functions().iter().find(|f| f.role().ordinary_target().is_some_and(|key|
+                    handoff.callables().and_then(|c| c.owner_for_canonical_key(key)) == Some(owner))).ok_or("missing callable")?;
+                let kinds = source.move_parameter_kinds_v1(owner, physical.role().ordinary_target().unwrap(),
+                    physical.role().receiver_object(), physical.params().len())?;
+                assert_eq!(kinds, vec![MirOwnershipKindV1::Borrowed, MirOwnershipKindV1::None]);
+                crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)
+            }).unwrap();
+    });
+}
+
+#[test]
 fn numeric_capability_rejects_drift_in_referenced_physical_layout() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

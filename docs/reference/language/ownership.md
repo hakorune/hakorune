@@ -1,8 +1,8 @@
 # Ownership and Home Flow (SSOT)
 
 Status: Language semantics SSOT; Home direction and bounded take/release
-target accepted; `release root` parser/source carriage live, Home semantics 0;
-successor surface (§0) decided, production 0
+target accepted; `release root` parser/source carriage live; bounded explicit
+local `move` is implemented; the wider successor surface (§0) remains in progress.
 
 Decision: accepted on 2026-08-04 as the successor to the earlier
 `move/share/view` target; C′ terminal Home finalization and contextual
@@ -50,13 +50,13 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | generic/composite release | provisional; exact capability D0 open |
 | bounded HomeV1 source grammar | `release root` live; `take` inactive; `share` prefix superseded (§0) |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
-| Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako parity and Home transfer pending validation |
-| resolver Home-demand/root and Home Flow | inactive / absent |
+| Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako runtime parity remains unverified |
+| resolver Home-demand/root and Home Flow | bounded same-scope `move` of a `new`-derived local is implemented; general Home demand remains a target |
 | callable Home ABI | bounded declaration-only receipt exists; source `take` linkage absent |
-| canonical Builder/source producers | 0 |
-| passive Ownership SSA / ownership opcodes | existing narrow infrastructure only |
+| canonical Builder/source producers | bounded explicit local `move` is connected through the published EXE route |
+| Ownership SSA / ownership opcodes | published local-move MIR is independently checked; general ownership and Shared remain targets |
 | current ordinary Box assignment | transitional SharedV1 behavior |
-| successor surface (§0) | decided 2026-10-30; Rust `move` parser live, Hako parity pending validation, semantic production 0; SharedV1 stays until the §10 cutover |
+| successor surface (§0) | decided 2026-10-30; bounded local `move` is live, Hako parity pending; SharedV1 stays until the §10 cutover |
 
 The live `EBNF.md` and grammar registry remain syntax authority. `release root`
 and `move root` have parser-owned source rows; Hako `move` runtime parity remains
@@ -65,10 +65,11 @@ Parser acceptance does not issue Home
 meaning. Unsupported lookalikes fail fast until their exact shared grammar row
 lands.
 
-## 0. Successor surface (decided 2026-10-30; production 0)
+## 0. Successor surface (decided 2026-10-30; bounded local move implemented)
 
 Next-model specification agreed with the maintainer on 2026-10-30. The Rust
-`move` surface is parser-live; Hako parity and ownership semantics are pending.
+`move` surface includes a bounded same-scope `new`-derived local EXE path;
+general ownership semantics and Hako runtime parity are pending.
 Existing behavior changes only at the §10 cutover.
 Sections 1-11 keep the current/HomeV1 text. The contextual `share x` target is
 superseded now: text below that uses it describes a target that will not land.

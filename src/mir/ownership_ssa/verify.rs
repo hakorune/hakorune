@@ -312,6 +312,10 @@ fn process_terminator(
     }
     if let MirInstruction::Invoke { operation, .. } = terminator {
         use crate::mir::instruction::InvokeOperation;
+        if abi.owner().is_source() && terminator.used_values().into_iter().any(|value|
+            kinds.get(&value) == Some(&MirOwnershipKindV1::Borrowed)) {
+            return Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { block });
+        }
         let has_managed_operand = terminator.used_values().into_iter().any(|value| {
             let token = *abi.aliases().get(&value).unwrap_or(&value);
             kinds.get(&token) == Some(&MirOwnershipKindV1::Owned)

@@ -1,7 +1,7 @@
 # ADR-002: 明示する所有操作と共通ownership passへの移行
 
 Status: 設計方向を採用。2026-10-30に表面契約を決定（[ownership.md §0](../../reference/language/ownership.md)）。
-2026-10-31にShared・`sync box`・threadの実装方向を決定。step 1を実装中（S1 parser着地）。切替は未着手。
+2026-10-31にShared・`sync box`・threadの実装方向を決定。step 1は限定的なlocal `move`のEXEと独立MIR検証、旧local planner退役まで着地。Sharedと一般ABIは未完、切替は未着手。
 Date: 2026-10-30（改訂 2026-10-31）
 Scope: 次期所有モデルの判断・未決点・移行タスクをここへ集約する。
 

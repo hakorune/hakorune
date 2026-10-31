@@ -55,12 +55,15 @@ fn verify_source_moves_on_published_mir(
         };
         let Some(owner) = owner else { continue };
         let Some((aliases, initially_published)) = source.move_ownership_aliases_v1(owner, physical.function())? else { continue };
-        // Step 1 currently proves the parameter-free, non-owned-result lane.
-        // Do not infer borrowed/owned ABI from a MIR type or physical name.
-        if !physical.params().is_empty() || !matches!(physical.role(), Role::Root { .. } | Role::OrdinaryI64 { .. } | Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. }) {
+        if !matches!(physical.role(), Role::Root { .. } | Role::OrdinaryI64 { .. } | Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. }) {
             return Err("[ownership/move-abi-not-supported]".into());
         }
-        let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), Vec::new(), FunctionResultOwnershipV1::None)
+        let parameters = match physical.role() {
+            Role::Root { .. } if physical.params().is_empty() => Vec::new(),
+            role => source.move_parameter_kinds_v1(owner, role.ordinary_target().ok_or("[ownership/move-abi-not-supported]")?,
+                role.receiver_object(), physical.params().len())?,
+        };
+        let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), parameters, FunctionResultOwnershipV1::None)
             .with_source_aliases(aliases).with_initially_published(initially_published);
         crate::mir::ownership_ssa::verify_ownership_ssa_v1(physical.function(), &abi)
             .map_err(|error| format!("[ownership/published-mir] {error:?}"))?;
