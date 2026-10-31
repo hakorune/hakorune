@@ -1,9 +1,9 @@
-date = "2026-10-30"
+date = "2026-10-31"
 development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "B1 shared nested probe and B2 strict verifier retain live callers; A4 ownership tests and old lowerer retained until ownership step 1 migration"
+current_blocker_token = "APP-loop-basics accepted (12 loop shapes, fixed suite 8/8 after merging the typed-object seed smokes); cleanup series steps 2-5 in the app card are next"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,7 +17,7 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini: fixed suite 11/11; B1 through B4 retirement selected.
+APP-boxtorrent-mini and APP-loop-basics: fixed suite 8/8 (canonical_app_exe_cases runs the 4 typed-object seeds and loop-basics).
 A4 ownership tests, old lowerer and safety boundaries remain until ownership step 1 successor coverage.
 Preserve current safety checks, parked lanes, and both local stashes; see active card for remaining boundaries.
 """

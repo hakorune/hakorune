@@ -1,10 +1,7 @@
 # Integration real-app EXE boundary suite
 # This suite pins accepted typed-object seeds plus real-app EXE parity.
-apps/typed_object_newbox_min_exe.sh
+apps/canonical_app_exe_cases.sh
 apps/typed_object_untyped_field_min_exe.sh
-apps/typed_object_birth_min_exe.sh
-apps/typed_object_method_min_exe.sh
-apps/typed_object_birth_param_min_exe.sh
 apps/boxtorrent_mini_exe.sh
 apps/binary_trees_exe.sh
 apps/mimalloc_lite_exe.sh

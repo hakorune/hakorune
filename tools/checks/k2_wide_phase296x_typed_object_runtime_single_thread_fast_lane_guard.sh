@@ -23,13 +23,13 @@ cargo build --release -p nyash_kernel >/tmp/hakorune_row191_nyash_kernel_release
 
 HAKO_TYPED_OBJECT_STORE=single_thread_exact \
   RUN_TIMEOUT_SECS=180 \
-  bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/typed_object_newbox_min_exe.sh" \
+  bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/canonical_app_exe_cases.sh" typed_object_newbox_min \
   >/tmp/hakorune_row191_single_thread_exact_smoke.log
 
 set +e
 HAKO_TYPED_OBJECT_STORE=invalid \
   RUN_TIMEOUT_SECS=180 \
-  bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/typed_object_newbox_min_exe.sh" \
+  bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/canonical_app_exe_cases.sh" typed_object_newbox_min \
   >/tmp/hakorune_row191_invalid_backend_smoke.log 2>&1
 invalid_rc=$?
 set -e
