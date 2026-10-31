@@ -57,19 +57,6 @@ pub(super) fn determine_accept_kind(
         if counts.has_nested_loop {
             return Ok(LoopCondBreakAcceptKind::NestedLoopOnly);
         }
-        // Check for NestedLoopOnly pattern: recipe contains nested loops but no if-break/continue patterns
-        let has_nested_loop = recipe.items.iter().any(|item| {
-            matches!(
-                item,
-                LoopCondBreakContinueItem::NestedLoopDepth1 {
-                    loop_stmt: _,
-                    nested: _
-                }
-            )
-        });
-        if has_nested_loop {
-            return Ok(LoopCondBreakAcceptKind::NestedLoopOnly);
-        }
         let has_program_block = recipe
             .items
             .iter()

@@ -6014,7 +6014,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "as_str",
-      "line": 195,
+      "line": 194,
       "path": "src/mir/builder/control_flow/plan/facts/reject_reason.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6175,7 +6175,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_prior_binding_v2",
-      "line": 126,
+      "line": 137,
       "path": "src/mir/builder/control_flow/plan/lowerer/source_loop_driver.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6399,7 +6399,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_tail_break",
-      "line": 156,
+      "line": 146,
       "path": "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6887,7 +6887,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_direct_loop_body_descendant",
-      "line": 183,
+      "line": 179,
       "path": "src/mir/builder/normal_callable_loop_handoff_validation.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6895,7 +6895,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_direct_child",
-      "line": 214,
+      "line": 210,
       "path": "src/mir/builder/normal_callable_loop_handoff_validation.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6911,7 +6911,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_under_parent",
-      "line": 509,
+      "line": 517,
       "path": "src/mir/builder/normal_callable_loop_source_route.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6951,7 +6951,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_under_root",
-      "line": 172,
+      "line": 174,
       "path": "src/mir/builder/normal_callable_semantic_lowering_state/source_loop_bridge.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -16047,7 +16047,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "pipeline_pins_no_exit_body_kind",
-      "line": 462,
+      "line": 379,
       "path": "src/mir/builder/control_flow/plan/facts/loop_cond_no_exit_facts.rs",
       "reject_reasons": [
         "depends_on_builder"
@@ -17845,7 +17845,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_empty",
-      "line": 338,
+      "line": 350,
       "path": "src/mir/builder/ssa/local/correspondence.rs",
       "reject_reasons": [
         "phi_or_localssa_surface"
@@ -21241,7 +21241,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "execution_class_v2",
-      "line": 223,
+      "line": 231,
       "path": "src/mir/loop_recipe_contract/schema_v2.rs",
       "reject_reasons": [
         "phi_or_localssa_surface"
@@ -21262,7 +21262,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "class",
-      "line": 37,
+      "line": 38,
       "path": "src/mir/loop_recipe_contract/source_loop_bool.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -21282,7 +21282,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_outer_text_reference_v2",
-      "line": 246,
+      "line": 259,
       "path": "src/mir/loop_recipe_contract/source_loop_v2.rs",
       "reject_reasons": [
         "depends_on_resolution"
@@ -21292,7 +21292,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "class",
-      "line": 439,
+      "line": 458,
       "path": "src/mir/loop_recipe_contract/source_loop_v2.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -21324,7 +21324,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "expect_defined_class",
-      "line": 250,
+      "line": 256,
       "path": "src/mir/loop_recipe_contract/typed_schema_v2_operations.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -24635,7 +24635,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_null_literal_v1",
-      "line": 90,
+      "line": 97,
       "path": "src/mir/resolved_semantics/home_prefix_source_loop_control.rs",
       "reject_reasons": [
         "depends_on_resolution"

@@ -752,20 +752,4 @@ fn source_item_rejects_unsupported_variants_as_named_terminals() {
     )
     .expect_err("unsupported variant is a named reject");
     assert!(error.contains("loop-cond-item-unsupported"), "{error}");
-    let error = drive_item(
-        &ledger,
-        &carrier,
-        &mut builder,
-        &mut bindings,
-        0,
-        &LoopCondBreakContinueItem::NestedLoopDepth1 {
-            loop_stmt: StmtRef::new(0),
-            nested: crate::mir::builder::control_flow::recipes::loop_cond_break_continue::NestedLoopDepth1Recipe {
-                cond_view: CondBlockView::from_expr(&variable("i")),
-                body: None,
-            },
-        },
-    )
-    .expect_err("nested loop variant is a named reject");
-    assert!(error.contains("loop-cond-item-unsupported"), "{error}");
 }

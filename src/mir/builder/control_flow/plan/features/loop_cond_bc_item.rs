@@ -320,10 +320,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                 LOOP_COND_ERR,
             )
         }
-        LoopCondBreakContinueItem::NestedLoopDepth1 { .. } => Err(format!(
-            "[freeze:contract][recipe] nested_loop_depth1 item has no physical owner: ctx={}",
-            LOOP_COND_ERR
-        )),
         LoopCondBreakContinueItem::ElseOnlyReturnIf {
             if_stmt,
             cond_view,

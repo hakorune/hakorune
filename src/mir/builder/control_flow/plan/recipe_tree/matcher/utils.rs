@@ -241,12 +241,6 @@ pub(super) fn verify_loop_cond_break_continue_recipe_items(
             LoopCondBreakContinueItem::GeneralIf(block) => {
                 verify_no_exit_block_recipe(block, &item_ctx)?;
             }
-            LoopCondBreakContinueItem::NestedLoopDepth1 { loop_stmt, nested } => {
-                verify_stmt_ref_in_bounds(*loop_stmt, body_len, &item_ctx)?;
-                if let Some(body) = nested.body.as_ref() {
-                    verify_stmt_only_block_recipe(body, &item_ctx)?;
-                }
-            }
             LoopCondBreakContinueItem::TailBreak { block } => {
                 if let Some(block) = block {
                     verify_exit_allowed_block_recipe(block, &item_ctx)?;

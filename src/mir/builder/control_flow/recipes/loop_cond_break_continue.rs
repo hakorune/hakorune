@@ -18,12 +18,6 @@ pub(in crate::mir::builder) type LoopCondBreakContinueRecipe =
     LoopCondRecipe<LoopCondBreakContinueItem>;
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct NestedLoopDepth1Recipe {
-    pub cond_view: CondBlockView,
-    pub body: Option<StmtOnlyBlockRecipe>,
-}
-
-#[derive(Debug, Clone)]
 pub(in crate::mir::builder) enum LoopCondBreakContinueItem {
     Stmt(StmtRef),
     ProgramBlock {
@@ -49,10 +43,6 @@ pub(in crate::mir::builder) enum LoopCondBreakContinueItem {
         else_exit: Option<ExitKind>,
     },
     GeneralIf(NoExitBlockRecipe),
-    NestedLoopDepth1 {
-        loop_stmt: StmtRef,
-        nested: NestedLoopDepth1Recipe,
-    },
     TailBreak {
         block: Option<ExitAllowedBlockRecipe>,
     },
