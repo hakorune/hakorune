@@ -66,14 +66,6 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_no_exit_facts(
     }
 
     let counts = count_control_flow_with_returns(body);
-    if counts.has_nested_loop {
-        log_reject(
-            BOX_NAME,
-            RejectReason::NestedLoopNotAllowed,
-            handoff_tables::for_loop_cond_no_exit,
-        );
-        return Ok(None);
-    }
     if counts.break_count > 0 || counts.continue_count > 0 || counts.return_count > 0 {
         log_reject(
             BOX_NAME,
@@ -88,9 +80,10 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_no_exit_facts(
     let mut continue_if_seen = 0usize;
     let mut conditional_update_seen = 0usize;
     let mut nested_seen = 0usize;
+    // A child Loop is an ordinary statement of a no-exit body.
     let recipe = match build_loop_cond_break_continue_recipe(
         body,
-        false,
+        true,
         allow_extended,
         MAX_NESTED_LOOPS,
         debug,
@@ -350,7 +343,8 @@ mod tests {
     }
 
     #[test]
-    fn rejects_nested_loop() {
+    fn keeps_child_loop_as_one_body_statement() {
+        // The child Loop owns its own facts and product at its own site.
         let condition = cond_lt_var("i", "n");
         let nested = ASTNode::Loop {
             condition: Box::new(cond_lt_var("j", "m")),
@@ -359,9 +353,10 @@ mod tests {
         };
         let body = vec![nested, assign_inc("i")];
 
-        assert!(try_extract_loop_cond_no_exit_facts(&condition, &body)
+        let facts = try_extract_loop_cond_no_exit_facts(&condition, &body)
             .expect("freeze")
-            .is_none());
+            .expect("facts");
+        assert!(matches!(facts.recipe.items[0], LoopCondBreakContinueItem::Stmt(_)));
     }
 
     #[test]

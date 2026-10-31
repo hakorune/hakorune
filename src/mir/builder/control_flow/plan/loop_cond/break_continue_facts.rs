@@ -103,9 +103,10 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
     let mut conditional_update_seen = 0usize;
     let mut nested_seen = 0usize;
     let mut continue_if_seen = 0usize;
+    // Child Loops are not body statements of this exit-bearing family.
     let recipe = match build_loop_cond_break_continue_recipe(
         body,
-        allow_nested,
+        false,
         allow_extended,
         max_nested_loops,
         debug,

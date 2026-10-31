@@ -64,7 +64,9 @@ impl CallableLoopSourceBridgeV1 {
             return Ok(None);
         }
 
-        let loop_sites = root_loop_sites(input.function().loop_sites().cloned().collect());
+        // Every Loop statement, root or child, enters through the same raw
+        // Loop entry and takes its own projection here.
+        let loop_sites: Vec<SourceStmtSiteV1> = input.function().loop_sites().cloned().collect();
         let mut projections = BTreeMap::new();
         let mut source_items = BTreeMap::new();
         let mut call_free = BTreeMap::new();
@@ -171,22 +173,6 @@ impl CallableLoopSourceBridgeV1 {
 
 fn is_under_root(site: &SourceNodeSiteV1, root: &SourceNodeSiteV1) -> bool {
     site.segments().starts_with(root.segments())
-}
-
-fn root_loop_sites(loop_sites: Vec<SourceStmtSiteV1>) -> Vec<SourceStmtSiteV1> {
-    loop_sites
-        .iter()
-        .filter(|site| {
-            !loop_sites.iter().any(|ancestor| {
-                ancestor != *site
-                    && site
-                        .node()
-                        .segments()
-                        .starts_with(ancestor.node().segments())
-            })
-        })
-        .cloned()
-        .collect()
 }
 
 fn projection_is_unarmed(error: &LoopCondBreakContinueForestProjectionRejectV1) -> bool {
@@ -346,22 +332,6 @@ mod tests {
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
     use crate::parser::NyashParser;
-
-    #[test]
-    fn root_inventory_drops_nested_loop_roots() {
-        let root = SourceStmtSiteV1::from_node(SourcePathV1::root_body(1).node());
-        let child = SourceStmtSiteV1::from_node(
-            SourcePathV1::root_body(1)
-                .child(SourcePathSegmentV1::LoopBodyRoot)
-                .child(SourcePathSegmentV1::LoopBody(0))
-                .node(),
-        );
-
-        assert_eq!(
-            super::root_loop_sites(vec![child, root.clone()]),
-            vec![root]
-        );
-    }
 
     #[test]
     fn owned_inventory_takes_exact_loop_projection_once() {

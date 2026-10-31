@@ -714,11 +714,19 @@ impl PrefixLocalFlow<'_> {
             .into_iter()
             .filter(|plan| {
                 let segments = plan.source().root().statement().node().segments();
+                // A child Loop's condition and body plans belong to that
+                // child's own product, never to this Loop's execution roots.
                 let body_expression = segments.starts_with(prefix)
                     && matches!(
                         segments.get(prefix.len()),
                         Some(crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_))
-                    );
+                    )
+                    && !segments.iter().skip(prefix.len() + 1).any(|segment| matches!(segment,
+                        crate::mir::resolved_semantics::SourcePathSegmentV1::LoopCondition
+                            | crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBodyRoot
+                            | crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)))
+                    && !self.input.source().exact_stmt(plan.source().root().statement())
+                        .is_ok_and(|statement| matches!(statement.node(), crate::ast::ASTNode::Loop { .. }));
                 let loop_condition_argument = plan.argument_frame().is_some_and(|frame| {
                     let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
                         call, ..

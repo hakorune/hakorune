@@ -145,6 +145,8 @@ fn operation_view(operation: &LoopOperationV2) -> LoopJoinOperationView<'_> {
                 then_value: *then_value, else_value: *else_value, result: *result },
         LoopOperationV2::BoolExpression { inputs, result, .. } => define(
             LoopJoinOperationFamily::BoolExpression, LoopJoinValueUses::Many(inputs), Some(*result)),
+        LoopOperationV2::ChildLoopAfter { inputs, result, .. } => define(
+            LoopJoinOperationFamily::ChildLoopAfter, LoopJoinValueUses::Many(inputs), Some(*result)),
         LoopOperationV2::ReadBinding { binding, result } => LoopJoinOperationView::ReadBinding {
             binding: *binding,
             result: *result,

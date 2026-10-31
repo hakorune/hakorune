@@ -362,6 +362,26 @@ pub(super) fn prepare_if_observer(
     port.with_prepared_child_source_v1(source, |port| port.prepare_if_state_observer_v1(builder))
 }
 
+/// Lower a child source Loop through the SAME raw Loop entry as any other
+/// Loop statement. Its own retained product, Phi session and completion own
+/// the child; this parent only borrows the published After values.
+pub(super) fn emit_child_loop(
+    builder: &mut MirBuilder,
+    port: &mut RawInvocationChildPortV1<'_, '_>,
+    product: &Rc<Product>,
+    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+) -> Result<(), String> {
+    use crate::mir::builder::raw_loop_child_port::RawLoopChildEntryPortV1;
+    let input = input(port, product)?;
+    let original = input.source().exact_stmt(site).map_err(|error| format!("{error:?}"))?;
+    if !matches!(original.node(), crate::ast::ASTNode::Loop { .. }) {
+        return Err(freeze("child-loop-statement"));
+    }
+    let source = context(port, site.node())?;
+    port.with_prepared_child_source_v1(source, |port| port.lower_loop(builder, original.node().clone()))?;
+    Ok(())
+}
+
 pub(super) fn emit_binding(
     builder: &mut MirBuilder,
     port: &mut RawInvocationChildPortV1<'_, '_>,

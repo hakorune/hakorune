@@ -48,6 +48,7 @@ impl EmittedSourceLoopProjectionV2 {
                 + 1
                 + product.schedule().blocks_array_appends_v2().count()
                 + product.schedule().calls_v2().count()
+                + product.schedule().child_loops_v2().count()
             || !matches!(expected.first(), Some(LifecyclePrefixSourceV1::BoolCondition { frame, .. })
                 if Rc::ptr_eq(frame, &product.source.condition))
         {
@@ -477,14 +478,27 @@ impl OrdinaryNewClaimLedgerV1 {
             .get(&owner)
             .cloned()
             .unwrap_or_default();
-        let mut matching = roots
-            .iter()
-            .filter_map(|group| group.source_loop_rc())
-            .filter(|packet| packet.expected.iter().any(|source| source.site() == site));
-        let destination = matching.next().cloned();
-        if matching.next().is_some() {
+        // The deepest open Loop that expects this site owns it: a child Loop's
+        // group is placed in its parent, and the child's own prefixes in it.
+        fn deepest(groups: &[RootLifecyclePrefixBindingGroupV1], site: &OwnedExprSiteV1, depth: usize,
+            best: &mut Option<(usize, Rc<EmittedSourceLoopProjectionV2>, bool)>) {
+            for packet in groups.iter().filter_map(|group| group.source_loop_rc()) {
+                if packet.expected.iter().any(|source| source.site() == site) {
+                    match best {
+                        Some((found, _, duplicate)) if *found == depth => *duplicate = true,
+                        Some((found, _, _)) if *found > depth => {}
+                        _ => *best = Some((depth, Rc::clone(packet), false)),
+                    }
+                }
+                deepest(&packet.snapshot(), site, depth + 1, best);
+            }
+        }
+        let mut best = None;
+        deepest(&roots, site, 0, &mut best);
+        if best.as_ref().is_some_and(|(_, _, duplicate)| *duplicate) {
             return Err(freeze("source-loop/child-owner-duplicate"));
         }
+        let destination = best.map(|(_, packet, _)| packet);
         Ok(destination
             .map(LifecyclePrefixDestinationV2::Loop)
             .unwrap_or(LifecyclePrefixDestinationV2::Root))

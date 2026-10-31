@@ -323,6 +323,18 @@ impl LocalSsaPhysicalIndexV1 {
         phi.prepare(&before, binding).map(Some)
     }
 
+    /// Lend the pending Phis of an enclosing Loop to one child-Loop scope. The
+    /// child's own completion then does not require them complete; the
+    /// enclosing finalized validation still does. Each must be a pending,
+    /// unrolled Phi of this index.
+    pub(in crate::mir::builder) fn open_ancestor_phi_obligations_v1(&self, dsts: &[ValueId])
+        -> Result<AncestorPhiObligationsV1, String> {
+        let phis = dsts.iter().map(|dst| self.phis.get(dst).cloned().ok_or_else(|| reject("ancestor-phi-missing")))
+            .collect::<Result<Vec<_>, _>>()?;
+        for phi in &phis { phi.current()?; }
+        for phi in &phis { phi.open_ancestor_obligation(); }
+        Ok(AncestorPhiObligationsV1(phis))
+    }
     pub(in crate::mir::builder) fn rollback_phi_v1(&self, dst: ValueId) {
         if let Some(phi) = self.phis.get(&dst) { phi.rollback(); }
     }
@@ -585,6 +597,15 @@ fn instruction(function: &MirFunction, value: ValueId) -> Option<PhysicalBinding
         return None;
     }
     Some((block, row.clone()))
+}
+
+/// Open ancestor obligations of one child-Loop scope; closed exactly once.
+pub(in crate::mir::builder) struct AncestorPhiObligationsV1(Vec<Rc<PhysicalPhiDefinitionV1>>);
+impl AncestorPhiObligationsV1 {
+    pub(in crate::mir::builder) fn close(self) -> Result<(), String> {
+        for phi in &self.0 { phi.close_ancestor_obligation()?; }
+        Ok(())
+    }
 }
 
 fn reject(reason: &str) -> String {

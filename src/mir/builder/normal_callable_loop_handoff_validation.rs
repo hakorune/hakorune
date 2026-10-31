@@ -155,11 +155,7 @@ fn classify_suffix(
     let is_nested = relative.iter().skip(1).any(|segment| {
         matches!(
             segment,
-            SourcePathSegmentV1::LoopCondition
-                | SourcePathSegmentV1::LoopBodyRoot
-                | SourcePathSegmentV1::LoopBody(_)
-                | SourcePathSegmentV1::LambdaBodyRoot
-                | SourcePathSegmentV1::LambdaBody(_)
+            SourcePathSegmentV1::LambdaBodyRoot | SourcePathSegmentV1::LambdaBody(_)
         )
     });
     if is_nested {

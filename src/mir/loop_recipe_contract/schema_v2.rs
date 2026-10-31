@@ -192,6 +192,14 @@ pub(crate) enum LoopOperationV2 {
         region: super::bool_region::LoopBoolRegionV1,
         result: LoopValueKeyV1,
     },
+    /// The After value of one binding updated by a child source Loop. The
+    /// child's own verified product owns its iteration; `inputs` are this
+    /// Loop's values at the child entry, shared by every result of that child.
+    ChildLoopAfter {
+        inputs: Vec<LoopValueKeyV1>,
+        class: LoopValueClassV2,
+        result: LoopValueKeyV1,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -230,7 +238,10 @@ impl LoopOperationV2 {
             | Self::BinaryI64 { .. }
             | Self::CompareI64 { .. }
             | Self::WriteBinding { .. }
-            | Self::TextEq { .. } => LoopOperationExecutionClassV2::NonFaulting,
+            | Self::TextEq { .. }
+            // The source projection admits only a child whose own operations
+            // are all NonFaulting; its exits stay inside the child.
+            | Self::ChildLoopAfter { .. } => LoopOperationExecutionClassV2::NonFaulting,
             Self::TextAdd { result, .. } => LoopOperationExecutionClassV2::FaultBeforeNormalResult {
                 family: LoopOperationFaultFamilyV2::TextAdd,
                 normal_result: *result,

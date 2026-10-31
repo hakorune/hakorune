@@ -298,7 +298,8 @@ fn operation_row<'a>(operation: &'a LoopOperationV2) -> Option<S6CRecipeOperatio
     Some(match operation {
         // Outside the fixed S6C role seal; do not widen physical admission.
         LoopOperationV2::BranchPhi { .. } | LoopOperationV2::ConstText { .. } | LoopOperationV2::ConstNull { .. }
-        | LoopOperationV2::TextAdd { .. } | LoopOperationV2::BoolExpression { .. } => return None,
+        | LoopOperationV2::TextAdd { .. } | LoopOperationV2::BoolExpression { .. }
+        | LoopOperationV2::ChildLoopAfter { .. } => return None,
         LoopOperationV2::ReadBinding { binding, result } => {
             S6CRecipeOperationRowRefV2::ReadBinding {
                 binding: *binding,

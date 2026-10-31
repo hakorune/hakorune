@@ -37,6 +37,7 @@ enum Action {
         record: ResolvedExitRecordV1,
         port: usize,
     },
+    Loop(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>),
 }
 #[derive(Debug)]
 pub(crate) struct CheckedSourceLoopBodyV1 {
@@ -70,6 +71,12 @@ pub(crate) enum CheckedSourceLoopStatementV1 {
         site: SourceStmtSiteV1,
         record: ResolvedExitRecordV1,
         port: usize,
+    },
+    /// A child source Loop. Its own verified product owns its condition, body,
+    /// ports and Phis; this parent only composes its boundary.
+    Loop {
+        site: SourceStmtSiteV1,
+        product: Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
     },
 }
 
@@ -266,6 +273,7 @@ impl SourceLoopControlDraftV1 {
                 Action::OwnedArrayAppend(observation) => {
                     CheckedSourceLoopStatementV1::OwnedArrayAppend { site, observation }
                 }
+                Action::Loop(product) => CheckedSourceLoopStatementV1::Loop { site, product },
                 Action::Exit { record, port } => {
                     observed_termination = true;
                     CheckedSourceLoopStatementV1::Exit { site, record, port }
@@ -393,6 +401,16 @@ impl PrefixLocalFlow<'_> {
             .control
             .borrow_mut()
             .action(site, Action::Call(observation.clone()));
+    }
+
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_child_v1(
+        &self,
+        site: &SourceStmtSiteV1,
+        product: &Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+    ) {
+        if let Some(context) = &self.source_loop {
+            context.control.borrow_mut().action(site, Action::Loop(Rc::clone(product)));
+        }
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn record_source_loop_array_append_v1(
@@ -1118,6 +1136,13 @@ impl ports::SourceLoopScanSummaryV1 {
                         visit(then_body, summary, input, roots, frames, exits)?;
                         if let Some(body) = else_body {
                             visit(body, summary, input, roots, frames, exits)?;
+                        }
+                    }
+                    CheckedSourceLoopStatementV1::Loop { site, product } => {
+                        if product.source.source.owner() != input.owner()
+                            || product.source.source.site() != site
+                        {
+                            return Err("source Loop child identity");
                         }
                     }
                     CheckedSourceLoopStatementV1::Exit { site, record, port } => {

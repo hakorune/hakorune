@@ -24,6 +24,9 @@ type Closure = VerifiedLoopJoinClosureV2<Box<[VerifiedLoopAfterBinding<LoopValue
 #[path = "source_loop_v2_projector.rs"]
 mod projector;
 use projector::Projector;
+#[path = "source_loop_child.rs"]
+mod child;
+pub(in crate::mir::loop_recipe_contract) use child::{child_loop_boundary_v2, source_child_loop_v2};
 /// The same original node and logical result. This correspondence never carries
 /// a physical ID, substitute source frame or fabricated Call permission.
 #[derive(Debug)]
@@ -87,6 +90,12 @@ impl VerifiedSourceLoopRecipeProductV2 {
                         visit(product, *then_block, output);
                         if let Some(block) = else_block { visit(product, *block, output); }
                     }
+                    // A child Loop is one lifecycle group owned by this Loop.
+                    SourceLoopScheduledStepV2::ChildLoop { product: child, .. } => output.push(Prefix::Loop {
+                        site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(child.source.source.owner(),
+                            child.source.condition.source().nodes()[0].site().clone()),
+                        product: Rc::clone(child),
+                    }),
                     SourceLoopScheduledStepV2::Exit { .. } | SourceLoopScheduledStepV2::Return { .. } => {},
                 }
             }
@@ -103,6 +112,10 @@ impl VerifiedSourceLoopRecipeProductV2 {
         source_array_append_v2(&self.source, &SourceStmtSiteV1::from_node(site.site().node().clone()))
     }
     pub(crate) fn schedule(&self) -> &VerifiedSourceLoopScheduleV2 { &self.schedule }
+    /// Whether `child` is a child Loop composed by this Loop's own schedule.
+    pub(crate) fn owns_child_loop_v2(&self, child: &Rc<Self>) -> bool {
+        self.schedule.child_loops_v2().any(|own| Rc::ptr_eq(own, child))
+    }
     /// Every checked expression evaluation retained by this Loop source
     /// product, including argument and condition subframes that may belong to
     /// lexical instance calls rather than scheduled static-call steps.
@@ -292,6 +305,11 @@ pub(super) fn producer_value_v2(producer: &Producer, source: &Summary, recipe: &
         Producer::Integer { site, .. } => values.iter().find(|row|
             row.source.nodes().get(row.node).is_some_and(|node| node.site() == site
                 && matches!(node.source(), Node::Literal(Literal::Integer(_))))) .map(|row| row.value),
+        Producer::LoopAfter { product, binding } => schedule.child_loops_v2().find_map(|step| match step {
+            SourceLoopScheduledStepV2::ChildLoop { product: child, outputs, .. } if Rc::ptr_eq(child, product) =>
+                outputs.iter().find(|row| row.0 == *binding).map(|row| row.3),
+            _ => None,
+        }),
         Producer::SignedEntry(binding) => recipe.read_only_inputs.iter()
             .find(|row| bindings.get(binding) == Some(&row.binding)).map(|row| row.entry_value),
         Producer::LoopHeader(basis) => {
@@ -649,6 +667,10 @@ fn validate_incoming(source: &Summary, recipe: &VerifiedLoopRecipeV2, closure: &
                 SourceProducer::Scalar(Producer::BranchNormal(join)) => schedule.joins_v2()
                     .find(|row| row.source == *join && row.binding == Some(*binding))
                     .map(|row| row.result).ok_or_else(|| reject("incoming-branch-join-result"))?,
+                // A child Loop's verified After result, through its schedule step.
+                SourceProducer::Scalar(producer @ Producer::LoopAfter { binding: after, .. })
+                    if *after == source_row.basis.binding() => producer_value_v2(producer, source,
+                        recipe.as_recipe(), values, bindings, schedule).ok_or_else(|| reject("incoming-child-loop-result"))?,
                 SourceProducer::Text(TextProducer::Header(basis)) if Rc::ptr_eq(basis, &source_row.basis) => carrier.entry_value,
                 SourceProducer::Text(TextProducer::Residence(acquisition)) => {
                     let source = acquisition.source();

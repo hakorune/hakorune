@@ -123,10 +123,14 @@ impl RootHomeFlow {
     ) -> Result<Vec<LifecyclePrefixSourceV1>, &'static str> {
         // The Loop owns its conditional body, not a sequence of always-run
         // root prefixes. Membership is the checked tree's SAME source Rc.
-        let loops: Vec<_> = self
+        let all_loops: Vec<_> = self
             .expression_plans
             .iter()
             .filter_map(HomeExpressionPlanV1::loop_recipe_v2)
+            .collect();
+        // A child Loop is a lifecycle group of its parent Loop, not of the root.
+        let loops: Vec<_> = all_loops.iter().copied()
+            .filter(|product| !all_loops.iter().any(|parent| parent.owns_child_loop_v2(product)))
             .collect();
         let standalone = |plan: &&HomeExpressionPlanV1| {
             !loops

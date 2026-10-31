@@ -520,8 +520,9 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 // second scan is permitted after selected failure.
                                 match row.retain_source_recipe_v2(input, summary) {
                                     Ok(product) => {
-                                        let applied = locals.apply_source_loop_after_v2(product, homes);
+                                        let applied = locals.apply_source_loop_after_v2(std::rc::Rc::clone(&product), homes);
                                         if applied {
+                                            locals.record_source_loop_child_v1(statement.site(), &product);
                                             // This is source Home continuation only. The same row's
                                             // product must still be fulfilled by the physical owner.
                                             continue;

@@ -387,6 +387,7 @@ impl<'program> DynamicV2RecipeOperationCursorV1<'program> {
             | LoopOperationV2::ConstNull { .. }
             | LoopOperationV2::TextAdd { .. }
             | LoopOperationV2::BoolExpression { .. }
+            | LoopOperationV2::ChildLoopAfter { .. }
             | LoopOperationV2::DynamicAdd { .. }
             | LoopOperationV2::DynamicSub { .. }
             | LoopOperationV2::DynamicLess { .. }

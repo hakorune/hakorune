@@ -559,6 +559,14 @@ fn body(input: ResolvedFunctionLoweringInputV1<'_>, source: &Summary, tree: &Bod
                     homes.push(LiveHomeV1::Stable(binding));
                 }
             }
+            Statement::Loop { product, .. } => {
+                // A child Loop runs under the SAME Homes and acquires none;
+                // its Return/Fault exits are not composed with this parent yet.
+                if product.source.condition.prior_homes() != homes.as_slice()
+                    || product.schedule().returns_v2().next().is_some() {
+                    return Err(reject("execution-child-loop-boundary"));
+                }
+            }
             Statement::OwnedArrayAppend { observation, .. } => {
                 let crate::mir::resolved_semantics::home_new_prefix::NamedArrayHomeObservationV1::Append {
                     source: holder, availability, prior_homes, ..

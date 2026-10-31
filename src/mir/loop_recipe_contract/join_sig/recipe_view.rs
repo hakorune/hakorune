@@ -92,6 +92,7 @@ pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationFamily {
     CallSlot,
     TextEq,
     BoolExpression,
+    ChildLoopAfter,
 }
 
 pub(in crate::mir::loop_recipe_contract) enum LoopJoinOperationView<'a> {

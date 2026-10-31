@@ -43,13 +43,15 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
     let mut children = match &prepared.destination {
         source_loop_projection::LifecyclePrefixDestinationV2::Root => None,
         source_loop_projection::LifecyclePrefixDestinationV2::Loop(packet) => {
-            if rows.get(&prepared.owner).map_or(0, |groups| {
-                groups
-                    .iter()
-                    .filter_map(|group| group.source_loop_rc())
-                    .filter(|original| std::rc::Rc::ptr_eq(original, packet))
-                    .count()
-            }) != 1
+            // The destination Loop is open exactly once in this owner's tree,
+            // as a root group or as a child Loop group of its parent.
+            fn occurrences(groups: &[RootLifecyclePrefixBindingGroupV1],
+                packet: &std::rc::Rc<source_loop_projection::EmittedSourceLoopProjectionV2>) -> usize {
+                groups.iter().filter_map(|group| group.source_loop_rc())
+                    .map(|original| usize::from(std::rc::Rc::ptr_eq(original, packet)) + occurrences(&original.snapshot(), packet))
+                    .sum()
+            }
+            if rows.get(&prepared.owner).map_or(0, |groups| occurrences(groups, packet)) != 1
             {
                 return Err(freeze("source-loop/publication-parent-stale"));
             }

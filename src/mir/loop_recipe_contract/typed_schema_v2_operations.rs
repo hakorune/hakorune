@@ -28,6 +28,12 @@ pub(super) fn check_operation(
             region.verify(&classes).map_err(|reason| LoopRecipeV2RejectReason::InvalidBoolRegion { item: *item_key, reason })?;
             define_value(*item_key, *result, LoopValueClassV2::Bool, values, definitions)
         }
+        LoopOperationV2::ChildLoopAfter { inputs, class, result } => {
+            for key in inputs {
+                super::expect_defined_value(*item_key, *key, values, definitions)?;
+            }
+            define_value(*item_key, *result, *class, values, definitions)
+        }
         LoopOperationV2::ReadBinding { binding, result } => {
             let Some(class) = bindings.get(binding) else {
                 return Err(LoopRecipeV2RejectReason::UnknownBinding { key: *binding });

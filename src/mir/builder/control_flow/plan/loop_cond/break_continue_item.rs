@@ -11,7 +11,7 @@ use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_blo
 use crate::mir::builder::control_flow::facts::stmt_walk::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
-    LoopCondBreakContinueItem, LoopCondBreakContinueRecipe, NestedLoopDepth1Recipe,
+    LoopCondBreakContinueItem, LoopCondBreakContinueRecipe,
 };
 use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
@@ -20,7 +20,6 @@ use crate::mir::builder::control_flow::recipes::RecipeBody;
 use super::break_continue_classify::{
     build_continue_if_with_else_recipes, continue_if_with_else_info, is_general_if_stmt,
 };
-use super::break_continue_helpers::is_nested_loop_allowed;
 use super::break_continue_tree::build_exit_if_tree_recipe;
 use super::break_continue_validator_cond::{
     build_conditional_update_branch_recipe, is_conditional_update_if,
@@ -129,7 +128,7 @@ fn build_loop_cond_break_continue_item(
     exit_if_seen: &mut usize,
     continue_if_seen: &mut usize,
     conditional_update_seen: &mut usize,
-    nested_seen: &mut usize,
+    _nested_seen: &mut usize,
     allow_extended: bool,
     allow_nested: bool,
     max_nested_loops: usize,
@@ -154,33 +153,9 @@ fn build_loop_cond_break_continue_item(
         ASTNode::ScopeBox { body, .. } => {
             build_program_or_scope_item(body, stmt_ref, allow_extended)
         }
-        ASTNode::Loop {
-            condition, body, ..
-        } => {
-            if !allow_nested || *nested_seen >= max_nested_loops {
-                return None;
-            }
-            if !is_nested_loop_allowed(condition, body, allow_extended, debug) {
-                return None;
-            }
-            *nested_seen += 1;
-            let body_recipe = if !allow_extended
-                && body
-                    .iter()
-                    .any(|stmt| matches!(stmt, ASTNode::Print { .. }))
-            {
-                None
-            } else {
-                try_build_stmt_only_block_recipe(body)
-            };
-            Some(LoopCondBreakContinueItem::NestedLoopDepth1 {
-                loop_stmt: stmt_ref,
-                nested: NestedLoopDepth1Recipe {
-                    cond_view: CondBlockView::from_expr(condition),
-                    body: body_recipe,
-                },
-            })
-        }
+        // A child Loop is an ordinary body statement here; its own facts and
+        // source product are issued for its own site.
+        ASTNode::Loop { .. } => allow_nested.then_some(LoopCondBreakContinueItem::Stmt(stmt_ref)),
         ASTNode::If {
             condition,
             then_body,

@@ -119,6 +119,15 @@ impl EmittedSourceLoopGraphV2 {
                 }
                 cursor = row.end;
             }
+            if let Step::ChildLoop { site, product, .. } = step {
+                let mut rows = self.children.iter().filter(|row| &row.site == site);
+                let row = rows.next().ok_or_else(|| reject("child-loop-missing"))?;
+                if rows.next().is_some() || row.entry != cursor || !std::rc::Rc::ptr_eq(&row.product, product)
+                    || !function.blocks.contains_key(&row.end) {
+                    return Err(reject("child-loop-sequence"));
+                }
+                cursor = row.end;
+            }
             if let Step::Frame(index) = step {
                 let frame = self.frames.get(*index).ok_or_else(|| reject("block-frame"))?;
                 if frame.entry != cursor { return Err(reject("frame-sequence")); }

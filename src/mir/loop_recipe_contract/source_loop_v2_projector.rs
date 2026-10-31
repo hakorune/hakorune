@@ -367,6 +367,66 @@ impl Projector<'_> {
                         item, site: site.clone(), observation: observation.clone(), result,
                     });
                 }
+                Statement::Loop { site, product } => {
+                    let (inputs, outputs) = super::child_loop_boundary_v2(product)?;
+                    let role_of = |binding: BindingRefV1| self.source.source.bindings().bindings()
+                        .find_map(|(actual, role)| (actual == binding).then_some(role));
+                    let start = self.recipe.blocks[block.raw() as usize].items.len();
+                    let mut input_rows = Vec::new();
+                    for (binding, class) in inputs {
+                        if let Some(basis) = product.source.headers.get(&binding) {
+                            // A child carrier enters with this Loop's current
+                            // producer value at the child statement.
+                            let super::SourceProducer::Scalar(producer) = basis.entry_producer() else {
+                                return Err(reject("child-loop-input-class"));
+                            };
+                            let value = producer_value_v2(producer, self.source, &self.recipe, &self.values,
+                                &self.bindings, &self.schedule).ok_or_else(|| reject("child-loop-input-producer"))?;
+                            input_rows.push((binding, None, value));
+                            continue;
+                        }
+                        // A read-only operand of the child must be one of this Loop, too.
+                        if role_of(binding) != Some(Role::ReadOnlyOperand) {
+                            return Err(reject("child-loop-input-role"));
+                        }
+                        let key = self.binding(binding, class)?;
+                        if !self.recipe.read_only_inputs.iter().any(|row| row.binding == key) {
+                            let entry_value = self.value(class);
+                            self.recipe.inputs.push(entry_value);
+                            self.recipe.read_only_inputs.push(LoopRecipeReadOnlyInputV2 {
+                                owner_loop: self.recipe.root_loop, binding: key, class, entry_value,
+                            });
+                        }
+                        let result = self.value(class);
+                        let item = self.item(block, LoopRecipeItemV2::Operation {
+                            operation: LoopOperationV2::ReadBinding { binding: key, result } });
+                        input_rows.push((binding, Some(item), result));
+                    }
+                    let input_values: Vec<_> = input_rows.iter().map(|row| row.2).collect();
+                    let mut output_rows = Vec::new();
+                    for (binding, class) in outputs {
+                        let result = self.value(class);
+                        let after = self.item(block, LoopRecipeItemV2::Operation {
+                            operation: LoopOperationV2::ChildLoopAfter { inputs: input_values.clone(), class, result } });
+                        // A carrier of this Loop is written; an iteration local
+                        // keeps the result as its current value only.
+                        let write = match role_of(binding) {
+                            Some(Role::Carrier) => {
+                                let key = self.binding(binding, class)?;
+                                Some(self.item(block, LoopRecipeItemV2::Operation {
+                                    operation: LoopOperationV2::WriteBinding { binding: key, value: result } }))
+                            }
+                            Some(Role::IterationLocal) => None,
+                            _ => return Err(reject("child-loop-output-role")),
+                        };
+                        output_rows.push((binding, after, write, result));
+                    }
+                    let first = *self.recipe.blocks[block.raw() as usize].items.get(start)
+                        .ok_or_else(|| reject("child-loop-boundary-empty"))?;
+                    self.control.push(SourceLoopItemV2 { site: site.clone(), item: first });
+                    self.schedule.step(block, SourceLoopScheduledStepV2::ChildLoop {
+                        site: site.clone(), product: Rc::clone(product), inputs: input_rows, outputs: output_rows });
+                }
                 Statement::OwnedArrayAppend { site, observation } => {
                     // A unit effect slot delegates receiver/candidate/cleanup
                     // to the original owned-array packet. No synthetic value,

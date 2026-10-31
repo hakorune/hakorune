@@ -82,6 +82,13 @@ pub(crate) enum SourceLoopScheduledStepV2 {
         operations: Range<usize>, item: LoopItemKeyV1, exit: LoopExitKeyV1 },
     Exit { item: LoopItemKeyV1, site: SourceStmtSiteV1, record: ResolvedExitRecordV1,
         port: usize, exit: LoopExitKeyV1 },
+    /// A child source Loop executed through its own verified product. Inputs
+    /// read this Loop's bindings at the child entry; each output pairs the
+    /// child's After result with the write of the same parent binding.
+    ChildLoop { site: SourceStmtSiteV1,
+        product: Rc<super::source_loop_v2::VerifiedSourceLoopRecipeProductV2>,
+        inputs: Vec<(BindingRefV1, Option<LoopItemKeyV1>, LoopValueKeyV1)>,
+        outputs: Vec<(BindingRefV1, LoopItemKeyV1, Option<LoopItemKeyV1>, LoopValueKeyV1)> },
 }
 
 #[derive(Default, Clone)]
@@ -122,6 +129,11 @@ impl VerifiedSourceLoopScheduleV2 {
     pub(crate) fn calls_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
         self.0.blocks.values().flatten().filter(|step| matches!(step, SourceLoopScheduledStepV2::Call { .. }))
     }
+    pub(crate) fn child_loops_v2(&self) -> impl Iterator<Item = &Rc<super::source_loop_v2::VerifiedSourceLoopRecipeProductV2>> {
+        self.0.blocks.values().flatten().filter_map(|step| match step {
+            SourceLoopScheduledStepV2::ChildLoop { product, .. } => Some(product), _ => None,
+        })
+    }
     pub(crate) fn frames(&self) -> &[SourceLoopScheduledFrameV2] { &self.0.frames }
     pub(crate) fn block(&self, key: LoopBlockKeyV1) -> Option<&[SourceLoopScheduledStepV2]> {
         self.0.blocks.get(&key).map(Vec::as_slice)
@@ -130,6 +142,9 @@ impl VerifiedSourceLoopScheduleV2 {
 impl SourceLoopScheduleDraftV2 {
     pub(super) fn calls_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
         self.blocks.values().flatten().filter(|step| matches!(step, SourceLoopScheduledStepV2::Call { .. }))
+    }
+    pub(super) fn child_loops_v2(&self) -> impl Iterator<Item = &SourceLoopScheduledStepV2> {
+        self.blocks.values().flatten().filter(|step| matches!(step, SourceLoopScheduledStepV2::ChildLoop { .. }))
     }
     pub(super) fn joins_v2(&self) -> impl Iterator<Item = &SourceLoopBranchPhiV2> {
         self.blocks.values().flatten().filter_map(|step| match step {
@@ -185,6 +200,12 @@ impl SourceLoopScheduleDraftV2 {
                 + self.joins_v2().filter(|join| join.write_item.is_some()).count()
                 + self.text_joins_v2().count()
                 + self.text_joins_v2().filter(|join| join.write_item.is_some()).count()
+                + self.blocks.values().flatten().map(|step| match step {
+                    SourceLoopScheduledStepV2::ChildLoop { inputs, outputs, .. } =>
+                        inputs.iter().filter(|row| row.1.is_some()).count()
+                            + outputs.iter().map(|row| 1 + usize::from(row.2.is_some())).sum::<usize>(),
+                    _ => 0,
+                }).sum::<usize>()
                 != recipe.items.iter().filter(|row| matches!(row.item, LoopRecipeItemV2::Operation { .. })).count() {
             return Err(reject("schedule-census"));
         }
@@ -254,6 +275,9 @@ impl SourceLoopScheduleDraftV2 {
         Ok(())
     }
 }
+
+#[path = "source_loop_schedule_child.rs"]
+mod child;
 
 struct ScheduleCheck<'a, 'source> {
     draft: &'a SourceLoopScheduleDraftV2,
@@ -380,6 +404,9 @@ impl ScheduleCheck<'_, '_> {
                         return Err(reject("schedule-array-source"));
                     }
                     self.control.push((site.clone(), *item)); position += 1;
+                }
+                SourceLoopScheduledStepV2::ChildLoop { site, product, inputs, outputs } => {
+                    self.child_loop_step(block, &mut position, &mut available, site, product, inputs, outputs)?;
                 }
                 SourceLoopScheduledStepV2::Call { item, site, observation, result } => {
                     let scalar = matches!(observation.result(),

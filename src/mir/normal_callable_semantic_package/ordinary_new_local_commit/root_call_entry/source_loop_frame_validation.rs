@@ -13,7 +13,7 @@ impl EmittedSourceLoopProjectionV2 {
         let children = self.snapshot();
         if !Rc::ptr_eq(self.product(), &graph.product)
             || children.len() != self.expected.len()
-            || children.len() != graph.frames.len() + graph.effects.len()
+            || children.len() != graph.frames.len() + graph.effects.len() + graph.children.len()
         {
             return Err(freeze("source-loop/frame-census"));
         }
@@ -59,6 +59,20 @@ impl EmittedSourceLoopProjectionV2 {
                     function,
                     finishing.is_none(),
                 )?;
+                child.check_physical_bindings_v1(function, finishing)?;
+                child.validate_recorded_in_context(context, function, finishing)?;
+                continue;
+            }
+            if let LifecyclePrefixSourceV1::Loop { product, .. } = expected {
+                // A child Loop group is its own completed source product; this
+                // parent corroborates the SAME product and its recorded group.
+                let mut rows = graph.children.iter().filter(|row| Rc::ptr_eq(&row.product, product));
+                let row = rows.next().ok_or_else(|| freeze("source-loop/child-loop-source"))?;
+                let packet = child.source_loop_rc().ok_or_else(|| freeze("source-loop/child-loop-packet"))?;
+                if rows.next().is_some() || !child.matches_source(expected)
+                    || !Rc::ptr_eq(packet.product(), &row.product) {
+                    return Err(freeze("source-loop/child-loop-source"));
+                }
                 child.check_physical_bindings_v1(function, finishing)?;
                 child.validate_recorded_in_context(context, function, finishing)?;
                 continue;

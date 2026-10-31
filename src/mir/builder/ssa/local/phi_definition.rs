@@ -11,16 +11,21 @@ pub(in crate::mir::builder) struct PhysicalPhiDefinitionV1 {
     completed: OnceCell<PhysicalBinding>,
     rolled_back: Cell<bool>,
     final_origin: bool,
+    /// Open child-Loop scopes for which this pending Phi is an ancestor's
+    /// obligation. A child's local completion may not require it; the
+    /// enclosing finalized validation still does.
+    ancestor_obligations: Cell<u32>,
 }
 
 impl PhysicalPhiDefinitionV1 {
     pub(super) fn new(block: BasicBlockId, dst: ValueId) -> Self {
         Self { original: (block, MirInstruction::Phi { dst, inputs: Vec::new(), type_hint: None }),
-            completed: OnceCell::new(), rolled_back: Cell::new(false), final_origin: false }
+            completed: OnceCell::new(), rolled_back: Cell::new(false), final_origin: false,
+            ancestor_obligations: Cell::new(0) }
     }
     pub(super) fn final_definition(binding: PhysicalBinding) -> Self {
         Self { original: binding.clone(), completed: OnceCell::from(binding),
-            rolled_back: Cell::new(false), final_origin: true }
+            rolled_back: Cell::new(false), final_origin: true, ancestor_obligations: Cell::new(0) }
     }
     pub(super) fn current(&self) -> Result<&PhysicalBinding, String> {
         if self.rolled_back.get() { return Err(reject("phi-rolled-back")); }
@@ -29,6 +34,7 @@ impl PhysicalPhiDefinitionV1 {
     pub(super) fn require_completed(&self) -> Result<(), String> {
         self.current()?;
         if !matches!(self.completed.get(), Some((_, MirInstruction::Phi { inputs, .. })) if !inputs.is_empty()) {
+            if self.completed.get().is_none() && self.ancestor_obligations.get() > 0 { return Ok(()); }
             return Err(reject("phi-incomplete"));
         }
         Ok(())
@@ -37,6 +43,11 @@ impl PhysicalPhiDefinitionV1 {
         binding == &self.original || self.completed.get() == Some(binding)
     }
     pub(super) fn rollback(&self) { self.rolled_back.set(true); }
+    pub(super) fn open_ancestor_obligation(&self) { self.ancestor_obligations.set(self.ancestor_obligations.get() + 1); }
+    pub(super) fn close_ancestor_obligation(&self) -> Result<(), String> {
+        let open = self.ancestor_obligations.get().checked_sub(1).ok_or_else(|| reject("ancestor-obligation-unbalanced"))?;
+        self.ancestor_obligations.set(open); Ok(())
+    }
     pub(super) fn prepare(self: &Rc<Self>, before: &PhysicalBinding, after: PhysicalBinding)
         -> Result<PhysicalPhiPatchV1, String>
     {

@@ -68,6 +68,15 @@ pub(in crate::mir) struct EmittedLoopEffectV2 {
     pub(in crate::mir) packet: crate::mir::normal_callable_semantic_package::RootLifecyclePrefixBindingGroupV1,
     pub(in crate::mir) result: Option<(LoopValueKeyV1, Rc<LocalSsaPhysicalRelationV1>)>,
 }
+/// One child source Loop lowered by its own product between `entry` and the
+/// child's After block `end`; `outputs` are the After values it published.
+pub(in crate::mir) struct EmittedLoopChildV2 {
+    pub(in crate::mir) site: crate::mir::resolved_semantics::SourceStmtSiteV1,
+    pub(in crate::mir) product: Rc<Product>,
+    pub(in crate::mir) entry: BasicBlockId,
+    pub(in crate::mir) end: BasicBlockId,
+    pub(in crate::mir) outputs: Vec<(LoopValueKeyV1, ValueId)>,
+}
 pub(in crate::mir) struct EmittedLoopReturnV2 {
     pub(in crate::mir) source: Rc<crate::mir::resolved_semantics::home_new_prefix::SourceLoopReturnV1>,
     pub(in crate::mir) entry: BasicBlockId,
@@ -87,6 +96,7 @@ pub(in crate::mir) struct EmittedSourceLoopGraphV2 {
     pub(in crate::mir) effects: Vec<EmittedLoopEffectV2>,
     pub(in crate::mir) forks: Vec<EmittedLoopForkV2>,
     pub(in crate::mir) blocks: Vec<EmittedLoopBlockV2>,
+    pub(in crate::mir) children: Vec<EmittedLoopChildV2>,
     pub(in crate::mir) result: crate::mir::builder::CompletedConstV1,
     before: BTreeMap<BasicBlockId, (Vec<MirInstruction>, Option<MirInstruction>)>,
     before_frame: Option<(BasicBlockId, MirInstruction)>,
@@ -201,7 +211,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     }
     let body_key = recipe.loops.first().ok_or_else(|| reject("root-loop-missing"))?.body;
     let mut driver = Driver { port, source, product: Rc::clone(&product), ledger, header, after,
-        logical, values, returns: Vec::new(), edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new() };
+        logical, values, returns: Vec::new(), edges: Vec::new(), frames: Vec::new(), effects: Vec::new(), forks: Vec::new(), blocks: Vec::new(), children: Vec::new() };
     driver.edge(builder, Edge::LoopEntry, None)?;
     for &binding in product.source.headers.keys() {
         let name = driver.ledger.borrow().source_loop_binding_name(binding,
@@ -236,7 +246,7 @@ pub(in crate::mir) fn emit(builder: &mut MirBuilder, port: &mut RawInvocationChi
     let after_frame = driver.ledger.borrow().observed_fault_frame_binding_v2(
         builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?)?;
     Ok((EmittedSourceLoopGraphV2 { product, header, after, returns: driver.returns, edges: driver.edges, frames: driver.frames, effects: driver.effects,
-        forks: driver.forks, blocks: driver.blocks, result, before, before_frame, after_frame },
+        forks: driver.forks, blocks: driver.blocks, children: driver.children, result, before, before_frame, after_frame },
         SourceLoopEntryStateV2 { values: entry_values, cache: entry_cache }))
 }
 
@@ -255,6 +265,7 @@ struct Driver<'a, 'port, 'collector, 'input, 'ledger> {
     effects: Vec<EmittedLoopEffectV2>,
     forks: Vec<EmittedLoopForkV2>,
     blocks: Vec<EmittedLoopBlockV2>,
+    children: Vec<EmittedLoopChildV2>,
 }
 impl Driver<'_, '_, '_, '_, '_> {
     fn frame(&mut self, builder: &mut MirBuilder, index: usize, entry: BasicBlockId, value: ValueId,
@@ -386,6 +397,42 @@ impl Driver<'_, '_, '_, '_, '_> {
                     return Ok(false);
                 }
                 Step::If { .. } => return Err(reject("if-without-condition-frame")),
+                Step::ChildLoop { site, product, outputs, .. } => {
+                    let entry = builder.function_state.current_block.ok_or_else(|| reject("child-loop-entry"))?;
+                    // This Loop's Header/After Phis are still pending while the
+                    // child completes; lend them as ancestor obligations only.
+                    let pending: Vec<_> = {
+                        let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
+                        [self.header, self.after].iter().filter_map(|block| function.blocks.get(block))
+                            .flat_map(|block| block.all_instructions())
+                            .filter_map(|row| match row { MirInstruction::Phi { dst, .. } => Some(*dst), _ => None })
+                            .collect()
+                    };
+                    let obligations = builder.function_state.local_ssa_correspondence.open_ancestor_phi_obligations_v1(&pending)?;
+                    let lowered = super::source_loop_frames::emit_child_loop(builder, self.port, &self.product, site);
+                    obligations.close()?;
+                    lowered?;
+                    let end = builder.function_state.current_block.ok_or_else(|| reject("child-loop-end"))?;
+                    let mut published = Vec::new();
+                    // Borrow each verified After value the child published; a
+                    // carrier of this Loop advances its logical value, too.
+                    for (binding, _, write, logical) in outputs {
+                        let observation = self.ledger.borrow().observe_binding_value_v2(*binding)
+                            .map_err(|error| error.to_string())?;
+                        if self.values.insert(*logical, observation.binding_value().1).is_some() {
+                            return Err(reject("child-loop-result-repeat"));
+                        }
+                        published.push((*logical, observation.binding_value().1));
+                        if write.is_some() {
+                            let key = *self.product.bindings.get(binding).ok_or_else(|| reject("child-loop-binding"))?;
+                            if self.logical.insert(key, *logical).is_none() {
+                                return Err(reject("child-loop-before-logical-entry"));
+                            }
+                        }
+                    }
+                    self.children.push(EmittedLoopChildV2 { site: site.clone(), product: Rc::clone(product), entry, end, outputs: published });
+                    position += 1;
+                }
             }
         }
         Ok(true)
