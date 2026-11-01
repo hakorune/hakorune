@@ -145,6 +145,13 @@ Decided 2026-11-02 (see ADR-002 for the cutover contract):
   holding a child field borrowed from a formal) hold only until the cutover and
   are rejected there; an owned child is passed with `move`.
 
+Types (decided 2026-11-02; details in ADR-002 "型検査"): declarations (parameters,
+fields, named-function results) state their types and the body infers; types
+are non-null by default and `T?` marks a nullable type (`Node`, `Node?`,
+`Option<Node>`, `Shared<Node>?` are all distinct); `Dynamic` is written
+explicitly and never produced by omission or failed inference. At the cutover
+the old meaning of an omitted annotation (dynamic Any) ends.
+
 Sections 1-11 below describe the pre-cutover meaning where they conflict with
 this section (implicit alias copies, composite anchored results, bare aliases);
 the cutover makes §0 the only normative text.
