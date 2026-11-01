@@ -5,7 +5,7 @@ method parameters in the normal semantic package.
 
 ```text
 final syntax loan + resolved batch identity
-  -> exact BindingRef and optional declared type spelling
+  -> exact BindingRef, optional declared type spelling and original transfer
   -> OpaqueHandle
      or DeclaredHandle
      or ExactTrivial(i64)

@@ -29,6 +29,11 @@ impl ParserCallableParameterSourceCatalogV1 {
         }
     }
 
+    pub(in crate::parser) fn has_take(&self) -> bool {
+        self.declarations.iter().any(|declaration| declaration.parameters().iter()
+            .any(|parameter| !parameter.transfer().is_ordinary()))
+    }
+
     pub(crate) fn declarations(&self) -> &[ParserCallableParameterDeclarationSourceV1] {
         &self.declarations
     }

@@ -315,6 +315,7 @@ impl NyashParser {
         let mut parser = Self::new(tokens);
         parser.build_config = build_config;
         let ast = parser.parse_program()?;
+        parser.reject_discarded_parameter_transfers()?;
         let product = parser.open_postpass_product(ast)?;
         let product = product.prune_build_gates(&parser)?;
         let product = product.lower_delegates()?;
@@ -394,6 +395,7 @@ impl NyashParser {
         parser.debug_fuel = fuel;
         parser.build_config = build_config;
         let ast = parser.parse_program()?;
+        parser.reject_discarded_parameter_transfers()?;
         parser.prune_build_gate_program(ast)
     }
 

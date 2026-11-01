@@ -288,7 +288,15 @@ pub(crate) fn parse_param_decl_list(
     p: &mut NyashParser,
     context: &str,
 ) -> Result<Vec<crate::ast::ParamDecl>, ParseError> {
-    parse_param_decl_list_product(p, context).map(|product| product.neutral().to_vec())
+    let product = parse_param_decl_list_product(p, context)?;
+    if product.has_take() {
+        return Err(ParseError::GrammarContract {
+            stable_reject_tag: "parser/take-source-contract-required",
+            detail: format!("take requires a retained callable parameter source in {context}"),
+            line: p.current_token().line,
+        });
+    }
+    Ok(product.neutral().to_vec())
 }
 
 /// Parse once into a neutral AST projection plus one-shot transfer source
@@ -299,6 +307,7 @@ pub(in crate::parser) fn parse_param_decl_list_product(
     context: &str,
 ) -> Result<crate::parser::callable_parameter_source::ParsedCallableParameterListV1, ParseError> {
     let mut params = Vec::new();
+    let mut transfers = Vec::new();
     let mut last_token_position: Option<(usize, usize)> = None;
 
     while !p.match_token(&TokenType::RPAREN) && !p.is_at_end() {
@@ -322,9 +331,34 @@ pub(in crate::parser) fn parse_param_decl_list_product(
 
         match &p.current_token().token_type {
             TokenType::IDENTIFIER(param) => {
-                let name = param.clone();
+                let take = param == "take" && p.tokens.get(p.current + 1).is_some_and(|next| {
+                    next.line == p.current_token().line && matches!(next.token_type, TokenType::IDENTIFIER(_))
+                });
+                if take { p.advance(); }
+                let TokenType::IDENTIFIER(name) = p.current_token().token_type.clone() else {
+                    unreachable!("parameter head checked above");
+                };
+                let name_line = p.current_token().line;
+                let typed_head = !take || p.tokens.get(p.current + 1).is_some_and(|next| {
+                    next.line == name_line && matches!(next.token_type, TokenType::COLON)
+                });
                 p.advance();
+                if !typed_head {
+                    return Err(ParseError::GrammarContract {
+                        stable_reject_tag: "parser/take-declared-type-required",
+                        detail: "take parameter requires a same-line declared type".into(),
+                        line: name_line,
+                    });
+                }
                 let declared_type_name = parse_optional_param_type_annotation(p, context)?;
+                if take && declared_type_name.is_none() {
+                    return Err(ParseError::GrammarContract {
+                        stable_reject_tag: "parser/take-declared-type-required",
+                        detail: "take parameter requires an explicit declared type".into(),
+                        line: p.current_token().line,
+                    });
+                }
+                transfers.push(take);
                 params.push(crate::ast::ParamDecl {
                     name,
                     declared_type_name,
@@ -363,7 +397,7 @@ pub(in crate::parser) fn parse_param_decl_list_product(
         }
     }
 
-    crate::parser::callable_parameter_source::ParsedCallableParameterListV1::from_neutral(params)
+    crate::parser::callable_parameter_source::ParsedCallableParameterListV1::from_parsed(params, transfers)
         .map_err(|error| ParseError::GrammarContract {
             stable_reject_tag: "parser/callable-parameter-list",
             detail: format!("callable parameter list rejected: {error:?}"),

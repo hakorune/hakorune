@@ -22,7 +22,11 @@ Current I0 boundary:
   cannot escape and never searches by name;
 - `model.rs` owns the closed `Ordinary | Take` vocabulary, explicit
   `Absent | Explicit` type syntax, declaration kind, and exact ordinals;
-- only `Ordinary` has an issuer. `Take` remains vocabulary-only.
+- same-line typed `take` is issued by the parameter parser and retained as the
+  original transfer through the final semantic source and resolved batch. The
+  common contract issuer still rejects execution with `UnsupportedTransfer`;
+- AST-only/raw/reference source-plan/compatibility extraction and incomplete
+  catalog disposition reject Take before its declaration can be erased.
 
 ## Ordinary module source-row I0
 

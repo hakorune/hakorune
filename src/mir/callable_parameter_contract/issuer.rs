@@ -73,7 +73,7 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                 let mut parameters = Vec::with_capacity(source_parameters.len());
                 for source_parameter in source_parameters {
                     let parameter = source_parameter.ordinal();
-                    if !source_parameter.is_ordinary() {
+                    if !source_parameter.transfer().is_ordinary() {
                         return Err(CallableParameterContractIssueV1::UnsupportedTransfer {
                             _declaration: declaration,
                             _parameter: parameter,

@@ -1,8 +1,8 @@
 //! Parser-owned callable parameter source syntax.
 //!
 //! This module owns the one-shot parameter-list syntax product and its
-//! complete sibling source catalog. It issues `Ordinary` syntax only; `Take`,
-//! Home demand, resolver binding, Recipe, and MIR remain closed.
+//! complete sibling source catalog. Ordinary and typed Take syntax retain the
+//! same original declaration. Home demand and physical transfer are downstream.
 
 mod canonical_script_source_admission;
 mod catalog;
@@ -33,6 +33,7 @@ pub(in crate::parser) use catalog::{
 #[cfg(test)]
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
+pub(crate) use model::ParserParameterTransferSyntaxV1;
 pub(in crate::parser) use model::{
     ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
 };

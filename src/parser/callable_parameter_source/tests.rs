@@ -54,6 +54,58 @@ fn preserves_typed_and_untyped_parameter_syntax_in_source_order() {
     assert_eq!(rows[0].declared_type_name(), None);
     assert_eq!(rows[1].name(), "count");
     assert_eq!(rows[1].declared_type_name(), Some("i64"));
+
+    // The retained declaration carries transfer independently of its type;
+    // AST-only APIs must never erase it into an ordinary borrowed parameter.
+    let source = "box Payload {} static box Api { run(take value: Payload, count: i64) { return count } }";
+    let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
+        source, ParserBuildConfig::default(),
+    ).unwrap();
+    ParserNormalRootExecutionTestTerminalV1::consume_once(parsed, |catalog, _| {
+        let parameters = catalog.declarations().last().unwrap().parameters();
+        assert_eq!(parameters[0].name(), "value");
+        assert_eq!(parameters[0].declared_type().as_deref(), Some("Payload"));
+        assert!(!parameters[0].transfer().is_ordinary());
+        assert!(parameters[1].transfer().is_ordinary());
+    }).unwrap();
+    assert!(NyashParser::parse_from_string("static box Api { run(take: i64) { return take } }").is_ok());
+    for extra in ["record Data { value: i64 }",
+                  "gate Build.test { box Enabled { run(value) { return value } } } else { box Disabled { run(value) { return value } } }"] {
+        let mixed = format!("{source} {extra}");
+        assert!(matches!(NyashParser::parse_normal_callable_program_with_build_config(
+            mixed, ParserBuildConfig::default(),
+        ), Err(crate::parser::ParseError::GrammarContract {
+            stable_reject_tag: "parser/take-source-contract-required", ..
+        })));
+    }
+    let raw = NyashParser::parse_from_string_with_callable_parameter_source(source, ParserBuildConfig::default())
+        .unwrap().prepare_raw_vm_source_route();
+    assert!(matches!(raw.as_ref().map_err(|rejected| rejected.error()),
+        Err(super::product::ParserNormalRawVmSourceExtractionErrorV1::SourceAuthorityUnavailable)));
+    if let Err(rejected) = raw { rejected.discard(); }
+    for result in [
+        NyashParser::parse_from_string(source),
+        NyashParser::parse_grammar_evidence_from_string_with_build_config(source, ParserBuildConfig::default()),
+        NyashParser::parse_from_string_with_source_seal_ast(source, ParserBuildConfig::default()),
+    ] {
+        assert!(matches!(result, Err(crate::parser::ParseError::GrammarContract {
+            stable_reject_tag: "parser/take-source-contract-required", ..
+        })));
+    }
+    crate::test_support::with_env_var("NYASH_PARSER_ALLOW_SEMICOLON", "1", || {
+        assert!(matches!(NyashParser::parse_from_string_with_callable_parameter_source(
+            "static box Api { run(take value;: Payload) { return 0 } }", ParserBuildConfig::default(),
+        ), Err(crate::parser::ParseError::GrammarContract {
+            stable_reject_tag: "parser/take-declared-type-required", ..
+        })));
+    });
+    for source in ["static box Api { run(take value) { return 0 } }",
+                   "static box Api { run(take\nvalue: Payload) { return 0 } }",
+                   "static box Api { run(take value\n: Payload) { return 0 } }"] {
+        assert!(NyashParser::parse_from_string_with_callable_parameter_source(
+            source, ParserBuildConfig::default(),
+        ).is_err());
+    }
 }
 
 #[test]

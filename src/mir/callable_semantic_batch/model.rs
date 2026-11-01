@@ -95,7 +95,7 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
     ordinal: u32,
     name: &'batch str,
     declared_type_name: Option<&'batch str>,
-    ordinary: bool,
+    transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1,
 }
 
 impl VerifiedResolvedCallableSemanticBatchV1 {
@@ -342,7 +342,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                                 ordinal: parameter.ordinal(),
                                 name: parameter.name(),
                                 declared_type_name: parameter.declared_type_name(),
-                                ordinary: parameter.is_ordinary(),
+                                transfer: parameter.transfer(),
                             })
                             .collect::<Vec<_>>()
                             .into_boxed_slice()
@@ -455,8 +455,12 @@ impl VerifiedResolvedCallableParameterSourceRefV1<'_> {
         self.ordinal
     }
 
+    pub(crate) const fn transfer(self) -> crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1 {
+        self.transfer
+    }
+
     pub(crate) const fn is_ordinary(self) -> bool {
-        self.ordinary
+        self.transfer.is_ordinary()
     }
 
     pub(crate) const fn declared_type_name(&self) -> Option<&str> {

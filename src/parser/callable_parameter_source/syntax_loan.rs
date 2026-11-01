@@ -160,7 +160,6 @@ fn parameters_match(
                 && row.name() == declarations[index].name
                 && row.declared_type().as_deref()
                     == declarations[index].declared_type_name.as_deref()
-                && row.transfer().is_ordinary()
         })
 }
 

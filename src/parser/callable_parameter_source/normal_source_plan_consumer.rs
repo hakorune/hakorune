@@ -143,6 +143,14 @@ impl ParserNormalRootSourcePlanConsumerV1 {
         SourcePlanBoundNormalCallableSourceV1,
         RejectedParserNormalRootSourcePlanConsumptionV1,
     > {
+        // This reference-only route returns AST, not the retained parameter
+        // sibling used by the canonical MIR callable source.
+        if source.has_take_parameters() {
+            return Err(RejectedParserNormalRootSourcePlanConsumptionV1 {
+                source, lineage,
+                error: ParserNormalRootSourcePlanConsumeErrorV1::SourceAuthorityUnavailable,
+            });
+        }
         let invocation = match source.normal_root_execution_for_consumer() {
             ParserNormalRootExecutionSourceDispositionV1::Ready(root) => {
                 root.bound().invocation().clone()

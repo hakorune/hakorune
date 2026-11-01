@@ -18,6 +18,7 @@ pub(super) fn parse(
 ) -> Result<ASTNode, ParseError> {
     let mut parser = parser_from_string(input, fuel, build_config)?;
     let completed = parser.parse_postpass_s0()?;
+    parser.reject_discarded_parameter_transfers()?;
     Ok(completed.into_ast())
 }
 
@@ -63,7 +64,9 @@ pub(crate) fn parse_with_callable_parameter_source_policy(
 }
 
 pub(super) fn parse_existing(parser: &mut NyashParser) -> Result<ASTNode, ParseError> {
-    Ok(parser.parse_postpass_s0()?.into_ast())
+    let completed = parser.parse_postpass_s0()?;
+    parser.reject_discarded_parameter_transfers()?;
+    Ok(completed.into_ast())
 }
 
 pub(super) fn parse_with_explain(
@@ -72,11 +75,11 @@ pub(super) fn parse_with_explain(
     build_config: ParserBuildConfig,
 ) -> Result<(ASTNode, super::BuildGateExplainReport), ParseError> {
     let mut parser = parser_from_string(input, fuel, build_config)?;
-    parser
-        .parse_postpass_with_demand(PostpassDemandV1 {
-            explain: ExplainDemandV1::Capture,
-        })?
-        .into_ast_and_explain()
+    let completed = parser.parse_postpass_with_demand(PostpassDemandV1 {
+        explain: ExplainDemandV1::Capture,
+    })?;
+    parser.reject_discarded_parameter_transfers()?;
+    completed.into_ast_and_explain()
         .map_err(|error| error.into_parse_error())
 }
 
@@ -100,7 +103,9 @@ fn parser_from_string(
 pub(super) fn parse_with_metadata(
     parser: &mut NyashParser,
 ) -> Result<(ASTNode, ParserMetadata), ParseError> {
-    Ok(parser.parse_postpass_s0()?.into_ast_and_metadata())
+    let completed = parser.parse_postpass_s0()?;
+    parser.reject_discarded_parameter_transfers()?;
+    Ok(completed.into_ast_and_metadata())
 }
 
 fn reject_unsupported_self_identifier(

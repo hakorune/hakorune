@@ -10,12 +10,10 @@ pub(crate) struct ResolverMethodParameterSyntaxV1 {
     declared_type_name: Option<Box<str>>,
 }
 
-/// Closed source vocabulary. `Take` is reserved but has no parser issuer in
-/// this implementation row.
+/// Closed declaration-side transfer vocabulary, issued by the parameter parser.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ParserParameterTransferKindV1 {
     Ordinary,
-    #[allow(dead_code)]
     Take,
 }
 
@@ -25,10 +23,12 @@ pub(crate) struct ParserParameterTransferSyntaxV1 {
 }
 
 impl ParserParameterTransferSyntaxV1 {
-    pub(super) const fn ordinary() -> Self {
-        Self {
-            kind: ParserParameterTransferKindV1::Ordinary,
-        }
+    pub(in crate::parser) const fn ordinary() -> Self {
+        Self::from_take(false)
+    }
+
+    pub(super) const fn from_take(take: bool) -> Self {
+        Self { kind: if take { ParserParameterTransferKindV1::Take } else { ParserParameterTransferKindV1::Ordinary } }
     }
 
     pub(crate) const fn is_ordinary(self) -> bool {
@@ -60,7 +60,12 @@ pub(crate) struct ParserCallableParameterSourceRowV1 {
 }
 
 impl ParserCallableParameterSourceRowV1 {
+    #[cfg(test)]
     pub(super) fn ordinary(ordinal: u32, declaration: &ParamDecl) -> Self {
+        Self::parsed(ordinal, declaration, false)
+    }
+
+    pub(super) fn parsed(ordinal: u32, declaration: &ParamDecl, take: bool) -> Self {
         let declared_type = match declaration.declared_type_name.as_deref() {
             Some(name) => ParserParameterDeclaredTypeSyntaxV1::Explicit(name.into()),
             None => ParserParameterDeclaredTypeSyntaxV1::Absent,
@@ -69,7 +74,7 @@ impl ParserCallableParameterSourceRowV1 {
             ordinal,
             name: declaration.name.clone().into_boxed_str(),
             declared_type,
-            transfer: ParserParameterTransferSyntaxV1::ordinary(),
+            transfer: ParserParameterTransferSyntaxV1::from_take(take),
         }
     }
 

@@ -61,7 +61,10 @@ Ownership grammar status (2026-08-04):
   expression-side contextual `share` over one non-group postfix operand, and
   statement-side contextual `release root`. Contract result `from` remains a
   separate provisional row. Only the exact-root `release` parser/source row is
-  live; `take` and `share` remain parser-inactive.
+  live. Bounded typed `take` is retained by the Rust direct callable parameter-source
+  parser; ownership call entry/cleanup is not yet connected and remains a named
+  unsupported contract. AST-only/raw projections reject `take` rather than erase
+  it. `share` remains parser-inactive.
 - `take`, `share`, and `release` remain `IDENT` spellings and are not global
   lexer keywords. Contextual recognition requires same-line lookahead.
   `share(...)` and `share (expr)` are permanently ordinary calls;

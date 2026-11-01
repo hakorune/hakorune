@@ -32,7 +32,7 @@ pub(crate) struct FinalCallableParameterSourceRefV1<'source> {
     ordinal: u32,
     name: &'source str,
     declared_type_name: Option<&'source str>,
-    ordinary: bool,
+    transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1,
 }
 
 /// Parser-issued, AST-free evidence that a final callable row is one exact
@@ -136,8 +136,8 @@ impl FinalCallableParameterSourceRefV1<'_> {
         self.ordinal
     }
 
-    pub(crate) const fn is_ordinary(self) -> bool {
-        self.ordinary
+    pub(crate) const fn transfer(self) -> crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1 {
+        self.transfer
     }
 
     pub(crate) const fn declared_type_name(&self) -> Option<&str> {
@@ -188,7 +188,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
                     ordinal: parameter.ordinal(),
                     name: parameter.name(),
                     declared_type_name: parameter.declared_type().as_deref(),
-                    ordinary: parameter.transfer().is_ordinary(),
+                    transfer: parameter.transfer(),
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice()
@@ -212,7 +212,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
                             ordinal: ordinal as u32,
                             name,
                             declared_type_name: None,
-                            ordinary: true,
+                            transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1::ordinary(),
                         })
                         .collect(),
                 );

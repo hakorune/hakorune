@@ -56,7 +56,6 @@ impl ParserCallableParameterSourceSessionV1 {
                         || row.name() != declaration.name
                         || row.declared_type().as_deref()
                             != declaration.declared_type_name.as_deref()
-                        || !row.transfer().is_ordinary()
                 })
         {
             return Err(CallableParameterSourceIssueV1::ParameterCoverageMismatch {
@@ -76,21 +75,32 @@ impl ParserCallableParameterSourceSessionV1 {
         Ok(())
     }
 
-    fn finish_for_normal(self) -> ParserCallableParameterSourceDispositionV1 {
-        if self.unsupported_member_gate
+    fn has_take(&self) -> bool {
+        self.declarations.iter().any(|declaration| declaration.parameters().iter()
+            .any(|parameter| !parameter.transfer().is_ordinary()))
+    }
+
+    fn finish_for_normal(self) -> Result<ParserCallableParameterSourceDispositionV1, ParseError> {
+        let unsupported = self.unsupported_member_gate
             || self.declarations.iter().any(|declaration| {
                 declaration.source_site().box_site().path().segments().len() != 1
-            })
-        {
-            return ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported;
+            });
+        if unsupported && self.has_take() {
+            return Err(ParseError::GrammarContract {
+                stable_reject_tag: "parser/take-source-contract-required",
+                detail: "take requires a complete retained parameter source catalog".into(),
+                line: 0,
+            });
         }
-        ParserCallableParameterSourceDispositionV1::Complete(
-            ParserCallableParameterSourceCatalogV1::new(
-                self.brand,
-                self.declarations.into_boxed_slice(),
-            ),
-        )
+        Ok(if unsupported {
+            ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported
+        } else {
+            ParserCallableParameterSourceDispositionV1::Complete(
+                ParserCallableParameterSourceCatalogV1::new(self.brand, self.declarations.into_boxed_slice()),
+            )
+        })
     }
+
 }
 
 impl NyashParser {
@@ -123,13 +133,28 @@ impl NyashParser {
             .map_err(parameter_source_error)
     }
 
+    /// AST-only projections must not erase an explicit ownership declaration.
+    pub(in crate::parser) fn reject_discarded_parameter_transfers(&self) -> Result<(), ParseError> {
+        let take = self.callable_parameter_source_session.as_ref().is_some_and(|session| {
+            session.has_take()
+        });
+        if take {
+            return Err(ParseError::GrammarContract {
+                stable_reject_tag: "parser/take-source-contract-required",
+                detail: "take cannot be projected to an AST-only callable".into(),
+                line: 0,
+            });
+        }
+        Ok(())
+    }
+
     pub(in crate::parser) fn finish_callable_parameter_source_for_normal(
         &mut self,
     ) -> Result<ParserCallableParameterSourceDispositionV1, ParseError> {
         self.callable_parameter_source_session
             .take()
             .ok_or_else(|| parameter_source_error(CallableParameterSourceIssueV1::SessionClosed))
-            .map(ParserCallableParameterSourceSessionV1::finish_for_normal)
+            .and_then(ParserCallableParameterSourceSessionV1::finish_for_normal)
     }
 }
 
