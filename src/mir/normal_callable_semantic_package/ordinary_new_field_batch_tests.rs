@@ -656,4 +656,79 @@ fn nullable_child_guard_never_infers_cross_field_correlation() {
                 if let Some(source) = source { assert!(source.recheck_v1(&facts, "one")); }
             });
     }
+    let tree = include_str!("../../../apps/ownership-tree-typed-min/main.hako");
+    for (text, expected) in [
+        (tree.to_owned(), true),
+        (tree.replace("new TreeNode(l, r, 5)", "new TreeNode(l, null, 5)"), false),
+    ] {
+        super::super::super::result_class_claim::with_source_claims_fixture(
+            &text, |batch, selected, constructors, parameters, main, writers| {
+                let (_, _, facts, _) = super::prepare_source_claims(batch, selected, main,
+                    constructors, parameters, std::rc::Rc::clone(writers), None).unwrap();
+                let site = facts.construction_child_relations().next().unwrap().outer().clone();
+                let candidate = super::field_source::declared_stored_child_field_v1(
+                    batch, constructors, &facts, "TreeNode", "left", &site, true).unwrap();
+                assert_eq!(candidate.is_some(), expected, "{text}");
+                if let Some(candidate) = candidate { assert!(candidate.recheck_v1(&facts, "left")); }
+                let comparison = super::field_source::declared_stored_child_field_v1(
+                    batch, constructors, &facts, "TreeNode", "left", &site, false).unwrap().unwrap();
+                assert!(comparison.recheck_v1(&facts, "left"));
+            });
+    }
+    // Exercise the original paired-field candidate against the same resolved
+    // body, without treating the candidate as an executable receiver.
+    for (text, parent_ok, child_ok, guard_ok) in [
+        (tree.to_owned(), true, true, true),
+        (tree.replace("me.left == null", "null == me.left"), true, true, true),
+        (tree.replace("if me.left == null {", "print(me)\n        if me.left == null {"), false, false, true),
+        (tree.replace("if me.left == null {", "print(me.left)\n        if me.left == null {"), true, false, true),
+        (tree.replace("if me.left == null {\n            return me.value\n        }", ""), true, true, false),
+    ] {
+        super::super::super::result_class_claim::with_source_claims_fixture(
+            &text, |batch, selected, constructors, parameters, main, writers| {
+                let (_, _, facts, _) = super::prepare_source_claims(batch, selected, main,
+                    constructors, parameters, std::rc::Rc::clone(writers), None).unwrap();
+                let site = facts.construction_child_relations().next().unwrap().outer().clone();
+                let pair = super::field_source::declared_stored_child_field_v1(
+                    batch, constructors, &facts, "TreeNode", "left", &site, true).unwrap().unwrap();
+                let declaration = batch.declarations().find(|row| matches!(selected.key_for_batch_slot(row.batch_slot()),
+                    Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "itemCheck")).unwrap();
+                batch.with_lowering_input(declaration.batch_slot(), |input| {
+                    use crate::mir::resolved_semantics::{BindingKindV1, BodyMeReceiverV1};
+                    let shape = input.body_shape().unwrap();
+                    let receiver = input.function().bindings().find_map(|(binding, record)|
+                        (record.kind() == BindingKindV1::Receiver).then_some(binding)).unwrap();
+                    let call = input.function().method_calls().find_map(|(site, call)|
+                        (call.selector() == "itemCheck").then(|| input.function().method_call_source_v1(site).unwrap())).unwrap();
+                    let BodyExpressionShapeV1::FieldAccess { object, .. } = shape.expression_shape(call.receiver_site()).unwrap() else { panic!("field receiver"); };
+                    assert!(matches!(shape.expression_shape(object), Some(BodyExpressionShapeV1::Me {
+                        receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == receiver));
+                    assert_eq!(crate::mir::normal_callable_semantic_package::instance_constructor_non_escape::verify_receiver_non_escape_v1(
+                        input.function(), shape, input.forest()).is_ok(), parent_ok);
+                    assert_eq!(pair.local_child_uses_v1(input, receiver), child_ok);
+                    let guard = super::stored_child_nonnull_guard_v1(batch, constructors, input, call, receiver, object, "TreeNode", &pair).unwrap();
+                    assert_eq!(guard.is_some(), guard_ok);
+                    if let Some(guard) = guard {
+                        let binary = input.function().expression_source().binary(&guard.condition).unwrap();
+                        assert!((binary.lhs() == &guard.field_site && binary.rhs() == &guard.null_site)
+                            || (binary.rhs() == &guard.field_site && binary.lhs() == &guard.null_site));
+                        assert_eq!(guard.call.site(), call.site());
+                        assert_eq!(guard.field, pair.field());
+                        assert_eq!(guard.call_field, pair.field());
+                        let right_call = input.function().method_calls().find_map(|(site, candidate)| {
+                            let BodyExpressionShapeV1::FieldAccess { field, .. } = shape.expression_shape(candidate.receiver_site())? else { return None; };
+                            (candidate.selector() == "itemCheck" && field.as_ref() == "right")
+                                .then(|| input.function().method_call_source_v1(site).unwrap())
+                        }).unwrap();
+                        let right_pair = super::field_source::declared_stored_child_field_v1(
+                            batch, constructors, &facts, "TreeNode", "right", &site, true).unwrap().unwrap();
+                        let BodyExpressionShapeV1::FieldAccess { object, .. } = shape.expression_shape(right_call.receiver_site()).unwrap() else { panic!("right receiver"); };
+                        let right_guard = super::stored_child_nonnull_guard_v1(batch, constructors, input, right_call, receiver, object, "TreeNode", &right_pair).unwrap().unwrap();
+                        assert_eq!(right_guard.field, pair.field());
+                        assert_eq!(right_guard.call_field, right_pair.field());
+                        assert_ne!(right_guard.field, right_guard.call_field);
+                    }
+                }).unwrap();
+            });
+    }
 }

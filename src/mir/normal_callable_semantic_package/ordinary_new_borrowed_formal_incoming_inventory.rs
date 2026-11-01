@@ -312,19 +312,18 @@ impl BorrowedIncomingInventoryV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn finish_selected_calls_v1(
         &mut self,
         calls: &BTreeMap<OwnedExprSiteV1, &super::super::super::LexicalInstanceCallSourceTargetV1>,
+        mut select: impl FnMut(&BorrowedIncomingSourceV1,
+            &super::super::super::LexicalInstanceCallSourceTargetV1, &Self)
+            -> Result<BorrowedIncomingSourceV1, String>,
     ) -> Result<(), BorrowedIncomingDraftErrorV1> {
-        self.revision = Default::default();
         let mut seen = std::collections::BTreeSet::new();
-        for observation in self.observations.iter_mut().filter(|row| row.scope.legacy()) {
-            let Ok(row) = &mut observation.original.1 else {
-                continue;
-            };
+        let mut prepared = Vec::new();
+        for (index, observation) in self.observations.iter().enumerate().filter(|(_, row)| row.scope.legacy()) {
+            let Ok(row) = &observation.original.1 else { continue; };
             if !seen.insert(row.call.clone()) {
                 return Err(BorrowedIncomingDraftErrorV1::CallIdentity(row.call.clone()));
             }
-            if matches!(row.source, BorrowedIncomingSourceV1::Static(_)) {
-                continue;
-            }
+            if matches!(row.source, BorrowedIncomingSourceV1::Static(_)) { continue; }
             let Some(target) = calls.get(&row.call) else {
                 // Keep the original Pending row and all ordered source args.
                 // Selected projection rejects it; absence is never NoIncoming.
@@ -333,11 +332,18 @@ impl BorrowedIncomingInventoryV1 {
                 }
                 continue;
             };
-            row.source = row
-                .source
-                .bind_selected_v1(target)
+            let selected = select(&row.source, target, self)
                 .map_err(|_| BorrowedIncomingDraftErrorV1::CallIdentity(row.call.clone()))?;
+            if selected.instance() != Some(*target) || !selected.same_original_source_v1(&row.source) {
+                return Err(BorrowedIncomingDraftErrorV1::CallIdentity(row.call.clone()));
+            }
+            prepared.push((index, selected));
         }
+        // Nothing changes until every retained legacy row has passed preflight.
+        for (index, selected) in prepared {
+            if let Ok(row) = &mut self.observations[index].original.1 { row.source = selected; }
+        }
+        self.revision = Default::default();
         Ok(())
     }
 

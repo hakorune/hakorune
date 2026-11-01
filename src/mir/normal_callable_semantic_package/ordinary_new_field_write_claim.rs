@@ -49,9 +49,13 @@ pub(crate) struct ObjectFieldClassSourceV1 {
     class: Box<str>,
     declaration: Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<String>)>,
     array_qualified: bool,
+    source_sum: Option<(Rc<DeclaredFieldValueSourceV1>, Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>)>,
 }
 impl ObjectFieldClassSourceV1 {
     pub(crate) fn class(&self) -> &str { &self.class }
+    pub(crate) fn source_sum(&self) -> Option<&Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>> {
+        self.source_sum.as_ref().map(|(_, sum)| sum)
+    }
     pub(crate) fn array_field(&self) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
         if self.class() != "ArrayBox" || !self.array_qualified
             || self.inventory.opaque || self.inventory.value_incomplete { return None; }
@@ -324,6 +328,56 @@ impl OriginalFieldWriteSourceLoanV1 {
 }
 
 impl OrdinaryNewFieldWriteClaimsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn object_sources_with_sums_v1(
+        &self, coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
+        mut sum_for: impl FnMut(&Rc<DeclaredFieldValueSourceV1>) -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+    ) -> ObjectFieldClassSourcesV1 {
+        let mut additional = BTreeMap::new();
+        for (class, name, source) in self.value_sources() {
+            let Ok(source) = source else { continue };
+            let Some(sum) = sum_for(source) else { continue };
+            let key = (Box::<str>::from(class), Box::<str>::from(name));
+            if !self.object_classes.contains_key(&key) {
+                if let Some(proof) = self.object_source_from_sum_v1(class, name, source, &sum, coverage, constructors) {
+                    additional.insert(key, proof);
+                }
+            }
+        }
+        if additional.is_empty() { return Rc::clone(&self.object_classes); }
+        let mut all = self.object_classes.as_ref().clone();
+        all.extend(additional);
+        Rc::new(all)
+    }
+    /// A declared child class from the exact closed writer sum, not an owned
+    /// child permission. The sole Birth store still retains its original RHS.
+    pub(in crate::mir::normal_callable_semantic_package) fn object_source_from_sum_v1(
+        &self, parent: &str, name: &str, source: &Rc<DeclaredFieldValueSourceV1>,
+        sum: &Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+        coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> Option<Rc<ObjectFieldClassSourceV1>> {
+        use crate::mir::normal_callable_semantic_package::{SourceValueAlternativeV1 as Value, ConstructionStoreRhsV1};
+        if !source.same_inventory(self) || !self.value_source(parent, name)?.as_ref().ok()
+            .is_some_and(|original| Rc::ptr_eq(original, source)) { return None; }
+        let class = source.declared_type_name()?;
+        let child_source = coverage.row_for(class).ok().flatten()?;
+        let child = constructors.object_for(&child_source).ok()?;
+        let mut writers = source.writers();
+        let writer = writers.next()?;
+        if writers.next().is_some() || !writer.in_birth() || !writer.is_attributed()
+            || writer.owner_box() != Some(parent) || writer.field() != name { return None; }
+        let store = source.birth_store(constructors, 0).ok().flatten()?;
+        if !matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: Some(object), .. } if *object == child)
+            || sum.alternatives().is_empty()
+            || !sum.alternatives().iter().all(|value| matches!(value, Value::Null)
+                || matches!(value, Value::Object(actual) if actual.as_ref() == class)) { return None; }
+        Some(Rc::new(ObjectFieldClassSourceV1 {
+            inventory: Rc::clone(&self.writers), class: class.into(),
+            declaration: Some((source.field(), Some(class.to_owned()))), array_qualified: false,
+            source_sum: Some((Rc::clone(source), Rc::clone(sum))),
+        }))
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn array_provider_source_v1(
         &self, owner_box: &str, field: &str,
         constructor: &ConstructorSourceIdV1, provider_site: &SourceExprSiteV1,
@@ -727,7 +781,7 @@ impl OriginalFieldWriterInventoryV1 {
                         &key.1).ok().flatten()));
             let array_qualified = class.as_ref() == "ArrayBox" && declaration.as_ref()
                 .is_some_and(|(field, _)| constructors.is_array_field(*field).unwrap_or(false));
-            (key, Rc::new(ObjectFieldClassSourceV1 { inventory: Rc::clone(&writers), class, declaration, array_qualified }))
+            (key, Rc::new(ObjectFieldClassSourceV1 { inventory: Rc::clone(&writers), class, declaration, array_qualified, source_sum: None }))
         }).collect());
         let mut claims = OrdinaryNewFieldWriteClaimsV1 {
             object_classes, writers, value_sources: BTreeMap::new(),

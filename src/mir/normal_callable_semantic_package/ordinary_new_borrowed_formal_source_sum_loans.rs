@@ -576,6 +576,16 @@ impl OriginalIntegerBasisV1 {
 }
 
 impl OriginalBorrowedFormalSourceV1 {
+    /// Retain the exact all-writer source and its original closed sum.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_field_value_sum_v1(
+        &self,
+        claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        source: &Rc<FieldSource>,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        if !self.seeds.corroborate_original_v1(&self.inventory) || !source.same_inventory(claims) { return None; }
+        let (original, sum) = self.seeds.source_sums.as_ref()?.fields.get(&source.field())?;
+        Rc::ptr_eq(original, source).then(|| Rc::clone(sum))
+    }
     /// Retained source facts before ingress; these grant no result execution.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_original_read_sum_v1(
         &self,

@@ -32,7 +32,9 @@ use actual_seed::{
 };
 #[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
 mod source_seeds;
-pub(super) use source_seeds::{OriginalBorrowedFormalSourceV1, OriginalIntegerBasisV1, OriginalNewI64InputsLoanV1, OriginalNewSourceLoanV1, OriginalFormalObjectBasisV1};
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use source_seeds::OriginalBorrowedFormalSourceV1;
+pub(super) use source_seeds::{ OriginalIntegerBasisV1, OriginalNewI64InputsLoanV1, OriginalNewSourceLoanV1, OriginalFormalObjectBasisV1};
+pub(super) use source_seeds::OriginalFormalSeedProductV1;
 pub(in crate::mir::normal_callable_semantic_package) use source_seeds::ClosedOriginalCoreSourceV1;
 #[path = "ordinary_new_borrowed_formal_source_static_cohort.rs"]
 mod static_cohort;
@@ -131,6 +133,23 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) checked_static_inputs: BTreeSet<BindingRefV1>,
     /// Exact original checked Normal comparison facts; no transport permission.
     pub(super) guarded_actuals: BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
+}
+
+impl PreparedBorrowedFormalIngressV1 {
+    /// A SourceOnly row stays pending. This lends its original receiver source,
+    /// not an instance ABI or a loan; executable selection remains with issuer.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_stored_receiver_for_target_v1(
+        &self, target: &super::LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Option<&super::source::StoredReceiverSourceV1>, String> {
+        if !self.corroborated_original_v1() { return Err(freeze("borrowed-formal/original-source-drift")); }
+        let mut rows = self.source_incoming.source_rows_v1().filter(|row| &row.call == target.call_site());
+        let Some(row) = rows.next() else { return Ok(None); };
+        if rows.next().is_some() || row.callee != target.callee_owner()
+            || !row.source.matches_original_target_v1(target) {
+            return Err(freeze("borrowed-formal/incoming-selected-drift"));
+        }
+        Ok(row.source.original_stored_receiver_v1())
+    }
 }
 
 /// One incoming argument's contribution to a callee formal's class view.

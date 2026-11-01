@@ -196,7 +196,7 @@ fn expression_dependencies_v1<'a>(
 > {
     let mut dependencies = Vec::new();
     while let Some((expression, role)) = expressions.pop() {
-        if !expression.calls_ready(ingress) {
+        if !expression.calls_ready(ingress) || !expression.object_field_sums_match(ingress) {
             return Err(freeze("borrowed-result/expression-source-drift"));
         }
         for reference in expression.calls() {
@@ -346,7 +346,8 @@ impl FieldCandidatesV1 {
                 }
             }
         }
-        let object_sources = Rc::clone(claims.object_sources());
+        let object_sources = claims.object_sources_with_sums_v1(batch.ordinary_box_coverage(), constructors,
+            |field| original.and_then(|original| original.source_field_value_sum_v1(claims, field)));
         let mut bases = BTreeSet::new();
         let mut writers = BTreeMap::new();
         for (key, source) in &sources {
@@ -586,7 +587,7 @@ impl FieldCandidatesV1 {
                         !write.in_birth()
                             && row
                                 .expression
-                                .fields_match(&self.sources, &self.object_sources)
+                                .fields_match_with_ingress(&self.sources, &self.object_sources, source)
                             && row.expression.class(fields, results)
                                 == Some(BorrowedResultClassV1::I64)
                             && source.is_none_or(|source| row.expression.calls_ready(source))
@@ -652,7 +653,7 @@ fn grounded_with_fields_v1(
                             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, value, ..
                         } if proof.returns.contains(&OwnedExprSiteV1::new(*owner, value.clone())))
                         || proof.field_candidates.as_ref().is_some_and(|own| context.as_ref().is_none_or(|shared| !Rc::ptr_eq(own, shared)))
-                        || context.as_ref().is_some_and(|context| !expression.fields_match(&context.sources, &context.object_sources)) { return None; }
+                        || context.as_ref().is_some_and(|context| !expression.fields_match_with_ingress(&context.sources, &context.object_sources, source)) { return None; }
                     if source.is_some_and(|source| !expression.calls_ready(source)) { return None; }
                     let next = expression.class(&fields, &expression_results)?;
                     if class.is_some_and(|class| class != next) { return None; }

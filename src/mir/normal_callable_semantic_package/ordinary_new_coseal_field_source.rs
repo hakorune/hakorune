@@ -515,6 +515,62 @@ impl StoredChildFieldSourceV1 {
     pub(super) fn paired_field(&self, field: hakorune_mir_defs::CanonicalFieldRefV1) -> bool {
         self.paired_fields.contains(&field)
     }
+    /// A provisional receiver can only use its paired children as method
+    /// receivers or in null comparisons. This does not establish dispatch,
+    /// incoming-call closure, ownership, or permission to execute.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn local_child_uses_v1(
+        &self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        receiver: crate::mir::resolved_semantics::BindingRefV1,
+    ) -> bool {
+        use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1,
+            ResolvedBinaryOperatorV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1};
+        let Some(shape) = input.body_shape() else { return false; };
+        let mut names = BTreeSet::new();
+        for relation in &self.relations {
+            if self.paired_fields.contains(&relation.field()) {
+                let Ok(name) = relation.original_field_name_v1() else { return false; };
+                names.insert(name);
+            }
+        }
+        if names.len() != self.paired_fields.len() { return false; }
+        let mut parents = BTreeSet::new();
+        let mut children = BTreeSet::new();
+        for expression in shape.expressions() {
+            if let BodyExpressionShapeV1::FieldAccess { site, object, field } = expression {
+                if matches!(shape.expression_shape(object), Some(BodyExpressionShapeV1::Me {
+                    receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == receiver) {
+                    parents.insert(object.clone());
+                    if names.contains(field.as_ref()) { children.insert(site.clone()); }
+                }
+            }
+        }
+        // Do not treat a local alias as a direct field access; a later closure
+        // proof can explicitly add aliases using its own source identities.
+        if shape.expressions().iter().any(|expression| match expression {
+            BodyExpressionShapeV1::Me { site, receiver: BodyMeReceiverV1::Lexical(binding) }
+            | BodyExpressionShapeV1::Variable { site, resolved: ResolvedLexicalRefV1::Local(binding) }
+                if *binding == receiver => !parents.contains(site),
+            _ => false,
+        }) { return false; }
+        let mut permitted = BTreeSet::new();
+        for expression in shape.expressions() {
+            if let BodyExpressionShapeV1::MethodCall { object, .. } = expression {
+                permitted.insert(object.clone());
+            }
+        }
+        let source = input.function().expression_source();
+        for binary in source.binaries() {
+            if !matches!(binary.operator(), ResolvedBinaryOperatorV1::Equal | ResolvedBinaryOperatorV1::NotEqual) { continue; }
+            if matches!(source.literal(binary.lhs()), Some(ResolvedLiteralSourceV1::Null)) {
+                permitted.insert(binary.rhs().clone());
+            }
+            if matches!(source.literal(binary.rhs()), Some(ResolvedLiteralSourceV1::Null)) {
+                permitted.insert(binary.lhs().clone());
+            }
+        }
+        !children.is_empty() && children.is_subset(&permitted)
+    }
     /// The same complete immutable parent cohort, not a new class inference.
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_v1(
         &self, facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1, field_name: &str,
@@ -551,6 +607,7 @@ pub(super) fn declared_stored_child_field_v1(
     parent_class: &str,
     field_name: &str,
     site: &OwnedExprSiteV1,
+    paired_all: bool,
 ) -> Result<Option<StoredChildFieldSourceV1>, String> {
     let Some(parent) = batch.ordinary_box_coverage().row_for(parent_class)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { return Ok(None); };
@@ -564,7 +621,7 @@ pub(super) fn declared_stored_child_field_v1(
     let Some(sites) = facts.child_construction_sites_v1(field.object()) else { return Ok(None); };
     let relations: Vec<_> = facts.construction_child_relation_loans().filter(|row|
         !row.is_unqualified_dynamic_v1() && row.field().object() == field.object()
-            && row.field() == field).cloned().collect();
+            && (paired_all || row.field() == field)).cloned().collect();
     if sites.is_empty() || relations.iter().map(|row| row.outer().clone()).collect::<BTreeSet<_>>() != *sites {
         return Ok(None);
     }
@@ -573,7 +630,7 @@ pub(super) fn declared_stored_child_field_v1(
     if actual_child != child { return Ok(None); }
     Ok(Some(StoredChildFieldSourceV1 {
         field, child, child_class: class.into_boxed_str(), nullable, paired_fields,
-        parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all: false, relations,
+        parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all, relations,
     }))
 }
 

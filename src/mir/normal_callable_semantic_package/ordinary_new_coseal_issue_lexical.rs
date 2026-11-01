@@ -1076,13 +1076,14 @@ pub(super) fn prepare_source_preflight_v1(
                     &local_candidates,
                 )
             },
-            &mut |site, receiver| {
+            &mut |reference, receiver, original| {
                 source_claims::stored_child_receiver_v1(
                     batch,
                     instance_constructors,
                     callable_result_classes,
-                    site,
+                    reference,
                     receiver,
+                    original,
                     field_write_claims,
                     residences,
                     owned,

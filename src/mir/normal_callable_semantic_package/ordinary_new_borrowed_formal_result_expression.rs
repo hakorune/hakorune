@@ -452,6 +452,23 @@ impl ResultExpressionSourceV1 {
             _ => true,
         })
     }
+
+    /// Recheck any source-sum class against the same sealed ingress solve.
+    pub(super) fn object_field_sums_match(&self, ingress: &PreparedBorrowedFormalIngressV1) -> bool {
+        self.leaves.iter().all(|leaf| match leaf {
+            LeafV1::ObjectField { key, source } => source.source_sum().is_none_or(|sum|
+                ingress.source_declared_field_sum_v1(&key.0, &key.1)
+                    .is_some_and(|current| Rc::ptr_eq(sum, &current))),
+            _ => true,
+        })
+    }
+
+    pub(super) fn fields_match_with_ingress(
+        &self, sources: &FieldSourcesV1, objects: &ObjectFieldClassSourcesV1,
+        ingress: Option<&PreparedBorrowedFormalIngressV1>,
+    ) -> bool {
+        self.fields_match(sources, objects) && ingress.is_none_or(|ingress| self.object_field_sums_match(ingress))
+    }
 }
 
 fn stored_receiver_field_v1(

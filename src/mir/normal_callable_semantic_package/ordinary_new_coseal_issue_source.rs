@@ -394,6 +394,7 @@ use owned_children::{owned_field_children_of, seal_provider_owned_children_v1};
 pub(super) use owned_children::{
     stored_child_receiver_v1, stored_child_source_v1, stored_constructor_child_source_v1,
 };
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use owned_children::stored_child_nonnull_guard_v1;
 
 #[cfg(test)]
 #[path = "ordinary_new_field_batch_tests.rs"]

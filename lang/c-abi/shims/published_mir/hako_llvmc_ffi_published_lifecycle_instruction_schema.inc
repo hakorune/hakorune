@@ -381,8 +381,7 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         hako_physical_u32(yyjson_obj_get(operation, "expected_object_id"), &child) &&
         hako_physical_layout_has_object(layouts, child) &&
         (hako_physical_field_storage(layouts, object_id, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC ||
-         (yyjson_is_true(yyjson_obj_get(operation, "nullable")) &&
-          hako_physical_owned_object_borrow_field(layouts, object_id, ordinal, child))) &&
+         hako_physical_owned_object_borrow_field(layouts, object_id, ordinal, child)) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
   }
   if (strcmp(kind, "field_get") == 0)

@@ -126,6 +126,7 @@ pub(super) fn check_module_with_source(
                         edge_policy,
                         slots.as_ref(),
                         root.is_some(),
+                        &image.receiver_callees,
                         &mut errors,
                     );
                 }
@@ -242,8 +243,8 @@ pub(super) fn check_module_with_source(
                         {
                             errors.push(error(*id, "object-field-release-invalid"));
                         }
-                        InvokeOperation::ObjectFieldBorrow { field, child, nullable, .. }
-                            if !(dynamic_field(module, *field) || (*nullable && borrowed_calls::declared_object_field(module, root, *field, *child)))
+                        InvokeOperation::ObjectFieldBorrow { field, child, .. }
+                            if !(dynamic_field(module, *field) || borrowed_calls::declared_object_field(module, root, *field, *child))
                                 || module.canonical_object_definition(*child).is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
                         { errors.push(explain(function, *id, instruction, "object-field-read-definition-invalid")); }
@@ -638,11 +639,16 @@ fn check_call_edge(
     edge_policy: CatalogedCallEdgePolicyV1,
     borrowed_slots: Option<&std::collections::BTreeSet<usize>>,
     source_bound: bool,
+    receiver_callees: &std::collections::BTreeSet<String>,
     errors: &mut Vec<VerificationError>,
 ) {
     let Some((callee, receiver_params)) = cataloged_call_target(module, call) else {
         return;
     };
+    if let Err(reason) = borrowed_calls::require_receiver_source(source_bound, &callee.signature.name, receiver_callees, borrowed_slots) {
+        errors.push(error(block, reason));
+        return;
+    }
     let params = &callee.signature.params;
     if call.args.len() + receiver_params != params.len() {
         errors.push(call_argument_drift(

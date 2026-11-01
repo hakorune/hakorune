@@ -251,7 +251,25 @@ pub(in crate::mir::normal_callable_semantic_package) fn lexical_scalar_result_so
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::normal_callable_semantic_package) enum StoredReceiverSourceOriginV1 {
     Ordinary,
+    /// A declared field can name a candidate callee, but supplies no
+    /// non-null, residence, or execution proof.
+    ProvisionalDeclared(std::rc::Rc<super::super::StoredChildFieldSourceV1>),
     Constructor(crate::mir::normal_callable_semantic_package::instance_construction::ConstructionChildCallSourceLoanV1),
+}
+
+/// Original null-guard coordinates; no liveness or physical permission.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::normal_callable_semantic_package) struct StoredChildGuardSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) call: OwnedExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) statement: crate::mir::resolved_semantics::SourceStmtSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) condition: SourceExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) field_site: SourceExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) parent_site: SourceExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) parent_binding: BindingRefV1,
+    pub(in crate::mir::normal_callable_semantic_package) field: hakorune_mir_defs::CanonicalFieldRefV1,
+    pub(in crate::mir::normal_callable_semantic_package) call_field: hakorune_mir_defs::CanonicalFieldRefV1,
+    pub(in crate::mir::normal_callable_semantic_package) null_site: SourceExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) return_site: crate::mir::resolved_semantics::SourceStmtSiteV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -263,6 +281,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct StoredReceiverSource
     pub(in crate::mir::normal_callable_semantic_package) parent_class: Box<str>,
     pub(in crate::mir::normal_callable_semantic_package) field_name: Box<str>,
     pub(in crate::mir::normal_callable_semantic_package) child_class: Box<str>,
+    pub(in crate::mir::normal_callable_semantic_package) guard: Option<StoredChildGuardSourceV1>,
 }
 
 impl StoredReceiverSourceV1 {
@@ -270,7 +289,7 @@ impl StoredReceiverSourceV1 {
         &self, input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, slot: u32,
     ) -> Result<Option<&std::rc::Rc<super::super::LocalNewRootSourceV1>>, String> {
         let Some((original_slot, root)) = &self.parent_new else { return Ok(None); };
-        if !matches!(self.origin, StoredReceiverSourceOriginV1::Ordinary) || *original_slot != slot
+        if !matches!(self.origin, StoredReceiverSourceOriginV1::Ordinary | StoredReceiverSourceOriginV1::ProvisionalDeclared(_)) || *original_slot != slot
             || root.binding() != self.parent_binding || root.class() != self.parent_class.as_ref() {
             return Err(freeze("stored-child/local-new-source-drift"));
         }

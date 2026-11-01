@@ -720,7 +720,8 @@ fn corroborate_stored_dispatch_v1(
             Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key == &reference.target)
         || match caller {
             crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1::Declaration { batch_slot } =>
-                !matches!(receiver.origin, super::super::source::StoredReceiverSourceOriginV1::Ordinary)
+                !matches!(receiver.origin, super::super::source::StoredReceiverSourceOriginV1::Ordinary
+                    | super::super::source::StoredReceiverSourceOriginV1::ProvisionalDeclared(_))
                 || !contracts.iter().any(|row| row.owner == input.owner() && row.batch_slot == batch_slot
                     && (local_new || matches!(selected.key_for_batch_slot(row.batch_slot),
                         Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))

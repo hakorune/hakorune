@@ -136,7 +136,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     // Join the source products once before exposing the prepared ingress.
     original_formal_seeds.original_uses = Some(originals);
     inventory
-        .finish_selected_calls_v1(&calls)
+        .finish_selected_calls_v1(&calls, |source, target, original|
+            source.select_with_original_v1(target, &original_formal_seeds, original,
+                callable_result_classes, batch, instance_constructors))
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
     let checked_static_inputs =
         checked_input::issue_checked_static_inputs_v1(contracts, &definitions, &static_arguments)?;

@@ -238,23 +238,29 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
             check(): i64 { if me.left == null { return me.value } return me.value } }
             static box Main { main() { local a = new TreeNode(null, null, 6)
                 local n = new TreeNode(a, null, 5) local v = n.check() return v } }";
-        MirCompiler::with_options(false).compile_normal_with_published(
-            request(text), |view, verification| -> Result<(), String> {
-                require_artifact_verification(verification);
-                let input = view.issue_lifecycle_physical_abi_input()?;
-                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
-                let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
-                let callee = json["functions"].as_array().unwrap().iter()
-                    .find(|function| function["name"] == "TreeNode.check/0").unwrap();
-                let borrows: Vec<_> = callee["blocks"].as_array().unwrap().iter()
-                    .map(|block| &block["terminator"]["instruction"]["operation"])
-                    .filter(|op| op["kind"] == "object_field_borrow").collect();
-                assert_eq!(borrows.len(), 1, "{wire}");
-                assert_eq!(borrows[0]["nullable"], true, "{wire}");
-                assert_eq!(borrows[0]["object_id"], borrows[0]["expected_object_id"], "{wire}");
-                std::fs::write(std::env::temp_dir().join("hako-issued-typed-null-field-borrow.json"), wire).unwrap();
-                Ok(())
-            }).unwrap();
+        for (text, count, callee_name, file) in [
+            (text, 1, "TreeNode.check/0", "hako-issued-typed-null-field-borrow.json"),
+            (include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-tree-typed-min/main.hako")),
+                3, "TreeNode.itemCheck/0", "hako-issued-typed-recursive-field-borrow.json"),
+        ] {
+            MirCompiler::with_options(false).compile_normal_with_published(
+                request(text), |view, verification| -> Result<(), String> {
+                    require_artifact_verification(verification);
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                    let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                    let callee = json["functions"].as_array().unwrap().iter()
+                        .find(|function| function["name"] == callee_name).unwrap();
+                    let borrows: Vec<_> = callee["blocks"].as_array().unwrap().iter()
+                        .map(|block| &block["terminator"]["instruction"]["operation"])
+                        .filter(|op| op["kind"] == "object_field_borrow").collect();
+                    assert_eq!(borrows.len(), count, "{wire}");
+                    assert_eq!(borrows.iter().filter(|op| op["nullable"] == true).count(), 1, "{wire}");
+                    assert_eq!(borrows[0]["object_id"], borrows[0]["expected_object_id"], "{wire}");
+                    std::fs::write(std::env::temp_dir().join(file), wire).unwrap();
+                    Ok(())
+                }).unwrap();
+        }
     });
 }
 

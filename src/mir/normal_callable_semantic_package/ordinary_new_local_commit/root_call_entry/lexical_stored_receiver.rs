@@ -72,7 +72,7 @@ impl StoredReceiverReadV1 {
                     .map(|context| {
                         context
                             .ledger()
-                            .stored_receiver_uses_dynamic_field_v1(target)
+                            .stored_receiver_requires_checked_read_v1(target)
                     })
                     .transpose()?
                     .unwrap_or(false)
@@ -85,7 +85,7 @@ impl StoredReceiverReadV1 {
                 if !context
                     .ok_or_else(|| freeze("lexical-terminal/stored-read-kind"))?
                     .ledger()
-                    .stored_receiver_uses_dynamic_field_v1(target)?
+                    .stored_receiver_requires_checked_read_v1(target)?
                 {
                     return Err(freeze("lexical-terminal/stored-read-kind"));
                 }

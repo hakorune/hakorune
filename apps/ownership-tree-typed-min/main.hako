@@ -1,0 +1,29 @@
+box TreeNode {
+    left: TreeNode
+    right: TreeNode
+    value: i64
+
+    birth(left, right, value) {
+        me.left = left
+        me.right = right
+        me.value = value
+    }
+
+    itemCheck(): i64 {
+        if me.left == null {
+            return me.value
+        }
+        return me.value + me.left.itemCheck() - me.right.itemCheck()
+    }
+}
+
+static box Main {
+  main() {
+    local ll = new TreeNode(null, null, 1)
+    local lr = new TreeNode(null, null, 2)
+    local l = new TreeNode(ll, lr, 3)
+    local r = new TreeNode(null, null, 4)
+    local n = new TreeNode(l, r, 5)
+    return n.itemCheck()
+  }
+}

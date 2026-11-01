@@ -40,6 +40,7 @@ enum OriginalNewBirthV1 {
 struct OriginalNewCallSeedsV1 {
     site: OwnedExprSiteV1,
     original: ResolvedNewExpressionSourceV1,
+    local_uses: Option<OriginalNewLocalUsesV1>,
     birth: OriginalNewBirthV1,
     seeds: Box<[OriginalFormalActualSeedV1]>,
     fields: Box<[Option<OriginalNewFieldActualV1>]>,
@@ -50,6 +51,14 @@ struct OriginalNewCallSeedsV1 {
             >,
         >],
     >,
+}
+
+/// Original local binding and all of its reads, captured with the New census.
+/// This retains source coordinates only, never a Home or a call permission.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct OriginalNewLocalUsesV1 {
+    initializer: crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    reads: BTreeSet<SourceExprSiteV1>,
 }
 
 impl OriginalNewCallSeedsV1 {
@@ -93,6 +102,148 @@ pub(super) struct OriginalNewSeedsV1 {
     incomplete: bool,
 }
 impl OriginalNewSeedsV1 {
+    /// Check every use of each original local New against the existing child
+    /// relations and incoming method rows. This is a source-only filter: it
+    /// does not establish Home transfer order or physical call correspondence.
+    pub(super) fn class_local_uses_v1(
+        &self, class: &str, sites: &BTreeSet<OwnedExprSiteV1>,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        callee: FunctionOwnerIdV1, inventory: &BorrowedIncomingInventoryV1,
+        facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> bool {
+        use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ResultWitnessStepV1;
+        if self.class_sites_v1(class, constructors).as_ref() != Some(sites)
+            || !inventory.source_registered_owners_v1().contains(&callee)
+            || inventory.sum_vetoed_owners_v1().contains(&callee) { return false; }
+        // Validate every retained target row, including owners that create no
+        // object locally. An unresolved or detached entry cannot disappear.
+        let mut unmatched = BTreeSet::new();
+        for (incoming, method) in inventory.source_rows_with_method_v1().filter(|(row, _)| row.callee == callee) {
+            let (Some(method), Some(reference)) = (method, incoming.source.original_instance_reference_v1()) else { return false; };
+            if reference.callee_owner != callee || reference.target.owner() != class
+                || reference.call_site != incoming.call || !unmatched.insert(incoming.call.clone()) { return false; }
+            let checked = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                batch, constructors, incoming.call.owner(), |_, input|
+                    reference.matches_original_call_v1(input, method)
+                        && input.function().method_call_source_v1(method.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, method)));
+            if checked != Ok(true) { return false; }
+            if let Some(stored) = incoming.source.original_stored_receiver_v1() {
+                use super::super::source::StoredReceiverSourceOriginV1;
+                let StoredReceiverSourceOriginV1::ProvisionalDeclared(pair) = &stored.origin else { return false; };
+                if incoming.call.owner() != callee || stored.parent_new.is_some()
+                    || stored.parent_class.as_ref() != class || stored.child_class.as_ref() != class
+                    || pair.child() != object || !pair.recheck_v1(facts, &stored.field_name) { return false; }
+                let checked = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                    batch, constructors, incoming.call.owner(), |_, input| {
+                        use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
+                        let Some(shape) = input.body_shape() else { return false; };
+                        // A child call cannot invalidate the caller's paired
+                        // residence through an unknown effect. Close recursive
+                        // calls on the same original incoming inventory.
+                        use crate::mir::resolved_semantics::{BodyEffectKindV1 as Effect, BodyStatementShapeV1};
+                        if shape.statements().iter().any(|row| matches!(row, BodyStatementShapeV1::Print { .. }))
+                            || !shape.effects().iter().all(|effect| match effect.kind {
+                                Effect::Call => inventory.source_rows_with_method_v1().any(|(row, original)|
+                                    row.call.owner() == callee && row.callee == callee && row.call.site() == &effect.site
+                                        && original.is_some_and(|original| input.function().method_call_source_v1(&effect.site)
+                                            .is_some_and(|current| std::sync::Arc::ptr_eq(current, original)))),
+                                Effect::NonLocalControl => shape.statements().iter().any(|row|
+                                    matches!(row, BodyStatementShapeV1::Return { site, .. } if site.node() == effect.site.node())),
+                                _ => false,
+                            }) { return false; }
+                        matches!(shape.expression_shape(method.receiver_site()), Some(BodyExpressionShapeV1::FieldAccess { object, field, .. })
+                            if object == &stored.parent_site && field == &stored.field_name)
+                            && matches!(shape.expression_shape(&stored.parent_site), Some(BodyExpressionShapeV1::Me {
+                                receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == stored.parent_binding)
+                            && stored.parent_binding.owner() == callee
+                            && crate::mir::normal_callable_semantic_package::instance_constructor_non_escape::verify_receiver_non_escape_v1(
+                                input.function(), shape, input.forest()).is_ok()
+                            && pair.local_child_uses_v1(input, stored.parent_binding)
+                            && if pair.nullable() {
+                                stored.guard.is_some() && crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::source_claims::stored_child_nonnull_guard_v1(
+                                    batch, constructors, input, method, stored.parent_binding, &stored.parent_site, class, pair)
+                                    .is_ok_and(|guard| guard == stored.guard)
+                            } else { stored.guard.is_none() }
+                    });
+                if checked != Ok(true) || !unmatched.remove(&incoming.call) { return false; }
+            }
+        }
+        let mut roots = BTreeSet::new();
+        let mut child_to_parent = BTreeMap::new();
+        for row in self.rows.iter().filter(|row| row.original.class() == class) {
+            let checked = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                batch, constructors, row.site.owner(), |_, input| {
+                    let function = input.function();
+                    let Some(original) = &row.local_uses else { return false; };
+                    let binding = original.initializer.binding();
+                    if original.initializer.initializer_site() != Some(row.site.site())
+                        || binding.owner() != input.owner() { return false; }
+                    let mut allowed = BTreeSet::new();
+                    let mut transfers = 0usize;
+                    for relation in facts.construction_child_relation_loans() {
+                        if relation.field().object() != object || relation.child() != object
+                            || relation.outer().owner() != relation.actual().owner() || !sites.contains(relation.outer())
+                            || relation.actual().owner() != input.owner()
+                            || !original.reads.contains(relation.actual().site()) { continue; }
+                        let [witness] = relation.witnesses() else { return false; };
+                        if witness.site() != relation.actual() || relation.provided_field_source_v1(class).is_err()
+                            || !matches!(witness.step(), ResultWitnessStepV1::LocalConstruction(source)
+                                if source.matches_local_new_v1(binding, &row.site, class, row.original.arguments().len()))
+                            || !allowed.insert(relation.actual().site().clone()) { return false; }
+                        if child_to_parent.insert(row.site.clone(), relation.outer().clone()).is_some() { return false; }
+                        transfers += 1;
+                    }
+                    if transfers > 1 { return false; }
+                    for (incoming, method) in inventory.source_rows_with_method_v1().filter(|(incoming, _)| incoming.callee == callee && incoming.call.owner() == input.owner()) {
+                        let Some(method) = method else { return false; };
+                        let Some(reference) = incoming.source.original_instance_reference_v1() else { return false; };
+                        if reference.call_site != incoming.call || reference.callee_owner != callee
+                            || reference.target.owner() != class || reference.receiver_site != *method.receiver_site()
+                            || method.site() != incoming.call.site()
+                            || !function.method_call_source_v1(method.site()).is_some_and(|original| std::sync::Arc::ptr_eq(original, method)) { return false; }
+                        if original.reads.contains(method.receiver_site()) {
+                            let BorrowedIncomingSourceV1::Instance(target) = &incoming.source else { return false; };
+                            if target.is_self_receiver() || target.receiver_binding().ok() != Some(binding)
+                                || !target.matches_receiver(input, method) || !unmatched.remove(&incoming.call) { return false; }
+                            roots.insert(row.site.clone());
+                            if !allowed.insert(method.receiver_site().clone()) { return false; }
+                        }
+                    }
+                    !original.reads.is_empty() && original.reads == allowed
+                });
+            if checked != Ok(true) { return false; }
+        }
+        if roots.is_empty() || !unmatched.is_empty() { return false; }
+        for site in sites {
+            let mut current = site;
+            let mut visiting = BTreeSet::new();
+            while !roots.contains(current) {
+                if !visiting.insert(current.clone()) { return false; }
+                let Some(parent) = child_to_parent.get(current) else { return false; };
+                current = parent;
+            }
+        }
+        true
+    }
+    /// Exact sites of this class from the existing all-owner New source scan.
+    /// A missing owner, duplicate site, unknown Birth, or field override keeps
+    /// this passive census unavailable; it grants no construction permission.
+    pub(super) fn class_sites_v1(
+        &self, class: &str,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> Option<BTreeSet<OwnedExprSiteV1>> {
+        if self.incomplete { return None; }
+        let mut sites = BTreeSet::new();
+        for row in self.rows.iter().filter(|row| row.original.class() == class) {
+            if row.original.site() != row.site.site() || !row.original.field_initializers().is_empty()
+                || !row.corroborates_birth_v1(constructors) || !sites.insert(row.site.clone()) {
+                return None;
+            }
+        }
+        (!sites.is_empty()).then_some(sites)
+    }
     /// Nominal source identity only; construction execution remains separate.
     pub(super) fn nominal_class_at_v1(&self, site: &OwnedExprSiteV1) -> Option<&str> {
         let mut rows = self.rows.iter().filter(|row| &row.site == site);
@@ -135,6 +286,36 @@ impl OriginalNewSeedsV1 {
     ) -> Result<(), String> {
         if input.body_shape().is_none() {
             self.incomplete = true;
+        }
+        if input.function().expression_source().constructions().next().is_none() {
+            return Ok(());
+        }
+        // Capture local reads once per original owner rather than rediscovering
+        // them at every consumer of each New. An ambiguous or captured local
+        // has no local snapshot and does not affect unrelated New consumers.
+        use crate::mir::resolved_semantics::{BindingKindV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1};
+        let function = input.function();
+        let mut local_reads: BTreeMap<BindingRefV1, BTreeSet<SourceExprSiteV1>> = BTreeMap::new();
+        for (site, reference) in function.variable_refs() {
+            if let ResolvedLexicalRefV1::Local(binding) = reference {
+                local_reads.entry(*binding).or_default().insert(site.clone());
+            }
+        }
+        let rebindings: BTreeSet<_> = function.assignment_targets().filter_map(|(_, target)| match target {
+            ResolvedAssignmentTargetV1::BindingRebind(binding) => Some(*binding), _ => None,
+        }).collect();
+        let captures: BTreeSet<_> = input.forest().upvars().iter().map(|upvar| upvar.source())
+            .filter(|binding| binding.owner() == input.owner()).collect();
+        let ledger_ok = input.forest().callable_source_ledger(input.owner()).is_ok();
+        let mut initializers = BTreeMap::new();
+        let mut counts = BTreeMap::<BindingRefV1, usize>::new();
+        for init in function.expression_source().initializers() {
+            *counts.entry(init.binding()).or_default() += 1;
+            if let Some(site) = init.initializer_site() {
+                if initializers.insert(site.clone(), Some(init)).is_some() {
+                    initializers.insert(site.clone(), None);
+                }
+            }
         }
         let mut original_array_locals = BTreeMap::new();
         let caller = batch
@@ -245,6 +426,14 @@ impl OriginalNewSeedsV1 {
                 });
             }
             self.rows.push(OriginalNewCallSeedsV1 {
+                local_uses: initializers.get(original.site()).copied().flatten().and_then(|init| {
+                    let binding = init.binding();
+                    (ledger_ok && binding.owner() == input.owner()
+                        && matches!(function.binding(binding).map(|record| record.kind()), Some(BindingKindV1::Local { .. }))
+                        && function.declaration_binding(init.declaration_site()) == Some(binding)
+                        && counts.get(&binding) == Some(&1) && !rebindings.contains(&binding) && !captures.contains(&binding))
+                        .then(|| OriginalNewLocalUsesV1 { initializer: init.clone(), reads: local_reads.get(&binding).cloned().unwrap_or_default() })
+                }),
                 site,
                 original: original.clone(),
                 birth,
@@ -476,5 +665,81 @@ impl OriginalNewSeedsV1 {
             }
         }
         changed
+    }
+}
+
+// The original source owner filters its own candidate projections. The caller
+// retains responsibility for rebuilding the inventory to a fixed point.
+impl super::OriginalBorrowedFormalSourceV1 {
+    /// Issuance borrows the original all-source product, not a saved admission bit.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn matches_declared_receiver_v1(
+        &self, reference: &super::super::source::CallTargetReferenceV1,
+        receiver: &super::super::source::StoredReceiverSourceV1,
+        facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> bool {
+        let super::super::source::StoredReceiverSourceOriginV1::ProvisionalDeclared(pair) = &receiver.origin else { return false; };
+        pair.recheck_v1(facts, &receiver.field_name)
+            && self.inventory.source_rows_v1().any(|row|
+                row.source.original_instance_reference_v1().as_ref() == Some(reference)
+                    && row.source.original_stored_receiver_v1() == Some(receiver))
+            && facts.child_construction_sites_v1(pair.field().object()).is_some_and(|sites|
+                self.child_sites_match_v1(&receiver.parent_class, sites, pair.field().object(),
+                    reference.callee_owner, facts, batch, constructors))
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn filter_declared_child_candidates_v1(
+        &self,
+        rows: &mut [Result<Option<super::super::source::PreparedSourceCallNeedV1>, String>],
+        callable_result_classes: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> bool {
+        let mut source_candidates_changed = false;
+        let mut checked_graphs = BTreeMap::new();
+        for row in rows.iter_mut() {
+            let keep = match row.as_ref().ok().and_then(Option::as_ref) {
+                Some(super::super::source::PreparedSourceCallNeedV1::Stored { reference, receiver, .. }) => match &receiver.origin {
+                    super::super::source::StoredReceiverSourceOriginV1::ProvisionalDeclared(pair) =>
+                        pair.recheck_v1(callable_result_classes, &receiver.field_name)
+                            && callable_result_classes.child_construction_sites_v1(pair.field().object())
+                                .is_some_and(|sites| *checked_graphs.entry((receiver.parent_class.clone(), pair.field().object(), reference.callee_owner))
+                                    .or_insert_with(|| self.child_sites_match_v1(&receiver.parent_class, sites,
+                                        pair.field().object(), reference.callee_owner, callable_result_classes, batch, constructors))),
+                    _ => true,
+                },
+                _ => true,
+            };
+            if !keep { *row = Ok(None); source_candidates_changed = true; }
+        }
+        source_candidates_changed
+    }
+}
+
+impl super::OriginalFormalSeedProductV1 {
+    /// Preflight against the same pending inventory before any selected-row
+    /// mutation. No saved Boolean can substitute a different source product.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn matches_stored_selection_v1(
+        &self,
+        inventory: &BorrowedIncomingInventoryV1,
+        incoming: &BorrowedIncomingSourceV1,
+        target: &super::super::LexicalInstanceCallSourceTargetV1,
+        facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> bool {
+        use super::super::source::StoredReceiverSourceOriginV1;
+        let Some(receiver) = incoming.original_stored_receiver_v1() else { return false; };
+        let StoredReceiverSourceOriginV1::ProvisionalDeclared(pair) = &receiver.origin else { return false; };
+        if !self.corroborate_original_v1(inventory)
+            || !inventory.source_rows_v1().any(|row| &row.call == target.call_site()
+                && row.callee == target.callee_owner() && row.source.same_source(incoming))
+            || !pair.recheck_v1(facts, &receiver.field_name)
+            || target.stored_receiver().is_none_or(|(binding, site, field, child)|
+                binding != receiver.parent_binding || site != &receiver.parent_site
+                    || field != pair.field() || child != pair.child()) { return false; }
+        let Some(sites) = facts.child_construction_sites_v1(pair.field().object()) else { return false; };
+        self.new_calls.class_local_uses_v1(&receiver.parent_class, sites, pair.field().object(),
+            target.callee_owner(), inventory, facts, batch, constructors)
     }
 }

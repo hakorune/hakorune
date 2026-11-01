@@ -17,6 +17,17 @@ pub(in crate::mir::normal_callable_semantic_package) struct OriginalStoredIncomi
     expected_receiver: LexicalInstanceCallReceiverV1,
 }
 
+impl OriginalStoredIncomingV1 {
+    /// Source identity only. Admission and physical lifetime remain separate.
+    fn matches_target_v1(&self, target: &super::super::LexicalInstanceCallSourceTargetV1) -> bool {
+        CallTargetReferenceV1::from_target(target) == self.reference
+            && target.receiver == self.expected_receiver
+            && target.owning_object_input == self.owning_object_input
+            && target.result_requirement == self.result
+            && target.target().owner() == self.receiver.child_class.as_ref()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) enum BorrowedIncomingSourceV1 {
     Instance(super::super::LexicalInstanceCallSourceTargetV1),
@@ -29,6 +40,10 @@ pub(in crate::mir::normal_callable_semantic_package) enum BorrowedIncomingSource
 }
 
 impl BorrowedIncomingSourceV1 {
+    /// Borrow the retained original source; this grants no selected ABI.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_stored_receiver_v1(&self) -> Option<&StoredReceiverSourceV1> {
+        match self { Self::PendingStored(row) | Self::SelectedStored { original: row, .. } => Some(&row.receiver), _ => None }
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn as_loan(
         &self,
     ) -> Result<BorrowedCallSourceLoanV1<'_>, String> {
@@ -173,9 +188,20 @@ impl BorrowedIncomingSourceV1 {
         match (self, other) {
             (Self::SelectedStored { original, target }, Self::PendingStored(pending))
             | (Self::PendingStored(pending), Self::SelectedStored { original, target }) => {
-                Rc::ptr_eq(original, pending) && self.bind_selected_v1(target).is_ok()
+                Rc::ptr_eq(original, pending) && original.matches_target_v1(target)
             }
             _ => self.same_source(other),
+        }
+    }
+    /// Original source equality, never pending-to-executable admission.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn matches_original_target_v1(
+        &self, target: &super::super::LexicalInstanceCallSourceTargetV1,
+    ) -> bool {
+        match self {
+            Self::PendingStored(original) => original.matches_target_v1(target),
+            Self::SelectedStored { original, target: selected } => selected == target && original.matches_target_v1(target),
+            Self::Instance(original) => original == target,
+            Self::Static(_) => false,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn pending_stored_v1(
@@ -240,12 +266,10 @@ impl BorrowedIncomingSourceV1 {
                 }
             }
         };
-        if CallTargetReferenceV1::from_target(target) != original.reference
-            || target.receiver != original.expected_receiver
-            || target.owning_object_input != original.owning_object_input
-            || target.result_requirement != original.result
-            || target.target().owner() != original.receiver.child_class.as_ref()
-        {
+        if matches!(self, Self::PendingStored(_)) && matches!(original.receiver.origin, super::super::source::StoredReceiverSourceOriginV1::ProvisionalDeclared(_)) {
+            return Err(super::super::freeze("stored-child/receiver-unavailable"));
+        }
+        if !original.matches_target_v1(target) {
             return Err(super::super::freeze(
                 "borrowed-formal/incoming-selected-drift",
             ));
@@ -255,6 +279,27 @@ impl BorrowedIncomingSourceV1 {
             target: target.clone(),
         })
     }
+    /// Check the complete retained source before granting stored selection.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn select_with_original_v1(
+        &self,
+        target: &super::super::LexicalInstanceCallSourceTargetV1,
+        seeds: &super::super::borrowed_formal_source::OriginalFormalSeedProductV1,
+        inventory: &BorrowedIncomingInventoryV1,
+        facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> Result<Self, String> {
+        let Self::PendingStored(original) = self else { return self.bind_selected_v1(target); };
+        if !matches!(original.receiver.origin, super::super::source::StoredReceiverSourceOriginV1::ProvisionalDeclared(_)) {
+            return self.bind_selected_v1(target);
+        }
+        if !original.matches_target_v1(target)
+            || !seeds.matches_stored_selection_v1(inventory, self, target, facts, batch, constructors) {
+            return Err(super::super::freeze("stored-child/receiver-unavailable"));
+        }
+        Ok(Self::SelectedStored { original: Rc::clone(original), target: target.clone() })
+    }
+
     /// Borrow the SAME original constructor step after exact stored selection.
     /// This proves source correspondence, not field liveness or construction completion.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn constructor_unit_source_v1(

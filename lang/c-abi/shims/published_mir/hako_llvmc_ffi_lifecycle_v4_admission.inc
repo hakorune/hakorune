@@ -277,6 +277,7 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
   for (size_t fi = 0; fi < in->index_count; fi++)
     if (!lv4_index_kinds(in, &in->index[fi])) return 0;
   if (!lv4_index_owned_results(in)) return 0;
+  lv4_close_readonly_graph(in);
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];
     size_t count = fn->block_count, frames = 0;

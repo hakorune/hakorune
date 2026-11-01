@@ -27,6 +27,7 @@ CASES=(
   "ownership_move_min|ownership-move-min|30||"
   "ownership_shared_min|ownership-shared-min|10||"
   "ownership_typed_null_min|ownership-typed-null-min|5||"
+  "ownership_tree_typed_min|ownership-tree-typed-min|3||"
   "loop_basics|loop-basics|0|loop-basics failures=0|"
 )
 ONLY_CASE="${1:-}"

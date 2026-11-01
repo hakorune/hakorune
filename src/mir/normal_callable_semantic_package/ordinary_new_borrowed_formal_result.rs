@@ -739,13 +739,10 @@ pub(super) fn instance_result_classes_v1(
                     return Some((reference, BTreeSet::from([super::borrowed_formal_source::SourceValueAlternativeV1::Text])));
                 }
             }
-            let PreparedSourceCallNeedV1::Lexical(target) = need else {
-                unclassified(&reference, "not a lexical need");
-                return None;
-            };
             // Result classes belong to the original Return cohort, including
-            // strict input calls. Borrowed input admission is a separate choice.
-            let original = match &target.result_requirement {
+            // strict input and stored-receiver calls. This source projection
+            // grants neither receiver admission nor execution permission.
+            let original = match need.result_requirement() {
                 LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) => original,
                 LexicalCallSourceResultRequirementV1::ExistingBorrowedResult =>
                     match pending.original_return_source_v1(&reference.callee_owner).ok().flatten() {

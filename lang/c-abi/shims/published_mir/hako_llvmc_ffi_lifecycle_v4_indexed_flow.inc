@@ -462,7 +462,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       int guarded_map = base && base->kind == LV4_SLOT_BORROW && base->object_id_set &&
           base->object_id == lv4_u(op, "object_id") && lv4_map_slot_guarded(fn, base, lv4_u(block, "id")) &&
           lv4_slot_borrow_readable(in, fn, base, state, lv4_u(block, "id"));
-      if (faulted || birth || !(lv4_birth_dynamic(in, op) || lv4_typed_nullable_field_borrow(in, op)) || lv4_slot(in, op) < 0 ||
+      if (faulted || birth || !(lv4_birth_dynamic(in, op) || lv4_typed_field_read_admitted(in, fn, op, lv4_u(block, "id"))) || lv4_slot(in, op) < 0 ||
           !lv4_layout(in, lv4_u(op, "expected_object_id")) ||
           !(guarded_map || lv4_readable_object(in, fn, lv4_u(op, "base"), state, lv4_u(block, "id"), lv4_u(op, "object_id"), 1))) return 0;
       normal[bi] = LV4_LIVE;

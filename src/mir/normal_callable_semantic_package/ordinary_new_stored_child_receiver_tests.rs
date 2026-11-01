@@ -208,6 +208,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
                     parent_class: caller_key.owner().into(),
                     field_name,
                     child_class: target.target().owner().into(),
+                    guard: None,
                 },
             ));
         } else {
@@ -288,7 +289,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
     }
     let mut absent = scan(Some(&original)).unwrap();
     let absent_pending: Vec<_> = absent.exact_rows().filter(|row| row.source.is_pending()).cloned().collect();
-    absent.finish_selected_calls_v1(&calls).unwrap();
+    absent.finish_selected_calls_v1(&calls, |source, target, _| source.bind_selected_v1(target)).unwrap();
     for row in &absent_pending {
         let retained = absent.exact_rows().find(|actual| actual.call == row.call).unwrap();
         assert!(retained.source.same_source(&row.source), "missing selected target keeps the original Rc and args");
@@ -300,7 +301,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
     ).collect();
     let mut finished = scan(Some(&original)).unwrap();
     let original_pending: Vec<_> = finished.exact_rows().filter(|row| row.source.is_pending()).cloned().collect();
-    finished.finish_selected_calls_v1(&all_calls).unwrap();
+    finished.finish_selected_calls_v1(&all_calls, |source, target, _| source.bind_selected_v1(target)).unwrap();
     let completed = finished.project(&BTreeSet::from([leaf_owner.unwrap()])).unwrap();
     assert_eq!(completed.len(), 2);
     for row in &completed {
@@ -321,11 +322,13 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
         }
         let mut targets = all_calls.clone(); targets.insert(first.clone(), &drift);
         let mut incoming = scan(Some(&original)).unwrap();
-        assert!(incoming.finish_selected_calls_v1(&targets).is_err(), "selected target drift {change}");
+        let before: Vec<_> = incoming.exact_rows().cloned().collect();
+        assert!(incoming.finish_selected_calls_v1(&targets, |source, target, _| source.bind_selected_v1(target)).is_err(), "selected target drift {change}");
+        assert!(incoming.exact_rows().zip(before.iter()).all(|(after, before)| after.source.same_source(&before.source)), "failed preflight must preserve every original row");
     }
     let mut duplicate = scan(Some(&original)).unwrap();
     duplicate.duplicate_object_row_for_test(first);
-    assert!(duplicate.finish_selected_calls_v1(&all_calls).is_err());
+    assert!(duplicate.finish_selected_calls_v1(&all_calls, |source, target, _| source.bind_selected_v1(target)).is_err());
     for change in 0..7 {
         let mut pairs = passive.clone();
         match change {
@@ -589,7 +592,7 @@ fn local_new_stored_roots_keep_original_acquisition_and_incoming() {
         root.corroborate_input(input, site).unwrap();
         let mut receiver = source::StoredReceiverSourceV1 { origin: source::StoredReceiverSourceOriginV1::Ordinary,
             parent_new: Some((*slot, std::rc::Rc::clone(root))), parent_binding: binding, parent_site: site.clone(),
-            parent_class: "Parent".into(), field_name: "left".into(), child_class: "Leaf".into() };
+            parent_class: "Parent".into(), field_name: "left".into(), child_class: "Leaf".into(), guard: None };
         receiver.local_new_root_in_input_v1(input, *slot).unwrap();
         receiver.parent_new = Some((*slot, std::rc::Rc::clone(&roots[1].2)));
         assert!(receiver.local_new_root_in_input_v1(input, *slot).is_err(), "same-class sibling acquisition cannot replace the parent");

@@ -124,8 +124,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     ) -> Result<Option<StoredReceiverSourceV1>, String>,
     issue: &mut impl FnMut(
-        &OwnedExprSiteV1,
+        &CallTargetReferenceV1,
         &StoredReceiverSourceV1,
+        Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
     ) -> Result<Option<LexicalInstanceCallReceiverV1>, String>,
 ) -> Result<
     (
@@ -358,7 +359,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             array_field_write_candidates, array_field_get_candidates, Some(field_write_claims),
         )
     };
+    // Recheck each provisional pair against the current all-owner New census.
+    let recheck_source_graphs = |needs: &mut PreparedSourceNeedsV1,
+        inventory: &mut Result<super::borrowed_formal_source::OriginalBorrowedFormalSourceV1, String>| {
+     let mut removed = false;
+     loop {
+      let source_candidates_changed = match (&*inventory, &mut *needs) {
+          (Ok(source), Ok(rows)) => source.filter_declared_child_candidates_v1(rows, callable_result_classes, batch, constructors),
+          _ => false,
+      };
+      if !source_candidates_changed { break; }
+      removed = true;
+      *inventory = build_original_inventory(needs);
+     }
+     removed
+    };
     let mut original_inventory = build_original_inventory(&needs);
+    recheck_source_graphs(&mut needs, &mut original_inventory);
     let mut pending = prepare_pending_results_v1(
         batch,
         selected,
@@ -378,6 +395,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;
             if promoted {
                 original_inventory = build_original_inventory(&needs);
+                if recheck_source_graphs(&mut needs, &mut original_inventory) {
+                    pending = prepare_pending_results_v1(batch, selected, contracts, &definitions, &needs, constructors,
+                        callable_result_classes, array_i64_fields, &original_inventory, field_write_claims, original_returns.clone());
+                }
                 // This graph has not joined the previous graph's summaries.
                 previous.clear();
             }
@@ -526,8 +547,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                 owning_object_input,
                             } => {
                                 let receiver = issue_eligible_receiver_v1(
-                                    &reference.call_site,
+                                    reference,
                                     &receiver,
+                                    original_inventory.as_ref().ok(),
                                     issue,
                                 )?;
                                 Ok(Some(LexicalInstanceCallSourceTargetV1 {
@@ -612,17 +634,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
 
 /// After eligibility, retain the exact demand instead of erasing it into a row error.
 fn issue_eligible_receiver_v1(
-    site: &OwnedExprSiteV1,
+    reference: &CallTargetReferenceV1,
     receiver: &StoredReceiverSourceV1,
+    original: Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
     issue: &mut impl FnMut(
-        &OwnedExprSiteV1,
+        &CallTargetReferenceV1,
         &StoredReceiverSourceV1,
+        Option<&super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
     ) -> Result<Option<LexicalInstanceCallReceiverV1>, String>,
 ) -> Result<LexicalInstanceCallReceiverV1, OrdinaryNewCoSealIssueV1> {
-    issue(site, receiver)
+    issue(reference, receiver, original)
         .and_then(|row| row.ok_or_else(|| freeze("stored-child/receiver-unavailable")))
         .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-            site: site.clone(),
+            site: reference.call_site.clone(),
             issue,
         })
 }

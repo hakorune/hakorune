@@ -32,6 +32,7 @@ typedef struct hako_lv4_function_index {
   const struct hako_lv4_function_index* peers;
   size_t peer_count;
   int leaf_scalar;
+  int readonly_closed; /* Complete physical call graph, including Fault paths. */
   /* Predecessors by sorted block position, built once from the same edges the
      physical count scans; pred_valid is 0 when any edge target is malformed. */
   int pred_valid;
@@ -353,6 +354,63 @@ static int lv4_body_leaf_scalar(hako_lv4_function_index* fn) {
           (!yyjson_obj_get(op, "transaction") || lv4_is(op, "transaction", "dynamic_i64_replace"))))) return 0;
   }
   return 1;
+}
+
+/* Strict object nonmutation is separate from scalar_leaf, which allows writes.
+ * Every block participates, including unreachable and Fault blocks. */
+static int lv4_readonly_call(const hako_lv4_function_index* fn, yyjson_val* op, int closed) {
+  yyjson_val* call = yyjson_obj_get(op, "call");
+  uint32_t target, receiver;
+  if (!lv4_is(op, "kind", "ordinary_call") || !lv4_is(op, "result", "i64") ||
+      !hako_physical_u32(yyjson_obj_get(call, "target"), &target) || !target ||
+      target >= fn->peer_count || !fn->peers ||
+      !hako_physical_u32(yyjson_obj_get(call, "receiver"), &receiver) ||
+      !yyjson_is_arr(yyjson_obj_get(call, "args")) || yyjson_arr_size(yyjson_obj_get(call, "args"))) return 0;
+  const hako_lv4_function_index* callee = &fn->peers[target];
+  return lv4_is(callee->function, "role", "ordinary_i64") &&
+      yyjson_is_uint(yyjson_obj_get(callee->function, "receiver")) &&
+      yyjson_is_arr(yyjson_obj_get(callee->function, "params")) &&
+      !yyjson_arr_size(yyjson_obj_get(callee->function, "params")) &&
+      (!closed || callee->readonly_closed);
+}
+
+static int lv4_body_readonly(hako_lv4_function_index* fn, int closed) {
+  if (!lv4_is(fn->function, "role", "ordinary_i64")) return 0;
+  static const char* const pure[] = {"const_i64", "const_bool", "const_null", "const_unit", "copy", "phi",
+      "add", "sub", "mul", "div", "mod", "compare", "borrowed_null_compare",
+      "object_field_get", "invoke_normal_result", "fault_frame_enter", "keep_alive"};
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* rows = yyjson_obj_get(fn->blocks[bi].block, "instructions");
+    for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
+      yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
+      int allowed = 0;
+      for (size_t pi = 0; pi < sizeof(pure) / sizeof(*pure); pi++) allowed |= lv4_is(ins, "op", pure[pi]);
+      if (!allowed) return 0;
+    }
+    yyjson_val* term = lv4_term(fn->blocks[bi].block);
+    if (lv4_is(term, "op", "branch") || lv4_is(term, "op", "jump") ||
+        lv4_is(term, "op", "return") || lv4_is(term, "op", "return_fault")) continue;
+    if (!lv4_is(term, "op", "invoke")) return 0;
+    yyjson_val* op = yyjson_obj_get(term, "operation");
+    if (!(lv4_is(op, "kind", "field_get") || lv4_is(op, "kind", "object_field_borrow") ||
+          lv4_readonly_call(fn, op, closed))) return 0;
+  }
+  return 1;
+}
+
+/* Greatest fixed point: closed recursive SCCs survive only when every local
+ * operation is readonly and all outgoing calls stay in the same closed set. */
+static void lv4_close_readonly_graph(hako_lv4_input* in) {
+  for (size_t fi = 0; fi < in->index_count; fi++)
+    in->index[fi].readonly_closed = lv4_body_readonly(&in->index[fi], 0);
+  int changed;
+  do {
+    changed = 0;
+    for (size_t fi = 0; fi < in->index_count; fi++)
+      if (in->index[fi].readonly_closed && !lv4_body_readonly(&in->index[fi], 1)) {
+        in->index[fi].readonly_closed = 0; changed = 1;
+      }
+  } while (changed);
 }
 
 static int lv4_pred_build(hako_lv4_function_index* fn) {

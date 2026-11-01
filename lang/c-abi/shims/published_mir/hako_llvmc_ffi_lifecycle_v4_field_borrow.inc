@@ -27,13 +27,11 @@ static yyjson_val* lv4_unique_field_writer(const hako_lv4_input* in,
   return selected;
 }
 
-/* A typed nullable observation uses the same unique Provided Birth store
- * and exact owned layout tuple. This grants no non-null receiver. */
-static int lv4_typed_nullable_field_borrow(const hako_lv4_input* in, yyjson_val* op) {
-  if (!lv4_is(op, "kind", "object_field_borrow") ||
-      !yyjson_is_true(yyjson_obj_get(op, "nullable"))) return 0;
-  uint32_t object = lv4_u(op, "object_id"), field = lv4_u(op, "field_ordinal");
-  uint32_t child = lv4_u(op, "expected_object_id");
+/* The same unique Provided Birth store and owned tuple support observations
+ * and receivers. Nonnull guard admission is a separate physical CFG query. */
+static int lv4_typed_field_store(const hako_lv4_input* in,
+    uint32_t object, uint32_t field, uint32_t child,
+    hako_lv4_function_index** writer_out, uint32_t* ordinal_out) {
   yyjson_val* layout = lv4_layout(in, object);
   if (!layout || !lv4_layout(in, child) ||
       lv4_u(yyjson_arr_get(yyjson_obj_get(layout, "fields"), field), "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
@@ -49,8 +47,17 @@ static int lv4_typed_nullable_field_borrow(const hako_lv4_input* in, yyjson_val*
   yyjson_val* params = yyjson_obj_get(writer->function, "params");
   size_t matches = 0;
   for (size_t ordinal = 0; ordinal < yyjson_arr_size(params); ordinal++)
-    if (lv4_field_dependency_store_tuple(writer, object, field, child, (uint32_t)ordinal)) matches++;
-  return matches == 1;
+    if (lv4_field_dependency_store_tuple(writer, object, field, child, (uint32_t)ordinal)) {
+      matches++; if (ordinal_out) *ordinal_out = (uint32_t)ordinal;
+    }
+  if (matches != 1) return 0;
+  if (writer_out) *writer_out = writer;
+  return 1;
+}
+static int lv4_typed_field_borrow(const hako_lv4_input* in, yyjson_val* op) {
+  return lv4_is(op, "kind", "object_field_borrow") &&
+      lv4_typed_field_store(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"),
+          lv4_u(op, "expected_object_id"), NULL, NULL);
 }
 
 static int lv4_field_provider_writer(const hako_lv4_input* in,
@@ -246,14 +253,9 @@ static int lv4_guard_path(hako_lv4_function_index* fn, uint32_t start, uint32_t 
 
 /* Only an actual comparison and its nonnull edge lend a Map payload view.
  * This checks no lifetime or callee effects; the slot owner still does so. */
-static int lv4_map_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t use) {
-  hako_lv4_value* root = lv4_value_alias_root(fn, value);
-  if (!root || root->kind != LV4_SLOT_BORROW ||
-      !lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
-  hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
-  yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
-  if (!lv4_is(op, "kind", "map_field_get_indexed") ||
-      lv4_guard_path(fn, lv4_u(fn->function, "entry"), use, 0, 0, 0) != 1) return 0;
+static int lv4_nullable_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* root,
+    hako_lv4_block* producer, uint32_t use) {
+  if (!root || !producer || lv4_guard_path(fn, lv4_u(fn->function, "entry"), use, 0, 0, 0) != 1) return 0;
   for (size_t i = 0; i < fn->block_count; i++) {
     hako_lv4_block* block = &fn->blocks[i]; yyjson_val* term = lv4_term(block->block);
     if (!lv4_is(term, "op", "branch")) continue;
@@ -278,6 +280,86 @@ static int lv4_map_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* val
     return 1;
   }
   return 0;
+}
+
+static int lv4_map_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t use) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (!root || root->kind != LV4_SLOT_BORROW || !lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
+  hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+  return lv4_is(op, "kind", "map_field_get_indexed") && lv4_nullable_slot_guarded(fn, root, producer, use);
+}
+
+/* All calls of the SAME unique Birth writer pair null with null or fresh owned
+ * children with fresh owned children. Unknown/borrowed nullable actuals refuse. */
+static int lv4_typed_child_pair(const hako_lv4_input* in,
+    uint32_t object, uint32_t guard, uint32_t field, uint32_t child) {
+  if (guard == field) return 1;
+  hako_lv4_function_index *first = NULL, *second = NULL;
+  uint32_t left, right;
+  if (!lv4_typed_field_store(in, object, guard, child, &first, &left) ||
+      !lv4_typed_field_store(in, object, field, child, &second, &right) ||
+      first != second || left == right) return 0;
+  size_t calls = 0;
+  for (size_t fi = 0; fi < in->index_count; fi++) {
+    hako_lv4_function_index* fn = &in->index[fi];
+    for (size_t bi = 0; bi < fn->block_count; bi++) {
+      yyjson_val* op = yyjson_obj_get(lv4_term(fn->blocks[bi].block), "operation");
+      if (!lv4_is(op, "kind", "birth_call")) continue;
+      yyjson_val* call = yyjson_obj_get(op, "call"); uint32_t target;
+      if (!hako_physical_u32(yyjson_obj_get(call, "target"), &target) || target >= in->index_count) return 0;
+      if (&in->index[target] != first) continue;
+      yyjson_val* args = yyjson_obj_get(call, "args");
+      uint32_t ordinals[] = {left, right}; int nulls = 0, fresh = 0;
+      for (size_t ai = 0; ai < 2; ai++) {
+        yyjson_val* arg = yyjson_arr_get(args, ordinals[ai]);
+        hako_lv4_value* value = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(arg, "value")));
+        if (!value) return 0;
+        if (lv4_u(arg, "kind") == 0 && lv4_is(value->instruction, "op", "const_null")) { nulls++; continue; }
+        if (lv4_u(arg, "kind") != 3 || value->kind != LV4_HANDLE || !value->object_id_set ||
+            value->object_id != child || value->origin < 0 ||
+            !lv4_is(value->instruction, "op", "invoke_normal_result")) return 0;
+        hako_lv4_block* born = lv4_index_block(fn, lv4_u(value->instruction, "invoke_block"));
+        if (!born || !lv4_is(yyjson_obj_get(lv4_term(born->block), "operation"), "kind", "new_box")) return 0;
+        fresh++;
+      }
+      if (nulls != 2 && fresh != 2) return 0;
+      calls++;
+    }
+  }
+  return calls != 0;
+}
+
+static int lv4_typed_receiver_guarded(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* op, uint32_t use) {
+  uint32_t object = lv4_u(op, "object_id"), field = lv4_u(op, "field_ordinal");
+  uint32_t child = lv4_u(op, "expected_object_id");
+  hako_lv4_value* base = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(op, "base")));
+  if (!base) return 0;
+  for (size_t vi = 0; vi < fn->value_count; vi++) {
+    hako_lv4_value* value = &fn->values[vi];
+    if (lv4_value_alias_root(fn, value) != value || value->kind != LV4_SLOT_BORROW ||
+        !lv4_is(value->instruction, "op", "invoke_normal_result")) continue;
+    hako_lv4_block* producer = lv4_index_block(fn, lv4_u(value->instruction, "invoke_block"));
+    yyjson_val* guard = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+    if (!lv4_is(guard, "kind", "object_field_borrow") || !yyjson_is_true(yyjson_obj_get(guard, "nullable")) ||
+        lv4_u(guard, "object_id") != object || lv4_u(guard, "expected_object_id") != child ||
+        !lv4_typed_field_borrow(in, guard) ||
+        lv4_field_borrow_same_path(fn, base, lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(guard, "base")))) != 1 ||
+        !lv4_nullable_slot_guarded(fn, value, producer, use)) continue;
+    uint32_t guard_field = lv4_u(guard, "field_ordinal");
+    if (!lv4_typed_child_pair(in, object, guard_field, field, child)) continue;
+    uint32_t born = lv4_u(lv4_term(producer->block), "normal");
+    if (lv4_field_interval(fn, use, born, base, object, guard_field, child, LV4_FIELD_GUARD_PAIR) &&
+        lv4_field_interval(fn, use, born, base, object, field, child, LV4_FIELD_GUARD_PAIR)) return 1;
+  }
+  return 0;
+}
+
+static int lv4_typed_field_read_admitted(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* op, uint32_t use) {
+  return lv4_typed_field_borrow(in, op) &&
+      (yyjson_is_true(yyjson_obj_get(op, "nullable")) || lv4_typed_receiver_guarded(in, fn, op, use));
 }
 
 static int lv4_map_present_guarded(hako_lv4_function_index*, hako_lv4_value*, uint32_t);

@@ -126,6 +126,7 @@ fn local_field_read_claims_object_alias_on_selected_new_home() {
                 parent_new: None,
                 parent_binding: request.receiver_binding(), parent_site: object.clone(),
                 parent_class: "Pool".into(), field_name: field.clone(), child_class: "Page".into(),
+                guard: None,
             };
             let expected = Some((request.field(), request.child()));
             assert!(package.ordinary_new_claim_ledger.take_lexical_instance_call(site.owner(), site.site()).unwrap().is_none(),

@@ -18,9 +18,9 @@ use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use super::field_source::{dynamic_stored_child_field_v1, StoredChildFieldSourceV1};
 
 /// A field null check refines the following source sequence only when its
-/// exact untyped child field is in the same construction pair and the null
-/// branch returns unconditionally.
-fn dynamic_child_nonnull_guard_v1(
+/// exact child field is in the same construction pair and the null branch
+/// returns unconditionally. This alone grants no executable receiver.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn stored_child_nonnull_guard_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -29,31 +29,32 @@ fn dynamic_child_nonnull_guard_v1(
     parent_site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     parent_class: &str,
     dynamic: &StoredChildFieldSourceV1,
-) -> Result<bool, String> {
+) -> Result<Option<super::super::super::lexical_instance_call::StoredChildGuardSourceV1>, String> {
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1,
         BodyStatementShapeV1, ResolvedBinaryOperatorV1, ResolvedLiteralSourceV1,
         SourcePathSegmentV1, SourcePathV1};
     let function = input.function();
-    let Some(shape) = input.body_shape() else { return Ok(false); };
+    let Some(shape) = input.body_shape() else { return Ok(None); };
     let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
-        shape.expression_shape(call.receiver_site()) else { return Ok(false); };
+        shape.expression_shape(call.receiver_site()) else { return Ok(None); };
     if object != parent_site
         || !matches!(shape.expression_shape(parent_site), Some(BodyExpressionShapeV1::Me {
             receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == parent_binding) {
-        return Ok(false);
+        return Ok(None);
     }
     let Some(parent_source) = batch.ordinary_box_coverage().row_for(parent_class)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
-        return Ok(false);
+        return Ok(None);
     };
     let Some((call_field, declared)) = super::super::super::terminal_home::source_declared_field(
         constructors, parent_source,
         &OwnedExprSiteV1::new(input.owner(), call.site().clone()), field,
     ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
-        return Ok(false);
+        return Ok(None);
     };
-    if declared.is_some() || call_field != dynamic.field() || !dynamic.paired_field(call_field) {
-        return Ok(false);
+    if declared.as_deref() != dynamic.declared_v1().then_some(dynamic.child_class())
+        || call_field != dynamic.field() || !dynamic.paired_field(call_field) {
+        return Ok(None);
     }
     let call_scope = function.exact_scope_containing(call.site().node());
     for statement in function.if_region_sites() {
@@ -66,7 +67,7 @@ fn dynamic_child_nonnull_guard_v1(
         } else if matches!(function.expression_source().literal(binary.rhs()), Some(ResolvedLiteralSourceV1::Null)) {
             Some((binary.lhs(), binary.rhs()))
         } else { None };
-        let Some((field_site, _)) = field_side else { continue; };
+        let Some((field_site, null_site)) = field_side else { continue; };
         let Some(BodyExpressionShapeV1::FieldAccess { object: guard_parent, field: guard_name, .. }) =
             shape.expression_shape(field_site) else { continue; };
         if !matches!(shape.expression_shape(guard_parent), Some(BodyExpressionShapeV1::Me {
@@ -77,25 +78,36 @@ fn dynamic_child_nonnull_guard_v1(
             constructors, parent_source,
             &OwnedExprSiteV1::new(input.owner(), call.site().clone()), guard_name,
         ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { continue; };
-        if guard_declared.is_some() || !dynamic.paired_field(guard_field) { continue; }
-        let valid = function.with_if_region_for_condition(&condition, |row| {
+        if guard_declared.as_deref() != dynamic.declared_v1().then_some(dynamic.child_class())
+            || !dynamic.paired_field(guard_field) { continue; }
+        let return_site = function.with_if_region_for_condition(&condition, |row| {
             let bundle = row.bundle();
-            if bundle.else_pair().is_some() { return false; }
-            let Some(parent_region) = function.region(bundle.control()).and_then(|region| region.parent()) else { return false; };
+            if bundle.else_pair().is_some() { return None; }
+            let Some(parent_region) = function.region(bundle.control()).and_then(|region| region.parent()) else { return None; };
             let Some(parent_scope) = function.region(parent_region).and_then(|region| region.lexical_scope()) else {
-                return false;
+                return None;
             };
             let then_scope = bundle.then_pair().scope();
             if call_scope != Some(parent_scope) || !statement_precedes_expression(statement, call.site()) {
-                return false;
+                return None;
             }
             let then_rows: Vec<_> = shape.statements().iter().filter(|row|
                 function.exact_scope_containing(row.site().node()) == Some(then_scope)).collect();
-            then_rows.len() == 1 && matches!(then_rows.first(), Some(BodyStatementShapeV1::Return { .. }))
-        }).unwrap_or(false);
-        if valid { return Ok(true); }
+            match then_rows.as_slice() {
+                [BodyStatementShapeV1::Return { site, .. }] => Some(site.clone()),
+                _ => None,
+            }
+        }).ok().flatten();
+        if let Some(return_site) = return_site {
+            return Ok(Some(super::super::super::lexical_instance_call::StoredChildGuardSourceV1 {
+                call: OwnedExprSiteV1::new(input.owner(), call.site().clone()),
+                statement: statement.clone(), condition, field_site: field_site.clone(),
+                parent_site: guard_parent.clone(), parent_binding, field: guard_field, call_field,
+                null_site: null_site.clone(), return_site,
+            }));
+        }
     }
-    Ok(false)
+    Ok(None)
 }
 
 fn statement_precedes_expression(
@@ -519,21 +531,41 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         (binding, root.class().into(), Some((slot, root)))
     };
     let key = (parent_class, name.clone());
-    let class = match residences.get(&key) {
-        Some(field_write_claim::OwnedFieldResidenceV1::Provider(class)) => class.clone(),
+    let (class, provisional, guard) = match residences.get(&key) {
+        Some(field_write_claim::OwnedFieldResidenceV1::Provider(class)) => (class.clone(), None, None),
         _ => {
-            let Some(dynamic) = dynamic_stored_child_field_v1(
+            let dynamic = dynamic_stored_child_field_v1(
                 batch, constructors, facts, &key.0, &key.1,
-            )? else {
-                return stored_child_declined(call, "the field is not a Provider and has no dynamic stored-child class (declared type, or construction origins are not one Null/Fresh class)");
-            };
-            if dynamic.nullable() && !dynamic_child_nonnull_guard_v1(
-                batch, constructors, input, call, parent_binding, parent_site,
-                &key.0, &dynamic,
-            )? {
-                return stored_child_declined(call, "the dynamic stored child fails its nonnull guard");
+            )?;
+            if let Some(dynamic) = dynamic {
+                let guard = if dynamic.nullable() { stored_child_nonnull_guard_v1(
+                    batch, constructors, input, call, parent_binding, parent_site,
+                    &key.0, &dynamic,
+                )? } else { None };
+                if dynamic.nullable() && guard.is_none() {
+                    return stored_child_declined(call, "the dynamic stored child fails its nonnull guard");
+                }
+                (dynamic.child_class().into(), None, guard)
+            } else {
+                let site = OwnedExprSiteV1::new(input.owner(), call.site().clone());
+                let Some(source) = super::field_source::declared_stored_child_field_v1(
+                    batch, constructors, facts, &key.0, &key.1, &site, true,
+                )? else { return stored_child_declined(call, "the declared child source cohort is incomplete"); };
+                // The receiver's complete source use set must remain local to
+                // field accesses. This is only one obligation: the field value
+                // and all incoming callers still need their own closed proofs.
+                if parent_new.is_none() && crate::mir::normal_callable_semantic_package::instance_constructor_non_escape::verify_receiver_non_escape_v1(
+                    input.function(), shape, input.forest(),
+                ).is_err() { return stored_child_declined(call, "the parent receiver may escape"); }
+                if parent_new.is_none() && !source.local_child_uses_v1(input, parent_binding) {
+                    return stored_child_declined(call, "a paired child has an unproven use");
+                }
+                let guard = if source.nullable() { stored_child_nonnull_guard_v1(
+                    batch, constructors, input, call, parent_binding, parent_site, &key.0, &source,
+                )? } else { None };
+                if source.nullable() && guard.is_none() { return stored_child_declined(call, "the declared child guard is unavailable"); }
+                (source.child_class().into(), Some(std::rc::Rc::new(source)), guard)
             }
-            dynamic.child_class().into()
         }
     };
     if crate::config::env::builder_debug_enabled() {
@@ -541,14 +573,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     }
     Ok(Some(
         super::super::super::lexical_instance_call::StoredReceiverSourceV1 {
-            origin:
-                super::super::super::lexical_instance_call::StoredReceiverSourceOriginV1::Ordinary,
+            origin: if let Some(source) = provisional {
+                super::super::super::lexical_instance_call::StoredReceiverSourceOriginV1::ProvisionalDeclared(source)
+            } else {
+                super::super::super::lexical_instance_call::StoredReceiverSourceOriginV1::Ordinary
+            },
             parent_new,
             parent_binding,
             parent_site: parent_site.clone(),
             parent_class: key.0,
             field_name: name.clone(),
             child_class: class,
+            guard,
         },
     ))
 }
@@ -558,13 +594,22 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-    site: &OwnedExprSiteV1,
+    reference: &super::super::super::lexical_instance_call::CallTargetReferenceV1,
     receiver: &super::super::super::lexical_instance_call::StoredReceiverSourceV1,
+    original: Option<&super::super::super::lexical_instance_call::OriginalBorrowedFormalSourceV1>,
     writes: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     residences: &field_write_claim::OwnedFieldResidencesV1,
     owned: &mut BTreeMap<hakorune_mir_defs::CanonicalObjectIdV1, Option<Box<[OwnedFieldChildV1]>>>,
 ) -> Result<Option<super::super::super::lexical_instance_call::LexicalInstanceCallReceiverV1>, String>
 {
+    let site = &reference.call_site;
+    let declared = if let super::super::super::lexical_instance_call::StoredReceiverSourceOriginV1::ProvisionalDeclared(source) = &receiver.origin {
+        if source.child_class() != receiver.child_class.as_ref() || !source.recheck_v1(facts, &receiver.field_name) {
+            return Err("[freeze:contract][stored-child/source-drift]".into());
+        }
+        if original.is_none_or(|original| !original.matches_declared_receiver_v1(reference, receiver, facts, batch, constructors)) { return Ok(None); }
+        Some(source.as_ref().clone())
+    } else { None };
     let class = &receiver.child_class;
     let name = &receiver.field_name;
     let source = batch
@@ -611,7 +656,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         .get(&(receiver.parent_class.clone(), receiver.field_name.clone()))
         .is_some_and(|source| source.class() == class.as_ref()
             && source.dynamic_provider_field_v1(&receiver.parent_class, name) == Some(field));
-    let dynamic = if residences.get(&(receiver.parent_class.clone(), receiver.field_name.clone()))
+    let dynamic = if let Some(declared) = declared {
+        if declared.field() != field || declared.child() != child || declared.child_class() != class.as_ref() { return Ok(None); }
+        Some(declared)
+    } else if residences.get(&(receiver.parent_class.clone(), receiver.field_name.clone()))
         .is_some_and(|row| matches!(row, field_write_claim::OwnedFieldResidenceV1::Provider(_))) {
         None
     } else {
@@ -646,7 +694,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     let Some(inventory) = inventory else {
         return Ok(None);
     };
-    let expected = if dynamic_provider || dynamic.is_some() {
+    let expected = if dynamic_provider || dynamic.as_ref().is_some_and(|source| !source.declared_v1()) {
         OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::DynamicResidence)
     } else {
         OwnedFieldChildKindV1::Object(child)
@@ -734,5 +782,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
         child_class: request.class().into(),
         origin: StoredReceiverSourceOriginV1::Constructor(loan),
         parent_new: None,
+        guard: None,
     }))
 }

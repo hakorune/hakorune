@@ -1,15 +1,15 @@
 # APP-boxtorrent-mini
 
-Status: **acceptance reached** (fixed suite 11/11). Date: 2026-10-30
+Status: **acceptance reached** (fixed suite 8/8; prior 11 rows consolidated). Date: 2026-11-01
 Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
-- 所有step 2 受理拡張の途中: field alias の元Copyを既存finishing境界へ渡し、削除は元のdead coneと最終未使用を照合。再現入力はCopy拒否を越えてpublished lifecycleのbranch検証で停止、型付きTreeNodeは`source-not-i64`で未完。`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtimeで固定suite 8/8、19形のコード・exit一致、cohort失敗名115件一致、既存Copy/field alias test 12件PASS。production +47/−13行、test 0行。純増分はfield readと借用Copyのfinishing照合統合時に整理する。
+- step 2 先行着地（field alias）: field alias の元Copyを既存finishing境界へ渡し、削除は元のdead coneと最終未使用を照合。Copy拒否の解消と以後のTreeNode対応は下記。`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtimeで固定suite 8/8、19形のコード・exit一致、cohort失敗名115件一致、既存Copy/field alias test 12件PASS。production +47/−13行、test 0行。純増分はfield readと借用Copyのfinishing照合統合時に整理する。
 - step 2 部分着地: 型付きnullable fieldを元New/Birth・唯一writer・layoutに結んだchecked借用で比較する。`ownership-typed-null-min`正規EXE exit 5を既存canonical smokeへ追加。最適化target/quick CLIと同runtimeで固定suite 8/8、19形のプログラム関数/exit一致、cohort失敗名115件一致、publication testとC既存96件/型付き改変拒否PASS。production +247/−40行、test/fixture/smoke +100/−0行（新しい借用境界と不正layout/失効参照の検証）。
-- nullable子: source graphだけでは生成後call網羅・guard以降の書換え・借用/Faultを証明しないため再帰呼出しは未許可。実JSONはNew/Birth実引数・唯一writer・layoutを保持（非対称な例で確認）。Rustは元incomingと物理callを双方照合し、Cは同一published物理構造からpair・guard・区間を独立検証する。Cの物理siteはsource座標ではなく、Birth receiver型は既存admission indexを使う。証明できない場合は名前付き拒否を維持する。
-- 再帰WIPはpatchと未追跡入力の別保存で保持し、比較機能の着地後に再適用する。既存stash 2件は保持。型付きTreeNodeの再帰EXE・直接配置A/B/C・測定は未完。
-- `source-not-i64`の最小残件: 同一の元New・guard・全incomingを選択後も保持し、nullable子のguard支配・借用/Normal/Fault・全物理call対応をRust/Cで独立検証して再帰EXEを実行。未証明receiverは拒否のまま。
+- step 2 受理拡張: 型付きnullable子の再帰TreeNodeを既存object-storeの正規EXEで実行しexit 3。元New/Birth全件と唯一writer・guardを同じsource ownerで照合し、SourceOnly原本を保持。checked借用の既存Normal/Fault cleanupを使い、Rustは全物理callを原本packetへ逆照合、Cは全Birthの子の組・実guardの支配・非変更call閉包を独立検証する。既存の全関数admission・Home/Fault照合を保持し、未証明receiverは名前付き拒否。
+- 最適化`target/quick/hakorune`＋同runtime、再buildした`target/release/libhako_llvmc_ffi.so`で固定suite 8/8（新しい再帰case含む）、19形のprogram関数/exit一致、cohort失敗名115件不変（1793 PASS）＋publication 1 PASS。C既存96入力・guard反転/非対称Birth/再帰書込み拒否・Normal/Fault cleanup PASS。production +886/−121行、test/fixture/smoke +170/−22行。新規test file/checker/形別producerなし。追加は受理と独立検証の不足実装で、整理の純減とは主張しない。
+- 残件: 直接配置profileのA=i64のみ、B=非再帰owned子、C=再帰TreeNode＋二系統測定。今回は直接配置を選択せず、速度の主張もしない。既存stash 2件は保持。
 - 所有step 1 S1: Rust/Hakoの`move` source形とregistry・corpus・witnessを追加、未接続のHome移転は名前付き拒否。Rust正負6例・focused test・生成projection・Python witness PASS、最適化`target/quick/hakorune`と`target/quick` runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。Rust/Hako production +119行、test/corpus/witness +77行。後続の接続状況は下記。静的substrate guardは基点からのquick-reference naming不整合で停止。
 - Hako parser実行parity: HEADの既存経路が使えない（vm-reference無効＋`ParserBox.add_using`のloop拒否）ため、move fixturesはHako実行経路が戻った時に同じgateで確認する（maintainer判断、固定suiteのSKIPではない）。
 - 所有step 1 S2–S5部分: 同一scopeのNew由来Homeを移転し、実MIRの取得・Birth/Fault・Endをpublished側のownership SSAで再検証。`ownership-move-min`は正規EXEでexit 30、移転後使用・二重moveとMIR改変は拒否。`cargo quick-build --bin hakorune`の`target/quick/hakorune`と`target/quick` runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。Rust production +615/−57、test +176/−1、app +23・smoke +1行。純増の退役条件は旧local plannerの安全責務を後継へ移したS6。Shared(S7)は下記。

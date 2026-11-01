@@ -6,13 +6,24 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Retained provider writers or constructor relations distinguish Dynamic reads.
+    /// Retained provider writers or selected typed-child sources require checked reads.
     /// This lends storage meaning only; the original Call still owns admission.
-    pub(in crate::mir) fn stored_receiver_uses_dynamic_field_v1(
+    pub(in crate::mir) fn stored_receiver_requires_checked_read_v1(
         &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
         let Some((_, _, field, child)) = target.stored_receiver() else { return Ok(false); };
         let mut dynamic = false;
+        if let Some(Ok(source)) = &self.borrowed_formal_source {
+            if let Some(receiver) = source.original_stored_receiver_for_target_v1(target)? {
+                if let crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::StoredReceiverSourceOriginV1::ProvisionalDeclared(pair) = &receiver.origin {
+                    if pair.field() != field || pair.child() != child
+                        || !pair.recheck_v1(&self.callable_result_classes, &receiver.field_name) {
+                        return Err(freeze("lexical-terminal/stored-read-drift"));
+                    }
+                    dynamic = true;
+                }
+            }
+        }
         for ((parent, name), source) in self.field_write_claims.object_sources().iter() {
             if source.dynamic_provider_field_v1(parent, name) == Some(field) {
                 if source.class() != target.target().owner() {

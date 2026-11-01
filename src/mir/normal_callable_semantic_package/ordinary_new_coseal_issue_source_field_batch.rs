@@ -202,7 +202,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                         .and_then(|(_, declared)| declared);
                     let loan = if declared.is_some() {
                         super::field_source::declared_stored_child_field_v1(batch, constructors, classes,
-                            parent.name(), &request.field, &request.site)
+                            parent.name(), &request.field, &request.site, false)
                     } else {
                         super::field_source::dynamic_stored_child_field_v1(batch, constructors, classes,
                             parent.name(), &request.field)

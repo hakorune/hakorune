@@ -1,7 +1,7 @@
 /* Query purpose belongs to the same interval proof, not a source classifier. */
 typedef enum {
   LV4_FIELD_UNCHANGED, LV4_FIELD_SUPPORT_END,
-  LV4_FIELD_ARRAY_DRAIN, LV4_FIELD_OBJECT_DRAIN, LV4_FIELD_DYNAMIC_DRAIN, LV4_FIELD_BORROW_SLOT
+  LV4_FIELD_ARRAY_DRAIN, LV4_FIELD_OBJECT_DRAIN, LV4_FIELD_DYNAMIC_DRAIN, LV4_FIELD_BORROW_SLOT, LV4_FIELD_GUARD_PAIR
 } hako_lv4_field_interval_kind;
 
 /* An argument-free Call to a scalar-leaf body mutates no Map slot or residence. */
@@ -18,7 +18,8 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
     uint32_t use, uint32_t born, const hako_lv4_value* base,
     uint32_t object, uint32_t field, uint32_t child, hako_lv4_field_interval_kind query,
     unsigned char* seen, size_t* queue) {
-  int slot = query == LV4_FIELD_BORROW_SLOT;
+  int guard = query == LV4_FIELD_GUARD_PAIR;
+  int slot = query == LV4_FIELD_BORROW_SLOT || guard;
   int released = query != LV4_FIELD_UNCHANGED && !slot;
   int full = query >= LV4_FIELD_ARRAY_DRAIN && !slot;
   hako_lv4_block* current = lv4_index_block(fn, use);
@@ -35,7 +36,7 @@ static int lv4_field_interval_walk(hako_lv4_function_index* fn,
      * visit that same block's full terminator, just as the read suffix does. */
     if (!prefix) {
       yyjson_val* op = yyjson_obj_get(lv4_term(current->block), "operation");
-      if (slot && ((lv4_is(op, "kind", "ordinary_call") && !lv4_call_scalar_leaf(fn, op)) || lv4_is(op, "kind", "birth_call") ||
+      if (slot && ((lv4_is(op, "kind", "ordinary_call") && !(guard ? lv4_readonly_call(fn, op, 1) : lv4_call_scalar_leaf(fn, op))) || lv4_is(op, "kind", "birth_call") ||
           lv4_is(op, "kind", "object_end_if_owned") ||
           lv4_is(op, "kind", "map_field_install_indexed") || lv4_is(op, "kind", "map_field_delete_indexed") || lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
           lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||

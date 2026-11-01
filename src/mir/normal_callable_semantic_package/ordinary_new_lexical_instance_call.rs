@@ -220,7 +220,7 @@ mod provenance;
 mod source;
 pub(in crate::mir::normal_callable_semantic_package) use source::{
     lexical_scalar_result_source_owns_arguments_v1, original_lexical_target_at_v1,
-    StoredReceiverSourceOriginV1, StoredReceiverSourceV1,
+    StoredChildGuardSourceV1, StoredReceiverSourceOriginV1, StoredReceiverSourceV1,
 };
 pub(crate) use source::LexicalInstanceCallSourceTargetV1;
 pub(super) use source::{BorrowedReceiverSourceV1, DirectMapReceiverSourceV1};
@@ -238,6 +238,7 @@ mod borrowed_formal_uses;
 #[path = "ordinary_new_borrowed_formal_source.rs"]
 mod borrowed_formal_source;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::ClosedOriginalCoreSourceV1;
+pub(super) use borrowed_formal_source::OriginalBorrowedFormalSourceV1;
 pub(in crate::mir) use borrowed_formal_source::{SourceValueSumV1, SourceValueAlternativeV1};
 pub(in crate::mir) use borrowed_formal_source::SourceValueClassFactsV1;
 

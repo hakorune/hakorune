@@ -162,6 +162,39 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
                 store['field_ordinal'] = 1
             reject(data, ('published-lifecycle-physical-parser', 'published-lifecycle-v4/unsupported-cohort'))
 
+    recursive_path = DIRECTORY / 'hako-issued-typed-recursive-field-borrow.json'
+    if recursive_path.exists():
+        recursive = json.loads(recursive_path.read_text())
+        checked([driver, recursive_path, obj], env=ENV)
+        for mutation in ('guard-edge', 'asymmetric-birth', 'recursive-write'):
+            data = copy.deepcopy(recursive)
+            function = next(f for f in data['functions'] if f['name'] == 'TreeNode.itemCheck/0')
+            if mutation == 'guard-edge':
+                compare = next(row['instruction'] for b in function['blocks'] for row in b['instructions']
+                               if row['instruction']['op'] == 'borrowed_null_compare')
+                compare['predicate'] = 'ne'
+            elif mutation == 'asymmetric-birth':
+                caller = data['functions'][0]
+                null = next(row['instruction']['dst'] for b in caller['blocks'] for row in b['instructions']
+                            if row['instruction']['op'] == 'const_null')
+                call = next(b['terminator']['instruction']['operation']['call'] for b in caller['blocks']
+                            if b['terminator']['instruction'].get('operation', {}).get('kind') == 'birth_call'
+                            and b['terminator']['instruction']['operation']['call']['args'][0]['kind'] == 3)
+                call['args'][1] = {'kind': 0, 'value': null}
+            else:
+                block = next(b for b in function['blocks'] if
+                    b['terminator']['instruction'].get('operation', {}).get('kind') == 'object_field_borrow'
+                    and not b['terminator']['instruction']['operation']['nullable'])
+                scalar = next(row['instruction'] for row in block['instructions']
+                              if row['instruction']['op'] == 'object_field_get')
+                block['instructions'].append({'index': len(block['instructions']), 'instruction': {
+                    'op': 'field_set', 'object_id': scalar['object_id'], 'field_ordinal': scalar['field_ordinal'],
+                    'base': scalar['base'], 'value': scalar['dst'], 'site': 777778,
+                    'exact_numeric_runtime_check': {'kind': 'none'}}})
+                block['terminator']['index'] = len(block['instructions'])
+            reject(data, 'published-lifecycle-v4/unsupported-cohort')
+        print('typed recursive guard, paired Birth and strict nonmutation refusals')
+
     def parent(data):
         return next(f for f in data['functions'] if f['name'] == 'Parent.first/1')
 

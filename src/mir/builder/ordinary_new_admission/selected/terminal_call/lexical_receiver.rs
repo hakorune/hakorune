@@ -29,7 +29,7 @@ pub(super) fn prepare(
     let field = if let Some((_, site, field, child)) = stored {
         let base = receiver.value_for(owner, site.node(), binding)
             .map_err(|error| error.to_string())?;
-        if ledger.stored_receiver_uses_dynamic_field_v1(row.source_target())? {
+        if ledger.stored_receiver_requires_checked_read_v1(row.source_target())? {
             let (frame, prior_fault, unwind, owner) = match fault_source {
                 Fault::Call(unwind) => (state.borrow_fault_frame(builder)?, None, unwind.to_vec(), StoredReceiverFaultV1::Call),
                 Fault::Return(exit) => (state.borrow_fault_frame(builder)?, None,

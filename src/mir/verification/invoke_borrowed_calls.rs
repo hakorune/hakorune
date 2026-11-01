@@ -12,6 +12,7 @@ type CallSlots = BTreeMap<(String, BasicBlockId, usize), BTreeSet<usize>>;
 #[derive(Default)]
 pub(super) struct OriginalCallSourceImageV1 {
     pub(super) slots: CallSlots,
+    pub(super) receiver_callees: BTreeSet<String>,
     pub(super) text: BTreeMap<(String, BasicBlockId, usize, usize), ValueId>,
     pub(super) field_reads: Vec<(String, (BasicBlockId, MirInstruction))>,
     pub(super) field_writes: Vec<(String, (BasicBlockId, MirInstruction))>,
@@ -142,20 +143,27 @@ pub(super) fn original_call_slots(
     let mut callees = BTreeSet::new();
     let mut incoming = BTreeSet::new();
     let mut original = BTreeSet::new();
+    let mut nonborrowed_calls = Vec::new();
     source.visit_finalized_borrowed_call_nodes_v1(
         module,
         |packet, arguments, caller, coordinate, _| {
+            let row = packet;
+            let symbol = module.canonical_callable_definition_symbol(row.target())
+                .ok_or_else(|| "borrowed-source-target-missing".to_owned())?;
             if let Some(read) = source.finished_stored_receiver_read_v1(packet, caller)? {
+                if matches!(&read.1, MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldBorrow {
+                    field, child, nullable: false, .. }, .. } if declared_object_field(module, Some(root), *field, *child)) {
+                    image.receiver_callees.insert(symbol.to_owned());
+                }
                 let read = (caller.signature.name.clone(), read);
                 if image.field_reads.contains(&read) { return Err("borrowed-source-coordinate-duplicate".into()); }
                 image.field_reads.push(read);
             }
-            let row = packet;
-            let symbol = module
-                .canonical_callable_definition_symbol(row.target())
-                .ok_or_else(|| "borrowed-source-target-missing".to_owned())?;
             let selected_source = packet.selects_borrowed_source(arguments);
             if !selected_source && !selected.contains(symbol) {
+                nonborrowed_calls.push((symbol.to_owned(),
+                    (caller.signature.name.clone(), coordinate.0, coordinate.1),
+                    row.target().arity(), arguments.len()));
                 return Ok(());
             }
             let offset = match row.target().namespace() {
@@ -246,6 +254,15 @@ pub(super) fn original_call_slots(
             Ok(())
         },
     )?;
+    // A closed typed receiver graph also covers root calls and zero-argument
+    // packets. They owe an original coordinate without acquiring tagged slots.
+    for (symbol, coordinate, arity, arguments) in nonborrowed_calls {
+        if !image.receiver_callees.contains(&symbol) { continue; }
+        if arity != 0 || arguments != 0 { return Err("borrowed-source-entry-coverage".into()); }
+        if image.slots.insert(coordinate, BTreeSet::new()).is_some() {
+            return Err("borrowed-source-coordinate-duplicate".into());
+        }
+    }
     source.visit_finished_map_field_reads_v1(module, |function, binding| {
         let row = (function.signature.name.clone(), binding);
         if image.field_reads.contains(&row) { return Err("borrowed-source-coordinate-duplicate".into()); }
@@ -320,4 +337,13 @@ pub(super) fn declared_object_field(module: &crate::mir::MirModule,
                     layout.fields.get(field.declaration_ordinal() as usize).is_some_and(|slot|
                         slot.slot == field.declaration_ordinal()
                             && slot.storage == crate::mir::function::TypedObjectFieldStorage::Handle))))
+}
+
+/// Check before Document's early return and the argument loop: a zero-argument
+/// call still owes its exact original receiver packet.
+pub(super) fn require_receiver_source(source_bound: bool, callee: &str,
+    required: &BTreeSet<String>, slots: Option<&BTreeSet<usize>>) -> Result<(), &'static str> {
+    if source_bound && required.contains(callee) && slots.is_none() {
+        Err("borrowed-source-call-coverage")
+    } else { Ok(()) }
 }
