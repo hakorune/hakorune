@@ -246,7 +246,11 @@ fn lexical_return_refuses_foreign_exit_lender_and_changed_original_producer() {
 
 #[test]
 fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() {
-    let (ledger, exit, packet, arguments) = fixture();
+    let (ledger, exit, packet, mut arguments) = fixture();
+    let scalar_argument_count = arguments.len();
+    arguments.push((BasicBlockId(0), MirInstruction::Jump {
+        target: BasicBlockId(10), edge_args: None,
+    }));
     let owner = packet.call_site().owner();
     let (original, frame, cleanup) = function(&packet, &arguments);
     let bindings: Vec<_> = arguments
@@ -291,6 +295,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
         .unwrap();
     let RootHomeExitEntry::Call {
         invoke,
+        arguments: finished_arguments,
         projection: result,
         row: RootCallDispositionV1::Lexical(retained),
         ..
@@ -299,6 +304,8 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
         panic!("packet");
     };
     assert_eq!(invoke.0, BasicBlockId(0));
+    assert_eq!(finished_arguments.len(), scalar_argument_count);
+    assert!(finished_arguments.iter().all(|(_, instruction)| !matches!(instruction, MirInstruction::Jump { .. })));
     assert!(matches!(
         result.1,
         MirInstruction::InvokeNormalResult {

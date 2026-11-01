@@ -27,6 +27,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
             u32,
             BindingRefV1,
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+            crate::mir::resolved_semantics::HomeDemandV1,
         ),
     >,
     entry_home: Option<&super::VerifiedInstanceEntryHomeLoanV1>,
@@ -130,6 +131,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
             u32,
             BindingRefV1,
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+            crate::mir::resolved_semantics::HomeDemandV1,
         ),
     >,
     // The probe must see the same lexical instance-call membership the

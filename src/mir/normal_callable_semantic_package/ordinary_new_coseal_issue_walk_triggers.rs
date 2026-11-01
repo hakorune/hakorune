@@ -200,6 +200,10 @@ pub(super) fn has_original_borrowed_walk_v1(
     targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
 ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    // Taking a declared object owns an exit obligation even when the body
+    // never reads it. Plain scalar Completion cannot drop that obligation.
+    let take_entry = catalog.iter().filter(|row| row.owner == owner)
+        .any(|row| row.parameters.iter().any(|formal| formal.takes_declared_object_v1()));
     let local = targets.as_ref().is_ok_and(|rows| {
         rows.iter()
             .filter_map(|row| row.as_ref().ok()?.as_ref())
@@ -209,7 +213,7 @@ pub(super) fn has_original_borrowed_walk_v1(
             })
     });
     let Ok(source) = source else {
-        return Ok(local);
+        return Ok(local || take_entry);
     };
     // The original Unit return demand needs the same complete source Home
     // walk even for an otherwise empty body or a bare Return. Plain control
@@ -220,6 +224,7 @@ pub(super) fn has_original_borrowed_walk_v1(
     )
     .map(|input| {
         input
+            || take_entry
             || local
             || unit
             || source.requires_named_array_holder_walk_v1(owner)

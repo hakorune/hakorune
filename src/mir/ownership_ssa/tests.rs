@@ -41,6 +41,22 @@ fn function(
     (function, abi)
 }
 
+// The lifecycle fixtures reserve value 9 for their root fault frame.
+fn invoke(
+    function: &mut MirFunction,
+    block: u32,
+    operation: crate::mir::instruction::InvokeOperation,
+    normal: u32,
+    fault: u32,
+) {
+    function.get_block_mut(bb(block)).unwrap().set_terminator(MirInstruction::Invoke {
+        operation,
+        fault_frame: value(9),
+        normal_landing: bb(normal),
+        fault_landing: bb(fault),
+    });
+}
+
 fn branch(function: &mut MirFunction, source: u32, condition: u32, then_bb: u32, else_bb: u32) {
     function
         .get_block_mut(bb(source))

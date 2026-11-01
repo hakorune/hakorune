@@ -48,6 +48,10 @@ pub(crate) struct OwnershipFunctionAbiV1 {
     /// Exact finished New-local copies selected by the source handoff.
     aliases: BTreeMap<ValueId, ValueId>,
     initially_published: BTreeSet<ValueId>,
+    /// Source-certified entry-owned parameters, already completely constructed.
+    owned_parameters: BTreeMap<ValueId, hakorune_mir_defs::CanonicalObjectIdV1>,
+    /// Ordinary take transfers at entry, on both outcomes (unlike Birth).
+    call_takes: BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, BTreeMap<u32, hakorune_mir_defs::CanonicalObjectIdV1>>,
     /// Exact complete End contracts retained from this function's source owner.
     shared_descriptors: Vec<crate::mir::instruction::SharedDescriptorV1>,
     /// Source-admitted nullable owned formals. Values remain solely in Birth's
@@ -67,6 +71,8 @@ impl OwnershipFunctionAbiV1 {
             result,
             aliases: BTreeMap::new(),
             initially_published: BTreeSet::new(),
+            owned_parameters: BTreeMap::new(),
+            call_takes: BTreeMap::new(),
             shared_descriptors: Vec::new(),
             birth_takes: BTreeMap::new(),
         }
@@ -95,6 +101,28 @@ impl OwnershipFunctionAbiV1 {
         self
     }
     pub(super) fn initially_published(&self) -> &BTreeSet<ValueId> { &self.initially_published }
+    pub(crate) fn with_source_owned_parameters(mut self, parameters: BTreeMap<ValueId, hakorune_mir_defs::CanonicalObjectIdV1>) -> Self {
+        self.owned_parameters = parameters;
+        self
+    }
+    pub(super) fn owned_parameters(&self) -> &BTreeMap<ValueId, hakorune_mir_defs::CanonicalObjectIdV1> { &self.owned_parameters }
+    pub(crate) fn with_source_call_takes(mut self, takes: BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, BTreeMap<u32, hakorune_mir_defs::CanonicalObjectIdV1>>) -> Self {
+        self.call_takes = takes;
+        self
+    }
+    pub(super) fn call_takes(&self, callee: &crate::mir::Callee) -> Option<(u32, &BTreeMap<u32, hakorune_mir_defs::CanonicalObjectIdV1>)> {
+        if !self.owner.is_source() { return None; }
+        self.call_takes.iter().find_map(|(key, takes)| {
+            let matches = match callee {
+                crate::mir::Callee::SameModuleInstance { key: actual, .. } => actual == key,
+                crate::mir::Callee::Global(actual) => key.canonical_global_target_v1().as_ref() == Ok(actual),
+                _ => false,
+            };
+            matches.then_some((key.arity(), takes))
+        })
+    }
+
+
     pub(crate) fn with_source_shared_descriptors(mut self, rows: Vec<crate::mir::instruction::SharedDescriptorV1>) -> Self {
         self.shared_descriptors = rows;
         self

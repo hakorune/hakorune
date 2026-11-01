@@ -67,7 +67,16 @@ impl OrdinaryNewClaimLedgerV1 {
         // mixed cohort with no legacy draft can lend structural membership
         // for sibling reads; it never selects finite executable input work.
         let nominal = sums.iter().any(|sum| sum.object_class_v1().is_some());
-        if nominal && (!nominal_sibling_structure || contract.mode != Mode::InstanceBoxMethod
+        // Ownership is declared, while the same closed source SUM still proves
+        // each actual's class. This structural view grants no entry transfer.
+        let owned_nominal = borrowed.iter().any(|formal| formal.takes_declared_object_v1())
+            && borrowed.iter().zip(&sums).all(|(formal, sum)| {
+                if formal.takes_declared_object_v1() {
+                    matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(expected)
+                        if sum.nullable_object_class_v1() == Some((expected.as_ref(), false)))
+                } else { sum.finite_input() }
+            });
+        if nominal && !owned_nominal && (!nominal_sibling_structure || contract.mode != Mode::InstanceBoxMethod
             || source.source_definition_for(owner).is_some()
             || !sums.iter().any(|sum| sum.alternatives().contains(
                 &super::super::borrowed_formal_source::SourceValueAlternativeV1::Text))
@@ -79,16 +88,16 @@ impl OrdinaryNewClaimLedgerV1 {
         // Original Text domains select the same finite source structure even
         // when a legacy Uses definition exists. Full uses and incoming still
         // require their original proof; non-Text owners keep that selection.
-        if !text_requested
+        if !text_requested && !owned_nominal
             && (source.definitions.contains_key(&owner) || source.target_static.contains_key(&owner)) {
             return Ok(None);
         }
         // Preserve the existing Text refusal boundary. New scalar families
         // select only a complete original cohort, never one convenient formal.
-        if !text_requested && ((contract.mode == Mode::StaticBoxMethod
+        if !text_requested && !owned_nominal && ((contract.mode == Mode::StaticBoxMethod
             && source.is_scalar_only_static_input_v1(owner)) || sums.is_empty() || !sums.iter().all(|sum| sum.finite_input())) { return Ok(None); }
         let uses = Rc::clone(source.original_formal_uses_v1(owner)?);
-        if !text_requested && !source.original_finite_forward_input_request_v1(owner)
+        if !text_requested && !owned_nominal && !source.original_finite_forward_input_request_v1(owner)
             && !uses.scalar_expression_use_requested_v1() { return Ok(None); }
         if parameters.len() != contract.parameters.len()
             || parameters.iter().zip(&contract.parameters).enumerate().any(|(index, ((ordinal, binding, kind), original))|

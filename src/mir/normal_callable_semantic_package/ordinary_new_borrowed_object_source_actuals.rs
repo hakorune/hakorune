@@ -2,48 +2,7 @@
 //! No source phase owns opaque proofs or grants entry/ABI/Normal permission.
 use super::*;
 
-/// Where the common actual constructor borrows the original local New domain.
-/// This chooses an issuer context; a failed source lookup never retries another.
-#[derive(Clone, Copy)]
-pub(super) enum ObjectActualHomeSourceV1<'a> {
-    Candidates(&'a [super::super::super::candidate::OrdinaryNewCandidate]),
-    Ledger(&'a crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1),
-    SourceOnly,
-}
-impl ObjectActualHomeSourceV1<'_> {
-    pub(super) fn home_class(
-        self,
-        call: &OwnedExprSiteV1,
-        binding: BindingRefV1,
-        root: BindingRefV1,
-        acquisition: &OwnedExprSiteV1,
-    ) -> Result<Option<Box<str>>, String> {
-        if binding.owner() != call.owner()
-            || root.owner() != call.owner()
-            || acquisition.owner() != call.owner()
-        {
-            return Err(format!("{}: call={call:?}, binding={binding:?}, root={root:?}, acquisition={acquisition:?}",
-                freeze("borrowed-actual/home-domain")));
-        }
-        match self {
-            Self::Candidates(candidates) => {
-                let mut matching = candidates
-                    .iter()
-                    .filter(|row| &row.site == acquisition && row.destination == root);
-                let candidate = matching
-                    .next()
-                    .ok_or_else(|| freeze("borrowed-actual/home-source"))?;
-                if matching.next().is_some() || candidate.construction.is_err() {
-                    return Err(format!("{}: call={call:?}, root={root:?}, acquisition={acquisition:?}, class={}, construction={:?}",
-                        freeze("borrowed-actual/home-domain"), candidate.class, candidate.construction.as_ref().err()));
-                }
-                Ok(Some(candidate.class.clone()))
-            }
-            Self::Ledger(ledger) => ledger.borrowed_local_new_actual_class_v1(acquisition, root),
-            Self::SourceOnly => Err(freeze("borrowed-actual/home-source-unconnected")),
-        }
-    }
-}
+pub(super) use super::argument_source::ObjectActualHomeSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct ObjectSourceActualIdentityV1 {

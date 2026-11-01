@@ -179,6 +179,14 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           const char* repr = yyjson_get_str(yyjson_obj_get(
               yyjson_arr_get(cparams, i), "representation"));
           const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+          if (lv4_is(yyjson_arr_get(cparams, i), "ownership", "take")) {
+            hako_lv4_value* root = lv4_take_call_argument_root(in, fn, call, i, lv4_u(block, "id"));
+            if (!root || root->origin < 0 || (size_t)root->origin >= count ||
+                state[root->origin] != LV4_LIVE) return 0;
+            /* Entry consumes on both edges; alias repetition sees a spent origin. */
+            normal[root->origin] = state[root->origin] = 0;
+            continue;
+          }
           if (repr && !strcmp(repr, "borrowed_kind_payload_v1")) {
             yyjson_val* kind = yyjson_obj_get(arg, "kind");
             yyjson_val* view = yyjson_obj_get(yyjson_arr_get(cparams, i), "object_view");
@@ -667,6 +675,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          without the exact-object corroboration. */
       int nullable_release = lv4_is(op, "kind", "home_release_if_live");
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+      if (lv4_is(op, "kind", "reclaim_unpublished") &&
+          lv4_owned_parameter_object(in, fn, lv4_value_alias_root(fn, value))) return 0;
       /* Only a live caller-owned acquisition may end. Birth formals and
          their Copies remain caller-owned until this Birth returns Normal. */
       if ((fi && !ordinary && !birth) || !value || value->origin < 0 ||

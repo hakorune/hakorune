@@ -69,7 +69,7 @@ impl OrdinaryNewClaimLedgerV1 {
         completion: &Rc<VerifiedFunctionCompletionV1>,
     ) -> Result<(), String> {
         let row = self.implicit_root_home_source_v1(owner, completion)?;
-        let order = RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+        let order = RootHomeCleanupOrderV1::from_home_end_plans_for_exit(self,
             &self.local_commits.borrow(),
             &RootHomeExitKeyV1::ImplicitBodyEnd,
             row.homes(),
@@ -137,7 +137,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .expect("validated implicit producer");
         let row = self.implicit_root_home_source_v1(owner, completion)?;
-        let source_order = RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+        let source_order = RootHomeCleanupOrderV1::from_home_end_plans_for_exit(self,
             &self.local_commits.borrow(),
             &RootHomeExitKeyV1::ImplicitBodyEnd,
             row.homes(),

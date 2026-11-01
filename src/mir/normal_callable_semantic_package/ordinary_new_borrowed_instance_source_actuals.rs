@@ -366,6 +366,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                     binding,
                     root,
                     ref acquisition,
+                    ..
                 } if (owning_input_request || field_input_request || unit_request)
                     && binding.owner() == site.owner()
                     && root.owner() == site.owner()

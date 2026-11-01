@@ -320,6 +320,7 @@ impl<'a> CallValidationContextV1<'a> {
             match progress {
                 RootHomeExitProgress::Emitted { bindings, order, .. } => {
                     visit(bindings);
+                    if let Some(frame) = &order.original_frame { visit(std::slice::from_ref(frame)); }
                     // The return expression's own Fault chain also discharges live Homes.
                     visit(&order.return_expression_bindings_v1(self)?);
                 }

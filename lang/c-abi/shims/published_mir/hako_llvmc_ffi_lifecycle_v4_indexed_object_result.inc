@@ -10,12 +10,17 @@ static int lv4_owned_value_object(const hako_lv4_input* in,
    * Copy/unanimous-Phi root may lend provisional object correspondence while
    * the alias kind is BAD; this never fixes or overrides its union kind. */
   hako_lv4_value* root = lv4_value_alias_root(fn, value);
-  if (!root || root->kind != LV4_HANDLE || root->origin < 0 ||
-      (size_t)root->origin >= fn->block_count) return 0;
+  if (!root || root->kind != LV4_HANDLE || root->origin < 0) return 0;
   if (value->kind == LV4_BAD) {
     if (root == value || !(lv4_is(value->instruction, "op", "copy") ||
         lv4_is(value->instruction, "op", "phi"))) return 0;
   } else if (value->kind != LV4_HANDLE || root->origin != value->origin) return 0;
+  if (lv4_owned_parameter_object(in, fn, root)) {
+    if (value->object_id_set && value->object_id != root->object_id) return 0;
+    value->object_id = root->object_id; value->object_id_set = 1;
+    return 1;
+  }
+  if ((size_t)root->origin >= fn->block_count) return 0;
   if (!lv4_is(root->instruction, "op", "invoke_normal_result") ||
       !root->definition_block) return 0;
   hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
@@ -96,6 +101,35 @@ static int lv4_original_birth_completed(const hako_lv4_input* in,
         !hako_physical_block_dominates(fn->function, lv4_u(birth, "normal"), use)) return 0;
   }
   return births == 1;
+}
+
+/* Take accepts the authenticated incoming obligation or this exact completed
+ * local construction. Class/liveness alone cannot publish an allocation. */
+static int lv4_take_object_ready(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, uint32_t object, uint32_t use) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  return root && root->kind == LV4_HANDLE && root->object_id_set && root->object_id == object &&
+      lv4_owned_value_object(in, fn, value, 0) &&
+      (lv4_owned_parameter_object(in, fn, root) || lv4_original_birth_completed(in, fn, root, object, use));
+}
+
+/* Authenticate the exact take formal/actual pair before the flow owner
+ * changes either edge's live-token state. This query consumes nothing. */
+static hako_lv4_value* lv4_take_call_argument_root(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* call, size_t ordinal, uint32_t use) {
+  uint32_t target = lv4_u(call, "target");
+  if (!target || target >= in->index_count) return NULL;
+  yyjson_val* callee = in->index[target].function;
+  yyjson_val* formal = yyjson_arr_get(yyjson_obj_get(callee, "params"), ordinal);
+  yyjson_val* arg = yyjson_arr_get(yyjson_obj_get(call, "args"), ordinal);
+  hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
+  if (!lv4_is(formal, "ownership", "take") || !lv4_is(formal, "representation", "i64") ||
+      !lv4_is(arg, "kind", "i64") ||
+      !lv4_take_object_ready(in, fn, value, lv4_u(formal, "object_id"), use)) return NULL;
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (yyjson_is_uint(yyjson_obj_get(callee, "receiver")) &&
+      lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(call, "receiver"))) == root) return NULL;
+  return root;
 }
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_object_return_origin.inc"

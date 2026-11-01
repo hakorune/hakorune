@@ -26,7 +26,7 @@ typedef struct hako_lv4_function_index {
   int receiver_object_set;
   uint32_t return_object;
   int return_object_state;
-  int has_text_carriers;
+  int has_text_carriers, has_owned_parameters;
   /* Sibling table and the scalar-leaf fact: a body whose only effects are
      scalar field reads/writes can never mutate a Map slot or any residence. */
   const struct hako_lv4_function_index* peers;
@@ -42,7 +42,7 @@ typedef struct hako_lv4_function_index {
 } hako_lv4_function_index;
 
 static size_t lv4_state_count(const hako_lv4_function_index* fn) {
-  return fn->block_count + (fn->has_text_carriers ? fn->value_count : 0);
+  return fn->block_count + ((fn->has_text_carriers || fn->has_owned_parameters) ? fn->value_count : 0);
 }
 typedef struct hako_lv4_layout_index {
   uint32_t id;
@@ -458,6 +458,7 @@ static void lv4_index_close(hako_lv4_input* in) {
   free(in->layouts); in->layouts = NULL; in->layout_count = 0;
 }
 
+static int lv4_owned_parameter_object(const hako_lv4_input*, hako_lv4_function_index*, hako_lv4_value*);
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_object_result.inc"
 
 static int lv4_index_open(hako_lv4_input* in) {
@@ -516,7 +517,11 @@ static int lv4_index_open(hako_lv4_input* in) {
       hako_lv4_value* param = &fn->values[fn->value_count++];
       yyjson_val* row = yyjson_arr_get(params, pi);
       param->id = lv4_u(row, "value");
-      if (ordinary && lv4_is(row, "representation", "map")) {
+      if (ordinary && lv4_is(row, "ownership", "take")) {
+        if (!lv4_is(row, "representation", "i64") || !lv4_layout(in, lv4_u(row, "object_id"))) return 0;
+        param->kind = LV4_HANDLE; param->object_id = lv4_u(row, "object_id");
+        param->object_id_set = 1; param->origin = -1; fn->has_owned_parameters = 1;
+      } else if (ordinary && lv4_is(row, "representation", "map")) {
         /* Borrowed checked-map storage: caller-owned lease, never an
            allocation and never ended here. */
         param->kind = LV4_MAP; param->origin = -2;
@@ -560,6 +565,14 @@ static int lv4_index_open(hako_lv4_input* in) {
       if (fn->values[i-1].id == fn->values[i].id) return 0;
     for (size_t i = 1; i < fn->block_count; i++)
       if (fn->blocks[i-1].id == fn->blocks[i].id) return 0;
+    if (fn->has_owned_parameters) {
+      if (fn->value_count > (size_t)INT_MAX - fn->block_count) return 0;
+      for (size_t i = 0; i < fn->value_count; i++) {
+        hako_lv4_value* value = &fn->values[i];
+        if (!value->instruction && value->origin == -1 && value->kind == LV4_HANDLE && value->object_id_set)
+          value->origin = (int)(fn->block_count + i);
+      }
+    }
   }
   for (size_t fi = 0; fi < functions; fi++) {
     in->index[fi].peers = in->index;
@@ -568,6 +581,27 @@ static int lv4_index_open(hako_lv4_input* in) {
     if (!lv4_pred_build(&in->index[fi])) return 0;
   }
   return 1;
+}
+
+/* An original owned parameter is a real entry value, never a synthetic New.
+ * Its existing value-index token is shared by all verified Copy/Phi aliases. */
+static int lv4_owned_parameter_object(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value) {
+  if (!value || value->instruction || value->kind != LV4_HANDLE || !value->object_id_set ||
+      value < fn->values || value >= fn->values + fn->value_count ||
+      value->origin != (int)(fn->block_count + (size_t)(value - fn->values)) ||
+      !lv4_is_ordinary(fn->function) || !lv4_layout(in, value->object_id)) return 0;
+  yyjson_val* params = yyjson_obj_get(fn->function, "params");
+  size_t matches = 0;
+  for (size_t i = 0; i < yyjson_arr_size(params); i++) {
+    yyjson_val* param = yyjson_arr_get(params, i);
+    if (lv4_u(param, "value") != value->id) continue;
+    if (!lv4_is(param, "ownership", "take") || !lv4_is(param, "representation", "i64") ||
+        !yyjson_is_uint(yyjson_obj_get(param, "object_id")) ||
+        lv4_u(param, "object_id") != value->object_id) return 0;
+    matches++;
+  }
+  return matches == 1;
 }
 
 static yyjson_val* lv4_direct_layout(const hako_lv4_input* in, uint32_t object) {

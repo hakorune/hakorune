@@ -76,10 +76,12 @@ fn typed_object_home_is_borrowed_and_not_transferred_into_the_pending_call() {
         root,
         class,
         acquisition,
+        moved,
     } = &row.source
     else {
         panic!("typed object provenance")
     };
+    assert!(moved.is_none());
     assert_eq!(binding, root);
     assert_eq!(class.as_ref(), "Transport");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();

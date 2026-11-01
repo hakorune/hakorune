@@ -30,6 +30,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// resolved `(prior_homes, required_unwind)`; `None` marks a retained
     /// unavailable prefix.
     fn compute_emission_prepare(
+        &self,
         rows: &std::collections::BTreeMap<OwnedExprSiteV1, LocalCommitV1>,
         site: &OwnedExprSiteV1,
         arity: usize,
@@ -88,6 +89,10 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("prepare-outward-site"));
                 }
                 for binding in prior_homes {
+                    if let Some(plans) = self.take_entry_home_end_plan_v1(binding)? {
+                        operands.extend(plans.into_iter().map(|(_, operation)| operation));
+                        continue;
+                    }
                     let prior = installed_source_home(rows, binding).map_err(|error| match error {
                         HomeLookupError::Missing => freeze("prior-home-not-installed"),
                         HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
@@ -122,7 +127,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("allocation-only/source-home-closure-unavailable"));
             }
         }
-        let mut rows = self.local_commits.borrow_mut();
+        let rows = self.local_commits.borrow();
         let row = rows
             .get(claim.site())
             .and_then(LocalCommitV1::ordinary)
@@ -141,7 +146,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .home_prefix()
             .ok()
             .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
-        let next = Self::compute_emission_prepare(
+        let next = self.compute_emission_prepare(
             &rows,
             claim.site(),
             claim.arity(),
@@ -157,6 +162,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if !available {
             self.release_staged_argument_reads(claim.site())?;
         }
+        drop(rows);
+        let mut rows = self.local_commits.borrow_mut();
         rows.get_mut(claim.site())
             .and_then(LocalCommitV1::ordinary_mut)
             .expect("checked ordinary row")
@@ -170,7 +177,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         claim: &OrdinaryNewResultClaimV1,
     ) -> Result<bool, String> {
-        let mut rows = self.local_commits.borrow_mut();
+        let rows = self.local_commits.borrow();
         let row = rows
             .get(claim.site())
             .and_then(LocalCommitV1::result)
@@ -185,7 +192,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .home_prefix()
             .ok()
             .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
-        let mut next = Self::compute_emission_prepare(
+        let mut next = self.compute_emission_prepare(
             &rows,
             claim.site(),
             claim.arity(),
@@ -219,6 +226,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if !available {
             self.release_staged_argument_reads(claim.site())?;
         }
+        drop(rows);
+        let mut rows = self.local_commits.borrow_mut();
         rows.get_mut(claim.site())
             .and_then(LocalCommitV1::result_mut)
             .expect("checked result row")

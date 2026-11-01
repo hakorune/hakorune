@@ -13,6 +13,9 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_formal_actual_model.rs"]
 mod model;
+#[path = "call_argument_source.rs"]
+mod argument_source;
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::source_take_homes_v1;
 pub(super) use instance_source::{
     original_core_argument_input_request_v1, revalidate_passive_instance_incoming_v1,
     revalidate_passive_instance_incoming_with_array_context_v1,

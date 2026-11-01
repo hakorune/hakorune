@@ -182,6 +182,25 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
 
+    /// Original ownership demand, independent of a borrowed carrier projection.
+    pub(crate) fn take_ordinary_entry_bindings_v1(&self, owner: FunctionOwnerIdV1)
+        -> Result<std::collections::BTreeSet<BindingRefV1>, String> {
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let mut rows = catalog.iter().filter(|row| row.owner == owner);
+        let row = rows.next().ok_or_else(|| freeze("borrowed-entry/original-contract-missing"))?;
+        if rows.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
+        let mut result = std::collections::BTreeSet::new();
+        for parameter in &row.parameters {
+            if parameter.demand != crate::mir::resolved_semantics::HomeDemandV1::Home { continue; }
+            if !matches!(parameter.kind, crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject(_))
+                || parameter.binding.owner() != owner || !result.insert(parameter.binding) {
+                return Err(freeze("borrowed-entry/actuals-identity"));
+            }
+        }
+        Ok(result)
+    }
+
     /// Loan the original declared classes for exactly the validated pre-entry
     /// rows. Inferred opaque object views grant no declared-header authority.
     pub(crate) fn borrowed_ordinary_entry_declared_classes_v1(
@@ -199,9 +218,10 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let original_declared_source = self.checked_mixed_instance_entry_v1(source, owner)?.is_some()
             || self.checked_borrowed_result_instance_entry_v1(source, owner)?.is_some();
+        let takes = self.take_ordinary_entry_bindings_v1(owner)?;
         let mut classes = BTreeMap::new();
         for (_, binding, _) in rows {
-            let view = if original_declared_source {
+            let view = if original_declared_source || takes.contains(binding) {
                 source.source_object_view_v1(*binding)?
             } else {
                 source.formal_object_view(*binding)

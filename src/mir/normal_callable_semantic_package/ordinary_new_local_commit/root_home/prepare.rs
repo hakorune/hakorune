@@ -95,7 +95,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 row.homes().iter().map(|home| home.binding()).collect::<Vec<_>>());
         }
         let rows = self.local_commits.borrow();
-        let Some(mut order) = RootHomeCleanupOrderV1::from_home_end_plans(
+        let Some(mut order) = RootHomeCleanupOrderV1::from_home_end_plans(self,
             &rows,
             &exit,
             row.fault_homes(),

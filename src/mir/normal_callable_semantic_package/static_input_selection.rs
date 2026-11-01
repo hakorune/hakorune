@@ -1,14 +1,7 @@
 //! Original input selection, passive source staging and closed domain queries.
 use super::*;
-use super::static_input_finish::{StaticInputFinishV1, StaticInputEvidenceV1, original_zero_input_source_v1};
-use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
-use crate::mir::normal_callable_semantic_package::{
-    physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
-    qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
-    result_contract::VerifiedCallableResultContractCohortV1,
-    selected_mapping::VerifiedSelectedCallableBatchMapV1, OrdinaryNewClaimLedgerV1,
-};
-use std::rc::Rc;
+use super::static_input_finish::{StaticInputFinishV1, StaticInputEvidenceV1};
+use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Complete passive source rows for selected Static input cohorts before
@@ -27,7 +20,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let prepared = prepared.as_ref().map_err(Clone::clone)?;
         let sources: Vec<_> = prepared.original_static_input_sources_v1()
             .filter(|original| {
-                prepared.original_finite_forward_input_request_v1(original.callee_owner())
+                original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
+                    || prepared.original_finite_forward_input_request_v1(original.callee_owner())
                     || original.parameters().iter().any(|formal|
                         matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
                             && prepared.source_value_sum_v1(formal.binding).is_some_and(|sum|
@@ -142,6 +136,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             all_signed && has_expression
                         });
                     finite_forward || text_source || scalar_expression_source
+                        || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }
                 _ => false,
             };
@@ -167,7 +162,9 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|formal| {
                 source
                     .lend_source_value_sum_v1(formal.binding)
-                    .filter(|sum| !sum.alternatives().is_empty())
+                    .filter(|sum| !sum.alternatives().is_empty() && (!formal.takes_declared_object_v1()
+                        || matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(expected)
+                            if sum.nullable_object_class_v1() == Some((expected.as_ref(), false)))))
                     .map(|sum| {
                         super::super::borrowed_formal_entry::BorrowedFormalDomainV1::from_source_v1(
                             formal.ordinal,

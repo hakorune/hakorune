@@ -406,7 +406,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 )
             })
             .collect::<Result<Vec<_>, _>>()?;
-        let mapped_arguments = arguments.iter().map(map).collect::<Result<Vec<_>, _>>()?;
+        // Internal argument CFG jumps may contract after full boundary validation.
+        // The outer Invoke, result, frame and all effects must still survive.
+        let mapped_arguments = projection.bindings(arguments)?;
         let mapped_invoke = map(invoke)?;
         let mapped_projection = map(result_projection)?;
         let mapped_frame = map(frame)?;

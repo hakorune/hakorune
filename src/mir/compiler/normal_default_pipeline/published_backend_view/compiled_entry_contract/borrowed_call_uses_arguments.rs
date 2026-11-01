@@ -20,6 +20,7 @@ impl BorrowedCallUses {
             .or_default();
         let entry = source.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         state.finite_input = entry.uses_finite_input_v1();
+        state.owned_formals = source.take_entry_bindings_v1(owner)?;
         for (ordinal, formal, value) in source.borrowed_ordinary_entry_values_v1(owner)?.iter() {
             if let Some(domain) = entry.formal_domain_v1(*ordinal, *formal)? {
                 if state.domains.insert(*value, domain.clone()).is_some_and(|previous| previous != *domain) {
@@ -167,6 +168,9 @@ impl BorrowedCallUses {
         })?;
         state.object_views =
             source.borrowed_ordinary_formal_object_views_v1(owner, function)?;
+        if state.owned_formals.iter().any(|formal| !state.object_views.contains_key(formal)) {
+            return Err(fault("borrowed-use/entry-parameter"));
+        }
         Ok(())
     }
 

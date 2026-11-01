@@ -6,11 +6,14 @@ use crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1 a
 use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 use super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 
+use crate::mir::compiler::published_backend_view::take_parameter_objects_v1;
+
 pub(super) fn encode_parameters(
     function: &PublishedLifecyclePhysicalFunctionV1<'_>,
     ordinal: u32,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Vec<Value>, String> {
+    let takes = take_parameter_objects_v1(function, abi_input)?;
     function.params().iter().skip(usize::from(function.role().has_receiver()))
                     .zip(function.param_types().iter().skip(usize::from(function.role().has_receiver())))
                     .enumerate()
@@ -112,6 +115,13 @@ pub(super) fn encode_parameters(
                             "value": value(param),
                             "representation": representation,
                         });
+                        if let Some(object) = takes.get(&(index + usize::from(function.role().has_receiver()))) {
+                            if representation != "i64" || carrier != Some(Carrier::ExistingCallableI64) {
+                                return Err(fault("param-carrier-drift"));
+                            }
+                            row["ownership"] = json!("take");
+                            row["object_id"] = json!(object.declaration_index());
+                        }
                         if representation == "borrowed_kind_payload_v1" {
                             let input = abi_input
                                 .ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
@@ -187,10 +197,11 @@ pub(super) fn encode_ordinary_call(
         return Err(fault("ordinary-result-role-correspondence"));
     }
     let offset = usize::from(callee.role().has_receiver());
+    let takes = take_parameter_objects_v1(callee, abi_input)?;
     let selected = callee
         .param_carriers()
         .is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue));
-    let issued_call = if selected {
+    let issued_call = if selected || !takes.is_empty() {
         let input = abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
         corroborate_function(caller, caller_function_index, input)?;
         corroborate_function(callee, *target, input)?;
@@ -209,7 +220,7 @@ pub(super) fn encode_ordinary_call(
         {
             return Err(fault("borrowed-carrier-call-drift"));
         }
-        row.borrowed_actuals().ok_or_else(|| fault("borrowed-carrier-source-missing"))?;
+        if selected { row.borrowed_actuals().ok_or_else(|| fault("borrowed-carrier-source-missing"))?; }
         Some(row)
     } else {
         None
@@ -221,6 +232,15 @@ pub(super) fn encode_ordinary_call(
         let mut proofs = issued_actuals.into_iter().flatten().filter(|row| row.ordinal as usize == index);
         let proof = proofs.next();
         if proofs.next().is_some() { return Err(fault("borrowed-carrier-ordinal-duplicate")); }
+        if takes.contains_key(&(index + offset)) {
+            let proof = proof.ok_or_else(|| fault("borrowed-carrier-ordinal-missing"))?;
+            if carrier != Some(&Carrier::ExistingCallableI64) ||
+                !matches!(&proof.source, Source::TypedHome { moved: Some(_), .. }) {
+                return Err(fault("ordinary-argument-kind"));
+            }
+            consumed += 1;
+            return Ok(json!({"kind":"i64", "value":value.0}));
+        }
         if carrier == Some(&Carrier::BorrowedTaggedValue) {
             let proof = proof.ok_or_else(|| fault("borrowed-carrier-ordinal-missing"))?;
             consumed += 1;

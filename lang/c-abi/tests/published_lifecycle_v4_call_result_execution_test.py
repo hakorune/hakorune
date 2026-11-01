@@ -12,7 +12,8 @@ ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
 INPUTS = Path(sys.argv[1])
 STEM = sys.argv[2] if len(sys.argv) > 2 else 'hako-issued-borrowed-call-result'
-OWNED = len(sys.argv) > 3 and sys.argv[3] == 'owned'
+MODE = sys.argv[3] if len(sys.argv) > 3 else ''
+OWNED = MODE == 'owned'
 ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
                              ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
@@ -28,17 +29,67 @@ def checked(argv):
     return result
 
 
+def link_owned_probe(driver, path, obj, exe):
+    checked([driver, path, obj])
+    checked(['cc', '-DHAKO_TEST_OWNED_CALL_RESULT', obj,
+             TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+             *['-Wl,--wrap=nyash.' + name + '_v1' for name in WRAPS + ['object.checked_new']],
+             '-lpthread', '-ldl', '-lm', '-o', exe])
+
+
+def take_entries(driver, obj, exe, work):
+    original = {}
+    for suffix, homes, faults in [('', 1, []), ('-timing', 3, [2, 3])]:
+        path = INPUTS / f'{STEM}{suffix}.json'
+        original[suffix] = json.loads(path.read_text())
+        link_owned_probe(driver, path, obj, exe)
+        for fault in [0, *faults]:
+            env = dict(ENV, V4_PROBE_MODE='normal')
+            if fault:
+                env['V4_PROBE_NEW_FAULT_AT'] = str(fault)
+            run = subprocess.run([exe], env=env, capture_output=True, text=True)
+            released, attempts = (fault - 1, fault) if fault else (homes, homes)
+            assert run.returncode == (70 if fault else 7), (path, fault, run.stdout, run.stderr)
+            assert f'OWNED {attempts} {released} {released}\n' in run.stdout, (path, fault, run.stdout)
+            assert f'COUNTS 1 {released} {released} 0 {int(bool(fault))} 1\n' in run.stdout, run.stdout
+            print('take', suffix or 'entry', fault or 'Normal', 'acquisition/End/release match')
+
+    def calls(graph):
+        root = next(fn for fn in graph['functions'] if fn['role'] == 'root_i64')
+        ordinary = [block for block in root['blocks']
+                    if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call']
+        take = next(block for block in ordinary if any(param.get('ownership') == 'take'
+            for param in graph['functions'][block['terminator']['instruction']['operation']['call']['target']]['params']))
+        other = next(block for block in ordinary if block is not take)
+        return other, take
+
+    # Reuse original, fully issued cleanup blocks and diagnostic sites. Only
+    # the Fault edge changes; neither mutant can hide behind a malformed End.
+    for entered in [False, True]:
+        graph = copy.deepcopy(original['-timing'])
+        argument, call = calls(graph)
+        changed, destination = (call, argument) if entered else (argument, call)
+        term = changed['terminator']['instruction']
+        old, target = term['fault'], destination['terminator']['instruction']['fault']
+        term['fault'] = target
+        for edge in changed['edges']:
+            if edge['target'] == old:
+                edge['target'] = target
+        path = work / 'invalid-take-edge.json'
+        path.write_text(json.dumps(graph))
+        before = obj.read_bytes()
+        result = subprocess.run([driver, path, obj], capture_output=True, text=True)
+        assert result.returncode != 0 and 'unsupported-cohort' in result.stderr, result
+        assert obj.read_bytes() == before
+        print('take', 'caller re-End after entry' if entered else 'missing caller End before entry', 'rejected')
+
+
 def owned_results(driver, obj, exe, work):
     paths = sorted(INPUTS.glob(f'{STEM}-received*-nullable*-opt*.json'))
     assert len(paths) == 16, ('original typed8 and opaque8 required', len(paths))
-    wraps = WRAPS + ['object.checked_new']
 
     def execute(path, homes=3):
-        checked([driver, path, obj])
-        checked(['cc', '-DHAKO_TEST_OWNED_CALL_RESULT', obj,
-                 TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
-                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
-                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        link_owned_probe(driver, path, obj, exe)
         for kind, boundary in [('normal', 0),
                                *[('new', n) for n in range(1, homes + 1)],
                                *[('home', n) for n in range(1, homes + 1)]]:
@@ -316,6 +367,9 @@ with tempfile.TemporaryDirectory(prefix='hako call result composition ') as dire
     driver, obj, exe = [work / name for name in ('driver', 'issued.o', 'issued')]
     checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
              '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    if MODE == 'take':
+        take_entries(driver, obj, exe, work)
+        sys.exit(0)
     if OWNED:
         owned_results(driver, obj, exe, work)
         sys.exit(0)

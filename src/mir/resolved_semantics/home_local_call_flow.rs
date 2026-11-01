@@ -727,6 +727,7 @@ pub(super) use borrowed_actuals::{
 #[path = "home_local_call_arguments.rs"]
 mod arguments;
 use arguments::seal_lexical_i64_arguments_at;
+pub(crate) use arguments::issue_static_i64_local_call;
 
 #[cfg(test)]
 #[path = "home_lexical_nullable_call_tests.rs"]
@@ -758,5 +759,3 @@ pub(crate) fn issue_static_source_local_for_test(
 
 #[path = "home_local_unit_discard.rs"]
 mod unit_discard;
-
-pub(crate) use arguments::issue_static_i64_local_call;

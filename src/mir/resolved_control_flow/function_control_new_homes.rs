@@ -89,6 +89,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             u32,
             crate::mir::resolved_semantics::BindingRefV1,
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+            crate::mir::resolved_semantics::HomeDemandV1,
         ),
     >,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,

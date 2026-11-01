@@ -329,6 +329,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     locals.record_source_loop_call_v1(statement.site(), &call);
                     path_calls.insert(call.site().clone());
                     local_calls.push(call);
+                    locals.commit_statement_takes_v1(statement.site(), local_calls, homes, unavailable, borrowed_actuals)?;
                     continue;
                 }
                 // A result-owning call whose value is dropped at the statement end.
@@ -622,6 +623,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             borrowed_actuals,
             view_use,
         )?;
+        locals.commit_statement_takes_v1(statement.site(), local_calls, homes, unavailable, borrowed_actuals)?;
         let mut calls = local_calls
             .iter()
             .filter(|call| call.statement() == statement.site() && !call.is_expression_value());

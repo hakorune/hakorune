@@ -94,7 +94,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .get(port)
             .ok_or_else(|| freeze("source-loop/cleanup-port"))?;
         let homes: Vec<_> = product.port_fault_homes_v2(port)?.into_iter().rev().collect();
-        let (full, normal) = super::super::source_home_end_selection_v2(
+        let (full, normal) = super::super::source_home_end_selection_v2(self,
             &self.local_commits.borrow(),
             &homes,
             source.normal_ends(),

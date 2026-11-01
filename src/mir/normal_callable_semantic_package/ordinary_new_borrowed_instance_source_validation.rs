@@ -494,7 +494,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
             .get(*ordinal as usize)
             .ok_or_else(|| freeze("borrowed-instance/actual-identity"))?;
         let local_object = original_local_object_binding_actual_v1(ingress, contracts, call, identity, candidate);
-        let home_class = if let BorrowedCallActualValueV1::Home { binding, root, acquisition } = &candidate.value {
+        let home_class = if let BorrowedCallActualValueV1::Home { binding, root, acquisition, .. } = &candidate.value {
             match array_ledger {
                 Some(ledger) => super::object_source::ObjectActualHomeSourceV1::Ledger(ledger)
                     .home_class(&call.call, *binding, *root, acquisition)?,

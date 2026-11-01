@@ -342,6 +342,13 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         };
     }
     let function = input.function();
+    // Move preserves the original operand's value class. Ownership and use
+    // permission remain obligations of the source Home/call-entry analysis.
+    if let Some(unary) = function.expression_source().unary(site).filter(|unary|
+        unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move) {
+        return classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+            caller, candidates, receiver, definitions, contracts, unary.operand(), guarded, inventory, source_context, inherited);
+    }
     match function.expression_source().literal(site) {
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null) => {
             return OriginalFormalActualSeedV1::Null;

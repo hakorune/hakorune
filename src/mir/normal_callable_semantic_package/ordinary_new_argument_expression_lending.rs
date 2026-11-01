@@ -316,10 +316,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn observed_argument_source
         let eligible = match crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, arg.site()) {
             Some(BorrowedCallActualValueV1::Expression) => true,
             Some(BorrowedCallActualValueV1::Binding(_)) => matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle),
-            Some(BorrowedCallActualValueV1::MethodCall(method)) => prepared.ordinary_core_source_v1(
-                &OwnedExprSiteV1::new(input.owner(), arg.site().clone())).is_some_and(|core|
-                    std::sync::Arc::ptr_eq(&method, core.source().source())
-                        && core.source().target().result() == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller),
+            Some(BorrowedCallActualValueV1::MethodCall(method)) => {
+                let argument = OwnedExprSiteV1::new(input.owner(), arg.site().clone());
+                if let Some(original) = ordinary_argument_call_source_v1(prepared, &argument, &method)? {
+                    original.accepts_argument_formal_v1(&formal.kind)
+                } else {
+                    prepared.ordinary_core_source_v1(&argument).is_some_and(|core|
+                        std::sync::Arc::ptr_eq(&method, core.source().source())
+                            && core.source().target().result() == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller)
+                }
+            },
             _ => false,
         };
         if !eligible {

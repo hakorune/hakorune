@@ -33,7 +33,7 @@ impl FinalizedRootSourceHandoffV1 {
                     .ok_or_else(|| freeze("root-exit-source-missing"))?;
                 let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) = rows.get(&(owner, site.clone().into()))
                     else { return Err(freeze("root-exit-unconsumed")) };
-                let mut expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+                let mut expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(&self.ledger,
                     &self.ledger.local_commits.borrow(), &site.clone().into(), source.fault_homes(), source.homes())?
                     .ok_or_else(|| freeze("root-home-end-unavailable"))?;
                 self.ledger.adopt_loop_return_text_ends_v1(owner, &site.clone().into(), &mut expected)?;
@@ -69,7 +69,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) =
                     exits.get(&(owner, site.clone().into()))
                 else { return Err(freeze("root-exit-unconsumed")); };
-                let mut expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(
+                let mut expected = super::root_home::RootHomeCleanupOrderV1::from_home_end_plans_for_exit(&self.ledger,
                     &self.ledger.local_commits.borrow(), &site.clone().into(),
                     source.homes(), source.homes(),
                 )?.ok_or_else(|| freeze("root-home-end-unavailable"))?;
@@ -456,6 +456,19 @@ pub(super) fn validate_finished_cleanup_entry(
         Some(finishing) => finishing.bindings(bindings)?,
         None => bindings.to_vec(),
     };
+    if let Some(original) = &order.original_frame {
+        let frame = projection.binding(original.0, &original.1)?
+            .ok_or_else(|| freeze("root-frame-missing"))?;
+        let MirInstruction::FaultFrameEnter { dst, .. } = frame.1 else { return Err(freeze("root-frame-missing")); };
+        if !physical_boundary::check_binding(function, None, frame.0, &frame.1)?
+            || function.blocks.values().flat_map(|block| block.all_instructions())
+                .filter(|instruction| matches!(instruction, MirInstruction::FaultFrameEnter { .. })).count() != 1
+            || mandatory.iter().any(|(_, instruction)| matches!(instruction,
+                MirInstruction::Invoke { fault_frame, .. } if *fault_frame != dst)) {
+            return Err(freeze("root-frame-missing"));
+        }
+        mandatory.push(frame);
+    }
     if let Some(packet) = order.installed_map_return() {
         packet.validate_return(entry, bindings, finishing)?;
         packet.validate(context, function, Some(projection), entry)?;

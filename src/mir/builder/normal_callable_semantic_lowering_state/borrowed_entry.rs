@@ -62,6 +62,8 @@ impl CallableSemanticLoweringState {
             .as_ref()
             .ok_or_else(|| freeze("borrowed-entry/source-ledger-missing"))?
             .borrowed_ordinary_entry_declared_classes_v1(self.owner, row)?;
+        let takes = self.ordinary_new_claim_ledger.as_ref().unwrap()
+            .take_ordinary_entry_bindings_v1(self.owner)?;
         let rows = row.as_ref().unwrap();
         let function = builder
             .function_state
@@ -123,7 +125,7 @@ impl CallableSemanticLoweringState {
                 {
                     return Err(freeze("borrowed-entry/declared-header-or-value-drift"));
                 }
-                projected.push((index, *value));
+                if !takes.contains(binding) { projected.push((index, *value)); }
             } else if !matches!(
                 function.signature.params.get(index),
                 Some(crate::mir::MirType::Unknown | crate::mir::MirType::Integer)
@@ -140,7 +142,9 @@ impl CallableSemanticLoweringState {
             {
                 return Err(freeze("borrowed-entry/carrier-formal-drift"));
             }
-            carriers[index] = Carrier::BorrowedTaggedValue;
+            if takes.contains(binding) {
+                if !declared.contains_key(binding) { return Err(freeze("borrowed-entry/declared-header-or-value-drift")); }
+            } else { carriers[index] = Carrier::BorrowedTaggedValue; }
         }
         Ok(Some((carriers.into_boxed_slice(), projected)))
     }
@@ -179,8 +183,12 @@ impl CallableSemanticLoweringState {
             return Err(freeze("dynamic-entry/receiver-layout"));
         }
         let mut carriers = original.to_vec();
+        let takes = self.ordinary_new_claim_ledger.as_ref()
+            .ok_or_else(|| freeze("borrowed-entry/source-ledger-missing"))?
+            .take_ordinary_entry_bindings_v1(self.owner)?;
         let mut projected = Vec::with_capacity(formals.len());
         for (ordinal, binding) in formals.iter() {
+            if takes.contains(binding) { return Err(freeze("dynamic-entry/formal-source-drift")); }
             let index = usize::try_from(*ordinal).map_err(|_| freeze("dynamic-entry/formal-ordinal"))?;
             let lane = index.checked_add(offset).ok_or_else(|| freeze("dynamic-entry/formal-lane"))?;
             let value = *entry.parameters().get(index).ok_or_else(|| freeze("dynamic-entry/formal-value"))?;

@@ -288,6 +288,11 @@ static int lv4_direct_scalar_boundaries(const hako_lv4_input* in) {
                 !lv4_direct_layout(in, child) || !yyjson_is_uint(yyjson_obj_get(arg, "kind")) ||
                 lv4_u(arg, "kind") != 3 || !lv4_birth_actual_object(in, fn, target, ai, actual, 0) ||
                 !lv4_direct_initialized(in, fn, actual, lv4_u(fn->blocks[bi].block, "id"))) return 0;
+          } else if (lv4_is(op, "kind", "ordinary_call") &&
+              lv4_is(yyjson_arr_get(yyjson_obj_get(in->index[target].function, "params"), ai), "ownership", "take")) {
+            yyjson_val* formal = yyjson_arr_get(yyjson_obj_get(in->index[target].function, "params"), ai);
+            if (!lv4_is(formal, "representation", "i64") || !lv4_is(arg, "kind", "i64") ||
+                !lv4_take_object_ready(in, fn, actual, lv4_u(formal, "object_id"), lv4_u(fn->blocks[bi].block, "id"))) return 0;
           } else if (actual && actual->object_id_set && lv4_direct_layout(in, actual->object_id)) return 0;
         }
       }
@@ -375,6 +380,11 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
     if (!entry || frames > 1 || (!fi && frames != 1) ||
         lv4_pred_count(fn, entry->id)) return 0;
     if (!lv4_work_open(&work, count, lv4_state_count(fn), entry->ordinal)) return 0;
+    for (size_t vi = 0; vi < fn->value_count; vi++) {
+      hako_lv4_value* value = &fn->values[vi];
+      if (lv4_owned_parameter_object(in, fn, value))
+        work.states[entry->ordinal * work.stride + (size_t)value->origin] = LV4_LIVE;
+    }
     int valid = 1;
     size_t failed_block = entry->ordinal;
     const char* failed_phase = "flow";

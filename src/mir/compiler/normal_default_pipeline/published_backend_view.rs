@@ -47,7 +47,7 @@ pub(crate) use compiled_entry_contract::{
     CompiledEntryContractV1, CompiledEntryFormalKindV1, CompiledEntryRootResultV1,
 };
 pub(crate) use physical_abi::{
-    PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1,
+    PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1, take_parameter_objects_v1,
 };
 pub(crate) use physical_program::ordinary_call_receiver;
 pub(crate) use physical_program::ordinary_callable_key;

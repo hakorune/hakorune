@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: take call-entry transfer and callee Home/End are unconnected"
+current_blocker_token = "ownership step 3a: from read-result support declaration is not parser/source-connected"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Ownership step 2 A/B/C and both measurement series landed; step 3a selected, ordinary Box defaults unchanged.
-Take demand survives the common parameter catalog and whole-contract equality; unconnected physical ABI refuses UnsupportedTransfer.
-Next: callee entry Home/End, pending caller responsibility and call-entry transfer through independent verification to EXE.
-from/update/sync box remain; 3b cutover is outside this goal. Both existing stashes remain protected.
-Take contract verified: fixed suite 8/8, 19 program functions/exits identical, cohort 1796 PASS and 115 unchanged failure names.
+Ownership step 3a take minimum reaches canonical EXE; ordinary Box/birth defaults remain unchanged.
+Normal/later-argument Fault/callee Fault have exact entry transfer and one End, with source/physical rejection evidence.
+Next: explicit from (me or one formal), read permission and support liveness through the existing borrowed-result owners.
+Container update/sync Counter remain; 3b cutover is outside this goal. Both existing stashes remain protected.
+Take final gates: fixed suite 8/8, 19 program functions/exits identical, cohort 1797 PASS and 115 unchanged failure names.
 """
 next_design_card = "none"
 next_design_card_path = "none"

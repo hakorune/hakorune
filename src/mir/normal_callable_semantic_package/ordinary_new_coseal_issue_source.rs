@@ -625,7 +625,7 @@ pub(super) fn probe_source_home_prefixes_v1(
             .iter()
             .filter(|row| row.batch_slot == batch_slot)
             .flat_map(|row| row.parameters.iter())
-            .map(|row| (row.ordinal, row.binding, row.kind.clone())),
+            .map(|row| (row.ordinal, row.binding, row.kind.clone(), row.demand)),
         &mut |site| {
             Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
                 selected,

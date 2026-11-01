@@ -161,6 +161,13 @@ pub(super) struct OwnedCallableParameterContractV1 {
     pub(super) demand: crate::mir::resolved_semantics::HomeDemandV1,
 }
 
+impl OwnedCallableParameterContractV1 {
+    pub(super) fn takes_declared_object_v1(&self) -> bool {
+        self.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
+            && matches!(self.kind, CallableParameterContractKindV1::DeclaredObject(_))
+    }
+}
+
 #[derive(Debug)]
 pub(super) struct OwnedCallableParameterContractDeclarationV1 {
     pub(super) batch_slot: u32,

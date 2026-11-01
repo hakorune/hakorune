@@ -132,8 +132,9 @@ pub(super) fn value(
                 Source::Forwarded { binding, formal } => (*binding, Some(*formal)),
                 _ => return Err(freeze("lexical-i64/borrowed-read-source")),
             };
+            let read_site = actual.source.binding_read_site_v1(site)?;
             let value = read
-                .value_for(owner, site.node(), binding)
+                .value_for(owner, read_site.node(), binding)
                 .map_err(|error| {
                     format!("[freeze:contract][lexical-i64/borrowed-read/{error:?}]")
                 })?;

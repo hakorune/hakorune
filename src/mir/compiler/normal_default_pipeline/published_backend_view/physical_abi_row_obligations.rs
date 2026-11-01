@@ -112,3 +112,22 @@ pub(super) fn issue_diagnostic_sites(
     // The root epilogue still owns process-result site zero in that case.
     Ok(sites)
 }
+
+/// The original take declaration owns this attribute; neither a type name nor
+/// the one-word carrier can grant ownership on its own.
+pub(crate) fn take_parameter_objects_v1(
+    function: &super::super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    input: Option<&super::PublishedLifecyclePhysicalAbiInputV1<'_>>,
+) -> Result<std::collections::BTreeMap<usize, hakorune_mir_defs::CanonicalObjectIdV1>, String> {
+    let Some(input) = input else { return Ok(std::collections::BTreeMap::new()); };
+    let handoff = input.program().handoff();
+    let Some(source) = handoff.root_source() else { return Ok(std::collections::BTreeMap::new()); };
+    let take_owners = source.take_entry_owners_v1();
+    if take_owners.is_empty() { return Ok(std::collections::BTreeMap::new()); }
+    let Some(key) = function.role().ordinary_target() else { return Ok(std::collections::BTreeMap::new()); };
+    let owner = handoff.callables().and_then(|catalog| catalog.owner_for_canonical_key(key))
+        .ok_or_else(|| fault("borrowed-carrier-source-missing"))?;
+    if !take_owners.contains(&owner) { return Ok(std::collections::BTreeMap::new()); }
+    let (_, owned) = source.move_parameter_abi_v1(owner, key, function.role().receiver_object(), function.params().len())?;
+    Ok(owned)
+}

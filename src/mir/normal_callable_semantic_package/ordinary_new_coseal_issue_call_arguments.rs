@@ -31,6 +31,11 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
+    if matches!(request, BorrowedCallActualRequestV1::CallEntryHomes) {
+        return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates)
+            .map(|homes| Some(BorrowedCallArgumentsV1::CallEntryHomes(homes)))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+    }
     // The constructor/current-entry Home adapters issue this source loan.
     // A generic source-only caller has no such context and grants nothing.
     if matches!(request, BorrowedCallActualRequestV1::StoredMapGetSource) {
@@ -665,7 +670,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             )
             .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
         }
-        BorrowedCallActualRequestV1::StoredMapGetSource
+        BorrowedCallActualRequestV1::CallEntryHomes
+        | BorrowedCallActualRequestV1::StoredMapGetSource
         | BorrowedCallActualRequestV1::StoredMapSource
         | BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement { .. }

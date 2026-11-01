@@ -45,6 +45,7 @@ static unsigned hako_physical_input_domain(yyjson_val* param) {
 
 static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
   static const char* const keys[] = {"value", "representation"};
+  static const char* const take_keys[] = {"value", "representation", "ownership", "object_id"};
   static const char* const view_keys[] = {"value", "representation", "object_view"};
   static const char* const text_keys[] = {"value", "representation", "object_view", "text_view"};
   static const char* const integer_keys[] = {"value", "representation", "object_view", "integer_view"};
@@ -55,7 +56,14 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
   if (!yyjson_is_arr(params)) return 0;
   for (size_t i = 0; i < yyjson_arr_size(params); i++) {
     yyjson_val* param = yyjson_arr_get(params, i);
-    if (hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) {
+    if (yyjson_obj_get(param, "ownership")) {
+      uint32_t object;
+      if (!hako_physical_exact_keys(param, take_keys, 4) || !hako_physical_ordinary_function(fn) ||
+          !hako_physical_string(yyjson_obj_get(param, "representation"), "i64") ||
+          !hako_physical_string(yyjson_obj_get(param, "ownership"), "take") ||
+          !hako_physical_u32(yyjson_obj_get(param, "object_id"), &object) ||
+          !hako_physical_layout_has_object(layouts, object)) return 0;
+    } else if (hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) {
       /* Mandatory null means unconstrained opaque; uint names the exact
          class/null domain, including a declared but ignored formal. */
       uint32_t object;

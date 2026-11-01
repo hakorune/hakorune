@@ -58,7 +58,21 @@ pub(super) fn verify(
         .copied()
         .filter(|value| kinds.get(value) == Some(&MirOwnershipKindV1::Owned))
         .collect::<LiveSet>();
-    let mut entries = BTreeMap::from([(function.entry_block, (initial, ObjectStates::new(), SharedState::default()))]);
+    let mut entry_objects = ObjectStates::new();
+    if abi.owner().is_source() {
+        for value in &initial {
+            let object = abi.owned_parameters().get(value).ok_or(
+                OwnershipSsaErrorV1::InvalidObjectLifecycle { block: function.entry_block, value: *value })?;
+            entry_objects.insert(*value, (*object, ObjectStage::Published));
+        }
+    }
+    for value in abi.owned_parameters().keys() {
+        if !abi.owner().is_source() || !initial.contains(value)
+            || !function.params.contains(value) || abi.aliases().contains_key(value) {
+            return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: function.entry_block, value: *value });
+        }
+    }
+    let mut entries = BTreeMap::from([(function.entry_block, (initial, entry_objects, SharedState::default()))]);
     let mut queue = VecDeque::from([function.entry_block]);
 
     while let Some(block_id) = queue.pop_front() {
@@ -170,10 +184,25 @@ pub(super) fn verify(
                             }
                         }
                         InvokeOperation::Call { call, .. } => {
-                            if let Callee::SameModuleInstance { receiver, .. } = &call.callee {
+                            let receiver = if let Callee::SameModuleInstance { receiver, .. } = &call.callee {
                                 let value = token(receiver);
                                 if objects.get(&value).is_none_or(|(_, stage)| *stage != ObjectStage::Published) {
                                     return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value });
+                                }
+                                Some(value)
+                            } else { None };
+                            if let Some((arity, takes)) = abi.call_takes(&call.callee) {
+                                if call.args.len() != arity as usize || takes.keys().any(|ordinal| *ordinal >= arity) {
+                                    return Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { block: block_id });
+                                }
+                                let mut transferred = BTreeSet::new();
+                                for (ordinal, object) in takes {
+                                    let value = token(&call.args[*ordinal as usize]);
+                                    if receiver == Some(value) || !transferred.insert(value)
+                                        || kinds.get(&value) != Some(&MirOwnershipKindV1::Owned)
+                                        || objects.remove(&value) != Some((*object, ObjectStage::Published)) {
+                                        return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value });
+                                    }
                                 }
                             }
                         }
@@ -460,12 +489,30 @@ fn process_terminator(
             }),
             InvokeOperation::HomeRelease { .. } | InvokeOperation::ObjectEndIfOwned { .. } | InvokeOperation::ReclaimUnpublished { .. }
             | InvokeOperation::FieldGet { .. } | InvokeOperation::OwnedObjectFieldRelease { .. } => true,
-            InvokeOperation::Call { call, .. } => matches!(call.callee, Callee::SameModuleInstance { .. }) && call.args.is_empty(),
+            InvokeOperation::Call { call, .. } => {
+                if let Some((arity, takes)) = abi.call_takes(&call.callee) {
+                    call.args.len() == arity as usize && takes.keys().all(|ordinal| *ordinal < arity)
+                        && call.args.iter().enumerate().all(|(ordinal, value)| {
+                            let value = *abi.aliases().get(value).unwrap_or(value);
+                            kinds.get(&value) == Some(&if takes.contains_key(&(ordinal as u32)) { MirOwnershipKindV1::Owned } else { MirOwnershipKindV1::None })
+                        }) && call.text_argument_cleanup.is_empty()
+                } else { matches!(call.callee, Callee::SameModuleInstance { .. }) && call.args.is_empty() }
+            },
             InvokeOperation::Shared(_) => true,
             _ => false,
         };
         if has_managed_operand && !supported {
             return Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { block });
+        }
+        if let InvokeOperation::Call { call, .. } = operation {
+            if let Some((_, takes)) = abi.call_takes(&call.callee) {
+                if !supported { return Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { block }); }
+                for ordinal in takes.keys() {
+                    let value = call.args[*ordinal as usize];
+                    let value = *abi.aliases().get(&value).unwrap_or(&value);
+                    if !live.remove(&value) { return Err(OwnershipSsaErrorV1::OwnedUseAfterConsume { block, value }); }
+                }
+            }
         }
         if let InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { handle, .. }) = operation {
             let token = *abi.aliases().get(handle).unwrap_or(handle);

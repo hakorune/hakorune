@@ -29,6 +29,12 @@ impl PartialEq for OrdinaryArgumentCallSourceV1 {
 impl Eq for OrdinaryArgumentCallSourceV1 {}
 impl OrdinaryArgumentCallSourceV1 {
     pub(super) fn call_site(&self) -> &OwnedExprSiteV1 { self.source.call_site() }
+    pub(super) fn accepts_argument_formal_v1(&self, kind: &CallableParameterContractKindV1) -> bool {
+        let scalar = matches!(&self.source, BorrowedIncomingSourceV1::Static(source)
+            if matches!(source.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactI64 { .. }));
+        if scalar { matches!(kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) }
+        else { matches!(kind, CallableParameterContractKindV1::OpaqueHandle) }
+    }
     pub(super) fn is_instance(&self) -> bool { matches!(self.source, BorrowedIncomingSourceV1::Instance(_)) }
     pub(super) fn method_source(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.method }
     pub(super) fn validate_input_v1(
@@ -57,6 +63,14 @@ pub(super) fn original_argument_call_source_v1(
     prepared: &PreparedBorrowedFormalIngressV1, site: &OwnedExprSiteV1,
 ) -> Result<Option<OrdinaryArgumentCallSourceV1>, String> {
     if let Some(source) = original_static_source_v1(prepared, site)? {
+        if static_primitive_result_v1(source)? == Some(LocalCallResultClassV1::I64) {
+            if source.call_site() != site || source.method_source().owner() != site.owner()
+                || source.method_source().site() != site.site() {
+                return Err(freeze("borrowed-actual/text-call-source-identity"));
+            }
+            return Ok(Some(OrdinaryArgumentCallSourceV1 { method: std::sync::Arc::clone(source.method_source()),
+                source: BorrowedIncomingSourceV1::Static(Rc::clone(source)) }));
+        }
         return Ok(ordinary_text_argument_source_v1(prepared, site, source.method_source())?
             .map(|source| OrdinaryArgumentCallSourceV1 {
                 method: std::sync::Arc::clone(source.method_source()),
@@ -211,7 +225,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
     let Ok(prepared) = source else {
         return ordinary_result_absent(site, "the prepared source ingress is unavailable");
     };
-    if original_static_source_v1(prepared, site)?.is_some() {
+    if let Some(original) = original_static_source_v1(prepared, site)? {
+        // The scalar expression loan belongs to a CallArgument frame. Other
+        // scalar consumers keep their existing input protocol, selected from
+        // the source purpose before any protocol validation is attempted.
+        if matches!(original.source_result(),
+            crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactI64 { .. })
+            && !expression.is_some_and(|plan| plan.owner() == site.owner()
+                && matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }))
+        {
+            return ordinary_result_absent(site, "scalar result requires its argument-purpose frame");
+        }
         return source_static_result_arguments_v1(
             source, pending, contracts, site, selected, completed,
         );
@@ -279,6 +303,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
 
 /// Lend the original Static Text/Bool result and input tuple, never an ABI.
 /// Once selected, missing/refused actuals remain terminal refusals.
+fn static_primitive_result_v1(source: &StaticIncomingSourceV1)
+    -> Result<Option<LocalCallResultClassV1>, String> {
+    use crate::mir::callable_result_representation::{VerifiedCallableResultDispositionV1 as D,
+        VerifiedCallableResultRepresentationV1 as R};
+    let (class, representation) = match source.source_result() {
+        D::ExactI64 { .. } => (LocalCallResultClassV1::I64, R::ExactI64),
+        D::ExactBool => (LocalCallResultClassV1::Bool, R::ExactBool),
+        _ => return Ok(None),
+    };
+    if source.call_result_evidence().is_some_and(|row| row.static_target_key() != Some(source.target())
+        || row.result_representation() != representation) {
+        return Err(freeze("borrowed-static/core-source-identity"));
+    }
+    Ok(Some(class))
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
@@ -304,22 +344,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arg
             row.borrow()
                 .corroborates_static_text_source_v1(selected, original)
         });
-    use crate::mir::callable_result_representation::{
-        VerifiedCallableResultDispositionV1 as Result,
-        VerifiedCallableResultRepresentationV1 as Representation,
-    };
     use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
-    let result = if matches!(original.source_result(), Result::ExactBool) {
-        // Instance callers need not have a general call-site row. The sealed
-        // target result is unconditional, as in project_unconditional_result;
-        // any retained call-site row must agree. Input and ABI checks follow.
-        if original.call_result_evidence().is_some_and(|row| {
-            row.static_target_key() != Some(original.target())
-                || row.result_representation() != Representation::ExactBool
-        }) {
-            return Err(freeze("borrowed-static/core-source-identity"));
-        }
-        Class::Bool
+    let result = if let Some(result) = static_primitive_result_v1(original)? {
+        result
     } else if catalog_text || completed_text {
         Class::Text
     } else {
@@ -336,8 +363,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_static_result_arg
         || contract.parameters.len() != original.target().arity() as usize
         || contract.parameters.len() != original.parameters().len()
         || contract.parameters.iter().zip(original.parameters()).enumerate().any(|(index, (actual, expected))|
-            actual.ordinal as usize != index || actual.ordinal != expected.ordinal
-                || actual.binding.owner() != contract.owner || actual.binding != expected.binding || actual.kind != expected.kind)
+            actual.ordinal as usize != index || actual != expected
+                || actual.binding.owner() != contract.owner)
     { return Err(reject()); }
     let incoming = prepared
         .source_incoming

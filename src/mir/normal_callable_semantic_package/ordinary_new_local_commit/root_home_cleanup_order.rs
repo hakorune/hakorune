@@ -23,6 +23,7 @@ pub(crate) enum RootCleanupActionV1 {
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrderV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) original_frame: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) implicit_void:
         Option<(
             std::rc::Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
@@ -50,6 +51,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
 /// Expand complete installed End plans in the original caller-supplied order.
 /// No exit identity is invented for a Call Fault; unavailable never becomes empty.
 pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1(
+    ledger: &super::OrdinaryNewClaimLedgerV1,
     rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
     homes: &[LiveHomeV1],
 ) -> Result<
@@ -70,6 +72,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
     let mut result = Vec::new();
     let mut available = true;
     for binding in homes {
+        let plans = if let Some(plans) = ledger.take_entry_home_end_plan_v1(binding)? {
+            plans
+        } else {
         let home = super::installed_source_home(rows, binding).map_err(|error| match error {
             super::HomeLookupError::Missing => freeze("root-home-not-installed"),
             super::HomeLookupError::Duplicate => freeze("duplicate-root-home"),
@@ -94,7 +99,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
         if !home.end_available() {
             continue;
         }
-        for (subject, operation) in home.end_plan().into_vec() {
+        home.end_plan().into_vec()
+        };
+        for (subject, operation) in plans {
             let subject = match binding {
                 LiveHomeV1::Text(acquisition) => super::RootHomeReleaseSubjectV1::Text(acquisition.clone()),
                 LiveHomeV1::Stable(_) => subject,
@@ -113,6 +120,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1
 /// Select complete Home plans with the same subset, order and retained-anchor
 /// policy for root exits and Loop ports. No synthetic exit identity is needed.
 pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selection_v2(
+    ledger: &super::OrdinaryNewClaimLedgerV1,
     rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
     full_homes: &[LiveHomeV1],
     normal_homes: &[LiveHomeV1],
@@ -159,7 +167,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_selectio
             }
         }
     }
-    let Some(full) = source_home_end_plans_v1(rows, full_homes)? else {
+    let Some(full) = source_home_end_plans_v1(ledger, rows, full_homes)? else {
         return Ok(None);
     };
     for (index, (_, subject, _)) in full.iter().enumerate() {
@@ -236,12 +244,14 @@ impl RootHomeCleanupOrderV1 {
 
     /// Expand original full exit Homes once; Normal selects whole Home plans.
     pub(super) fn from_home_end_plans(
+        ledger: &super::OrdinaryNewClaimLedgerV1,
         rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
         exit: &super::SourceStmtSiteV1,
         full_homes: &[LiveHomeV1],
         normal_homes: &[LiveHomeV1],
     ) -> Result<Option<Self>, String> {
         Self::from_home_end_plans_for_exit(
+            ledger,
             rows,
             &RootHomeExitKeyV1::Explicit(exit.clone()),
             full_homes,
@@ -250,6 +260,7 @@ impl RootHomeCleanupOrderV1 {
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn from_home_end_plans_for_exit(
+        ledger: &super::OrdinaryNewClaimLedgerV1,
         rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
         exit: &RootHomeExitKeyV1,
         full_homes: &[LiveHomeV1],
@@ -257,7 +268,7 @@ impl RootHomeCleanupOrderV1 {
     ) -> Result<Option<Self>, String> {
         let mut full = Vec::new();
         let mut normal = Vec::new();
-        let Some((plans, selected)) = source_home_end_selection_v2(rows, full_homes, normal_homes)?
+        let Some((plans, selected)) = source_home_end_selection_v2(ledger, rows, full_homes, normal_homes)?
         else {
             return Ok(None);
         };
@@ -322,6 +333,7 @@ impl RootHomeCleanupOrderV1 {
             return_expression: None,
             text_return_hold: None,
             implicit_void: None,
+            original_frame: None,
             full: full.into_boxed_slice(),
             normal,
             acquisition_fault,
@@ -515,5 +527,53 @@ impl super::RootHomeFaultSequencesV1 {
             return Err(freeze("root-fault-sequence-shape"));
         }
         Ok(full[..split].iter().map(|origin| origin.operation().clone()).collect())
+    }
+}
+
+// Entry values are the same once-recorded parameter correspondence used by
+// reads. Only the original take declaration grants this Home and complete End.
+impl super::OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn source_home_installed_v1(&self,
+        rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>, home: &LiveHomeV1,
+    ) -> Result<bool, String> {
+        match self.take_entry_home_end_plan_v1(home)? {
+            Some(_) => Ok(true),
+            None => Ok(super::installed_source_home(rows, home).is_ok()),
+        }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn take_entry_home_end_plan_v1(&self, home: &LiveHomeV1) -> Result<
+        Option<Vec<(super::RootHomeReleaseSubjectV1, InvokeOperation)>>, String,
+    > {
+        let Some(binding) = home.stable_origin() else { return Ok(None); };
+        let Some(catalog) = self.original_parameter_contracts.as_deref() else { return Ok(None); };
+        let mut declarations = catalog.iter().filter(|row| row.owner == binding.owner());
+        let Some(declaration) = declarations.next() else { return Ok(None); };
+        if declarations.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
+        let mut parameters = declaration.parameters.iter().filter(|row| row.binding == binding);
+        let Some(parameter) = parameters.next() else { return Ok(None); };
+        if parameters.next().is_some() { return Err(freeze("borrowed-entry/actuals-identity")); }
+        if parameter.demand != crate::mir::resolved_semantics::HomeDemandV1::Home { return Ok(None); }
+        let crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject(class) = &parameter.kind
+            else { return Err(freeze("root-home-not-installed")); };
+        let values = self.borrowed_ordinary_entry_values_v1(binding.owner())?;
+        let mut actuals = values.iter().filter(|(ordinal, actual, _)| *ordinal == parameter.ordinal && *actual == binding);
+        let Some((_, _, value)) = actuals.next() else { return Err(freeze("borrowed-entry/entry-values-missing")); };
+        if actuals.next().is_some() { return Err(freeze("borrowed-entry/actuals-identity")); }
+        let entry = self.finalized_borrowed_ordinary_entry_source_v1(binding.owner())?;
+        let view = entry.formal_object_view(binding)?.ok_or_else(|| freeze("root-home-not-installed"))?;
+        if !view.is_declared() || view.class() != class.as_ref() || !view.destruction_disposition().has_no_hook() {
+            return Err(freeze("root-home-not-installed"));
+        }
+        let children = match self.owned_field_children_for(view.object()) {
+            Some(Some(children)) => children,
+            None if !view.destruction_disposition().requires_field_end() => &[],
+            _ => return Err(freeze("root-home-not-installed")),
+        };
+        Ok(Some(super::super::super::object_end::operations_v1(view.object(), false, children, *value)
+            .map(|(field, operation)| (match field {
+                Some(field) => super::RootHomeReleaseSubjectV1::FieldResidence { binding, field },
+                None => super::RootHomeReleaseSubjectV1::Binding(binding),
+            }, operation)).collect()))
     }
 }

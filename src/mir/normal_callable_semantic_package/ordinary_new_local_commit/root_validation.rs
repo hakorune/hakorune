@@ -596,6 +596,9 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 result.extend_from_slice(bindings);
                 entry.append_bindings(&mut result);
+                if let Some(frame) = &order.original_frame {
+                    if !result.contains(frame) { result.push(frame.clone()); }
+                }
                 if let Some((_, original)) = &order.implicit_void {
                     result.push(original.clone());
                 }

@@ -253,6 +253,27 @@ impl CallPacketSourceV1 {
 }
 
 impl<'a> CallPacketSourceLoanV1<'a> {
+    /// A scalar formal borrows its checked expression frame independently of
+    /// the opaque argument cohort. No source contract is inferred by lowering.
+    pub(in crate::mir) fn scalar_argument_expression_v1(
+        self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        ordinal: u32,
+        site: &SourceExprSiteV1,
+    ) -> Result<Option<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>>, String> {
+        let Self::Static { original, .. } = self else { return Ok(None) };
+        let Some(formal) = original.parameters().get(ordinal as usize) else { return Ok(None) };
+        if !matches!(formal.kind,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi)
+                if abi.is_i64()) {
+            return Ok(None);
+        }
+        if formal.ordinal != ordinal || original.argument_sites().get(ordinal as usize) != Some(site) {
+            return Err(freeze("static-packet/scalar-input-source-required"));
+        }
+        ledger.argument_expression_frame_v1(original.call_site(), ordinal, site).map(Some)
+    }
+
     pub(in crate::mir) fn retains_expression_observation(
         self,
         observed: &LocalCallObservationV1,
@@ -379,6 +400,11 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             || observation.arguments().len() != original.target().arity() as usize
             || !observation_is_retained
         {
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[static-packet/source] target={:?} owner={} site={} result={:?} arguments={}/{} retained={} expression={}",
+                    original.target(), observation.owner() == original.call_site().owner(), observation.site() == original.call_site(),
+                    self.result(), observation.arguments().len(), original.argument_sites().len(), observation_is_retained, expression_origin.is_some());
+            }
             return Err(freeze("static-packet/original-source-drift"));
         }
         let borrowed_actuals = match expression_origin {
@@ -389,6 +415,9 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         };
         let handoff_agrees = original.corroborates_publication_handoff(publication)
             || ledger.corroborates_completed_static_text_publication_v1(original, publication)?
+            // A completed whole input owns its argument/Completion proof;
+            // publication must still identify this exact original call.
+            || ledger.corroborates_completed_static_input_publication_v1(original, publication)?
             || (borrowed_actuals.is_some()
                 && original.corroborates_selected_loop_publication_handoff(publication));
         if !handoff_agrees {
@@ -399,58 +428,69 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         // borrowed kind never permits a scalar payload for Map/Text/Handle.
         borrowed_actuals.ok_or_else(|| freeze("static-packet/actuals-missing"))?;
         for (formal, argument) in original.parameters().iter().zip(observation.arguments()) {
+            let scalar_formal = matches!(formal.kind,
+                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi)
+                    if abi.is_i64());
+            let expression_source_matches = match (argument, borrowed_actuals) {
+                (LocalCallArgumentV1::Expression { ordinal, site }, _)
+                    if scalar_formal && *ordinal == formal.ordinal
+                        && original.argument_sites().get(*ordinal as usize) == Some(site) =>
+                {
+                    // Scalar expressions live in the retained argument frame,
+                    // not in the opaque-handle actual cohort.
+                    ledger.argument_expression_frame_v1(observation.site(), *ordinal, site)?;
+                    true
+                }
+                (
+                    LocalCallArgumentV1::Expression { ordinal, site },
+                    Some(actuals),
+                ) if *ordinal == formal.ordinal
+                    && original.argument_sites().get(*ordinal as usize) == Some(site) =>
+                {
+                    actuals.iter().any(|actual| {
+                        if actual.ordinal != formal.ordinal
+                            || actual.site != *site
+                            || actual.formal != formal.binding
+                        {
+                            return false;
+                        }
+                        let crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(
+                            expression,
+                        ) = &actual.source
+                        else {
+                            return false;
+                        };
+                        let frame = expression.frame();
+                        frame.source().owner() == observation.owner()
+                            && frame
+                                .source()
+                                .nodes()
+                                .first()
+                                .is_some_and(|node| node.site() == site)
+                            && matches!(
+                                frame.source().root(),
+                                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                                    call,
+                                    ordinal: position,
+                                    ..
+                                } if call.site() == observation.site().site()
+                                    && *position == formal.ordinal
+                            )
+                    })
+                }
+                _ => false,
+            };
             if formal.kind.is_ordinary_borrowed_handle() {
                 let borrowed_source_matches = matches!(argument, LocalCallArgumentV1::BorrowedActual { ordinal, site }
                     if *ordinal == formal.ordinal
                         && original.argument_sites().get(*ordinal as usize) == Some(site));
-                let expression_source_matches = match (argument, borrowed_actuals) {
-                    (
-                        LocalCallArgumentV1::Expression { ordinal, site },
-                        Some(actuals),
-                    ) if *ordinal == formal.ordinal
-                        && original.argument_sites().get(*ordinal as usize) == Some(site) =>
-                    {
-                        actuals.iter().any(|actual| {
-                            if actual.ordinal != formal.ordinal
-                                || actual.site != *site
-                                || actual.formal != formal.binding
-                            {
-                                return false;
-                            }
-                            let crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Expression(
-                                expression,
-                            ) = &actual.source
-                            else {
-                                return false;
-                            };
-                            let frame = expression.frame();
-                            frame.source().owner() == observation.owner()
-                                && frame
-                                    .source()
-                                    .nodes()
-                                    .first()
-                                    .is_some_and(|node| node.site() == site)
-                                && matches!(
-                                    frame.source().root(),
-                                    crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
-                                        call,
-                                        ordinal: position,
-                                        ..
-                                    } if call.site() == observation.site().site()
-                                        && *position == formal.ordinal
-                                )
-                        })
-                    }
-                    _ => false,
-                };
                 if !borrowed_source_matches && !expression_source_matches {
                     return Err(freeze("static-packet/borrowed-input-source-required"));
                 }
-            } else if matches!(formal.kind,
-                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi)
-                    if abi.is_i64())
+            } else if scalar_formal
             {
-                if !matches!(argument, LocalCallArgumentV1::Integer(_))
+                if !expression_source_matches
+                    && !matches!(argument, LocalCallArgumentV1::Integer(_))
                     && !matches!(argument, LocalCallArgumentV1::Scalar(binding)
                         if binding.owner() == observation.owner())
                 {
@@ -521,5 +561,37 @@ impl EmittedLexicalCallProjectionV1 {
             }
         }
         Ok(found)
+    }
+}
+
+impl CallPacketSourceLoanV1<'_> {
+    /// Only Call entry transfers these original moved Homes. Preparation uses
+    /// the complete pre-entry prefix; both entered outcomes use this remainder.
+    pub(in crate::mir) fn entered_prior_homes_v1(
+        self,
+        context: CallValidationContextV1<'_>,
+        prior: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+    ) -> Result<Vec<crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1>, String> {
+        let actuals = match self {
+            Self::SelectedStaticLoop { packet, observation } => {
+                if !packet.corroborates_local_call(observation) {
+                    return Err(freeze("borrowed-actual/source-identity"));
+                }
+                let original = packet.original_source();
+                std::slice::from_ref(packet.selected_forwarded_actual_for_call(
+                    original.caller(), original.call_site().site())?)
+            }
+            _ => self.borrowed_actuals_in_context(context)?.unwrap_or(&[]),
+        };
+        let mut taken = std::collections::BTreeSet::new();
+        for actual in actuals {
+            let Some((binding, root, _)) = actual.source.taken_home_v1() else { continue; };
+            if !taken.insert(binding)
+                || prior.iter().filter(|home| home.binding() == binding
+                    && home.stable_origin() == Some(root)).count() != 1 {
+                return Err(freeze("borrowed-actual/source-identity"));
+            }
+        }
+        Ok(prior.iter().filter(|home| !taken.contains(&home.binding())).cloned().collect())
     }
 }

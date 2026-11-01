@@ -384,6 +384,7 @@ pub(crate) fn scan_new_home_flow<E>(
             u32,
             BindingRefV1,
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+            crate::mir::resolved_semantics::HomeDemandV1,
         ),
     >,
     entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
@@ -550,17 +551,27 @@ pub(crate) fn scan_new_home_flow<E>(
                 .collect(),
         ));
     };
+    let parameters: Vec<_> = parameters.into_iter().collect();
+    // Ownership is projected only from the common declaration contract. The
+    // local observation state still stores passive views, not extra Homes.
+    let entry_homes: Vec<_> = match entry_home {
+        Some(loan) => loan.parameters().iter().filter(|row| row.demand() == HomeDemandV1::Home)
+            .map(|row| LiveHomeV1::Stable(row.binding())).collect(),
+        None => parameters.iter().filter(|(_, _, _, demand)| *demand == HomeDemandV1::Home)
+            .map(|(_, binding, _, _)| LiveHomeV1::Stable(*binding)).collect(),
+    };
     let mut locals = PrefixLocalFlow::with_source_value_class_facts(input, source_value_class_facts);
     // A lent entry installs the loan's own verified receiver/parameter
     // bindings; without one the caller's declared parameter rows install.
     let installed = match entry_home {
         Some(loan) => locals.install_entry_home(loan),
-        None => locals.install_parameters(parameters),
+        None => locals.install_parameters(parameters.into_iter().map(|(ordinal, binding, kind, _)| (ordinal, binding, kind))),
     };
     if !installed {
         unavailable = Some(HomePrefixUnavailableV1::EntryDemandMissing);
     }
-    let mut homes = Vec::new();
+    for home in &entry_homes { locals.mark_nonnull(home.binding()); }
+    let mut homes = entry_homes;
     let mut covered_statements = Vec::new();
     let mut selected_seen = Vec::new();
     let exit_set: BTreeSet<SourceStmtSiteV1> = exit_sites.iter().cloned().collect();

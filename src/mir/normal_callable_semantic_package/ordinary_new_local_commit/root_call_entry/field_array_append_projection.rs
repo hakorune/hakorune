@@ -611,7 +611,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Vec<InvokeOperation>, String> {
         source.validate_source(self)?;
         let rows = self.local_commits.borrow();
-        let plans = super::source_home_end_plans_v1(&rows, source.prior_homes())?
+        let plans = super::source_home_end_plans_v1(self, &rows, source.prior_homes())?
             .ok_or_else(|| freeze("field-array-append/end-unavailable"))?;
         Ok(plans
             .into_iter()

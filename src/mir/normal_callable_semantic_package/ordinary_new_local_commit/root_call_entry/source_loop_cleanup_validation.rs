@@ -41,7 +41,7 @@ impl SourceLoopCleanupPlanV2 {
             .get(self.port)
             .ok_or_else(|| freeze("source-loop/cleanup-port"))?;
         let homes: Vec<_> = self.product.port_fault_homes_v2(self.port)?.into_iter().rev().collect();
-        let expected = super::super::super::source_home_end_selection_v2(
+        let expected = super::super::super::source_home_end_selection_v2(context.ledger(),
             &context.ledger().local_commits.borrow(),
             &homes,
             port.normal_ends(),

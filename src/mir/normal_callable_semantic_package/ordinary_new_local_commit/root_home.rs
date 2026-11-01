@@ -750,7 +750,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     // Each installed Home expands to its sealed teardown
                     // plan's subjects: owned `ArrayBox` residences precede
                     // the Home's own Binding release.
-                    let expected_plans = source_home_end_plans_v1(&rows, expected_homes)?
+                    let expected_plans = source_home_end_plans_v1(self, &rows, expected_homes)?
                         .ok_or_else(|| freeze("root-home-end-unavailable"))?;
                     expected_subjects.extend(expected_plans.iter().map(|(_, subject, _)| subject.clone()));
                     if let Some((prior, ends)) = self.loop_return_text_ends.borrow().get(&(owner, expected_exit.clone().into())) {

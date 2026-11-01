@@ -35,7 +35,8 @@ impl OrdinaryNewClaimLedgerV1 {
             || contract.parameters.iter().enumerate().any(|(ordinal, formal)|
                 formal.ordinal as usize != ordinal || formal.binding.owner() != contract.owner
                     || !(matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
-                        || matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))) {
+                        || matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
+                        || formal.takes_declared_object_v1())) {
             return Err(fail("contract-identity"));
         }
         let Some(signature) = signatures.row(contract.batch_slot) else {
@@ -242,6 +243,17 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(original.corroborates_completed_text_publication_v1(publication, selected, text))
     }
 
+    /// Publication borrows the completed input proof, without exposing or
+    /// issuing another argument cohort to the packet consumer.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_completed_static_input_publication_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+        publication: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> Result<bool, String> {
+        Ok(self.checked_completed_static_expression_input_v1(original)?.is_some()
+            && original.matches_publication_handoff_identity(publication))
+    }
+
     /// Demand the already completed whole cohort; unlike preparation this
     /// never accepts a sibling that could merely be completed in a future pass.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_completed_static_expression_input_v1(
@@ -429,6 +441,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             let actual = match &candidate.value {
+                BorrowedCallActualValueV1::Home { .. } => PreparedBorrowedFormalActualV1 {
+                    ordinal: formal.ordinal, site: candidate.site.clone(), formal: formal.binding,
+                    source: object_source::ObjectActualHomeSourceV1::Ledger(self)
+                        .prepare_home_actual_v1(&call.call, formal, candidate)?
+                        .ok_or_else(|| freeze("static-input/argument-frame-missing"))?,
+                },
                 BorrowedCallActualValueV1::Integer(value) => PreparedBorrowedFormalActualV1 {
                     ordinal: formal.ordinal,
                     site: candidate.site.clone(),

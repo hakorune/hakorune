@@ -689,16 +689,33 @@ impl OrdinaryNewClaimLedgerV1 {
         let routed = self.lifecycle_local_call_sites.borrow();
         let mut prefixes = flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
             .map_err(freeze)?;
-        // Return evaluation owns its nested Calls and their Normal/Fault
-        // graph. They must not also demand standalone prefix packets.
+        // Expression packets own their nested Calls and complete Normal/Fault
+        // graph. Retain their source identity instead of claiming another
+        // standalone prefix group for the same invocation.
+        let mut expression_calls = std::collections::BTreeSet::new();
         for terminal in self.terminal_relations_for_owner(owner) {
             let Some(evaluation) = self.return_expression_evaluation_v1(owner, terminal.return_site())? else { continue };
             for call in evaluation.calls() {
                 if !flow.local_calls().contains(call) { return Err(freeze("local-call-source-missing")); }
-                prefixes.retain(|prefix| !matches!(prefix,
-                    LifecyclePrefixSourceV1::Call { site, .. } if site == call.site()));
+                expression_calls.insert(call.site().clone());
             }
         }
+        for frame in flow.expression_plans().iter().filter_map(|plan| plan.argument_frame()) {
+            if frame.evaluation().calls().is_empty() { continue; }
+            let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
+                call, ordinal, ..
+            } = frame.source().root() else { return Err(freeze("local-call-source-missing")) };
+            let site = frame.source().nodes().first()
+                .ok_or_else(|| freeze("local-call-source-missing"))?.site();
+            let call_site = OwnedExprSiteV1::new(call.owner(), call.site().clone());
+            let canonical = self.qualified_argument_expression_frame_v1(&call_site, *ordinal, site)?;
+            if frame.source().owner() != owner || !std::rc::Rc::ptr_eq(frame, &canonical) {
+                return Err(freeze("local-call-source-missing"));
+            }
+            expression_calls.extend(frame.evaluation().calls().iter().map(|call| call.site().clone()));
+        }
+        prefixes.retain(|prefix| !matches!(prefix,
+            LifecyclePrefixSourceV1::Call { site, .. } if expression_calls.contains(site)));
         Ok(prefixes)
     }
 

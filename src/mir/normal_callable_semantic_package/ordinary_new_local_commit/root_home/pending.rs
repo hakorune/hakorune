@@ -62,6 +62,7 @@ impl PendingRootHomeExitV1<'_> {
                 bindings.push(binding.clone());
             }
         };
+        if let Some(frame) = &self.order.original_frame { push(frame); }
         for binding in self.bindings() {
             push(binding);
         }

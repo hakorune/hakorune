@@ -5,9 +5,11 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::parser::NyashParser;
 
 fn unit() -> VerifiedResolvedSourceUnitV1 {
-    let parsed = NyashParser::parse_from_string(
-        "function probe(token) { local first = token.make() local second = token.make() local number = 7 token.consume(first.child) return first }",
-    ).unwrap();
+    source_unit("function probe(token) { local first = token.make() local second = token.make() local number = 7 token.consume(first.child) return first }")
+}
+
+fn source_unit(text: &str) -> VerifiedResolvedSourceUnitV1 {
+    let parsed = NyashParser::parse_from_string(text).unwrap();
     let ASTNode::Program { statements, .. } = parsed else {
         panic!("Program")
     };
@@ -270,4 +272,57 @@ fn received_return_borrows_original_call_row_and_fault_snapshot() {
     assert!(flow
         .received_call_observation(rows[0].0, &calls, &covered)
         .is_none());
+}
+
+#[test]
+fn take_pending_move_invalidates_direct_and_aliased_uses_before_entry() {
+    use super::super::{BorrowedCallActualRequestV1 as Request, BorrowedCallArgumentsV1 as Arguments,
+        HomePrefixUnavailableV1 as Unavailable, LocalCallObservationV1, LocalCallResultClassV1,
+        ResolvedLexicalRefV1, SourceBindingSiteV1};
+    for argument in ["7", "p.value", "move p", "token.inspect(alias)"] {
+        let source = source_unit(&format!("function probe(token) {{ local p = token.make() local alias = p local result = token.consume(move p, {argument}) local follow = token.inspect(alias) return result }}"));
+        let input = source.root_function_input().unwrap();
+        let rows = initializers(input);
+        let (p, acquisition) = &rows[0];
+        let mut flow = PrefixLocalFlow::new(input);
+        flow.install_selected_normal_home(*p, acquisition.clone(), None);
+        flow.install_observed(rows[1].0, OrdinaryObservation::Handle(*p));
+        let result = input.function().expression_source().initializers()
+            .find(|row| row.binding() == rows[2].0).unwrap();
+        let SourceBindingSiteV1::Local { statement, .. } = result.declaration_site() else { panic!("local") };
+        let call = LocalCallObservationV1::issue(input.owner(), statement.clone(), rows[2].1.clone(),
+            result.declaration_site().clone(), rows[2].0, vec![LiveHomeV1::Stable(*p)].into_boxed_slice(),
+            Box::new([]), LocalCallResultClassV1::I64);
+        let mut homes = vec![LiveHomeV1::Stable(*p)];
+        let mut unavailable = None;
+        flow.commit_statement_takes_v1(statement, &[call], &mut homes, &mut unavailable,
+            &mut |site, request| -> Result<_, ()> {
+                assert_eq!(site, &rows[2].1);
+                assert!(matches!(request, Request::CallEntryHomes));
+                Ok(Some(Arguments::CallEntryHomes(vec![(*p, *p, acquisition.clone())].into_boxed_slice())))
+            }).unwrap();
+        if argument == "7" {
+            assert!(unavailable.is_none());
+            assert!(flow.was_moved_out(*p));
+            assert!(homes.is_empty());
+            let follow = input.function().expression_source().initializers()
+                .find(|row| row.binding() == rows[3].0).unwrap();
+            let SourceBindingSiteV1::Local { statement, .. } = follow.declaration_site() else { panic!("local") };
+            let call = LocalCallObservationV1::issue(input.owner(), statement.clone(), rows[3].1.clone(),
+                follow.declaration_site().clone(), rows[3].0, Box::new([]), Box::new([]), LocalCallResultClassV1::I64);
+            flow.commit_statement_takes_v1(statement, &[call], &mut homes, &mut unavailable,
+                &mut |_, request| -> Result<_, ()> {
+                    assert!(matches!(request, Request::CallEntryHomes));
+                    Ok(Some(Arguments::CallEntryHomes(Box::new([]))))
+                }).unwrap();
+            assert!(matches!(unavailable, Some(Unavailable::UseAfterMove(site))
+                if input.function().variable_ref(&site) == Some(ResolvedLexicalRefV1::Local(rows[1].0))));
+        } else {
+            let Some(Unavailable::UseAfterMove(site)) = unavailable else { panic!("expected pending use refusal: {unavailable:?}") };
+            assert!(matches!(input.function().variable_ref(&site), Some(ResolvedLexicalRefV1::Local(binding))
+                if binding == *p || binding == rows[1].0));
+            assert_eq!(homes, vec![LiveHomeV1::Stable(*p)], "argument Fault retains caller responsibility");
+            assert!(!flow.was_moved_out(*p), "failed admission does not commit call entry");
+        }
+    }
 }

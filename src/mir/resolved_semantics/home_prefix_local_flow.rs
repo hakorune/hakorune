@@ -12,6 +12,8 @@ use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 use std::collections::{BTreeMap, BTreeSet};
+#[path = "home_call_entry_transfer.rs"]
+mod call_entry_transfer;
 #[path = "home_prefix_borrowed_nullable.rs"]
 mod borrowed_nullable;
 #[path = "home_prefix_field_alias.rs"]
@@ -1184,55 +1186,6 @@ impl<'source> PrefixLocalFlow<'source> {
         )
     }
 
-    pub(super) fn consume_home(&mut self, binding: BindingRefV1) {
-        self.store(binding, StoredLocal::Consumed);
-    }
-
-    pub(super) fn was_moved_out(&self, binding: BindingRefV1) -> bool {
-        matches!(self.locals.get(&binding), Some(StoredLocal::MovedOut))
-    }
-
-    pub(super) fn has_moved_out(&self) -> bool {
-        self.locals.values().any(|local| matches!(local, StoredLocal::MovedOut))
-    }
-
-    /// Transfer the existing Home at its original cleanup position. The
-    /// caller has already checked the source site and lexical scope.
-    pub(super) fn transfer_home_v1(
-        &mut self,
-        from: BindingRefV1,
-        to: BindingRefV1,
-        homes: &mut [LiveHomeV1],
-    ) -> bool {
-        if from.owner() != self.input.owner() || to.owner() != self.input.owner() {
-            return false;
-        }
-        let Some(local @ (StoredLocal::Home { .. } | StoredLocal::Shared { .. })) = self.locals.get(&from).cloned() else {
-            return false;
-        };
-        let acquisition = match &local {
-            StoredLocal::Home { acquisition, .. } | StoredLocal::Shared { acquisition, .. } => acquisition,
-            _ => unreachable!(),
-        };
-        if homes.iter().any(|home| home.binding() != from
-            && self.movable_acquisition_v1(home.binding()) == Some(acquisition)) {
-            return false;
-        }
-        let mut matches = homes.iter().enumerate().filter(|(_, home)| home.binding() == from);
-        let Some((index, home)) = matches.next() else { return false };
-        if matches.next().is_some() || homes.iter().any(|home| home.binding() == to) {
-            return false;
-        }
-        let origin = match home {
-            LiveHomeV1::Stable(binding) => *binding,
-            LiveHomeV1::Moved { origin, .. } => *origin,
-            LiveHomeV1::Text(_) => return false,
-        };
-        homes[index] = LiveHomeV1::Moved { origin, binding: to };
-        self.store(from, StoredLocal::MovedOut);
-        self.store(to, local);
-        true
-    }
     pub(super) fn install_map(&mut self, binding: BindingRefV1) {
         self.store(binding, StoredLocal::Map);
     }

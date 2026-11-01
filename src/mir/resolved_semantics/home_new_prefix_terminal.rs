@@ -718,6 +718,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         maps,
         map_compatible,
     )?;
+    locals.commit_statement_takes_v1(statement.site(), local_calls, homes, unavailable, borrowed_actuals)?;
     let homes_row = match &*unavailable {
         Some(issue) => Err(issue.clone()),
         None if !scalar_return => Err(HomePrefixUnavailableV1::ReturnValueNotCovered(

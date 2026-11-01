@@ -18,6 +18,7 @@ pub(crate) enum BorrowedCallActualValueV1 {
         binding: BindingRefV1,
         root: BindingRefV1,
         acquisition: OwnedExprSiteV1,
+        moved: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
     },
     SelfRooted {
         binding: BindingRefV1,
@@ -94,7 +95,10 @@ fn observe_one_borrowed_call_actuals(
             .iter()
             .map(|argument| {
                 let site = argument.site();
-                let value = match borrowed_actual_source_atom_v1(input, site) {
+                let moved = input.function().expression_source().unary(site).filter(|unary|
+                    unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
+                let read_site = moved.map_or(site, |unary| unary.operand());
+                let value = match borrowed_actual_source_atom_v1(input, read_site) {
                     Some(BorrowedCallActualValueV1::FieldAccess) => {
                         let received = prefix_known.then(|| {
                             let crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. } =
@@ -117,7 +121,7 @@ fn observe_one_borrowed_call_actuals(
                             // trivial scalar observations are entry-stable
                             // facts, never branch-dependent evidence.
                             // Everything else stays `Unknown`.
-                            match input.function().variable_ref(site) {
+                            match input.function().variable_ref(read_site) {
                                 Some(ResolvedLexicalRefV1::Local(binding))
                                     if input.function().binding(binding).is_some_and(
                                         |record| {
@@ -129,7 +133,7 @@ fn observe_one_borrowed_call_actuals(
                                         },
                                     ) =>
                                 {
-                                    match locals.observe(site) {
+                                    match locals.observe(read_site) {
                                         Some(OrdinaryObservation::Handle(root))
                                             if locals.is_self_rooted_handle(root) =>
                                         {
@@ -147,9 +151,9 @@ fn observe_one_borrowed_call_actuals(
                                 _ => BorrowedCallActualValueV1::Unknown,
                             }
                         } else {
-                            match input.function().variable_ref(site) {
+                            match input.function().variable_ref(read_site) {
                                 Some(ResolvedLexicalRefV1::Local(binding)) => match locals
-                                    .observe(site)
+                                    .observe(read_site)
                                 {
                                     Some(OrdinaryObservation::TrivialLocal(actual, Some(kind)))
                                         if actual == binding =>
@@ -162,6 +166,7 @@ fn observe_one_borrowed_call_actuals(
                                                 binding,
                                                 root,
                                                 acquisition: acquisition.clone(),
+                                                moved: moved.cloned(),
                                             }
                                         } else if locals.is_self_rooted_handle(root) {
                                             BorrowedCallActualValueV1::SelfRooted { binding, root }
@@ -194,6 +199,9 @@ fn observe_one_borrowed_call_actuals(
                     Some(value) => value,
                     None => BorrowedCallActualValueV1::Unknown,
                 };
+                let value = if moved.is_some() && !matches!(value, BorrowedCallActualValueV1::Home { .. }) {
+                    BorrowedCallActualValueV1::Unknown
+                } else { value };
                 BorrowedCallActualCandidateV1 {
                     ordinal: argument.ordinal(),
                     site: site.clone(),

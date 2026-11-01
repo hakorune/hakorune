@@ -529,7 +529,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, Some(base_completion), &new_sites,
                         batch_params()
-                            .map(|row| (row.ordinal, row.binding, row.kind.clone())),
+                            .map(|row| (row.ordinal, row.binding, row.kind.clone(), row.demand)),
                         entry_home,
                         borrowed_formal_source.as_ref().ok().and_then(|source| {
                             source.lend_source_value_class_facts_v1(input.owner())
@@ -761,7 +761,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             issue_new_home_prefixes_with_arguments_v1(
                                 input, &new_sites, &result_sites,
                                 batch_params()
-                                    .map(|row| (row.ordinal, row.binding, row.kind.clone())),
+                                    .map(|row| (row.ordinal, row.binding, row.kind.clone(), row.demand)),
                                 entry_home,
                                 borrowed_formal_source.as_ref().ok().and_then(|source| {
                                     source.lend_source_value_class_facts_v1(input.owner())
@@ -773,7 +773,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     issue_new_home_prefixes_with_arguments_v1(
                         input, &new_sites, &result_sites,
                         batch_params()
-                            .map(|row| (row.ordinal, row.binding, row.kind.clone())),
+                            .map(|row| (row.ordinal, row.binding, row.kind.clone(), row.demand)),
                         entry_home,
                         borrowed_formal_source.as_ref().ok().and_then(|source| {
                             source.lend_source_value_class_facts_v1(input.owner())

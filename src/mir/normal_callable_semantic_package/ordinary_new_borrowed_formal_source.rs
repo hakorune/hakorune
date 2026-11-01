@@ -65,6 +65,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFormalObject
     scalar_fields: Rc<BTreeMap<Box<str>, Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>>>,
     /// Original DeclaredObject constraint, not inferred from incoming class.
     declared: bool,
+    destruction: crate::mir::function::ObjectDestructionDispositionV1,
 }
 
 impl BorrowedFormalObjectViewV1 {
@@ -77,6 +78,9 @@ impl BorrowedFormalObjectViewV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn class(&self) -> &str {
         &self.class
     }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn destruction_disposition(&self)
+        -> crate::mir::function::ObjectDestructionDispositionV1 { self.destruction }
 
     pub(in crate::mir::normal_callable_semantic_package) fn is_declared(&self) -> bool {
         self.declared
@@ -284,6 +288,9 @@ pub(super) fn arg_site_binding(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
 ) -> Option<BindingRefV1> {
+    let site = input.function().expression_source().unary(site)
+        .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move)
+        .map_or(site, |unary| unary.operand());
     if let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) =
         input.function().variable_ref(site)
     {
@@ -330,6 +337,7 @@ fn object_view_for(
             }
             Some(BorrowedFormalObjectViewV1 {
                 class: class.into(), object, scalar_fields: Rc::new(scalar_fields), declared: false,
+                destruction: definition.destruction_disposition(),
             })
         })
         .ok().flatten()

@@ -1,4 +1,4 @@
-//! Cataloged Call-edge ABI correspondence.
+//! Cataloged Call-edge ABI correspondence over original tagged and take slots.
 use super::{borrowed_calls, error, CatalogedCallEdgePolicyV1};
 use crate::mir::{BasicBlockId, MirFunction};
 use crate::mir::verification_types::VerificationError;
@@ -44,6 +44,7 @@ pub(super) fn check_call_edge(
     call: &crate::mir::definitions::MirCall,
     edge_policy: CatalogedCallEdgePolicyV1,
     borrowed_slots: Option<&std::collections::BTreeSet<usize>>,
+    take_slots: Option<&std::collections::BTreeMap<usize, (crate::mir::ValueId, hakorune_mir_defs::CanonicalObjectIdV1)>>,
     source_bound: bool,
     receiver_callees: &std::collections::BTreeSet<String>,
     errors: &mut Vec<VerificationError>,
@@ -84,6 +85,17 @@ pub(super) fn check_call_edge(
         .zip(params.iter().skip(receiver_params))
         .enumerate()
     {
+        if let Some((expected, object)) = take_slots.and_then(|slots| slots.get(&index)) {
+            if !source_bound || expected != argument || module.canonical_object_definition(*object).is_none()
+                || !matches!(parameter, crate::mir::MirType::Box(_))
+                || callee.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(index + receiver_params))
+                    != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64)
+                || borrowed_slots.is_some_and(|slots| slots.contains(&index)) {
+                errors.push(error(block, "borrowed-source-call-coverage"));
+                return;
+            }
+            continue;
+        }
         let tagged_formal = callee.metadata.physical_param_carriers.as_deref()
             .and_then(|rows| rows.get(index + receiver_params))
             == Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue);

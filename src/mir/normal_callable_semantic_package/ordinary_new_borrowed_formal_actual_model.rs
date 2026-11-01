@@ -83,6 +83,7 @@ pub(crate) enum BorrowedFormalActualSourceV1 {
         class: Box<str>,
     },
     TypedHome {
+        moved: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
         binding: BindingRefV1,
         root: BindingRefV1,
         acquisition: OwnedExprSiteV1,
@@ -526,129 +527,8 @@ impl PartialEq for ArgumentExpressionV1 {
 }
 impl Eq for ArgumentExpressionV1 {}
 
-/// Bind original source structure only. Mode-specific class/loan requirements
-/// stay with the original Static/Instance issuer, outside this common product.
-pub(super) fn bind_original_argument_plans_v1(
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    source: super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>,
-    method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
-    candidates: &[BorrowedCallActualCandidateV1],
-    previous: Option<&BTreeMap<u32, ArgumentExpressionV1>>,
-) -> Result<BTreeMap<u32, ArgumentExpressionV1>, String> {
-    let reject = || freeze("borrowed-actual/argument-source-identity");
-    if input.owner() != source.call_site().owner()
-        || !input
-            .function()
-            .method_call_source_v1(source.call_site().site())
-            .is_some_and(|original| std::sync::Arc::ptr_eq(original, method))
-        || previous.is_some_and(|old| old.len() != candidates.len())
-    {
-        return Err(reject());
-    }
-    let mut plans = BTreeMap::new();
-    for candidate in candidates {
-        let atom = crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(
-            input,
-            &candidate.site,
-        );
-        let same = match (&candidate.value, atom.as_ref()) {
-            (
-                BorrowedCallActualValueV1::Scalar(binding, _)
-                | BorrowedCallActualValueV1::SelfRooted { binding, .. }
-                | BorrowedCallActualValueV1::Home { binding, .. }
-                | BorrowedCallActualValueV1::ReceivedNullable(binding)
-                | BorrowedCallActualValueV1::ReceivedMixed(binding),
-                Some(BorrowedCallActualValueV1::Binding(original)),
-            ) => binding == original,
-            (
-                BorrowedCallActualValueV1::ReceivedField { .. },
-                Some(BorrowedCallActualValueV1::FieldAccess),
-            ) => true,
-            (
-                BorrowedCallActualValueV1::MethodCall(method),
-                Some(BorrowedCallActualValueV1::MethodCall(original)),
-            ) => std::sync::Arc::ptr_eq(method, original),
-            // Exact source binding identity only; value class is checked by its own source proof.
-            (BorrowedCallActualValueV1::Unknown, Some(BorrowedCallActualValueV1::Binding(_))) => {
-                true
-            }
-            (expected, Some(original)) => expected == original,
-            _ => false,
-        };
-        if !same {
-            return Err(reject());
-        }
-        let plan = if let Some(old) = previous {
-            ArgumentExpressionV1::Source(Rc::clone(old.get(&candidate.ordinal).ok_or_else(reject)?))
-        } else {
-            crate::mir::resolved_value_profile::expression_plan::call_argument_expression_source_plan_v1(
-                input, method, candidate.ordinal).map_err(|_| reject())?.into()
-        };
-        if !matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, .. }
-                if std::sync::Arc::ptr_eq(call, method))
-            || input
-                .function()
-                .source_site_inventory()
-                .containing_statement(source.call_site().site())
-                != Some(plan.root().statement())
-            || plans.insert(candidate.ordinal, plan).is_some()
-        {
-            return Err(reject());
-        }
-    }
-    validate_original_argument_plans_v1(source, candidates, &plans)?;
-    Ok(plans)
-}
-
-/// Source-plan membership, not execution/entry/ownership permission. Qualified
-/// frames must retain their SAME source loan, not a rebuilt plan or frame.
-fn validate_original_argument_plans_v1(
-    source: super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>,
-    candidates: &[BorrowedCallActualCandidateV1],
-    plans: &BTreeMap<u32, ArgumentExpressionV1>,
-) -> Result<(), String> {
-    use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
-    let reject = || freeze("borrowed-actual/argument-source-identity");
-    if plans.len() != candidates.len() || candidates.len() != source.argument_sites().len() {
-        return Err(reject());
-    }
-    let mut outer = None;
-    for (index, candidate) in candidates.iter().enumerate() {
-        let plan = plans.get(&(index as u32)).ok_or_else(reject)?;
-        let ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = plan.root() else {
-            return Err(reject());
-        };
-        if candidate.ordinal as usize != index
-            || *ordinal != candidate.ordinal
-            || plan.owner() != source.call_site().owner()
-            || call.owner() != plan.owner()
-            || call.site() != source.call_site().site()
-            || call.arity() != source.target().arity()
-            || call
-                .arguments()
-                .iter()
-                .map(|arg| arg.site())
-                .ne(source.argument_sites().iter())
-            || source.argument_sites().get(index) != Some(&candidate.site)
-            || plan
-                .nodes()
-                .first()
-                .is_none_or(|node| node.site() != &candidate.site)
-            || outer.is_some_and(|previous| !std::sync::Arc::ptr_eq(previous, call))
-        {
-            return Err(reject());
-        }
-        outer = Some(call);
-        if let ArgumentExpressionV1::Qualified(frame) = plan {
-            if !Rc::ptr_eq(frame.source(), frame.source_loan().plan())
-                || !frame.evaluation().reference_coverage_is_exact()
-            {
-                return Err(reject());
-            }
-        }
-    }
-    Ok(())
-}
+pub(super) use super::argument_source::bind_original_argument_plans_v1;
+use super::argument_source::validate_original_argument_plans_v1;
 
 impl instance_source::InstanceSourceActualIdentityV1 {
     pub(super) fn same_original_source_v1(&self, other: &Self) -> bool {

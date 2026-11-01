@@ -60,8 +60,39 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# One source-issued take program exercises pre-entry and post-entry Faults.
+if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_take_entry ]; then
+  cat > "$TMP_ROOT.take.hako" <<'HAKO'
+box Payload {
+  value: i64
+  birth() { me.value = 7 }
+}
+static box Main {
+  later(): i64 { local scratch = new Payload() return 1 }
+  consume(take p: Payload, marker: i64): i64 { local scratch = new Payload() return 7 }
+  main() { local p = new Payload() return me.consume(move p, me.later()) }
+}
+HAKO
+  CASES+=("ownership_take_entry|$TMP_ROOT.take.hako|7||")
+fi
+
 run_case() {
   local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
+  if [[ "$2" = /* ]]; then app="$2"; fi
+  local extra_link=()
+  if [ "$name" = ownership_take_entry ]; then
+    local probe="$TMP_ROOT.take-probe.o"
+    "${CC:-cc}" -DHAKO_TEST_OWNED_CALL_RESULT -c \
+      "$HAKO_ROOT/lang/c-abi/tests/published_lifecycle_v4_runtime_probe.c" -o "$probe" || {
+      test_fail "$SMOKE_NAME/$name: runtime probe compilation failed"; return 1;
+    }
+    local libs="-Wl,--start-group $probe $NYRT_DIR/libnyash_lifecycle_kernel.a -Wl,--end-group" operation
+    for operation in fault.frame_init fault.frame_dispose fault.report_final object.checked_field_set \
+      object.checked_residence_set object.home_release_plain_i64 object.reclaim_unpublished object.checked_new; do
+      libs+=" -Wl,--wrap=nyash.${operation}_v1"
+    done
+    extra_link=("--emit-exe-libs=$libs")
+  fi
   local exe="$TMP_ROOT.$name.exe" build_log="$TMP_ROOT.$name.build.log" run_log="$TMP_ROOT.$name.run.log"
   if [ ! -f "$app" ]; then
     test_fail "$SMOKE_NAME/$name: app missing: $app"
@@ -75,7 +106,7 @@ run_case() {
     HAKO_BACKEND_COMPILE_RECIPE=pure-first \
     HAKO_BACKEND_COMPAT_REPLAY=none \
     timeout "$RUN_TIMEOUT_SECS" \
-    "$NYASH_BIN" $flag --backend mir --emit-exe "$exe" --emit-exe-nyrt "$NYRT_DIR" "$app" \
+    "$NYASH_BIN" $flag --backend mir --emit-exe "$exe" --emit-exe-nyrt "$NYRT_DIR" "${extra_link[@]}" "$app" \
     >"$build_log" 2>&1
   local build_rc=$?
   set -e
@@ -99,16 +130,31 @@ run_case() {
     test_fail "$SMOKE_NAME/$name: $problem"
     return 1
   fi
-  set +e
-  NYASH_DISABLE_PLUGINS=1 "$exe" >"$run_log" 2>&1
-  local exe_rc=$?
-  set -e
-  if [ "$exe_rc" -ne "$expected_rc" ] || { [ -n "$expected_line" ] && ! grep -Fxq "$expected_line" "$run_log"; }; then
-    echo "[INFO] $name EXE stdout/stderr:"
-    cat "$run_log" || true
-    test_fail "$SMOKE_NAME/$name: expected exit $expected_rc${expected_line:+ and '$expected_line'}, got $exe_rc"
-    return 1
+  local executions=("|$expected_rc|$expected_line||")
+  if [ "$name" = ownership_take_entry ]; then
+    executions=("|7||OWNED 3 3 3|COUNTS 1 3 3 0 0 1"
+      "2|70||OWNED 2 1 1|COUNTS 1 1 1 0 1 1"
+      "3|70||OWNED 3 2 2|COUNTS 1 2 2 0 1 1")
   fi
+  local execution fault expected_owned expected_counts
+  for execution in "${executions[@]}"; do
+    IFS='|' read -r fault expected_rc expected_line expected_owned expected_counts <<<"$execution"
+    set +e
+    env -u V4_PROBE_FAULT_AT -u V4_PROBE_HOME_FAULT_AT \
+      V4_PROBE_NEW_FAULT_AT="$fault" V4_PROBE_MODE=normal NYASH_DISABLE_PLUGINS=1 \
+      timeout "$RUN_TIMEOUT_SECS" "$exe" >"$run_log" 2>&1
+    local exe_rc=$?
+    set -e
+    if [ "$exe_rc" -ne "$expected_rc" ] ||
+      { [ -n "$expected_line" ] && ! grep -Fxq "$expected_line" "$run_log"; } ||
+      { [ -n "$expected_owned" ] && ! grep -Fxq "$expected_owned" "$run_log"; } ||
+      { [ -n "$expected_counts" ] && ! grep -Fxq "$expected_counts" "$run_log"; }; then
+      echo "[INFO] $name EXE stdout/stderr:"
+      cat "$run_log" || true
+      test_fail "$SMOKE_NAME/$name: Fault=${fault:-Normal}, expected exit $expected_rc and original cleanup counts, got $exe_rc"
+      return 1
+    fi
+  done
 }
 
 ran=0

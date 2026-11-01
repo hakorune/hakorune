@@ -128,6 +128,7 @@ pub(super) fn check_module_with_source(
                         call,
                         edge_policy,
                         slots.as_ref(),
+                        image.takes.get(&(function.signature.name.clone(), *id, index)),
                         root.is_some(),
                         &image.receiver_callees,
                         &mut errors,

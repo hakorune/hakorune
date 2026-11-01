@@ -286,12 +286,13 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
         own.parameters[0].ordinal,
         own.parameters[0].binding,
         own.parameters[0].kind.clone(),
+        own.parameters[0].demand,
     );
     for parameters in [
         vec![],
         vec![good.clone(), good.clone()],
-        vec![(good.0, foreign.parameters[0].binding, good.2.clone())],
-        vec![(good.0 + 1, good.1, good.2.clone())],
+        vec![(good.0, foreign.parameters[0].binding, good.2.clone(), good.3)],
+        vec![(good.0 + 1, good.1, good.2.clone(), good.3)],
     ] {
         package
             .batch()

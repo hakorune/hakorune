@@ -1,6 +1,21 @@
 //! Record explicit and implicit exits into the same affine progress.
 use super::*;
 impl OrdinaryNewClaimLedgerV1 {
+    /// Retain the cached physical frame from its existing source-owned port.
+    /// Plain entry cleanup need not have a preceding New/Call to carry it.
+    pub(crate) fn record_root_exit_frame_v1(&self, owner: FunctionOwnerIdV1,
+        exit: &RootHomeExitKeyV1, frame: (BasicBlockId, MirInstruction),
+    ) -> Result<(), String> {
+        let mut exits = self.root_exits.borrow_mut();
+        let Some(RootHomeExitProgress::Emitting(order)) = exits.get_mut(&(owner, exit.clone()))
+            else { return Err(freeze("root-exit-record-without-emission")); };
+        if order.original_frame.is_some() || !matches!(frame.1, MirInstruction::FaultFrameEnter { .. }) {
+            return Err(freeze("root-frame-missing"));
+        }
+        order.original_frame = Some(frame);
+        Ok(())
+    }
+
     pub(super) fn record_root_home_exit_with_entry(
         &self,
         owner: FunctionOwnerIdV1,

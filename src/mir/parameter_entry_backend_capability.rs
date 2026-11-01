@@ -140,8 +140,9 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 (*carrier == Carrier::BorrowedTaggedValue).then_some(slot)
             })
             .collect();
+        let take_objects = crate::mir::compiler::published_backend_view::take_parameter_objects_v1(physical, Some(input))?;
         if target.metadata.declared_param_decls.len() != target.params.len()
-            || target.metadata.parameter_entry_contracts.len() + map_formals + tagged_slots.len()
+            || target.metadata.parameter_entry_contracts.len() + map_formals + tagged_slots.len() + take_objects.len()
                 != target.params.len().saturating_sub(receiver_offset)
             || target.signature.params.len() != target.params.len()
         {
@@ -150,7 +151,7 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
             ));
         }
-        if !tagged_slots.is_empty() {
+        if !tagged_slots.is_empty() || !take_objects.is_empty() {
             for selected_call in input
                 .entry()
                 .ordinary_calls()
@@ -167,7 +168,10 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                     .iter()
                     .map(|actual| actual.ordinal as usize + receiver_offset)
                     .collect();
-                if actual_slots != tagged_slots || actual_slots.len() != actuals.len() {
+                let expected_slots: BTreeSet<_> = tagged_slots.iter().copied().chain(take_objects.keys().copied()).collect();
+                if actual_slots != expected_slots || actual_slots.len() != actuals.len()
+                    || actuals.iter().any(|actual| take_objects.contains_key(&(actual.ordinal as usize + receiver_offset))
+                        != actual.source.taken_home_v1().is_some()) {
                     return Err(format!(
                         "{} reason=ordinary-tagged-actual-drift function={symbol}",
                         LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
@@ -199,6 +203,19 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
             .enumerate()
         {
             let formal_index = explicit_index + receiver_offset;
+            if take_objects.contains_key(&formal_index) {
+                let original = physical.function().metadata.declared_param_decls.get(formal_index);
+                if declaration.implicit_receiver || !matches!(ty, MirType::Box(_))
+                    || carriers.get(formal_index) != Some(&Carrier::ExistingCallableI64)
+                    || tagged_slots.contains(&formal_index)
+                    || physical.function().signature.params.get(formal_index) != Some(ty)
+                    || original.is_none_or(|row| row.implicit_receiver
+                        || row.declared_type_name != declaration.declared_type_name) {
+                    return Err(format!("{} reason=ordinary-parameter-contract function={symbol} index={formal_index}",
+                        LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG));
+                }
+                continue;
+            }
             if tagged_slots.contains(&formal_index) {
                 if declaration.implicit_receiver
                     || !matches!(ty, MirType::Unknown | MirType::Integer)

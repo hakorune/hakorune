@@ -462,7 +462,12 @@ impl EmittedLexicalCallProjectionV1 {
             receiver_covered.insert(invoke.0);
         }
         let checked_call = matches!(checked_receiver, Some(StoredReceiverReadV1::Checked { owner: StoredReceiverFaultV1::Call, .. }));
-        if ends.is_empty() && inherited.is_none() && !checked_call {
+        // Without an original observation no owned transfer can match a Home;
+        // ordinary no-transfer packets retain their existing empty fast path.
+        let prior_homes = original.map(|source| source.prior_homes()).unwrap_or(&[]);
+        let entered_homes = self.row.loan().entered_prior_homes_v1(context, prior_homes)?;
+        let has_takes = entered_homes.len() != prior_homes.len();
+        if ends.is_empty() && inherited.is_none() && !checked_call && !has_takes {
             if self.argument_cleanup.is_some() {
                 return Err(freeze("call-argument/unexpected-cleanup"));
             }
@@ -478,13 +483,16 @@ impl EmittedLexicalCallProjectionV1 {
             .map(|prefix| prefix.unwind_for_call(self.call_site(), source.prior_homes()))
             .transpose()?
             .unwrap_or_default();
+        let mut entered_suffix = suffix.clone();
+        entered_suffix.extend(context.ledger().prior_home_unwind_for(&entered_homes)?);
+        context.ledger().with_loop_call_text_ends_v2(self.call_site(), source.prior_homes(), &mut entered_suffix)?;
         suffix.extend(
             context
                 .ledger()
                 .prior_home_unwind_for(source.prior_homes())?,
         );
         context.ledger().with_loop_call_text_ends_v2(self.call_site(), source.prior_homes(), &mut suffix)?;
-        let operations: Vec<_> = ends.iter().chain(&suffix).cloned().collect();
+        let operations: Vec<_> = ends.iter().chain(&entered_suffix).cloned().collect();
         let mut seen = std::collections::BTreeSet::new();
         for operation in &operations {
             if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
@@ -597,7 +605,7 @@ impl EmittedLexicalCallProjectionV1 {
             let after_fault: Vec<_> = ends[index + 1..]
                 .iter()
                 .chain(normal_fault_cancellation)
-                .chain(&suffix)
+                .chain(&entered_suffix)
                 .cloned()
                 .collect();
             covered.extend(paths::pending_operations(

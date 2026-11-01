@@ -374,6 +374,7 @@ static int lv4_direct_initialized(const hako_lv4_input* in, hako_lv4_function_in
     hako_lv4_value* value, uint32_t use) {
   hako_lv4_value* root = lv4_value_alias_root(fn, value);
   if (!root || !root->object_id_set || !lv4_direct_layout(in, root->object_id)) return 1;
+  if (lv4_owned_parameter_object(in, fn, root)) return 1;
   /* These are field-supported loans, not allocations. The existing caller
      below still proves their parent, unchanged interval and nonnull cone. */
   if (root->origin == LV4_OWNED_FIELD_BORROW || root->kind == LV4_SLOT_BORROW) return 1;

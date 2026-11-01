@@ -150,6 +150,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.local_commits.borrow();
         let mut operations = Vec::new();
         for binding in prior_homes.iter().rev() {
+            match self.take_entry_home_end_plan_v1(binding).ok()? {
+                Some(plans) => { operations.extend(plans.into_iter().map(|(_, operation)| operation)); continue; }
+                None => {}
+            }
             match installed_source_home(&rows, binding) {
                 Ok(row) if row.end_available() => {
                     operations.extend(row.end_operations());

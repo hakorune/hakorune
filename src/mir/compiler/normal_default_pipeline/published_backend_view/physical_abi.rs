@@ -11,6 +11,7 @@ use birth_actuals::{BorrowedBirthActualTransportV1, ObjectBirthActualTransportV1
 #[path = "physical_abi_row_obligations.rs"]
 mod row_obligations;
 use row_obligations::{issue_diagnostic_sites, issue_exact_numeric_checks};
+pub(crate) use row_obligations::take_parameter_objects_v1;
 
 use super::compiled_entry_contract::CompiledEntryFormalKindV1;
 use crate::mir::function::TypedObjectFieldStorage;

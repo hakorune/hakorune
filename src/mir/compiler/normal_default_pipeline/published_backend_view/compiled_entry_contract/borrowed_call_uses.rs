@@ -47,6 +47,7 @@ struct FunctionUses {
     integer_returns: BTreeMap<Coordinate, integer_return::IntegerReturnUse>,
     formal_returns: BTreeMap<Coordinate, formal_return::FormalReturnUse>,
     roots: BTreeMap<ValueId, BindingRefV1>,
+    owned_formals: BTreeSet<BindingRefV1>,
     copies: BTreeMap<ValueId, (Binding, Option<Coordinate>)>,
     arguments: BTreeMap<(BasicBlockId, usize, usize), BindingRefV1>,
     receivers: BTreeMap<Coordinate, arguments::CompletedReceiverUse>,
@@ -345,6 +346,16 @@ impl FunctionUses {
         if field_write::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         if array_set::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         match instruction {
+            MirInstruction::Invoke { operation: InvokeOperation::HomeRelease { object, value }, fault_frame, .. }
+                if tracked.get(value).is_some_and(|formal| self.owned_formals.contains(formal)) => {
+                let formal = tracked[value];
+                if self.object_views.get(&formal) != Some(object) || tracked.contains_key(fault_frame)
+                    || views.views.contains_key(fault_frame) {
+                    return Err(fault("borrowed-use/callee-or-fault-frame"));
+                }
+                // Permission is source-owned; once-only consumption and all
+                // successor liveness remain mandatory ownership-SSA checks.
+            }
             MirInstruction::Copy { dst, src } if tracked.contains_key(src) => {
                 let view = views.views.get(dst) == tracked.get(src);
                 if !view

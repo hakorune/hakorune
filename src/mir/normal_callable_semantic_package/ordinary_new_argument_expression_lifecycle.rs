@@ -468,29 +468,17 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         .is_some_and(|original| Rc::ptr_eq(&original, receipt))
                 { return Err(freeze("borrowed-static/core-source-identity")); }
             }
-            (BorrowedCallActualValueV1::MethodCall(method), None)
-                if ordinary_argument_call_source_v1(
-                    prepared,
-                    &OwnedExprSiteV1::new(site.owner(), candidate.site.clone()),
-                    method,
-                )?
-                .is_some() =>
-            {
-                if !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
+            (BorrowedCallActualValueV1::MethodCall(method), None) => {
+                let original = ordinary_argument_call_source_v1(prepared,
+                    &OwnedExprSiteV1::new(site.owner(), candidate.site.clone()), method)?
+                    .ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
+                if !original.accepts_argument_formal_v1(&formal.kind)
                     || identity.integer_evidence.get(index) != Some(&false)
-                    || !corroborates_argument_source_v1(
-                        plan,
-                        &identity.source,
-                        candidate.ordinal,
-                        method,
-                    )
-                {
+                    || !corroborates_argument_source_v1(plan, &identity.source, candidate.ordinal, method) {
                     return Err(freeze("borrowed-static/core-source-identity"));
                 }
             }
-            (BorrowedCallActualValueV1::MethodCall(_), None) | (_, Some(_)) => {
-                return Err(freeze("borrowed-static/core-source-identity"))
-            }
+            (_, Some(_)) => return Err(freeze("borrowed-static/core-source-identity")),
             (_, None) => {}
         }
         let matches = match (&formal.kind, &candidate.value, argument) {

@@ -430,21 +430,21 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Ok(None);
         }
-        let mut claims = self.claims.borrow_mut();
+        let claims = self.claims.borrow();
         let claim = claims
             .get(site)
             .ok_or(OrdinaryNewClaimTakeErrorV1::Unavailable)?;
         if claim.class() != class || claim.arity() != arity {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
-        let mut commits = self.local_commits.borrow_mut();
+        let commits = self.local_commits.borrow();
         if let Ok(prefix) = &claim.home_prefix {
             if prefix.destination() != claim.destination
                 || prefix.required_unwind() != site
                 || prefix
                     .prior_homes()
                     .iter()
-                    .any(|binding| local_commit::installed_source_home(&commits, binding).is_err())
+                    .any(|binding| self.source_home_installed_v1(&commits, binding).map_or(true, |ready| !ready))
             {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }
@@ -457,6 +457,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if birth_abi.as_ref().map(BirthAbiHandoffV1::target) != birth_target.as_ref() {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
+        drop(commits);
+        let mut commits = self.local_commits.borrow_mut();
         commits.insert(
             site.clone(),
             local_commit::LocalCommitV1::Ordinary(local_commit::NewLocalCommitV1::pending(
@@ -475,8 +477,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.core.children.clone(),
             )),
         );
+        drop(commits);
+        drop(claims);
         Ok(Some(
-            claims
+            self.claims.borrow_mut()
                 .remove(site)
                 .expect("claim remained present after the checked lookup"),
         ))
@@ -517,7 +521,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Ok(None);
         }
-        let mut claims = self.result_claims.borrow_mut();
+        let claims = self.result_claims.borrow();
         let Some(claim) = claims.get(site) else {
             return Ok(None);
         };
@@ -528,7 +532,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
-        let mut commits = self.local_commits.borrow_mut();
+        let commits = self.local_commits.borrow();
         if commits.contains_key(site) {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
@@ -537,7 +541,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || prefix
                     .prior_homes()
                     .iter()
-                    .any(|binding| local_commit::installed_source_home(&commits, binding).is_err())
+                    .any(|binding| self.source_home_installed_v1(&commits, binding).map_or(true, |ready| !ready))
             {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }
@@ -550,6 +554,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if birth_abi.as_ref().map(BirthAbiHandoffV1::target) != birth_target.as_ref() {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
+        drop(commits);
+        let mut commits = self.local_commits.borrow_mut();
         commits.insert(
             site.clone(),
             local_commit::LocalCommitV1::Result(local_commit::NewResultCommitV1::pending(
@@ -566,7 +572,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.core.children.clone(),
             )),
         );
-        Ok(Some(claims.remove(site).expect(
+        drop(commits);
+        drop(claims);
+        Ok(Some(self.result_claims.borrow_mut().remove(site).expect(
             "result claim remained present after the checked lookup",
         )))
     }

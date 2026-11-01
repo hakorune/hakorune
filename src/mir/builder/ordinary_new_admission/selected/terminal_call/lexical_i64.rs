@@ -216,6 +216,10 @@ fn emit_lexical_i64_call(
         Some(prefix) => prefix.unwind(row.call_site(), prior_homes)?,
         None => Vec::new(),
     };
+    let entered_homes = row.entered_prior_homes_v1(CallValidationContextV1::Lowering(ledger), prior_homes)?;
+    let mut entered_unwind = unwind.clone();
+    entered_unwind.extend(ledger.prior_home_unwind_for(&entered_homes)?);
+    ledger.with_loop_call_text_ends_v2(row.call_site(), prior_homes, &mut entered_unwind)?;
     unwind.extend(ledger.prior_home_unwind_for(prior_homes)?);
     ledger.with_loop_call_text_ends_v2(row.call_site(), prior_homes, &mut unwind)?;
     if sealed_arguments.len() != row.argument_sites().len()
@@ -263,7 +267,7 @@ fn emit_lexical_i64_call(
         _ => Vec::new(),
     };
     let (fault_landing, cleanup) = prepare_argument_cleanup_v1(
-        builder, ledger, &prepared, frame, outward, unwind, &cancellation, bindings)?;
+        builder, ledger, &prepared, frame, outward, entered_unwind, &cancellation, bindings)?;
     if let Some(read) = stored_read { prepared = prepared.with_stored_receiver(read)?; }
     let call = prepared.materialize_using(owner, row, sealed_arguments, Some(ledger))?;
     let packet = if let Some(result) = result {
@@ -434,6 +438,17 @@ fn prepare_arguments_with_prefix(
                     scoped.as_ref().or(expression), consume_receiver, static_source,
                 )?))
             }
+            LocalCallArgumentV1::Expression { ordinal, site: original_site }
+                if row.scalar_argument_expression_v1(ledger, *ordinal, original_site)?.is_some() =>
+            {
+                if original_site != site || *ordinal as usize != position {
+                    return Err(freeze("lexical-i64/argument-site-mismatch"));
+                }
+                emit_prepared_expression_argument(
+                    builder, state, ledger, row, *ordinal, site, position, original,
+                    &arguments, expression, consume_receiver, static_source, bindings,
+                )?
+            }
             LocalCallArgumentV1::BorrowedActual {
                 ordinal,
                 site: original_site,
@@ -460,20 +475,10 @@ fn prepare_arguments_with_prefix(
                         if !std::rc::Rc::ptr_eq(original_frame.frame(), &canonical) || *ordinal as usize != position {
                             return Err(freeze("lexical-i64/borrowed-expression-original"));
                         }
-                        let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
-                            original.ok_or_else(|| freeze("lexical-i64/argument-original-source"))?, position,
-                            &arguments, CallValidationContextV1::Lowering(ledger), expression.and_then(|prefix| prefix.transient()))?;
-                        let consumer = consume_receiver.ok_or_else(|| freeze("lexical-i64/argument-receiver-scope"))?;
-                        let (_, projection) = super::super::argument_expression::emit_with_prefix(
-                            builder, state, ledger, row.call_site(), *ordinal, site, consumer, Some(&prefix),
-                            expression.and_then(|outer| outer.static_source()).or(static_source))?;
-                        for binding in projection.expression_bindings_v1() {
-                            // The function frame is a shared dependency. Every
-                            // acquisition/effect remains independently recorded.
-                            if matches!(binding.1, MirInstruction::FaultFrameEnter { .. }) && bindings.contains(binding) { continue; }
-                            bindings.push(binding.clone());
-                        }
-                        projection
+                        emit_prepared_expression_argument(
+                            builder, state, ledger, row, *ordinal, site, position, original,
+                            &arguments, expression, consume_receiver, static_source, bindings,
+                        )?
                     }
                     _ if expression_only => {
                         return Err(freeze("lexical-i64/expression-source-required"));
@@ -572,8 +577,9 @@ fn prepare_arguments_with_prefix(
                             }
                             _ => return Err(freeze("lexical-i64/borrowed-source")),
                         };
+                        let read_site = source.binding_read_site_v1(site)?;
                         let read = state
-                            .take_exact_lexical_read(owner, site.node(), binding)
+                            .take_exact_lexical_read(owner, read_site.node(), binding)
                             .map_err(|error| {
                                 format!("[freeze:contract][lexical-i64/borrowed-read/{error:?}]")
                             })?;
@@ -641,4 +647,37 @@ pub(in crate::mir::builder) fn emit_constructor_unit(
     packet.call_with_ledger(owner, &[], ledger)?;
     packet.validate_recorded(&bindings)?;
     Ok((packet, bindings))
+}
+
+/// Both scalar and opaque expression actuals consume the same retained frame
+/// and source-ordered transient prefix, after their formal proof is checked.
+fn emit_prepared_expression_argument(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    row: SourceLoan<'_>,
+    ordinal: u32,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    position: usize,
+    original: Option<ArgumentSource<'_>>,
+    arguments: &[ArgumentProjection],
+    expression: Option<&ExpressionCallPrefixV1<'_>>,
+    consume_receiver: Option<&dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
+    bindings: &mut Vec<Binding>,
+) -> Result<ArgumentProjection, String> {
+    let prefix = ExpressionCallTransientPrefixV1::for_prepared_call_argument(
+        original.ok_or_else(|| freeze("lexical-i64/argument-original-source"))?, position,
+        arguments, CallValidationContextV1::Lowering(ledger), expression.and_then(|prefix| prefix.transient()))?;
+    let consumer = consume_receiver.ok_or_else(|| freeze("lexical-i64/argument-receiver-scope"))?;
+    let (_, projection) = super::super::argument_expression::emit_with_prefix(
+        builder, state, ledger, row.call_site(), ordinal, site, consumer, Some(&prefix),
+        expression.and_then(|outer| outer.static_source()).or(static_source))?;
+    for binding in projection.expression_bindings_v1() {
+        // The function frame is a shared dependency. Every
+        // acquisition/effect remains independently recorded.
+        if matches!(binding.1, MirInstruction::FaultFrameEnter { .. }) && bindings.contains(binding) { continue; }
+        bindings.push(binding.clone());
+    }
+    Ok(projection)
 }

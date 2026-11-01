@@ -26,12 +26,17 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     ),
     String,
 > {
+    let take_contracts = match program.handoff().root_source() {
+        Some(source) => source.take_call_contracts_v1()?,
+        None => BTreeMap::new(),
+    };
     let mut callees = BTreeMap::new();
     for function in program.functions() {
         let Some(carriers) = function.param_carriers() else {
             continue;
         };
-        if !carriers.contains(&Carrier::BorrowedTaggedValue) {
+        if !carriers.contains(&Carrier::BorrowedTaggedValue)
+            && !function.role().ordinary_target().is_some_and(|key| take_contracts.contains_key(key)) {
             continue;
         }
         if let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = function.role() {
@@ -196,22 +201,33 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 callee_function,
             )?;
             let values = source.borrowed_ordinary_entry_values_v1(row.callee_owner())?;
+            let object_views = source.borrowed_ordinary_formal_object_views_v1(row.callee_owner(), callee_function)?;
             let offset = usize::from(callee.role().has_receiver());
             let carriers = callee.param_carriers().expect("selected borrowed column");
-            let selected_slots: BTreeSet<_> = carriers
+            let takes = take_contracts.get(row.target());
+            let take_slots: BTreeSet<_> = takes.into_iter().flat_map(|rows| rows.keys())
+                .map(|ordinal| *ordinal as usize + offset).collect();
+            let mut selected_slots: BTreeSet<_> = carriers
                 .iter()
                 .enumerate()
                 .filter_map(|(slot, carrier)| {
                     (*carrier == Carrier::BorrowedTaggedValue).then_some(slot)
                 })
                 .collect();
+            if !selected_slots.is_disjoint(&take_slots) { return Err(fault("borrowed-incoming/entry-coverage")); }
+            selected_slots.extend(take_slots.iter().copied());
             let mut proven_slots = BTreeSet::new();
-            for (ordinal, _, value) in values.iter() {
+            for (ordinal, binding, value) in values.iter() {
                 let slot = *ordinal as usize + offset;
                 if callee.params().get(slot) != Some(value)
-                    || carriers.get(slot) != Some(&Carrier::BorrowedTaggedValue)
+                    || carriers.get(slot) != Some(&if take_slots.contains(&slot) { Carrier::ExistingCallableI64 } else { Carrier::BorrowedTaggedValue })
                 {
                     return Err(fault("borrowed-incoming/entry-correspondence"));
+                }
+                if let Some(object) = takes.and_then(|rows| rows.get(ordinal)) {
+                    if object_views.get(binding) != Some(object) {
+                        return Err(fault("borrowed-incoming/entry-correspondence"));
+                    }
                 }
                 proven_slots.insert(slot);
             }

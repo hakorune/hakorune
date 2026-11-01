@@ -12,6 +12,7 @@ type CallSlots = BTreeMap<(String, BasicBlockId, usize), BTreeSet<usize>>;
 #[derive(Default)]
 pub(super) struct OriginalCallSourceImageV1 {
     pub(super) slots: CallSlots,
+    pub(super) takes: BTreeMap<(String, BasicBlockId, usize), BTreeMap<usize, (ValueId, hakorune_mir_defs::CanonicalObjectIdV1)>>,
     pub(super) receiver_callees: BTreeSet<String>,
     pub(super) text: BTreeMap<(String, BasicBlockId, usize, usize), ValueId>,
     pub(super) field_reads: Vec<(String, (BasicBlockId, MirInstruction))>,
@@ -47,6 +48,11 @@ pub(super) fn original_call_slots(
             Err("borrowed-source-missing".into())
         };
     };
+    let take_contracts = source.take_call_contracts_v1()?;
+    for key in take_contracts.keys() {
+        selected.insert(module.canonical_callable_definition_symbol(key)
+            .ok_or("borrowed-source-target-missing")?.to_owned());
+    }
     // Validate source-declared entry correspondence before projecting any
     // incoming actuals. Malformed physical parameters should fail at their
     // declaration contract, not first surface as unrelated call/SSA drift.
@@ -189,6 +195,9 @@ pub(super) fn original_call_slots(
             {
                 return Err("borrowed-source-entry-shape".into());
             }
+            let takes = take_contracts.get(row.target());
+            let take_slots: BTreeSet<_> = takes.into_iter().flat_map(|rows| rows.keys())
+                .map(|ordinal| *ordinal as usize + offset).collect();
             let slots: BTreeSet<_> = carriers
                 .iter()
                 .enumerate()
@@ -200,13 +209,14 @@ pub(super) fn original_call_slots(
             for (ordinal, _, value) in values.iter() {
                 let slot = *ordinal as usize + offset;
                 if callee.params.get(slot) != Some(value)
-                    || carriers.get(slot) != Some(&Carrier::BorrowedTaggedValue)
+                    || carriers.get(slot) != Some(&if take_slots.contains(&slot) { Carrier::ExistingCallableI64 } else { Carrier::BorrowedTaggedValue })
                 {
                     return Err("borrowed-source-entry-correspondence".into());
                 }
                 proven.insert(slot);
             }
-            if slots != proven || slots.is_empty() || (offset == 1 && slots.contains(&0)) {
+            if !slots.is_disjoint(&take_slots) || slots.union(&take_slots).copied().collect::<BTreeSet<_>>() != proven
+                || proven.is_empty() || (offset == 1 && proven.contains(&0)) {
                 return Err("borrowed-source-entry-coverage".into());
             }
             for target in entry.incoming_targets() {
@@ -223,11 +233,26 @@ pub(super) fn original_call_slots(
                 .iter()
                 .map(|actual| actual.ordinal as usize)
                 .collect();
-            let argument_slots: BTreeSet<_> = slots.iter().map(|slot| slot - offset).collect();
+            let argument_slots: BTreeSet<_> = proven.iter().map(|slot| slot - offset).collect();
             if actual_slots != argument_slots || actual_slots.len() != actuals.len() {
                 return Err("borrowed-source-actual-coverage".into());
             }
+            let instruction = caller.blocks.get(&coordinate.0).and_then(|block| block.all_instructions().nth(coordinate.1))
+                .ok_or("borrowed-source-text-coordinate")?;
+            let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = instruction
+                else { return Err("borrowed-source-text-call".into()); };
+            let mut take_actuals = BTreeMap::new();
             for actual in actuals {
+                if let Some(object) = takes.and_then(|rows| rows.get(&actual.ordinal)) {
+                    if !matches!(&actual.source, crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::TypedHome { moved: Some(_), .. }) {
+                        return Err("borrowed-source-actual-coverage".into());
+                    }
+                    let value = *call.args.get(actual.ordinal as usize).ok_or("borrowed-source-actual-coverage")?;
+                    if take_actuals.insert(actual.ordinal as usize, (value, *object)).is_some() {
+                        return Err("borrowed-source-coordinate-duplicate".into());
+                    }
+                    continue;
+                }
                 let Some(operand) = packet.borrowed_computed_argument_operand_v1(actual.ordinal, CallValidationContextV1::Finalized(source))? else { continue };
                 let value = match operand { StringInvokeOperand::OwnedString(value) | StringInvokeOperand::NormalInteger(value) => value,
                     _ => return Err("borrowed-source-text-operand".into()) };
@@ -241,10 +266,14 @@ pub(super) fn original_call_slots(
                     return Err("borrowed-source-text-identity".into());
                 }
             }
+            if !take_actuals.is_empty() && image.takes.insert(
+                (caller.signature.name.clone(), coordinate.0, coordinate.1), take_actuals).is_some() {
+                return Err("borrowed-source-coordinate-duplicate".into());
+            }
             if image.slots
                 .insert(
                     (caller.signature.name.clone(), coordinate.0, coordinate.1),
-                    actual_slots,
+                    slots.iter().map(|slot| slot - offset).collect(),
                 )
                 .is_some()
             {

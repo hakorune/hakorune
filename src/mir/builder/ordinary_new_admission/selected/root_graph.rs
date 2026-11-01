@@ -3,6 +3,19 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::RootCleanupActionV1;
 
+/// An incoming Home can be ended by the first source statement. Keep the
+/// function prologue outside the cleanup DAG, whose ingress has a real caller.
+pub(super) fn separate_plain_entry_v1(builder: &mut MirBuilder, frame: &mut impl RootExitFramePortV1) -> Result<(), String> {
+    let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+    if builder.function_state.current_block == Some(function.entry_block) {
+        frame.materialize(builder)?;
+        let body = builder.next_block_id();
+        builder.emit_instruction(MirInstruction::Jump { target: body, edge_args: None })?;
+        builder.start_new_block(body)?;
+    }
+    Ok(())
+}
+
 pub(in crate::mir::builder) trait RootGraphWriterPortV1 {
     fn reserve_block(&mut self, builder: &mut MirBuilder) -> Result<BasicBlockId, String>;
     /// Write this one nonfallible cleanup and its sole continuation together.

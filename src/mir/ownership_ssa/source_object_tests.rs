@@ -12,9 +12,7 @@ fn new_home_alias_ends_once_across_normal_and_fault_edges() {
     function.get_block_mut(bb(0)).unwrap().add_instruction(MirInstruction::FaultFrameEnter {
         dst: value(9), mode: crate::mir::instruction::FaultFrameMode::RootOwned,
     });
-    function.get_block_mut(bb(0)).unwrap().set_terminator(MirInstruction::Invoke {
-        operation: InvokeOperation::NewBox { object }, fault_frame: value(9), normal_landing: bb(1), fault_landing: bb(2),
-    });
+    invoke(&mut function, 0, InvokeOperation::NewBox { object }, 1, 2);
     let normal = function.get_block_mut(bb(1)).unwrap();
     normal.add_instruction(MirInstruction::InvokeNormalResult { invoke_block: bb(0), dst: value(10) });
     normal.set_terminator(MirInstruction::Invoke {
@@ -27,9 +25,7 @@ fn new_home_alias_ends_once_across_normal_and_fault_edges() {
     normal.set_terminator(MirInstruction::Invoke {
         operation: InvokeOperation::HomeRelease { object, value: value(11) }, fault_frame: value(9), normal_landing: bb(5), fault_landing: bb(6),
     });
-    function.get_block_mut(bb(4)).unwrap().set_terminator(MirInstruction::Invoke {
-        operation: InvokeOperation::ReclaimUnpublished { object, value: value(10) }, fault_frame: value(9), normal_landing: bb(7), fault_landing: bb(8),
-    });
+    invoke(&mut function, 4, InvokeOperation::ReclaimUnpublished { object, value: value(10) }, 7, 8);
     for id in [2, 5, 6, 7, 8] {
         function.get_block_mut(bb(id)).unwrap().set_terminator(MirInstruction::Return { value: None });
     }
@@ -40,20 +36,50 @@ fn new_home_alias_ends_once_across_normal_and_fault_edges() {
     }
     assert!(matches!(verify_ownership_ssa_v1(&same_edge, &abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
     let mut wrong_fault_end = function.clone();
-    wrong_fault_end.get_block_mut(bb(4)).unwrap().set_terminator(MirInstruction::Invoke {
-        operation: InvokeOperation::HomeRelease { object, value: value(10) }, fault_frame: value(9), normal_landing: bb(7), fault_landing: bb(8),
-    });
+    invoke(&mut wrong_fault_end, 4, InvokeOperation::HomeRelease { object, value: value(10) }, 7, 8);
     assert!(matches!(verify_ownership_ssa_v1(&wrong_fault_end, &abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
     let mut scalar_end = function.clone();
-    scalar_end.get_block_mut(bb(3)).unwrap().set_terminator(MirInstruction::Invoke {
-        operation: InvokeOperation::HomeRelease { object, value: value(9) }, fault_frame: value(9), normal_landing: bb(5), fault_landing: bb(6),
-    });
+    invoke(&mut scalar_end, 3, InvokeOperation::HomeRelease { object, value: value(9) }, 5, 6);
     assert!(matches!(verify_ownership_ssa_v1(&scalar_end, &abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
     let mut escaped = function.clone();
     escaped.get_block_mut(bb(3)).unwrap().add_instruction(MirInstruction::Store { value: value(11), ptr: value(9) });
     assert!(matches!(verify_ownership_ssa_v1(&escaped, &abi), Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { .. })));
-    function.get_block_mut(bb(5)).unwrap().set_terminator(MirInstruction::Invoke {
-        operation: InvokeOperation::HomeRelease { object, value: value(10) }, fault_frame: value(9), normal_landing: bb(6), fault_landing: bb(8),
-    });
+    invoke(&mut function, 5, InvokeOperation::HomeRelease { object, value: value(10) }, 6, 8);
     assert!(matches!(verify_ownership_ssa_v1(&function, &abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
+    // A take parameter starts as a published object; no synthetic allocation.
+    let (mut entry, _) = self::function(&[MirOwnershipKindV1::Owned], 3);
+    let parameter = entry.params[0];
+    let entry_abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner),
+        vec![MirOwnershipKindV1::Owned], FunctionResultOwnershipV1::None)
+        .with_source_owned_parameters([(parameter, object)].into_iter().collect());
+    entry.get_block_mut(bb(0)).unwrap().add_instruction(MirInstruction::FaultFrameEnter {
+        dst: value(9), mode: crate::mir::instruction::FaultFrameMode::RootOwned,
+    });
+    invoke(&mut entry, 0, InvokeOperation::HomeRelease { object, value: parameter }, 1, 2);
+    for block in [1, 2] { entry.get_block_mut(bb(block)).unwrap().set_terminator(MirInstruction::Return { value: None }); }
+    assert!(verify_ownership_ssa_v1(&entry, &entry_abi).is_ok());
+    let target = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("Consumer", "run", 1);
+    let call_abi = entry_abi.clone().with_source_call_takes([(target.clone(), [(0, object)].into_iter().collect())].into_iter().collect());
+    let mut caller = entry.clone();
+    invoke(&mut caller, 0, InvokeOperation::Call {
+            call: crate::mir::definitions::call_unified::MirCall::global(None, target.canonical_global_target_v1().unwrap(), vec![parameter]),
+            result: crate::mir::instruction::InvokeCallResultKind::I64,
+        }, 1, 2);
+    assert!(verify_ownership_ssa_v1(&caller, &call_abi).is_ok());
+    assert!(verify_ownership_ssa_v1(&caller, &entry_abi).is_err());
+    // Entry transfer consumes on Fault as well: the caller cannot End again.
+    invoke(&mut caller, 2, InvokeOperation::HomeRelease { object, value: parameter }, 1, 1);
+    assert!(verify_ownership_ssa_v1(&caller, &call_abi).is_err());
+    let missing_class = entry_abi.clone().with_source_owned_parameters(Default::default());
+    assert!(matches!(verify_ownership_ssa_v1(&entry, &missing_class), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
+    let mut wrong_class = entry.clone();
+    if let Some(MirInstruction::Invoke { operation: InvokeOperation::HomeRelease { object, .. }, .. }) =
+        &mut wrong_class.get_block_mut(bb(0)).unwrap().terminator {
+        *object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(1).unwrap();
+    }
+    assert!(matches!(verify_ownership_ssa_v1(&wrong_class, &entry_abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
+    entry.get_block_mut(bb(0)).unwrap().set_terminator(MirInstruction::Return { value: None });
+    entry.blocks.retain(|id, _| *id == bb(0));
+    assert!(matches!(verify_ownership_ssa_v1(&entry, &entry_abi), Err(OwnershipSsaErrorV1::MissingDispositionAtExit { .. })));
+
 }

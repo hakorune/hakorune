@@ -72,7 +72,8 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
                 | BorrowedCallArgumentsV1::DynamicInvocationSource { .. }
                 | BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. }
                 | BorrowedCallArgumentsV1::MixedLocalSource { .. }
-                | BorrowedCallArgumentsV1::Object { .. } => None,
+                | BorrowedCallArgumentsV1::Object { .. }
+                | BorrowedCallArgumentsV1::CallEntryHomes(_) => None,
             })
             .filter(|arguments| super::borrowed_actuals::contains_borrowed_actual_v1(arguments))
             .map(|arguments| arguments.into_vec()));
@@ -134,7 +135,8 @@ fn seal_i64_call_arguments<E>(
         | Some(BorrowedCallArgumentsV1::DynamicInvocationSource { .. })
         | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
         | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
-        | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
+        | Some(BorrowedCallArgumentsV1::Object { .. })
+        | Some(BorrowedCallArgumentsV1::CallEntryHomes(_)) => return Ok(None),
         None => {}
     }
     if !allow_strict || !is_selected_call(&owned)? {
@@ -316,7 +318,8 @@ pub(crate) fn issue_static_i64_local_call<E>(
             | Some(BorrowedCallArgumentsV1::SourceObject { .. })
             | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
             | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
-            | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
+            | Some(BorrowedCallArgumentsV1::Object { .. })
+            | Some(BorrowedCallArgumentsV1::CallEntryHomes(_)) => return Ok(None),
             None => {
                 let Some(claim) = qualified_claim else {
                     // CurrentOwner input never borrows a fallback local seal:

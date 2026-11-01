@@ -2,9 +2,6 @@
 //! SourceStatic itself owns no opaque actual and never activates an entry or ABI.
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
-use crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1;
-use crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1;
-use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 use std::rc::Rc;
 use super::call_result_source::ordinary_argument_call_source_v1;
 
@@ -239,9 +236,9 @@ pub(super) fn selects_static_expression_source_v1(
             .ordinary_core_source_v1(&site)
             .is_some_and(|receipt| std::sync::Arc::ptr_eq(method, receipt.source().source()))
             || ordinary_argument_call_source_v1(prepared, &site, method)?.is_some_and(|source|
-                !source.is_instance() || original.is_some_and(|outer| outer.parameters()
+                original.is_some_and(|outer| outer.parameters()
                     .get(actual.ordinal as usize).is_some_and(|formal|
-                        matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle))));
+                        source.accepts_argument_formal_v1(&formal.kind))));
     }
     let original_text_formal = |root| {
         prepared.source_value_sum_v1(root).is_some_and(|sum| {
@@ -379,6 +376,16 @@ pub(super) fn prepare_static_source_actuals_v1(
         };
         let integer = match &actual.value {
             BorrowedCallActualValueV1::Integer(_) => true,
+            BorrowedCallActualValueV1::Home { binding, root, acquisition, moved: Some(moved) }
+                if formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
+                    && binding.owner() == call.owner() && root.owner() == call.owner()
+                    && acquisition.owner() == call.owner() && moved.site() == &actual.site
+                    && moved.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move =>
+            {
+                // Original owned source only. The common actual constructor
+                // still proves its acquisition/class before entry adoption.
+                false
+            }
             BorrowedCallActualValueV1::Expression
                 if matches!(&formal.kind,
                 CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) =>
@@ -424,16 +431,15 @@ pub(super) fn prepare_static_source_actuals_v1(
             }
             BorrowedCallActualValueV1::MethodCall(method) => {
                 let site = OwnedExprSiteV1::new(call.owner(), actual.site.clone());
-                if ordinary_argument_call_source_v1(prepared, &site, method)?
-                    .is_some_and(|source| !source.is_instance()
-                        || matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)) {
-                    if !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle) {
+                if let Some(original) = ordinary_argument_call_source_v1(prepared, &site, method)? {
+                    if !original.accepts_argument_formal_v1(&formal.kind) {
                         return Err(freeze("borrowed-static/text-formal-domain"));
                     }
-                    arguments.push(LocalCallArgumentV1::BorrowedActual {
-                        ordinal: actual.ordinal,
-                        site: actual.site.clone(),
-                    });
+                    if matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) {
+                        arguments.push(LocalCallArgumentV1::Expression { ordinal: actual.ordinal, site: actual.site.clone() });
+                    } else {
+                        arguments.push(LocalCallArgumentV1::BorrowedActual { ordinal: actual.ordinal, site: actual.site.clone() });
+                    }
                     integer_evidence.push(false);
                     continue;
                 }

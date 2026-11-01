@@ -204,20 +204,11 @@ pub(super) fn construct_borrowed_call_actuals_v1(
                     kind: *kind,
                 }
             }
-            BorrowedCallActualValueV1::Home {
-                binding,
-                root,
-                acquisition,
-            } => {
-                let Some(class) = homes.home_class(call, *binding, *root, acquisition)? else {
+            BorrowedCallActualValueV1::Home { .. } => {
+                let Some(source) = homes.prepare_home_actual_v1(call, &contract.parameters[*ordinal as usize], actual)? else {
                     return Ok(None);
                 };
-                BorrowedFormalActualSourceV1::TypedHome {
-                    binding: *binding,
-                    root: *root,
-                    acquisition: acquisition.clone(),
-                    class,
-                }
+                source
             }
             BorrowedCallActualValueV1::SelfRooted { binding, root } => {
                 if let Some(formal_origin) = prepared
@@ -299,6 +290,10 @@ pub(super) fn construct_borrowed_call_actuals_v1(
             }
             _ => return Err(freeze("borrowed-actual/unsupported-or-unavailable")),
         };
+        if contract.parameters[*ordinal as usize].demand == crate::mir::resolved_semantics::HomeDemandV1::Home
+            && !matches!(&source, BorrowedFormalActualSourceV1::TypedHome { moved: Some(_), .. }) {
+            return Err(freeze("borrowed-actual/source-identity"));
+        }
         if let CallableParameterContractKindV1::DeclaredObject(expected) =
             &contract.parameters[*ordinal as usize].kind
         {

@@ -186,7 +186,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
             .unwrap()
             .unwrap();
         let rows = ledger.local_commits.borrow();
-        let order = RootHomeCleanupOrderV1::from_home_end_plans(
+        let order = RootHomeCleanupOrderV1::from_home_end_plans(ledger,
             &rows,
             &exit,
             projection.fault_homes(),
@@ -195,7 +195,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         .unwrap()
         .unwrap();
         let (selected_full, selected_normal) =
-            source_home_end_selection_v2(&rows, projection.fault_homes(), projection.homes())
+            source_home_end_selection_v2(ledger, &rows, projection.fault_homes(), projection.homes())
                 .unwrap()
                 .unwrap();
         assert_eq!(
@@ -257,7 +257,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
             projection.fault_homes()[1].clone(),
             projection.fault_homes()[0].clone(),
         ];
-        let call_fault = source_home_end_plans_v1(&rows, &input).unwrap().unwrap();
+        let call_fault = source_home_end_plans_v1(ledger, &rows, &input).unwrap().unwrap();
         assert_eq!(call_fault.len(), 2 * plan_len);
         for (index, binding) in input.iter().enumerate() {
             let part = &call_fault[index * plan_len..(index + 1) * plan_len];
@@ -306,7 +306,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
             ),
         ] {
             assert!(
-                RootHomeCleanupOrderV1::from_home_end_plans(&rows, &exit, &f, &n)
+                RootHomeCleanupOrderV1::from_home_end_plans(ledger, &rows, &exit, &f, &n)
                     .unwrap_err()
                     .contains(error)
             );
@@ -336,8 +336,8 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
             .field_support_parents
             .replace(vec![full[1].binding()].into_boxed_slice());
         for normal in [vec![], vec![full[1].clone()], full.to_vec()] {
-            let selected = source_home_end_selection_v2(&rows, full, &normal);
-            let root = RootHomeCleanupOrderV1::from_home_end_plans(&rows, &exit, full, &normal);
+            let selected = source_home_end_selection_v2(ledger, &rows, full, &normal);
+            let root = RootHomeCleanupOrderV1::from_home_end_plans(ledger, &rows, &exit, full, &normal);
             if normal == vec![full[1].clone()] {
                 assert!(selected.unwrap_err().contains("escaping-local-anchor"));
                 assert!(root.unwrap_err().contains("escaping-local-anchor"));
@@ -391,7 +391,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         }
         home.release = original_release;
         home.end_children = Some(None);
-        assert!(RootHomeCleanupOrderV1::from_home_end_plans(
+        assert!(RootHomeCleanupOrderV1::from_home_end_plans(ledger,
             &rows,
             &exit,
             full,
@@ -400,7 +400,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         .unwrap()
         .is_none());
         let removed = rows.remove(&missing_site).unwrap();
-        assert!(RootHomeCleanupOrderV1::from_home_end_plans(
+        assert!(RootHomeCleanupOrderV1::from_home_end_plans(ledger,
             &rows,
             &exit,
             full,
@@ -438,7 +438,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
             original_result_site,
             super::super::super::LocalCommitV1::CallReceived(duplicate),
         );
-        assert!(RootHomeCleanupOrderV1::from_home_end_plans(
+        assert!(RootHomeCleanupOrderV1::from_home_end_plans(ledger,
             &rows,
             &exit,
             full,

@@ -374,6 +374,9 @@ fn emit_root_home_exit_payload(
         Some(RootExitIngress::Call(call)) => call.source.deferred_argument_ends_v1(ledger)?,
         _ => Vec::new(),
     };
+    if ingress_operation.is_none() && !operations.is_empty() {
+        root_graph::separate_plain_entry_v1(builder, frame_port)?;
+    }
     let emission = root_graph::emit_root_graph_with_arguments_v1(
         builder,
         frame_port,
@@ -441,7 +444,13 @@ fn emit_root_home_exit_payload(
                 builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?,
             )?;
         }
-        (None, None) => ledger.record_root_home_exit(owner, site, origins, bindings)?,
+        (None, None) => {
+            if let Some(frame) = frame {
+                ledger.record_root_exit_frame_v1(owner, &site.clone().into(),
+                    fault_frame_binding_with_port(builder, frame_port, frame)?)?;
+            }
+            ledger.record_root_home_exit(owner, site, origins, bindings)?;
+        },
         _ => return Err(freeze("root-ingress-graph-mismatch")),
     }
     Ok(statement_result)
@@ -459,8 +468,13 @@ pub(in crate::mir::builder) fn emit_implicit_root_home_exit_v1(
     let exit = RootHomeExitKeyV1::ImplicitBodyEnd;
     let operations = ledger.begin_root_home_exit_for_key_v1(owner, &exit)?;
     let faults = ledger.root_home_fault_sequences_for_exit_v1(owner, &exit)?;
+    if !operations.is_empty() { root_graph::separate_plain_entry_v1(builder, state)?; }
     let emission = emit_root_graph_v1(builder, state, &mut RawRootGraphWriterV1,
         operations, faults, Some(value), value, None)?;
+    if let Some(frame) = emission.frame {
+        ledger.record_root_exit_frame_v1(owner, &exit,
+            fault_frame_binding_with_port(builder, state, frame)?)?;
+    }
     ledger.record_implicit_root_home_exit_v1(owner, completion, producer,
         emission.origins, emission.bindings)
 }

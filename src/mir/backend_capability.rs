@@ -56,6 +56,8 @@ fn verify_source_moves_on_published_mir(
         return Ok(());
     };
     let mut remaining = source.move_ownership_owners_v1();
+    let take_entries = source.take_entry_owners_v1();
+    let take_calls = source.take_call_contracts_v1()?;
     // Project the same finalized ObjectFieldStores transport, not another
     // argument vector or a type inferred from a backend instruction.
     let mut birth_takes = std::collections::BTreeMap::new();
@@ -77,16 +79,27 @@ fn verify_source_moves_on_published_mir(
             if has_shared(physical.function()) { return Err("[ownership/shared-owner-missing]".into()); }
             continue;
         };
-        let Some((aliases, initially_published)) = source.move_ownership_aliases_v1(owner, physical.function())? else {
+        let take_call = physical.function().blocks.values().flat_map(|block| block.all_instructions())
+            .any(|instruction| match instruction {
+                crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. } =>
+                    take_calls.keys().any(|key| match &call.callee {
+                        crate::mir::Callee::SameModuleInstance { key: actual, .. } => actual == key,
+                        crate::mir::Callee::Global(actual) => key.canonical_global_target_v1().as_ref() == Ok(actual),
+                        _ => false,
+                    }),
+                _ => false,
+            });
+        if take_call { remaining.insert(owner); }
+        let Some((aliases, initially_published)) = source.move_ownership_aliases_v1(owner, physical.function(), take_call || take_entries.contains(&owner))? else {
             if has_shared(physical.function()) { return Err("[ownership/shared-owner-missing]".into()); }
             continue;
         };
         if !matches!(physical.role(), Role::Root { .. } | Role::OrdinaryI64 { .. } | Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. }) {
             return Err("[ownership/move-abi-not-supported]".into());
         }
-        let parameters = match physical.role() {
-            Role::Root { .. } if physical.params().is_empty() => Vec::new(),
-            role => source.move_parameter_kinds_v1(owner, role.ordinary_target().ok_or("[ownership/move-abi-not-supported]")?,
+        let (parameters, owned_parameters) = match physical.role() {
+            Role::Root { .. } if physical.params().is_empty() => (Vec::new(), std::collections::BTreeMap::new()),
+            role => source.move_parameter_abi_v1(owner, role.ordinary_target().ok_or("[ownership/move-abi-not-supported]")?,
                 role.receiver_object(), physical.params().len())?,
         };
         let descriptors = source.finished_shared_initializers_v1(module, physical.function())?.into_iter().filter_map(|(_, row)| match row {
@@ -96,7 +109,9 @@ fn verify_source_moves_on_published_mir(
         }).collect();
         let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), parameters, FunctionResultOwnershipV1::None)
             .with_source_aliases(aliases).with_initially_published(initially_published)
-            .with_source_shared_descriptors(descriptors).with_source_birth_takes(birth_takes.clone());
+            .with_source_shared_descriptors(descriptors).with_source_birth_takes(birth_takes.clone())
+            .with_source_owned_parameters(owned_parameters.into_iter().map(|(index, object)| (physical.params()[index], object)).collect())
+            .with_source_call_takes(take_calls.clone());
         crate::mir::ownership_ssa::verify_ownership_ssa_v1(physical.function(), &abi)
             .map_err(|error| {
                 if crate::config::env::builder_debug_enabled() {
