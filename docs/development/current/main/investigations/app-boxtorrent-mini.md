@@ -5,6 +5,8 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
+- step 3a入力/所有test責務分割着地: 入力選択・完了検証・引数投影・actual構築の16関数を本体不変で移動し、元3本を547/539/516行へ縮小。所有SSAの既存27テストは同じ名前/本体のままobject/Shared責務へ移動（take証拠を責務ごとに置く準備、重複Invoke fixtureは接続変更で統合）。production純増83行、test純増9行（module/import等、ケース数不変）。
+- 入力分割検証: `cargo check --lib --tests -p nyash-rust`・最適化`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtime・再build C shimで固定suite 8/8（102.64秒）、19形program関数/exit全一致、対象cohort 1796 PASS・既知115失敗名完全一致。受理変更は保護した別snapshotへ退避、stash 2件保持。
 - step 3a責務分割のみ着地: source引数dispatch・static i64 local call・Invoke Call-edge検証の6関数を元HEADと同じ本体のまま責務ownerへ移動（元ファイル478/762/654行）。take接続WIPは別変更として退避・保持。production +1014/−984（移動先を含む純増30、module接続等）、test ±0。
 - 分割検証: `cargo check --lib --tests -p nyash-rust`、最適化`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtime・再build C shimで固定suite 8/8（102.62秒、SKIP/timeoutなし）、19形program関数/exit全一致。`cargo quick-test-fast`の対象cohortは1796 PASS・既知115失敗名完全一致。stash 2件保持。
 - step 3a take共通契約着地: 元Takeを型分類とは独立な`HomeDemand::Home`としてcanonical parameter catalogと全owned投影に保持。10か所の全parameter手書き比較をdemand込みのstruct equalityへ統合。call-entry未接続のtakeは`PhysicalSignature::UnsupportedTransfer`で名前付き拒否し、借用ABIへ流さない。通常Boxの既定意味とbirth契約は不変。take EXEは未完。
