@@ -15,9 +15,11 @@ Home transfer, and the explicit boundary that adds an independent owner.
 
 Successor surface (decided 2026-10-30): §0 is the next-model specification;
 [ADR-002](../../development/adr/adr-002-explicit-ownership-and-compiler-migration.md)
-owns its rationale, staging and task order. It is not implemented; until the
-cutover in §10, the existing source rules below remain in force. The separately
-accepted Array carrier destination amendment below applies now as a target.
+owns its rationale, staging and task order. Only bounded parts are live
+(same-scope `new`-derived local `move`, `Shared(move x)` / `Shared(fresh)` with
+clone and read, typed `take` parsing); the general rules are not implemented.
+Until the cutover in §10, the existing source rules below remain in force. The
+separately accepted Array carrier destination amendment below applies now as a target.
 
 Related authorities:
 
@@ -737,7 +739,10 @@ The first program does not promise:
 - explicit source `region`;
 - `drop root` / `drop(value)` as a compatibility alias;
 
-`take place_expr`, field take, and consuming receiver are parked together
+The list above describes the first HomeV1 program only. The successor surface
+of §0 (`move x`, `(move x).m()`, `Shared(...)`, `from` sets) is decided and is
+not a promise made or withdrawn here. `take place_expr`, field take, and
+consuming receiver implementation are parked together
 until a real source consumer and storage replacement contract exist. They are
 not forbidden forever.
 

@@ -20,10 +20,11 @@ Decision:
   ordinary call and `drop` is not an alias;
 - accepted: C′ terminal Home release is the sole user-`fini` authority;
   `fini {}` is a non-callable Box hook and direct `obj.fini()` is rejected;
-- accepted target, production 0: declaration-side contextual `take`
-  parameters and expression-side contextual `share` over one non-group
-  postfix operand; neither is globally reserved and contextual recognition
-  never crosses a line terminator;
+- accepted target: declaration-side contextual `take` parameters (typed,
+  same line; the parser retains them, execution is being connected). The
+  expression-side contextual `share` is superseded by `Shared(...)`
+  (ownership.md §0) and must not be implemented; contextual recognition never
+  crosses a line terminator and `take` is not globally reserved;
 - provisional: contract-boundary `T from owner`;
 - unresolved: composite/generic classification, Shared representation,
   owning storage destinations, and exact C-speed physical ABI;
@@ -391,11 +392,15 @@ The following remain parked and are not silently promised:
 
 - `take place_expr`;
 - field move-out and empty-slot/replacement semantics;
-- consuming receiver syntax;
-- multi-anchor result joins and result PHIs;
+- consuming receiver implementation (the spelling `(move x).m()` is decided in
+  ownership.md §0; only the implementation is parked);
+- multi-anchor result joins and result PHIs (the `from a, b` set semantics is
+  decided in ownership.md §0; acceptance starts before selfhost needs it);
 - capture, suspension, cross-thread Home flow;
 - explicit source `region`;
-- general `owned T`, `view T`, `shared T`, `move`, or receiver-mode syntax.
+- general `owned T`, `view T`, `shared T`, or receiver-mode syntax. The
+  successor `move x` and `Shared(...)` are outside this first Home profile and
+  are specified by ownership.md §0.
 
 The first profile also rejects borrowed results rooted in temporary receivers
 unless a distinct lifetime-extension contract is later accepted.

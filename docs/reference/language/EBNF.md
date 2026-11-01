@@ -86,6 +86,9 @@ Ownership grammar status (2026-08-04):
 - Successor (ownership.md §0, decided 2026-10-30): `Shared(...)` replaces the
   `share` target; bounded Rust `move` semantics are live, while Hako parity
   and bounded local `Shared(move x)` / `Shared(fresh)` with clone and read are live (independent MIR verification); Shared sharing across calls and threads remain pending.
+  The consuming-receiver spelling `(move x).m()` is decided in ownership.md §0
+  but has no grammar row yet (parser-inactive); the grammar below carries only
+  `move IDENT`.
 
 Accepted ownership grammar and implementation status:
 
