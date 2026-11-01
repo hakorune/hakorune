@@ -133,6 +133,35 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
         assert not obj.exists() and not list(work.glob('source.o.*')), 'rejected artifact'
         print('reject', reason)
 
+    # Optional source-issued typed nullable field read; retain the existing
+    # driver and reject the same physical contract after isolated mutations.
+    typed_path = DIRECTORY / 'hako-issued-typed-null-field-borrow.json'
+    if typed_path.exists():
+        typed = json.loads(typed_path.read_text())
+        checked([driver, typed_path, obj], env=ENV)
+        for mutation in ('missing-tuple', 'duplicate-tuple', 'foreign-child', 'nonnull', 'wrong-writer'):
+            data = copy.deepcopy(typed)
+            function = next(f for f in data['functions'] if f['name'] == 'TreeNode.check/0')
+            op = next(b['terminator']['instruction']['operation'] for b in function['blocks']
+                      if b['terminator']['instruction'].get('operation', {}).get('kind') == 'object_field_borrow')
+            layout = next(row for row in data['layouts'] if row['object_id'] == op['object_id'])
+            if mutation == 'missing-tuple':
+                layout['owned_object_residences'] = [row for row in layout['owned_object_residences']
+                                                     if row['field_ordinal'] != op['field_ordinal']]
+            elif mutation == 'duplicate-tuple':
+                layout['owned_object_residences'].insert(1, copy.deepcopy(layout['owned_object_residences'][0]))
+            elif mutation == 'foreign-child':
+                op['expected_object_id'] = max(row['object_id'] for row in data['layouts']) + 1
+            elif mutation == 'nonnull':
+                op['nullable'] = False
+            else:
+                writer = next(f for f in data['functions'] if f['name'] == 'TreeNode.birth/3')
+                store = next(b['terminator']['instruction']['operation'] for b in writer['blocks']
+                             if b['terminator']['instruction'].get('operation', {}).get('kind') == 'object_field_set'
+                             and b['terminator']['instruction']['operation']['field_ordinal'] == op['field_ordinal'])
+                store['field_ordinal'] = 1
+            reject(data, ('published-lifecycle-physical-parser', 'published-lifecycle-v4/unsupported-cohort'))
+
     def parent(data):
         return next(f for f in data['functions'] if f['name'] == 'Parent.first/1')
 

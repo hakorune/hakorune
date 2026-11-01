@@ -197,11 +197,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                     if binding == request.home && binding == request.receiver
                         && !request.nullable && !request.formal && alias_class.is_none() =>
                 {
-                    super::field_source::dynamic_stored_child_field_v1(batch, constructors, classes,
-                        parent.name(), &request.field)
-                        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?
-                        .map(|loan| LocalFieldReadSourceV1::from_declaration(loan.field(),
-                            LocalFieldReadResultV1::BorrowedObject(Rc::new(loan)), None))
+                    let declared = super::super::super::terminal_home::source_declared_field(
+                        constructors, parent, &request.site, &request.field)?
+                        .and_then(|(_, declared)| declared);
+                    let loan = if declared.is_some() {
+                        super::field_source::declared_stored_child_field_v1(batch, constructors, classes,
+                            parent.name(), &request.field, &request.site)
+                    } else {
+                        super::field_source::dynamic_stored_child_field_v1(batch, constructors, classes,
+                            parent.name(), &request.field)
+                    }.map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
+                    loan.map(|loan| LocalFieldReadSourceV1::from_declaration(loan.field(),
+                        LocalFieldReadResultV1::BorrowedObject(Rc::new(loan)), declared.map(Into::into)))
                 },
                 _ => None,
             }

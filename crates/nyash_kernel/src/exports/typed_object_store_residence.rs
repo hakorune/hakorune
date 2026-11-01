@@ -150,9 +150,9 @@ pub(in crate::exports) fn read_dynamic_field_checked(
     }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
-/// The slot's tag, End descriptor and child identity are checked under the
-/// same parent-store guard. The returned payload borrows that residence.
-pub(in crate::exports) fn borrow_dynamic_object_field_checked(
+/// The slot's residence and child identity are checked under the same
+/// parent-store guard. The returned payload borrows that residence.
+pub(in crate::exports) fn borrow_object_field_checked(
     expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
     child_type: i64, nullable: bool,
 ) -> Result<i64, CheckedStorageError> {
@@ -162,6 +162,15 @@ pub(in crate::exports) fn borrow_dynamic_object_field_checked(
         let parent = objects.get(handle_to_index(handle)?)?.as_ref()?;
         if parent.type_id != type_id { return None; }
         let field = parent.fields.get(slot)?;
+        if field.storage == TypedSlotStorage::I64 {
+            let (value, outcome) = field.object_residence()?;
+            validate_child(objects, value, child_type, outcome)?;
+            return match outcome {
+                ObjectResidenceOutcomeV1::Null if nullable => Some(0),
+                ObjectResidenceOutcomeV1::Null => None,
+                _ => Some(value),
+            };
+        }
         if field.storage != TypedSlotStorage::Dynamic || field.residence.is_some() { return None; }
         let TypedSlotValue::Dynamic(stored) = &field.value else { return None; };
         validate_dynamic(objects, stored, expected)?;
@@ -261,6 +270,7 @@ pub(super) fn check_atomic_residence_operations(profile: TypedObjectStoreBackend
     let snapshot = |field: &TypedSlot| (field.storage, field.as_compat_i64(), field.residence);
     for (slot, value, outcome) in [(0, 0, Null), (1, child, Fresh), (2, child, Forward)] {
         let before = with_field(parent, slot, snapshot).unwrap();
+        assert!(borrow_object_field_checked(profile, parent, 901, slot, 902, true).is_err());
         for (wrong_parent, wrong_type, wrong_slot, wrong_child, bad_value, bad_outcome) in [
             (parent, 900, slot, 902, value, outcome),
             (parent, 901, 9, 902, value, outcome),
@@ -288,6 +298,15 @@ pub(super) fn check_atomic_residence_operations(profile: TypedObjectStoreBackend
             get_object_residence_checked(profile, parent, 901, slot, 902).unwrap(),
             (value, outcome)
         );
+        assert_eq!(borrow_object_field_checked(profile, parent, 901, slot, 902, true).unwrap(), value);
+        assert_eq!(borrow_object_field_checked(profile, parent, 901, slot, 902, false).is_ok(), outcome != Null);
+        assert!(borrow_object_field_checked(profile, parent, 900, slot, 902, true).is_err());
+        assert!(borrow_object_field_checked(profile, parent, 901, 9, 902, true).is_err());
+        assert!(borrow_object_field_checked(profile, parent, 901, slot, 0, true).is_err());
+        if outcome != Null {
+            assert!(borrow_object_field_checked(profile, parent, 901, slot, 903, true).is_err());
+        }
+        assert_eq!(with_field(parent, slot, snapshot).unwrap(), (TypedSlotStorage::I64, Some(value), Some(outcome)));
         assert!(
             install_object_residence_checked(profile, parent, 901, slot, 902, value, outcome)
                 .is_err()
@@ -314,6 +333,16 @@ pub(super) fn check_atomic_residence_operations(profile: TypedObjectStoreBackend
             assert!(get_object_residence_checked(profile, parent, 901, slot, 903).is_err());
         }
     }
+    let scalar = new_checked_indexed(profile, 901, &[TypedSlotStorage::I64]).unwrap();
+    set_checked_indexed(profile, scalar, 901, 0, 44).unwrap();
+    assert!(borrow_object_field_checked(profile, scalar, 901, 0, 902, true).is_err());
+    reclaim_checked_indexed(profile, scalar, 901).unwrap();
+    let expired_parent = new_checked_indexed(profile, 901, &[TypedSlotStorage::I64]).unwrap();
+    let expired_child = new_checked_indexed(profile, 902, &[]).unwrap();
+    install_object_residence_checked(profile, expired_parent, 901, 0, 902, expired_child, Fresh).unwrap();
+    reclaim_checked_indexed(profile, expired_child, 902).unwrap();
+    assert!(borrow_object_field_checked(profile, expired_parent, 901, 0, 902, true).is_err());
+    reclaim_checked_indexed(profile, expired_parent, 901).unwrap();
     reclaim_checked_indexed(profile, parent, 901).unwrap();
     reclaim_checked_indexed(profile, child, 902).unwrap();
 }

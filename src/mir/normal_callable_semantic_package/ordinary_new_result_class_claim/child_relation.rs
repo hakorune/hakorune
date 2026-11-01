@@ -66,6 +66,15 @@ impl SourceConstructionChildRelationV1 {
         &self.witnesses
     }
 
+    /// Local New provenance remains in the source census; it is not an
+    /// incoming argument loan or permission to transfer a Home.
+    pub(crate) fn requires_argument_loan_v1(&self) -> bool {
+        !matches!(self.witnesses.as_ref(), [witness]
+            if witness.site() == &self.actual
+                && matches!(witness.origin(), ResultValueOriginV1::Fresh(_))
+                && matches!(witness.step(), ResultWitnessStepV1::LocalConstruction(_)))
+    }
+
     pub(crate) fn original_field_name_v1(&self) -> Result<&str, &'static str> {
         Ok(self.store_source.as_ref().map_err(|issue| *issue)?
             .as_ref().ok_or("returned-field/store-source-missing")?.write().field())
@@ -107,12 +116,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
     facts: &mut OrdinaryNewResultClassClaimsV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     parameters: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
 ) -> Result<(), super::super::OrdinaryNewCoSealIssueV1> {
     let mut dynamic_classes = BTreeMap::<CanonicalFieldRefV1, BTreeSet<CanonicalObjectIdV1>>::new();
     let mut expected_dynamic_sites = BTreeMap::<CanonicalObjectIdV1, BTreeSet<OwnedExprSiteV1>>::new();
+    let mut sites_complete = true;
     let mut new_sites = Vec::new();
     let result_construction_sites: BTreeSet<_> = facts.source_rows().flat_map(|(_, rows)| rows.iter())
         .flat_map(|row| row.witnesses())
@@ -123,12 +134,23 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
         let slot = declaration.batch_slot();
         let key = match selected.key_for_batch_slot(slot) {
             Some(SelectedNormalCallableKeyV1::Cataloged(key)) => Some(key.clone()),
-            _ => None,
+            _ => app_main.filter(|main| main.batch_slot() == slot
+                && main.matches_function(declaration.owner(), slot, main.catalog_key())
+                && parameters.iter().filter(|row| row.owner == declaration.owner()
+                    && main.matches_contract(row)).count() == 1)
+                .map(|main| main.catalog_key().clone()),
         };
         batch.with_lowering_input(slot, |input| {
             for construction in input.function().expression_source().constructions() {
                 let outer = OwnedExprSiteV1::new(input.owner(), construction.site().clone());
                 let Some(parent_object) = parent_object_for_outer(&outer, input, batch, constructors) else {
+                    // An unresolved ordinary declaration cannot disappear from
+                    // a proof that claims to cover every construction.
+                    if !crate::box_trait::is_builtin_box(construction.class())
+                        || batch.ordinary_box_coverage().row_for(construction.class()).is_err()
+                        || batch.ordinary_box_coverage().row_for(construction.class()).ok().flatten().is_some() {
+                        sites_complete = false;
+                    }
                     continue;
                 };
                 expected_dynamic_sites.entry(parent_object).or_default().insert(outer.clone());
@@ -143,7 +165,23 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
                 }
                 new_sites.push((slot, key.clone(), outer.clone(), result_construction_sites.contains(&outer)));
             }
+            // Nested owners are not joined above. A construction there must
+            // keep the provisional cohort incomplete rather than disappear.
+            if input.forest().semantic_owners().any(|(owner, nested)| owner != input.owner()
+                && owner_has_construction_v1(nested)) {
+                sites_complete = false;
+            }
         }).map_err(|_| super::super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
+    }
+    // Birth bodies are outside batch.declarations(). Until their original
+    // sites are joined as well, any construction in their owner forest makes
+    // this source-only census incomplete.
+    for row in constructors.rows().iter().filter(|row| row.kind() == crate::parser::ConstructorSourceKindV1::Birth) {
+        let input = row.lowering_input(batch.source_ast())
+            .map_err(|_| super::super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
+        if input.forest().semantic_owners().any(|(_, owner)| owner_has_construction_v1(owner)) {
+            sites_complete = false;
+        }
     }
 
     let dynamic_classes: BTreeMap<_, _> = dynamic_classes.into_iter()
@@ -151,7 +189,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
         .collect();
     let mut relations = BTreeMap::new();
     for (slot, key, outer, is_result_construction) in new_sites {
-        if !is_result_construction { continue; }
         let Some(key) = key else { continue; };
         batch.with_lowering_input(slot, |input| {
             for relation in join_outer(
@@ -167,6 +204,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
                 parameters,
                 &dynamic_classes,
             ) {
+                // Dynamic relations retain their existing result-only scope.
+                // Typed relations may also describe an original local New.
+                if !is_result_construction && relation.unqualified_dynamic { continue; }
                 relations.insert((relation.outer.clone(), relation.field), relation);
             }
         }).map_err(|_| super::super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
@@ -208,8 +248,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
     }).collect();
     relations.retain(|_, relation| !relation.unqualified_dynamic
         || !rejected_dynamic_objects.contains(&relation.field.object()));
-    facts.attach_child_relations(relations);
+    facts.attach_child_relations(relations, expected_dynamic_sites, sites_complete);
     Ok(())
+}
+
+fn owner_has_construction_v1(owner: &crate::mir::resolved_semantics::VerifiedSemanticOwnerProductV1) -> bool {
+    use crate::mir::resolved_semantics::VerifiedSemanticOwnerProductV1;
+    match owner {
+        VerifiedSemanticOwnerProductV1::Function(function) => function.expression_source().constructions().next().is_some(),
+        VerifiedSemanticOwnerProductV1::Script(script) => script.expression_source().constructions().next().is_some(),
+    }
 }
 
 fn join_outer(
@@ -489,6 +537,13 @@ fn actual_witnesses(
                 );
             }
             BindingKindV1::Local { .. } => {
+                if let Some(source) = super::witness::capture_local_construction_result_v1(input, binding, actual) {
+                    return Some(vec![Rc::new(ResultOriginWitnessV1 {
+                        site: actual.clone(),
+                        origin: ResultValueOriginV1::Fresh(source.construction.class().into()),
+                        step: ResultWitnessStepV1::LocalConstruction(source),
+                    })]);
+                }
                 let call =
                     OwnedExprSiteV1::new(input.owner(), sole_initializer_site(function, binding)?);
                 let source = facts

@@ -87,6 +87,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         &mut callable_result_classes,
         batch,
         selected,
+        app_main,
         instance_constructors,
         &field_write_claims,
         parameter_contracts,

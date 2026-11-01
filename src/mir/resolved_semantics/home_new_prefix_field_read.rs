@@ -35,7 +35,7 @@ pub(crate) enum LocalFieldReadResultV1 {
     /// Same source-issued field residence, borrowed without acquiring a Home.
     BorrowedArray(BorrowedArrayFieldSourceV1),
     /// Complete original Dynamic child cohort; observation acquires no Home.
-    BorrowedObject(std::rc::Rc<crate::mir::normal_callable_semantic_package::DynamicStoredChildFieldV1>),
+    BorrowedObject(std::rc::Rc<crate::mir::normal_callable_semantic_package::StoredChildFieldSourceV1>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

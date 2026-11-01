@@ -15,7 +15,7 @@ use crate::mir::normal_callable_semantic_package::instance_constructor_semantic:
 use crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
-use super::field_source::{dynamic_stored_child_field_v1, DynamicStoredChildFieldV1};
+use super::field_source::{dynamic_stored_child_field_v1, StoredChildFieldSourceV1};
 
 /// A field null check refines the following source sequence only when its
 /// exact untyped child field is in the same construction pair and the null
@@ -28,7 +28,7 @@ fn dynamic_child_nonnull_guard_v1(
     parent_binding: crate::mir::resolved_semantics::BindingRefV1,
     parent_site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     parent_class: &str,
-    dynamic: &DynamicStoredChildFieldV1,
+    dynamic: &StoredChildFieldSourceV1,
 ) -> Result<bool, String> {
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1,
         BodyStatementShapeV1, ResolvedBinaryOperatorV1, ResolvedLiteralSourceV1,

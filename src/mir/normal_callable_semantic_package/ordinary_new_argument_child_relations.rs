@@ -27,7 +27,7 @@ fn retain_argument_loans(
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
     let relations: Vec<_> = facts
         .construction_child_relation_loans()
-        .filter(|relation| relation.outer() == &core.site)
+        .filter(|relation| relation.outer() == &core.site && relation.requires_argument_loan_v1())
         .collect();
     if relations.is_empty() {
         return Ok(());

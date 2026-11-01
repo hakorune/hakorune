@@ -48,6 +48,10 @@ pub(crate) struct VerifiedSourceCallableResultFactsV1 {
         (OwnedExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1),
         std::rc::Rc<super::child_relation::SourceConstructionChildRelationV1>,
     >,
+    /// Original construction sites, retained so a consumer cannot mistake a
+    /// partial set of child relations for a complete cohort.
+    child_construction_sites: BTreeMap<hakorune_mir_defs::CanonicalObjectIdV1, BTreeSet<OwnedExprSiteV1>>,
+    child_construction_sites_complete: bool,
     /// Statement-form Map installs, by their original set call site.
     map_installs: BTreeMap<OwnedExprSiteV1, std::rc::Rc<super::witness::MapStoredResultSourceV1>>,
 }
@@ -100,6 +104,11 @@ impl VerifiedSourceCallableResultFactsV1 {
     ) -> impl Iterator<Item = &super::child_relation::SourceConstructionChildRelationV1> {
         self.child_relations.values().map(std::rc::Rc::as_ref)
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn child_construction_sites_v1(
+        &self, parent: hakorune_mir_defs::CanonicalObjectIdV1,
+    ) -> Option<&BTreeSet<OwnedExprSiteV1>> {
+        self.child_construction_sites_complete.then(|| self.child_construction_sites.get(&parent)).flatten()
+    }
     pub(crate) fn construction_child_relation(
         &self,
         outer: &OwnedExprSiteV1,
@@ -122,7 +131,11 @@ impl VerifiedSourceCallableResultFactsV1 {
             (OwnedExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1),
             super::child_relation::SourceConstructionChildRelationV1,
         >,
+        sites: BTreeMap<hakorune_mir_defs::CanonicalObjectIdV1, BTreeSet<OwnedExprSiteV1>>,
+        sites_complete: bool,
     ) {
+        self.child_construction_sites = sites;
+        self.child_construction_sites_complete = sites_complete;
         self.child_relations = relations
             .into_iter()
             .map(|(key, relation)| (key, std::rc::Rc::new(relation)))

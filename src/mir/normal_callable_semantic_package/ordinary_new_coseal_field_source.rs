@@ -395,7 +395,7 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir) struct DynamicStoredChildFieldV1 {
+pub(in crate::mir) struct StoredChildFieldSourceV1 {
     field: hakorune_mir_defs::CanonicalFieldRefV1,
     child: hakorune_mir_defs::CanonicalObjectIdV1,
     child_class: Box<str>,
@@ -403,6 +403,8 @@ pub(in crate::mir) struct DynamicStoredChildFieldV1 {
     paired_fields: BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
     parent_class: Box<str>,
     field_name: Box<str>,
+    declared: bool,
+    paired_all: bool,
     relations: Vec<std::rc::Rc<super::super::super::result_class_claim::SourceConstructionChildRelationV1>>,
 }
 
@@ -438,13 +440,15 @@ fn paired_child_kinds_v1(
 fn summarize_child_relations_v1(
     relations: &[std::rc::Rc<super::super::super::result_class_claim::SourceConstructionChildRelationV1>],
     parent: &str, field: hakorune_mir_defs::CanonicalFieldRefV1,
+    declared: bool,
     mut fresh_matches: impl FnMut(&str, hakorune_mir_defs::CanonicalObjectIdV1) -> bool,
 ) -> Option<(hakorune_mir_defs::CanonicalObjectIdV1, bool, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>)> {
     let mut per_outer = BTreeMap::<OwnedExprSiteV1, BTreeMap<_, u8>>::new();
     let mut child = None;
     let mut nullable = false;
     for relation in relations {
-        if relation.unqualified_field_source_v1(parent).is_err()
+        if (if declared { relation.provided_field_source_v1(parent) }
+            else { relation.unqualified_field_source_v1(parent) }).is_err()
             || child.is_some_and(|prior| prior != relation.child()) { return None; }
         let kinds = child_witness_kinds_v1(relation, |class| fresh_matches(class, relation.child()))?;
         child = Some(relation.child());
@@ -468,7 +472,7 @@ pub(super) fn dynamic_stored_child_field_v1(
     facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     parent_class: &str,
     field_name: &str,
-) -> Result<Option<DynamicStoredChildFieldV1>, String> {
+) -> Result<Option<StoredChildFieldSourceV1>, String> {
     let Some(parent_source) = batch.ordinary_box_coverage().row_for(parent_class)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
         return Ok(None);
@@ -489,24 +493,25 @@ pub(super) fn dynamic_stored_child_field_v1(
 
     let relations: Vec<_> = facts.construction_child_relation_loans().filter(|relation|
         relation.is_unqualified_dynamic_v1() && relation.field().object() == parent_object).cloned().collect();
-    let Some((child, nullable, paired_fields)) = summarize_child_relations_v1(&relations, parent_class, field,
+    let Some((child, nullable, paired_fields)) = summarize_child_relations_v1(&relations, parent_class, field, false,
         |class, child| batch.ordinary_box_coverage().row_for(class).ok().flatten()
             .and_then(|source| constructors.object_for(&source).ok()) == Some(child)) else { return Ok(None); };
     let mut child_classes = batch.ordinary_box_coverage().rows().iter().filter(|source|
         constructors.object_for(source).ok() == Some(child));
     let Some(child_source) = child_classes.next() else { return Ok(None); };
     if child_classes.next().is_some() { return Ok(None); }
-    Ok(Some(DynamicStoredChildFieldV1 {
+    Ok(Some(StoredChildFieldSourceV1 {
         field, child, child_class: child_source.name().into(), nullable, paired_fields,
-        parent_class: parent_class.into(), field_name: field_name.into(), relations,
+        parent_class: parent_class.into(), field_name: field_name.into(), declared: false, paired_all: true, relations,
     }))
 }
 
-impl DynamicStoredChildFieldV1 {
+impl StoredChildFieldSourceV1 {
     pub(in crate::mir) fn field(&self) -> hakorune_mir_defs::CanonicalFieldRefV1 { self.field }
     pub(in crate::mir) fn child(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.child }
     pub(in crate::mir) fn child_class(&self) -> &str { &self.child_class }
-    pub(super) fn nullable(&self) -> bool { self.nullable }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn nullable(&self) -> bool { self.nullable }
+    pub(in crate::mir) fn declared_v1(&self) -> bool { self.declared }
     pub(super) fn paired_field(&self, field: hakorune_mir_defs::CanonicalFieldRefV1) -> bool {
         self.paired_fields.contains(&field)
     }
@@ -515,20 +520,61 @@ impl DynamicStoredChildFieldV1 {
         &self, facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1, field_name: &str,
     ) -> bool {
         let current: Vec<_> = facts.construction_child_relation_loans().filter(|row|
-            row.is_unqualified_dynamic_v1() && row.field().object() == self.field.object()).collect();
+            row.is_unqualified_dynamic_v1() != self.declared && row.field().object() == self.field.object()
+                && (self.paired_all || row.field() == self.field)).collect();
+        if self.declared && facts.child_construction_sites_v1(self.field.object()).is_none_or(|sites|
+            sites.is_empty() || current.iter().map(|row| row.outer().clone()).collect::<BTreeSet<_>>() != *sites) {
+            return false;
+        }
         if self.field_name.as_ref() != field_name || self.relations.is_empty()
             || current.len() != self.relations.len()
             || !current.iter().zip(&self.relations).all(|(a, b)| std::rc::Rc::ptr_eq(a, b)
-                && a.unqualified_field_source_v1(&self.parent_class).is_ok()) {
+                && (if self.declared { a.provided_field_source_v1(&self.parent_class) }
+                    else { a.unqualified_field_source_v1(&self.parent_class) }).is_ok()) {
             return false;
         }
         if self.relations.iter().any(|relation| relation.field() == self.field
             && relation.original_field_name_v1() != Ok(field_name)) { return false; }
-        summarize_child_relations_v1(&self.relations, &self.parent_class, self.field,
+        summarize_child_relations_v1(&self.relations, &self.parent_class, self.field, self.declared,
             |class, child| child == self.child && class == self.child_class())
             .is_some_and(|(child, nullable, paired)| child == self.child
                 && nullable == self.nullable && paired == self.paired_fields)
     }
+}
+
+/// Source-only paired-field candidate. It does not prove that an arbitrary
+/// receiver came from this cohort, nor grant a non-null or Home loan.
+pub(super) fn declared_stored_child_field_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    parent_class: &str,
+    field_name: &str,
+    site: &OwnedExprSiteV1,
+) -> Result<Option<StoredChildFieldSourceV1>, String> {
+    let Some(parent) = batch.ordinary_box_coverage().row_for(parent_class)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { return Ok(None); };
+    let Some((field, Some(class))) = super::super::super::terminal_home::source_declared_field(
+        constructors, parent, site, field_name,
+    ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { return Ok(None); };
+    let Some(child_source) = batch.ordinary_box_coverage().row_for(&class)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { return Ok(None); };
+    let child = constructors.object_for(child_source)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    let Some(sites) = facts.child_construction_sites_v1(field.object()) else { return Ok(None); };
+    let relations: Vec<_> = facts.construction_child_relation_loans().filter(|row|
+        !row.is_unqualified_dynamic_v1() && row.field().object() == field.object()
+            && row.field() == field).cloned().collect();
+    if sites.is_empty() || relations.iter().map(|row| row.outer().clone()).collect::<BTreeSet<_>>() != *sites {
+        return Ok(None);
+    }
+    let Some((actual_child, nullable, paired_fields)) = summarize_child_relations_v1(&relations, parent_class, field, true,
+        |name, object| name == class && object == child) else { return Ok(None); };
+    if actual_child != child { return Ok(None); }
+    Ok(Some(StoredChildFieldSourceV1 {
+        field, child, child_class: class.into_boxed_str(), nullable, paired_fields,
+        parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all: false, relations,
+    }))
 }
 
 /// Default-off (builder debug flag): which numbered check declined an entry field write.

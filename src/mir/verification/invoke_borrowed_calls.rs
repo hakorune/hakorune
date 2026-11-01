@@ -87,7 +87,11 @@ pub(super) fn original_call_slots(
                 mode, .. }, .. } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
             _ => false,
         });
-    if dynamic_fields {
+    let typed_object_reads = module.functions.values().flat_map(|function| function.blocks.values())
+        .flat_map(|body| body.all_instructions()).any(|row| matches!(row,
+            MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldBorrow { field, nullable: true, .. }, .. }
+                if module.canonical_field_definition(*field).is_some_and(|field| !field.is_weak && field.declared_type_name.is_some())));
+    if dynamic_fields || typed_object_reads {
         // These are borrowed final correspondence rows, not another source index.
         source.with_checked_field_read_functions_v1(module, |owner, function| {
             for binding in source.finished_received_field_reads_v1(owner, module, function)? {
@@ -95,6 +99,8 @@ pub(super) fn original_call_slots(
             }
             Ok(())
         })?;
+    }
+    if dynamic_fields {
         source.with_owned_field_write_functions_v1(module, |owner, function| {
             source.with_finished_owned_field_writes_v1(owner, function, |row| {
                 image.field_writes.push((function.signature.name.clone(), row.invoke.0));
@@ -290,4 +296,28 @@ pub(super) fn original_call_slots(
         ));
     }
     Ok(image)
+}
+
+/// A typed borrow retains the canonical field/child mapping and Handle layout;
+/// the physical ABI maps this to I64 residence storage.
+pub(super) fn declared_object_field(module: &crate::mir::MirModule,
+    root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    child: hakorune_mir_defs::CanonicalObjectIdV1) -> bool {
+    let inventory_matches = root.and_then(|root| root.root_source())
+        .and_then(|source| source.owned_field_inventory_v1(field.object()).ok().flatten())
+        .is_some_and(|rows| {
+            let mut matching = rows.iter().filter(|row| row.field == field);
+            matching.next().is_some_and(|row| row.kind == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(child))
+                && matching.next().is_none()
+        });
+    module.canonical_field_definition(field).is_some_and(|declaration|
+        !declaration.is_weak && declaration.declared_type_name.as_deref()
+            .and_then(|name| module.metadata.canonical_object_membership.as_ref()?.get(name)) == Some(&child))
+        && inventory_matches && module.canonical_object_definition(field.object()).is_some_and(|definition|
+            definition.destruction_disposition().supports_static_object_fields()
+                && definition.runtime_layout().is_some_and(|layout| layout.as_ref().is_ok_and(|layout|
+                    layout.fields.get(field.declaration_ordinal() as usize).is_some_and(|slot|
+                        slot.slot == field.declaration_ordinal()
+                            && slot.storage == crate::mir::function::TypedObjectFieldStorage::Handle))))
 }

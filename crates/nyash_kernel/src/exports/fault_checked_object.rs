@@ -630,7 +630,7 @@ pub unsafe extern "C" fn object_field_borrow(
     let (frame, profile) = match unsafe { admit(frame, profile) } {
         Ok(value) => value, Err(status) => return status as u32,
     };
-    match store::borrow_dynamic_object_field_checked(profile, handle, type_id, slot, child_type, nullable != 0) {
+    match store::borrow_object_field_checked(profile, handle, type_id, slot, child_type, nullable != 0) {
         Ok(value) => { unsafe { out.write(value); } Status::Normal as u32 }
         Err(error) => failed(frame, error, site),
     }

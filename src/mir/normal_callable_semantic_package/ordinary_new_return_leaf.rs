@@ -228,7 +228,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // argument census. Their source relation grants no execution
             // permission, but dropping them here would erase the provenance
             // that the Birth field contract later consumes.
-            .filter(|relation| relation.outer() == site)
+            .filter(|relation| relation.outer() == site && relation.requires_argument_loan_v1())
             .collect();
         if arguments.iter().enumerate().any(|(ordinal, argument)|
             argument.owner() != site.owner() || argument.new_site() != site

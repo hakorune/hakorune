@@ -11,7 +11,7 @@ enum StatementFieldValueV1 {
     Numeric(ClosedNumericFieldSourceLoanV1),
     /// The final Text hop of one checked field: an independent copy is acquired later.
     Text(Rc<super::super::TextFieldValueSourceV1>),
-    BorrowedObject(Rc<super::super::DynamicStoredChildFieldV1>),
+    BorrowedObject(Rc<super::super::StoredChildFieldSourceV1>),
 }
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) struct StatementFieldPathSourceV1 {

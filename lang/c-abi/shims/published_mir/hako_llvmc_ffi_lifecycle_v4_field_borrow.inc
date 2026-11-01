@@ -27,6 +27,32 @@ static yyjson_val* lv4_unique_field_writer(const hako_lv4_input* in,
   return selected;
 }
 
+/* A typed nullable observation uses the same unique Provided Birth store
+ * and exact owned layout tuple. This grants no non-null receiver. */
+static int lv4_typed_nullable_field_borrow(const hako_lv4_input* in, yyjson_val* op) {
+  if (!lv4_is(op, "kind", "object_field_borrow") ||
+      !yyjson_is_true(yyjson_obj_get(op, "nullable"))) return 0;
+  uint32_t object = lv4_u(op, "object_id"), field = lv4_u(op, "field_ordinal");
+  uint32_t child = lv4_u(op, "expected_object_id");
+  yyjson_val* layout = lv4_layout(in, object);
+  if (!layout || !lv4_layout(in, child) ||
+      lv4_u(yyjson_arr_get(yyjson_obj_get(layout, "fields"), field), "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
+  yyjson_val* rows = yyjson_obj_get(layout, "owned_object_residences");
+  size_t tuples = 0;
+  for (size_t i = 0; i < yyjson_arr_size(rows); i++) {
+    yyjson_val* row = yyjson_arr_get(rows, i);
+    if (lv4_u(row, "field_ordinal") == field && lv4_u(row, "child_object_id") == child) tuples++;
+  }
+  if (tuples != 1) return 0;
+  hako_lv4_function_index* writer = NULL;
+  if (!lv4_unique_field_writer(in, object, field, &writer) || !writer) return 0;
+  yyjson_val* params = yyjson_obj_get(writer->function, "params");
+  size_t matches = 0;
+  for (size_t ordinal = 0; ordinal < yyjson_arr_size(params); ordinal++)
+    if (lv4_field_dependency_store_tuple(writer, object, field, child, (uint32_t)ordinal)) matches++;
+  return matches == 1;
+}
+
 static int lv4_field_provider_writer(const hako_lv4_input* in,
     uint32_t object, uint32_t field, uint32_t child, int array) {
   hako_lv4_function_index* fn = NULL;

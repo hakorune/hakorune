@@ -242,8 +242,8 @@ pub(super) fn check_module_with_source(
                         {
                             errors.push(error(*id, "object-field-release-invalid"));
                         }
-                        InvokeOperation::ObjectFieldBorrow { field, child, .. }
-                            if !dynamic_field(module, *field)
+                        InvokeOperation::ObjectFieldBorrow { field, child, nullable, .. }
+                            if !(dynamic_field(module, *field) || (*nullable && borrowed_calls::declared_object_field(module, root, *field, *child)))
                                 || module.canonical_object_definition(*child).is_none()
                                 || !image.field_reads.contains(&(function.signature.name.clone(), (*id, instruction.clone()))) =>
                         { errors.push(explain(function, *id, instruction, "object-field-read-definition-invalid")); }

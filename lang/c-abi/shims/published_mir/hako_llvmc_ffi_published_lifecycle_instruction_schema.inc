@@ -1,4 +1,20 @@
 /* Operation and instruction schema within the existing physical-v2 owner. */
+/* A typed nullable read needs the exact owned field/child layout tuple. */
+static int hako_physical_owned_object_borrow_field(yyjson_val* layouts,
+    uint32_t object, uint32_t field, uint32_t child) {
+  size_t found = 0;
+  for (size_t i = 0; i < yyjson_arr_size(layouts); i++) {
+    yyjson_val* layout = yyjson_arr_get(layouts, i);
+    if (yyjson_get_uint(yyjson_obj_get(layout, "object_id")) != object) continue;
+    yyjson_val* rows = yyjson_obj_get(layout, "owned_object_residences");
+    for (size_t j = 0; j < yyjson_arr_size(rows); j++) {
+      yyjson_val* row = yyjson_arr_get(rows, j);
+      if (yyjson_get_uint(yyjson_obj_get(row, "field_ordinal")) == field &&
+          yyjson_get_uint(yyjson_obj_get(row, "child_object_id")) == child) found++;
+    }
+  }
+  return found == 1 && hako_physical_field_storage(layouts, object, field) == HAKO_LLVMC_LIFECYCLE_STORAGE_I64;
+}
 /* One physical String classification/operand table, shared by all consumers. */
 static int hako_physical_string_result(const char* kind) {
   if (!kind) return 0;
@@ -364,7 +380,9 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         hako_physical_value_available_at(function, value, block, index) &&
         hako_physical_u32(yyjson_obj_get(operation, "expected_object_id"), &child) &&
         hako_physical_layout_has_object(layouts, child) &&
-        hako_physical_field_storage(layouts, object_id, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC &&
+        (hako_physical_field_storage(layouts, object_id, ordinal) == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC ||
+         (yyjson_is_true(yyjson_obj_get(operation, "nullable")) &&
+          hako_physical_owned_object_borrow_field(layouts, object_id, ordinal, child))) &&
         hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
   }
   if (strcmp(kind, "field_get") == 0)
