@@ -38,13 +38,12 @@ static int hako_lts_test_mode(const char* expected) {
 
 /* One invocation owns every LLVM resource through object publication. */
 typedef struct {
-  void *lib, *machine, *data;
+  void *lib, *machine, *data, *context;
   char *triple, *data_layout;
   hako_llvmc_object_field_abi_v1 field;
   hako_lts_dispose_message_fn dispose_message;
   hako_lts_dispose_machine_fn dispose_machine;
   hako_lts_dispose_data_fn dispose_data;
-  hako_lts_make_context_fn make_context;
   hako_lts_dispose_context_fn dispose_context;
   hako_lts_create_memory_buffer_fn create_buffer;
   hako_lts_dispose_memory_buffer_fn dispose_buffer;
@@ -62,6 +61,7 @@ static void hako_lts_close(hako_lts_session* session) {
   if (session->triple) session->dispose_message(session->triple);
   if (session->data) session->dispose_data(session->data);
   if (session->machine) session->dispose_machine(session->machine);
+  if (session->context) session->dispose_context(session->context);
 #if !defined(_WIN32)
   if (session->lib) dlclose(session->lib);
 #endif
@@ -70,19 +70,16 @@ static void hako_lts_close(hako_lts_session* session) {
 
 static int hako_lts_fault_layout_matches(
     void* data, const hako_llvmc_lifecycle_target_session_v2* in,
-    hako_lts_make_context_fn make_context, hako_lts_dispose_context_fn dispose_context,
-    hako_lts_int_type_fn int32_type, hako_lts_int_type_fn int64_type,
+    void* context, hako_lts_int_type_fn int32_type, hako_lts_int_type_fn int64_type,
     hako_lts_pointer_type_fn pointer_type, hako_lts_array_type_fn array_type,
     hako_lts_struct_type_fn struct_type, hako_lts_abi_size_fn abi_size,
     hako_lts_abi_align_fn abi_align, hako_lts_element_offset_fn element_offset) {
-  void *context = NULL, *i32, *i64, *pointer, *details, *diagnostic, *suppressed, *frame;
+  void *i32, *i64, *pointer, *details, *diagnostic, *suppressed, *frame;
   void* diagnostic_fields[6];
   void* frame_fields[6];
   int matched = 0;
-  if (!make_context || !dispose_context || !int32_type || !int64_type || !pointer_type ||
+  if (!context || !int32_type || !int64_type || !pointer_type ||
       !array_type || !struct_type || !abi_size || !abi_align || !element_offset) return 0;
-  context = make_context();
-  if (!context) return 0;
   i32 = int32_type(context); i64 = int64_type(context); pointer = pointer_type(context, 0);
   details = i64 ? array_type(i64, 2u) : NULL;
   if (!i32 || !i64 || !pointer || !details) goto done;
@@ -136,7 +133,6 @@ static int hako_lts_fault_layout_matches(
   }
 
 done:
-  dispose_context(context);
   return matched;
 }
 
@@ -148,7 +144,7 @@ static int hako_lts_open(
   (void)in;
   return set_err_owned(err_out, "[freeze:contract][lifecycle-session/windows]");
 #else
-  void *lib = NULL, *target = NULL, *machine = NULL, *data = NULL;
+  void *lib = NULL, *target = NULL, *machine = NULL, *data = NULL, *context = NULL;
   char *diagnostic = NULL, *actual_triple = NULL, *data_layout = NULL;
   unsigned major = 0, minor = 0, patch = 0;
   hako_lts_dispose_message_fn dispose_message;
@@ -280,10 +276,13 @@ static int hako_lts_open(
   data = machine ? make_data(machine) : NULL;
   actual_triple = machine ? machine_triple(machine) : NULL;
   data_layout = data ? data_layout_text(data) : NULL;
+  /* TargetData caches StructType addresses: all observed ABI types must live
+   * until its disposal, including the following direct-placement checks. */
+  context = data ? make_context() : NULL;
   if (!data || !actual_triple || strcmp(actual_triple, in->target_triple) != 0 ||
       !data_layout || !data_layout[0] ||
       pointer_size(data) != in->pointer_width ||
-      !hako_lts_fault_layout_matches(data, in, make_context, dispose_context, int32_type,
+      !hako_lts_fault_layout_matches(data, in, context, int32_type,
           int64_type, pointer_type, array_type, struct_type, abi_size, abi_align, element_offset))
     goto cleanup;
   rc = 0;
@@ -291,12 +290,11 @@ cleanup:
   if (rc == 0) {
     if (in->revision == 3u)
       out->field = ((const hako_llvmc_lifecycle_target_session_v3*)in)->field;
-    out->lib = lib; out->machine = machine; out->data = data;
+    out->lib = lib; out->machine = machine; out->data = data; out->context = context;
     out->triple = actual_triple; out->data_layout = data_layout;
     out->dispose_message = dispose_message;
     out->dispose_machine = dispose_machine;
     out->dispose_data = dispose_data;
-    out->make_context = make_context;
     out->dispose_context = dispose_context;
     out->create_buffer = create_buffer;
     out->dispose_buffer = dispose_buffer;
@@ -306,7 +304,7 @@ cleanup:
     out->module_target = module_target;
     out->module_data_layout = module_data_layout;
     out->emit_to_file = emit_to_file;
-    lib = machine = data = NULL;
+    lib = machine = data = context = NULL;
     actual_triple = data_layout = NULL;
   }
   if (diagnostic && dispose_message) dispose_message(diagnostic);
@@ -314,6 +312,7 @@ cleanup:
   if (actual_triple && dispose_message) dispose_message(actual_triple);
   if (data && dispose_data) dispose_data(data);
   if (machine && dispose_machine) dispose_machine(machine);
+  if (context && dispose_context) dispose_context(context);
   if (lib) dlclose(lib);
   if (rc != 0) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/llvm-layout]");
   return 0;
@@ -347,15 +346,12 @@ static int hako_lts_emit_object_from_ir(
   void* module = NULL;
   char* diagnostic = NULL;
   int rc = -1;
-  if (!session || !session->make_context || !session->create_buffer || !session->parse_ir ||
+  if (!session || !session->context || !session->create_buffer || !session->parse_ir ||
       !session->verify_module || !session->module_target || !session->module_data_layout ||
       !session->emit_to_file || !ll_path || !ll_path[0] || !obj_path || !obj_path[0]) {
     return set_err_owned(err_out, "[freeze:contract][lifecycle-session/emit-input]");
   }
-  context = session->make_context();
-  if (!context) {
-    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/context]");
-  }
+  context = session->context;
   if (session->create_buffer(ll_path, &buffer, &diagnostic) != 0 || !buffer) {
     hako_lts_take_diagnostic(
         session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/buffer]");
@@ -417,7 +413,6 @@ done:
   if (diagnostic && session->dispose_message) session->dispose_message(diagnostic);
   if (buffer && session->dispose_buffer) session->dispose_buffer(buffer);
   if (module && session->dispose_module) session->dispose_module(module);
-  if (context && session->dispose_context) session->dispose_context(context);
   return rc;
 #endif
 }

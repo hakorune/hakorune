@@ -23,6 +23,10 @@ static unsigned init, stores, home, reclaim, report, dispose;
 static const char* mode;
 #ifdef HAKO_TEST_DIRECT_OBJECT
 static unsigned direct_attempts, direct_frees;
+#ifdef HAKO_TEST_DIRECT_END_DEPTH
+static unsigned deep_frees;
+static int deep_active;
+#endif
 static void* direct_payloads[64];
 static unsigned direct_ordinals[64];
 void* __real_malloc(size_t);
@@ -51,6 +55,9 @@ void* __wrap_malloc(size_t size) {
   return payload;
 }
 void __wrap_free(void* value) {
+#ifdef HAKO_TEST_DIRECT_END_DEPTH
+  if (value && deep_active) ++deep_frees;
+#endif
   if (value) for (unsigned i = 0; i < 64; ++i) if (value == direct_payloads[i]) {
     ++direct_frees;
     printf("DIRECT_FREE %u\n", direct_ordinals[i]);
@@ -295,5 +302,34 @@ uint32_t wrap_text_add(void* frame, uint64_t site, const NyrtStringOperandV1* le
   if (++text_adds && at && text_adds == strtoul(at, NULL, 10))
     return nyrt_fault_record_static_v1(frame, NYRT_FAULT_REASON_STRING_ALLOCATION_FAILED_V1, site, 0, 0);
   return real_text_add(frame, site, left, right, out);
+}
+#endif
+
+#ifdef HAKO_TEST_DIRECT_END_DEPTH
+/* Component stress only: the production function comes from an admitted
+ * source object; no source-loop ownership claim is made by this builder. */
+extern int hako_direct_end(uint64_t, uint64_t);
+static void* deep_node(void* left, void* right) {
+  void* node = __real_malloc(V4_DEEP_SIZE);
+  assert(node);
+  memset(node, 0, V4_DEEP_SIZE);
+  *(uint64_t*)((char*)node + V4_DEEP_LEFT) = (uint64_t)(uintptr_t)left;
+  *(uint64_t*)((char*)node + V4_DEEP_RIGHT) = (uint64_t)(uintptr_t)right;
+  return node;
+}
+int __wrap_main(void) {
+  const unsigned depth = 100000;
+  void* root = deep_node(NULL, NULL);
+  for (unsigned i = 0; i < depth; ++i) {
+    void* right = deep_node(NULL, NULL);
+    root = deep_node(root, right);
+  }
+  deep_active = 1;
+  int status = hako_direct_end((uint64_t)(uintptr_t)root,
+      ((uint64_t)V4_DEEP_ID << 32) | V4_DEEP_CHILDREN);
+  deep_active = 0;
+  assert(status == 0 && deep_frees == 2 * depth + 1);
+  printf("DIRECT_DEPTH %u FREE %u\n", depth, deep_frees);
+  return 0;
 }
 #endif

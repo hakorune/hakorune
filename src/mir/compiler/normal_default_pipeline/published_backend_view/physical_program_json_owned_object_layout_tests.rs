@@ -258,4 +258,15 @@ fn owned_object_layout_publishes_constructed_child_canonical_tuple() {
             std::fs::write(std::env::temp_dir().join(format!("hako-issued-direct-{name}.json")), wire).unwrap();
         }
     });
+    crate::test_support::with_env_vars(&[("NYASH_MACRO_DISABLE", Some("1")),
+        ("HAKO_TYPED_OBJECT_STORE", Some("direct_v0:TreeNode"))], || {
+        let tree = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-tree-typed-min/main.hako"));
+        let crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(wire) = compile(tree, true).unwrap()
+            else { panic!("canonical recursive direct publication required"); };
+        std::fs::write(std::env::temp_dir().join("hako-issued-direct-tree.json"), wire).unwrap();
+        let factory = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-tree-bench-typed/main.hako"));
+        let crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(wire) = compile(factory, true).unwrap()
+            else { panic!("canonical direct factory publication required"); };
+        std::fs::write(std::env::temp_dir().join("hako-issued-direct-binary-trees.json"), wire).unwrap();
+    });
 }

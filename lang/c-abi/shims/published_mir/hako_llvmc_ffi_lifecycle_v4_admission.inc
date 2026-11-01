@@ -255,7 +255,8 @@ static int lv4_direct_scalar_boundaries(const hako_lv4_input* in) {
       yyjson_val* view = yyjson_obj_get(yyjson_arr_get(params, pi), "object_view");
       if (yyjson_is_uint(view) && lv4_direct_layout(in, (uint32_t)yyjson_get_uint(view))) return 0;
     }
-    if (fn->return_object_state == 2 && lv4_direct_layout(in, fn->return_object)) return 0;
+    if (fn->return_object_state == 2 && lv4_direct_layout(in, fn->return_object) &&
+        !lv4_is(fn->function, "role", "ordinary_handle")) return 0;
     for (size_t bi = 0; bi < fn->block_count; bi++) {
       yyjson_val* term = lv4_term(fn->blocks[bi].block);
       if (!lv4_is(term, "op", "invoke")) continue;
@@ -265,7 +266,9 @@ static int lv4_direct_scalar_boundaries(const hako_lv4_input* in) {
           lv4_is(op, "kind", "field_set") || lv4_is(op, "kind", "home_release") ||
           lv4_is(op, "kind", "home_release_if_live") || lv4_is(op, "kind", "reclaim_unpublished") ||
           lv4_is(op, "kind", "object_end_if_owned") || lv4_is(op, "kind", "object_field_set") ||
-          lv4_is(op, "kind", "object_field_borrow") || lv4_is(op, "kind", "object_field_release"))) return 0;
+          lv4_is(op, "kind", "object_field_borrow") || lv4_is(op, "kind", "object_field_release") ||
+          lv4_is(op, "kind", "string_add") || lv4_is(op, "kind", "string_print") ||
+          lv4_is(op, "kind", "string_end") || lv4_is(op, "kind", "script_arguments_new"))) return 0;
       if (lv4_is(op, "kind", "field_set") && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
           !lv4_is(yyjson_obj_get(op, "exact_numeric_runtime_check"), "kind", "none")) return 0;
       if (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")) {

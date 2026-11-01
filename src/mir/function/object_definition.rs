@@ -122,19 +122,7 @@ impl DirectObjectPlacementV1 {
             children: children.into_boxed_slice() })
     }
 
-    /// B admits an acyclic declaration closure, even when a recursive field
-    /// happens to receive Null. Runtime depth is not the admission boundary.
-    fn acyclic(plans: &[(CanonicalObjectIdV1, Self)]) -> bool {
-        let mut done = std::collections::BTreeSet::new();
-        loop {
-            let before = done.len();
-            for (object, plan) in plans {
-                if plan.children.iter().all(|(_, child)| done.contains(child)) { done.insert(*object); }
-            }
-            if done.len() == plans.len() { return true; }
-            if done.len() == before { return false; }
-        }
-    }
+
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -230,9 +218,6 @@ impl MirModule {
         let prepared = prepared.into_iter().map(|(object, ())|
             DirectObjectPlacementV1::for_definition(self, object, &seen).map(|plan| (object, plan)))
             .collect::<Result<Vec<_>, _>>()?;
-        if !DirectObjectPlacementV1::acyclic(&prepared) {
-            return Err("[freeze:contract][direct-placement] recursive declaration closure unsupported".into());
-        }
         let definitions = self.canonical_object_definitions.as_mut().ok_or("[freeze:contract][direct-placement] missing declarations")?;
         for (object, placement) in prepared { definitions[object.declaration_index() as usize].direct_placement = Some(placement); }
         Ok(())
@@ -248,9 +233,6 @@ impl MirModule {
             if DirectObjectPlacementV1::for_definition(self, *object, &selected).as_ref() != Ok(plan) {
                 return Err("[freeze:contract][direct-placement] descriptor/source layout mismatch".into());
             }
-        }
-        if !DirectObjectPlacementV1::acyclic(&plans) {
-            return Err("[freeze:contract][direct-placement] recursive declaration closure unsupported".into());
         }
         Ok(())
     }

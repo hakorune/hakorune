@@ -7,6 +7,7 @@ keep the source graph and isolate the named wire boundary where possible.
 import copy
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -200,7 +201,8 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
         reject(data, 'published-lifecycle-v4/unsupported-cohort')
         print('direct scalar source EXEs, layout, initialization and boundary refusals')
 
-    for capture, expected, order in [('child', 10, [3, 1, 2]), ('birth-prefix', 5, [3, 2, 1])]:
+    for capture, expected, order in [('child', 10, [3, 1, 2]), ('birth-prefix', 5, [3, 2, 1]),
+                                     ('tree', 3, [4, 2, 1, 3, 5])]:
         child_path = DIRECTORY / f'hako-issued-direct-{capture}.json'
         if not child_path.exists(): continue
         child = json.loads(child_path.read_text())
@@ -211,10 +213,10 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
                  '-Wl,--wrap=malloc', '-Wl,--wrap=free', '-lpthread', '-ldl', '-lm', '-o', exe])
         sizes = ','.join(str(row['placement']['size']) for row in child['layouts'])
         normal = run([exe], env=dict(ENV, V4_PROBE_DIRECT_SIZE=sizes))
-        assert normal.returncode == expected and 'DIRECT 3 3\n' in normal.stdout, normal
+        assert normal.returncode == expected and f'DIRECT {len(order)} {len(order)}\n' in normal.stdout, normal
         assert [int(line.split()[1]) for line in normal.stdout.splitlines()
                 if line.startswith('DIRECT_FREE ')] == order, normal
-        for nth in (1, 2, 3):
+        for nth in range(1, len(order) + 1):
             fault = run([exe], env=dict(ENV, V4_PROBE_DIRECT_SIZE=sizes, V4_PROBE_DIRECT_OOM_AT=str(nth)))
             assert fault.returncode == 70 and f'DIRECT {nth} {nth - 1}\n' in fault.stdout, fault
         layout = next(row for row in child['layouts'] if row['owned_object_residences'])
@@ -224,7 +226,7 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
             end = row['placement']['end']
             if flavor == 'missing-end-child': del end[0]
             elif flavor == 'duplicate-end-child': end.insert(0, copy.deepcopy(end[0]))
-            elif flavor == 'wrong-child': end[0]['child_object_id'] = row['object_id']
+            elif flavor == 'wrong-child': end[0]['child_object_id'] = 1 + max(r['object_id'] for r in data['layouts'])
             else: del row['placement']
             reject(data, ('abi-layout', 'placement-profile'))
         for flavor in ('missing-drain', 'published-reclaim'):
@@ -241,15 +243,73 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
                 block['edges'] = [{'target': target, 'args': None}]
             else: term['operation']['kind'] = 'reclaim_unpublished'
             reject(data, 'published-lifecycle-v4/unsupported-cohort')
+        if capture in ('birth-prefix', 'tree'):
+            data = copy.deepcopy(child)
+            fn = next(f for f in data['functions'] if f['name'] ==
+                      ('Parent.birth/0' if capture == 'birth-prefix' else 'main'))
+            block = next(b for b in fn['blocks'] if
+                         b['terminator']['instruction'].get('operation', {}).get('kind') == 'birth_call')
+            term = block['terminator']['instruction']
+            if capture == 'birth-prefix':
+                target = term['normal']
+                block['terminator']['instruction'] = {'op': 'jump', 'target': target, 'args': None}
+                block['edges'] = [{'target': target, 'args': None}]
+            else:
+                call = term['operation']['call']
+                for arg in call['args'][:2]: arg.update(kind=3, value=call['receiver'])
+            reject(data, 'published-lifecycle-v4/unsupported-cohort')
         print('direct owned child EXE, nullable/move, allocation Faults and complete End')
 
-    factory_path = DIRECTORY / 'hako-issued-typed-binary-trees.json'
-    if factory_path.exists():
+    for placement in ('typed', 'direct'):
+        factory_path = DIRECTORY / f'hako-issued-{placement}-binary-trees.json'
+        if not factory_path.exists(): continue
+        factory = json.loads(factory_path.read_text())
         checked([driver, factory_path, obj], env=ENV)
+        if placement == 'direct':
+            index = next(i for i, fn in enumerate(factory['functions']) if fn['name'] == 'TreeNode.itemCheck/0')
+            symbol = f'hako_lifecycle_ordinary_{index}'
+            row = next(line.split() for line in checked(['nm', '-S', '--defined-only', obj]).stdout.splitlines()
+                       if line.split()[-1] == symbol)
+            start, size = int(row[0], 16), int(row[1], 16)
+            assembly = checked(['objdump', '-dr', '--disassemble=' + symbol, obj]).stdout
+            # objdump also prints earlier relocations from the same section.
+            # Inspect only addresses inside this exact function's symbol range.
+            body = '\n'.join(line for line in assembly.splitlines()
+                if (at := re.match(r'^\s*([0-9a-f]+):', line)) and start <= int(at[1], 16) < start + size)
+            assert size and body and 'nyash.object.' not in body, body
+            data = copy.deepcopy(factory)
+            fn = next(fn for fn in data['functions'] if fn['name'] == 'BinaryTreeBuilder.make/2')
+            block = next(b for b in fn['blocks'] if
+                b['terminator']['instruction'].get('operation', {}).get('kind') == 'birth_call')
+            target = block['terminator']['instruction']['normal']
+            block['terminator']['instruction'] = {'op': 'jump', 'target': target, 'args': None}
+            block['edges'] = [{'target': target, 'args': None}]
+            reject(data, 'published-lifecycle-v4/unsupported-cohort')
+            checked([driver, factory_path, obj], env=ENV)
         checked(['cc', '-fuse-ld=lld', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
         normal = run([exe], env=ENV)
         assert normal.returncode == 0 and 'summary=ok\n' in normal.stdout, normal
-        print('typed recursive factory object-store EXE')
+        print(placement, 'recursive factory EXE')
+        if placement == 'direct':
+            import resource
+            plan = next(row for row in factory['layouts'] if row.get('placement'))
+            owned = plan['owned_object_residences']
+            assert len(owned) == 2 and all(row['child_object_id'] == plan['object_id'] for row in owned)
+            offsets = plan['placement']['field_offsets']
+            exposed = work / 'end-depth.o'
+            checked(['objcopy', '--globalize-symbol=hako_direct_end', obj, exposed])
+            checked(['cc', '-fuse-ld=lld', '-DHAKO_TEST_DIRECT_OBJECT', '-DHAKO_TEST_DIRECT_END_DEPTH',
+                f"-DV4_DEEP_SIZE={plan['placement']['size']}", f"-DV4_DEEP_ID={plan['object_id']}",
+                f"-DV4_DEEP_LEFT={offsets[owned[0]['field_ordinal']]}",
+                f"-DV4_DEEP_RIGHT={offsets[owned[1]['field_ordinal']]}", '-DV4_DEEP_CHILDREN=2',
+                exposed, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                *['-Wl,--wrap=nyash.' + name + '_v1' for name in probe_wraps],
+                '-Wl,--wrap=main', '-Wl,--wrap=malloc', '-Wl,--wrap=free', '-lpthread', '-ldl', '-lm', '-o', exe])
+            deep = run([exe], env=ENV, timeout=20,
+                preexec_fn=lambda: resource.setrlimit(resource.RLIMIT_STACK, (256 * 1024, 256 * 1024)))
+            assert deep.returncode == 0 and 'DIRECT_DEPTH 100000 FREE 200001\n' in deep.stdout, deep
+            print('generated End depth100000 nodes200001 stack256KiB')
+
 
     # Optional source-issued typed nullable field read; retain the existing
     # driver and reject the same physical contract after isolated mutations.

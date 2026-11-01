@@ -188,8 +188,6 @@ static void lv4_emit_measurement(const hako_llvmc_lifecycle_measurement* measure
  * actual struct ABI and every field offset using this invocation's TargetData. */
 static int lv4_direct_target_matches(const hako_lv4_input* in, const hako_lts_session* session) {
   if (!in->direct) return 1;
-  hako_lts_make_context_fn context_new = (hako_lts_make_context_fn)dlsym(session->lib, "LLVMContextCreate");
-  hako_lts_dispose_context_fn context_free = (hako_lts_dispose_context_fn)dlsym(session->lib, "LLVMContextDispose");
   hako_lts_int_type_fn int64_type = (hako_lts_int_type_fn)dlsym(session->lib, "LLVMInt64TypeInContext");
   hako_lts_pointer_type_fn pointer_type = (hako_lts_pointer_type_fn)dlsym(session->lib, "LLVMPointerTypeInContext");
   hako_lts_array_type_fn array_type = (hako_lts_array_type_fn)dlsym(session->lib, "LLVMArrayType2");
@@ -197,9 +195,8 @@ static int lv4_direct_target_matches(const hako_lv4_input* in, const hako_lts_se
   hako_lts_abi_size_fn size = (hako_lts_abi_size_fn)dlsym(session->lib, "LLVMABISizeOfType");
   hako_lts_abi_align_fn align = (hako_lts_abi_align_fn)dlsym(session->lib, "LLVMABIAlignmentOfType");
   hako_lts_element_offset_fn offset = (hako_lts_element_offset_fn)dlsym(session->lib, "LLVMOffsetOfElement");
-  if (!context_new || !context_free || !int64_type || !pointer_type || !array_type || !struct_type || !size || !align || !offset) return 0;
-  void* context = context_new();
-  if (!context) return 0;
+  if (!session->context || !int64_type || !pointer_type || !array_type || !struct_type || !size || !align || !offset) return 0;
+  void* context = session->context;
   void* integer = int64_type(context), *pointer = pointer_type(context, 0);
   int matched = size(session->data, pointer) == 8 && align(session->data, pointer) == 8 &&
       size(session->data, integer) == 8 && align(session->data, integer) == 8;
@@ -213,11 +210,19 @@ static int lv4_direct_target_matches(const hako_lv4_input* in, const hako_lts_se
         align(session->data, structure) == lv4_u(plan, "align") &&
         offset(session->data, structure, 0) == yyjson_get_uint(yyjson_obj_get(plan, "parent_offset")) &&
         offset(session->data, structure, 1) == yyjson_get_uint(yyjson_obj_get(plan, "cursor_offset"));
+    if (!matched && getenv("HAKO_PHYSICAL_DEBUG"))
+      fprintf(stderr, "[direct-layout] object=%u fields=%u actual=%llu/%u expected=%llu/%u parent=%llu cursor=%llu\n",
+          in->layouts[li].id, lv4_u(layout, "field_count"), structure ? size(session->data, structure) : 0,
+          structure ? align(session->data, structure) : 0, (unsigned long long)yyjson_get_uint(yyjson_obj_get(plan, "size")),
+          lv4_u(plan, "align"), structure ? offset(session->data, structure, 0) : 0,
+          structure ? offset(session->data, structure, 1) : 0);
     for (uint32_t fi = 0; matched && fi < lv4_u(layout, "field_count"); fi++)
       matched = offset(session->data, structure, 2) + fi * size(session->data, integer) ==
           yyjson_get_uint(yyjson_arr_get(yyjson_obj_get(plan, "field_offsets"), fi));
   }
-  context_free(context);
+  if (!matched && getenv("HAKO_PHYSICAL_DEBUG"))
+    fprintf(stderr, "[direct-layout] pointer=%llu/%u integer=%llu/%u target=%s\n",
+        size(session->data, pointer), align(session->data, pointer), size(session->data, integer), align(session->data, integer), session->data_layout);
   return matched;
 }
 

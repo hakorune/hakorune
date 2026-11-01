@@ -67,39 +67,24 @@ static int hako_physical_direct_layout(yyjson_val* layout) {
   return 1;
 }
 
-/* A direct pointer never crosses a runtime-handle owning edge. B admits
- * a DAG of declaration identities, not a runtime-depth special case. */
+/* Representation closure permits recursive declarations. Actual ownership
+ * remains unique: Birth admits only initialized owned children, consumes each
+ * once on Normal, and forbids installing/replacing fields after publication. */
 static int hako_physical_direct_closure(yyjson_val* layouts) {
-  size_t direct = 0;
-  for (size_t i = 0; i < yyjson_arr_size(layouts); i++)
-    direct += yyjson_obj_get(yyjson_arr_get(layouts, i), "placement") != NULL;
-  if (!direct) return 1; /* Keep the unselected profile allocation-free. */
-  size_t count = yyjson_arr_size(layouts), completed = 0;
-  unsigned char* done = calloc(count ? count : 1, 1);
-  if (!done) return 0;
-  for (size_t pass = 0; pass <= count; pass++) {
-    size_t before = completed;
-    for (size_t i = 0; i < count; i++) {
-      if (done[i]) continue;
-      yyjson_val* layout = yyjson_arr_get(layouts, i);
-      int direct = yyjson_obj_get(layout, "placement") != NULL, ready = 1;
-      yyjson_val* children = yyjson_obj_get(layout, "owned_object_residences");
-      for (size_t ci = 0; ci < yyjson_arr_size(children); ci++) {
-        uint32_t child = (uint32_t)yyjson_get_uint(yyjson_obj_get(yyjson_arr_get(children, ci), "child_object_id"));
-        size_t j = 0;
-        while (j < count && yyjson_get_uint(yyjson_obj_get(yyjson_arr_get(layouts, j), "object_id")) != child) j++;
-        if (j == count || direct != (yyjson_obj_get(yyjson_arr_get(layouts, j), "placement") != NULL)) {
-          free(done); return 0;
-        }
-        if (direct && !done[j]) ready = 0;
-      }
-      if (ready) { done[i] = 1; completed++; }
+  for (size_t i = 0; i < yyjson_arr_size(layouts); i++) {
+    yyjson_val* layout = yyjson_arr_get(layouts, i);
+    yyjson_val* children = yyjson_obj_get(layout, "owned_object_residences");
+    for (size_t ci = 0; ci < yyjson_arr_size(children); ci++) {
+      uint32_t child = (uint32_t)yyjson_get_uint(yyjson_obj_get(yyjson_arr_get(children, ci), "child_object_id"));
+      size_t j = 0;
+      while (j < yyjson_arr_size(layouts) && yyjson_get_uint(yyjson_obj_get(yyjson_arr_get(layouts, j), "object_id")) != child) j++;
+      if (j == yyjson_arr_size(layouts) || (yyjson_obj_get(layout, "placement") != NULL) !=
+          (yyjson_obj_get(yyjson_arr_get(layouts, j), "placement") != NULL)) return 0;
     }
-    if (completed == count) { free(done); return 1; }
-    if (completed == before) break;
   }
-  free(done); return 0;
+  return 1;
 }
+
 
 static int hako_physical_validate_layouts(yyjson_val* layouts) {
   static const char* const layout_keys[] = {"object_id", "runtime_type_id", "field_count", "fields", "owned_residences"};

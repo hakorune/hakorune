@@ -632,6 +632,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
            (!nullable_formal && !lv4_borrowed_typed_live(in, fn, value, state)))) return 0;
       if (lv4_direct_layout(in, lv4_u(op, "object_id")) &&
           (!birth || !lv4_birth_base(fn, op))) return 0;
+      if (!nullable_formal && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+          !lv4_direct_initialized(in, fn, value, lv4_u(block, "id"))) return 0;
       if (birth && !lv4_birth_commit(in, fn, op, normal, bi, 1)) return 0;
       if (!nullable_formal) normal[value->origin] = 0;
     } else if (lv4_is(op, "kind", "object_field_release")) {

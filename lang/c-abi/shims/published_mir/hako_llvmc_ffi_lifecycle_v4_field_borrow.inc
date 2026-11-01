@@ -386,6 +386,11 @@ static int lv4_direct_initialized(const hako_lv4_input* in, hako_lv4_function_in
   if (!lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
   hako_lv4_block* allocation = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
   yyjson_val* allocation_op = allocation ? yyjson_obj_get(lv4_term(allocation->block), "operation") : NULL;
+  /* Every ordinary_handle exit is independently checked below for complete
+     publication. The original owned-result solver supplies this invocation's
+     exact class and nonnull acquisition; a Handle label alone is insufficient. */
+  if (lv4_is(allocation_op, "kind", "ordinary_call"))
+    return lv4_is(allocation_op, "result", "handle") && lv4_owned_value_object(in, fn, root, 0);
   if (!lv4_is(allocation_op, "kind", "new_box") || lv4_u(allocation_op, "object_id") != root->object_id) return 0;
   if (!lv4_u(lv4_direct_layout(in, root->object_id), "field_count")) return 1;
   size_t matches = 0; int completed = 0;
