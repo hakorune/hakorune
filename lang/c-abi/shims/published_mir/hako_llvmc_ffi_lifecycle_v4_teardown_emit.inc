@@ -232,6 +232,12 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
  * metadata does not itself grant a caller destruction permission. */
 static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
     yyjson_val* layout, const hako_llvmc_object_field_abi_v1* abi) {
+  if (lv4_direct_layout(in, id)) {
+    fprintf(f, "define internal i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%handle, i64 %%site) {\nentry:\n"
+        "  %%status = call i32 @hako_direct_release_%u(i64 %%handle)\n  ret i32 %%status\n}\n", id, id);
+    return !ferror(f);
+  }
+
   yyjson_val* arrays = yyjson_obj_get(layout, "owned_residences");
   yyjson_val* objects = yyjson_obj_get(layout, "owned_object_residences");
   size_t na = yyjson_arr_size(arrays), no = yyjson_arr_size(objects);

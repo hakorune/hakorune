@@ -239,6 +239,7 @@ impl PublishedLifecyclePhysicalFieldLayoutV1 {
 pub(crate) struct PublishedLifecyclePhysicalObjectLayoutV1 {
     object_id: u32,
     runtime_type_id: u32,
+    direct_placement: Option<crate::mir::function::DirectObjectPlacementV1>,
     field_count: u32,
     fields: Box<[PublishedLifecyclePhysicalFieldLayoutV1]>,
     /// Declaration ordinals of this object's owned `ArrayBox` residences,
@@ -265,6 +266,7 @@ impl PublishedLifecyclePhysicalObjectLayoutV1 {
     pub(crate) fn fields(&self) -> &[PublishedLifecyclePhysicalFieldLayoutV1] {
         &self.fields
     }
+    pub(crate) fn direct_placement(&self) -> Option<&crate::mir::function::DirectObjectPlacementV1> { self.direct_placement.as_ref() }
     pub(crate) fn owned_residences(&self) -> &[u32] {
         &self.owned_residences
     }
@@ -373,10 +375,10 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
     pub(crate) const fn runtime_requirements(&self) -> PublishedLifecycleRuntimeRequirementsV1 {
         self.runtime_requirements
     }
-    pub(crate) const fn storage_profile(&self) -> Option<u32> {
+    pub(crate) fn storage_profile(&self) -> Option<u32> {
         match self.runtime_requirements {
             PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile } => {
-                Some(storage_profile)
+                Some(if self.layouts.iter().any(|row| row.direct_placement().is_some()) { 3 } else { storage_profile })
             }
             PublishedLifecycleRuntimeRequirementsV1::NativeArray => None,
         }
@@ -460,7 +462,7 @@ impl<'module> PublishedMirBackendView<'module> {
         }
         let storage_profile = self
             .lifecycle_storage_profile()
-            .ok_or_else(|| fault("storage-profile-missing"))? as u32;
+            .ok_or_else(|| fault("storage-profile-missing"))?.wire_id();
         let mut ids = referenced_objects(entry.program())?;
         // A sealed parameter class/null domain references its layout even when
         // the formal is ignored and the only incoming value is null.
@@ -591,11 +593,15 @@ impl<'module> PublishedMirBackendView<'module> {
             layouts.push(PublishedLifecyclePhysicalObjectLayoutV1 {
                 object_id,
                 runtime_type_id: layout.type_id,
+                direct_placement: definition.direct_placement().cloned(),
                 field_count: layout.field_count,
                 fields: fields.into_boxed_slice(),
                 owned_residences,
                 owned_object_residences,
             });
+        }
+        if storage_profile == 3 && !layouts.iter().any(|row| row.direct_placement().is_some()) {
+            return Err(fault("direct-selection-unreferenced"));
         }
         Ok(PublishedLifecyclePhysicalAbiInputV1 {
             entry,
@@ -606,8 +612,10 @@ impl<'module> PublishedMirBackendView<'module> {
             object_birth_actuals,
             process_result_site,
             fault_abi_version: 1,
+            // Placement 3 uses native pointers for selected IDs. Any remaining
+            // runtime-store operations explicitly retain SafeMutex profile 1.
             runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::TypedObject {
-                storage_profile,
+                storage_profile: if storage_profile == 3 { 1 } else { storage_profile },
             },
         })
     }

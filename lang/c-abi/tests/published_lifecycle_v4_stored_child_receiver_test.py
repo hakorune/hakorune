@@ -133,6 +133,73 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
         assert not obj.exists() and not list(work.glob('source.o.*')), 'rejected artifact'
         print('reject', reason)
 
+    # Direct placement reuses these issued source/ABI checks, including
+    # malformed layouts and the distinction between allocation and Birth.
+    direct_path = DIRECTORY / 'hako-issued-direct-scalar-updatefalse.json'
+    if direct_path.exists():
+        direct = json.loads(direct_path.read_text())
+        for update, expected in (('false', 30), ('true', 31)):
+            path = DIRECTORY / f'hako-issued-direct-scalar-update{update}.json'
+            checked([driver, path, obj], env=ENV)
+            checked(['cc', '-fuse-ld=lld', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
+            assert run([exe], env=ENV).returncode == expected
+        checked([driver, direct_path, obj], env=ENV)
+        probe_wraps = ('fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
+                       'object.checked_field_set', 'object.checked_residence_set',
+                       'object.home_release_plain_i64', 'object.reclaim_unpublished')
+        checked(['cc', '-fuse-ld=lld', '-DHAKO_TEST_DIRECT_OBJECT', obj,
+                 TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in probe_wraps],
+                 '-Wl,--wrap=malloc', '-Wl,--wrap=free', '-lpthread', '-ldl', '-lm', '-o', exe])
+        direct_env = dict(ENV, V4_PROBE_DIRECT_SIZE=str(direct['layouts'][0]['placement']['size']))
+        normal = run([exe], env=direct_env)
+        assert normal.returncode == 30 and 'DIRECT 1 1\n' in normal.stdout, normal
+        oom = run([exe], env=dict(direct_env, V4_PROBE_DIRECT_OOM='1'))
+        assert oom.returncode == 70 and 'DIRECT 1 0\n' in oom.stdout, oom
+        assert 'FAULT 100 0 0 0 HOME 0 RECLAIM 0\n' in oom.stdout, oom
+        for key, bad in (('size', 0), ('align', 4), ('field_offsets', [16, 16]),
+                         ('representation', 'runtime_handle'), ('descriptor_object_id', 100),
+                         ('end', []), ('parent_offset', 8), ('cursor_offset', 0)):
+            data = copy.deepcopy(direct)
+            data['layouts'][0]['placement'][key] = bad
+            reject(data, 'abi-layout')
+        data = copy.deepcopy(direct)
+        data['storage_profile'] = 1
+        reject(data, 'placement-profile')
+        for skip in ('birth-store', 'birth-call'):
+            data = copy.deepcopy(direct)
+            function = next(f for f in data['functions'] if f['name'] ==
+                            ('Pair.birth/2' if skip == 'birth-store' else 'main'))
+            block = next(b for b in function['blocks'] if
+                         b['terminator']['instruction'].get('operation', {}).get('kind') ==
+                         ('field_set' if skip == 'birth-store' else 'birth_call'))
+            target = block['terminator']['instruction']['normal']
+            block['terminator']['instruction'] = {'op': 'jump', 'target': target, 'args': None}
+            block['edges'] = [{'target': target, 'args': None}]
+            reject(data, ('published-lifecycle-v4/unsupported-cohort',
+                          'published-lifecycle-v4/receiver-object-mismatch'))
+        data = copy.deepcopy(direct)
+        birth = next(f for f in data['functions'] if f['name'] == 'main')
+        call = next(b['terminator']['instruction']['operation']['call'] for b in birth['blocks']
+                    if b['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
+        call['args'] = [{'kind': 3, 'value': call['receiver']}]
+        callee = data['functions'][call['target']]
+        unused = 1 + max(r['instruction'].get('dst', 0) for b in callee['blocks'] for r in b['instructions'])
+        callee['params'].append(
+            {'value': unused, 'representation': 'borrowed_kind_payload_v1', 'object_view': None})
+        reject(data, 'published-lifecycle-v4/unsupported-cohort')
+        data = copy.deepcopy(direct)
+        block = next(f for f in data['functions'] if f['name'] == 'Pair.sum/0')['blocks'][0]
+        pos = next(i for i, r in enumerate(block['instructions']) if r['instruction']['op'] == 'object_field_get')
+        read = block['instructions'][pos]['instruction']
+        block['instructions'].insert(pos + 1, {'instruction': {'op': 'field_set', 'base': read['base'],
+            'object_id': read['object_id'], 'field_ordinal': read['field_ordinal'], 'value': read['dst'], 'site': 777777,
+            'exact_numeric_runtime_check': {'kind': 'dynamic_integer_range', 'declared_type': 'usize'}}})
+        for i, row in enumerate(block['instructions']): row['index'] = i
+        block['terminator']['index'] = len(block['instructions'])
+        reject(data, 'published-lifecycle-v4/unsupported-cohort')
+        print('direct scalar source EXEs, layout, initialization and boundary refusals')
+
     # Optional source-issued typed nullable field read; retain the existing
     # driver and reject the same physical contract after isolated mutations.
     typed_path = DIRECTORY / 'hako-issued-typed-null-field-borrow.json'

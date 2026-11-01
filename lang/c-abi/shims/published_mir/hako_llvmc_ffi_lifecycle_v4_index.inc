@@ -570,6 +570,15 @@ static int lv4_index_open(hako_lv4_input* in) {
   return 1;
 }
 
+static yyjson_val* lv4_direct_layout(const hako_lv4_input* in, uint32_t object) {
+  yyjson_val* layout = lv4_layout(in, object);
+  return layout && yyjson_obj_get(layout, "placement") ? layout : NULL;
+}
+static uint64_t lv4_direct_offset(const hako_lv4_input* in, uint32_t object, uint32_t field) {
+  return yyjson_get_uint(yyjson_arr_get(yyjson_obj_get(
+      yyjson_obj_get(lv4_direct_layout(in, object), "placement"), "field_offsets"), field));
+}
+
 static int lv4_input_type(const hako_lv4_input* in, yyjson_val* fn, uint32_t value) {
   if (in->measurement) in->measurement->v4_type_lookups++;
   if (in->native) return lv4_type(fn, value, lv4_value_budget(fn));

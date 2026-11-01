@@ -110,8 +110,30 @@ static int lv4_birth_discharge(const hako_lv4_input* in, hako_lv4_function_index
   return 1;
 }
 
+/* Definite scalar initialization, derived from the existing CFG rather than
+ * another mutable field-state machine. Later scalar updates remain legal. */
+static int lv4_direct_birth_initialized_at(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, uint32_t use) {
+  yyjson_val* layout = lv4_direct_layout(in, fn->receiver_object);
+  if (!layout) return 1;
+  for (uint32_t field = 0; field < lv4_u(layout, "field_count"); field++) {
+    int initialized = 0;
+    for (size_t bi = 0; bi < fn->block_count; bi++) {
+      yyjson_val* term = lv4_term(fn->blocks[bi].block);
+      yyjson_val* op = yyjson_obj_get(term, "operation");
+      if (!lv4_is(op, "kind", "field_set") || lv4_u(op, "object_id") != fn->receiver_object ||
+          lv4_u(op, "field_ordinal") != field || !lv4_birth_base(fn, op)) continue;
+      uint32_t normal = lv4_u(term, "normal");
+      if (lv4_pred_count(fn, normal) == 1 && hako_physical_block_dominates(fn->function, normal, use)) initialized = 1;
+    }
+    if (!initialized) return 0;
+  }
+  return 1;
+}
+
 static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* fn,
-    hako_lv4_state* state) {
+    hako_lv4_state* state, uint32_t use) {
+  if (!lv4_direct_birth_initialized_at(in, fn, use)) return 0;
   yyjson_val* layout = lv4_layout(in, fn->receiver_object);
   size_t expected = 0, actual = 0;
   for (int object = 0; object <= 1; object++) {

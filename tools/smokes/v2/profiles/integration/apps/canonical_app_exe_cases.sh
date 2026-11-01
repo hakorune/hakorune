@@ -18,13 +18,14 @@ require_env || exit 2
 
 SMOKE_NAME="canonical_app_exe_cases"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-120}"
-# case|app directory|expected exit|expected stdout line|extra compile flag
+# case|app directory|expected exit|expected stdout line|extra compile flag|storage selection
 CASES=(
   "typed_object_newbox_min|typed-object-newbox-min|30||--grammar-profile canonical"
   "typed_object_birth_min|typed-object-birth-min|30||"
   "typed_object_method_min|typed-object-method-min|30||"
   "typed_object_birth_param_min|typed-object-birth-param-min|30||"
   "ownership_move_min|ownership-move-min|30||"
+  "ownership_move_direct_min|ownership-move-min|30|||direct_v0:Pair"
   "ownership_shared_min|ownership-shared-min|10||"
   "ownership_typed_null_min|ownership-typed-null-min|5||"
   "ownership_tree_typed_min|ownership-tree-typed-min|3||"
@@ -55,7 +56,7 @@ cleanup() {
 trap cleanup EXIT
 
 run_case() {
-  local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5"
+  local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
   local exe="$TMP_ROOT.$name.exe" build_log="$TMP_ROOT.$name.build.log" run_log="$TMP_ROOT.$name.run.log"
   if [ ! -f "$app" ]; then
     test_fail "$SMOKE_NAME/$name: app missing: $app"
@@ -63,7 +64,8 @@ run_case() {
   fi
   set +e
   # shellcheck disable=SC2086
-  NYASH_DISABLE_PLUGINS=1 \
+  HAKO_TYPED_OBJECT_STORE="${profile:-${HAKO_TYPED_OBJECT_STORE:-}}" \
+    NYASH_DISABLE_PLUGINS=1 \
     NYASH_LLVM_ROUTE_TRACE=1 \
     HAKO_BACKEND_COMPILE_RECIPE=pure-first \
     HAKO_BACKEND_COMPAT_REPLAY=none \
@@ -79,6 +81,8 @@ run_case() {
     problem="lifecycle V4 route trace missing"
   elif ! grep -Fq 'toolchain=llvm-c-api' "$build_log"; then
     problem="LLVM C API physical route missing"
+  elif [[ "$profile" == direct_v0:* ]] && ! grep -Fq 'profile=3;' "$build_log"; then
+    problem="explicit direct placement route missing"
   elif grep -Fq "unsupported pure shape" "$build_log" || grep -Fq "compat_replay=harness" "$build_log"; then
     problem="fallback or unsupported pure shape was used"
   elif ! grep -Fq "EXE written:" "$build_log" || [ ! -x "$exe" ]; then
@@ -104,11 +108,11 @@ run_case() {
 
 ran=0
 for row in "${CASES[@]}"; do
-  IFS='|' read -r name app expected_rc expected_line flag <<<"$row"
+  IFS='|' read -r name app expected_rc expected_line flag profile <<<"$row"
   if [ -n "$ONLY_CASE" ] && [ "$name" != "$ONLY_CASE" ]; then
     continue
   fi
-  run_case "$name" "$app" "$expected_rc" "$expected_line" "$flag" || exit 1
+  run_case "$name" "$app" "$expected_rc" "$expected_line" "$flag" "$profile" || exit 1
   ran=$((ran + 1))
 done
 if [ "$ran" -eq 0 ]; then

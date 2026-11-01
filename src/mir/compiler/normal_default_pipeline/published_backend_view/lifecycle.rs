@@ -192,8 +192,8 @@ impl<'module> PublishedMirBackendView<'module> {
 
     pub(crate) fn lifecycle_storage_profile(
         &self,
-    ) -> Option<super::PublishedObjectStorageProfileV1> {
-        self.lifecycle_storage_profile.copied()
+    ) -> Option<&super::PublishedObjectStorageProfileV1> {
+        self.lifecycle_storage_profile
     }
 }
 
@@ -201,18 +201,29 @@ fn fault(reason: &str) -> String {
     format!("[freeze:contract][published-lifecycle/admission-{reason}]")
 }
 
-#[repr(u32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum PublishedObjectStorageProfileV1 {
-    SafeMutex = 1,
-    SingleThreadExact = 2,
+    SafeMutex,
+    SingleThreadExact,
+    DirectV0(Box<[Box<str>]>),
 }
 
 impl PublishedObjectStorageProfileV1 {
+    pub(crate) fn wire_id(&self) -> u32 {
+        match self { Self::SafeMutex => 1, Self::SingleThreadExact => 2, Self::DirectV0(_) => 3 }
+    }
+
     pub(crate) fn from_runtime_name(value: Option<&str>) -> Result<Self, String> {
         match value {
             None | Some("") | Some("safe_mutex") => Ok(Self::SafeMutex),
             Some("single_thread_exact") => Ok(Self::SingleThreadExact),
+            Some(other) if other.starts_with("direct_v0:") => {
+                let names: Box<[Box<str>]> = other[10..].split(',').map(Box::<str>::from).collect();
+                if names.is_empty() || names.iter().any(|name| name.is_empty() || name.trim() != name.as_ref()) {
+                    return Err("[freeze:contract][direct-placement] explicit declaration selectors required".into());
+                }
+                Ok(Self::DirectV0(names))
+            }
             Some(other) => Err(format!(
                 "[freeze:contract][published-lifecycle/storage-profile] unsupported profile: {other}"
             )),

@@ -10,7 +10,9 @@ fn storage_profile_is_finite_and_rejects_legacy_backends() {
         PublishedObjectStorageProfileV1::from_runtime_name(Some("single_thread_exact")).unwrap(),
         PublishedObjectStorageProfileV1::SingleThreadExact
     );
-    for rejected in ["direct_slot_exact", "pinned_arena_exact", "unknown"] {
+    assert_eq!(PublishedObjectStorageProfileV1::from_runtime_name(Some("direct_v0:Pair")).unwrap(),
+        PublishedObjectStorageProfileV1::DirectV0(vec![Box::<str>::from("Pair")].into_boxed_slice()));
+    for rejected in ["direct_slot_exact", "pinned_arena_exact", "unknown", "direct_v0:", "direct_v0: Pair"] {
         assert!(PublishedObjectStorageProfileV1::from_runtime_name(Some(rejected)).is_err());
     }
 }

@@ -139,7 +139,7 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
                     .layouts()
                     .iter()
                     .map(|layout| {
-                        json!({
+                        let mut row = json!({
                             "object_id": layout.object_id(),
                             "runtime_type_id": layout.runtime_type_id(),
                             "field_count": layout.field_count(),
@@ -152,7 +152,17 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
                             "owned_object_residences": layout.owned_object_residences().iter()
                                 .map(|(ordinal, child)| json!({"field_ordinal": ordinal, "child_object_id": child}))
                                 .collect::<Vec<_>>(),
-                        })
+                        });
+                        if let Some(plan) = layout.direct_placement() {
+                            row.as_object_mut().expect("object row").insert("placement".into(), json!({
+                                "kind": "direct_v0", "representation": "unique_pointer_word_v0",
+                                "target_layout": crate::mir::function::DirectObjectPlacementV1::TARGET,
+                                "descriptor_object_id": layout.object_id(), "size": plan.size, "align": plan.align,
+                                "parent_offset": 0, "cursor_offset": 8, "field_offsets": plan.field_offsets,
+                                "end": [{"kind": "release_outer"}],
+                            }));
+                        }
+                        row
                     })
                     .collect(),
             ),

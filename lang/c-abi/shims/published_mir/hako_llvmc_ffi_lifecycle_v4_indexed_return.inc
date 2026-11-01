@@ -92,7 +92,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
     } else if (!lv4_is(origin, "kind", "null")) return 0;
   }
   if (birth && lv4_is(term, "op", "return") &&
-      (faulted || !lv4_birth_finish(in, fn, state))) return 0;
+      (faulted || !lv4_birth_finish(in, fn, state, return_block))) return 0;
   if (birth && faulted && lv4_is(term, "op", "return_fault") &&
       !lv4_birth_drop_provided(in, fn, state)) return 0;
   for (size_t i = 0; i < count; i++) if (state[i]) return 0;

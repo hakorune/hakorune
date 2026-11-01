@@ -3,6 +3,7 @@ typedef struct {
   yyjson_val *root, *functions;
   uint32_t profile;
   int native;
+  int direct;
   uint64_t result_site;
   struct hako_lv4_function_index* index;
   size_t index_count;
@@ -226,6 +227,42 @@ static int lv4_dynamic_operand_live(hako_lv4_function_index* fn, yyjson_val* ope
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc"
 
+static int lv4_direct_scalar_boundaries(const hako_lv4_input* in) {
+  if (!in->direct) return 1;
+  for (size_t fi = 0; fi < in->index_count; fi++) {
+    hako_lv4_function_index* fn = &in->index[fi];
+    yyjson_val* params = yyjson_obj_get(fn->function, "params");
+    for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
+      yyjson_val* view = yyjson_obj_get(yyjson_arr_get(params, pi), "object_view");
+      if (yyjson_is_uint(view) && lv4_direct_layout(in, (uint32_t)yyjson_get_uint(view))) return 0;
+    }
+    if (fn->return_object_state == 2 && lv4_direct_layout(in, fn->return_object)) return 0;
+    for (size_t bi = 0; bi < fn->block_count; bi++) {
+      yyjson_val* term = lv4_term(fn->blocks[bi].block);
+      if (!lv4_is(term, "op", "invoke")) continue;
+      yyjson_val* op = yyjson_obj_get(term, "operation");
+      if (!(lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "birth_call") ||
+          lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "field_get") ||
+          lv4_is(op, "kind", "field_set") || lv4_is(op, "kind", "home_release") ||
+          lv4_is(op, "kind", "home_release_if_live") || lv4_is(op, "kind", "reclaim_unpublished") ||
+          lv4_is(op, "kind", "object_end_if_owned"))) return 0;
+      if (lv4_is(op, "kind", "field_set") && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+          !lv4_is(yyjson_obj_get(op, "exact_numeric_runtime_check"), "kind", "none")) return 0;
+      /* A permits direct instance receivers, but never pointer words as
+         opaque or typed arguments to another ABI boundary. */
+      if (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")) {
+        yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
+        for (size_t ai = 0; ai < yyjson_arr_size(args); ai++) {
+          hako_lv4_value* actual = lv4_value_alias_root(fn,
+              lv4_index_value(fn, lv4_u(yyjson_arr_get(args, ai), "value")));
+          if (actual && actual->object_id_set && lv4_direct_layout(in, actual->object_id)) return 0;
+        }
+      }
+    }
+  }
+  return 1;
+}
+
 static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
   if (!lv4_index_open(in)) return 0;
   /* Every independent producer in every function precedes any dependent
@@ -276,7 +313,7 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
   }
   for (size_t fi = 0; fi < in->index_count; fi++)
     if (!lv4_index_kinds(in, &in->index[fi])) return 0;
-  if (!lv4_index_owned_results(in)) return 0;
+  if (!lv4_index_owned_results(in) || !lv4_direct_scalar_boundaries(in)) return 0;
   lv4_close_readonly_graph(in);
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];
@@ -356,6 +393,8 @@ static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
   out->native = yyjson_obj_get(root, "runtime_requirements") != NULL;
   out->result_site = yyjson_get_uint(yyjson_obj_get(root, "process_result_site"));
   out->profile = lv4_u(root, "storage_profile");
+  out->direct = out->profile == 3;
+  if (out->direct) out->profile = 1; /* Explicit fallback store for unselected IDs, never selected pointers. */
   result = out->native ? lv4_native_admit(out) : lv4_indexed_admit(out, error);
   if (result) {
     if (result == LV4_FLOW_RECEIVER_MISMATCH)

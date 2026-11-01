@@ -184,6 +184,43 @@ static void lv4_emit_measurement(const hako_llvmc_lifecycle_measurement* measure
 
 #endif
 
+/* The selected target record is not inferred from pointer width. Compare the
+ * actual struct ABI and every field offset using this invocation's TargetData. */
+static int lv4_direct_target_matches(const hako_lv4_input* in, const hako_lts_session* session) {
+  if (!in->direct) return 1;
+  hako_lts_make_context_fn context_new = (hako_lts_make_context_fn)dlsym(session->lib, "LLVMContextCreate");
+  hako_lts_dispose_context_fn context_free = (hako_lts_dispose_context_fn)dlsym(session->lib, "LLVMContextDispose");
+  hako_lts_int_type_fn int64_type = (hako_lts_int_type_fn)dlsym(session->lib, "LLVMInt64TypeInContext");
+  hako_lts_pointer_type_fn pointer_type = (hako_lts_pointer_type_fn)dlsym(session->lib, "LLVMPointerTypeInContext");
+  hako_lts_array_type_fn array_type = (hako_lts_array_type_fn)dlsym(session->lib, "LLVMArrayType2");
+  hako_lts_struct_type_fn struct_type = (hako_lts_struct_type_fn)dlsym(session->lib, "LLVMStructTypeInContext");
+  hako_lts_abi_size_fn size = (hako_lts_abi_size_fn)dlsym(session->lib, "LLVMABISizeOfType");
+  hako_lts_abi_align_fn align = (hako_lts_abi_align_fn)dlsym(session->lib, "LLVMABIAlignmentOfType");
+  hako_lts_element_offset_fn offset = (hako_lts_element_offset_fn)dlsym(session->lib, "LLVMOffsetOfElement");
+  if (!context_new || !context_free || !int64_type || !pointer_type || !array_type || !struct_type || !size || !align || !offset) return 0;
+  void* context = context_new();
+  if (!context) return 0;
+  void* integer = int64_type(context), *pointer = pointer_type(context, 0);
+  int matched = size(session->data, pointer) == 8 && align(session->data, pointer) == 8 &&
+      size(session->data, integer) == 8 && align(session->data, integer) == 8;
+  for (size_t li = 0; matched && li < in->layout_count; li++) {
+    yyjson_val* layout = lv4_direct_layout(in, in->layouts[li].id);
+    if (!layout) continue;
+    yyjson_val* plan = yyjson_obj_get(layout, "placement");
+    void* fields[] = {pointer, integer, array_type(integer, lv4_u(layout, "field_count"))};
+    void* structure = fields[2] ? struct_type(context, fields, 3, 0) : NULL;
+    matched = structure && size(session->data, structure) == yyjson_get_uint(yyjson_obj_get(plan, "size")) &&
+        align(session->data, structure) == lv4_u(plan, "align") &&
+        offset(session->data, structure, 0) == yyjson_get_uint(yyjson_obj_get(plan, "parent_offset")) &&
+        offset(session->data, structure, 1) == yyjson_get_uint(yyjson_obj_get(plan, "cursor_offset"));
+    for (uint32_t fi = 0; matched && fi < lv4_u(layout, "field_count"); fi++)
+      matched = offset(session->data, structure, 2) + fi * size(session->data, integer) ==
+          yyjson_get_uint(yyjson_arr_get(yyjson_obj_get(plan, "field_offsets"), fi));
+  }
+  context_free(context);
+  return matched;
+}
+
 __attribute__((visibility("default")))
 int hako_llvmc_compile_published_lifecycle_physical_v4(
     const char* json_in, const hako_llvmc_lifecycle_target_session_v2* abi,
@@ -227,11 +264,13 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
       failure = "dynamic-field-target-abi"; goto done;
     }
   measurement.native = input.native;
-  measurement.profile = input.profile;
+  measurement.profile = input.direct ? 3 : input.profile;
   if (session.triple)
     snprintf(measurement.target_triple, sizeof(measurement.target_triple), "%s", session.triple);
   failure = "target";
   if (strcmp(session.triple, "x86_64-unknown-linux-gnu") != 0) goto done;
+  failure = "direct-target-layout";
+  if (!lv4_direct_target_matches(&input, &session)) goto done;
   failure = "temporary-file";
   size_t len = strlen(obj_out) + 32;
   ll = malloc(len); object = malloc(len);

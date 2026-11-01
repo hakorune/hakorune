@@ -23,6 +23,7 @@ pub(super) fn original_call_slots(
     module: &MirModule,
     root: Option<&FinalizedRootHandoffV1>,
 ) -> Result<OriginalCallSourceImageV1, String> {
+    super::object_end::check_placements(module)?;
     // Source-less verification retains its existing sealed scalar policy.
     let Some(root) = root else {
         return Ok(OriginalCallSourceImageV1::default());

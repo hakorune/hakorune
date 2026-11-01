@@ -602,15 +602,52 @@ static int hako_physical_frame_mode(yyjson_val* function, uint32_t frame, const 
 #include "hako_llvmc_ffi_published_lifecycle_map_operations.inc"
 #include "hako_llvmc_ffi_published_lifecycle_instruction_schema.inc"
 
+/* A named SysV64 record, later independently compared with LLVM TargetData. */
+static int hako_physical_direct_layout(yyjson_val* layout) {
+  yyjson_val* plan = yyjson_obj_get(layout, "placement");
+  static const char* const keys[] = {"kind", "representation", "target_layout", "descriptor_object_id",
+      "size", "align", "parent_offset", "cursor_offset", "field_offsets", "end"};
+  uint32_t object, alignment; uint64_t size;
+  yyjson_val* offsets = yyjson_obj_get(plan, "field_offsets");
+  yyjson_val* end = yyjson_obj_get(plan, "end");
+  size_t count = yyjson_arr_size(yyjson_obj_get(layout, "fields"));
+  if (!plan) return 1;
+  if (!hako_physical_exact_keys(plan, keys, 10) ||
+      !hako_physical_string(yyjson_obj_get(plan, "kind"), "direct_v0") ||
+      !hako_physical_string(yyjson_obj_get(plan, "representation"), "unique_pointer_word_v0") ||
+      !hako_physical_string(yyjson_obj_get(plan, "target_layout"), "x86_64_sysv64_v0") ||
+      !hako_physical_u32(yyjson_obj_get(plan, "descriptor_object_id"), &object) ||
+      object != yyjson_get_uint(yyjson_obj_get(layout, "object_id")) ||
+      !hako_physical_u64(yyjson_obj_get(plan, "size"), &size) || count > (UINT64_MAX - 16) / 8 ||
+      size != 16 + 8 * (uint64_t)count ||
+      !hako_physical_u32(yyjson_obj_get(plan, "align"), &alignment) || alignment != 8 ||
+      !yyjson_is_uint(yyjson_obj_get(plan, "parent_offset")) || yyjson_get_uint(yyjson_obj_get(plan, "parent_offset")) != 0 ||
+      !yyjson_is_uint(yyjson_obj_get(plan, "cursor_offset")) || yyjson_get_uint(yyjson_obj_get(plan, "cursor_offset")) != 8 ||
+      !yyjson_is_arr(offsets) || yyjson_arr_size(offsets) != count ||
+      !yyjson_is_arr(end) || yyjson_arr_size(end) != 1 ||
+      !hako_physical_string(yyjson_obj_get(yyjson_arr_get(end, 0), "kind"), "release_outer") ||
+      yyjson_obj_size(yyjson_arr_get(end, 0)) != 1 ||
+      yyjson_arr_size(yyjson_obj_get(layout, "owned_residences")) ||
+      yyjson_arr_size(yyjson_obj_get(layout, "owned_object_residences"))) return 0;
+  for (size_t i = 0; i < count; i++) {
+    uint64_t offset;
+    if (!hako_physical_u64(yyjson_arr_get(offsets, i), &offset) || offset != 16 + 8 * (uint64_t)i ||
+        yyjson_get_uint(yyjson_obj_get(yyjson_arr_get(yyjson_obj_get(layout, "fields"), i), "storage_kind")) != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
+  }
+  return 1;
+}
+
 static int hako_physical_validate_layouts(yyjson_val* layouts) {
   static const char* const layout_keys[] = {"object_id", "runtime_type_id", "field_count", "fields", "owned_residences"};
   static const char* const owned_layout_keys[] = {"object_id", "runtime_type_id", "field_count", "fields", "owned_residences", "owned_object_residences"};
+  static const char* const direct_keys[] = {"object_id", "runtime_type_id", "field_count", "fields", "owned_residences", "owned_object_residences", "placement"};
   static const char* const field_keys[] = {"declaration_ordinal", "runtime_slot", "storage_kind"};
   size_t i, j;
   if (!(layouts && yyjson_is_arr(layouts))) return 0;
   for (i = 0; i < yyjson_arr_size(layouts); i++) {
     yyjson_val* layout = yyjson_arr_get(layouts, i); yyjson_val* fields; yyjson_val* owned; uint32_t object, count;
-    if (!(hako_physical_exact_keys(layout, layout_keys, 5) || hako_physical_exact_keys(layout, owned_layout_keys, 6)) || !hako_physical_u32(yyjson_obj_get(layout, "object_id"), &object) || !hako_physical_u32(yyjson_obj_get(layout, "runtime_type_id"), NULL) || !hako_physical_u32(yyjson_obj_get(layout, "field_count"), &count) || !(fields = yyjson_obj_get(layout, "fields")) || !yyjson_is_arr(fields) || yyjson_arr_size(fields) != count || !(owned = yyjson_obj_get(layout, "owned_residences")) || !yyjson_is_arr(owned)) return 0;
+    if (!(hako_physical_exact_keys(layout, layout_keys, 5) || hako_physical_exact_keys(layout, owned_layout_keys, 6) || hako_physical_exact_keys(layout, direct_keys, 7)) || !hako_physical_u32(yyjson_obj_get(layout, "object_id"), &object) || !hako_physical_u32(yyjson_obj_get(layout, "runtime_type_id"), NULL) || !hako_physical_u32(yyjson_obj_get(layout, "field_count"), &count) || !(fields = yyjson_obj_get(layout, "fields")) || !yyjson_is_arr(fields) || yyjson_arr_size(fields) != count || !(owned = yyjson_obj_get(layout, "owned_residences")) || !yyjson_is_arr(owned)) return 0;
+    if (!hako_physical_direct_layout(layout)) return 0;
     for (j = 0; j < yyjson_arr_size(fields); j++) { uint32_t ordinal, storage; yyjson_val* field = yyjson_arr_get(fields, j);
       if (!hako_physical_exact_keys(field, field_keys, 3) || !hako_physical_u32(yyjson_obj_get(field, "declaration_ordinal"), &ordinal) || ordinal != j || !hako_physical_u32(yyjson_obj_get(field, "runtime_slot"), &storage) || storage != ordinal || !hako_physical_u32(yyjson_obj_get(field, "storage_kind"), &storage) || (storage != HAKO_LLVMC_LIFECYCLE_STORAGE_I64 && storage != HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC)) return 0; }
     { uint32_t previous = 0;
@@ -630,7 +667,7 @@ static int hako_physical_validate_layouts(yyjson_val* layouts) {
 
 static int hako_physical_storage_profile(yyjson_val* value) {
   uint32_t profile;
-  return hako_physical_u32(value, &profile) && (profile == 1u || profile == 2u);
+  return hako_physical_u32(value, &profile) && (profile == 1u || profile == 2u || profile == 3u);
 }
 
 /* Default-off: with HAKO_PHYSICAL_DEBUG set, name the refused instruction. */
@@ -740,6 +777,13 @@ static int hako_llvmc_validate_published_lifecycle_physical_v2_doc(yyjson_val* r
       yyjson_get_uint(yyjson_obj_get(root, "fault_abi_version")) != 1 ||
       (!native && (!hako_physical_storage_profile(yyjson_obj_get(root, "storage_profile")) ||
        !hako_physical_validate_layouts(layouts)))) return hako_physical_fail(err_out, "abi-layout");
+  if (!native) {
+    size_t selected = 0;
+    for (size_t i = 0; i < yyjson_arr_size(layouts); i++)
+      selected += yyjson_obj_get(yyjson_arr_get(layouts, i), "placement") != NULL;
+    if ((yyjson_get_uint(yyjson_obj_get(root, "storage_profile")) == 3) != (selected != 0))
+      return hako_physical_fail(err_out, "placement-profile");
+  }
   for (size_t i = 0; i < yyjson_arr_size(functions); i++) {
     yyjson_val* function = yyjson_arr_get(functions, i);
     hako_physical_geometry* geometry = hako_physical_geometry_build(function);

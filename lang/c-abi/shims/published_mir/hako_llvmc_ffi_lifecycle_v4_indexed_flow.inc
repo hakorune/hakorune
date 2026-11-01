@@ -474,6 +474,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          The I64 result is available exclusively on Normal. */
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "field_set")) {
+      if (!birth && !lv4_direct_initialized(in, fn, lv4_index_value(fn, lv4_u(op, "base")), lv4_u(block, "id"))) return 0;
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
       yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");

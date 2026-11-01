@@ -199,6 +199,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (read && read->origin == LV4_OWNED_FIELD_BORROW &&
           !lv4_nullable_field_loan_readable(in, fn, read->id, state, lv4_u(block, "id"), read->object_id, 1)) return 0;
     } else if (lv4_is(ins, "op", "field_set")) {
+      if (!lv4_direct_initialized(in, fn, lv4_index_value(fn, lv4_u(ins, "base")), lv4_u(block, "id"))) return 0;
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "value"));
       yyjson_val* check = yyjson_obj_get(ins, "exact_numeric_runtime_check");
       /* A routed scalar store consumes the same checked helper as the
@@ -213,6 +214,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           lv4_is(fn->function, "role", "root_unit") || faulted ||
           lv4_slot(in, ins) < 0 || !value || value->kind != LV4_I64 ||
           !check ||
+          (lv4_direct_layout(in, lv4_u(ins, "object_id")) && !lv4_is(check, "kind", "none")) ||
           !(lv4_is(check, "kind", "none") ||
             (lv4_is(check, "kind", "dynamic_integer_range") &&
              lv4_is(check, "declared_type", "usize"))) ||

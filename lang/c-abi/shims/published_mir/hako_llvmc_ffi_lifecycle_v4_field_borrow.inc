@@ -364,9 +364,45 @@ static int lv4_typed_field_read_admitted(const hako_lv4_input* in,
 
 static int lv4_map_present_guarded(hako_lv4_function_index*, hako_lv4_value*, uint32_t);
 
+static int lv4_direct_birth_initialized_at(const hako_lv4_input*, hako_lv4_function_index*, uint32_t);
+
+/* Allocation liveness is not publication. Incoming receiver safety follows
+ * inductively from the same query on every actual Call receiver. */
+static int lv4_direct_initialized(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, uint32_t use) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (!root || !root->object_id_set || !lv4_direct_layout(in, root->object_id)) return 1;
+  if (root->origin < 0) {
+    if (!yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) ||
+        root->id != lv4_u(fn->function, "receiver") || !fn->receiver_object_set ||
+        fn->receiver_object != root->object_id) return 0;
+    return !lv4_is(fn->function, "role", "birth_unit") || lv4_direct_birth_initialized_at(in, fn, use);
+  }
+  if (!lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
+  hako_lv4_block* allocation = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  yyjson_val* allocation_op = allocation ? yyjson_obj_get(lv4_term(allocation->block), "operation") : NULL;
+  if (!lv4_is(allocation_op, "kind", "new_box") || lv4_u(allocation_op, "object_id") != root->object_id) return 0;
+  if (!lv4_u(lv4_direct_layout(in, root->object_id), "field_count")) return 1;
+  size_t matches = 0; int completed = 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* term = lv4_term(fn->blocks[bi].block);
+    yyjson_val* op = yyjson_obj_get(term, "operation");
+    if (!lv4_is(op, "kind", "birth_call")) continue;
+    yyjson_val* call = yyjson_obj_get(op, "call");
+    if (lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(call, "receiver"))) != root) continue;
+    uint32_t target = lv4_u(call, "target"), normal = lv4_u(term, "normal");
+    if (!target || target >= in->index_count || !in->index[target].receiver_object_set ||
+        in->index[target].receiver_object != root->object_id || !lv4_is(in->index[target].function, "role", "birth_unit")) return 0;
+    matches++;
+    completed |= lv4_pred_count(fn, normal) == 1 && hako_physical_block_dominates(fn->function, normal, use);
+  }
+  return matches == 1 && completed;
+}
+
 static int lv4_readable_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
     uint32_t id, const hako_lv4_state* state, uint32_t use, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
+  if (!lv4_direct_initialized(in, fn, value, use)) return 0;
   if (value && value->kind == LV4_BORROWED_OBJECT)
     return lv4_slot_result_readable(in, fn, value, state, use, object, check_object);
   if (value && value->kind == LV4_SLOT_BORROW) {

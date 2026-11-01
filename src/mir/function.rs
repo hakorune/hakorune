@@ -18,7 +18,7 @@ mod object_definition;
 mod object_definition_membership;
 mod object_metadata;
 pub(crate) use object_definition::{
-    CanonicalObjectDefinitionV1, CanonicalObjectLayoutUnavailableV1, CanonicalObjectLayoutV1,
+    CanonicalObjectDefinitionV1, CanonicalObjectLayoutUnavailableV1, CanonicalObjectLayoutV1, DirectObjectPlacementV1,
     ObjectDestructionDispositionV1, ObjectDestructionUnavailableV1, ObjectLayoutUnavailableV1,
 };
 mod published_backend_view;

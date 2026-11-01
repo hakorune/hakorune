@@ -21,6 +21,24 @@ static unsigned owned_live_index(int64_t handle, int64_t type) {
 
 static unsigned init, stores, home, reclaim, report, dispose;
 static const char* mode;
+#ifdef HAKO_TEST_DIRECT_OBJECT
+static unsigned direct_attempts, direct_frees;
+static void* direct_payload;
+void* __real_malloc(size_t);
+void __real_free(void*);
+void* __wrap_malloc(size_t size) {
+  const char* expected = getenv("V4_PROBE_DIRECT_SIZE");
+  if (!mode || !expected || size != strtoul(expected, NULL, 10)) return __real_malloc(size);
+  ++direct_attempts;
+  if (getenv("V4_PROBE_DIRECT_OOM")) return NULL;
+  direct_payload = __real_malloc(size);
+  return direct_payload;
+}
+void __wrap_free(void* value) {
+  if (value && value == direct_payload) { ++direct_frees; direct_payload = NULL; }
+  __real_free(value);
+}
+#endif
 #ifdef HAKO_TEST_BORROWED_TEXT
 static unsigned text_ends, text_adds;
 #endif
@@ -30,6 +48,9 @@ static int64_t argv_handle;
 #endif
 static void counts(void) {
   printf("COUNTS %u %u %u %u %u %u\n", init, stores, home, reclaim, report, dispose);
+#ifdef HAKO_TEST_DIRECT_OBJECT
+  printf("DIRECT %u %u\n", direct_attempts, direct_frees);
+#endif
 #ifdef HAKO_TEST_BORROWED_TEXT
   printf("TEXT_ENDS %u\n", text_ends);
 #endif

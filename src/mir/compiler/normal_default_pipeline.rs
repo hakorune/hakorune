@@ -596,7 +596,9 @@ impl MirCompiler {
             self,
             request,
             |completed| completed.into_artifact_parts(),
-            |result, session, retained_root| {
+            |mut result, session, retained_root| {
+                let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
+                let direct_requested = profile_name.as_deref().is_some_and(|name| name.starts_with("direct_v0"));
                 let view = if selected_normal_admission {
                     published_backend_view::PublishedMirBackendView::try_new_selected_normal(
                         &result.module,
@@ -616,6 +618,9 @@ impl MirCompiler {
                     }
                     PublishedStaticMethodRouteV1::CanonicalTyped => {}
                     PublishedStaticMethodRouteV1::ExplicitCompatibility => {
+                        if direct_requested {
+                            return Err("[freeze:contract][direct-placement] canonical lifecycle route required".into());
+                        }
                         crate::mir::named_array_obligation::reject_unretained_module(
                             &result.module,
                         )?;
@@ -631,6 +636,19 @@ impl MirCompiler {
                 // The artifact callback consumes the same source-bound final
                 // verdict that gates publication. The compile result keeps its
                 // separate historical pre-transform report for normal callers.
+                let view = view.bind_finalized_root_handoff(retained_root.as_ref())?;
+                let applicable = view.route() == PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+                    && view.retained_script_array().is_none();
+                if !applicable && direct_requested {
+                    return Err("[freeze:contract][direct-placement] no canonical object artifact".into());
+                }
+                let selected_profile = if applicable {
+                    Some(published_backend_view::PublishedObjectStorageProfileV1::from_runtime_name(profile_name.as_deref())?)
+                } else { None };
+                drop(view);
+                if let Some(published_backend_view::PublishedObjectStorageProfileV1::DirectV0(names)) = &selected_profile {
+                    result.module.select_direct_object_placements(names)?;
+                }
                 let artifact_verification = super::MirVerifier::new_strict()
                     .verify_module_with_finalized_root(&result.module, retained_root.as_ref());
                 artifact_verification.as_ref().map_err(|errors| {
@@ -639,20 +657,11 @@ impl MirCompiler {
                 let prepared = session
                     .prepare_external_commit()
                     .map_err(|error| error.to_string())?;
-                let view = view.bind_finalized_root_handoff(retained_root.as_ref())?;
-                let selected_profile = if view.route()
-                    == PublishedStaticMethodRouteV1::UnsupportedBeforeObject
-                    && view.retained_script_array().is_none()
-                {
-                    let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
-                    Some(
-                        published_backend_view::PublishedObjectStorageProfileV1::from_runtime_name(
-                            profile_name.as_deref(),
-                        )?,
-                    )
-                } else {
-                    None
-                };
+                let view = if selected_normal_admission {
+                    published_backend_view::PublishedMirBackendView::try_new_selected_normal(&result.module)
+                } else { published_backend_view::PublishedMirBackendView::try_new(&result.module) }
+                    .map_err(|error| error.to_string())?
+                    .bind_finalized_root_handoff(retained_root.as_ref())?;
                 let view = match selected_profile.as_ref() {
                     Some(profile) => lifecycle_admission::admit_lifecycle(view, profile)?,
                     None => view,

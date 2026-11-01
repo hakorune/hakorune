@@ -403,38 +403,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%v%u = load i64, ptr %%ordinary_out, align 8\n", dst);
         else fprintf(f, "  %%v%u = load i64, ptr %%new%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
       } else if (lv4_is(ins, "op", "object_field_get")) {
-        if (lv4_object_residence(in, lv4_u(ins, "object_id"), lv4_u(ins, "field_ordinal"))) {
-          char base[32], out[32];
-          snprintf(base, sizeof(base), "%%v%u", lv4_u(ins, "base"));
-          snprintf(out, sizeof(out), "read%u", dst);
-          if (!lv4_emit_object_residence_read(f, in, lv4_u(ins, "object_id"),
-              lv4_u(ins, "field_ordinal"), base, out, "invalid")) return 0;
-          fprintf(f, "  %%v%u = load i64, ptr %%read%u, align 8\n", dst, dst);
-        } else {
-        fprintf(f,
-            "  %%get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%read%u)\n"
-            "  %%get_ok%u = icmp eq i32 %%get%u, 0\n"
-            "  br i1 %%get_ok%u, label %%step%u_%zu, label %%invalid\nstep%u_%zu:\n"
-            "  %%v%u = load i64, ptr %%read%u, align 8\n",
-            dst, in->profile, lv4_u(ins, "base"), (long long)lv4_type_id(in, ins), lv4_slot(in, ins), dst,
-            dst, dst, dst, b, ri, b, ri, dst, dst);
-        }
+        if (!lv4_emit_scalar_read(f, in, ins, dst, b, ri)) return 0;
       } else if (lv4_is(ins, "op", "field_set")) {
-        yyjson_val* check = yyjson_obj_get(ins, "exact_numeric_runtime_check");
-        unsigned long long site =
-            (unsigned long long)yyjson_get_uint(yyjson_obj_get(ins, "site"));
-        uint32_t fbase = lv4_u(ins, "base"), fstored = lv4_u(ins, "value");
-        if (lv4_is(check, "kind", "dynamic_integer_range"))
-          /* usize write lane: the i64 lane is in range exactly when it is
-             non-negative. The emitted branch is the range authority's own
-             lowering; a negative value is a semantic Fault at this row. */
-          lv4_emit_usize_field_range(f, b, ri, fstored, site, "fault");
-        fprintf(f,
-            "  %%set%u_%zu = call i32 @\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n"
-            "  switch i32 %%set%u_%zu, label %%invalid [ i32 0, label %%sd%u_%zu i32 1, label %%fault ]\nsd%u_%zu:\n",
-            b, ri, in->profile, site, fbase,
-            (long long)lv4_type_id(in, ins), lv4_slot(in, ins), fstored,
-            b, ri, b, ri, b, ri);
+        if (!lv4_emit_scalar_write(f, in, ins, dst, b, ri)) return 0;
       } else if (lv4_is(ins, "op", "array_set")) {
         uint32_t sarray = lv4_u(ins, "array"), sindex = lv4_u(ins, "index"),
             svalue = lv4_u(ins, "value");
@@ -697,19 +668,23 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         }
         fprintf(f, ")\n");
       } else if (lv4_is(op, "kind", "new_box")) {
-        fprintf(f, "@\"nyash.object.checked_new_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %lld, ptr @hako_lifecycle_layout_%u, i64 %u, ptr %%new%u)\n",
-            in->profile, site, (long long)lv4_type_id(in, op), lv4_u(op, "object_id"),
-            lv4_u(lv4_layout(in, lv4_u(op, "object_id")), "field_count"), b);
+        lv4_emit_object_allocation_call(f, in, op, site, b);
       } else if (lv4_is(op, "kind", "object_field_borrow")) {
         fprintf(f, "@\"nyash.object.checked_object_field_borrow_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %lld, i32 %u, ptr %%field_read%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op),
             (long long)lv4_u(lv4_layout(in, lv4_u(op, "expected_object_id")), "runtime_type_id"),
             yyjson_get_bool(yyjson_obj_get(op, "nullable")) ? 1u : 0u, b);
       } else if (lv4_is(op, "kind", "field_get")) {
-        fprintf(f, "@\"nyash.object.checked_field_get_fallible_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, ptr %%field_read%u)\n",
+        if (lv4_direct_layout(in, lv4_u(op, "object_id"))) {
+          fprintf(f, "@hako_direct_get_checked(i64 %%v%u, i64 %llu, ptr %%field_read%u)\n", lv4_u(op, "base"),
+              (unsigned long long)lv4_direct_offset(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal")), b);
+        } else fprintf(f, "@\"nyash.object.checked_field_get_fallible_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, ptr %%field_read%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), b);
       } else if (lv4_is(op, "kind", "field_set")) {
-        fprintf(f, "@\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n",
+        if (lv4_direct_layout(in, lv4_u(op, "object_id"))) {
+          fprintf(f, "@hako_direct_set(i64 %%v%u, i64 %%v%u, i64 %llu)\n", lv4_u(op, "base"), lv4_u(op, "value"),
+              (unsigned long long)lv4_direct_offset(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal")));
+        } else fprintf(f, "@\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), lv4_u(op, "value"));
         /* A handle-valued store consumes the lease on both edges: the
            kernel only validates and writes the slot, so a faulted store
@@ -735,6 +710,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
            child's Home — is the sole physical owner of the in-flight
            cleanup. No inline discharge here. */
       } else {
+        if (lv4_direct_layout(in, lv4_u(op, "object_id"))) {
+          fprintf(f, "@hako_direct_release_%u(i64 %%v%u)\n", lv4_u(op, "object_id"), lv4_u(op, "value"));
+        } else
         fprintf(f, "@\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n",
             lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live")
                 ? (lv4_layout_dynamic(lv4_layout(in, lv4_u(op, "object_id")))
@@ -809,6 +787,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
   lv4_shared_globals(f, in);
   lv4_carrier_array_globals(f, in);
   lv4_object_layout_globals(f, in);
+  lv4_direct_globals(f, in);
   /* Complete End symbols cover plain and marked admitted layouts. Recursive
      child calls resolve in this module; no runtime class inference is used. */
   for (size_t li = 0; li < in->layout_count; li++)

@@ -9,9 +9,19 @@ fn releasable(module: &MirModule, object: CanonicalObjectIdV1) -> bool {
         .is_some_and(|row| row.destruction_disposition().has_no_hook())
 }
 
+pub(super) fn check_placements(module: &MirModule) -> Result<(), String> {
+    for definition in module.canonical_object_definitions().into_iter().flatten() {
+        if definition.direct_placement().is_some_and(|plan| !plan.matches_definition(definition)) {
+            return Err("[freeze:contract][direct-placement] descriptor/source layout mismatch".into());
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn check(module: &MirModule, object: CanonicalObjectIdV1, end: &[Step]) -> bool {
     if !releasable(module, object) { return false; }
     let definition = module.canonical_object_definition(object).expect("checked above");
+    if definition.direct_placement().is_some_and(|plan| !plan.matches_definition(definition)) { return false; }
     let mut required = Vec::new();
     for (ordinal, row) in definition.fields().iter().enumerate() {
         if row.is_weak { continue; }

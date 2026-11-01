@@ -66,6 +66,32 @@ fn owned_object_layout_keeps_ignored_null_only_declared_parent() {
             }
         }
     });
+    // Direct placement preserves the original declaration/slot plan and has
+    // a distinct wire ABI, while unselected runtime stores remain v1.
+    crate::test_support::with_env_vars(
+        &[("NYASH_MACRO_DISABLE", Some("1")), ("HAKO_TYPED_OBJECT_STORE", Some("direct_v0:Pair"))],
+        || {
+            let source = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-move-min/main.hako"));
+            for update in [false, true] {
+                let source = if update {
+                    source.replace("return me.left + me.right", "me.left = me.left + 1\nreturn me.left + me.right")
+                } else { source.to_owned() };
+                MirCompiler::with_options(false).compile_normal_with_published(
+                    request(&source),
+                    |view, verification| -> Result<(), String> {
+                        assert!(verification.is_ok(), "final artifact verification: {verification:?}");
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        assert!(matches!(input.runtime_requirements(), crate::mir::PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile: 1 }));
+                        let wire = emit_lifecycle_physical_abi_json(&input)?;
+                        let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                        assert_eq!(json["storage_profile"], 3);
+                        assert_eq!(json["layouts"][0]["placement"]["kind"], "direct_v0");
+                        std::fs::write(std::env::temp_dir().join(format!("hako-issued-direct-scalar-update{update}.json")), wire).unwrap();
+                        Ok(())
+                    }).unwrap();
+            }
+        },
+    );
 }
 
 #[test]

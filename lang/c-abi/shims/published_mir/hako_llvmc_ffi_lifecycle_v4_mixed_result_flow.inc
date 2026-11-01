@@ -64,6 +64,8 @@ static int lv4_complete_end_body(const hako_lv4_input* in, yyjson_val* op) {
   yyjson_val* end = yyjson_obj_get(op, "end");
   size_t na = yyjson_arr_size(arrays), no = yyjson_arr_size(objects), at = 0;
   if (!layout || !yyjson_is_arr(end)) return 0;
+  if (lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+      (!hako_physical_direct_layout(layout) || !yyjson_equals(end, yyjson_obj_get(yyjson_obj_get(layout, "placement"), "end")))) return 0;
   for (size_t remaining = yyjson_arr_size(fields); remaining > 0;) {
     uint32_t ordinal = (uint32_t)--remaining;
     int array = na && yyjson_get_uint(yyjson_arr_get(arrays, na - 1)) == ordinal;
