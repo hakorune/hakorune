@@ -5,6 +5,7 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
+- 所有step 2 受理拡張の途中: field alias の元Copyを既存finishing境界へ渡し、削除は元のdead coneと最終未使用を照合。再現入力はCopy拒否を越えてpublished lifecycleのbranch検証で停止、型付きTreeNodeは`source-not-i64`で未完。`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtimeで固定suite 8/8、19形のコード・exit一致、cohort失敗名115件一致、既存Copy/field alias test 12件PASS。production +47/−13行、test 0行。純増分はfield readと借用Copyのfinishing照合統合時に整理する。
 - 所有step 1 S1: Rust/Hakoの`move` source形とregistry・corpus・witnessを追加、未接続のHome移転は名前付き拒否。Rust正負6例・focused test・生成projection・Python witness PASS、最適化`target/quick/hakorune`と`target/quick` runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。Rust/Hako production +119行、test/corpus/witness +77行。後続の接続状況は下記。静的substrate guardは基点からのquick-reference naming不整合で停止。
 - Hako parser実行parity: HEADの既存経路が使えない（vm-reference無効＋`ParserBox.add_using`のloop拒否）ため、move fixturesはHako実行経路が戻った時に同じgateで確認する（maintainer判断、固定suiteのSKIPではない）。
 - 所有step 1 S2–S5部分: 同一scopeのNew由来Homeを移転し、実MIRの取得・Birth/Fault・Endをpublished側のownership SSAで再検証。`ownership-move-min`は正規EXEでexit 30、移転後使用・二重moveとMIR改変は拒否。`cargo quick-build --bin hakorune`の`target/quick/hakorune`と`target/quick` runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。Rust production +615/−57、test +176/−1、app +23・smoke +1行。純増の退役条件は旧local plannerの安全責務を後継へ移したS6。Shared(S7)は下記。

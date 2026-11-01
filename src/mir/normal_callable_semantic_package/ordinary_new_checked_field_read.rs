@@ -324,12 +324,18 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| Ok(Some(binding.clone())))
+        self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| Ok(Some(binding.clone())), |(_, copy)| {
+            if function.blocks.values().flat_map(|block| block.all_instructions()).filter(|i| *i == copy).count() != 1 {
+                return Err(fault("alias/finished-copy-missing-or-duplicate"));
+            }
+            Ok(())
+        })
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn validate_field_reads_with_projection_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction, context: CallValidationContextV1<'_>,
         mut project: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<Option<(BasicBlockId, MirInstruction)>, String>,
+        mut project_copy: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<(), String>,
     ) -> Result<(), String> {
         let reads = self.field_reads.borrow();
         let mut expected = Vec::new();
@@ -392,7 +398,7 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(fault("source-descriptor-drift"));
             }
-            if let Some(local) = &row.local { local.validate_function(function, row)?; }
+            if let Some(local) = &row.local { local.validate_function(row, &mut project_copy)?; }
             expected.push((*block, instruction));
         }
         let array_destinations: BTreeSet<_> = expected.iter().filter_map(|(_, instruction)| match instruction {

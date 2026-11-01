@@ -444,7 +444,8 @@ impl OrdinaryNewClaimLedgerV1 {
             (self.lifecycle_bindings(owner)?, None)
         };
         let copies = self.source_local_copies(owner)?;
-        let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
+        let mut aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
+        aliases.extend(self.field_alias_copy_bindings_v1(owner)?);
         let mut source_phi_roles: std::collections::BTreeMap<_, _> = self
             .recorded_loop_cond_after_blocks(owner, function, &bindings)?
             .into_iter()

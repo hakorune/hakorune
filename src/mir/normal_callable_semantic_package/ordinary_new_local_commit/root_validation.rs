@@ -46,7 +46,8 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_root_cleanup_shape(owner, function)?;
         let bindings = self.lifecycle_bindings(owner)?;
         let copies = self.source_local_copies(owner)?;
-        let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
+        let mut aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
+        aliases.extend(self.field_alias_copy_bindings_v1(owner)?);
         let source_phi_roles = self.recorded_loop_cond_after_blocks(owner, function, &bindings)?
             .into_iter().map(|(block, phis)| (block, (phis, None))).collect();
         let boundary = super::physical_boundary::PhysicalBoundary::capture_with_source_loop_roles_v2(
@@ -93,7 +94,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // projection, including its exact dead-producer omissions.
             boundary.validate_complete(function, &mut projection, &bindings)?;
             self.validate_new_emissions_projected(owner, function, Some(&projection))?;
-            self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| projection.binding(binding.0, &binding.1))?;
+            self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| projection.binding(binding.0, &binding.1), |copy| projection.borrowed_copy_coordinate(function, copy).map(|_| ()))?;
             self.validate_terminal_scalar_literal_return_projected(owner, function, Some(&projection))?;
             self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
             self.validate_terminal_i64_add_return_projected(owner, function, Some(&projection))?;
@@ -184,6 +185,9 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_root_home_exit(owner, function, projection)?;
         self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| match projection {
             Some(projection) => projection.binding(binding.0, &binding.1), None => Ok(Some(binding.clone())),
+        }, |copy| match projection {
+            Some(projection) => projection.borrowed_copy_coordinate(function, copy).map(|_| ()),
+            None => if function.blocks.values().flat_map(|block| block.all_instructions()).filter(|i| *i == &copy.1).count() == 1 { Ok(()) } else { Err(freeze("alias/finished-copy-missing-or-duplicate")) },
         })?;
         self.validate_terminal_i64_add_return_projected(owner, function, projection)?;
         self.validate_terminal_scalar_literal_return_projected(owner, function, projection)?;

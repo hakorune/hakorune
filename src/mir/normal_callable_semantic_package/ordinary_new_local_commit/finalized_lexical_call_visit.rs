@@ -110,8 +110,12 @@ impl FinalizedRootSourceHandoffV1 {
                         .functions
                         .get(&symbol)
                         .ok_or_else(|| freeze("final-call-visit/function-missing"))?;
-                    self.ledger
-                        .validate_field_alias_function_v1(node.call_site(), function)?;
+                    self.ledger.with_finished_projection(owner, |finished_symbol, projection| {
+                        if finished_symbol != symbol { return Err(freeze("final-call-visit/function-mismatch")); }
+                        self.ledger.validate_field_alias_function_v1(node.call_site(), function, |original| {
+                            projection.borrowed_copy_coordinate(function, original).map(|_| ())
+                        })
+                    })?;
                     let coordinate = context.finished_binding_v1(
                         self, owner, node.call_site(), node.invoke_binding(), function, false,
                     )?;

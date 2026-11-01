@@ -27,18 +27,36 @@ impl FieldAliasLocalV1 {
             } { return Err(fault("alias/local-correspondence")); }
         Ok(())
     }
-    pub(super) fn validate_function(&self, function: &MirFunction, row: &LocalFieldRead) -> Result<(), String> {
+    pub(super) fn validate_function(
+        &self, row: &LocalFieldRead,
+        project_copy: &mut impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
         self.corroborate(row)?;
-        if let Some((_, copy)) = &self.copy {
-            if function.blocks.values().flat_map(|block| block.all_instructions()).filter(|i| *i == copy).count() != 1 {
-                return Err(fault("alias/finished-copy-missing-or-duplicate"));
-            }
+        if let Some(copy) = &self.copy {
+            project_copy(copy)?;
         }
         Ok(())
     }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Capture each original field-alias Copy in its owner's finishing boundary.
+    pub(in crate::mir) fn field_alias_copy_bindings_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let rows = self.local_field_reads.borrow();
+        let mut copies = Vec::new();
+        for (site, row) in rows.iter().filter(|(site, _)| site.owner() == owner) {
+            let Some(local) = &row.local else { continue };
+            local.corroborate(row)?;
+            if local.relation.binding().owner() != owner
+                || local.relation.initializer_site() != Some(site.site()) {
+                return Err(fault("alias/local-owner-or-site"));
+            }
+            copies.extend(local.copy.iter().cloned());
+        }
+        Ok(copies)
+    }
     /// A stored child may borrow the caller's original instance receiver.
     /// Local New parents still owe their live Home; an equal object class is
     /// never a substitute for the original incoming and receiver lane.
@@ -116,6 +134,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// function, not just the saved draft/finishing image.
     pub(crate) fn validate_field_alias_function_v1(
         &self, site: &OwnedExprSiteV1, function: &MirFunction,
+        mut project_copy: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<(), String>,
     ) -> Result<(), String> {
         let call = self.handle_call_source(site)
             .or_else(|| self.nullable_call_source(site))
@@ -126,7 +145,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for (_, request) in &path.edges {
             let row = rows.get(&request.site).ok_or_else(|| fault("alias/final-read-missing"))?;
             let local = row.local.as_ref().ok_or_else(|| fault("alias/final-local-missing"))?;
-            local.validate_function(function, row)?;
+            local.validate_function(row, &mut project_copy)?;
             let LocalReadProgress::Emitted { instruction, .. } = &row.progress
                 else { return Err(fault("alias/final-read-not-emitted")); };
             if function.blocks.values().flat_map(|block| block.all_instructions()).filter(|i| *i == instruction).count() != 1 {
