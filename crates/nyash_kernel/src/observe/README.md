@@ -36,3 +36,12 @@ Do not let a sink, test, or call site become a second owner of snapshot layout.
 - Do not add new env gates outside `config.rs`.
 - `perf-observe` counters are evidence only; they must not steer runtime
   semantics.
+
+Object storage lifecycle (`object.storage`) observes payload allocation success,
+each node's final End consumption, payload drop/free, and unpublished reclaim
+separately for slot store and direct placement. Slot-store payload drop does not
+promise that the registry Vec's backing capacity or RSS is returned to the OS.
+The C event ABI is `include/nyrt_observe_v1.h`; unknown events are no-ops.
+Counts require `perf-observe` and `NYASH_PERF_COUNTERS=1` at both compile and
+execution time. Wall/RSS runs disable observation at both stages and are separate
+from count validation. No object identity is kept.

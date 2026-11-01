@@ -8,6 +8,9 @@ macro_rules! tls_flush_fields {
 
 impl ThreadCounters {
     fn flush_into_global(&self) {
+        for (local, global) in self.object_storage.iter().zip(&GLOBAL.object_storage) {
+            flush_cell(local, global);
+        }
         tls_flush_fields!(self, GLOBAL, [
             store_array_str_total,
             store_array_str_cache_hit,

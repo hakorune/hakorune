@@ -711,7 +711,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
            cleanup. No inline discharge here. */
       } else {
         if (lv4_direct_layout(in, lv4_u(op, "object_id"))) {
-          fprintf(f, "@hako_direct_release_%u(i64 %%v%u)\n", lv4_u(op, "object_id"), lv4_u(op, "value"));
+          lv4_emit_direct_release_call(f, in, op);
         } else
         fprintf(f, "@\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n",
             lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live")

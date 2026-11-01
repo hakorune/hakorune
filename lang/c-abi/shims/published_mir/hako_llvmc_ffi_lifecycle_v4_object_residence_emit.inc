@@ -1,3 +1,5 @@
+#include "../../../../include/nyrt_observe_v1.h"
+
 /* Storage for the same admitted owning-field tuple. This projection issues
  * no source capability: Birth/flow already checked the original field edge.
  * Null/Fresh is the existing cohort; Forward remains unadmitted here. */
@@ -93,10 +95,29 @@ static int lv4_emit_object_residence_store(FILE* f, const hako_lv4_input* in,
   return !ferror(f);
 }
 
+/* Emission-only observation, frozen once with this invocation. Disabled
+ * instrumentation contributes no call or parameter to the generated program. */
+static const char* lv4_direct_event_ir(const hako_lv4_input* in, unsigned event) {
+  static const char* const events[] = {
+    "  call void @\"nyash.observe.object_storage_event_v1\"(i32 1, i32 0)\n",
+    "  call void @\"nyash.observe.object_storage_event_v1\"(i32 1, i32 1)\n",
+    "  call void @\"nyash.observe.object_storage_event_v1\"(i32 1, i32 2)\n",
+    "  call void @\"nyash.observe.object_storage_event_v1\"(i32 1, i32 3)\n",
+  };
+  return in->observe_objects && event < 4 ? events[event] : "";
+}
+static void lv4_emit_direct_release_call(FILE* f, const hako_lv4_input* in, yyjson_val* op) {
+  fprintf(f, "@hako_direct_release_%u(i64 %%v%u", lv4_u(op, "object_id"), lv4_u(op, "value"));
+  if (in->observe_objects) fprintf(f, ", i32 %u", lv4_is(op, "kind", "reclaim_unpublished")
+      ? NYRT_OBSERVE_RECLAIM : NYRT_OBSERVE_END);
+  fprintf(f, ")\n");
+}
+
 /* Direct words contain native addresses only. They never enter runtime handle
  * calls; admission rejects unimplemented payload/opaque boundaries. */
 static void lv4_direct_globals(FILE* f, const hako_lv4_input* in) {
   if (!in->direct) return;
+  if (in->observe_objects) fprintf(f, "declare void @\"nyash.observe.object_storage_event_v1\"(i32, i32)\n");
   fprintf(f, "declare ptr @malloc(i64)\ndeclare void @free(ptr)\n"
       "define internal i64 @hako_direct_get(i64 %%word, i64 %%offset) alwaysinline {\nentry:\n"
       "  %%base = inttoptr i64 %%word to ptr\n  %%slot = getelementptr i8, ptr %%base, i64 %%offset\n"
@@ -135,14 +156,16 @@ static void lv4_direct_globals(FILE* f, const hako_lv4_input* in) {
         "  %%allocation = call ptr @malloc(i64 %%size)\n  %%failed = icmp eq ptr %%allocation, null\n"
         "  br i1 %%failed, label %%allocation_fault, label %%allocated\nallocation_fault:\n"
         "  %%fault = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 100, i64 %%site, i64 0, i64 0)\n"
-        "  ret i32 %%fault\nallocated:\n"
+        "  ret i32 %%fault\nallocated:\n%s"
         "  store ptr null, ptr %%allocation, align 8\n"
         "  %%cursor = getelementptr i8, ptr %%allocation, i64 8\n  store i64 %llu, ptr %%cursor, align 8\n"
         "  %%word = ptrtoint ptr %%allocation to i64\n  store i64 %%word, ptr %%out, align 8\n  ret i32 0\n}\n"
-        "define internal i32 @hako_direct_release_%u(i64 %%word) {\nentry:\n"
-        "  %%allocation = inttoptr i64 %%word to ptr\n  call void @free(ptr %%allocation)\n  ret i32 0\n}\n",
-        id, (unsigned long long)size, id, count, id, id, id, id,
-        (unsigned long long)(((uint64_t)id << 32) | count), id);
+        "define internal i32 @hako_direct_release_%u(i64 %%word%s) {\nentry:\n"
+        "  %%allocation = inttoptr i64 %%word to ptr\n%s  call void @free(ptr %%allocation)\n%s  ret i32 0\n}\n",
+        id, (unsigned long long)size, id, count, id, id, id, id, lv4_direct_event_ir(in, NYRT_OBSERVE_ALLOC),
+        (unsigned long long)(((uint64_t)id << 32) | count), id, in->observe_objects ? ", i32 %event" : "",
+        in->observe_objects ? "  call void @\"nyash.observe.object_storage_event_v1\"(i32 1, i32 %event)\n" : "",
+        lv4_direct_event_ir(in, NYRT_OBSERVE_FREE));
   }
 }
 

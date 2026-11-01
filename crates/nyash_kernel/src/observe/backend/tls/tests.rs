@@ -17,8 +17,23 @@ macro_rules! assert_counter_delta {
 
 #[test]
 fn tls_snapshot_length_is_owned_by_observe_contract() {
-    let snapshot = snapshot();
-    assert_eq!(snapshot.len(), contract::SNAPSHOT_COUNTER_LEN);
+    with_env_var("NYASH_PERF_COUNTERS", "1", || {
+        let _guard = test_lock().lock().expect("observe test lock");
+        let before = snapshot();
+        for representation in 0..2 { for event in 0..4 {
+            for _ in 0..(representation * 4 + event + 1) {
+                crate::observe::record_object_storage_event(representation, event);
+            }
+        }}
+        let after = snapshot();
+        assert_eq!(after.len(), contract::SNAPSHOT_COUNTER_LEN);
+        for (index, field) in contract::OBJECT_STORAGE_SUMMARY_FIELDS.iter().enumerate() {
+            assert_counter_delta!(after, before, field, index as u64 + 1);
+        }
+        crate::observe::record_object_storage_event(2, 0);
+        crate::observe::record_object_storage_event(0, 4);
+        assert_eq!(snapshot(), after, "unknown observation events are inert");
+    });
 }
 
 #[test]

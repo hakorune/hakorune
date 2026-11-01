@@ -1,5 +1,3 @@
-use super::snapshot::SnapshotCounterField;
-
 pub(crate) const STORE_ARRAY_STR: &str = "store.array.str";
 pub(crate) const CONST_SUFFIX: &str = "const_suffix";
 pub(crate) const BIRTH_PLACEMENT: &str = "birth.placement";
@@ -268,7 +266,9 @@ pub(crate) struct SnapshotCounterField {
 ///
 /// Counter names, snapshot indexes, and the snapshot length live in this module
 /// so backends and tests do not carry separate raw registration facts.
-pub(crate) const SNAPSHOT_COUNTER_LEN: usize = 153;
+pub(crate) const OBJECT_STORAGE: &str = "object.storage";
+pub(crate) const OBJECT_STORAGE_SNAPSHOT_BASE: usize = 153;
+pub(crate) const SNAPSHOT_COUNTER_LEN: usize = OBJECT_STORAGE_SNAPSHOT_BASE + 8;
 
 impl SnapshotCounterField {
     pub(crate) const fn new(name: &'static str, snapshot_index: usize) -> Self {

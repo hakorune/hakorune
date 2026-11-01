@@ -271,9 +271,9 @@ static void lv4_emit_direct_end(FILE* f, const hako_lv4_input* in) {
       "  %%child_start = or i64 %%child_high, %%child_count64\n"
       "  %%child_cursor = getelementptr i8, ptr %%child_node, i64 8\n  store i64 %%child_start, ptr %%child_cursor, align 8\n"
       "  store ptr %%child_node, ptr %%current, align 8\n  br label %%walk\npop:\n"
-      "  %%parent = load ptr, ptr %%node, align 8\n  call void @free(ptr %%node)\n"
+      "  %%parent = load ptr, ptr %%node, align 8\n%s  call void @free(ptr %%node)\n%s"
       "  store ptr %%parent, ptr %%current, align 8\n  %%finished = icmp eq ptr %%parent, null\n"
-      "  br i1 %%finished, label %%done, label %%walk\ndone:\n  ret i32 0\ninvalid:\n  call void @llvm.trap()\n  unreachable\n}\n");
+      "  br i1 %%finished, label %%done, label %%walk\ndone:\n  ret i32 0\ninvalid:\n  call void @llvm.trap()\n  unreachable\n}\n", lv4_direct_event_ir(in, NYRT_OBSERVE_END), lv4_direct_event_ir(in, NYRT_OBSERVE_FREE));
 }
 
 /* Source-admitted complete End helpers in the lifecycle-v4 emitter. */

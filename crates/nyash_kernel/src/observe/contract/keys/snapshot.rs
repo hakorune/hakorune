@@ -214,3 +214,15 @@ pub(crate) const BORROWED_ALIAS_SUMMARY_FIELDS: [SnapshotCounterField; 23] = [
     BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX_FIELD,
     BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY_FIELD,
 ];
+
+/// Stable event order: store then direct, allocation/End/free/reclaim.
+pub(crate) const OBJECT_STORAGE_SUMMARY_FIELDS: [SnapshotCounterField; 8] = [
+    SnapshotCounterField::new("store_alloc", OBJECT_STORAGE_SNAPSHOT_BASE + 0),
+    SnapshotCounterField::new("store_end", OBJECT_STORAGE_SNAPSHOT_BASE + 1),
+    SnapshotCounterField::new("store_free", OBJECT_STORAGE_SNAPSHOT_BASE + 2),
+    SnapshotCounterField::new("store_reclaim", OBJECT_STORAGE_SNAPSHOT_BASE + 3),
+    SnapshotCounterField::new("direct_alloc", OBJECT_STORAGE_SNAPSHOT_BASE + 4),
+    SnapshotCounterField::new("direct_end", OBJECT_STORAGE_SNAPSHOT_BASE + 5),
+    SnapshotCounterField::new("direct_free", OBJECT_STORAGE_SNAPSHOT_BASE + 6),
+    SnapshotCounterField::new("direct_reclaim", OBJECT_STORAGE_SNAPSHOT_BASE + 7),
+];

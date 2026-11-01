@@ -260,7 +260,9 @@ pub unsafe extern "C" fn reclaim(
     handle: i64,
     type_id: i64,
 ) -> u32 {
-    unsafe { release(storage, profile, site, handle, type_id) }
+    let status = unsafe { release(storage, profile, site, handle, type_id) };
+    if status == Status::Normal as u32 { crate::observe::object_storage_event(0, 3); }
+    status
 }
 
 /// Caller must carry published PlainI64NoHook destruction admission. Slot tags
@@ -273,7 +275,9 @@ pub unsafe extern "C" fn home_release(
     handle: i64,
     type_id: i64,
 ) -> u32 {
-    unsafe { release(storage, profile, site, handle, type_id) }
+    let status = unsafe { release(storage, profile, site, handle, type_id) };
+    if status == Status::Normal as u32 { crate::observe::object_storage_event(0, 1); }
+    status
 }
 
 /// Outer-only completion of the SAME source End: every field drain was
@@ -284,7 +288,9 @@ pub unsafe extern "C" fn home_release(
 pub unsafe extern "C" fn home_release_completed_fields(
     storage: *mut c_void, profile: u32, site: u64, handle: i64, type_id: i64,
 ) -> u32 {
-    unsafe { release(storage, profile, site, handle, type_id) }
+    let status = unsafe { release(storage, profile, site, handle, type_id) };
+    if status == Status::Normal as u32 { crate::observe::object_storage_event(0, 1); }
+    status
 }
 
 use super::checked_map::storage::{

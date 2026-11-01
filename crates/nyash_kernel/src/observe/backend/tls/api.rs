@@ -348,5 +348,23 @@ pub(crate) fn snapshot() -> [u64; crate::observe::contract::SNAPSHOT_COUNTER_LEN
         load!(store_array_str_update_text_resident_miss),
         load!(store_array_str_update_text_fallback_hit),
         load!(store_array_str_update_text_fallback_miss),
+        GLOBAL.object_storage[0].load(Ordering::Relaxed),
+        GLOBAL.object_storage[1].load(Ordering::Relaxed),
+        GLOBAL.object_storage[2].load(Ordering::Relaxed),
+        GLOBAL.object_storage[3].load(Ordering::Relaxed),
+        GLOBAL.object_storage[4].load(Ordering::Relaxed),
+        GLOBAL.object_storage[5].load(Ordering::Relaxed),
+        GLOBAL.object_storage[6].load(Ordering::Relaxed),
+        GLOBAL.object_storage[7].load(Ordering::Relaxed),
     ]
+}
+
+/// Two representations, four lifecycle events; no pointer/identity is retained.
+pub(crate) fn object_storage_event(representation: u32, event: u32) {
+    if representation < 2 && event < 4 {
+        with_tls(|tls| {
+            let counter = &tls.object_storage[(representation * 4 + event) as usize];
+            counter.set(counter.get().saturating_add(1));
+        });
+    }
 }

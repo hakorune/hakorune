@@ -21,6 +21,10 @@ macro_rules! tls_bump_method {
 }
 
 impl ThreadCounters {
+    // The early fresh-handle path bypasses the ordinary enter hook.
+    tls_bump_total_and_unit_method! {
+        str_len_route_latest_fresh_handle_fast_str_hit => str_len_route_total, str_len_route_latest_fresh_handle_fast_str_hit,
+    }
     tls_bump_total_method! {
         str_concat2_route_enter => str_concat2_route_total,
         str_len_route_enter => str_len_route_total,
@@ -39,7 +43,6 @@ impl ThreadCounters {
         str_len_route_fast_str_hit => str_len_route_fast_str_hit,
         str_len_route_fallback_hit => str_len_route_fallback_hit,
         str_len_route_miss => str_len_route_miss,
-        str_len_route_latest_fresh_handle_fast_str_hit => str_len_route_latest_fresh_handle_fast_str_hit,
         str_len_route_latest_fresh_handle_fallback_hit => str_len_route_latest_fresh_handle_fallback_hit,
         str_substring_route_view_arc_cache_handle_hit => str_substring_route_view_arc_cache_handle_hit,
         str_substring_route_view_arc_cache_reissue_hit => str_substring_route_view_arc_cache_reissue_hit,

@@ -8,6 +8,7 @@ pub(crate) enum CacheProbeKind {
 macro_rules! tls_atomic_zero_fields {
     ($($field:ident),+ $(,)?) => {
         Self {
+            object_storage: [const { AtomicU64::new(0) }; 8],
             $(
                 $field: AtomicU64::new(0),
             )+
@@ -18,6 +19,7 @@ macro_rules! tls_atomic_zero_fields {
 macro_rules! tls_cell_zero_fields {
     ($($field:ident),+ $(,)?) => {
         Self {
+            object_storage: [const { Cell::new(0) }; 8],
             $(
                 $field: Cell::new(0),
             )+
@@ -26,6 +28,7 @@ macro_rules! tls_cell_zero_fields {
 }
 
 struct GlobalCounters {
+    object_storage: [AtomicU64; 8],
     store_array_str_total: AtomicU64,
     store_array_str_cache_hit: AtomicU64,
     store_array_str_cache_miss_handle: AtomicU64,
@@ -319,6 +322,8 @@ impl GlobalCounters {
             birth_backend_publish_reason_explicit_api,
             birth_backend_site_string_concat_hh_materialize_owned_total,
             birth_backend_site_string_concat_hh_materialize_owned_bytes,
+            birth_backend_site_string_substring_concat_hhii_materialize_owned_total,
+            birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes,
             birth_backend_site_string_concat_hh_objectize_box_total,
             birth_backend_site_string_concat_hh_publish_handle_total,
             birth_backend_site_string_substring_concat_hhii_objectize_box_total,
@@ -342,6 +347,7 @@ impl GlobalCounters {
 static GLOBAL: GlobalCounters = GlobalCounters::new();
 
 struct ThreadCounters {
+    object_storage: [Cell<u64>; 8],
     store_array_str_total: Cell<u64>,
     store_array_str_cache_hit: Cell<u64>,
     store_array_str_cache_miss_handle: Cell<u64>,
@@ -501,6 +507,7 @@ struct ThreadCounters {
 impl ThreadCounters {
     const fn new() -> Self {
         Self {
+            object_storage: [const { Cell::new(0) }; 8],
             store_array_str_total: Cell::new(0),
             store_array_str_cache_hit: Cell::new(0),
             store_array_str_cache_miss_handle: Cell::new(0),

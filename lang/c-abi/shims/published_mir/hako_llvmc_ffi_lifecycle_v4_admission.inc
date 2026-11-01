@@ -4,6 +4,7 @@ typedef struct {
   uint32_t profile;
   int native;
   int direct;
+  int observe_objects;
   uint64_t result_site;
   struct hako_lv4_function_index* index;
   size_t index_count;
@@ -426,6 +427,9 @@ static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
   out->result_site = yyjson_get_uint(yyjson_obj_get(root, "process_result_site"));
   out->profile = lv4_u(root, "storage_profile");
   out->direct = out->profile == 3;
+  const char* observe = getenv("NYASH_PERF_COUNTERS");
+  out->observe_objects = observe && (!strcmp(observe, "1") || !strcmp(observe, "on") ||
+      !strcmp(observe, "true") || !strcmp(observe, "yes"));
   if (out->direct) out->profile = 1; /* Explicit fallback store for unselected IDs, never selected pointers. */
   result = out->native ? lv4_native_admit(out) : lv4_indexed_admit(out, error);
   if (result) {

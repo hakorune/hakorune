@@ -186,3 +186,6 @@ noop_bool_fns1!(len_route_matches_latest_fresh_handle: i64);
 pub(crate) fn flush() {}
 
 // Note: perf-observe is compiled out in this mode, so these helpers intentionally do nothing.
+
+#[inline(always)]
+pub(crate) fn object_storage_event(_: u32, _: u32) {}

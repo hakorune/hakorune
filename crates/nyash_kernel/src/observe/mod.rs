@@ -61,3 +61,10 @@ pub(crate) fn flush_trace() {
 
 #[cfg(not(feature = "perf-trace"))]
 pub(crate) fn flush_trace() {}
+
+/// Observation only. See include/nyrt_observe_v1.h for the fixed event encoding.
+/// Unknown events are ignored; no program value or ownership is changed.
+#[export_name = "nyash.observe.object_storage_event_v1"]
+pub extern "C" fn record_object_storage_event(representation: u32, event: u32) {
+    real::object_storage_event(representation, event);
+}

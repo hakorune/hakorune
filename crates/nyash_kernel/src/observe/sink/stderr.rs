@@ -2,17 +2,25 @@ use super::super::backend;
 use super::super::contract;
 use std::fmt::Write as _;
 
+fn append_counter_value(line: &mut String, name: &str, value: u64) {
+    let _ = write!(line, " {}={}", name, value);
+}
+
 fn append_counter_values(
     line: &mut String,
     values: impl IntoIterator<Item = contract::SnapshotCounterValue>,
 ) {
     for value in values {
-        let _ = write!(line, " {}={}", value.name, value.value);
+        append_counter_value(line, value.name, value.value);
     }
 }
 
 pub(crate) fn emit_summary_to_stderr() {
     let snapshot = backend::snapshot();
+    let mut object_line = format!("[perf/counter][{}]", contract::OBJECT_STORAGE);
+    append_counter_values(&mut object_line, contract::OBJECT_STORAGE_SUMMARY_FIELDS.into_iter().map(|field|
+        contract::SnapshotCounterValue { name: field.name, value: field.read(&snapshot) }));
+    eprintln!("{}", object_line);
     let str_concat2_classified = contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.read(&snapshot)
         + contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE_FIELD.read(&snapshot)
         + contract::STR_CONCAT2_ROUTE_SPAN_FREEZE_FIELD.read(&snapshot)

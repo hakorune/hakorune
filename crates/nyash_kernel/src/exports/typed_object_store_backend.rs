@@ -329,6 +329,7 @@ fn allocate_indexed(type_id: i64, layout: impl ExactSizeIterator<Item = TypedSlo
     fields.extend(layout.map(TypedSlot::new));
     new_typed_object(TypedSlotObject { type_id, fields })
         .ok_or(CheckedStorageError::AllocationOrStorageUnavailable)
+        .inspect(|_| crate::observe::object_storage_event(0, 0))
 }
 
 /// Expected definition type and slot are checked under the same storage guard.
@@ -477,6 +478,7 @@ pub(crate) fn reclaim_typed_object_storage(handle: i64, expected_type: i64) -> b
     // Both owner guards have ended. TypedSlotValue is inert scalar/handle data;
     // dropping this payload cannot discharge child Homes or invoke user code.
     drop(detached);
+    if reclaimed { crate::observe::object_storage_event(0, 2); }
     reclaimed
 }
 

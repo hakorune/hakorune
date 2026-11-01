@@ -19,3 +19,8 @@ pub(crate) use const_suffix::*;
 pub(crate) use routes::*;
 pub(crate) use store_array_str::*;
 pub(crate) use top::*;
+
+#[inline(always)]
+pub(crate) fn object_storage_event(representation: u32, event: u32) {
+    super::backend::object_storage_event(representation, event);
+}
