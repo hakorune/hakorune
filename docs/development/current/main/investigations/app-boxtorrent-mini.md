@@ -5,6 +5,8 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
+- step 3a責務分割のみ着地: source引数dispatch・static i64 local call・Invoke Call-edge検証の6関数を元HEADと同じ本体のまま責務ownerへ移動（元ファイル478/762/654行）。take接続WIPは別変更として退避・保持。production +1014/−984（移動先を含む純増30、module接続等）、test ±0。
+- 分割検証: `cargo check --lib --tests -p nyash-rust`、最適化`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtime・再build C shimで固定suite 8/8（102.62秒、SKIP/timeoutなし）、19形program関数/exit全一致。`cargo quick-test-fast`の対象cohortは1796 PASS・既知115失敗名完全一致。stash 2件保持。
 - step 3a take共通契約着地: 元Takeを型分類とは独立な`HomeDemand::Home`としてcanonical parameter catalogと全owned投影に保持。10か所の全parameter手書き比較をdemand込みのstruct equalityへ統合。call-entry未接続のtakeは`PhysicalSignature::UnsupportedTransfer`で名前付き拒否し、借用ABIへ流さない。通常Boxの既定意味とbirth契約は不変。take EXEは未完。
 - 次: callee entry Home/完全End・callerの移転待ち/入場時移転・独立検証を接続し、take Normal/後続引数Fault/入場後Faultを既存smokeで閉じる。entry Home/End試作はpatchへ退避済みで未着地。借用専用parameter triple APIも拒否解除前に需要を照合する。from/update/sync boxは後続、3b切替は対象外。既存stash 2件保持。
 - take共通契約検証: 最適化`target/quick/hakorune`（`CARGO_BUILD_JOBS=4 cargo quick-build --bin hakorune`）＋同runtime/既存C shimで実CLIの`PhysicalSignature::UnsupportedTransfer`・EXE未生成。固定suite 8/8（105.89秒、SKIP/timeoutなし）、19形program関数/exit一致、cohort 1796 PASS・既知115失敗名完全一致、parameter/physical signature focused 17 PASS、`cargo check --lib --tests -p nyash-rust` PASS。production +40/−29（純増11）、既存test +24/−2（純増22、元TakeのHome需要と物理借用への消失拒否を既存caseで確認、新規test file/checkerなし）。

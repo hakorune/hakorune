@@ -42,6 +42,8 @@ mod completion_seed;
 
 #[path = "ordinary_new_coseal_issue_lexical.rs"]
 mod lexical;
+#[path = "ordinary_new_coseal_issue_call_arguments.rs"]
+mod call_arguments;
 use lexical::{
     borrowed_call_arguments_callback_v1, lexical_handle_result_call, lexical_i64_result_call,
     lexical_nullable_result_call,
