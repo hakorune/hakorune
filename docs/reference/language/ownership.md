@@ -100,21 +100,52 @@ superseded now: text below that uses it describes a target that will not land.
    suspend. The caller may keep it in a local, use it across branches (not
    limited to one basic block), and pass it to a `read` parameter.
 5. Field read: `local x = me.field` is an implicit `from me` read borrow,
-   checked by the same checker as rule 4; it needs no annotation.
-6. Copy: only a type with a declared copy contract can be copied. Implicit
+   checked by the same checker as rule 4; it needs no annotation. Exception
+   (decided 2026-11-02): when the field's type is `Shared<T>`, binding it with
+   `local b = me.sharedField` takes a new handle (+1) instead of a borrow.
+   Reading through the field (`me.sharedField.width()`) and passing it to a
+   `read` parameter stay borrows (no count change). A plain Box field is never
+   implicitly converted to a Shared handle.
+6. Shared type and storage (decided 2026-11-02): `Shared<T>` is a built-in type
+   constructor, writable on fields, parameters and results (local inference is
+   also allowed); it is distinct from a plain Box type and needs no general
+   generics. A field or element holds one handle with one End obligation.
+   Passing a Shared to an owning field, element or `take` parameter adds one
+   handle; `move` of an owned Shared local and `return` of a whole local add
+   none; `: Shared<T>` returned from a borrowed field adds one, while
+   `: Shared<T> from me` is a borrow and adds none. Replacing a field or
+   element: prepare the candidate handle, check the slot, commit, then Release
+   the old handle; a Fault before commit and a Fault in the old Release are
+   distinguished and the latter never rolls the new slot back. Ending the outer
+   Box Releases the stored handle and never Ends the payload directly. Physical
+   placement and ABI version stay separate from this contract. Array/Map API
+   extensions not used by selfhost are named rejections until needed.
+7. Copy: only a type with a declared copy contract can be copied. Implicit
    copy follows the specified value category (numbers, Bool, Shared handle),
    never the value's size. Respelling `copy x` as `.copy()` is deferred.
 
-Open, with the current proposal:
+Decided 2026-11-02 (see ADR-002 for the cutover contract):
 
-- call-site marker for `mut` arguments: the caller writes only `move`, so only
-  lost ownership is marked;
-- a `take` argument when a later argument evaluation faults: ownership stays
-  with the caller under the existing Normal/Fault cleanup rule;
+- call-site marker for `mut` arguments: none; the caller writes only `move`,
+  so only lost ownership is marked;
+- a `take` argument when a later argument evaluation faults: the caller keeps
+  the pending transfer and Ends it; once the call has entered, the callee owns
+  Normal and Fault cleanup;
+- `x = f(move x)`: the RHS must succeed before the new value is committed; the
+  old value is Ended only if its ownership responsibility is still held; `x` is
+  never restored after `move x`, and a result that is the same object is not
+  Ended twice;
+- `from` with several supports (`from a, b`) names the set of supports the
+  result may derive from; each return/PHI input is checked to be inside the set
+  and the caller keeps every candidate alive until the borrow ends. Accepting it
+  starts before selfhost needs it; until then it is a named rejection;
 - the accepted composite anchored results of §3 (2026-10-07: a fresh outer
-  holding a child field borrowed from a formal) conflict with rule 4's
-  no-field-store limit; they stay in force until the cutover decides whether
-  they become a declared `from` contract or retire.
+  holding a child field borrowed from a formal) hold only until the cutover and
+  are rejected there; an owned child is passed with `move`.
+
+Sections 1-11 below describe the pre-cutover meaning where they conflict with
+this section (implicit alias copies, composite anchored results, bare aliases);
+the cutover makes §0 the only normative text.
 
 ## 1. Thirty-second rule
 
