@@ -53,6 +53,7 @@ fn source_graph_instance_registration_without_static_context_preserves_legacy_an
                 parameters: row.parameters.iter().map(|formal|
                     crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                         ordinal: formal.ordinal, binding: formal.binding, kind: formal.kind.clone(),
+                        demand: formal.demand,
                     }).collect(),
             }).collect();
         let index = contracts.iter().position(|row| row.owner == target.callee).unwrap();

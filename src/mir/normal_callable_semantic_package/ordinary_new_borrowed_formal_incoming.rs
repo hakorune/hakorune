@@ -412,7 +412,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                                         Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(target)) if target == original.target())
                                     || original.parameters().len() != target_contract.parameters.len()
                                     || original.parameters().iter().zip(&target_contract.parameters).any(|(source, formal)|
-                                        source.ordinal != formal.ordinal || source.binding != formal.binding || source.kind != formal.kind)
+                                        source != formal)
                                     || !call.arguments().iter().enumerate().all(|(ordinal, argument)|
                                         argument.ordinal() as usize == ordinal
                                             && original.argument_sites()[ordinal] == *argument.site())

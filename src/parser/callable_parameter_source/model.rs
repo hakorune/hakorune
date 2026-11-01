@@ -31,6 +31,10 @@ impl ParserParameterTransferSyntaxV1 {
         Self { kind: if take { ParserParameterTransferKindV1::Take } else { ParserParameterTransferKindV1::Ordinary } }
     }
 
+    pub(crate) const fn is_take(self) -> bool {
+        matches!(self.kind, ParserParameterTransferKindV1::Take)
+    }
+
     pub(crate) const fn is_ordinary(self) -> bool {
         matches!(self.kind, ParserParameterTransferKindV1::Ordinary)
     }

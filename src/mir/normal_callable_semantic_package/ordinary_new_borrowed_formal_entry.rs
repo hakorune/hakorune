@@ -476,7 +476,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if original.batch_slot != contract.batch_slot || original.mode != contract.mode
                 || original.parameters.len() != contract.parameters.len()
                 || original.parameters.iter().zip(&contract.parameters).any(|(a, b)| {
-                    a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind
+                    a != b
                 })
             { return Err(freeze("object-return/original-input-contract-drift")); }
             return if !qualified && source_input {

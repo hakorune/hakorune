@@ -451,9 +451,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .iter()
                 .zip(&contract.parameters)
                 .any(|(source, observed)| {
-                    source.ordinal != observed.ordinal
-                        || source.binding != observed.binding
-                        || source.kind != observed.kind
+                    source != observed
                 })
         {
             return Err(freeze("object-input/original-contract-drift"));

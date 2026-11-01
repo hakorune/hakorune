@@ -397,6 +397,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                         ordinal: parameter.ordinal(),
                         binding: parameter.binding(),
                         kind: parameter.kind(),
+                        demand: parameter.home_demand(),
                     })
                     .collect::<Vec<_>>()
                     .into_boxed_slice(),

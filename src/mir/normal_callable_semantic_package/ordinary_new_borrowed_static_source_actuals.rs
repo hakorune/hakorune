@@ -340,9 +340,7 @@ pub(super) fn prepare_static_source_actuals_v1(
         .enumerate()
     {
         if formal.ordinal as usize != index
-            || formal.ordinal != original.ordinal
-            || formal.binding != original.binding
-            || formal.kind != original.kind
+            || formal != original
             || formal.binding.owner() != contract.owner
             || actual.ordinal != formal.ordinal
             || source.argument_sites().get(index) != Some(&actual.site)

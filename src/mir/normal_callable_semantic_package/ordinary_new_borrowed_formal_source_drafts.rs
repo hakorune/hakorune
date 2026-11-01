@@ -243,9 +243,7 @@ pub(super) fn seed_static_transport_owners_v1(
                 .iter()
                 .zip(contract.parameters.iter())
                 .any(|(original, formal)| {
-                    original.ordinal != formal.ordinal
-                        || original.binding != formal.binding
-                        || original.kind != formal.kind
+                    original != formal
                 })
         {
             return Err(freeze("borrowed-static/seed-source-identity"));

@@ -282,9 +282,7 @@ impl<'a> StaticIncomingSourceLoanV1<'a> {
                 .iter()
                 .zip(&self.contract.parameters)
                 .all(|(left, right)| {
-                    left.ordinal == right.ordinal
-                        && left.binding == right.binding
-                        && left.kind == right.kind
+                    left == right
                 })
             && retained.route == self.route
     }
@@ -323,6 +321,7 @@ impl<'a> StaticIncomingSourceLoanV1<'a> {
                         ordinal: formal.ordinal,
                         binding: formal.binding,
                         kind: formal.kind.clone(),
+                        demand: formal.demand,
                     },
                 )
                 .collect(),

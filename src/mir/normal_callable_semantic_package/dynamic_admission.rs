@@ -211,6 +211,7 @@ mod tests {
             ordinal: 0,
             binding: crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0)),
             kind: CallableParameterContractKindV1::ExactText(ExactTextFormalAbiV1::STRING_BOX),
+            demand: (CallableParameterContractKindV1::ExactText(ExactTextFormalAbiV1::STRING_BOX)).home_demand(),
         }];
 
         assert!(matches!(

@@ -132,6 +132,15 @@ fn ordinary_formal_stays_one_lane_and_exact_text_pair_is_adjacent() {
         ]
     );
     assert_eq!(row.lanes()[1].binding(), row.lanes()[2].binding());
+    // Ownership demand is part of the original parameter contract. Until the
+    // call-entry transfer is connected, no ordinary borrowed lane may erase it.
+    let mut resolver = FunctionSemanticResolverSessionV1::new(941).unwrap();
+    let result = issue_normal_callable_semantic_package_v1(&mut resolver, final_source(
+        "box Payload {} static box Api { run(take value: Payload) { return 0 } }",
+    ));
+    assert!(matches!(result, Err(super::NormalCallableSemanticPackageIssueV1::PhysicalSignature {
+        _error: super::physical_signature::CallablePhysicalSignatureIssueV1::UnsupportedTransfer,
+    })));
 }
 
 #[test]

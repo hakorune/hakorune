@@ -48,6 +48,7 @@ pub(crate) struct VerifiedCallableParameterContractV1 {
     ordinal: u32,
     binding: BindingRefV1,
     kind: CallableParameterContractKindV1,
+    demand: HomeDemandV1,
 }
 
 impl VerifiedCallableParameterContractV1 {
@@ -55,11 +56,13 @@ impl VerifiedCallableParameterContractV1 {
         ordinal: u32,
         binding: BindingRefV1,
         kind: CallableParameterContractKindV1,
+        demand: HomeDemandV1,
     ) -> Self {
         Self {
             ordinal,
             binding,
             kind,
+            demand,
         }
     }
 
@@ -76,7 +79,7 @@ impl VerifiedCallableParameterContractV1 {
     }
 
     pub(crate) fn home_demand(&self) -> HomeDemandV1 {
-        self.kind.home_demand()
+        self.demand
     }
 }
 

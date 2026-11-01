@@ -218,6 +218,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
                     ordinal: p.ordinal(),
                     binding: p.binding(),
                     kind: p.kind(),
+                    demand: p.home_demand(),
                 })
                 .collect(),
         })

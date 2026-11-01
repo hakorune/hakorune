@@ -997,7 +997,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .iter()
                     .zip(&contract.parameters)
                     .any(|(a, b)| {
-                        a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind
+                        a != b
                     })
                 || original.argument_sites().len() != contract.parameters.len()
             {

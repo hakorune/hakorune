@@ -54,6 +54,7 @@ pub(super) fn with_source_product<R>(
                 ordinal: row.ordinal,
                 binding: row.binding,
                 kind: row.kind.clone(),
+                demand: row.demand,
             }
         }).collect(),
     };
@@ -409,6 +410,7 @@ fn draft_with_fields(
                             ordinal: row.ordinal,
                             binding: row.binding,
                             kind: row.kind.clone(),
+                            demand: row.demand,
                         }
                     }).collect(),
                 },
@@ -482,6 +484,7 @@ fn draft_with_child(
                             ordinal: row.ordinal,
                             binding: row.binding,
                             kind: row.kind.clone(),
+                            demand: row.demand,
                         }
                     }).collect(),
                 },

@@ -153,11 +153,12 @@ impl QualifiedReceiverCatalogTakeV1 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(super) struct OwnedCallableParameterContractV1 {
     pub(super) ordinal: u32,
     pub(super) binding: BindingRefV1,
     pub(super) kind: CallableParameterContractKindV1,
+    pub(super) demand: crate::mir::resolved_semantics::HomeDemandV1,
 }
 
 #[derive(Debug)]
@@ -568,6 +569,7 @@ pub(super) fn parameter_catalog_for_drift_test(
                     ordinal: formal.ordinal,
                     binding: formal.binding,
                     kind: formal.kind.clone(),
+                    demand: formal.demand,
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),

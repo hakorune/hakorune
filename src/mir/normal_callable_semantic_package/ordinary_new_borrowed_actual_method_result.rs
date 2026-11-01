@@ -106,7 +106,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 .parameters
                 .iter()
                 .zip(source.parameters())
-                .any(|(a, b)| a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind)
+                .any(|(a, b)| a != b)
         {
             return Err(reject());
         }

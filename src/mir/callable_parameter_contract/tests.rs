@@ -158,8 +158,12 @@ fn absent_ordinary_type_is_opaque_handle_not_exact_trivial() {
         CallableParameterContractKindV1::OpaqueHandle
     );
     let take = self::batch("box Payload {} static box Api { run(take value: Payload) { return 0 } }", 9);
-    assert!(matches!(issue_callable_parameter_contract_v1(&take),
-        Err(super::CallableParameterContractIssueV1::UnsupportedTransfer { .. })));
+    let catalog = issue_callable_parameter_contract_v1(&take).unwrap();
+    let declarations = catalog.declarations().collect::<Vec<_>>();
+    let parameter = &declarations.last().unwrap().parameters()[0];
+    assert!(matches!(parameter.kind(), CallableParameterContractKindV1::DeclaredObject(_)));
+    assert_eq!(parameter.home_demand(), crate::mir::resolved_semantics::HomeDemandV1::Home);
+    assert_eq!(parameter.kind().home_demand(), crate::mir::resolved_semantics::HomeDemandV1::Handle);
 }
 
 #[test]

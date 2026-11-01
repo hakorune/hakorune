@@ -476,6 +476,7 @@ mod tests {
                     owner: contract.owner, batch_slot: contract.batch_slot, mode: contract.mode,
                     parameters: vec![crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                         ordinal: 1, binding, kind: contract.parameters[0].kind.clone(),
+                        demand: contract.parameters[0].demand,
                     }].into_boxed_slice(),
                 };
                 assert!(!declared_integer_seed_v1(input, &[bad], binding));

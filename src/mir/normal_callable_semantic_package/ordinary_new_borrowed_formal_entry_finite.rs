@@ -132,7 +132,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 BorrowedIncomingSourceV1::Static(original) => {
                     if original.parameters().len() != contract.parameters.len()
                         || original.parameters().iter().zip(&contract.parameters).any(|(a, b)|
-                            a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind) {
+                            a != b) {
                         return Err(freeze("borrowed-entry/finite-incoming-identity"));
                     }
                 }

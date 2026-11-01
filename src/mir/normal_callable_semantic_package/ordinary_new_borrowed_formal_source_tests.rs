@@ -509,6 +509,7 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
                         ordinal: formal.ordinal,
                         binding: formal.binding,
                         kind: formal.kind.clone(),
+                        demand: formal.demand,
                     },
                 )
                 .collect(),

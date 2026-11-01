@@ -389,9 +389,7 @@ fn construct_borrowed_call_actuals_v1(
                 .iter()
                 .zip(&contract.parameters)
                 .any(|(source, formal)| {
-                    source.ordinal != formal.ordinal
-                        || source.binding != formal.binding
-                        || source.kind != formal.kind
+                    source != formal
                 })
         {
             return Err(freeze("borrowed-static/executable-source-identity"));

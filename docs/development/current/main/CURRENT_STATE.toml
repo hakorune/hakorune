@@ -18,10 +18,10 @@ latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
 Ownership step 2 A/B/C and both measurement series landed; step 3a selected, ordinary Box defaults unchanged.
-Take declarations retain original transfer through the canonical source; AST-only loss refuses, execution is still UnsupportedTransfer.
-Next: parameter demand, callee entry Home/End, pending caller responsibility and call-entry transfer through independent verification to EXE.
+Take demand survives the common parameter catalog and whole-contract equality; unconnected physical ABI refuses UnsupportedTransfer.
+Next: callee entry Home/End, pending caller responsibility and call-entry transfer through independent verification to EXE.
 from/update/sync box remain; 3b cutover is outside this goal. Both existing stashes remain protected.
-Take frontend verified: fixed suite 8/8, 19 program functions/exits identical, cohort 1796 PASS and 115 unchanged failure names.
+Take contract verified: fixed suite 8/8, 19 program functions/exits identical, cohort 1796 PASS and 115 unchanged failure names.
 """
 next_design_card = "none"
 next_design_card_path = "none"

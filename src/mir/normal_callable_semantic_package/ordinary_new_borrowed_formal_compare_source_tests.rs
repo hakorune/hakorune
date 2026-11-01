@@ -349,6 +349,7 @@ fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
                     owner: row.owner, batch_slot: row.batch_slot, mode: row.mode,
                     parameters: row.parameters.iter().map(|formal| crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                         ordinal: formal.ordinal, binding: formal.binding, kind: formal.kind.clone(),
+                        demand: formal.demand,
                     }).collect(),
                 }
             }).collect();

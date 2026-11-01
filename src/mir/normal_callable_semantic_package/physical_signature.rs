@@ -154,6 +154,7 @@ pub(in crate::mir) enum CallablePhysicalSignatureIssueV1 {
     ReceiverOwnerMismatch,
     ReceiverRecordMismatch,
     LaneOverflow,
+    UnsupportedTransfer,
 }
 
 pub(super) fn issue_callable_physical_signature_v1(
@@ -283,6 +284,9 @@ pub(super) fn issue_callable_physical_signature_v1(
                     }
                     if parameter.binding.owner() != declaration.owner() {
                         return Err(CallablePhysicalSignatureIssueV1::ParameterOwnerMismatch);
+                    }
+                    if parameter.demand == crate::mir::resolved_semantics::HomeDemandV1::Home {
+                        return Err(CallablePhysicalSignatureIssueV1::UnsupportedTransfer);
                     }
                     let role = match parameter.kind {
                         CallableParameterContractKindV1::ExactText(_) => {

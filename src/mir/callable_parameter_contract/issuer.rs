@@ -73,12 +73,6 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                 let mut parameters = Vec::with_capacity(source_parameters.len());
                 for source_parameter in source_parameters {
                     let parameter = source_parameter.ordinal();
-                    if !source_parameter.transfer().is_ordinary() {
-                        return Err(CallableParameterContractIssueV1::UnsupportedTransfer {
-                            _declaration: declaration,
-                            _parameter: parameter,
-                        });
-                    }
                     let kind = match source_parameter.declared_type_name() {
                         None => CallableParameterContractKindV1::OpaqueHandle,
                         Some(source_type) => {
@@ -114,6 +108,16 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                                 );
                             }
                         }
+                    };
+                    let demand = if source_parameter.transfer().is_take()
+                        && matches!(kind, CallableParameterContractKindV1::DeclaredObject(_)) {
+                        crate::mir::resolved_semantics::HomeDemandV1::Home
+                    } else if source_parameter.transfer().is_ordinary() {
+                        kind.home_demand()
+                    } else {
+                        return Err(CallableParameterContractIssueV1::UnsupportedTransfer {
+                            _declaration: declaration, _parameter: parameter,
+                        });
                     };
                     let site = SourceBindingSiteV1::Parameter { index: parameter };
                     let binding = function.declaration_binding(&site).ok_or(
@@ -152,7 +156,7 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                         );
                     }
                     parameters.push(VerifiedCallableParameterContractV1::new(
-                        parameter, binding, kind,
+                        parameter, binding, kind, demand,
                     ));
                 }
                 declarations.push(VerifiedCallableParameterContractDeclarationV1::new(
