@@ -153,6 +153,11 @@ fn new_home_alias_ends_once_across_normal_and_fault_edges() {
         function.get_block_mut(bb(id)).unwrap().set_terminator(MirInstruction::Return { value: None });
     }
     assert!(verify_ownership_ssa_v1(&function, &abi).is_ok());
+    let mut same_edge = function.clone();
+    if let Some(MirInstruction::Invoke { fault_landing, .. }) = &mut same_edge.get_block_mut(bb(1)).unwrap().terminator {
+        *fault_landing = bb(3);
+    }
+    assert!(matches!(verify_ownership_ssa_v1(&same_edge, &abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
     let mut wrong_fault_end = function.clone();
     wrong_fault_end.get_block_mut(bb(4)).unwrap().set_terminator(MirInstruction::Invoke {
         operation: InvokeOperation::HomeRelease { object, value: value(10) }, fault_frame: value(9), normal_landing: bb(7), fault_landing: bb(8),

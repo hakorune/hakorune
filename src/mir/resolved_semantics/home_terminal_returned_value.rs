@@ -673,14 +673,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     let stored_field = input.body_shape().is_some_and(|shape| matches!(shape.expression_shape(value.site()),
         Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
             if locals.stored_get_reference_v1(&object).is_some()));
-    if !stored_field && !input
-        .function()
-        .expression_source()
-        .binary(value.site())
-        .is_some_and(|binary| {
-            binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract
-        })
-    {
+    let binary = input.function().expression_source().binary(value.site()).map(|row| row.operator());
+    let add = binary == Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add);
+    if !stored_field && !add && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract) {
         return Ok(None);
     }
     let refused = || {
@@ -703,6 +698,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(refused());
     };
+    // Existing literal/field Add owners keep their original plans. Calls need
+    // this complete evaluation so their Fault edges and cleanup stay ordered.
+    if add && !source.nodes().iter().any(|node| matches!(node.source(),
+        crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
+        | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::DirectCall)) {
+        return Ok(None);
+    }
     // The complete Return evaluation borrows its Call and field leaves from
     // their existing source issuers and retains their ordered cleanup proof.
     let purpose = OwnedExprSiteV1::new(input.owner(), value.site().clone());
@@ -722,7 +724,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         },
     )?
     else {
-        return Ok(refused());
+        // Add may return Text. This is a passive source classification, before
+        // field installation or terminal issuance; its existing owner decides.
+        return Ok(if add { None } else { refused() });
     };
     if stored_field {
         // Only an integer field belongs to this scalar lane; Text and others keep theirs.

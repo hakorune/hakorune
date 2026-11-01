@@ -72,18 +72,6 @@ struct OriginalBorrowedFormalSourceV1
 }
 
 impl OriginalBorrowedFormalSourceV1 {
-    /// Compare a passive child candidate with the SAME all-owner New scan.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn child_sites_match_v1(
-        &self, class: &str, sites: &BTreeSet<OwnedExprSiteV1>,
-        object: hakorune_mir_defs::CanonicalObjectIdV1, callee: FunctionOwnerIdV1,
-        facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
-        batch: &VerifiedResolvedCallableSemanticBatchV1,
-        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-    ) -> bool {
-        self.seeds.corroborate_original_v1(&self.inventory)
-            && self.seeds.new_calls.class_sites_v1(class, constructors).as_ref() == Some(sites)
-            && self.seeds.new_calls.class_local_uses_v1(class, sites, object, callee, &self.inventory, facts, batch, constructors)
-    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn ordinary_core_source_v1(
         &self, site: &OwnedExprSiteV1,
     ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>> {

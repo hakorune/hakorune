@@ -90,14 +90,28 @@ pub(super) fn verify(
                 }
             }
             if abi.owner().is_source() {
-                if let MirInstruction::Invoke { operation, normal_landing, .. } = terminator {
+                if let MirInstruction::Invoke { operation, normal_landing, fault_landing, .. } = terminator {
                     use crate::mir::instruction::InvokeOperation;
                     let token = |value: &ValueId| *abi.aliases().get(value).unwrap_or(value);
                     match operation {
                         InvokeOperation::Birth(row) => {
+                            if normal_landing == fault_landing || !function.blocks.contains_key(normal_landing)
+                                || !function.blocks.contains_key(fault_landing) {
+                                return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value: row.receiver });
+                            }
                             let value = token(&row.receiver);
                             if objects.get(&value).is_none_or(|(_, stage)| *stage != ObjectStage::Unpublished) { return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value }); }
-                            birth = Some((value, *normal_landing));
+                            let mut takes = BTreeSet::new();
+                            for (ordinal, argument) in row.arguments.iter().enumerate() {
+                                let Some(actual) = argument.value() else { continue; };
+                                let actual = token(&actual);
+                                if kinds.get(&actual) != Some(&MirOwnershipKindV1::Owned) { continue; }
+                                if !abi.birth_takes(&row.key, ordinal) || actual == value || !takes.insert(actual)
+                                    || objects.get(&actual).is_none_or(|(_, stage)| *stage != ObjectStage::Published) {
+                                    return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value: actual });
+                                }
+                            }
+                            birth = Some((value, *normal_landing, takes));
                         }
                         InvokeOperation::HomeRelease { object, value } | InvokeOperation::ObjectEndIfOwned { object, value, .. }
                         | InvokeOperation::ReclaimUnpublished { object, value } => {
@@ -109,6 +123,12 @@ pub(super) fn verify(
                                 _ => false,
                             };
                             if !valid {
+                                return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value });
+                            }
+                        }
+                        InvokeOperation::OwnedObjectFieldRelease { field, base, .. } => {
+                            let value = token(base);
+                            if objects.get(&value) != Some(&(field.object(), ObjectStage::Published)) {
                                 return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value });
                             }
                         }
@@ -212,11 +232,18 @@ pub(super) fn verify(
             if abi.owner().is_source() {
                 transfer_shared_phi_edge(function, block_id, successor, &kinds, abi, &mut edge_shared)?;
             }
-            let edge_live = transfer_phi_edge(function, block_id, successor, &kinds, abi, &before_phi)?;
-            if let Some((value, normal)) = birth {
-                edge_objects.get_mut(&value).expect("checked Birth token").1 =
-                    if successor == normal { ObjectStage::Published } else { ObjectStage::BirthFaulted };
+            if let Some((value, normal, takes)) = &birth {
+                if successor == *normal {
+                    for actual in takes {
+                        if !before_phi.remove(actual) || edge_objects.remove(actual).is_none() {
+                            return Err(OwnershipSsaErrorV1::OwnedUseAfterConsume { block: block_id, value: *actual });
+                        }
+                    }
+                }
+                edge_objects.get_mut(value).expect("checked Birth token").1 =
+                    if successor == *normal { ObjectStage::Published } else { ObjectStage::BirthFaulted };
             }
+            let edge_live = transfer_phi_edge(function, block_id, successor, &kinds, abi, &before_phi)?;
             let edge_state = (edge_live, edge_objects, edge_shared);
             match entries.get(&successor) {
                 Some(existing) if existing != &edge_state => {
@@ -424,12 +451,15 @@ fn process_terminator(
             kinds.get(&token) == Some(&MirOwnershipKindV1::Owned)
         });
         let supported = match operation {
-            InvokeOperation::Birth(birth) => terminator.used_values().into_iter().all(|value| {
-                let token = *abi.aliases().get(&value).unwrap_or(&value);
-                value == birth.receiver || kinds.get(&token) == Some(&MirOwnershipKindV1::None)
+            InvokeOperation::Birth(birth) => birth.arguments.iter().enumerate().all(|(ordinal, argument)| {
+                argument.value().is_none_or(|value| {
+                    let token = *abi.aliases().get(&value).unwrap_or(&value);
+                    kinds.get(&token) == Some(&MirOwnershipKindV1::None) ||
+                        (abi.birth_takes(&birth.key, ordinal) && kinds.get(&token) == Some(&MirOwnershipKindV1::Owned))
+                })
             }),
             InvokeOperation::HomeRelease { .. } | InvokeOperation::ObjectEndIfOwned { .. } | InvokeOperation::ReclaimUnpublished { .. }
-            | InvokeOperation::FieldGet { .. } => true,
+            | InvokeOperation::FieldGet { .. } | InvokeOperation::OwnedObjectFieldRelease { .. } => true,
             InvokeOperation::Call { call, .. } => matches!(call.callee, Callee::SameModuleInstance { .. }) && call.args.is_empty(),
             InvokeOperation::Shared(_) => true,
             _ => false,

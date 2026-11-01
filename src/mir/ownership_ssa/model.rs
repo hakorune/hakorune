@@ -50,6 +50,9 @@ pub(crate) struct OwnershipFunctionAbiV1 {
     initially_published: BTreeSet<ValueId>,
     /// Exact complete End contracts retained from this function's source owner.
     shared_descriptors: Vec<crate::mir::instruction::SharedDescriptorV1>,
+    /// Source-admitted nullable owned formals. Values remain solely in Birth's
+    /// ordered arguments; only its Normal edge transfers their existing tokens.
+    birth_takes: BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, BTreeSet<u32>>,
 }
 
 impl OwnershipFunctionAbiV1 {
@@ -65,6 +68,7 @@ impl OwnershipFunctionAbiV1 {
             aliases: BTreeMap::new(),
             initially_published: BTreeSet::new(),
             shared_descriptors: Vec::new(),
+            birth_takes: BTreeMap::new(),
         }
     }
 
@@ -94,6 +98,14 @@ impl OwnershipFunctionAbiV1 {
     pub(crate) fn with_source_shared_descriptors(mut self, rows: Vec<crate::mir::instruction::SharedDescriptorV1>) -> Self {
         self.shared_descriptors = rows;
         self
+    }
+    pub(crate) fn with_source_birth_takes(mut self,
+        takes: BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, BTreeSet<u32>>) -> Self {
+        self.birth_takes = takes;
+        self
+    }
+    pub(super) fn birth_takes(&self, key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, ordinal: usize) -> bool {
+        self.owner.is_source() && self.birth_takes.get(key).is_some_and(|rows| rows.contains(&(ordinal as u32)))
     }
     pub(super) fn admits_shared_descriptor(&self, row: &crate::mir::instruction::SharedDescriptorV1) -> bool {
         self.shared_descriptors.contains(row)

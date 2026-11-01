@@ -1,0 +1,26 @@
+box Leaf {
+    value: i64
+    birth(value) { me.value = value }
+    read(): i64 { return me.value }
+}
+box Parent {
+    child: Leaf
+    value: i64
+    birth(child, value) {
+        me.child = child
+        me.value = value
+    }
+    read(): i64 {
+        if me.child == null { return me.value }
+        return me.value + me.child.read()
+    }
+}
+static box Main {
+    main() {
+        local leaf = new Leaf(7)
+        local full = new Parent(leaf, 1)
+        local empty = new Parent(null, 2)
+        local moved = move full
+        return moved.read() + empty.read()
+    }
+}

@@ -56,6 +56,17 @@ fn verify_source_moves_on_published_mir(
         return Ok(());
     };
     let mut remaining = source.move_ownership_owners_v1();
+    // Project the same finalized ObjectFieldStores transport, not another
+    // argument vector or a type inferred from a backend instruction.
+    let mut birth_takes = std::collections::BTreeMap::new();
+    for call in input.entry().birth_calls() {
+        let takes: std::collections::BTreeSet<_> = call.actual().arguments().iter()
+            .filter(|actual| input.object_birth_actual(actual.source().new_site(), actual.source().ordinal()).is_some())
+            .map(|actual| actual.source().ordinal()).collect();
+        if birth_takes.insert(call.actual().target().clone(), takes.clone()).is_some_and(|old| old != takes) {
+            return Err("[ownership/birth-source-contract-drift]".into());
+        }
+    }
     for physical in input.program().functions() {
         let owner = match physical.role() {
             Role::Root { .. } => Some(source.owner()),
@@ -85,9 +96,17 @@ fn verify_source_moves_on_published_mir(
         }).collect();
         let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), parameters, FunctionResultOwnershipV1::None)
             .with_source_aliases(aliases).with_initially_published(initially_published)
-            .with_source_shared_descriptors(descriptors);
+            .with_source_shared_descriptors(descriptors).with_source_birth_takes(birth_takes.clone());
         crate::mir::ownership_ssa::verify_ownership_ssa_v1(physical.function(), &abi)
-            .map_err(|error| format!("[ownership/published-mir] {error:?}"))?;
+            .map_err(|error| {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[ownership] function={} error={error:?}", physical.function().signature.name);
+                    if let crate::mir::ownership_ssa::OwnershipSsaErrorV1::UnsupportedManagedInstruction { block } = &error {
+                        eprintln!("[ownership] block={:?}", physical.function().blocks.get(block));
+                    }
+                }
+                format!("[ownership/published-mir] {error:?}")
+            })?;
         if !remaining.remove(&owner) { return Err("[ownership/move-owner-duplicate]".into()); }
     }
     if !remaining.is_empty() { return Err("[ownership/move-owner-unpublished]".into()); }

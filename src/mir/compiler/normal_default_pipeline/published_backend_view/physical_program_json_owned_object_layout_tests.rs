@@ -218,5 +218,26 @@ fn owned_object_layout_publishes_constructed_child_canonical_tuple() {
                 )
                 .unwrap();
         }
+        let text = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-child-typed-min/main.hako"));
+        let compile = |text: &str, optimize| MirCompiler::with_options(optimize)
+            .compile_normal_with_published(request(text), |view, verification| -> Result<String, String> {
+                assert!(verification.is_ok(), "final artifact: {verification:?}");
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                // The canonical CLI checks this boundary after optimization;
+                // unoptimized publication still contains unused declaration strings.
+                if optimize { crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)?; }
+                emit_lifecycle_physical_abi_json(&input)
+            });
+        for optimize in [false, true] {
+            let crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(wire) = compile(text, optimize).unwrap()
+                else { panic!("canonical publication required"); };
+            std::fs::write(std::env::temp_dir().join("hako-issued-nonrecursive-typed-child.json"), wire).unwrap();
+            // Both transferred child and explicitly moved parent lose their
+            // original binding; a source rewrite must never revive either.
+            for stale in ["leaf.read()", "full.read()"] {
+                let invalid = text.replace("moved.read() + empty.read()", stale);
+                assert!(compile(&invalid, optimize).is_err(), "stale receiver {stale}");
+            }
+        }
     });
 }

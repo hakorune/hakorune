@@ -393,6 +393,44 @@ impl LexicalReceiverClassSourceV1<'_> {
         {
             return Ok(Some(class.clone()));
         }
+        // A move keeps the original nominal class; it never grants a new Home.
+        // Retain this receiver's binding and use the same operand flow as Home.
+        if let Some(unary) = input.function().expression_source().unary(initializer_site)
+            .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move) {
+            use crate::mir::resolved_semantics::{ResolvedAssignmentTargetV1, source_value_flow::SourceValueOriginV1};
+            let function = input.function();
+            let Some(flow) = function.expression_source().value_flow() else { return Ok(None); };
+            let Ok(ledger) = input.forest().callable_source_ledger(owner) else { return Ok(None); };
+            let Some(scope) = function.exact_scope_containing(initializer_site.node()) else { return Ok(None); };
+            let stable = |binding| {
+                let mut rows = function.expression_source().initializers().filter(|row| row.binding() == binding);
+                let Some(init) = rows.next() else { return false; };
+                binding.owner() == owner && rows.next().is_none() && ledger.uncaptured_binding(binding)
+                    && function.declaration_binding(init.declaration_site()) == Some(binding)
+                    && init.initializer_site().and_then(|site| function.exact_scope_containing(site.node())) == Some(scope)
+                    && !function.assignment_targets().any(|(_, target)|
+                        matches!(target, ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding))
+            };
+            let mut destinations = function.expression_source().initializers()
+                .filter(|init| init.initializer_site() == Some(initializer_site));
+            let Some(destination) = destinations.next() else { return Ok(None); };
+            if destinations.next().is_some() || !stable(destination.binding()) { return Ok(None); }
+            let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(unary.operand()) else { return Ok(None); };
+            if !stable(source) { return Ok(None); }
+            let Some(value) = flow.read(unary.operand(), source) else { return Ok(None); };
+            let terminal = flow.alias_terminal_with_read_site(value, |origin| {
+                let read = function.expression_source().unary(origin)
+                    .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move)
+                    .map_or(origin, |unary| unary.operand());
+                let reference = function.variable_ref(read)?;
+                matches!(reference, ResolvedLexicalRefV1::Local(binding) if stable(binding))
+                    .then(|| (read.clone(), reference))
+            }, |origin| self.new_classes.contains_key(&OwnedExprSiteV1::new(owner, origin.clone())));
+            return Ok(terminal.and_then(|value| match flow.origin(value) {
+                Some(SourceValueOriginV1::Expression(site)) => self.new_classes.get(&OwnedExprSiteV1::new(owner, site.clone())).cloned(),
+                _ => None,
+            }));
+        }
         let Some(shape) = input.body_shape() else {
             return Ok(None);
         };
