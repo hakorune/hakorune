@@ -225,6 +225,57 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
       candidate_kind_operand, normal, fault);
 }
 
+/* One descriptor-driven postorder walk. Header cursor packs canonical
+ * descriptor ID (high u32) and next child (low u32); no recursive calls or
+ * growing End stack. Partial Birth cleanup never enters this full walk. */
+static void lv4_emit_direct_end(FILE* f, const hako_lv4_input* in) {
+  if (!in->direct) return;
+  fprintf(f, "define internal i32 @hako_direct_end(i64 %%word, i64 %%start) {\nentry:\n"
+      "  %%current = alloca ptr, align 8\n  %%root = inttoptr i64 %%word to ptr\n"
+      "  store ptr null, ptr %%root, align 8\n"
+      "  %%root_cursor = getelementptr i8, ptr %%root, i64 8\n"
+      "  store i64 %%start, ptr %%root_cursor, align 8\n  store ptr %%root, ptr %%current, align 8\n  br label %%walk\nwalk:\n"
+      "  %%node = load ptr, ptr %%current, align 8\n"
+      "  %%cursor_ptr = getelementptr i8, ptr %%node, i64 8\n  %%cursor = load i64, ptr %%cursor_ptr, align 8\n"
+      "  %%idbits = and i64 %%cursor, -4294967296\n  %%idhigh = lshr i64 %%cursor, 32\n  %%id = trunc i64 %%idhigh to i32\n"
+      "  %%pending = trunc i64 %%cursor to i32\n  switch i32 %%id, label %%invalid [");
+  for (size_t i = 0; i < in->layout_count; i++) if (lv4_direct_layout(in, in->layouts[i].id))
+    fprintf(f, " i32 %u, label %%select_%u", in->layouts[i].id, in->layouts[i].id);
+  fprintf(f, " ]\n");
+  for (size_t i = 0; i < in->layout_count; i++) if (lv4_direct_layout(in, in->layouts[i].id))
+    fprintf(f, "select_%u:\n  br label %%dispatch\n", in->layouts[i].id);
+  fprintf(f, "dispatch:\n  %%descriptor = phi ptr ");
+  int comma = 0;
+  for (size_t i = 0; i < in->layout_count; i++) if (lv4_direct_layout(in, in->layouts[i].id)) {
+    fprintf(f, "%s[ @hako_direct_descriptor_%u, %%select_%u ]", comma++ ? ", " : "", in->layouts[i].id, in->layouts[i].id);
+  }
+  fprintf(f, "\n  %%count_ptr = getelementptr { i64, i32, i32, i32, ptr, ptr }, ptr %%descriptor, i32 0, i32 3\n"
+      "  %%count = load i32, ptr %%count_ptr, align 4\n  %%in_range = icmp ule i32 %%pending, %%count\n"
+      "  br i1 %%in_range, label %%admitted, label %%invalid\nadmitted:\n"
+      "  %%has_child = icmp ne i32 %%pending, 0\n  br i1 %%has_child, label %%child, label %%pop\nchild:\n"
+      "  %%next = sub i32 %%pending, 1\n  %%next64 = zext i32 %%next to i64\n"
+      "  %%saved = or i64 %%idbits, %%next64\n  store i64 %%saved, ptr %%cursor_ptr, align 8\n"
+      "  %%children_ptr = getelementptr { i64, i32, i32, i32, ptr, ptr }, ptr %%descriptor, i32 0, i32 4\n"
+      "  %%children = load ptr, ptr %%children_ptr, align 8\n"
+      "  %%row = getelementptr { i64, ptr }, ptr %%children, i64 %%next64\n  %%offset = load i64, ptr %%row, align 8\n"
+      "  %%child_desc_ptr = getelementptr { i64, ptr }, ptr %%row, i32 0, i32 1\n  %%child_desc = load ptr, ptr %%child_desc_ptr, align 8\n"
+      "  %%slot = getelementptr i8, ptr %%node, i64 %%offset\n  %%payload = load i64, ptr %%slot, align 8\n"
+      "  store i64 0, ptr %%slot, align 8\n  %%present = icmp ne i64 %%payload, 0\n"
+      "  br i1 %%present, label %%descend, label %%walk\ndescend:\n"
+      "  %%child_node = inttoptr i64 %%payload to ptr\n  store ptr %%node, ptr %%child_node, align 8\n"
+      "  %%child_id_ptr = getelementptr { i64, i32, i32, i32, ptr, ptr }, ptr %%child_desc, i32 0, i32 2\n"
+      "  %%child_id = load i32, ptr %%child_id_ptr, align 4\n  %%child_id64 = zext i32 %%child_id to i64\n"
+      "  %%child_high = shl i64 %%child_id64, 32\n"
+      "  %%child_count_ptr = getelementptr { i64, i32, i32, i32, ptr, ptr }, ptr %%child_desc, i32 0, i32 3\n"
+      "  %%child_count = load i32, ptr %%child_count_ptr, align 4\n  %%child_count64 = zext i32 %%child_count to i64\n"
+      "  %%child_start = or i64 %%child_high, %%child_count64\n"
+      "  %%child_cursor = getelementptr i8, ptr %%child_node, i64 8\n  store i64 %%child_start, ptr %%child_cursor, align 8\n"
+      "  store ptr %%child_node, ptr %%current, align 8\n  br label %%walk\npop:\n"
+      "  %%parent = load ptr, ptr %%node, align 8\n  call void @free(ptr %%node)\n"
+      "  store ptr %%parent, ptr %%current, align 8\n  %%finished = icmp eq ptr %%parent, null\n"
+      "  br i1 %%finished, label %%done, label %%walk\ndone:\n  ret i32 0\ninvalid:\n  call void @llvm.trap()\n  unreachable\n}\n");
+}
+
 /* Source-admitted complete End helpers in the lifecycle-v4 emitter. */
 /* Complete End for an admitted source layout: reverse marked contents, then
  * outer Home. Children call this same owner. Fault (1) retains the frame's
@@ -234,7 +285,8 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
     yyjson_val* layout, const hako_llvmc_object_field_abi_v1* abi) {
   if (lv4_direct_layout(in, id)) {
     fprintf(f, "define internal i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%handle, i64 %%site) {\nentry:\n"
-        "  %%status = call i32 @hako_direct_release_%u(i64 %%handle)\n  ret i32 %%status\n}\n", id, id);
+        "  %%status = call i32 @hako_direct_end(i64 %%handle, i64 %llu)\n  ret i32 %%status\n}\n", id,
+        (unsigned long long)(((uint64_t)id << 32) | yyjson_arr_size(yyjson_obj_get(layout, "owned_object_residences"))));
     return !ferror(f);
   }
 

@@ -200,6 +200,49 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
         reject(data, 'published-lifecycle-v4/unsupported-cohort')
         print('direct scalar source EXEs, layout, initialization and boundary refusals')
 
+    for capture, expected, order in [('child', 10, [3, 1, 2]), ('birth-prefix', 5, [3, 2, 1])]:
+        child_path = DIRECTORY / f'hako-issued-direct-{capture}.json'
+        if not child_path.exists(): continue
+        child = json.loads(child_path.read_text())
+        checked([driver, child_path, obj], env=ENV)
+        checked(['cc', '-fuse-ld=lld', '-DHAKO_TEST_DIRECT_OBJECT', obj,
+                 TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in probe_wraps],
+                 '-Wl,--wrap=malloc', '-Wl,--wrap=free', '-lpthread', '-ldl', '-lm', '-o', exe])
+        sizes = ','.join(str(row['placement']['size']) for row in child['layouts'])
+        normal = run([exe], env=dict(ENV, V4_PROBE_DIRECT_SIZE=sizes))
+        assert normal.returncode == expected and 'DIRECT 3 3\n' in normal.stdout, normal
+        assert [int(line.split()[1]) for line in normal.stdout.splitlines()
+                if line.startswith('DIRECT_FREE ')] == order, normal
+        for nth in (1, 2, 3):
+            fault = run([exe], env=dict(ENV, V4_PROBE_DIRECT_SIZE=sizes, V4_PROBE_DIRECT_OOM_AT=str(nth)))
+            assert fault.returncode == 70 and f'DIRECT {nth} {nth - 1}\n' in fault.stdout, fault
+        layout = next(row for row in child['layouts'] if row['owned_object_residences'])
+        for flavor in ('missing-end-child', 'duplicate-end-child', 'wrong-child', 'mixed-representation'):
+            data = copy.deepcopy(child)
+            row = next(row for row in data['layouts'] if row['object_id'] == layout['object_id'])
+            end = row['placement']['end']
+            if flavor == 'missing-end-child': del end[0]
+            elif flavor == 'duplicate-end-child': end.insert(0, copy.deepcopy(end[0]))
+            elif flavor == 'wrong-child': end[0]['child_object_id'] = row['object_id']
+            else: del row['placement']
+            reject(data, ('abi-layout', 'placement-profile'))
+        for flavor in ('missing-drain', 'published-reclaim'):
+            data = copy.deepcopy(child)
+            main = next(f for f in data['functions'] if f['name'] == 'main')
+            block = next(b for b in main['blocks'] if
+                b['terminator']['instruction'].get('operation', {}).get('kind') ==
+                ('object_field_release' if flavor == 'missing-drain' else 'home_release') and
+                b['terminator']['instruction']['operation']['object_id'] == layout['object_id'])
+            term = block['terminator']['instruction']
+            if flavor == 'missing-drain':
+                target = term['normal']
+                block['terminator']['instruction'] = {'op': 'jump', 'target': target, 'args': None}
+                block['edges'] = [{'target': target, 'args': None}]
+            else: term['operation']['kind'] = 'reclaim_unpublished'
+            reject(data, 'published-lifecycle-v4/unsupported-cohort')
+        print('direct owned child EXE, nullable/move, allocation Faults and complete End')
+
     # Optional source-issued typed nullable field read; retain the existing
     # driver and reject the same physical contract after isolated mutations.
     typed_path = DIRECTORY / 'hako-issued-typed-null-field-borrow.json'

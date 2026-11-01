@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../../include/nyrt_fault_v1.h"
-#if defined(HAKO_TEST_OWNED_CALL_RESULT) || defined(HAKO_TEST_SCRIPT_ARGUMENTS) || defined(HAKO_TEST_BORROWED_TEXT)
+#if defined(HAKO_TEST_OWNED_CALL_RESULT) || defined(HAKO_TEST_SCRIPT_ARGUMENTS) || defined(HAKO_TEST_BORROWED_TEXT) || defined(HAKO_TEST_DIRECT_OBJECT)
 #include <assert.h>
 #endif
 #ifdef HAKO_TEST_OWNED_CALL_RESULT
@@ -23,19 +23,40 @@ static unsigned init, stores, home, reclaim, report, dispose;
 static const char* mode;
 #ifdef HAKO_TEST_DIRECT_OBJECT
 static unsigned direct_attempts, direct_frees;
-static void* direct_payload;
+static void* direct_payloads[64];
+static unsigned direct_ordinals[64];
 void* __real_malloc(size_t);
 void __real_free(void*);
 void* __wrap_malloc(size_t size) {
   const char* expected = getenv("V4_PROBE_DIRECT_SIZE");
-  if (!mode || !expected || size != strtoul(expected, NULL, 10)) return __real_malloc(size);
+  int tracked = 0;
+  if (mode && expected) for (const char* next = expected; *next;) {
+    char* end = NULL;
+    tracked |= size == strtoul(next, &end, 10);
+    if (end == next || (*end && *end != ',')) break;
+    next = *end ? end + 1 : end;
+  }
+  if (!tracked) return __real_malloc(size);
   ++direct_attempts;
-  if (getenv("V4_PROBE_DIRECT_OOM")) return NULL;
-  direct_payload = __real_malloc(size);
-  return direct_payload;
+  const char* fault_at = getenv("V4_PROBE_DIRECT_OOM_AT");
+  if (getenv("V4_PROBE_DIRECT_OOM") || (fault_at && direct_attempts == strtoul(fault_at, NULL, 10))) return NULL;
+  void* payload = __real_malloc(size);
+  if (payload) {
+    unsigned slot = 0;
+    while (slot < 64 && direct_payloads[slot]) ++slot;
+    assert(slot < 64);
+    direct_payloads[slot] = payload;
+    direct_ordinals[slot] = direct_attempts;
+  }
+  return payload;
 }
 void __wrap_free(void* value) {
-  if (value && value == direct_payload) { ++direct_frees; direct_payload = NULL; }
+  if (value) for (unsigned i = 0; i < 64; ++i) if (value == direct_payloads[i]) {
+    ++direct_frees;
+    printf("DIRECT_FREE %u\n", direct_ordinals[i]);
+    direct_payloads[i] = NULL;
+    break;
+  }
   __real_free(value);
 }
 #endif

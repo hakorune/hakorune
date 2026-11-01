@@ -590,6 +590,13 @@ impl<'module> PublishedMirBackendView<'module> {
             } else {
                 Box::new([])
             };
+            if let Some(plan) = definition.direct_placement() {
+                let children: Vec<_> = plan.children.iter().map(|(ordinal, child)|
+                    (*ordinal, child.declaration_index())).collect();
+                if children.as_slice() != owned_object_residences.as_ref() {
+                    return Err(fault("direct-owned-field-source-drift"));
+                }
+            }
             layouts.push(PublishedLifecyclePhysicalObjectLayoutV1 {
                 object_id,
                 runtime_type_id: layout.type_id,

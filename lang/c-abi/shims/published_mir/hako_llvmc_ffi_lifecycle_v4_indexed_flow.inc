@@ -50,20 +50,6 @@ static hako_lv4_value* lv4_map_keys_root(hako_lv4_function_index* fn, uint32_t i
       "kind", "map_field_keys") ? root : NULL;
 }
 
-static int lv4_borrowed_typed_live(const hako_lv4_input* in,
-    hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state) {
-  if (!value || value->kind != LV4_HANDLE || !lv4_layout(in, value->object_id) ||
-      !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, value->object_id, 1)) return 0;
-  hako_lv4_value* root = lv4_value_alias_root(fn, value);
-  if (!root || root->object_id != value->object_id) return 0;
-  if (root->origin == -2)
-    return fn->receiver_object_set && yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) &&
-        root->id == lv4_u(fn->function, "receiver") && root->object_id == fn->receiver_object;
-  if (!lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
-  hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
-  yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
-  return lv4_is(op, "kind", "new_box") && lv4_u(op, "object_id") == root->object_id;
-}
 
 #include "hako_llvmc_ffi_lifecycle_v4_borrowed_result_anchor.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_field_dependency_liveness.inc"
@@ -610,6 +596,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
       if (lv4_is(op, "transaction", "take_dynamic") && base->origin < 0 && !birth) return 0;
+      if (!birth && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+          !lv4_direct_initialized(in, fn, base, lv4_u(block, "id"))) return 0;
       if (base->origin < 0 && (!birth ||
           !lv4_birth_discharge(in, fn, op, state, normal, faulted, 0))) return 0;
     } else if (lv4_is(op, "kind", "object_field_set")) {
@@ -642,6 +630,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (lv4_birth_reserved(in, op) &&
           (!lv4_birth_owned(in, op, 1) ||
            (!nullable_formal && !lv4_borrowed_typed_live(in, fn, value, state)))) return 0;
+      if (lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+          (!birth || !lv4_birth_base(fn, op))) return 0;
       if (birth && !lv4_birth_commit(in, fn, op, normal, bi, 1)) return 0;
       if (!nullable_formal) normal[value->origin] = 0;
     } else if (lv4_is(op, "kind", "object_field_release")) {
@@ -656,6 +646,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !lv4_layout(in, lv4_u(op, "child_object_id")) ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+      if (!birth && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+          !lv4_direct_initialized(in, fn, base, lv4_u(block, "id"))) return 0;
       if (base->origin < 0 && (!birth ||
           !lv4_birth_discharge(in, fn, op, state, normal, faulted, 1))) return 0;
     } else if (lv4_is(op, "kind", "object_end_if_owned")) {
@@ -678,6 +670,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if ((fi && !ordinary && !birth) || !value || value->origin < 0 ||
           !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), !nullable_release)) return 0;
+      if (lv4_is(op, "kind", "reclaim_unpublished") && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+          (!faulted || !lv4_direct_reclaim_from_birth_fault(in, fn, value, lv4_u(op, "object_id"), lv4_u(block, "id")))) return 0;
       if (!lv4_is(op, "kind", "reclaim_unpublished") &&
           (!lv4_object_field_dependencies_released(in, fn, value, state, lv4_u(block, "id")) ||
            !lv4_complete_fields_discharged(in, fn, value, lv4_u(op, "object_id"), lv4_u(block, "id")))) return 0;

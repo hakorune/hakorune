@@ -163,7 +163,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       continue;
     }
     if (lv4_is(param, "representation", "nullable_kind_payload_v1")) {
-      lv4_emit_object_residence_parameter_guard(f, v);
+      lv4_emit_object_residence_parameter_guard(f, v, in->index[fi].receiver_object_set && lv4_direct_layout(in, in->index[fi].receiver_object) != NULL);
       continue;
     }
     if (lv4_is(param, "representation", "i64")) {
@@ -598,6 +598,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%ofr_live%u = icmp eq i32 %%ofr_read%u_outcome, 1\n"
             "  br i1 %%ofr_live%u, label %%ofr_rel%u, label %%ofr_done%u\nofr_rel%u:\n",
             b, b, b, b, b, b, b, b);
+        if (lv4_direct_layout(in, lv4_u(op, "object_id")))
+          fprintf(f, "  %%ofr_clear%u = call i32 @hako_direct_set(i64 %%v%u, i64 0, i64 %llu)\n",
+              b, lv4_u(op, "base"), (unsigned long long)lv4_direct_offset(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal")));
         fprintf(f,
             "  %%ofr_status%u = call i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%ofr_val%u, i64 %llu)\n"
             "  switch i32 %%ofr_status%u, label %%invalid [ i32 0, label %%ofr_done%u i32 1, label %%%s ]\nofr_done%u:\n"
@@ -670,10 +673,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(op, "kind", "new_box")) {
         lv4_emit_object_allocation_call(f, in, op, site, b);
       } else if (lv4_is(op, "kind", "object_field_borrow")) {
-        fprintf(f, "@\"nyash.object.checked_object_field_borrow_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %lld, i32 %u, ptr %%field_read%u)\n",
-            in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op),
-            (long long)lv4_u(lv4_layout(in, lv4_u(op, "expected_object_id")), "runtime_type_id"),
-            yyjson_get_bool(yyjson_obj_get(op, "nullable")) ? 1u : 0u, b);
+        lv4_emit_object_borrow_call(f, in, op, site, b);
       } else if (lv4_is(op, "kind", "field_get")) {
         if (lv4_direct_layout(in, lv4_u(op, "object_id"))) {
           fprintf(f, "@hako_direct_get_checked(i64 %%v%u, i64 %llu, ptr %%field_read%u)\n", lv4_u(op, "base"),
@@ -788,6 +788,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
   lv4_carrier_array_globals(f, in);
   lv4_object_layout_globals(f, in);
   lv4_direct_globals(f, in);
+  lv4_emit_direct_end(f, in);
   /* Complete End symbols cover plain and marked admitted layouts. Recursive
      child calls resolve in this module; no runtime class inference is used. */
   for (size_t li = 0; li < in->layout_count; li++)

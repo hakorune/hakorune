@@ -103,7 +103,9 @@ static int lv4_complete_fields_discharged(const hako_lv4_input* in,
   int dynamic = 0;
   for (size_t i = 0; i < yyjson_arr_size(fields); i++)
     dynamic |= lv4_u(yyjson_arr_get(fields, i), "storage_kind") == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC;
-  if (!dynamic) return 1; /* Existing static ownership proofs remain unchanged. */
+  int direct_children = lv4_direct_layout(in, object) &&
+      yyjson_arr_size(yyjson_obj_get(layout, "owned_object_residences"));
+  if (!dynamic && !direct_children) return 1;
   hako_lv4_value* root = lv4_value_alias_root(fn, value);
   if (!root || root->origin < 0 || !lv4_owned_value_object(in, fn, root, 1) ||
       !root->object_id_set || root->object_id != object) return 0;

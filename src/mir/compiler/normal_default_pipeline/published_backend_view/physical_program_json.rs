@@ -154,12 +154,17 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
                                 .collect::<Vec<_>>(),
                         });
                         if let Some(plan) = layout.direct_placement() {
+                            let mut end: Vec<_> = plan.children.iter().rev().map(|(field, child)| json!({
+                                "kind": "object_field", "field_ordinal": field,
+                                "child_object_id": child.declaration_index(),
+                            })).collect();
+                            end.push(json!({"kind": "release_outer"}));
                             row.as_object_mut().expect("object row").insert("placement".into(), json!({
                                 "kind": "direct_v0", "representation": "unique_pointer_word_v0",
                                 "target_layout": crate::mir::function::DirectObjectPlacementV1::TARGET,
                                 "descriptor_object_id": layout.object_id(), "size": plan.size, "align": plan.align,
                                 "parent_offset": 0, "cursor_offset": 8, "field_offsets": plan.field_offsets,
-                                "end": [{"kind": "release_outer"}],
+                                "end": end,
                             }));
                         }
                         row

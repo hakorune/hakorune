@@ -89,25 +89,51 @@ pub(crate) struct DirectObjectPlacementV1 {
     pub(crate) size: u64,
     pub(crate) align: u32,
     pub(crate) field_offsets: Box<[u64]>,
+    pub(crate) children: Box<[(u32, CanonicalObjectIdV1)]>,
 }
 impl DirectObjectPlacementV1 {
     pub(crate) const TARGET: &'static str = "x86_64_sysv64_v0";
-    pub(crate) fn for_definition(definition: &CanonicalObjectDefinitionV1) -> Result<Self, String> {
+
+    fn for_definition(module: &MirModule, object: CanonicalObjectIdV1,
+        selected: &std::collections::BTreeSet<CanonicalObjectIdV1>) -> Result<Self, String> {
         let reject = || "[freeze:contract][direct-placement] unsupported declaration or target".to_owned();
-        // This is a named target ABI record, independently checked against LLVM
-        // TargetData by the C consumer. Pointer width alone is not an ABI proof.
+        let definition = module.canonical_object_definition(object).ok_or_else(reject)?;
         if !cfg!(all(target_arch = "x86_64", target_os = "linux", target_pointer_width = "64"))
             || definition.local_fields_for_layout().is_err()
-            || definition.destruction_disposition() != ObjectDestructionDispositionV1::NUMERIC_NO_HOOK
-            || definition.fields().iter().any(|field| field.is_weak || field.declared_type_name.as_deref()
-                .and_then(crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type)
-                != Some(super::TypedObjectFieldStorage::I64)) { return Err(reject()); }
+            || !definition.destruction_disposition().has_no_hook() {
+            return Err(reject());
+        }
+        let mut children = Vec::new();
+        for (ordinal, field) in definition.fields().iter().enumerate() {
+            if field.is_weak || definition.is_array_field(ordinal) { return Err(reject()); }
+            let name = field.declared_type_name.as_deref().ok_or_else(reject)?;
+            if crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type(name)
+                == Some(super::TypedObjectFieldStorage::I64) { continue; }
+            let child = module.metadata.canonical_object_membership.as_ref()
+                .and_then(|members| members.get(name)).copied().ok_or_else(reject)?;
+            if !selected.contains(&child) {
+                return Err("[freeze:contract][direct-placement] owned child outside selected closure".into());
+            }
+            children.push((ordinal as u32, child));
+        }
         let count = u64::try_from(definition.fields().len()).map_err(|_| reject())?;
         let size = count.checked_mul(8).and_then(|n| n.checked_add(16)).ok_or_else(reject)?;
-        Ok(Self { size, align: 8, field_offsets: (0..count).map(|i| 16 + i * 8).collect() })
+        Ok(Self { size, align: 8, field_offsets: (0..count).map(|i| 16 + i * 8).collect(),
+            children: children.into_boxed_slice() })
     }
-    pub(crate) fn matches_definition(&self, definition: &CanonicalObjectDefinitionV1) -> bool {
-        Self::for_definition(definition).as_ref() == Ok(self)
+
+    /// B admits an acyclic declaration closure, even when a recursive field
+    /// happens to receive Null. Runtime depth is not the admission boundary.
+    fn acyclic(plans: &[(CanonicalObjectIdV1, Self)]) -> bool {
+        let mut done = std::collections::BTreeSet::new();
+        loop {
+            let before = done.len();
+            for (object, plan) in plans {
+                if plan.children.iter().all(|(_, child)| done.contains(child)) { done.insert(*object); }
+            }
+            if done.len() == plans.len() { return true; }
+            if done.len() == before { return false; }
+        }
     }
 }
 
@@ -199,10 +225,33 @@ impl MirModule {
             let definition = self.canonical_object_definition(object)
                 .ok_or("[freeze:contract][direct-placement] missing canonical declaration")?;
             if definition.direct_placement.is_some() { return Err("[freeze:contract][direct-placement] already selected".into()); }
-            prepared.push((object, DirectObjectPlacementV1::for_definition(definition)?));
+            prepared.push((object, ()));
+        }
+        let prepared = prepared.into_iter().map(|(object, ())|
+            DirectObjectPlacementV1::for_definition(self, object, &seen).map(|plan| (object, plan)))
+            .collect::<Result<Vec<_>, _>>()?;
+        if !DirectObjectPlacementV1::acyclic(&prepared) {
+            return Err("[freeze:contract][direct-placement] recursive declaration closure unsupported".into());
         }
         let definitions = self.canonical_object_definitions.as_mut().ok_or("[freeze:contract][direct-placement] missing declarations")?;
         for (object, placement) in prepared { definitions[object.declaration_index() as usize].direct_placement = Some(placement); }
+        Ok(())
+    }
+
+    pub(in crate::mir) fn validate_direct_object_placements(&self) -> Result<(), String> {
+        let plans: Vec<_> = self.canonical_object_definitions().into_iter().flatten().enumerate()
+            .filter_map(|(index, definition)| definition.direct_placement().map(|plan|
+                (CanonicalObjectIdV1::from_declaration_index(index).expect("canonical index"), plan.clone())))
+            .collect();
+        let selected = plans.iter().map(|(object, _)| *object).collect();
+        for (object, plan) in &plans {
+            if DirectObjectPlacementV1::for_definition(self, *object, &selected).as_ref() != Ok(plan) {
+                return Err("[freeze:contract][direct-placement] descriptor/source layout mismatch".into());
+            }
+        }
+        if !DirectObjectPlacementV1::acyclic(&plans) {
+            return Err("[freeze:contract][direct-placement] recursive declaration closure unsupported".into());
+        }
         Ok(())
     }
 

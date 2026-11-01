@@ -169,6 +169,16 @@ fn owned_object_layout_publishes_self_referential_child_tuple() {
 #[test]
 fn owned_object_layout_publishes_constructed_child_canonical_tuple() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
+    let text = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-child-typed-min/main.hako"));
+    let compile = |text: &str, optimize| MirCompiler::with_options(optimize)
+        .compile_normal_with_published(request(text), |view, verification| -> Result<String, String> {
+            assert!(verification.is_ok(), "final artifact: {verification:?}");
+            let input = view.issue_lifecycle_physical_abi_input()?;
+            // The canonical CLI checks this boundary after optimization;
+            // unoptimized publication still contains unused declaration strings.
+            if optimize { crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)?; }
+            emit_lifecycle_physical_abi_json(&input)
+        });
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for optimize in [false, true] {
             let text = "box Leaf { flag: i64 birth() { me.flag = 0 } }
@@ -218,16 +228,6 @@ fn owned_object_layout_publishes_constructed_child_canonical_tuple() {
                 )
                 .unwrap();
         }
-        let text = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-child-typed-min/main.hako"));
-        let compile = |text: &str, optimize| MirCompiler::with_options(optimize)
-            .compile_normal_with_published(request(text), |view, verification| -> Result<String, String> {
-                assert!(verification.is_ok(), "final artifact: {verification:?}");
-                let input = view.issue_lifecycle_physical_abi_input()?;
-                // The canonical CLI checks this boundary after optimization;
-                // unoptimized publication still contains unused declaration strings.
-                if optimize { crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)?; }
-                emit_lifecycle_physical_abi_json(&input)
-            });
         for optimize in [false, true] {
             let crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(wire) = compile(text, optimize).unwrap()
                 else { panic!("canonical publication required"); };
@@ -238,6 +238,17 @@ fn owned_object_layout_publishes_constructed_child_canonical_tuple() {
                 let invalid = text.replace("moved.read() + empty.read()", stale);
                 assert!(compile(&invalid, optimize).is_err(), "stale receiver {stale}");
             }
+        }
+    });
+    crate::test_support::with_env_vars(&[("NYASH_MACRO_DISABLE", Some("1")),
+        ("HAKO_TYPED_OBJECT_STORE", Some("direct_v0:Leaf,Parent"))], || {
+        let provider = "box Leaf { flag: i64 birth() { me.flag = 0 } }
+            box Parent { first: Leaf second: Leaf birth() { me.first = new Leaf() me.second = new Leaf() } }
+            static box Main { main() { local parent = new Parent() return 5 } }";
+        for (name, source) in [("child", text), ("birth-prefix", provider)] {
+            let crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(wire) = compile(source, true).unwrap()
+                else { panic!("canonical direct publication required"); };
+            std::fs::write(std::env::temp_dir().join(format!("hako-issued-direct-{name}.json")), wire).unwrap();
         }
     });
 }

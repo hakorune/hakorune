@@ -227,6 +227,25 @@ static int lv4_dynamic_operand_live(hako_lv4_function_index* fn, yyjson_val* ope
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc"
 
+/* Only the exact owning Birth field formal receives a native child. The
+ * existing Birth flow still checks live actuals, one commit and Fault owner. */
+static int lv4_direct_birth_formal(const hako_lv4_input* in,
+    hako_lv4_function_index* callee, size_t ordinal, uint32_t* child) {
+  if (!lv4_is(callee->function, "role", "birth_unit") ||
+      !callee->receiver_object_set || !lv4_direct_layout(in, callee->receiver_object)) return 0;
+  yyjson_val* rows = yyjson_obj_get(lv4_layout(in, callee->receiver_object), "owned_object_residences");
+  size_t matches = 0;
+  for (size_t i = 0; i < yyjson_arr_size(rows); i++) {
+    yyjson_val* row = yyjson_arr_get(rows, i);
+    uint32_t object = lv4_u(row, "child_object_id");
+    if (lv4_direct_layout(in, object) && lv4_field_dependency_store_tuple(callee,
+        callee->receiver_object, lv4_u(row, "field_ordinal"), object, (uint32_t)ordinal)) {
+      *child = object; matches++;
+    }
+  }
+  return matches == 1;
+}
+
 static int lv4_direct_scalar_boundaries(const hako_lv4_input* in) {
   if (!in->direct) return 1;
   for (size_t fi = 0; fi < in->index_count; fi++) {
@@ -245,17 +264,27 @@ static int lv4_direct_scalar_boundaries(const hako_lv4_input* in) {
           lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "field_get") ||
           lv4_is(op, "kind", "field_set") || lv4_is(op, "kind", "home_release") ||
           lv4_is(op, "kind", "home_release_if_live") || lv4_is(op, "kind", "reclaim_unpublished") ||
-          lv4_is(op, "kind", "object_end_if_owned"))) return 0;
+          lv4_is(op, "kind", "object_end_if_owned") || lv4_is(op, "kind", "object_field_set") ||
+          lv4_is(op, "kind", "object_field_borrow") || lv4_is(op, "kind", "object_field_release"))) return 0;
       if (lv4_is(op, "kind", "field_set") && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
           !lv4_is(yyjson_obj_get(op, "exact_numeric_runtime_check"), "kind", "none")) return 0;
-      /* A permits direct instance receivers, but never pointer words as
-         opaque or typed arguments to another ABI boundary. */
       if (lv4_is(op, "kind", "ordinary_call") || lv4_is(op, "kind", "birth_call")) {
-        yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
+        yyjson_val* call = yyjson_obj_get(op, "call");
+        yyjson_val* args = yyjson_obj_get(call, "args");
+        uint32_t target = lv4_u(call, "target");
+        if (!target || target >= in->index_count) return 0;
         for (size_t ai = 0; ai < yyjson_arr_size(args); ai++) {
-          hako_lv4_value* actual = lv4_value_alias_root(fn,
-              lv4_index_value(fn, lv4_u(yyjson_arr_get(args, ai), "value")));
-          if (actual && actual->object_id_set && lv4_direct_layout(in, actual->object_id)) return 0;
+          yyjson_val* arg = yyjson_arr_get(args, ai);
+          hako_lv4_value* actual = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(arg, "value")));
+          uint32_t child = 0;
+          if (lv4_is(op, "kind", "birth_call") && lv4_direct_birth_formal(in, &in->index[target], ai, &child)) {
+            if (actual && actual->kind == LV4_HANDLE && yyjson_is_uint(yyjson_obj_get(arg, "kind")) && lv4_u(arg, "kind") == 0 &&
+                lv4_is(actual->instruction, "op", "const_null")) continue;
+            if (!actual || !actual->object_id_set || actual->object_id != child ||
+                !lv4_direct_layout(in, child) || !yyjson_is_uint(yyjson_obj_get(arg, "kind")) ||
+                lv4_u(arg, "kind") != 3 || !lv4_birth_actual_object(in, fn, target, ai, actual, 0) ||
+                !lv4_direct_initialized(in, fn, actual, lv4_u(fn->blocks[bi].block, "id"))) return 0;
+          } else if (actual && actual->object_id_set && lv4_direct_layout(in, actual->object_id)) return 0;
         }
       }
     }

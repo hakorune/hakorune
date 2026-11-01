@@ -372,6 +372,9 @@ static int lv4_direct_initialized(const hako_lv4_input* in, hako_lv4_function_in
     hako_lv4_value* value, uint32_t use) {
   hako_lv4_value* root = lv4_value_alias_root(fn, value);
   if (!root || !root->object_id_set || !lv4_direct_layout(in, root->object_id)) return 1;
+  /* These are field-supported loans, not allocations. The existing caller
+     below still proves their parent, unchanged interval and nonnull cone. */
+  if (root->origin == LV4_OWNED_FIELD_BORROW || root->kind == LV4_SLOT_BORROW) return 1;
   if (root->origin < 0) {
     if (!yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) ||
         root->id != lv4_u(fn->function, "receiver") || !fn->receiver_object_set ||
@@ -397,6 +400,33 @@ static int lv4_direct_initialized(const hako_lv4_input* in, hako_lv4_function_in
     completed |= lv4_pred_count(fn, normal) == 1 && hako_physical_block_dominates(fn->function, normal, use);
   }
   return matches == 1 && completed;
+}
+
+/* Reclaim frees only the unpublished outer allocation. The exact Birth's
+ * Fault prefix has already discharged its installed children in the callee. */
+static int lv4_direct_reclaim_from_birth_fault(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t object, uint32_t use) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (!root || !root->object_id_set || root->object_id != object ||
+      !lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
+  hako_lv4_block* allocation = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  yyjson_val* created = allocation ? yyjson_obj_get(lv4_term(allocation->block), "operation") : NULL;
+  if (!lv4_is(created, "kind", "new_box") || lv4_u(created, "object_id") != object) return 0;
+  size_t matches = 0; int admitted = 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* term = lv4_term(fn->blocks[bi].block);
+    yyjson_val* op = yyjson_obj_get(term, "operation");
+    yyjson_val* call = yyjson_obj_get(op, "call");
+    if (!lv4_is(op, "kind", "birth_call") ||
+        lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(call, "receiver"))) != root) continue;
+    uint32_t target = lv4_u(call, "target"), fault = lv4_u(term, "fault"), normal = lv4_u(term, "normal");
+    if (!target || target >= in->index_count || !in->index[target].receiver_object_set ||
+        in->index[target].receiver_object != object || !lv4_is(in->index[target].function, "role", "birth_unit")) return 0;
+    matches++;
+    admitted |= lv4_pred_count(fn, fault) == 1 && hako_physical_block_dominates(fn->function, fault, use) &&
+        lv4_guard_path(fn, normal, use, 0, 0, 0) == 0;
+  }
+  return matches == 1 && admitted;
 }
 
 static int lv4_readable_object(const hako_lv4_input* in, hako_lv4_function_index* fn,

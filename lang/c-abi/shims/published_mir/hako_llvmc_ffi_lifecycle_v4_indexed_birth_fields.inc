@@ -121,7 +121,9 @@ static int lv4_direct_birth_initialized_at(const hako_lv4_input* in,
     for (size_t bi = 0; bi < fn->block_count; bi++) {
       yyjson_val* term = lv4_term(fn->blocks[bi].block);
       yyjson_val* op = yyjson_obj_get(term, "operation");
-      if (!lv4_is(op, "kind", "field_set") || lv4_u(op, "object_id") != fn->receiver_object ||
+      int scalar = lv4_is(op, "kind", "field_set") && !lv4_birth_reserved(in, op);
+      int child = lv4_is(op, "kind", "object_field_set") && lv4_birth_owned(in, op, 1);
+      if ((!scalar && !child) || lv4_u(op, "object_id") != fn->receiver_object ||
           lv4_u(op, "field_ordinal") != field || !lv4_birth_base(fn, op)) continue;
       uint32_t normal = lv4_u(term, "normal");
       if (lv4_pred_count(fn, normal) == 1 && hako_physical_block_dominates(fn->function, normal, use)) initialized = 1;
@@ -271,4 +273,20 @@ static int lv4_birth_actual_object(const hako_lv4_input* in,
     if (++stores != 1 || (!typed_object && !dynamic_nullable_object) || !lv4_birth_base(callee, store)) return 0;
   }
   return stores == 1;
+}
+
+/* Canonical live child provenance used by Birth field installation. */
+static int lv4_borrowed_typed_live(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state) {
+  if (!value || value->kind != LV4_HANDLE || !lv4_layout(in, value->object_id) ||
+      !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, value->object_id, 1)) return 0;
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  if (!root || root->object_id != value->object_id) return 0;
+  if (root->origin == -2)
+    return fn->receiver_object_set && yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) &&
+        root->id == lv4_u(fn->function, "receiver") && root->object_id == fn->receiver_object;
+  if (!lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
+  hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+  return lv4_is(op, "kind", "new_box") && lv4_u(op, "object_id") == root->object_id;
 }
