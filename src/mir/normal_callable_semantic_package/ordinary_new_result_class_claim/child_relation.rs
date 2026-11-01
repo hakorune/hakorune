@@ -173,15 +173,28 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
             }
         }).map_err(|_| super::super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
     }
-    // Birth bodies are outside batch.declarations(). Until their original
-    // sites are joined as well, any construction in their owner forest makes
-    // this source-only census incomplete.
+    // Join original Birth-root New sites into the same census. An expected
+    // site grants no field relation: missing argument/field proofs still fail
+    // that class's complete (site, field) coverage below.
     for row in constructors.rows().iter().filter(|row| row.kind() == crate::parser::ConstructorSourceKindV1::Birth) {
         let input = row.lowering_input(batch.source_ast())
             .map_err(|_| super::super::OrdinaryNewCoSealIssueV1::BatchLoan)?;
-        if input.forest().semantic_owners().any(|(_, owner)| owner_has_construction_v1(owner)) {
-            sites_complete = false;
+        for construction in input.function().expression_source().constructions() {
+            let outer = OwnedExprSiteV1::new(input.owner(), construction.site().clone());
+            if let Some(object) = parent_object_for_outer(&outer, input, batch, constructors) {
+                if expected_dynamic_sites.values().any(|sites| sites.contains(&outer)) {
+                    sites_complete = false;
+                    continue;
+                }
+                expected_dynamic_sites.entry(object).or_default().insert(outer);
+            } else if !crate::box_trait::is_builtin_box(construction.class())
+                || batch.ordinary_box_coverage().row_for(construction.class()).is_err()
+                || batch.ordinary_box_coverage().row_for(construction.class()).ok().flatten().is_some() {
+                sites_complete = false;
+            }
         }
+        if input.forest().semantic_owners().any(|(owner, nested)| owner != input.owner()
+            && owner_has_construction_v1(nested)) { sites_complete = false; }
     }
 
     let dynamic_classes: BTreeMap<_, _> = dynamic_classes.into_iter()

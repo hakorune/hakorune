@@ -101,6 +101,7 @@ impl OriginalNewCallSeedsV1 {
 #[cfg_attr(test, derive(Clone))]
 pub(super) struct OriginalNewSeedsV1 {
     rows: Vec<OriginalNewCallSeedsV1>,
+    call_locals: BTreeMap<OwnedExprSiteV1, Option<OriginalNewLocalUsesV1>>,
     incomplete: bool,
 }
 impl OriginalNewSeedsV1 {
@@ -164,9 +165,6 @@ impl OriginalNewSeedsV1 {
         if input.body_shape().is_none() {
             self.incomplete = true;
         }
-        if input.function().expression_source().constructions().next().is_none() {
-            return Ok(());
-        }
         // Capture local reads once per original owner rather than rediscovering
         // them at every consumer of each New. An ambiguous or captured local
         // has no local snapshot and does not affect unrelated New consumers.
@@ -192,6 +190,16 @@ impl OriginalNewSeedsV1 {
                 if initializers.insert(site.clone(), Some(init)).is_some() {
                     initializers.insert(site.clone(), None);
                 }
+            }
+        }
+        // Reuse the same source read/move census for owned call results. The
+        // result solver, not this observation, decides their class and roots.
+        for (site, init) in &initializers {
+            if function.method_call_source_v1(site).is_none() { continue; }
+            let uses = init.and_then(|init| ledger_ok.then_some(()).and_then(|()|
+                field_source::observe_local_uses_v1(input, init, &local_reads, &counts, &rebindings, &captures)));
+            if self.call_locals.insert(OwnedExprSiteV1::new(input.owner(), site.clone()), uses).is_some() {
+                self.incomplete = true;
             }
         }
         let mut original_array_locals = BTreeMap::new();

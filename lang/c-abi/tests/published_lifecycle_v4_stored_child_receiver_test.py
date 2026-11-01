@@ -243,6 +243,14 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
             reject(data, 'published-lifecycle-v4/unsupported-cohort')
         print('direct owned child EXE, nullable/move, allocation Faults and complete End')
 
+    factory_path = DIRECTORY / 'hako-issued-typed-binary-trees.json'
+    if factory_path.exists():
+        checked([driver, factory_path, obj], env=ENV)
+        checked(['cc', '-fuse-ld=lld', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
+        normal = run([exe], env=ENV)
+        assert normal.returncode == 0 and 'summary=ok\n' in normal.stdout, normal
+        print('typed recursive factory object-store EXE')
+
     # Optional source-issued typed nullable field read; retain the existing
     # driver and reject the same physical contract after isolated mutations.
     typed_path = DIRECTORY / 'hako-issued-typed-null-field-borrow.json'

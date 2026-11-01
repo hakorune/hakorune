@@ -291,7 +291,8 @@ static int lv4_map_slot_guarded(hako_lv4_function_index* fn, hako_lv4_value* val
 }
 
 /* All calls of the SAME unique Birth writer pair null with null or fresh owned
- * children with fresh owned children. Unknown/borrowed nullable actuals refuse. */
+ * children with fresh or exactly verified nonnullable owned-call children.
+ * Unknown/borrowed nullable actuals refuse. */
 static int lv4_typed_child_pair(const hako_lv4_input* in,
     uint32_t object, uint32_t guard, uint32_t field, uint32_t child) {
   if (guard == field) return 1;
@@ -320,7 +321,8 @@ static int lv4_typed_child_pair(const hako_lv4_input* in,
             value->object_id != child || value->origin < 0 ||
             !lv4_is(value->instruction, "op", "invoke_normal_result")) return 0;
         hako_lv4_block* born = lv4_index_block(fn, lv4_u(value->instruction, "invoke_block"));
-        if (!born || !lv4_is(yyjson_obj_get(lv4_term(born->block), "operation"), "kind", "new_box")) return 0;
+        if (!born || (!lv4_is(yyjson_obj_get(lv4_term(born->block), "operation"), "kind", "new_box") &&
+            !lv4_owned_value_object(in, fn, value, 0))) return 0;
         fresh++;
       }
       if (nulls != 2 && fresh != 2) return 0;

@@ -241,6 +241,13 @@ fn owned_object_layout_publishes_constructed_child_canonical_tuple() {
         }
     });
     crate::test_support::with_env_vars(&[("NYASH_MACRO_DISABLE", Some("1")),
+        ("HAKO_TYPED_OBJECT_STORE", None)], || {
+        let text = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-tree-bench-typed/main.hako"));
+        let crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(wire) = compile(text, true).unwrap()
+            else { panic!("canonical typed factory publication required"); };
+        std::fs::write(std::env::temp_dir().join("hako-issued-typed-binary-trees.json"), wire).unwrap();
+    });
+    crate::test_support::with_env_vars(&[("NYASH_MACRO_DISABLE", Some("1")),
         ("HAKO_TYPED_OBJECT_STORE", Some("direct_v0:Leaf,Parent"))], || {
         let provider = "box Leaf { flag: i64 birth() { me.flag = 0 } }
             box Parent { first: Leaf second: Leaf birth() { me.first = new Leaf() me.second = new Leaf() } }

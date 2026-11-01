@@ -281,8 +281,8 @@ pub(super) fn observe_local_uses_v1(
 }
 
 impl OriginalNewSeedsV1 {
-    /// Check every use of each original local New against the existing child
-    /// relations and incoming method rows. This is a source-only filter: it
+    /// Close original New/owned-result local reads and owned Return roots
+    /// against the same child relations and incoming methods. This source filter
     /// does not establish Home transfer order or physical call correspondence.
     fn class_local_uses_v1(
         &self, class: &str, sites: &BTreeSet<OwnedExprSiteV1>,
@@ -292,7 +292,7 @@ impl OriginalNewSeedsV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     ) -> bool {
-        use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ResultWitnessStepV1;
+        use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::{ResultWitnessStepV1, ResultValueOriginV1};
         if self.class_sites_v1(class, constructors).as_ref() != Some(sites)
             || !inventory.source_registered_owners_v1().contains(&callee)
             || inventory.sum_vetoed_owners_v1().contains(&callee) { return false; }
@@ -351,13 +351,51 @@ impl OriginalNewSeedsV1 {
         }
         let mut roots = BTreeSet::new();
         let mut child_to_parent = BTreeMap::new();
+        let mut returned = BTreeSet::new();
+        for (key, exits) in facts.source_rows() {
+            if !exits.iter().flat_map(|row| row.witnesses()).any(|root|
+                matches!(root.step(), ResultWitnessStepV1::FreshConstruction)
+                    && matches!(root.origin(), ResultValueOriginV1::Fresh(name) if name.as_ref() == class)
+                    && sites.contains(root.site())) { continue; }
+            let Some(owner) = exits.first().map(|row| row.site().owner()) else { continue; };
+            let Ok(original) = facts.checked_original_source_roots_v1(key, owner) else { return false; };
+            for root in original {
+                if matches!(root.step(), ResultWitnessStepV1::FreshConstruction)
+                    && matches!(root.origin(), ResultValueOriginV1::Fresh(name) if name.as_ref() == class)
+                    && sites.contains(root.site()) { returned.insert(root.site().clone()); }
+            }
+        }
+        let mut locals = Vec::new();
         for row in self.rows.iter().filter(|row| row.original.class() == class) {
+            match &row.local_uses {
+                Some(original) => locals.push((&row.site, original, Some(row.original.arguments().len()), None)),
+                None if returned.contains(&row.site) => { roots.insert(row.site.clone()); }
+                None => return false,
+            }
+        }
+        for (site, observed) in &self.call_locals {
+            let mut incoming = inventory.source_rows_with_method_v1().filter(|(row, _)| &row.call == site);
+            let Some((row, Some(method))) = incoming.next() else { continue; };
+            if incoming.next().is_some() { return false; }
+            let Some(reference) = row.source.original_instance_reference_v1() else { continue; };
+            let Ok(callees) = facts.checked_original_source_roots_v1(&reference.target, row.callee) else { continue; };
+            if callees.is_empty() || !callees.iter().all(|root|
+                matches!(root.origin(), ResultValueOriginV1::Fresh(name) if name.as_ref() == class)
+                    && matches!(root.step(), ResultWitnessStepV1::FreshConstruction) && returned.contains(root.site())) { continue; }
+            let Some(original) = observed else { return false; };
             let checked = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
-                batch, constructors, row.site.owner(), |_, input| {
+                batch, constructors, site.owner(), |_, input| reference.call_site == *site
+                    && reference.callee_owner == row.callee && reference.matches_original_call_v1(input, method)
+                    && input.function().method_call_source_v1(site.site()).is_some_and(|held| std::sync::Arc::ptr_eq(held, method)));
+            if checked != Ok(true) { return false; }
+            locals.push((site, original, None, Some((reference.target, callees.into_iter().cloned().collect::<Vec<_>>()))));
+        }
+        for (site, original, arity, call_roots) in locals {
+            let checked = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                batch, constructors, site.owner(), |_, input| {
                     let function = input.function();
-                    let Some(original) = &row.local_uses else { return false; };
                     let binding = original.initializer.binding();
-                    if original.initializer.initializer_site() != Some(row.site.site())
+                    if original.initializer.initializer_site() != Some(site.site())
                         || binding.owner() != input.owner() { return false; }
                     let mut allowed = original.moves.clone();
                     let mut transfers = 0usize;
@@ -366,12 +404,19 @@ impl OriginalNewSeedsV1 {
                             || relation.outer().owner() != relation.actual().owner() || !sites.contains(relation.outer())
                             || relation.actual().owner() != input.owner()
                             || !original.reads.contains(relation.actual().site()) { continue; }
-                        let [witness] = relation.witnesses() else { return false; };
-                        if witness.site() != relation.actual() || relation.provided_field_source_v1(class).is_err()
-                            || !matches!(witness.step(), ResultWitnessStepV1::LocalConstruction(source)
-                                if source.matches_local_new_v1(binding, &row.site, class, row.original.arguments().len()))
+                        let witnesses = relation.witnesses();
+                        let matches_source = match &call_roots {
+                            None => matches!(witnesses, [witness] if witness.site() == relation.actual()
+                                && matches!(witness.step(), ResultWitnessStepV1::LocalConstruction(source)
+                                    if source.matches_local_new_v1(binding, site, class, arity.expect("New arity")))),
+                            Some((key, roots)) => witnesses.len() == roots.len() && witnesses.iter().zip(roots).all(|(witness, root)|
+                                witness.site() == relation.actual() && matches!(witness.step(), ResultWitnessStepV1::Call {
+                                    site: original, key: actual_key, callee, substitution: None,
+                                } if original == site && actual_key == key && Rc::ptr_eq(callee, root))),
+                        };
+                        if !matches_source || relation.provided_field_source_v1(class).is_err()
                             || !allowed.insert(relation.actual().site().clone()) { return false; }
-                        if child_to_parent.insert(row.site.clone(), relation.outer().clone()).is_some() { return false; }
+                        if child_to_parent.insert(site.clone(), relation.outer().clone()).is_some() { return false; }
                         transfers += 1;
                     }
                     if transfers > 1 { return false; }
@@ -386,12 +431,12 @@ impl OriginalNewSeedsV1 {
                             let BorrowedIncomingSourceV1::Instance(target) = &incoming.source else { return false; };
                             if target.is_self_receiver() || target.receiver_binding().ok().is_none_or(|binding| !original.bindings.contains(&binding))
                                 || !target.matches_receiver(input, method) || !unmatched.remove(&incoming.call) { return false; }
-                            roots.insert(row.site.clone());
+                            roots.insert(site.clone());
                             if !allowed.insert(method.receiver_site().clone()) { return false; }
                         }
                     }
                     if original.reads != allowed && crate::config::env::builder_debug_enabled() {
-                        eprintln!("[stored-child] class={class} new={:?} unaccounted={:?} foreign={:?}", row.site,
+                        eprintln!("[stored-child] class={class} source={:?} unaccounted={:?} foreign={:?}", site,
                             original.reads.difference(&allowed).collect::<Vec<_>>(), allowed.difference(&original.reads).collect::<Vec<_>>());
                     }
                     !original.reads.is_empty() && original.reads == allowed
