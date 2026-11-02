@@ -94,7 +94,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // projection, including its exact dead-producer omissions.
             boundary.validate_complete(function, &mut projection, &bindings)?;
             self.validate_new_emissions_projected(owner, function, Some(&projection))?;
-            self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| projection.binding(binding.0, &binding.1), |copy| projection.borrowed_copy_coordinate(function, copy).map(|_| ()))?;
+            self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), Some(&projection), |binding| projection.binding(binding.0, &binding.1), |copy| projection.borrowed_copy_coordinate(function, copy).map(|_| ()))?;
             self.validate_terminal_scalar_literal_return_projected(owner, function, Some(&projection))?;
             self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
             self.validate_terminal_i64_add_return_projected(owner, function, Some(&projection))?;
@@ -183,7 +183,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_new_emissions_projected(owner, function, projection)?;
         self.validate_terminal_unit_return(owner, function)?;
         self.validate_root_home_exit(owner, function, projection)?;
-        self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| match projection {
+        self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), projection, |binding| match projection {
             Some(projection) => projection.binding(binding.0, &binding.1), None => Ok(Some(binding.clone())),
         }, |copy| match projection {
             Some(projection) => projection.borrowed_copy_coordinate(function, copy).map(|_| ()),

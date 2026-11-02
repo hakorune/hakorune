@@ -40,13 +40,8 @@ pub(super) fn admit_lifecycle<'module>(
     );
     let result_is_retained = matches!(
         view.retained_root_result()?,
-        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. }
-            | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }
+        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { .. }
             | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }
-            | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
-            | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { .. }
-            | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64ScalarReturn { .. }
-            | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::MapGetReturn { .. }
             | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::ObjectReturn { .. })
     );
     if root_name.is_some() && !result_is_retained {

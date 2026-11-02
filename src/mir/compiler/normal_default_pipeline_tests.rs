@@ -194,7 +194,7 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
                     .expect("final lifecycle view retains its source relation");
                 assert!(matches!(
                     view.retained_root_result().unwrap(),
-                    Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
+                    Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
                         if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
                 ));
                 let _identity = root_source.app_main_identity();
@@ -445,7 +445,7 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
                     assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped);
                     assert!(matches!(
                         view.retained_root_result().unwrap(),
-                        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
+                        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { .. })
                     ));
                     assert_eq!(view.module().canonical_callable_definition_count(), 1);
                     assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("Main.helper/1"));
@@ -499,7 +499,7 @@ fn normal_ingress_preserves_top_level_free_function_after_finish() {
                     assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped);
                     assert!(matches!(
                         view.retained_root_result().unwrap(),
-                        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
+                        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { .. })
                     ));
                     assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("helper/1"));
                     let contract = view.issue_lifecycle_compiled_entry_contract()?;
@@ -679,7 +679,7 @@ fn direct_i64_field_return_reaches_completed_entry_contract() {
         compiler.compile_normal_with_published(published_request(source), |view, _| -> Result<(), String> {
             let source = view.retained_root_source().ok_or_else(|| "root source missing".to_owned())?;
             assert!(matches!(view.retained_root_result().unwrap(),
-                Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { owner })
+                Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
                     if source.terminal_i64_field_return().is_some_and(|relation| relation.owner() == owner)));
             let input = view.issue_lifecycle_physical_abi_input()?;
             assert_eq!(input.entry().root_result(), published_backend_view::CompiledEntryRootResultV1::I64);

@@ -50,7 +50,7 @@ impl ReceivedFieldReadSourceV1 {
             ReceivedFieldReadRequestV1::StoredMapGet { .. } => return Err(fault("received/provenance-overlap")),
             ReceivedFieldReadRequestV1::Object { acquisition, .. } => acquisition,
             ReceivedFieldReadRequestV1::Mixed(loan) => loan.call(),
-            ReceivedFieldReadRequestV1::Borrowed(loan) => loan.call(),
+            ReceivedFieldReadRequestV1::Borrowed { loan, .. } => loan.call(),
         };
         let target = original_lexical_target_at_v1(targets, acquisition)?
             .ok_or_else(|| fault("received/original-target-missing"))?;
@@ -61,6 +61,11 @@ impl ReceivedFieldReadSourceV1 {
             let mut rows = input.function().expression_source().initializers()
                 .filter(|row| row.binding() == request.receiver);
             rows.next().is_some_and(|row| row.initializer_site() == Some(acquisition.site())) && rows.next().is_none()
+                && match original {
+                    ReceivedFieldReadRequestV1::Borrowed { loan, exclusion: Some(exclusion) } =>
+                        exclusion.corroborates_initializer(input, loan.destination(), acquisition.site(), &request.receiver_site),
+                    _ => true,
+                }
         }).map_err(|_| fault("received/caller-input"))?;
         if !exact || acquisition.owner() != request.site.owner() { return Err(fault("received/initializer")); }
         match original {
@@ -74,7 +79,7 @@ impl ReceivedFieldReadSourceV1 {
                 }
                 Ok(Self::Object { request: original.clone(), loan })
             }
-            ReceivedFieldReadRequestV1::Borrowed(_) => {
+            ReceivedFieldReadRequestV1::Borrowed { .. } => {
                 let source = Self::Borrowed { request: original.clone(), target: target.clone() };
                 source.recheck_issuing_target_v1(classes, ingress, target, request)?;
                 Ok(source)
@@ -96,7 +101,7 @@ impl ReceivedFieldReadSourceV1 {
         match self {
             Self::Object { loan, .. } => loan.class(),
             Self::Mixed { request: ReceivedFieldReadRequestV1::Mixed(loan), .. } => loan.fresh_class(),
-            Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed(loan), .. } =>
+            Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed { loan, .. }, .. } =>
                 loan.declared_read_result_v1().expect("checked original read declaration").declared_type(),
             _ => unreachable!("received Mixed source retains original Mixed request"),
         }
@@ -110,7 +115,7 @@ impl ReceivedFieldReadSourceV1 {
                 _ => None,
             },
             Self::Mixed { .. } => None,
-            Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed(loan), .. } =>
+            Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed { loan, .. }, .. } =>
                 Some(loan.result_kind_v1()),
             Self::Borrowed { .. } => None,
         }
@@ -120,7 +125,17 @@ impl ReceivedFieldReadSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed(&self)
         -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1> {
-        match self.request() { ReceivedFieldReadRequestV1::Borrowed(loan) => Some(loan), _ => None }
+        match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => Some(loan), _ => None }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_guard(&self) -> Option<(
+        &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>,
+    )> {
+        match self.request() {
+            ReceivedFieldReadRequestV1::Borrowed { loan, exclusion: Some(exclusion) }
+                if exclusion.root_binding() == loan.destination() => Some((loan, exclusion)),
+            _ => None,
+        }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn target(&self) -> &LexicalInstanceCallSourceTargetV1 {
         match self { Self::Object { loan, .. } => loan.source(), Self::Mixed { target, .. } | Self::Borrowed { target, .. } => target }
@@ -138,7 +153,7 @@ impl ReceivedFieldReadSourceV1 {
             Self::Object { loan, .. } => classes.recheck_object_call_roots_v1(self.target(), loan).map_err(fault),
             Self::Borrowed { .. } => {
                 let loan = self.borrowed().ok_or_else(|| fault("received/source-drift"))?;
-                if loan.destination() != request.receiver || !loan.is_declared_read_v1() || !loan.payload_nonnull_v1()
+                if loan.destination() != request.receiver || !loan.is_declared_read_v1() || (!loan.payload_nonnull_v1() && self.borrowed_guard().is_none())
                     || loan.owned_local_support_v1().is_none()
                     || target.borrowed_nullable_local_source() != Some(loan)
                     || !ingress.corroborated_original_v1() {

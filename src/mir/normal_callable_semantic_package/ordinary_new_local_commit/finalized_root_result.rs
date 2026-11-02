@@ -101,35 +101,18 @@ impl FinalizedRootSourceHandoffV1 {
         }
         let mut abi = None;
         for terminal in self.terminals.values() {
+            let owner = terminal.owner();
+            if owner != self.owner { return Err(freeze("root-result/source-identity")); }
+            // Source evidence retains every operation/producer separately.
+            // This boundary projects only the single physical integer ABI.
             let projected = match terminal {
-                TerminalRelationV1::Call(row) => {
-                    FinalizedRootResultAbiV1::CallReturn { owner: row.owner() }
-                }
-                TerminalRelationV1::I64Add(row) => {
-                    FinalizedRootResultAbiV1::I64AddReturn { owner: row.owner() }
-                }
-                TerminalRelationV1::Unit(row) => {
-                    FinalizedRootResultAbiV1::UnitReturn { owner: row.owner() }
-                }
-                TerminalRelationV1::IntegerLiteral(row) => {
-                    FinalizedRootResultAbiV1::IntegerLiteralReturn { owner: row.owner() }
-                }
-                // Bool source evidence has no selected physical result ABI yet.
-                TerminalRelationV1::BoolLiteral(_) => return Ok(None),
-                TerminalRelationV1::I64Field(row) => {
-                    FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
-                }
-                TerminalRelationV1::I64Scalar(row) => {
-                    FinalizedRootResultAbiV1::I64ScalarReturn { owner: row.owner() }
-                }
-                // A non-i64 value return derives no physical result ABI at
-                // this boundary; the lifecycle capability lane supplies it.
-                TerminalRelationV1::Value(_) => return Ok(None),
-                // An opaque call return proves no result class at all.
-                TerminalRelationV1::OpaqueCall(_) => return Ok(None),
-                TerminalRelationV1::MapGet(row) => {
-                    FinalizedRootResultAbiV1::MapGetReturn { owner: row.owner() }
-                }
+                TerminalRelationV1::Call(_) | TerminalRelationV1::I64Add(_)
+                | TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::I64Field(_)
+                | TerminalRelationV1::I64Scalar(_) | TerminalRelationV1::MapGet(_) =>
+                    FinalizedRootResultAbiV1::I64Return { owner },
+                TerminalRelationV1::Unit(_) => FinalizedRootResultAbiV1::UnitReturn { owner },
+                TerminalRelationV1::BoolLiteral(_) | TerminalRelationV1::Value(_)
+                | TerminalRelationV1::OpaqueCall(_) => return Ok(None),
             };
             match abi {
                 None => abi = Some(projected),
@@ -149,31 +132,8 @@ pub(crate) enum FinalizedRootResultAbiV1 {
         owner: FunctionOwnerIdV1,
         kind: crate::mir::instruction::InvokeCallResultKind,
     },
-    CallReturn {
-        owner: FunctionOwnerIdV1,
-    },
-    I64AddReturn {
-        owner: FunctionOwnerIdV1,
-    },
-    UnitReturn {
-        owner: FunctionOwnerIdV1,
-    },
-    IntegerLiteralReturn {
-        owner: FunctionOwnerIdV1,
-    },
-    I64FieldReturn {
-        owner: FunctionOwnerIdV1,
-    },
-    /// `return <bound-i64-local>`/trivial integer expression — the scalar
-    /// classifier's proven-i64 exit. The i64 proof stays in the sealed
-    /// expression-source inventory; this row only carries the owner.
-    I64ScalarReturn {
-        owner: FunctionOwnerIdV1,
-    },
-    /// `return <map>.get("<literal>")` — the readable-Map terminal. The
-    /// checked read produces the exact i64 payload; the map itself is
-    /// never the returned value.
-    MapGetReturn {
-        owner: FunctionOwnerIdV1,
-    },
+    /// Known integer source exits share one ABI; original source relations
+    /// retain their distinct producer and cleanup evidence.
+    I64Return { owner: FunctionOwnerIdV1 },
+    UnitReturn { owner: FunctionOwnerIdV1 },
 }

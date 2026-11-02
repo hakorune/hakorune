@@ -95,7 +95,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         }
         let stored_get = matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }));
         let borrowed_read = matches!(request.received,
-            Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Borrowed(_)));
+            Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Borrowed { .. }));
         if request.received.is_some() && !stored_get
             && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
                 if (matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {

@@ -183,8 +183,8 @@ static int lv4_declared_formal_identity(const hako_lv4_input* in, uint32_t targe
   return result;
 }
 
-/* A local New actual proves nonnull only when EVERY original callee Return
- * forwards the same formal. Literal Null alternatives are never narrowed away. */
+/* Without an exact result guard, EVERY original callee Return must prove
+ * nonnull. A guard excludes Null only on its dominated consumer path. */
 static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
     hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object, uint32_t field) {
   yyjson_val* op = lv4_borrowed_result_operation(fn, value);
@@ -194,15 +194,20 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
   uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
   if (!target || target >= in->index_count) return 0;
   hako_lv4_function_index* callee = &in->index[target];
+  hako_lv4_value* original = lv4_value_alias_root(fn, value);
+  hako_lv4_block* producer = original && lv4_is(original->instruction, "op", "invoke_normal_result")
+      ? lv4_index_block(fn, lv4_u(original->instruction, "invoke_block")) : NULL;
+  int guarded = lv4_nullable_slot_guarded(fn, original, producer, use);
   size_t returns = 0;
   for (size_t bi = 0; bi < callee->block_count; bi++) {
     yyjson_val* term = lv4_term(callee->blocks[bi].block);
     if (!lv4_is(term, "op", "return")) continue;
     returns++;
     yyjson_val* origin = yyjson_obj_get(term, "result_origin");
+    if (lv4_is(origin, "kind", "null") && guarded) continue;
     if (!hako_physical_result_receiver(op)) {
       if (!lv4_is(origin, "kind", "borrowed_formal") &&
-          (!lv4_is(origin, "kind", "borrowed_call") || !lv4_declared_formal_identity(in, target))) return 0;
+          (!lv4_is(origin, "kind", "borrowed_call") || (!guarded && !lv4_declared_formal_identity(in, target)))) return 0;
     } else {
       if (!hako_physical_result_receiver(callee->function)) return 0;
       if (lv4_is(origin, "kind", "borrowed_receiver")) {
@@ -213,7 +218,7 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
         /* Normal of a checked nonnullable borrow guarantees the child value;
            a nullable borrow requires its own result guard, not a Parent guard. */
         if (lv4_u(origin, "object_id") != object ||
-            !yyjson_is_false(yyjson_obj_get(operation, "nullable"))) return 0;
+            (!guarded && !yyjson_is_false(yyjson_obj_get(operation, "nullable")))) return 0;
       } else return 0;
     }
   }

@@ -5,6 +5,7 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
 type Binding = (BasicBlockId, MirInstruction);
+type Finished = super::local_commit::physical_boundary::FinishedBindings;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Recheck the source handle and the exact Borrow/Normal pair retained by
@@ -265,6 +266,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// finishing. Instruction shape alone never creates source membership.
     pub(in crate::mir::normal_callable_semantic_package) fn validate_checked_field_census_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction, context: CallValidationContextV1<'_>,
+        finishing: Option<&Finished>,
         mut project: impl FnMut(&Binding) -> Result<Option<Binding>, String>,
     ) -> Result<Vec<Binding>, String> {
         let sites: Vec<_> = self.local_field_reads.borrow().iter()
@@ -285,6 +287,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 expected.push(mapped);
             }
             let pair = self.checked_field_pair_v1(&site, context)?.ok_or_else(|| fault("received/pair-missing"))?;
+            {
+                let rows = self.local_field_reads.borrow();
+                let row = &rows[&site];
+                if let Some((loan, exclusion)) = row.source.received.as_ref().and_then(|source| source.borrowed_guard()) {
+                    let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress
+                        else { return Err(fault("received/exact-read-missing")); };
+                    context.validate_nullable_nonnull_read_v1(
+                        &crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(Box::new(loan.clone())),
+                        exclusion, read, function, finishing, &pair[0])?;
+                }
+            }
             for binding in pair {
                 let mapped = project(&binding)?.ok_or_else(|| fault("received/finished-binding-missing"))?;
                 if expected.contains(&mapped) { return Err(fault("received/duplicate-binding")); }
@@ -344,7 +357,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| Ok(Some(binding.clone())), |(_, copy)| {
+        self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), None, |binding| Ok(Some(binding.clone())), |(_, copy)| {
             if function.blocks.values().flat_map(|block| block.all_instructions()).filter(|i| *i == copy).count() != 1 {
                 return Err(fault("alias/finished-copy-missing-or-duplicate"));
             }
@@ -354,6 +367,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn validate_field_reads_with_projection_v1(
         &self, owner: FunctionOwnerIdV1, function: &MirFunction, context: CallValidationContextV1<'_>,
+        finishing: Option<&Finished>,
         mut project: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<Option<(BasicBlockId, MirInstruction)>, String>,
         mut project_copy: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<(), String>,
     ) -> Result<(), String> {
@@ -445,7 +459,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.validate_owned_ready_reads_v1(owner, function, context, &mut project)?;
         self.validate_checked_field_census_v1(owner, function,
-            context, project)
+            context, finishing, project)
             .map(|_| ())
     }
 }

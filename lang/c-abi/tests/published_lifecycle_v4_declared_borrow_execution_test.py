@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol, expected in [('local', 'Leaf.identity/1', 7), ('receiver', 'Leaf.identity/0', 7), ('field', 'Parent.identity/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9)]:
+    for suffix, symbol, expected in [('local', 'Leaf.identity/1', 7), ('receiver', 'Leaf.identity/0', 7), ('field', 'Parent.identity/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
         # Unchanged source-issued explicit read result; Copy retains its original Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
@@ -210,6 +210,16 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
         assert run.returncode == expected, (run.returncode, run.stdout, run.stderr)
         print(f'source-issued From {suffix} support: canonical EXE exit {expected}')
+        if suffix.startswith('guarded-field-'):
+            changed = copy.deepcopy(read)
+            guards = [row['instruction'] for block in function(changed, 'main')['blocks']
+                      for row in block['instructions']
+                      if row['instruction']['op'] == 'borrowed_null_compare']
+            assert len(guards) == 1
+            guards[0]['predicate'] = 'ne'
+            compile_input(changed, accepted=False)
+            print('reject swapped nullable field guard')
+
         for side in ['call', 'callee']:
             for marker in [None, False]:
                 data = copy.deepcopy(read)

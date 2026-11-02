@@ -15,12 +15,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
         FinalizedRootResultAbiV1::ObjectReturn { .. } => {
             Err(fault("compiled-entry-object-result-unsupported"))
         }
-        FinalizedRootResultAbiV1::CallReturn { .. }
-        | FinalizedRootResultAbiV1::I64AddReturn { .. }
-        | FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
-        | FinalizedRootResultAbiV1::I64FieldReturn { .. }
-        | FinalizedRootResultAbiV1::I64ScalarReturn { .. }
-        | FinalizedRootResultAbiV1::MapGetReturn { .. } => Ok(CompiledEntryRootResultV1::I64),
+        FinalizedRootResultAbiV1::I64Return { .. } => Ok(CompiledEntryRootResultV1::I64),
         FinalizedRootResultAbiV1::UnitReturn { .. } => Ok(CompiledEntryRootResultV1::Unit),
     }
 }

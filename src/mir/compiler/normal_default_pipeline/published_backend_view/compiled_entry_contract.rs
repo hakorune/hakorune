@@ -659,13 +659,8 @@ fn issue_birth_calls(
 ) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
     let owner = match result {
         FinalizedRootResultAbiV1::ObjectReturn { owner, .. }
-        | FinalizedRootResultAbiV1::CallReturn { owner }
-        | FinalizedRootResultAbiV1::I64AddReturn { owner }
-        | FinalizedRootResultAbiV1::UnitReturn { owner }
-        | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
-        | FinalizedRootResultAbiV1::I64FieldReturn { owner }
-        | FinalizedRootResultAbiV1::I64ScalarReturn { owner }
-        | FinalizedRootResultAbiV1::MapGetReturn { owner } => owner,
+        | FinalizedRootResultAbiV1::I64Return { owner }
+        | FinalizedRootResultAbiV1::UnitReturn { owner } => owner,
     };
     let indexed = births
         .iter()

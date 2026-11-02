@@ -13,7 +13,6 @@ use crate::mir::{ConstValue, ValueId};
 type Finished = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings;
 #[path = "expression_reference_nullable.rs"]
 mod nullable;
-use nullable::nullable_result_read_v1;
 #[path = "expression_reference_source.rs"]
 mod source;
 use source::*;
@@ -501,7 +500,7 @@ impl ExpressionReferenceReadV1 {
         }
         match source {
             Reference::NullableResult(frame) => {
-                let (_, [_, normal]) = nullable_result_read_v1(frame, read, context, function, None)?;
+                let (_, [_, normal]) = context.nullable_result_read_v1(frame, read, function, None)?;
                 let producer = ReferenceProducerV1::Definition(normal);
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 { producer })
@@ -575,7 +574,7 @@ impl ExpressionReferenceReadV1 {
         match source {
             Reference::NullableResult(frame) => {
                 let (value, [_, normal]) =
-                    nullable_result_read_v1(frame, &self.read, context, function, finishing)?;
+                    context.nullable_result_read_v1(frame, &self.read, function, finishing)?;
                 if !matches!(&self.producer, ReferenceProducerV1::Definition(original) if original == &normal)
                 {
                     return Err(freeze("expression/reference-source-node"));

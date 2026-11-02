@@ -31,7 +31,7 @@ fn final_handoff_retains_exact_source_for_alias_and_multiple_homes() {
         let source = handoff.root_source().expect("retained source relation");
         assert!(matches!(
             handoff.root_result(&module).unwrap(),
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
                 if source.terminal_i64_add().expect("I64 source relation").owner() == owner
         ));
         assert_eq!(
@@ -98,7 +98,7 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
         .expect("Pair root retains its issued source relation");
     assert!(matches!(
         handoff.root_result(&module).unwrap(),
-        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
+        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
             if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
     ));
     let _identity = root_source.app_main_identity();
@@ -272,7 +272,7 @@ fn scalar_app_main_keeps_its_source_integer_result_through_artifact_handoff() {
     assert_eq!(terminal.value(), 0);
     assert!(matches!(
         handoff.root_result(&module).unwrap(),
-        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { owner })
+        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
             if owner == terminal.owner()
     ));
 }

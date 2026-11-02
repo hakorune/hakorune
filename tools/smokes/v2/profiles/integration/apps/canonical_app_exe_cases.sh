@@ -167,13 +167,13 @@ static box Main {
   main() {
     local p = new Leaf()
     local q = p.maybe($null_guard_input, p)
-    if q == null { return 7 }
-    return 9
+    if q == null { return 0 }
+    return q.value
   }
 }
 HAKO
-    null_guard_expected=7
-    if [ "$null_guard_input" = 1 ]; then null_guard_expected=9; fi
+    null_guard_expected=0
+    if [ "$null_guard_input" = 1 ]; then null_guard_expected=7; fi
     CASES+=("ownership_from_null_guard_$null_guard_input|$TMP_ROOT.from-null-guard-$null_guard_input.hako|$null_guard_expected||")
   fi
 done

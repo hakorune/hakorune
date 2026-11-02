@@ -316,7 +316,7 @@ impl FinalizedRootSourceHandoffV1 {
             for group in self.local_calls.get(&owner).into_iter().flatten() {
                 group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
             }
-            self.ledger.validate_checked_field_census_v1(owner, function, CallValidationContextV1::Finalized(self), |original| {
+            self.ledger.validate_checked_field_census_v1(owner, function, CallValidationContextV1::Finalized(self), Some(projection), |original| {
                 let mapped = projection.binding(original.0, &original.1)?
                     .ok_or_else(|| freeze("finished-received-field/binding-removed"))?;
                 if !projection.recorded().contains(&mapped) { return Err(freeze("finished-received-field/binding-unrecorded")); }

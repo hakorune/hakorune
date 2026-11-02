@@ -287,7 +287,7 @@ fn selects(
         && [(binary.lhs(), binary.rhs()), (binary.rhs(), binary.lhs())]
             .into_iter()
             .any(|(read, null)| {
-                (locals.stored_get_reference_v1(read).is_some()
+                (locals.nullable_result_reference_v1(read).is_some()
                     || super::field_read::field_read_request(input, read, locals).is_some())
                     && source.nodes().iter().any(|node| {
                         node.site() == null && matches!(node.source(), Node::Literal(Literal::Null))

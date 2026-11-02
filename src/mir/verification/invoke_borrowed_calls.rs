@@ -95,19 +95,14 @@ pub(super) fn original_call_slots(
                 mode, .. }, .. } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
             _ => false,
         });
-    let typed_object_reads = module.functions.values().flat_map(|function| function.blocks.values())
-        .flat_map(|body| body.all_instructions()).any(|row| matches!(row,
-            MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldBorrow { field, .. }, .. }
-                if module.canonical_field_definition(*field).is_some_and(|field| !field.is_weak && field.declared_type_name.is_some())));
-    if dynamic_fields || typed_object_reads {
-        // These are borrowed final correspondence rows, not another source index.
-        source.with_checked_field_read_functions_v1(module, |owner, function| {
-            for binding in source.finished_received_field_reads_v1(owner, module, function)? {
-                image.field_reads.push((function.signature.name.clone(), binding));
-            }
-            Ok(())
-        })?;
-    }
+    // Retained source owners select read verification, including typed scalar
+    // reads. The emitted opcode cannot waive its original nullable guard.
+    source.with_checked_field_read_functions_v1(module, |owner, function| {
+        for binding in source.finished_received_field_reads_v1(owner, module, function)? {
+            image.field_reads.push((function.signature.name.clone(), binding));
+        }
+        Ok(())
+    })?;
     if dynamic_fields {
         source.with_owned_field_write_functions_v1(module, |owner, function| {
             source.with_finished_owned_field_writes_v1(owner, function, |row| {

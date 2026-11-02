@@ -427,7 +427,15 @@ impl CallValidationContextV1<'_> {
         finishing: Option<&Finished>,
         consumer: &Binding,
     ) -> Result<(), String> {
-        let (_, [_, normal]) = self.stored_map_get_read_v1(frame, read, function, finishing)?;
+        self.validate_nullable_nonnull_read_v1(&crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::StoredMapGet(Rc::clone(frame)),
+            exclusion, read, function, finishing, consumer)
+    }
+    pub(in crate::mir) fn validate_nullable_nonnull_read_v1(
+        self, frame: &crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1,
+        exclusion: &crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1,
+        read: &ExactLexicalReadV1, function: &MirFunction, finishing: Option<&Finished>, consumer: &Binding,
+    ) -> Result<(), String> {
+        let (_, [_, normal]) = self.nullable_result_read_v1(frame, read, function, finishing)?;
         self.with_local_call_group_tree_v2(frame.site().owner(), |groups| {
             let mut matches = groups.iter().filter_map(|group| {
                 let packet = group.bool_condition()?;
@@ -452,7 +460,7 @@ impl CallValidationContextV1<'_> {
             let (reference, _, original) = operation
                 .nullable_null_v1()
                 .ok_or_else(|| freeze("bool-condition/operator-loan"))?;
-            if !original.map_frame().is_some_and(|same| Rc::ptr_eq(same, frame))
+            if original != frame
                 || packet.frame.source().nodes()[reference].site() != guard
                 || !matches!(
                     packet.node(reference)?.proof,

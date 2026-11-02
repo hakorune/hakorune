@@ -623,8 +623,39 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                 std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-guarded-{n}.json")), wire).unwrap();
                 Ok(())
             }).unwrap_or_else(|issue| panic!("nullable comparison {n}: {issue}"));
-            let unsafe_read = source.replace("return 7", "return q.value");
-            assert!(MirCompiler::with_options(false).compile_normal_with_published(request(&unsafe_read), |_, _| Ok(())).is_err(), "literal Null must not gain field permission from its local New support");
+            let guarded_field = source.replace("return 7", "if q == null { return 0 } return q.value");
+            for optimize in [false, true] {
+            MirCompiler::with_options(optimize).compile_normal_with_published(request(&guarded_field), |view, verification| -> Result<(), String> {
+                require_artifact_verification(verification);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-guarded-field-{n}.json")), wire).unwrap();
+                let mut changed = view.module().clone();
+                let mut comparisons = 0;
+                for block in changed.functions.get_mut("main").unwrap().blocks.values_mut() {
+                    for row in &mut block.instructions {
+                        if let MirInstruction::Compare { op, .. } = row {
+                            *op = crate::mir::CompareOp::Ne;
+                            comparisons += 1;
+                        }
+                    }
+                }
+                assert_eq!(comparisons, 1);
+                let handoff = view.retained_handoff.ok_or("handoff missing")?;
+                assert!(crate::mir::verification::MirVerifier::new()
+                    .verify_module_with_finalized_root(&changed, Some(handoff)).is_err(),
+                    "the independent verifier must reject the swapped nullable guard");
+                Ok(())
+            }).unwrap_or_else(|issue| panic!("nullable field {n} optimize={optimize}: {issue}"));
+            }
+            for (label, tail) in [
+                ("unguarded", "return q.value"),
+                ("support-mutated", "if q == null { return 0 } p.value = 8 return q.value"),
+                ("null-arm-rejoins", "if q == null { local ignored = 0 } return q.value"),
+            ] {
+                let unsafe_read = source.replace("return 7", tail);
+                assert!(MirCompiler::with_options(false).compile_normal_with_published(request(&unsafe_read), |_, _| Ok(())).is_err(), "{label} must not gain nullable field permission");
+            }
         }
         for (text, symbol, receiver, ordinal, artifact) in [
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, 0, "hako-issued-declared-read-local.json"),

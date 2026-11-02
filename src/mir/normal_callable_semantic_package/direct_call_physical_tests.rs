@@ -377,7 +377,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
     assert!(matches!(
         handoff.root_result(&module).unwrap(),
         Some(
-            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. }
+            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { .. }
         )
     ));
     assert!(root.call_entry().is_some(), "Call payload is retained");

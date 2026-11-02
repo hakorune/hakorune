@@ -43,7 +43,7 @@ impl FinalizedRootSourceHandoffV1 {
                 .ok_or_else(|| freeze("owned-write/completion"))?;
             let flow = completion.cleanup().root_flow().ok_or_else(|| freeze("owned-write/source-flow"))?;
             self.ledger.validate_owned_ready_reads_v1(owner, function, context, |row| projection.binding(row.0, &row.1))?;
-            self.ledger.validate_checked_field_census_v1(owner, function, context, |row| projection.binding(row.0, &row.1))?;
+            self.ledger.validate_checked_field_census_v1(owner, function, context, Some(projection), |row| projection.binding(row.0, &row.1))?;
             for frame in flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame()).filter(|frame| !frame.is_borrowed()) {
                 context.with_original_field_write_v1(frame, |packet| {
                     packet.validate_paths(context, function, Some(projection))?;
