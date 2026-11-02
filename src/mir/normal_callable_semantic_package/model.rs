@@ -175,6 +175,16 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
     pub(super) mode: CallableParameterDeclarationModeV1,
     pub(super) parameters: Box<[OwnedCallableParameterContractV1]>,
 }
+impl OwnedCallableParameterContractDeclarationV1 {
+    /// Existing strict scalar input family. This selects no actuals, entry,
+    /// result, or execution permission; those still require their own proofs.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_exact_i64_parameters_v1(&self) -> bool {
+        self.parameters.iter().all(|formal| matches!(formal.kind,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)))
+    }
+}
+
 
 /// The sole owned pre-Builder semantic package for one complete callable batch.
 ///

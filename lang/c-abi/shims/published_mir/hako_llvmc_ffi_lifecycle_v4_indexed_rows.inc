@@ -23,6 +23,9 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       } else if (value->kind == LV4_HANDLE) {
         if (!lv4_value_alias_root(fn, value) ||
             !lv4_handle_alias_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
+      } else if (value->kind == LV4_BORROWED_OBJECT) {
+        if (!lv4_transparent_alias_kind(fn, value) || faulted ||
+            !lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"), ri)) return 0;
       } else if (value->kind == LV4_SLOT_BORROW) {
         /* A transparent Phi over one slot borrow only renames it: every consumer
            re-proves the borrow readable at its own use. */

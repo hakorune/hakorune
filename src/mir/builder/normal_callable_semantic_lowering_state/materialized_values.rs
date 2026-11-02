@@ -8,6 +8,7 @@ enum LocalProducerPurposeV1 {
     ScalarJoin(Rc<ScalarJoinPointValueV1>),
     TextJoin(Rc<TextJoinPointValueV1>),
     BranchText(Rc<crate::mir::normal_callable_semantic_package::BranchTextPhiObservationV1>),
+    BranchRead(Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>),
     DynamicJoin(Rc<DynamicJoinPointValueV1>),
     Initializer,
     BindingRebind(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>),
@@ -19,6 +20,7 @@ impl PartialEq for LocalProducerPurposeV1 {
             (Self::ScalarJoin(a), Self::ScalarJoin(b)) => Rc::ptr_eq(a, b),
             (Self::TextJoin(a), Self::TextJoin(b)) => Rc::ptr_eq(a, b),
             (Self::BranchText(a), Self::BranchText(b)) => Rc::ptr_eq(a, b),
+            (Self::BranchRead(a), Self::BranchRead(b)) => Rc::ptr_eq(a, b),
             (Self::DynamicJoin(a), Self::DynamicJoin(b)) => Rc::ptr_eq(a, b),
             (Self::BindingRebind(a), Self::BindingRebind(b)) => std::rc::Rc::ptr_eq(a, b),
             _ => false,
@@ -313,6 +315,12 @@ impl LocalProvenanceV1 {
         }
         Ok((self.root_value, self.loan_copies(frame.target(), self.root_value, result)?))
     }
+    pub(in crate::mir) fn source_read_branch_v1(&self, result: ValueId)
+        -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
+        let LocalProducerPurposeV1::BranchRead(point) = &self.purpose else { return Ok(None); };
+        self.loan_copies(point.source().binding(), point.relation().values().0, result)?;
+        Ok(Some(Rc::clone(point)))
+    }
     pub(in crate::mir) fn source_declared_read_rebind_v1(&self, result: ValueId)
         -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
         let LocalProducerPurposeV1::BindingRebind(frame) = &self.purpose else { return Ok(None); };
@@ -475,6 +483,19 @@ impl MaterializedValuesV1 {
             root: binding, root_value: point.value(), copies: Vec::new(),
             purpose: LocalProducerPurposeV1::TextJoin(point),
             local_initializer: None,
+        }));
+        Ok(())
+    }
+
+    pub(super) fn attach_branch_read_v1(&mut self,
+        point: Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>,
+    ) -> Result<(), String> {
+        let binding = point.source().binding();
+        let value = point.relation().values().0;
+        if self.get(&binding) != Some(&value) { return Err("[freeze:contract][local-read/branch-publication]".into()); }
+        self.attach_provenance(binding, Some(LocalProvenanceV1 {
+            root: binding, root_value: value, copies: Vec::new(),
+            purpose: LocalProducerPurposeV1::BranchRead(point), local_initializer: None,
         }));
         Ok(())
     }

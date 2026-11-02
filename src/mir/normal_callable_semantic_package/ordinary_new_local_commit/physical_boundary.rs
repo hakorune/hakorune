@@ -459,7 +459,7 @@ impl PhysicalBoundary {
             &walk_graph,
             function,
             &mut destinations,
-            &expected,
+            &mut expected,
         )?;
         literal_controls.validate_carrier_destinations(&walk_graph, &destinations)?;
         if controls.iter().any(|id| !destinations.contains_key(id)) {

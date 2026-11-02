@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: readonly PHI and support composition remain"
+current_blocker_token = "ownership step 3a: readonly PHI re-return and support composition remain"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Scalar/Text branch PHI geometry now shares one verifier; original source, payload and ownership checks stay separate, acceptance unchanged.
-Common representation removes duplicate checks: production -72 lines, test delta 0; check and existing focused 4 PASS.
-Optimized target/quick CLI/runtime + existing C shim: fixed suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
-C existing Normal/Fault, From/reborrow/rebind/nullable execution and corruption refusal pass.
-Next: readonly PHI via complete source incoming and original SSA writer relation, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
+Same original Call readonly branch PHI retains complete source incoming and the sole SSA writer relation through field publication.
+Common transport validation keeps read/loan identity; strict-i64 result facts require retained From dependency and preserve old strict owners.
+Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1803 PASS with exact 115 failure names unchanged.
+Normal CLI both branches exit 7; current C 50-input equivalence and both-opt branch EXE/tamper checks PASS; production +369, tests +37.
+Next: retain physical terminal read for readonly PHI re-return, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

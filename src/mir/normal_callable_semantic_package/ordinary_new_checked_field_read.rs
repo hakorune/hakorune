@@ -290,6 +290,11 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 let rows = self.local_field_reads.borrow();
                 let row = &rows[&site];
+                if let Some(view) = row.source.received.as_ref().and_then(|source| source.borrowed_read_v1()) {
+                    let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress
+                        else { return Err(fault("received/exact-read-missing")); };
+                    context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, finishing)?;
+                }
                 if let Some((loan, exclusion)) = row.source.received.as_ref().and_then(|source| source.borrowed_guard()) {
                     let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress
                         else { return Err(fault("received/exact-read-missing")); };

@@ -33,6 +33,7 @@ enum LeafV1 {
     /// This exact field projection belongs to the retained Core source node.
     CoreReceiver(usize),
     Integer(OriginalIntegerBasisV1),
+    DeclaredRead(crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1),
     Receiver(BindingRefV1),
     MapLocal {
         binding: BindingRefV1,
@@ -69,6 +70,11 @@ pub(super) struct ResultExpressionSourceV1 {
     leaves: Box<[LeafV1]>,
 }
 impl ResultExpressionSourceV1 {
+    /// This scalar equation depends on an original explicit From read, not
+    /// merely an i64 annotation or a particular call/field syntax shape.
+    pub(super) fn requires_declared_read_source_v1(&self) -> bool {
+        self.leaves.iter().any(|leaf| matches!(leaf, LeafV1::DeclaredRead(_)))
+    }
     pub(super) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.plan
     }
@@ -99,6 +105,7 @@ impl ResultExpressionSourceV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         claims: &OrdinaryNewFieldWriteClaimsV1,
+        results: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     ) -> Self {
         // Resolver references take precedence over shape classification. Demand
         // both rows at the SAME object site instead of inventing a Me category.
@@ -117,7 +124,11 @@ impl ResultExpressionSourceV1 {
                 {
                     LeafV1::Receiver(*binding)
                 }
-                ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => original
+                ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => {
+                    match results.declared_read_source_at_v1(batch, selected, claims, contracts, input, node.site(), None, None) {
+                        Ok(Some(read)) => LeafV1::DeclaredRead(read),
+                        Err(_) => LeafV1::Unresolved,
+                        Ok(None) => original
                     .and_then(|original| {
                         original.integer_origin_at_v1(
                             input,
@@ -132,6 +143,8 @@ impl ResultExpressionSourceV1 {
                     .or_else(|| map_local_source_v1(input, *binding, class, receiver,
                         batch, selected, constructors, claims))
                     .unwrap_or(LeafV1::Unresolved),
+                    }
+                },
                 ExpressionNodeSourceV1::ReceiverQualification {
                     receiver:
                         crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
@@ -157,6 +170,7 @@ impl ResultExpressionSourceV1 {
                             .and_then(|index| match &leaves[index] {
                                 LeafV1::ObjectField { source, .. } => Some(source.class()),
                                 LeafV1::MapLocal { source, .. } => Some(source.class.as_ref()),
+                                LeafV1::DeclaredRead(read) => Some(read.declared_type()),
                                 _ => None,
                             })
                     };
@@ -165,11 +179,16 @@ impl ResultExpressionSourceV1 {
                             LeafV1::MapLocal { binding, source, .. } => Some((*binding, source.object)),
                             _ => None,
                         });
+                    let read_root = plan.nodes().iter().position(|node| node.site() == object)
+                        .and_then(|index| match &leaves[index] {
+                            LeafV1::DeclaredRead(read) => Some(read.source_read().binding()), _ => None,
+                        });
                     let path = plan.field_path_v1(node.site());
                     if path
                         .as_ref()
                         .is_none_or(|(root, fields)| Some(*root) != receiver
-                            && !map_root.is_some_and(|(binding, _)| binding == *root && fields.len() == 1))
+                            && !map_root.is_some_and(|(binding, _)| binding == *root && fields.len() == 1)
+                            && !(read_root == Some(*root) && fields.len() == 1))
                     {
                         LeafV1::Unresolved
                     } else if let Some(parent_class) = parent_class {
@@ -305,7 +324,7 @@ impl ResultExpressionSourceV1 {
                 .unwrap_or(ExpressionLeafClassV1::Unresolved),
             LeafV1::CoreReceiver(_) => ExpressionLeafClassV1::Identity,
             LeafV1::Integer(_) => ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64),
-            LeafV1::Receiver(_) | LeafV1::MapLocal { .. } | LeafV1::ObjectField { .. } | LeafV1::StoredObjectField { .. } => {
+            LeafV1::DeclaredRead(_) | LeafV1::Receiver(_) | LeafV1::MapLocal { .. } | LeafV1::ObjectField { .. } | LeafV1::StoredObjectField { .. } => {
                 ExpressionLeafClassV1::Identity
             }
             LeafV1::Field { key, .. } if fields.contains(key) => {
@@ -409,6 +428,10 @@ impl ResultExpressionSourceV1 {
             LeafV1::Core(core) => core.matches_plan(&self.plan, core.node())
                 && (!core.source().target().checked_array_count_law_v1() || core.field_array_access_v1().is_some() || self.leaves.iter().any(|leaf|
                     matches!(leaf, LeafV1::Core(inner) if core.matches_receiver_result_v1(inner)))),
+            LeafV1::DeclaredRead(read) => read.source_read().read().owner() == self.plan.owner()
+                && self.plan.nodes().iter().any(|node| node.site() == read.source_read().read().site()
+                    && matches!(node.source(), ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding))
+                        if *binding == read.source_read().binding())),
             LeafV1::CoreReceiver(index) => matches!(self.leaves.get(*index), Some(LeafV1::Core(core))
                 if (core.field_map().is_some() || core.field_array_access_v1().is_some()) && core.matches_plan(&self.plan, *index)),
             _ => true,

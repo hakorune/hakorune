@@ -28,6 +28,74 @@ pub(in crate::mir) struct BranchTextPhiObservationV1 {
     inputs: [BindingValueObservationV2; 2],
     relation: std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>,
 }
+/// A non-owning branch value retains every original source incoming and the
+/// SAME indexed SSA writer relation. It never issues a Home or an initializer.
+#[derive(Debug)]
+pub(in crate::mir) struct BranchReadPhiObservationV1 {
+    source: crate::mir::resolved_semantics::home_new_prefix::BranchCallResultSourceV1,
+    loan: crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+    pending: std::rc::Rc<crate::mir::builder::IfConditionMaterializationV1>,
+    branch: Binding,
+    exits: [BasicBlockId; 2],
+    jumps: [Binding; 2],
+    inputs: [BindingValueObservationV2; 2],
+    relation: std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>,
+}
+impl BranchReadPhiObservationV1 {
+    pub(in crate::mir) fn source(&self) -> &crate::mir::resolved_semantics::home_new_prefix::BranchCallResultSourceV1 { &self.source }
+    pub(in crate::mir) fn relation(&self) -> &std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1> { &self.relation }
+    pub(in crate::mir) fn original_pair_v1(&self,
+        loan: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<[Binding; 2], String> {
+        if &self.loan != loan || !loan.is_declared_read_v1()
+            || self.source.producer() != loan.call() || self.source.destination() != loan.destination()
+            || self.source.incoming().is_none() { return Err(freeze("expression/reference-source-node")); }
+        let mut original = None;
+        for (index, input) in self.inputs.iter().enumerate() {
+            if input.binding_value().0 != self.source.binding() { return Err(freeze("expression/reference-source-node")); }
+            if let Some(frame) = input.source_declared_read_rebind_v1()? {
+                if self.source.incoming_expression_v1(index) != frame.source().nodes().first().map(|node| node.site()) {
+                    return Err(freeze("expression/reference-source-node"));
+                }
+            }
+            let (_, pair) = context.declared_result_binding_v1(loan, input)?;
+            if original.as_ref().is_some_and(|previous| previous != &pair) { return Err(freeze("expression/reference-source-node")); }
+            original = Some(pair);
+        }
+        original.ok_or_else(|| freeze("expression/reference-source-node"))
+    }
+    pub(in crate::mir) fn validate_v1(&self,
+        context: CallValidationContextV1<'_>, function: &MirFunction, finishing: Option<&Finished>,
+    ) -> Result<(), String> {
+        self.original_pair_v1(&self.loan, context)?;
+        validate_branch_geometry_v1(&self.pending, &self.branch, self.exits, &self.jumps,
+            self.inputs.each_ref().map(|input| input.binding_value().1), &self.relation,
+            function, finishing, "expression/reference-source-node")?;
+        for input in &self.inputs {
+            context.validate_declared_read_transport_v1(&self.loan, input, function, finishing)?;
+        }
+        Ok(())
+    }
+    pub(in crate::mir) fn prepare_v1(
+        source: crate::mir::resolved_semantics::home_new_prefix::BranchCallResultSourceV1,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        pending: std::rc::Rc<crate::mir::builder::IfConditionMaterializationV1>, branch: Binding,
+        exits: [Option<BasicBlockId>; 2], inputs: [BindingValueObservationV2; 2],
+        relation: std::rc::Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>,
+        context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<std::rc::Rc<Self>, String> {
+        let [Some(left), Some(right)] = exits else { return Err(freeze("expression/reference-source-node")); };
+        let jump = |block| function.blocks.get(&block).and_then(|body| body.terminator.as_ref())
+            .filter(|row| matches!(row, MirInstruction::Jump { .. }))
+            .map(|row| (block, row.clone())).ok_or_else(|| freeze("expression/reference-source-node"));
+        let observed = std::rc::Rc::new(Self { source, loan, pending, branch, exits: [left, right],
+            jumps: [jump(left)?, jump(right)?], inputs, relation });
+        observed.validate_v1(context, function, None)?;
+        Ok(observed)
+    }
+}
+
 impl BranchTextPhiObservationV1 {
     pub(in crate::mir) fn pending(&self) -> &std::rc::Rc<crate::mir::builder::IfConditionMaterializationV1> { &self.pending }
     pub(in crate::mir) fn source(&self) -> &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1> { &self.source }

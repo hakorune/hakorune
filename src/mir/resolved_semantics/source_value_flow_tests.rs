@@ -182,12 +182,31 @@ fn source_value_flow_rebind_reads_old_value_then_publishes_rhs_and_checks_owner(
         .is_none());
     assert!(flow(&other).origin(first).is_none());
     assert!(flow(&other).alias_origin(first, |site| other.variable_ref(site)).is_none());
+    assert!(flow(&other).unanimous_alias_origin(first, |site| other.variable_ref(site)).is_none());
     assert!(flow(&other).alias_origin_with_expression_boundary(first,
         |site| other.variable_ref(site), |_| true).is_none());
     let literal = resolve(vec![local(Some(int(7))), ret(var())]);
     let value = read(&literal, &[P::Body(1), P::Value]);
     assert_eq!(flow(&literal).alias_origin(value, |site| literal.variable_ref(site)), Some(value));
     assert!(flow(&literal).alias_entry_origin(value, |site| literal.variable_ref(site)).is_none());
+}
+
+#[test]
+fn source_value_flow_unanimous_branches_retain_identity_not_just_equal_values() {
+    for arms in [
+        (vec![set(var())], vec![set(var())]),
+        (vec![branch(vec![set(var())], vec![set(var())])], vec![set(var())]),
+    ] {
+        let product = resolve(vec![branch(arms.0, arms.1), ret(var())]);
+        let before = read(&product, &[P::Body(0), P::IfCondition]);
+        let after = read(&product, &[P::Body(1), P::Value]);
+        join(&product, after, K::BranchNormal);
+        assert_eq!(flow(&product).unanimous_alias_origin(after, |site| product.variable_ref(site)), Some(before));
+    }
+    let product = resolve(vec![branch(vec![set(int(7))], vec![set(int(7))]), ret(var())]);
+    let after = read(&product, &[P::Body(1), P::Value]);
+    assert!(flow(&product).unanimous_alias_origin(after, |site| product.variable_ref(site)).is_none(),
+        "equal literals in different source definitions are not the same producer");
 }
 
 #[test]
@@ -323,6 +342,7 @@ fn source_value_flow_uninitialized_and_compound_result_stay_unknown() {
         flow(&product).origin(read(&product, &[P::Body(4), P::Value])),
         Some(O::Unknown)
     ));
+    assert!(flow(&product).unanimous_alias_origin(read(&product, &[P::Body(2)]), |site| product.variable_ref(site)).is_none());
     assert!(flow(&product).is_complete()); // complete relation, not a proven value type
 }
 
@@ -365,6 +385,9 @@ fn source_value_flow_normalizes_only_complete_readonly_loop_equations() {
         let (original_after, _) = flow(&product).loop_join(&loop_site, *binding, K::LoopAfter).unwrap();
         assert_ne!(original_header, header, "passive original Header is not permission to replace its readonly entry");
         assert_ne!(original_after, after);
+        for original in [original_header, original_after] {
+            assert!(flow(&product).unanimous_alias_origin(original, |site| product.variable_ref(site)).is_none());
+        }
         assert!(flow(&product).alias_origin(original_header, |site| product.variable_ref(site)).is_none());
         let wrong_site = SourceStmtSiteV1::from_node(site(&[P::Body(99)]).node().clone());
         assert!(flow(&product).loop_join(&wrong_site, *binding, K::LoopHeader).is_none());

@@ -21,7 +21,7 @@ mod dynamic;
 use dynamic::*;
 #[path = "expression_reference_branch.rs"]
 mod branch;
-pub(in crate::mir) use branch::{BranchScalarPhiObservationV1, BranchTextPhiObservationV1};
+pub(in crate::mir) use branch::{BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1};
 use branch::validate_scalar_binding_observation_v1;
 
 #[derive(Debug, Clone)]

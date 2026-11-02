@@ -137,6 +137,38 @@ impl VerifiedSourceValueFlowV1 {
     ) -> Option<SourceValueRefV1> {
         self.alias_origin_with_expression_boundary(value, reference, |_| false)
     }
+    /// Opt-in alias equality across a complete Normal branch. Every original
+    /// incoming must reach the SAME source identity; this grants neither a
+    /// type nor read permission, and never selects a convenient predecessor.
+    pub(crate) fn unanimous_alias_origin(
+        &self, value: SourceValueRefV1,
+        mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+    ) -> Option<SourceValueRefV1> {
+        fn visit(
+            flow: &VerifiedSourceValueFlowV1, value: SourceValueRefV1,
+            reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+            path: &mut BTreeSet<SourceValueRefV1>,
+            memo: &mut BTreeMap<SourceValueRefV1, Option<SourceValueRefV1>>,
+        ) -> Option<SourceValueRefV1> {
+            let value = flow.alias_terminal_with_expression_boundary(value, &mut *reference, |_| false)?;
+            if let Some(original) = memo.get(&value) { return *original; }
+            if !path.insert(value) { return None; }
+            let original = match flow.origin(value) {
+                Some(SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Expression(_)) => Some(value),
+                Some(SourceValueOriginV1::Join { kind: SourceValueJoinKindV1::BranchNormal, incoming, .. })
+                    if matches!(incoming.as_ref(), [(SourceValueEdgeV1::ThenNormal, _), (SourceValueEdgeV1::ElseNormal, _)]) => {
+                    let left = visit(flow, incoming[0].1, reference, path, memo);
+                    let right = visit(flow, incoming[1].1, reference, path, memo);
+                    left.zip(right).filter(|(left, right)| left == right).map(|(same, _)| same)
+                }
+                _ => None,
+            };
+            path.remove(&value);
+            memo.insert(value, original);
+            original
+        }
+        visit(self, value, &mut reference, &mut BTreeSet::new(), &mut BTreeMap::new())
+    }
     /// Retain an original expression boundary selected by its source consumer.
     /// This remains an alias-only walk: no join predecessor can be selected,
     /// and an expression identity alone grants no type/Home/physical evidence.

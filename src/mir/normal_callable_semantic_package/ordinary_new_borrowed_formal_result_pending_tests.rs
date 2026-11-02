@@ -277,9 +277,9 @@ fn parameterless_result_source_requires_original_parameter_census() {
         };
         let fields = composition::FieldCandidatesV1::prepare(package.batch(), &package.selected,
             &package.ordinary_new_claim_ledger.field_write_claims, &package.instance_constructors,
-            Err(&"test/no-original-source".to_owned()), &BTreeMap::new(), &package.parameter_contracts, &[]);
+            Err(&"test/no-original-source".to_owned()), &BTreeMap::new(), &package.parameter_contracts, &[], &package.ordinary_new_claim_ledger.callable_result_classes);
         let result = source_result_pending(package.batch(), &package.selected, &[proposed],
-            &BTreeMap::new(), &[], &package.instance_constructors, &BTreeMap::new(), &fields, None, None, &package.ordinary_new_claim_ledger.field_write_claims, contract.owner);
+            &BTreeMap::new(), &[], &package.instance_constructors, &BTreeMap::new(), &fields, None, None, &package.ordinary_new_claim_ledger.field_write_claims, &package.ordinary_new_claim_ledger.callable_result_classes, contract.owner);
         if arity == 0 {
             let result = result.unwrap();
             assert_eq!(result.class, BorrowedResultClassV1::Bool);

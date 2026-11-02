@@ -85,11 +85,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("object-input/original-contract-drift"));
         }
-        if contract.parameters.iter().all(|formal| {
-            matches!(formal.kind,
-            CallableParameterContractKindV1::ExactTrivial(abi)
-                if abi == crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)
-        }) {
+        if contract.has_exact_i64_parameters_v1() {
             return Ok(true);
         }
         // Original result/read requests borrow the common parameter frame.

@@ -150,6 +150,7 @@ impl EmittedReadArgumentV1 {
         let view = source.declared_read_v1().ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
         if call.owner() != view.read().owner() { return Err(freeze("read-argument/emitted-source-kind-drift")); }
         let (_, pair) = context.declared_result_read_v1(view, &read)?;
+        context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, None)?;
         for binding in pair.iter().chain(read.original_copy_dependencies_v1()?) {
             if !super::physical_boundary::check_binding(function, None, binding.0, &binding.1)? {
                 return Err(freeze("read-argument/emitted-source-kind-drift"));
@@ -280,6 +281,7 @@ impl EmittedReadArgumentV1 {
     ) -> Result<(), String> {
         let payload = self.value_with_source_v1(call, source, context)?;
         let view = source.declared_read_v1().ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
+        context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, Some(projection))?;
         projection.required_effect_binding(function, &pair[0])?;
         projection.relation_binding(function, &pair[1])?.ok_or_else(|| freeze("field-argument/finished-read-removed"))?;
         for copy in read.original_copy_dependencies_v1()? { projection.relation_binding(function, copy)?; }

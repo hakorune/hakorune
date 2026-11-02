@@ -244,6 +244,7 @@ fn source_result_pending(
     original: Option<&super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
     original_return: Option<&original::OriginalReturnSourceLoanV1>,
     field_claims: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    callable_result_classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<BorrowedI64ResultSourceV1, String> {
     let mut matches = contracts.iter().filter(|row| row.owner == owner);
@@ -323,7 +324,7 @@ fn source_result_pending(
                 };
                 let receiver = input.function().bindings().find(|(_, row)| row.kind() == BindingKindV1::Receiver).map(|(binding, _)| binding);
                 expressions.push(Rc::new(expression::ResultExpressionSourceV1::prepare(input, plan, key.owner(), receiver,
-                    field_candidates.sources(), field_candidates.object_sources(), original, constructors, drafts, contracts, needs, batch, selected, field_claims)));
+                    field_candidates.sources(), field_candidates.object_sources(), original, constructors, drafts, contracts, needs, batch, selected, field_claims, callable_result_classes)));
                 BorrowedResultClassV1::UnresolvedScalar
             };
             has_construction |= function.expression_source().construction(site).is_some();
@@ -370,7 +371,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         }
     };
     let field_candidates = composition::FieldCandidatesV1::prepare(batch, selected, field_claims, constructors,
-        original.as_ref(), drafts, contracts, needs);
+        original.as_ref(), drafts, contracts, needs, callable_result_classes);
     let loans = class_loans::conditional_class_loans_v1(
         batch,
         selected,
@@ -402,7 +403,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 needs,
                 constructors,
                 proven_fields,
-                &field_candidates, original.as_ref().ok(), request.as_ref(), field_claims,
+                &field_candidates, original.as_ref().ok(), request.as_ref(), field_claims, callable_result_classes,
                 *owner,
             ))
             .and_then(|mut proof| {
@@ -505,9 +506,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             if caller.directly_returns_call_v1(&reference.call_site)
                 || !grounded.contains(&reference.callee_owner) { continue; }
         }
-        // A result fact does not select borrowed transport for strict inputs.
+        // Result evidence never selects an input ABI. Strict scalar inputs
+        // use their own original contract, not a fabricated borrowed handle.
         if !contracts.iter().any(|contract| contract.owner == reference.callee_owner
-            && contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle())) {
+            && (contract.has_exact_i64_parameters_v1()
+                || contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle()))) {
             continue;
         }
         let Some(original) = pending
@@ -530,6 +533,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         if !original.corroborates_scalar_class_v1(class) {
             continue;
         }
+        // Preserve the existing strict result owner unless this proven result
+        // actually requires the retained readonly source evidence. Merely
+        // having scalar parameters must not acquire borrowed membership.
+        let borrowed_input = contracts.iter().any(|contract| contract.owner == reference.callee_owner
+            && contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle()));
+        if !borrowed_input && !pending.get(&reference.callee_owner).is_some_and(|proof|
+            proof.as_ref().is_ok_and(|proof| proof.expressions.iter().any(|expression|
+                expression.requires_declared_read_source_v1()))) { continue; }
         need.set_result_requirement(LexicalCallSourceResultRequirementV1::ScalarReturnSource(
             original.clone(),
         ));

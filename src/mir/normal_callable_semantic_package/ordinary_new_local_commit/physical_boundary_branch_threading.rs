@@ -20,12 +20,12 @@ impl ThreadedBranches {
         graph: &BTreeMap<BasicBlockId, Node>,
         function: &MirFunction,
         destinations: &mut BTreeMap<BasicBlockId, BasicBlockId>,
-        expected: &BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
+        expected: &mut BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
     ) -> Result<Self, String> {
         let mut proof = Self::default();
         for (&middle, _) in graph.iter().filter(|(id, _)| recorded.contains_key(id) || controls.contains(id)) {
             if destinations.contains_key(&middle) { continue; }
-            let Some((destination, mut component)) = Self::forwarding_chain(
+            let Some((destination, mut component, endpoint)) = Self::forwarding_chain(
                 middle, graph, function, destinations, expected)? else { continue };
             let mut pending: Vec<_> = component.iter().copied().collect();
             let mut visited = BTreeSet::new();
@@ -49,7 +49,7 @@ impl ThreadedBranches {
                     } else {
                         // Only deleted empty Jump nodes within this same proved
                         // chain are internal edges, never arbitrary Jump/Invoke roots.
-                        let Some((same, chain)) = Self::forwarding_chain(source, graph, function, destinations, expected)?
+                        let Some((same, chain, _)) = Self::forwarding_chain(source, graph, function, destinations, expected)?
                             else { return Err(fault("threading-incoming-kind")) };
                         if same != destination { return Err(fault("threading-incoming-kind")); }
                         for id in chain {
@@ -64,6 +64,10 @@ impl ThreadedBranches {
             }
             // Publish only after the entire original component and every
             // external Branch root have passed; partial paths prove nothing.
+            if let Some((id, terminal)) = endpoint {
+                if expected.contains_key(&id) { return Err(fault("threading-destination-conflict")); }
+                expected.insert(id, (Vec::new(), terminal));
+            }
             for (source, original, then_arm, else_arm) in certified {
                 let row = proof.rows.entry(source).or_insert(ThreadedBranch {
                     original, then_arm: false, else_arm: false,
@@ -80,7 +84,7 @@ impl ThreadedBranches {
         start: BasicBlockId, graph: &BTreeMap<BasicBlockId, Node>, function: &MirFunction,
         destinations: &BTreeMap<BasicBlockId, BasicBlockId>,
         expected: &BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
-    ) -> Result<Option<(BasicBlockId, BTreeSet<BasicBlockId>)>, String> {
+    ) -> Result<Option<(BasicBlockId, BTreeSet<BasicBlockId>, Option<(BasicBlockId, MirInstruction)>)>, String> {
         let mut chain = BTreeSet::new();
         let mut cursor = start;
         loop {
@@ -93,11 +97,34 @@ impl ThreadedBranches {
                 return Ok(None);
             }
             if let Some(&destination) = destinations.get(target) {
-                if expected.contains_key(&destination) { return Ok(Some((destination, chain))); }
-                return Ok(None);
+                if expected.contains_key(&destination) { return Ok(Some((destination, chain, None))); }
+                // A surviving empty endpoint can be outside the binding census.
+                // Retain its ORIGINAL sequence so the same finishing owner checks
+                // it again; do not forward through it or rewrite a Phi incoming.
+                let Some(terminal) = Self::empty_endpoint(*target, destination, graph, function, destinations) else { return Ok(None); };
+                return Ok(Some((destination, chain, Some((*target, terminal)))));
             }
             cursor = *target;
         }
+    }
+
+    fn empty_endpoint(
+        original: BasicBlockId, destination: BasicBlockId,
+        graph: &BTreeMap<BasicBlockId, Node>, function: &MirFunction,
+        destinations: &BTreeMap<BasicBlockId, BasicBlockId>,
+    ) -> Option<MirInstruction> {
+        if original != destination { return None; }
+        let node = graph.get(&original)?;
+        let actual = function.blocks.get(&destination)?;
+        if !node.instructions.is_empty() || !actual.instructions.is_empty() { return None; }
+        let MirInstruction::Jump { target, edge_args } = &node.terminal else { return None; };
+        if edge_args.as_ref().is_some_and(|args| args.layout != crate::mir::edge_args::JumpArgsLayout::CarriersOnly
+            || !args.values.is_empty()) { return None; }
+        let mapped = *destinations.get(target)?;
+        if !function.blocks.contains_key(&mapped)
+            || !actual.terminator.as_ref().is_some_and(|terminal| same_finished_instruction(terminal,
+                &MirInstruction::Jump { target: mapped, edge_args: edge_args.clone() })) { return None; }
+        Some(node.terminal.clone())
     }
 
     pub(super) fn instruction(&self, mut instruction: MirInstruction) -> MirInstruction {

@@ -275,6 +275,13 @@ static int lv4_kind_unify(hako_lv4_function_index* fn, size_t index, uint32_t id
   return 1;
 }
 
+static yyjson_val* lv4_borrowed_result_operation(hako_lv4_function_index*, hako_lv4_value*);
+static int lv4_transparent_alias_kind(hako_lv4_function_index* fn, hako_lv4_value* value) {
+  return value->kind == LV4_HANDLE || value->kind == LV4_SLOT_BORROW ||
+      (value->kind == LV4_BORROWED_OBJECT &&
+       yyjson_is_true(yyjson_obj_get(lv4_borrowed_result_operation(fn, value), "result_read")));
+}
+
 static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn) {
   for (size_t i = 0; i < fn->value_count; i++) {
     fn->values[i].kind_parent = i;
@@ -314,7 +321,7 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
         value->kind == LV4_I64 || value->kind == LV4_BOOL || value->kind == LV4_TEXT_OPERAND) continue;
     hako_lv4_value* root = lv4_value_alias_root(fn, value);
     /* A transparent Phi over one slot borrow stays that borrow's alias. */
-    if ((value->kind != LV4_HANDLE && value->kind != LV4_SLOT_BORROW) || !root || root == value ||
+    if (!lv4_transparent_alias_kind(fn, value) || !root || root == value ||
         root->kind != value->kind) return 0;
   }
   /* Kind equality grants no identity. Only original Copy and unanimous
@@ -322,8 +329,7 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
   for (size_t i = 0; i < fn->value_count; i++) {
     hako_lv4_value* value = &fn->values[i];
     if (!lv4_is(value->instruction, "op", "copy") &&
-        !((value->kind == LV4_HANDLE || value->kind == LV4_SLOT_BORROW) &&
-          lv4_is(value->instruction, "op", "phi"))) continue;
+        !(lv4_transparent_alias_kind(fn, value) && lv4_is(value->instruction, "op", "phi"))) continue;
     if (value->kind == LV4_TEXT_OPERAND) continue;
     if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME ||
         value->kind == LV4_MAP_VIEW || value->kind == LV4_TEXT_VIEW || value->kind == LV4_OWNED_STRING)

@@ -747,7 +747,7 @@ pub(crate) use expression_projection::checked_expression_core_operation_v1;
 pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
 pub(in crate::mir) use expression_projection::{
     validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1,
-    BranchScalarPhiObservationV1, BranchTextPhiObservationV1, EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1,
+    BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1,
     ExpressionCallTransientPrefixV1, ExpressionReferenceReadV1,
 };
 pub(crate) use initializer_expression_projection::EmittedInitializerExpressionProjectionV1;

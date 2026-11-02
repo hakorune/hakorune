@@ -202,8 +202,9 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol, expected in [('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
-        # Unchanged source-issued explicit read result; Copy retains its original Call.
+    for suffix, symbol, expected in [('branch-0', 'Leaf.identity/1', 7), ('branch-1', 'Leaf.identity/1', 7), ('branch-0-unoptimized', 'Leaf.identity/1', 7), ('branch-1-unoptimized', 'Leaf.identity/1', 7), ('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
+        caller = 'Leaf.probe/1' if suffix.startswith('branch-') else 'main'
+        # Copy and unanimous Phi retain the original explicit read Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
         checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
@@ -212,7 +213,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print(f'source-issued From {suffix} support: canonical EXE exit {expected}')
         if suffix == 'reborrow-child':
             changed = copy.deepcopy(read)
-            field = next(block['terminator']['instruction']['operation'] for block in function(changed, 'main')['blocks']
+            field = next(block['terminator']['instruction']['operation'] for block in function(changed, caller)['blocks']
                          if block['terminator']['instruction'].get('operation', {}).get('kind') == 'field_get')
             field['object_id'] = function(changed, 'Parent.get/0')['receiver_object']
             field['field_ordinal'] = 1  # Parent.marker is I64 too; payload is still Leaf.
@@ -220,7 +221,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
             print('reject anchor class substituted for Child payload class')
         if suffix.startswith(('guarded-field-', 'guarded-alias-', 'reborrow-null-')):
             changed = copy.deepcopy(read)
-            guards = [row['instruction'] for block in function(changed, 'main')['blocks']
+            guards = [row['instruction'] for block in function(changed, caller)['blocks']
                       for row in block['instructions']
                       if row['instruction']['op'] == 'borrowed_null_compare']
             assert len(guards) == 1
@@ -233,7 +234,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
                 data = copy.deepcopy(read)
                 callee = function(data, symbol)
                 call = next(block['terminator']['instruction']['operation']
-                            for block in function(data, 'main')['blocks']
+                            for block in function(data, caller)['blocks']
                             if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
                 target = call if side == 'call' else callee
                 if marker is None:
@@ -242,7 +243,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
                     target['result_read'] = marker
                 compile_input(data, accepted=False)
         data = copy.deepcopy(read)
-        blocks = function(data, 'main')['blocks']
+        blocks = function(data, caller)['blocks']
         call = next(block['terminator']['instruction'] for block in blocks
                     if block['terminator']['instruction'].get('operation', {}).get('result_read') is True)
         landing = next(block for block in blocks if block['id'] == call['normal'])
@@ -294,7 +295,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
                 for corruption in ['extra-ordinal', 'unknown-support', 'extra-support-key']:
                     data = copy.deepcopy(read)
                     target = function(data, symbol) if side == 'callee' else next(
-                        block['terminator']['instruction']['operation'] for block in function(data, 'main')['blocks']
+                        block['terminator']['instruction']['operation'] for block in function(data, caller)['blocks']
                         if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
                     if corruption == 'extra-ordinal':
                         target['result_formal_ordinal'] = 0

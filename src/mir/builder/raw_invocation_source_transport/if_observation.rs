@@ -55,6 +55,8 @@ struct IfStateObserverV1 {
     claims: Option<Rc<OrdinaryNewClaimLedgerV1>>,
     sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalScalarSourceV1>>,
     text_sources: Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BranchNormalTextSourceV1>>,
+    read_sources: Vec<(crate::mir::resolved_semantics::home_new_prefix::BranchCallResultSourceV1,
+        crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1)>,
     pending: Option<Rc<IfConditionMaterializationV1>>,
     branch: Option<(BasicBlockId, MirInstruction)>,
     slots: Vec<(crate::mir::resolved_semantics::BindingRefV1, String)>,
@@ -130,11 +132,28 @@ impl IfFormPhysicalObserverV1 for IfStateObserverV1 {
                 self.branch.clone().ok_or("If text branch missing")?, exits, inputs, relation,
                 crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims), function)?);
         }
+        let mut observed_reads = Vec::new();
+        for (source, loan) in &self.read_sources {
+            let claims = self.claims.as_ref().ok_or("If readonly source claims missing")?;
+            let name = &self.slots.iter().find(|(binding, _)| *binding == source.binding()).ok_or("If readonly slot missing")?.1;
+            let inputs = [self.state.borrow().observe_snapshot_binding_v1(&arms[0], source.binding()).map_err(|error| error.to_string())?,
+                self.state.borrow().observe_snapshot_binding_v1(&arms[1], source.binding()).map_err(|error| error.to_string())?];
+            let value = *builder.function_state.variable_ctx.variable_map.get(name).ok_or("If readonly merged value missing")?;
+            let function = builder.function_state.current_function.as_ref().ok_or("If readonly function missing")?;
+            let index = &mut builder.function_state.local_ssa_correspondence;
+            let relation = index.loan(function, value, value).ok_or("If readonly Phi relation missing")?;
+            index.require_member(&relation)?;
+            observed_reads.push(crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1::prepare_v1(
+                source.clone(), loan.clone(), Rc::clone(self.pending.as_ref().ok_or("If readonly condition missing")?),
+                self.branch.clone().ok_or("If readonly branch missing")?, exits, inputs, relation,
+                crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims), function)?);
+        }
         let mut state = self.state.borrow_mut();
         state.restore_if_normal_values_v1(baseline, arms,
             exits.map(|exit| exit.is_some()), &self.slots, &builder.function_state.variable_ctx.variable_map)?;
         for point in observed { state.attach_branch_scalar_phi_v1(point)?; }
         for point in observed_text { state.attach_branch_text_phi_v1(point)?; }
+        for point in observed_reads { state.attach_branch_read_phi_v1(point)?; }
         Ok(())
     }
 }
@@ -154,7 +173,17 @@ impl RawInvocationChildPortV1<'_, '_> {
                 if !text_sources.iter().any(|old| old.as_ref() == source.as_ref()) { text_sources.push(source); }
             }
         }
-        Ok(Some(Box::new(IfStateObserverV1 { state: Rc::clone(state), slots, sources, text_sources,
+        let mut read_sources = Vec::new();
+        if let (Some(input), Some(claims), Some(node)) = (self.source_input, &self.ordinary_new_claim_ledger, self.current_source_site_v1()) {
+            let statement = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(node);
+            for (binding, _) in &slots {
+                let Some(source) = crate::mir::resolved_semantics::home_new_prefix::BranchCallResultSourceV1::issue_v1(input, &statement, *binding) else { continue; };
+                let Some(original) = claims.borrowed_nullable_call_source_v1(source.producer()) else { continue; };
+                let Some(loan) = original.borrowed_nullable().filter(|loan| loan.is_declared_read_v1()) else { continue; };
+                read_sources.push((source, loan.clone()));
+            }
+        }
+        Ok(Some(Box::new(IfStateObserverV1 { state: Rc::clone(state), slots, sources, text_sources, read_sources,
             claims: self.ordinary_new_claim_ledger.clone(), pending: None, branch: None, baseline: None, arms: [None, None] })))
     }
 }

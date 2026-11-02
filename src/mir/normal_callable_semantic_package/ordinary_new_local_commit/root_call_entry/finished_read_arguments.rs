@@ -29,6 +29,12 @@ impl EmittedLexicalCallProjectionV1 {
         projection: &FinishedBindings,
         call_coordinate: (BasicBlockId, usize),
     ) -> Result<(), String> {
+        if let CallPacketSourceLoanV1::Instance(row) = self.row.loan() {
+            if let Some(view) = row.source_target().declared_read_receiver_v1() {
+                let read = self.lexical_receiver_read_v1().ok_or_else(|| freeze("expression/reference-source-node"))?;
+                context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, Some(projection))?;
+            }
+        }
         for argument in &self.prepared.arguments {
             let LexicalCallArgumentProjectionV1::BorrowedReadArgument {
                 ordinal,

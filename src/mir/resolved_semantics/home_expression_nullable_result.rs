@@ -6,8 +6,9 @@ use crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoa
 use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use std::{rc::Rc, sync::Arc};
+use crate::mir::resolved_semantics::{SourceStmtSiteV1, source_value_flow::{SourceValueEdgeV1, SourceValueJoinKindV1}};
 
-/// Exact alias-only use of an original initializer Call. No type, Home,
+/// Exact alias or unanimous Normal-branch use of an original initializer Call. No type, Home,
 /// nonnull or read permission is inferred by this source relationship.
 #[derive(Debug, Clone)]
 pub(crate) struct SourceCallResultReadV1 {
@@ -25,15 +26,9 @@ impl SourceCallResultReadV1 {
         if binding.owner() != input.owner() { return None; }
         let flow = input.function().expression_source().value_flow()?;
         let value = flow.read(site, binding)?;
-        let origin = flow.alias_origin(value, |at| input.function().variable_ref(at))?;
-        let SourceValueOriginV1::Expression(producer) = flow.origin(origin)? else { return None; };
-        if site.node().segments().starts_with(producer.node().segments())
-            || input.function().method_call_source_v1(producer).is_none() { return None; }
-        let mut declarations = input.function().expression_source().initializers().filter(|row| row.initializer_site() == Some(producer));
-        let destination = declarations.next()?.binding();
-        if declarations.next().is_some() { return None; }
-        let mut original = input.function().expression_source().initializers().filter(|row| row.binding() == destination);
-        if original.next()?.initializer_site() != Some(producer) || original.next().is_some() { return None; }
+        let origin = flow.unanimous_alias_origin(value, |at| input.function().variable_ref(at))?;
+        let (producer, destination) = original_initializer_call_v1(input, flow, origin)?;
+        if site.node().segments().starts_with(producer.node().segments()) { return None; }
         Some(Self { producer: OwnedExprSiteV1::new(input.owner(), producer.clone()), destination, binding,
             read: OwnedExprSiteV1::new(input.owner(), site.clone()), value, origin, flow: Arc::clone(flow) })
     }
@@ -50,6 +45,78 @@ impl SourceCallResultReadV1 {
                 && flow.read(self.read.site(), self.binding) == Some(self.value))
     }
 }
+fn original_initializer_call_v1<'a>(
+    input: ResolvedFunctionLoweringInputV1<'_>, flow: &'a VerifiedSourceValueFlowV1,
+    origin: SourceValueRefV1,
+) -> Option<(&'a SourceExprSiteV1, BindingRefV1)> {
+    let SourceValueOriginV1::Expression(producer) = flow.origin(origin)? else { return None; };
+    input.function().method_call_source_v1(producer)?;
+    let mut declarations = input.function().expression_source().initializers()
+        .filter(|row| row.initializer_site() == Some(producer));
+    let destination = declarations.next()?.binding();
+    if declarations.next().is_some() { return None; }
+    let mut original = input.function().expression_source().initializers().filter(|row| row.binding() == destination);
+    if original.next()?.initializer_site() != Some(producer) || original.next().is_some() { return None; }
+    Some((producer, destination))
+}
+
+/// Passive original branch census and its unanimous Call identity. The
+/// physical writer and current prefix must supply their own evidence.
+#[derive(Debug, Clone)]
+pub(crate) struct BranchCallResultSourceV1 {
+    producer: OwnedExprSiteV1,
+    destination: BindingRefV1,
+    binding: BindingRefV1,
+    statement: SourceStmtSiteV1,
+    value: SourceValueRefV1,
+    origin: SourceValueRefV1,
+    flow: Arc<VerifiedSourceValueFlowV1>,
+}
+impl PartialEq for BranchCallResultSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.flow, &other.flow) && self.value == other.value
+            && self.binding == other.binding && self.statement == other.statement
+            && self.producer == other.producer && self.destination == other.destination && self.origin == other.origin
+    }
+}
+impl Eq for BranchCallResultSourceV1 {}
+impl BranchCallResultSourceV1 {
+    pub(crate) fn issue_v1(input: ResolvedFunctionLoweringInputV1<'_>,
+        statement: &SourceStmtSiteV1, binding: BindingRefV1,
+    ) -> Option<Self> {
+        let flow = input.function().expression_source().value_flow()?;
+        let (value, _) = flow.branch_join(statement, binding)?;
+        let origin = flow.unanimous_alias_origin(value, |site| input.function().variable_ref(site))?;
+        let (producer, destination) = original_initializer_call_v1(input, flow, origin)?;
+        Some(Self { producer: OwnedExprSiteV1::new(input.owner(), producer.clone()), destination,
+            binding, statement: statement.clone(), value, origin, flow: Arc::clone(flow) })
+    }
+    pub(crate) fn producer(&self) -> &OwnedExprSiteV1 { &self.producer }
+    pub(crate) fn destination(&self) -> BindingRefV1 { self.destination }
+    pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
+    pub(crate) fn incoming(&self) -> Option<&[(SourceValueEdgeV1, SourceValueRefV1)]> {
+        match self.flow.origin(self.value)? {
+            SourceValueOriginV1::Join { binding, site, kind: SourceValueJoinKindV1::BranchNormal, incoming }
+                if *binding == self.binding && site.node() == self.statement.node()
+                    && matches!(incoming.as_ref(), [(SourceValueEdgeV1::ThenNormal, _), (SourceValueEdgeV1::ElseNormal, _)]) => Some(incoming),
+            _ => None,
+        }
+    }
+    pub(crate) fn matches_read_v1(&self, read: &BorrowedResultReadV1) -> bool {
+        let source = &read.declared.read;
+        Arc::ptr_eq(&self.flow, &source.flow) && self.origin == source.origin
+            && self.producer == source.producer && self.destination == source.destination
+            && self.flow.alias_terminal_with_expression_boundary(source.value,
+                |site| self.flow.read_at(site).map(|(binding, _)| ResolvedLexicalRefV1::Local(binding)),
+                |_| false) == Some(self.value)
+    }
+    pub(crate) fn incoming_expression_v1(&self, index: usize) -> Option<&SourceExprSiteV1> {
+        match self.flow.origin(self.incoming()?.get(index)?.1)? {
+            SourceValueOriginV1::Expression(site) => Some(site), _ => None,
+        }
+    }
+}
+
 impl PartialEq for SourceCallResultReadV1 {
     fn eq(&self, other: &Self) -> bool { self.same_result_v1(other) && self.binding == other.binding && self.read == other.read && self.value == other.value }
 }

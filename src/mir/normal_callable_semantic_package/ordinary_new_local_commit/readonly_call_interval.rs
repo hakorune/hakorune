@@ -7,6 +7,7 @@ type Binding = (BasicBlockId, MirInstruction);
 pub(super) fn readonly_instruction_v1(row: &MirInstruction) -> bool {
     matches!(row,
         MirInstruction::Const { .. } | MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
+        | MirInstruction::KeepAlive { .. }
         | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Branch { .. }
         | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::ReturnFault { .. }
         | MirInstruction::FaultFrameEnter { .. } | MirInstruction::InvokeNormalResult { .. } | MirInstruction::TypeOp { .. }
@@ -36,7 +37,10 @@ pub(super) fn validate_readonly_edge_v1(handoff: &super::super::FinalizedRootSou
         for (block, body) in &callee.blocks {
             for (index, row) in body.all_instructions().enumerate() {
                 if matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. }) { pending.push((callee, (*block, index))); }
-                else if !readonly_instruction_v1(row) { return Err(freeze("field-argument/parent-or-child-invalidated")); }
+                else if !readonly_instruction_v1(row) {
+                    return Err(format!("{} callee={} block={block:?} instruction={row:?}",
+                        freeze("field-argument/parent-or-child-invalidated"), callee.signature.name));
+                }
             }
         }
     }
@@ -109,7 +113,10 @@ impl FinalizedRootSourceHandoffV1 {
                 let intervals = IntervalViewV1::new(function);
                 for (block, body) in &function.blocks {
                     for (index, row) in body.all_instructions().enumerate() {
-                        if !row.used_values().iter().any(|value| aliases.contains(value)) { continue; }
+                        // KeepAlive is SSA/liveness metadata, not a payload read.
+                        // Its operands still undergo the independent SSA checks.
+                        if matches!(row, MirInstruction::KeepAlive { .. })
+                            || !row.used_values().iter().any(|value| aliases.contains(value)) { continue; }
                         if matches!(row, MirInstruction::Phi { inputs, .. } if inputs.iter().any(|(_, value)| !aliases.contains(value))) {
                             return Err(freeze("field-argument/child-origin"));
                         }
@@ -118,7 +125,9 @@ impl FinalizedRootSourceHandoffV1 {
                             if matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. }) {
                                 validate_readonly_edge_v1(self, module, function, at, &edges, checked)?;
                                 Ok(false)
-                            } else { Ok(!readonly_instruction_v1(row)) }
+                            } else if readonly_instruction_v1(row) { Ok(false) }
+                            else { Err(format!("{} function={symbol} position={at:?} instruction={row:?}",
+                                freeze("field-argument/parent-or-child-invalidated"))) }
                         };
                         if check(at, row, &mut checked)? { return Err(freeze("field-argument/parent-or-child-invalidated")); }
                         let finish = (*block, row.clone());
