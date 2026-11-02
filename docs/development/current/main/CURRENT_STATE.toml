@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 Ownership step 3a take minimum reaches canonical EXE; ordinary Box/birth defaults remain unchanged.
 Normal/later-argument Fault/callee Fault have exact entry transfer and one End, with source/physical rejection evidence.
-From declarations retain exact parameter/receiver support and reject erasure/owned inference; read-result EXE connection remains next.
+Result ABI and published function roles have separate owners; From read-result execution remains next.
 Container update/sync Counter remain; 3b cutover is outside this goal. Both existing stashes remain protected.
-From declaration boundary: focused 73 PASS, suite 8/8, 19 functions/exits identical, cohort 1798 PASS and 115 unchanged failures.
+Owner refactor gates: suite 8/8, 19 program functions/exits identical, cohort 1798 PASS and 115 unchanged failures.
 """
 next_design_card = "none"
 next_design_card_path = "none"

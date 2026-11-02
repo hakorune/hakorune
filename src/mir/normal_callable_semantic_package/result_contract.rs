@@ -21,6 +21,9 @@ use std::rc::Rc;
 
 use super::model::OwnedCallableParameterContractDeclarationV1;
 use super::physical_header::CallablePhysicalHeaderIssueV1;
+pub(super) use super::physical_header::{
+    declared_bool_source_agrees_v1, declared_i64_source_agrees_v1, validate_result,
+};
 use super::selected_mapping::{
     SelectedCallableBatchMapRowRefV1, VerifiedSelectedCallableBatchMapV1,
 };
@@ -65,24 +68,6 @@ pub(crate) struct CallableResultContractRefV1<'a> {
     terminal_relations: &'a BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
 }
 
-pub(super) fn declared_i64_source_agrees_v1(
-    result: Option<ExactTrivialScalarAbiV1>,
-    completion: &VerifiedFunctionCompletionV1,
-) -> bool {
-    match (result, completion.function_exit_contract().declared_result()) {
-        (Some(ExactTrivialScalarAbiV1::I64), DeclaredFunctionResultContractV1::Annotated(name)) =>
-            ExactTrivialScalarAbiV1::classify(name) == Some(ExactTrivialScalarAbiV1::I64),
-        (None, DeclaredFunctionResultContractV1::Unannotated) => true,
-        _ => false,
-    }
-}
-pub(super) fn declared_bool_source_agrees_v1(
-    result: Option<ExactTrivialScalarAbiV1>,
-    completion: &VerifiedFunctionCompletionV1,
-) -> bool {
-    result.is_none() && matches!(completion.function_exit_contract().declared_result(),
-        DeclaredFunctionResultContractV1::Unannotated)
-}
 
 impl VerifiedCallableResultContractCohortV1 {
     pub(super) fn row(&self, batch_slot: u32) -> Option<&VerifiedCallableResultContractRowV1> {
@@ -602,31 +587,6 @@ pub(super) fn preflight_declaration(
     Ok(true)
 }
 
-pub(super) fn validate_result(
-    completion: &VerifiedFunctionCompletionV1,
-    owner: FunctionOwnerIdV1,
-    batch_slot: u32,
-) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
-    let result = match completion.function_exit_contract().declared_result() {
-        DeclaredFunctionResultContractV1::Annotated(name) => {
-            Some(ExactTrivialScalarAbiV1::classify(name).ok_or_else(|| {
-                CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
-                    _batch_slot: batch_slot,
-                    _name: name.clone(),
-                }
-            })?)
-        }
-        DeclaredFunctionResultContractV1::Unannotated | DeclaredFunctionResultContractV1::Void => {
-            None
-        }
-    };
-    if completion.owner() != owner {
-        return Err(CallablePhysicalHeaderIssueV1::CompletionOwnerMismatch {
-            _batch_slot: batch_slot,
-        });
-    }
-    Ok(result)
-}
 
 impl VerifiedCallableResultContractCohortV1 {
     /// Move the same package context after successful consumption. This checks

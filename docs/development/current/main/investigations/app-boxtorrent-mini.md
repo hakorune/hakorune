@@ -5,6 +5,7 @@ Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
+- from owner整理着地: ABI分類3関数と公開function roleを既存責務へ本体不変で移動。result contract 815→775行、physical program 820→630行、roleは196行。最適化`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtime/既存C shimで固定suite 8/8（114.11秒、SKIP/timeoutなし）、19形program関数/exit一致、cohort 1798 PASS・既知115失敗名完全一致、`cargo check --lib --tests -p nyash-rust` PASS。production +249/−237（純増12、module/import等）、test ±0。From接続試作は別patchに保護、stash 2件保持。
 - step 3a from宣言境界着地: Rust direct headerの支持元（me/一引数）を型名と別に保持し、同一宣言のowner/binding/ordinalへ一度解決。AST/rawへの消失・未宣言/複数/Take支持元を拒否。未接続の返却は既存owned-returnへ流さずPhysicalHeaderで拒否し、通常Box既定は不変。fromの正規EXE接続は未完。
 - from境界検証: `cargo check --lib --tests -p nyash-rust`・focused 73 PASS、最適化`cargo quick-build --bin hakorune`の`target/quick/hakorune`＋同runtime/既存C shimで正規CLIの`UnsupportedResultAnnotation`・EXE未生成、固定suite 8/8（123.22秒、SKIP/timeoutなし）、19形program関数/exit一致、cohort 1798 PASS・既知115失敗名完全一致。production +237/−40（純増197）、test +109/−14（純増95、宣言消失/支持元同一性/owned流入拒否の証拠、take/from重複fixture共通化）。新test file/checker/hookなし、stash 2件保持。
 - from次手: resolved callable rowが保持する同じ宣言を既存result facts/contractへ貸し、formal Returnの元support照合・owned local actualの生存/read専用利用を既存Formal ABIへ接続する。null witnessは捏造しない。from meは専用receiver支持元metadataのRust/C照合が必要で、formal 0やMap slotへ偽装しない。

@@ -7,7 +7,7 @@
 
 use crate::mir::callable_semantic_batch::ResolvedCallableSemanticBatchLoanErrorV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
-use crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1;
+use crate::mir::resolved_control_flow::{DeclaredFunctionResultContractV1, FunctionCompletionVerificationErrorV1, VerifiedFunctionCompletionV1};
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 use super::result_contract::{CallableResultContractRefV1, VerifiedCallableResultContractCohortV1};
@@ -137,4 +137,50 @@ pub(super) fn require_declared_borrowed_result_connection_v1(
         });
     }
     Ok(())
+}
+
+pub(super) fn declared_i64_source_agrees_v1(
+    result: Option<ExactTrivialScalarAbiV1>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> bool {
+    match (result, completion.function_exit_contract().declared_result()) {
+        (Some(ExactTrivialScalarAbiV1::I64), DeclaredFunctionResultContractV1::Annotated(name)) =>
+            ExactTrivialScalarAbiV1::classify(name) == Some(ExactTrivialScalarAbiV1::I64),
+        (None, DeclaredFunctionResultContractV1::Unannotated) => true,
+        _ => false,
+    }
+}
+
+pub(super) fn declared_bool_source_agrees_v1(
+    result: Option<ExactTrivialScalarAbiV1>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> bool {
+    result.is_none() && matches!(completion.function_exit_contract().declared_result(),
+        DeclaredFunctionResultContractV1::Unannotated)
+}
+
+pub(super) fn validate_result(
+    completion: &VerifiedFunctionCompletionV1,
+    owner: FunctionOwnerIdV1,
+    batch_slot: u32,
+) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
+    let result = match completion.function_exit_contract().declared_result() {
+        DeclaredFunctionResultContractV1::Annotated(name) => {
+            Some(ExactTrivialScalarAbiV1::classify(name).ok_or_else(|| {
+                CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+                    _batch_slot: batch_slot,
+                    _name: name.clone(),
+                }
+            })?)
+        }
+        DeclaredFunctionResultContractV1::Unannotated | DeclaredFunctionResultContractV1::Void => {
+            None
+        }
+    };
+    if completion.owner() != owner {
+        return Err(CallablePhysicalHeaderIssueV1::CompletionOwnerMismatch {
+            _batch_slot: batch_slot,
+        });
+    }
+    Ok(result)
 }
