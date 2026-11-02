@@ -270,6 +270,9 @@ fn declared_receiver_result_preserves_original_binding_without_legacy_projection
         ("identity(other: Leaf): Leaf from me { local q = other.relay() return q } relay(): Leaf from me { return me }", false),
         ("identity(): Other from me { local q = me.relay() return q } relay(): Leaf from me { return me }", false),
         ("identity(): Other from me { return me.child }", true),
+        ("identity(): Other from me { local q = me.relay() return q } relay(): Other from me { return me.child }", true),
+        ("identity(): Other from me { local q = me.relay() return q } relay(): Other from me { if true { return null } return me.child }", true),
+        ("identity(): Other from me { local q = me.relay() return q } relay(): Other from me { if true { return null } return me.missing }", false),
         ("identity(): Leaf from me { return me.child }", false),
         ("identity(): Other from me { return me.missing }", false),
         ("identity(): Leaf from me { if true { return null } return me }", true),
@@ -291,6 +294,13 @@ fn declared_receiver_result_preserves_original_binding_without_legacy_projection
                 assert!(std::sync::Arc::ptr_eq(facts.borrowed_result_declaration_v1(key).unwrap(), read));
                 let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } = read.support() else { panic!("original receiver"); };
                 assert!(facts.outcomes(key).unwrap().iter().flat_map(|exit| exit.witnesses()).all(|root| root.supports_receiver_v1(binding, read.declared_type())));
+                for root in facts.outcomes(key).unwrap().iter().flat_map(|exit| exit.witnesses()) {
+                    if let ResultWitnessStepV1::Call { key: target, callee, .. } = root.step() {
+                        assert!(facts.outcomes(target).unwrap().iter().flat_map(|exit| exit.witnesses())
+                            .any(|original| std::rc::Rc::ptr_eq(original, callee)), "the Call must retain the sealed callee authority");
+                    }
+                    assert!(root.is_literal_null_v1() || root.recheck_receiver_payload_v1(&facts));
+                }
             } else {
                 assert!(facts.outcomes(key).is_none(), "{method}");
             }

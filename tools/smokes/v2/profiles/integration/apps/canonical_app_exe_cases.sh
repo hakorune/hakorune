@@ -114,9 +114,10 @@ box Parent {
   marker: i64
   birth(child) { me.child = child me.marker = 0 }
   get(): Leaf from me { return me.child }
+  forward(): Leaf from me { local q = me.get() return q }
 }
 static box Main {
-  main() { local child = new Leaf() local parent = new Parent(child) local q = parent.get() return q.value }
+  main() { local child = new Leaf() local parent = new Parent(child) local q = parent.forward() return q.value }
 }
 HAKO
   CASES+=("ownership_from_field|$TMP_ROOT.from-field.hako|7||")

@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: receiver-field forwarding at source field seal; alias/reborrow/PHI and support composition remain"
+current_blocker_token = "ownership step 3a: readonly result aliases and legal alias forwarding; reborrow/PHI and support composition remain"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Receiver identity From forwarding reaches canonical EXE exit 7 through common Call substitution and EntryForward.
-Support/payload/access stay separate; source and C retain exact caller receiver, original callee and read declaration.
-Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8, cohort 1802 PASS and exact 115 failure names unchanged.
-Next: normalize the receiver-field witness DAG once after field seal; Parent/Child relay still refuses at source result.
-Then alias/reborrow/PHI and support composition; From incomplete, both stashes protected.
+Receiver identity and Parent/Child field From forwarding reach canonical EXE exit 7 through common entry support.
+Field sealing normalizes the witness DAG once by original Rc identity; Pending and invalid alternatives never grant execution.
+Optimized target/quick CLI/runtime + existing C shim: suite 8/8, cohort 1802 PASS and exact 115 failure names unchanged.
+Next: common alias read view retaining the original loan/Call and exact alias-flow + physical Copy evidence.
+Then reborrow/PHI and support composition; From incomplete, both stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

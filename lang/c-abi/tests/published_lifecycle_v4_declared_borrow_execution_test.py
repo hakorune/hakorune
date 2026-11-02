@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol, expected in [('local', 'Leaf.identity/1', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
+    for suffix, symbol, expected in [('local', 'Leaf.identity/1', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
         # Unchanged source-issued explicit read result; Copy retains its original Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
@@ -248,7 +248,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         compile_input(data, accepted=False)
         print('reject read qualifier erasure/false and End of borrowed result')
 
-        if suffix == 'receiver-forward':
+        if suffix in ['receiver-forward', 'field-forward']:
             for support in [None, {'kind': 'formal', 'ordinal': 0}, {'kind': 'receiver', 'extra': 0}]:
                 data = copy.deepcopy(read)
                 relay = function(data, symbol)
@@ -281,7 +281,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
                     inner['normal'] = inner['fault']
                 compile_input(data, accepted=False)
 
-        if suffix in ['receiver', 'receiver-forward', 'field']:
+        if suffix in ['receiver', 'receiver-forward', 'field', 'field-forward']:
             for side in ['call', 'callee']:
                 for corruption in ['extra-ordinal', 'unknown-support', 'extra-support-key']:
                     data = copy.deepcopy(read)

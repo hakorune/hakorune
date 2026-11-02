@@ -123,10 +123,7 @@ pub(super) fn evaluate_row(
         if let Some(read) = borrowed {
             if exit.site.owner() != read.owner() || witnesses.is_empty() || witnesses.iter().any(|root| match read.support() {
                 crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal } => !root.supports_formal_v1(binding, ordinal),
-                crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } => !root.supports_receiver_v1(binding, read.declared_type()) && !matches!(root.step(),
-                    ResultWitnessStepV1::Receiver { binding: original, projection: witness::ReceiverResultProjectionV1::PendingField(request) }
-                        if *original == binding && request.receiver.owner() == read.owner()
-                            && root.origin() == &ResultValueOriginV1::BorrowedReceiver { class: read.declared_type().into() }),
+                crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } => !root.supports_receiver_draft_v1(binding, read.declared_type()),
             }) { return ExitVerdictV1::Dead; }
         }
         let alternatives: BTreeSet<_> = witnesses

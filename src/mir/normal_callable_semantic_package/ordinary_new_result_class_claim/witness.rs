@@ -5,7 +5,7 @@ use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ResultFormalSubstitutionV1 {
     pub(crate) argument_site: OwnedExprSiteV1,
     pub(crate) binding: BindingRefV1,
@@ -14,7 +14,7 @@ pub(crate) struct ResultFormalSubstitutionV1 {
 }
 
 /// The actual source support of a composed Call, independent of payload type.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResultSupportSubstitutionV1 {
     Formal(ResultFormalSubstitutionV1),
     Receiver { read: OwnedExprSiteV1, binding: BindingRefV1 },
@@ -125,10 +125,18 @@ impl ResultOriginWitnessV1 {
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn supports_receiver_v1(&self, binding: BindingRefV1, class: &str) -> bool {
+        self.receiver_support_matches_v1(binding, class, false)
+    }
+    /// Draft reachability keeps an outstanding field obligation. Executable
+    /// consumers still require the strict entry above after field sealing.
+    pub(super) fn supports_receiver_draft_v1(&self, binding: BindingRefV1, class: &str) -> bool {
+        self.receiver_support_matches_v1(binding, class, true)
+    }
+    fn receiver_support_matches_v1(&self, binding: BindingRefV1, class: &str, pending: bool) -> bool {
         if let ResultWitnessStepV1::Call { callee, substitution: Some(ResultSupportSubstitutionV1::Receiver { read, binding: actual }), .. } = &self.step {
             return *actual == binding && read.owner() == binding.owner()
                 && self.site.owner() == binding.owner()
-                && callee.receiver_support_binding_v1().is_some_and(|original| callee.supports_receiver_v1(original, class));
+                && callee.receiver_support_binding_v1().is_some_and(|original| callee.receiver_support_matches_v1(original, class, pending));
         }
         self.site.owner() == binding.owner() && (self.origin == ResultValueOriginV1::Null
             || matches!((&self.step, &self.origin),
@@ -137,7 +145,7 @@ impl ResultOriginWitnessV1 {
                         ReceiverResultProjectionV1::Identity => true,
                         ReceiverResultProjectionV1::Field { read, source } =>
                             read.receiver.owner() == binding.owner() && source.child_class() == class,
-                        ReceiverResultProjectionV1::PendingField(_) => false,
+                        ReceiverResultProjectionV1::PendingField(read) => pending && read.receiver.owner() == binding.owner(),
                     }))
     }
 
