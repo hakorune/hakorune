@@ -1,4 +1,5 @@
 //! Single composition fold over source exits; never a Home issuer.
+use super::*;
 use super::product::SourceResultRowV1;
 use super::{
     OrdinaryNewResultClassClaimsV1, OrdinaryNewResultClassV1, PendingExitV1, PendingResultExitV1,
@@ -192,4 +193,165 @@ pub(super) fn evaluate_row(
         exits: rows.into_boxed_slice(),
         projection,
     })
+}
+
+// Collection and resolution have separate owners; the solver retains the same products.
+impl OrdinaryNewResultClassClaimDraftV1 {
+    /// Pass B: resolve forwarded exits against the batch's own sealed
+    /// facts, then compose by monotone fixpoint — every iteration either
+    /// mints newly-provable claims or removes rows whose forwarded callee
+    /// can never claim, so iteration is bounded by the pending-key count.
+    /// Fresh classes require ordinary source coverage before insertion;
+    /// forwarded identities carry no acquired Home. Passive mixed/null-only
+    /// rows remain absent from the legacy class projection.
+    pub(crate) fn finish(
+        self,
+        ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
+        field_write_claims: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1>,
+    ) -> OrdinaryNewResultClassClaimsV1 {
+        use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+        let mut pending: BTreeMap<
+            CanonicalSameModuleCallableKeyV1,
+            (u32, Vec<PendingResultExitV1>, Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>),
+        > = BTreeMap::new();
+        for row in self.rows {
+            let main = app_main.filter(|main| main.batch_slot() == row.batch_slot);
+            if let Some(main) = main {
+                if main.catalog_key() != &row.key {
+                    continue;
+                }
+            } else if !matches!(selected.key_for_batch_slot(row.batch_slot),
+                Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == &row.key)
+            {
+                continue;
+            }
+            let resolved = batch.with_lowering_input(row.batch_slot, |input| {
+                if main.is_some_and(|main| {
+                    !main.matches_function(input.owner(), row.batch_slot, &row.key)
+                }) {
+                    return None;
+                }
+                let function = input.function();
+                let Some(body_shape) = input.body_shape() else {
+                    return None;
+                };
+                let stored = entry_home.and_then(|entries| witness::map_stored_result_source_v1(
+                    input, &row, batch, selected, constructors, entries, field_write_claims));
+                row.exits
+                    .iter()
+                    .map(|(site, exit)| {
+                        if site.owner() != input.owner() {
+                            return None;
+                        }
+                        if let Some(source) = &stored {
+                            return Some(PendingResultExitV1 { site: site.clone(),
+                                exit: PendingExitV1::MapStored(std::rc::Rc::clone(source)) });
+                        }
+                        let exit = match exit {
+                            ResultClassExitDraftV1::New(class) => {
+                                Some(PendingExitV1::New(class.clone()))
+                            }
+                            ResultClassExitDraftV1::Null => Some(PendingExitV1::Null),
+                            ResultClassExitDraftV1::ForwardCall(site) => resolve_call_key(
+                                site,
+                                function,
+                                body_shape,
+                                &row.key,
+                                batch,
+                                selected,
+                                field_write_claims,
+                            )
+                            .map(|(key, actuals)| PendingExitV1::Fwd {
+                                call_site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                                    input.owner(),
+                                    site.clone(),
+                                ),
+                                key,
+                                actuals,
+                            }),
+                            ResultClassExitDraftV1::ForwardLocal(binding) => resolve_forward_local(
+                                *binding,
+                                site,
+                                input,
+                                body_shape,
+                                &row.key,
+                                batch,
+                                selected,
+                                field_write_claims,
+                            ),
+                            ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {
+                                // Both ordinary kinds borrow their input. A type
+                                // annotation proves class, not a moved-in Home.
+                                parameter_contract(parameter_contracts, row.batch_slot, *binding)
+                                    .filter(|parameter| parameter.ordinal == *ordinal)
+                                    .filter(|parameter| {
+                                        matches!(
+                                            parameter.kind,
+                                            CallableParameterContractKindV1::DeclaredObject(_)
+                                                | CallableParameterContractKindV1::OpaqueHandle
+                                        )
+                                    })
+                                    .map(|_| PendingExitV1::Formal {
+                                        binding: *binding,
+                                        ordinal: *ordinal,
+                                    })
+                            }
+                        }?;
+                        Some(PendingResultExitV1 {
+                            site: site.clone(),
+                            exit,
+                        })
+                    })
+                    .collect::<Option<Vec<_>>>()
+            });
+            if let Ok(Some(exits)) = resolved {
+                pending.insert(row.key, (row.batch_slot, exits, row.borrowed_result));
+            }
+        }
+        let mut claims = OrdinaryNewResultClassClaimsV1::new();
+        loop {
+            let pending_keys: BTreeSet<CanonicalSameModuleCallableKeyV1> =
+                pending.keys().cloned().collect();
+            let mut inserts = Vec::new();
+            let mut deads = Vec::new();
+            for (key, (batch_slot, exits, borrowed_result)) in &pending {
+                match evaluate_row(
+                    exits,
+                    &claims,
+                    &pending_keys,
+                    parameter_contracts,
+                    *batch_slot,
+                    ordinary_box_coverage,
+                    borrowed_result.as_deref(),
+                ) {
+                    ExitVerdictV1::Resolvable(mut claim) => {
+                        claim.borrowed_result = borrowed_result.clone();
+                        inserts.push((key.clone(), claim));
+                    },
+                    ExitVerdictV1::Dead => deads.push(key.clone()),
+                    ExitVerdictV1::Waiting => {}
+                }
+            }
+            if inserts.is_empty() && deads.is_empty() {
+                break;
+            }
+            for key in deads {
+                pending.remove(&key);
+            }
+            for (key, claim) in inserts {
+                pending.remove(&key);
+                claims.insert(key, claim);
+            }
+        }
+        if let Some(entries) = entry_home {
+            claims.set_map_installs(witness::map_install_sources_v1(batch, selected, constructors, entries, field_write_claims));
+        }
+        claims
+    }
 }
