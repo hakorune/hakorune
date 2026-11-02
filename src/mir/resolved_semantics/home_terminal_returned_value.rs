@@ -11,6 +11,31 @@ use super::{
 mod scalar_result;
 pub(crate) use scalar_result::TerminalI64ScalarReturnV1;
 
+/// Return provenance keeps legacy narrowing separate from explicit read access.
+/// A declared read retains its original loan and the current exact alias use.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum BorrowedNullableReturnV1 {
+    Legacy(Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>),
+    Declared(super::super::BorrowedResultReadV1),
+}
+impl BorrowedNullableReturnV1 {
+    pub(crate) fn read_v1(&self) -> Option<&super::super::BorrowedResultReadV1> {
+        match self { Self::Declared(read) => Some(read), Self::Legacy(_) => None }
+    }
+    pub(crate) fn binding_v1(&self) -> BindingRefV1 {
+        self.read_v1().map_or_else(|| self.destination(), |read| read.binding())
+    }
+}
+impl std::ops::Deref for BorrowedNullableReturnV1 {
+    type Target = crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1;
+    fn deref(&self) -> &Self::Target {
+        match self { Self::Legacy(loan) => loan, Self::Declared(read) => read.source() }
+    }
+}
+impl AsRef<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1> for BorrowedNullableReturnV1 {
+    fn as_ref(&self) -> &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1 { self }
+}
+
 /// The exact source value a non-i64 terminal `return <expr>` hands to the
 /// caller. Binding classes carry the root identity; ownership transfer is
 /// decided by the lifecycle contract, never by this row.
@@ -37,10 +62,8 @@ pub(crate) enum TerminalReturnedSourceV1 {
         binding: BindingRefV1, receiver: SourceExprSiteV1, field: Box<str>,
         source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StoredChildFieldSourceV1>,
     },
-    /// Non-null source result of the original borrowed LOCAL call, owning nothing.
-    BorrowedNullableLocal(
-        Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
-    ),
+    /// Original borrowed LOCAL call result, owning nothing; access stays explicit.
+    BorrowedNullableLocal(BorrowedNullableReturnV1),
     /// Original guarded Map get plus its qualified passive Text-key read.
     StoredMapGet {
         receiver_read: SourceExprSiteV1,
@@ -186,9 +209,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_returned_sou
         ));
     }
     if let Some(loan) = locals.borrowed_nullable_return(site) {
-        return Some(TerminalReturnedSourceV1::BorrowedNullableLocal(Box::new(
-            loan.clone(),
-        )));
+        return Some(TerminalReturnedSourceV1::BorrowedNullableLocal(loan));
     }
     if let Some((binding, root, acquisition)) = locals.text_reference(site) {
         if root == acquisition.binding()

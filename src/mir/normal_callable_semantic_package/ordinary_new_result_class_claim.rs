@@ -433,15 +433,26 @@ fn resolve_forward_local(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    declared_borrow: bool,
 ) -> Option<PendingExitV1> {
     let function = input.function();
     let record = function.binding(binding)?;
     if !matches!(record.kind(), BindingKindV1::Local { .. }) {
         return None;
     }
-    let initializer_site = sole_initializer_site(function, binding)?;
+    let mut initializer_site = sole_initializer_site(function, binding)?;
     if function.expression_source().construction(&initializer_site).is_some() {
         return witness::capture_local_construction_result_v1(input, binding, returned).map(PendingExitV1::LocalNew);
+    }
+    if declared_borrow {
+        let flow = function.expression_source().value_flow()?;
+        let value = flow.read(returned.site(), binding)?;
+        let origin = flow.alias_origin(value, |site| function.variable_ref(site))?;
+        let crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(site) = flow.origin(origin)? else { return None; };
+        // Only the original Call can be forwarded. Owned New aliases, joins,
+        // unknown values and cycles never gain a borrowed return contract.
+        if function.expression_source().construction(site).is_some() { return None; }
+        initializer_site = site.clone();
     }
     resolve_call_key(
         &initializer_site,

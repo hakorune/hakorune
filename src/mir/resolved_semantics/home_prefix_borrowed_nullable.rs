@@ -360,16 +360,16 @@ impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_nullable_return(
         &self,
         site: &SourceExprSiteV1,
-    ) -> Option<&BorrowedNullableLocalSourceLoanV1> {
-        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
-            return None;
-        };
-        let StoredLocal::BorrowedNullable(loan) = self.locals.get(&binding)? else {
-            return None;
-        };
-        (loan.destination() == binding
-            && if loan.is_declared_read_v1() { loan.read_valid } else { self.nonnull.contains(&binding) }
-            && self.borrowed_entry_support_live_v1(loan.as_ref()))
-        .then_some(loan.as_ref())
+    ) -> Option<super::super::BorrowedNullableReturnV1> {
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None; };
+        let StoredLocal::BorrowedNullable(loan) = self.locals.get(&binding)? else { return None; };
+        if !self.borrowed_entry_support_live_v1(loan.as_ref()) { return None; }
+        if loan.is_declared_read_v1() {
+            if !loan.read_valid { return None; }
+            return super::super::BorrowedResultReadV1::issue_v1(self.input, loan.as_ref(), site)
+                .map(super::super::BorrowedNullableReturnV1::Declared);
+        }
+        (loan.destination() == binding && self.nonnull.contains(&binding))
+            .then(|| super::super::BorrowedNullableReturnV1::Legacy(Box::new(loan.as_ref().clone())))
     }
 }

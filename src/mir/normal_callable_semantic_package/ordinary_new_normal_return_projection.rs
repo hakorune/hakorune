@@ -123,7 +123,8 @@ impl OrdinaryNewClaimLedgerV1 {
             || observation.local_binding() != Some((loan.declaration(), loan.destination()))
             || observation.result() != crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::BorrowedNullable
             || !original.covered_calls().contains(loan.call())
-            || original.homes().iter().any(|home| home.binding() == loan.destination())
+            || loan.read_v1().is_some_and(|read| read.read().owner() != owner || read.read().site() != value.value_site())
+            || original.homes().iter().any(|home| home.binding() == loan.destination() || home.binding() == loan.binding_v1())
             || self.normal_return_dispositions.as_ref().is_some_and(|rows|
                 rows.contains_key(&(owner, exit.clone()))) {
             return Err(freeze("borrowed-local-source-identity"));

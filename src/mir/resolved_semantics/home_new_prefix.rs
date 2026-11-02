@@ -242,7 +242,7 @@ use terminal_relation::{
     terminal_map_get, terminal_returned_source, ReturnScalar,
 };
 pub(crate) use terminal_relation::{
-    TerminalBoolLiteralReturnV1, TerminalCallArgumentV1, TerminalI64AddReturnV1,
+    BorrowedNullableReturnV1, TerminalBoolLiteralReturnV1, TerminalCallArgumentV1, TerminalI64AddReturnV1,
     TerminalI64CallReturnV1, TerminalI64FieldReturnV1, TerminalI64ScalarReturnV1,
     TerminalIntegerLiteralReturnV1, TerminalMapGetReceiverClassV1, TerminalMapGetReturnV1,
     TerminalOpaqueCallReturnV1, TerminalRelationV1, TerminalReturnedSourceV1, TerminalUnitReturnV1,

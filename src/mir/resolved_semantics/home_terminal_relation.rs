@@ -20,7 +20,7 @@ pub(super) use returned_value::{
     terminal_returned_source,
 };
 pub(crate) use returned_value::{
-    TerminalI64ScalarReturnV1, TerminalReturnedSourceV1, TerminalValueReturnV1,
+    BorrowedNullableReturnV1, TerminalI64ScalarReturnV1, TerminalReturnedSourceV1, TerminalValueReturnV1,
 };
 
 /// Source-only terminal shape for the selected ordinary-`New` root.

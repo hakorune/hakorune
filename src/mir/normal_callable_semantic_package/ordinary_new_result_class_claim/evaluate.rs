@@ -300,6 +300,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                                 batch,
                                 selected,
                                 field_write_claims,
+                                row.borrowed_result.is_some(),
                             ),
                             ResultClassExitDraftV1::Receiver { binding, class, projection } => Some(PendingExitV1::Receiver { binding: *binding, class: class.clone(), projection: projection.clone() }),
                             ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {

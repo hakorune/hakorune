@@ -663,13 +663,14 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         for (text, symbol, receiver, ordinal, artifact) in [
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, 0, "hako-issued-declared-read-local.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local original = p.identity(p) local q = original return q.value } }", "Leaf.identity/1", false, 0, "hako-issued-declared-read-alias.json"),
-            ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } forward(n: i64, p: Leaf): Leaf from p { local q = me.identity(p) return q } } static box Main { main() { local p = new Leaf() local q = p.forward(0, p) return q.value } }", "Leaf.forward/2", false, 1, "hako-issued-declared-read-forward.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } forward(n: i64, p: Leaf): Leaf from p { local original = me.identity(p) local q = original return q } } static box Main { main() { local p = new Leaf() local q = p.forward(0, p) return q.value } }", "Leaf.forward/2", false, 1, "hako-issued-declared-read-forward.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } static box Main { main() { local p = new Leaf() local q = p.identity() return q.value } }", "Leaf.identity/0", true, 0, "hako-issued-declared-read-receiver.json"),
-            ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } forward(): Leaf from me { local q = me.identity() return q } } static box Main { main() { local p = new Leaf() local q = p.forward() return q.value } }", "Leaf.forward/0", true, 0, "hako-issued-declared-read-receiver-forward.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } forward(): Leaf from me { local original = me.identity() local q = original return q } } static box Main { main() { local p = new Leaf() local q = p.forward() return q.value } }", "Leaf.forward/0", true, 0, "hako-issued-declared-read-receiver-forward.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } identity(): Leaf from me { return me.child } } static box Main { main() { local child = new Leaf() local p = new Parent(child) local q = p.identity() return q.value } }", "Parent.identity/0", true, 0, "hako-issued-declared-read-field.json"),
-            ("box Leaf { value: i64 birth() { me.value = 7 } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } get(): Leaf from me { return me.child } forward(): Leaf from me { local q = me.get() return q } } static box Main { main() { local child = new Leaf() local p = new Parent(child) local q = p.forward() return q.value } }", "Parent.forward/0", true, 0, "hako-issued-declared-read-field-forward.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } get(): Leaf from me { return me.child } forward(): Leaf from me { local original = me.get() local q = original return q } } static box Main { main() { local child = new Leaf() local p = new Parent(child) local q = p.forward() return q.value } }", "Parent.forward/0", true, 0, "hako-issued-declared-read-field-forward.json"),
         ] {
-        MirCompiler::with_options(artifact.ends_with("-forward.json")).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
+        for optimize in [false, true].into_iter().filter(|optimize| !*optimize || artifact.ends_with("-forward.json")) {
+        MirCompiler::with_options(optimize).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
             if artifact.ends_with("-alias.json") {
                 let mut changed = view.module().clone();
@@ -748,11 +749,12 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
             assert!(issue.contains("borrowed-carrier-projection-drift"), "{issue}");
             std::fs::write(std::env::temp_dir().join(artifact), wire).unwrap();
             Ok(())
-        }).unwrap_or_else(|issue| panic!("{symbol}: {issue}"));
+        }).unwrap_or_else(|issue| panic!("{symbol} optimize={optimize}: {issue}"));
+        }
         let forwarding = match artifact {
-            "hako-issued-declared-read-forward.json" => Some(("local q = me.identity(p) return q", "local q = me.identity(p) p.value = 9 return q", "forward(n: i64, p: Leaf): Leaf from p", "forward(n: i64, p: Leaf)")),
-            "hako-issued-declared-read-receiver-forward.json" => Some(("local q = me.identity() return q", "local q = me.identity() me.value = 9 return q", "forward(): Leaf from me", "forward()")),
-            "hako-issued-declared-read-field-forward.json" => Some(("local q = me.get() return q", "local q = me.get() me.marker = 9 return q", "forward(): Leaf from me", "forward()")),
+            "hako-issued-declared-read-forward.json" => Some(("local original = me.identity(p) local q = original return q", "local original = me.identity(p) local q = original p.value = 9 return q", "forward(n: i64, p: Leaf): Leaf from p", "forward(n: i64, p: Leaf)")),
+            "hako-issued-declared-read-receiver-forward.json" => Some(("local original = me.identity() local q = original return q", "local original = me.identity() local q = original me.value = 9 return q", "forward(): Leaf from me", "forward()")),
+            "hako-issued-declared-read-field-forward.json" => Some(("local original = me.get() local q = original return q", "local original = me.get() local q = original me.marker = 9 return q", "forward(): Leaf from me", "forward()")),
             _ => None,
         };
         if let Some((body, mutated, declaration, unqualified)) = forwarding {
