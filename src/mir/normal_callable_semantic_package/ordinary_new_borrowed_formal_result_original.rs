@@ -379,6 +379,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 struct OriginalResultRowV1 {
     original: Result<Option<OriginalReturnSourceLoanV1>, String>,
     scalar: Option<Result<BorrowedI64ResultSourceV1, String>>,
+    declared_borrow: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
 }
 type ScalarResultV1 = Result<BorrowedI64ResultSourceV1, String>;
 
@@ -397,11 +398,25 @@ impl BorrowedResultCohortV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn unavailable_with_original_v1(issue: String, originals: OriginalReturnsV1) -> Self {
         Self { rows: originals.into_iter().map(|(owner, original)|
-            (owner, OriginalResultRowV1 { original, scalar: None })).collect(),
+            (owner, OriginalResultRowV1 { original, scalar: None, declared_borrow: None })).collect(),
             field_candidates: Err(issue.clone()), field_component: Err(issue) }
     }
     pub(super) fn from_original_returns_v1(originals: OriginalReturnsV1) -> Self {
         Self::unavailable_with_original_v1(freeze("borrowed-result/original-cohort-unprepared"), originals)
+    }
+    /// Preserve the original result owner in this SAME Return row.
+    pub(super) fn retain_declared_borrowed_results_v1(&mut self, batch: &VerifiedResolvedCallableSemanticBatchV1) {
+        for declaration in batch.declarations() {
+            if let Some(borrowed) = declaration.borrowed_result() {
+                self.rows.entry(declaration.owner()).or_insert_with(|| OriginalResultRowV1 {
+                    original: Ok(None), scalar: None, declared_borrow: None,
+                }).declared_borrow = Some(std::sync::Arc::clone(borrowed));
+            }
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn declared_borrowed_result_v1(&self, owner: FunctionOwnerIdV1)
+        -> Option<&std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>> {
+        self.rows.get(&owner)?.declared_borrow.as_ref()
     }
     pub(super) fn value_return_owners_v1(&self) -> impl Iterator<Item = FunctionOwnerIdV1> + '_ {
         self.rows.iter().filter_map(|(owner, row)| row.original.as_ref().ok()?.as_ref()?
@@ -471,7 +486,7 @@ impl BorrowedResultCohortV1 {
         self.iter_mut().map(|(_, scalar)| scalar)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn insert(&mut self, owner: FunctionOwnerIdV1, scalar: ScalarResultV1) -> Option<ScalarResultV1> {
-        self.rows.entry(owner).or_insert_with(|| OriginalResultRowV1 { original: Ok(None), scalar: None }).scalar.replace(scalar)
+        self.rows.entry(owner).or_insert_with(|| OriginalResultRowV1 { original: Ok(None), scalar: None, declared_borrow: None }).scalar.replace(scalar)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn retain(&mut self, mut keep: impl FnMut(&FunctionOwnerIdV1, &mut ScalarResultV1) -> bool) {
         for (owner, row) in &mut self.rows {

@@ -103,6 +103,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_integer_field_v1(
     {
         return Ok(None);
     }
+    // An explicit From result has its own retained field/read owner. Its
+    // absence from the scalar projection is intentional, never numeric failure.
+    if results.declared_borrowed_result_v1(input.owner()).is_some() { return Ok(None); }
     if original::field_return_values_v1(input, entry)?.is_empty() {
         return Ok(None);
     }

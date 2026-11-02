@@ -360,6 +360,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     original_returns: original::OriginalReturnsV1,
 ) -> BorrowedResultCohortV1 {
     let mut results = BorrowedResultCohortV1::from_original_returns_v1(original_returns);
+    results.retain_declared_borrowed_results_v1(batch);
     let needs = match needs {
         Ok(needs) => needs,
         Err(issue) => {
@@ -381,10 +382,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let owners: BTreeSet<_> = drafts.keys().copied().chain(contracts.iter()
         .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod && row.parameters.is_empty())
         .map(|row| row.owner)).chain(results.value_return_owners_v1()).collect();
+    // The original From declaration selects its result owner before analysis.
+    // Failed/absent borrowed facts must never retry the unqualified scalar lane.
     let scalar_rows = owners
         .iter()
         .filter(|owner| {
-            contracts.iter().any(|row| {
+            results.declared_borrowed_result_v1(**owner).is_none() && contracts.iter().any(|row| {
                 row.owner == **owner
                     && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
             })

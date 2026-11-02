@@ -31,7 +31,7 @@ impl crate::mir::MirBuilder {
         use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
         let (operation, ty) = match source.result() {
             LocalFieldReadResultV1::BorrowedObject(child) =>
-                (InvokeOperation::ObjectFieldBorrow { field: source.field(), base, child: child.child(), nullable: true },
+                (InvokeOperation::ObjectFieldBorrow { field: source.field(), base, child: child.child(), nullable: source.checked_object_nullable_v1() },
                     MirType::Box(child.child_class().into())),
             LocalFieldReadResultV1::Text(text) if text.field() == source.field() =>
                 (InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field: source.field(), base }), MirType::String),

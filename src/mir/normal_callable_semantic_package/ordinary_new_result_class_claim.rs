@@ -71,7 +71,7 @@ pub(crate) use borrowed_nullable_local::{BorrowedNullableLocalSourceLoanV1, Borr
 #[path = "ordinary_new_result_class_claim/witness.rs"]
 mod witness;
 pub(crate) use object_return_loan::ObjectReturnCallQualificationV1;
-pub(crate) use witness::{MapStoredResultSourceV1, ResultFormalSubstitutionV1, ResultOriginWitnessV1, ResultWitnessStepV1};
+pub(crate) use witness::{ReceiverResultProjectionV1, ReceiverFieldResultSourceV1, MapStoredResultSourceV1, ResultFormalSubstitutionV1, ResultOriginWitnessV1, ResultWitnessStepV1};
 
 /// The proven result class of a selected callable. The class name is the
 /// agreed `new` class; the arm records whether a `null` literal exit
@@ -122,7 +122,7 @@ enum ResultClassExitDraftV1 {
     /// `return <formal>` — a `Parameter` binding pass-through; pass B
     /// reads the formal's contract kind for class or forwarded identity.
     ForwardFormal { binding: BindingRefV1, ordinal: u32 },
-    Receiver { binding: BindingRefV1, class: Box<str> },
+    Receiver { binding: BindingRefV1, class: Box<str>, projection: witness::ReceiverResultProjectionV1 },
 }
 
 /// An exit after callee resolution: `Fwd` waits on the callee's claim and
@@ -131,7 +131,7 @@ enum ResultClassExitDraftV1 {
 /// Ordinary declared and opaque formal returns preserve borrowed identity.
 /// `Formal` records the original input ordinal without an owning class.
 enum PendingExitV1 {
-    Receiver { binding: BindingRefV1, class: Box<str> },
+    Receiver { binding: BindingRefV1, class: Box<str>, projection: witness::ReceiverResultProjectionV1 },
     MapStored(std::rc::Rc<witness::MapStoredResultSourceV1>),
     New(Box<str>),
     LocalNew(std::rc::Rc<witness::LocalConstructionResultSourceV1>),
@@ -486,9 +486,9 @@ impl OrdinaryNewResultClassClaimDraftV1 {
     /// `return` exit. The exit set is the verified Completion's own —
     /// `returns_value` proves every function exit is an explicit value
     /// return, so a nested `return` inside a trailing `if`/`loop` can
-    /// never masquerade as the body tail. Any unclassifiable value — a
-    /// field read, an upvar, a non-null literal — drops the row
-    /// entirely; the row can never compose a class.
+    /// never masquerade as the body tail. Explicit From receiver/field reads
+    /// retain passive roots; field ownership joins the existing child cohort
+    /// after solving. Other unclassifiable values drop the complete row.
     pub(crate) fn observe_function(
         &mut self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -525,7 +525,20 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
                     || function.binding(*binding).is_none_or(|row| row.kind() != BindingKindV1::Receiver)
                     || !binding_is_unrebound(function, *binding) { return; }
-                ResultClassExitDraftV1::Receiver { binding: *binding, class: key.owner().into() }
+                ResultClassExitDraftV1::Receiver { binding: *binding, class: key.owner().into(), projection: witness::ReceiverResultProjectionV1::Identity }
+            } else if let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(&site) {
+                let Some(read) = borrowed_result else { return; };
+                let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } = read.support() else { return; };
+                if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                    || !matches!(shape.expression_shape(object), Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
+                        receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(original), .. }) if *original == binding)
+                    || function.binding(binding).is_none_or(|row| row.kind() != BindingKindV1::Receiver)
+                    || !binding_is_unrebound(function, binding) { return; }
+                ResultClassExitDraftV1::Receiver { binding, class: read.declared_type().into(),
+                    projection: witness::ReceiverResultProjectionV1::PendingField(witness::ReceiverFieldReadV1 {
+                        receiver: crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), object.clone()),
+                        parent: key.owner().into(), field: field.clone(),
+                    }) }
             } else {
                 match function.variable_ref(&site) {
                     Some(ResolvedLexicalRefV1::Local(binding)) => {

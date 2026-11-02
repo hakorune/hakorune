@@ -58,92 +58,9 @@ pub(super) struct ArgumentFieldRead {
     pub(super) progress: Progress,
 }
 
-/// Immutable declaration descriptor, shared by the original source row and
-/// its exact take/emission. Metadata is not a numeric producer/value proof.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct LocalFieldReadSourceV1 {
-    field: CanonicalFieldRefV1,
-    result: crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
-    declared_type_name: Option<Box<str>>,
-    expression_path: Option<FieldPathSourceV1>,
-    received: Option<ReceivedFieldReadSourceV1>,
-    returned: Option<returned::ReturnedFieldArgumentSourceV1>,
-    owned_ready: Option<OwnedReadyFieldReadSourceV1>,
-    shared_support: Option<(OwnedExprSiteV1, OwnedExprSiteV1)>,
-    array_reads: Vec<Rc<CheckedFieldArrayAccessSourceV1>>,
-}
-impl LocalFieldReadSourceV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn from_declaration(
-        field: CanonicalFieldRefV1,
-        result: crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
-        declared_type_name: Option<Box<str>>,
-    ) -> Rc<Self> {
-        Rc::new(Self { field, result, declared_type_name, expression_path: None, received: None, returned: None, owned_ready: None, shared_support: None, array_reads: Vec::new() })
-    }
-    pub(in crate::mir::normal_callable_semantic_package) fn with_received(
-        original: &Rc<Self>, received: ReceivedFieldReadSourceV1,
-    ) -> Result<Rc<Self>, String> {
-        if original.received.is_some() || original.expression_path.is_some() || original.returned.is_some() || original.owned_ready.is_some()
-            || original.result != crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar
-            || received.mixed().is_some_and(|loan| loan.object() != original.field.object()) {
-            return Err(fault("received/field-declaration"));
-        }
-        let mut source = original.as_ref().clone();
-        source.received = Some(received);
-        Ok(Rc::new(source))
-    }
-    pub(in crate::mir) fn requires_checked_field_read_v1(&self) -> bool {
-        matches!(self.result, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
-            | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_))
-            || (self.declared_type_name.is_none()
-            && self.result == crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar)
-            || self.owned_ready.is_some() || self.shared_support.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
-    }
-    pub(in crate::mir::normal_callable_semantic_package) fn received_root_source_v1(&self) -> Option<&ReceivedFieldReadSourceV1> {
-        self.received.as_ref().or_else(|| self.statement_path().and_then(|path| path.received_root_v1()))
-    }
-    pub(in crate::mir) fn matches_checked_operation_v1(&self, operation: &crate::mir::instruction::InvokeOperation, base: ValueId) -> bool {
-        use crate::mir::instruction::InvokeOperation;
-        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
-        match (self.result(), operation) {
-            (LocalFieldReadResultV1::BorrowedObject(source), InvokeOperation::ObjectFieldBorrow { field, base: actual, child, nullable: true }) =>
-                *field == self.field && source.field() == self.field && *actual == base && *child == source.child(),
-            (LocalFieldReadResultV1::Text(source), InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, base: actual })) =>
-                *field == self.field && source.field() == self.field && *actual == base,
-            (LocalFieldReadResultV1::Scalar, InvokeOperation::FieldGet { field, base: actual }) => *field == self.field && *actual == base,
-            _ => false,
-        }
-    }
-    pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
-    pub(in crate::mir) fn shared_support_v1(&self) -> Option<&(OwnedExprSiteV1, OwnedExprSiteV1)> {
-        self.shared_support.as_ref()
-    }
-    pub(crate) fn result(&self) -> &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1 {
-        &self.result
-    }
-    pub(crate) fn array_operation_sources_v1(&self) -> &[Rc<CheckedFieldArrayAccessSourceV1>] {
-        &self.array_reads
-    }
-    pub(crate) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
-    fn corroborates_instruction(&self, instruction: &MirInstruction) -> bool {
-        use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
-        if self.requires_checked_field_read_v1() { return false; }
-        match (self.result(), instruction) {
-            (LocalFieldReadResultV1::BorrowedArray(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
-                source.integer_requirement_v1().is_some_and(|source| source.field() == self.field() && source.field_name() == field && class == "ArrayBox"),
-            (LocalFieldReadResultV1::BorrowedArray(_), MirInstruction::ObjectFieldGet { field, .. }) =>
-                !self.array_reads.is_empty() && *field == self.field(),
-            (LocalFieldReadResultV1::BorrowedArray(_), _) => false,
-            (LocalFieldReadResultV1::ArrayField(source), MirInstruction::ObjectFieldGet { field, .. })
-                if source.text_append_origin_v1().is_some() || !self.array_reads.is_empty() => source.field() == self.field() && *field == self.field(),
-            (LocalFieldReadResultV1::ArrayField(source), MirInstruction::FieldGet { field, declared_type: Some(crate::mir::MirType::Box(class)), .. }) =>
-                source.text_append_origin_v1().is_none() && source.field() == self.field() && source.name() == field && class == "ArrayBox",
-            (LocalFieldReadResultV1::ArrayField(_), _) => false,
-            (_, MirInstruction::ObjectFieldGet { field, .. }) => *field == self.field(),
-            _ => false,
-        }
-    }
-}
+#[path = "ordinary_new_field_read_source.rs"]
+mod descriptor;
+pub(crate) use descriptor::LocalFieldReadSourceV1;
 
 /// One original local/expression read. The source descriptor stays on the same
 /// row; affine progress retains the exact descriptor received by each consumer.
@@ -472,6 +389,12 @@ impl OrdinaryNewClaimLedgerV1 {
         context: CallValidationContextV1<'_>, recheck_path: impl FnOnce() -> Result<(), String>,
     ) -> Result<(), String> {
         context.require_ledger(self)?;
+        if let Some(returned) = &row.source.receiver_return {
+            let required = self.source_field_requirement_v1(site)?.ok_or_else(|| fault("expression-source-requirement-missing"))?;
+            if self.callable_result_classes.receiver_field_result_v1(required.request()).as_ref() != Some(returned) {
+                return Err(fault("received/source-drift"));
+            }
+        }
         if row.source.shared_support.is_some() { return self.recheck_shared_field_read_v1(site, row); }
         if row.source.owned_ready.is_some() { return self.recheck_owned_local_read_v1(site, row, context); }
         if row.source.returned.is_some() { return self.recheck_returned_field_read_v1(site, row); }
@@ -495,7 +418,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if row.numeric_source.is_some()
                 || row.source.declared_type_name() != loan.declared_v1().then_some(loan.child_class())
                 || loan.field() != row.source.field() || !loan.recheck_v1(&self.callable_result_classes, &request.field)
-                || !request.is_nullable_object_comparison_v1(required.plan())
+                || !(row.source.receiver_return.is_some() || request.is_nullable_object_comparison_v1(required.plan()))
                 || row.receiver_site != request.receiver_site || row.receiver != request.receiver || row.home != request.home {
                 return Err(fault("required-source-read-drift"));
             }

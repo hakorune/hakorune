@@ -92,6 +92,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         &field_write_claims,
         parameter_contracts,
     )?;
+    callable_result_classes.attach_receiver_fields_v1(batch, instance_constructors)
+        .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })?;
     Ok((
         field_write_claims,
         field_residences,

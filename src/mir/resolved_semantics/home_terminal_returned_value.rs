@@ -7,103 +7,9 @@ use super::{
     SourceStmtSiteV1,
 };
 
-/// Exact source relation for a Completion-backed `return <expr>` whose
-/// scalar classifier proves an i64 value that is neither a literal nor a
-/// field read: a local bound to a proven-i64 source (literal store, exact
-/// formal, field-read result, or classified call result) or a trivial
-/// integer expression. Ordinary scalar proof stays in the source inventory and
-/// current flow; a direct finite entry read retains its original source loan.
-/// Neither form grants a physical result ABI.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64ScalarReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    value_site: SourceExprSiteV1,
-    entry_read: Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
-    evaluation: Option<
-        std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
-    >,
-}
-
-impl TerminalI64ScalarReturnV1 {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue(
-        owner: FunctionOwnerIdV1,
-        return_site: SourceStmtSiteV1,
-        value_site: SourceExprSiteV1,
-    ) -> Self {
-        Self {
-            owner,
-            return_site,
-            value_site,
-            entry_read: None,
-            evaluation: None,
-        }
-    }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn with_entry_read_v1(
-        mut self,
-        read: crate::mir::normal_callable_semantic_package::FiniteEntryReadV1,
-    ) -> Option<Self> {
-        let required = read.requirement();
-        if self.evaluation.is_some()
-            || !read.signed_only()
-            || required.node() != 0
-            || required.read() != &self.value_site
-            || required.source_plan().owner() != self.owner
-            || required.source_plan().root().statement() != &self.return_site
-        {
-            return None;
-        }
-        self.entry_read = Some(read);
-        Some(self)
-    }
-    pub(crate) fn evaluation(
-        &self,
-    ) -> Option<
-        &std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
-        >,
-    > {
-        self.evaluation.as_ref()
-    }
-    fn with_evaluation_v1(
-        mut self,
-        evaluation: std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
-        >,
-    ) -> Option<Self> {
-        use crate::mir::resolved_value_profile::{
-            expression_class::ExpressionValueClassV1, expression_plan::ExpressionPlanRootV1,
-            expression_projection::ExpressionLeafClassV1,
-            expression_root::StatementExpressionRoleV1,
-        };
-        if self.entry_read.is_some()
-            || evaluation.source().owner() != self.owner
-            || !matches!(evaluation.source().root(), ExpressionPlanRootV1::Statement {
-                statement, role: StatementExpressionRoleV1::ReturnValue, value,
-            } if statement == &self.return_site && value == &self.value_site)
-            || evaluation.root_class() != ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64)
-            || !evaluation.reference_coverage_is_exact()
-        {
-            return None;
-        }
-        self.evaluation = Some(evaluation);
-        Some(self)
-    }
-    pub(crate) fn entry_read(
-        &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1> {
-        self.entry_read.as_ref()
-    }
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
-    }
-}
+#[path = "home_terminal_scalar_result.rs"]
+mod scalar_result;
+pub(crate) use scalar_result::TerminalI64ScalarReturnV1;
 
 /// The exact source value a non-i64 terminal `return <expr>` hands to the
 /// caller. Binding classes carry the root identity; ownership transfer is
@@ -126,6 +32,11 @@ pub(crate) enum TerminalReturnedSourceV1 {
     /// `return <binding>` — a borrowed self-rooted handle root (parameter
     /// or declared handle); the caller keeps ownership.
     Handle(BindingRefV1),
+    /// A child payload borrows its original parent; it is never that parent value.
+    ReceiverField {
+        binding: BindingRefV1, receiver: SourceExprSiteV1, field: Box<str>,
+        source: std::rc::Rc<crate::mir::normal_callable_semantic_package::StoredChildFieldSourceV1>,
+    },
     /// Non-null source result of the original borrowed LOCAL call, owning nothing.
     BorrowedNullableLocal(
         Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
@@ -375,6 +286,33 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn finite_entry_return<E
 
 /// Seal one fresh Text result at its original ReturnValue destination. The
 /// existing residence-return path retains transfers of installed Text Homes.
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_receiver_field_return_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>, locals: &PrefixLocalFlow<'_>,
+    homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
+    fields: &mut impl FnMut(&[super::super::LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1)
+        -> Result<Option<Vec<super::super::LocalFieldReadResultV1>>, E>,
+) -> Result<Option<TerminalValueReturnV1>, E> {
+    use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1, expression_root::StatementExpressionRoleV1};
+    let Some(shape) = input.body_shape() else { return Ok(None); };
+    let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return Ok(None); };
+    let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(&ledger, shape, statement.site()) else { return Ok(None); };
+    let ExpressionPlanRootV1::Statement { role: StatementExpressionRoleV1::ReturnValue, value, .. } = plan.root() else { return Ok(None); };
+    let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(value) else { return Ok(None); };
+    let Some(binding) = locals.terminal_receiver_v1(object) else { return Ok(None); };
+    let Some(request) = super::super::field_read::expression_field_read_request(input, &plan, value, locals) else { return Ok(None); };
+    let Some(results) = fields(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression { probe: true, plan: std::rc::Rc::clone(&plan) })? else { return Ok(None); };
+    let [super::super::LocalFieldReadResultV1::BorrowedObject(source)] = results.as_slice() else { return Ok(None); };
+    let Some(requirements) = super::super::HomeExpressionPlanV1::borrowed_return_reads_v1(std::rc::Rc::clone(&plan), homes, &request) else { return Ok(None); };
+    let mut installation = locals.expression_installation();
+    if !installation.approve(&requirements) { return Ok(None); }
+    let Some(issued) = fields(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: std::rc::Rc::clone(&plan) })? else { return Ok(None); };
+    if !matches!(issued.as_slice(), [super::super::LocalFieldReadResultV1::BorrowedObject(same)] if std::rc::Rc::ptr_eq(source, same)) { return Ok(None); }
+    installation.commit();
+    Ok(Some(TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.clone(),
+        TerminalReturnedSourceV1::ReceiverField { binding, receiver: object.clone(), field: field.clone(), source: std::rc::Rc::clone(source) })))
+}
+
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_expression_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,

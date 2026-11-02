@@ -600,7 +600,7 @@ impl StoredChildFieldSourceV1 {
 
 /// Source-only paired-field candidate. It does not prove that an arbitrary
 /// receiver came from this cohort, nor grant a non-null or Home loan.
-pub(super) fn declared_stored_child_field_v1(
+pub(in crate::mir::normal_callable_semantic_package) fn declared_stored_child_field_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,

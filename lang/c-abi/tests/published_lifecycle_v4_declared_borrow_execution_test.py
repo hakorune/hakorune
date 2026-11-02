@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0')]:
+    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0'), ('field', 'Parent.identity/0')]:
         # Unchanged source-issued explicit read result; Copy retains its original Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
@@ -238,7 +238,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         compile_input(data, accepted=False)
         print('reject read qualifier erasure/false and End of borrowed result')
 
-        if suffix == 'receiver':
+        if suffix in ['receiver', 'field']:
             for side in ['call', 'callee']:
                 for corruption in ['extra-ordinal', 'unknown-support', 'extra-support-key']:
                     data = copy.deepcopy(read)
@@ -252,3 +252,24 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
                     else:
                         target['result_support']['formal_ordinal'] = 0
                     compile_input(data, accepted=False)
+
+        if suffix == 'field':
+            for corruption in ['child-is-parent', 'unknown-field', 'nullable-without-child-guard', 'missing-invoke-coordinate', 'invalid-producer-coordinate']:
+                data = copy.deepcopy(read)
+                callee = function(data, symbol)
+                returned = next(block['terminator']['instruction'] for block in callee['blocks']
+                                if block['terminator']['instruction'].get('op') == 'return')
+                origin = returned['result_origin']
+                if corruption == 'child-is-parent':
+                    origin['object_id'] = callee['receiver_object']
+                elif corruption == 'unknown-field':
+                    origin['field']['field_ordinal'] += 1
+                elif corruption == 'missing-invoke-coordinate':
+                    origin['invoke'] = None
+                elif corruption == 'invalid-producer-coordinate':
+                    origin['producer'] = {'block': 4294967295, 'index': 0}
+                else:
+                    invoke = next(block['terminator']['instruction'] for block in callee['blocks']
+                                  if block['terminator']['instruction'].get('operation', {}).get('kind') == 'object_field_borrow')
+                    invoke['operation']['nullable'] = True
+                compile_input(data, accepted=False)

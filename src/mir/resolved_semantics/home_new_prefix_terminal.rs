@@ -110,9 +110,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
             local_calls.extend_from_slice(evaluation.calls());
         }
     }
-    let text_terminal =
+    let value_terminal =
         if object_terminal.is_none() && scalar_terminal.is_none() && unavailable.is_none() {
-            observe_text_return_expression_v1(
+            if let Some(returned) = super::terminal_relation::observe_receiver_field_return_v1(
+                input, statement, locals, homes, local_field_read,
+            )? { Some(returned) } else { observe_text_return_expression_v1(
                 input,
                 statement,
                 locals,
@@ -120,18 +122,18 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 local_calls,
                 borrowed_actuals,
                 local_field_read,
-            )?
+            )? }
         } else {
             None
         };
-    if let Some(value) = &text_terminal {
+    if let Some(value) = &value_terminal {
         if let TerminalReturnedSourceV1::TextExpression(evaluation) = value.returned() {
             path_calls.extend(evaluation.calls().iter().map(|call| call.site().clone()));
             local_calls.extend_from_slice(evaluation.calls());
         }
     }
     let mut static_terminal = None;
-    if object_terminal.is_none() && scalar_terminal.is_none() && text_terminal.is_none() {
+    if object_terminal.is_none() && scalar_terminal.is_none() && value_terminal.is_none() {
         if let Ok(value) = input
             .source()
             .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
@@ -219,11 +221,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
     if crate::config::env::builder_debug_enabled() {
         eprintln!("[terminal-relation] owner={:?} statement={:?} object={} scalar={} text={} static={}",
             input.owner(), statement.site(), object_terminal.is_some(), scalar_terminal.is_some(),
-            text_terminal.is_some(), static_terminal.is_some());
+            value_terminal.is_some(), static_terminal.is_some());
     }
     let borrowed_terminal = if object_terminal.is_none()
         && scalar_terminal.is_none()
-        && text_terminal.is_none()
+        && value_terminal.is_none()
         && static_terminal.is_none()
     {
         local_call_flow::issue_borrowed_i64_terminal_call(
@@ -261,7 +263,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 false
             }
         }
-    } else if let Some(terminal) = text_terminal {
+    } else if let Some(terminal) = value_terminal {
         relation = Some(TerminalRelationV1::Value(terminal));
         true
     } else if let Some(terminal) = static_terminal {

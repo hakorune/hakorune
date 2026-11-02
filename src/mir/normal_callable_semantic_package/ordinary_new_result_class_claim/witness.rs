@@ -13,9 +13,50 @@ pub(crate) struct ResultFormalSubstitutionV1 {
     pub(crate) caller_ordinal: u32,
 }
 
+/// Exact receiver field syntax; no ownership or nonnull permission by itself.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ReceiverFieldReadV1 {
+    pub(in crate::mir::normal_callable_semantic_package) receiver: OwnedExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) parent: Box<str>,
+    pub(in crate::mir::normal_callable_semantic_package) field: Box<str>,
+}
+
+/// Loan of the SAME sealed receiver field root, not a second field classifier.
+#[derive(Debug, Clone)]
+pub(crate) struct ReceiverFieldResultSourceV1 { pub(super) root: Rc<ResultOriginWitnessV1> }
+impl PartialEq for ReceiverFieldResultSourceV1 {
+    fn eq(&self, other: &Self) -> bool { Rc::ptr_eq(&self.root, &other.root) }
+}
+impl Eq for ReceiverFieldResultSourceV1 {}
+impl ReceiverFieldResultSourceV1 {
+    pub(in crate::mir) fn source(&self) -> &Rc<crate::mir::normal_callable_semantic_package::StoredChildFieldSourceV1> {
+        let ResultWitnessStepV1::Receiver { projection: ReceiverResultProjectionV1::Field { source, .. }, .. } = self.root.step() else { unreachable!("issued field root") };
+        source
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum ReceiverResultProjectionV1 {
+    Identity,
+    /// Kept only until the existing whole-construction child cohort is attached.
+    PendingField(ReceiverFieldReadV1),
+    Field {
+        read: ReceiverFieldReadV1,
+        source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StoredChildFieldSourceV1>,
+    },
+}
+impl ReceiverResultProjectionV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn nonnull_v1(&self) -> bool {
+        match self { Self::Identity => true, Self::Field { source, .. } => !source.nullable(), Self::PendingField(_) => false }
+    }
+    pub(super) fn recheck_v1(&self, facts: &super::OrdinaryNewResultClassClaimsV1) -> bool {
+        match self { Self::Identity => true, Self::Field { read, source } => source.recheck_v1(facts, &read.field), Self::PendingField(_) => false }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum ResultWitnessStepV1 {
-    Receiver { binding: BindingRefV1 },
+    Receiver { binding: BindingRefV1, projection: ReceiverResultProjectionV1 },
     NullLiteral,
     FreshConstruction,
     LocalConstruction(Rc<LocalConstructionResultSourceV1>),
@@ -74,8 +115,13 @@ impl ResultOriginWitnessV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn supports_receiver_v1(&self, binding: BindingRefV1, class: &str) -> bool {
         self.site.owner() == binding.owner() && (self.origin == ResultValueOriginV1::Null
             || matches!((&self.step, &self.origin),
-                (ResultWitnessStepV1::Receiver { binding: original }, ResultValueOriginV1::BorrowedReceiver { class: actual })
-                    if *original == binding && actual.as_ref() == class))
+                (ResultWitnessStepV1::Receiver { binding: original, projection }, ResultValueOriginV1::BorrowedReceiver { class: actual })
+                    if *original == binding && actual.as_ref() == class && match projection {
+                        ReceiverResultProjectionV1::Identity => true,
+                        ReceiverResultProjectionV1::Field { read, source } =>
+                            read.receiver.owner() == binding.owner() && source.child_class() == class,
+                        ReceiverResultProjectionV1::PendingField(_) => false,
+                    }))
     }
 
     pub(super) fn formal_ordinal(&self) -> Option<u32> {

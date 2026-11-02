@@ -163,14 +163,26 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
     yyjson_val* term = lv4_term(callee->blocks[bi].block);
     if (!lv4_is(term, "op", "return")) continue;
     returns++;
-    if (!lv4_is(yyjson_obj_get(term, "result_origin"), "kind",
-        hako_physical_result_receiver(op) ? "borrowed_receiver" : "borrowed_formal")) return 0;
-    if (hako_physical_result_receiver(op) &&
-        (!hako_physical_result_receiver(callee->function) ||
-         lv4_u(callee->function, "receiver_object") != object)) return 0;
+    yyjson_val* origin = yyjson_obj_get(term, "result_origin");
+    if (!hako_physical_result_receiver(op)) {
+      if (!lv4_is(origin, "kind", "borrowed_formal")) return 0;
+    } else {
+      if (!hako_physical_result_receiver(callee->function)) return 0;
+      if (lv4_is(origin, "kind", "borrowed_receiver")) {
+        if (lv4_u(callee->function, "receiver_object") != object) return 0;
+      } else if (lv4_is(origin, "kind", "borrowed_receiver_field")) {
+        yyjson_val* invoke = lv4_result_coordinate(callee, yyjson_obj_get(origin, "invoke"), NULL);
+        yyjson_val* operation = yyjson_obj_get(invoke, "operation");
+        /* Normal of a checked nonnullable borrow guarantees the child value;
+           a nullable borrow requires its own result guard, not a Parent guard. */
+        if (lv4_u(origin, "object_id") != object ||
+            !yyjson_is_false(yyjson_obj_get(operation, "nullable"))) return 0;
+      } else return 0;
+    }
   }
   hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
   return returns && lv4_read_support_new(fn, anchor) &&
       lv4_borrowed_result_readable(in, fn, value, state, use, position) &&
-      lv4_readable_object(in, fn, anchor->id, state, use, object, 1);
+      lv4_readable_object(in, fn, anchor->id, state, use,
+          hako_physical_result_receiver(op) ? lv4_u(callee->function, "receiver_object") : object, 1);
 }

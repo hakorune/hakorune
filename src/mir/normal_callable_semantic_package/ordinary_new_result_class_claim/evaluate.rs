@@ -51,9 +51,9 @@ pub(super) fn evaluate_row(
     for exit in exits {
         let mut witnesses = Vec::new();
         match &exit.exit {
-            PendingExitV1::Receiver { binding, class } => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+            PendingExitV1::Receiver { binding, class, projection } => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
                 site: exit.site.clone(), origin: ResultValueOriginV1::BorrowedReceiver { class: class.clone() },
-                step: ResultWitnessStepV1::Receiver { binding: *binding },
+                step: ResultWitnessStepV1::Receiver { binding: *binding, projection: projection.clone() },
             })),
             PendingExitV1::MapStored(source) => {
                 if !source.returns.contains_key(&exit.site) { return ExitVerdictV1::Dead; }
@@ -122,7 +122,10 @@ pub(super) fn evaluate_row(
         if let Some(read) = borrowed {
             if exit.site.owner() != read.owner() || witnesses.is_empty() || witnesses.iter().any(|root| match read.support() {
                 crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal } => !root.supports_formal_v1(binding, ordinal),
-                crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } => !root.supports_receiver_v1(binding, read.declared_type()),
+                crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } => !root.supports_receiver_v1(binding, read.declared_type()) && !matches!(root.step(),
+                    ResultWitnessStepV1::Receiver { binding: original, projection: witness::ReceiverResultProjectionV1::PendingField(request) }
+                        if *original == binding && request.receiver.owner() == read.owner()
+                            && root.origin() == &ResultValueOriginV1::BorrowedReceiver { class: read.declared_type().into() }),
             }) { return ExitVerdictV1::Dead; }
         }
         let alternatives: BTreeSet<_> = witnesses
@@ -299,7 +302,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                                 selected,
                                 field_write_claims,
                             ),
-                            ResultClassExitDraftV1::Receiver { binding, class } => Some(PendingExitV1::Receiver { binding: *binding, class: class.clone() }),
+                            ResultClassExitDraftV1::Receiver { binding, class, projection } => Some(PendingExitV1::Receiver { binding: *binding, class: class.clone(), projection: projection.clone() }),
                             ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {
                                 // Both ordinary kinds borrow their input. A type
                                 // annotation proves class, not a moved-in Home.

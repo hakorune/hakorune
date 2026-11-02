@@ -16,7 +16,7 @@ use crate::mir::resolved_semantics::BodyExpressionShapeV1;
 mod returned_value;
 pub(super) use returned_value::{
     finite_entry_return, observe_scalar_return_expression_v1 as returned_scalar_expression_v1,
-    observe_stored_return_v1, observe_text_return_expression_v1,
+    observe_stored_return_v1, observe_text_return_expression_v1, observe_receiver_field_return_v1,
     terminal_returned_source,
 };
 pub(crate) use returned_value::{

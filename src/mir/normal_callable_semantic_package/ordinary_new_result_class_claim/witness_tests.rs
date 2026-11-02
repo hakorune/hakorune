@@ -265,13 +265,16 @@ fn declared_read_result_retains_single_support_across_returns_and_null() {
 fn declared_receiver_result_preserves_original_binding_without_legacy_projection() {
     for (method, valid) in [
         ("identity(): Leaf from me { return me }", true),
+        ("identity(): Other from me { return me.child }", true),
+        ("identity(): Leaf from me { return me.child }", false),
+        ("identity(): Other from me { return me.missing }", false),
         ("identity(): Leaf from me { if true { return null } return me }", true),
         ("identity(other: Leaf): Leaf from me { return other }", false),
         ("identity(): Other from me { return me }", false),
         ("identity(): Leaf from me { return new Leaf() }", false),
         ("identity(): Leaf { return me }", false),
     ] {
-        let source = format!("box Other {{}} box Leaf {{ {method} }} static box Main {{ main() {{ return 0 }} }}");
+        let source = format!("box Other {{}} box Leaf {{ child: Other birth(child) {{ me.child = child }} {method} }} static box Main {{ main() {{ local other = new Other() local leaf = new Leaf(other) return 0 }} }}");
         with_source_claims_fixture(&source, |batch, selected, constructors, parameters, main, writers| {
             let (_, _, facts, _) = super::super::coseal_issue::source_claims::prepare_source_claims(
                 batch, selected, main, constructors, parameters, std::rc::Rc::clone(writers), None).unwrap();

@@ -100,6 +100,45 @@ static int lv4_slot_return_origin(const hako_lv4_input* in,
       lv4_map_slot_interval(fn, return_block, born, receiver, support.receiver_object, support.field);
 }
 
+/* A receiver field result retains its original checked Borrow/Normal pair.
+ * Parent lifetime and Child payload layout remain distinct. */
+static int lv4_receiver_field_return_origin(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* returned) {
+  static const char* const keys[] = {"kind", "invoke", "producer", "field", "object_id", "copies"};
+  static const char* const field_keys[] = {"object_id", "field_ordinal"};
+  yyjson_val* origin = yyjson_obj_get(returned, "result_origin");
+  yyjson_val* field = yyjson_obj_get(origin, "field");
+  uint32_t parent, ordinal, child, value, invoke_block = 0, producer_block = 0;
+  if (!hako_physical_result_receiver(fn->function) ||
+      !hako_physical_exact_keys(origin, keys, 6) || !lv4_is(origin, "kind", "borrowed_receiver_field") ||
+      !hako_physical_exact_keys(field, field_keys, 2) ||
+      !hako_physical_u32(yyjson_obj_get(field, "object_id"), &parent) ||
+      !hako_physical_u32(yyjson_obj_get(field, "field_ordinal"), &ordinal) ||
+      !hako_physical_u32(yyjson_obj_get(origin, "object_id"), &child) ||
+      !hako_physical_u32(yyjson_obj_get(returned, "value"), &value) ||
+      parent != lv4_u(fn->function, "receiver_object") ||
+      !hako_physical_owned_object_borrow_field(yyjson_obj_get(in->root, "layouts"), parent, ordinal, child)) return 0;
+  yyjson_val* invoke = lv4_result_coordinate(fn, yyjson_obj_get(origin, "invoke"), &invoke_block);
+  yyjson_val* producer = lv4_result_coordinate(fn, yyjson_obj_get(origin, "producer"), &producer_block);
+  if (!invoke || !producer) return 0;
+  hako_lv4_block* block = lv4_index_block(fn, invoke_block);
+  yyjson_val* op = yyjson_obj_get(invoke, "operation");
+  hako_lv4_value* receiver = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(op, "base")));
+  uint32_t return_block = 0;
+  size_t returns = 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) if (lv4_term(fn->blocks[bi].block) == returned) {
+    return_block = fn->blocks[bi].id; returns++;
+  }
+  return returns == 1 && block && lv4_term(block->block) == invoke && lv4_is(invoke, "op", "invoke") &&
+      lv4_is(op, "kind", "object_field_borrow") && lv4_u(op, "object_id") == parent &&
+      lv4_u(op, "field_ordinal") == ordinal && lv4_u(op, "expected_object_id") == child &&
+      lv4_canonical_receiver(fn, receiver) && lv4_is(producer, "op", "invoke_normal_result") &&
+      lv4_u(producer, "invoke_block") == invoke_block && lv4_u(invoke, "normal") == producer_block &&
+      lv4_pred_count(fn, producer_block) == 1 &&
+      hako_physical_block_dominates(fn->function, producer_block, return_block) &&
+      lv4_result_copy_chain(fn, origin, lv4_u(producer, "dst"), value);
+}
+
 /* The existing nullable-forward law is Null or the SAME fixed logical formal.
  * Physical corroboration adds no Home or incoming-call permission. The
  * dedicated Call/Normal/anchor consumers remain independently mandatory. */
@@ -109,6 +148,7 @@ static int lv4_borrowed_return_origin(const hako_lv4_input* in, hako_lv4_functio
   static const char* const formal_keys[] = {"kind", "formal_ordinal", "copies"};
   yyjson_val* origin = yyjson_obj_get(returned, "result_origin");
   if (hako_physical_result_receiver(fn->function)) {
+    if (lv4_is(origin, "kind", "borrowed_receiver_field")) return lv4_receiver_field_return_origin(in, fn, returned);
     static const char* const receiver_keys[] = {"kind", "copies"};
     uint32_t value, returned_value;
     if (!hako_physical_u32(yyjson_obj_get(returned, "value"), &returned_value)) return 0;

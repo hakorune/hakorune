@@ -183,9 +183,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             && map_argument_field.is_none() {
             return Ok(None);
         }
-        let object_obligation = map_argument_field.is_some() || matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
+        let receiver_result = match (&demand, received_context) {
+            (LocalFieldReadDemandV1::SourceExpression { plan, .. }, Some((_, _, classes, _, _)))
+                if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                    role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue,
+                    value, .. } if value == request.site.site()) => classes.receiver_field_result_v1(request),
+            _ => None,
+        };
+        let object_obligation = receiver_result.is_some() || map_argument_field.is_some() || matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
             if request.is_nullable_object_comparison_v1(plan));
-        let object_source = if object_obligation {
+        let object_source = if let Some(returned) = receiver_result {
+            let source = returned.source();
+            let declaration = LocalFieldReadSourceV1::from_declaration(source.field(),
+                LocalFieldReadResultV1::BorrowedObject(Rc::clone(source)), Some(source.child_class().into()));
+            Some(LocalFieldReadSourceV1::with_receiver_return_v1(&declaration, returned)
+                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
+        } else if object_obligation {
             match (received_context, receiver_proof) {
                 (Some((batch, _, classes, _, _)), _) if map_argument_field.is_some() => {
                     let Some(parent) = alias_class.as_deref() else { return Ok(None); };

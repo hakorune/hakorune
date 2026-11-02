@@ -89,6 +89,11 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             }
             encoded
         }
+        FinalizedObjectReturnOriginV1::BorrowedReceiverField { source, invoke, producer, .. } => json!({
+            "kind": "borrowed_receiver_field", "invoke": coordinate(function, invoke)?, "producer": coordinate(function, producer)?,
+            "field": { "object_id": source.field().object().declaration_index(), "field_ordinal": source.field().declaration_ordinal() },
+            "object_id": source.child().declaration_index(),
+        }),
         FinalizedObjectReturnOriginV1::BorrowedReceiver { .. } => json!({ "kind": "borrowed_receiver" }),
         FinalizedObjectReturnOriginV1::BorrowedFormal { formal_ordinal, .. } => {
             json!({ "kind": "borrowed_formal", "formal_ordinal": formal_ordinal })

@@ -609,6 +609,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         for (text, symbol, receiver, artifact) in [
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, "hako-issued-declared-read-local.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } static box Main { main() { local p = new Leaf() local q = p.identity() return q.value } }", "Leaf.identity/0", true, "hako-issued-declared-read-receiver.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } identity(): Leaf from me { return me.child } } static box Main { main() { local child = new Leaf() local p = new Parent(child) local q = p.identity() return q.value } }", "Parent.identity/0", true, "hako-issued-declared-read-field.json"),
         ] {
         MirCompiler::with_options(false).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
@@ -671,6 +672,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
             ("move-support-before-read", "local moved = move p return q.value", "[freeze:contract]"),
             ("move-read-result", "local moved = move q return 0", "MoveUnsupported"),
         ] {
+            let tail = if symbol == "Parent.identity/0" && label == "write-support-before-read" { "p.marker = 9 return q.value" } else { tail };
             let source = text.replace("return q.value", tail);
             let issue = MirCompiler::with_options(false).compile_normal_with_published(request(&source),
                 |_, _| Ok(())).err().expect(label);

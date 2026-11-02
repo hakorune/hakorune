@@ -358,7 +358,7 @@ impl OrdinaryNewResultClassClaimsV1 {
                 || source.binding.owner() != loan.call().owner() || source.construction.class() != loan.key().owner()
                 || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)
                     || !root.supports_receiver_v1(binding, declared.declared_type())
-                    || !matches!(root.step(), ResultWitnessStepV1::Receiver { binding: actual } if *actual == binding)) {
+                    || !matches!(root.step(), ResultWitnessStepV1::Receiver { binding: actual, projection } if *actual == binding && projection.nonnull_v1() && projection.recheck_v1(self))) {
                 return Err("borrowed-nullable/witness-identity");
             }
             return Ok(());
@@ -684,21 +684,42 @@ mod tests {
 }
 
 impl OrdinaryNewResultClassClaimsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn receiver_field_result_v1(
+        &self, request: &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1,
+    ) -> Option<super::witness::ReceiverFieldResultSourceV1> {
+        self.source_rows().find_map(|(key, _)| {
+            let declared = self.borrowed_result_declaration_v1(key)?;
+            let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } = declared.support() else { return None; };
+            if declared.owner() != request.site.owner() || binding != request.home || binding != request.receiver { return None; }
+            self.checked_original_source_roots_v1(key, declared.owner()).ok()?.into_iter().find_map(|root| {
+                let ResultWitnessStepV1::Receiver { binding: original, projection: witness::ReceiverResultProjectionV1::Field { read, source } } = root.step() else { return None; };
+                (*original == binding && root.site() == &request.site && read.receiver.site() == &request.receiver_site
+                    && read.field == request.field && root.supports_receiver_v1(binding, declared.declared_type())
+                    && source.recheck_v1(self, &read.field)).then(|| super::witness::ReceiverFieldResultSourceV1 { root: Rc::clone(root) })
+            })
+        })
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn retains_declared_receiver_terminal_v1(
         &self, terminal: &crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1,
     ) -> bool {
-        use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1};
+        use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1 as Returned};
         let TerminalRelationV1::Value(value) = terminal else { return false; };
-        let TerminalReturnedSourceV1::Handle(binding) = value.returned() else { return false; };
+        let binding = match value.returned() { Returned::Handle(binding) | Returned::ReceiverField { binding, .. } => *binding, _ => return false };
         self.source_rows().any(|(key, _)| {
             let Some(declared) = self.borrowed_result_declaration_v1(key) else { return false; };
             declared.owner() == value.owner() && matches!(declared.support(),
                 crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding: original }
-                    if original == *binding)
-                && self.checked_original_source_roots_v1(key, value.owner()).is_ok_and(|roots| roots.iter().any(|root|
-                    root.site().site() == value.value_site()
-                        && matches!(root.step(), ResultWitnessStepV1::Receiver { binding: original } if original == binding)
-                        && root.supports_receiver_v1(*binding, declared.declared_type())))
+                    if original == binding)
+                && self.checked_original_source_roots_v1(key, value.owner()).is_ok_and(|roots| roots.iter().any(|root| {
+                    if root.site().site() != value.value_site() || !root.supports_receiver_v1(binding, declared.declared_type()) { return false; }
+                    match (root.step(), value.returned()) {
+                        (ResultWitnessStepV1::Receiver { binding: original, projection: witness::ReceiverResultProjectionV1::Identity }, Returned::Handle(actual)) => original == actual,
+                        (ResultWitnessStepV1::Receiver { binding: original, projection: witness::ReceiverResultProjectionV1::Field { read, source } },
+                         Returned::ReceiverField { binding: actual, receiver, field, source: retained }) => original == actual
+                            && read.receiver.site() == receiver && read.field == *field && Rc::ptr_eq(source, retained),
+                        _ => false,
+                    }
+                }))
         })
     }
 }

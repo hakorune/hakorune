@@ -845,4 +845,5 @@ pub(super) fn ordinary_candidate_compatible_v1(
 #[path = "ordinary_new_coseal_field_source.rs"]
 mod field_source;
 pub(in crate::mir) use field_source::StoredChildFieldSourceV1;
+pub(in crate::mir::normal_callable_semantic_package) use field_source::declared_stored_child_field_v1;
 pub(super) use field_source::{requires_field_scalar_walk_v1, scalar_fields_with_original_writes};

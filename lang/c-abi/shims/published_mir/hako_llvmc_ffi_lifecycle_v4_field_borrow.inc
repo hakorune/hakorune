@@ -358,10 +358,29 @@ static int lv4_typed_receiver_guarded(const hako_lv4_input* in,
   return 0;
 }
 
+/* The exact From Return receipt selects this checked field read. It never
+ * grants nonnull to another read or removes the legacy receiver guard. */
+static int lv4_declared_receiver_field_read(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* op, uint32_t use) {
+  if (!hako_physical_result_receiver(fn->function) ||
+      !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle")) return 0;
+  hako_lv4_block* block = lv4_index_block(fn, use);
+  if (!block || yyjson_obj_get(lv4_term(block->block), "operation") != op) return 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_val* returned = lv4_term(fn->blocks[bi].block);
+    yyjson_val* origin = yyjson_obj_get(returned, "result_origin");
+    yyjson_val* invoke = lv4_result_coordinate(fn, yyjson_obj_get(origin, "invoke"), NULL);
+    if (lv4_is(returned, "op", "return") && lv4_is(origin, "kind", "borrowed_receiver_field") &&
+        invoke == lv4_term(block->block) && lv4_receiver_field_return_origin(in, fn, returned)) return 1;
+  }
+  return 0;
+}
+
 static int lv4_typed_field_read_admitted(const hako_lv4_input* in,
     hako_lv4_function_index* fn, yyjson_val* op, uint32_t use) {
   return lv4_typed_field_borrow(in, op) &&
-      (yyjson_is_true(yyjson_obj_get(op, "nullable")) || lv4_typed_receiver_guarded(in, fn, op, use));
+      (yyjson_is_true(yyjson_obj_get(op, "nullable")) || lv4_typed_receiver_guarded(in, fn, op, use)
+          || lv4_declared_receiver_field_read(in, fn, op, use));
 }
 
 static int lv4_map_present_guarded(hako_lv4_function_index*, hako_lv4_value*, uint32_t);

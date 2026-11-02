@@ -29,6 +29,11 @@ pub(in crate::mir) enum FinalizedObjectReturnOriginV1 {
     },
     MapSlot(FinalizedMapSlotReturnV1),
     BorrowedReceiver { value: ValueId },
+    BorrowedReceiverField {
+        receiver: ValueId,
+        source: Rc<crate::mir::normal_callable_semantic_package::StoredChildFieldSourceV1>,
+        invoke: Binding, producer: Binding,
+    },
     /// The original nullable formal carries Null/Forward at runtime. It is
     /// not an instruction producer and never acquires a Home here.
     BorrowedFormal {
@@ -86,10 +91,11 @@ impl FinalizedObjectReturnOutcomeV1 {
             support: crate::mir::instruction::BorrowedResultSupportV1::Receiver,
         } = result {
             if !has_receiver || !matches!(self.origin,
-                FinalizedObjectReturnOriginV1::Null { .. } | FinalizedObjectReturnOriginV1::BorrowedReceiver { .. }) {
+                FinalizedObjectReturnOriginV1::Null { .. } | FinalizedObjectReturnOriginV1::BorrowedReceiver { .. } | FinalizedObjectReturnOriginV1::BorrowedReceiverField { .. }) {
                 return Err(freeze("object-return/physical-origin-role"));
             }
-            if let FinalizedObjectReturnOriginV1::BorrowedReceiver { value } = &self.origin {
+            if let FinalizedObjectReturnOriginV1::BorrowedReceiver { value }
+                | FinalizedObjectReturnOriginV1::BorrowedReceiverField { receiver: value, .. } = &self.origin {
                 if function.params.first() != Some(value)
                     || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.first())
                         != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
@@ -139,6 +145,19 @@ impl FinalizedObjectReturnOutcomeV1 {
             FinalizedObjectReturnOriginV1::OwnedCall { producer, invoke }
             | FinalizedObjectReturnOriginV1::BorrowedCall { producer, invoke, .. } => required.extend([producer, invoke]),
             FinalizedObjectReturnOriginV1::MapSlot(source) => required.extend(source.bindings()),
+            FinalizedObjectReturnOriginV1::BorrowedReceiverField { receiver, source, invoke, producer } => {
+                required.extend([invoke, producer]);
+                if !has_receiver || function.params.first() != Some(receiver)
+                    || !matches!((&invoke.1, &producer.1),
+                        (MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectFieldBorrow {
+                            field, base, child, nullable }, normal_landing, fault_landing, .. },
+                         MirInstruction::InvokeNormalResult { invoke_block, .. })
+                            if *field == source.field() && *base == *receiver && *child == source.child()
+                                && *nullable == source.nullable() && *invoke_block == invoke.0
+                                && *normal_landing == producer.0 && normal_landing != fault_landing) {
+                    return Err(freeze("object-return/physical-origin-role"));
+                }
+            }
             FinalizedObjectReturnOriginV1::BorrowedReceiver { value }
             | FinalizedObjectReturnOriginV1::BorrowedFormal { value, .. } => {
                 if function.params.iter().filter(|parameter| *parameter == value).count() != 1 {
@@ -172,6 +191,7 @@ impl FinalizedObjectReturnOutcomeV1 {
             FinalizedObjectReturnOriginV1::BorrowedCall { .. } => "borrowed_call",
             FinalizedObjectReturnOriginV1::BorrowedFormal { .. } => "borrowed_formal",
             FinalizedObjectReturnOriginV1::BorrowedReceiver { .. } => "borrowed_receiver",
+            FinalizedObjectReturnOriginV1::BorrowedReceiverField { .. } => "borrowed_receiver_field",
             FinalizedObjectReturnOriginV1::MapSlot(_) => "borrowed_map_slot",
         }
     }
@@ -268,11 +288,23 @@ impl FinalizedRootSourceHandoffV1 {
                         };
                         (FinalizedObjectReturnOriginV1::Null { producer }, dst)
                     }
-                    (ResultWitnessStepV1::Receiver { binding }, TerminalReturnedSourceV1::Handle(receiver))
+                    (ResultWitnessStepV1::Receiver { binding, projection: super::super::super::result_class_claim::ReceiverResultProjectionV1::Identity }, TerminalReturnedSourceV1::Handle(receiver))
                         if binding == receiver && loan.result_support_v1() == crate::mir::instruction::BorrowedResultSupportV1::Receiver => {
                         let (_, value) = self.ledger.checked_instance_receiver_value_v1(
                             *binding, source.target_batch_slot(), owner, function)?;
                         (FinalizedObjectReturnOriginV1::BorrowedReceiver { value }, value)
+                    }
+                    (ResultWitnessStepV1::Receiver { binding, projection: super::super::super::result_class_claim::ReceiverResultProjectionV1::Field { read, source: field_source } },
+                     TerminalReturnedSourceV1::ReceiverField { binding: actual, receiver: receiver_site, field, source: retained })
+                        if binding == actual && read.receiver.site() == receiver_site && read.field == *field
+                            && Rc::ptr_eq(field_source, retained) && loan.result_support_v1() == crate::mir::instruction::BorrowedResultSupportV1::Receiver => {
+                        let (_, receiver) = self.ledger.checked_instance_receiver_value_v1(*binding, source.target_batch_slot(), owner, function)?;
+                        let [invoke, producer] = self.ledger.checked_field_pair_v1(root.site(), CallValidationContextV1::Finalized(self))?
+                            .ok_or_else(|| freeze("borrowed-return/source-kind"))?;
+                        let invoke = checked_projection(function, projection, &invoke)?;
+                        let producer = checked_projection(function, projection, &producer)?;
+                        let MirInstruction::InvokeNormalResult { dst, .. } = producer.1 else { return Err(freeze("borrowed-return/source-kind")); };
+                        (FinalizedObjectReturnOriginV1::BorrowedReceiverField { receiver, source: Rc::clone(field_source), invoke, producer }, dst)
                     }
                     (ResultWitnessStepV1::Formal { binding, ordinal }, TerminalReturnedSourceV1::Handle(formal))
                         if binding == formal && Some(*ordinal) == loan.callee_ordinal() => {
@@ -478,7 +510,7 @@ impl FinalizedRootSourceHandoffV1 {
                     | FinalizedObjectReturnOriginV1::Fresh { producer, .. }
                     | FinalizedObjectReturnOriginV1::OwnedCall { producer, .. }
                     | FinalizedObjectReturnOriginV1::BorrowedCall { producer, .. } => producer,
-                    FinalizedObjectReturnOriginV1::BorrowedFormal { .. } | FinalizedObjectReturnOriginV1::BorrowedReceiver { .. } | FinalizedObjectReturnOriginV1::MapSlot(_) => unreachable!("Mixed original seal does not issue borrowed leaves"),
+                    FinalizedObjectReturnOriginV1::BorrowedFormal { .. } | FinalizedObjectReturnOriginV1::BorrowedReceiver { .. } | FinalizedObjectReturnOriginV1::BorrowedReceiverField { .. } | FinalizedObjectReturnOriginV1::MapSlot(_) => unreachable!("Mixed original seal does not issue borrowed leaves"),
                 };
                 let expected = producer.1.dst_value().ok_or_else(|| freeze("mixed-return/producer-value"))?;
                 let transport = original_copy_transport(function, projection, original, expected)?;

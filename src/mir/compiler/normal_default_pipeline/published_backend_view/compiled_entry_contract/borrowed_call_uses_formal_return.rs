@@ -58,9 +58,17 @@ fn prepare_role(
                 }
                 BorrowedReturnSource::Formal(formal)
             }
-            FinalizedObjectReturnOriginV1::BorrowedReceiver { value } => {
-                let mut values = BTreeSet::from([*value]);
-                let mut bindings = BTreeMap::new();
+            origin @ (FinalizedObjectReturnOriginV1::BorrowedReceiver { .. }
+                | FinalizedObjectReturnOriginV1::BorrowedReceiverField { .. }) => {
+                let (value, prefix) = match origin {
+                    FinalizedObjectReturnOriginV1::BorrowedReceiver { value } => (*value, Vec::new()),
+                    FinalizedObjectReturnOriginV1::BorrowedReceiverField { invoke, producer, .. } =>
+                        (producer.1.dst_value().ok_or_else(|| fault("borrowed-formal-return/original-entry"))?, vec![invoke, producer]),
+                    _ => unreachable!(),
+                };
+                let mut values = BTreeSet::from([value]);
+                let mut bindings = prefix.into_iter().map(|binding| Ok((coordinate(function, binding)?, binding.1.clone())))
+                    .collect::<Result<BTreeMap<_, _>, String>>()?;
                 for binding in outcome.transport_bindings().iter().chain(std::iter::once(outcome.returned())) {
                     if let MirInstruction::Copy { dst, src } = binding.1 {
                         if !values.contains(&src) { return Err(fault("borrowed-formal-return/receiver-copy")); }

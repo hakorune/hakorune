@@ -152,6 +152,45 @@ impl VerifiedSourceCallableResultFactsV1 {
             .map(|(key, relation)| (key, std::rc::Rc::new(relation)))
             .collect();
     }
+    /// Resolve passive receiver projections once, after the SAME child cohort.
+    pub(in crate::mir::normal_callable_semantic_package) fn attach_receiver_fields_v1(
+        &mut self,
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> Result<(), (crate::mir::resolved_semantics::OwnedExprSiteV1, String)> {
+        use super::witness::{ReceiverResultProjectionV1 as Projection, ResultOriginWitnessV1, ResultWitnessStepV1 as Step};
+        let mut replacements = Vec::new();
+        let mut invalid = BTreeSet::new();
+        let mut fields = BTreeMap::new();
+        for (key, row) in &self.rows {
+            for (exit_index, exit) in row.exits.iter().enumerate() {
+                for (root_index, root) in exit.witnesses.iter().enumerate() {
+                    let Step::Receiver { binding, projection: Projection::PendingField(read) } = root.step() else { continue; };
+                    let source = if let Some(source) = fields.get(&(read.parent.clone(), read.field.clone())) { source }
+                    else {
+                        let source = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::source_claims::declared_stored_child_field_v1(
+                            batch, constructors, self, &read.parent, &read.field, root.site(), false)
+                            .map_err(|issue| (root.site().clone(), issue))?.map(std::rc::Rc::new);
+                        fields.entry((read.parent.clone(), read.field.clone())).or_insert(source)
+                    };
+                    let Some(source) = source.as_ref().filter(|source| row.borrowed_result.as_ref().is_some_and(|declaration|
+                        declaration.owner() == binding.owner() && declaration.declared_type() == source.child_class()
+                            && read.parent.as_ref() == key.owner() && source.recheck_v1(self, &read.field))) else {
+                        invalid.insert(key.clone()); continue;
+                    };
+                    replacements.push((key.clone(), exit_index, root_index, std::rc::Rc::new(ResultOriginWitnessV1 {
+                        site: root.site().clone(), origin: root.origin().clone(),
+                        step: Step::Receiver { binding: *binding, projection: Projection::Field { read: read.clone(), source: std::rc::Rc::clone(source) } },
+                    })));
+                }
+            }
+        }
+        for key in invalid { self.rows.remove(&key); }
+        for (key, exit, root, replacement) in replacements {
+            if let Some(row) = self.rows.get_mut(&key) { row.exits[exit].witnesses[root] = replacement; }
+        }
+        Ok(())
+    }
     pub(super) fn insert(&mut self, key: CanonicalSameModuleCallableKeyV1, row: SourceResultRowV1) {
         self.rows.insert(key, row);
     }

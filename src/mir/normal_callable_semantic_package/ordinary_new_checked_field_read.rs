@@ -307,12 +307,24 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         let published = expected.clone();
+        // Nonnullable stored-call receiver reads have a different original
+        // owner. This census owns only its retained checked-read receipts;
+        // the independent module image still demands every field read.
+        let owns_invoke = |block, row: &MirInstruction| match row {
+            MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }
+                | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. })
+                | InvokeOperation::ObjectFieldBorrow { nullable: true, .. }
+                | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. } => true,
+            MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldBorrow { nullable: false, .. }, .. } =>
+                published.contains(&(block, row.clone())),
+            _ => false,
+        };
         for (block, body) in &function.blocks {
             for row in body.all_instructions() {
-                let checked = matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. } | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. })
+                let checked = owns_invoke(*block, row)
                     || matches!(row, MirInstruction::InvokeNormalResult { invoke_block, .. }
-                        if function.blocks.get(invoke_block).and_then(|body| body.terminator.as_ref()).is_some_and(|row|
-                            matches!(row, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { .. }) | InvokeOperation::ObjectFieldBorrow { nullable: true, .. } | InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Borrow { .. }), .. })));
+                        if function.blocks.get(invoke_block).and_then(|body| body.terminator.as_ref())
+                            .is_some_and(|invoke| owns_invoke(*invoke_block, invoke)));
                 if !checked { continue; }
                 let index = expected.iter().position(|binding| binding == &(*block, row.clone()))
                     .ok_or_else(|| fault("received/unowned-or-drifted-read"))?;
