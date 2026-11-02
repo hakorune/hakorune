@@ -216,8 +216,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let original_declared_source = self.checked_mixed_instance_entry_v1(source, owner)?.is_some()
-            || self.checked_borrowed_result_instance_entry_v1(source, owner)?.is_some();
+        let original_declared_source = self.checked_source_instance_input_entry_v1(source, owner)?.is_some();
         let takes = self.take_ordinary_entry_bindings_v1(owner)?;
         let mut classes = BTreeMap::new();
         for (_, binding, _) in rows {

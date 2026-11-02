@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Complete-terminal alias query is connected to the existing singleton provenance gate; the original SourceValueFlow remains the only edge graph.
-Unknown/foreign/raw Loop/cycle or incomplete inputs reject as a whole; shared DAG success/failure is memoized. Production +16, tests +9 in the existing family.
-Optimized target/quick CLI/runtime: suite 8/8; cohort 1804 PASS and exact 115 failure names unchanged; source-flow 9 PASS; C 54 current inputs unchanged.
-Acceptance unchanged: distinct-Call readonly PHI still stops at HomeFlowBranchDivergent; From and support composition remain incomplete.
-Next: exact terminal Call/Null correspondence to checked loans and common caller support, then field/read consumers; no representative Call. Cleanup A done; stashes protected.
+Caller-formal-supported From results now retain their entry lifetime through guarded field reads; read values no longer implicitly Deref to a loan.
+Original instance input qualification lends declared class metadata; scalar Home candidates require a declared object contract, preserving the opaque lane.
+Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1807 PASS and exact 115 failure names unchanged; declared-header 3 PASS.
+Normal CLI and C entry cases exit 0/7; 56 current C inputs and existing Normal/Fault/tamper checks PASS. Production +2 (Rust -3/C +5), tests +5.
+Next: exact terminal Call/Null-to-loan correspondence for distinct-Call PHI and shared caller support; From remains incomplete. Cleanup A done; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

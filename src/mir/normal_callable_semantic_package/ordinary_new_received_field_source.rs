@@ -50,7 +50,7 @@ impl ReceivedFieldReadSourceV1 {
             ReceivedFieldReadRequestV1::StoredMapGet { .. } => return Err(fault("received/provenance-overlap")),
             ReceivedFieldReadRequestV1::Object { acquisition, .. } => acquisition,
             ReceivedFieldReadRequestV1::Mixed(loan) => loan.call(),
-            ReceivedFieldReadRequestV1::Borrowed { loan, .. } => loan.call(),
+            ReceivedFieldReadRequestV1::Borrowed { loan, .. } => loan.source().call(),
         };
         let target = original_lexical_target_at_v1(targets, acquisition)?
             .ok_or_else(|| fault("received/original-target-missing"))?;
@@ -101,7 +101,7 @@ impl ReceivedFieldReadSourceV1 {
             Self::Object { loan, .. } => loan.class(),
             Self::Mixed { request: ReceivedFieldReadRequestV1::Mixed(loan), .. } => loan.fresh_class(),
             Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed { loan, .. }, .. } =>
-                loan.declared_read_result_v1().expect("checked original read declaration").declared_type(),
+                loan.source().declared_read_result_v1().expect("checked original read declaration").declared_type(),
             _ => unreachable!("received Mixed source retains original Mixed request"),
         }
     }
@@ -115,7 +115,7 @@ impl ReceivedFieldReadSourceV1 {
             },
             Self::Mixed { .. } => None,
             Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed { loan, .. }, .. } =>
-                Some(loan.result_kind_v1()),
+                Some(loan.source().result_kind_v1()),
             Self::Borrowed { .. } => None,
         }
     }
@@ -124,7 +124,7 @@ impl ReceivedFieldReadSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed(&self)
         -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1> {
-        match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => Some(loan), _ => None }
+        match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => Some(loan.source()), _ => None }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_read_v1(&self)
         -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1> {
@@ -136,7 +136,7 @@ impl ReceivedFieldReadSourceV1 {
     )> {
         match self.request() {
             ReceivedFieldReadRequestV1::Borrowed { loan, exclusion: Some(exclusion) }
-                if exclusion.root_binding() == loan.destination() => Some((loan, exclusion)),
+                if exclusion.root_binding() == loan.source().destination() => Some((loan, exclusion)),
             _ => None,
         }
     }
@@ -157,7 +157,7 @@ impl ReceivedFieldReadSourceV1 {
             Self::Borrowed { .. } => {
                 let loan = self.borrowed().ok_or_else(|| fault("received/source-drift"))?;
                 if self.borrowed_read_v1().is_none_or(|view| view.binding() != request.receiver || view.read().site() != &request.receiver_site) || !loan.is_declared_read_v1() || (!loan.payload_nonnull_v1() && self.borrowed_guard().is_none())
-                    || loan.owned_local_support_v1().is_none()
+                    || (loan.owned_local_support_v1().is_none() && loan.entry_support_v1().is_none())
                     || target.borrowed_nullable_local_source() != Some(loan)
                     || !ingress.corroborated_original_v1() {
                     return Err(fault("received/source-drift"));

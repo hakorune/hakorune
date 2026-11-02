@@ -146,10 +146,6 @@ pub(crate) struct BorrowedResultReadV1 {
     source: Box<BorrowedNullableLocalSourceLoanV1>,
     declared: DeclaredCallReadSourceV1,
 }
-impl std::ops::Deref for BorrowedResultReadV1 {
-    type Target = BorrowedNullableLocalSourceLoanV1;
-    fn deref(&self) -> &Self::Target { &self.source }
-}
 impl AsRef<BorrowedNullableLocalSourceLoanV1> for BorrowedResultReadV1 {
     fn as_ref(&self) -> &BorrowedNullableLocalSourceLoanV1 { &self.source }
 }

@@ -258,16 +258,21 @@ impl PrefixLocalFlow<'_> {
         }
     }
 
+    /// A read keeps the original support kind; a caller entry is not a Home.
+    fn declared_read_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
+        match loan.owned_local_support_v1() {
+            Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
+            None => self.borrowed_entry_support_live_v1(loan),
+        }
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_declared_read_alias_v1(
         &mut self, binding: BindingRefV1, site: &SourceExprSiteV1,
     ) -> bool {
         let Some(ResolvedLexicalRefV1::Local(original)) = self.input.function().variable_ref(site) else { return false; };
         let Some(StoredLocal::BorrowedNullable(state)) = self.locals.get(&original) else { return false; };
         if !state.read_valid || super::super::BorrowedResultReadV1::issue_v1(self.input, state.as_ref(), site).is_none() { return false; }
-        let live = match state.owned_local_support_v1() {
-            Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
-            None => self.borrowed_entry_support_live_v1(state.as_ref()),
-        };
+        let live = self.declared_read_support_live_v1(state.as_ref());
         if !live || binding.owner() != self.input.owner() { return false; }
         let state = state.clone();
         let exclusion = self.null_exclusions.get(&original).cloned();
@@ -296,10 +301,7 @@ impl PrefixLocalFlow<'_> {
         if let Some(frame) = self.stored_get_reference_v1(site) { return Some(Reference::StoredMapGet(frame)); }
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None; };
         let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
-        let live = match state.owned_local_support_v1() {
-            Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
-            None => self.borrowed_entry_support_live_v1(state.as_ref()),
-        };
+        let live = self.declared_read_support_live_v1(state.as_ref());
         (state.is_declared_read_v1() && state.read_valid && live)
             .then(|| super::super::BorrowedResultReadV1::issue_v1(self.input, state.as_ref(), site))
             .flatten().map(Reference::DeclaredFrom)
@@ -309,15 +311,14 @@ impl PrefixLocalFlow<'_> {
         matches!(self.locals.get(&binding), Some(StoredLocal::BorrowedNullable(state)) if state.is_declared_read_v1())
     }
 
-    /// A returned read reference stays distinct from a general Handle/Home.
-    /// Its exact New argument also narrows formal-derived Null, not literal Null.
+    /// The current read and its original support must both remain live.
+    /// Entry support does not imply a Home or a nonnull payload.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_local_v1(
         &self, binding: BindingRefV1,
     ) -> Option<&BorrowedNullableLocalSourceLoanV1> {
         let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
-        let (root, acquisition, _) = state.owned_local_support_v1()?;
         (state.read_valid && state.is_declared_read_v1()
-            && self.home_acquisition(root) == Some(acquisition)).then_some(state.as_ref())
+            && self.declared_read_support_live_v1(state.as_ref())).then_some(state.as_ref())
     }
 
     /// Apply an admitted write after RHS evaluation. Independent live New

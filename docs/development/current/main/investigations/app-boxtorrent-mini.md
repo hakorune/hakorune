@@ -8,8 +8,8 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - From接続済み: Formal、receiver、Parent→Child field、nullable guard、別名、read引数/receiverへの再借用、直線再束縛・再返却が正規EXEへ到達。個別差分・測定履歴はこのcardのGit履歴を正本とする。
   結果型・支持関係・ReadOnly/LegacyUnqualifiedを分離し、新Fromのread欠落/false/片側のみ/不適合roleと、両側属性を消す改変も元宣言とのpublication照合で拒否。未指定をMutとせず旧未修飾/可変借用契約は維持。
   元Call/callee Rc/From宣言・現在read/Copy・Normal/Fault・支持元とpayloadの区別をsource→独立MIR→Cへ保持。支持元write/move/End/slot失効、結果write/mut/take/所有保存/Endを検査し、formal 0/Map slot/Homeへの偽装や新MIR命令/runtime ABIは使わない。
-- From輸送の保持: sourceの非mutation閉包・calleeのHome需要なしを証明できるCallだけが既存readを保持し、無効状態を復活させない。Parent→Childの全writerとsource null除外・支配関係を照合し、未証明nullable receiverは拒否。
-  sourceの単一memoで元RcごとのCall witness DAGを封印し、consumerが再構築しない。独立MIR/Cは全use・Copy・支持元区間・全Return非nullを別に照合。元caller支持とcallee ordinalを混同しない。
+- Caller formal支持のFrom field読み接続: 元entry支持とlocal Homeの生存照合を共通化し、entryをHomeへ偽装せず既存null guard下でfieldを読む。原本instance入力資格が宣言classを貸し、推論opaqueからheaderを発行しない。scalar結果呼出しのHome候補追加は宣言済みobject契約だけ、未注釈opaqueの受理範囲は維持。Read値の暗黙Derefを除き、field consumerは元loanを明示取得する。非mutation閉包・callee Home需要なし・元Rc一度封印・無効read復活禁止の既存契約は維持（詳細Git）。
+  最適化target/quick CLI（cargo quick-build --bin hakorune、3分43秒）＋同runtime・再build C shimで固定suite 8/8（123.05秒、SKIP/timeoutなし）。通常CLIのnull/非null EXE exit 0/7、Rust両opt・header正負3test PASS、cargo quick-test-fast cohort 1807 PASS/既知115失敗名完全一致。C現56入力一致、既存20入力Normal/Faultと新entry支持EXE exit 0/7・guard反転/read属性拒否PASS。借用entryはlocal Home Endを持たず、既存owner付きcaseのEnd改変拒否は全て維持。production +29/−27（純増2、Rust −3/C +5）、既存test +16/−11（純増5）。新test file/checker/hook/MIR命令/runtime ABIなし。別Call PHIの全incoming/loan対応は未接続。
 - 同一元Callのreadonly PHI接続済み: source全incoming・元From/現在readとsole SSA writerを保持し、field読みと再返却を接続。実際の一回限りのterminal readは既存exit owner、PHI依存はtyped physical projectionで後段へ渡す。
   元Call/支持元とPHI→ReturnのCopy suffixを分離、Cはreadonlyのunanimous aliasだけを照合。PhiのCopy偽装・最終MIRからの意味推測なし。両opt計4EXE/通常CLI両枝exit 7、改変拒否PASS（前着地production +186/test +12）。
 - take接続済み: 明示birth/i64 field Boxのmove実引数、左→右一度評価、移転後の元binding/alias拒否と入場前caller/入場後calleeのNormal/Fault責任を保持。Normal/後続引数Fault/入場後Faultはexit 7/70/70、取得/End/free一致。詳細はGit履歴、通常Box/birth既定は維持。

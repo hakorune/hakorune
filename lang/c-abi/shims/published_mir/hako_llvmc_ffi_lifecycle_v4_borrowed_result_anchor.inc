@@ -309,9 +309,14 @@ static int lv4_declared_read_payload(const hako_lv4_input* in, hako_lv4_function
     }
   }
   hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
-  return returns && lv4_declared_result_proves(in, target, object, 1, 0) &&
-      (guarded || lv4_declared_read_nonnull(in, fn, value)) && lv4_read_support_new(fn, anchor) && anchor->object_id_set &&
-      lv4_borrowed_result_readable(in, fn, value, state, use, position) &&
+  if (!returns || !lv4_declared_result_proves(in, target, object, 1, 0) ||
+      !(guarded || lv4_declared_read_nonnull(in, fn, value)) ||
+      !lv4_borrowed_result_readable(in, fn, value, state, use, position)) return 0;
+  /* Caller entry support has no local New/Home. It lends lifetime only;
+     payload class and nonnull remain the producer/guard proofs above. */
+  if (anchor && anchor->kind == LV4_TAGGED) return lv4_borrowed_tagged_formal(fn, anchor);
+  return anchor && (lv4_read_support_new(fn, anchor) || lv4_canonical_receiver(fn, anchor)) &&
+      anchor->object_id_set &&
       lv4_readable_object(in, fn, anchor->id, state, use, anchor->object_id, 1);
 }
 

@@ -202,8 +202,8 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol, expected in [('phi-forward-0', 'Leaf.forward/2', 7), ('phi-forward-1', 'Leaf.forward/2', 7), ('phi-forward-0-unoptimized', 'Leaf.forward/2', 7), ('phi-forward-1-unoptimized', 'Leaf.forward/2', 7), ('branch-0', 'Leaf.identity/1', 7), ('branch-1', 'Leaf.identity/1', 7), ('branch-0-unoptimized', 'Leaf.identity/1', 7), ('branch-1-unoptimized', 'Leaf.identity/1', 7), ('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
-        caller = 'Leaf.probe/1' if suffix.startswith('branch-') else 'main'
+    for suffix, symbol, expected in [('entry-field-0', 'Leaf.maybe/2', 0), ('entry-field-1', 'Leaf.maybe/2', 7), ('phi-forward-0', 'Leaf.forward/2', 7), ('phi-forward-1', 'Leaf.forward/2', 7), ('phi-forward-0-unoptimized', 'Leaf.forward/2', 7), ('phi-forward-1-unoptimized', 'Leaf.forward/2', 7), ('branch-0', 'Leaf.identity/1', 7), ('branch-1', 'Leaf.identity/1', 7), ('branch-0-unoptimized', 'Leaf.identity/1', 7), ('branch-1-unoptimized', 'Leaf.identity/1', 7), ('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
+        caller = 'Leaf.probe/2' if suffix.startswith('entry-field-') else ('Leaf.probe/1' if suffix.startswith('branch-') else 'main')
         # Copy and unanimous Phi retain the original explicit read Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
@@ -227,7 +227,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
             field['field_ordinal'] = 1  # Parent.marker is I64 too; payload is still Leaf.
             compile_input(changed, accepted=False)
             print('reject anchor class substituted for Child payload class')
-        if suffix.startswith(('guarded-field-', 'guarded-alias-', 'reborrow-null-')):
+        if suffix.startswith(('guarded-field-', 'guarded-alias-', 'reborrow-null-', 'entry-field-')):
             changed = copy.deepcopy(read)
             guards = [row['instruction'] for block in function(changed, caller)['blocks']
                       for row in block['instructions']
@@ -259,11 +259,15 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
                          if row['instruction'].get('op') == 'invoke_normal_result')
         read_alias = next((row['instruction']['dst'] for row in landing['instructions']
                            if row['instruction'].get('op') == 'copy' and row['instruction']['src'] == projected), projected)
-        end = next(block['terminator']['instruction']['operation'] for block in reversed(blocks)
-                   if block['terminator']['instruction'].get('operation', {}).get('kind') == 'home_release')
-        end['value'] = read_alias
-        compile_input(data, accepted=False)
-        print('reject read qualifier erasure/false and End of borrowed result')
+        end = next((block['terminator']['instruction']['operation'] for block in reversed(blocks)
+                    if block['terminator']['instruction'].get('operation', {}).get('kind') == 'home_release'), None)
+        if end is None:
+            assert suffix.startswith('entry-field-'), 'owner-bearing cases retain their End mutation'
+            print('reject read qualifier erasure/false; borrowed-entry caller has no local Home End')
+        else:
+            end['value'] = read_alias
+            compile_input(data, accepted=False)
+            print('reject read qualifier erasure/false and End of borrowed result')
 
         if suffix in ['receiver-forward', 'field-forward']:
             for support in [None, {'kind': 'formal', 'ordinal': 0}, {'kind': 'receiver', 'extra': 0}]:
