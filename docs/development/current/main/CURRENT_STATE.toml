@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Readonly binding rebind uses current From read, a typed internal value and the existing checked assignment receipt without Home/End.
-Later reads/re-returns trace the retained RHS/frame back to the original Call; legacy initializer/unqualified-return rules stay strict.
-Optimized target/quick CLI/runtime + existing C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
-CLI rebind alias/re-return EXE exit 7, invalid RHS named refusal without EXE; C existing and three rebind inputs pass.
-Next: source-all-incoming readonly PHI transport through the existing SSA writer relation, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
+Scalar/Text branch PHI geometry now shares one verifier; original source, payload and ownership checks stay separate, acceptance unchanged.
+Common representation removes duplicate checks: production -72 lines, test delta 0; check and existing focused 4 PASS.
+Optimized target/quick CLI/runtime + existing C shim: fixed suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
+C existing Normal/Fault, From/reborrow/rebind/nullable execution and corruption refusal pass.
+Next: readonly PHI via complete source incoming and original SSA writer relation, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -39,63 +39,9 @@ impl BranchTextPhiObservationV1 {
         finishing: Option<&Finished>,
     ) -> Result<(), String> {
         context.ledger().require_branch_text_source_v1(&self.source)?;
-        let map_block = |block| finishing.and_then(|projection| projection.destination(block)).unwrap_or(block);
-        let actual = |row: &Binding| -> Result<Option<Binding>, String> {
-            match finishing {
-                Some(projection) if row.1.dst_value().is_some() => projection.relation_binding(function, row),
-                Some(projection) => projection.captured_effect_binding(function, row).map(Some),
-                None => {
-                    if function.blocks.get(&row.0).is_none_or(|body|
-                        body.all_instructions().filter(|old| **old == row.1).count() != 1) {
-                        return Err(freeze("expression/reference-dependency-missing"));
-                    }
-                    Ok(Some(row.clone()))
-                }
-            }
-        };
-        self.relation.require_completed_v1()?;
-        if finishing.is_some() {
-            self.relation.verify_projected(function, &mut |row| actual(row))?;
-            self.pending.relation().verify_projected(function, &mut |row| actual(row))?;
-        } else {
-            self.relation.verify(function)?;
-            self.pending.relation().verify(function)?;
-        }
-        let branch = actual(&self.branch)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
-        let merge = map_block(self.pending.merge());
-        let arms = [map_block(self.pending.arms().0), map_block(self.pending.arms().1)];
-        let exits = self.exits.map(map_block);
-        if branch.0 != map_block(self.pending.block())
-            || !matches!(branch.1, MirInstruction::Branch { condition, then_bb, else_bb, .. }
-                if condition == self.pending.values().1 && [then_bb, else_bb] == arms) {
-            return Err(freeze("expression/text-producer-kind"));
-        }
-        for (index, jump) in self.jumps.iter().enumerate() {
-            let jump = actual(jump)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
-            if jump.0 != exits[index]
-                || !matches!(jump.1, MirInstruction::Jump { target, .. } if target == merge)
-                || !branch_reaches_v1(function, arms[index], exits[index], merge)
-                || branch_reaches_v1(function, arms[index], exits[1 - index], merge) {
-                return Err(freeze("expression/text-producer-kind"));
-            }
-        }
-        let expected: std::collections::BTreeSet<_> = exits.into_iter().collect();
-        let actual_preds: std::collections::BTreeSet<_> =
-            crate::mir::verification::utils::compute_predecessors(function)
-                .remove(&merge).unwrap_or_default().into_iter().collect();
-        if expected.len() != 2 || actual_preds != expected
-            || function.blocks.get(&merge).is_none_or(|body| body.predecessors != expected) {
-            return Err(freeze("expression/text-producer-kind"));
-        }
-        let phi = actual(self.relation.identity_phi_binding_v1()?)?
-            .ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
-        let values = [self.inputs[0].binding_value().1, self.inputs[1].binding_value().1];
-        let mut expected_inputs = [(exits[0], values[0]), (exits[1], values[1])];
-        expected_inputs.sort_by_key(|(block, _)| block.0);
-        if phi.0 != merge || !matches!(phi.1, MirInstruction::Phi { dst, ref inputs, .. }
-            if dst == self.relation.values().0 && inputs.as_slice() == expected_inputs) {
-            return Err(freeze("expression/text-producer-kind"));
-        }
+        validate_branch_geometry_v1(&self.pending, &self.branch, self.exits, &self.jumps,
+            [self.inputs[0].binding_value().1, self.inputs[1].binding_value().1], &self.relation,
+            function, finishing, "expression/text-producer-kind")?;
         for (index, (_, _, source)) in self.source.incoming().iter().enumerate() {
             ExpressionReferenceReadV1::validate_text_binding_with_finishing_v2(
                 self.source.binding(), source, &self.inputs[index], context, function, finishing,
@@ -131,94 +77,9 @@ impl BranchScalarPhiObservationV1 {
         context
             .ledger()
             .require_branch_scalar_source_v1(&self.source)?;
-        let map_block = |block| {
-            finishing
-                .and_then(|projection| projection.destination(block))
-                .unwrap_or(block)
-        };
-        let actual = |row: &Binding| -> Result<Option<Binding>, String> {
-            match finishing {
-                Some(projection) if row.1.dst_value().is_some() => {
-                    projection.relation_binding(function, row)
-                }
-                Some(projection) => projection.captured_effect_binding(function, row).map(Some),
-                None => {
-                    if function.blocks.get(&row.0).is_none_or(|body| {
-                        body.all_instructions().filter(|old| **old == row.1).count() != 1
-                    }) {
-                        return Err(freeze("expression/reference-dependency-missing"));
-                    }
-                    Ok(Some(row.clone()))
-                }
-            }
-        };
-        self.relation.require_completed_v1()?;
-        if finishing.is_some() {
-            self.relation
-                .verify_projected(function, &mut |row| actual(row))?;
-            self.pending
-                .relation()
-                .verify_projected(function, &mut |row| actual(row))?;
-        } else {
-            self.relation.verify(function)?;
-            self.pending.relation().verify(function)?;
-        }
-        let branch = actual(&self.branch)?
-            .ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
-        let merge = map_block(self.pending.merge());
-        let arms = [
-            map_block(self.pending.arms().0),
-            map_block(self.pending.arms().1),
-        ];
-        let exits = self.exits.map(map_block);
-        if branch.0 != map_block(self.pending.block())
-            || !matches!(branch.1,
-            MirInstruction::Branch { condition, then_bb, else_bb, .. }
-                if condition == self.pending.values().1 && [then_bb, else_bb] == arms)
-        {
-            return Err(freeze("expression/scalar-producer-kind"));
-        }
-        for (index, jump) in self.jumps.iter().enumerate() {
-            let jump =
-                actual(jump)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
-            if jump.0 != exits[index]
-                || !matches!(jump.1, MirInstruction::Jump { target, .. } if target == merge)
-                || !branch_reaches_v1(function, arms[index], exits[index], merge)
-                || branch_reaches_v1(function, arms[index], exits[1 - index], merge)
-            {
-                return Err(freeze("expression/scalar-producer-kind"));
-            }
-        }
-        let expected: std::collections::BTreeSet<_> = exits.into_iter().collect();
-        let actual_preds: std::collections::BTreeSet<_> =
-            crate::mir::verification::utils::compute_predecessors(function)
-                .remove(&merge)
-                .unwrap_or_default()
-                .into_iter()
-                .collect();
-        if expected.len() != 2
-            || actual_preds != expected
-            || function
-                .blocks
-                .get(&merge)
-                .is_none_or(|body| body.predecessors != expected)
-        {
-            return Err(freeze("expression/scalar-producer-kind"));
-        }
-        let phi = actual(self.relation.identity_phi_binding_v1()?)?
-            .ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
-        let values = [
-            self.inputs[0].binding_value().1,
-            self.inputs[1].binding_value().1,
-        ];
-        let mut expected_inputs = [(exits[0], values[0]), (exits[1], values[1])];
-        expected_inputs.sort_by_key(|(block, _)| block.0);
-        if phi.0 != merge
-            || !matches!(phi.1, MirInstruction::Phi { dst, ref inputs, .. }
-            if dst == self.relation.values().0 && inputs.as_slice() == expected_inputs)
-        {
-            return Err(freeze("expression/scalar-producer-kind"));
-        }
+        validate_branch_geometry_v1(&self.pending, &self.branch, self.exits, &self.jumps,
+            [self.inputs[0].binding_value().1, self.inputs[1].binding_value().1], &self.relation,
+            function, finishing, "expression/scalar-producer-kind")?;
         for (index, (_, _, source)) in self.source.incoming().iter().enumerate() {
             validate_scalar_binding_observation_v1(
                 self.source.binding(),
@@ -233,6 +94,73 @@ impl BranchScalarPhiObservationV1 {
         Ok(())
     }
 }
+/// One geometry verifier for source-qualified Normal branch values. Payload
+/// type, ownership and original incoming producers remain with each caller.
+fn validate_branch_geometry_v1(
+    pending: &crate::mir::builder::IfConditionMaterializationV1,
+    branch: &Binding, exits: [BasicBlockId; 2], jumps: &[Binding; 2], values: [ValueId; 2],
+    relation: &crate::mir::builder::LocalSsaPhysicalRelationV1,
+    function: &MirFunction, finishing: Option<&Finished>, kind_refusal: &'static str,
+) -> Result<(), String> {
+    let map_block = |block| finishing.and_then(|projection| projection.destination(block)).unwrap_or(block);
+    let actual = |row: &Binding| -> Result<Option<Binding>, String> {
+        match finishing {
+            Some(projection) if row.1.dst_value().is_some() => projection.relation_binding(function, row),
+            Some(projection) => projection.captured_effect_binding(function, row).map(Some),
+            None => {
+                if function.blocks.get(&row.0).is_none_or(|body|
+                    body.all_instructions().filter(|old| **old == row.1).count() != 1) {
+                    return Err(freeze("expression/reference-dependency-missing"));
+                }
+                Ok(Some(row.clone()))
+            }
+        }
+    };
+    relation.require_completed_v1()?;
+    if finishing.is_some() {
+        relation.verify_projected(function, &mut |row| actual(row))?;
+        pending.relation().verify_projected(function, &mut |row| actual(row))?;
+    } else {
+        relation.verify(function)?;
+        pending.relation().verify(function)?;
+    }
+    let branch = actual(branch)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
+    let merge = map_block(pending.merge());
+    let arms = [map_block(pending.arms().0), map_block(pending.arms().1)];
+    let exits = exits.map(map_block);
+    if branch.0 != map_block(pending.block())
+        || !matches!(branch.1, MirInstruction::Branch { condition, then_bb, else_bb, .. }
+            if condition == pending.values().1 && [then_bb, else_bb] == arms) {
+        return Err(freeze(kind_refusal));
+    }
+    for (index, jump) in jumps.iter().enumerate() {
+        let jump = actual(jump)?.ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
+        if jump.0 != exits[index]
+            || !matches!(jump.1, MirInstruction::Jump { target, .. } if target == merge)
+            || !branch_reaches_v1(function, arms[index], exits[index], merge)
+            || branch_reaches_v1(function, arms[index], exits[1 - index], merge) {
+            return Err(freeze(kind_refusal));
+        }
+    }
+    let expected: std::collections::BTreeSet<_> = exits.into_iter().collect();
+    let actual_preds: std::collections::BTreeSet<_> =
+        crate::mir::verification::utils::compute_predecessors(function)
+            .remove(&merge).unwrap_or_default().into_iter().collect();
+    if expected.len() != 2 || actual_preds != expected
+        || function.blocks.get(&merge).is_none_or(|body| body.predecessors != expected) {
+        return Err(freeze(kind_refusal));
+    }
+    let phi = actual(relation.identity_phi_binding_v1()?)?
+        .ok_or_else(|| freeze("expression/reference-dependency-missing"))?;
+    let mut expected_inputs = [(exits[0], values[0]), (exits[1], values[1])];
+    expected_inputs.sort_by_key(|(block, _)| block.0);
+    if phi.0 != merge || !matches!(phi.1, MirInstruction::Phi { dst, ref inputs, .. }
+        if dst == relation.values().0 && inputs.as_slice() == expected_inputs) {
+        return Err(freeze(kind_refusal));
+    }
+    Ok(())
+}
+
 fn branch_reaches_v1(
     function: &MirFunction,
     entry: BasicBlockId,
