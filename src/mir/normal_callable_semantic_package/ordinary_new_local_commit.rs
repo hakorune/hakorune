@@ -213,6 +213,8 @@ mod owned_array_read;
 pub(crate) use owned_array_read::EmittedOwnedArrayReadV1;
 #[path = "ordinary_new_local_commit/read_argument.rs"]
 mod read_argument;
+#[path = "ordinary_new_local_commit/readonly_call_interval.rs"]
+mod readonly_call_interval;
 pub(crate) use read_argument::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
 
 #[path = "ordinary_new_local_commit/owned_array.rs"]

@@ -6,7 +6,7 @@ use super::{
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum BorrowedCallActualRequestV1<'a> {
     /// Same admitted Call's source-proven moves, before any physical emission.
-    CallEntryHomes,
+    CallEntryHomes(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>),
     NamedArrayHolderInitializer(super::BindingRefV1),
     NamedArrayAppendStatement {
         binding: super::BindingRefV1,
@@ -119,7 +119,10 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
-    CallEntryHomes(Box<[(super::BindingRefV1, super::BindingRefV1, super::OwnedExprSiteV1)]>),
+    CallEntryHomes {
+        taken: Box<[(super::BindingRefV1, super::BindingRefV1, super::OwnedExprSiteV1)]>,
+        preserves_reads: bool,
+    },
     StoredMapGetSource(crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1),
     StoredMapSource(
         std::rc::Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,

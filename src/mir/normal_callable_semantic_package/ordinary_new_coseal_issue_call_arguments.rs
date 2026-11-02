@@ -31,9 +31,12 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
-    if matches!(request, BorrowedCallActualRequestV1::CallEntryHomes) {
+    if let BorrowedCallActualRequestV1::CallEntryHomes(input) = request {
         return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates)
-            .map(|homes| Some(BorrowedCallArgumentsV1::CallEntryHomes(homes)))
+            .map(|taken| Some(BorrowedCallArgumentsV1::CallEntryHomes {
+                preserves_reads: source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, contracts, site)),
+                taken,
+            }))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
     // The constructor/current-entry Home adapters issue this source loan.
@@ -475,7 +478,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     if let BorrowedCallActualRequestV1::Observe(input, actuals) = request {
         if actuals.iter().any(|actual| matches!(actual.value,
             crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::DeclaredRead(_)))
-            && !source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, site)) {
+            && !source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, contracts, site)) {
             return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(), issue: super::super::lexical_instance_call::freeze("borrowed-actual/unsupported-or-unavailable"),
             });
@@ -677,7 +680,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             )
             .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
         }
-        BorrowedCallActualRequestV1::CallEntryHomes
+        BorrowedCallActualRequestV1::CallEntryHomes(_)
         | BorrowedCallActualRequestV1::StoredMapGetSource
         | BorrowedCallActualRequestV1::StoredMapSource
         | BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)

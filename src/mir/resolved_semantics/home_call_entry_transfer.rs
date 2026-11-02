@@ -126,9 +126,16 @@ impl PrefixLocalFlow<'_> {
         let mut seen = BTreeSet::new();
         for call in calls.iter().filter(|call| call.statement() == statement) {
             if !seen.insert(call.site().clone()) { continue; }
-            self.invalidate_declared_read_call_v1(statement);
-            let Some(BorrowedCallArgumentsV1::CallEntryHomes(taken)) =
-                port(call.site(), BorrowedCallActualRequestV1::CallEntryHomes)? else { continue; };
+            let entry = port(call.site(), BorrowedCallActualRequestV1::CallEntryHomes(self.input))?;
+            let Some(BorrowedCallArgumentsV1::CallEntryHomes { taken, preserves_reads }) = entry else {
+                self.invalidate_declared_read_call_v1(statement);
+                continue;
+            };
+            // Preservation is source-proved for the entire callee closure.
+            // Unknown effects and any entry transfer keep the old invalidation.
+            if !preserves_reads || !taken.is_empty() {
+                self.invalidate_declared_read_call_v1(statement);
+            }
             if !taken.is_empty() || self.has_moved_out() {
                 if let Err(issue) = self.validate_pending_call_uses_v1(call.site()) {
                     unavailable.get_or_insert(issue);

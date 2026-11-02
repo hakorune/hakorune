@@ -1,5 +1,6 @@
 //! Read-argument dispatch; each read issuer keeps its source and execution law.
 use super::*;
+use super::readonly_call_interval::{readonly_instruction_v1, validate_readonly_edge_v1, borrowed_lifetime_start_v1};
 use crate::mir::normal_callable_semantic_package::OwnedArrayReadSourceLoanV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::ArrayElementSourceLoanV1;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
@@ -288,20 +289,7 @@ impl EmittedReadArgumentV1 {
                 if call.args.get(ordinal as usize) == Some(&payload)) { return Err(freeze("field-argument/finished-argument-slot")); }
         // The earliest retained Call supplies the lifetime anchor. Its actual
         // is never substituted for the payload delivered to the new callee.
-        let mut base = view.source();
-        while let Some(parent) = base.reborrowed_read_v1() { base = parent.source(); }
-        let (anchor, start) = context.with_taken_packet_v1(base.call(), |packet| {
-            let original = context.ledger().borrowed_nullable_call_source_v1(base.call())
-                .ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
-            if original.borrowed_nullable() != Some(base) { return Err(freeze("read-argument/emitted-source-kind-drift")); }
-            let actual = packet.call_in_context(base.call().owner(), original.arguments(), context)?;
-            let value = match base.result_support_v1() {
-                crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) => actual.args.get(ordinal as usize).copied(),
-                crate::mir::instruction::BorrowedResultSupportV1::Receiver => actual.callee.receiver(),
-                _ => None,
-            }.ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
-            Ok((value, packet.outer_bindings()?.1.clone()))
-        })?;
+        let (anchor, start) = borrowed_lifetime_start_v1(context, view.source())?;
         let start = projection.relation_binding(function, &start)?.ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
         let intervals = IntervalViewV1::new(function);
         intervals.require_before(&start, &outer)?;
@@ -321,43 +309,4 @@ impl EmittedReadArgumentV1 {
             } else { Ok(!readonly_instruction_v1(row)) }
         })
     }
-}
-
-fn readonly_instruction_v1(row: &MirInstruction) -> bool {
-    matches!(row,
-        MirInstruction::Const { .. } | MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
-        | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Branch { .. }
-        | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::ReturnFault { .. }
-        | MirInstruction::FaultFrameEnter { .. } | MirInstruction::InvokeNormalResult { .. } | MirInstruction::TypeOp { .. }
-        | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. }
-        | MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. } | InvokeOperation::ObjectFieldBorrow { .. }, .. })
-}
-type ReadCallEdgeV1 = (String, (BasicBlockId, usize), hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, FunctionOwnerIdV1);
-fn validate_readonly_edge_v1(handoff: &super::super::FinalizedRootSourceHandoffV1,
-    module: &crate::mir::MirModule, caller: &MirFunction, at: (BasicBlockId, usize), edges: &[ReadCallEdgeV1],
-    checked: &mut std::collections::BTreeSet<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
-) -> Result<(), String> {
-    let mut pending = vec![(caller, at)];
-    while let Some((caller, at)) = pending.pop() {
-        let mut original = edges.iter().filter(|(name, position, _, _)| name == &caller.signature.name && *position == at);
-        let (_, _, target, owner) = original.next().ok_or_else(|| freeze("field-argument/source-missing"))?;
-        if original.next().is_some() { return Err(freeze("field-argument/source-missing")); }
-        let row = caller.blocks.get(&at.0).and_then(|block| block.all_instructions().nth(at.1)).ok_or_else(|| freeze("field-argument/source-missing"))?;
-        if !matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } if match &call.callee {
-            crate::mir::Callee::SameModuleInstance { key, .. } => key == target,
-            crate::mir::Callee::Global(global) => target.canonical_global_target_v1().as_ref() == Ok(global), _ => false,
-        }) { return Err(freeze("field-argument/finished-parent-link")); }
-        if !checked.insert(target.clone()) { continue; }
-        let callee = handoff.ledger.with_finished_projection(*owner, |symbol, _| {
-            if module.canonical_callable_definition_symbol(target) != Some(symbol) { return Err(freeze("field-argument/source-missing")); }
-            module.functions.get(symbol).ok_or_else(|| freeze("field-argument/source-missing"))
-        })?;
-        for (block, body) in &callee.blocks {
-            for (index, row) in body.all_instructions().enumerate() {
-                if matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. }) { pending.push((callee, (*block, index))); }
-                else if !readonly_instruction_v1(row) { return Err(freeze("field-argument/parent-or-child-invalidated")); }
-            }
-        }
-    }
-    Ok(())
 }

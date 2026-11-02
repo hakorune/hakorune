@@ -496,7 +496,7 @@ impl OriginalNewSeedsV1 {
                     } else { receiver.guard.is_none() }
             });
         let original = checked == Ok(true);
-        let readonly = original && readonly_call_closure_v1(reference.callee_owner, inventory, batch, Some(constructors));
+        let readonly = original && readonly_call_closure_v1(reference.callee_owner, inventory, batch, Some(constructors), None);
         let parent_uses = readonly && facts.child_construction_sites_v1(pair.field().object()).is_some_and(|sites|
             self.class_local_uses_v1(&receiver.parent_class, sites, pair.field().object(),
                 reference.call_site.owner(), inventory, facts, batch, constructors));

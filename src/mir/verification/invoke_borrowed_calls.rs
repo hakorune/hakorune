@@ -48,6 +48,7 @@ pub(super) fn original_call_slots(
             Err("borrowed-source-missing".into())
         };
     };
+    source.validate_declared_read_uses_v1(module)?;
     let take_contracts = source.take_call_contracts_v1()?;
     for key in take_contracts.keys() {
         selected.insert(module.canonical_callable_definition_symbol(key)

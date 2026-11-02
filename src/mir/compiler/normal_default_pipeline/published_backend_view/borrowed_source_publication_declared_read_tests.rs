@@ -8,7 +8,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         let reborrow = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local first = p.identity(p) local q = p.identity(first) return q.value } }";
         let nullable = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } maybe(n: i64, p: Leaf): Leaf from p { if n == 0 { return null } return p } } static box Main { main() { local p = new Leaf() local first = p.maybe(N, p) local q = p.identity(first) if q == null { return 0 } return q.value } }";
         let child = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } get(): Leaf from me { return me.child } } static box Main { main() { local owner = new Leaf() local child = new Leaf() local p = new Parent(child) local first = p.get() local q = owner.identity(first) return q.value } }";
-        for (suffix, text) in [("reborrow-child", child.to_owned()), ("reborrow", reborrow.to_owned()), ("reborrow-null-0", nullable.replace("N,", "0,")), ("reborrow-null-1", nullable.replace("N,", "1,"))] {
+        for (suffix, text) in [("reborrow-read-after", reborrow.replace("return q.value", "return first.value")), ("reborrow-child", child.to_owned()), ("reborrow", reborrow.to_owned()), ("reborrow-null-0", nullable.replace("N,", "0,")), ("reborrow-null-1", nullable.replace("N,", "1,"))] {
         for optimize in [false, true] {
         MirCompiler::with_options(optimize).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
@@ -32,11 +32,20 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                 assert_eq!(replacements, 1);
                 super::reject_changed_module(&changed, view.retained_handoff);
             }
+            if suffix == "reborrow-read-after" {
+                let mut changed = view.module().clone();
+                let callee = changed.functions.get_mut("Leaf.identity/1").unwrap();
+                let base = callee.params[1];
+                callee.blocks.values_mut().next().unwrap().instructions.push(MirInstruction::FieldSet {
+                    base, field: "value".into(), value: base, declared_type: None,
+                });
+                super::reject_changed_module(&changed, view.retained_handoff);
+            }
             Ok(())
         }).unwrap_or_else(|issue| panic!("declared read {suffix} optimize={optimize}: {issue}"));
         }
         }
-        for invalid in [reborrow.replace("local q =", "p.value = 8 local q ="), reborrow.replace("{ return p }", "{ p.value = 8 return p }")] {
+        for invalid in [reborrow.replace("return q.value", "p.value = 8 return first.value"), reborrow.replace("local q =", "p.value = 8 local q ="), reborrow.replace("{ return p }", "{ p.value = 8 return p }")] {
             let issue = MirCompiler::with_options(false).compile_normal_with_published(request(&invalid), |_, _| Ok(())).err().expect("invalid read reborrow");
             assert!(issue.to_string().contains("[freeze:contract]"), "{issue}");
         }

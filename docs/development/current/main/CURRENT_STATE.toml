@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Readonly argument reborrow retains original From declaration, payload, exact source reads and lifetime support separately.
-Original nonmutation closure plus independent MIR/C checks preserve intervals, payload class and nullable result guards.
-Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
-C existing Normal/Fault and new reborrow/Parent-Child EXE exit 7, nullable exit 0/7 and tamper refusals pass.
-Next: receiver reborrow, existing-read preservation, PHI/support composition; cleanup A before update. From incomplete; stashes protected.
+Original Call-entry observations retain existing From reads only across closed readonly callees with no Home demand/transfer.
+Shared independent MIR validation checks every retained read use, aliases, endpoint and support interval; mixed PHI stays rejected.
+Optimized target/quick CLI/runtime + existing C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
+Focused 6 PASS; C existing Normal/Fault plus first.value after reborrow EXE exit 7 and mutation refusals pass.
+Next: receiver reborrow from original declaration/read provenance, then PHI/support composition; cleanup A before update. From incomplete; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"
