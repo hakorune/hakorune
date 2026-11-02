@@ -725,7 +725,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                             .is_some_and(|claim| claim.is_qualified_terminal()),
                                         _ => false,
                                     };
-                                    Ok(qualified || borrowed_formal_source.as_ref().is_ok_and(|source| source.retains_borrowed_formal_terminal_v1(row))
+                                    Ok(qualified || callable_result_classes.retains_declared_receiver_terminal_v1(row) || borrowed_formal_source.as_ref().is_ok_and(|source| source.retains_borrowed_formal_terminal_v1(row))
                                         || matches!(row, TerminalRelationV1::Call(call)
                                             if call.owner() == owner && static_caller_key.as_ref().is_some_and(|key|
                                                 static_call_claims.current_owner_i64_source(key, call.call_site()).is_some()))

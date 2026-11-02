@@ -22,7 +22,9 @@ pub(super) fn original_local_loan_v1(
     let map = facts.outcomes(&reference.target).is_some_and(|rows| !rows.is_empty()
         && rows.iter().all(|row| !row.alternatives().is_empty() && row.alternatives().iter().all(|origin|
             matches!(origin, super::super::super::result_class_claim::ResultValueOriginV1::MapHeld { .. }))));
-    if !formal && !map { return Ok(None); }
+    let receiver = facts.borrowed_result_declaration_v1(&reference.target).is_some_and(|read|
+        matches!(read.support(), crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { .. }));
+    if !formal && !map && !receiver { return Ok(None); }
     let destination = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
         batch, constructors, reference.call_site.owner(), |context, input| {
             let original = input.function().method_call(reference.call_site.site())

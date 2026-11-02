@@ -81,8 +81,11 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         match self {
             Self::OrdinaryBorrowedNullableHandle { read_result, support, access, .. } => match (access, read_result) {
                 (Access::LegacyUnqualified, None) => true,
-                (Access::ReadOnly, Some(read)) => matches!((support, read.support()),
-                    (Support::Formal(a), crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { ordinal: b, .. }) if *a == b),
+                (Access::ReadOnly, Some(read)) => match (support, read.support()) {
+                    (Support::Formal(a), crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { ordinal: b, .. }) => *a == b,
+                    (Support::Receiver, crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { .. }) => true,
+                    _ => false,
+                },
                 _ => false,
             },
             _ => true,

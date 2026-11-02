@@ -8,6 +8,8 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum ResultValueOriginV1 {
     Null,
+    /// A declared read of this receiver, never a Fresh/owning class.
+    BorrowedReceiver { class: Box<str> },
     /// A storage-supported object source; never a Fresh/owning projection.
     MapHeld { field: hakorune_mir_defs::CanonicalFieldRefV1,
         key: crate::mir::resolved_semantics::BindingRefV1,

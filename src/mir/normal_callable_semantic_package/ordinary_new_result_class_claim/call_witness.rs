@@ -445,7 +445,7 @@ impl<'a> CallWitnessSourceV1<'a> {
             };
             // Storage support requires receiver/key substitution by its own
             // borrowed-result owner, never the old formal/Fresh composition.
-            if matches!(callee.origin(), ResultValueOriginV1::MapHeld { .. }) { return None; }
+            if matches!(callee.origin(), ResultValueOriginV1::MapHeld { .. } | ResultValueOriginV1::BorrowedReceiver { .. }) { return None; }
             let origin = match (callee.origin(), &substitution) {
                 (ResultValueOriginV1::ForwardFormal { .. }, Some(row)) => {
                     ResultValueOriginV1::ForwardFormal {

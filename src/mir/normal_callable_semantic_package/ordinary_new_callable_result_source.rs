@@ -29,6 +29,7 @@ impl CallableResultSourceV1 {
 
 #[derive(Debug, Clone)]
 enum CallableBorrowedResultOriginV1 {
+    Receiver { binding: BindingRefV1 },
     Formal { binding: BindingRefV1, ordinal: u32, returns: Box<[BorrowedFormalReturnSourceLoanV1]> },
     MapSlot {
         source: Rc<crate::mir::normal_callable_semantic_package::MapStoredResultSourceV1>,
@@ -56,6 +57,9 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
                 CallableBorrowedResultOriginV1::Formal { binding, ordinal, .. }) =>
                 declaration.owner() == self.owner && declaration.declared_type() == name.as_ref()
                     && declaration.support() == Support::Formal { binding: *binding, ordinal: *ordinal },
+            (Some(declaration), DeclaredFunctionResultContractV1::Annotated(name), CallableBorrowedResultOriginV1::Receiver { binding }) =>
+                declaration.owner() == self.owner && declaration.declared_type() == name.as_ref()
+                    && declaration.support() == Support::Receiver { binding: *binding },
             _ => false,
         }
     }
@@ -74,6 +78,12 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
             || self.roots.iter().any(|root| root.site().owner() != self.owner)
         { return Err(freeze("callable-result/nullable-return-coverage")); }
         match &self.origin {
+            CallableBorrowedResultOriginV1::Receiver { binding } => {
+                let read = self.declared_borrow.as_ref().ok_or_else(|| freeze("callable-result/nullable-source-contract"))?;
+                if self.roots.iter().any(|root| !root.supports_receiver_v1(*binding, read.declared_type())) {
+                    return Err(freeze("callable-result/nullable-root-role"));
+                }
+            },
             CallableBorrowedResultOriginV1::Formal { binding, ordinal, returns } => {
                 if *ordinal >= self.key.arity() || binding.owner() != self.owner || returns.is_empty() {
                     return Err(freeze("callable-result/nullable-source-contract"));
@@ -152,6 +162,7 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
     ) -> Result<(), String> {
         self.validate_source()?;
         let support = match &self.origin {
+            CallableBorrowedResultOriginV1::Receiver { .. } => crate::mir::instruction::BorrowedResultSupportV1::Receiver,
             CallableBorrowedResultOriginV1::Formal { ordinal, .. } =>
                 crate::mir::instruction::BorrowedResultSupportV1::Formal(*ordinal),
             CallableBorrowedResultOriginV1::MapSlot { source, .. } => source.result_support_v1(),
@@ -214,6 +225,18 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     fn callable_borrowed_nullable_result_source_v1(&self, owner: FunctionOwnerIdV1)
         -> Result<Option<CallableBorrowedNullableResultSourceLoanV1>, String> {
+        if let Some((key, read)) = self.callable_result_classes.source_rows().find_map(|(key, _)|
+            self.callable_result_classes.borrowed_result_declaration_v1(key).filter(|read| read.owner() == owner
+                && matches!(read.support(), crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { .. })).map(|read| (key, read))) {
+            let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } = read.support() else { unreachable!() };
+            let Some(completion) = self.completion_source_for_owner_v1(owner) else { return Ok(None); };
+            let roots = self.callable_result_classes.checked_original_source_roots_v1(key, owner).map_err(freeze)?
+                .into_iter().cloned().collect();
+            let result = CallableBorrowedNullableResultSourceLoanV1 { owner, key: key.clone(), declared_borrow: Some(std::sync::Arc::clone(read)),
+                origin: CallableBorrowedResultOriginV1::Receiver { binding }, completion: Rc::clone(completion), roots };
+            result.validate_source()?;
+            return Ok(Some(result));
+        }
         let mut map_keys = self.callable_result_classes.source_rows().filter(|(_, exits)|
             exits.iter().flat_map(|exit| exit.witnesses()).any(|root|
                 root.site().owner() == owner && matches!(root.step(), ResultWitnessStepV1::MapStored { .. })));

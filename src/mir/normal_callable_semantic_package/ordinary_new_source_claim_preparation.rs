@@ -112,6 +112,11 @@ fn validate_declared_borrowed_source_v1(
          Some(SelectedNormalCallableKeyV1::Cataloged(key))) =>
             claims.get(key) == Some(&result_class_claim::OrdinaryNewResultClassV1::NullableForwarded { ordinal })
                 && claims.borrowed_result_declaration_v1(key).is_some_and(|original| std::sync::Arc::ptr_eq(original, read)),
+        (crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding },
+         Some(SelectedNormalCallableKeyV1::Cataloged(key))) =>
+            claims.borrowed_result_declaration_v1(key).is_some_and(|original| std::sync::Arc::ptr_eq(original, read))
+                && claims.checked_original_source_roots_v1(key, read.owner()).is_ok_and(|roots|
+                    !roots.is_empty() && roots.iter().all(|root| root.supports_receiver_v1(binding, read.declared_type()))),
         _ => false,
     };
     if agrees { Ok(()) } else {

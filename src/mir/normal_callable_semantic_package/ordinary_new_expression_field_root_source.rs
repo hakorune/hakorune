@@ -74,18 +74,7 @@ impl ExpressionFieldRootSourceV1 {
     ) -> Result<(usize, crate::mir::ValueId), String> {
         self.recheck_entry_v1(ledger, owner)?;
         let RootOriginV1::Entry { slot, .. } = self.origin else { unreachable!("checked entry root") };
-        let signature = ledger.original_instance_input_issuance.as_ref().ok_or("expression-path/root-entry-issuance")?
-            .1.row(slot).ok_or("expression-path/root-entry-signature")?;
-        let lane = signature.lanes().iter().find(|lane| lane.role()
-            == super::super::super::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver)
-            .ok_or("expression-path/root-entry-receiver")?;
-        let index = lane.index() as usize;
-        let value = *function.params.get(index).ok_or("expression-path/root-entry-receiver")?;
-        if function.metadata.physical_param_carriers.as_ref().and_then(|rows| rows.get(index))
-            != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64) {
-            return Err("expression-path/root-entry-receiver".into());
-        }
-        Ok((index, value))
+        ledger.checked_instance_receiver_value_v1(self.home, slot, owner, function)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,

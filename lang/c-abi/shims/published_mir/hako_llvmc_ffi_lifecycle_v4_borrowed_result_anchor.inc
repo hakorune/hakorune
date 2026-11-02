@@ -57,9 +57,19 @@ static hako_lv4_value* lv4_borrowed_result_anchor(const hako_lv4_input* in,
         !lv4_is(term, "op", "invoke") || !lv4_is(op, "kind", "ordinary_call") ||
         !lv4_is(op, "result", "borrowed_nullable_handle") ||
         !hako_physical_u32(yyjson_obj_get(call, "target"), &target) ||
-        !target || target >= in->index_count ||
-        !hako_physical_u32(yyjson_obj_get(op, "result_formal_ordinal"), &ordinal)) return NULL;
+        !target || target >= in->index_count) return NULL;
     yyjson_val* callee = in->index[target].function;
+    if (hako_physical_result_receiver(op)) {
+      uint32_t receiver;
+      if (!hako_physical_result_receiver(callee) ||
+          !lv4_is(callee, "role", "ordinary_borrowed_nullable_handle") ||
+          !hako_physical_u32(yyjson_obj_get(call, "receiver"), &receiver)) return NULL;
+      value = lv4_index_value(fn, receiver);
+      continue;
+    }
+    if (yyjson_obj_get(op, "result_support") || yyjson_obj_get(callee, "result_support") ||
+        yyjson_is_true(yyjson_obj_get(op, "result_read")) != yyjson_is_true(yyjson_obj_get(callee, "result_read")) ||
+        !hako_physical_u32(yyjson_obj_get(op, "result_formal_ordinal"), &ordinal)) return NULL;
     yyjson_val* args = yyjson_obj_get(call, "args");
     yyjson_val* params = yyjson_obj_get(callee, "params");
     if (!lv4_is(callee, "role", "ordinary_borrowed_nullable_handle") ||
@@ -78,15 +88,20 @@ static hako_lv4_value* lv4_borrowed_result_anchor(const hako_lv4_input* in,
  * All body blocks, including Fault/unreachable blocks, obey the support law. */
 static int lv4_declared_read_effects(hako_lv4_function_index* fn) {
   if (!yyjson_obj_get(fn->function, "result_read")) return 1;
-  uint32_t ordinal;
   if (!yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) ||
-      !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") ||
-      !hako_physical_u32(yyjson_obj_get(fn->function, "result_formal_ordinal"), &ordinal)) return 0;
-  yyjson_val* params = yyjson_obj_get(fn->function, "params");
-  if (ordinal >= yyjson_arr_size(params)) return 0;
-  hako_lv4_value* support = lv4_value_alias_root(fn,
-      lv4_index_value(fn, lv4_u(yyjson_arr_get(params, ordinal), "value")));
-  if (!support || support->kind != LV4_TAGGED) return 0;
+      !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle")) return 0;
+  hako_lv4_value* support;
+  if (hako_physical_result_receiver(fn->function)) {
+    support = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(fn->function, "receiver")));
+    if (!support || !lv4_canonical_receiver(fn, support)) return 0;
+  } else {
+    uint32_t ordinal;
+    yyjson_val* params = yyjson_obj_get(fn->function, "params");
+    if (!hako_physical_u32(yyjson_obj_get(fn->function, "result_formal_ordinal"), &ordinal) ||
+        ordinal >= yyjson_arr_size(params)) return 0;
+    support = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(yyjson_arr_get(params, ordinal), "value")));
+    if (!support || support->kind != LV4_TAGGED) return 0;
+  }
   for (size_t bi = 0; bi < fn->block_count; bi++) {
     yyjson_arr_iter rows = yyjson_arr_iter_with(yyjson_obj_get(fn->blocks[bi].block, "instructions"));
     yyjson_val* row;
@@ -122,7 +137,7 @@ static int lv4_borrowed_result_forwardable(hako_lv4_function_index* fn, hako_lv4
 static int lv4_borrowed_result_readable(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position) {
   if (!lv4_read_result_interval(in, fn, value, use, position)) return 0;
-  if (yyjson_obj_get(lv4_borrowed_result_operation(fn, value), "result_support"))
+  if (hako_physical_result_slot(lv4_borrowed_result_operation(fn, value), NULL))
     return lv4_slot_result_readable(in, fn, value, state, use, 0, 0);
   hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
   if (!anchor) return 0;
@@ -148,7 +163,11 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
     yyjson_val* term = lv4_term(callee->blocks[bi].block);
     if (!lv4_is(term, "op", "return")) continue;
     returns++;
-    if (!lv4_is(yyjson_obj_get(term, "result_origin"), "kind", "borrowed_formal")) return 0;
+    if (!lv4_is(yyjson_obj_get(term, "result_origin"), "kind",
+        hako_physical_result_receiver(op) ? "borrowed_receiver" : "borrowed_formal")) return 0;
+    if (hako_physical_result_receiver(op) &&
+        (!hako_physical_result_receiver(callee->function) ||
+         lv4_u(callee->function, "receiver_object") != object)) return 0;
   }
   hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
   return returns && lv4_read_support_new(fn, anchor) &&

@@ -25,17 +25,23 @@ pub(super) fn evaluate_row(
     coverage: &ParserOrdinaryBoxSourceCoverageV1,
     borrowed: Option<&crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>,
 ) -> ExitVerdictV1 {
-    let support = if let Some(read) = borrowed {
-        let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal } = read.support()
-            else { return ExitVerdictV1::Dead; };
-        let exact = parameter_contracts.iter().find(|row| row.batch_slot == batch_slot && row.owner == read.owner())
-            .and_then(|row| row.parameters.iter().find(|row| row.binding == binding && row.ordinal == ordinal));
-        if binding.owner() != read.owner() || !exact.is_some_and(|parameter| matches!(&parameter.kind,
-            CallableParameterContractKindV1::DeclaredObject(class) if class.as_ref() == read.declared_type())) {
-            return ExitVerdictV1::Dead;
-        }
-        Some((binding, ordinal, read.owner()))
-    } else { None };
+    if let Some(read) = borrowed {
+        use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
+        let binding = match read.support() {
+            Support::Formal { binding, ordinal } => {
+                let exact = parameter_contracts.iter().find(|row| row.batch_slot == batch_slot && row.owner == read.owner())
+                    .and_then(|row| row.parameters.iter().find(|row| row.binding == binding && row.ordinal == ordinal));
+                if !exact.is_some_and(|parameter| matches!(&parameter.kind,
+                    CallableParameterContractKindV1::DeclaredObject(class) if class.as_ref() == read.declared_type())) { return ExitVerdictV1::Dead; }
+                binding
+            },
+            Support::Receiver { binding } => {
+                if coverage.row_for(read.declared_type()).ok().flatten().is_none() { return ExitVerdictV1::Dead; }
+                binding
+            },
+        };
+        if binding.owner() != read.owner() { return ExitVerdictV1::Dead; }
+    }
     let mut rows = Vec::new();
     let mut class: Option<Box<str>> = None;
     let mut forwarded = None;
@@ -45,6 +51,10 @@ pub(super) fn evaluate_row(
     for exit in exits {
         let mut witnesses = Vec::new();
         match &exit.exit {
+            PendingExitV1::Receiver { binding, class } => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+                site: exit.site.clone(), origin: ResultValueOriginV1::BorrowedReceiver { class: class.clone() },
+                step: ResultWitnessStepV1::Receiver { binding: *binding },
+            })),
             PendingExitV1::MapStored(source) => {
                 if !source.returns.contains_key(&exit.site) { return ExitVerdictV1::Dead; }
                 legacy_eligible = false;
@@ -109,10 +119,11 @@ pub(super) fn evaluate_row(
                 witnesses = composed;
             }
         }
-        if let Some((binding, ordinal, owner)) = support {
-            if exit.site.owner() != owner || witnesses.is_empty() || witnesses.iter().any(|root| !root.supports_formal_v1(binding, ordinal)) {
-                return ExitVerdictV1::Dead;
-            }
+        if let Some(read) = borrowed {
+            if exit.site.owner() != read.owner() || witnesses.is_empty() || witnesses.iter().any(|root| match read.support() {
+                crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal } => !root.supports_formal_v1(binding, ordinal),
+                crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } => !root.supports_receiver_v1(binding, read.declared_type()),
+            }) { return ExitVerdictV1::Dead; }
         }
         let alternatives: BTreeSet<_> = witnesses
             .iter()
@@ -124,7 +135,7 @@ pub(super) fn evaluate_row(
         for origin in &alternatives {
             match origin {
                 ResultValueOriginV1::Null => nullable = true,
-                ResultValueOriginV1::MapHeld { .. } => legacy_eligible = false,
+                ResultValueOriginV1::MapHeld { .. } | ResultValueOriginV1::BorrowedReceiver { .. } => legacy_eligible = false,
                 ResultValueOriginV1::Fresh(found) => {
                     // Check before exposing this row to any dependent composition.
                     if coverage.row_for(found).ok().flatten().is_none() {
@@ -173,8 +184,11 @@ pub(super) fn evaluate_row(
             }
         }
     }
-    let projection = if let Some((_, ordinal, _)) = support {
-        Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal })
+    let projection = if let Some(read) = borrowed {
+        match read.support() {
+            crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { ordinal, .. } => Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }),
+            crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { .. } => None,
+        }
     } else if legacy_eligible {
         match (class, forwarded) {
             (Some(class), None) => Some(if nullable {
@@ -195,7 +209,7 @@ pub(super) fn evaluate_row(
     })
 }
 
-// Collection and resolution have separate owners; the solver retains the same products.
+// The source collector retains exits; this owner solves their composition.
 impl OrdinaryNewResultClassClaimDraftV1 {
     /// Pass B: resolve forwarded exits against the batch's own sealed
     /// facts, then compose by monotone fixpoint — every iteration either
@@ -285,6 +299,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                                 selected,
                                 field_write_claims,
                             ),
+                            ResultClassExitDraftV1::Receiver { binding, class } => Some(PendingExitV1::Receiver { binding: *binding, class: class.clone() }),
                             ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {
                                 // Both ordinary kinds borrow their input. A type
                                 // annotation proves class, not a moved-in Home.

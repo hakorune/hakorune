@@ -104,10 +104,25 @@ static int lv4_slot_return_origin(const hako_lv4_input* in,
  * Physical corroboration adds no Home or incoming-call permission. The
  * dedicated Call/Normal/anchor consumers remain independently mandatory. */
 static int lv4_borrowed_return_origin(const hako_lv4_input* in, hako_lv4_function_index* fn, yyjson_val* returned) {
-  if (yyjson_obj_get(fn->function, "result_support")) return lv4_slot_return_origin(in, fn, returned);
+  if (hako_physical_result_slot(fn->function, NULL)) return lv4_slot_return_origin(in, fn, returned);
   static const char* const null_keys[] = {"kind", "producer", "copies"};
   static const char* const formal_keys[] = {"kind", "formal_ordinal", "copies"};
   yyjson_val* origin = yyjson_obj_get(returned, "result_origin");
+  if (hako_physical_result_receiver(fn->function)) {
+    static const char* const receiver_keys[] = {"kind", "copies"};
+    uint32_t value, returned_value;
+    if (!hako_physical_u32(yyjson_obj_get(returned, "value"), &returned_value)) return 0;
+    if (lv4_is(origin, "kind", "null")) {
+      yyjson_val* producer = lv4_result_coordinate(fn, yyjson_obj_get(origin, "producer"), NULL);
+      if (!hako_physical_exact_keys(origin, null_keys, 3) || !lv4_is(producer, "op", "const_null") ||
+          !hako_physical_u32(yyjson_obj_get(producer, "dst"), &value)) return 0;
+    } else {
+      if (!hako_physical_exact_keys(origin, receiver_keys, 2) || !lv4_is(origin, "kind", "borrowed_receiver") ||
+          !hako_physical_u32(yyjson_obj_get(fn->function, "receiver"), &value) ||
+          !lv4_canonical_receiver(fn, lv4_index_value(fn, value))) return 0;
+    }
+    return lv4_result_copy_chain(fn, origin, value, returned_value);
+  }
   uint32_t ordinal, returned_value, value;
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
   if (!lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") ||

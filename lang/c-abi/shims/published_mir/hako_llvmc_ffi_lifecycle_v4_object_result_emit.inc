@@ -86,7 +86,7 @@ static int lv4_emit_object_return_outcome(FILE* f, const hako_lv4_input* in,
   yyjson_val* origin = yyjson_obj_get(term, "result_origin");
   if (lv4_is(origin, "kind", "null")) fprintf(f, "  store i32 0, ptr %%out_outcome, align 4\n");
   else if (lv4_is(origin, "kind", "fresh")) fprintf(f, "  store i32 1, ptr %%out_outcome, align 4\n");
-  else if (lv4_is(origin, "kind", "borrowed_map_slot")) {
+  else if (lv4_is(origin, "kind", "borrowed_map_slot") || lv4_is(origin, "kind", "borrowed_receiver")) {
     if (!lv4_is(function, "role", "ordinary_borrowed_nullable_handle")) return 0;
     fprintf(f, "  %%return_nonnull%u = icmp ne i64 %%v%u, 0\n"
         "  %%return_outcome%u = select i1 %%return_nonnull%u, i32 2, i32 0\n"

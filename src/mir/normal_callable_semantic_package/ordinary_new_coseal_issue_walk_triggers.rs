@@ -210,6 +210,8 @@ pub(super) fn has_original_borrowed_walk_v1(
             .any(|target| {
                 target.call_site().owner() == owner
                     && target.borrowed_nullable_local_source().is_some()
+                    || target.callee_owner() == owner && target.borrowed_nullable_local_source()
+                        .is_some_and(|loan| loan.result_support_v1() == crate::mir::instruction::BorrowedResultSupportV1::Receiver)
             })
     });
     let Ok(source) = source else {

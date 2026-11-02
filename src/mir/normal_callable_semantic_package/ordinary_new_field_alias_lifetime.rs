@@ -257,6 +257,35 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(true)
     }
 
+    /// Resolve an original receiver lane, independently of formal ordinals.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_instance_receiver_value_v1(
+        &self, root: BindingRefV1, batch_slot: u32, owner: FunctionOwnerIdV1,
+        function: &crate::mir::MirFunction,
+    ) -> Result<(usize, ValueId), String> {
+        let (selected, signatures) = self.original_instance_input_issuance.as_ref()
+            .ok_or_else(|| fault("alias/entry-issuance"))?;
+        let identity = selected.identity_for_batch_slot(batch_slot)
+            .ok_or_else(|| fault("alias/entry-identity"))?;
+        if !self.checked_instance_entry_root_v1(root, batch_slot, identity, owner)? {
+            return Err(fault("alias/entry-root"));
+        }
+        let signature = signatures.row(batch_slot).ok_or_else(|| fault("alias/entry-signature"))?;
+        let lane = signature.lanes().iter().find(|lane| lane.role()
+            == crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1::InstanceReceiver)
+            .ok_or_else(|| fault("alias/entry-receiver"))?;
+        let index = lane.index() as usize;
+        let value = *function.params.get(index).ok_or_else(|| fault("alias/entry-receiver"))?;
+        if function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(index))
+            != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::ExistingCallableI64)
+            || !matches!(selected.key_for_batch_slot(batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                    if function.signature.name == key.mir_symbol_projection()
+                    && matches!(function.signature.params.get(index), Some(crate::mir::MirType::Box(class)) if class == key.owner())) {
+            return Err(fault("alias/entry-receiver"));
+        }
+        Ok((index, value))
+    }
+
     fn checked_instance_entry_root_v1(
         &self,
         root: BindingRefV1,

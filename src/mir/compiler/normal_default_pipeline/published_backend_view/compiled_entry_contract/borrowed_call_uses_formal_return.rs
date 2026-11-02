@@ -9,6 +9,7 @@ pub(super) struct FormalReturnUse {
 }
 enum BorrowedReturnSource {
     Formal(BindingRefV1),
+    Receiver { values: BTreeSet<ValueId>, bindings: BTreeMap<Coordinate, MirInstruction> },
     MapSlot {
         values: BTreeSet<ValueId>,
         bindings: BTreeMap<Coordinate, MirInstruction>,
@@ -57,6 +58,20 @@ fn prepare_role(
                 }
                 BorrowedReturnSource::Formal(formal)
             }
+            FinalizedObjectReturnOriginV1::BorrowedReceiver { value } => {
+                let mut values = BTreeSet::from([*value]);
+                let mut bindings = BTreeMap::new();
+                for binding in outcome.transport_bindings().iter().chain(std::iter::once(outcome.returned())) {
+                    if let MirInstruction::Copy { dst, src } = binding.1 {
+                        if !values.contains(&src) { return Err(fault("borrowed-formal-return/receiver-copy")); }
+                        values.insert(dst);
+                    }
+                    if bindings.insert(coordinate(function, binding)?, binding.1.clone()).is_some() {
+                        return Err(fault("borrowed-formal-return/duplicate-source"));
+                    }
+                }
+                BorrowedReturnSource::Receiver { values, bindings }
+            }
             FinalizedObjectReturnOriginV1::MapSlot(receipt) => {
                 let value = receipt.producer().1.dst_value()
                     .ok_or_else(|| fault("borrowed-formal-return/original-entry"))?;
@@ -100,7 +115,8 @@ pub(super) fn observe(
     };
     let valid = match &expected.source {
         BorrowedReturnSource::Formal(formal) => tracked.get(value) == Some(formal),
-        BorrowedReturnSource::MapSlot { values, .. } => values.contains(value) && !tracked.contains_key(value),
+        BorrowedReturnSource::Receiver { values, .. }
+        | BorrowedReturnSource::MapSlot { values, .. } => values.contains(value) && !tracked.contains_key(value),
     };
     if expected.returned != (site.0, instruction.clone()) || !valid {
         return Err(fault("borrowed-formal-return/correspondence"));
@@ -117,11 +133,15 @@ pub(super) fn observe_map_slots(state: &FunctionUses, site: Coordinate,
     instruction: &MirInstruction, scan: &mut Scan,
 ) -> Result<(), String> {
     for expected in state.formal_returns.values() {
-        let BorrowedReturnSource::MapSlot { values, bindings } = &expected.source else { continue; };
+        let (values, bindings, slot) = match &expected.source {
+            BorrowedReturnSource::MapSlot { values, bindings } => (values, bindings, true),
+            BorrowedReturnSource::Receiver { values, bindings } => (values, bindings, false),
+            _ => continue,
+        };
         if let Some(original) = bindings.get(&site) {
             if original != instruction { return Err(fault("borrowed-formal-return/correspondence")); }
             scan.map_slot_returns.insert(site);
-        } else if instruction.used_values().iter().any(|value| values.contains(value))
+        } else if slot && instruction.used_values().iter().any(|value| values.contains(value))
             && !matches!(instruction, MirInstruction::KeepAlive { .. }) {
             return Err(fault("borrowed-formal-return/unproved"));
         }
@@ -134,7 +154,8 @@ pub(super) fn coverage(state: &FunctionUses, scan: &Scan) -> Result<(), String> 
         return Err(fault("borrowed-formal-return/coverage"));
     }
     let expected: BTreeSet<_> = state.formal_returns.values().flat_map(|row| match &row.source {
-        BorrowedReturnSource::MapSlot { bindings, .. } => bindings.keys().copied().collect::<Vec<_>>(),
+        BorrowedReturnSource::Receiver { bindings, .. }
+        | BorrowedReturnSource::MapSlot { bindings, .. } => bindings.keys().copied().collect::<Vec<_>>(),
         _ => Vec::new(),
     }).collect();
     if expected != scan.map_slot_returns { return Err(fault("borrowed-formal-return/coverage")); }

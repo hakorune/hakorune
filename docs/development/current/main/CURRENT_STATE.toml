@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: genuine from-me receiver/field support after Formal read-result EXE landing"
+current_blocker_token = "ownership step 3a: from-me field support after Formal/Receiver identity canonical EXE landing"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Formal From minimum reaches canonical EXE: original declaration, support and typed ReadOnly stay connected.
-ReadOnly and LegacyUnqualified remain distinct; publication rejects matching two-sided downgrade against original From.
-Source collection/solver owners separated with an identical solve body; optimized CLI suite 8/8 and 115 cohort failure names unchanged.
-Next: genuine from-me receiver/field support, then legal From returns/reborrow/PHI; Formal is not full From completion.
-Take minimum landed; update/sync remain and 3b is outside this goal. Both existing stashes remain protected.
+Formal and real Receiver identity From reach canonical EXE; original declaration/support/ReadOnly stay connected.
+Receiver uses its original source lane, never formal 0 or a Map slot; original publication rejects two-sided downgrade.
+Optimized target/quick CLI/runtime and rebuilt C shim: suite 8/8, 1802 cohort PASS and 115 failure names unchanged.
+Next: from-me field proof separates Parent support from Child payload, then legal From returns/reborrow/PHI.
+From is incomplete; update/sync remain, 3b is outside this goal, and both existing stashes remain protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

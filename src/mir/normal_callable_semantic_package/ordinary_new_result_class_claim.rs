@@ -36,7 +36,6 @@ use crate::mir::resolved_semantics::{
     ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1, SourceStmtSiteV1,
     VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedFunctionV1,
 };
-use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
 #[path = "ordinary_new_result_class_claim/call_witness.rs"]
@@ -53,6 +52,7 @@ pub(super) use child_relation::SourceConstructionChildRelationV1;
 pub(super) use child_relation::attach_source_child_relations_v1;
 #[path = "ordinary_new_result_class_claim/evaluate.rs"]
 mod evaluate;
+#[cfg(test)]
 use evaluate::{evaluate_row, ExitVerdictV1};
 #[path = "ordinary_new_result_class_claim/product.rs"]
 mod product;
@@ -122,6 +122,7 @@ enum ResultClassExitDraftV1 {
     /// `return <formal>` — a `Parameter` binding pass-through; pass B
     /// reads the formal's contract kind for class or forwarded identity.
     ForwardFormal { binding: BindingRefV1, ordinal: u32 },
+    Receiver { binding: BindingRefV1, class: Box<str> },
 }
 
 /// An exit after callee resolution: `Fwd` waits on the callee's claim and
@@ -130,6 +131,7 @@ enum ResultClassExitDraftV1 {
 /// Ordinary declared and opaque formal returns preserve borrowed identity.
 /// `Formal` records the original input ordinal without an owning class.
 enum PendingExitV1 {
+    Receiver { binding: BindingRefV1, class: Box<str> },
     MapStored(std::rc::Rc<witness::MapStoredResultSourceV1>),
     New(Box<str>),
     LocalNew(std::rc::Rc<witness::LocalConstructionResultSourceV1>),
@@ -516,6 +518,14 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                 || function.method_call(&site).is_some()
             {
                 ResultClassExitDraftV1::ForwardCall(site.clone())
+            } else if let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
+                receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), ..
+            }) = shape.expression_shape(&site) {
+                if borrowed_result.is_none()
+                    || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                    || function.binding(*binding).is_none_or(|row| row.kind() != BindingKindV1::Receiver)
+                    || !binding_is_unrebound(function, *binding) { return; }
+                ResultClassExitDraftV1::Receiver { binding: *binding, class: key.owner().into() }
             } else {
                 match function.variable_ref(&site) {
                     Some(ResolvedLexicalRefV1::Local(binding)) => {
@@ -550,6 +560,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
             exits,
         });
     }
+
 
 
 }

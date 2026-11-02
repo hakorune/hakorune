@@ -15,6 +15,7 @@ pub(crate) struct ResultFormalSubstitutionV1 {
 
 #[derive(Debug)]
 pub(crate) enum ResultWitnessStepV1 {
+    Receiver { binding: BindingRefV1 },
     NullLiteral,
     FreshConstruction,
     LocalConstruction(Rc<LocalConstructionResultSourceV1>),
@@ -68,6 +69,13 @@ impl ResultOriginWitnessV1 {
             ResultWitnessStepV1::Call { substitution: None, .. } => self.origin == ResultValueOriginV1::Null,
             _ => false,
         }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn supports_receiver_v1(&self, binding: BindingRefV1, class: &str) -> bool {
+        self.site.owner() == binding.owner() && (self.origin == ResultValueOriginV1::Null
+            || matches!((&self.step, &self.origin),
+                (ResultWitnessStepV1::Receiver { binding: original }, ResultValueOriginV1::BorrowedReceiver { class: actual })
+                    if *original == binding && actual.as_ref() == class))
     }
 
     pub(super) fn formal_ordinal(&self) -> Option<u32> {

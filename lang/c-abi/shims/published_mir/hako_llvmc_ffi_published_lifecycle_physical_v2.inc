@@ -626,15 +626,22 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
   static const char* const borrowed_keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks", "result_formal_ordinal"};
   static const char* const slot_keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks", "result_support"};
   static const char* const read_keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks", "result_formal_ordinal", "result_read"};
+  static const char* const receiver_read_keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks", "result_support", "result_read"};
+  int receiver_result = hako_physical_result_receiver(function);
   int read_result = yyjson_obj_get(function, "result_read") != NULL;
   int slot_result = yyjson_obj_get(function, "result_support") != NULL;
   int borrowed = (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_borrowed_nullable_handle") ||
          hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_mixed_handle"));
-  if (read_result && (!borrowed || slot_result || !yyjson_is_true(yyjson_obj_get(function, "result_read")) ||
+  if (read_result && (!borrowed || (slot_result && !receiver_result) || !yyjson_is_true(yyjson_obj_get(function, "result_read")) ||
       !hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_borrowed_nullable_handle"))) return 0;
   yyjson_val* blocks; yyjson_val* params; uint32_t entry; const char* mode; size_t bi, i, j;
-  if ((borrowed && native) || !hako_physical_exact_keys(function, read_result ? read_keys : borrowed ? (slot_result ? slot_keys : borrowed_keys) : keys, read_result ? 9 : borrowed ? 8 : 7) || !(yyjson_get_str(yyjson_obj_get(function, "name"))) || !(params = yyjson_obj_get(function, "params")) || !hako_physical_params(function, layouts) || !hako_physical_u32(yyjson_obj_get(function, "entry"), &entry) || !(blocks = hako_physical_blocks(function)) || !yyjson_is_arr(blocks) || !yyjson_arr_size(blocks) || !hako_physical_unique_block_ids(function) || !hako_physical_has_block(function, entry)) return 0;
-  if (borrowed && slot_result) {
+  if ((borrowed && native) || !hako_physical_exact_keys(function, read_result ? (receiver_result ? receiver_read_keys : read_keys) : borrowed ? (slot_result ? slot_keys : borrowed_keys) : keys, read_result ? 9 : borrowed ? 8 : 7) || !(yyjson_get_str(yyjson_obj_get(function, "name"))) || !(params = yyjson_obj_get(function, "params")) || !hako_physical_params(function, layouts) || !hako_physical_u32(yyjson_obj_get(function, "entry"), &entry) || !(blocks = hako_physical_blocks(function)) || !yyjson_is_arr(blocks) || !yyjson_arr_size(blocks) || !hako_physical_unique_block_ids(function) || !hako_physical_has_block(function, entry)) return 0;
+  if (borrowed && receiver_result) {
+    uint32_t receiver, object;
+    if (!hako_physical_u32(yyjson_obj_get(function, "receiver"), &receiver) ||
+        !hako_physical_u32(yyjson_obj_get(function, "receiver_object"), &object) ||
+        !hako_physical_layout_has_object(layouts, object)) return 0;
+  } else if (borrowed && slot_result) {
     hako_physical_slot_support support;
     uint32_t receiver, object;
     if (!hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_borrowed_nullable_handle") ||

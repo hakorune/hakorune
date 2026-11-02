@@ -291,6 +291,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_returned_sou
         }
         return None;
     }
+    if let Some(receiver) = locals.terminal_receiver_v1(site) { return Some(TerminalReturnedSourceV1::Handle(receiver)); }
     let observation = locals.observe(site)?;
     match observation {
         OrdinaryObservation::TaggedDynamicLocal(binding) => {

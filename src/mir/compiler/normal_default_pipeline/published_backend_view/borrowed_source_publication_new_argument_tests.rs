@@ -606,17 +606,23 @@ fn returned_wrapper_field_argument_reaches_published_call() {
 fn declared_read_result_keeps_local_support_through_field_publication() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let text = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }";
+        for (text, symbol, receiver, artifact) in [
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, "hako-issued-declared-read-local.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } static box Main { main() { local p = new Leaf() local q = p.identity() return q.value } }", "Leaf.identity/0", true, "hako-issued-declared-read-receiver.json"),
+        ] {
         MirCompiler::with_options(false).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
             let input = view.issue_lifecycle_physical_abi_input()?;
             let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
             let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
             let functions = json["functions"].as_array().unwrap();
-            let (target, callee) = functions.iter().enumerate().find(|(_, function)| function["name"] == "Leaf.identity/1").unwrap();
+            let (target, callee) = functions.iter().enumerate().find(|(_, function)| function["name"] == symbol).unwrap();
             assert_eq!(callee["role"], "ordinary_borrowed_nullable_handle");
             assert_eq!(callee["result_read"], true);
-            assert_eq!(callee["result_formal_ordinal"], 0);
+            if receiver {
+                assert_eq!(callee["result_support"], serde_json::json!({"kind":"receiver"}));
+                assert!(callee.get("result_formal_ordinal").is_none());
+            } else { assert_eq!(callee["result_formal_ordinal"], 0); }
             let calls: Vec<_> = functions.iter().flat_map(|function| function["blocks"].as_array().unwrap())
                 .map(|block| &block["terminator"]["instruction"]["operation"])
                 .filter(|op| op["kind"] == "ordinary_call" && op["call"]["target"] == target).collect();
@@ -649,16 +655,16 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                 crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { result, .. }, .. } => *result,
                 _ => unreachable!(),
             };
-            let (ordinal, callee) = changed.functions.iter().enumerate().find(|(_, function)| function.name() == "Leaf.identity/1").unwrap();
+            let (ordinal, callee) = changed.functions.iter().enumerate().find(|(_, function)| function.name() == symbol).unwrap();
             assert_eq!(callee.role().ordinary_result(), Some(erased_result), "both downgraded descriptors deliberately agree");
             assert!(super::super::super::physical_program_json::corroborate_borrowed_function_snapshot(
                 callee, ordinal as u32, &input).unwrap_err().contains("borrowed-carrier-function-drift"));
             let issue = super::super::super::physical_program_json::emit_lifecycle_physical_program_value(
                 &changed, Some(&input)).unwrap_err();
             assert!(issue.contains("borrowed-carrier-projection-drift"), "{issue}");
-            std::fs::write(std::env::temp_dir().join("hako-issued-declared-read-local.json"), wire).unwrap();
+            std::fs::write(std::env::temp_dir().join(artifact), wire).unwrap();
             Ok(())
-        }).unwrap();
+        }).unwrap_or_else(|issue| panic!("{symbol}: {issue}"));
         for (label, tail, refusal) in [
             ("write-result", "q.value = 9 return 0", "[freeze:contract]"),
             ("write-support-before-read", "p.value = 9 return q.value", "[freeze:contract]"),
@@ -669,6 +675,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
             let issue = MirCompiler::with_options(false).compile_normal_with_published(request(&source),
                 |_, _| Ok(())).err().expect(label);
             assert!(issue.to_string().contains(refusal), "{label}: {issue}");
+        }
         }
     });
 }

@@ -422,6 +422,11 @@ fn check_function_inner(
                 };
                 let valid = match (&call.callee, result) {
                     (Callee::BirthConstructor { .. }, _) => false,
+                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle {
+                        access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly,
+                        support: crate::mir::instruction::BorrowedResultSupportV1::Receiver,
+                    }) => key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                        && key.arity() as usize == call.args.len(),
                     (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { access: _, support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }
                         | ResultKind::MixedHandle { formal_ordinal }) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod

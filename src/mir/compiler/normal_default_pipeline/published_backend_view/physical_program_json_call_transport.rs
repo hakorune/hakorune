@@ -545,10 +545,14 @@ pub(super) fn encode_result_support_v1(result: InvokeCallResultKind, wire: &mut 
         InvokeCallResultKind::MixedHandle { formal_ordinal } => Some(formal_ordinal),
         InvokeCallResultKind::BorrowedNullableHandle { support, access } => {
             if access == crate::mir::instruction::BorrowedResultAccessV1::ReadOnly {
-                if !matches!(support, crate::mir::instruction::BorrowedResultSupportV1::Formal(_)) { return Err(fault("ordinary-result-kind")); }
+                if !matches!(support, crate::mir::instruction::BorrowedResultSupportV1::Formal(_) | crate::mir::instruction::BorrowedResultSupportV1::Receiver) { return Err(fault("ordinary-result-kind")); }
                 wire["result_read"] = json!(true);
             }
             match support {
+            crate::mir::instruction::BorrowedResultSupportV1::Receiver => {
+                if access != crate::mir::instruction::BorrowedResultAccessV1::ReadOnly { return Err(fault("ordinary-result-kind")); }
+                wire["result_support"] = json!({"kind":"receiver"}); None
+            },
             crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) => Some(ordinal),
             crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object } => {
                 wire["result_support"] = json!({"kind":"receiver_field_slot",

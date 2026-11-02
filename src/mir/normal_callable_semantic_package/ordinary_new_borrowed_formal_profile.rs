@@ -726,7 +726,7 @@ fn stored_object_source_eligible_v1(
         || roots.iter().any(|row| match row.origin() {
             ResultValueOriginV1::Null => false,
             ResultValueOriginV1::Fresh(name) => Some(name.as_ref()) != class.class(),
-            ResultValueOriginV1::ForwardFormal { .. } | ResultValueOriginV1::MapHeld { .. } => true,
+            ResultValueOriginV1::ForwardFormal { .. } | ResultValueOriginV1::MapHeld { .. } | ResultValueOriginV1::BorrowedReceiver { .. } => true,
         })
     {
         return Ok(false);

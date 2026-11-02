@@ -176,6 +176,8 @@ pub enum FaultFrameMode {
 /// and both physical consumers must independently prove the same relation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BorrowedResultSupportV1 {
+    /// The original non-owning instance receiver, never logical argument zero.
+    Receiver,
     /// Null or the original logical non-receiver argument.
     Formal(u32),
     /// The receiver's exact Map field owns the payload at this Text-key
@@ -189,7 +191,7 @@ pub enum BorrowedResultSupportV1 {
 impl BorrowedResultSupportV1 {
     /// Formal-only consumers must explicitly decline storage-supported results.
     pub fn formal_ordinal(self) -> Option<u32> {
-        match self { Self::Formal(ordinal) => Some(ordinal), Self::ReceiverFieldSlot { .. } => None }
+        match self { Self::Formal(ordinal) => Some(ordinal), Self::Receiver | Self::ReceiverFieldSlot { .. } => None }
     }
 }
 

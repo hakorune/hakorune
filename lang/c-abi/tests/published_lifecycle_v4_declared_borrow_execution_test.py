@@ -201,37 +201,54 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         compile_input(data, accepted=False)
         print('reject', label)
 
-    # Unchanged source-issued explicit read result; Copy retains its original Call.
-    read = json.loads((INPUTS / 'hako-issued-declared-read-local.json').read_text())
-    compile_input(read)
-    checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
-    run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
-    assert run.returncode == 7, (run.returncode, run.stdout, run.stderr)
-    print('source-issued From local support: field snapshot exit 7')
-    for side in ['call', 'callee']:
-        for marker in [None, False]:
-            data = copy.deepcopy(read)
-            callee = function(data, 'Leaf.identity/1')
-            call = next(block['terminator']['instruction']['operation']
-                        for block in function(data, 'main')['blocks']
+    # The same read/result safety boundary covers formal and real receiver support.
+    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0')]:
+        # Unchanged source-issued explicit read result; Copy retains its original Call.
+        read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
+        compile_input(read)
+        checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
+        run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
+        assert run.returncode == 7, (run.returncode, run.stdout, run.stderr)
+        print(f'source-issued From {suffix} support: field snapshot exit 7')
+        for side in ['call', 'callee']:
+            for marker in [None, False]:
+                data = copy.deepcopy(read)
+                callee = function(data, symbol)
+                call = next(block['terminator']['instruction']['operation']
+                            for block in function(data, 'main')['blocks']
+                            if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
+                target = call if side == 'call' else callee
+                if marker is None:
+                    del target['result_read']
+                else:
+                    target['result_read'] = marker
+                compile_input(data, accepted=False)
+        data = copy.deepcopy(read)
+        blocks = function(data, 'main')['blocks']
+        call = next(block['terminator']['instruction'] for block in blocks
+                    if block['terminator']['instruction'].get('operation', {}).get('result_read') is True)
+        landing = next(block for block in blocks if block['id'] == call['normal'])
+        projected = next(row['instruction']['dst'] for row in landing['instructions']
+                         if row['instruction'].get('op') == 'invoke_normal_result')
+        read_alias = next(row['instruction']['dst'] for row in landing['instructions']
+                          if row['instruction'].get('op') == 'copy' and row['instruction']['src'] == projected)
+        end = next(block['terminator']['instruction']['operation'] for block in reversed(blocks)
+                   if block['terminator']['instruction'].get('operation', {}).get('kind') == 'home_release')
+        end['value'] = read_alias
+        compile_input(data, accepted=False)
+        print('reject read qualifier erasure/false and End of borrowed result')
+
+        if suffix == 'receiver':
+            for side in ['call', 'callee']:
+                for corruption in ['extra-ordinal', 'unknown-support', 'extra-support-key']:
+                    data = copy.deepcopy(read)
+                    target = function(data, symbol) if side == 'callee' else next(
+                        block['terminator']['instruction']['operation'] for block in function(data, 'main')['blocks']
                         if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
-            target = call if side == 'call' else callee
-            if marker is None:
-                del target['result_read']
-            else:
-                target['result_read'] = marker
-            compile_input(data, accepted=False)
-    data = copy.deepcopy(read)
-    blocks = function(data, 'main')['blocks']
-    call = next(block['terminator']['instruction'] for block in blocks
-                if block['terminator']['instruction'].get('operation', {}).get('result_read') is True)
-    landing = next(block for block in blocks if block['id'] == call['normal'])
-    projected = next(row['instruction']['dst'] for row in landing['instructions']
-                     if row['instruction'].get('op') == 'invoke_normal_result')
-    read_alias = next(row['instruction']['dst'] for row in landing['instructions']
-                      if row['instruction'].get('op') == 'copy' and row['instruction']['src'] == projected)
-    end = next(block['terminator']['instruction']['operation'] for block in reversed(blocks)
-               if block['terminator']['instruction'].get('operation', {}).get('kind') == 'home_release')
-    end['value'] = read_alias
-    compile_input(data, accepted=False)
-    print('reject read qualifier erasure/false and End of borrowed result')
+                    if corruption == 'extra-ordinal':
+                        target['result_formal_ordinal'] = 0
+                    elif corruption == 'unknown-support':
+                        target['result_support']['kind'] = 'unknown'
+                    else:
+                        target['result_support']['formal_ordinal'] = 0
+                    compile_input(data, accepted=False)

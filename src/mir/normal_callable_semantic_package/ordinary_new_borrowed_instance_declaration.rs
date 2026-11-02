@@ -23,9 +23,11 @@ impl OrdinaryNewClaimLedgerV1 {
         &'a self, source: &'a PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
         let Some(definition) = source.source_only_definitions.get(&owner) else { return Ok(None); };
-        if !definition.uses.iter().any(|row| matches!(row.kind, Use::BorrowedFormalReturn { .. })) {
-            return Ok(None);
-        }
+        let receiver_key = self.callable_result_classes.source_rows().find_map(|(key, _)|
+            self.callable_result_classes.borrowed_result_declaration_v1(key).filter(|read|
+                read.owner() == owner && matches!(read.support(),
+                    crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { .. })).map(|_| key));
+        if receiver_key.is_none() && !definition.uses.iter().any(|row| matches!(row.kind, Use::BorrowedFormalReturn { .. })) { return Ok(None); }
         // Passive Return evidence alone never selects executable input reconstruction.
         // The original retained LOCAL borrower request selects this same declaration.
         let mut demanded = false;
@@ -59,7 +61,7 @@ impl OrdinaryNewClaimLedgerV1 {
             || contract.parameters.iter().enumerate().any(|(ordinal, row)|
                 row.ordinal as usize != ordinal || row.binding.owner() != owner)
         { return Err(freeze("borrowed-result-entry/formal-identity")); }
-        let mut result_key = None;
+        let mut result_key = receiver_key;
         for row in &definition.uses {
             if row.site.owner() != owner || definition.origins.get(&row.binding) != Some(&row.formal) {
                 return Err(freeze("borrowed-result-entry/use-identity"));

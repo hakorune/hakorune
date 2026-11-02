@@ -219,6 +219,13 @@ impl PrefixLocalFlow<'_> {
         true
     }
 
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_receiver_v1(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {
+        let crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), .. } = self.input.body_shape()?.expression_shape(site)? else { return None; };
+        let entry = self.entry_receiver.as_ref()?;
+        (entry.binding == *binding && entry.owner == self.input.owner() && self.is_self_rooted_handle(*binding)
+            && self.input.function().declaration_binding(&SourceBindingSiteV1::Receiver) == Some(*binding)).then_some(*binding)
+    }
+
     /// Select original read provenance even after interference; selection does
     /// not grant current liveness or non-null permission.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_declared_read_origin_v1(&self, binding: BindingRefV1) -> bool {

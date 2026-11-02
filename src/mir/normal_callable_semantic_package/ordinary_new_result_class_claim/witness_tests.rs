@@ -260,3 +260,33 @@ fn declared_read_result_retains_single_support_across_returns_and_null() {
         });
     }
 }
+
+#[test]
+fn declared_receiver_result_preserves_original_binding_without_legacy_projection() {
+    for (method, valid) in [
+        ("identity(): Leaf from me { return me }", true),
+        ("identity(): Leaf from me { if true { return null } return me }", true),
+        ("identity(other: Leaf): Leaf from me { return other }", false),
+        ("identity(): Other from me { return me }", false),
+        ("identity(): Leaf from me { return new Leaf() }", false),
+        ("identity(): Leaf { return me }", false),
+    ] {
+        let source = format!("box Other {{}} box Leaf {{ {method} }} static box Main {{ main() {{ return 0 }} }}");
+        with_source_claims_fixture(&source, |batch, selected, constructors, parameters, main, writers| {
+            let (_, _, facts, _) = super::super::coseal_issue::source_claims::prepare_source_claims(
+                batch, selected, main, constructors, parameters, std::rc::Rc::clone(writers), None).unwrap();
+            let (key, declaration) = batch.declarations().find_map(|declaration| match selected.key_for_batch_slot(declaration.batch_slot()) {
+                Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "identity" => Some((key, declaration)), _ => None,
+            }).unwrap();
+            assert!(facts.get(key).is_none(), "a receiver never becomes an owned or formal result: {method}");
+            if valid {
+                let read = declaration.borrowed_result().unwrap();
+                assert!(std::sync::Arc::ptr_eq(facts.borrowed_result_declaration_v1(key).unwrap(), read));
+                let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } = read.support() else { panic!("original receiver"); };
+                assert!(facts.outcomes(key).unwrap().iter().flat_map(|exit| exit.witnesses()).all(|root| root.supports_receiver_v1(binding, read.declared_type())));
+            } else {
+                assert!(facts.outcomes(key).is_none(), "{method}");
+            }
+        });
+    }
+}
