@@ -99,7 +99,7 @@ impl ResultOriginWitnessV1 {
     }
     /// Source provenance only: Null carries no payload; a composed borrow
     /// must retain the same caller formal through its original substitution.
-    pub(super) fn supports_formal_v1(&self, binding: BindingRefV1, ordinal: u32) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn supports_formal_v1(&self, binding: BindingRefV1, ordinal: u32) -> bool {
         if self.site.owner() != binding.owner() { return false; }
         match &self.step {
             ResultWitnessStepV1::NullLiteral => self.origin == ResultValueOriginV1::Null,

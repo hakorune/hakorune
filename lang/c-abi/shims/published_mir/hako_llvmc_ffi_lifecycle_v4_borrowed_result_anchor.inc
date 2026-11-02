@@ -147,6 +147,42 @@ static int lv4_borrowed_result_readable(const hako_lv4_input* in,
   return lv4_nullable_field_loan_readable(in, fn, anchor->id, state, use, 0, 0);
 }
 
+/* Identity forwarding is a separate nonnull proof, not Return permission.
+ * A finite fixed point requires every completed Return to preserve its formal;
+ * literal Null and unproved call cycles never gain a nonnull fact. */
+static int lv4_declared_formal_identity(const hako_lv4_input* in, uint32_t target) {
+  unsigned char* proven = (unsigned char*)calloc(in->index_count, 1);
+  if (!proven) return 0;
+  int changed = 1;
+  while (changed && !proven[target]) {
+    changed = 0;
+    for (size_t fi = 1; fi < in->index_count; fi++) {
+      hako_lv4_function_index* fn = &in->index[fi];
+      if (proven[fi] || !yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) ||
+          yyjson_obj_get(fn->function, "result_support") ||
+          !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle")) continue;
+      size_t returns = 0;
+      int valid = 1;
+      for (size_t bi = 0; bi < fn->block_count && valid; bi++) {
+        yyjson_val* term = lv4_term(fn->blocks[bi].block);
+        if (!lv4_is(term, "op", "return")) continue;
+        returns++;
+        yyjson_val* origin = yyjson_obj_get(term, "result_origin");
+        if (!lv4_borrowed_return_origin(in, fn, term)) { valid = 0; break; }
+        if (lv4_is(origin, "kind", "borrowed_formal")) continue;
+        if (!lv4_is(origin, "kind", "borrowed_call")) { valid = 0; break; }
+        yyjson_val* invoke = lv4_result_coordinate(fn, yyjson_obj_get(origin, "invoke"), NULL);
+        uint32_t inner = lv4_u(yyjson_obj_get(yyjson_obj_get(invoke, "operation"), "call"), "target");
+        if (!inner || inner >= in->index_count || !proven[inner]) valid = 0;
+      }
+      if (returns && valid) { proven[fi] = 1; changed = 1; }
+    }
+  }
+  int result = proven[target];
+  free(proven);
+  return result;
+}
+
 /* A local New actual proves nonnull only when EVERY original callee Return
  * forwards the same formal. Literal Null alternatives are never narrowed away. */
 static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
@@ -165,7 +201,8 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
     returns++;
     yyjson_val* origin = yyjson_obj_get(term, "result_origin");
     if (!hako_physical_result_receiver(op)) {
-      if (!lv4_is(origin, "kind", "borrowed_formal")) return 0;
+      if (!lv4_is(origin, "kind", "borrowed_formal") &&
+          (!lv4_is(origin, "kind", "borrowed_call") || !lv4_declared_formal_identity(in, target))) return 0;
     } else {
       if (!hako_physical_result_receiver(callee->function)) return 0;
       if (lv4_is(origin, "kind", "borrowed_receiver")) {

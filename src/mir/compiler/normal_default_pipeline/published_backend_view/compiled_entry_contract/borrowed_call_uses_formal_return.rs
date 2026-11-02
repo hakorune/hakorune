@@ -9,7 +9,7 @@ pub(super) struct FormalReturnUse {
 }
 enum BorrowedReturnSource {
     Formal(BindingRefV1),
-    Receiver { values: BTreeSet<ValueId>, bindings: BTreeMap<Coordinate, MirInstruction> },
+    Retained { values: BTreeSet<ValueId>, bindings: BTreeMap<Coordinate, MirInstruction> },
     MapSlot {
         values: BTreeSet<ValueId>,
         bindings: BTreeMap<Coordinate, MirInstruction>,
@@ -59,9 +59,23 @@ fn prepare_role(
                 BorrowedReturnSource::Formal(formal)
             }
             origin @ (FinalizedObjectReturnOriginV1::BorrowedReceiver { .. }
-                | FinalizedObjectReturnOriginV1::BorrowedReceiverField { .. }) => {
+                | FinalizedObjectReturnOriginV1::BorrowedReceiverField { .. }
+                | FinalizedObjectReturnOriginV1::BorrowedCall { .. }) => {
                 let (value, prefix) = match origin {
                     FinalizedObjectReturnOriginV1::BorrowedReceiver { value } => (*value, Vec::new()),
+                    FinalizedObjectReturnOriginV1::BorrowedCall { invoke, producer, formal_ordinal } => {
+                        let outer = function.params.get(*formal_ordinal as usize + usize::from(role.has_receiver()))
+                            .and_then(|value| state.roots.get(value)).ok_or_else(|| fault("borrowed-formal-return/original-entry"))?;
+                        let MirInstruction::Invoke { operation: InvokeOperation::Call { result: InvokeCallResultKind::BorrowedNullableHandle {
+                            access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly,
+                            support: crate::mir::instruction::BorrowedResultSupportV1::Formal(inner) }, .. }, .. } = &invoke.1
+                            else { return Err(fault("borrowed-formal-return/correspondence")); };
+                        let at = coordinate(function, invoke)?;
+                        if state.arguments.get(&(at.0, at.1, *inner as usize)) != Some(outer) {
+                            return Err(fault("borrowed-formal-return/correspondence"));
+                        }
+                        (producer.1.dst_value().ok_or_else(|| fault("borrowed-formal-return/original-entry"))?, vec![invoke, producer])
+                    }
                     FinalizedObjectReturnOriginV1::BorrowedReceiverField { invoke, producer, .. } =>
                         (producer.1.dst_value().ok_or_else(|| fault("borrowed-formal-return/original-entry"))?, vec![invoke, producer]),
                     _ => unreachable!(),
@@ -78,7 +92,7 @@ fn prepare_role(
                         return Err(fault("borrowed-formal-return/duplicate-source"));
                     }
                 }
-                BorrowedReturnSource::Receiver { values, bindings }
+                BorrowedReturnSource::Retained { values, bindings }
             }
             FinalizedObjectReturnOriginV1::MapSlot(receipt) => {
                 let value = receipt.producer().1.dst_value()
@@ -123,7 +137,7 @@ pub(super) fn observe(
     };
     let valid = match &expected.source {
         BorrowedReturnSource::Formal(formal) => tracked.get(value) == Some(formal),
-        BorrowedReturnSource::Receiver { values, .. }
+        BorrowedReturnSource::Retained { values, .. }
         | BorrowedReturnSource::MapSlot { values, .. } => values.contains(value) && !tracked.contains_key(value),
     };
     if expected.returned != (site.0, instruction.clone()) || !valid {
@@ -143,7 +157,7 @@ pub(super) fn observe_map_slots(state: &FunctionUses, site: Coordinate,
     for expected in state.formal_returns.values() {
         let (values, bindings, slot) = match &expected.source {
             BorrowedReturnSource::MapSlot { values, bindings } => (values, bindings, true),
-            BorrowedReturnSource::Receiver { values, bindings } => (values, bindings, false),
+            BorrowedReturnSource::Retained { values, bindings } => (values, bindings, false),
             _ => continue,
         };
         if let Some(original) = bindings.get(&site) {
@@ -162,7 +176,7 @@ pub(super) fn coverage(state: &FunctionUses, scan: &Scan) -> Result<(), String> 
         return Err(fault("borrowed-formal-return/coverage"));
     }
     let expected: BTreeSet<_> = state.formal_returns.values().flat_map(|row| match &row.source {
-        BorrowedReturnSource::Receiver { bindings, .. }
+        BorrowedReturnSource::Retained { bindings, .. }
         | BorrowedReturnSource::MapSlot { bindings, .. } => bindings.keys().copied().collect::<Vec<_>>(),
         _ => Vec::new(),
     }).collect();

@@ -86,7 +86,25 @@ pub(super) fn require_declared_read_use_v1(
     let declaration = context.and_then(|context| context.results.borrowed_result_declaration_v1(context.key));
     let read_support = declaration.is_some_and(|declaration|
         matches!(declaration.support(), Support::Formal { binding, .. } if binding == formal));
-    if read_support && !matches!(kind,
+    let read_reborrow = match (&kind, context, declaration.map(|row| row.support())) {
+        (BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal }, Some(context),
+            Some(Support::Formal { binding, ordinal: outer })) if binding == formal => {
+            context.results.checked_original_source_roots_v1(context.key, formal.owner()).is_ok_and(|roots| {
+                let matching: Vec<_> = roots.iter().filter(|root| matches!(root.step(),
+                    result_class_claim::ResultWitnessStepV1::Call { site: original, .. } if original == call)).collect();
+                !matching.is_empty() && matching.iter().all(|root| {
+                    let result_class_claim::ResultWitnessStepV1::Call { key, substitution: Some(actual), .. } = root.step()
+                        else { return false; };
+                    root.supports_formal_v1(formal, outer) && actual.argument_site == *site
+                        && actual.binding == formal && actual.callee_ordinal == *ordinal && actual.caller_ordinal == outer
+                        && context.results.borrowed_result_declaration_v1(key).is_some_and(|inner|
+                            matches!(inner.support(), Support::Formal { ordinal: index, .. } if index == *ordinal))
+                })
+            })
+        }
+        _ => false,
+    };
+    if read_support && !read_reborrow && !matches!(kind,
         BorrowedFormalUseDraftKindV1::BorrowedFormalReturn { .. }
         | BorrowedFormalUseDraftKindV1::Copy { .. }
         | BorrowedFormalUseDraftKindV1::NullCompareOperand { .. }

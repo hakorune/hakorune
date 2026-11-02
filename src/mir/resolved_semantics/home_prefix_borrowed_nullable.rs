@@ -307,8 +307,9 @@ impl PrefixLocalFlow<'_> {
             && matches!(self.locals.get(&loan.destination()), Some(StoredLocal::BorrowedNullable(same)) if same.as_ref() == loan)
     }
 
-    /// Only the exact result binding on this non-null path lends its loan.
-    /// General argument/field observation stays BoundValue, even after narrowing.
+    /// Retain exact local Return evidence: legacy needs its narrowed path;
+    /// explicit read needs valid support. The result owner separately checks
+    /// the original outer From declaration before admitting a read re-return.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_nullable_return(
         &self,
         site: &SourceExprSiteV1,
@@ -320,8 +321,7 @@ impl PrefixLocalFlow<'_> {
             return None;
         };
         (loan.destination() == binding
-            && !loan.is_declared_read_v1()
-            && self.nonnull.contains(&binding)
+            && if loan.is_declared_read_v1() { loan.read_valid } else { self.nonnull.contains(&binding) }
             && loan
                 .root()
                 .is_some_and(|root| self.is_self_rooted_handle(root)))

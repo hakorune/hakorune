@@ -124,9 +124,23 @@ impl FinalizedObjectReturnOutcomeV1 {
         { return Err(freeze("object-return/physical-carrier")); }
         if matches!(result, InvokeCallResultKind::BorrowedNullableHandle { .. })
             && !matches!(self.origin, FinalizedObjectReturnOriginV1::Null { .. } | FinalizedObjectReturnOriginV1::BorrowedFormal { .. })
+            && !(matches!(result, InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly, .. })
+                && matches!(self.origin, FinalizedObjectReturnOriginV1::BorrowedCall { formal_ordinal, .. } if formal_ordinal == ordinal))
             || matches!(result, InvokeCallResultKind::MixedHandle { .. })
                 && matches!(self.origin, FinalizedObjectReturnOriginV1::BorrowedFormal { .. })
         { return Err(freeze("object-return/physical-origin-role")); }
+        if let (InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly, .. },
+            FinalizedObjectReturnOriginV1::BorrowedCall { invoke, producer, .. }) = (result, &self.origin) {
+            if !matches!((&invoke.1, &producer.1),
+                (MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call,
+                    result: InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly,
+                        support: crate::mir::instruction::BorrowedResultSupportV1::Formal(inner) } }, normal_landing, fault_landing, .. },
+                 MirInstruction::InvokeNormalResult { invoke_block, .. })
+                    if *invoke_block == invoke.0 && *normal_landing == producer.0 && normal_landing != fault_landing
+                        && call.args.get(*inner as usize).is_some()) {
+                return Err(freeze("object-return/physical-origin-role"));
+            }
+        }
         if let FinalizedObjectReturnOriginV1::BorrowedFormal { value: original, formal_ordinal, .. } = &self.origin {
             if *formal_ordinal != ordinal || original != value {
                 return Err(freeze("object-return/physical-formal"));
@@ -240,6 +254,51 @@ impl FinalizedRootSourceHandoffV1 {
         outcomes.ok_or_else(|| freeze("borrowed-return/original-seal-missing"))
     }
 
+    /// Same source packet and entry-support correspondence for inferred Mixed
+    /// and explicit read forwarding. Access remains the original caller law.
+    fn project_borrowed_call_return_v1(
+        &self, borrowed: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        outer_ordinal: u32, owner: FunctionOwnerIdV1,
+        namespace: hakorune_mir_defs::SameModuleCallableNamespaceV1,
+        function: &MirFunction, projection: &super::super::physical_boundary::FinishedBindings,
+        entry: &RootHomeExitEntry, access: crate::mir::instruction::BorrowedResultAccessV1,
+    ) -> Result<FinalizedObjectReturnOriginV1, String> {
+        let packet = original_local_packet(entry, borrowed.call())?;
+        let original = packet.original_row()?;
+        if original.source_target().borrowed_nullable_local_source() != Some(borrowed) {
+            return Err(freeze("mixed-return/borrowed-source"));
+        }
+        self.ledger.corroborate_borrowed_nullable_call_v1(original)?;
+        let (invoke, producer) = packet.outer_bindings()?;
+        let invoke = checked_projection(function, projection, invoke)?;
+        let producer = checked_projection(function, projection, producer)?;
+        if !matches!(invoke.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
+            result: InvokeCallResultKind::BorrowedNullableHandle { access: inner_access, support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }, .. }, .. }
+            if Some(formal_ordinal) == borrowed.callee_ordinal() && inner_access == access) {
+            return Err(freeze("mixed-return/borrowed-call-contract"));
+        }
+        // The original entry binding, not signature storage or
+        // the final Return operand, establishes the support.
+        let support = self.borrowed_ordinary_entry_values_v1(owner)?;
+        let source_entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        let mut values = support.iter().filter(|(_, binding, _)| Some(*binding) == borrowed.root());
+        let (ordinal, _, value) = values.next().ok_or_else(|| freeze("mixed-return/borrowed-support"))?;
+        let offset = match namespace {
+            hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod => 1,
+            hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
+            _ => return Err(freeze("mixed-return/borrowed-entry-namespace")),
+        };
+        let slot = *ordinal as usize + offset;
+        if values.next().is_some() || *ordinal != outer_ordinal
+            || !borrowed.root().is_some_and(|root| source_entry.formals().contains(&(*ordinal, root)))
+            || function.params.get(slot) != Some(value)
+            || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(slot))
+                != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue) {
+            return Err(freeze("mixed-return/borrowed-support"));
+        }
+        Ok(FinalizedObjectReturnOriginV1::BorrowedCall { producer, invoke, formal_ordinal: outer_ordinal })
+    }
+
     fn project_borrowed_nullable_returns(
         &self,
         module: &MirModule,
@@ -333,6 +392,17 @@ impl FinalizedRootSourceHandoffV1 {
                         (FinalizedObjectReturnOriginV1::BorrowedFormal {
                             value: *value, formal_ordinal: *ordinal, object,
                         }, *value)
+                    }
+                    (ResultWitnessStepV1::Call { .. }, TerminalReturnedSourceV1::BorrowedNullableLocal(borrowed))
+                        if loan.is_declared_read_v1() && borrowed.is_declared_read_v1()
+                            && self.ledger.callable_result_classes.retains_declared_borrowed_return_v1(terminal, borrowed)
+                            && borrowed.corroborates_call_witness_v1(root) => {
+                        let origin = self.project_borrowed_call_return_v1(borrowed,
+                            loan.callee_ordinal().ok_or_else(|| freeze("borrowed-return/source-kind"))?, owner,
+                            source.target().namespace(), function, projection, entry, loan.access_v1())?;
+                        let FinalizedObjectReturnOriginV1::BorrowedCall { producer, .. } = &origin else { unreachable!() };
+                        let expected = producer.1.dst_value().ok_or_else(|| freeze("borrowed-return/source-kind"))?;
+                        (origin, expected)
                     }
                     (ResultWitnessStepV1::MapStored { source: stored },
                         TerminalReturnedSourceV1::StoredMapGet { .. } | TerminalReturnedSourceV1::StoredMapInstalled(_))
@@ -469,40 +539,9 @@ impl FinalizedRootSourceHandoffV1 {
                         FinalizedObjectReturnOriginV1::OwnedCall { producer, invoke }
                     }
                     MixedReturnSourceV1::BorrowedLocal(borrowed) => {
-                        let packet = original_local_packet(entry, borrowed.call())?;
-                        let original = packet.original_row()?;
-                        if original.source_target().borrowed_nullable_local_source() != Some(borrowed) {
-                            return Err(freeze("mixed-return/borrowed-source"));
-                        }
-                        self.ledger.corroborate_borrowed_nullable_call_v1(original)?;
-                        let (invoke, producer) = packet.outer_bindings()?;
-                        let invoke = checked_projection(function, projection, invoke)?;
-                        let producer = checked_projection(function, projection, producer)?;
-                        if !matches!(invoke.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
-                            result: InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified, support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }, .. }, .. }
-                            if Some(formal_ordinal) == borrowed.callee_ordinal()) {
-                            return Err(freeze("mixed-return/borrowed-call-contract"));
-                        }
-                        // The original entry binding, not signature storage or
-                        // the final Return operand, establishes the support.
-                        let support = self.borrowed_ordinary_entry_values_v1(owner)?;
-                        let source_entry = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-                        let mut values = support.iter().filter(|(_, binding, _)| Some(*binding) == borrowed.root());
-                        let (ordinal, _, value) = values.next().ok_or_else(|| freeze("mixed-return/borrowed-support"))?;
-                        let offset = match source.target().namespace() {
-                            hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod => 1,
-                            hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
-                            _ => return Err(freeze("mixed-return/borrowed-entry-namespace")),
-                        };
-                        let slot = *ordinal as usize + offset;
-                        if values.next().is_some() || *ordinal != loan.callee_ordinal()
-                            || !borrowed.root().is_some_and(|root| source_entry.formals().contains(&(*ordinal, root)))
-                            || function.params.get(slot) != Some(value)
-                            || function.metadata.physical_param_carriers.as_deref().and_then(|rows| rows.get(slot))
-                                != Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue) {
-                            return Err(freeze("mixed-return/borrowed-support"));
-                        }
-                        FinalizedObjectReturnOriginV1::BorrowedCall { producer, invoke, formal_ordinal: loan.callee_ordinal() }
+                        self.project_borrowed_call_return_v1(borrowed, loan.callee_ordinal(), owner,
+                            source.target().namespace(), function, projection, entry,
+                            crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified)?
                     }
                 };
                 let producer = match &origin {

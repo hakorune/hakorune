@@ -48,18 +48,6 @@ impl VerifiedMixedCallResultV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn teardown(&self) -> &ObjectReturnTeardownDescriptorV1 { &self.teardown }
 }
 
-fn same_borrowed_edge(
-    witness: &ResultOriginWitnessV1,
-    loan: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
-) -> bool {
-    let ResultWitnessStepV1::Call { site, key, callee, substitution } = witness.step()
-    else { return false; };
-    site == loan.call() && key == loan.key() && loan.witnesses().iter().any(|candidate| {
-        if candidate.origin() != witness.origin() { return false; }
-        matches!(candidate.step(), ResultWitnessStepV1::Call { site: s, key: k, callee: c, substitution: a }
-            if s == site && k == key && Rc::ptr_eq(c, callee) && a == substitution)
-    })
-}
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Borrow the SAME inner source row before Take or from its retained
@@ -131,7 +119,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     TerminalReturnedSourceV1::BorrowedNullableLocal(original) => {
                         let current = self.checked_borrowed_nullable_return_source_v1(terminal.owner(), terminal.return_site())?
                             .ok_or_else(|| freeze("borrowed-return-source"))?;
-                        if current != original.as_ref() || !same_borrowed_edge(root, current) {
+                        if current != original.as_ref() || !current.corroborates_call_witness_v1(root) {
                             return Err(freeze("borrowed-return-edge"));
                         }
                         self.mixed_borrowed_completion_v1(current, CallValidationContextV1::Lowering(self))?.map(|completion|
@@ -200,7 +188,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 MixedReturnEvidenceV1::BorrowedLocal { loan: held, completion } => {
                     if self.checked_borrowed_nullable_return_source_v1(terminal.owner(), terminal.return_site())? != Some(held)
-                        || !same_borrowed_edge(root, held)
+                        || !held.corroborates_call_witness_v1(root)
                         || self.completion_source_for_owner_v1(held.callee_owner()).is_none_or(|current| !Rc::ptr_eq(current, completion))
                     { return Err(freeze("borrowed-proof-drift")); }
                     if self.mixed_borrowed_completion_v1(held, context)?.as_ref().is_none_or(|current| !Rc::ptr_eq(current, completion)) {

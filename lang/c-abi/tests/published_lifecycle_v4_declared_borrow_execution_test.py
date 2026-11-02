@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0'), ('field', 'Parent.identity/0')]:
+    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0'), ('field', 'Parent.identity/0'), ('forward', 'Leaf.forward/2')]:
         # Unchanged source-issued explicit read result; Copy retains its original Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
@@ -237,6 +237,26 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         end['value'] = read_alias
         compile_input(data, accepted=False)
         print('reject read qualifier erasure/false and End of borrowed result')
+
+        if suffix == 'forward':
+            for corruption in ['outer-formal', 'inner-formal', 'inner-read', 'producer', 'normal']:
+                data = copy.deepcopy(read)
+                relay = function(data, symbol)
+                returned = next(block['terminator']['instruction'] for block in relay['blocks']
+                                if block['terminator']['instruction'].get('op') == 'return')
+                inner = next(block['terminator']['instruction'] for block in relay['blocks']
+                             if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
+                if corruption == 'outer-formal':
+                    returned['result_origin']['formal_ordinal'] = 0
+                elif corruption == 'inner-formal':
+                    inner['operation']['result_formal_ordinal'] = 1
+                elif corruption == 'inner-read':
+                    del inner['operation']['result_read']
+                elif corruption == 'producer':
+                    returned['result_origin']['producer'] = {'block': 999999, 'instruction': 0}
+                else:
+                    inner['normal'] = inner['fault']
+                compile_input(data, accepted=False)
 
         if suffix in ['receiver', 'field']:
             for side in ['call', 'callee']:

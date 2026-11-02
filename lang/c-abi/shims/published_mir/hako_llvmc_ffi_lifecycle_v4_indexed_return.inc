@@ -107,6 +107,10 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   if (lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle")) {
     /* The complete original Return law was checked by the result index. No
        owned state was consumed above, and all other Homes must already end. */
+    if (lv4_is(yyjson_obj_get(term, "result_origin"), "kind", "borrowed_call")) {
+      hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+      if (!result || !lv4_borrowed_result_readable(in, fn, result, state, return_block, SIZE_MAX)) return 0;
+    }
     return !faulted && lv4_borrowed_return_origin(in, fn, term);
   }
   if (lv4_is(fn->function, "role", "ordinary_mixed_handle")) return !faulted;

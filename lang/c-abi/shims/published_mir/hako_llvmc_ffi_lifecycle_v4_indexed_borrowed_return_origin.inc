@@ -1,3 +1,41 @@
+static hako_lv4_value* lv4_borrowed_result_anchor(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value);
+
+static int lv4_borrowed_call_return(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* returned, uint32_t outer) {
+  static const char* const keys[] = {"kind", "producer", "invoke", "copies", "formal_ordinal"};
+  yyjson_val* origin = yyjson_obj_get(returned, "result_origin");
+  uint32_t ordinal, producer_block = 0, invoke_block = 0, value, result;
+  if (!hako_physical_exact_keys(origin, keys, 5) ||
+      !lv4_is(origin, "kind", "borrowed_call") ||
+      !hako_physical_u32(yyjson_obj_get(origin, "formal_ordinal"), &ordinal) || ordinal != outer ||
+      !hako_physical_u32(yyjson_obj_get(returned, "value"), &result)) return 0;
+  yyjson_val* producer = lv4_result_coordinate(fn, yyjson_obj_get(origin, "producer"), &producer_block);
+  yyjson_val* invoke = lv4_result_coordinate(fn, yyjson_obj_get(origin, "invoke"), &invoke_block);
+  if (!producer || !invoke || !lv4_is(producer, "op", "invoke_normal_result") ||
+      !lv4_is(invoke, "op", "invoke") || lv4_u(producer, "invoke_block") != invoke_block ||
+      lv4_u(invoke, "normal") != producer_block ||
+      !hako_physical_u32(yyjson_obj_get(producer, "dst"), &value)) return 0;
+  yyjson_val* op = yyjson_obj_get(invoke, "operation");
+  if (yyjson_is_true(yyjson_obj_get(fn->function, "result_read"))) {
+    uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
+    if (!yyjson_is_true(yyjson_obj_get(op, "result_read")) ||
+        yyjson_obj_get(op, "result_support") || !target || target >= in->index_count ||
+        !yyjson_is_true(yyjson_obj_get(in->index[target].function, "result_read")) ||
+        yyjson_obj_get(in->index[target].function, "result_support")) return 0;
+  }
+  hako_lv4_block* block = lv4_index_block(fn, invoke_block);
+  if (!block || lv4_term(block->block) != invoke ||
+      !lv4_result_copy_chain(fn, origin, value, result)) return 0;
+  yyjson_val* param = yyjson_arr_get(yyjson_obj_get(fn->function, "params"), outer);
+  hako_lv4_value* formal = lv4_index_value(fn, lv4_u(param, "value"));
+  hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, lv4_index_value(fn, value));
+  /* The helper independently checks INNER ordinal, exact Invoke/Normal,
+     unique Normal predecessor, target and actual substitution. OUTER belongs
+     to this function and must never be compared numerically with INNER. */
+  return anchor && anchor == formal && anchor->kind == LV4_TAGGED;
+}
+
 /* Same existing field interval owner, defined after the result index. */
 static int lv4_map_slot_interval(hako_lv4_function_index*, uint32_t, uint32_t,
     const hako_lv4_value*, uint32_t, uint32_t);
@@ -169,6 +207,9 @@ static int lv4_borrowed_return_origin(const hako_lv4_input* in, hako_lv4_functio
       !hako_physical_u32(yyjson_obj_get(fn->function, "result_formal_ordinal"), &ordinal) ||
       ordinal >= yyjson_arr_size(params) ||
       !hako_physical_u32(yyjson_obj_get(returned, "value"), &returned_value)) return 0;
+  if (lv4_is(origin, "kind", "borrowed_call"))
+    return yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) &&
+        lv4_borrowed_call_return(in, fn, returned, ordinal);
   yyjson_val* formal = yyjson_arr_get(params, ordinal);
   if (!lv4_is(formal, "representation", "borrowed_kind_payload_v1") ||
       !hako_physical_u32(yyjson_obj_get(formal, "value"), &value)) return 0;

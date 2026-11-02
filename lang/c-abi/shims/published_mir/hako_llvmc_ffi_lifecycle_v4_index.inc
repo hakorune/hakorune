@@ -361,13 +361,27 @@ static int lv4_body_leaf_scalar(hako_lv4_function_index* fn) {
 static int lv4_readonly_call(const hako_lv4_function_index* fn, yyjson_val* op, int closed) {
   yyjson_val* call = yyjson_obj_get(op, "call");
   uint32_t target, receiver;
-  if (!lv4_is(op, "kind", "ordinary_call") || !lv4_is(op, "result", "i64") ||
+  int borrowed = lv4_is(op, "result", "borrowed_nullable_handle") &&
+      yyjson_is_true(yyjson_obj_get(op, "result_read"));
+  if (!lv4_is(op, "kind", "ordinary_call") || (!borrowed && !lv4_is(op, "result", "i64")) ||
       !hako_physical_u32(yyjson_obj_get(call, "target"), &target) || !target ||
       target >= fn->peer_count || !fn->peers ||
       !hako_physical_u32(yyjson_obj_get(call, "receiver"), &receiver) ||
-      !yyjson_is_arr(yyjson_obj_get(call, "args")) || yyjson_arr_size(yyjson_obj_get(call, "args"))) return 0;
+      !yyjson_is_arr(yyjson_obj_get(call, "args"))) return 0;
   const hako_lv4_function_index* callee = &fn->peers[target];
-  return lv4_is(callee->function, "role", "ordinary_i64") &&
+  if (borrowed) {
+    yyjson_val* params = yyjson_obj_get(callee->function, "params");
+    if (!lv4_is(callee->function, "role", "ordinary_borrowed_nullable_handle") ||
+        !yyjson_is_true(yyjson_obj_get(callee->function, "result_read")) ||
+        !yyjson_is_arr(params) || yyjson_arr_size(params) != yyjson_arr_size(yyjson_obj_get(call, "args"))) return 0;
+    for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
+      yyjson_val* param = yyjson_arr_get(params, pi);
+      if (!lv4_is(param, "representation", "borrowed_kind_payload_v1") &&
+          !lv4_is(param, "representation", "i64")) return 0;
+    }
+    return !closed || callee->readonly_closed;
+  }
+  return !yyjson_arr_size(yyjson_obj_get(call, "args")) && lv4_is(callee->function, "role", "ordinary_i64") &&
       yyjson_is_uint(yyjson_obj_get(callee->function, "receiver")) &&
       yyjson_is_arr(yyjson_obj_get(callee->function, "params")) &&
       !yyjson_arr_size(yyjson_obj_get(callee->function, "params")) &&
@@ -375,7 +389,9 @@ static int lv4_readonly_call(const hako_lv4_function_index* fn, yyjson_val* op, 
 }
 
 static int lv4_body_readonly(hako_lv4_function_index* fn, int closed) {
-  if (!lv4_is(fn->function, "role", "ordinary_i64")) return 0;
+  if (!lv4_is(fn->function, "role", "ordinary_i64") &&
+      !(lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") &&
+        yyjson_is_true(yyjson_obj_get(fn->function, "result_read")))) return 0;
   static const char* const pure[] = {"const_i64", "const_bool", "const_null", "const_unit", "copy", "phi",
       "add", "sub", "mul", "div", "mod", "compare", "borrowed_null_compare",
       "object_field_get", "invoke_normal_result", "fault_frame_enter", "keep_alive"};

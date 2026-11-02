@@ -606,10 +606,11 @@ fn returned_wrapper_field_argument_reaches_published_call() {
 fn declared_read_result_keeps_local_support_through_field_publication() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (text, symbol, receiver, artifact) in [
-            ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, "hako-issued-declared-read-local.json"),
-            ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } static box Main { main() { local p = new Leaf() local q = p.identity() return q.value } }", "Leaf.identity/0", true, "hako-issued-declared-read-receiver.json"),
-            ("box Leaf { value: i64 birth() { me.value = 7 } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } identity(): Leaf from me { return me.child } } static box Main { main() { local child = new Leaf() local p = new Parent(child) local q = p.identity() return q.value } }", "Parent.identity/0", true, "hako-issued-declared-read-field.json"),
+        for (text, symbol, receiver, ordinal, artifact) in [
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, 0, "hako-issued-declared-read-local.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } forward(n: i64, p: Leaf): Leaf from p { local q = me.identity(p) return q } } static box Main { main() { local p = new Leaf() local q = p.forward(0, p) return q.value } }", "Leaf.forward/2", false, 1, "hako-issued-declared-read-forward.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } static box Main { main() { local p = new Leaf() local q = p.identity() return q.value } }", "Leaf.identity/0", true, 0, "hako-issued-declared-read-receiver.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } identity(): Leaf from me { return me.child } } static box Main { main() { local child = new Leaf() local p = new Parent(child) local q = p.identity() return q.value } }", "Parent.identity/0", true, 0, "hako-issued-declared-read-field.json"),
         ] {
         MirCompiler::with_options(false).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
@@ -623,7 +624,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
             if receiver {
                 assert_eq!(callee["result_support"], serde_json::json!({"kind":"receiver"}));
                 assert!(callee.get("result_formal_ordinal").is_none());
-            } else { assert_eq!(callee["result_formal_ordinal"], 0); }
+            } else { assert_eq!(callee["result_formal_ordinal"], ordinal); }
             let calls: Vec<_> = functions.iter().flat_map(|function| function["blocks"].as_array().unwrap())
                 .map(|block| &block["terminator"]["instruction"]["operation"])
                 .filter(|op| op["kind"] == "ordinary_call" && op["call"]["target"] == target).collect();
@@ -632,7 +633,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
             assert_eq!(calls[0]["result"], "borrowed_nullable_handle");
             // Erasing both qualifiers remains internally consistent, but must
             // disagree with the ORIGINAL From declaration retained by input.
-            let original_call = input.program().functions().iter().flat_map(|f| f.blocks())
+            let original_call = input.program().functions().iter().filter(|f| f.name() == "main").flat_map(|f| f.blocks())
                 .map(|block| block.terminator().instruction()).find(|row| matches!(row,
                     crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
                         result: crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
@@ -666,6 +667,14 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
             std::fs::write(std::env::temp_dir().join(artifact), wire).unwrap();
             Ok(())
         }).unwrap_or_else(|issue| panic!("{symbol}: {issue}"));
+        if artifact == "hako-issued-declared-read-forward.json" {
+            for source in [
+                text.replace("local q = me.identity(p) return q", "local q = me.identity(p) p.value = 9 return q"),
+                text.replace("forward(n: i64, p: Leaf): Leaf from p", "forward(n: i64, p: Leaf)"),
+            ] {
+                assert!(MirCompiler::with_options(false).compile_normal_with_published(request(&source), |_, _| Ok(())).is_err());
+            }
+        }
         for (label, tail, refusal) in [
             ("write-result", "q.value = 9 return 0", "[freeze:contract]"),
             ("write-support-before-read", "p.value = 9 return q.value", "[freeze:contract]"),

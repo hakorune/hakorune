@@ -127,6 +127,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 rows.contains_key(&(owner, exit.clone()))) {
             return Err(freeze("borrowed-local-source-identity"));
         }
+        if loan.is_declared_read_v1()
+            && !self.callable_result_classes.retains_declared_borrowed_return_v1(value, loan) {
+            return Err(freeze("borrowed-local-source-identity"));
+        }
         let roots = self
             .callable_result_classes
             .checked_original_source_roots_v1(loan.key(), loan.callee_owner())

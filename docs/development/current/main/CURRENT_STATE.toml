@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: declared From re-return/reborrow/PHI and nullable use after receiver field EXE landing"
+current_blocker_token = "ownership step 3a: nullable use, receiver forwarding and reborrow/PHI after Formal From forwarding EXE"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Formal, Receiver identity and nonnull owned-field From results reach canonical EXE through shared projections.
-Parent support and Child payload stay distinct; original declaration/read access survive independent publication checks.
-Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8, 1802 cohort PASS and 115 failure names unchanged.
-Next: nullable result use and legal declared From returns/reborrow/PHI; read must never downgrade to legacy.
-From remains incomplete; update/sync remain, 3b is outside this goal, and both existing stashes remain protected.
+Formal/Receiver identity and field From results, plus declared Formal forwarding, reach canonical EXE.
+Common Call witnesses keep outer/inner support and ReadOnly distinct through independent publication checks.
+Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8, cohort 1802 PASS and 115 failure names unchanged.
+Next: separate nullable capture from dereference proof; retain guard evidence, then receiver forwarding/reborrow/PHI.
+From remains incomplete; update/sync and 3b remain outside this unit, and both existing stashes stay protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

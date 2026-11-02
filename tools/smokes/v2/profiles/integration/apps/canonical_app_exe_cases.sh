@@ -121,6 +121,21 @@ HAKO
   CASES+=("ownership_from_field|$TMP_ROOT.from-field.hako|7||")
 fi
 
+if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_from_forward ]; then
+  cat > "$TMP_ROOT.from-forward.hako" <<'HAKO'
+box Leaf {
+  value: i64
+  birth() { me.value = 7 }
+  identity(p: Leaf): Leaf from p { return p }
+  forward(n: i64, p: Leaf): Leaf from p { local q = me.identity(p) return q }
+}
+static box Main {
+  main() { local p = new Leaf() local q = p.forward(0, p) return q.value }
+}
+HAKO
+  CASES+=("ownership_from_forward|$TMP_ROOT.from-forward.hako|7||")
+fi
+
 run_case() {
   local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
   if [[ "$2" = /* ]]; then app="$2"; fi

@@ -133,6 +133,19 @@ impl BorrowedNullableLocalSourceLoanV1 {
     pub(crate) fn witnesses(&self) -> &[Rc<ResultOriginWitnessV1>] {
         &self.witnesses
     }
+    /// A Return may have another source site, but must retain the SAME inner
+    /// callee witness and formal substitution. This grants no access downgrade.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_call_witness_v1(
+        &self, witness: &ResultOriginWitnessV1,
+    ) -> bool {
+        let ResultWitnessStepV1::Call { site, key, callee, substitution } = witness.step()
+            else { return false; };
+        site == self.call() && key == self.key() && self.witnesses().iter().any(|candidate| {
+            candidate.origin() == witness.origin() && matches!(candidate.step(),
+                ResultWitnessStepV1::Call { site: s, key: k, callee: c, substitution: a }
+                    if s == site && k == key && Rc::ptr_eq(c, callee) && a == substitution)
+        })
+    }
 }
 impl PartialEq for BorrowedNullableLocalSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -377,8 +390,8 @@ impl OrdinaryNewResultClassClaimsV1 {
                 || source.construction.class() != declared.declared_type()
                 || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)
                     || root.site().owner() != loan.callee_owner()
-                    || !matches!(root.step(), ResultWitnessStepV1::Formal { binding: original, ordinal: index }
-                        if *original == binding && *index == ordinal)) {
+                    || root.formal_ordinal() != Some(ordinal)
+                    || !root.supports_formal_v1(binding, ordinal)) {
                 return Err("borrowed-nullable/witness-identity");
             }
             return Ok(());
@@ -699,11 +712,36 @@ impl OrdinaryNewResultClassClaimsV1 {
             })
         })
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn retains_declared_receiver_terminal_v1(
+    /// Original outer declaration plus inner Call substitution, never a result
+    /// kind inferred from the final Return operand or a generic escape exception.
+    pub(in crate::mir::normal_callable_semantic_package) fn retains_declared_borrowed_return_v1(
+        &self, value: &crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1,
+        loan: &BorrowedNullableLocalSourceLoanV1,
+    ) -> bool {
+        if !loan.is_declared_read_v1() || loan.call().owner() != value.owner() { return false; }
+        let BorrowedLocalSupportV1::FormalForward { root: binding, caller_ordinal: ordinal, .. } = loan.support
+            else { return false; };
+        self.source_rows().any(|(key, _)| {
+            let Some(read) = self.borrowed_result_declaration_v1(key) else { return false; };
+            if read.owner() != value.owner() || read.support()
+                != (crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal })
+                || loan.declared_read_result_v1().is_none_or(|inner| inner.declared_type() != read.declared_type()) {
+                return false;
+            }
+            let Ok(roots) = self.checked_original_source_roots_v1(key, value.owner()) else { return false; };
+            let matching: Vec<_> = roots.iter().filter(|root| root.site().site() == value.value_site()).collect();
+            !matching.is_empty() && matching.iter().all(|root|
+                root.supports_formal_v1(binding, ordinal) && loan.corroborates_call_witness_v1(root))
+        })
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn retains_declared_borrowed_terminal_v1(
         &self, terminal: &crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1,
     ) -> bool {
         use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalReturnedSourceV1 as Returned};
         let TerminalRelationV1::Value(value) = terminal else { return false; };
+        if let Returned::BorrowedNullableLocal(loan) = value.returned() {
+            return self.retains_declared_borrowed_return_v1(value, loan);
+        }
         let binding = match value.returned() { Returned::Handle(binding) | Returned::ReceiverField { binding, .. } => *binding, _ => return false };
         self.source_rows().any(|(key, _)| {
             let Some(declared) = self.borrowed_result_declaration_v1(key) else { return false; };
