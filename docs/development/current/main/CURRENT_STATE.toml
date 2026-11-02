@@ -1,10 +1,10 @@
 date = "2026-11-02"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: retained from declaration awaits executable read-support and liveness connection"
-current_design_stop = "none"
+current_blocker_token = "ownership step 3a: approve explicit read-result descriptor qualifier before physical connection"
+current_design_stop = "From read-result descriptor qualifier requires maintainer approval under ADR-002"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -19,14 +19,14 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 Ownership step 3a take minimum reaches canonical EXE; ordinary Box/birth defaults remain unchanged.
 Normal/later-argument Fault/callee Fault have exact entry transfer and one End, with source/physical rejection evidence.
-Original From declaration and single-formal return support now remain together in source result facts; public execution still refuses.
+From source support landed; adding an explicit read-result descriptor qualifier needs ADR-002 approval; prototype protected.
 Container update/sync Counter remain; 3b cutover is outside this goal. Both existing stashes remain protected.
 Source-result landing: suite 8/8, cohort 1799 PASS and 115 unchanged failure names; 19 shapes deferred until cutover.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "APP-boxtorrent-mini"
-next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+next_design_card = "APP-boxtorrent-mini"
+next_design_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
