@@ -25,6 +25,8 @@
 //! not gain legacy class membership or ownership authority.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
+use crate::mir::callable_semantic_batch::{ResolvedCallableBorrowedResultDeclarationV1, VerifiedResolvedCallableSemanticDeclarationRefV1};
 
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
@@ -155,6 +157,7 @@ struct PendingResultExitV1 {
 }
 
 struct ResultClassDraftRowV1 {
+    borrowed_result: Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>,
     key: CanonicalSameModuleCallableKeyV1,
     batch_slot: u32,
     exits: Vec<(
@@ -488,9 +491,12 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         &mut self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         key: &CanonicalSameModuleCallableKeyV1,
-        batch_slot: u32,
+        declaration: VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
     ) {
         let function = input.function();
+        if declaration.owner() != input.owner() || declaration.function_origin() != function.function_origin() { return; }
+        let batch_slot = declaration.batch_slot();
+        let borrowed_result = declaration.borrowed_result();
         let Some(shape) = input.body_shape() else {
             return;
         };
@@ -538,6 +544,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
             ));
         }
         self.rows.push(ResultClassDraftRowV1 {
+            borrowed_result: borrowed_result.cloned(),
             key: key.clone(),
             batch_slot,
             exits,
@@ -565,7 +572,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
         let mut pending: BTreeMap<
             CanonicalSameModuleCallableKeyV1,
-            (u32, Vec<PendingResultExitV1>),
+            (u32, Vec<PendingResultExitV1>, Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>),
         > = BTreeMap::new();
         for row in self.rows {
             let main = app_main.filter(|main| main.batch_slot() == row.batch_slot);
@@ -658,7 +665,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     .collect::<Option<Vec<_>>>()
             });
             if let Ok(Some(exits)) = resolved {
-                pending.insert(row.key, (row.batch_slot, exits));
+                pending.insert(row.key, (row.batch_slot, exits, row.borrowed_result));
             }
         }
         let mut claims = OrdinaryNewResultClassClaimsV1::new();
@@ -667,7 +674,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                 pending.keys().cloned().collect();
             let mut inserts = Vec::new();
             let mut deads = Vec::new();
-            for (key, (batch_slot, exits)) in &pending {
+            for (key, (batch_slot, exits, borrowed_result)) in &pending {
                 match evaluate_row(
                     exits,
                     &claims,
@@ -675,8 +682,12 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     parameter_contracts,
                     *batch_slot,
                     ordinary_box_coverage,
+                    borrowed_result.as_deref(),
                 ) {
-                    ExitVerdictV1::Resolvable(claim) => inserts.push((key.clone(), claim)),
+                    ExitVerdictV1::Resolvable(mut claim) => {
+                        claim.borrowed_result = borrowed_result.clone();
+                        inserts.push((key.clone(), claim));
+                    },
                     ExitVerdictV1::Dead => deads.push(key.clone()),
                     ExitVerdictV1::Waiting => {}
                 }
@@ -736,7 +747,7 @@ mod source_brand_tests {
             let mut draft = OrdinaryNewResultClassClaimDraftV1::new();
             package
                 .batch
-                .with_lowering_input(slot, |input| draft.observe_function(input, &key, slot))
+                .with_lowering_input(slot, |input| draft.observe_function(input, &key, package.batch.declarations().find(|row| row.batch_slot() == slot).unwrap()))
                 .unwrap();
             assert_eq!(draft.rows.len(), 1);
             if corrupt_target {

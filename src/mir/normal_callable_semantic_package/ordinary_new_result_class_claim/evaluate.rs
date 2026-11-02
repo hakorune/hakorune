@@ -22,7 +22,19 @@ pub(super) fn evaluate_row(
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     batch_slot: u32,
     coverage: &ParserOrdinaryBoxSourceCoverageV1,
+    borrowed: Option<&crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>,
 ) -> ExitVerdictV1 {
+    let support = if let Some(read) = borrowed {
+        let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal } = read.support()
+            else { return ExitVerdictV1::Dead; };
+        let exact = parameter_contracts.iter().find(|row| row.batch_slot == batch_slot && row.owner == read.owner())
+            .and_then(|row| row.parameters.iter().find(|row| row.binding == binding && row.ordinal == ordinal));
+        if binding.owner() != read.owner() || !exact.is_some_and(|parameter| matches!(&parameter.kind,
+            CallableParameterContractKindV1::DeclaredObject(class) if class.as_ref() == read.declared_type())) {
+            return ExitVerdictV1::Dead;
+        }
+        Some((binding, ordinal, read.owner()))
+    } else { None };
     let mut rows = Vec::new();
     let mut class: Option<Box<str>> = None;
     let mut forwarded = None;
@@ -96,6 +108,11 @@ pub(super) fn evaluate_row(
                 witnesses = composed;
             }
         }
+        if let Some((binding, ordinal, owner)) = support {
+            if exit.site.owner() != owner || witnesses.is_empty() || witnesses.iter().any(|root| !root.supports_formal_v1(binding, ordinal)) {
+                return ExitVerdictV1::Dead;
+            }
+        }
         let alternatives: BTreeSet<_> = witnesses
             .iter()
             .map(|witness| witness.origin().clone())
@@ -155,7 +172,9 @@ pub(super) fn evaluate_row(
             }
         }
     }
-    let projection = if legacy_eligible {
+    let projection = if let Some((_, ordinal, _)) = support {
+        Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal })
+    } else if legacy_eligible {
         match (class, forwarded) {
             (Some(class), None) => Some(if nullable {
                 OrdinaryNewResultClassV1::NullableObject(class)
@@ -169,6 +188,7 @@ pub(super) fn evaluate_row(
         None
     };
     ExitVerdictV1::Resolvable(SourceResultRowV1 {
+        borrowed_result: None,
         exits: rows.into_boxed_slice(),
         projection,
     })

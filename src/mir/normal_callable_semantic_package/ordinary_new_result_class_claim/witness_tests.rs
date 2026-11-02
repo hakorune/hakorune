@@ -62,7 +62,7 @@ fn witness_composition_rejects_foreign_call_actual_and_wrong_argument_site() {
                         &BTreeSet::new(),
                         &package.parameter_contracts,
                         slot,
-                        package.batch.ordinary_box_coverage()
+                        package.batch.ordinary_box_coverage(), None,
                     ),
                     ExitVerdictV1::Dead
                 ));
@@ -76,7 +76,7 @@ fn witness_composition_rejects_foreign_call_actual_and_wrong_argument_site() {
                     &pending,
                     &package.parameter_contracts,
                     slot,
-                    package.batch.ordinary_box_coverage(),
+                    package.batch.ordinary_box_coverage(), None,
                 );
                 if corruption < 3 {
                     assert!(matches!(unresolved, ExitVerdictV1::Dead));
@@ -96,7 +96,7 @@ fn source_witness_rejects_formal_ordinal_disagreement() {
     let mut draft = OrdinaryNewResultClassClaimDraftV1::new();
     package
         .batch
-        .with_lowering_input(slot, |input| draft.observe_function(input, &key, slot))
+        .with_lowering_input(slot, |input| draft.observe_function(input, &key, package.batch.declarations().find(|row| row.batch_slot() == slot).unwrap()))
         .unwrap();
     let ResultClassExitDraftV1::ForwardFormal { ordinal, .. } = &mut draft.rows[0].exits[0].1
     else {
@@ -228,3 +228,35 @@ pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixtu
 
 #[path = "main_source_tests.rs"]
 mod main_source_tests;
+
+#[test]
+fn declared_read_result_retains_single_support_across_returns_and_null() {
+    for (method, valid) in [
+        ("give(p: Token): Token from p { return p }", true),
+        ("give(p: Token): Token from p { if p == null { return null } return p }", true),
+        ("give(p: Token): Token from p { loop(p != null) { return p } return null }", true),
+        ("give(p: Token): Token from p { return null }", true),
+        ("give(p: Token): Token from p { return me.relay(p) } relay(p: Token) { return p }", true),
+        ("give(p: Token): Token from p { return new Token() }", false),
+        ("give(p: Token, other: Token): Token from p { if p == null { return other } return p }", false),
+        ("give(p: Other): Token from p { return p }", false),
+    ] {
+        let source = format!("box Token {{}} box Other {{}} box Door {{ {method} }} static box Main {{ main() {{ return 0 }} }}");
+        with_source_claims_fixture(&source, |batch, selected, constructors, parameters, main, writers| {
+            let (_, _, facts, _) = super::super::coseal_issue::source_claims::prepare_source_claims(
+                batch, selected, main, constructors, parameters, std::rc::Rc::clone(writers), None).unwrap();
+            let (key, declaration) = batch.declarations().find_map(|declaration|
+                match selected.key_for_batch_slot(declaration.batch_slot()) {
+                    Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "give" => Some((key, declaration)),
+                    _ => None,
+                }).unwrap();
+            if valid {
+                assert_eq!(facts.get(key), Some(&OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 }), "{method}");
+                assert!(std::sync::Arc::ptr_eq(facts.borrowed_result_declaration_v1(key).unwrap(), declaration.borrowed_result().unwrap()));
+            } else {
+                assert!(facts.get(key).is_none(), "invalid read support must not become an owned result: {method}");
+                assert!(facts.outcomes(key).is_none());
+            }
+        });
+    }
+}

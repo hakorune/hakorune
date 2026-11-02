@@ -54,7 +54,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
                     }) {
                         return Err(OrdinaryNewCoSealIssueV1::AppMainIdentityMissing);
                     }
-                    result_class_draft.observe_function(input, key, declaration.batch_slot());
+                    result_class_draft.observe_function(input, key, declaration);
                 }
                 Ok(())
             })

@@ -311,7 +311,7 @@ fn main_finish_independently_rejects_missing_foreign_and_drifted_source() {
                 if let Some(key) = key {
                     batch
                         .with_lowering_input(row.batch_slot(), |input| {
-                            draft.observe_function(input, key, row.batch_slot())
+                            draft.observe_function(input, key, row)
                         })
                         .unwrap();
                 }

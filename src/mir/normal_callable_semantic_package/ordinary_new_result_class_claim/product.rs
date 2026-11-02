@@ -36,6 +36,7 @@ impl ResultExitOriginV1 {
 
 #[derive(Debug)]
 pub(super) struct SourceResultRowV1 {
+    pub(super) borrowed_result: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     pub(super) exits: Box<[ResultExitOriginV1]>,
     pub(super) projection: Option<OrdinaryNewResultClassV1>,
 }
@@ -69,6 +70,14 @@ impl VerifiedSourceCallableResultFactsV1 {
     pub(super) fn map_install_v1(&self, at: &OwnedExprSiteV1) -> Option<std::rc::Rc<super::witness::MapStoredResultSourceV1>> {
         self.map_installs.get(at).cloned()
     }
+    /// Original explicit result declaration, retained with these SAME roots.
+    /// This is declaration transport; consumers still owe return/use validation.
+    pub(crate) fn borrowed_result_declaration_v1(
+        &self, key: &CanonicalSameModuleCallableKeyV1,
+    ) -> Option<&std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>> {
+        self.rows.get(key)?.borrowed_result.as_ref()
+    }
+
     pub(crate) fn get(
         &self,
         key: &CanonicalSameModuleCallableKeyV1,

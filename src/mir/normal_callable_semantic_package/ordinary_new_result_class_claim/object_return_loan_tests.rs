@@ -83,6 +83,7 @@ fn object_return_loan_rejects_foreign_fact_product_and_missing_callee_membership
     incomplete.insert(
         key("direct", 1),
         super::super::product::SourceResultRowV1 {
+            borrowed_result: None,
             exits: vec![ResultExitOriginV1 {
                 site: row.site().clone(),
                 alternatives: row.alternatives().clone(),
@@ -132,6 +133,7 @@ fn object_producer_dependencies_reject_outer_class_disagreement_with_qualified_c
     let row = &facts.outcomes(&key).unwrap()[0];
     let site = row.site().clone();
     let altered = super::super::product::SourceResultRowV1 {
+            borrowed_result: None,
         exits: vec![ResultExitOriginV1 {
             site: site.clone(),
             alternatives: row.alternatives().clone(),

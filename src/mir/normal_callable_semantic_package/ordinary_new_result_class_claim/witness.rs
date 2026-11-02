@@ -55,6 +55,21 @@ impl ResultOriginWitnessV1 {
     pub(crate) fn step(&self) -> &ResultWitnessStepV1 {
         &self.step
     }
+    /// Source provenance only: Null carries no payload; a composed borrow
+    /// must retain the same caller formal through its original substitution.
+    pub(super) fn supports_formal_v1(&self, binding: BindingRefV1, ordinal: u32) -> bool {
+        if self.site.owner() != binding.owner() { return false; }
+        match &self.step {
+            ResultWitnessStepV1::NullLiteral => self.origin == ResultValueOriginV1::Null,
+            ResultWitnessStepV1::Formal { binding: original, ordinal: index } =>
+                *original == binding && *index == ordinal,
+            ResultWitnessStepV1::Call { substitution: Some(actual), .. } =>
+                actual.binding == binding && actual.caller_ordinal == ordinal,
+            ResultWitnessStepV1::Call { substitution: None, .. } => self.origin == ResultValueOriginV1::Null,
+            _ => false,
+        }
+    }
+
     pub(super) fn formal_ordinal(&self) -> Option<u32> {
         match &self.step {
             ResultWitnessStepV1::Formal { ordinal, .. } => Some(*ordinal),
