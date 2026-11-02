@@ -138,7 +138,7 @@ impl ReceivedFieldReadSourceV1 {
             Self::Object { loan, .. } => classes.recheck_object_call_roots_v1(self.target(), loan).map_err(fault),
             Self::Borrowed { .. } => {
                 let loan = self.borrowed().ok_or_else(|| fault("received/source-drift"))?;
-                if loan.destination() != request.receiver || !loan.is_declared_read_v1()
+                if loan.destination() != request.receiver || !loan.is_declared_read_v1() || !loan.payload_nonnull_v1()
                     || loan.owned_local_support_v1().is_none()
                     || target.borrowed_nullable_local_source() != Some(loan)
                     || !ingress.corroborated_original_v1() {

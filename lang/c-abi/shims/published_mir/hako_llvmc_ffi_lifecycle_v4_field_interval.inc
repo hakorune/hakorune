@@ -66,7 +66,7 @@ static int lv4_read_support_effect(hako_lv4_function_index* fn, yyjson_val* row,
       lv4_is(row, "op", "object_field_get") || lv4_is(row, "op", "invoke_normal_result") ||
       lv4_is(row, "op", "borrowed_null_compare") || lv4_is(row, "op", "fault_frame_enter") ||
       lv4_is(row, "op", "keep_alive") || lv4_is(row, "op", "const_null") ||
-      lv4_is(row, "op", "const_i64") || lv4_is(row, "op", "const_bool") ||
+      lv4_is(row, "op", "const_i64") || lv4_is(row, "op", "const_bool") || lv4_is(row, "op", "const_unit") ||
       lv4_is(row, "op", "add") || lv4_is(row, "op", "sub") || lv4_is(row, "op", "mul") ||
       lv4_is(row, "op", "div") || lv4_is(row, "op", "mod") || lv4_is(row, "op", "compare");
 }

@@ -202,14 +202,14 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0'), ('field', 'Parent.identity/0'), ('forward', 'Leaf.forward/2')]:
+    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0'), ('field', 'Parent.identity/0'), ('forward', 'Leaf.forward/2'), ('nullable-0', 'Leaf.maybe/2'), ('nullable-1', 'Leaf.maybe/2')]:
         # Unchanged source-issued explicit read result; Copy retains its original Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
         checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
         run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
         assert run.returncode == 7, (run.returncode, run.stdout, run.stderr)
-        print(f'source-issued From {suffix} support: field snapshot exit 7')
+        print(f'source-issued From {suffix} support: canonical EXE exit 7')
         for side in ['call', 'callee']:
             for marker in [None, False]:
                 data = copy.deepcopy(read)
@@ -230,8 +230,8 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         landing = next(block for block in blocks if block['id'] == call['normal'])
         projected = next(row['instruction']['dst'] for row in landing['instructions']
                          if row['instruction'].get('op') == 'invoke_normal_result')
-        read_alias = next(row['instruction']['dst'] for row in landing['instructions']
-                          if row['instruction'].get('op') == 'copy' and row['instruction']['src'] == projected)
+        read_alias = next((row['instruction']['dst'] for row in landing['instructions']
+                           if row['instruction'].get('op') == 'copy' and row['instruction']['src'] == projected), projected)
         end = next(block['terminator']['instruction']['operation'] for block in reversed(blocks)
                    if block['terminator']['instruction'].get('operation', {}).get('kind') == 'home_release')
         end['value'] = read_alias

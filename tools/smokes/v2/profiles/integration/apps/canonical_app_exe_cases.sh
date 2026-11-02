@@ -136,6 +136,25 @@ HAKO
   CASES+=("ownership_from_forward|$TMP_ROOT.from-forward.hako|7||")
 fi
 
+if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_from_nullable ]; then
+  cat > "$TMP_ROOT.from-nullable.hako" <<'HAKO'
+box Leaf {
+  value: i64
+  birth() { me.value = 7 }
+  maybe(n: i64, p: Leaf): Leaf from p { if n == 0 { return null } return p }
+}
+static box Main {
+  main() {
+    local p = new Leaf()
+    local absent = p.maybe(0, p)
+    local present = p.maybe(1, p)
+    return 7
+  }
+}
+HAKO
+  CASES+=("ownership_from_nullable|$TMP_ROOT.from-nullable.hako|7||")
+fi
+
 run_case() {
   local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
   if [[ "$2" = /* ]]; then app="$2"; fi

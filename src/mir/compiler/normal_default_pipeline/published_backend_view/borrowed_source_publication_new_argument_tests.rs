@@ -606,6 +606,18 @@ fn returned_wrapper_field_argument_reaches_published_call() {
 fn declared_read_result_keeps_local_support_through_field_publication() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for n in [0, 1] {
+            let source = format!("box Leaf {{ value: i64 birth() {{ me.value = 7 }} maybe(n: i64, p: Leaf): Leaf from p {{ if n == 0 {{ return null }} return p }} }} static box Main {{ main() {{ local p = new Leaf() local q = p.maybe({n}, p) return 7 }} }}");
+            MirCompiler::with_options(false).compile_normal_with_published(request(&source), |view, verification| -> Result<(), String> {
+                require_artifact_verification(verification);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-nullable-{n}.json")), wire).unwrap();
+                Ok(())
+            }).unwrap_or_else(|issue| panic!("nullable capture {n}: {issue}"));
+            let unsafe_read = source.replace("return 7", "return q.value");
+            assert!(MirCompiler::with_options(false).compile_normal_with_published(request(&unsafe_read), |_, _| Ok(())).is_err(), "literal Null must not gain field permission from its local New support");
+        }
         for (text, symbol, receiver, ordinal, artifact) in [
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, 0, "hako-issued-declared-read-local.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } forward(n: i64, p: Leaf): Leaf from p { local q = me.identity(p) return q } } static box Main { main() { local p = new Leaf() local q = p.forward(0, p) return q.value } }", "Leaf.forward/2", false, 1, "hako-issued-declared-read-forward.json"),

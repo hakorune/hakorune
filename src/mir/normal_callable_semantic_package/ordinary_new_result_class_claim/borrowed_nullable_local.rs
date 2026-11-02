@@ -130,6 +130,17 @@ impl BorrowedNullableLocalSourceLoanV1 {
         let BorrowedLocalSupportV1::MapSlot(map) = &self.support else { return None; };
         Some((map.source.ordinal, &map.key.site, map.key.binding?))
     }
+    /// Payload nonnull is independent of keeping the original borrowed value.
+    /// A local New narrows formal-derived Null, never a literal Null return.
+    pub(crate) fn payload_nonnull_v1(&self) -> bool {
+        !self.witnesses.is_empty() && match &self.support {
+            BorrowedLocalSupportV1::OwnedLocal { callee_ordinal, .. } => self.witnesses.iter()
+                .all(|root| root.formal_ordinal() == Some(*callee_ordinal)),
+            BorrowedLocalSupportV1::OwnedReceiver { .. } => self.witnesses.iter().all(|root|
+                matches!(root.step(), ResultWitnessStepV1::Receiver { projection, .. } if projection.nonnull_v1())),
+            _ => false,
+        }
+    }
     pub(crate) fn witnesses(&self) -> &[Rc<ResultOriginWitnessV1>] {
         &self.witnesses
     }
@@ -371,7 +382,8 @@ impl OrdinaryNewResultClassClaimsV1 {
                 || source.binding.owner() != loan.call().owner() || source.construction.class() != loan.key().owner()
                 || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)
                     || !root.supports_receiver_v1(binding, declared.declared_type())
-                    || !matches!(root.step(), ResultWitnessStepV1::Receiver { binding: actual, projection } if *actual == binding && projection.nonnull_v1() && projection.recheck_v1(self))) {
+                    || !(root.is_literal_null_v1() || matches!(root.step(), ResultWitnessStepV1::Receiver { binding: actual, projection }
+                        if *actual == binding && projection.recheck_v1(self)))) {
                 return Err("borrowed-nullable/witness-identity");
             }
             return Ok(());
@@ -390,8 +402,8 @@ impl OrdinaryNewResultClassClaimsV1 {
                 || source.construction.class() != declared.declared_type()
                 || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)
                     || root.site().owner() != loan.callee_owner()
-                    || root.formal_ordinal() != Some(ordinal)
-                    || !root.supports_formal_v1(binding, ordinal)) {
+                    || !(root.is_literal_null_v1() || (root.formal_ordinal() == Some(ordinal)
+                        && root.supports_formal_v1(binding, ordinal)))) {
                 return Err("borrowed-nullable/witness-identity");
             }
             return Ok(());

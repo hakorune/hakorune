@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: nullable use, receiver forwarding and reborrow/PHI after Formal From forwarding EXE"
+current_blocker_token = "ownership step 3a: nullable result guard, receiver forwarding and reborrow/PHI after nullable capture EXE"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,10 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Formal/Receiver identity and field From results, plus declared Formal forwarding, reach canonical EXE.
-Common Call witnesses keep outer/inner support and ReadOnly distinct through independent publication checks.
+Formal/Receiver From results and Formal forwarding reach EXE; nullable alternatives can now be retained.
+Nonnull payload proof is separate from capture; unguarded nullable dereference stays rejected.
 Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8, cohort 1802 PASS and 115 failure names unchanged.
-Next: separate nullable capture from dereference proof; retain guard evidence, then receiver forwarding/reborrow/PHI.
+Next: common Map/From nullable reference and original guard proof, then receiver forwarding/reborrow/PHI.
 From remains incomplete; update/sync and 3b remain outside this unit, and both existing stashes stay protected.
 """
 next_design_card = "none"

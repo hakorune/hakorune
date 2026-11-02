@@ -124,6 +124,15 @@ impl ResultOriginWitnessV1 {
                     }))
     }
 
+    /// A literal Null has no formal payload ancestry, even through a call.
+    pub(super) fn is_literal_null_v1(&self) -> bool {
+        self.origin == ResultValueOriginV1::Null && match &self.step {
+            ResultWitnessStepV1::NullLiteral => true,
+            ResultWitnessStepV1::Call { callee, substitution: None, .. } => callee.is_literal_null_v1(),
+            _ => false,
+        }
+    }
+
     pub(super) fn formal_ordinal(&self) -> Option<u32> {
         match &self.step {
             ResultWitnessStepV1::Formal { ordinal, .. } => Some(*ordinal),

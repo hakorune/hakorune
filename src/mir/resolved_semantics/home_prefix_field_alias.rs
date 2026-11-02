@@ -85,7 +85,7 @@ impl PrefixLocalFlow<'_> {
                     frame: std::rc::Rc::clone(frame), exclusion: std::rc::Rc::clone(exclusion),
                 }))
             },
-            StoredLocal::BorrowedNullable(_) => self.declared_read_local_v1(binding).map(|loan|
+            StoredLocal::BorrowedNullable(_) => self.declared_read_local_v1(binding).filter(|loan| loan.payload_nonnull_v1()).map(|loan|
                 FieldReadReceiverV1::CheckedReceived(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Borrowed(Box::new(loan.clone())))),
             StoredLocal::ReceivedMixed(loan) if self.is_received_mixed_v1(binding) =>
                 Some(FieldReadReceiverV1::CheckedReceived(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Mixed(loan.clone()))),
