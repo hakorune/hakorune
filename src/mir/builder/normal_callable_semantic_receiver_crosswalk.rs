@@ -272,6 +272,18 @@ impl fmt::Display for ExactBindingValueErrorV1 {
 }
 
 impl CallableSemanticLoweringState {
+    /// Keep terminal observations with their existing exit owner in both raw
+    /// and expression-port lowering. Other lexical reads keep the same law.
+    pub(in crate::mir::builder) fn read_variable_retaining_return_v1(&mut self,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<ValueId, String> {
+        if let Some(claims) = self.ordinary_new_claim_ledger.clone() {
+            if let Some(value) = claims.emit_declared_return_read_v1(self.owner, site,
+                || self.read_variable_with_source_v1(site))? { return Ok(value); }
+        }
+        self.read_variable(site)
+    }
+
     /// Retain the SAME one-shot variable read, including its actual reaching
     /// provenance. Assignment-target reads keep read_variable's existing law.
     pub(in crate::mir::builder) fn read_variable_with_source_v1(

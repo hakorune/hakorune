@@ -13,17 +13,21 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         let reassigned = reborrow.replace("local q = p.identity(first)", "local q = first q = first");
         let rebind_forward = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } forward(p: Leaf): Leaf from p { local first = me.identity(p) local q = first q = first return q } } static box Main { main() { local p = new Leaf() local q = p.forward(p) return q.value } }";
         let branch = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } probe(n: i64): i64 { local p = new Leaf() local first = p.identity(p) local q = first if n == 0 { q = first } else { local alias = first q = alias } return q.value } } static box Main { main() { local owner = new Leaf() return owner.probe(N) } }";
-        for (suffix, text) in [("branch-0", branch.replace("probe(N)", "probe(0)")), ("branch-1", branch.replace("probe(N)", "probe(1)")), ("rebind-forward", rebind_forward.to_owned()), ("rebind-direct", reassigned.clone()), ("rebind-alias", reassigned.replace("return q.value", "local alias = q q = alias return q.value")), ("receiver-reborrow-alias", receiver.replace("local q = first.identity()", "local alias = first local q = alias.identity()")), ("receiver-reborrow", receiver.to_owned()), ("receiver-reborrow-child", child_receiver.to_owned()), ("reborrow-read-after", reborrow.replace("return q.value", "return first.value")), ("reborrow-child", child.to_owned()), ("reborrow", reborrow.to_owned()), ("reborrow-null-0", nullable.replace("N,", "0,")), ("reborrow-null-1", nullable.replace("N,", "1,"))] {
+        let branch_forward = rebind_forward.replace("forward(p: Leaf)", "forward(n: i64, p: Leaf)")
+            .replace("q = first return q", "if n == 0 { q = first } else { local alias = first q = alias } return q")
+            .replace("p.forward(p)", "p.forward(N, p)");
+        for (suffix, text) in [("phi-forward-0", branch_forward.replace("N,", "0,")), ("phi-forward-1", branch_forward.replace("N,", "1,")), ("branch-0", branch.replace("probe(N)", "probe(0)")), ("branch-1", branch.replace("probe(N)", "probe(1)")), ("rebind-forward", rebind_forward.to_owned()), ("rebind-direct", reassigned.clone()), ("rebind-alias", reassigned.replace("return q.value", "local alias = q q = alias return q.value")), ("receiver-reborrow-alias", receiver.replace("local q = first.identity()", "local alias = first local q = alias.identity()")), ("receiver-reborrow", receiver.to_owned()), ("receiver-reborrow-child", child_receiver.to_owned()), ("reborrow-read-after", reborrow.replace("return q.value", "return first.value")), ("reborrow-child", child.to_owned()), ("reborrow", reborrow.to_owned()), ("reborrow-null-0", nullable.replace("N,", "0,")), ("reborrow-null-1", nullable.replace("N,", "1,"))] {
         for optimize in [false, true] {
         MirCompiler::with_options(optimize).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
             let input = view.issue_lifecycle_physical_abi_input()?;
             let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
-            if suffix.starts_with("branch-") && !optimize {
-                assert!(view.module().functions["Leaf.probe/1"].blocks.values().any(|block|
+            if (suffix.starts_with("branch-") || suffix.starts_with("phi-forward-")) && !optimize {
+                let symbol = if suffix.starts_with("phi-forward-") { "Leaf.forward/2" } else { "Leaf.probe/1" };
+                assert!(view.module().functions[symbol].blocks.values().any(|block|
                     block.instructions.iter().any(|row| matches!(row, MirInstruction::Phi { .. }))));
                 let mut changed = view.module().clone();
-                let probe = changed.functions.get_mut("Leaf.probe/1").unwrap();
+                let probe = changed.functions.get_mut(symbol).unwrap();
                 let foreign = probe.params[0];
                 let phi = probe.blocks.values_mut().flat_map(|block| block.instructions.iter_mut())
                     .find(|row| matches!(row, MirInstruction::Phi { .. })).unwrap();
@@ -32,7 +36,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                 std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-{suffix}-unoptimized.json")), &wire).unwrap();
             }
             std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-{suffix}.json")), wire).unwrap();
-            if !optimize && !suffix.starts_with("receiver-reborrow") && !suffix.starts_with("rebind-") && !suffix.starts_with("branch-") {
+            if !optimize && !suffix.starts_with("receiver-reborrow") && !suffix.starts_with("rebind-") && !suffix.starts_with("branch-") && !suffix.starts_with("phi-forward-") {
                 let mut changed = view.module().clone();
                 let main = changed.functions.get_mut("main").unwrap();
                 let origins = crate::mir::value_origin::AcyclicUnanimousValueOrigins::new(main);
@@ -62,7 +66,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         }).unwrap_or_else(|issue| panic!("declared read {suffix} optimize={optimize}: {issue}"));
         }
         }
-        for invalid in [branch.replace("probe(N)", "probe(1)").replace("local alias = first q = alias", "p.value = 9 local alias = first q = alias"), reassigned.replace("q = first return", "p.value = 8 q = first return"), receiver.replace("local q =", "p.value = 8 local q ="), receiver.replace("{ return me }", "{ me.value = 8 return me }"), reborrow.replace("return q.value", "p.value = 8 return first.value"), reborrow.replace("local q =", "p.value = 8 local q ="), reborrow.replace("{ return p }", "{ p.value = 8 return p }")] {
+        for invalid in [branch_forward.replace("N,", "1,").replace("local alias = first q = alias", "p.value = 9 local alias = first q = alias"), branch.replace("probe(N)", "probe(1)").replace("local alias = first q = alias", "p.value = 9 local alias = first q = alias"), reassigned.replace("q = first return", "p.value = 8 q = first return"), receiver.replace("local q =", "p.value = 8 local q ="), receiver.replace("{ return me }", "{ me.value = 8 return me }"), reborrow.replace("return q.value", "p.value = 8 return first.value"), reborrow.replace("local q =", "p.value = 8 local q ="), reborrow.replace("{ return p }", "{ p.value = 8 return p }")] {
             let issue = MirCompiler::with_options(false).compile_normal_with_published(request(&invalid), |_, _| Ok(())).err().expect("invalid read reborrow");
             assert!(issue.to_string().contains("[freeze:contract]"), "{issue}");
         }

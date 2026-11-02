@@ -29,8 +29,22 @@ static int lv4_borrowed_call_return(const hako_lv4_input* in,
           (yyjson_obj_get(op, "result_support") || yyjson_obj_get(in->index[target].function, "result_support")))) return 0;
   }
   hako_lv4_block* block = lv4_index_block(fn, invoke_block);
+  uint32_t transport = value;
+  if (yyjson_is_true(yyjson_obj_get(fn->function, "result_read"))) {
+    /* The original read Call remains the origin. A unanimous acyclic Phi
+       may precede the exact retained Copy suffix; it grants no new support. */
+    yyjson_val* copies = yyjson_obj_get(origin, "copies");
+    transport = result;
+    if (yyjson_arr_size(copies)) {
+      yyjson_val* first = lv4_result_coordinate(fn, yyjson_arr_get_first(copies), NULL);
+      if (!lv4_is(first, "op", "copy") ||
+          !hako_physical_u32(yyjson_obj_get(first, "src"), &transport)) return 0;
+    }
+    hako_lv4_value* root = lv4_value_alias_root(fn, lv4_index_value(fn, transport));
+    if (!root || root != lv4_index_value(fn, value)) return 0;
+  }
   if (!block || lv4_term(block->block) != invoke ||
-      !lv4_result_copy_chain(fn, origin, value, result)) return 0;
+      !lv4_result_copy_chain(fn, origin, transport, result)) return 0;
   yyjson_val* param = outer ? yyjson_arr_get(yyjson_obj_get(fn->function, "params"), *outer) : NULL;
   hako_lv4_value* formal = lv4_index_value(fn, lv4_u(param, "value"));
   hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, lv4_index_value(fn, value));

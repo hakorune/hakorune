@@ -78,6 +78,24 @@ impl CallValidationContextV1<'_> {
         })
     }
 
+    /// Lend dependencies from the retained read graph, never a final-MIR walk.
+    pub(in crate::mir) fn append_declared_read_dependencies_v1(self,
+        loan: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        read: &BindingValueObservationV2, rows: &mut Vec<Binding>,
+    ) -> Result<(), String> {
+        rows.extend(self.declared_result_binding_v1(loan, read)?.1);
+        if let Some(point) = read.source_read_branch_v1()? { point.append_read_dependencies_v1(self, rows)?; }
+        if let Some(frame) = read.source_declared_read_rebind_v1()? {
+            self.with_original_rebind_v1(&frame, |packet| {
+                let rhs = frame.declared_read_v1().ok_or_else(|| freeze("expression/reference-source-node"))?;
+                let original = packet.reference_read_v1(0).ok_or_else(|| freeze("expression/reference-source-node"))?;
+                self.append_declared_read_dependencies_v1(rhs.source(), original.exact_read_v1().binding_observation_v2(), rows)
+            })?;
+        }
+        rows.extend_from_slice(read.original_copy_dependencies_v1()?);
+        Ok(())
+    }
+
     pub(in crate::mir) fn validate_declared_read_transport_v1(self,
         loan: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
         read: &BindingValueObservationV2, function: &MirFunction, finishing: Option<&Finished>,

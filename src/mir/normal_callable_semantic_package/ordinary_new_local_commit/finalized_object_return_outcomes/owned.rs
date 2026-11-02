@@ -150,7 +150,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let expected = producer.1.dst_value().ok_or_else(|| freeze("owned-return/producer-value"))?;
                 let transport = original_copy_transport(function, projection, original, expected)?;
                 let outcome = FinalizedObjectReturnOutcomeV1 {
-                    result, returned, origin, transport, field_supports: field_supports.into_boxed_slice(),
+                    result, returned, origin, transport, declared_read: None, field_supports: field_supports.into_boxed_slice(),
                 };
                 outcome.validate_physical_function_v1(function, result,
                     key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod)?;

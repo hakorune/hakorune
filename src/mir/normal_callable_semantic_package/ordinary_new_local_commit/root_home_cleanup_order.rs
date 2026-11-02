@@ -1,6 +1,7 @@
 //! Retain original exit obligations across the existing affine root progress.
 //! Sequence membership uses exact source origins, never emitted MIR discovery.
-use super::{freeze, RootHomeReleaseOriginV1};
+use super::{freeze, RootHomeReleaseOriginV1, FunctionOwnerIdV1, SourceStmtSiteV1,
+    TerminalRelationV1, TerminalReturnedSourceV1, CallValidationContextV1, RootHomeExitProgress, ValueId};
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
@@ -32,6 +33,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
     pub(super) installed_map_return: Option<super::map_field_install::InstalledMapReturnEmissionV1>,
     pub(super) null_return: Option<super::null_return::TerminalNullReturnProducerV1>,
     pub(super) return_expression: Option<Box<super::received_return::ReturnExpressionEmissionV1>>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) declared_read_return: Option<crate::mir::builder::ExactLexicalReadV1>,
     pub(super) text_return_hold: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
     direct: Option<(
         super::super::super::completion_index::DirectRootCleanupSourceV1,
@@ -331,6 +333,7 @@ impl RootHomeCleanupOrderV1 {
             installed_map_return: None,
             null_return: None,
             return_expression: None,
+            declared_read_return: None,
             text_return_hold: None,
             implicit_void: None,
             original_frame: None,
@@ -576,4 +579,56 @@ impl super::OrdinaryNewClaimLedgerV1 {
                 None => super::RootHomeReleaseSubjectV1::Binding(binding),
             }, operation)).collect()))
     }
+}
+
+impl super::OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn check_declared_return_value_v1(&self, owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1, value: ValueId,
+    ) -> Result<(), String> {
+        let rows = self.root_exits.borrow();
+        let Some(RootHomeExitProgress::Prepared(order)) = rows.get(&(owner, exit.clone().into()))
+            else { return Err(freeze("root-exit-record-without-prepare")); };
+        if order.declared_read_return.as_ref().is_some_and(|read|
+            read.binding_observation_v2().binding_value().1 != value) {
+            return Err(freeze("borrowed-return/source-kind"));
+        }
+        Ok(())
+    }
+
+    /// Keep the actual one-shot terminal read in the existing exit owner.
+    /// Nonterminal reads and legacy returns retain their original lowering.
+    pub(crate) fn emit_declared_return_read_v1(
+        &self, owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        emit: impl FnOnce() -> Result<crate::mir::builder::ExactLexicalReadV1, String>,
+    ) -> Result<Option<ValueId>, String> {
+        use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1};
+        let Some((SourcePathSegmentV1::Value, parent)) = site.segments().split_last() else { return Ok(None); };
+        let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(parent.to_vec()));
+        let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, &exit)
+            else { return Ok(None); };
+        let TerminalReturnedSourceV1::BorrowedNullableLocal(source) = terminal.returned()
+            else { return Ok(None); };
+        let Some(view) = source.read_v1() else { return Ok(None); };
+        if terminal.value_site().node() != site || view.read().site().node() != site
+            || self.checked_borrowed_nullable_return_source_v1(owner, &exit)? != Some(source.as_ref()) {
+            return Err(freeze("borrowed-return/source-kind"));
+        }
+        {
+            let rows = self.root_exits.borrow();
+            if !matches!(rows.get(&(owner, exit.clone().into())),
+                Some(RootHomeExitProgress::Prepared(order)) if order.declared_read_return.is_none()) {
+                return Err(freeze("root-exit-record-without-emission"));
+            }
+        }
+        let read = emit()?;
+        let (value, _) = CallValidationContextV1::Lowering(self).declared_result_read_v1(view, &read)?;
+        let mut rows = self.root_exits.borrow_mut();
+        let Some(RootHomeExitProgress::Prepared(order)) = rows.get_mut(&(owner, exit.into()))
+            else { return Err(freeze("root-exit-record-without-emission")); };
+        if order.declared_read_return.is_some() { return Err(freeze("borrowed-return/source-kind")); }
+        order.declared_read_return = Some(read);
+        Ok(Some(value))
+    }
+
 }

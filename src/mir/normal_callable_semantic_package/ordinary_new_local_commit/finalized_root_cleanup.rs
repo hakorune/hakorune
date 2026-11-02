@@ -435,6 +435,19 @@ pub(super) fn validate_finished_cleanup_entry(
     finishing: Option<&physical_boundary::FinishedBindings>,
 ) -> Result<(), String> {
     let ledger = context.ledger();
+    let declared = ledger.terminal_relation_for_owner_at(owner, exit).and_then(|terminal| {
+        let TerminalRelationV1::Value(terminal) = terminal else { return None; };
+        let TerminalReturnedSourceV1::BorrowedNullableLocal(source) = terminal.returned() else { return None; };
+        source.read_v1()
+    });
+    match (declared, &order.declared_read_return) {
+        (Some(source), Some(read)) => {
+            context.declared_result_read_v1(source, read)?;
+            context.validate_declared_read_transport_v1(source.source(), read.binding_observation_v2(), function, finishing)?;
+        }
+        (None, None) => {},
+        _ => return Err(freeze("borrowed-return/source-kind")),
+    }
     if matches!(context, CallValidationContextV1::Finalized(_)) {
         ledger.validate_local_call_binding_groups_for_key_v1(owner,
             &exit.clone().into(), entry.local_call_groups(), &[])?;

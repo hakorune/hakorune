@@ -77,6 +77,17 @@ impl BranchReadPhiObservationV1 {
         }
         Ok(())
     }
+    pub(super) fn append_read_dependencies_v1(&self, context: CallValidationContextV1<'_>,
+        rows: &mut Vec<Binding>,
+    ) -> Result<(), String> {
+        rows.extend_from_slice(self.pending.bindings());
+        self.pending.relation().append_observed_bindings_v1(rows);
+        rows.push(self.branch.clone());
+        rows.extend_from_slice(&self.jumps);
+        for input in &self.inputs { context.append_declared_read_dependencies_v1(&self.loan, input, rows)?; }
+        self.relation.append_observed_bindings_v1(rows);
+        Ok(())
+    }
     pub(in crate::mir) fn prepare_v1(
         source: crate::mir::resolved_semantics::home_new_prefix::BranchCallResultSourceV1,
         loan: crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,

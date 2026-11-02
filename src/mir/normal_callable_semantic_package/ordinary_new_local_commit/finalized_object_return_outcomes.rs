@@ -7,6 +7,9 @@ use crate::mir::MirModule;
 use std::collections::BTreeSet;
 #[path = "finalized_object_return_outcomes/map_slot.rs"]
 mod map_slot;
+#[path = "finalized_object_return_outcomes/declared_read.rs"]
+mod declared_read;
+use declared_read::FinalizedDeclaredReadTransportV1;
 pub(in crate::mir) use map_slot::FinalizedMapSlotReturnV1;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -54,9 +57,11 @@ pub(in crate::mir) struct FinalizedObjectReturnOutcomeV1 {
     returned: Binding,
     origin: FinalizedObjectReturnOriginV1,
     transport: Vec<Binding>,
+    declared_read: Option<FinalizedDeclaredReadTransportV1>,
     field_supports: Box<[FinalizedObjectReturnFieldSupportV1]>,
 }
 impl FinalizedObjectReturnOutcomeV1 {
+    pub(in crate::mir) fn declared_read_transport_v1(&self) -> Option<&FinalizedDeclaredReadTransportV1> { self.declared_read.as_ref() }
     pub(in crate::mir) fn returned(&self) -> &Binding { &self.returned }
     pub(in crate::mir) fn origin(&self) -> &FinalizedObjectReturnOriginV1 { &self.origin }
     pub(in crate::mir) fn has_field_supports(&self) -> bool { !self.field_supports.is_empty() }
@@ -169,6 +174,12 @@ impl FinalizedObjectReturnOutcomeV1 {
         for support in &self.field_supports { support.validate_function(function, has_receiver)?; }
         let mut required = vec![&self.returned];
         required.extend(self.transport.iter());
+        if let Some(read) = &self.declared_read {
+            if !matches!((self.result, &self.origin),
+                (InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly, .. },
+                 FinalizedObjectReturnOriginV1::BorrowedCall { .. })) { return Err(freeze("object-return/physical-origin-role")); }
+            required.extend(read.bindings());
+        }
         match &self.origin {
             FinalizedObjectReturnOriginV1::Null { producer } => required.push(producer),
             FinalizedObjectReturnOriginV1::Fresh { producer, allocation } => required.extend([producer, allocation]),
@@ -367,6 +378,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let original = returns.next().ok_or_else(|| freeze("borrowed-return/return-missing"))?;
                 if returns.next().is_some() { return Err(freeze("borrowed-return/return-duplicate")); }
                 let returned = checked_projection(function, projection, original)?;
+                let mut declared_read = None;
                 let (origin, expected) = match (root.step(), terminal.returned()) {
                     (ResultWitnessStepV1::NullLiteral, TerminalReturnedSourceV1::NullLiteral)
                         if root.origin() == &ResultValueOriginV1::Null => {
@@ -431,7 +443,17 @@ impl FinalizedRootSourceHandoffV1 {
                             loan.result_support_v1(), owner,
                             source.target().namespace(), function, projection, entry, loan.access_v1())?;
                         let FinalizedObjectReturnOriginV1::BorrowedCall { producer, .. } = &origin else { unreachable!() };
-                        let expected = producer.1.dst_value().ok_or_else(|| freeze("borrowed-return/source-kind"))?;
+                        let expected = if let Some(view) = borrowed.read_v1() {
+                            let read = order.declared_read_return.as_ref()
+                                .ok_or_else(|| freeze("borrowed-return/source-kind"))?;
+                            let retained = FinalizedDeclaredReadTransportV1::issue(CallValidationContextV1::Finalized(self),
+                                view, read, function, projection)?;
+                            let value = retained.value();
+                            declared_read = Some(retained);
+                            value
+                        } else {
+                            producer.1.dst_value().ok_or_else(|| freeze("borrowed-return/source-kind"))?
+                        };
                         (origin, expected)
                     }
                     (ResultWitnessStepV1::MapStored { source: stored },
@@ -447,7 +469,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let transport = original_copy_transport(function, projection, original, expected)?;
                 let outcome = FinalizedObjectReturnOutcomeV1 {
                     result: loan.result_kind_v1(),
-                    returned, origin, transport, field_supports: Box::new([]),
+                    returned, origin, transport, declared_read, field_supports: Box::new([]),
                 };
                 if let Some(prior) = outcomes.iter().find(|prior: &&FinalizedObjectReturnOutcomeV1| prior.returned.0 == outcome.returned.0) {
                     if prior != &outcome { return Err(freeze("borrowed-return/exit-disagreement")); }
@@ -585,7 +607,7 @@ impl FinalizedRootSourceHandoffV1 {
                 let transport = original_copy_transport(function, projection, original, expected)?;
                 let outcome = FinalizedObjectReturnOutcomeV1 {
                     result: InvokeCallResultKind::MixedHandle { formal_ordinal: loan.callee_ordinal() },
-                    returned, origin, transport, field_supports: Box::new([]),
+                    returned, origin, transport, declared_read: None, field_supports: Box::new([]),
                 };
                 if let Some(prior) = outcomes.iter().find(|prior: &&FinalizedObjectReturnOutcomeV1| prior.returned.0 == outcome.returned.0) {
                     if prior != &outcome { return Err(freeze("mixed-return/exit-disagreement")); }

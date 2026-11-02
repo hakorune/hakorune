@@ -404,7 +404,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .as_ref()
             .expect("callable variable lowering requires its scoped ledger");
         let site = self.current_callable_site_v1("variable-site")?;
-        ledger.borrow_mut().read_variable(&site)
+        ledger.borrow_mut().read_variable_retaining_return_v1(&site)
     }
 
     pub(super) fn record_callable_rebind_v1(

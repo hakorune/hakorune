@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: readonly PHI re-return and support composition remain"
+current_blocker_token = "ownership step 3a: distinct-Call readonly PHI and support composition remain"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Same original Call readonly branch PHI retains complete source incoming and the sole SSA writer relation through field publication.
-Common transport validation keeps read/loan identity; strict-i64 result facts require retained From dependency and preserve old strict owners.
-Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1803 PASS with exact 115 failure names unchanged.
-Normal CLI both branches exit 7; current C 50-input equivalence and both-opt branch EXE/tamper checks PASS; production +369, tests +37.
-Next: retain physical terminal read for readonly PHI re-return, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
+Same-original-Call readonly PHI re-return retains the actual terminal read and source-derived physical dependencies in the existing exit owner.
+Original Call/From/support and the PHI-to-Return Copy suffix remain distinct; C corroborates readonly unanimous aliases without new MIR/runtime ABI.
+Optimized target/quick CLI/runtime + rebuilt C shim: fixed suite 8/8; cohort 1804 PASS with exact 115 failure names unchanged.
+Normal CLI both branches exit 7; C current-source 54 inputs and both-opt return EXE/tamper checks PASS; production +186, tests +12.
+Next: distinct Calls with the same formal support need an all-incoming read graph and publication boundary review; support composition/From incomplete. Cleanup A before update; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

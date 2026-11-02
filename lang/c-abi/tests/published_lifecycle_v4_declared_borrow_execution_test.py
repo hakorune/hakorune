@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol, expected in [('branch-0', 'Leaf.identity/1', 7), ('branch-1', 'Leaf.identity/1', 7), ('branch-0-unoptimized', 'Leaf.identity/1', 7), ('branch-1-unoptimized', 'Leaf.identity/1', 7), ('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
+    for suffix, symbol, expected in [('phi-forward-0', 'Leaf.forward/2', 7), ('phi-forward-1', 'Leaf.forward/2', 7), ('phi-forward-0-unoptimized', 'Leaf.forward/2', 7), ('phi-forward-1-unoptimized', 'Leaf.forward/2', 7), ('branch-0', 'Leaf.identity/1', 7), ('branch-1', 'Leaf.identity/1', 7), ('branch-0-unoptimized', 'Leaf.identity/1', 7), ('branch-1-unoptimized', 'Leaf.identity/1', 7), ('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
         caller = 'Leaf.probe/1' if suffix.startswith('branch-') else 'main'
         # Copy and unanimous Phi retain the original explicit read Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
@@ -211,6 +211,14 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
         assert run.returncode == expected, (run.returncode, run.stdout, run.stderr)
         print(f'source-issued From {suffix} support: canonical EXE exit {expected}')
+        if suffix.startswith('phi-forward-'):
+            changed = copy.deepcopy(read)
+            forwarded = function(changed, 'Leaf.forward/2')
+            phi = next(row['instruction'] for block in forwarded['blocks']
+                       for row in block['instructions'] if row['instruction']['op'] == 'phi')
+            phi['inputs'][0]['value'] = forwarded['receiver']
+            compile_input(changed, accepted=False)
+            print('reject foreign same-class readonly Return Phi input')
         if suffix == 'reborrow-child':
             changed = copy.deepcopy(read)
             field = next(block['terminator']['instruction']['operation'] for block in function(changed, caller)['blocks']

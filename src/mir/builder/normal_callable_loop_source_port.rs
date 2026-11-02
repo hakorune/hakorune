@@ -463,7 +463,7 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
             return Ok(None);
         }
         let site = Self::exact_site(Self::source_of_expr(input))?;
-        let source_value = self.ledger.borrow_mut().read_variable(&site)?;
+        let source_value = self.ledger.borrow_mut().read_variable_retaining_return_v1(&site)?;
         Ok(Some(source_value))
     }
 

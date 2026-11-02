@@ -95,6 +95,15 @@ fn prepare_role(
                 let mut values = BTreeSet::from([value]);
                 let mut bindings = prefix.into_iter().map(|binding| Ok((coordinate(function, binding)?, binding.1.clone())))
                     .collect::<Result<BTreeMap<_, _>, String>>()?;
+                if let Some(read) = outcome.declared_read_transport_v1() {
+                    values.insert(read.value());
+                    for binding in read.bindings() {
+                        let at = coordinate(function, binding)?;
+                        if bindings.insert(at, binding.1.clone()).is_some_and(|old| old != binding.1) {
+                            return Err(fault("borrowed-formal-return/duplicate-source"));
+                        }
+                    }
+                }
                 for binding in outcome.transport_bindings().iter().chain(std::iter::once(outcome.returned())) {
                     if let MirInstruction::Copy { dst, src } = binding.1 {
                         if !values.contains(&src) { return Err(fault("borrowed-formal-return/receiver-copy")); }
