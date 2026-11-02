@@ -10,14 +10,16 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         let child = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } box Parent { child: Leaf marker: i64 birth(child) { me.child = child me.marker = 0 } get(): Leaf from me { return me.child } } static box Main { main() { local owner = new Leaf() local child = new Leaf() local p = new Parent(child) local first = p.get() local q = owner.identity(first) return q.value } }";
         let receiver = "box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } static box Main { main() { local p = new Leaf() local first = p.identity() local q = first.identity() return q.value } }";
         let child_receiver = "box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } box Parent { child: Leaf birth(child) { me.child = child } get(): Leaf from me { return me.child } } static box Main { main() { local child = new Leaf() local p = new Parent(child) local first = p.get() local q = first.identity() return q.value } }";
-        for (suffix, text) in [("receiver-reborrow-alias", receiver.replace("local q = first.identity()", "local alias = first local q = alias.identity()")), ("receiver-reborrow", receiver.to_owned()), ("receiver-reborrow-child", child_receiver.to_owned()), ("reborrow-read-after", reborrow.replace("return q.value", "return first.value")), ("reborrow-child", child.to_owned()), ("reborrow", reborrow.to_owned()), ("reborrow-null-0", nullable.replace("N,", "0,")), ("reborrow-null-1", nullable.replace("N,", "1,"))] {
+        let reassigned = reborrow.replace("local q = p.identity(first)", "local q = first q = first");
+        let rebind_forward = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } forward(p: Leaf): Leaf from p { local first = me.identity(p) local q = first q = first return q } } static box Main { main() { local p = new Leaf() local q = p.forward(p) return q.value } }";
+        for (suffix, text) in [("rebind-forward", rebind_forward.to_owned()), ("rebind-direct", reassigned.clone()), ("rebind-alias", reassigned.replace("return q.value", "local alias = q q = alias return q.value")), ("receiver-reborrow-alias", receiver.replace("local q = first.identity()", "local alias = first local q = alias.identity()")), ("receiver-reborrow", receiver.to_owned()), ("receiver-reborrow-child", child_receiver.to_owned()), ("reborrow-read-after", reborrow.replace("return q.value", "return first.value")), ("reborrow-child", child.to_owned()), ("reborrow", reborrow.to_owned()), ("reborrow-null-0", nullable.replace("N,", "0,")), ("reborrow-null-1", nullable.replace("N,", "1,"))] {
         for optimize in [false, true] {
         MirCompiler::with_options(optimize).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
             let input = view.issue_lifecycle_physical_abi_input()?;
             let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
             std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-{suffix}.json")), wire).unwrap();
-            if !optimize && !suffix.starts_with("receiver-reborrow") {
+            if !optimize && !suffix.starts_with("receiver-reborrow") && !suffix.starts_with("rebind-") {
                 let mut changed = view.module().clone();
                 let main = changed.functions.get_mut("main").unwrap();
                 let origins = crate::mir::value_origin::AcyclicUnanimousValueOrigins::new(main);
@@ -47,7 +49,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         }).unwrap_or_else(|issue| panic!("declared read {suffix} optimize={optimize}: {issue}"));
         }
         }
-        for invalid in [receiver.replace("local q =", "p.value = 8 local q ="), receiver.replace("{ return me }", "{ me.value = 8 return me }"), reborrow.replace("return q.value", "p.value = 8 return first.value"), reborrow.replace("local q =", "p.value = 8 local q ="), reborrow.replace("{ return p }", "{ p.value = 8 return p }")] {
+        for invalid in [reassigned.replace("q = first return", "p.value = 8 q = first return"), receiver.replace("local q =", "p.value = 8 local q ="), receiver.replace("{ return me }", "{ me.value = 8 return me }"), reborrow.replace("return q.value", "p.value = 8 return first.value"), reborrow.replace("local q =", "p.value = 8 local q ="), reborrow.replace("{ return p }", "{ p.value = 8 return p }")] {
             let issue = MirCompiler::with_options(false).compile_normal_with_published(request(&invalid), |_, _| Ok(())).err().expect("invalid read reborrow");
             assert!(issue.to_string().contains("[freeze:contract]"), "{issue}");
         }

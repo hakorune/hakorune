@@ -457,9 +457,9 @@ fn resolve_call_key_inner(
     }
 }
 
-/// Resolve a `return <local>` exit: the binding must be an unrebound
-/// local with a sole initializer. A New retains its exact local acquisition;
-/// a supported call retains its original forwarding edge.
+/// Normal returns retain an unrebound local's sole initializer/acquisition.
+/// Explicit From returns follow the current exact Call read transport, including
+/// readonly rebinding; neither joins nor an owned New gain a borrowed contract.
 fn resolve_forward_local(
     binding: BindingRefV1,
     returned: &crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -476,20 +476,18 @@ fn resolve_forward_local(
     if !matches!(record.kind(), BindingKindV1::Local { .. }) {
         return None;
     }
-    let mut initializer_site = sole_initializer_site(function, binding)?;
-    if function.expression_source().construction(&initializer_site).is_some() {
-        return witness::capture_local_construction_result_v1(input, binding, returned).map(PendingExitV1::LocalNew);
-    }
-    if declared_borrow {
-        let flow = function.expression_source().value_flow()?;
-        let value = flow.read(returned.site(), binding)?;
-        let origin = flow.alias_origin(value, |site| function.variable_ref(site))?;
-        let crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(site) = flow.origin(origin)? else { return None; };
-        // Only the original Call can be forwarded. Owned New aliases, joins,
-        // unknown values and cycles never gain a borrowed return contract.
-        if function.expression_source().construction(site).is_some() { return None; }
-        initializer_site = site.clone();
-    }
+    let initializer_site = if declared_borrow {
+        // The same point-specific From read transport serves aliases and
+        // rebinds. It never lends owned New, unknown or joined producers.
+        crate::mir::resolved_semantics::home_new_prefix::SourceCallResultReadV1::issue_v1(input, returned.site())?
+            .producer().site().clone()
+    } else {
+        let site = sole_initializer_site(function, binding)?;
+        if function.expression_source().construction(&site).is_some() {
+            return witness::capture_local_construction_result_v1(input, binding, returned).map(PendingExitV1::LocalNew);
+        }
+        site
+    };
     resolve_call_key(
         &initializer_site,
         function,

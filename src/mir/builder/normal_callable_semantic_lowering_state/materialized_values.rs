@@ -313,6 +313,13 @@ impl LocalProvenanceV1 {
         }
         Ok((self.root_value, self.loan_copies(frame.target(), self.root_value, result)?))
     }
+    pub(in crate::mir) fn source_declared_read_rebind_v1(&self, result: ValueId)
+        -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
+        let LocalProducerPurposeV1::BindingRebind(frame) = &self.purpose else { return Ok(None); };
+        if frame.declared_read_v1().is_none() { return Ok(None); }
+        self.loan_checked_rebind_v1(frame, result)?;
+        Ok(Some(std::rc::Rc::clone(frame)))
+    }
     pub(in crate::mir) fn source_dynamic_rebind_v1(
         &self,
         root: BindingRefV1,

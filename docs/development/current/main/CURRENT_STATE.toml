@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: reborrow/PHI and support composition remain"
+current_blocker_token = "ownership step 3a: readonly PHI and support composition remain"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Nonnull From receiver reborrow retains original producer/read/Copy, canonical loan, payload class and lifetime support separately.
-Current prefix read is matched in Observe; shared source effects plus independent MIR/C prove readonly receiver use intervals.
-Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
-Normal CLI alias receiver EXE exit 7, null/write refusal without EXE, C receiver/Parent-Child/alias exit 7 and existing checks pass.
-Next: readonly binding transport through source-proved all-incoming SSA joins, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
+Readonly binding rebind uses current From read, a typed internal value and the existing checked assignment receipt without Home/End.
+Later reads/re-returns trace the retained RHS/frame back to the original Call; legacy initializer/unqualified-return rules stay strict.
+Optimized target/quick CLI/runtime + existing C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
+CLI rebind alias/re-return EXE exit 7, invalid RHS named refusal without EXE; C existing and three rebind inputs pass.
+Next: source-all-incoming readonly PHI transport through the existing SSA writer relation, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

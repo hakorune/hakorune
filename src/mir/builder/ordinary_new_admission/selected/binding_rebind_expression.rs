@@ -53,6 +53,7 @@ pub(in crate::mir::builder) fn emit(
         return Err(freeze("rebind-expression/dynamic-carrier-source"));
     }
     let value = match &expression.value {
+        EvaluatedExpressionValueV1::DeclaredRead(value) if frame.declared_read_v1().is_some() => *value,
         EvaluatedExpressionValueV1::Bool(value)
             if frame.evaluation().root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) => *value,

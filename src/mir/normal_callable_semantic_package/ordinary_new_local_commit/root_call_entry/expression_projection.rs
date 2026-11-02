@@ -19,32 +19,9 @@ pub(in crate::mir) use terminal_paths::{
     ExpressionCallArgumentSourceV1, ExpressionCallTransientPrefixV1, ExpressionOwnedTemporaryV1,
 };
 
-/// Internal evaluation values keep Bool separate from String/I64 operands.
-/// Conversion borrows an existing domain; it never casts or stringifies Bool.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum EvaluatedExpressionValueV1 {
-    Operand(Operand),
-    Bool(ValueId),
-}
-impl From<Operand> for EvaluatedExpressionValueV1 {
-    fn from(value: Operand) -> Self {
-        Self::Operand(value)
-    }
-}
-impl EvaluatedExpressionValueV1 {
-    pub(in crate::mir) fn as_operand(&self) -> Result<&Operand, String> {
-        match self {
-            Self::Operand(value) => Ok(value),
-            Self::Bool(_) => Err(freeze("expression/scalar-continuation-result")),
-        }
-    }
-    pub(in crate::mir) fn value(&self) -> Option<ValueId> {
-        match self {
-            Self::Operand(value) => value.value(),
-            Self::Bool(value) => Some(*value),
-        }
-    }
-}
+#[path = "expression_read_value.rs"]
+mod read_value;
+pub(crate) use read_value::EvaluatedExpressionValueV1;
 
 /// A view of the purpose's original observations, never a second packet pool.
 /// Successful correspondence grants no terminal, residence or cleanup rights.
@@ -143,6 +120,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
                 crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic) =>
                     EvaluatedExpressionValueV1::Operand(Operand::Dynamic(value)),
+            crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+                crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Opaque)
+                if matches!(self.frame.references().get(&0), Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
+                    crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_)))) => EvaluatedExpressionValueV1::DeclaredRead(value),
             _ => (if text { Operand::OwnedString(value) } else { Operand::NormalInteger(value) }).into(),
         };
         match acquisition {
@@ -504,6 +485,17 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             if let Some(tail) = source.transparent_tail_node_v1(index) {
                 if value.is_none() || self.values[index] != self.values[tail] {
                     return Err(freeze("print-expression/node-value"));
+                }
+                continue;
+            }
+            if let (Node::Reference(_), Some(EvaluatedExpressionValueV1::DeclaredRead(value))) = (node.source(), value) {
+                let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
+                    crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_))) = self.frame.references().get(&index) else {
+                    return Err(freeze("expression/reference-source-node"));
+                };
+                let read = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-source-node"))?;
+                if read.declared_read_value_v1(self.frame, index, context)? != *value {
+                    return Err(freeze("expression/reference-source-node"));
                 }
                 continue;
             }

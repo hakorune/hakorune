@@ -128,6 +128,10 @@ impl BindingValueObservationV2 {
         self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/rebind-missing]".to_owned())?
             .loan_checked_rebind_v1(frame, self.value)
     }
+    pub(in crate::mir) fn source_declared_read_rebind_v1(&self)
+        -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
+        self.provenance.as_ref().map_or(Ok(None), |proof| proof.source_declared_read_rebind_v1(self.value))
+    }
     pub(in crate::mir) fn source_dynamic_rebind_v1(
         &self,
         root: BindingRefV1,
@@ -189,6 +193,10 @@ impl ExactLexicalReadV1 {
     pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
         self.binding_value.loan_local_initializer_v1(root)
+    }
+    pub(in crate::mir) fn source_declared_read_rebind_v1(&self)
+        -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
+        self.binding_value.source_declared_read_rebind_v1()
     }
     pub(in crate::mir) fn loan_checked_rebind_v1(&self,
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,

@@ -233,7 +233,8 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 | CheckedExpressionReferenceV1::LoopText(_) | CheckedExpressionReferenceV1::LoopDynamic(_)
                 | CheckedExpressionReferenceV1::ArgumentEntry(_) | CheckedExpressionReferenceV1::FiniteEntry { .. }
                 | CheckedExpressionReferenceV1::DynamicEntry(_)
-                | CheckedExpressionReferenceV1::DynamicInvocationResult(_))) {
+                | CheckedExpressionReferenceV1::DynamicInvocationResult(_)
+                | CheckedExpressionReferenceV1::NullableResult(crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_)))) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
@@ -397,6 +398,13 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         }
         if let Some(tail) = source.transparent_tail_node_v1(index) {
             values[index] = Some(values[tail].clone().ok_or_else(|| freeze("print-expression/node-value"))?);
+            continue;
+        }
+        if let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::NullableResult(
+            crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(_))) = frame.references().get(&index) {
+            let read = reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+            let value = read.declared_read_value_v1(frame, index, CallValidationContextV1::Lowering(ledger))?;
+            values[index] = Some(EvaluatedExpressionValueV1::DeclaredRead(value));
             continue;
         }
         if let Node::Literal(Literal::Bool(literal)) = node.source() {

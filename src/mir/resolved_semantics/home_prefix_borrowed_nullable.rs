@@ -278,6 +278,16 @@ impl PrefixLocalFlow<'_> {
         true
     }
 
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_rebind_v1(
+        &self, binding: BindingRefV1, site: &SourceExprSiteV1, homes: &[LiveHomeV1],
+    ) -> Option<super::super::BorrowedResultReadV1> {
+        let StoredLocal::BorrowedNullable(previous) = self.locals.get(&binding)? else { return None; };
+        if binding.owner() != self.input.owner() || !previous.is_declared_read_v1()
+            || homes.iter().any(|home| home.binding() == binding) { return None; }
+        let super::super::NullableResultReferenceV1::DeclaredFrom(read) = self.nullable_result_reference_v1(site)? else { return None; };
+        (previous.declared_read_result_v1()?.declared_type() == read.source().declared_read_result_v1()?.declared_type()).then_some(read)
+    }
+
     /// One nullable comparison source, with the original read/lifetime law.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn nullable_result_reference_v1(
         &self, site: &SourceExprSiteV1,

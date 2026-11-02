@@ -42,7 +42,9 @@ pub(super) fn observe<E>(
     else {
         return Ok(false);
     };
-    let Some(destination) = locals.rebind_destination_v1(*target, homes) else {
+    let Some(destination) = locals.declared_read_rebind_v1(*target, assignment.value_site(), homes)
+        .map(BindingRebindDestinationV1::DeclaredRead)
+        .or_else(|| locals.rebind_destination_v1(*target, homes)) else {
         return Ok(false);
     };
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
@@ -115,7 +117,9 @@ pub(super) fn observe<E>(
             .map(|call| call.site().clone()),
     );
     calls.extend_from_slice(frame.evaluation().calls());
-    if frame.is_text_residence() {
+    if let Some(read) = frame.declared_read_v1() {
+        if !locals.install_declared_read_alias_v1(*target, read.read().site()) { return Ok(false); }
+    } else if frame.is_text_residence() {
         homes.retain(|home| home.binding() != *target);
         if frame.text_loop_carrier_v1().is_none() {
             homes.push(LiveHomeV1::Text(frame.text_acquisition_v1()));

@@ -93,6 +93,10 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_binding_rebind(&self) -> bool {
         self.profile == ExpressionLeafProfileV1::BindingRebind
     }
+    pub(super) fn accepts_nullable_reference_v1(&self, source: &super::super::NullableResultReferenceV1) -> bool {
+        self.is_bool_condition() || self.is_binding_rebind()
+            && matches!(source, super::super::NullableResultReferenceV1::DeclaredFrom(_))
+    }
     pub(super) fn is_bool_condition(&self) -> bool {
         self.profile == ExpressionLeafProfileV1::BoolCondition
     }

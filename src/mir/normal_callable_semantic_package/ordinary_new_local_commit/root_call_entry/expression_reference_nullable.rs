@@ -25,6 +25,21 @@ impl CallValidationContextV1<'_> {
         view: &crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1,
         read: &ExactLexicalReadV1,
     ) -> Result<(ValueId, [Binding; 2]), String> {
+        if let Some(frame) = read.source_declared_read_rebind_v1()? {
+            return self.with_original_rebind_v1(&frame, |packet| {
+                let rhs = frame.declared_read_v1().ok_or_else(|| freeze("expression/reference-source-node"))?;
+                if !view.same_reference_v1(rhs) || !std::rc::Rc::ptr_eq(packet.frame(), &frame) {
+                    return Err(freeze("expression/reference-source-node"));
+                }
+                let original = packet.reference_read_v1(0).ok_or_else(|| freeze("expression/reference-source-node"))?;
+                let (rhs_value, pair) = self.declared_result_read_v1(rhs, original.exact_read_v1())?;
+                let (assigned, _) = read.loan_checked_rebind_v1(&frame)?;
+                if assigned != packet.value() || assigned != rhs_value { return Err(freeze("expression/reference-source-node")); }
+                let value = read.value_for(view.read().owner(), view.read().site().node(), view.binding())
+                    .map_err(|_| freeze("expression/reference-source-node"))?;
+                Ok((value, pair))
+            });
+        }
         let loan = view.source();
         let original = self.ledger().borrowed_nullable_call_source_v1(loan.call())
             .ok_or_else(|| freeze("expression/reference-source-node"))?;

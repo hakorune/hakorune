@@ -15,6 +15,7 @@ use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BindingRebindDestinationV1 {
+    DeclaredRead(super::super::BorrowedResultReadV1),
     Integer,
     Bool,
     DynamicLoopCarrier(Rc<LoopHeaderValueBasisV1>),
@@ -30,6 +31,9 @@ pub(crate) struct CheckedBindingRebindFrameV1 {
     destination: BindingRebindDestinationV1,
 }
 impl CheckedBindingRebindFrameV1 {
+    pub(crate) fn declared_read_v1(&self) -> Option<&super::super::BorrowedResultReadV1> {
+        match &self.destination { BindingRebindDestinationV1::DeclaredRead(read) => Some(read), _ => None }
+    }
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 {
         &self.evaluation
     }
@@ -215,7 +219,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         reject_rebind!("conditional-expression-child");
     }
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();
-    let initial_dynamic_references = source
+    let mut initial_dynamic_references: std::collections::BTreeMap<_, _> = source
         .nodes()
         .iter()
         .enumerate()
@@ -229,10 +233,16 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
                 ).flatten()
         })
         .collect();
+    if let BindingRebindDestinationV1::DeclaredRead(read) = &destination {
+        if source.nodes().len() != 1 || read.read().site() != assignment.value_site()
+            || prior_homes.iter().any(|home| home.binding() == *target)
+            || initial_dynamic_references.insert(0, CheckedExpressionReferenceV1::NullableResult(
+                super::super::NullableResultReferenceV1::DeclaredFrom(read.clone()))).is_some() { return Ok(None); }
+    }
     let Some(mut reference_proofs) =
         super::evaluation::seed_current_expression_references_with_loop_text_v1(
             &mut prepared,
-            initial_dynamic_references,
+            initial_dynamic_references.into_iter().collect(),
             &reference_order,
             static_reference,
             residence_reference,
@@ -261,6 +271,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         reject_rebind!("leaf-qualification");
     };
     let class = match destination {
+        BindingRebindDestinationV1::DeclaredRead(_) => Class::Opaque,
         BindingRebindDestinationV1::Integer => Class::I64,
         BindingRebindDestinationV1::Bool => Class::Bool,
         BindingRebindDestinationV1::DynamicLoopCarrier(_) => Class::Dynamic,

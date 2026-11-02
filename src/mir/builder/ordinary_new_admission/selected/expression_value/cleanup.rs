@@ -321,6 +321,10 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_c
     frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
     displaced: Option<InvokeOperation>,
 ) -> Result<(Binding, Binding), String> {
+    if frame.declared_read_v1().is_some() {
+        if !matches!(expression.value, EvaluatedExpressionValueV1::DeclaredRead(_)) { return Err(freeze("expression/scalar-continuation-result")); }
+        return finish_body_continuation(builder, &mut expression.body, None, None, false);
+    }
     if !frame.is_text_residence() {
         return finish_continuation(builder, expression, None, None, frame.is_dynamic_loop_carrier_v1());
     }

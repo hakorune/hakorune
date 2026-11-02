@@ -557,7 +557,7 @@ fn seed_reference_v1(
     }
     let class = match &proof {
         CheckedExpressionReferenceV1::NullableResult(frame) => {
-            if !prepared.is_bool_condition() || !frame.accepts_prior_homes(prepared.prior_homes()) {
+            if !prepared.accepts_nullable_reference_v1(frame) || !frame.accepts_prior_homes(prepared.prior_homes()) {
                 return None;
             }
             Leaf::Value(Class::Opaque)
