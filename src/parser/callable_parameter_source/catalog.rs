@@ -34,6 +34,10 @@ impl ParserCallableParameterSourceCatalogV1 {
             .any(|parameter| !parameter.transfer().is_ordinary()))
     }
 
+    pub(in crate::parser) fn requires_retained_source(&self) -> bool {
+        self.has_take() || self.declarations.iter().any(|declaration| declaration.borrowed_result().is_some())
+    }
+
     pub(crate) fn declarations(&self) -> &[ParserCallableParameterDeclarationSourceV1] {
         &self.declarations
     }

@@ -45,7 +45,7 @@ impl ParserCallableParameterSourceSessionV1 {
             return Err(CallableParameterSourceIssueV1::DuplicateMethodSite { statement, member });
         }
         self.seen_sites.push(source_site.clone());
-        let (neutral, rows) = parameters.into_parts();
+        let (neutral, rows, borrowed_result) = parameters.into_parts();
         if neutral.len() != rows.len()
             || neutral
                 .iter()
@@ -71,13 +71,16 @@ impl ParserCallableParameterSourceSessionV1 {
                 kind,
                 diagnostic_name,
                 rows,
+                borrowed_result,
             ));
         Ok(())
     }
 
-    fn has_take(&self) -> bool {
-        self.declarations.iter().any(|declaration| declaration.parameters().iter()
-            .any(|parameter| !parameter.transfer().is_ordinary()))
+    fn has_from(&self) -> bool {
+        self.declarations.iter().any(|declaration| declaration.borrowed_result().is_some())
+    }
+    fn requires_retained_source(&self) -> bool {
+        self.declarations.iter().any(|declaration| declaration.requires_retained_source())
     }
 
     fn finish_for_normal(self) -> Result<ParserCallableParameterSourceDispositionV1, ParseError> {
@@ -85,12 +88,9 @@ impl ParserCallableParameterSourceSessionV1 {
             || self.declarations.iter().any(|declaration| {
                 declaration.source_site().box_site().path().segments().len() != 1
             });
-        if unsupported && self.has_take() {
-            return Err(ParseError::GrammarContract {
-                stable_reject_tag: "parser/take-source-contract-required",
-                detail: "take requires a complete retained parameter source catalog".into(),
-                line: 0,
-            });
+        if unsupported && self.requires_retained_source() {
+            return Err(super::source_contract_required(self.has_from(),
+                "ownership signatures require a complete retained callable source catalog", 0));
         }
         Ok(if unsupported {
             ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported
@@ -135,15 +135,11 @@ impl NyashParser {
 
     /// AST-only projections must not erase an explicit ownership declaration.
     pub(in crate::parser) fn reject_discarded_parameter_transfers(&self) -> Result<(), ParseError> {
-        let take = self.callable_parameter_source_session.as_ref().is_some_and(|session| {
-            session.has_take()
-        });
-        if take {
-            return Err(ParseError::GrammarContract {
-                stable_reject_tag: "parser/take-source-contract-required",
-                detail: "take cannot be projected to an AST-only callable".into(),
-                line: 0,
-            });
+        if let Some(session) = self.callable_parameter_source_session.as_ref() {
+            if session.requires_retained_source() {
+                return Err(super::source_contract_required(session.has_from(),
+                    "ownership signatures cannot be projected to an AST-only callable", 0));
+            }
         }
         Ok(())
     }

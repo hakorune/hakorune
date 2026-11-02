@@ -145,7 +145,7 @@ impl ParserNormalRootSourcePlanConsumerV1 {
     > {
         // This reference-only route returns AST, not the retained parameter
         // sibling used by the canonical MIR callable source.
-        if source.has_take_parameters() {
+        if source.has_source_only_callable_contract() {
             return Err(RejectedParserNormalRootSourcePlanConsumptionV1 {
                 source, lineage,
                 error: ParserNormalRootSourcePlanConsumeErrorV1::SourceAuthorityUnavailable,

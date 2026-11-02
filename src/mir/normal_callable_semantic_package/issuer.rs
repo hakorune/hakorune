@@ -311,6 +311,11 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             Ok((batch, root_execution))
         })
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
+    batch.with_declaration_semantics(|semantic|
+        semantic.declarations().iter().try_for_each(
+            super::physical_header::require_declared_borrowed_result_connection_v1))
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::BatchLoan { _error: error })?
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::PhysicalHeader { _error: error })?;
     let selected = std::rc::Rc::new(
         issue_selected_callable_batch_map_v1(&catalog, &batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error }

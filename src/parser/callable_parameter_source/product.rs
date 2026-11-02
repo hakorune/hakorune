@@ -142,7 +142,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         self,
     ) -> Result<PreparedParserNormalRawVmSourceRouteV1, RejectedParserNormalRawVmSourceExtractionV1>
     {
-        if self.has_take_parameters() {
+        if self.has_source_only_callable_contract() {
             return Err(RejectedParserNormalRawVmSourceExtractionV1 {
                 source: self,
                 error: ParserNormalRawVmSourceExtractionErrorV1::SourceAuthorityUnavailable,
@@ -285,8 +285,8 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         }
     }
 
-    pub(super) fn has_take_parameters(&self) -> bool {
-        matches!(&self.parameter_source, ParserCallableParameterSourceDispositionV1::Complete(catalog) if catalog.has_take())
+    pub(super) fn has_source_only_callable_contract(&self) -> bool {
+        matches!(&self.parameter_source, ParserCallableParameterSourceDispositionV1::Complete(catalog) if catalog.requires_retained_source())
     }
 
     pub(super) fn normal_root_execution_for_consumer(
@@ -403,7 +403,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
     pub(crate) fn into_normal_callable_program(
         self,
     ) -> Result<ParsedNormalCallableProgramV1, ParseError> {
-        if self.has_take_parameters() && !self.completed.is_source_backed() {
+        if self.has_source_only_callable_contract() && !self.completed.is_source_backed() {
             self.discard_after_source_plan_rejection();
             return Err(ParseError::GrammarContract {
                 stable_reject_tag: "parser/take-source-contract-required",

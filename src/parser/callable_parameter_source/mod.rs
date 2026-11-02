@@ -33,7 +33,7 @@ pub(in crate::parser) use catalog::{
 #[cfg(test)]
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
-pub(crate) use model::ParserParameterTransferSyntaxV1;
+pub(crate) use model::{ParserParameterTransferSyntaxV1, ParserBorrowedResultSyntaxV1, ParserBorrowedResultSupportSyntaxV1};
 pub(in crate::parser) use model::{
     ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
 };
@@ -95,3 +95,11 @@ mod normal_source_plan_surface_tests;
 mod retained_tests;
 #[cfg(test)]
 mod tests;
+
+/// Ownership declarations cannot be silently projected onto a neutral AST.
+pub(in crate::parser) fn source_contract_required(from: bool, detail: impl Into<String>, line: usize) -> crate::parser::ParseError {
+    crate::parser::ParseError::GrammarContract {
+        stable_reject_tag: if from { "parser/from-source-contract-required" } else { "parser/take-source-contract-required" },
+        detail: detail.into(), line,
+    }
+}

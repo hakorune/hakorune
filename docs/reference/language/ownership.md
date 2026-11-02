@@ -599,8 +599,11 @@ locally. A ContractBoundary must state the exact relation. In the successor
 getRoot(): Node from me
 ```
 
-`from` is not parser-live. Exact anchors, generics, multiple returns, and
-boundary syntax remain D0 work. The provisional boundary rule is bare `: T`
+`from` is retained in Rust direct callable headers with exactly one receiver
+or parameter support, separately from the declared result type. AST-only/raw
+projections reject it; execution remains explicitly refused until the read-borrow
+contract is connected. Hako parser carriage/parity, generics and broader boundary
+syntax are not activated by this header retention. The provisional boundary rule is bare `: T`
 for `HomeToCaller` (or Trivial after recursive classification) and
 `: T from anchor` for an anchored handle. A bodyless Shared result spelling is
 still unresolved and must be selected by the representation/surface D0; it is

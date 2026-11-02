@@ -51,6 +51,7 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
         _error: SourceNavigationErrorV1,
     },
     ParameterCountOverflow,
+    BorrowedResultSupport,
     DeclaredInstanceCallRelation {
         _error: DeclaredInstanceCallRelationIssueV1,
     },
@@ -365,6 +366,7 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     block_expr_expectation,
                     projection,
                     method_source_observation,
+                    borrowed_result: None,
                 });
             }
 
@@ -373,7 +375,8 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
             // one final-source HRTB; no parser or resolver is re-entered.
             let mut method_sources = Vec::new();
             let mut call_sources = Vec::new();
-            for (syntax, row) in loan.rows().iter().zip(resolved.iter()) {
+            for (syntax, row) in loan.rows().iter().zip(resolved.iter_mut()) {
+                row.borrowed_result = resolve_declared_borrowed_result_v1(syntax, row)?;
                 if let Some(observation) = syntax.method_source_observation() {
                     let ASTNode::FunctionDeclaration { name, params, .. } = syntax.declaration()
                     else {
@@ -505,4 +508,44 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
         declared_instance_call_source,
         declared_instance_call_effect_source,
     })
+}
+
+fn resolve_declared_borrowed_result_v1(
+    syntax: &crate::parser::FinalCallableSemanticSyntaxRowRefV1<'_>,
+    row: &VerifiedResolvedCallableSemanticRowV1,
+) -> Result<Option<Arc<super::model::ResolvedCallableBorrowedResultDeclarationV1>>, ResolvedCallableSemanticBatchIssueV1> {
+    use crate::parser::callable_parameter_source::ParserBorrowedResultSupportSyntaxV1 as Source;
+    use crate::mir::resolved_semantics::{BindingKindV1, BindingOriginV1};
+    use super::model::{ResolvedCallableBorrowedResultDeclarationV1 as Declaration,
+        ResolvedCallableBorrowedResultSupportV1 as Support};
+    let Some(source) = syntax.borrowed_result() else { return Ok(None); };
+    let fail = || ResolvedCallableSemanticBatchIssueV1::BorrowedResultSupport;
+    if !row.identity.same_as(syntax.identity()) || row.batch_slot != syntax.batch_slot()
+        || CallableHeaderSyntaxViewV1::from_function_ast(syntax.declaration())
+            .is_none_or(|header| header.return_type_name() != Some(source.declared_type())) {
+        return Err(fail());
+    }
+    let (site, kind, ordinal) = match source.support() {
+        Source::Receiver if row.mode == ResolvedCallableDeclarationModeV1::InstanceBoxMethod =>
+            (SourceBindingSiteV1::Receiver, BindingKindV1::Receiver, None),
+        Source::Parameter { ordinal, name } => {
+            let parameter = syntax.parameters().and_then(|rows| rows.get(*ordinal as usize)).ok_or_else(fail)?;
+            if parameter.ordinal() != *ordinal || parameter.name() != name.as_ref()
+                || !parameter.transfer().is_ordinary() { return Err(fail()); }
+            (SourceBindingSiteV1::Parameter { index: *ordinal },
+                BindingKindV1::Parameter { index: *ordinal }, Some(*ordinal))
+        }
+        _ => return Err(fail()),
+    };
+    let function = row.forest.owner(row.owner).ok_or_else(fail)?;
+    let binding = function.declaration_binding(&site).ok_or_else(fail)?;
+    let record = function.binding(binding).ok_or_else(fail)?;
+    if binding.owner() != row.owner || record.kind() != kind
+        || record.origin() != &BindingOriginV1::Source(site) { return Err(fail()); }
+    let support = match ordinal {
+        Some(ordinal) => Support::Formal { binding, ordinal },
+        None => Support::Receiver { binding },
+    };
+    Ok(Some(Arc::new(Declaration { owner: row.owner,
+        declared_type: source.declared_type().into(), support })))
 }

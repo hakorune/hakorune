@@ -124,3 +124,17 @@ pub(super) fn issue_callable_physical_header_from_result_contract_v1(
         rows: rows.into_boxed_slice(),
     }
 }
+
+/// An explicit read result cannot enter an inferred owned result lane.
+/// This refusal stays until its existing borrowed ABI is fully connected.
+pub(super) fn require_declared_borrowed_result_connection_v1(
+    row: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticRowRefV1<'_>,
+) -> Result<(), CallablePhysicalHeaderIssueV1> {
+    if let Some(result) = row.borrowed_result() {
+        return Err(CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+            _batch_slot: row.batch_slot(),
+            _name: format!("{} from {:?}", result.declared_type(), result.support()).into_boxed_str(),
+        });
+    }
+    Ok(())
+}

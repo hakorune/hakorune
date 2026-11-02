@@ -22,6 +22,26 @@ pub(crate) enum ResolvedCallableDeclarationModeV1 {
     InstanceBoxMethod,
 }
 
+/// Declaration-only read support resolved once against its own function arena.
+/// Return compatibility and executable borrow permissions are downstream proofs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ResolvedCallableBorrowedResultSupportV1 {
+    Receiver { binding: crate::mir::resolved_semantics::BindingRefV1 },
+    Formal { binding: crate::mir::resolved_semantics::BindingRefV1, ordinal: u32 },
+}
+
+#[derive(Debug)]
+pub(crate) struct ResolvedCallableBorrowedResultDeclarationV1 {
+    pub(super) owner: FunctionOwnerIdV1,
+    pub(super) declared_type: Box<str>,
+    pub(super) support: ResolvedCallableBorrowedResultSupportV1,
+}
+impl ResolvedCallableBorrowedResultDeclarationV1 {
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
+    pub(crate) fn declared_type(&self) -> &str { &self.declared_type }
+    pub(crate) const fn support(&self) -> ResolvedCallableBorrowedResultSupportV1 { self.support }
+}
+
 #[derive(Debug)]
 pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) batch_slot: u32,
@@ -37,6 +57,7 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) block_expr_expectation: VerifiedResolvedBlockExpressionExpectationV1,
     pub(super) projection: VerifiedSourceProjectionV1,
     pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
+    pub(super) borrowed_result: Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>,
 }
 
 #[derive(Debug)]
@@ -425,6 +446,10 @@ impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
         self.parameters.as_deref()
     }
 
+    pub(crate) fn borrowed_result(&self) -> Option<&Arc<ResolvedCallableBorrowedResultDeclarationV1>> {
+        self.semantic.borrowed_result.as_ref()
+    }
+
     pub(super) fn source_ledger(
         &self,
     ) -> Result<
@@ -473,6 +498,10 @@ impl VerifiedResolvedCallableParameterSourceRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
+    pub(crate) fn borrowed_result(&self) -> Option<&Arc<ResolvedCallableBorrowedResultDeclarationV1>> {
+        self.row.borrowed_result.as_ref()
+    }
+
     pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.row.identity
     }

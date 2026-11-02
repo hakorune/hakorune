@@ -387,3 +387,32 @@ fn program_contained_if_resolves_with_the_exact_callable_identity() {
     assert_eq!(declarations.len(), 2);
     assert!(declarations[1].identity().same_as(&identities[1]));
 }
+
+#[test]
+fn declared_borrowed_results_resolve_to_their_own_parameter_or_receiver() {
+    use super::ResolvedCallableBorrowedResultSupportV1 as Support;
+    use crate::mir::resolved_semantics::BindingKindV1;
+    let batch = batch("box Lens { identity(p: Leaf): Leaf from p { return p } identityMe(): Lens from me { return me } }");
+    let rows = batch.declarations().collect::<Vec<_>>();
+    assert_eq!(rows.len(), 2);
+    for (index, row) in rows.iter().enumerate() {
+        let result = row.borrowed_result().unwrap();
+        assert_eq!(result.owner(), row.owner());
+        assert_eq!(result.declared_type(), if index == 0 { "Leaf" } else { "Lens" });
+        let (binding, expected) = match result.support() {
+            Support::Formal { binding, ordinal: 0 } if index == 0 =>
+                (binding, BindingKindV1::Parameter { index: 0 }),
+            Support::Receiver { binding } if index == 1 => (binding, BindingKindV1::Receiver),
+            other => panic!("incorrect declaration support: {other:?}"),
+        };
+        batch.with_lowering_input(row.batch_slot(), |input| {
+            assert_eq!(binding.owner(), input.owner());
+            assert_eq!(input.function().binding(binding).unwrap().kind(), expected);
+        }).unwrap();
+        batch.with_declaration_semantics(|semantic| {
+            let held = semantic.declarations()[index].borrowed_result().unwrap();
+            assert_eq!(held.owner(), result.owner());
+            assert_eq!(held.support(), result.support());
+        }).unwrap();
+    }
+}

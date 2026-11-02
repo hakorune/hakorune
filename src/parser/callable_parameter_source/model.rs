@@ -105,6 +105,27 @@ pub(crate) enum ParserCallableDeclarationKindV1 {
     InstanceBoxMethod,
 }
 
+/// Passive declared read-result support, retained with the original header.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ParserBorrowedResultSupportSyntaxV1 {
+    Receiver,
+    Parameter { ordinal: u32, name: Box<str> },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ParserBorrowedResultSyntaxV1 {
+    declared_type: Box<str>,
+    support: ParserBorrowedResultSupportSyntaxV1,
+}
+
+impl ParserBorrowedResultSyntaxV1 {
+    pub(in crate::parser) fn parsed(declared_type: String, support: ParserBorrowedResultSupportSyntaxV1) -> Self {
+        Self { declared_type: declared_type.into_boxed_str(), support }
+    }
+    pub(crate) fn declared_type(&self) -> &str { &self.declared_type }
+    pub(crate) fn support(&self) -> &ParserBorrowedResultSupportSyntaxV1 { &self.support }
+}
+
 #[derive(Debug)]
 pub(crate) struct ParserCallableParameterDeclarationSourceV1 {
     source_site: SourceBoxMethodSiteV1,
@@ -113,6 +134,7 @@ pub(crate) struct ParserCallableParameterDeclarationSourceV1 {
     kind: ParserCallableDeclarationKindV1,
     diagnostic_name: Box<str>,
     parameters: Box<[ParserCallableParameterSourceRowV1]>,
+    borrowed_result: Option<ParserBorrowedResultSyntaxV1>,
 }
 
 impl ParserCallableParameterDeclarationSourceV1 {
@@ -123,6 +145,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
         kind: ParserCallableDeclarationKindV1,
         diagnostic_name: String,
         parameters: Box<[ParserCallableParameterSourceRowV1]>,
+        borrowed_result: Option<ParserBorrowedResultSyntaxV1>,
     ) -> Self {
         Self {
             source_site,
@@ -131,6 +154,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
             kind,
             diagnostic_name: diagnostic_name.into_boxed_str(),
             parameters,
+            borrowed_result,
         }
     }
 
@@ -162,6 +186,13 @@ impl ParserCallableParameterDeclarationSourceV1 {
 
     pub(crate) fn parameters(&self) -> &[ParserCallableParameterSourceRowV1] {
         &self.parameters
+    }
+
+    pub(crate) fn borrowed_result(&self) -> Option<&ParserBorrowedResultSyntaxV1> {
+        self.borrowed_result.as_ref()
+    }
+    pub(in crate::parser) fn requires_retained_source(&self) -> bool {
+        self.borrowed_result.is_some() || self.parameters.iter().any(|row| row.transfer().is_take())
     }
 
     pub(crate) fn box_statement_ordinal(&self) -> u32 {

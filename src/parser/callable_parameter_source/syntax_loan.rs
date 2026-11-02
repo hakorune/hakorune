@@ -50,6 +50,7 @@ pub(crate) enum ParserCallableSyntaxLoanErrorV1 {
     MethodIdentityMismatch { statement: u32, inventory: u32 },
     FunctionDeclarationMissing { statement: u32, inventory: u32 },
     ParameterCoverageMismatch { statement: u32, inventory: u32 },
+    ResultCoverageMismatch { statement: u32, inventory: u32 },
     SourceRowOrdinalOverflow,
 }
 
@@ -109,6 +110,7 @@ pub(in crate::parser) fn borrow_callable_declaration_syntax_v1<'ast>(
             name,
             params,
             param_decls,
+            return_type_name,
             is_static: method_is_static,
             ..
         } = entry.declaration()
@@ -134,6 +136,10 @@ pub(in crate::parser) fn borrow_callable_declaration_syntax_v1<'ast>(
                 statement,
                 inventory,
             });
+        }
+        if source.borrowed_result().is_some_and(|result|
+            return_type_name.as_deref() != Some(result.declared_type())) {
+            return Err(ParserCallableSyntaxLoanErrorV1::ResultCoverageMismatch { statement, inventory });
         }
         let source_row_index = u32::try_from(source_row_index)
             .map_err(|_| ParserCallableSyntaxLoanErrorV1::SourceRowOrdinalOverflow)?;
@@ -217,6 +223,7 @@ mod tests {
             kind,
             diagnostic_name.to_owned(),
             vec![ParserCallableParameterSourceRowV1::ordinary(0, &parameter)].into_boxed_slice(),
+            None,
         );
         (
             ast,

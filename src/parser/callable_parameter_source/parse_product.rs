@@ -11,6 +11,7 @@ use super::model::ParserCallableParameterSourceRowV1;
 pub(in crate::parser) struct ParsedCallableParameterListV1 {
     neutral: Vec<ParamDecl>,
     rows: Box<[ParserCallableParameterSourceRowV1]>,
+    borrowed_result: Option<super::model::ParserBorrowedResultSyntaxV1>,
 }
 
 impl ParsedCallableParameterListV1 {
@@ -40,6 +41,7 @@ impl ParsedCallableParameterListV1 {
         Ok(Self {
             neutral,
             rows: rows.into_boxed_slice(),
+            borrowed_result: None,
         })
     }
 
@@ -51,8 +53,18 @@ impl ParsedCallableParameterListV1 {
         &self.neutral
     }
 
-    pub(super) fn into_parts(self) -> (Vec<ParamDecl>, Box<[ParserCallableParameterSourceRowV1]>) {
-        (self.neutral, self.rows)
+    pub(in crate::parser) fn with_borrowed_result(mut self, result: Option<super::model::ParserBorrowedResultSyntaxV1>) -> Self {
+        self.borrowed_result = result;
+        self
+    }
+    pub(in crate::parser) fn parameter_is_take(&self, ordinal: usize) -> bool {
+        self.rows.get(ordinal).is_some_and(|row| row.transfer().is_take())
+    }
+    pub(in crate::parser) fn has_from(&self) -> bool { self.borrowed_result.is_some() }
+    pub(in crate::parser) fn requires_retained_source(&self) -> bool { self.has_take() || self.has_from() }
+
+    pub(super) fn into_parts(self) -> (Vec<ParamDecl>, Box<[ParserCallableParameterSourceRowV1]>, Option<super::model::ParserBorrowedResultSyntaxV1>) {
+        (self.neutral, self.rows, self.borrowed_result)
     }
 }
 

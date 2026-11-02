@@ -62,9 +62,13 @@ Ownership grammar status (2026-08-04):
   statement-side contextual `release root`. Contract result `from` remains a
   separate provisional row. Only the exact-root `release` parser/source row is
   live. Bounded typed `take` is retained by the Rust direct callable parameter-source
-  parser; ownership call entry/cleanup is not yet connected and remains a named
-  unsupported contract. AST-only/raw projections reject `take` rather than erase
-  it. `share` remains parser-inactive.
+  parser; the explicit-birth/i64-field Box minimum now reaches canonical EXE
+  with call-entry transfer and Normal/Fault cleanup. Other forms remain bounded.
+  Rust direct callable headers also retain `: T from me` or `: T from param`
+  separately from the result type; execution is still explicitly refused until
+  its read-borrow contract is connected. AST-only/raw projections reject these
+  ownership headers rather than erase them. These retained-header rows do not
+  activate Hako parser/grammar differential parity. `share` remains parser-inactive.
 - `take`, `share`, and `release` remain `IDENT` spellings and are not global
   lexer keywords. Contextual recognition requires same-line lookahead.
   `share(...)` and `share (expr)` are permanently ordinary calls;

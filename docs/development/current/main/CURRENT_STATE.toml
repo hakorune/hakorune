@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: from read-result support declaration is not parser/source-connected"
+current_blocker_token = "ownership step 3a: retained from declaration awaits executable read-support and liveness connection"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 Ownership step 3a take minimum reaches canonical EXE; ordinary Box/birth defaults remain unchanged.
 Normal/later-argument Fault/callee Fault have exact entry transfer and one End, with source/physical rejection evidence.
-Next: explicit from (me or one formal), read permission and support liveness through the existing borrowed-result owners.
+From declarations retain exact parameter/receiver support and reject erasure/owned inference; read-result EXE connection remains next.
 Container update/sync Counter remain; 3b cutover is outside this goal. Both existing stashes remain protected.
-Take final gates: fixed suite 8/8, 19 program functions/exits identical, cohort 1797 PASS and 115 unchanged failure names.
+From declaration boundary: focused 73 PASS, suite 8/8, 19 functions/exits identical, cohort 1798 PASS and 115 unchanged failures.
 """
 next_design_card = "none"
 next_design_card_path = "none"

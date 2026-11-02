@@ -689,3 +689,18 @@ fn scalar_source_loan_requires_same_live_original_result_without_execution_permi
         loan, row.source_target(),
     ).unwrap_err().contains("scalar-loan/result-missing"));
 }
+
+#[test]
+fn declared_borrowed_result_cannot_enter_an_inferred_owned_return_contract() {
+    use crate::mir::normal_callable_semantic_package::{
+        NormalCallableSemanticPackageIssueV1 as Issue,
+        physical_header::CallablePhysicalHeaderIssueV1 as HeaderIssue,
+    };
+    for anchor in ["p", "me"] {
+        let source = format!("box Transport {{ birth() {{ }} probe(p: Transport): Transport from {anchor} {{ return new Transport() }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(recv) return 0 }} }}");
+        assert!(matches!(
+            crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source),
+            Err(Issue::PhysicalHeader { _error: HeaderIssue::UnsupportedResultAnnotation { .. } })
+        ), "a declared read result must not enter owned-return inference: {anchor}");
+    }
+}

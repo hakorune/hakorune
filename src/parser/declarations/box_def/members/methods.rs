@@ -23,8 +23,8 @@ pub(crate) fn try_parse_method(
     let param_decls = parameter_source.neutral().to_vec();
     let params = crate::ast::ParamDecl::names(parameter_source.neutral());
     p.consume(TokenType::RPAREN)?;
-    let return_type_name =
-        crate::parser::common::params::parse_optional_return_type_annotation(p, "method")?;
+    let (return_type_name, parameter_source) =
+        crate::parser::common::params::parse_callable_return_source(p, "method", parameter_source, true)?;
     let (uses, contracts) = p.parse_signature_metadata_until_body()?;
     let body = p.parse_block_statements()?;
 

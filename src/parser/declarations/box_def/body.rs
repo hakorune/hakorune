@@ -38,12 +38,10 @@ fn commit_pending_ordinary_method(
     let committed = method.commit_direct(&mut state.source_tx)?;
     let (inventory_ordinal, diagnostic_name, parameter_source, callable_identity) =
         p.issue_committed_instance_box_method(committed)?;
-    if !admit_direct_parameter_source && parameter_source.as_ref().is_some_and(|source| source.has_take()) {
-        return Err(ParseError::GrammarContract {
-            stable_reject_tag: "parser/take-source-contract-required",
-            detail: "take requires a direct source-backed callable".into(),
-            line: p.current_token().line,
-        });
+    if !admit_direct_parameter_source && parameter_source.as_ref().is_some_and(|source| source.requires_retained_source()) {
+        return Err(crate::parser::callable_parameter_source::source_contract_required(
+            parameter_source.as_ref().is_some_and(|source| source.has_from()),
+            "ownership signatures require a direct source-backed callable", p.current_token().line));
     }
     if let Some(parameters) = parameter_source.filter(|_| admit_direct_parameter_source) {
         p.commit_callable_parameter_source(

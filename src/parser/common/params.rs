@@ -207,6 +207,8 @@ fn parse_optional_type_annotation(
                     line: p.current_token().line,
                 });
             }
+            TokenType::FROM if matches!(site, TypeAnnotationSite::Return)
+                && generic_depth == 0 && array_depth == 0 => break,
             TokenType::LBRACE | TokenType::RBRACE | TokenType::SEMICOLON
                 if matches!(site, TypeAnnotationSite::Return) =>
             {
@@ -263,7 +265,50 @@ pub(crate) fn parse_optional_return_type_annotation(
     p: &mut NyashParser,
     context: &str,
 ) -> Result<Option<String>, ParseError> {
-    parse_optional_type_annotation(p, context, TypeAnnotationSite::Return)
+    let result = parse_optional_type_annotation(p, context, TypeAnnotationSite::Return)?;
+    if p.match_token(&TokenType::FROM) {
+        return Err(crate::parser::callable_parameter_source::source_contract_required(true,
+            "from requires a retained callable header", p.current_token().line));
+    }
+    Ok(result)
+}
+
+/// Parse the return part into the same one-shot header product as parameters.
+pub(crate) fn parse_callable_return_source(
+    p: &mut NyashParser,
+    context: &str,
+    parameters: crate::parser::callable_parameter_source::ParsedCallableParameterListV1,
+    receiver_available: bool,
+) -> Result<(Option<String>, crate::parser::callable_parameter_source::ParsedCallableParameterListV1), ParseError> {
+    use crate::parser::callable_parameter_source::{ParserBorrowedResultSyntaxV1 as ResultSyntax,
+        ParserBorrowedResultSupportSyntaxV1 as Support};
+    let result = parse_optional_type_annotation(p, context, TypeAnnotationSite::Return)?;
+    if !p.match_token(&TokenType::FROM) { return Ok((result, parameters)); }
+    let line = p.current_token().line;
+    let fail = |detail: &str| ParseError::GrammarContract {
+        stable_reject_tag: "parser/from-support-unavailable", detail: detail.into(), line,
+    };
+    let declared_type = result.clone().ok_or_else(|| fail("from requires a declared result type"))?;
+    p.advance();
+    skip_newlines(p);
+    let support = match &p.current_token().token_type {
+        TokenType::ME if receiver_available => Support::Receiver,
+        TokenType::IDENTIFIER(name) => {
+            let mut matches = parameters.neutral().iter().enumerate().filter(|(_, parameter)| parameter.name == *name);
+            let (ordinal, _) = matches.next().ok_or_else(|| fail("from must name the receiver or one declared parameter"))?;
+            if matches.next().is_some() { return Err(fail("from parameter is ambiguous")); }
+            if parameters.parameter_is_take(ordinal) { return Err(fail("a take parameter cannot support a returned read borrow")); }
+            Support::Parameter { ordinal: ordinal as u32, name: name.clone().into_boxed_str() }
+        }
+        _ => return Err(fail("from must name an available receiver or one read parameter")),
+    };
+    p.advance();
+    skip_newlines(p);
+    if matches!(p.current_token().token_type, TokenType::COMMA | TokenType::FROM
+        | TokenType::DOT | TokenType::LPAREN) {
+        return Err(fail("from requires exactly one receiver or parameter, not a projection or call"));
+    }
+    Ok((result, parameters.with_borrowed_result(Some(ResultSyntax::parsed(declared_type, support)))))
 }
 
 /// Parse parameter name list with Fail-Fast on unexpected tokens

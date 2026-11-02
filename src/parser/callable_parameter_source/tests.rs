@@ -78,20 +78,7 @@ fn preserves_typed_and_untyped_parameter_syntax_in_source_order() {
             stable_reject_tag: "parser/take-source-contract-required", ..
         })));
     }
-    let raw = NyashParser::parse_from_string_with_callable_parameter_source(source, ParserBuildConfig::default())
-        .unwrap().prepare_raw_vm_source_route();
-    assert!(matches!(raw.as_ref().map_err(|rejected| rejected.error()),
-        Err(super::product::ParserNormalRawVmSourceExtractionErrorV1::SourceAuthorityUnavailable)));
-    if let Err(rejected) = raw { rejected.discard(); }
-    for result in [
-        NyashParser::parse_from_string(source),
-        NyashParser::parse_grammar_evidence_from_string_with_build_config(source, ParserBuildConfig::default()),
-        NyashParser::parse_from_string_with_source_seal_ast(source, ParserBuildConfig::default()),
-    ] {
-        assert!(matches!(result, Err(crate::parser::ParseError::GrammarContract {
-            stable_reject_tag: "parser/take-source-contract-required", ..
-        })));
-    }
+    assert_source_only_header_is_not_erased(source, "parser/take-source-contract-required");
     crate::test_support::with_env_var("NYASH_PARSER_ALLOW_SEMICOLON", "1", || {
         assert!(matches!(NyashParser::parse_from_string_with_callable_parameter_source(
             "static box Api { run(take value;: Payload) { return 0 } }", ParserBuildConfig::default(),
@@ -361,4 +348,67 @@ fn selected_build_gate_stays_outside_the_parameter_catalog_cohort() {
         error,
         ParserCallableSyntaxLoanErrorV1::ParameterSourceUnavailable
     );
+}
+
+#[test]
+fn borrowed_result_retains_one_declared_support_without_changing_type_name() {
+    use super::ParserBorrowedResultSupportSyntaxV1 as Support;
+    let source = "box Lens { identity(p: Leaf): Leaf from p { return p } root(): Leaf from me { return me.root } }";
+    let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
+        source, ParserBuildConfig::default(),
+    ).unwrap();
+    ParserNormalRootExecutionTestTerminalV1::consume_once(parsed, |catalog, syntax| {
+        let declarations = catalog.declarations();
+        assert_eq!(declarations.len(), 2);
+        for (index, expected) in [
+            Support::Parameter { ordinal: 0, name: "p".into() }, Support::Receiver,
+        ].iter().enumerate() {
+            let result = declarations[index].borrowed_result().unwrap();
+            assert_eq!(result.declared_type(), "Leaf");
+            assert_eq!(result.support(), expected);
+            let ASTNode::FunctionDeclaration { return_type_name, .. } =
+                syntax.declarations()[index].declaration() else { unreachable!() };
+            assert_eq!(return_type_name.as_deref(), Some("Leaf"));
+        }
+    }).unwrap();
+    assert_source_only_header_is_not_erased(source, "parser/from-source-contract-required");
+}
+
+#[test]
+fn borrowed_result_rejects_unavailable_or_non_read_support() {
+    for source in [
+        "box Lens { identity(p: Leaf): Leaf from absent { return p } }",
+        "box Lens { identity(p: Leaf, p: Leaf): Leaf from p { return p } }",
+        "box Lens { identity(p: Leaf): Leaf from p, me { return p } }",
+        "box Lens { identity(take p: Leaf): Leaf from p { return p } }",
+        "box Lens { identity(p: Leaf) from p { return p } }",
+        "box Lens { identity(p: Leaf): Leaf from p.root { return p } }",
+        "box Lens { identity(p: Leaf): Leaf from p() { return p } }",
+        "static box Lens { identity(p: Leaf): Leaf from me { return p } }",
+    ] {
+        assert!(matches!(NyashParser::parse_from_string_with_callable_parameter_source(
+            source, ParserBuildConfig::default(),
+        ), Err(crate::parser::ParseError::GrammarContract {
+            stable_reject_tag: "parser/from-support-unavailable", ..
+        })), "{source}");
+    }
+}
+
+fn assert_source_only_header_is_not_erased(source: &str, expected_tag: &str) {
+    for result in [
+        NyashParser::parse_from_string(source),
+        NyashParser::parse_grammar_evidence_from_string_with_build_config(source, ParserBuildConfig::default()),
+        NyashParser::parse_from_string_with_source_seal_ast(source, ParserBuildConfig::default()),
+    ] {
+        match result {
+            Err(crate::parser::ParseError::GrammarContract { stable_reject_tag, .. }) =>
+                assert_eq!(stable_reject_tag, expected_tag),
+            other => panic!("ownership header must not be erased: {other:?}"),
+        }
+    }
+    let raw = NyashParser::parse_from_string_with_callable_parameter_source(source, ParserBuildConfig::default())
+        .unwrap().prepare_raw_vm_source_route();
+    assert!(matches!(raw.as_ref().map_err(|rejected| rejected.error()),
+        Err(super::product::ParserNormalRawVmSourceExtractionErrorV1::SourceAuthorityUnavailable)));
+    if let Err(rejected) = raw { rejected.discard(); }
 }
