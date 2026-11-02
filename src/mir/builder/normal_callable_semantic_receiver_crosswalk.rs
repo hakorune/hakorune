@@ -199,6 +199,10 @@ impl ExactLexicalReadV1 {
         -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         self.binding_value.original_copy_dependencies_v1()
     }
+    /// Retain the existing verified initializer chain through an alias read.
+    pub(in crate::mir) fn loan_forwarded_initializer_v1(&self, expected: Option<ValueId>) -> Result<ValueId, String> {
+        self.binding_value.loan_forwarded_initializer_v1(expected)
+    }
     pub(in crate::mir) fn source_value(&self) -> (crate::mir::resolved_semantics::OwnedExprSiteV1, BindingRefV1, ValueId) {
         (crate::mir::resolved_semantics::OwnedExprSiteV1::new(self.binding_value.owner,
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(self.site.clone())), self.binding_value.binding, self.binding_value.value)

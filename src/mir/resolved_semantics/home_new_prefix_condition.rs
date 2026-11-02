@@ -133,7 +133,7 @@ fn contains_local_home_field(
         else {
             return false;
         };
-        let root = match locals.field_read_receiver(binding) {
+        let root = match locals.field_read_receiver(binding, None) {
             Some(local_flow::FieldReadReceiverV1::OwnedHome) => binding,
             Some(local_flow::FieldReadReceiverV1::RootedHandle(root)) => root,
             _ => return false,

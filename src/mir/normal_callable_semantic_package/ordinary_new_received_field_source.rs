@@ -58,14 +58,13 @@ impl ReceivedFieldReadSourceV1 {
         let caller = callers.next().ok_or_else(|| fault("received/caller-missing"))?;
         if callers.next().is_some() { return Err(fault("received/caller-ambiguous")); }
         let exact = batch.with_lowering_input(caller.batch_slot(), |input| {
-            let mut rows = input.function().expression_source().initializers()
-                .filter(|row| row.binding() == request.receiver);
+            if let ReceivedFieldReadRequestV1::Borrowed { loan, exclusion } = original {
+                return loan.binding() == request.receiver && loan.read().site() == &request.receiver_site
+                    && loan.corroborates_v1(input) && exclusion.as_ref().is_none_or(|exclusion|
+                        exclusion.corroborates_result_read_v1(input, loan));
+            }
+            let mut rows = input.function().expression_source().initializers().filter(|row| row.binding() == request.receiver);
             rows.next().is_some_and(|row| row.initializer_site() == Some(acquisition.site())) && rows.next().is_none()
-                && match original {
-                    ReceivedFieldReadRequestV1::Borrowed { loan, exclusion: Some(exclusion) } =>
-                        exclusion.corroborates_initializer(input, loan.destination(), acquisition.site(), &request.receiver_site),
-                    _ => true,
-                }
         }).map_err(|_| fault("received/caller-input"))?;
         if !exact || acquisition.owner() != request.site.owner() { return Err(fault("received/initializer")); }
         match original {
@@ -127,8 +126,12 @@ impl ReceivedFieldReadSourceV1 {
         -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1> {
         match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => Some(loan), _ => None }
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_read_v1(&self)
+        -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1> {
+        match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => Some(loan), _ => None }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_guard(&self) -> Option<(
-        &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        &crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1,
         &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>,
     )> {
         match self.request() {
@@ -153,7 +156,7 @@ impl ReceivedFieldReadSourceV1 {
             Self::Object { loan, .. } => classes.recheck_object_call_roots_v1(self.target(), loan).map_err(fault),
             Self::Borrowed { .. } => {
                 let loan = self.borrowed().ok_or_else(|| fault("received/source-drift"))?;
-                if loan.destination() != request.receiver || !loan.is_declared_read_v1() || (!loan.payload_nonnull_v1() && self.borrowed_guard().is_none())
+                if self.borrowed_read_v1().is_none_or(|view| view.binding() != request.receiver || view.read().site() != &request.receiver_site) || !loan.is_declared_read_v1() || (!loan.payload_nonnull_v1() && self.borrowed_guard().is_none())
                     || loan.owned_local_support_v1().is_none()
                     || target.borrowed_nullable_local_source() != Some(loan)
                     || !ingress.corroborated_original_v1() {

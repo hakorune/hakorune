@@ -446,7 +446,7 @@ impl CallValidationContextV1<'_> {
                 .next()
                 .ok_or_else(|| freeze("bool-condition/reference-source"))?;
             if matches.next().is_some()
-                || exclusion.root_binding() != frame.binding()
+                || exclusion.root_binding() != frame.original_binding_v1()
                 || !matches!(packet.materialization, BoolConditionOuterV2::If(_))
             {
                 return Err(freeze("bool-condition/reference-source"));

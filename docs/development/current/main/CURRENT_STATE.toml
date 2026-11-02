@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: readonly result aliases and legal alias forwarding; reborrow/PHI and support composition remain"
+current_blocker_token = "ownership step 3a: legal alias forwarding; reborrow/PHI and support composition remain"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Receiver identity and Parent/Child field From forwarding reach canonical EXE exit 7 through common entry support.
-Field sealing normalizes the witness DAG once by original Rc identity; Pending and invalid alternatives never grant execution.
+Declared From aliases retain the original loan/Call and current read via one common exact source-flow view.
+Original initializer/Copy evidence reaches finishing and independent verification; live same-class Copy replacement is rejected.
 Optimized target/quick CLI/runtime + existing C shim: suite 8/8, cohort 1802 PASS and exact 115 failure names unchanged.
-Next: common alias read view retaining the original loan/Call and exact alias-flow + physical Copy evidence.
-Then reborrow/PHI and support composition; From incomplete, both stashes protected.
+C alias EXE exit 7 and post-null-guard alias exit 0/7; no new Home/Call or validity revival.
+Next: legal alias re-return, then reborrow/PHI and support composition; From incomplete, both stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -14,7 +14,7 @@ use crate::mir::resolved_value_profile::expression_plan::{
 use std::rc::Rc;
 #[path = "home_expression_nullable_result.rs"]
 mod nullable_result;
-pub(crate) use nullable_result::NullableResultReferenceV1;
+pub(crate) use nullable_result::{BorrowedResultReadV1, NullableResultReferenceV1};
 #[path = "home_expression_operator_loan.rs"]
 mod operator_loan;
 pub(crate) use operator_loan::CheckedExpressionOperationLoanV1;

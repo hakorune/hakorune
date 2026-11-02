@@ -279,7 +279,7 @@ pub(crate) enum ReceivedFieldReadRequestV1 {
     },
     Mixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
     Borrowed {
-        loan: Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
+        loan: super::BorrowedResultReadV1,
         exclusion: Option<std::rc::Rc<super::SourceNullExclusionV1>>,
     },
 }
@@ -387,7 +387,7 @@ pub(super) fn field_read_request(
             _ => return None,
         },
     };
-    let Some(provenance) = locals.field_read_receiver(receiver) else {
+    let Some(provenance) = locals.field_read_receiver(receiver, Some(object)) else {
         return None;
     };
     let mut received = None;

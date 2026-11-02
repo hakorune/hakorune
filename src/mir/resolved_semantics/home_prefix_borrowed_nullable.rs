@@ -242,6 +242,26 @@ impl PrefixLocalFlow<'_> {
         }
     }
 
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_declared_read_alias_v1(
+        &mut self, binding: BindingRefV1, site: &SourceExprSiteV1,
+    ) -> bool {
+        let Some(ResolvedLexicalRefV1::Local(original)) = self.input.function().variable_ref(site) else { return false; };
+        let Some(StoredLocal::BorrowedNullable(state)) = self.locals.get(&original) else { return false; };
+        if !state.read_valid || super::super::BorrowedResultReadV1::issue_v1(self.input, state.as_ref(), site).is_none() { return false; }
+        let live = match state.owned_local_support_v1() {
+            Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
+            None => self.borrowed_entry_support_live_v1(state.as_ref()),
+        };
+        if !live || binding.owner() != self.input.owner() { return false; }
+        let state = state.clone();
+        let exclusion = self.null_exclusions.get(&original).cloned();
+        let nonnull = self.nonnull.contains(&original);
+        self.store(binding, StoredLocal::BorrowedNullable(state));
+        if nonnull { self.nonnull.insert(binding); }
+        if let Some(exclusion) = exclusion { self.null_exclusions.insert(binding, exclusion); }
+        true
+    }
+
     /// One nullable comparison source, with the original read/lifetime law.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn nullable_result_reference_v1(
         &self, site: &SourceExprSiteV1,
@@ -254,8 +274,9 @@ impl PrefixLocalFlow<'_> {
             Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
             None => self.borrowed_entry_support_live_v1(state.as_ref()),
         };
-        (state.destination() == binding && state.is_declared_read_v1() && state.read_valid && live)
-            .then(|| Reference::DeclaredFrom(Box::new(state.as_ref().clone())))
+        (state.is_declared_read_v1() && state.read_valid && live)
+            .then(|| super::super::BorrowedResultReadV1::issue_v1(self.input, state.as_ref(), site))
+            .flatten().map(Reference::DeclaredFrom)
     }
 
     /// A returned read reference stays distinct from a general Handle/Home.
@@ -265,7 +286,7 @@ impl PrefixLocalFlow<'_> {
     ) -> Option<&BorrowedNullableLocalSourceLoanV1> {
         let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
         let (root, acquisition, _) = state.owned_local_support_v1()?;
-        (state.read_valid && state.is_declared_read_v1() && state.destination() == binding
+        (state.read_valid && state.is_declared_read_v1()
             && self.home_acquisition(root) == Some(acquisition)).then_some(state.as_ref())
     }
 

@@ -40,6 +40,7 @@ impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_read_receiver(
         &self,
         binding: BindingRefV1,
+        read: Option<&SourceExprSiteV1>,
     ) -> Option<FieldReadReceiverV1> {
         match self.locals.get(&binding)? {
             StoredLocal::Home { .. } => Some(FieldReadReceiverV1::OwnedHome),
@@ -92,7 +93,7 @@ impl PrefixLocalFlow<'_> {
                     Some(std::rc::Rc::clone(self.null_exclusions.get(&binding)?))
                 };
                 Some(FieldReadReceiverV1::CheckedReceived(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Borrowed {
-                    loan: Box::new(loan.clone()), exclusion,
+                    loan: super::super::BorrowedResultReadV1::issue_v1(self.input, loan, read?)?, exclusion,
                 }))
             },
             StoredLocal::ReceivedMixed(loan) if self.is_received_mixed_v1(binding) =>

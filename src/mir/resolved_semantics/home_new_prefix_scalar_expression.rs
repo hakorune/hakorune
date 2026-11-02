@@ -543,7 +543,7 @@ fn profile_scope<E>(
     };
     if order_compare {
         if matches!(
-            locals.field_read_receiver(binding),
+            locals.field_read_receiver(binding, None),
             Some(local_flow::FieldReadReceiverV1::GuardedFormal)
         ) {
             return Ok(Some(true));
@@ -683,7 +683,7 @@ pub(super) fn observe_terminal_scalar_source<E>(
         })
         .map(|(binding, _)| binding)
     {
-        matches!(locals.field_read_receiver(receiver),
+        matches!(locals.field_read_receiver(receiver, None),
                 Some(local_flow::FieldReadReceiverV1::RootedHandle(root)) if root == receiver)
             && view_use(
                 &site,

@@ -624,12 +624,14 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                 Ok(())
             }).unwrap_or_else(|issue| panic!("nullable comparison {n}: {issue}"));
             let guarded_field = source.replace("return 7", "if q == null { return 0 } return q.value");
+            for (suffix, guarded_field) in [("guarded-field", guarded_field.clone()),
+                ("guarded-alias", guarded_field.replace("return q.value", "local r = q return r.value"))] {
             for optimize in [false, true] {
             MirCompiler::with_options(optimize).compile_normal_with_published(request(&guarded_field), |view, verification| -> Result<(), String> {
                 require_artifact_verification(verification);
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
-                std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-guarded-field-{n}.json")), wire).unwrap();
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-{suffix}-{n}.json")), wire).unwrap();
                 let mut changed = view.module().clone();
                 let mut comparisons = 0;
                 for block in changed.functions.get_mut("main").unwrap().blocks.values_mut() {
@@ -646,7 +648,8 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                     .verify_module_with_finalized_root(&changed, Some(handoff)).is_err(),
                     "the independent verifier must reject the swapped nullable guard");
                 Ok(())
-            }).unwrap_or_else(|issue| panic!("nullable field {n} optimize={optimize}: {issue}"));
+            }).unwrap_or_else(|issue| panic!("nullable field {suffix} {n} optimize={optimize}: {issue}"));
+            }
             }
             for (label, tail) in [
                 ("unguarded", "return q.value"),
@@ -659,6 +662,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         }
         for (text, symbol, receiver, ordinal, artifact) in [
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }", "Leaf.identity/1", false, 0, "hako-issued-declared-read-local.json"),
+            ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local original = p.identity(p) local q = original return q.value } }", "Leaf.identity/1", false, 0, "hako-issued-declared-read-alias.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } forward(n: i64, p: Leaf): Leaf from p { local q = me.identity(p) return q } } static box Main { main() { local p = new Leaf() local q = p.forward(0, p) return q.value } }", "Leaf.forward/2", false, 1, "hako-issued-declared-read-forward.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } } static box Main { main() { local p = new Leaf() local q = p.identity() return q.value } }", "Leaf.identity/0", true, 0, "hako-issued-declared-read-receiver.json"),
             ("box Leaf { value: i64 birth() { me.value = 7 } identity(): Leaf from me { return me } forward(): Leaf from me { local q = me.identity() return q } } static box Main { main() { local p = new Leaf() local q = p.forward() return q.value } }", "Leaf.forward/0", true, 0, "hako-issued-declared-read-receiver-forward.json"),
@@ -667,6 +671,31 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
         ] {
         MirCompiler::with_options(artifact.ends_with("-forward.json")).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
             require_artifact_verification(verification);
+            if artifact.ends_with("-alias.json") {
+                let mut changed = view.module().clone();
+                let main = changed.functions.get_mut("main").unwrap();
+                let base = main.blocks.values().find_map(|block| match &block.terminator {
+                    Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldGet { base, .. }, .. }) => Some(*base),
+                    _ => None,
+                }).expect("checked alias field read");
+                let allocation = main.blocks.iter().find_map(|(id, block)| matches!(&block.terminator,
+                    Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::NewBox { .. }, .. })).then_some(*id)).unwrap();
+                let live = main.blocks.values().flat_map(|block| &block.instructions).find_map(|row| match row {
+                    MirInstruction::InvokeNormalResult { dst, invoke_block } if *invoke_block == allocation => Some(*dst),
+                    _ => None,
+                }).unwrap();
+                let mut replacements = 0;
+                for row in main.blocks.values_mut().flat_map(|block| &mut block.instructions) {
+                    if let MirInstruction::Copy { dst, src } = row {
+                        if *dst == base { assert_ne!(*src, live); *src = live; replacements += 1; }
+                    }
+                }
+                assert_eq!(replacements, 1);
+                let handoff = view.retained_handoff.ok_or("handoff missing")?;
+                assert!(crate::mir::verification::MirVerifier::new()
+                    .verify_module_with_finalized_root(&changed, Some(handoff)).is_err(),
+                    "alias Copy must retain the original borrowed Call even for a live same-class replacement");
+            }
             let input = view.issue_lifecycle_physical_abi_input()?;
             let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
             let json: serde_json::Value = serde_json::from_str(&wire).unwrap();

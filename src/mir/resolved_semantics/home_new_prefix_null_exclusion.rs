@@ -93,6 +93,19 @@ impl SourceNullExclusionV1 {
                 flow.alias_origin(value, |site| input.function().variable_ref(site))
             }) == Some(*origin)
     }
+    pub(crate) fn corroborates_result_read_v1(&self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        view: &super::BorrowedResultReadV1,
+    ) -> bool {
+        let NullRootV1::Initializer { binding, site, value: origin } = &self.root else { return false; };
+        let Some(flow) = input.function().expression_source().value_flow() else { return false; };
+        *binding == view.source().destination() && site == view.source().call().site()
+            && Arc::ptr_eq(flow, &self.flow) && view.corroborates_v1(input)
+            && flow.read(&self.guard_read, self.binding) == Some(self.value)
+            && flow.alias_origin_with_expression_boundary(self.value, |site| input.function().variable_ref(site), |at| at == site) == Some(*origin)
+            && flow.read(view.read().site(), view.binding()).and_then(|value|
+                flow.alias_origin_with_expression_boundary(value, |site| input.function().variable_ref(site), |at| at == site)) == Some(*origin)
+    }
     pub(crate) fn corroborates(
         &self,
         flow: &Arc<VerifiedSourceValueFlowV1>,
@@ -156,13 +169,13 @@ pub(super) fn issue(
             .function()
             .expression_source()
             .initializers()
-            .filter(|row| row.binding() == binding && row.initializer_site() == Some(site));
-        declarations.next()?;
+            .filter(|row| row.initializer_site() == Some(site));
+        let original_binding = declarations.next()?.binding();
         if declarations.next().is_some() {
             return None;
         }
         NullRootV1::Initializer {
-            binding,
+            binding: original_binding,
             site: site.clone(),
             value: origin,
         }

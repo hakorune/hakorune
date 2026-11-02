@@ -61,7 +61,7 @@ pub(super) fn preflight<E>(
                 return false;
             };
             matches!(
-                locals.field_read_receiver(binding),
+                locals.field_read_receiver(binding, None),
                 Some(local_flow::FieldReadReceiverV1::Alias { .. })
             ) && matches!(locals.observe(null), Some(OrdinaryObservation::Null))
         };

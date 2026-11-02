@@ -150,7 +150,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 if source.matches_checked_operation_v1(operation, base) && *invoke_block == invoke.0
                     && *normal_landing == normal.0 && normal_landing != fault_landing && *dst != base)
         { return Err(fault("received/invoke-normal-drift")); }
-        if let Some(received) = &row.source.received { context.with_taken_packet_v1(received.target().call_site(), |packet| {
+        if let Some(view) = row.source.received.as_ref().and_then(|received| received.borrowed_read_v1()) {
+            let value = context.declared_result_read_v1(view, read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?)?.0;
+            if value != base { return Err(fault("received/source-drift")); }
+        } else if let Some(received) = &row.source.received { context.with_taken_packet_v1(received.target().call_site(), |packet| {
             let original = packet.original_row()?;
             if original.source_target() != received.target() { return Err(fault("received/packet-source")); }
             let value = if received.mixed().is_some() {
@@ -158,14 +161,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 let observation = self.mixed_call_source_v1(original.call_site())
                     .ok_or_else(|| fault("received/mixed-observation"))?;
                 if original.source_target().mixed_local_source() != received.mixed() { return Err(fault("received/mixed-packet")); }
-                packet.value_in_context_v1(site.owner(), observation.arguments(), context)?
-            } else if let Some(loan) = received.borrowed() {
-                self.corroborate_borrowed_nullable_call_v1(original)?;
-                let observation = self.borrowed_nullable_call_source_v1(original.call_site())
-                    .ok_or_else(|| fault("received/source-drift"))?;
-                if original.source_target().borrowed_nullable_local_source() != Some(loan) {
-                    return Err(fault("received/source-drift"));
-                }
                 packet.value_in_context_v1(site.owner(), observation.arguments(), context)?
             } else {
                 let original = self.borrowed_object_call_packet_v1(original)?;
@@ -213,6 +208,11 @@ impl OrdinaryNewClaimLedgerV1 {
             return read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?
                 .original_copy_dependencies_v1().map(<[_]>::to_vec);
         };
+        if let Some(view) = received.borrowed_read_v1() {
+            let read = read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?;
+            context.declared_result_read_v1(view, read)?;
+            return read.original_copy_dependencies_v1().map(<[_]>::to_vec);
+        }
         context.with_taken_packet_v1(received.target().call_site(), |packet| {
             let normal = packet.outer_bindings()?.1;
             let MirInstruction::InvokeNormalResult { dst, .. } = normal.1 else { return Err(fault("received/packet-normal")); };
@@ -294,7 +294,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress
                         else { return Err(fault("received/exact-read-missing")); };
                     context.validate_nullable_nonnull_read_v1(
-                        &crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(Box::new(loan.clone())),
+                        &crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(loan.clone()),
                         exclusion, read, function, finishing, &pair[0])?;
                 }
             }
