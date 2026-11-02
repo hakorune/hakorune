@@ -12,14 +12,15 @@ impl OrdinaryNewResultClassClaimsV1 {
         site: &crate::mir::resolved_semantics::SourceExprSiteV1, app_main: Option<AppMainSourceRefV1<'_>>,
         caller: Option<&CanonicalSameModuleCallableKeyV1>,
     ) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1>, &'static str> {
-        use crate::mir::resolved_semantics::home_new_prefix::{DeclaredCallReadSourceV1, SourceCallResultReadV1};
-        let Some(read) = SourceCallResultReadV1::issue_v1(input, site) else { return Ok(None); };
+        use crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1;
         if !batch.declarations().any(|row| row.owner() == input.owner()) { return Ok(None); }
-        let Some(original) = self.original_local_call_identity_v1(batch, selected, fields, read.producer(), read.destination(), parameters, app_main, caller)? else { return Ok(None); };
-        let mut callees = batch.declarations().filter(|row| row.owner() == original.callee_owner);
-        let Some(callee) = callees.next() else { return Err("borrowed-nullable/callee-owner"); };
-        if callees.next().is_some() { return Err("borrowed-nullable/callee-owner"); }
-        Ok(callee.borrowed_result().map(|declaration| DeclaredCallReadSourceV1::issue_v1(read, std::sync::Arc::clone(declaration))))
+        DeclaredCallReadSourceV1::issue_source_v1(input, site, |producer, destination| {
+            let Some(original) = self.original_local_call_identity_v1(batch, selected, fields, producer, destination, parameters, app_main, caller)? else { return Ok(None); };
+            let mut callees = batch.declarations().filter(|row| row.owner() == original.callee_owner);
+            let Some(callee) = callees.next() else { return Err("borrowed-nullable/callee-owner"); };
+            if callees.next().is_some() { return Err("borrowed-nullable/callee-owner"); }
+            Ok(callee.borrowed_result().map(std::sync::Arc::clone))
+        })
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_read_at_v1(&self,
@@ -30,7 +31,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         site: &crate::mir::resolved_semantics::SourceExprSiteV1, app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1>, &'static str> {
         let Some(declared) = self.declared_read_source_at_v1(batch, selected, fields, parameters, input, site, app_main, None)? else { return Ok(None); };
-        let read = declared.source_read();
+        let read = declared.source_read().ok_or("borrowed-nullable/multiple-call-read-uncovered")?;
         let Some(source) = self.borrowed_nullable_local_source_v1(batch, selected, fields, parameters,
             read.producer(), read.destination(), app_main)? else { return Ok(None); };
         Ok(crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1::from_declared_v1(&source, declared))

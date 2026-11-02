@@ -416,3 +416,36 @@ fn declared_borrowed_results_resolve_to_their_own_parameter_or_receiver() {
         }).unwrap();
     }
 }
+
+#[test]
+fn declared_result_source_fold_keeps_all_call_signatures_without_issuing_a_loan() {
+    use crate::mir::resolved_semantics::{home_new_prefix::DeclaredCallReadSourceV1, OwnedExprSiteV1, SourceExprSiteV1, SourceNodeSiteV1};
+    use SourcePathSegmentV1 as P;
+    for (left, right, class, single) in [
+        ("first", "first", Some("Leaf"), true),
+        ("first", "second", Some("Leaf"), false),
+        ("first", "null", Some("Leaf"), false),
+        ("first", "other", None, false),
+        ("null", "null", None, false),
+    ] {
+        let batch = batch(&format!("box Lens {{ identity(p: Leaf): Leaf from p {{ return p }} other(p: Other): Other from p {{ return p }} probe(p: Leaf, r: Other, n: i64) {{ local first = me.identity(p) local second = me.identity(p) local other = me.other(r) local q = first if n == 0 {{ q = {left} }} else {{ q = {right} }} return q }} }}"));
+        let rows = batch.declarations().collect::<Vec<_>>();
+        batch.with_lowering_input(rows[2].batch_slot(), |input| {
+            let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![P::Body(5), P::Value]));
+            let mut producers = std::collections::BTreeSet::new();
+            let mut query = || DeclaredCallReadSourceV1::issue_source_v1(input, &site, |producer: &OwnedExprSiteV1, _| {
+                producers.insert(producer.clone());
+                let call = input.function().method_call_source_v1(producer.site()).unwrap();
+                let row = if call.selector() == "identity" { rows[0] } else { rows[1] };
+                Ok(row.borrowed_result().map(std::sync::Arc::clone))
+            });
+            let result = query().unwrap();
+            assert_eq!(result.as_ref().map(|read| read.declared_type()), class, "{left}/{right}");
+            if let Some(read) = result {
+                assert_eq!(read.source_read().is_some(), single);
+                assert_eq!(read.read().site(), &site);
+                assert_eq!(producers.len(), if left == right { 1 } else if right == "null" { 1 } else { 2 });
+            }
+        }).unwrap();
+    }
+}

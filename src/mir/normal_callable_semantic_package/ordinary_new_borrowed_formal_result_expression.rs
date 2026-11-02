@@ -181,7 +181,7 @@ impl ResultExpressionSourceV1 {
                         });
                     let read_root = plan.nodes().iter().position(|node| node.site() == object)
                         .and_then(|index| match &leaves[index] {
-                            LeafV1::DeclaredRead(read) => Some(read.source_read().binding()), _ => None,
+                            LeafV1::DeclaredRead(read) => Some(read.binding()), _ => None,
                         });
                     let path = plan.field_path_v1(node.site());
                     if path
@@ -428,10 +428,10 @@ impl ResultExpressionSourceV1 {
             LeafV1::Core(core) => core.matches_plan(&self.plan, core.node())
                 && (!core.source().target().checked_array_count_law_v1() || core.field_array_access_v1().is_some() || self.leaves.iter().any(|leaf|
                     matches!(leaf, LeafV1::Core(inner) if core.matches_receiver_result_v1(inner)))),
-            LeafV1::DeclaredRead(read) => read.source_read().read().owner() == self.plan.owner()
-                && self.plan.nodes().iter().any(|node| node.site() == read.source_read().read().site()
+            LeafV1::DeclaredRead(read) => read.read().owner() == self.plan.owner()
+                && self.plan.nodes().iter().any(|node| node.site() == read.read().site()
                     && matches!(node.source(), ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding))
-                        if *binding == read.source_read().binding())),
+                        if *binding == read.binding())),
             LeafV1::CoreReceiver(index) => matches!(self.leaves.get(*index), Some(LeafV1::Core(core))
                 if (core.field_map().is_some() || core.field_array_access_v1().is_some()) && core.matches_plan(&self.plan, *index)),
             _ => true,

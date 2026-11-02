@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Caller-formal-supported From results now retain their entry lifetime through guarded field reads; read values no longer implicitly Deref to a loan.
-Original instance input qualification lends declared class metadata; scalar Home candidates require a declared object contract, preserving the opaque lane.
-Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1807 PASS and exact 115 failure names unchanged; declared-header 3 PASS.
-Normal CLI and C entry cases exit 0/7; 56 current C inputs and existing Normal/Fault/tamper checks PASS. Production +2 (Rust -3/C +5), tests +5.
-Next: exact terminal Call/Null-to-loan correspondence for distinct-Call PHI and shared caller support; From remains incomplete. Cleanup A done; stashes protected.
+Source signature folding retains the exact current flow/read and every original Call/Null terminal; common payload class grants no loan/Home/nonnull permission.
+Single-Call consumers keep existing acceptance; multi-Call live consumers reject explicitly, without a representative Call or legacy downgrade.
+Optimized target/quick CLI/runtime: suite 8/8, cohort 1808 PASS and exact 115 failure names; C 56 parsed inputs unchanged and existing execution/tamper checks PASS.
+Distinct-Call guarded field now crosses source-not-i64 and stops at HomeFlowBranchDivergent; EXE acceptance remains incomplete. Production +86, tests +33.
+Next: exact terminal-to-loan correspondence, shared caller support and matching PHI/null-guard identity. From incomplete; cleanup A done; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

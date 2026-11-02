@@ -15,9 +15,9 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - take接続済み: 明示birth/i64 field Boxのmove実引数、左→右一度評価、移転後の元binding/alias拒否と入場前caller/入場後calleeのNormal/Fault責任を保持。Normal/後続引数Fault/入場後Faultはexit 7/70/70、取得/End/free一致。詳細はGit履歴、通常Box/birth既定は維持。
 - 整理A完了: 既存Owned parameter Eqを再利用して完全比較8箇所をslice比較へ統合、Verified parameterも同じ4fieldのEq、宣言transfer→HomeDemandはcallable_parameter_contract/model.rsへ集約。部分比較・owner/mode/site・UnsupportedTransferの位置/拒否は不変。
   production +20/−58（純減38）、test ±0。最適化target/quick CLI/runtimeでsuite 8/8・parameter＋cohort 1817 PASS/既知115失敗名一致、C用54入力同一。update前の約束を満たし、updateは未選択。
-- 今回のsource query接続: 既存SourceValueFlowのalias_origins_v1が完全なNormal分岐の全terminalを返す。辺は元flowに保持し、shared DAGの成功/失敗をmemo化。unanimous_alias_originは同じqueryのsingletonだけを採用し、既存Call/read consumerの受理は不変。
-  Entry/別々の同値literalの全取得、共有入力の重複除去、foreign/Unknown/raw Loop拒否を既存9testへ統合。production +37/−21（純増16）、test +9、新test file/checker/hookなし。集合だけから型・loan・Home・nonnull・代表Callを発行しない。
-  最適化target/quick CLI（cargo quick-build --bin hakorune、3分25秒）＋同runtime/既存C shimでsuite 8/8（123.65秒、SKIP/timeoutなし）。cargo check --lib --tests -p nyash-rust PASS、最終cargo quick-test-fast cohort 1804 PASS/既知115失敗名完全一致、C現54入力同一。別Call PHIの受理は未接続。
+- source型query接続: 既存SourceValueFlowの完全Normal分岐を通じた全terminalから元Call宣言を照合し、同じ名義型＋Nullを既存型consumerへ渡す。current read/value/flowと全Call/原本literal Nullを保持し、型だけでloan・Home・nonnullを発行しない。既存unanimous/single Callは維持。
+  単loan consumerは複数Callを明示拒否し、代表Callや旧ownerへ降格しない。別Call/Call＋Nullの型照合、型不一致/全Null拒否を既存callable batch test familyへ統合（新test file/checker/hookなし）。production +116/−30（純増86）、test +33。前queryのshared DAG・foreign/Unknown/raw Loop拒否も維持。
+  最適化target/quick CLI（cargo quick-build --bin hakorune、4分11秒）＋同runtime/既存C shimで固定suite 8/8（SKIP/timeoutなし）、cohort 1808 PASS/既知115失敗名完全一致。C現56入力のparsed JSON一致・既存Normal/Fault/EXE/改変拒否PASS。別Call guarded fieldはsource-not-i64を越えHomeFlowBranchDivergentへ到達、EXE受理は未完。
 - 次: 同一formal支持・別Call PHIは最適化CLIのIf（Body(3)）合流でHomeFlowBranchDivergent。flowのcurrent root→全terminalとchecked loanを過不足なく対応させ、各leafの元read siteを保持して共通caller支持を照合する。現在値の有効性は各枝AND、原本loanの代表選択・新Branch解析器は作らない。
   原本literal queryで証明したNull葉だけがHome/支持なし。nullable CallをNull葉へ降格せず、全Call葉の支持を照合する。全Nullは支持なし・型を捏造しない。局所field/read consumerから接続し、再返却descriptor拡張はADR-002の判断境界。
   From全体・異なる支持元合成は未完。19形は切替直前、stash 2件と別作業の未追跡inventoryを保持。各過去着地の詳細・不要になった一時診断の整理はGit履歴を参照。
