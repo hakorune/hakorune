@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Cleanup A landed: reuse whole parameter equality at eight checks and centralize declaration transfer-to-HomeDemand in the model; partial constraints remain unchanged.
-Production -38 lines, tests unchanged; no new checker/hook/test. Same-original-Call readonly PHI re-return remains connected.
-Optimized target/quick CLI/runtime: suite 8/8; parameter contract + cohort 1817 PASS and exact 115 failure names unchanged; C 54 current inputs unchanged.
-Distinct Calls with the same formal support still stop at the source If join: HomeFlowBranchDivergent; confirmed with the final optimized CLI.
-Next: use existing SourceValueFlow current root/all incoming with exact Call-to-loan correspondence, then field/read consumers; publication expansion needs ADR review. From incomplete; cleanup A done before update; stashes protected.
+Complete-terminal alias query is connected to the existing singleton provenance gate; the original SourceValueFlow remains the only edge graph.
+Unknown/foreign/raw Loop/cycle or incomplete inputs reject as a whole; shared DAG success/failure is memoized. Production +16, tests +9 in the existing family.
+Optimized target/quick CLI/runtime: suite 8/8; cohort 1804 PASS and exact 115 failure names unchanged; source-flow 9 PASS; C 54 current inputs unchanged.
+Acceptance unchanged: distinct-Call readonly PHI still stops at HomeFlowBranchDivergent; From and support composition remain incomplete.
+Next: exact terminal Call/Null correspondence to checked loans and common caller support, then field/read consumers; no representative Call. Cleanup A done; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

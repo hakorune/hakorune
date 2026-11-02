@@ -137,37 +137,53 @@ impl VerifiedSourceValueFlowV1 {
     ) -> Option<SourceValueRefV1> {
         self.alias_origin_with_expression_boundary(value, reference, |_| false)
     }
-    /// Opt-in alias equality across a complete Normal branch. Every original
-    /// incoming must reach the SAME source identity; this grants neither a
-    /// type nor read permission, and never selects a convenient predecessor.
-    pub(crate) fn unanimous_alias_origin(
+    /// Exact terminal identities across complete Normal branch inputs. The
+    /// original flow remains the edge graph; this set grants no common type,
+    /// lifetime, read permission, or representative predecessor.
+    pub(crate) fn alias_origins_v1(
         &self, value: SourceValueRefV1,
         mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
-    ) -> Option<SourceValueRefV1> {
+    ) -> Option<BTreeSet<SourceValueRefV1>> {
         fn visit(
             flow: &VerifiedSourceValueFlowV1, value: SourceValueRefV1,
             reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
-            path: &mut BTreeSet<SourceValueRefV1>,
-            memo: &mut BTreeMap<SourceValueRefV1, Option<SourceValueRefV1>>,
-        ) -> Option<SourceValueRefV1> {
-            let value = flow.alias_terminal_with_expression_boundary(value, &mut *reference, |_| false)?;
-            if let Some(original) = memo.get(&value) { return *original; }
-            if !path.insert(value) { return None; }
-            let original = match flow.origin(value) {
-                Some(SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Expression(_)) => Some(value),
+            active: &mut BTreeSet<SourceValueRefV1>,
+            complete: &mut BTreeMap<SourceValueRefV1, bool>,
+            origins: &mut BTreeSet<SourceValueRefV1>,
+        ) -> bool {
+            let Some(value) = flow.alias_terminal_with_expression_boundary(value, &mut *reference, |_| false)
+                else { return false; };
+            if let Some(valid) = complete.get(&value) { return *valid; }
+            if !active.insert(value) { return false; }
+            let valid = match flow.origin(value) {
+                Some(SourceValueOriginV1::Entry(_) | SourceValueOriginV1::Expression(_)) => {
+                    origins.insert(value); true
+                }
                 Some(SourceValueOriginV1::Join { kind: SourceValueJoinKindV1::BranchNormal, incoming, .. })
                     if matches!(incoming.as_ref(), [(SourceValueEdgeV1::ThenNormal, _), (SourceValueEdgeV1::ElseNormal, _)]) => {
-                    let left = visit(flow, incoming[0].1, reference, path, memo);
-                    let right = visit(flow, incoming[1].1, reference, path, memo);
-                    left.zip(right).filter(|(left, right)| left == right).map(|(same, _)| same)
+                    let left = visit(flow, incoming[0].1, reference, active, complete, origins);
+                    let right = visit(flow, incoming[1].1, reference, active, complete, origins);
+                    left && right
                 }
-                _ => None,
+                _ => false,
             };
-            path.remove(&value);
-            memo.insert(value, original);
-            original
+            active.remove(&value);
+            complete.insert(value, valid);
+            valid
         }
-        visit(self, value, &mut reference, &mut BTreeSet::new(), &mut BTreeMap::new())
+        let mut origins = BTreeSet::new();
+        visit(self, value, &mut reference, &mut BTreeSet::new(), &mut BTreeMap::new(), &mut origins)
+            .then_some(origins)
+    }
+    /// Opt-in alias equality uses the SAME complete-input traversal. Distinct
+    /// terminal identities stay distinct even when their values compare equal.
+    pub(crate) fn unanimous_alias_origin(
+        &self, value: SourceValueRefV1,
+        reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+    ) -> Option<SourceValueRefV1> {
+        let mut origins = self.alias_origins_v1(value, reference)?.into_iter();
+        let first = origins.next()?;
+        origins.next().is_none().then_some(first)
     }
     /// Retain an original expression boundary selected by its source consumer.
     /// This remains an alias-only walk: no join predecessor can be selected,
