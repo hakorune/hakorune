@@ -232,6 +232,22 @@ impl PrefixLocalFlow<'_> {
         matches!(self.locals.get(&binding), Some(StoredLocal::BorrowedNullable(state)) if state.is_declared_read_v1())
     }
 
+    /// One nullable comparison source, with the original read/lifetime law.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn nullable_result_reference_v1(
+        &self, site: &SourceExprSiteV1,
+    ) -> Option<super::super::NullableResultReferenceV1> {
+        use super::super::NullableResultReferenceV1 as Reference;
+        if let Some(frame) = self.stored_get_reference_v1(site) { return Some(Reference::StoredMapGet(frame)); }
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None; };
+        let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
+        let live = match state.owned_local_support_v1() {
+            Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
+            None => state.root().is_some_and(|root| self.is_self_rooted_handle(root)),
+        };
+        (state.destination() == binding && state.is_declared_read_v1() && state.read_valid && live)
+            .then(|| Reference::DeclaredFrom(Box::new(state.as_ref().clone())))
+    }
+
     /// A returned read reference stays distinct from a general Handle/Home.
     /// Its exact New argument also narrows formal-derived Null, not literal Null.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_local_v1(

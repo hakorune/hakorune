@@ -615,6 +615,14 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                 std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-nullable-{n}.json")), wire).unwrap();
                 Ok(())
             }).unwrap_or_else(|issue| panic!("nullable capture {n}: {issue}"));
+            let guarded = source.replace("return 7", "if q == null { return 7 } return 9");
+            MirCompiler::with_options(false).compile_normal_with_published(request(&guarded), |view, verification| -> Result<(), String> {
+                require_artifact_verification(verification);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-declared-read-guarded-{n}.json")), wire).unwrap();
+                Ok(())
+            }).unwrap_or_else(|issue| panic!("nullable comparison {n}: {issue}"));
             let unsafe_read = source.replace("return 7", "return q.value");
             assert!(MirCompiler::with_options(false).compile_normal_with_published(request(&unsafe_read), |_, _| Ok(())).is_err(), "literal Null must not gain field permission from its local New support");
         }

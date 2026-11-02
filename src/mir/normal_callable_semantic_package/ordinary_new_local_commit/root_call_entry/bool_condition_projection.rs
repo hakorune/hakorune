@@ -452,7 +452,7 @@ impl CallValidationContextV1<'_> {
             let (reference, _, original) = operation
                 .nullable_null_v1()
                 .ok_or_else(|| freeze("bool-condition/operator-loan"))?;
-            if !Rc::ptr_eq(original, frame)
+            if !original.map_frame().is_some_and(|same| Rc::ptr_eq(same, frame))
                 || packet.frame.source().nodes()[reference].site() != guard
                 || !matches!(
                     packet.node(reference)?.proof,

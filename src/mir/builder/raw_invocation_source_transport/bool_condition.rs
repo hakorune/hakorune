@@ -73,7 +73,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 if matches!(reference, Reference::Scalar(read) if read.original_read().is_some())
                     || matches!(reference,
                         Reference::FiniteEntry { .. }
-                            | Reference::StoredMapGet(_)
+                            | Reference::NullableResult(_)
                             | Reference::DynamicInvocationResult(_)
                             | Reference::LoopText(_)
                             | Reference::LoopDynamic(_)) {

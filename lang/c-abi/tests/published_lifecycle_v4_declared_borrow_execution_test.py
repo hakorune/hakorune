@@ -202,14 +202,14 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol in [('local', 'Leaf.identity/1'), ('receiver', 'Leaf.identity/0'), ('field', 'Parent.identity/0'), ('forward', 'Leaf.forward/2'), ('nullable-0', 'Leaf.maybe/2'), ('nullable-1', 'Leaf.maybe/2')]:
+    for suffix, symbol, expected in [('local', 'Leaf.identity/1', 7), ('receiver', 'Leaf.identity/0', 7), ('field', 'Parent.identity/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9)]:
         # Unchanged source-issued explicit read result; Copy retains its original Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
         checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
         run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
-        assert run.returncode == 7, (run.returncode, run.stdout, run.stderr)
-        print(f'source-issued From {suffix} support: canonical EXE exit 7')
+        assert run.returncode == expected, (run.returncode, run.stdout, run.stderr)
+        print(f'source-issued From {suffix} support: canonical EXE exit {expected}')
         for side in ['call', 'callee']:
             for marker in [None, False]:
                 data = copy.deepcopy(read)

@@ -155,6 +155,29 @@ HAKO
   CASES+=("ownership_from_nullable|$TMP_ROOT.from-nullable.hako|7||")
 fi
 
+for null_guard_input in 0 1; do
+  if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = "ownership_from_null_guard_$null_guard_input" ]; then
+    cat > "$TMP_ROOT.from-null-guard-$null_guard_input.hako" <<HAKO
+box Leaf {
+  value: i64
+  birth() { me.value = 7 }
+  maybe(n: i64, p: Leaf): Leaf from p { if n == 0 { return null } return p }
+}
+static box Main {
+  main() {
+    local p = new Leaf()
+    local q = p.maybe($null_guard_input, p)
+    if q == null { return 7 }
+    return 9
+  }
+}
+HAKO
+    null_guard_expected=7
+    if [ "$null_guard_input" = 1 ]; then null_guard_expected=9; fi
+    CASES+=("ownership_from_null_guard_$null_guard_input|$TMP_ROOT.from-null-guard-$null_guard_input.hako|$null_guard_expected||")
+  fi
+done
+
 run_case() {
   local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
   if [[ "$2" = /* ]]; then app="$2"; fi

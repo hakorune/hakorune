@@ -11,6 +11,9 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 use crate::mir::{ConstValue, ValueId};
 
 type Finished = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings;
+#[path = "expression_reference_nullable.rs"]
+mod nullable;
+use nullable::nullable_result_read_v1;
 #[path = "expression_reference_source.rs"]
 mod source;
 use source::*;
@@ -75,7 +78,7 @@ impl ExpressionReferenceReadV1 {
         finishing: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.validate_layout(frame, node, context, function)?;
-        if let source @ (Reference::StoredMapGet(_)
+        if let source @ (Reference::NullableResult(_)
         | Reference::DynamicInvocationResult(_)) = original_reference(frame, node)? {
             self.validate_source_reference_v1(
                 frame.source(),
@@ -176,7 +179,7 @@ impl ExpressionReferenceReadV1 {
             Reference::Scalar(_)
             | Reference::FiniteEntry { .. }
             | Reference::DynamicEntry(_)
-            | Reference::StoredMapGet(_)
+            | Reference::NullableResult(_)
             | Reference::DynamicInvocationResult(_) => {
                 return Self::prepare_source_reference_v1(
                     frame.source(),
@@ -497,8 +500,8 @@ impl ExpressionReferenceReadV1 {
             return Err(freeze("expression/reference-source-node"));
         }
         match source {
-            Reference::StoredMapGet(frame) => {
-                let (_, [_, normal]) = context.stored_map_get_read_v1(frame, read, function, None)?;
+            Reference::NullableResult(frame) => {
+                let (_, [_, normal]) = nullable_result_read_v1(frame, read, context, function, None)?;
                 let producer = ReferenceProducerV1::Definition(normal);
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 { producer })
@@ -570,19 +573,14 @@ impl ExpressionReferenceReadV1 {
             return Err(freeze("expression/reference-source-node"));
         }
         match source {
-            Reference::StoredMapGet(frame) => {
+            Reference::NullableResult(frame) => {
                 let (value, [_, normal]) =
-                    context.stored_map_get_read_v1(frame, &self.read, function, finishing)?;
+                    nullable_result_read_v1(frame, &self.read, context, function, finishing)?;
                 if !matches!(&self.producer, ReferenceProducerV1::Definition(original) if original == &normal)
                 {
                     return Err(freeze("expression/reference-source-node"));
                 }
-                self.read
-                    .value_for(
-                        plan.owner(),
-                        plan.nodes()[node].site().node(),
-                        frame.binding(),
-                    )
+                self.read.value_for(plan.owner(), plan.nodes()[node].site().node(), frame.binding())
                     .map_err(|error| error.to_string())?;
                 if let Some(finishing) = finishing {
                     self.validate_finished_dependencies_v1(function, finishing)?;

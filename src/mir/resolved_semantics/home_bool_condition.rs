@@ -324,14 +324,14 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 [(left, right), (right, left)]
                     .into_iter()
                     .find_map(|(reference, null)| {
-                        let Some(CheckedExpressionReferenceV1::StoredMapGet(frame)) =
+                        let Some(CheckedExpressionReferenceV1::NullableResult(frame)) =
                             reference_proofs.get(&reference)
                         else {
                             return None;
                         };
                         (classes[reference] == Leaf::Value(Class::Opaque)
                             && classes[null] == Leaf::Value(Class::Null))
-                        .then(|| (reference, null, Rc::clone(frame)))
+                        .then(|| (reference, null, frame.clone()))
                     });
             if let Some((reference, null, frame)) = nullable {
                 let loan = CheckedExpressionOperationLoanV1 {

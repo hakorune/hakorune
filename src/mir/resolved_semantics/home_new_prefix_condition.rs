@@ -604,8 +604,8 @@ fn install_source<E>(
         if !matches!(node.source(), Node::Reference(_)) {
             continue;
         }
-        if let Some(frame) = locals.stored_get_reference_v1(node.site()) {
-            initial_references.push((index, CheckedExpressionReferenceV1::StoredMapGet(frame)));
+        if let Some(frame) = locals.nullable_result_reference_v1(node.site()) {
+            initial_references.push((index, CheckedExpressionReferenceV1::NullableResult(frame)));
             continue;
         }
         if let Some(frame) = locals.dynamic_invocation_result_reference_v1(node.site()) {

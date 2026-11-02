@@ -832,7 +832,7 @@ fn stored_map_get_keeps_its_original_local_source() {
         assert!(flow.expression_plans().iter().filter_map(|plan| plan.evaluation())
             .flat_map(|evaluation| evaluation.operations())
             .filter_map(|operation| operation.nullable_null_v1())
-            .any(|(_, _, observed)| std::rc::Rc::ptr_eq(frame, observed)),
+            .any(|(_, _, observed)| observed.map_frame().is_some_and(|original| std::rc::Rc::ptr_eq(frame, original))),
             "null check consumes the original get frame");
         assert!(flow.all_exits_ready(), "field initializer and final return must be covered");
         let field_site = input.body_shape().unwrap().expressions().iter().find_map(|shape| match shape {

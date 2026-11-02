@@ -394,7 +394,7 @@ pub(super) fn owned_result_nodes(
 /// obligations are not physical operands; entry/residence fulfillment is later.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CheckedExpressionReferenceV1 {
-    StoredMapGet(Rc<super::super::MapFieldGetLocalV1>),
+    NullableResult(NullableResultReferenceV1),
     /// A local Dynamic result borrowed from its exact initializer call frame.
     /// The frame grants neither a concrete payload type nor ownership transfer.
     DynamicInvocationResult(Rc<super::super::CheckedInitializerExpressionFrameV1>),
@@ -413,7 +413,7 @@ pub(crate) enum CheckedExpressionReferenceV1 {
 impl CheckedExpressionReferenceV1 {
     pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
         match self {
-            Self::StoredMapGet(frame) => frame.binding(),
+            Self::NullableResult(frame) => frame.binding(),
             Self::DynamicInvocationResult(frame) => frame.binding(),
             Self::StaticText(read) => read.binding(),
             Self::Residence(read) => read.binding(),
@@ -437,10 +437,8 @@ impl CheckedExpressionReferenceV1 {
             return false;
         }
         match self {
-            Self::StoredMapGet(frame) => {
-                frame.site().owner() == source.owner()
-                    && frame.source().get().owner() == source.owner()
-                    && frame.site().site() == frame.source().get().site()
+            Self::NullableResult(frame) => {
+                frame.site().owner() == source.owner() && frame.matches_source()
             }
             Self::DynamicInvocationResult(frame) => {
                 frame.is_dynamic_value()
@@ -558,8 +556,8 @@ fn seed_reference_v1(
         return None;
     }
     let class = match &proof {
-        CheckedExpressionReferenceV1::StoredMapGet(frame) => {
-            if !prepared.is_bool_condition() || prepared.prior_homes() != frame.prior_homes() {
+        CheckedExpressionReferenceV1::NullableResult(frame) => {
+            if !prepared.is_bool_condition() || !frame.accepts_prior_homes(prepared.prior_homes()) {
                 return None;
             }
             Leaf::Value(Class::Opaque)
