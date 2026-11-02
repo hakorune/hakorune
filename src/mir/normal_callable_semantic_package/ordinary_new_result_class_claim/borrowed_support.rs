@@ -62,15 +62,24 @@ impl OrdinaryNewResultClassClaimsV1 {
             let inner = actual.source();
             let inner_roots = self.checked_original_source_roots_v1(inner.key(), inner.callee_owner())?;
             self.check_borrowed_nullable_roots_v1(inner, &inner_roots)?;
-            let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal } = declaration.support()
-                else { return Err("borrowed-nullable/root-origin"); };
-            let mut path = loan.call().site().node().segments().to_vec();
-            path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal));
-            if *callee != crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal)
-                || actual.read().owner() != loan.call().owner() || actual.read().site().node().segments() != path
-                || inner.call() == loan.call() || !inner.is_declared_read_v1()
-                || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)
-                    || !(root.is_literal_null_v1() || root.supports_formal_v1(binding, ordinal))) {
+            use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
+            let matches = match declaration.support() {
+                Support::Formal { binding, ordinal } => {
+                    let mut path = loan.call().site().node().segments().to_vec();
+                    path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal));
+                    *callee == crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal)
+                        && actual.read().site().node().segments() == path
+                        && roots.iter().all(|root| root.is_literal_null_v1() || root.supports_formal_v1(binding, ordinal))
+                }
+                Support::Receiver { binding } => *callee == crate::mir::instruction::BorrowedResultSupportV1::Receiver
+                    && actual.read().site() == loan.receiver()
+                    && inner.declared_read_result_v1().is_some_and(|read| read.declared_type() == loan.key().owner())
+                    && roots.iter().all(|root| root.supports_receiver_v1(binding, declaration.declared_type())
+                        && (root.is_literal_null_v1() || root.recheck_receiver_payload_v1(self))),
+            };
+            if !matches || declaration.owner() != loan.callee_owner()
+                || actual.read().owner() != loan.call().owner() || inner.call() == loan.call() || !inner.is_declared_read_v1()
+                || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)) {
                 return Err("borrowed-nullable/source-identity");
             }
             return Ok(());

@@ -157,6 +157,8 @@ impl BorrowedNullableLocalSourceLoanV1 {
         !self.witnesses.is_empty() && match &self.support {
             BorrowedLocalSupportV1::Reborrow { callee: crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal), actual } =>
                 actual.source().payload_nonnull_v1() && self.witnesses.iter().all(|root| root.formal_ordinal() == Some(*ordinal)),
+            BorrowedLocalSupportV1::Reborrow { callee: crate::mir::instruction::BorrowedResultSupportV1::Receiver, actual } =>
+                actual.source().payload_nonnull_v1() && self.witnesses.iter().all(|root| root.receiver_payload_nonnull_v1()),
             BorrowedLocalSupportV1::OwnedLocal { callee_ordinal, .. } => self.witnesses.iter()
                 .all(|root| root.formal_ordinal() == Some(*callee_ordinal)),
             BorrowedLocalSupportV1::OwnedReceiver { .. } => self.witnesses.iter().all(|root| root.receiver_payload_nonnull_v1()),
@@ -346,9 +348,19 @@ impl OrdinaryNewResultClassClaimsV1 {
                 let original = batch.with_lowering_input(source.caller_slot, |input| {
                     let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(read.site())? else { return None; };
                     witness::capture_local_construction_result_v1(input, binding, &read)
-                }).map_err(|_| "borrowed-nullable/caller-input")?.ok_or("borrowed-nullable/actual-root")?;
-                if original.construction.class() != source.key.owner() { return Err("borrowed-nullable/source-identity"); }
-                BorrowedLocalSupportV1::OwnedReceiver { read, source: original }
+                }).map_err(|_| "borrowed-nullable/caller-input")?;
+                if let Some(original) = original {
+                    if original.construction.class() != source.key.owner() { return Err("borrowed-nullable/source-identity"); }
+                    BorrowedLocalSupportV1::OwnedReceiver { read, source: original }
+                } else {
+                    let actual = batch.with_lowering_input(source.caller_slot, |input|
+                        self.borrowed_read_at_v1(batch, selected, fields, parameters, input, read.site(), app_main))
+                        .map_err(|_| "borrowed-nullable/caller-input")??.ok_or("borrowed-nullable/actual-root")?;
+                    if actual.source().declared_read_result_v1().is_none_or(|declaration| declaration.declared_type() != source.key.owner()) {
+                        return Err("borrowed-nullable/source-identity");
+                    }
+                    BorrowedLocalSupportV1::Reborrow { callee: crate::mir::instruction::BorrowedResultSupportV1::Receiver, actual }
+                }
             }
         } else if let Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }) = self.get(&source.key) {
             let actual = source.actuals.get(*ordinal as usize).ok_or("borrowed-nullable/actual-root")?;

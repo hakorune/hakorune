@@ -161,9 +161,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (callee_has_receiver) {
         if (!yyjson_is_uint(receiver) || !in->index[target].receiver_object_set) return 0;
         hako_lv4_value* receiver_value = lv4_index_value(fn, lv4_u(call, "receiver"));
-        int nonnull_receiver = lv4_nonnull_object_formal(fn, receiver_value, in->index[target].receiver_object);
-        if (!nonnull_receiver && !lv4_readable_object(in, fn, lv4_u(call, "receiver"), state, lv4_u(block, "id"),
-                in->index[target].receiver_object, 1))
+        if (!lv4_borrowed_receiver_readable(in, fn, receiver_value, op, state,
+                lv4_u(block, "id"), use_position, in->index[target].receiver_object))
           return LV4_FLOW_RECEIVER_MISMATCH;
       }
       {

@@ -15,6 +15,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     Observe(
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
         &'a [BorrowedCallActualCandidateV1],
+        Option<&'a super::BorrowedResultReadV1>,
     ),
     /// Original argument plan and optional Core loan; no evaluation permission.
     ArgumentExpressionSource(

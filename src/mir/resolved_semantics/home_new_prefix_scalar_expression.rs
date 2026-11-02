@@ -264,7 +264,7 @@ fn observe_scalar_expression_with_operation<E>(
     for call in &calls {
         borrowed_actuals(
             call.site(),
-            BorrowedCallActualRequestV1::Observe(input, &[]),
+            BorrowedCallActualRequestV1::Observe(input, &[], None),
         )?;
     }
     if let Some(installation) = installation {
@@ -327,7 +327,7 @@ pub(super) fn observe_local_mul_return<E>(
     };
     borrowed_actuals(
         call.site(),
-        BorrowedCallActualRequestV1::Observe(input, &[]),
+        BorrowedCallActualRequestV1::Observe(input, &[], None),
     )?;
     Ok(GuardedMulReturnV1::Observed(vec![call]))
 }
@@ -380,7 +380,7 @@ pub(super) fn observe_guarded_mul_return<E>(
     for call in &calls {
         borrowed_actuals(
             call.site(),
-            BorrowedCallActualRequestV1::Observe(input, &[]),
+            BorrowedCallActualRequestV1::Observe(input, &[], None),
         )?;
     }
     Ok(GuardedMulReturnV1::Observed(calls))

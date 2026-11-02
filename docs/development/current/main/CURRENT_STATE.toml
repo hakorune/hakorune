@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Original Call-entry observations retain existing From reads only across closed readonly callees with no Home demand/transfer.
-Shared independent MIR validation checks every retained read use, aliases, endpoint and support interval; mixed PHI stays rejected.
-Optimized target/quick CLI/runtime + existing C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
-Focused 6 PASS; C existing Normal/Fault plus first.value after reborrow EXE exit 7 and mutation refusals pass.
-Next: receiver reborrow from original declaration/read provenance, then PHI/support composition; cleanup A before update. From incomplete; stashes protected.
+Nonnull From receiver reborrow retains original producer/read/Copy, canonical loan, payload class and lifetime support separately.
+Current prefix read is matched in Observe; shared source effects plus independent MIR/C prove readonly receiver use intervals.
+Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
+Normal CLI alias receiver EXE exit 7, null/write refusal without EXE, C receiver/Parent-Child/alias exit 7 and existing checks pass.
+Next: readonly binding transport through source-proved all-incoming SSA joins, then distinct Call/support composition; cleanup A before update. From incomplete; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

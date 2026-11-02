@@ -29,15 +29,16 @@ pub(crate) struct LexicalInstanceCallSourceTargetV1 {
 /// The acquisition origin stays separate from receiver class and execution.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedReceiverSourceV1 {
+    DeclaredRead(crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1),
     OrdinaryCall(super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1),
     DirectMapGet(DirectMapReceiverSourceV1),
 }
 impl BorrowedReceiverSourceV1 {
     pub(super) fn destination(&self) -> BindingRefV1 {
-        match self { Self::OrdinaryCall(source) => source.destination(), Self::DirectMapGet(source) => source.binding }
+        match self { Self::DeclaredRead(read) => read.binding(), Self::OrdinaryCall(source) => source.destination(), Self::DirectMapGet(source) => source.binding }
     }
     pub(super) fn acquisition(&self) -> &OwnedExprSiteV1 {
-        match self { Self::OrdinaryCall(source) => source.call(), Self::DirectMapGet(source) => &source.initializer }
+        match self { Self::DeclaredRead(read) => read.source().call(), Self::OrdinaryCall(source) => source.call(), Self::DirectMapGet(source) => &source.initializer }
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -74,6 +75,9 @@ impl DirectMapReceiverSourceV1 {
 }
 impl LexicalInstanceCallSourceTargetV1 {
     pub(crate) fn has_borrowed_receiver_source_v1(&self) -> bool { self.borrowed_receiver_source.is_some() }
+    pub(crate) fn declared_read_receiver_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1> {
+        match self.borrowed_receiver_source.as_deref()? { BorrowedReceiverSourceV1::DeclaredRead(read) => Some(read), _ => None }
+    }
     pub(crate) fn borrowed_call_receiver_source_v1(&self) -> Option<&super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
         match self.borrowed_receiver_source.as_deref()? { BorrowedReceiverSourceV1::OrdinaryCall(source) => Some(source), _ => None }
     }

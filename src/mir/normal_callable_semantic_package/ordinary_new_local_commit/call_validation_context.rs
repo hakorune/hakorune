@@ -348,10 +348,18 @@ impl<'a> CallValidationContextV1<'a> {
 
     /// Borrow the payload's SAME producer Normal and original LocalSSA chain.
     /// The lifetime holder never supplies the payload value; no Home is issued.
-    pub(in crate::mir) fn require_borrowed_map_receiver_v1(
+    pub(in crate::mir) fn require_borrowed_receiver_v1(
         self, row: &LexicalInstanceCallDispositionRowV1,
         read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(), String> {
+        if let Some(view) = row.source_target().declared_read_receiver_v1() {
+            if view.read().site() != row.receiver_site() || view.read().owner() != row.call_site().owner()
+                || view.source().declared_read_result_v1().is_none_or(|declaration| declaration.declared_type() != row.source_target().target().owner()) {
+                return Err(freeze("borrowed-return/original-contract"));
+            }
+            self.declared_result_read_v1(view, read)?;
+            return Ok(());
+        }
         if let Some(direct) = row.source_target().direct_map_receiver_source_v1() {
             // The alias is the SAME original Map get Local: the receiver read must
             // be that packet's own LocalSSA copy, never another value.

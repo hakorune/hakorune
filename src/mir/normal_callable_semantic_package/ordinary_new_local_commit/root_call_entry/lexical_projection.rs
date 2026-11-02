@@ -420,7 +420,7 @@ impl PreparedLexicalCallProjectionV1 {
                         {
                             context
                                 .ok_or_else(|| freeze("borrowed-return/original-loan"))?
-                                .require_borrowed_map_receiver_v1(instance, read)?;
+                                .require_borrowed_receiver_v1(instance, read)?;
                         }
                         read.value_for(
                             owner,

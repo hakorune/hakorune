@@ -213,7 +213,7 @@ fn stage_subtree_call_actuals<E>(
         ) {
             borrowed_actuals(
                 &call_site,
-                BorrowedCallActualRequestV1::Observe(input, &actuals),
+                BorrowedCallActualRequestV1::Observe(input, &actuals, locals.declared_read_call_receiver_v1(&call_site, prefix_known).as_ref()),
             )?;
         }
     }

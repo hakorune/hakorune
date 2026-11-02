@@ -212,6 +212,15 @@ impl LexicalReceiverClassSourceV1<'_> {
         use crate::mir::resolved_semantics::{BodyEffectKindV1 as Effect,
             BodyExpressionShapeV1 as Shape, BodyMeReceiverV1, ResolvedAssignmentTargetV1,
             ResolvedLexicalRefV1 as Ref, SourcePathSegmentV1 as Part};
+        if let BorrowedReceiverSourceV1::DeclaredRead(read) = loan {
+            // Structural source qualification only. Prefix liveness, readonly
+            // effects and the independent final-use interval remain mandatory.
+            return batch.with_lowering_input(need.callee_slot, |input|
+                input.owner() == need.owner && read.binding() == need.receiver_binding
+                    && read.read().site() == &need.receiver_site
+                    && read.corroborates_v1(input) && read.source().payload_nonnull_v1())
+                .map_err(|_| freeze("lexical-instance-call/batch-loan"));
+        }
         if matches!(loan, BorrowedReceiverSourceV1::OrdinaryCall(source) if !source.is_map_slot())
             || loan.destination() != need.receiver_binding
             || loan.acquisition().owner() != need.owner { return Ok(false); }
@@ -324,11 +333,18 @@ impl LexicalReceiverClassSourceV1<'_> {
                         0,
                     )?;
                     let (class, borrowed) = if let Some(class) = class { (class, None) } else {
-                        if input.function().method_call(initializer_site).is_none()
-                            || need.rebound
+                        if need.rebound
                             || !input.forest().callable_source_ledger(input.owner())
                                 .is_ok_and(|ledger| ledger.uncaptured_binding(need.receiver_binding)) { return Ok(None); }
                         let call = OwnedExprSiteV1::new(need.owner, initializer_site.clone());
+                        let declared = self.callable_result_classes.borrowed_read_at_v1(batch, selected,
+                            self.field_write_claims, self.parameters, input, &need.receiver_site, self.app_main).map_err(freeze)?;
+                        if let Some(read) = declared {
+                            let class = read.source().declared_read_result_v1()
+                                .ok_or_else(|| freeze("borrowed-nullable/source-identity"))?.declared_type().into();
+                            (class, Some(Box::new(BorrowedReceiverSourceV1::DeclaredRead(read))))
+                        } else {
+                        if input.function().method_call(initializer_site).is_none() { return Ok(None); }
                         let direct = if let (Some(constructors), Some(entries)) = (self.constructors, self.entries) {
                             let entry = entries.for_batch_slot(need.callee_slot);
                             let receiver = super::super::entry_receiver_box_proof(selected, batch, entry, need.callee_slot);
@@ -345,6 +361,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                                 need.receiver_binding, self.app_main).map_err(freeze)? else { return Ok(None); };
                             let (class, _) = loan.map_payload_v1().ok_or_else(|| freeze("borrowed-nullable/source-identity"))?;
                             (class.into(), Some(Box::new(BorrowedReceiverSourceV1::OrdinaryCall(loan))))
+                        }
                         }
                     };
                     if !self

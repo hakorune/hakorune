@@ -475,9 +475,17 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             issue,
         });
     }
-    if let BorrowedCallActualRequestV1::Observe(input, actuals) = request {
-        if actuals.iter().any(|actual| matches!(actual.value,
-            crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::DeclaredRead(_)))
+    if let BorrowedCallActualRequestV1::Observe(input, actuals, current_receiver) = request {
+        let read_receiver = super::super::lexical_instance_call::original_lexical_target_at_v1(targets, site)
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?
+            .and_then(|target| target.declared_read_receiver_v1());
+        if read_receiver != current_receiver {
+            return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(), issue: super::super::lexical_instance_call::freeze("borrowed-actual/unsupported-or-unavailable"),
+            });
+        }
+        if (read_receiver.is_some() || actuals.iter().any(|actual| matches!(actual.value,
+            crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::DeclaredRead(_))))
             && !source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, contracts, site)) {
             return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(), issue: super::super::lexical_instance_call::freeze("borrowed-actual/unsupported-or-unavailable"),

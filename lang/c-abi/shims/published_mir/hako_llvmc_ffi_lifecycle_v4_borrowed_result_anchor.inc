@@ -271,12 +271,10 @@ static int lv4_declared_read_nonnull(const hako_lv4_input* in,
 
 /* Without an exact result guard, EVERY original callee Return must prove
  * nonnull. A guard excludes Null only on its dominated consumer path. */
-static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
-    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object, uint32_t field) {
+static int lv4_declared_read_payload(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object) {
   yyjson_val* op = lv4_borrowed_result_operation(fn, value);
   if (!yyjson_is_true(yyjson_obj_get(op, "result_read"))) return 0;
-  yyjson_val* stored = yyjson_arr_get(yyjson_obj_get(lv4_layout(in, object), "fields"), field);
-  if (!stored || lv4_u(stored, "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
   uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
   if (!target || target >= in->index_count) return 0;
   hako_lv4_function_index* callee = &in->index[target];
@@ -317,6 +315,14 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
       lv4_readable_object(in, fn, anchor->id, state, use, anchor->object_id, 1);
 }
 
+/* Scalar field readability adds its storage contract to the same payload proof. */
+static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object, uint32_t field) {
+  yyjson_val* stored = yyjson_arr_get(yyjson_obj_get(lv4_layout(in, object), "fields"), field);
+  return stored && lv4_u(stored, "storage_kind") == HAKO_LLVMC_LIFECYCLE_STORAGE_I64 &&
+      lv4_declared_read_payload(in, fn, value, state, use, position, object);
+}
+
 /* A read argument retains its capability at a source-qualified nonmutating
  * Call. Payload class comes from the producer; the anchor is lifetime only. */
 static int lv4_declared_read_argument(const hako_lv4_input* in,
@@ -344,4 +350,18 @@ static int lv4_borrowed_argument_readable(const hako_lv4_input* in,
   if (!anchor) return lv4_slot_result_readable(in, fn, value, state, use, object, 1);
   return !(anchor->object_id_set && anchor->object_id != object) &&
       !(anchor->kind == LV4_TAGGED && !lv4_borrowed_object_formal(fn, anchor, object));
+}
+
+/* A declared read used as receiver keeps payload class, nonnull proof and
+ * readonly consumer permission separate from the lifetime anchor. */
+static int lv4_borrowed_receiver_readable(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value, yyjson_val* consumer,
+    const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object) {
+  hako_lv4_value* original = lv4_value_alias_root(fn, value);
+  if (original && original->kind == LV4_BORROWED_OBJECT &&
+      yyjson_obj_get(lv4_borrowed_result_operation(fn, original), "result_read"))
+    return lv4_readonly_call(fn, consumer, 1) &&
+        lv4_declared_read_payload(in, fn, original, state, use, position, object);
+  return lv4_nonnull_object_formal(fn, value, object) ||
+      (value && lv4_readable_object(in, fn, value->id, state, use, object, 1));
 }

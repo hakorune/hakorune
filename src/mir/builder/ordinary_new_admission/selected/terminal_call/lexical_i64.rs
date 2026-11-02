@@ -207,7 +207,14 @@ fn emit_lexical_i64_call(
             && kind == InvokeCallResultKind::I64
             && ledger.lexical_i64_call_source(row.call_site()).is_some_and(|observation|
                 observation.prior_homes() == prior_homes && observation.arguments() == sealed_arguments);
-        if !borrowed_self_receiver && !borrowed_formal_receiver && !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !direct_map_receiver && !prior_homes.iter().any(|home| home.is_stable_binding(binding)) {
+        // A readonly Call-result receiver has its own retained read/Copy and
+        // support interval, independent of this call's result transport.
+        let declared_read_receiver = instance.source_target().declared_read_receiver_v1().is_some_and(|read|
+            read.binding() == binding && read.read().site() == instance.receiver_site())
+            && ledger.local_call_for_owner(owner, row.call_site().site()).is_some_and(|observation|
+                observation.site() == row.call_site() && observation.prior_homes() == prior_homes
+                    && observation.arguments() == sealed_arguments);
+        if !declared_read_receiver && !borrowed_self_receiver && !borrowed_formal_receiver && !borrowed_scalar_receiver && !borrowed_alias && !borrowed_result_receiver && !mixed_receiver && !borrowed_map_receiver && !direct_map_receiver && !prior_homes.iter().any(|home| home.is_stable_binding(binding)) {
             return Err(freeze("lexical-i64-receiver-home-missing"));
         }
     }

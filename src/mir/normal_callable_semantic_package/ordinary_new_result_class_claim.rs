@@ -327,6 +327,24 @@ fn resolve_call_key(
     CanonicalSameModuleCallableKeyV1,
     Box<[ResultActualSourceV1]>,
 )> {
+    resolve_call_key_inner(site, function, body_shape, caller_key, batch, selected,
+        field_write_claims, &mut std::collections::BTreeSet::new())
+}
+
+fn resolve_call_key_inner(
+    site: &SourceExprSiteV1,
+    function: &VerifiedResolvedFunctionV1,
+    body_shape: &VerifiedResolvedBodyShapeInventoryV1,
+    caller_key: &CanonicalSameModuleCallableKeyV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    resolving: &mut std::collections::BTreeSet<SourceExprSiteV1>,
+) -> Option<(
+    CanonicalSameModuleCallableKeyV1,
+    Box<[ResultActualSourceV1]>,
+)> {
+    if !resolving.insert(site.clone()) { return None; }
     if let Some(target) = function.direct_call_target(site) {
         let callee_owner = target.callable().owner();
         let mut declarations = batch
@@ -382,7 +400,25 @@ fn resolve_call_key(
                     binding,
                     own_box(caller_key),
                     field_write_claims,
-                )?
+                ).or_else(|| {
+                    // Type-only consultation follows the same original read
+                    // relation as argument folds; it grants no live loan/nonnull.
+                    let mut callers = batch.declarations().filter(|row| row.owner() == function.owner());
+                    let caller = callers.next()?;
+                    if callers.next().is_some() { return None; }
+                    let slot = caller.batch_slot();
+                    let read = batch.with_lowering_input(slot, |input|
+                        crate::mir::resolved_semantics::home_new_prefix::SourceCallResultReadV1::issue_v1(input, call.receiver_site())).ok()??;
+                    if read.binding() != binding { return None; }
+                    let (producer, _) = resolve_call_key_inner(read.producer().site(), function,
+                        body_shape, caller_key, batch, selected, field_write_claims, resolving)?;
+                    let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(producer))?;
+                    let mut rows = batch.declarations().filter(|row| row.batch_slot() == slot);
+                    let row = rows.next()?;
+                    if rows.next().is_some() { return None; }
+                    let declared = row.borrowed_result()?;
+                    (declared.owner() == row.owner()).then(|| declared.declared_type().into())
+                })?
             };
             super::lexical_instance_call::unique_instance_target(
                 selected,

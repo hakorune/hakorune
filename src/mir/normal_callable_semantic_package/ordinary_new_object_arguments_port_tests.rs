@@ -494,7 +494,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                     value: BorrowedCallActualValueV1::MethodCall(source_loan.resolver_source().unwrap().source().clone()) }];
                 borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[], &contracts,
                     &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
-                    &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals),
+                    &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals, None),
                     &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap();
                 assert!(project(&pending).unwrap_err().contains("core-expression-execution-pending"),
                     "Observe invalidates old qualification before a new Home walk");

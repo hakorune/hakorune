@@ -664,7 +664,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                         value: BorrowedCallActualValueV1::SelfRooted { binding: read.binding(), root: read.formal().1 } }];
                     borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[], &package.parameter_contracts,
                         &[], None, source, &Ok(Default::default()), &mut unqualified, &ledger.borrowed_i64_results,
-                        &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals),
+                        &mut |_| None, &call_site, BorrowedCallActualRequestV1::Observe(input, &actuals, None),
                         &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None).unwrap();
                     assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::project_pending_static_source_arguments_v1(
                         source, &unqualified, &call_site, claim).unwrap().is_none(), "unqualified SelfRooted does not gain selection");

@@ -97,6 +97,11 @@ impl BorrowedResultReadV1 {
             && declared.declaration.owner() == source.callee_owner() && source.declared_result_matches_v1(Some(&declared.declaration)))
             .then(|| Self { source: Box::new(source.clone()), declared })
     }
+    /// The issuer chooses the SAME canonical producer after checking both
+    /// original source loans; only the retained graph, never the read, changes.
+    pub(crate) fn with_original_source_v1(&self, source: &BorrowedNullableLocalSourceLoanV1) -> Option<Self> {
+        Self::from_declared_v1(source, self.declared.clone())
+    }
     pub(crate) fn source(&self) -> &BorrowedNullableLocalSourceLoanV1 { &self.source }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.declared.read.binding() }
     pub(crate) fn read(&self) -> &OwnedExprSiteV1 { self.declared.read.read() }

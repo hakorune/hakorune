@@ -198,6 +198,10 @@ impl PrefixLocalFlow<'_> {
         &mut self,
         loan: BorrowedNullableLocalSourceLoanV1,
     ) -> bool {
+        if let Some(actual) = loan.reborrowed_read_v1() {
+            if !matches!(self.nullable_result_reference_v1(actual.read().site()),
+                Some(super::super::NullableResultReferenceV1::DeclaredFrom(current)) if &current == actual) { return false; }
+        }
         if loan.is_declared_read_v1() {
             // The outer Call completes this single initializer after all child
             // Calls. Multiple LOCAL initializers need finer event ordering.
@@ -218,6 +222,18 @@ impl PrefixLocalFlow<'_> {
             StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { loan: Box::new(loan), read_valid: true }),
         );
         true
+    }
+
+    /// A receiver observation consumes the current prefix read permission;
+    /// signature/class discovery alone cannot lend this capability.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_call_receiver_v1(
+        &self, call: &OwnedExprSiteV1, prefix_known: bool,
+    ) -> Option<super::super::BorrowedResultReadV1> {
+        if !prefix_known || call.owner() != self.input.owner() { return None; }
+        let receiver = self.input.function().method_call_source_v1(call.site())?.receiver_site();
+        match self.nullable_result_reference_v1(receiver)? {
+            super::super::NullableResultReferenceV1::DeclaredFrom(view) => Some(view), _ => None,
+        }
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_receiver_v1(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {

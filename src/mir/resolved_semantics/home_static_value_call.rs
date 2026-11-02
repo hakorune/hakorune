@@ -110,7 +110,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
         {
             borrowed_arguments(
                 &call_site,
-                BorrowedCallActualRequestV1::Observe(input, &actuals),
+                BorrowedCallActualRequestV1::Observe(input, &actuals, None),
             )?;
         }
     }
