@@ -60,14 +60,7 @@ pub(super) fn construct_borrowed_call_actuals_v1(
                 .map_err(Clone::clone)?
         };
         if !std::rc::Rc::ptr_eq(original, retained)
-            || original.parameters().len() != contract.parameters.len()
-            || original
-                .parameters()
-                .iter()
-                .zip(&contract.parameters)
-                .any(|(source, formal)| {
-                    source != formal
-                })
+            || original.parameters() != contract.parameters.as_ref()
         {
             return Err(freeze("borrowed-static/executable-source-identity"));
         }

@@ -410,9 +410,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                                     || target_contract.batch_slot != original.target_batch_slot()
                                     || legacy && !matches!(selected.key_for_batch_slot(target_contract.batch_slot),
                                         Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(target)) if target == original.target())
-                                    || original.parameters().len() != target_contract.parameters.len()
-                                    || original.parameters().iter().zip(&target_contract.parameters).any(|(source, formal)|
-                                        source != formal)
+                                    || original.parameters() != target_contract.parameters.as_ref()
                                     || !call.arguments().iter().enumerate().all(|(ordinal, argument)|
                                         argument.ordinal() as usize == ordinal
                                             && original.argument_sites()[ordinal] == *argument.site())

@@ -101,12 +101,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                 Some(identity) => !identity.same_as(declaration.identity()),
                 None => !original_omitted,
             }
-            || contract.parameters.len() != source.parameters().len()
-            || contract
-                .parameters
-                .iter()
-                .zip(source.parameters())
-                .any(|(a, b)| a != b)
+            || contract.parameters.as_ref() != source.parameters()
         {
             return Err(reject());
         }

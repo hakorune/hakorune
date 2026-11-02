@@ -31,6 +31,14 @@ impl CallableParameterContractKindV1 {
         matches!(self, Self::OpaqueHandle | Self::DeclaredObject(_))
     }
 
+    /// Declaration transfer selects demand here; callers retain error context.
+    pub(super) fn home_demand_for_transfer_v1(&self,
+        transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1,
+    ) -> Option<HomeDemandV1> {
+        if transfer.is_take() && matches!(self, Self::DeclaredObject(_)) { Some(HomeDemandV1::Home) }
+        else { transfer.is_ordinary().then(|| self.home_demand()) }
+    }
+
     pub(crate) fn home_demand(&self) -> HomeDemandV1 {
         match self {
             Self::OpaqueHandle
@@ -43,7 +51,7 @@ impl CallableParameterContractKindV1 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedCallableParameterContractV1 {
     ordinal: u32,
     binding: BindingRefV1,

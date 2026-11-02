@@ -109,16 +109,10 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                             }
                         }
                     };
-                    let demand = if source_parameter.transfer().is_take()
-                        && matches!(kind, CallableParameterContractKindV1::DeclaredObject(_)) {
-                        crate::mir::resolved_semantics::HomeDemandV1::Home
-                    } else if source_parameter.transfer().is_ordinary() {
-                        kind.home_demand()
-                    } else {
-                        return Err(CallableParameterContractIssueV1::UnsupportedTransfer {
+                    let demand = kind.home_demand_for_transfer_v1(source_parameter.transfer())
+                        .ok_or(CallableParameterContractIssueV1::UnsupportedTransfer {
                             _declaration: declaration, _parameter: parameter,
-                        });
-                    };
+                        })?;
                     let site = SourceBindingSiteV1::Parameter { index: parameter };
                     let binding = function.declaration_binding(&site).ok_or(
                         CallableParameterContractIssueV1::MissingParameterBinding {

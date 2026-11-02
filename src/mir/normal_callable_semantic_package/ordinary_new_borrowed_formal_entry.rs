@@ -474,10 +474,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .filter(|_| original.next().is_none())
                 .ok_or_else(|| freeze("object-return/original-input-contract"))?;
             if original.batch_slot != contract.batch_slot || original.mode != contract.mode
-                || original.parameters.len() != contract.parameters.len()
-                || original.parameters.iter().zip(&contract.parameters).any(|(a, b)| {
-                    a != b
-                })
+                || original.parameters != contract.parameters
             { return Err(freeze("object-return/original-input-contract-drift")); }
             return if !qualified && source_input {
                 self.checked_completed_original_instance_target_arguments_v1(

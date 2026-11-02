@@ -237,14 +237,7 @@ pub(super) fn seed_static_transport_owners_v1(
                     if key == source.target())
             || source.target().namespace()
                 != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
-            || source.parameters().len() != contract.parameters.len()
-            || source
-                .parameters()
-                .iter()
-                .zip(contract.parameters.iter())
-                .any(|(original, formal)| {
-                    original != formal
-                })
+            || source.parameters() != contract.parameters.as_ref()
         {
             return Err(freeze("borrowed-static/seed-source-identity"));
         }

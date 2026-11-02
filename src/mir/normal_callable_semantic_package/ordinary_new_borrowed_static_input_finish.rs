@@ -299,14 +299,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || original.callee_owner() != owner
                 || original.target_batch_slot() != contract.batch_slot
                 || original.target() != key
-                || original.parameters().len() != contract.parameters.len()
-                || original
-                    .parameters()
-                    .iter()
-                    .zip(&contract.parameters)
-                    .any(|(a, b)| {
-                        a != b
-                    })
+                || original.parameters() != contract.parameters.as_ref()
                 || original.argument_sites().len() != contract.parameters.len()
             {
                 return Err(freeze("static-input/original-target"));

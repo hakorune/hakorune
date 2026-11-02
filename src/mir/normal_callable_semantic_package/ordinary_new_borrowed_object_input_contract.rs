@@ -74,14 +74,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if originals.next().is_some()
             || original.batch_slot != contract.batch_slot
             || original.mode != contract.mode
-            || original.parameters.len() != contract.parameters.len()
-            || original
-                .parameters
-                .iter()
-                .zip(&contract.parameters)
-                .any(|(source, observed)| {
-                    source != observed
-                })
+            || original.parameters != contract.parameters
         {
             return Err(freeze("object-input/original-contract-drift"));
         }
