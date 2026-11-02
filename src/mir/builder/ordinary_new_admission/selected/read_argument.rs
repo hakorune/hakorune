@@ -10,6 +10,15 @@ pub(in crate::mir::builder) fn emit(
     source: &ReadActualSourceLoanV1,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<EmittedReadArgumentV1, String> {
+    if let Some(view) = source.declared_read_v1() {
+        if state.owner() != call.owner() || call.owner() != view.read().owner() { return Err(freeze("read-argument/field-owner")); }
+        let prepared = state.prepare_exact_lexical_read(call.owner(), view.read().site().node(), view.binding()).map_err(|issue| issue.to_string())?;
+        let read = std::rc::Rc::new(state.commit_exact_lexical_reads(vec![prepared]).map_err(|issue| issue.to_string())?
+            .pop().ok_or_else(|| freeze("read-argument/field-receiver-missing"))?);
+        return EmittedReadArgumentV1::from_declared_v1(source.clone(), call.clone(), read,
+            crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger),
+            builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?);
+    }
     if let Some(array) = source.array_source_v1() {
         let read = super::owned_array::emit_read(builder, state, ledger, call, array.clone(), bindings)?;
         return Ok(EmittedReadArgumentV1::from_array_v1(read));

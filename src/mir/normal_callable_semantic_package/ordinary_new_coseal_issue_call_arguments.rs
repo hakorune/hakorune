@@ -473,6 +473,13 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         });
     }
     if let BorrowedCallActualRequestV1::Observe(input, actuals) = request {
+        if actuals.iter().any(|actual| matches!(actual.value,
+            crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualValueV1::DeclaredRead(_)))
+            && !source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, site)) {
+            return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(), issue: super::super::lexical_instance_call::freeze("borrowed-actual/unsupported-or-unavailable"),
+            });
+        }
         let ordinary = super::super::lexical_instance_call::original_owned_call_target_v1(
             source, targets, classes, site,
         ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {

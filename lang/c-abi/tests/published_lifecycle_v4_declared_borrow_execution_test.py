@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol, expected in [('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
+    for suffix, symbol, expected in [('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
         # Unchanged source-issued explicit read result; Copy retains its original Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
         compile_input(read)
@@ -210,7 +210,15 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
         assert run.returncode == expected, (run.returncode, run.stdout, run.stderr)
         print(f'source-issued From {suffix} support: canonical EXE exit {expected}')
-        if suffix.startswith(('guarded-field-', 'guarded-alias-')):
+        if suffix == 'reborrow-child':
+            changed = copy.deepcopy(read)
+            field = next(block['terminator']['instruction']['operation'] for block in function(changed, 'main')['blocks']
+                         if block['terminator']['instruction'].get('operation', {}).get('kind') == 'field_get')
+            field['object_id'] = function(changed, 'Parent.get/0')['receiver_object']
+            field['field_ordinal'] = 1  # Parent.marker is I64 too; payload is still Leaf.
+            compile_input(changed, accepted=False)
+            print('reject anchor class substituted for Child payload class')
+        if suffix.startswith(('guarded-field-', 'guarded-alias-', 'reborrow-null-')):
             changed = copy.deepcopy(read)
             guards = [row['instruction'] for block in function(changed, 'main')['blocks']
                       for row in block['instructions']

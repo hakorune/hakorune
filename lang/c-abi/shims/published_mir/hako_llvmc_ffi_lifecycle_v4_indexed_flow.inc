@@ -230,13 +230,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               if (finite_domain || nonnull_domain) return 0;
               int array_borrow = value && value->kind == LV4_SLOT_BORROW;
               if (value && value->kind == LV4_BORROWED_OBJECT) {
-                if (!lv4_borrowed_result_forwardable(fn, value) || !lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"), use_position)) return 0;
-                hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
-                if (class_domain && (anchor ? ((anchor->object_id_set && anchor->object_id != yyjson_get_uint(view)) ||
-                    (anchor->kind == LV4_TAGGED && !lv4_borrowed_object_formal(fn, anchor,
-                        (uint32_t)yyjson_get_uint(view)))) :
-                    !lv4_slot_result_readable(in, fn, value, state, lv4_u(block, "id"),
-                        (uint32_t)yyjson_get_uint(view), 1))) return 0;
+                if (!lv4_borrowed_argument_readable(in, fn, value, op, state,
+                    lv4_u(block, "id"), use_position,
+                    class_domain ? (uint32_t)yyjson_get_uint(view) : 0, class_domain)) return 0;
               } else if (value && value->kind == LV4_MIXED_OBJECT) {
                 /* Preserve the conditional obligation. Fresh and the SAME
                    fixed-formal actual both agree with the receiving domain;

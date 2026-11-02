@@ -496,7 +496,7 @@ impl OriginalNewSeedsV1 {
                     } else { receiver.guard.is_none() }
             });
         let original = checked == Ok(true);
-        let readonly = original && readonly_call_closure_v1(reference.callee_owner, inventory, batch, constructors);
+        let readonly = original && readonly_call_closure_v1(reference.callee_owner, inventory, batch, Some(constructors));
         let parent_uses = readonly && facts.child_construction_sites_v1(pair.field().object()).is_some_and(|sites|
             self.class_local_uses_v1(&receiver.parent_class, sites, pair.field().object(),
                 reference.call_site.owner(), inventory, facts, batch, constructors));
@@ -506,41 +506,4 @@ impl OriginalNewSeedsV1 {
         }
         parent_uses
     }
-}
-
-/// Compute the reachable original-method effect closure once per query; an
-/// unregistered call, Print, write, escape or unknown effect is never pure.
-fn readonly_call_closure_v1(root: FunctionOwnerIdV1, inventory: &BorrowedIncomingInventoryV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-) -> bool {
-    use crate::mir::resolved_semantics::{BodyEffectKindV1 as Effect, BodyStatementShapeV1};
-    let mut pending = vec![root]; let mut seen = BTreeSet::new();
-    while let Some(owner) = pending.pop() {
-        if !seen.insert(owner) { continue; }
-        if !inventory.source_registered_owners_v1().contains(&owner)
-            || inventory.sum_vetoed_owners_v1().contains(&owner) { return false; }
-        let checked = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
-            batch, constructors, owner, |_, input| {
-                let Some(shape) = input.body_shape() else { return false; };
-                if shape.statements().iter().any(|row| matches!(row, BodyStatementShapeV1::Print { .. })) { return false; }
-                shape.effects().iter().all(|effect| match effect.kind {
-                    Effect::Call => {
-                        let mut rows = inventory.source_rows_with_method_v1().filter(|(row, _)|
-                            row.call.owner() == owner && row.call.site() == &effect.site);
-                        let Some((row, Some(original))) = rows.next() else { return false; };
-                        if rows.next().is_some() || !input.function().method_call_source_v1(&effect.site)
-                            .is_some_and(|current| std::sync::Arc::ptr_eq(current, original)) { return false; }
-                        let Some(reference) = row.source.original_instance_reference_v1() else { return false; };
-                        if reference.callee_owner != row.callee || !reference.matches_original_call_v1(input, original) { return false; }
-                        pending.push(row.callee); true
-                    }
-                    Effect::NonLocalControl => shape.statements().iter().any(|row|
-                        matches!(row, BodyStatementShapeV1::Return { site, .. } if site.node() == effect.site.node())),
-                    _ => false,
-                })
-            });
-        if checked != Ok(true) { return false; }
-    }
-    true
 }

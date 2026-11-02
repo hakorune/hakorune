@@ -11,6 +11,10 @@ use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterC
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
+#[path = "ordinary_new_borrowed_formal_source_effects.rs"]
+mod source_effects;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use source_effects::readonly_call_closure_v1;
+
 #[path = "ordinary_new_borrowed_integer_return_source.rs"]
 mod integer_return_source;
 

@@ -18,8 +18,8 @@ type FieldArrayAccessConsultV1<'a> = dyn Fn(
     ResolvedFunctionLoweringInputV1<'_>, &Arc<VerifiedResolvedMethodCallSourceV1>,
 ) -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1>>, String> + 'a;
 
-type FieldValueConsultV1<'a> = dyn Fn(
-    ResolvedFunctionLoweringInputV1<'_>, &SourceExprSiteV1,
+type ReadValueConsultV1<'a> = dyn Fn(
+    ResolvedFunctionLoweringInputV1<'_>, &CanonicalSameModuleCallableKeyV1, &SourceExprSiteV1,
 ) -> Option<OriginalFormalActualSeedV1> + 'a;
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
@@ -30,7 +30,7 @@ struct OriginalActualSourceContextV1
     owner: FunctionOwnerIdV1,
     point_premise: bool,
     field_array_access: Option<&'a FieldArrayAccessConsultV1<'a>>,
-    field_value: Option<&'a FieldValueConsultV1<'a>>,
+    read_value: Option<&'a ReadValueConsultV1<'a>>,
 }
 impl<'a> OriginalActualSourceContextV1<'a> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(
@@ -42,7 +42,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             owner: self.owner,
             point_premise: true,
             field_array_access: self.field_array_access,
-            field_value: self.field_value,
+            read_value: self.read_value,
         }
     }
     /// Check the SAME original Static incoming and callee before source Return expansion.
@@ -119,20 +119,20 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             owner: self.owner,
             point_premise: false,
             field_array_access: self.field_array_access,
-            field_value: self.field_value,
+            read_value: self.read_value,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_field_array_accesses_v1(
         mut self, consult: &'a FieldArrayAccessConsultV1<'a>,
     ) -> Self { self.field_array_access = Some(consult); self }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_field_values_v1(
-        mut self, consult: &'a FieldValueConsultV1<'a>,
-    ) -> Self { self.field_value = Some(consult); self }
-    pub(super) fn field_value_seed_v1(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn with_read_values_v1(
+        mut self, consult: &'a ReadValueConsultV1<'a>,
+    ) -> Self { self.read_value = Some(consult); self }
+    pub(super) fn read_value_seed_v1(
         &self, input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceExprSiteV1,
     ) -> Option<OriginalFormalActualSeedV1> {
         if input.owner() != self.owner { return None; }
-        (self.field_value?)(input, site)
+        (self.read_value?)(input, &self.caller, site)
     }
     pub(super) fn is_point_premise(&self) -> bool {
         self.point_premise
@@ -326,7 +326,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             owner: input.owner(),
             point_premise: false,
             field_array_access: None,
-            field_value: None,
+            read_value: None,
         }))
     }
 

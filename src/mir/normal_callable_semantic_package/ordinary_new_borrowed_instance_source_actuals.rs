@@ -468,6 +468,10 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         return Err(freeze("borrowed-instance/array-loan-identity"));
                     }
                 }
+                BorrowedCallActualValueV1::DeclaredRead(ref read) => {
+                    let source = BorrowedFormalActualSourceV1::Read(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_declared_v1(read.clone()));
+                    model::validate_computed_actual_source_v1(&source, actual, site, formal)?;
+                }
                 BorrowedCallActualValueV1::ReceivedField {
                     parent,
                     ref acquisition,

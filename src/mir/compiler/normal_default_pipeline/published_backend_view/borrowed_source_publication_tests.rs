@@ -683,3 +683,14 @@ mod compare_le_tests;
 
 #[path = "borrowed_source_publication_guarded_declaration_tests.rs"]
 mod guarded_declaration_tests;
+
+#[path = "borrowed_source_publication_declared_read_tests.rs"]
+mod declared_read_tests;
+
+fn reject_changed_module(module: &crate::mir::MirModule,
+    handoff: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+) {
+    assert!(handoff.is_some(), "original finalized source is required");
+    assert!(crate::mir::verification::MirVerifier::new().verify_module_with_finalized_root(module, handoff).is_err(),
+        "independent verification must reject the modified read provenance");
+}

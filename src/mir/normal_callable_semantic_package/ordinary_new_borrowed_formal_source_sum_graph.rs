@@ -210,6 +210,10 @@ impl Graph<'_> {
             OriginalFormalActualSeedV1::Null => {
                 row.atoms.insert(Value::Null);
             }
+            OriginalFormalActualSeedV1::DeclaredRead(read) => {
+                row.atoms.insert(Value::Object(read.declared_type().into()));
+                row.atoms.insert(Value::Null);
+            }
             OriginalFormalActualSeedV1::Class(name) => {
                 row.atoms.insert(Value::Object(name.clone()));
             }

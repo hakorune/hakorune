@@ -20,6 +20,7 @@ use method_result::{OriginalMethodResultResolutionV1, OriginalMethodResultSeedV1
 #[derive(Debug)]
 #[cfg_attr(test, derive(Clone))]
 pub(super) enum OriginalFormalActualSeedV1 {
+    DeclaredRead(crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1),
     /// Exact Map-get receiver plus the complete original field writer census.
     /// This source dependency grants no nonnull, live Home or executable read.
     MapField {
@@ -75,7 +76,7 @@ impl OriginalFormalActualSeedV1 {
     /// Scalar reaching-value analysis must not replace their original proof.
     fn retains_original_binding_anchor_v1(&self) -> bool {
         match self {
-            Self::MapField { .. } | Self::FormalField { .. } | Self::ReturnedField(_) | Self::Mixed { .. } | Self::Class(_)
+            Self::DeclaredRead(_) | Self::MapField { .. } | Self::FormalField { .. } | Self::ReturnedField(_) | Self::Mixed { .. } | Self::Class(_)
                 | Self::Forward { .. } | Self::ProviderStatic(_) => true,
             Self::SourceOnly(source) | Self::SumUnknown(source)
                 | Self::PointValue { legacy: source, .. } => source.retains_original_binding_anchor_v1(),
@@ -83,6 +84,9 @@ impl OriginalFormalActualSeedV1 {
                 Some(crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactNominalBox { .. })),
             _ => false,
         }
+    }
+    fn declared_read_domain_v1(read: &crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1) -> FormalActualSeedV1 {
+        FormalActualSeedV1::All(Box::new([FormalActualSeedV1::Class(read.declared_type().into()), FormalActualSeedV1::Null]))
     }
     fn returned_field_domain_v1(
         source: &super::super::super::result_class_claim::ReturnedFieldSourceLoanV1,
@@ -100,6 +104,7 @@ impl OriginalFormalActualSeedV1 {
     /// separate conjunct in the same domain fold, never an actual class seed.
     pub(super) fn project_source_object_v1(&self) -> FormalActualSeedV1 {
         match self {
+            Self::DeclaredRead(read) => Self::declared_read_domain_v1(read),
             Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => {
                 legacy.project_source_object_v1()
             }
@@ -131,6 +136,7 @@ impl OriginalFormalActualSeedV1 {
     }
     pub(super) fn project_source_integer_v1(&self, current_i64: bool) -> FormalActualSeedV1 {
         match self {
+            Self::DeclaredRead(_) => FormalActualSeedV1::Conflict,
             Self::ReturnedField(source) => Self::returned_field_domain_v1(source),
             Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
                 FormalActualSeedV1::Class(source.fresh_class().into()),
@@ -175,6 +181,7 @@ impl OriginalFormalActualSeedV1 {
         transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
     ) -> FormalActualSeedV1 {
         match self {
+            Self::DeclaredRead(read) => Self::declared_read_domain_v1(read),
             Self::ReturnedField(source) => Self::returned_field_domain_v1(source),
             Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
                 FormalActualSeedV1::Class(source.fresh_class().into()),
@@ -558,7 +565,7 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
         }));
     }
     if let Some(context) = source_context {
-        if let Some(seed) = context.field_value_seed_v1(input, site) {
+        if let Some(seed) = context.read_value_seed_v1(input, site) {
             return seed;
         }
     }

@@ -188,7 +188,28 @@ impl OriginalLocalCallSourceV1 {
 }
 
 impl super::OrdinaryNewResultClassClaimsV1 {
-    pub(super) fn original_local_call_source_v1(
+    pub(super) fn original_local_call_source_v1(&self,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        call: &OwnedExprSiteV1, destination: super::BindingRefV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1], app_main: Option<AppMainSourceRefV1<'_>>,
+    ) -> Result<Option<OriginalLocalCallSourceV1>, &'static str> {
+        self.resolve_original_local_call_v1(batch, selected, fields, call, destination, parameters, app_main, true, None)
+    }
+
+    pub(super) fn original_local_call_identity_v1(&self,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        call: &OwnedExprSiteV1, destination: super::BindingRefV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1], app_main: Option<AppMainSourceRefV1<'_>>,
+        caller: Option<&CanonicalSameModuleCallableKeyV1>,
+    ) -> Result<Option<OriginalLocalCallSourceV1>, &'static str> {
+        self.resolve_original_local_call_v1(batch, selected, fields, call, destination, parameters, app_main, false, caller)
+    }
+
+    fn resolve_original_local_call_v1(
         &self,
         batch: &super::VerifiedResolvedCallableSemanticBatchV1,
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
@@ -197,6 +218,8 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         destination: super::BindingRefV1,
         parameters: &[OwnedCallableParameterContractDeclarationV1],
         app_main: Option<AppMainSourceRefV1<'_>>,
+        require_outcomes: bool,
+        original_caller: Option<&CanonicalSameModuleCallableKeyV1>,
     ) -> Result<Option<OriginalLocalCallSourceV1>, &'static str> {
         if destination.owner() != call.owner() {
             return Err("borrowed-nullable/destination-owner");
@@ -211,16 +234,25 @@ impl super::OrdinaryNewResultClassClaimsV1 {
             return Err("borrowed-nullable/caller-not-unique");
         }
         let slot = declaration.batch_slot();
-        let caller_key = match selected.key_for_batch_slot(slot) {
+        let caller_key = if let Some(original) = original_caller {
+            // The source context already bound owner/catalog/declaration/arity.
+            // This passive signature consultation grants no selected transport.
+            if require_outcomes || matches!(selected.key_for_batch_slot(slot),
+                Some(super::SelectedNormalCallableKeyV1::Cataloged(current)) if current != original) {
+                return Err("borrowed-nullable/caller-key");
+            }
+            original
+        } else { match selected.key_for_batch_slot(slot) {
             Some(super::SelectedNormalCallableKeyV1::Cataloged(key)) => key,
             None => app_main.ok_or("borrowed-nullable/caller-key")?
                 .checked_caller_key(batch, parameters, call.owner(), slot)?,
             Some(_) => return Err("borrowed-nullable/caller-key"),
-        };
+        }};
         batch
             .with_lowering_input(slot, |input| {
                 let function = input.function();
-                let declaration = original_local_declaration_v1(input, call, destination)?;
+                let declaration = if require_outcomes { original_local_declaration_v1(input, call, destination)? }
+                    else { original_local_initializer_identity_v1(input, call, destination)? };
                 let shape = input.body_shape().ok_or("borrowed-nullable/body-shape")?;
                 let Some((key, actuals)) = super::resolve_call_key(
                     call.site(),
@@ -233,17 +265,17 @@ impl super::OrdinaryNewResultClassClaimsV1 {
                 ) else {
                     return Ok(None);
                 };
-                // Missing source outcomes select no result edge. Demand a
-                // cataloged callee only after the source owner has a product.
-                if self.outcomes(&key).is_none() {
-                    return Ok(None);
-                }
+                // Preserve the result lender's early unavailable boundary.
+                // Declaration-only type queries do not demand completed roots.
+                if require_outcomes && self.outcomes(&key).is_none() { return Ok(None); }
                 let receiver = function
                     .method_call(call.site())
                     .map(|method| method.receiver_site().clone());
-                let callee_slot = selected
-                    .batch_slot(&super::SelectedNormalCallableKeyV1::Cataloged(key.clone()))
-                    .ok_or("borrowed-nullable/callee-key")?;
+                let callee_slot = match selected.batch_slot(&super::SelectedNormalCallableKeyV1::Cataloged(key.clone())) {
+                    Some(slot) => slot,
+                    None if !require_outcomes => return Ok(None),
+                    None => return Err("borrowed-nullable/callee-key"),
+                };
                 let mut callees = batch
                     .declarations()
                     .filter(|row| row.batch_slot() == callee_slot);
@@ -356,14 +388,21 @@ pub(super) fn original_local_declaration_v1(
     call: &OwnedExprSiteV1,
     destination: super::BindingRefV1,
 ) -> Result<crate::mir::resolved_semantics::SourceBindingSiteV1, &'static str> {
+    if !super::binding_is_unrebound(input.function(), destination) { return Err("borrowed-nullable/local-initializer"); }
+    original_local_initializer_identity_v1(input, call, destination)
+}
+
+/// Declaration identity alone does not forbid later writes. Signature-only
+/// users separately retain the exact reaching-value read of this initializer.
+fn original_local_initializer_identity_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &OwnedExprSiteV1, destination: super::BindingRefV1,
+) -> Result<crate::mir::resolved_semantics::SourceBindingSiteV1, &'static str> {
     let function = input.function();
+    let initializer = function.expression_source().sole_initializer(destination).ok_or("borrowed-nullable/local-initializer")?;
     if destination.owner() != input.owner() || call.owner() != input.owner()
         || !matches!(function.binding(destination).map(|row| row.kind()), Some(super::BindingKindV1::Local { .. }))
-        || super::sole_initializer_site(function, destination).as_ref() != Some(call.site()) {
-        return Err("borrowed-nullable/local-initializer");
-    }
-    let initializer = function.expression_source().initializers().find(|row| row.binding() == destination)
-        .ok_or("borrowed-nullable/local-declaration")?;
+        || initializer.initializer_site() != Some(call.site()) { return Err("borrowed-nullable/local-initializer"); }
     if function.declaration_binding(initializer.declaration_site()) != Some(destination) {
         return Err("borrowed-nullable/local-declaration");
     }

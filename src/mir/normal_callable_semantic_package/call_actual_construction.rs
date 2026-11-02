@@ -116,6 +116,11 @@ pub(super) fn construct_borrowed_call_actuals_v1(
             return Err(freeze("borrowed-actual/source-identity"));
         }
         let source = match &actual.value {
+            BorrowedCallActualValueV1::DeclaredRead(read) => {
+                let source = BorrowedFormalActualSourceV1::Read(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1::from_declared_v1(read.clone()));
+                model::validate_computed_actual_source_v1(&source, actual, call, &contract.parameters[*ordinal as usize])?;
+                source
+            }
             BorrowedCallActualValueV1::Integer(value) => {
                 BorrowedFormalActualSourceV1::Integer(*value)
             }

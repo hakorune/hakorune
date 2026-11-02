@@ -293,6 +293,14 @@ impl PreparedBorrowedCallActualsV1 {
                     if let BorrowedFormalActualSourceV1::Read(read) = &actual.source {
                         if read.is_map_field_v1() {
                             ordinals.insert(actual.ordinal);
+                        } else if let Some(view) = read.declared_read_v1() {
+                            let mut candidates = identity.candidates.iter().filter(|row| row.ordinal == actual.ordinal);
+                            let original = candidates.next().ok_or_else(|| freeze("borrowed-instance/array-actual-identity-drift"))?;
+                            if candidates.next().is_some() || actual.site != original.site || view.read().site() != &actual.site
+                                || !matches!(&original.value, BorrowedCallActualValueV1::DeclaredRead(source) if source == view)
+                                || !ordinals.insert(actual.ordinal) {
+                                return Err(freeze("borrowed-instance/array-actual-identity-drift"));
+                            }
                         }
                     }
                 }
@@ -599,6 +607,12 @@ pub(super) fn validate_computed_actual_source_v1(
 ) -> Result<(), String> {
     match source {
         BorrowedFormalActualSourceV1::Read(read) => {
+            if let Some(view) = read.declared_read_v1() {
+                if !matches!(&actual.value, BorrowedCallActualValueV1::DeclaredRead(original) if original == view)
+                    || !matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(class) if class.as_ref() == read.class()) {
+                    return Err(freeze("borrowed-actual/array-read-source-drift"));
+                }
+            }
             if read.site().owner() != call.owner() || read.site().site() != &actual.site {
                 return Err(freeze("borrowed-actual/array-read-source-drift"));
             }

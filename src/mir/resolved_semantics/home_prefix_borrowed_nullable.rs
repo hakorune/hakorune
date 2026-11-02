@@ -279,6 +279,10 @@ impl PrefixLocalFlow<'_> {
             .flatten().map(Reference::DeclaredFrom)
     }
 
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_declared_read_binding_v1(&self, binding: BindingRefV1) -> bool {
+        matches!(self.locals.get(&binding), Some(StoredLocal::BorrowedNullable(state)) if state.is_declared_read_v1())
+    }
+
     /// A returned read reference stays distinct from a general Handle/Home.
     /// Its exact New argument also narrows formal-derived Null, not literal Null.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_local_v1(

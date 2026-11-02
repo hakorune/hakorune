@@ -1,4 +1,4 @@
-date = "2026-11-02"
+date = "2026-11-03"
 development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Formal/Receiver/child From alias re-return retains original Call/loan plus exact current read and Copy transport.
-Legacy narrowing remains separate; undeclared forwarding, owned New aliases, unknowns and joins gain no permission.
-Optimized target/quick CLI/runtime + existing C shim: suite 8/8, cohort 1802 PASS and exact 115 failure names unchanged.
-Both-opt publication and C alias forwarding EXE exit 7 pass; original declaration/support checks remain strict.
-Next: reborrow payload/support composition with nonmutation and interval evidence, then PHI; From incomplete, both stashes protected.
+Readonly argument reborrow retains original From declaration, payload, exact source reads and lifetime support separately.
+Original nonmutation closure plus independent MIR/C checks preserve intervals, payload class and nullable result guards.
+Optimized target/quick CLI/runtime + rebuilt C shim: suite 8/8; cohort 1802 PASS and exact 115 failure names unchanged.
+C existing Normal/Fault and new reborrow/Parent-Child EXE exit 7, nullable exit 0/7 and tamper refusals pass.
+Next: receiver reborrow, existing-read preservation, PHI/support composition; cleanup A before update. From incomplete; stashes protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

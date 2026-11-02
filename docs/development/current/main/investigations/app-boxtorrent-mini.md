@@ -1,6 +1,6 @@
 # APP-boxtorrent-mini
 
-Status: **acceptance reached** (fixed suite 8/8; prior 11 rows consolidated). Date: 2026-11-02
+Status: **acceptance reached** (fixed suite 8/8; prior 11 rows consolidated). Date: 2026-11-03
 Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
@@ -17,7 +17,8 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - take検証: 最適化`target/quick/hakorune`（`cargo quick-build --bin hakorune`）＋同runtime・再build C shimで既存canonical smoke内の同一EXEがNormal/後続引数Fault/入場後Faultでexit 7/70/70、取得/End/解放API成功数3/3/3・1/1/1・2/2/2。C componentのEnd欠落/入場後caller再End改変は拒否、既存96入力/stored-child Normal/Fault、owned-return 16入力と合成/改変例もPASS。
 - take最終gate: 固定suite 8/8（110.15秒、SKIP/timeoutなし）、19形program関数/exit一致、cohort 1797 PASS・既知115失敗名完全一致。focused 36 PASS、元binding/aliasの移転待ち・次文使用拒否、内部Jump縮約と結果/frame破損拒否を既存familyで確認。C引数照合を既存ownerへ寄せflowは800行、新規test hook/checkerなし。
 - take差分: production +1481/−458（純増1023）、test/smoke +303/−97（純増206）。既存証拠にない入場時移転・引数Fault・callee Faultの境界を追加し、重複Invoke fixture 22か所は共通化、安全性assertionは維持。共有parameter需要と既存call/input/End検証へ統合し、birth/Shared専用経路を代用しない。
-- 別名read/再返却着地: 共通BorrowedResultReadが元loan/Call/declarationと現在binding・exact alias-flowを分離。BorrowedNullableReturnはLegacy/Declaredを区別し、全returnの元支持関係・実read site・非所有と元CallからのCopy列をfinishing/独立検証へ接続。owned New alias/unknown/Join/cycleを受理せず、read_valid復活なし。最適化target/quick CLI（cargo quick-build --bin hakorune）＋同runtime・既存C shimで固定suite 8/8（120.39秒）、cohort 1802 PASS・既知115失敗名完全一致、cargo check PASS。focused最適化OFF/ON、live同型値へのCopy改変・支持元変更・From欠落の拒否、CのFormal/Receiver/子field alias再返却exit 7と既存Normal/Fault検証PASS。alias readはproduction純増112・test純増29、今回再返却はproduction +56/−22（純増34）・test +10/−8（純増2、既存familyを再利用、新file/checker/hookなし）。次: 生存中支持元からの再借用（payloadとanchorを分離し不変効果・区間も確認）→PHI/支持元合成。From全体未完、19形は切替直前、stash 2件保持。
+- 別名read/再返却着地: 共通BorrowedResultReadが元loan/Call/declarationと現在binding・exact alias-flowを分離。Legacy/Declared別の返却証拠を独立MIR/Copy/Returnへ保持し、Formal/Receiver/Child field alias再返却の正規EXE exit 7。固定suite 8/8・cohort 1802 PASS/既知115失敗名完全一致。alias readはproduction純増112/test29、再返却はproduction純増34/test2。詳細は同cardのGit履歴。
+- readonly引数への再借用着地（2026-11-03）: 共通read sourceが元宣言/initializer/alias-flowを保持し、早期型相談（Class+Null）と実行loanを分離。元Call支持関係・payload型・寿命anchor・正確なCopy/引数座標を共有し、元sourceの非mutation閉包と独立MIRのcallee/生存区間を照合。Cは全Returnの非null固定点でliteral Null/未証明cycleを許可せず、Parent anchorをChild payload型へ流用しない。最適化target/quick CLI（CARGO_BUILD_JOBS=4 cargo quick-build --bin hakorune、4分7秒）＋同runtime・再build C shimで固定suite 8/8（124.78秒、SKIP/timeoutなし）、cargo quick-test-fast cohort 1802 PASS・既知115失敗名完全一致。focused最適化OFF/ON、C既存Normal/Faultと再借用/Parent→Child exit 7・nullable exit 0/7・guard反転/誤payload型/属性/End改変拒否PASS。production +692/−192（純増500）、test +228/−178（純増50、既存From testを構築引数familyから独立責務へ移し重複を残さず、新checker/hookなし）。C引数permissionを既存ownerへ集約しflowは796行。receiver再借用・呼出後の既存read保持・PHI/支持元合成は残件、From未完。残りの区切り後update前に整理A（parameter contract PartialEq/HomeDemand構築owner統合、意味不変・production純減）。19形は切替直前、stash 2件保持。
 - take共通契約検証: 最適化`target/quick/hakorune`（`CARGO_BUILD_JOBS=4 cargo quick-build --bin hakorune`）＋同runtime/既存C shimで実CLIの`PhysicalSignature::UnsupportedTransfer`・EXE未生成。固定suite 8/8（105.89秒、SKIP/timeoutなし）、19形program関数/exit一致、cohort 1796 PASS・既知115失敗名完全一致、parameter/physical signature focused 17 PASS、`cargo check --lib --tests -p nyash-rust` PASS。production +40/−29（純増11）、既存test +24/−2（純増22、元TakeのHome需要と物理借用への消失拒否を既存caseで確認、新規test file/checkerなし）。
 - step 2共通受理完了: 型付きnullable field/再帰TreeNode・子所有Parentのmove・factory返却を既存object-storeの正規EXEへ接続。元New/Birth/唯一writer/guard/全返却・finishing後Copyを照合し、未証明receiverは名前付き拒否。field alias増分の整理条件（field read/借用Copyのfinishing照合統合）は保持。各着地の変更・検証・行数は履歴 `e99eee26f4` の同cardに集約。
 - step 2 A/B/C実行完了: 明示profileを一度canonical IDへ解決、scalar→非再帰nullable owned子→再帰TreeNodeを直接配置EXEへ接続。既定profile不変・新MIR命令なし。部分Birth Faultは取得済みprefixの子Endとcallerのouter reclaimを分離し、完全Endはdescriptor駆動の反復postorder。opaque/Shared/Array移転・未初期化/実所有循環は拒否、arenaは対象外。
@@ -25,7 +26,6 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - C計数完了: 既存perf-observeのchecked store/direct payload成功allocation・各nodeの最終End・実drop/freeを同じownerで集計し、未公開reclaimを分離。depth 10/12/14の木node数は265566/1324382/6346078、全3版でallocation=End=free・reclaim=0。store/Dynamicはnode+補助Box 2件、directはnode件＋store 2件。型付きdepth 6も8414＋2件一致。
 - Fault計数: source-issued部分Birthのallocation失敗1/2/3点はそれぞれdirect alloc/free=0/0・1/1・2/2、End=0/0/1、reclaim=0/1/1（exit 70）。payloadを持たない失敗allocationは数えず、prefixの子Endと未公開outer reclaimを二重にしない。既存observe ABIの重み付きevent/不正event無効化を既存testへ追加、壊れていたperf-observe feature内のcounter接続も修復（期待値を変更しない）。
 - C二系統測定（2026-11-01、Ryzen 7 5825U、quick opt1 CLI/runtime＋再build C shim）: 同一型付きsourceのstore/directが配置差、Dynamic/directが移行全体（field型宣言の差を含む）。下表は観測無効、順次実行、warmup 1回後3回の独立中央値「wall秒 / peak RSS MiB」、全てsummary=ok/exit 0。各実行は60秒・仮想memory 1GiB以内。
-
 | depth | 現行Dynamic | 型付きstore | 同source direct |
 | --- | --- | --- | --- |
 | 10 | 0.18 / 13.25 | 0.07 / 13.125 | 0.01 / 3.50 |

@@ -21,7 +21,7 @@ pub(crate) struct ReadIntervalV1<'v, 'f> {
     view: &'v IntervalViewV1<'f>,
     parent: ValueId,
     children: BTreeSet<ValueId>,
-    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    field: Option<hakorune_mir_defs::CanonicalFieldRefV1>,
 }
 impl<'f> IntervalViewV1<'f> {
     pub(crate) fn new(function: &'f MirFunction) -> Self {
@@ -50,6 +50,12 @@ impl<'f> IntervalViewV1<'f> {
             return Err(freeze("field-argument/evaluation-order"));
         }
         Ok(())
+    }
+    pub(crate) fn borrowed_result_v1(&self, parent: ValueId, payload: ValueId) -> Result<ReadIntervalV1<'_, 'f>, String> {
+        let origins = &self.analysis().origins;
+        let parent = origins.origin(parent).ok_or_else(|| freeze("field-argument/parent-origin"))?;
+        let payload = origins.origin(payload).ok_or_else(|| freeze("field-argument/child-origin"))?;
+        Ok(ReadIntervalV1 { view: self, parent, children: BTreeSet::from([payload]), field: None })
     }
     pub(crate) fn read(&self, parent: ValueId, child: ValueId,
         field: hakorune_mir_defs::CanonicalFieldRefV1,
@@ -86,11 +92,11 @@ impl<'f> IntervalViewV1<'f> {
                 children.insert(origins.origin(dst).ok_or_else(|| freeze("field-argument/repeated-read-origin"))?);
             }
         }
-        Ok(ReadIntervalV1 { view: self, parent, children, field })
+        Ok(ReadIntervalV1 { view: self, parent, children, field: Some(field) })
     }
 }
 
-pub(super) fn locate(function: &MirFunction, binding: &Binding) -> Result<(BasicBlockId, usize), String> {
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn locate(function: &MirFunction, binding: &Binding) -> Result<(BasicBlockId, usize), String> {
     let block = function.blocks.get(&binding.0).ok_or_else(|| freeze("field-argument/block-missing"))?;
     let mut found = block.all_instructions().enumerate().filter(|(_, row)| *row == &binding.1);
     let (position, _) = found.next().ok_or_else(|| freeze("field-argument/producer-missing"))?;
@@ -156,9 +162,9 @@ impl ReadIntervalV1<'_, '_> {
                         | InvokeOperation::DynamicCarrierEnd { carrier: value } => aliases(*value)?,
                         InvokeOperation::OwnedObjectFieldRelease { base, .. }
                         | InvokeOperation::OwnedFieldResidenceRelease { base, .. } => aliases(*base)?,
-                        InvokeOperation::FieldSet { base, field: written, .. } => *written == field && parent_alias(*base)?,
+                        InvokeOperation::FieldSet { base, field: written, .. } => field.map_or(true, |field| *written == field) && parent_alias(*base)?,
                         InvokeOperation::ObjectFieldSet { base, field: written, value, .. } =>
-                            (*written == field && parent_alias(*base)?) || aliases(*value)?,
+                            (field.map_or(true, |field| *written == field) && parent_alias(*base)?) || aliases(*value)?,
                         InvokeOperation::OwnedArray(OwnedArrayInvokeOperation::Append { candidate, .. }) => aliases(*candidate)?,
                         _ => false,
                     },

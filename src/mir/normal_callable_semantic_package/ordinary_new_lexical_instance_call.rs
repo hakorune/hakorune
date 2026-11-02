@@ -649,7 +649,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn unique_instance_target(
     Some(pair.clone())
 }
 
-fn freeze(reason: &str) -> String {
+pub(in crate::mir::normal_callable_semantic_package) fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/{reason}]")
 }
 
