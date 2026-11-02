@@ -76,11 +76,13 @@ static int hako_physical_result_slot_equal(yyjson_val* a, yyjson_val* b) {
 }
 
 /* Receiver support is distinct from parameter and Map-slot support. */
-static int hako_physical_result_receiver(yyjson_val* owner) {
+static int hako_physical_receiver_support(yyjson_val* support) {
   static const char* const keys[] = {"kind"};
-  yyjson_val* support = yyjson_obj_get(owner, "result_support");
+  return hako_physical_exact_keys(support, keys, 1) &&
+      hako_physical_string(yyjson_obj_get(support, "kind"), "receiver");
+}
+static int hako_physical_result_receiver(yyjson_val* owner) {
   return !yyjson_obj_get(owner, "result_formal_ordinal") &&
-      hako_physical_exact_keys(support, keys, 1) &&
-      hako_physical_string(yyjson_obj_get(support, "kind"), "receiver") &&
+      hako_physical_receiver_support(yyjson_obj_get(owner, "result_support")) &&
       yyjson_is_true(yyjson_obj_get(owner, "result_read"));
 }

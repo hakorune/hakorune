@@ -71,7 +71,7 @@ pub(crate) use borrowed_nullable_local::{BorrowedNullableLocalSourceLoanV1, Borr
 #[path = "ordinary_new_result_class_claim/witness.rs"]
 mod witness;
 pub(crate) use object_return_loan::ObjectReturnCallQualificationV1;
-pub(crate) use witness::{ReceiverResultProjectionV1, ReceiverFieldResultSourceV1, MapStoredResultSourceV1, ResultFormalSubstitutionV1, ResultOriginWitnessV1, ResultWitnessStepV1};
+pub(crate) use witness::{ReceiverResultProjectionV1, ReceiverFieldResultSourceV1, MapStoredResultSourceV1, ResultFormalSubstitutionV1, ResultSupportSubstitutionV1, ResultOriginWitnessV1, ResultWitnessStepV1};
 
 /// The proven result class of a selected callable. The class name is the
 /// agreed `new` class; the arm records whether a `null` literal exit
@@ -140,6 +140,7 @@ enum PendingExitV1 {
         call_site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         key: CanonicalSameModuleCallableKeyV1,
         actuals: Box<[ResultActualSourceV1]>,
+        receiver: Option<ResultActualSourceV1>,
     },
     Formal {
         binding: BindingRefV1,
@@ -454,10 +455,11 @@ fn resolve_forward_local(
     .map(|(key, actuals)| PendingExitV1::Fwd {
         call_site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(
             function.owner(),
-            initializer_site,
+            initializer_site.clone(),
         ),
         key,
         actuals,
+        receiver: call_witness::original_receiver_actual_v1(function, body_shape, &initializer_site),
     })
 }
 

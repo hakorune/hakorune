@@ -63,7 +63,18 @@ fn prepare_role(
                 | FinalizedObjectReturnOriginV1::BorrowedCall { .. }) => {
                 let (value, prefix) = match origin {
                     FinalizedObjectReturnOriginV1::BorrowedReceiver { value } => (*value, Vec::new()),
-                    FinalizedObjectReturnOriginV1::BorrowedCall { invoke, producer, formal_ordinal } => {
+                    FinalizedObjectReturnOriginV1::BorrowedCall { invoke, producer, support } => {
+                        let receiver = *support == crate::mir::instruction::BorrowedResultSupportV1::Receiver;
+                        if receiver {
+                            if !matches!(&invoke.1, MirInstruction::Invoke { operation: InvokeOperation::Call { call,
+                                result: InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly,
+                                    support: crate::mir::instruction::BorrowedResultSupportV1::Receiver } }, .. }
+                                if call.callee.receiver().is_some() && call.callee.receiver().as_ref() == function.params.first()) {
+                                return Err(fault("borrowed-formal-return/correspondence"));
+                            }
+                        } else {
+                        let crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) = support
+                            else { return Err(fault("borrowed-formal-return/correspondence")); };
                         let outer = function.params.get(*formal_ordinal as usize + usize::from(role.has_receiver()))
                             .and_then(|value| state.roots.get(value)).ok_or_else(|| fault("borrowed-formal-return/original-entry"))?;
                         let MirInstruction::Invoke { operation: InvokeOperation::Call { result: InvokeCallResultKind::BorrowedNullableHandle {
@@ -73,6 +84,7 @@ fn prepare_role(
                         let at = coordinate(function, invoke)?;
                         if state.arguments.get(&(at.0, at.1, *inner as usize)) != Some(outer) {
                             return Err(fault("borrowed-formal-return/correspondence"));
+                        }
                         }
                         (producer.1.dst_value().ok_or_else(|| fault("borrowed-formal-return/original-entry"))?, vec![invoke, producer])
                     }

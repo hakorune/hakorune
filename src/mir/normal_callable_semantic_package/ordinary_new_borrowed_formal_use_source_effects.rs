@@ -93,7 +93,7 @@ pub(super) fn require_declared_read_use_v1(
                 let matching: Vec<_> = roots.iter().filter(|root| matches!(root.step(),
                     result_class_claim::ResultWitnessStepV1::Call { site: original, .. } if original == call)).collect();
                 !matching.is_empty() && matching.iter().all(|root| {
-                    let result_class_claim::ResultWitnessStepV1::Call { key, substitution: Some(actual), .. } = root.step()
+                    let result_class_claim::ResultWitnessStepV1::Call { key, substitution: Some(result_class_claim::ResultSupportSubstitutionV1::Formal(actual)), .. } = root.step()
                         else { return false; };
                     root.supports_formal_v1(formal, outer) && actual.argument_site == *site
                         && actual.binding == formal && actual.callee_ordinal == *ordinal && actual.caller_ordinal == outer

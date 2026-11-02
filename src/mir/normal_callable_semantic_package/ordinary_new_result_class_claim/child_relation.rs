@@ -580,18 +580,20 @@ fn actual_witnesses(
             call_site: actual.clone(),
             key,
             actuals,
+            receiver: super::call_witness::original_receiver_actual_v1(function, shape, actual.site()),
         }
     };
     let PendingExitV1::Fwd {
         call_site,
         key,
         actuals,
+        receiver,
     } = forwarded
     else {
         return None;
     };
     let source = CallWitnessSourceV1::verify(actual, &call_site, &key, &actuals)?;
-    source.compose(facts.outcomes(&key)?, parameters, slot)
+    source.with_receiver(receiver.as_ref()).compose(facts.outcomes(&key)?, parameters, slot)
 }
 
 pub(super) fn class_agrees(

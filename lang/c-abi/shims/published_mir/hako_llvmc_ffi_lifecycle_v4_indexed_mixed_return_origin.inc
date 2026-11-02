@@ -19,7 +19,7 @@ static int lv4_mixed_return_origins(const hako_lv4_input* in,
     /* Current Mixed source seals have no outgoing anchored field-End plan. */
     if (yyjson_obj_get(origin, "field_supports")) return 0;
     if (lv4_is(origin, "kind", "borrowed_call")) {
-      if (!lv4_borrowed_call_return(in, fn, returned, outer)) return 0;
+      if (!lv4_borrowed_call_return(in, fn, returned, &outer)) return 0;
       continue;
     }
     if (!lv4_acquired_return_origin(in, fn, returned, 1)) return 0;

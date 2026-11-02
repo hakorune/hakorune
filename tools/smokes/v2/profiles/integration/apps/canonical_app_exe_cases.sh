@@ -97,9 +97,10 @@ box Leaf {
   value: i64
   birth() { me.value = 7 }
   identity(): Leaf from me { return me }
+  forward(): Leaf from me { local q = me.identity() return q }
 }
 static box Main {
-  main() { local p = new Leaf() local q = p.identity() return q.value }
+  main() { local p = new Leaf() local q = p.forward() return q.value }
 }
 HAKO
   CASES+=("ownership_from_receiver|$TMP_ROOT.from-receiver.hako|7||")

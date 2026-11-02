@@ -2,7 +2,7 @@
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::AppMainSourceRefV1;
 use super::{
     parameter_contract, ResultActualSourceV1, ResultExitOriginV1, ResultFormalSubstitutionV1,
-    ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
+    ResultOriginWitnessV1, ResultSupportSubstitutionV1, ResultValueOriginV1, ResultWitnessStepV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
@@ -175,7 +175,11 @@ impl OriginalLocalCallSourceV1 {
                 self.formal_actual_v1(batch, parameters, ordinal)?;
             }
         }
+        let receiver = batch.with_lowering_input(self.caller_slot, |input|
+            original_receiver_actual_v1(input.function(), input.body_shape()?, self.call.site()))
+            .map_err(|_| "borrowed-nullable/caller-input")?;
         CallWitnessSourceV1::verify(output, &self.call, &self.key, &self.actuals)
+            .map(|source| source.with_receiver(receiver.as_ref()))
             .and_then(|source| {
                 source.compose(facts.outcomes(&self.key)?, parameters, self.caller_slot)
             })
@@ -372,6 +376,7 @@ pub(super) struct CallWitnessSourceV1<'a> {
     call_site: &'a OwnedExprSiteV1,
     key: &'a CanonicalSameModuleCallableKeyV1,
     actuals: &'a [ResultActualSourceV1],
+    receiver: Option<&'a ResultActualSourceV1>,
 }
 impl<'a> CallWitnessSourceV1<'a> {
     pub(super) fn verify(
@@ -399,7 +404,13 @@ impl<'a> CallWitnessSourceV1<'a> {
             call_site,
             key,
             actuals,
+            receiver: None,
         })
+    }
+
+    pub(super) fn with_receiver(mut self, receiver: Option<&'a ResultActualSourceV1>) -> Self {
+        self.receiver = receiver;
+        self
     }
 
     pub(super) fn compose(
@@ -413,6 +424,7 @@ impl<'a> CallWitnessSourceV1<'a> {
             call_site,
             key,
             actuals,
+            receiver,
         } = self;
         let mut witnesses = Vec::new();
         for callee in callee_rows.iter().flat_map(|row| row.witnesses()) {
@@ -434,26 +446,35 @@ impl<'a> CallWitnessSourceV1<'a> {
                 ) {
                     return None;
                 }
-                Some(ResultFormalSubstitutionV1 {
+                Some(ResultSupportSubstitutionV1::Formal(ResultFormalSubstitutionV1 {
                     argument_site: actual.site.clone(),
                     binding,
                     callee_ordinal: ordinal,
                     caller_ordinal: parameter.ordinal,
-                })
+                }))
             } else {
                 None
             };
-            // Storage support requires receiver/key substitution by its own
-            // borrowed-result owner, never the old formal/Fresh composition.
-            if matches!(callee.origin(), ResultValueOriginV1::MapHeld { .. } | ResultValueOriginV1::BorrowedReceiver { .. }) { return None; }
-            let origin = match (callee.origin(), &substitution) {
-                (ResultValueOriginV1::ForwardFormal { .. }, Some(row)) => {
-                    ResultValueOriginV1::ForwardFormal {
-                        ordinal: row.caller_ordinal,
-                    }
+            // Receiver support is the original caller entry read, never
+            // logical argument zero or an owned construction.
+            let (origin, substitution) = match callee.origin() {
+                ResultValueOriginV1::MapHeld { .. } => return None,
+                ResultValueOriginV1::BorrowedReceiver { .. } => {
+                    let actual = receiver?;
+                    let binding = actual.binding?;
+                    if actual.site.owner() != call_site.owner()
+                        || binding.owner() != call_site.owner()
+                        || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                        || callee.receiver_support_binding_v1().is_none() { return None; }
+                    (callee.origin().clone(), Some(ResultSupportSubstitutionV1::Receiver {
+                        read: actual.site.clone(), binding,
+                    }))
                 }
-                (ResultValueOriginV1::ForwardFormal { .. }, None) => return None,
-                (other, _) => other.clone(),
+                ResultValueOriginV1::ForwardFormal { .. } => {
+                    let ordinal = substitution.as_ref()?.formal_v1()?.caller_ordinal;
+                    (ResultValueOriginV1::ForwardFormal { ordinal }, substitution)
+                }
+                other => (other.clone(), substitution),
             };
             witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
                 site: output_site.clone(),
@@ -468,4 +489,18 @@ impl<'a> CallWitnessSourceV1<'a> {
         }
         Some(witnesses)
     }
+}
+
+/// The original receiver read must resolve to the caller's own declaration.
+/// This records provenance only; it grants no liveness or payload permission.
+pub(super) fn original_receiver_actual_v1(
+    function: &super::VerifiedResolvedFunctionV1,
+    shape: &super::VerifiedResolvedBodyShapeInventoryV1,
+    call: &super::SourceExprSiteV1,
+) -> Option<ResultActualSourceV1> {
+    let method = function.method_call(call)?;
+    let read = method.receiver_site();
+    let super::BodyExpressionShapeV1::Me { receiver: super::BodyMeReceiverV1::Lexical(binding), .. } = shape.expression_shape(read)? else { return None; };
+    if !super::is_receiver_binding(function, *binding) { return None; }
+    Some(ResultActualSourceV1 { site: OwnedExprSiteV1::new(function.owner(), read.clone()), binding: Some(*binding) })
 }

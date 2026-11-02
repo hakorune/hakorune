@@ -97,6 +97,7 @@ pub(super) fn evaluate_row(
                 call_site,
                 key,
                 actuals,
+                receiver,
             } => {
                 let Some(call_source) = super::call_witness::CallWitnessSourceV1::verify(
                     &exit.site, call_site, key, actuals,
@@ -112,7 +113,7 @@ pub(super) fn evaluate_row(
                 };
                 legacy_eligible &= claims.contains_key(key);
                 let Some(composed) =
-                    call_source.compose(callee_rows, parameter_contracts, batch_slot)
+                    call_source.with_receiver(receiver.as_ref()).compose(callee_rows, parameter_contracts, batch_slot)
                 else {
                     return ExitVerdictV1::Dead;
                 };
@@ -291,6 +292,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                                 ),
                                 key,
                                 actuals,
+                                receiver: super::call_witness::original_receiver_actual_v1(function, body_shape, site),
                             }),
                             ResultClassExitDraftV1::ForwardLocal(binding) => resolve_forward_local(
                                 *binding,

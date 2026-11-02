@@ -111,12 +111,13 @@ impl OrdinaryNewClaimLedgerV1 {
         let observation = self
             .local_call_for_owner(owner, loan.call().site())
             .ok_or_else(|| freeze("borrowed-local-observation-missing"))?;
+        let (support_root, _, _) = loan.entry_support_v1().ok_or_else(|| freeze("borrowed-local-source-identity"))?;
         if completion.owner() != owner || !completion.explicit_sites().contains(exit)
             || value.owner() != owner || value.return_site() != exit
             || value.value_site().node() != &crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node()).child(
                 crate::mir::resolved_semantics::SourcePathSegmentV1::Value).node()
-            || loan.call().owner() != owner || loan.root().is_none_or(|root| root.owner() != owner)
-            || loan.destination().owner() != owner || Some(loan.destination()) == loan.root()
+            || loan.call().owner() != owner || support_root.owner() != owner
+            || loan.destination().owner() != owner || loan.destination() == support_root
             || observation.site() != loan.call()
             || observation.borrowed_nullable() != Some(loan.as_ref())
             || observation.local_binding() != Some((loan.declaration(), loan.destination()))

@@ -67,9 +67,17 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
         FinalizedObjectReturnOriginV1::BorrowedCall {
             producer,
             invoke,
-            formal_ordinal,
-        } => json!({ "kind": "borrowed_call", "producer": coordinate(function, producer)?,
-                "invoke": coordinate(function, invoke)?, "formal_ordinal": formal_ordinal }),
+            support,
+        } => {
+            let mut origin = json!({ "kind": "borrowed_call", "producer": coordinate(function, producer)?,
+                "invoke": coordinate(function, invoke)? });
+            match support {
+                crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) => origin["formal_ordinal"] = json!(ordinal),
+                crate::mir::instruction::BorrowedResultSupportV1::Receiver => origin["result_support"] = json!({"kind":"receiver"}),
+                _ => return Err(fault("object-return/json-source-missing")),
+            }
+            origin
+        },
         FinalizedObjectReturnOriginV1::MapSlot(source) => {
             let crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object } = source.support()
                 else { return Err(fault("object-return/json-source-missing")); };

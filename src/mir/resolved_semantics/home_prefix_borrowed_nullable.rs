@@ -212,6 +212,7 @@ impl PrefixLocalFlow<'_> {
                 return false;
             }
         }
+        if loan.entry_support_v1().is_some() && !self.borrowed_entry_support_live_v1(&loan) { return false; }
         self.store(
             loan.destination(),
             StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { loan: Box::new(loan), read_valid: true }),
@@ -232,6 +233,15 @@ impl PrefixLocalFlow<'_> {
         matches!(self.locals.get(&binding), Some(StoredLocal::BorrowedNullable(state)) if state.is_declared_read_v1())
     }
 
+    fn borrowed_entry_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
+        let Some((root, support, actual)) = loan.entry_support_v1() else { return false; };
+        match support {
+            crate::mir::instruction::BorrowedResultSupportV1::Receiver => self.terminal_receiver_v1(actual.site()) == Some(root),
+            crate::mir::instruction::BorrowedResultSupportV1::Formal(_) => loan.root() == Some(root) && self.is_self_rooted_handle(root),
+            _ => false,
+        }
+    }
+
     /// One nullable comparison source, with the original read/lifetime law.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn nullable_result_reference_v1(
         &self, site: &SourceExprSiteV1,
@@ -242,7 +252,7 @@ impl PrefixLocalFlow<'_> {
         let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
         let live = match state.owned_local_support_v1() {
             Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
-            None => state.root().is_some_and(|root| self.is_self_rooted_handle(root)),
+            None => self.borrowed_entry_support_live_v1(state.as_ref()),
         };
         (state.destination() == binding && state.is_declared_read_v1() && state.read_valid && live)
             .then(|| Reference::DeclaredFrom(Box::new(state.as_ref().clone())))
@@ -338,9 +348,7 @@ impl PrefixLocalFlow<'_> {
         };
         (loan.destination() == binding
             && if loan.is_declared_read_v1() { loan.read_valid } else { self.nonnull.contains(&binding) }
-            && loan
-                .root()
-                .is_some_and(|root| self.is_self_rooted_handle(root)))
+            && self.borrowed_entry_support_live_v1(loan.as_ref()))
         .then_some(loan.as_ref())
     }
 }

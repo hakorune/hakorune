@@ -2,13 +2,16 @@ static hako_lv4_value* lv4_borrowed_result_anchor(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value);
 
 static int lv4_borrowed_call_return(const hako_lv4_input* in,
-    hako_lv4_function_index* fn, yyjson_val* returned, uint32_t outer) {
+    hako_lv4_function_index* fn, yyjson_val* returned, const uint32_t* outer) {
   static const char* const keys[] = {"kind", "producer", "invoke", "copies", "formal_ordinal"};
+  static const char* const receiver_keys[] = {"kind", "producer", "invoke", "copies", "result_support"};
   yyjson_val* origin = yyjson_obj_get(returned, "result_origin");
+  int receiver = hako_physical_result_receiver(fn->function);
   uint32_t ordinal, producer_block = 0, invoke_block = 0, value, result;
-  if (!hako_physical_exact_keys(origin, keys, 5) ||
+  if (receiver != (outer == NULL) || !hako_physical_exact_keys(origin, receiver ? receiver_keys : keys, 5) ||
       !lv4_is(origin, "kind", "borrowed_call") ||
-      !hako_physical_u32(yyjson_obj_get(origin, "formal_ordinal"), &ordinal) || ordinal != outer ||
+      (receiver ? !hako_physical_receiver_support(yyjson_obj_get(origin, "result_support")) :
+        (!hako_physical_u32(yyjson_obj_get(origin, "formal_ordinal"), &ordinal) || ordinal != *outer)) ||
       !hako_physical_u32(yyjson_obj_get(returned, "value"), &result)) return 0;
   yyjson_val* producer = lv4_result_coordinate(fn, yyjson_obj_get(origin, "producer"), &producer_block);
   yyjson_val* invoke = lv4_result_coordinate(fn, yyjson_obj_get(origin, "invoke"), &invoke_block);
@@ -20,20 +23,22 @@ static int lv4_borrowed_call_return(const hako_lv4_input* in,
   if (yyjson_is_true(yyjson_obj_get(fn->function, "result_read"))) {
     uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
     if (!yyjson_is_true(yyjson_obj_get(op, "result_read")) ||
-        yyjson_obj_get(op, "result_support") || !target || target >= in->index_count ||
+        !target || target >= in->index_count ||
         !yyjson_is_true(yyjson_obj_get(in->index[target].function, "result_read")) ||
-        yyjson_obj_get(in->index[target].function, "result_support")) return 0;
+        (receiver ? (!hako_physical_result_receiver(op) || !hako_physical_result_receiver(in->index[target].function)) :
+          (yyjson_obj_get(op, "result_support") || yyjson_obj_get(in->index[target].function, "result_support")))) return 0;
   }
   hako_lv4_block* block = lv4_index_block(fn, invoke_block);
   if (!block || lv4_term(block->block) != invoke ||
       !lv4_result_copy_chain(fn, origin, value, result)) return 0;
-  yyjson_val* param = yyjson_arr_get(yyjson_obj_get(fn->function, "params"), outer);
+  yyjson_val* param = outer ? yyjson_arr_get(yyjson_obj_get(fn->function, "params"), *outer) : NULL;
   hako_lv4_value* formal = lv4_index_value(fn, lv4_u(param, "value"));
   hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, lv4_index_value(fn, value));
   /* The helper independently checks INNER ordinal, exact Invoke/Normal,
      unique Normal predecessor, target and actual substitution. OUTER belongs
      to this function and must never be compared numerically with INNER. */
-  return anchor && anchor == formal && anchor->kind == LV4_TAGGED;
+  return receiver ? anchor && anchor->kind == LV4_HANDLE && lv4_canonical_receiver(fn, anchor)
+      : anchor && anchor == formal && anchor->kind == LV4_TAGGED;
 }
 
 /* Same existing field interval owner, defined after the result index. */
@@ -186,6 +191,8 @@ static int lv4_borrowed_return_origin(const hako_lv4_input* in, hako_lv4_functio
   static const char* const formal_keys[] = {"kind", "formal_ordinal", "copies"};
   yyjson_val* origin = yyjson_obj_get(returned, "result_origin");
   if (hako_physical_result_receiver(fn->function)) {
+    if (lv4_is(origin, "kind", "borrowed_call")) return
+        yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) && lv4_borrowed_call_return(in, fn, returned, NULL);
     if (lv4_is(origin, "kind", "borrowed_receiver_field")) return lv4_receiver_field_return_origin(in, fn, returned);
     static const char* const receiver_keys[] = {"kind", "copies"};
     uint32_t value, returned_value;
@@ -209,7 +216,7 @@ static int lv4_borrowed_return_origin(const hako_lv4_input* in, hako_lv4_functio
       !hako_physical_u32(yyjson_obj_get(returned, "value"), &returned_value)) return 0;
   if (lv4_is(origin, "kind", "borrowed_call"))
     return yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) &&
-        lv4_borrowed_call_return(in, fn, returned, ordinal);
+        lv4_borrowed_call_return(in, fn, returned, &ordinal);
   yyjson_val* formal = yyjson_arr_get(params, ordinal);
   if (!lv4_is(formal, "representation", "borrowed_kind_payload_v1") ||
       !hako_physical_u32(yyjson_obj_get(formal, "value"), &value)) return 0;

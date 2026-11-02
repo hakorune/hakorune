@@ -53,6 +53,7 @@ fn witness_composition_rejects_foreign_call_actual_and_wrong_argument_site() {
                         call_site,
                         key: callee,
                         actuals,
+                        receiver: None,
                     },
                 }];
                 assert!(matches!(
@@ -265,6 +266,9 @@ fn declared_read_result_retains_single_support_across_returns_and_null() {
 fn declared_receiver_result_preserves_original_binding_without_legacy_projection() {
     for (method, valid) in [
         ("identity(): Leaf from me { return me }", true),
+        ("identity(): Leaf from me { local q = me.relay() return q } relay(): Leaf from me { return me }", true),
+        ("identity(other: Leaf): Leaf from me { local q = other.relay() return q } relay(): Leaf from me { return me }", false),
+        ("identity(): Other from me { local q = me.relay() return q } relay(): Leaf from me { return me }", false),
         ("identity(): Other from me { return me.child }", true),
         ("identity(): Leaf from me { return me.child }", false),
         ("identity(): Other from me { return me.missing }", false),

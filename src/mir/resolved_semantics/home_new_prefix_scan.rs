@@ -363,6 +363,17 @@ pub(super) fn scan_statement_flow<'a, E>(
                 view_use,
                 local_field_read,
             )? {
+                // The admitted write commits on this Normal successor, after
+                // its RHS. Every writer shares the same borrow invalidation.
+                if let Some(shape) = input.body_shape() {
+                    if let Some(assignment) = shape.assignment_sources().iter()
+                        .find(|row| row.statement_site() == statement.site()) {
+                        if let Some(crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::FieldWrite { receiver }) =
+                            input.function().assignment_target(assignment.target_site()) {
+                            locals.invalidate_declared_read_write_v1(receiver);
+                        }
+                    }
+                }
                 continue;
             }
             // A `me.<ArrayBox field>.m(..)` statement whose manifest row

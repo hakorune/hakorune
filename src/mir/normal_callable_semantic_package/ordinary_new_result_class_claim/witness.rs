@@ -13,6 +13,18 @@ pub(crate) struct ResultFormalSubstitutionV1 {
     pub(crate) caller_ordinal: u32,
 }
 
+/// The actual source support of a composed Call, independent of payload type.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum ResultSupportSubstitutionV1 {
+    Formal(ResultFormalSubstitutionV1),
+    Receiver { read: OwnedExprSiteV1, binding: BindingRefV1 },
+}
+impl ResultSupportSubstitutionV1 {
+    pub(crate) fn formal_v1(&self) -> Option<&ResultFormalSubstitutionV1> {
+        match self { Self::Formal(actual) => Some(actual), Self::Receiver { .. } => None }
+    }
+}
+
 /// Exact receiver field syntax; no ownership or nonnull permission by itself.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ReceiverFieldReadV1 {
@@ -69,7 +81,7 @@ pub(crate) enum ResultWitnessStepV1 {
         site: OwnedExprSiteV1,
         key: CanonicalSameModuleCallableKeyV1,
         callee: Rc<ResultOriginWitnessV1>,
-        substitution: Option<ResultFormalSubstitutionV1>,
+        substitution: Option<ResultSupportSubstitutionV1>,
     },
 }
 
@@ -106,13 +118,18 @@ impl ResultOriginWitnessV1 {
             ResultWitnessStepV1::Formal { binding: original, ordinal: index } =>
                 *original == binding && *index == ordinal,
             ResultWitnessStepV1::Call { substitution: Some(actual), .. } =>
-                actual.binding == binding && actual.caller_ordinal == ordinal,
+                actual.formal_v1().is_some_and(|actual| actual.binding == binding && actual.caller_ordinal == ordinal),
             ResultWitnessStepV1::Call { substitution: None, .. } => self.origin == ResultValueOriginV1::Null,
             _ => false,
         }
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn supports_receiver_v1(&self, binding: BindingRefV1, class: &str) -> bool {
+        if let ResultWitnessStepV1::Call { callee, substitution: Some(ResultSupportSubstitutionV1::Receiver { read, binding: actual }), .. } = &self.step {
+            return *actual == binding && read.owner() == binding.owner()
+                && self.site.owner() == binding.owner()
+                && callee.receiver_support_binding_v1().is_some_and(|original| callee.supports_receiver_v1(original, class));
+        }
         self.site.owner() == binding.owner() && (self.origin == ResultValueOriginV1::Null
             || matches!((&self.step, &self.origin),
                 (ResultWitnessStepV1::Receiver { binding: original, projection }, ResultValueOriginV1::BorrowedReceiver { class: actual })
@@ -122,6 +139,32 @@ impl ResultOriginWitnessV1 {
                             read.receiver.owner() == binding.owner() && source.child_class() == class,
                         ReceiverResultProjectionV1::PendingField(_) => false,
                     }))
+    }
+
+    pub(super) fn receiver_support_binding_v1(&self) -> Option<BindingRefV1> {
+        match &self.step {
+            ResultWitnessStepV1::Receiver { binding, .. }
+            | ResultWitnessStepV1::Call { substitution: Some(ResultSupportSubstitutionV1::Receiver { binding, .. }), .. } => Some(*binding),
+            _ => None,
+        }
+    }
+
+    pub(super) fn receiver_payload_nonnull_v1(&self) -> bool {
+        if !matches!(self.origin, ResultValueOriginV1::BorrowedReceiver { .. }) { return false; }
+        match &self.step {
+            ResultWitnessStepV1::Receiver { projection, .. } => projection.nonnull_v1(),
+            ResultWitnessStepV1::Call { callee, substitution: Some(ResultSupportSubstitutionV1::Receiver { .. }), .. } => callee.receiver_payload_nonnull_v1(),
+            _ => false,
+        }
+    }
+    pub(super) fn recheck_receiver_payload_v1(&self, facts: &super::OrdinaryNewResultClassClaimsV1) -> bool {
+        match &self.step {
+            ResultWitnessStepV1::Receiver { projection, .. } => projection.recheck_v1(facts),
+            ResultWitnessStepV1::Call { key, callee, substitution: Some(ResultSupportSubstitutionV1::Receiver { .. }), .. } =>
+                facts.checked_original_source_roots_v1(key, callee.site().owner()).is_ok_and(|roots|
+                    roots.iter().any(|root| Rc::ptr_eq(root, callee))) && callee.recheck_receiver_payload_v1(facts),
+            _ => false,
+        }
     }
 
     /// A literal Null has no formal payload ancestry, even through a call.
@@ -137,7 +180,7 @@ impl ResultOriginWitnessV1 {
         match &self.step {
             ResultWitnessStepV1::Formal { ordinal, .. } => Some(*ordinal),
             ResultWitnessStepV1::Call { substitution, .. } => {
-                substitution.as_ref().map(|row| row.caller_ordinal)
+                substitution.as_ref().and_then(|row| row.formal_v1()).map(|row| row.caller_ordinal)
             }
             _ => None,
         }

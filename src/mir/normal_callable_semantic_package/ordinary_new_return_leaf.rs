@@ -191,7 +191,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 };
                 let binding = match witness.step() {
                     ResultWitnessStepV1::Formal { binding, ordinal: source } if source == ordinal => *binding,
-                    ResultWitnessStepV1::Call { callee, substitution: Some(row), .. }
+                    ResultWitnessStepV1::Call { callee, substitution: Some(result_class_claim::ResultSupportSubstitutionV1::Formal(row)), .. }
                         if row.caller_ordinal == *ordinal && row.argument_site.owner() == site.owner()
                             && matches!(callee.origin(), ResultValueOriginV1::ForwardFormal { ordinal } if *ordinal == row.callee_ordinal) => row.binding,
                     _ => return Err(freeze("object-return/field-support-witness")),

@@ -216,7 +216,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
                 assert_eq!(key, &original.key);
                 assert_eq!(witness.site(), &call);
                 assert_eq!(root.formal_ordinal().is_some(), substitution.is_some());
-                if let Some(actual) = substitution {
+                if let Some(ResultSupportSubstitutionV1::Formal(actual)) = substitution {
                     let source = &original.actuals[actual.callee_ordinal as usize];
                     assert_eq!(root.formal_ordinal(), Some(actual.callee_ordinal));
                     assert_eq!(actual.argument_site, source.site);

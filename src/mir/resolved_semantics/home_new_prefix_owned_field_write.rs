@@ -105,6 +105,5 @@ pub(super) fn observe<E>(
     };
     installation.commit();
     let admitted = locals.record_normal_field_write(writer);
-    if admitted { locals.invalidate_declared_read_write_v1(receiver); }
     Ok(Some(admitted))
 }

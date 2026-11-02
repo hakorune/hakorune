@@ -131,8 +131,10 @@ fn mixed_forward_composes_caller_ordinal_and_keeps_caller_sites() {
         assert!(contains(top, ResultValueOriginV1::Fresh("Token".into())));
         for witness in top[0].witnesses() {
             if let super::ResultWitnessStepV1::Call { callee, substitution: Some(outer), .. } = witness.step() {
+                let outer = outer.formal_v1().expect("formal support");
                 assert_eq!((outer.callee_ordinal, outer.caller_ordinal), (1, 0));
                 let super::ResultWitnessStepV1::Call { callee: leaf, substitution: Some(inner), .. } = callee.step() else { panic!("relay substitution") };
+                let inner = inner.formal_v1().expect("formal support");
                 assert_eq!((inner.callee_ordinal, inner.caller_ordinal), (0, 1));
                 assert!(matches!(leaf.step(), super::ResultWitnessStepV1::Formal { ordinal: 0, .. }));
                 assert_ne!(outer.binding, inner.binding, "bindings retain declaration identity");
@@ -237,7 +239,8 @@ fn realloc_witnesses_retain_call_initializer_and_formal_null_provenance() {
                     }
                     let actual = substitution
                         .as_ref()
-                        .expect("formal-derived null also keeps its binding");
+                        .expect("formal-derived null also keeps its binding")
+                        .formal_v1().expect("formal support");
                     assert_eq!((actual.callee_ordinal, actual.caller_ordinal), (0, 0));
                     assert_eq!(actual.argument_site.owner(), site.owner());
                     assert!(matches!(

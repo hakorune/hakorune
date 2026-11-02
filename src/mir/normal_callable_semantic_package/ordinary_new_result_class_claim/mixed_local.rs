@@ -520,7 +520,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             }
             match (root.formal_ordinal(), substitution) {
                 (None, None) => {}
-                (Some(original), Some(actual))
+                (Some(original), Some(ResultSupportSubstitutionV1::Formal(actual)))
                     if original == loan.callee_ordinal
                         && actual.callee_ordinal == original
                         && actual.binding == *binding

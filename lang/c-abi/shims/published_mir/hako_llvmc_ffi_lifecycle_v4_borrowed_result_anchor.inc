@@ -147,10 +147,11 @@ static int lv4_borrowed_result_readable(const hako_lv4_input* in,
   return lv4_nullable_field_loan_readable(in, fn, anchor->id, state, use, 0, 0);
 }
 
-/* Identity forwarding is a separate nonnull proof, not Return permission.
- * A finite fixed point requires every completed Return to preserve its formal;
- * literal Null and unproved call cycles never gain a nonnull fact. */
-static int lv4_declared_formal_identity(const hako_lv4_input* in, uint32_t target) {
+/* Payload class and nonnull are separate from support liveness and Return
+ * permission. Every completed Return must prove the requested properties;
+ * unproved call cycles never gain a fact. */
+static int lv4_declared_result_proves(const hako_lv4_input* in, uint32_t target,
+    uint32_t object, int check_object, int nonnull) {
   unsigned char* proven = (unsigned char*)calloc(in->index_count, 1);
   if (!proven) return 0;
   int changed = 1;
@@ -159,7 +160,7 @@ static int lv4_declared_formal_identity(const hako_lv4_input* in, uint32_t targe
     for (size_t fi = 1; fi < in->index_count; fi++) {
       hako_lv4_function_index* fn = &in->index[fi];
       if (proven[fi] || !yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) ||
-          yyjson_obj_get(fn->function, "result_support") ||
+          hako_physical_result_slot(fn->function, NULL) ||
           !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle")) continue;
       size_t returns = 0;
       int valid = 1;
@@ -169,7 +170,23 @@ static int lv4_declared_formal_identity(const hako_lv4_input* in, uint32_t targe
         returns++;
         yyjson_val* origin = yyjson_obj_get(term, "result_origin");
         if (!lv4_borrowed_return_origin(in, fn, term)) { valid = 0; break; }
-        if (lv4_is(origin, "kind", "borrowed_formal")) continue;
+        if (lv4_is(origin, "kind", "null") && !nonnull) continue;
+        if (lv4_is(origin, "kind", "borrowed_formal")) {
+          yyjson_val* param = yyjson_arr_get(yyjson_obj_get(fn->function, "params"), lv4_u(origin, "formal_ordinal"));
+          if (check_object && (!hako_physical_u32(yyjson_obj_get(param, "object_view"), NULL) || lv4_u(param, "object_view") != object)) valid = 0;
+          continue;
+        }
+        if (lv4_is(origin, "kind", "borrowed_receiver")) {
+          if (check_object && (!hako_physical_u32(yyjson_obj_get(fn->function, "receiver_object"), NULL) ||
+              lv4_u(fn->function, "receiver_object") != object)) valid = 0;
+          continue;
+        }
+        if (lv4_is(origin, "kind", "borrowed_receiver_field")) {
+          yyjson_val* invoke = lv4_result_coordinate(fn, yyjson_obj_get(origin, "invoke"), NULL);
+          if ((check_object && lv4_u(origin, "object_id") != object) ||
+              (nonnull && !yyjson_is_false(yyjson_obj_get(yyjson_obj_get(invoke, "operation"), "nullable")))) valid = 0;
+          continue;
+        }
         if (!lv4_is(origin, "kind", "borrowed_call")) { valid = 0; break; }
         yyjson_val* invoke = lv4_result_coordinate(fn, yyjson_obj_get(origin, "invoke"), NULL);
         uint32_t inner = lv4_u(yyjson_obj_get(yyjson_obj_get(invoke, "operation"), "call"), "target");
@@ -207,7 +224,7 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
     if (lv4_is(origin, "kind", "null") && guarded) continue;
     if (!hako_physical_result_receiver(op)) {
       if (!lv4_is(origin, "kind", "borrowed_formal") &&
-          (!lv4_is(origin, "kind", "borrowed_call") || (!guarded && !lv4_declared_formal_identity(in, target)))) return 0;
+          (!lv4_is(origin, "kind", "borrowed_call") || (!guarded && !lv4_declared_result_proves(in, target, 0, 0, 1)))) return 0;
     } else {
       if (!hako_physical_result_receiver(callee->function)) return 0;
       if (lv4_is(origin, "kind", "borrowed_receiver")) {
@@ -219,6 +236,8 @@ static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_
            a nullable borrow requires its own result guard, not a Parent guard. */
         if (lv4_u(origin, "object_id") != object ||
             (!guarded && !yyjson_is_false(yyjson_obj_get(operation, "nullable")))) return 0;
+      } else if (lv4_is(origin, "kind", "borrowed_call")) {
+        if (!lv4_declared_result_proves(in, target, object, 1, !guarded)) return 0;
       } else return 0;
     }
   }
