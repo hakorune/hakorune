@@ -157,6 +157,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 .functions
                 .get(symbol)
                 .ok_or_else(|| fault("ordinary-function-missing"))?;
+            let mut read_result = None;
             let object_returns = match result {
                 InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle => Some(self.retained_root_source()
                     .ok_or_else(|| fault("owned-result/source-missing"))?
@@ -166,9 +167,13 @@ impl<'module> PublishedMirBackendView<'module> {
                 InvokeCallResultKind::MixedHandle { .. } => Some(self.retained_root_source()
                     .ok_or_else(|| fault("mixed-result/source-missing"))?
                     .mixed_return_projections_v1(self.module(), key)?.into_boxed_slice()),
-                InvokeCallResultKind::BorrowedNullableHandle { .. } => Some(self.retained_root_source()
-                    .ok_or_else(|| fault("borrowed-result/source-missing"))?
-                    .borrowed_nullable_return_projections_v1(self.module(), key)?.into_boxed_slice()),
+                InvokeCallResultKind::BorrowedNullableHandle { .. } => {
+                    let (returns, declaration) = self.retained_root_source()
+                        .ok_or_else(|| fault("borrowed-result/source-missing"))?
+                        .borrowed_nullable_return_projections_v1(self.module(), key)?;
+                    read_result = declaration;
+                    Some(returns.into_boxed_slice())
+                },
                 _ => None,
             };
             let has_receiver = key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod;
@@ -205,11 +210,14 @@ impl<'module> PublishedMirBackendView<'module> {
                 return Err(format!("{} key={key:?} result={result:?} symbol={symbol} signature={:?} values={:?} expected_arity={expected_arity} duplicate={}",
                     fault("ordinary-membership-drift"), function.signature, function.params, names.contains(symbol)));
             }
+            if matches!(result, InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly, .. }) != read_result.is_some() {
+                return Err(fault("borrowed-result/read-access-drift"));
+            }
             let receiver_object = object_identity::ordinary_receiver_object(self.module(), key)?;
             let role = match result {
-                InvokeCallResultKind::BorrowedNullableHandle { support } =>
+                InvokeCallResultKind::BorrowedNullableHandle { support, access } =>
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle {
-                        key: key.clone(), receiver_object, support: *support,
+                        key: key.clone(), receiver_object, support: *support, access: *access, read_result,
                         returns: object_returns.expect("same result branch projected original Returns"),
                     },
                 InvokeCallResultKind::MixedHandle { formal_ordinal } =>

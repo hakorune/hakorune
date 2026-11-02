@@ -76,6 +76,21 @@ HAKO
   CASES+=("ownership_take_entry|$TMP_ROOT.take.hako|7||")
 fi
 
+# Explicit read return borrows the same local Home; only its scalar snapshot escapes.
+if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_from_read ]; then
+  cat > "$TMP_ROOT.from.hako" <<'HAKO'
+box Leaf {
+  value: i64
+  birth() { me.value = 7 }
+  identity(p: Leaf): Leaf from p { return p }
+}
+static box Main {
+  main() { local p = new Leaf() local q = p.identity(p) return q.value }
+}
+HAKO
+  CASES+=("ownership_from_read|$TMP_ROOT.from.hako|7||")
+fi
+
 run_case() {
   local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
   if [[ "$2" = /* ]]; then app="$2"; fi

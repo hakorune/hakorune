@@ -45,6 +45,7 @@ pub(super) fn emit_lifecycle_physical_program_value(
         .iter()
         .enumerate()
         .map(|(function_ordinal, function)| {
+            if !function.role().read_result_matches_declaration_v1() { return Err(fault("ordinary-result-kind")); }
             let function_ordinal = u32::try_from(function_ordinal)
                 .map_err(|_| fault("function-ordinal"))?;
             let blocks = function

@@ -83,7 +83,7 @@ impl ResultOriginWitnessV1 {
 
 /// Exact unrebound, uncaptured local New reaching an original Return read.
 /// This is a source class derivation, never a live Home transfer permission.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct LocalConstructionResultSourceV1 {
     pub(super) binding: BindingRefV1,
     pub(super) acquisition: OwnedExprSiteV1,

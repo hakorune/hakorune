@@ -200,3 +200,38 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
     for label, data in negatives:
         compile_input(data, accepted=False)
         print('reject', label)
+
+    # Unchanged source-issued explicit read result; Copy retains its original Call.
+    read = json.loads((INPUTS / 'hako-issued-declared-read-local.json').read_text())
+    compile_input(read)
+    checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
+    run = subprocess.run([exe], env=ENV, capture_output=True, text=True)
+    assert run.returncode == 7, (run.returncode, run.stdout, run.stderr)
+    print('source-issued From local support: field snapshot exit 7')
+    for side in ['call', 'callee']:
+        for marker in [None, False]:
+            data = copy.deepcopy(read)
+            callee = function(data, 'Leaf.identity/1')
+            call = next(block['terminator']['instruction']['operation']
+                        for block in function(data, 'main')['blocks']
+                        if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
+            target = call if side == 'call' else callee
+            if marker is None:
+                del target['result_read']
+            else:
+                target['result_read'] = marker
+            compile_input(data, accepted=False)
+    data = copy.deepcopy(read)
+    blocks = function(data, 'main')['blocks']
+    call = next(block['terminator']['instruction'] for block in blocks
+                if block['terminator']['instruction'].get('operation', {}).get('result_read') is True)
+    landing = next(block for block in blocks if block['id'] == call['normal'])
+    projected = next(row['instruction']['dst'] for row in landing['instructions']
+                     if row['instruction'].get('op') == 'invoke_normal_result')
+    read_alias = next(row['instruction']['dst'] for row in landing['instructions']
+                      if row['instruction'].get('op') == 'copy' and row['instruction']['src'] == projected)
+    end = next(block['terminator']['instruction']['operation'] for block in reversed(blocks)
+               if block['terminator']['instruction'].get('operation', {}).get('kind') == 'home_release')
+    end['value'] = read_alias
+    compile_input(data, accepted=False)
+    print('reject read qualifier erasure/false and End of borrowed result')

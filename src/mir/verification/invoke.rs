@@ -422,7 +422,7 @@ fn check_function_inner(
                 };
                 let valid = match (&call.callee, result) {
                     (Callee::BirthConstructor { .. }, _) => false,
-                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }
+                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { access: _, support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }
                         | ResultKind::MixedHandle { formal_ordinal }) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len() && *formal_ordinal < key.arity()
@@ -444,6 +444,7 @@ fn check_function_inner(
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
                     (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle {
+                        access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
                         support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object },
                     }) => key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                         && key.arity() as usize == call.args.len() && *key_ordinal < key.arity()

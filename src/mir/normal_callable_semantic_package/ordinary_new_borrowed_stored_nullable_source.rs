@@ -16,7 +16,8 @@ pub(super) fn original_local_loan_v1(
     facts: &OrdinaryNewResultClassClaimsV1,
  app_main: Option<AppMainSourceRefV1<'_>>) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, String> {
     let reference = need.reference();
-    let formal = need.stored().is_some() && matches!(facts.get(&reference.target),
+    let declared_read = facts.borrowed_result_declaration_v1(&reference.target).is_some();
+    let formal = (need.stored().is_some() || declared_read) && matches!(facts.get(&reference.target),
         Some(OrdinaryNewResultClassV1::NullableForwarded { .. }));
     let map = facts.outcomes(&reference.target).is_some_and(|rows| !rows.is_empty()
         && rows.iter().all(|row| !row.alternatives().is_empty() && row.alternatives().iter().all(|origin|
@@ -63,7 +64,7 @@ pub(super) fn recheck_original_local_loan_v1(
     let reference = need.reference();
     // Map source loans retain their own checked Me receiver substitution.
     // The older formal lane still requires its exact stored-child receiver.
-    if !loan.is_map_slot() && need.stored().is_none() { return Err(freeze("stored-source-missing")); }
+    if !loan.is_map_slot() && !loan.is_declared_read_v1() && need.stored().is_none() { return Err(freeze("stored-source-missing")); }
     if loan.call() != &reference.call_site
         || loan.receiver() != &reference.receiver_site
         || loan.key() != &reference.target

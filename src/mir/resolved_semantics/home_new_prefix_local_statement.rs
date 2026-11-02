@@ -330,7 +330,10 @@ pub(super) fn observe<'a, E>(
                     let loan = local_call
                         .borrowed_nullable()
                         .expect("source issuer retains its loan");
-                    locals.install_borrowed_nullable(loan.clone());
+                    if !locals.install_borrowed_nullable(loan.clone()) {
+                        unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+                        continue;
+                    }
                     path_calls.insert(local_call.site().clone());
                     local_calls.push(local_call);
                 }

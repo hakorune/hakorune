@@ -72,7 +72,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   yyjson_val* blocks = hako_physical_blocks(fn->function);
   yyjson_val* block = yyjson_arr_get(blocks, bi);
   yyjson_val* term = lv4_term(block);
-  size_t count = work->stride;
+  size_t count = work->stride, use_position = yyjson_arr_size(yyjson_obj_get(block, "instructions"));
   int faulted = work->faults[bi];
   if (in->measurement) in->measurement->v4_flow_blocks++;
   hako_lv4_state *state = work->scratch, *normal = state + count;
@@ -104,7 +104,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "string_field_materialize")) {
       if (faulted || birth || state[bi] || !lv4_birth_dynamic(in, op) ||
-          !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id")) ||
+          !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id"), use_position) ||
           !lv4_string_push(state, count, &normal[bi])) return 0;
     } else if (!hako_physical_array_text_append(op) && hako_physical_string_operand_count(op)) {
       if ((birth && !hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) || faulted || state[bi]) return 0;
@@ -230,7 +230,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               if (finite_domain || nonnull_domain) return 0;
               int array_borrow = value && value->kind == LV4_SLOT_BORROW;
               if (value && value->kind == LV4_BORROWED_OBJECT) {
-                if (!lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
+                if (!lv4_borrowed_result_forwardable(fn, value) || !lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"), use_position)) return 0;
                 hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
                 if (class_domain && (anchor ? ((anchor->object_id_set && anchor->object_id != yyjson_get_uint(view)) ||
                     (anchor->kind == LV4_TAGGED && !lv4_borrowed_object_formal(fn, anchor,
@@ -461,7 +461,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !(guarded_map || lv4_readable_object(in, fn, lv4_u(op, "base"), state, lv4_u(block, "id"), lv4_u(op, "object_id"), 1))) return 0;
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "field_get")) {
-      if (faulted || birth || !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id"))) return 0;
+      if (faulted || birth || !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id"), use_position)) return 0;
       hako_lv4_value* view = lv4_index_value(fn, lv4_u(op, "base"));
       if (view && view->kind == LV4_SHARED_BORROW) normal[view->origin] = state[view->origin] = 0;
       /* The receiver's original nullable/conditional obligation is untouched.
@@ -475,7 +475,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (hako_physical_text_field_replace(op)) {
         if (birth || faulted || !value || value->kind != LV4_OWNED_STRING ||
             !lv4_birth_dynamic(in, op) || !lv4_is(range, "kind", "none") ||
-            !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id")) ||
+            !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id"), use_position) ||
             !lv4_string_transfer_temporary(state, normal, count, value->origin)) return 0;
         /* Commit failure disposes the taken candidate inside the transaction.
            Commit success transfers it to the slot even if the old End faults. */

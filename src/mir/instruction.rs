@@ -22,7 +22,7 @@ mod invoke;
 pub use invoke::{
     BirthArgumentV1, BirthInvokeV1, ArrayElementWriteValueV1, FieldSetModeV1, DynamicFieldSetContractV1,
     DynamicFieldValueTagV1, DynamicFieldResidenceV1, DynamicFieldWriteIntentV1,
-    FieldResidenceEndModeV1, ObjectEndStepV1, FaultFrameMode, BorrowedResultSupportV1,
+    FieldResidenceEndModeV1, ObjectEndStepV1, FaultFrameMode, BorrowedResultSupportV1, BorrowedResultAccessV1,
     InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation, StringInvokeOperand, StringInvokeOperation,
     MapInvokeOperation, MapValueKind, DynamicCarrierArrayInvokeOperation, OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1, SharedInvokeOperation, SharedDescriptorV1,
     DynamicInvocationOperandV1, DynamicInvocationOperationV1,

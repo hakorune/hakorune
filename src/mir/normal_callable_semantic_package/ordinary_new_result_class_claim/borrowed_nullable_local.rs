@@ -113,10 +113,14 @@ impl OrdinaryNewResultClassClaimsV1 {
 enum BorrowedLocalSupportV1 {
     FormalForward { callee_ordinal: u32, root: BindingRefV1, caller_ordinal: u32 },
     MapSlot(call_witness::MapSlotCallSubstitutionV1),
+    /// Original caller New read; never a caller formal or a result Home.
+    OwnedLocal { callee_ordinal: u32, actual: ResultActualSourceV1,
+        source: Rc<witness::LocalConstructionResultSourceV1> },
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedNullableLocalSourceLoanV1 {
+    declared_borrow: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
     call: OwnedExprSiteV1,
@@ -127,6 +131,40 @@ pub(crate) struct BorrowedNullableLocalSourceLoanV1 {
     witnesses: Box<[Rc<ResultOriginWitnessV1>]>,
 }
 impl BorrowedNullableLocalSourceLoanV1 {
+    pub(crate) fn access_v1(&self) -> crate::mir::instruction::BorrowedResultAccessV1 {
+        use crate::mir::instruction::BorrowedResultAccessV1 as Access;
+        if self.declared_borrow.is_some() { Access::ReadOnly } else { Access::LegacyUnqualified }
+    }
+    pub(crate) fn result_kind_v1(&self) -> crate::mir::instruction::InvokeCallResultKind {
+        crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
+            support: self.result_support_v1(), access: self.access_v1(),
+        }
+    }
+    pub(crate) fn is_declared_read_v1(&self) -> bool {
+        self.access_v1() == crate::mir::instruction::BorrowedResultAccessV1::ReadOnly
+    }
+    pub(crate) fn matches_read_home_actual_v1(&self, call: &OwnedExprSiteV1, ordinal: u32,
+        binding: BindingRefV1, root: BindingRefV1, acquisition: &OwnedExprSiteV1,
+        read: &crate::mir::resolved_semantics::SourceExprSiteV1, moved: bool) -> bool {
+        self.is_declared_read_v1() && !moved && self.call() == call
+            && self.callee_ordinal() == Some(ordinal)
+            && self.owned_local_support_v1().is_some_and(|(original, acquired, at)|
+                binding == original && root == original && acquired == acquisition
+                    && at.owner() == call.owner() && at.site() == read)
+    }
+    pub(crate) fn declared_read_result_v1(&self) -> Option<&std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>> {
+        self.declared_borrow.as_ref()
+    }
+
+    /// Qualifiers belong to the original declaration, not a copied bool/ordinal.
+    pub(crate) fn declared_result_matches_v1(&self,
+        declaration: Option<&std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
+    ) -> bool {
+        crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1::same_source(
+            self.declared_borrow.as_ref(), declaration,
+        )
+    }
+
     pub(crate) fn declaration(&self) -> &SourceBindingSiteV1 {
         &self.declaration
     }
@@ -149,7 +187,8 @@ impl BorrowedNullableLocalSourceLoanV1 {
     pub(crate) fn result_support_v1(&self) -> crate::mir::instruction::BorrowedResultSupportV1 {
         use crate::mir::instruction::BorrowedResultSupportV1 as Support;
         match &self.support {
-            BorrowedLocalSupportV1::FormalForward { callee_ordinal, .. } => Support::Formal(*callee_ordinal),
+            BorrowedLocalSupportV1::FormalForward { callee_ordinal, .. }
+            | BorrowedLocalSupportV1::OwnedLocal { callee_ordinal, .. } => Support::Formal(*callee_ordinal),
             BorrowedLocalSupportV1::MapSlot(map) => map.source.result_support_v1(),
         }
     }
@@ -159,12 +198,18 @@ impl BorrowedNullableLocalSourceLoanV1 {
     /// The old payload-formal root exists only on the formal-forward lane.
     pub(crate) fn root(&self) -> Option<BindingRefV1> {
         match &self.support { BorrowedLocalSupportV1::FormalForward { root, .. } => Some(*root),
-            BorrowedLocalSupportV1::MapSlot(_) => None }
+            BorrowedLocalSupportV1::MapSlot(_) | BorrowedLocalSupportV1::OwnedLocal { .. } => None }
     }
     /// Lifetime anchor only. A Map holder is not the returned payload receiver.
     pub(crate) fn support_root(&self) -> BindingRefV1 {
         match &self.support { BorrowedLocalSupportV1::FormalForward { root, .. } => *root,
-            BorrowedLocalSupportV1::MapSlot(map) => map.holder }
+            BorrowedLocalSupportV1::MapSlot(map) => map.holder,
+            BorrowedLocalSupportV1::OwnedLocal { source, .. } => source.binding }
+    }
+    /// Read source and original acquisition, for the caller's live-Home check.
+    pub(crate) fn owned_local_support_v1(&self) -> Option<(BindingRefV1, &OwnedExprSiteV1, &OwnedExprSiteV1)> {
+        let BorrowedLocalSupportV1::OwnedLocal { actual, source, .. } = &self.support else { return None; };
+        Some((source.binding, &source.acquisition, &actual.site))
     }
     pub(crate) fn is_map_slot(&self) -> bool { matches!(self.support, BorrowedLocalSupportV1::MapSlot(_)) }
     /// Nominal payload only; the holder is not this object and owns no result.
@@ -183,7 +228,8 @@ impl BorrowedNullableLocalSourceLoanV1 {
 }
 impl PartialEq for BorrowedNullableLocalSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        self.declaration == other.declaration
+        self.declared_result_matches_v1(other.declared_read_result_v1())
+            && self.declaration == other.declaration
             && self.destination == other.destination
             && self.call == other.call
             && self.receiver == other.receiver
@@ -262,8 +308,10 @@ impl OrdinaryNewResultClassClaimsV1 {
         let witnesses = match &original.support {
             BorrowedLocalSupportV1::FormalForward { .. } => original.source.compose_at_v1(call, self, batch, parameters)?,
             BorrowedLocalSupportV1::MapSlot(map) => original.source.compose_map_slot_v1(map, &roots)?,
+            BorrowedLocalSupportV1::OwnedLocal { .. } => roots.iter().map(|root| Rc::clone(root)).collect(),
         };
         let loan = BorrowedNullableLocalSourceLoanV1 {
+            declared_borrow: self.borrowed_result_declaration_v1(&original.source.key).cloned(),
             declaration: original.source.declaration,
             destination,
             call: call.clone(),
@@ -328,8 +376,31 @@ impl OrdinaryNewResultClassClaimsV1 {
             return Ok(None);
         };
         let support = if let Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }) = self.get(&source.key) {
-            let (root, caller_ordinal) = source.formal_actual_v1(batch, parameters, *ordinal)?;
-            BorrowedLocalSupportV1::FormalForward { callee_ordinal: *ordinal, root, caller_ordinal }
+            let actual = source.actuals.get(*ordinal as usize).ok_or("borrowed-nullable/actual-root")?;
+            let binding = actual.binding.ok_or("borrowed-nullable/actual-root")?;
+            let kind = batch.with_lowering_input(source.caller_slot, |input|
+                input.function().binding(binding).map(|row| row.kind()))
+                .map_err(|_| "borrowed-nullable/caller-input")?;
+            if matches!(kind, Some(BindingKindV1::Local { .. })) {
+                use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
+                let declared = self.borrowed_result_declaration_v1(&source.key)
+                    .ok_or("borrowed-nullable/formal-root")?;
+                if declared.owner() != source.callee_owner
+                    || !matches!(declared.support(), Support::Formal { ordinal: original, .. } if original == *ordinal) {
+                    return Err("borrowed-nullable/source-identity");
+                }
+                let original = batch.with_lowering_input(source.caller_slot, |input|
+                    witness::capture_local_construction_result_v1(input, binding, &actual.site))
+                    .map_err(|_| "borrowed-nullable/caller-input")?
+                    .ok_or("borrowed-nullable/actual-root")?;
+                if original.construction.class() != declared.declared_type() {
+                    return Err("borrowed-nullable/source-identity");
+                }
+                BorrowedLocalSupportV1::OwnedLocal { callee_ordinal: *ordinal, actual: actual.clone(), source: original }
+            } else {
+                let (root, caller_ordinal) = source.formal_actual_v1(batch, parameters, *ordinal)?;
+                BorrowedLocalSupportV1::FormalForward { callee_ordinal: *ordinal, root, caller_ordinal }
+            }
         } else {
             let roots = self.checked_original_source_roots_v1(&source.key, source.callee_owner)?;
             let Some(map) = source.map_slot_substitution_v1(batch, selected, fields, &roots)? else { return Ok(None); };
@@ -343,7 +414,8 @@ impl OrdinaryNewResultClassClaimsV1 {
         loan: &BorrowedNullableLocalSourceLoanV1,
         roots: &[&Rc<ResultOriginWitnessV1>],
     ) -> Result<(), &'static str> {
-        if roots.is_empty() || loan.witnesses.len() != roots.len() {
+        if !loan.declared_result_matches_v1(self.borrowed_result_declaration_v1(loan.key()))
+            || roots.is_empty() || loan.witnesses.len() != roots.len() {
             return Err("borrowed-nullable/root-coverage");
         }
         if let BorrowedLocalSupportV1::MapSlot(map) = &loan.support {
@@ -357,6 +429,26 @@ impl OrdinaryNewResultClassClaimsV1 {
                     || !matches!(witness.step(), ResultWitnessStepV1::Call { site, key, callee, substitution }
                         if site == loan.call() && key == loan.key() && Rc::ptr_eq(callee, root) && substitution.is_none())
                 { return Err("borrowed-nullable/witness-identity"); }
+            }
+            return Ok(());
+        }
+        if let BorrowedLocalSupportV1::OwnedLocal { callee_ordinal, actual, source } = &loan.support {
+            use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
+            let declared = loan.declared_read_result_v1().ok_or("borrowed-nullable/source-identity")?;
+            let Support::Formal { binding, ordinal } = declared.support() else {
+                return Err("borrowed-nullable/root-origin");
+            };
+            let mut path = loan.call().site().node().segments().to_vec();
+            path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal));
+            if ordinal != *callee_ordinal || declared.owner() != loan.callee_owner()
+                || actual.binding != Some(source.binding) || source.binding.owner() != loan.call().owner()
+                || actual.site.owner() != loan.call().owner() || actual.site.site().node().segments() != path
+                || source.construction.class() != declared.declared_type()
+                || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)
+                    || root.site().owner() != loan.callee_owner()
+                    || !matches!(root.step(), ResultWitnessStepV1::Formal { binding: original, ordinal: index }
+                        if *original == binding && *index == ordinal)) {
+                return Err("borrowed-nullable/witness-identity");
             }
             return Ok(());
         }
@@ -558,6 +650,43 @@ mod tests {
                         "corruption {change}"
                     );
                 }
+            }
+        });
+    }
+
+    #[test]
+    fn declared_read_local_retains_original_new_without_formal_or_home() {
+        let source = "box Token {} box Door { identity(p: Token): Token from p { return p } probe() { local p = new Token() local same = me.identity(p) return 0 } } static box Main { main() { return 0 } }";
+        with_source_claims_fixture(source, |batch, selected, constructors, parameters, main, writers| {
+            let (fields, _, facts, _) = super::super::super::coseal_issue::source_claims::prepare_source_claims(
+                batch, selected, main, constructors, parameters, Rc::clone(writers), None).unwrap();
+            let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Door", "probe", 0);
+            let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+            let (call, destination) = batch.with_lowering_input(slot, |input| {
+                let row = input.function().expression_source().initializers().find(|row|
+                    input.function().binding(row.binding()).unwrap().diagnostic_name() == "same").unwrap();
+                (OwnedExprSiteV1::new(input.owner(), row.initializer_site().unwrap().clone()), row.binding())
+            }).unwrap();
+            let loan = facts.borrowed_nullable_local_source_v1(batch, selected, &fields, parameters,
+                &call, destination, None).unwrap().unwrap();
+            let (root, acquisition, read) = loan.owned_local_support_v1().unwrap();
+            assert_eq!(loan.support_root(), root);
+            assert!(loan.root().is_none(), "a local support cannot become a caller formal or return escape");
+            assert_ne!(root, destination);
+            assert_ne!(acquisition, read);
+            assert_eq!(loan.result_support_v1(), crate::mir::instruction::BorrowedResultSupportV1::Formal(0));
+            facts.recheck_borrowed_nullable_local_source_v1(batch, selected, &fields, parameters, &loan, None).unwrap();
+            for change in 0..3 {
+                let mut changed = loan.clone();
+                match change {
+                    0 => changed.declared_borrow = None,
+                    1 => changed.witnesses = Box::new([]),
+                    _ => if let BorrowedLocalSupportV1::OwnedLocal { actual, .. } = &mut changed.support {
+                        actual.binding = Some(destination);
+                    },
+                }
+                assert!(facts.recheck_borrowed_nullable_local_source_v1(batch, selected, &fields,
+                    parameters, &changed, None).is_err(), "original source corruption {change}");
             }
         });
     }

@@ -138,9 +138,7 @@ enum StoredLocal {
         frame: std::rc::Rc<super::CheckedInitializerExpressionFrameV1>,
     },
     /// Original call result and borrowed root remain distinct, owning nothing.
-    BorrowedNullable(
-        Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
-    ),
+    BorrowedNullable(borrowed_nullable::BorrowedNullableStateV1),
     StoredMapGet(std::rc::Rc<super::MapFieldGetLocalV1>),
     ReceivedMixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
     Map,
@@ -695,8 +693,8 @@ impl<'source> PrefixLocalFlow<'source> {
             return false;
         }
         for (binding, value) in &other.locals {
-            if let Some(own) = self.locals.get(binding) {
-                if !stored_local_same(own, value) {
+            if let Some(own) = self.locals.get_mut(binding) {
+                if !borrowed_nullable::meet_read_state_v1(own, value) && !stored_local_same(own, value) {
                     let Some(merged) = site.and_then(|site|
                         self.branch_text_join_v1(other, *binding, site)) else {
                         return false;
@@ -942,9 +940,8 @@ impl<'source> PrefixLocalFlow<'source> {
             // Preserve the exact lifecycle owner but do not grant this
             // opaque carrier a read, scalar, or movable-root classification.
             StoredLocal::DynamicInvocationResult { .. } => None,
-            StoredLocal::BorrowedNullable(_) | StoredLocal::StoredMapGet(_) => {
-                Some(OrdinaryObservation::BoundValue(binding))
-            }
+            StoredLocal::BorrowedNullable(state) => state.legacy_observation_v1(binding),
+            StoredLocal::StoredMapGet(_) => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::ReceivedMixed(_) => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Handle(root)
                 if !matches!(self.locals.get(root), Some(StoredLocal::Consumed | StoredLocal::MovedOut)) =>
@@ -1171,7 +1168,7 @@ impl<'source> PrefixLocalFlow<'source> {
                     | StoredLocal::Consumed
                     | StoredLocal::MovedOut
             )
-        )
+        ) || self.has_declared_read_origin_v1(binding)
     }
 
     /// The binding is a live received nullable: a `NullableObject` call

@@ -125,12 +125,13 @@ pub(super) fn issue_callable_physical_header_from_result_contract_v1(
     }
 }
 
-/// An explicit read result cannot enter an inferred owned result lane.
-/// This refusal stays until its existing borrowed ABI is fully connected.
+/// Only the Formal read declaration enters source verification here.
+/// Receiver support retains its named refusal until that ABI is connected.
 pub(super) fn require_declared_borrowed_result_connection_v1(
     row: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticRowRefV1<'_>,
 ) -> Result<(), CallablePhysicalHeaderIssueV1> {
-    if let Some(result) = row.borrowed_result() {
+    if let Some(result) = row.borrowed_result().filter(|result| !matches!(result.support(),
+        crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { .. })) {
         return Err(CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
             _batch_slot: row.batch_slot(),
             _name: format!("{} from {:?}", result.declared_type(), result.support()).into_boxed_str(),
@@ -183,4 +184,18 @@ pub(super) fn validate_result(
         });
     }
     Ok(result)
+}
+
+pub(super) fn validate_declared_result(
+    completion: &VerifiedFunctionCompletionV1, owner: FunctionOwnerIdV1, batch_slot: u32,
+    borrowed: Option<&crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>,
+) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
+    let Some(read) = borrowed else { return validate_result(completion, owner, batch_slot); };
+    if completion.owner() == owner && read.owner() == owner
+        && matches!(completion.function_exit_contract().declared_result(),
+            DeclaredFunctionResultContractV1::Annotated(name) if name.as_ref() == read.declared_type()) {
+        Ok(None)
+    } else { Err(CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+        _batch_slot: batch_slot, _name: read.declared_type().into(),
+    }) }
 }

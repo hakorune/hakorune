@@ -70,7 +70,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                     if kind == crate::mir::instruction::InvokeCallResultKind::I64 => {}
                 InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { field, object, .. })
                     if matches!(kind, crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
-                        support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
+                        access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
+            support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
                     } if original == field && payload == object) => {}
                 _ => {
                     if crate::config::env::builder_debug_enabled() {

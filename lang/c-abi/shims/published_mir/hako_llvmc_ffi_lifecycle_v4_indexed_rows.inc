@@ -89,7 +89,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (source->kind == LV4_MIXED_OBJECT &&
           (faulted || !lv4_mixed_result_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_BORROWED_OBJECT &&
-          (faulted || !lv4_borrowed_result_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
+          (faulted || !lv4_borrowed_result_readable(in, fn, source, state, lv4_u(block, "id"), ri))) return 0;
       if (source->kind == LV4_SLOT_BORROW && (faulted || !lv4_slot_borrow_readable(in, fn, source, state, lv4_u(block, "id")))) return 0;
       if (source->kind == LV4_HANDLE &&
           !lv4_handle_alias_readable(in, fn, source, state, lv4_u(block, "id"))) {
@@ -152,7 +152,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (carrier->kind == LV4_MIXED_OBJECT &&
           (faulted || !lv4_mixed_result_readable(in, fn, carrier, state, lv4_u(block, "id")))) return 0;
       if (carrier->kind == LV4_BORROWED_OBJECT &&
-          (faulted || !lv4_borrowed_result_readable(in, fn, carrier, state, lv4_u(block, "id")))) return 0;
+          (faulted || !lv4_borrowed_result_readable(in, fn, carrier, state, lv4_u(block, "id"), ri))) return 0;
     } else if (lv4_is(ins, "op", "array_set")) {
       hako_lv4_value *array = lv4_index_value(fn, lv4_u(ins, "array")),
           *index = lv4_index_value(fn, lv4_u(ins, "index")),
@@ -195,7 +195,9 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           lv4_slot(in, ins) < 0 || !base ||
           (!lv4_readable_object(in, fn, base->id, state, lv4_u(block, "id"),
               lv4_u(ins, "object_id"), 1) &&
-           !lv4_borrowed_object_formal(fn, base, lv4_u(ins, "object_id")))) return 0;
+           !lv4_borrowed_object_formal(fn, base, lv4_u(ins, "object_id")) &&
+           !lv4_declared_read_object(in, fn, base, state, lv4_u(block, "id"), ri,
+               lv4_u(ins, "object_id"), lv4_u(ins, "field_ordinal")))) return 0;
       if (read && read->origin == LV4_OWNED_FIELD_BORROW &&
           !lv4_nullable_field_loan_readable(in, fn, read->id, state, lv4_u(block, "id"), read->object_id, 1)) return 0;
     } else if (lv4_is(ins, "op", "field_set")) {
@@ -237,7 +239,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (value->kind == LV4_MIXED_OBJECT &&
           !lv4_mixed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
       if (value->kind == LV4_BORROWED_OBJECT &&
-          !lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
+          !lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"), ri)) return 0;
       if (value->kind == LV4_SLOT_BORROW &&
           !lv4_slot_borrow_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");

@@ -106,8 +106,8 @@ impl ExpressionFieldRootSourceV1 {
             if storage.payload_object_v1() != field.object() { return Err("expression-path/root-field-object".into()); }
             (source, RootOriginV1::StoredMapGet { frame: Rc::clone(frame), exclusion: Rc::clone(exclusion) })
         } else if let Some(source) = received {
-            if source.object_result_kind_v1() != Some(crate::mir::instruction::InvokeCallResultKind::Handle)
-                || request.receiver != request.home || request.received.as_ref() != Some(source.request()) {
+            if (source.object_result_kind_v1() != Some(crate::mir::instruction::InvokeCallResultKind::Handle)
+                && source.borrowed().is_none()) || request.receiver != request.home || request.received.as_ref() != Some(source.request()) {
                 return Err("expression-path/received-root-kind".into());
             }
             let box_source = coverage.row_for(source.class()).map_err(|_| "expression-path/received-root-class")?

@@ -47,6 +47,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::FieldGetIndexed { field, object, .. }),
             fault_frame, normal_landing, fault_landing,
         } if matches!(expected_kind, InvokeCallResultKind::BorrowedNullableHandle {
+            access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
             support: crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field: original, object: payload, .. }
         } if original == *field && payload == *object) => (*fault_frame, *normal_landing, *fault_landing),
         _ => return Err(fault("call-ingress")),

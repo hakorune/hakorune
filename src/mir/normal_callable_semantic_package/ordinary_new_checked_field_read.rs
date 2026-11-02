@@ -158,6 +158,14 @@ impl OrdinaryNewClaimLedgerV1 {
                     .ok_or_else(|| fault("received/mixed-observation"))?;
                 if original.source_target().mixed_local_source() != received.mixed() { return Err(fault("received/mixed-packet")); }
                 packet.value_in_context_v1(site.owner(), observation.arguments(), context)?
+            } else if let Some(loan) = received.borrowed() {
+                self.corroborate_borrowed_nullable_call_v1(original)?;
+                let observation = self.borrowed_nullable_call_source_v1(original.call_site())
+                    .ok_or_else(|| fault("received/source-drift"))?;
+                if original.source_target().borrowed_nullable_local_source() != Some(loan) {
+                    return Err(fault("received/source-drift"));
+                }
+                packet.value_in_context_v1(site.owner(), observation.arguments(), context)?
             } else {
                 let original = self.borrowed_object_call_packet_v1(original)?;
                 if Some(original.result()) != received.object_result_kind_v1() { return Err(fault("received/object-packet")); }

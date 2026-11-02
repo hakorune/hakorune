@@ -585,9 +585,9 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle {
                                 key: key.clone(), receiver_object, formal_ordinal, returns: rows.into(),
                             },
-                        crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { support } =>
+                        crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { support, access } =>
                             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle {
-                                key: key.clone(), receiver_object, support, returns: rows.into(),
+                                key: key.clone(), receiver_object, support, access, read_result: None, returns: rows.into(),
                             },
                         _ => panic!("exact original object result"),
                     };
@@ -718,7 +718,8 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                 }
 
                 let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("HakoAllocPage", "resizeInPlace", 2);
-                let rows = source.borrowed_nullable_return_projections_v1(view.module(), &key)?;
+                let (rows, read_result) = source.borrowed_nullable_return_projections_v1(view.module(), &key)?;
+                assert!(read_result.is_none());
                 let retained_role = retain(&key, &rows, crate::mir::instruction::InvokeCallResultKind::borrowed_nullable_formal(0))?;
                 assert_eq!(rows.len(), 8, "seven explicit null exits and one nullable formal Return");
                 let origins: std::collections::BTreeSet<_> = rows.iter().map(|row| row.origin_name()).collect();

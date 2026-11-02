@@ -222,7 +222,7 @@ impl StoredMapGetReturnEmissionV1 {
         self.read
             .validate(context, function, finishing, invoke, projection)?;
         Ok(
-            crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
+            crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
                 support: self.source.parts().0.result_support_v1(),
             },
         )

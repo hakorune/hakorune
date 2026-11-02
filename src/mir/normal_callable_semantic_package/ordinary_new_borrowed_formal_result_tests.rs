@@ -701,6 +701,7 @@ fn declared_borrowed_result_cannot_enter_an_inferred_owned_return_contract() {
         assert!(matches!(
             crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source),
             Err(Issue::PhysicalHeader { _error: HeaderIssue::UnsupportedResultAnnotation { .. } })
+                | Err(Issue::OrdinaryNew { _error: crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::CompletionSeed(HeaderIssue::UnsupportedResultAnnotation { .. }) })
         ), "a declared read result must not enter owned-return inference: {anchor}");
     }
 }

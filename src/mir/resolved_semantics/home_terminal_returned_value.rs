@@ -669,10 +669,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(None);
     };
-    // A Map element's field read is one checked StoredMapGet path hop; nothing else is selected.
+    // Checked stored/read origins use the same complete Return evaluator.
     let stored_field = input.body_shape().is_some_and(|shape| matches!(shape.expression_shape(value.site()),
         Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
-            if locals.stored_get_reference_v1(&object).is_some()));
+            if locals.stored_get_reference_v1(&object).is_some()
+                || matches!(input.function().variable_ref(&object), Some(super::super::ResolvedLexicalRefV1::Local(binding))
+                    if locals.has_declared_read_origin_v1(binding))));
     let binary = input.function().expression_source().binary(value.site()).map(|row| row.operator());
     let add = binary == Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add);
     if !stored_field && !add && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract) {

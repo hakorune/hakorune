@@ -1,7 +1,36 @@
 //! Ownership-free nullable call result in the existing prefix state.
 use super::*;
+use crate::mir::resolved_semantics::SourceBindingSiteV1;
 use crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
+
+/// Branch-local read validity retains the same immutable source loan even
+/// after interference. Invalidating it must never create a generic BoundValue.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct BorrowedNullableStateV1 {
+    loan: Box<BorrowedNullableLocalSourceLoanV1>,
+    read_valid: bool,
+}
+impl std::ops::Deref for BorrowedNullableStateV1 {
+    type Target = BorrowedNullableLocalSourceLoanV1;
+    fn deref(&self) -> &Self::Target { &self.loan }
+}
+impl AsRef<BorrowedNullableLocalSourceLoanV1> for BorrowedNullableStateV1 {
+    fn as_ref(&self) -> &BorrowedNullableLocalSourceLoanV1 { &self.loan }
+}
+impl BorrowedNullableStateV1 {
+    pub(super) fn legacy_observation_v1(&self, binding: BindingRefV1) -> Option<OrdinaryObservation> {
+        (!self.is_declared_read_v1()).then_some(OrdinaryObservation::BoundValue(binding))
+    }
+}
+
+/// Compatible branch states meet validity, never loan/source identity.
+pub(super) fn meet_read_state_v1(own: &mut StoredLocal, other: &StoredLocal) -> bool {
+    let (StoredLocal::BorrowedNullable(own), StoredLocal::BorrowedNullable(other)) = (own, other) else { return false; };
+    if !own.is_declared_read_v1() || own.loan != other.loan { return false; }
+    own.read_valid &= other.read_valid;
+    true
+}
 
 impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_received_mixed(
@@ -168,11 +197,80 @@ impl PrefixLocalFlow<'_> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_borrowed_nullable(
         &mut self,
         loan: BorrowedNullableLocalSourceLoanV1,
-    ) {
+    ) -> bool {
+        if loan.is_declared_read_v1() {
+            // The outer Call completes this single initializer after all child
+            // Calls. Multiple LOCAL initializers need finer event ordering.
+            let SourceBindingSiteV1::Local { statement, .. } = loan.declaration() else { return false; };
+            if self.input.function().expression_source().initializers().filter(|row|
+                matches!(row.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. }
+                    if original == statement)).count() != 1 { return false; }
+        }
+        if let Some((root, acquisition, read)) = loan.owned_local_support_v1() {
+            if self.home_acquisition(root) != Some(acquisition)
+                || self.direct_available_home(read.site()) != Some((root, acquisition)) {
+                return false;
+            }
+        }
         self.store(
             loan.destination(),
-            StoredLocal::BorrowedNullable(Box::new(loan)),
+            StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { loan: Box::new(loan), read_valid: true }),
         );
+        true
+    }
+
+    /// Select original read provenance even after interference; selection does
+    /// not grant current liveness or non-null permission.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_declared_read_origin_v1(&self, binding: BindingRefV1) -> bool {
+        matches!(self.locals.get(&binding), Some(StoredLocal::BorrowedNullable(state)) if state.is_declared_read_v1())
+    }
+
+    /// A returned read reference stays distinct from a general Handle/Home.
+    /// Its exact New argument also narrows formal-derived Null, not literal Null.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_local_v1(
+        &self, binding: BindingRefV1,
+    ) -> Option<&BorrowedNullableLocalSourceLoanV1> {
+        let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
+        let (root, acquisition, _) = state.owned_local_support_v1()?;
+        (state.read_valid && state.is_declared_read_v1() && state.destination() == binding
+            && self.home_acquisition(root) == Some(acquisition)).then_some(state.as_ref())
+    }
+
+    /// Apply an admitted write after RHS evaluation. Independent live New
+    /// roots are disjoint; fields/unknown receivers are not guessed disjoint.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn invalidate_declared_read_write_v1(
+        &mut self, receiver: &SourceExprSiteV1,
+    ) {
+        let root = self.input.function().variable_ref(receiver).and_then(|reference| match reference {
+            ResolvedLexicalRefV1::Local(binding) => match self.locals.get(&binding) {
+                Some(StoredLocal::Home { acquisition, .. }) => Some((binding, acquisition.clone())),
+                Some(StoredLocal::Handle(root)) => self.home_acquisition(*root).map(|site| (*root, site.clone())),
+                _ => None,
+            },
+            _ => None,
+        });
+        for value in self.locals.values_mut() {
+            let StoredLocal::BorrowedNullable(state) = value else { continue; };
+            if !state.is_declared_read_v1() { continue; }
+            let independent = state.owned_local_support_v1().zip(root.as_ref()).is_some_and(
+                |((support, acquired, _), (written, site))| support != *written && acquired != site);
+            if !independent { state.read_valid = false; }
+        }
+    }
+
+    /// New LOCAL loans become live only after their initializer's outer Call.
+    /// Other current loans cannot retain permission across an unknown effect.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn invalidate_declared_read_call_v1(
+        &mut self, statement: &SourceStmtSiteV1,
+    ) {
+        for value in self.locals.values_mut() {
+            let StoredLocal::BorrowedNullable(state) = value else { continue; };
+            if state.is_declared_read_v1()
+                && !matches!(state.declaration(), SourceBindingSiteV1::Local { statement: original, .. }
+                    if original == statement) {
+                state.read_valid = false;
+            }
+        }
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn mark_borrowed_nullable_nonnull(
@@ -215,6 +313,7 @@ impl PrefixLocalFlow<'_> {
             return None;
         };
         (loan.destination() == binding
+            && !loan.is_declared_read_v1()
             && self.nonnull.contains(&binding)
             && loan
                 .root()

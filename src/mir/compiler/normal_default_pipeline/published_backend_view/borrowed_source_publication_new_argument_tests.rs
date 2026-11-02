@@ -601,3 +601,74 @@ fn returned_wrapper_field_argument_reaches_published_call() {
         }
     });
 }
+
+#[test]
+fn declared_read_result_keeps_local_support_through_field_publication() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Leaf { value: i64 birth() { me.value = 7 } identity(p: Leaf): Leaf from p { return p } } static box Main { main() { local p = new Leaf() local q = p.identity(p) return q.value } }";
+        MirCompiler::with_options(false).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
+            require_artifact_verification(verification);
+            let input = view.issue_lifecycle_physical_abi_input()?;
+            let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+            let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+            let functions = json["functions"].as_array().unwrap();
+            let (target, callee) = functions.iter().enumerate().find(|(_, function)| function["name"] == "Leaf.identity/1").unwrap();
+            assert_eq!(callee["role"], "ordinary_borrowed_nullable_handle");
+            assert_eq!(callee["result_read"], true);
+            assert_eq!(callee["result_formal_ordinal"], 0);
+            let calls: Vec<_> = functions.iter().flat_map(|function| function["blocks"].as_array().unwrap())
+                .map(|block| &block["terminator"]["instruction"]["operation"])
+                .filter(|op| op["kind"] == "ordinary_call" && op["call"]["target"] == target).collect();
+            assert_eq!(calls.len(), 1);
+            assert_eq!(calls[0]["result_read"], true);
+            assert_eq!(calls[0]["result"], "borrowed_nullable_handle");
+            // Erasing both qualifiers remains internally consistent, but must
+            // disagree with the ORIGINAL From declaration retained by input.
+            let original_call = input.program().functions().iter().flat_map(|f| f.blocks())
+                .map(|block| block.terminator().instruction()).find(|row| matches!(row,
+                    crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
+                        result: crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle {
+                            access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly, .. }, .. }, .. })).unwrap();
+            let mut erased_call = original_call.clone();
+            if let crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
+                result: crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { access, .. }, .. }, .. } = &mut erased_call {
+                *access = crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified;
+            }
+            let mut changed = input.program().clone();
+            for function in changed.functions.iter_mut() {
+                if let PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle { access, read_result, .. } = &mut function.role {
+                    *access = crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified;
+                    *read_result = None;
+                }
+                for block in function.blocks.iter_mut() {
+                    if std::ptr::eq(block.terminator.instruction(), original_call) { block.terminator.instruction = &erased_call; }
+                }
+            }
+            let erased_result = match &erased_call {
+                crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { result, .. }, .. } => *result,
+                _ => unreachable!(),
+            };
+            let (ordinal, callee) = changed.functions.iter().enumerate().find(|(_, function)| function.name() == "Leaf.identity/1").unwrap();
+            assert_eq!(callee.role().ordinary_result(), Some(erased_result), "both downgraded descriptors deliberately agree");
+            assert!(super::super::super::physical_program_json::corroborate_borrowed_function_snapshot(
+                callee, ordinal as u32, &input).unwrap_err().contains("borrowed-carrier-function-drift"));
+            let issue = super::super::super::physical_program_json::emit_lifecycle_physical_program_value(
+                &changed, Some(&input)).unwrap_err();
+            assert!(issue.contains("borrowed-carrier-projection-drift"), "{issue}");
+            std::fs::write(std::env::temp_dir().join("hako-issued-declared-read-local.json"), wire).unwrap();
+            Ok(())
+        }).unwrap();
+        for (label, tail, refusal) in [
+            ("write-result", "q.value = 9 return 0", "[freeze:contract]"),
+            ("write-support-before-read", "p.value = 9 return q.value", "[freeze:contract]"),
+            ("move-support-before-read", "local moved = move p return q.value", "[freeze:contract]"),
+            ("move-read-result", "local moved = move q return 0", "MoveUnsupported"),
+        ] {
+            let source = text.replace("return q.value", tail);
+            let issue = MirCompiler::with_options(false).compile_normal_with_published(request(&source),
+                |_, _| Ok(())).err().expect(label);
+            assert!(issue.to_string().contains(refusal), "{label}: {issue}");
+        }
+    });
+}

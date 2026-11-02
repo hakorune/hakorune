@@ -37,6 +37,9 @@ pub(crate) struct ResolvedCallableBorrowedResultDeclarationV1 {
     pub(super) support: ResolvedCallableBorrowedResultSupportV1,
 }
 impl ResolvedCallableBorrowedResultDeclarationV1 {
+    pub(crate) fn same_source(a: Option<&Arc<Self>>, b: Option<&Arc<Self>>) -> bool {
+        match (a, b) { (None, None) => true, (Some(a), Some(b)) => Arc::ptr_eq(a, b), _ => false }
+    }
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
     pub(crate) fn declared_type(&self) -> &str { &self.declared_type }
     pub(crate) const fn support(&self) -> ResolvedCallableBorrowedResultSupportV1 { self.support }

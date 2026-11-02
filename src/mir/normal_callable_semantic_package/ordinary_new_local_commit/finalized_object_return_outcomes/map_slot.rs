@@ -75,7 +75,7 @@ impl FinalizedMapSlotReturnV1 {
             return Err(freeze("borrowed-return/original-exit"));
         };
         if stored.validate(context, function, Some(finishing), invoke, projection)?
-            != (InvokeCallResultKind::BorrowedNullableHandle {
+            != (InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
                 support: source.result_support_v1(),
             })
         {

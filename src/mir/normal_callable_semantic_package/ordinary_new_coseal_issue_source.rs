@@ -22,7 +22,7 @@ pub(super) use named_array_selection::{
 
 #[path = "ordinary_new_source_claim_preparation.rs"]
 mod preparation;
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use preparation::prepare_source_claims;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use preparation::{prepare_source_claims, require_declared_borrowed_results_v1};
 
 /// Discover direct local construction candidates from this exact source loan.
 /// This produces passive class/constructor identity only; prefix availability,

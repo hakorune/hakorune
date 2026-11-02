@@ -126,6 +126,7 @@ impl PrefixLocalFlow<'_> {
         let mut seen = BTreeSet::new();
         for call in calls.iter().filter(|call| call.statement() == statement) {
             if !seen.insert(call.site().clone()) { continue; }
+            self.invalidate_declared_read_call_v1(statement);
             let Some(BorrowedCallArgumentsV1::CallEntryHomes(taken)) =
                 port(call.site(), BorrowedCallActualRequestV1::CallEntryHomes)? else { continue; };
             if !taken.is_empty() || self.has_moved_out() {

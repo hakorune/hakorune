@@ -94,12 +94,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             }
         }
         let stored_get = matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }));
-        if request.received.is_some()
-            && !stored_get
+        let borrowed_read = matches!(request.received,
+            Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Borrowed(_)));
+        if request.received.is_some() && !stored_get
             && !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
-            if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
-                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. }))
-        {
+                if (matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                    role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })
+                    || borrowed_read && matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                        role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
+                    && (!borrowed_read || plan.nodes().first().is_some_and(|node| node.site() == request.site.site()))) {
             return Ok(None);
         }
         let received = if request.received.is_some() && !stored_get {

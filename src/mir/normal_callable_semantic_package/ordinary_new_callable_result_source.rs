@@ -42,15 +42,28 @@ enum CallableBorrowedResultOriginV1 {
 pub(crate) struct CallableBorrowedNullableResultSourceLoanV1 {
     owner: FunctionOwnerIdV1,
     key: CanonicalSameModuleCallableKeyV1,
+    declared_borrow: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     origin: CallableBorrowedResultOriginV1,
     completion: Rc<VerifiedFunctionCompletionV1>,
     roots: Box<[Rc<ResultOriginWitnessV1>]>,
 }
 impl CallableBorrowedNullableResultSourceLoanV1 {
+    fn declared_result_agrees_v1(&self) -> bool {
+        use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
+        match (&self.declared_borrow, self.completion.function_exit_contract().declared_result(), &self.origin) {
+            (None, DeclaredFunctionResultContractV1::Unannotated, _) => true,
+            (Some(declaration), DeclaredFunctionResultContractV1::Annotated(name),
+                CallableBorrowedResultOriginV1::Formal { binding, ordinal, .. }) =>
+                declaration.owner() == self.owner && declaration.declared_type() == name.as_ref()
+                    && declaration.support() == Support::Formal { binding: *binding, ordinal: *ordinal },
+            _ => false,
+        }
+    }
+
     fn validate_source(&self) -> Result<(), String> {
         if self.completion.owner() != self.owner || !self.completion.returns_value()
             || self.completion.implicit_body_end().is_some()
-            || !matches!(self.completion.function_exit_contract().declared_result(), DeclaredFunctionResultContractV1::Unannotated)
+            || !self.declared_result_agrees_v1()
             || self.key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
             || self.roots.is_empty()
         { return Err(freeze("callable-result/nullable-source-contract")); }
@@ -143,7 +156,8 @@ impl CallableBorrowedNullableResultSourceLoanV1 {
                 crate::mir::instruction::BorrowedResultSupportV1::Formal(*ordinal),
             CallableBorrowedResultOriginV1::MapSlot { source, .. } => source.result_support_v1(),
         };
-        if self.owner != local.callee_owner() || self.key != *local.key()
+        if !local.declared_result_matches_v1(self.declared_borrow.as_ref())
+            || self.owner != local.callee_owner() || self.key != *local.key()
             || !Rc::ptr_eq(&self.completion, completion) || support != local.result_support_v1()
             || matches!(self.origin, CallableBorrowedResultOriginV1::MapSlot { .. }) != local.is_map_slot()
             || roots.len() != self.roots.len()
@@ -237,6 +251,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 returns.push(returned.clone());
             }
             let result = CallableBorrowedNullableResultSourceLoanV1 { owner, key: key.clone(),
+                declared_borrow: self.callable_result_classes.borrowed_result_declaration_v1(key).cloned(),
                 origin: CallableBorrowedResultOriginV1::MapSlot { source, returns: returns.into_boxed_slice() },
                 completion: Rc::clone(completion), roots };
             result.validate_source()?;
@@ -281,10 +296,21 @@ impl OrdinaryNewClaimLedgerV1 {
             || contract.parameters.iter().filter(|row| row.ordinal == first.ordinal()
                 && row.binding == first.formal() && row.kind.is_ordinary_borrowed_handle()).count() != 1
         { return Err(freeze("callable-result/nullable-ordinal")); }
+        let declared_borrow = self.callable_result_classes.borrowed_result_declaration_v1(first.key()).cloned();
+        if let Some(declaration) = &declared_borrow {
+            use crate::mir::callable_parameter_contract::CallableParameterContractKindV1 as Kind;
+            if declaration.owner() != owner || contract.parameters.iter().filter(|row|
+                row.ordinal == first.ordinal() && row.binding == first.formal()
+                    && row.demand == crate::mir::resolved_semantics::HomeDemandV1::Handle
+                    && matches!(&row.kind, Kind::DeclaredObject(name) if name.as_ref() == declaration.declared_type())
+            ).count() != 1 {
+                return Err(freeze("callable-result/nullable-source-contract"));
+            }
+        }
         let roots = self.callable_result_classes.checked_original_source_roots_v1(first.key(), owner)
             .map_err(freeze)?.into_iter().cloned().collect();
         let source = CallableBorrowedNullableResultSourceLoanV1 {
-            owner, key: first.key().clone(), origin: CallableBorrowedResultOriginV1::Formal {
+            owner, key: first.key().clone(), declared_borrow, origin: CallableBorrowedResultOriginV1::Formal {
                 binding: first.formal(), ordinal: first.ordinal(), returns: formals.into_boxed_slice(),
             }, completion: Rc::clone(completion), roots,
         };

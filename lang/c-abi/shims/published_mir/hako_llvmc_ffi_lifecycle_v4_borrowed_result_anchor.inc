@@ -74,8 +74,54 @@ static hako_lv4_value* lv4_borrowed_result_anchor(const hako_lv4_input* in,
   return NULL;
 }
 
+/* The explicit read qualifier belongs to both the original function and Call.
+ * All body blocks, including Fault/unreachable blocks, obey the support law. */
+static int lv4_declared_read_effects(hako_lv4_function_index* fn) {
+  if (!yyjson_obj_get(fn->function, "result_read")) return 1;
+  uint32_t ordinal;
+  if (!yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) ||
+      !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") ||
+      !hako_physical_u32(yyjson_obj_get(fn->function, "result_formal_ordinal"), &ordinal)) return 0;
+  yyjson_val* params = yyjson_obj_get(fn->function, "params");
+  if (ordinal >= yyjson_arr_size(params)) return 0;
+  hako_lv4_value* support = lv4_value_alias_root(fn,
+      lv4_index_value(fn, lv4_u(yyjson_arr_get(params, ordinal), "value")));
+  if (!support || support->kind != LV4_TAGGED) return 0;
+  for (size_t bi = 0; bi < fn->block_count; bi++) {
+    yyjson_arr_iter rows = yyjson_arr_iter_with(yyjson_obj_get(fn->blocks[bi].block, "instructions"));
+    yyjson_val* row;
+    while ((row = yyjson_arr_iter_next(&rows)))
+      if (!lv4_read_support_effect(fn, yyjson_obj_get(row, "instruction"), support, 0)) return 0;
+    yyjson_val* op = yyjson_obj_get(lv4_term(fn->blocks[bi].block), "operation");
+    if (op && !lv4_read_support_effect(fn, op, support, 1)) return 0;
+  }
+  return 1;
+}
+
+static int lv4_read_result_interval(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t use, size_t position) {
+  yyjson_val* op = lv4_borrowed_result_operation(fn, value);
+  if (!yyjson_obj_get(op, "result_read")) return 1;
+  yyjson_val* call = yyjson_obj_get(op, "call");
+  uint32_t target = lv4_u(call, "target");
+  hako_lv4_value* original = lv4_value_alias_root(fn, value);
+  hako_lv4_value* support = lv4_borrowed_result_anchor(in, fn, value);
+  if (!yyjson_is_true(yyjson_obj_get(op, "result_read")) || !target || target >= in->index_count ||
+      !yyjson_is_true(yyjson_obj_get(in->index[target].function, "result_read")) || !support ||
+      !original || !original->definition_block) return 0;
+  return lv4_field_interval_at(fn, use, position, lv4_u(original->definition_block, "id"),
+      support, 0, 0, 0, LV4_FIELD_READ_SUPPORT);
+}
+
+/* Legacy inferred borrowing keeps its forwarding law. An explicit read
+ * result cannot lose that capability at an unqualified argument/Return edge. */
+static int lv4_borrowed_result_forwardable(hako_lv4_function_index* fn, hako_lv4_value* value) {
+  return !yyjson_obj_get(lv4_borrowed_result_operation(fn, value), "result_read");
+}
+
 static int lv4_borrowed_result_readable(const hako_lv4_input* in,
-    hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state, uint32_t use) {
+    hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position) {
+  if (!lv4_read_result_interval(in, fn, value, use, position)) return 0;
   if (yyjson_obj_get(lv4_borrowed_result_operation(fn, value), "result_support"))
     return lv4_slot_result_readable(in, fn, value, state, use, 0, 0);
   hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
@@ -84,4 +130,28 @@ static int lv4_borrowed_result_readable(const hako_lv4_input* in,
   if (anchor->kind != LV4_HANDLE) return 0;
   if (lv4_is(anchor->instruction, "op", "const_null")) return 1;
   return lv4_nullable_field_loan_readable(in, fn, anchor->id, state, use, 0, 0);
+}
+
+/* A local New actual proves nonnull only when EVERY original callee Return
+ * forwards the same formal. Literal Null alternatives are never narrowed away. */
+static int lv4_declared_read_object(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object, uint32_t field) {
+  yyjson_val* op = lv4_borrowed_result_operation(fn, value);
+  if (!yyjson_is_true(yyjson_obj_get(op, "result_read"))) return 0;
+  yyjson_val* stored = yyjson_arr_get(yyjson_obj_get(lv4_layout(in, object), "fields"), field);
+  if (!stored || lv4_u(stored, "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
+  uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
+  if (!target || target >= in->index_count) return 0;
+  hako_lv4_function_index* callee = &in->index[target];
+  size_t returns = 0;
+  for (size_t bi = 0; bi < callee->block_count; bi++) {
+    yyjson_val* term = lv4_term(callee->blocks[bi].block);
+    if (!lv4_is(term, "op", "return")) continue;
+    returns++;
+    if (!lv4_is(yyjson_obj_get(term, "result_origin"), "kind", "borrowed_formal")) return 0;
+  }
+  hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
+  return returns && lv4_read_support_new(fn, anchor) &&
+      lv4_borrowed_result_readable(in, fn, value, state, use, position) &&
+      lv4_readable_object(in, fn, anchor->id, state, use, object, 1);
 }

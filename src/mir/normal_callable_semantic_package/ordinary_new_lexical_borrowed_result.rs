@@ -35,7 +35,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let loan = source.borrowed_nullable_local_source()
             .ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
         let support = loan.result_support_v1();
-        let kind = InvokeCallResultKind::BorrowedNullableHandle { support };
+        let kind = loan.result_kind_v1();
         let roots = self.callable_result_classes.checked_original_source_roots_v1(source.target(), source.callee_owner())
             .map_err(|issue| freeze(issue))?;
         self.callable_result_classes.check_borrowed_nullable_roots_v1(loan, &roots)
@@ -182,7 +182,6 @@ impl OrdinaryNewClaimLedgerV1 {
             // A storage result keeps its own support. Its SAME whole-result
             // source/Completion must close before this logical Call is ready;
             // final physical Return/ABI consumers still verify their packets.
-            let support = loan.result_support_v1();
             if loan.is_map_slot() && self.checked_completed_object_callee_target_exits_v1(source)?.is_none() {
                 continue;
             }
@@ -197,12 +196,13 @@ impl OrdinaryNewClaimLedgerV1 {
             let contract = results.row(source.target_batch_slot()).ok_or_else(|| freeze("borrowed-nullable-call/result-contract-missing"))?;
             let signature = signatures.row(source.target_batch_slot()).ok_or_else(|| freeze("borrowed-nullable-call/signature-missing"))?;
             if contract.owner() != source.callee_owner() || contract.result().is_some()
+                || !loan.declared_result_matches_v1(contract.borrow().borrowed_result())
                 || !std::ptr::eq(contract.borrow().completion(), completion.as_ref())
                 || signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
                 || signature.source_logical_arity() != source.target().arity() || signature.receiver_lane_count() != 1
             { return Err(freeze("borrowed-nullable-call/contract-signature-drift")); }
             let row = LexicalInstanceCallDispositionRowV1 {
-                source: source.clone(), result: Some(InvokeCallResultKind::BorrowedNullableHandle { support }),
+                source: source.clone(), result: Some(loan.result_kind_v1()),
                 scalar_result: None, unit_completion: None, borrowed_completion: Some(Rc::<VerifiedFunctionCompletionV1>::clone(completion)), object_packet: None, mixed_result: None,
             };
             self.corroborate_borrowed_nullable_call_v1(&row)?;

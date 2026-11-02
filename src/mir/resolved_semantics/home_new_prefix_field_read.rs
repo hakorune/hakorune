@@ -278,6 +278,7 @@ pub(crate) enum ReceivedFieldReadRequestV1 {
         exclusion: std::rc::Rc<super::SourceNullExclusionV1>,
     },
     Mixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
+    Borrowed(Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>),
 }
 
 /// Passive exact-site request; declaration proof and atomic staging belong

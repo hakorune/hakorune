@@ -62,6 +62,8 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
         returns: Box<[FinalizedObjectReturnOutcomeV1]>,
     },
     OrdinaryBorrowedNullableHandle {
+        access: crate::mir::instruction::BorrowedResultAccessV1,
+        read_result: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
         support: crate::mir::instruction::BorrowedResultSupportV1,
@@ -70,6 +72,23 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
 }
 
 impl PublishedLifecyclePhysicalFunctionRoleV1 {
+    pub(crate) fn read_result(&self) -> Option<&std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>> {
+        match self { Self::OrdinaryBorrowedNullableHandle { read_result, .. } => read_result.as_ref(), _ => None }
+    }
+
+    pub(crate) fn read_result_matches_declaration_v1(&self) -> bool {
+        use crate::mir::instruction::{BorrowedResultAccessV1 as Access, BorrowedResultSupportV1 as Support};
+        match self {
+            Self::OrdinaryBorrowedNullableHandle { read_result, support, access, .. } => match (access, read_result) {
+                (Access::LegacyUnqualified, None) => true,
+                (Access::ReadOnly, Some(read)) => matches!((support, read.support()),
+                    (Support::Formal(a), crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { ordinal: b, .. }) if *a == b),
+                _ => false,
+            },
+            _ => true,
+        }
+    }
+
     pub(crate) const fn wire_name(&self) -> &'static str {
         match self {
             Self::Root {
@@ -142,7 +161,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::OrdinaryHandle { .. } => Some(InvokeCallResultKind::Handle),
             Self::OrdinaryNullableHandle { .. } => Some(InvokeCallResultKind::NullableHandle),
             Self::OrdinaryMixedHandle { formal_ordinal, .. } => Some(InvokeCallResultKind::MixedHandle { formal_ordinal: *formal_ordinal }),
-            Self::OrdinaryBorrowedNullableHandle { support, .. } => Some(InvokeCallResultKind::BorrowedNullableHandle { support: *support }),
+            Self::OrdinaryBorrowedNullableHandle { support, access, .. } => Some(InvokeCallResultKind::BorrowedNullableHandle { support: *support, access: *access }),
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }

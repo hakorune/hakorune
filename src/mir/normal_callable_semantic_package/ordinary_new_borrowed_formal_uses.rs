@@ -824,10 +824,10 @@ fn classify_borrowed_formal_source_product_v1(
             continue;
         };
         uses.push(BorrowedFormalUseDraftRowV1 {
+            kind: source_effects::require_declared_read_use_v1(source_uses, formal, &owned, kind)?,
             site: owned,
             binding: *binding,
             formal,
-            kind,
         });
     }
     let draft = match unsupported {

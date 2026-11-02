@@ -69,6 +69,7 @@ impl FinalizedObjectReturnOutcomeV1 {
     ) -> Result<(), String> {
         if result != self.result { return Err(freeze("object-return/physical-result")); }
         if let InvokeCallResultKind::BorrowedNullableHandle {
+            access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
             support: support @ crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { .. }
         } = result {
             let FinalizedObjectReturnOriginV1::MapSlot(source) = &self.origin else {
@@ -81,7 +82,7 @@ impl FinalizedObjectReturnOutcomeV1 {
         }
         let ordinal = match result {
             InvokeCallResultKind::MixedHandle { formal_ordinal }
-            | InvokeCallResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) } => formal_ordinal,
+            | InvokeCallResultKind::BorrowedNullableHandle { access: _, support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) } => formal_ordinal,
             InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle => {
                 if !matches!(self.origin, FinalizedObjectReturnOriginV1::Fresh { .. }
                     | FinalizedObjectReturnOriginV1::OwnedCall { .. })
@@ -163,8 +164,8 @@ impl FinalizedRootSourceHandoffV1 {
         &self,
         module: &MirModule,
         key: &CanonicalSameModuleCallableKeyV1,
-    ) -> Result<Vec<FinalizedObjectReturnOutcomeV1>, String> {
-        let mut outcomes = None;
+    ) -> Result<(Vec<FinalizedObjectReturnOutcomeV1>, Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>), String> {
+        let mut outcomes: Option<(Vec<FinalizedObjectReturnOutcomeV1>, Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>)> = None;
         self.visit_finalized_borrowed_call_nodes_v1(module, |packet, _, _, _, _| {
             if packet.target() != key {
                 return Ok(());
@@ -184,15 +185,16 @@ impl FinalizedRootSourceHandoffV1 {
             if source.target() != key
                 || source.callee_owner() != loan.callee_owner()
                 || row.result()
-                    != Some(InvokeCallResultKind::BorrowedNullableHandle { support: loan.result_support_v1() })
+                    != Some(loan.result_kind_v1())
             {
                 return Err(freeze("borrowed-return/original-contract"));
             }
             let current = self.project_borrowed_nullable_returns(module, source)?;
-            if outcomes.as_ref().is_some_and(|prior| prior != &current) {
+            if outcomes.as_ref().is_some_and(|(prior, declaration)| prior != &current ||
+                !loan.declared_result_matches_v1(declaration.as_ref())) {
                 return Err(freeze("borrowed-return/incoming-disagreement"));
             }
-            outcomes = Some(current);
+            outcomes = Some((current, loan.declared_read_result_v1().cloned()));
             Ok(())
         })?;
         outcomes.ok_or_else(|| freeze("borrowed-return/original-seal-missing"))
@@ -286,7 +288,7 @@ impl FinalizedRootSourceHandoffV1 {
                 };
                 let transport = original_copy_transport(function, projection, original, expected)?;
                 let outcome = FinalizedObjectReturnOutcomeV1 {
-                    result: InvokeCallResultKind::BorrowedNullableHandle { support: loan.result_support_v1() },
+                    result: loan.result_kind_v1(),
                     returned, origin, transport, field_supports: Box::new([]),
                 };
                 if let Some(prior) = outcomes.iter().find(|prior: &&FinalizedObjectReturnOutcomeV1| prior.returned.0 == outcome.returned.0) {
@@ -419,7 +421,7 @@ impl FinalizedRootSourceHandoffV1 {
                         let invoke = checked_projection(function, projection, invoke)?;
                         let producer = checked_projection(function, projection, producer)?;
                         if !matches!(invoke.1, MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call {
-                            result: InvokeCallResultKind::BorrowedNullableHandle { support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }, .. }, .. }
+                            result: InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified, support: crate::mir::instruction::BorrowedResultSupportV1::Formal(formal_ordinal) }, .. }, .. }
                             if Some(formal_ordinal) == borrowed.callee_ordinal()) {
                             return Err(freeze("mixed-return/borrowed-call-contract"));
                         }

@@ -51,6 +51,7 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     identity: CallableDeclarationIdentityV1,
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
+    borrowed_result: Option<std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     completion: Rc<VerifiedFunctionCompletionV1>,
     top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
     // Exit-site keyed terminal relations; consumers needing a single row
@@ -65,6 +66,7 @@ pub(crate) struct CallableResultContractRefV1<'a> {
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: &'a VerifiedFunctionCompletionV1,
+    borrowed_result: Option<&'a std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     terminal_relations: &'a BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
 }
 
@@ -137,12 +139,16 @@ impl VerifiedCallableResultContractRowV1 {
             self.role,
             self.result,
             self.completion.as_ref(),
-            self.terminal_relations.as_ref(),
+            self.terminal_relations.as_ref(), self.borrowed_result.as_ref(),
         )
     }
 }
 
 impl<'a> CallableResultContractRefV1<'a> {
+    pub(crate) fn borrowed_result(&self) -> Option<&'a std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>> {
+        self.borrowed_result
+    }
+
     pub(super) fn from_completion(
         owner: FunctionOwnerIdV1,
         identity: &'a CallableDeclarationIdentityV1,
@@ -150,6 +156,7 @@ impl<'a> CallableResultContractRefV1<'a> {
         result: Option<ExactTrivialScalarAbiV1>,
         completion: &'a VerifiedFunctionCompletionV1,
         terminal_relations: &'a BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+        borrowed_result: Option<&'a std::sync::Arc<crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>>,
     ) -> Self {
         Self {
             owner,
@@ -157,6 +164,7 @@ impl<'a> CallableResultContractRefV1<'a> {
             role,
             result,
             completion,
+            borrowed_result,
             terminal_relations,
         }
     }
@@ -341,17 +349,17 @@ impl Eq for CompletedTextResultSourceV1 {}
 impl CompletedTextResultSourceV1 {
     pub(super) fn corroborates(&self, selected: &VerifiedSelectedCallableBatchMapV1, source: &super::StaticIncomingSourceV1) -> bool {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
-            &self.completion, &self.terminals).corroborates_static_text_source_v1(selected, source)
+            &self.completion, &self.terminals, None).corroborates_static_text_source_v1(selected, source)
     }
     pub(super) fn corroborates_instance_nullable(&self, selected: &VerifiedSelectedCallableBatchMapV1,
         source: &super::LexicalInstanceCallSourceTargetV1) -> bool {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
-            &self.completion, &self.terminals).corroborates_instance_nullable_text_source_v1(selected, source)
+            &self.completion, &self.terminals, None).corroborates_instance_nullable_text_source_v1(selected, source)
     }
     pub(super) fn corroborates_instance(&self, selected: &VerifiedSelectedCallableBatchMapV1,
         source: &super::LexicalInstanceCallSourceTargetV1) -> bool {
         CallableResultContractRefV1::from_completion(self.owner, &self.identity, self.role, None,
-            &self.completion, &self.terminals).corroborates_instance_text_source_v1(selected, source)
+            &self.completion, &self.terminals, None).corroborates_instance_text_source_v1(selected, source)
     }
     pub(super) fn matches_retained(&self, completion: &Rc<VerifiedFunctionCompletionV1>,
         terminals: &Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>) -> bool {
@@ -421,7 +429,8 @@ impl VerifiedCallableResultContractBuilderV1 {
         top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
-        let result = validate_result(completion.as_ref(), declaration.owner(), batch_slot)?;
+        let result = super::physical_header::validate_declared_result(completion.as_ref(), declaration.owner(),
+            batch_slot, declaration.borrowed_result().map(|row| row.as_ref()))?;
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
@@ -451,6 +460,7 @@ impl VerifiedCallableResultContractBuilderV1 {
             identity: declaration.identity().clone(),
             role,
             result,
+            borrowed_result: declaration.borrowed_result().cloned(),
             completion,
             top_level_input,
             terminal_relations: Rc::new(terminal_relations),

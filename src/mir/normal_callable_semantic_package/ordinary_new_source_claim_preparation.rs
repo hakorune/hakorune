@@ -99,3 +99,37 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         owned_field_children,
     ))
 }
+
+/// Consume the source solver's qualified product before an owned plan is issued.
+fn validate_declared_borrowed_source_v1(
+    declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
+    key: Option<&SelectedNormalCallableKeyV1>,
+    claims: &result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> Result<(), crate::mir::normal_callable_semantic_package::physical_header::CallablePhysicalHeaderIssueV1> {
+    let Some(read) = declaration.borrowed_result() else { return Ok(()); };
+    let agrees = match (read.support(), key) {
+        (crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { ordinal, .. },
+         Some(SelectedNormalCallableKeyV1::Cataloged(key))) =>
+            claims.get(key) == Some(&result_class_claim::OrdinaryNewResultClassV1::NullableForwarded { ordinal })
+                && claims.borrowed_result_declaration_v1(key).is_some_and(|original| std::sync::Arc::ptr_eq(original, read)),
+        _ => false,
+    };
+    if agrees { Ok(()) } else {
+        Err(crate::mir::normal_callable_semantic_package::physical_header::CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+            _batch_slot: declaration.batch_slot(), _name: read.declared_type().into(),
+        })
+    }
+}
+
+/// Enforce explicit declarations only when consuming the completed Facts product.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn require_declared_borrowed_results_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
+    claims: &result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    for declaration in batch.declarations() {
+        validate_declared_borrowed_source_v1(declaration,
+            selected.key_for_batch_slot(declaration.batch_slot()), claims)
+            .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+    }
+    Ok(())
+}

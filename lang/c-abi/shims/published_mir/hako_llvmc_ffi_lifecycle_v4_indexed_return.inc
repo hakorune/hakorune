@@ -88,8 +88,8 @@ static int lv4_indexed_return(const hako_lv4_input* in,
       state[result->origin] = 0;
     } else if (lv4_is(origin, "kind", "borrowed_call")) {
       /* Forward has no owned state; still require its actual anchor now. */
-      if (result->kind != LV4_BORROWED_OBJECT ||
-          !lv4_borrowed_result_readable(in, fn, result, state, return_block)) return 0;
+      if (result->kind != LV4_BORROWED_OBJECT || !lv4_borrowed_result_forwardable(fn, result) ||
+          !lv4_borrowed_result_readable(in, fn, result, state, return_block, SIZE_MAX)) return 0;
     } else if (!lv4_is(origin, "kind", "null")) return 0;
   }
   if (birth && lv4_is(term, "op", "return") &&

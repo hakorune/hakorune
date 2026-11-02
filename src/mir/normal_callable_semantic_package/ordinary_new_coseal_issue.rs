@@ -129,6 +129,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             field_writers,
             Some(entry_home_loans),
         )?;
+    source_claims::require_declared_borrowed_results_v1(batch, selected, &callable_result_classes)?;
     let dynamic_slot = match dynamic {
         super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {
             Some(*batch_slot)
@@ -237,10 +238,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 if seed_eligible {
                     *result = program
                         .with_canonical_session_authority(|authority| {
-                            super::super::result_contract::validate_result(
-                                authority.completion(),
-                                owner,
-                                batch_slot,
+                            super::super::physical_header::validate_declared_result(
+                                authority.completion(), owner, batch_slot,
+                                declaration.borrowed_result().map(|row| row.as_ref()),
                             )
                         })
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;

@@ -382,7 +382,7 @@ impl<'a> CallValidationContextV1<'a> {
         let (initializer, _) = read.loan_local_initializer_v1(loan.destination())?;
         self.with_taken_packet_v1(loan.call(), |packet| {
             let original = packet.original_row()?;
-            let result = crate::mir::instruction::InvokeCallResultKind::BorrowedNullableHandle { support: loan.result_support_v1() };
+            let result = loan.result_kind_v1();
             if original.source_target().borrowed_nullable_local_source() != Some(loan)
                 || self.ledger().corroborate_borrowed_nullable_call_v1(original)?
                     != result

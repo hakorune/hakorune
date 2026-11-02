@@ -336,10 +336,14 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   if (strcmp(kind, "ordinary_call") == 0) {
     yyjson_val* result = yyjson_obj_get(operation, "result");
     static const char* const borrowed_keys[] = {"kind", "call", "result", "result_formal_ordinal"};
+    static const char* const read_keys[] = {"kind", "call", "result", "result_formal_ordinal", "result_read"};
+    int read_result = yyjson_obj_get(operation, "result_read") != NULL;
     static const char* const slot_keys[] = {"kind", "call", "result", "result_support"};
     int slot_result = yyjson_obj_get(operation, "result_support") != NULL;
     int borrowed = hako_physical_string(result, "borrowed_nullable_handle") ||
         hako_physical_string(result, "mixed_handle");
+    if (read_result && (slot_result || !yyjson_is_true(yyjson_obj_get(operation, "result_read")) ||
+        !hako_physical_string(result, "borrowed_nullable_handle"))) return 0;
     yyjson_val* cleanup = yyjson_obj_get(operation, "text_argument_cleanup");
     static const char* const text_keys[] = {"kind", "call", "result", "text_argument_cleanup"};
     if (cleanup) {
@@ -357,8 +361,11 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     /* This structural pair is corroborated again by indexed flow. Neither
        classifier may silently fill an unknown result with the i64 role. */
     yyjson_val* call = yyjson_obj_get(operation, "call");
-    return hako_physical_exact_keys(operation, cleanup ? text_keys : borrowed ? (slot_result ? slot_keys : borrowed_keys) : ordinary_keys, cleanup || borrowed ? 4 : 3) && want_role &&
+    return hako_physical_exact_keys(operation, read_result ? read_keys : cleanup ? text_keys : borrowed ? (slot_result ? slot_keys : borrowed_keys) : ordinary_keys, read_result ? 5 : cleanup || borrowed ? 4 : 3) && want_role &&
         hako_physical_validate_ordinary_call(function, functions, call, block, index, want_role) &&
+        (yyjson_is_true(yyjson_obj_get(operation, "result_read")) ==
+            yyjson_is_true(yyjson_obj_get(yyjson_arr_get(functions,
+                yyjson_get_uint(yyjson_obj_get(call, "target"))), "result_read"))) &&
         (!borrowed || (slot_result ?
             hako_physical_string(result, "borrowed_nullable_handle") &&
             hako_physical_result_slot_equal(operation, yyjson_arr_get(functions,

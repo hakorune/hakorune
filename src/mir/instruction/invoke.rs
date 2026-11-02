@@ -193,6 +193,11 @@ impl BorrowedResultSupportV1 {
     }
 }
 
+/// Access is independent of the payload representation and lifetime support.
+/// Unqualified legacy results acquire no new read or mut authority.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BorrowedResultAccessV1 { LegacyUnqualified, ReadOnly }
+
 /// Physical result projection; never source admission or inferred from a name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InvokeCallResultKind {
@@ -219,7 +224,7 @@ pub enum InvokeCallResultKind {
     NullableHandle,
     /// Non-owning payload with its independently retained lifetime support.
     /// This result creates no Home or lease.
-    BorrowedNullableHandle { support: BorrowedResultSupportV1 },
+    BorrowedNullableHandle { support: BorrowedResultSupportV1, access: BorrowedResultAccessV1 },
     /// Same Normal value carries a source-issued Null/Fresh/Forward outcome.
     /// Non-null does not establish ownership; Forward borrows this actual.
     MixedHandle { formal_ordinal: u32 },
@@ -227,7 +232,7 @@ pub enum InvokeCallResultKind {
 
 impl InvokeCallResultKind {
     pub const fn borrowed_nullable_formal(formal_ordinal: u32) -> Self {
-        Self::BorrowedNullableHandle { support: BorrowedResultSupportV1::Formal(formal_ordinal) }
+        Self::BorrowedNullableHandle { support: BorrowedResultSupportV1::Formal(formal_ordinal), access: BorrowedResultAccessV1::LegacyUnqualified }
     }
 }
 

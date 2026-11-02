@@ -379,6 +379,7 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
        borrowed-frame projection; SSA validation still rejects undefined uses. */
     if (!entry || frames > 1 || (!fi && frames != 1) ||
         lv4_pred_count(fn, entry->id)) return 0;
+    if (!lv4_declared_read_effects(fn)) return 0;
     if (!lv4_work_open(&work, count, lv4_state_count(fn), entry->ordinal)) return 0;
     for (size_t vi = 0; vi < fn->value_count; vi++) {
       hako_lv4_value* value = &fn->values[vi];

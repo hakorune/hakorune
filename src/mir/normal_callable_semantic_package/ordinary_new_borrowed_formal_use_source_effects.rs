@@ -73,3 +73,25 @@ pub(super) fn source_effect_kind_v1(
         exit: exit.clone(), source: Box::new(source),
     }))
 }
+
+/// The explicit read declaration bounds use of its support and all known aliases.
+/// Unknown call effects remain unavailable; no query permission is inferred.
+pub(super) fn require_declared_read_use_v1(
+    context: Option<&BorrowedFormalSourceUseContextV1<'_>>,
+    formal: BindingRefV1,
+    site: &OwnedExprSiteV1,
+    kind: BorrowedFormalUseDraftKindV1,
+) -> Result<BorrowedFormalUseDraftKindV1, BorrowedFormalUseDraftErrorV1> {
+    use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
+    let declaration = context.and_then(|context| context.results.borrowed_result_declaration_v1(context.key));
+    let read_support = declaration.is_some_and(|declaration|
+        matches!(declaration.support(), Support::Formal { binding, .. } if binding == formal));
+    if read_support && !matches!(kind,
+        BorrowedFormalUseDraftKindV1::BorrowedFormalReturn { .. }
+        | BorrowedFormalUseDraftKindV1::Copy { .. }
+        | BorrowedFormalUseDraftKindV1::NullCompareOperand { .. }
+        | BorrowedFormalUseDraftKindV1::FieldReadOperand { .. }) {
+        return Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(site.clone()));
+    }
+    Ok(kind)
+}

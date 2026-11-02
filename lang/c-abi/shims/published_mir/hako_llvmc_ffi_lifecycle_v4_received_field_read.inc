@@ -2,7 +2,7 @@
  * No NewBox, direct-null or generic tagged payload acquires this capability. */
 static int lv4_received_field_readable(const hako_lv4_input* in,
     hako_lv4_function_index* fn, yyjson_val* op, const hako_lv4_state* state,
-    uint32_t use) {
+    uint32_t use, size_t position) {
   uint32_t object = lv4_u(op, "object_id"), ordinal = lv4_u(op, "field_ordinal");
   yyjson_val* fields = yyjson_obj_get(lv4_layout(in, object), "fields");
   yyjson_val* field = yyjson_arr_get(fields, ordinal);
@@ -15,7 +15,9 @@ static int lv4_received_field_readable(const hako_lv4_input* in,
     return lv4_is(op, "kind", "field_get") && base->object_id_set && base->object_id == object &&
         lv4_shared_borrow_support(in, fn, base, state) != NULL;
   if (base->kind == LV4_BORROWED_OBJECT)
-    return lv4_slot_result_readable(in, fn, base, state, use, object, 1);
+    return (lv4_is(op, "kind", "field_get") &&
+        lv4_declared_read_object(in, fn, base, state, use, position, object, ordinal)) ||
+        lv4_slot_result_readable(in, fn, base, state, use, object, 1);
   if (lv4_canonical_receiver(fn, base))
     return lv4_readable_object(in, fn, base->id, state, use, object, 1);
   if (storage == HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC && base->kind == LV4_HANDLE)

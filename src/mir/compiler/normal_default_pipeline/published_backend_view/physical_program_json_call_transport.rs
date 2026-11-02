@@ -399,13 +399,13 @@ pub(super) fn verify_borrowed_projection(
     input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<(), String> {
     let current = program.functions().iter().any(|function| {
-        function
+        function.role().read_result().is_some() || function
             .param_carriers()
             .is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue))
     });
     let original = input.is_some_and(|input| input.entry().has_borrowed_entries()
-        || input.program().functions().iter().any(|function| function.param_carriers()
-            .is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue))));
+        || input.program().functions().iter().any(|function| function.role().read_result().is_some()
+            || function.param_carriers().is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue))));
     if !current && !original {
         return Ok(());
     }
@@ -436,6 +436,8 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     if function.name() != original.name()
         || function.role().wire_name() != original.role().wire_name()
         || function.role().ordinary_result() != original.role().ordinary_result()
+        || !crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1::same_source(
+            function.role().read_result(), original.role().read_result())
         || function.role().object_return_outcomes() != original.role().object_return_outcomes()
         || function.role().ordinary_target() != original.role().ordinary_target()
         || function.role().birth_target() != original.role().birth_target()
@@ -541,7 +543,12 @@ mod borrowed_transport_tests;
 pub(super) fn encode_result_support_v1(result: InvokeCallResultKind, wire: &mut Value) -> Result<(), String> {
     let ordinal = match result {
         InvokeCallResultKind::MixedHandle { formal_ordinal } => Some(formal_ordinal),
-        InvokeCallResultKind::BorrowedNullableHandle { support } => match support {
+        InvokeCallResultKind::BorrowedNullableHandle { support, access } => {
+            if access == crate::mir::instruction::BorrowedResultAccessV1::ReadOnly {
+                if !matches!(support, crate::mir::instruction::BorrowedResultSupportV1::Formal(_)) { return Err(fault("ordinary-result-kind")); }
+                wire["result_read"] = json!(true);
+            }
+            match support {
             crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) => Some(ordinal),
             crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { field, key_ordinal, object } => {
                 wire["result_support"] = json!({"kind":"receiver_field_slot",
@@ -549,7 +556,7 @@ pub(super) fn encode_result_support_v1(result: InvokeCallResultKind, wire: &mut 
                     "key_ordinal":key_ordinal, "object_id":object.declaration_index()});
                 None
             }
-        },
+        }},
         _ => None,
     };
     if let Some(ordinal) = ordinal { wire["result_formal_ordinal"] = json!(ordinal); }

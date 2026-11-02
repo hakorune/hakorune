@@ -21,7 +21,7 @@ impl RootHomeCleanupOrderV1 {
             };
         }
         if let Some(source) = &self.stored_map_get {
-            return InvokeCallResultKind::BorrowedNullableHandle {
+            return InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified,
                 support: source.parts().0.result_support_v1(),
             };
         }

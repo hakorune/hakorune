@@ -105,11 +105,10 @@ pub(super) fn prepare_instance_source_actuals_v1(
     };
     // The SAME LOCAL result's original key purpose selects source input
     // independently of callee domain/Completion success. It grants no Text.
-    let map_key = original_call
-        .as_ref()
-        .and_then(|call| call.source.instance())
-        .and_then(|target| target.borrowed_nullable_local_source())
-        .and_then(|loan| loan.map_key_actual_v1());
+    let borrowed_result = original_call.as_ref().and_then(|call| call.source.instance())
+        .and_then(|target| target.borrowed_nullable_local_source());
+    let map_key = borrowed_result.and_then(|loan| loan.map_key_actual_v1());
+    let read_request = borrowed_result.is_some_and(|loan| loan.is_declared_read_v1());
     let mut array_loans = Vec::new();
     let mut field_loans = Vec::new();
     for (position, actual) in actuals.iter().enumerate() {
@@ -218,6 +217,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         && !owning_input_request
         && !expression_request
         && map_key.is_none()
+        && !read_request
     {
         if ingress.definitions.contains_key(&site.owner()) {
             return Ok(None);
@@ -365,9 +365,10 @@ pub(super) fn prepare_instance_source_actuals_v1(
                 BorrowedCallActualValueV1::Home {
                     binding,
                     root,
-                    ref acquisition,
-                    ..
-                } if (owning_input_request || field_input_request || unit_request)
+                    ref acquisition, ref moved,
+                } if (owning_input_request || field_input_request || unit_request
+                    || borrowed_result.is_some_and(|loan| loan.matches_read_home_actual_v1(
+                        site, actual.ordinal, binding, root, acquisition, &actual.site, moved.is_some())))
                     && binding.owner() == site.owner()
                     && root.owner() == site.owner()
                     && acquisition.owner() == site.owner() => {
@@ -613,7 +614,7 @@ pub(super) fn selected_original_instance_forward_v1(
         if let Some(target) = original.source.instance() {
             if target
                 .borrowed_nullable_local_source()
-                .is_some_and(|loan| loan.map_key_actual_v1().is_some())
+                .is_some_and(|loan| loan.map_key_actual_v1().is_some() || loan.is_declared_read_v1())
             {
                 return Ok(true);
             }
