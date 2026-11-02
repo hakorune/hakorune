@@ -9,6 +9,7 @@ use std::{rc::Rc, sync::Arc};
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum NullRootV1 {
     Entry(BindingRefV1),
+    Flow { binding: BindingRefV1, value: SourceValueRefV1 },
     Initializer {
         binding: BindingRefV1,
         site: SourceExprSiteV1,
@@ -55,7 +56,7 @@ impl SourceNullExclusionV1 {
     }
     pub(crate) fn root_binding(&self) -> BindingRefV1 {
         match self.root {
-            NullRootV1::Entry(binding) | NullRootV1::Initializer { binding, .. } => binding,
+            NullRootV1::Entry(binding) | NullRootV1::Initializer { binding, .. } | NullRootV1::Flow { binding, .. } => binding,
         }
     }
     pub(crate) fn same_entry(
@@ -97,8 +98,15 @@ impl SourceNullExclusionV1 {
         input: ResolvedFunctionLoweringInputV1<'_>,
         view: &super::BorrowedResultReadV1,
     ) -> bool {
-        let NullRootV1::Initializer { binding, site, value: origin } = &self.root else { return false; };
         let Some(flow) = input.function().expression_source().value_flow() else { return false; };
+        if let NullRootV1::Flow { binding, value: root } = self.root {
+            if binding != view.current_root_binding_v1() || !Arc::ptr_eq(flow, &self.flow) || !view.corroborates_v1(input)
+                || flow.read(&self.guard_read, self.binding) != Some(self.value) { return false; }
+            let root_of = |value| flow.alias_terminal_with_expression_boundary(value, |at| input.function().variable_ref(at), |_| false);
+            return root_of(self.value) == Some(root)
+                && flow.read(view.read().site(), view.binding()).and_then(root_of) == Some(root);
+        }
+        let NullRootV1::Initializer { binding, site, value: origin } = &self.root else { return false; };
         *binding == view.source().destination() && site == view.source().call().site()
             && Arc::ptr_eq(flow, &self.flow) && view.corroborates_v1(input)
             && flow.read(&self.guard_read, self.binding) == Some(self.value)
@@ -158,7 +166,7 @@ pub(super) fn issue(
         if !flow.is_complete() {
             return None;
         }
-        let origin = flow.alias_origin(value, |site| input.function().variable_ref(site))?;
+        if let Some(origin) = flow.alias_origin(value, |site| input.function().variable_ref(site)) {
         let crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(
             site,
         ) = flow.origin(origin)?
@@ -178,6 +186,14 @@ pub(super) fn issue(
             binding: original_binding,
             site: site.clone(),
             value: origin,
+        }
+        } else {
+            let root = flow.alias_terminal_with_expression_boundary(value, |at| input.function().variable_ref(at), |_| false)?;
+            if !matches!(flow.origin(root), Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Join {
+                kind: crate::mir::resolved_semantics::source_value_flow::SourceValueJoinKindV1::BranchNormal, .. }))
+                || flow.alias_origins_v1(root, |at| input.function().variable_ref(at)).is_none() { return None; }
+            let crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Join { binding: root_binding, .. } = flow.origin(root)? else { return None; };
+            NullRootV1::Flow { binding: *root_binding, value: root }
         }
     };
     Some(Rc::new(SourceNullExclusionV1 {

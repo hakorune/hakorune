@@ -136,7 +136,7 @@ impl ReceivedFieldReadSourceV1 {
     )> {
         match self.request() {
             ReceivedFieldReadRequestV1::Borrowed { loan, exclusion: Some(exclusion) }
-                if exclusion.root_binding() == loan.source().destination() => Some((loan, exclusion)),
+                if exclusion.root_binding() == loan.current_root_binding_v1() => Some((loan, exclusion)),
             _ => None,
         }
     }

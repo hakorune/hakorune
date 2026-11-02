@@ -253,6 +253,16 @@ impl BorrowedResultReadV1 {
     pub(crate) fn source(&self) -> &BorrowedNullableLocalSourceLoanV1 { &self.source }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.read.binding() }
     pub(crate) fn read(&self) -> &OwnedExprSiteV1 { self.read.read() }
+    /// Guard identity follows the current source join, while the original
+    /// Call and its lifetime support remain unchanged.
+    pub(crate) fn current_root_binding_v1(&self) -> BindingRefV1 {
+        let root = self.read.flow.alias_terminal_with_expression_boundary(self.read.value,
+            |at| self.read.flow.read_at(at).map(|(binding, _)| ResolvedLexicalRefV1::Local(binding)), |_| false);
+        match root.and_then(|root| self.read.flow.origin(root)) {
+            Some(SourceValueOriginV1::Join { binding, .. }) => *binding,
+            _ => self.source().destination(),
+        }
+    }
     pub(crate) fn same_reference_v1(&self, other: &Self) -> bool { self.source == other.source && self.read.same_result_v1(&other.read) }
     pub(crate) fn corroborates_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool { self.read.corroborates_v1(input) }
 }
@@ -277,7 +287,7 @@ impl NullableResultReferenceV1 {
         match self { Self::StoredMapGet(frame) => frame.binding(), Self::DeclaredFrom(view) => view.binding() }
     }
     pub(crate) fn original_binding_v1(&self) -> BindingRefV1 {
-        match self { Self::StoredMapGet(frame) => frame.binding(), Self::DeclaredFrom(view) => view.source().destination() }
+        match self { Self::StoredMapGet(frame) => frame.binding(), Self::DeclaredFrom(view) => view.current_root_binding_v1() }
     }
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         match self { Self::StoredMapGet(frame) => frame.site(), Self::DeclaredFrom(view) => view.source().call() }
