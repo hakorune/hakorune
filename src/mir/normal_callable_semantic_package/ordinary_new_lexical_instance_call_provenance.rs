@@ -218,12 +218,13 @@ impl LexicalReceiverClassSourceV1<'_> {
             return batch.with_lowering_input(need.callee_slot, |input|
                 input.owner() == need.owner && read.binding() == need.receiver_binding
                     && read.read().site() == &need.receiver_site
-                    && read.corroborates_v1(input) && read.source().payload_nonnull_v1())
+                    && read.corroborates_v1(input))
                 .map_err(|_| freeze("lexical-instance-call/batch-loan"));
         }
+        let Some(acquisition) = loan.acquisition() else { return Ok(false); };
         if matches!(loan, BorrowedReceiverSourceV1::OrdinaryCall(source) if !source.is_map_slot())
             || loan.destination() != need.receiver_binding
-            || loan.acquisition().owner() != need.owner { return Ok(false); }
+            || acquisition.owner() != need.owner { return Ok(false); }
         let caller = batch.with_lowering_input(need.callee_slot, |input| {
             let Some(shape) = input.body_shape() else { return false; };
             let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return false; };
@@ -233,7 +234,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                 Part::Body(i) | Part::IfThen(i) | Part::IfElse(i) => Some(*i),
                 _ => None,
             };
-            let [prefix @ .., acquired, Part::Initializer(_)] = loan.acquisition().site().node().segments() else { return false; };
+            let [prefix @ .., acquired, Part::Initializer(_)] = acquisition.site().node().segments() else { return false; };
             let Some(start) = ordinal(acquired) else { return false };
             let call = need.call_site.node().segments();
             let end = match (loan, call) {
@@ -250,7 +251,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                     && std::mem::discriminant(&path[prefix.len()]) == std::mem::discriminant(acquired)
                     && ordinal(&path[prefix.len()]).is_some_and(|index| start <= index && index <= end)
             };
-            let boundary = |site: &SourceExprSiteV1| site == loan.acquisition().site() || site == &need.call_site;
+            let boundary = |site: &SourceExprSiteV1| site == acquisition.site() || site == &need.call_site;
             input.owner() == need.owner && start < end
                 && input.function().variable_ref(&need.receiver_site) == Some(Ref::Local(loan.destination()))
                 && ledger.uncaptured_binding(loan.destination())
@@ -309,6 +310,13 @@ impl LexicalReceiverClassSourceV1<'_> {
                     if input.owner() != need.owner {
                         return Ok(None);
                     }
+                    if input.forest().callable_source_ledger(input.owner()).is_ok_and(|ledger| ledger.uncaptured_binding(need.receiver_binding)) {
+                        if let Some(source) = self.callable_result_classes.declared_read_source_at_v1(batch, selected,
+                            self.field_write_claims, self.parameters, input, &need.receiver_site, self.app_main, None).map_err(freeze)? {
+                            if !self.ordinary_box_names.iter().any(|name| name.as_ref() == source.declared_type()) { return Ok(None); }
+                            return Ok(Some((source.declared_type().into(), Some(Box::new(BorrowedReceiverSourceV1::DeclaredRead(source))))));
+                        }
+                    }
                     let mut initializers = input
                         .function()
                         .expression_source()
@@ -337,13 +345,6 @@ impl LexicalReceiverClassSourceV1<'_> {
                             || !input.forest().callable_source_ledger(input.owner())
                                 .is_ok_and(|ledger| ledger.uncaptured_binding(need.receiver_binding)) { return Ok(None); }
                         let call = OwnedExprSiteV1::new(need.owner, initializer_site.clone());
-                        let declared = self.callable_result_classes.borrowed_read_at_v1(batch, selected,
-                            self.field_write_claims, self.parameters, input, &need.receiver_site, self.app_main).map_err(freeze)?;
-                        if let Some(read) = declared {
-                            let class = read.source().declared_read_result_v1()
-                                .ok_or_else(|| freeze("borrowed-nullable/source-identity"))?.declared_type().into();
-                            (class, Some(Box::new(BorrowedReceiverSourceV1::DeclaredRead(read))))
-                        } else {
                         if input.function().method_call(initializer_site).is_none() { return Ok(None); }
                         let direct = if let (Some(constructors), Some(entries)) = (self.constructors, self.entries) {
                             let entry = entries.for_batch_slot(need.callee_slot);
@@ -361,7 +362,6 @@ impl LexicalReceiverClassSourceV1<'_> {
                                 need.receiver_binding, self.app_main).map_err(freeze)? else { return Ok(None); };
                             let (class, _) = loan.map_payload_v1().ok_or_else(|| freeze("borrowed-nullable/source-identity"))?;
                             (class.into(), Some(Box::new(BorrowedReceiverSourceV1::OrdinaryCall(loan))))
-                        }
                         }
                     };
                     if !self

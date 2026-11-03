@@ -170,6 +170,28 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn declared_receiver_read_v1(&self)
+        -> Option<&crate::mir::resolved_semantics::home_new_prefix::DeclaredReadReceiverV1> {
+        match &self.phase {
+            BorrowedCallActualEvidencePhaseV1::SourceInstance(identity)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(identity) => identity.receiver_read.as_ref(),
+            _ => None,
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn bind_declared_receiver_v1(&mut self,
+        receiver: Option<&crate::mir::resolved_semantics::home_new_prefix::DeclaredReadReceiverV1>,
+    ) -> Result<(), String> {
+        let BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &mut self.phase else {
+            return if receiver.is_none() { Ok(()) } else { Err(freeze("borrowed-instance/receiver-source-identity")) };
+        };
+        match (identity.source.declared_read_receiver_v1(), receiver) {
+            (None, None) => Ok(()),
+            (Some(source), Some(read)) if source.matches_value_v1(read.read()) => {
+                identity.receiver_read = Some(read.clone()); Ok(())
+            },
+            _ => Err(freeze("borrowed-instance/receiver-source-identity")),
+        }
+    }
     /// Borrow retained source uses without granting execution or requalification.
     pub(in crate::mir::normal_callable_semantic_package) fn declared_read_argument_sources_v1(&self)
         -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1> {
@@ -565,7 +587,7 @@ pub(super) fn retain_instance_argument_sources_v1(
     let BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &mut prepared.phase else {
         return Err(freeze("borrowed-instance/source-identity"));
     };
-    if !identity.same_original_source_v1(original) || !identity.argument_sources.is_empty() {
+    if !identity.same_original_source_v1(original) || !identity.argument_sources.is_empty() || identity.receiver_read.is_some() {
         return Err(freeze("borrowed-instance/source-identity"));
     }
     if !original.argument_sources.is_empty() {
@@ -577,6 +599,12 @@ pub(super) fn retain_instance_argument_sources_v1(
             &original.argument_sources,
         )?;
     }
+    if let Some(read) = &original.receiver_read {
+        if identity.source.declared_read_receiver_v1().is_none_or(|source| !source.matches_value_v1(read.read())) {
+            return Err(freeze("borrowed-instance/receiver-source-identity"));
+        }
+    }
+    identity.receiver_read = original.receiver_read.clone();
     identity.argument_sources = original.argument_sources.clone();
     Ok(())
 }

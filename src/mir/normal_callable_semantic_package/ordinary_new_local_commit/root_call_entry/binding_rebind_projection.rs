@@ -364,6 +364,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for actuals in self.borrowed_formal_actuals.values().filter_map(|row| row.as_ref().ok()) {
             for read in actuals.declared_read_argument_sources_v1() { retain(read); }
+            if let Some(receiver) = actuals.declared_receiver_read_v1() { retain(receiver.read()); }
         }
         output
     }

@@ -432,9 +432,10 @@ static int lv4_borrowed_argument_readable(const hako_lv4_input* in,
 static int lv4_borrowed_receiver_readable(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, yyjson_val* consumer,
     const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object) {
+  if (lv4_read_result_join_root(fn, value))
+    return lv4_readonly_call(fn, consumer, 1) &&
+        lv4_declared_read_payload(in, fn, value, state, use, position, object);
   hako_lv4_value* original = lv4_value_alias_root(fn, value);
-  /* Multi-Call receiver transport is not issued by the current source lane. */
-  if (lv4_read_result_join_root(fn, original)) return 0;
   if (original && original->kind == LV4_BORROWED_OBJECT &&
       yyjson_obj_get(lv4_borrowed_result_operation(fn, original), "result_read"))
     return lv4_readonly_call(fn, consumer, 1) &&

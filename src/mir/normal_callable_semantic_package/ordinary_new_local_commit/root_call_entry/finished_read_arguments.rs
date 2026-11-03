@@ -7,6 +7,11 @@ impl EmittedLexicalCallProjectionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn read_argument_branch_points_v1(&self)
         -> Result<Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
         let mut points = Vec::new();
+        if matches!(self.row.loan(), CallPacketSourceLoanV1::Instance(row) if row.source_target().declared_read_receiver_v1().is_some()) {
+            if let Some(read) = self.lexical_receiver_read_v1() {
+                if let Some(point) = read.binding_observation_v2().source_read_branch_v1()? { points.push(point); }
+            }
+        }
         for argument in &self.prepared.arguments {
             if let LexicalCallArgumentProjectionV1::BorrowedReadArgument { read, .. } = argument {
                 if let Some(point) = read.read_branch_point_v1()? { points.push(point); }
@@ -40,9 +45,15 @@ impl EmittedLexicalCallProjectionV1 {
         call_coordinate: (BasicBlockId, usize),
     ) -> Result<(), String> {
         if let CallPacketSourceLoanV1::Instance(row) = self.row.loan() {
-            if let Some(view) = row.source_target().declared_read_receiver_v1() {
+            if let Some(receiver) = context.declared_receiver_read_v1(row)? {
+                let view = receiver.read();
                 let read = self.lexical_receiver_read_v1().ok_or_else(|| freeze("expression/reference-source-node"))?;
-                context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, Some(projection))?;
+                context.validate_declared_value_transport_v1(view, read.binding_observation_v2(), function, Some(projection))?;
+                if let Some(exclusion) = receiver.exclusion() {
+                    context.validate_nullable_nonnull_read_v1(
+                        &crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(view.clone()),
+                        exclusion, read, function, Some(projection), &self.invoke)?;
+                }
             }
         }
         for argument in &self.prepared.arguments {

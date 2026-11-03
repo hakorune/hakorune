@@ -29,7 +29,7 @@ pub(crate) struct LexicalInstanceCallSourceTargetV1 {
 /// The acquisition origin stays separate from receiver class and execution.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedReceiverSourceV1 {
-    DeclaredRead(crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1),
+    DeclaredRead(crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1),
     OrdinaryCall(super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1),
     DirectMapGet(DirectMapReceiverSourceV1),
 }
@@ -37,8 +37,8 @@ impl BorrowedReceiverSourceV1 {
     pub(super) fn destination(&self) -> BindingRefV1 {
         match self { Self::DeclaredRead(read) => read.binding(), Self::OrdinaryCall(source) => source.destination(), Self::DirectMapGet(source) => source.binding }
     }
-    pub(super) fn acquisition(&self) -> &OwnedExprSiteV1 {
-        match self { Self::DeclaredRead(read) => read.source().call(), Self::OrdinaryCall(source) => source.call(), Self::DirectMapGet(source) => &source.initializer }
+    pub(super) fn acquisition(&self) -> Option<&OwnedExprSiteV1> {
+        match self { Self::DeclaredRead(_) => None, Self::OrdinaryCall(source) => Some(source.call()), Self::DirectMapGet(source) => Some(&source.initializer) }
     }
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,7 +75,7 @@ impl DirectMapReceiverSourceV1 {
 }
 impl LexicalInstanceCallSourceTargetV1 {
     pub(crate) fn has_borrowed_receiver_source_v1(&self) -> bool { self.borrowed_receiver_source.is_some() }
-    pub(crate) fn declared_read_receiver_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1> {
+    pub(crate) fn declared_read_receiver_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1> {
         match self.borrowed_receiver_source.as_deref()? { BorrowedReceiverSourceV1::DeclaredRead(read) => Some(read), _ => None }
     }
     pub(crate) fn borrowed_call_receiver_source_v1(&self) -> Option<&super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
@@ -615,7 +615,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                 // inside one the route coverage names the uncovered site. Only
                 // structural corruption (batch loan, duplicate issuance) is a
                 // hard freeze.
-                if need.rebound {
+                if need.rebound && !matches!(borrowed_receiver_source.as_deref(), Some(BorrowedReceiverSourceV1::DeclaredRead(_))) {
                     return Ok(None);
                 }
                 let Some((target, target_batch_slot)) = unique_instance_target(

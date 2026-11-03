@@ -306,21 +306,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         }
         for need in rows.iter_mut().filter_map(|row| row.as_mut().ok().and_then(Option::as_mut)) {
             let PreparedSourceCallNeedV1::Lexical(target) = need else { continue; };
-            if let Some(read) = target.declared_read_receiver_v1() {
-                let original = producers.get(read.source().call()).ok_or_else(|| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                    site: target.call_site.clone(), issue: freeze("borrowed-nullable/source-missing"),
-                })?;
-                for loan in [read.source(), original.as_ref()] {
-                    callable_result_classes.recheck_borrowed_nullable_local_source_v1(batch, selected,
-                        field_write_claims, contracts, loan, app_main.map(|main| main.caller_source_ref_v1()))
-                        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: target.call_site.clone(), issue: freeze(issue) })?;
-                }
-                let read = read.with_original_source_v1(original).ok_or_else(|| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                    site: target.call_site.clone(), issue: freeze("borrowed-nullable/source-identity"),
-                })?;
-                target.borrowed_receiver_source = Some(Box::new(BorrowedReceiverSourceV1::DeclaredRead(read)));
-                continue;
-            }
+            // Declared receiver targets retain signatures only; the current
+            // Prefix and its canonical loans qualify execution in actuals.
+            if target.declared_read_receiver_v1().is_some() { continue; }
             let Some(proposed) = target.borrowed_call_receiver_source_v1() else { continue; };
             let check = || -> Result<_, String> {
                 let original = producers.get(proposed.call()).ok_or_else(|| freeze("borrowed-nullable/source-missing"))?;

@@ -9,6 +9,7 @@ pub(super) struct InstanceSourceActualIdentityV1 {
     pub(super) incoming_arguments: Box<[(u32, SourceExprSiteV1, BindingRefV1)]>,
     pub(super) candidates: Box<[BorrowedCallActualCandidateV1]>,
     pub(super) argument_sources: BTreeMap<u32, ArgumentExpressionV1>,
+    pub(super) receiver_read: Option<crate::mir::resolved_semantics::home_new_prefix::DeclaredReadReceiverV1>,
     pub(super) array_loans: Box<
         [(
             u32,
@@ -593,6 +594,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
             incoming_arguments: original.arguments.clone(),
             candidates: actuals.to_vec().into_boxed_slice(),
             argument_sources: BTreeMap::new(),
+            receiver_read: None,
             array_loans: array_loans.into_boxed_slice(),
             field_loans: field_loans.into_boxed_slice(),
         }),

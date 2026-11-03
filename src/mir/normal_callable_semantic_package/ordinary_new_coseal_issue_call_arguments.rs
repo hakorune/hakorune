@@ -479,7 +479,11 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         let read_receiver = super::super::lexical_instance_call::original_lexical_target_at_v1(targets, site)
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?
             .and_then(|target| target.declared_read_receiver_v1());
-        if read_receiver != current_receiver {
+        if match (read_receiver, current_receiver) {
+            (None, None) => false,
+            (Some(source), Some(read)) => !source.matches_value_v1(read.read()),
+            _ => true,
+        } {
             return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                 site: site.clone(), issue: super::super::lexical_instance_call::freeze("borrowed-actual/unsupported-or-unavailable"),
             });
@@ -545,6 +549,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                     pending.get(site),
                     rows.as_mut(),
                 )?;
+                if let Some(rows) = rows.as_mut() { rows.bind_declared_receiver_v1(current_receiver)?; }
+                else if current_receiver.is_some() { return Err(super::super::lexical_instance_call::freeze("borrowed-instance/receiver-source-identity")); }
                 Ok(rows)
             }),
         };

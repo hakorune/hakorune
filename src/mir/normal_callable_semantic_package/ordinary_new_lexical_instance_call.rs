@@ -353,7 +353,16 @@ impl OrdinaryNewClaimLedgerV1 {
             let direct_scalar = source.direct_map_receiver_source_v1().is_some()
                 && self.lexical_i64_call_source(&call_site).is_some()
                 && self.check_direct_map_numeric_effects_v1(&source).is_ok();
-            let borrowed_receiver = source.has_borrowed_receiver_source_v1() && !direct_scalar;
+            // A declared receiver is a qualified input, not a deferred result
+            // transport. Its current Prefix proof must exist before arming.
+            let declared_read_receiver = if let Some(original) = source.declared_read_receiver_v1() {
+                let read = self.borrowed_formal_actuals.get(&call_site).and_then(|row| row.as_ref().ok())
+                    .and_then(|row| row.declared_receiver_read_v1())
+                    .ok_or_else(|| freeze("borrowed-nullable/source-identity"))?;
+                if !original.matches_value_v1(read.read()) { return Err(freeze("borrowed-nullable/source-identity")); }
+                true
+            } else { false };
+            let borrowed_receiver = source.has_borrowed_receiver_source_v1() && !direct_scalar && !declared_read_receiver;
             if borrowed_nullable || mixed || borrowed_receiver || self.requires_object_packet_v1(&source)? {
                 // A selected Object local remains on its canonical route while
                 // its packet is pending. The affine take owns that refusal;

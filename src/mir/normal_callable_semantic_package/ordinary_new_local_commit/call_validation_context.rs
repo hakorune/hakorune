@@ -346,18 +346,30 @@ impl<'a> CallValidationContextV1<'a> {
         self.with_taken_packet_v1(site, |packet| check(packet.original_row()?))
     }
 
+    pub(in crate::mir) fn declared_receiver_read_v1(self, row: &LexicalInstanceCallDispositionRowV1)
+        -> Result<Option<&'a crate::mir::resolved_semantics::home_new_prefix::DeclaredReadReceiverV1>, String> {
+        let Some(source) = row.source_target().declared_read_receiver_v1() else { return Ok(None); };
+        let read = self.ledger().borrowed_formal_actuals.get(row.call_site()).and_then(|actuals| actuals.as_ref().ok())
+            .and_then(|actuals| actuals.declared_receiver_read_v1()).ok_or_else(|| freeze("borrowed-return/original-contract"))?;
+        if !source.matches_value_v1(read.read()) || (!read.read().payload_nonnull() && read.exclusion().is_none()) {
+            return Err(freeze("borrowed-return/original-contract"));
+        }
+        Ok(Some(read))
+    }
+
     /// Borrow the payload's SAME producer Normal and original LocalSSA chain.
     /// The lifetime holder never supplies the payload value; no Home is issued.
     pub(in crate::mir) fn require_borrowed_receiver_v1(
         self, row: &LexicalInstanceCallDispositionRowV1,
         read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(), String> {
-        if let Some(view) = row.source_target().declared_read_receiver_v1() {
+        if let Some(receiver) = self.declared_receiver_read_v1(row)? {
+            let view = receiver.read();
             if view.read().site() != row.receiver_site() || view.read().owner() != row.call_site().owner()
-                || view.source().declared_read_result_v1().is_none_or(|declaration| declaration.declared_type() != row.source_target().target().owner()) {
+                || view.declared_type() != row.source_target().target().owner() {
                 return Err(freeze("borrowed-return/original-contract"));
             }
-            self.declared_result_read_v1(view, read)?;
+            self.declared_value_read_v1(view, read)?;
             return Ok(());
         }
         if let Some(direct) = row.source_target().direct_map_receiver_source_v1() {

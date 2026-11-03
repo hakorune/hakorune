@@ -226,6 +226,7 @@ impl BorrowedFlowReadV1 {
         source.matches_read(input, site).then(|| Self { source, binding, read: OwnedExprSiteV1::new(input.owner(), site.clone()) })
     }
     pub(crate) fn source(&self) -> &std::rc::Rc<BorrowedReadFlowV1> { &self.source }
+    pub(crate) fn same_flow_v1(&self, flow: &Arc<VerifiedSourceValueFlowV1>) -> bool { Arc::ptr_eq(&self.source.flow, flow) }
     pub(crate) fn read(&self) -> &OwnedExprSiteV1 { &self.read }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(crate) fn corroborates(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {

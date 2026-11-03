@@ -241,12 +241,17 @@ impl PrefixLocalFlow<'_> {
     /// signature/class discovery alone cannot lend this capability.
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_call_receiver_v1(
         &self, call: &OwnedExprSiteV1, prefix_known: bool,
-    ) -> Option<super::super::BorrowedResultReadV1> {
+    ) -> Option<super::super::DeclaredReadReceiverV1> {
         if !prefix_known || call.owner() != self.input.owner() { return None; }
         let receiver = self.input.function().method_call_source_v1(call.site())?.receiver_site();
-        match self.nullable_result_reference_v1(receiver)? {
-            super::super::NullableResultReferenceV1::DeclaredFrom(view) => view.single().cloned(), _ => None,
-        }
+        let super::super::NullableResultReferenceV1::DeclaredFrom(view) = self.nullable_result_reference_v1(receiver)? else { return None; };
+        let exclusion = if view.payload_nonnull() { None } else {
+            if !self.nonnull.contains(&view.binding()) { return None; }
+            let proof = self.null_exclusions.get(&view.binding()).or_else(|| self.null_exclusions.get(&view.original_binding()))?;
+            if !proof.corroborates_result_read_v1(self.input, &view) { return None; }
+            Some(std::rc::Rc::clone(proof))
+        };
+        Some(super::super::DeclaredReadReceiverV1::issue_v1(view, exclusion))
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_receiver_v1(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {

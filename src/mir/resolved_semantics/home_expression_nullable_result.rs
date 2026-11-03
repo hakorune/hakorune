@@ -175,6 +175,32 @@ impl DeclaredCallReadSourceV1 {
         Ok(Some(Self { kind: DeclaredReadSourceKindV1::Flow { read: OwnedExprSiteV1::new(input.owner(), site.clone()), binding, value,
             flow: Arc::clone(flow), terminals, class: class.declared_type().into() } }))
     }
+    /// Match the retained source signature to a separately qualified Prefix
+    /// read. Metadata never creates a loan, liveness or a nonnull permission.
+    pub(crate) fn matches_value_v1(&self, view: &DeclaredReadValueV1) -> bool {
+        if self.read() != view.read() || self.binding() != view.binding() || self.declared_type() != view.declared_type() { return false; }
+        match &self.kind {
+            DeclaredReadSourceKindV1::Single { read, declaration } => view.single().is_some_and(|current|
+                current.read.same_result_v1(read) && Arc::ptr_eq(&current.declaration, declaration)),
+            DeclaredReadSourceKindV1::Flow { terminals, flow, .. } => {
+                let DeclaredReadValueV1::Flow(current) = view else { return false; };
+                if !current.same_flow_v1(flow) || current.source().has_literal_null() != terminals.iter().any(|terminal| terminal.call.is_none()) { return false; }
+                let calls = terminals.iter().filter_map(|terminal| terminal.call.as_ref()).collect::<Vec<_>>();
+                calls.len() == view.loans().count() && calls.iter().all(|(call, destination, declaration)|
+                    view.loans().filter(|loan| loan.call() == call && loan.destination() == *destination
+                        && loan.declared_read_result_v1().is_some_and(|original| Arc::ptr_eq(original, declaration))).count() == 1)
+            }
+        }
+    }
+    pub(crate) fn corroborates_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+        match &self.kind {
+            DeclaredReadSourceKindV1::Single { read, .. } => read.corroborates_v1(input),
+            DeclaredReadSourceKindV1::Flow { read, binding, value, flow, .. } => input.owner() == read.owner()
+                && input.function().variable_ref(read.site()) == Some(ResolvedLexicalRefV1::Local(*binding))
+                && input.function().expression_source().value_flow().is_some_and(|current| Arc::ptr_eq(current, flow)
+                    && current.read(read.site(), *binding) == Some(*value)),
+        }
+    }
     pub(crate) fn source_read(&self) -> Option<&SourceCallResultReadV1> {
         match &self.kind { DeclaredReadSourceKindV1::Single { read, .. } => Some(read), DeclaredReadSourceKindV1::Flow { .. } => None }
     }
@@ -244,11 +270,6 @@ impl BorrowedResultReadV1 {
         (source.is_declared_read_v1() && read.producer() == source.call() && read.destination() == source.destination()
             && declaration.owner() == source.callee_owner() && source.declared_result_matches_v1(Some(&declaration)))
             .then(|| Self { source: Box::new(source.clone()), read, declaration })
-    }
-    /// The issuer chooses the SAME canonical producer after checking both
-    /// original source loans; only the retained graph, never the read, changes.
-    pub(crate) fn with_original_source_v1(&self, source: &BorrowedNullableLocalSourceLoanV1) -> Option<Self> {
-        Self::from_declared_v1(source, DeclaredCallReadSourceV1::issue_v1(self.read.clone(), Arc::clone(&self.declaration)))
     }
     pub(crate) fn source(&self) -> &BorrowedNullableLocalSourceLoanV1 { &self.source }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.read.binding() }
@@ -355,4 +376,19 @@ impl NullableResultReferenceV1 {
                 }),
         }
     }
+}
+
+/// Prefix-qualified receiver use; source signatures cannot construct it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct DeclaredReadReceiverV1 {
+    read: DeclaredReadValueV1,
+    exclusion: Option<Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>>,
+}
+impl DeclaredReadReceiverV1 {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_v1(read: DeclaredReadValueV1,
+        exclusion: Option<Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>>) -> Self {
+        Self { read, exclusion }
+    }
+    pub(crate) fn read(&self) -> &DeclaredReadValueV1 { &self.read }
+    pub(crate) fn exclusion(&self) -> Option<&Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>> { self.exclusion.as_ref() }
 }

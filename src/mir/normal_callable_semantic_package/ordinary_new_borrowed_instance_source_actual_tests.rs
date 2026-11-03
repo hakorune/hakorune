@@ -453,7 +453,8 @@ fn owning_object_local_input_keeps_qualified_sibling_and_refuses_phase_and_censu
             pending.get_mut(target.call_site()).unwrap().as_mut().unwrap().phase =
                 BorrowedCallActualEvidencePhaseV1::SourceInstance(InstanceSourceActualIdentityV1 {
                     source: target.clone(), incoming_arguments: Box::new([]),
-                    candidates: Box::new([]), argument_sources: BTreeMap::new(), array_loans: Box::new([]), field_loans: Box::new([]),
+                    candidates: Box::new([]), argument_sources: BTreeMap::new(),
+                    receiver_read: None, array_loans: Box::new([]), field_loans: Box::new([]),
                 });
             assert!(project_pending_instance_source_arguments_v1(source, &pending,
                 &package.parameter_contracts, target.call_site()).unwrap_err()
@@ -507,6 +508,7 @@ fn returned_field_input_keeps_qualified_object_phase_and_refuses_instance_drift(
     forged.get_mut(&call.call).unwrap().as_mut().unwrap().phase =
         BorrowedCallActualEvidencePhaseV1::SourceInstance(InstanceSourceActualIdentityV1 {
             source: target.clone(), incoming_arguments: call.arguments.clone(), candidates: Box::new([]), argument_sources: BTreeMap::new(),
+                    receiver_read: None,
             array_loans: Box::new([]), field_loans: Box::new([]),
         });
     assert!(project_pending_instance_source_arguments_v1(source, &forged,
