@@ -15,6 +15,7 @@ pub(crate) struct ResolverMethodParameterSyntaxV1 {
 enum ParserParameterTransferKindV1 {
     Ordinary,
     Take,
+    Edit,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,8 +28,12 @@ impl ParserParameterTransferSyntaxV1 {
         Self::from_take(false)
     }
 
-    pub(super) const fn from_take(take: bool) -> Self {
+    pub(in crate::parser) const fn from_take(take: bool) -> Self {
         Self { kind: if take { ParserParameterTransferKindV1::Take } else { ParserParameterTransferKindV1::Ordinary } }
+    }
+
+    pub(in crate::parser) const fn edit() -> Self {
+        Self { kind: ParserParameterTransferKindV1::Edit }
     }
 
     pub(crate) const fn is_take(self) -> bool {
@@ -66,10 +71,10 @@ pub(crate) struct ParserCallableParameterSourceRowV1 {
 impl ParserCallableParameterSourceRowV1 {
     #[cfg(test)]
     pub(super) fn ordinary(ordinal: u32, declaration: &ParamDecl) -> Self {
-        Self::parsed(ordinal, declaration, false)
+        Self::parsed(ordinal, declaration, ParserParameterTransferSyntaxV1::ordinary())
     }
 
-    pub(super) fn parsed(ordinal: u32, declaration: &ParamDecl, take: bool) -> Self {
+    pub(super) fn parsed(ordinal: u32, declaration: &ParamDecl, transfer: ParserParameterTransferSyntaxV1) -> Self {
         let declared_type = match declaration.declared_type_name.as_deref() {
             Some(name) => ParserParameterDeclaredTypeSyntaxV1::Explicit(name.into()),
             None => ParserParameterDeclaredTypeSyntaxV1::Absent,
@@ -78,7 +83,7 @@ impl ParserCallableParameterSourceRowV1 {
             ordinal,
             name: declaration.name.clone().into_boxed_str(),
             declared_type,
-            transfer: ParserParameterTransferSyntaxV1::from_take(take),
+            transfer,
         }
     }
 
@@ -103,6 +108,15 @@ impl ParserCallableParameterSourceRowV1 {
 pub(crate) enum ParserCallableDeclarationKindV1 {
     StaticBoxMethod,
     InstanceBoxMethod,
+}
+
+/// Original method-head access, independent of declaration placement and parameters.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub(crate) enum ParserReceiverTransferSyntaxV1 {
+    #[default]
+    Ordinary,
+    Edit,
+    Take,
 }
 
 /// Passive declared read-result support, retained with the original header.
@@ -135,6 +149,7 @@ pub(crate) struct ParserCallableParameterDeclarationSourceV1 {
     diagnostic_name: Box<str>,
     parameters: Box<[ParserCallableParameterSourceRowV1]>,
     borrowed_result: Option<ParserBorrowedResultSyntaxV1>,
+    receiver_transfer: ParserReceiverTransferSyntaxV1,
 }
 
 impl ParserCallableParameterDeclarationSourceV1 {
@@ -146,6 +161,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
         diagnostic_name: String,
         parameters: Box<[ParserCallableParameterSourceRowV1]>,
         borrowed_result: Option<ParserBorrowedResultSyntaxV1>,
+        receiver_transfer: ParserReceiverTransferSyntaxV1,
     ) -> Self {
         Self {
             source_site,
@@ -155,6 +171,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
             diagnostic_name: diagnostic_name.into_boxed_str(),
             parameters,
             borrowed_result,
+            receiver_transfer,
         }
     }
 
@@ -191,8 +208,10 @@ impl ParserCallableParameterDeclarationSourceV1 {
     pub(crate) fn borrowed_result(&self) -> Option<&ParserBorrowedResultSyntaxV1> {
         self.borrowed_result.as_ref()
     }
+    pub(crate) fn receiver_transfer(&self) -> ParserReceiverTransferSyntaxV1 { self.receiver_transfer }
+
     pub(in crate::parser) fn requires_retained_source(&self) -> bool {
-        self.borrowed_result.is_some() || self.parameters.iter().any(|row| row.transfer().is_take())
+        self.receiver_transfer != ParserReceiverTransferSyntaxV1::Ordinary || self.borrowed_result.is_some() || self.parameters.iter().any(|row| !row.transfer().is_ordinary())
     }
 
     pub(crate) fn box_statement_ordinal(&self) -> u32 {

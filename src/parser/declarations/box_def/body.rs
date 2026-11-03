@@ -406,7 +406,7 @@ pub(crate) fn parse_box_member_body(
         }
 
         if let TokenType::IDENTIFIER(field_or_method) = &p.current_token().token_type {
-            let field_or_method = field_or_method.clone();
+            let mut field_or_method = field_or_method.clone();
             let field_or_method_line = p.current_token().line;
             let declaration_span = p.current_span();
             p.advance();
@@ -445,9 +445,23 @@ pub(crate) fn parse_box_member_body(
                 }
             }
 
+            let mut receiver_transfer = crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Ordinary;
+            if matches!(field_or_method.as_str(), "edit" | "take")
+                && p.current_token().line == field_or_method_line
+                && matches!(p.current_token().token_type, TokenType::IDENTIFIER(_))
+                && p.tokens.get(p.current + 1).is_some_and(|next| next.line == field_or_method_line && matches!(next.token_type, TokenType::LPAREN))
+            {
+                receiver_transfer = if field_or_method == "edit" {
+                    crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Edit
+                } else { crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Take };
+                let TokenType::IDENTIFIER(name) = p.current_token().token_type.clone() else { unreachable!() };
+                field_or_method = name;
+                p.advance();
+            }
             if box_try_method_or_field(
                 p,
                 field_or_method,
+                receiver_transfer,
                 declaration_span,
                 is_override,
                 state,
@@ -475,6 +489,7 @@ pub(crate) fn parse_box_member_body(
 fn box_try_method_or_field(
     p: &mut NyashParser,
     name: String,
+    receiver_transfer: crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1,
     declaration_span: crate::ast::Span,
     is_override: bool,
     state: &mut BoxMemberState,
@@ -493,7 +508,7 @@ fn box_try_method_or_field(
             name,
             method,
             declaration_span,
-            parameter_source,
+            parameter_source.with_receiver_transfer(receiver_transfer),
         ));
         return Ok(true);
     }

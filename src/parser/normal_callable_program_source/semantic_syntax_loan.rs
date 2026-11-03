@@ -69,6 +69,7 @@ pub(crate) struct FinalCallableSemanticSyntaxRowRefV1<'source> {
     declaration: &'source ASTNode,
     owner_name: Option<&'source str>,
     parameters: Option<Box<[FinalCallableParameterSourceRefV1<'source>]>>,
+    receiver_transfer: crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1,
     borrowed_result: Option<&'source crate::parser::callable_parameter_source::ParserBorrowedResultSyntaxV1>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
     callable_contract_source: &'source CallableContractSourceDispositionV1,
@@ -122,6 +123,8 @@ impl FinalCallableSemanticSyntaxRowRefV1<'_> {
     pub(crate) fn parameters(&self) -> Option<&[FinalCallableParameterSourceRefV1<'_>]> {
         self.parameters.as_deref()
     }
+
+    pub(crate) fn receiver_transfer(&self) -> crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1 { self.receiver_transfer }
 
     pub(crate) fn borrowed_result(&self) -> Option<&crate::parser::callable_parameter_source::ParserBorrowedResultSyntaxV1> {
         self.borrowed_result
@@ -231,6 +234,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
             declaration,
             owner_name: declaration_owner_name(ast, slot)?,
             parameters,
+            receiver_transfer: projected.map(|declaration| declaration.receiver_transfer()).unwrap_or_default(),
             borrowed_result: projected.and_then(|declaration| declaration.borrowed_result()),
             method_source_observation: issue_method_source_observation(source),
             callable_contract_source,

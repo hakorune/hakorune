@@ -334,7 +334,7 @@ pub(crate) fn parse_param_decl_list(
     context: &str,
 ) -> Result<Vec<crate::ast::ParamDecl>, ParseError> {
     let product = parse_param_decl_list_product(p, context)?;
-    if product.has_take() {
+    if product.has_modified_parameters() {
         return Err(ParseError::GrammarContract {
             stable_reject_tag: "parser/take-source-contract-required",
             detail: format!("take requires a retained callable parameter source in {context}"),
@@ -376,34 +376,38 @@ pub(in crate::parser) fn parse_param_decl_list_product(
 
         match &p.current_token().token_type {
             TokenType::IDENTIFIER(param) => {
-                let take = param == "take" && p.tokens.get(p.current + 1).is_some_and(|next| {
+                let modified = matches!(param.as_str(), "take" | "edit") && p.tokens.get(p.current + 1).is_some_and(|next| {
                     next.line == p.current_token().line && matches!(next.token_type, TokenType::IDENTIFIER(_))
                 });
-                if take { p.advance(); }
+                let transfer = if modified {
+                    if param == "edit" { crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1::edit() }
+                    else { crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1::from_take(true) }
+                } else { crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1::ordinary() };
+                if modified { p.advance(); }
                 let TokenType::IDENTIFIER(name) = p.current_token().token_type.clone() else {
                     unreachable!("parameter head checked above");
                 };
                 let name_line = p.current_token().line;
-                let typed_head = !take || p.tokens.get(p.current + 1).is_some_and(|next| {
+                let typed_head = !modified || p.tokens.get(p.current + 1).is_some_and(|next| {
                     next.line == name_line && matches!(next.token_type, TokenType::COLON)
                 });
                 p.advance();
                 if !typed_head {
                     return Err(ParseError::GrammarContract {
-                        stable_reject_tag: "parser/take-declared-type-required",
-                        detail: "take parameter requires a same-line declared type".into(),
+                        stable_reject_tag: if transfer.is_take() { "parser/take-declared-type-required" } else { "parser/edit-declared-type-required" },
+                        detail: "ownership parameter requires a same-line declared type".into(),
                         line: name_line,
                     });
                 }
                 let declared_type_name = parse_optional_param_type_annotation(p, context)?;
-                if take && declared_type_name.is_none() {
+                if modified && declared_type_name.is_none() {
                     return Err(ParseError::GrammarContract {
-                        stable_reject_tag: "parser/take-declared-type-required",
-                        detail: "take parameter requires an explicit declared type".into(),
+                        stable_reject_tag: if transfer.is_take() { "parser/take-declared-type-required" } else { "parser/edit-declared-type-required" },
+                        detail: "ownership parameter requires an explicit declared type".into(),
                         line: p.current_token().line,
                     });
                 }
-                transfers.push(take);
+                transfers.push(transfer);
                 params.push(crate::ast::ParamDecl {
                     name,
                     declared_type_name,

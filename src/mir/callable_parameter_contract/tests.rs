@@ -376,3 +376,31 @@ fn issuer_keeps_resolver_and_forest_outside_the_contract_owner() {
         assert!(!model.contains(forbidden), "model retained {forbidden}");
     }
 }
+
+#[test]
+fn explicit_edit_and_receiver_modes_survive_resolution_and_reject_execution() {
+    use crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1 as Receiver;
+    for (source, receiver, parameter_edit) in [
+        ("box Api { run(edit value: i64) { return value } }", Receiver::Ordinary, true),
+        ("box Api { edit run() { return 0 } }", Receiver::Edit, false),
+        ("box Api { take run() { return 0 } }", Receiver::Take, false),
+    ] {
+        let batch = batch(source, 91);
+        batch.with_declaration_semantics(|semantic| {
+            let row = &semantic.declarations()[0];
+            assert_eq!(row.receiver_transfer(), receiver);
+            if parameter_edit {
+                let transfer = row.parameters().unwrap()[0].transfer();
+                assert!(!transfer.is_ordinary() && !transfer.is_take());
+            }
+        }).unwrap();
+        let rejection = issue_callable_parameter_contract_v1(&batch).unwrap_err();
+        assert!(matches!((parameter_edit, rejection),
+            (true, super::CallableParameterContractIssueV1::UnsupportedTransfer { .. }) |
+            (false, super::CallableParameterContractIssueV1::UnsupportedReceiverTransfer { .. })));
+        assert!(NyashParser::parse_from_string(source).is_err(), "AST-only projection must not erase ownership modes");
+    }
+    let ordinary = batch("box Api { edit(edit: i64) { return edit } take(take: i64) { return take } run() { local edit = 1 return me.edit(edit) + me.take(edit) } }", 92);
+    assert!(issue_callable_parameter_contract_v1(&ordinary).is_ok());
+    assert!(NyashParser::parse_from_string("box Api { edit(edit: i64) { return edit } take(take: i64) { return take } }").is_ok());
+}

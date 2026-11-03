@@ -45,7 +45,7 @@ impl ParserCallableParameterSourceSessionV1 {
             return Err(CallableParameterSourceIssueV1::DuplicateMethodSite { statement, member });
         }
         self.seen_sites.push(source_site.clone());
-        let (neutral, rows, borrowed_result) = parameters.into_parts();
+        let (neutral, rows, borrowed_result, receiver_transfer) = parameters.into_parts();
         if neutral.len() != rows.len()
             || neutral
                 .iter()
@@ -72,6 +72,7 @@ impl ParserCallableParameterSourceSessionV1 {
                 diagnostic_name,
                 rows,
                 borrowed_result,
+                receiver_transfer,
             ));
         Ok(())
     }

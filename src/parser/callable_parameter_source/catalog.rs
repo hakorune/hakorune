@@ -29,13 +29,8 @@ impl ParserCallableParameterSourceCatalogV1 {
         }
     }
 
-    pub(in crate::parser) fn has_take(&self) -> bool {
-        self.declarations.iter().any(|declaration| declaration.parameters().iter()
-            .any(|parameter| !parameter.transfer().is_ordinary()))
-    }
-
     pub(in crate::parser) fn requires_retained_source(&self) -> bool {
-        self.has_take() || self.declarations.iter().any(|declaration| declaration.borrowed_result().is_some())
+        self.declarations.iter().any(|declaration| declaration.requires_retained_source())
     }
 
     pub(crate) fn declarations(&self) -> &[ParserCallableParameterDeclarationSourceV1] {

@@ -20,13 +20,15 @@ Current I0 boundary:
 - `syntax_loan.rs` consumes that pair into one callback-scoped exact
   declaration loan using only sealed statement/inventory placement; the loan
   cannot escape and never searches by name;
-- `model.rs` owns the closed `Ordinary | Take` vocabulary, explicit
+- `model.rs` owns the closed `Ordinary | Take | Edit` parameter vocabulary and separate receiver modes, explicit
   `Absent | Explicit` type syntax, declaration kind, and exact ordinals;
-- same-line typed `take` is issued by the parameter parser and retained as the
+- same-line typed `take`/`edit` and method-head `edit`/`take` retain the
   original transfer through the final semantic source and resolved batch. The
-  common contract issuer still rejects execution with `UnsupportedTransfer`;
+  common contract issuer rejects Edit parameters with `UnsupportedTransfer` and
+  receiver modes with `UnsupportedReceiverTransfer`, including zero parameters.
+  Existing bounded Take execution remains unchanged;
 - AST-only/raw/reference source-plan/compatibility extraction and incomplete
-  catalog disposition reject Take before its declaration can be erased.
+  catalog disposition reject modified declarations before its declaration can be erased.
 
 ## Ordinary module source-row I0
 

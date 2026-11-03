@@ -105,7 +105,8 @@ local and automatic End stay unmarked.
    transformation consuming the old value is `fold(take e: Expr): Expr`. An `edit`
    parameter borrows the place, and `x = next` writes through it. Places that are
    proven disjoint may be borrowed together; overlapping borrows must both be
-   reads. None of these has a live grammar row yet.
+   reads. Rust declaration source retains edit parameters and edit/take method
+   heads; execution of these new forms is named-rejected. Hako parity is pending.
 3. Shared: `share` yields one owned `Shared<T>` handle. `share new Config()` and
    `share move x` start sharing a fresh or owned plain Box: the count starts at
    1 and `x` is lost. `share h` on an existing `Shared<T>` (owned or borrowed)

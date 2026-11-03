@@ -61,6 +61,7 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) projection: VerifiedSourceProjectionV1,
     pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
     pub(super) borrowed_result: Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>,
+    pub(super) receiver_transfer: crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1,
 }
 
 #[derive(Debug)]
@@ -413,6 +414,7 @@ impl VerifiedResolvedCallableSemanticBatchRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
+    pub(crate) fn receiver_transfer(&self) -> crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1 { self.semantic.receiver_transfer }
     pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.semantic.identity
     }

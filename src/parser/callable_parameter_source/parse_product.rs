@@ -1,6 +1,6 @@
 use crate::ast::ParamDecl;
 
-use super::model::ParserCallableParameterSourceRowV1;
+use super::model::{ParserCallableParameterSourceRowV1, ParserParameterTransferSyntaxV1};
 
 /// One parser-owned parameter-list result.
 ///
@@ -10,6 +10,7 @@ use super::model::ParserCallableParameterSourceRowV1;
 #[derive(Debug)]
 pub(in crate::parser) struct ParsedCallableParameterListV1 {
     neutral: Vec<ParamDecl>,
+    receiver_transfer: super::model::ParserReceiverTransferSyntaxV1,
     rows: Box<[ParserCallableParameterSourceRowV1]>,
     borrowed_result: Option<super::model::ParserBorrowedResultSyntaxV1>,
 }
@@ -19,15 +20,15 @@ impl ParsedCallableParameterListV1 {
     pub(in crate::parser) fn from_neutral(
         neutral: Vec<ParamDecl>,
     ) -> Result<Self, CallableParameterListIssueV1> {
-        let transfers = vec![false; neutral.len()];
+        let transfers = vec![ParserParameterTransferSyntaxV1::ordinary(); neutral.len()];
         Self::from_parsed(neutral, transfers)
     }
 
     pub(in crate::parser) fn from_parsed(
-        neutral: Vec<ParamDecl>, take: Vec<bool>,
+        neutral: Vec<ParamDecl>, transfers: Vec<ParserParameterTransferSyntaxV1>,
     ) -> Result<Self, CallableParameterListIssueV1> {
-        if neutral.len() != take.len() || neutral.iter().zip(&take)
-            .any(|(declaration, take)| *take && declaration.declared_type_name.is_none()) {
+        if neutral.len() != transfers.len() || neutral.iter().zip(&transfers)
+            .any(|(declaration, transfer)| !transfer.is_ordinary() && declaration.declared_type_name.is_none()) {
             return Err(CallableParameterListIssueV1::TransferCoverageMismatch);
         }
         let mut rows = Vec::with_capacity(neutral.len());
@@ -35,17 +36,23 @@ impl ParsedCallableParameterListV1 {
             let ordinal = u32::try_from(index)
                 .map_err(|_| CallableParameterListIssueV1::ParameterOrdinalOverflow)?;
             rows.push(ParserCallableParameterSourceRowV1::parsed(
-                ordinal, declaration, take[index],
+                ordinal, declaration, transfers[index],
             ));
         }
         Ok(Self {
             neutral,
+            receiver_transfer: Default::default(),
             rows: rows.into_boxed_slice(),
             borrowed_result: None,
         })
     }
 
-    pub(in crate::parser) fn has_take(&self) -> bool {
+    pub(in crate::parser) fn with_receiver_transfer(mut self, transfer: super::model::ParserReceiverTransferSyntaxV1) -> Self {
+        self.receiver_transfer = transfer;
+        self
+    }
+
+    pub(in crate::parser) fn has_modified_parameters(&self) -> bool {
         self.rows.iter().any(|row| !row.transfer().is_ordinary())
     }
 
@@ -61,10 +68,10 @@ impl ParsedCallableParameterListV1 {
         self.rows.get(ordinal).is_some_and(|row| row.transfer().is_take())
     }
     pub(in crate::parser) fn has_from(&self) -> bool { self.borrowed_result.is_some() }
-    pub(in crate::parser) fn requires_retained_source(&self) -> bool { self.has_take() || self.has_from() }
+    pub(in crate::parser) fn requires_retained_source(&self) -> bool { self.receiver_transfer != super::model::ParserReceiverTransferSyntaxV1::Ordinary || self.has_modified_parameters() || self.has_from() }
 
-    pub(super) fn into_parts(self) -> (Vec<ParamDecl>, Box<[ParserCallableParameterSourceRowV1]>, Option<super::model::ParserBorrowedResultSyntaxV1>) {
-        (self.neutral, self.rows, self.borrowed_result)
+    pub(super) fn into_parts(self) -> (Vec<ParamDecl>, Box<[ParserCallableParameterSourceRowV1]>, Option<super::model::ParserBorrowedResultSyntaxV1>, super::model::ParserReceiverTransferSyntaxV1) {
+        (self.neutral, self.rows, self.borrowed_result, self.receiver_transfer)
     }
 }
 

@@ -224,6 +224,7 @@ mod tests {
             diagnostic_name.to_owned(),
             vec![ParserCallableParameterSourceRowV1::ordinary(0, &parameter)].into_boxed_slice(),
             None,
+            Default::default(),
         );
         (
             ast,

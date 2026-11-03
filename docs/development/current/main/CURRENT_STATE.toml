@@ -1,9 +1,9 @@
 date = "2026-11-03"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "none: bounded From unit closed; remaining forms refused and grammar-dependent work unselected"
+current_blocker_token = "step3a: declaration retention, structured type references, copy/nullable field, edit execution proposal"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Bounded From unit closed per maintainer: no graph-return descriptor. Common outgoing borrowed Call evidence now selects the full completion walk, so plain return me.a(p), local form and both branch returns all reach canonical EXE exit7.
-Optimized target/quick CLI/runtime and existing C shim: fixed8/8, cohort1808 PASS/exact115 FAIL names, C98 EXE/tamper plus existing Normal/Fault PASS and final JSON match; check/focused4 PASS. This fix production net0/test+4 in existing families.
-Receiver-result merge, literal-null PHI ingress, nested borrowed calls, Formal/Receiver support composition and distinct-Call PHI direct Return remain UnsupportedResultAnnotation in measured examples; no EXE or timeout. Card preserves exact boundaries and supported alternatives.
-From series production growth approx5.4k/test0.93k (explicit base and counting limits in card). Retire duplicate source rederivations/projection relays only after common-plan consumer replacement with identical safety coverage; keep independent verification and safety tests.
-No share/take/edit/update work until grammar is fixed and selected. Broader finite_product_goal remains incomplete; two stashes/unrelated inventory preserved. Verified changes are recorded in this landing; no graph-return implementation.
+APP-boxtorrent-mini acceptance remains fixed8/8; bounded From unit is closed. Ownership step3a is selected by the current goal and its instruction file.
+Declaration-only Edit parameters and Edit/Take receiver modes retain original source through resolved declarations and fail by named common-contract refusal; existing names and Take semantics stay unchanged. Check/focused104 PASS, optimized target/quick CLI/runtime fixed8/8 and cohort1808 PASS/exact115 known failure names; three new declarations reject by name with no EXE. Production+53/test+29 lines.
+Next: common structured Name/Apply/Nullable type references, copy prefix and nullable field default; preserve all existing accepted meaning and defer3b restrictions.
+Then report edit place lending design with MIR/public/ABI evidence and stop; do not implement edit execution or share/update. New opcode/public contract or safety/compatibility change requires a decision.
+Preserve two stashes and unrelated selfhost inventory. Hako edit/copy/type parity remains deferred on the same existing unavailable execution boundary.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "none (await grammar and maintainer selection)"
-next_execution_card_path = "none"
+next_execution_card = "APP-boxtorrent-mini"
+next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
