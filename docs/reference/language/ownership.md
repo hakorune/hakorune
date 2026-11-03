@@ -50,7 +50,7 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | C′ last-Home finalization direction | accepted target; production 0 |
 | explicit `release root` direction | parser/source carrier live; Home semantics 0 |
 | generic/composite release | provisional; exact capability D0 open |
-| bounded HomeV1 source grammar | `release root` live; `take` inactive; `share` prefix superseded (§0) |
+| bounded HomeV1 source grammar | `release root` live; `take` inactive; old general `share` prefix superseded; narrowed `share h` and `take place` are parser-inactive targets (§0) |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako runtime parity remains unverified |
 | resolver Home-demand/root and Home Flow | bounded same-scope `move` of a `new`-derived local is implemented; general Home demand remains a target |
@@ -73,8 +73,18 @@ Next-model specification agreed with the maintainer on 2026-10-30. The Rust
 `move` surface includes a bounded same-scope `new`-derived local EXE path;
 general ownership semantics and Hako runtime parity are pending.
 Existing behavior changes only at the §10 cutover.
-Sections 1-11 keep the current/HomeV1 text. The contextual `share x` target is
-superseded now: text below that uses it describes a target that will not land.
+Sections 1-11 keep the current/HomeV1 text. The old general `share x` target is
+superseded: text below that uses it describes a target that will not land.
+Rule 3 revives the spelling only for an existing `Shared<T>` handle.
+
+Rules 3, 5, 6, 7 and 8 were revised on 2026-11-03 and are targets, not connected
+yet: current code still adds a handle for a bare owned Shared local
+(`local copy = first`).
+
+In short: reading borrows. `move` hands over what you own. `take` extracts from a
+nullable place. `share` keeps the same Shared in another place. `Shared(...)`
+starts sharing. Fresh values, `return` of a whole local and automatic End stay
+unmarked.
 
 1. Move: an owned binding gives up ownership only through explicit `move x`;
    there is no implicit last-use move. `return` of a whole owned local or of a
@@ -85,14 +95,20 @@ superseded now: text below that uses it describes a target that will not land.
    follows the method declaration and is not written at the call. Consuming a
    receiver is explicit at the call: `(move image).into_bytes()`.
 3. Shared: `Shared(move x)` wraps an owned value and consumes `x`;
-   `Shared(expr)` wraps a fresh value. A Shared handle is an implicitly
-   duplicable value category, like numbers: passing it to a `take` parameter
-   adds one handle without a marker; `move shared` transfers without adding
-   one. There is no `.share()` method. Contents are read through the handle
+   `Shared(expr)` wraps a fresh value. Each owned handle has one End
+   obligation, and handles are never duplicated implicitly. `share h` acquires
+   an independent owned handle to the same payload from an existing `Shared<T>`
+   (owned or borrowed) without consuming `h`: +1 on Normal, nothing acquired on
+   Fault. `move h` transfers without adding one; reads and borrows add none.
+   `share` accepts only a handle statically known to be `Shared<T>` (exclude the
+   null of a `Shared<T>?` first); it never shares a plain Box, copies the
+   payload or consults the count. There is no `.share()` method or
+   `Shared.clone`. Contents are read through the handle
    (`shared.width()`). Shared starts read-only; shared mutation and thread
    crossing need a later separate contract (an atomic count does not make the
    contents thread-safe). At cutover this amends durable law 5: sharing starts
-   only at an explicit `Shared(...)`.
+   only at an explicit `Shared(...)`, and each further owner only at an
+   explicit `share h`.
 4. Borrowed results: a result may be borrowed only with a declared support,
    `: T from me` or `: T from <param>`; it is never inferred from the body.
    The body must satisfy the declared relation. While the borrow is live, no
@@ -102,20 +118,23 @@ superseded now: text below that uses it describes a target that will not land.
    suspend. The caller may keep it in a local, use it across branches (not
    limited to one basic block), and pass it to a `read` parameter.
 5. Field read: `local x = me.field` is an implicit `from me` read borrow,
-   checked by the same checker as rule 4; it needs no annotation. Exception
-   (decided 2026-11-02): when the field's type is `Shared<T>`, binding it with
-   `local b = me.sharedField` takes a new handle (+1) instead of a borrow.
-   Reading through the field (`me.sharedField.width()`) and passing it to a
-   `read` parameter stay borrows (no count change). A plain Box field is never
-   implicitly converted to a Shared handle.
+   checked by the same checker as rule 4; it needs no annotation. This holds
+   for Box and `Shared<T>` fields alike (the +1 exception of 2026-11-02 is
+   withdrawn): `local r = me.sharedField` adds no handle, its alias
+   `local q = r` adds none, and keeping it independently needs `share r`. Values
+   with an implicit copy follow rule 7. A plain Box field is never implicitly
+   converted to a Shared handle.
 6. Shared type and storage (decided 2026-11-02): `Shared<T>` is a built-in type
    constructor, writable on fields, parameters and results (local inference is
    also allowed); it is distinct from a plain Box type and needs no general
    generics. A field or element holds one handle with one End obligation.
-   Passing a Shared to an owning field, element or `take` parameter adds one
-   handle; `move` of an owned Shared local and `return` of a whole local add
-   none; `: Shared<T>` returned from a borrowed field adds one, while
-   `: Shared<T> from me` is a borrow and adds none. Replacing a field or
+   An owning field, element, `take` parameter or owned result receives ownership
+   already acquired and never duplicates: `consume(move h)` adds none,
+   `consume(share h)` adds one, and from an owned Shared local bare `consume(h)`
+   and `local b = h` are errors that suggest `move` or `share`. `return` of a
+   whole local adds none; an owned `: Shared<T>` result from a borrowed field is
+   `return share me.sharedField`, while `: Shared<T> from me` is a borrow and
+   adds none. Replacing a field or
    element: prepare the candidate handle, check the slot, commit, then Release
    the old handle; a Fault before commit and a Fault in the old Release are
    distinguished and the latter never rolls the new slot back. Ending the outer
@@ -123,13 +142,30 @@ superseded now: text below that uses it describes a target that will not land.
    placement and ABI version stay separate from this contract. Array/Map API
    extensions not used by selfhost are named rejections until needed.
 7. Copy: only a type with a declared copy contract can be copied. Implicit
-   copy follows the specified value category (numbers, Bool, Shared handle),
-   never the value's size. Respelling `copy x` as `.copy()` is deferred.
+   copy follows the specified value category (numbers, Bool; not Shared
+   handles), never the value's size. Respelling `copy x` as `.copy()` is
+   deferred.
+8. Field take (decided 2026-11-03): `take place` extracts ownership from a
+   nullable field. On success the slot holds null, the result is an owned `T?`
+   holding the old value, the old value is not Ended, and a Shared handle gets
+   no +1. The parent stays fully initialized, so this is not partial move. It
+   needs mutation permission on the field path, with one check for `me.child`,
+   `node.child` and `me.a.b`. Rejected: `take x` on a local (use `move x`), a
+   non-nullable `T` field, a field reached through a read borrow or a `Shared<T>`
+   payload, and a slot with a live borrow; array and Map elements are named
+   rejections for now. A Fault while evaluating the place changes nothing. After
+   success the slot stays null and the result's current owner cleans up, so
+   `me.child = fold(move old)` does not restore the child if `fold` faults.
+   `take x: T` in a declaration receives ownership; `take place` in an
+   expression extracts it. `replace` is deferred: overwrite with
+   `me.body = move next`, and take a nullable field's old value with `take` plus
+   assignment. Whether `node.body = fold(move node.body)` needs a consuming form
+   is decided by the selfhost write-comparison gate (ADR-002).
 
 Decided 2026-11-02 (see ADR-002 for the cutover contract):
 
-- call-site marker for `mut` arguments: none; the caller writes only `move`,
-  so only lost ownership is marked;
+- call-site marker for `mut` arguments: none; the caller marks only `move`,
+  `take` and `share`;
 - a `take` argument when a later argument evaluation faults: the caller keeps
   the pending transfer and Ends it; once the call has entered, the callee owns
   Normal and Fault cleanup;
@@ -694,11 +730,13 @@ representation plan. It may be RC/control-cell work, another Shared
 mechanism, or a rejected route. No runtime tag or observed reference count
 selects it.
 
-Superseded target (2026-10-30): the contextual prefix `share x`, including
-`adopt(share node)` and `registry.adopt(share service)`, never became
-parser-live and is replaced by `Shared(move x)` / `Shared(expr)` (§0 rule 3).
-Do not implement the prefix. `share`, `share(...)`, `obj.share()` and bindings
-named `share` stay ordinary; the successor adds no `.share()` method.
+Superseded target (2026-10-30): the general contextual prefix `share x`, including
+`adopt(share node)` and `registry.adopt(share service)` over ordinary Boxes,
+never became parser-live and is replaced by `Shared(move x)` / `Shared(expr)`
+(§0 rule 3). Do not implement that general form. The prefix `share h` of §0 rule 3
+(2026-11-03) accepts only an existing `Shared<T>` handle. `share(...)`,
+`share (...)`, `obj.share()` and bindings named `share` stay ordinary; the
+successor adds no `.share()` method.
 
 ### Explicit early Home release
 
@@ -750,9 +788,10 @@ The first program does not promise:
 - `drop root` / `drop(value)` as a compatibility alias;
 
 The list above describes the first HomeV1 program only. The successor surface
-of §0 (`move x`, `(move x).m()`, `Shared(...)`, `from` sets) is decided and is
-not a promise made or withdrawn here. `take place_expr`, field take, and
-consuming receiver implementation are parked together
+of §0 (`move x`, `(move x).m()`, `Shared(...)`, `share h`, nullable-field
+`take place`, `from` sets) is decided and is not a promise made or withdrawn
+here. General `take place_expr` beyond §0 rule 8, field move-out, and consuming
+receiver implementation are parked together
 until a real source consumer and storage replacement contract exist. They are
 not forbidden forever.
 

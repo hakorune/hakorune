@@ -21,9 +21,10 @@ Decision:
 - accepted: C′ terminal Home release is the sole user-`fini` authority;
   `fini {}` is a non-callable Box hook and direct `obj.fini()` is rejected;
 - accepted target: declaration-side contextual `take` parameters (typed,
-  same line; the parser retains them, execution is being connected). The
-  expression-side contextual `share` is superseded by `Shared(...)`
-  (ownership.md §0) and must not be implemented; contextual recognition never
+  same line; the parser retains them, execution is being connected). The old
+  general expression-side `share` is superseded by `Shared(...)` and must not be
+  implemented; the narrowed prefix `share h` and nullable-field `take place` are
+  decided targets (ownership.md §0, 2026-11-03). Contextual recognition never
   crosses a line terminator and `take` is not globally reserved;
 - provisional: contract-boundary `T from owner`;
 - unresolved: composite/generic classification, Shared representation,
@@ -390,7 +391,7 @@ gain Home meaning; the unsupported Home forms reject before effects.
 
 The following remain parked and are not silently promised:
 
-- `take place_expr`;
+- `take place_expr` beyond the nullable-field form of ownership.md §0 rule 8;
 - field move-out and empty-slot/replacement semantics;
 - consuming receiver implementation (the spelling `(move x).m()` is decided in
   ownership.md §0; only the implementation is parked);
