@@ -500,7 +500,7 @@ impl ExpressionReferenceReadV1 {
         }
         match source {
             Reference::NullableResult(frame) => {
-                let (_, [_, normal]) = context.nullable_result_read_v1(frame, read, function, None)?;
+                let (_, normal) = context.nullable_result_read_v1(frame, read, function, None)?;
                 let producer = ReferenceProducerV1::Definition(normal);
                 validate_dependencies(read.binding_observation_v2(), &producer, context, function)?;
                 Ok(PreparedExpressionReferenceReadV1 { producer })
@@ -573,7 +573,7 @@ impl ExpressionReferenceReadV1 {
         }
         match source {
             Reference::NullableResult(frame) => {
-                let (value, [_, normal]) =
+                let (value, normal) =
                     context.nullable_result_read_v1(frame, &self.read, function, finishing)?;
                 if !matches!(&self.producer, ReferenceProducerV1::Definition(original) if original == &normal)
                 {

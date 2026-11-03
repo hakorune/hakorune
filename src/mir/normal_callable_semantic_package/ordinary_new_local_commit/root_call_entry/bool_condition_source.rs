@@ -766,3 +766,21 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 }
+
+impl CallValidationContextV1<'_> {
+    pub(in crate::mir::normal_callable_semantic_package) fn declared_read_branch_points_v1(self, owner: FunctionOwnerIdV1)
+        -> Result<Vec<Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
+        let mut points = self.ledger().field_read_branch_points_v1(owner)?;
+        self.with_local_call_group_tree_v2(owner, |groups| {
+            for group in groups {
+                if let Some(packet) = group.bool_condition() {
+                    for point in packet.read_branch_points_v1()? {
+                        if !points.iter().any(|old| Rc::ptr_eq(old, &point)) { points.push(point); }
+                    }
+                }
+            }
+            Ok(())
+        })?;
+        Ok(points)
+    }
+}

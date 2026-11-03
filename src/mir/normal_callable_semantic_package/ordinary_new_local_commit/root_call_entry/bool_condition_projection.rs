@@ -333,6 +333,17 @@ impl EmittedBoolConditionProjectionV1 {
         if pairs.next().is_some() { return Err(freeze("finished-array-field/source-membership")); }
         Ok(pair)
     }
+    pub(in crate::mir) fn read_branch_points_v1(&self) -> Result<Vec<Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
+        let mut points = Vec::new();
+        for node in &self.nodes {
+            if let BoolConditionValueProofV1::OriginalReference(read) = &node.proof {
+                if let Some(point) = read.exact_read_v1().binding_observation_v2().source_read_branch_v1()? {
+                    if !points.iter().any(|old| Rc::ptr_eq(old, &point)) { points.push(point); }
+                }
+            }
+        }
+        Ok(points)
+    }
     fn node(&self, index: usize) -> Result<&BoolConditionNodeProjectionV1, String> {
         let mut nodes = self.nodes.iter().filter(|node| node.node == index);
         let node = nodes
@@ -435,7 +446,7 @@ impl CallValidationContextV1<'_> {
         exclusion: &crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1,
         read: &ExactLexicalReadV1, function: &MirFunction, finishing: Option<&Finished>, consumer: &Binding,
     ) -> Result<(), String> {
-        let (_, [_, normal]) = self.nullable_result_read_v1(frame, read, function, finishing)?;
+        let (_, normal) = self.nullable_result_read_v1(frame, read, function, finishing)?;
         self.with_local_call_group_tree_v2(frame.site().owner(), |groups| {
             let mut matches = groups.iter().filter_map(|group| {
                 let packet = group.bool_condition()?;

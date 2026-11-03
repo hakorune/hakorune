@@ -407,8 +407,10 @@ impl OrdinaryNewClaimLedgerV1 {
             let request = requirement.ok_or_else(|| fault("received/expression-source-missing"))?.request();
             let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| fault("received/ingress-missing"))?
                 .as_ref().map_err(Clone::clone)?;
-            context.with_taken_original_row_v1(received.target().call_site(), |original|
-                received.recheck_issuing_target_v1(&self.callable_result_classes, ingress, original.source_target(), request))?;
+            for target in received.targets_v1() {
+                context.with_taken_original_row_v1(target.call_site(), |original|
+                    received.recheck_issuing_target_v1(&self.callable_result_classes, ingress, original.source_target(), request))?;
+            }
         } else if requirement.is_some_and(|required| required.request().received.is_some()) {
             return Err(fault("received/source-missing"));
         }

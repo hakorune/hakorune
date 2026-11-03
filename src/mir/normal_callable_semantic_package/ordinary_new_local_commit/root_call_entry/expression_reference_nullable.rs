@@ -6,23 +6,58 @@ impl CallValidationContextV1<'_> {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn nullable_result_read_v1(
         self, source: &NullableResultReferenceV1, read: &ExactLexicalReadV1,
         function: &MirFunction, finishing: Option<&Finished>,
-    ) -> Result<(ValueId, [Binding; 2]), String> {
+    ) -> Result<(ValueId, Binding), String> {
         let pair = match source {
             NullableResultReferenceV1::StoredMapGet(frame) =>
-                return self.stored_map_get_read_v1(frame, read, function, finishing),
+                return self.stored_map_get_read_v1(frame, read, function, finishing).map(|(value, [_, normal])| (value, normal)),
             NullableResultReferenceV1::DeclaredFrom(view) => {
-                self.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, finishing)?;
-                self.declared_result_read_v1(view, read)?
+                self.validate_declared_value_transport_v1(view, read.binding_observation_v2(), function, finishing)?;
+                self.declared_value_read_v1(view, read)?
             },
         };
         if let Some(finishing) = finishing {
-            finishing.required_effect_binding(function, &pair.1[0])?;
-            finishing.relation_binding(function, &pair.1[1])?;
+            finishing.relation_binding(function, &pair.1)?;
             for original in read.original_copy_dependencies_v1()? {
                 finishing.relation_binding(function, original)?;
             }
         }
         Ok(pair)
+    }
+    pub(in crate::mir) fn declared_value_read_v1(self,
+        view: &crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1, read: &ExactLexicalReadV1,
+    ) -> Result<(ValueId, Binding), String> {
+        match view {
+            crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1::Single(source) =>
+                self.declared_result_read_v1(source, read).map(|(value, [_, normal])| (value, normal)),
+            crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1::Flow(source) => {
+                let value = read.value_for(source.read().owner(), source.read().site().node(), source.binding())
+                    .map_err(|_| freeze("expression/reference-source-node"))?;
+                let point = read.binding_observation_v2().source_read_branch_v1()?
+                    .ok_or_else(|| freeze("expression/reference-source-node"))?;
+                point.flow_definition_v1(source, self).map(|definition| (value, definition))
+            }
+        }
+    }
+    pub(in crate::mir) fn validate_declared_value_transport_v1(self,
+        view: &crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1,
+        read: &BindingValueObservationV2, function: &MirFunction, finishing: Option<&Finished>,
+    ) -> Result<(), String> {
+        match view {
+            crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1::Single(source) =>
+                self.validate_declared_read_transport_v1(source.source(), read, function, finishing),
+            crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1::Flow(source) => {
+                let point = read.source_read_branch_v1()?.ok_or_else(|| freeze("expression/reference-source-node"))?;
+                point.flow_definition_v1(source, self)?;
+                point.validate_v1(self, function, finishing)?;
+                for original in read.original_copy_dependencies_v1()? {
+                    if let Some(finishing) = finishing { finishing.relation_binding(function, original)?; }
+                    else if !super::super::super::physical_boundary::check_binding(function, None, original.0, &original.1)? {
+                        return Err(freeze("expression/reference-dependency-missing"));
+                    }
+                }
+                Ok(())
+            }
+        }
     }
     pub(in crate::mir) fn declared_result_read_v1(self,
         view: &crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1,
@@ -31,7 +66,7 @@ impl CallValidationContextV1<'_> {
         let value = read.value_for(view.read().owner(), view.read().site().node(), view.binding())
             .map_err(|_| freeze("expression/reference-source-node"))?;
         if let Some(point) = read.binding_observation_v2().source_read_branch_v1()? {
-            if !point.source().matches_read_v1(view) { return Err(freeze("expression/reference-source-node")); }
+            if !point.matches_read_v1(view) { return Err(freeze("expression/reference-source-node")); }
         }
         let (current, pair) = self.declared_result_binding_v1(view.source(), read.binding_observation_v2())?;
         if value != current { return Err(freeze("expression/reference-source-node")); }
@@ -100,7 +135,11 @@ impl CallValidationContextV1<'_> {
         loan: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
         read: &BindingValueObservationV2, function: &MirFunction, finishing: Option<&Finished>,
     ) -> Result<(), String> {
-        self.declared_result_binding_v1(loan, read)?;
+        let (_, pair) = self.declared_result_binding_v1(loan, read)?;
+        if let Some(finishing) = finishing {
+            finishing.required_effect_binding(function, &pair[0])?;
+            finishing.relation_binding(function, &pair[1])?;
+        }
         if let Some(point) = read.source_read_branch_v1()? { point.validate_v1(self, function, finishing)?; }
         if let Some(frame) = read.source_declared_read_rebind_v1()? {
             self.with_original_rebind_v1(&frame, |packet| {

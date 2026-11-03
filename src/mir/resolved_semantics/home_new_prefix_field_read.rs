@@ -279,7 +279,7 @@ pub(crate) enum ReceivedFieldReadRequestV1 {
     },
     Mixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
     Borrowed {
-        loan: super::BorrowedResultReadV1,
+        loan: super::DeclaredReadValueV1,
         exclusion: Option<std::rc::Rc<super::SourceNullExclusionV1>>,
     },
 }

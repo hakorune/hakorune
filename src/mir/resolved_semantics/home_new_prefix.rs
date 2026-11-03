@@ -194,7 +194,7 @@ pub(crate) use expression_plan::{
     CheckedExpressionReferenceV1, CheckedExpressionOperationLoanV1, CheckedFieldWriteFrameV1, CheckedInitializerExpressionFrameV1,
     CheckedPrintExpressionFrameV1, CheckedScalarReferenceV1, ExpressionCallSourceV1,
     ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, FieldWritePlanV1,
-    HomeExpressionPlanV1, QualifiedFieldWriteRhsV1, BorrowedResultReadV1, BranchCallResultSourceV1, DeclaredCallReadSourceV1, SourceCallResultReadV1, NullableResultReferenceV1,
+    HomeExpressionPlanV1, QualifiedFieldWriteRhsV1, BorrowedResultReadV1, DeclaredReadValueV1, BranchCallResultSourceV1, DeclaredCallReadSourceV1, SourceCallResultReadV1, NullableResultReferenceV1,
 };
 
 #[path = "home_prefix_local_flow.rs"]
@@ -683,3 +683,5 @@ pub(crate) use local_call_flow::issue_static_source_local_for_test;
 
 #[cfg(test)]
 pub(crate) use local_flow::source_loop::assert_original_loop_source_walk_for_test;
+
+pub(crate) use local_flow::{BorrowedReadFlowV1, BorrowedFlowReadV1};

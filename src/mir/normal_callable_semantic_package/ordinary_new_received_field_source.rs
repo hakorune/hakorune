@@ -20,7 +20,7 @@ pub(in crate::mir::normal_callable_semantic_package) type ReceivedFieldContextV1
 pub(in crate::mir::normal_callable_semantic_package) enum ReceivedFieldReadSourceV1 {
     Object { request: ReceivedFieldReadRequestV1, loan: ObjectCallSourceLoanV1 },
     Mixed { request: ReceivedFieldReadRequestV1, target: LexicalInstanceCallSourceTargetV1 },
-    Borrowed { request: ReceivedFieldReadRequestV1, target: LexicalInstanceCallSourceTargetV1 },
+    Borrowed { request: ReceivedFieldReadRequestV1, targets: Vec<LexicalInstanceCallSourceTargetV1> },
 }
 impl PartialEq for ReceivedFieldReadSourceV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -29,8 +29,8 @@ impl PartialEq for ReceivedFieldReadSourceV1 {
                 a == b && al.source() == bl.source() && al.result_class() == bl.result_class()
                     && al.roots().len() == bl.roots().len()
                     && al.roots().iter().zip(bl.roots()).all(|(a, b)| Rc::ptr_eq(a, b)),
-            (Self::Mixed { request: a, target: at }, Self::Mixed { request: b, target: bt })
-            | (Self::Borrowed { request: a, target: at }, Self::Borrowed { request: b, target: bt }) => a == b && at == bt,
+            (Self::Mixed { request: a, target: at }, Self::Mixed { request: b, target: bt }) => a == b && at == bt,
+            (Self::Borrowed { request: a, targets: at }, Self::Borrowed { request: b, targets: bt }) => a == b && at == bt,
             _ => false,
         }
     }
@@ -38,7 +38,7 @@ impl PartialEq for ReceivedFieldReadSourceV1 {
 impl Eq for ReceivedFieldReadSourceV1 {}
 impl ReceivedFieldReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
-        (batch, selected, classes, targets, _): ReceivedFieldContextV1<'_>,
+        (batch, selected, classes, targets_context, _): ReceivedFieldContextV1<'_>,
         ingress: &PreparedBorrowedFormalIngressV1,
         request: &LocalFieldReadRequestV1,
     ) -> Result<Self, String> {
@@ -46,14 +46,18 @@ impl ReceivedFieldReadSourceV1 {
         if request.nullable || request.formal || request.alias_class.is_some()
             || request.home != request.receiver || request.site.owner() != request.receiver.owner()
         { return Err(fault("received/provenance-overlap")); }
-        let acquisition = match original {
+        let acquisitions: Vec<_> = match original {
             ReceivedFieldReadRequestV1::StoredMapGet { .. } => return Err(fault("received/provenance-overlap")),
-            ReceivedFieldReadRequestV1::Object { acquisition, .. } => acquisition,
-            ReceivedFieldReadRequestV1::Mixed(loan) => loan.call(),
-            ReceivedFieldReadRequestV1::Borrowed { loan, .. } => loan.source().call(),
+            ReceivedFieldReadRequestV1::Object { acquisition, .. } => vec![acquisition],
+            ReceivedFieldReadRequestV1::Mixed(loan) => vec![loan.call()],
+            ReceivedFieldReadRequestV1::Borrowed { loan, .. } => loan.loans().map(|leaf| leaf.call()).collect(),
         };
-        let target = original_lexical_target_at_v1(targets, acquisition)?
-            .ok_or_else(|| fault("received/original-target-missing"))?;
+        if acquisitions.is_empty() { return Err(fault("received/original-target-missing")); }
+        let mut targets = Vec::with_capacity(acquisitions.len());
+        for acquisition in &acquisitions {
+            let target = original_lexical_target_at_v1(targets_context, acquisition)?;
+            targets.push(target.ok_or_else(|| fault("received/original-target-missing"))?.clone());
+        }
         let mut callers = batch.declarations().filter(|row| row.owner() == request.site.owner());
         let caller = callers.next().ok_or_else(|| fault("received/caller-missing"))?;
         if callers.next().is_some() { return Err(fault("received/caller-ambiguous")); }
@@ -64,13 +68,13 @@ impl ReceivedFieldReadSourceV1 {
                         exclusion.corroborates_result_read_v1(input, loan));
             }
             let mut rows = input.function().expression_source().initializers().filter(|row| row.binding() == request.receiver);
-            rows.next().is_some_and(|row| row.initializer_site() == Some(acquisition.site())) && rows.next().is_none()
+            rows.next().is_some_and(|row| row.initializer_site() == Some(acquisitions[0].site())) && rows.next().is_none()
         }).map_err(|_| fault("received/caller-input"))?;
-        if !exact || acquisition.owner() != request.site.owner() { return Err(fault("received/initializer")); }
+        if !exact || acquisitions.iter().any(|acquisition| acquisition.owner() != request.site.owner()) { return Err(fault("received/initializer")); }
         match original {
             ReceivedFieldReadRequestV1::StoredMapGet { .. } => Err(fault("received/provenance-overlap")),
             ReceivedFieldReadRequestV1::Object { nullable, .. } => {
-                let loan = classes.object_call_source_v1(batch, selected, target).map_err(fault)?;
+                let loan = classes.object_call_source_v1(batch, selected, &targets[0]).map_err(fault)?;
                 if !matches!((loan.result_class(), *nullable),
                     (OrdinaryNewResultClassV1::Object(_), false)
                     | (OrdinaryNewResultClassV1::NullableObject(_), true)) {
@@ -79,17 +83,17 @@ impl ReceivedFieldReadSourceV1 {
                 Ok(Self::Object { request: original.clone(), loan })
             }
             ReceivedFieldReadRequestV1::Borrowed { .. } => {
-                let source = Self::Borrowed { request: original.clone(), target: target.clone() };
-                source.recheck_issuing_target_v1(classes, ingress, target, request)?;
+                let source = Self::Borrowed { request: original.clone(), targets };
+                for target in source.targets_v1() { source.recheck_issuing_target_v1(classes, ingress, target, request)?; }
                 Ok(source)
             }
             ReceivedFieldReadRequestV1::Mixed(loan) => {
                 if loan.destination() != request.receiver
                     || ingress.mixed_received_actual_source_v1(request.receiver)? != Some(loan.as_ref())
-                    || ingress.original_mixed_input_source_v1(target)? != Some(loan.as_ref())
+                    || ingress.original_mixed_input_source_v1(&targets[0])? != Some(loan.as_ref())
                 { return Err(fault("received/mixed-source")); }
                 classes.recheck_mixed_local_roots_v1(loan).map_err(fault)?;
-                Ok(Self::Mixed { request: original.clone(), target: target.clone() })
+                Ok(Self::Mixed { request: original.clone(), target: targets[0].clone() })
             }
         }
     }
@@ -101,7 +105,7 @@ impl ReceivedFieldReadSourceV1 {
             Self::Object { loan, .. } => loan.class(),
             Self::Mixed { request: ReceivedFieldReadRequestV1::Mixed(loan), .. } => loan.fresh_class(),
             Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed { loan, .. }, .. } =>
-                loan.source().declared_read_result_v1().expect("checked original read declaration").declared_type(),
+                loan.declared_type(),
             _ => unreachable!("received Mixed source retains original Mixed request"),
         }
     }
@@ -115,7 +119,7 @@ impl ReceivedFieldReadSourceV1 {
             },
             Self::Mixed { .. } => None,
             Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed { loan, .. }, .. } =>
-                Some(loan.source().result_kind_v1()),
+                loan.single().map(|read| read.source().result_kind_v1()),
             Self::Borrowed { .. } => None,
         }
     }
@@ -124,24 +128,32 @@ impl ReceivedFieldReadSourceV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed(&self)
         -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1> {
-        match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => Some(loan.source()), _ => None }
+        match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => loan.single().map(|read| read.source()), _ => None }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_read_v1(&self)
-        -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1> {
+        -> Option<&crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1> {
         match self.request() { ReceivedFieldReadRequestV1::Borrowed { loan, .. } => Some(loan), _ => None }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_guard(&self) -> Option<(
-        &crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1,
+        &crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1,
         &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>,
     )> {
         match self.request() {
             ReceivedFieldReadRequestV1::Borrowed { loan, exclusion: Some(exclusion) }
-                if exclusion.root_binding() == loan.current_root_binding_v1() => Some((loan, exclusion)),
+                if exclusion.root_binding() == loan.original_binding() => Some((loan, exclusion)),
             _ => None,
         }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn target(&self) -> &LexicalInstanceCallSourceTargetV1 {
-        match self { Self::Object { loan, .. } => loan.source(), Self::Mixed { target, .. } | Self::Borrowed { target, .. } => target }
+    pub(in crate::mir::normal_callable_semantic_package) fn targets_v1(&self) -> impl Iterator<Item = &LexicalInstanceCallSourceTargetV1> {
+        let single = match self { Self::Object { loan, .. } => Some(loan.source()), Self::Mixed { target, .. } => Some(target), _ => None };
+        let multiple = match self { Self::Borrowed { targets, .. } => targets.as_slice(), _ => &[] };
+        single.into_iter().chain(multiple.iter())
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn target(&self) -> Result<&LexicalInstanceCallSourceTargetV1, String> {
+        let mut targets = self.targets_v1();
+        let target = targets.next().ok_or_else(|| fault("received/original-target-missing"))?;
+        if targets.next().is_some() { return Err(fault("received/multiple-call-target")); }
+        Ok(target)
     }
     /// Borrow the original target from its current sole owner: the issuer
     /// during source selection, or the retained Call packet after affine moves.
@@ -150,13 +162,16 @@ impl ReceivedFieldReadSourceV1 {
         target: &LexicalInstanceCallSourceTargetV1, request: &LocalFieldReadRequestV1,
     ) -> Result<(), String> {
         if request.received.as_ref() != Some(self.request()) || request.nullable || request.formal
-            || request.alias_class.is_some() || request.receiver != request.home || target != self.target()
+            || request.alias_class.is_some() || request.receiver != request.home || !self.targets_v1().any(|original| original == target)
         { return Err(fault("received/source-drift")); }
         match self {
-            Self::Object { loan, .. } => classes.recheck_object_call_roots_v1(self.target(), loan).map_err(fault),
+            Self::Object { loan, .. } => classes.recheck_object_call_roots_v1(self.target()?, loan).map_err(fault),
             Self::Borrowed { .. } => {
-                let loan = self.borrowed().ok_or_else(|| fault("received/source-drift"))?;
-                if self.borrowed_read_v1().is_none_or(|view| view.binding() != request.receiver || view.read().site() != &request.receiver_site) || !loan.is_declared_read_v1() || (!loan.payload_nonnull_v1() && self.borrowed_guard().is_none())
+                let view = self.borrowed_read_v1().ok_or_else(|| fault("received/source-drift"))?;
+                let mut matching = view.loans().filter(|loan| loan.call() == target.call_site());
+                let loan = matching.next().ok_or_else(|| fault("received/source-drift"))?;
+                if matching.next().is_some() { return Err(fault("received/source-drift")); }
+                if self.borrowed_read_v1().is_none_or(|view| view.binding() != request.receiver || view.read().site() != &request.receiver_site) || !loan.is_declared_read_v1() || (!view.payload_nonnull() && self.borrowed_guard().is_none())
                     || (loan.owned_local_support_v1().is_none() && loan.entry_support_v1().is_none())
                     || target.borrowed_nullable_local_source() != Some(loan)
                     || !ingress.corroborated_original_v1() {
@@ -169,7 +184,7 @@ impl ReceivedFieldReadSourceV1 {
                 let loan = self.mixed().ok_or_else(|| fault("received/mixed-source"))?;
                 if loan.destination() != request.receiver
                     || ingress.mixed_received_actual_source_v1(request.receiver)? != Some(loan)
-                    || ingress.original_mixed_input_source_v1(self.target())? != Some(loan)
+                    || ingress.original_mixed_input_source_v1(self.target()?)? != Some(loan)
                 { return Err(fault("received/mixed-source-drift")); }
                 classes.recheck_mixed_local_roots_v1(loan).map_err(fault)
             }

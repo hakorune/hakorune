@@ -338,6 +338,33 @@ impl OrdinaryNewClaimLedgerV1 {
         output
     }
 
+    /// Borrow graph facts from retained uses, not a new per-If registry.
+    pub(in crate::mir) fn branch_read_flow_sources_v1(&self, owner: FunctionOwnerIdV1,
+        statement: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    ) -> Vec<Rc<crate::mir::resolved_semantics::home_new_prefix::BorrowedReadFlowV1>> {
+        use crate::mir::resolved_semantics::home_new_prefix::{DeclaredReadValueV1, NullableResultReferenceV1, CheckedExpressionReferenceV1};
+        let mut output = Vec::new();
+        let mut retain = |read: &DeclaredReadValueV1| {
+            let DeclaredReadValueV1::Flow(read) = read else { return; };
+            let source = read.source();
+            if source.binding().owner() == owner && source.statement() == statement
+                && !output.iter().any(|old| old == source) { output.push(Rc::clone(source)); }
+        };
+        if let Some(flow) = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow()) {
+            for plan in flow.expression_plans() {
+                if let Some(evaluation) = plan.evaluation() {
+                    for reference in evaluation.references().values() {
+                        if let CheckedExpressionReferenceV1::NullableResult(NullableResultReferenceV1::DeclaredFrom(read)) = reference { retain(read); }
+                    }
+                }
+            }
+        }
+        for row in self.local_field_reads.borrow().values() {
+            if let Some(read) = row.source.received_root_source_v1().and_then(|source| source.borrowed_read_v1()) { retain(read); }
+        }
+        output
+    }
+
     pub(in crate::mir) fn branch_text_sources_v1(
         &self,
         owner: FunctionOwnerIdV1,

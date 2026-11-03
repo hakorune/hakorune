@@ -96,16 +96,17 @@ impl SourceNullExclusionV1 {
     }
     pub(crate) fn corroborates_result_read_v1(&self,
         input: ResolvedFunctionLoweringInputV1<'_>,
-        view: &super::BorrowedResultReadV1,
+        view: &super::DeclaredReadValueV1,
     ) -> bool {
         let Some(flow) = input.function().expression_source().value_flow() else { return false; };
         if let NullRootV1::Flow { binding, value: root } = self.root {
-            if binding != view.current_root_binding_v1() || !Arc::ptr_eq(flow, &self.flow) || !view.corroborates_v1(input)
+            if binding != view.original_binding() || !Arc::ptr_eq(flow, &self.flow) || !view.corroborates_v1(input)
                 || flow.read(&self.guard_read, self.binding) != Some(self.value) { return false; }
             let root_of = |value| flow.alias_terminal_with_expression_boundary(value, |at| input.function().variable_ref(at), |_| false);
             return root_of(self.value) == Some(root)
                 && flow.read(view.read().site(), view.binding()).and_then(root_of) == Some(root);
         }
+        let Some(view) = view.single() else { return false; };
         let NullRootV1::Initializer { binding, site, value: origin } = &self.root else { return false; };
         *binding == view.source().destination() && site == view.source().call().site()
             && Arc::ptr_eq(flow, &self.flow) && view.corroborates_v1(input)

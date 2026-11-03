@@ -38,7 +38,7 @@ impl ExpressionReferenceReadV1 {
         let Some(reference @ Reference::NullableResult(NullableResultReferenceV1::DeclaredFrom(view))) = frame.references().get(&node)
             else { return Err(freeze("expression/reference-source-node")); };
         if !reference.matches_node(frame.source(), node) { return Err(freeze("expression/reference-source-node")); }
-        let (value, [_, normal]) = context.declared_result_read_v1(view, self.exact_read_v1())?;
+        let (value, normal) = context.declared_value_read_v1(view, self.exact_read_v1())?;
         if self.definition() != Some(&normal) { return Err(freeze("expression/reference-source-node")); }
         Ok(value)
     }

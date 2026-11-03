@@ -106,6 +106,7 @@ static int lv4_text_origin(hako_lv4_function_index* fn, hako_lv4_value* value) {
   return -2;
 }
 
+static yyjson_val* lv4_borrowed_result_operation(hako_lv4_function_index*, hako_lv4_value*);
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_alias.inc"
 static int lv4_canonical_receiver(hako_lv4_function_index* fn, const hako_lv4_value* value) {
   return value && value->kind == LV4_HANDLE && value->origin == -2 &&
@@ -275,7 +276,6 @@ static int lv4_kind_unify(hako_lv4_function_index* fn, size_t index, uint32_t id
   return 1;
 }
 
-static yyjson_val* lv4_borrowed_result_operation(hako_lv4_function_index*, hako_lv4_value*);
 static int lv4_transparent_alias_kind(hako_lv4_function_index* fn, hako_lv4_value* value) {
   return value->kind == LV4_HANDLE || value->kind == LV4_SLOT_BORROW ||
       (value->kind == LV4_BORROWED_OBJECT &&
@@ -320,6 +320,11 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     if (!lv4_is(value->instruction, "op", "phi") ||
         value->kind == LV4_I64 || value->kind == LV4_BOOL || value->kind == LV4_TEXT_OPERAND) continue;
     hako_lv4_value* root = lv4_value_alias_root(fn, value);
+    /* A readonly graph retains all Calls instead of choosing one origin. */
+    if (root == value && lv4_read_result_join_root(fn, value)) {
+      if (!lv4_read_call_graph(fn, value, NULL, NULL)) return 0;
+      continue;
+    }
     /* A transparent Phi over one slot borrow stays that borrow's alias. */
     if (!lv4_transparent_alias_kind(fn, value) || !root || root == value ||
         root->kind != value->kind) return 0;
@@ -337,6 +342,10 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     if (value->kind == LV4_I64 || value->kind == LV4_BOOL) continue;
     hako_lv4_value* source = lv4_value_alias_root(fn, value);
     if (!source || source->kind != value->kind) return 0;
+    if (lv4_read_result_join_root(fn, value)) {
+      if (!lv4_read_call_graph(fn, value, NULL, NULL)) return 0;
+      continue; /* No Call's origin, object or lease is assigned to this graph. */
+    }
     value->origin = source->origin;
     value->object_id = source->object_id;
     value->object_id_set = source->object_id_set;

@@ -202,7 +202,7 @@ fn observe_one_borrowed_call_actuals(
                 };
                 let value = if matches!(&value, BorrowedCallActualValueV1::Binding(binding) if locals.is_declared_read_binding_v1(*binding)) {
                     match prefix_known.then(|| locals.nullable_result_reference_v1(read_site)).flatten() {
-                        Some(crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(read)) => BorrowedCallActualValueV1::DeclaredRead(read),
+                        Some(crate::mir::resolved_semantics::home_new_prefix::NullableResultReferenceV1::DeclaredFrom(read)) => read.single().cloned().map(BorrowedCallActualValueV1::DeclaredRead).unwrap_or(BorrowedCallActualValueV1::Unknown),
                         // An invalid read never falls back to a generic binding.
                         _ => BorrowedCallActualValueV1::Unknown,
                     }

@@ -166,9 +166,9 @@ impl ExpressionFieldRootSourceV1 {
         }
         if let RootOriginV1::Received(source) = &self.origin {
             let ledger = context.ledger();
-            context.with_taken_packet_v1(source.target().call_site(), |packet| {
+            context.with_taken_packet_v1(source.target()?.call_site(), |packet| {
                 let row = packet.original_row()?;
-                if row.source_target() != source.target() { return Err("expression-path/received-packet".into()); }
+                if row.source_target() != source.target()? { return Err("expression-path/received-packet".into()); }
                 let original = ledger.borrowed_object_call_packet_v1(row)?;
                 if original.result() != crate::mir::instruction::InvokeCallResultKind::Handle {
                     return Err("expression-path/received-result".into());
@@ -221,7 +221,7 @@ impl ExpressionFieldRootSourceV1 {
             RootOriginV1::Received(source) => {
                 let ingress = ledger.borrowed_formal_source.as_ref().ok_or("expression-path/received-ingress")?
                     .as_ref().map_err(Clone::clone)?;
-                context.with_current_instance_source_v1(source.target().call_site(), |target|
+                context.with_current_instance_source_v1(source.target()?.call_site(), |target|
                     source.recheck_issuing_target_v1(&ledger.callable_result_classes, ingress, target, request))?;
             },
             RootOriginV1::New(source) => {

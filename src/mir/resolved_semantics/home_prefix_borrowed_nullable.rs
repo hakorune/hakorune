@@ -8,26 +8,39 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 /// after interference. Invalidating it must never create a generic BoundValue.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct BorrowedNullableStateV1 {
-    loan: Box<BorrowedNullableLocalSourceLoanV1>,
+    origin: BorrowedReadOriginV1,
     read_valid: bool,
 }
-impl std::ops::Deref for BorrowedNullableStateV1 {
-    type Target = BorrowedNullableLocalSourceLoanV1;
-    fn deref(&self) -> &Self::Target { &self.loan }
-}
-impl AsRef<BorrowedNullableLocalSourceLoanV1> for BorrowedNullableStateV1 {
-    fn as_ref(&self) -> &BorrowedNullableLocalSourceLoanV1 { &self.loan }
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum BorrowedReadOriginV1 {
+    Call(Box<BorrowedNullableLocalSourceLoanV1>),
+    Flow(std::rc::Rc<super::borrowed_flow::BorrowedReadFlowV1>),
 }
 impl BorrowedNullableStateV1 {
+    pub(super) fn single_loan(&self) -> Option<&BorrowedNullableLocalSourceLoanV1> {
+        match &self.origin { BorrowedReadOriginV1::Call(loan) => Some(loan), BorrowedReadOriginV1::Flow(_) => None }
+    }
+    pub(super) fn flow_source(&self) -> Option<&super::borrowed_flow::BorrowedReadFlowV1> {
+        match &self.origin { BorrowedReadOriginV1::Flow(flow) => Some(flow.as_ref()), _ => None }
+    }
+    pub(super) fn loans(&self) -> impl Iterator<Item = &BorrowedNullableLocalSourceLoanV1> {
+        self.single_loan().into_iter().chain(self.flow_source().into_iter().flat_map(|source| source.loans()))
+    }
+    pub(super) fn from_flow(source: super::borrowed_flow::BorrowedReadFlowV1, read_valid: bool) -> Self {
+        Self { origin: BorrowedReadOriginV1::Flow(std::rc::Rc::new(source)), read_valid }
+    }
+    pub(super) fn read_valid(&self) -> bool { self.read_valid }
+    fn is_declared_read_v1(&self) -> bool { self.loans().all(|loan| loan.is_declared_read_v1()) }
     pub(super) fn legacy_observation_v1(&self, binding: BindingRefV1) -> Option<OrdinaryObservation> {
-        (!self.is_declared_read_v1()).then_some(OrdinaryObservation::BoundValue(binding))
+        self.single_loan().filter(|loan| !loan.is_declared_read_v1()).map(|_| OrdinaryObservation::BoundValue(binding))
     }
 }
 
-/// Compatible branch states meet validity, never loan/source identity.
+/// Identical original provenance meets validity; distinct Calls require the
+/// original flow join and explicit caller-support correspondence.
 pub(super) fn meet_read_state_v1(own: &mut StoredLocal, other: &StoredLocal) -> bool {
     let (StoredLocal::BorrowedNullable(own), StoredLocal::BorrowedNullable(other)) = (own, other) else { return false; };
-    if !own.is_declared_read_v1() || own.loan != other.loan { return false; }
+    if !own.is_declared_read_v1() || own.origin != other.origin { return false; }
     own.read_valid &= other.read_valid;
     true
 }
@@ -200,7 +213,7 @@ impl PrefixLocalFlow<'_> {
     ) -> bool {
         if let Some(actual) = loan.reborrowed_read_v1() {
             if !matches!(self.nullable_result_reference_v1(actual.read().site()),
-                Some(super::super::NullableResultReferenceV1::DeclaredFrom(current)) if &current == actual) { return false; }
+                Some(super::super::NullableResultReferenceV1::DeclaredFrom(current)) if current.single() == Some(actual)) { return false; }
         }
         if loan.is_declared_read_v1() {
             // The outer Call completes this single initializer after all child
@@ -219,7 +232,7 @@ impl PrefixLocalFlow<'_> {
         if loan.entry_support_v1().is_some() && !self.borrowed_entry_support_live_v1(&loan) { return false; }
         self.store(
             loan.destination(),
-            StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { loan: Box::new(loan), read_valid: true }),
+            StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { origin: BorrowedReadOriginV1::Call(Box::new(loan)), read_valid: true }),
         );
         true
     }
@@ -232,7 +245,7 @@ impl PrefixLocalFlow<'_> {
         if !prefix_known || call.owner() != self.input.owner() { return None; }
         let receiver = self.input.function().method_call_source_v1(call.site())?.receiver_site();
         match self.nullable_result_reference_v1(receiver)? {
-            super::super::NullableResultReferenceV1::DeclaredFrom(view) => Some(view), _ => None,
+            super::super::NullableResultReferenceV1::DeclaredFrom(view) => view.single().cloned(), _ => None,
         }
     }
 
@@ -259,7 +272,7 @@ impl PrefixLocalFlow<'_> {
     }
 
     /// A read keeps the original support kind; a caller entry is not a Home.
-    fn declared_read_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
+    pub(super) fn declared_read_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
         match loan.owned_local_support_v1() {
             Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
             None => self.borrowed_entry_support_live_v1(loan),
@@ -271,8 +284,12 @@ impl PrefixLocalFlow<'_> {
     ) -> bool {
         let Some(ResolvedLexicalRefV1::Local(original)) = self.input.function().variable_ref(site) else { return false; };
         let Some(StoredLocal::BorrowedNullable(state)) = self.locals.get(&original) else { return false; };
-        if !state.read_valid || super::super::BorrowedResultReadV1::issue_v1(self.input, state.as_ref(), site).is_none() { return false; }
-        let live = self.declared_read_support_live_v1(state.as_ref());
+        let matches = match &state.origin {
+            BorrowedReadOriginV1::Call(loan) => super::super::BorrowedResultReadV1::issue_v1(self.input, loan, site).is_some(),
+            BorrowedReadOriginV1::Flow(source) => source.matches_read(self.input, site),
+        };
+        if !state.read_valid || !matches { return false; }
+        let live = state.loans().all(|loan| self.declared_read_support_live_v1(loan));
         if !live || binding.owner() != self.input.owner() { return false; }
         let state = state.clone();
         let exclusion = self.null_exclusions.get(&original).cloned();
@@ -290,7 +307,8 @@ impl PrefixLocalFlow<'_> {
         if binding.owner() != self.input.owner() || !previous.is_declared_read_v1()
             || homes.iter().any(|home| home.binding() == binding) { return None; }
         let super::super::NullableResultReferenceV1::DeclaredFrom(read) = self.nullable_result_reference_v1(site)? else { return None; };
-        (previous.declared_read_result_v1()?.declared_type() == read.source().declared_read_result_v1()?.declared_type()).then_some(read)
+        let read = read.single()?.clone();
+        (previous.single_loan()?.declared_read_result_v1()?.declared_type() == read.source().declared_read_result_v1()?.declared_type()).then_some(read)
     }
 
     /// One nullable comparison source, with the original read/lifetime law.
@@ -301,24 +319,19 @@ impl PrefixLocalFlow<'_> {
         if let Some(frame) = self.stored_get_reference_v1(site) { return Some(Reference::StoredMapGet(frame)); }
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None; };
         let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
-        let live = self.declared_read_support_live_v1(state.as_ref());
-        (state.is_declared_read_v1() && state.read_valid && live)
-            .then(|| super::super::BorrowedResultReadV1::issue_v1(self.input, state.as_ref(), site))
-            .flatten().map(Reference::DeclaredFrom)
+        if !state.read_valid || !state.is_declared_read_v1()
+            || !state.loans().all(|loan| self.declared_read_support_live_v1(loan)) { return None; }
+        let read = match &state.origin {
+            BorrowedReadOriginV1::Call(loan) => super::super::DeclaredReadValueV1::Single(
+                super::super::BorrowedResultReadV1::issue_v1(self.input, loan, site)?),
+            BorrowedReadOriginV1::Flow(source) => super::super::DeclaredReadValueV1::Flow(
+                super::borrowed_flow::BorrowedFlowReadV1::issue(self.input, std::rc::Rc::clone(source), site)?),
+        };
+        Some(Reference::DeclaredFrom(read))
     }
 
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_declared_read_binding_v1(&self, binding: BindingRefV1) -> bool {
         matches!(self.locals.get(&binding), Some(StoredLocal::BorrowedNullable(state)) if state.is_declared_read_v1())
-    }
-
-    /// The current read and its original support must both remain live.
-    /// Entry support does not imply a Home or a nonnull payload.
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn declared_read_local_v1(
-        &self, binding: BindingRefV1,
-    ) -> Option<&BorrowedNullableLocalSourceLoanV1> {
-        let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
-        (state.read_valid && state.is_declared_read_v1()
-            && self.declared_read_support_live_v1(state.as_ref())).then_some(state.as_ref())
     }
 
     /// Apply an admitted write after RHS evaluation. Independent live New
@@ -337,8 +350,8 @@ impl PrefixLocalFlow<'_> {
         for value in self.locals.values_mut() {
             let StoredLocal::BorrowedNullable(state) = value else { continue; };
             if !state.is_declared_read_v1() { continue; }
-            let independent = state.owned_local_support_v1().zip(root.as_ref()).is_some_and(
-                |((support, acquired, _), (written, site))| support != *written && acquired != site);
+            let independent = state.loans().all(|loan| loan.owned_local_support_v1().zip(root.as_ref()).is_some_and(
+                |((support, acquired, _), (written, site))| support != *written && acquired != site));
             if !independent { state.read_valid = false; }
         }
     }
@@ -351,8 +364,8 @@ impl PrefixLocalFlow<'_> {
         for value in self.locals.values_mut() {
             let StoredLocal::BorrowedNullable(state) = value else { continue; };
             if state.is_declared_read_v1()
-                && !matches!(state.declaration(), SourceBindingSiteV1::Local { statement: original, .. }
-                    if original == statement) {
+                && !state.loans().all(|loan| matches!(loan.declaration(), SourceBindingSiteV1::Local { statement: original, .. }
+                    if original == statement)) {
                 state.read_valid = false;
             }
         }
@@ -382,7 +395,7 @@ impl PrefixLocalFlow<'_> {
             && loan.is_map_slot()
             && loan.destination().owner() == self.input.owner()
             && self.is_self_rooted_handle(loan.support_root())
-            && matches!(self.locals.get(&loan.destination()), Some(StoredLocal::BorrowedNullable(same)) if same.as_ref() == loan)
+            && matches!(self.locals.get(&loan.destination()), Some(StoredLocal::BorrowedNullable(same)) if same.single_loan() == Some(loan))
     }
 
     /// Retain exact local Return evidence: legacy needs its narrowed path;
@@ -393,14 +406,15 @@ impl PrefixLocalFlow<'_> {
         site: &SourceExprSiteV1,
     ) -> Option<super::super::BorrowedNullableReturnV1> {
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None; };
-        let StoredLocal::BorrowedNullable(loan) = self.locals.get(&binding)? else { return None; };
-        if !self.borrowed_entry_support_live_v1(loan.as_ref()) { return None; }
+        let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
+        let loan = state.single_loan()?;
+        if !self.borrowed_entry_support_live_v1(loan) { return None; }
         if loan.is_declared_read_v1() {
-            if !loan.read_valid { return None; }
-            return super::super::BorrowedResultReadV1::issue_v1(self.input, loan.as_ref(), site)
+            if !state.read_valid { return None; }
+            return super::super::BorrowedResultReadV1::issue_v1(self.input, loan, site)
                 .map(super::super::BorrowedNullableReturnV1::Declared);
         }
         (loan.destination() == binding && self.nonnull.contains(&binding))
-            .then(|| super::super::BorrowedNullableReturnV1::Legacy(Box::new(loan.as_ref().clone())))
+            .then(|| super::super::BorrowedNullableReturnV1::Legacy(Box::new(loan.clone())))
     }
 }

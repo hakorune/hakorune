@@ -318,7 +318,7 @@ impl LocalProvenanceV1 {
     pub(in crate::mir) fn source_read_branch_v1(&self, result: ValueId)
         -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
         let LocalProducerPurposeV1::BranchRead(point) = &self.purpose else { return Ok(None); };
-        self.loan_copies(point.source().binding(), point.relation().values().0, result)?;
+        self.loan_copies(point.binding(), point.relation().values().0, result)?;
         Ok(Some(Rc::clone(point)))
     }
     pub(in crate::mir) fn source_declared_read_rebind_v1(&self, result: ValueId)
@@ -490,7 +490,7 @@ impl MaterializedValuesV1 {
     pub(super) fn attach_branch_read_v1(&mut self,
         point: Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>,
     ) -> Result<(), String> {
-        let binding = point.source().binding();
+        let binding = point.binding();
         let value = point.relation().values().0;
         if self.get(&binding) != Some(&value) { return Err("[freeze:contract][local-read/branch-publication]".into()); }
         self.attach_provenance(binding, Some(LocalProvenanceV1 {

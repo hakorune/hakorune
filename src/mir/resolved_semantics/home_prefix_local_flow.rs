@@ -16,6 +16,9 @@ use std::collections::{BTreeMap, BTreeSet};
 mod call_entry_transfer;
 #[path = "home_prefix_borrowed_nullable.rs"]
 mod borrowed_nullable;
+#[path = "home_prefix_borrowed_flow.rs"]
+mod borrowed_flow;
+pub(crate) use borrowed_flow::{BorrowedReadFlowV1, BorrowedFlowReadV1};
 #[path = "home_prefix_field_alias.rs"]
 mod field_alias;
 #[path = "home_prefix_field_readiness.rs"]
@@ -667,61 +670,6 @@ impl<'source> PrefixLocalFlow<'source> {
             Some(StoredLocal::ReceivedNullable { .. })
         ) && self.nonnull.contains(&binding))
         .then_some(binding)
-    }
-
-    /// Join a sibling fall-through branch state into this one. Both sides
-    /// were forked from the same entry snapshot; a binding that exists on
-    /// both sides must carry the identical stored class — disagreement is a
-    /// divergence the caller names, never a merged guess.
-    ///
-    /// A binding present on only one side was declared inside that
-    /// branch's own scope: `resolve_if` pushes an `IfThen`/`IfElse`
-    /// lexical frame and `leave_region_scope` pops it, so no post-join
-    /// source site can resolve that `BindingRefV1`. The join still must
-    /// not keep the sibling's initialized class — the value was proven on
-    /// one path only — so the surviving entry is downgraded to
-    /// `Uninitialized`, which keeps `observe` and every `is_*` probe
-    /// fail-closed if a future shape ever does resolve it.
-    pub(super) fn join_branch(&mut self, other: &Self) -> bool {
-        self.join_branch_at(other, None)
-    }
-
-    pub(super) fn join_branch_at(
-        &mut self, other: &Self, site: Option<&SourceStmtSiteV1>,
-    ) -> bool {
-        if !source_loop::same_context(&self.source_loop, &other.source_loop) {
-            return false;
-        }
-        for (binding, value) in &other.locals {
-            if let Some(own) = self.locals.get_mut(binding) {
-                if !borrowed_nullable::meet_read_state_v1(own, value) && !stored_local_same(own, value) {
-                    let Some(merged) = site.and_then(|site|
-                        self.branch_text_join_v1(other, *binding, site)) else {
-                        return false;
-                    };
-                    self.store(*binding, StoredLocal::TextBranch { source: merged });
-                }
-            }
-        }
-        for binding in self.locals.keys().copied().collect::<Vec<_>>() {
-            if !other.locals.contains_key(&binding) {
-                self.store(binding, StoredLocal::Uninitialized);
-            }
-        }
-        for binding in other.locals.keys() {
-            if !self.locals.contains_key(binding) {
-                self.store(*binding, StoredLocal::Uninitialized);
-            }
-        }
-        self.null_exclusions
-            .retain(|root, proof| other.null_exclusions.get(root) == Some(proof));
-        // Narrowing is path-sensitive: a mark survives the join only when
-        // both siblings carried it.
-        self.nonnull
-            .retain(|binding| other.nonnull.contains(binding));
-        self.opaque_formals
-            .retain(|binding| other.opaque_formals.contains(binding));
-        true
     }
 
     fn branch_text_join_v1(

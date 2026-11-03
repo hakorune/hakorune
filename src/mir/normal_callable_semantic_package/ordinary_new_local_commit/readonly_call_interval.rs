@@ -88,7 +88,9 @@ impl FinalizedRootSourceHandoffV1 {
         })?;
         let context = CallValidationContextV1::Finalized(self);
         let mut checked = std::collections::BTreeSet::new();
+        let mut points = std::collections::BTreeMap::new();
         for (owner, symbol, loan, normal) in reads {
+            if !points.contains_key(&owner) { points.insert(owner, context.declared_read_branch_points_v1(owner)?); }
             let function = module.functions.get(&symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;
             self.ledger.with_finished_projection(owner, |original_symbol, projection| {
                 if original_symbol != &symbol { return Err(freeze("field-argument/source-missing")); }
@@ -118,7 +120,11 @@ impl FinalizedRootSourceHandoffV1 {
                         if matches!(row, MirInstruction::KeepAlive { .. })
                             || !row.used_values().iter().any(|value| aliases.contains(value)) { continue; }
                         if matches!(row, MirInstruction::Phi { inputs, .. } if inputs.iter().any(|(_, value)| !aliases.contains(value))) {
-                            return Err(freeze("field-argument/child-origin"));
+                            let mut original = false;
+                            for point in &points[&owner] {
+                                if point.corroborates_phi_v1(&loan, &(*block, row.clone()), context, function, projection)? { original = true; break; }
+                            }
+                            if !original { return Err(freeze("field-argument/child-origin")); }
                         }
                         let at = (*block, index);
                         let check = |at, row: &MirInstruction, checked: &mut std::collections::BTreeSet<_>| {

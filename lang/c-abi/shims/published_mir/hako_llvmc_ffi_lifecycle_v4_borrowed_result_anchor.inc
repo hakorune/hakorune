@@ -1,3 +1,6 @@
+static int lv4_declared_read_graph(const hako_lv4_input*, hako_lv4_function_index*,
+    hako_lv4_value*, const hako_lv4_state*, uint32_t, size_t, uint32_t, int);
+
 /* Dispatch the result support from its original Call, never from a type or
  * an attempted proof's success. Unknown/malformed slot support stays closed. */
 static yyjson_val* lv4_borrowed_result_operation(hako_lv4_function_index* fn, hako_lv4_value* value) {
@@ -117,6 +120,8 @@ static int lv4_declared_read_effects(hako_lv4_function_index* fn) {
 
 static int lv4_read_result_interval(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, uint32_t use, size_t position) {
+  /* A graph has no single interval. Only the all-leaf owner may validate it. */
+  if (lv4_read_result_join_root(fn, value)) return 0;
   yyjson_val* op = lv4_borrowed_result_operation(fn, value);
   if (!yyjson_obj_get(op, "result_read")) return 1;
   yyjson_val* call = yyjson_obj_get(op, "call");
@@ -133,11 +138,14 @@ static int lv4_read_result_interval(const hako_lv4_input* in,
 /* Legacy inferred borrowing keeps its forwarding law. An explicit read
  * result cannot lose that capability at an unqualified argument/Return edge. */
 static int lv4_borrowed_result_forwardable(hako_lv4_function_index* fn, hako_lv4_value* value) {
+  if (lv4_read_result_join_root(fn, value)) return 0;
   return !yyjson_obj_get(lv4_borrowed_result_operation(fn, value), "result_read");
 }
 
 static int lv4_borrowed_result_readable(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position) {
+  if (lv4_read_result_join_root(fn, value))
+    return lv4_declared_read_graph(in, fn, value, state, use, position, 0, 0);
   if (!lv4_read_result_interval(in, fn, value, use, position)) return 0;
   if (hako_physical_result_slot(lv4_borrowed_result_operation(fn, value), NULL))
     return lv4_slot_result_readable(in, fn, value, state, use, 0, 0);
@@ -271,8 +279,8 @@ static int lv4_declared_read_nonnull(const hako_lv4_input* in,
 
 /* Without an exact result guard, EVERY original callee Return must prove
  * nonnull. A guard excludes Null only on its dominated consumer path. */
-static int lv4_declared_read_payload(const hako_lv4_input* in, hako_lv4_function_index* fn,
-    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object) {
+static int lv4_declared_read_leaf_payload(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object, int guarded, hako_lv4_value** retained_anchor) {
   yyjson_val* op = lv4_borrowed_result_operation(fn, value);
   if (!yyjson_is_true(yyjson_obj_get(op, "result_read"))) return 0;
   uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
@@ -281,7 +289,7 @@ static int lv4_declared_read_payload(const hako_lv4_input* in, hako_lv4_function
   hako_lv4_value* original = lv4_value_alias_root(fn, value);
   hako_lv4_block* producer = original && lv4_is(original->instruction, "op", "invoke_normal_result")
       ? lv4_index_block(fn, lv4_u(original->instruction, "invoke_block")) : NULL;
-  int guarded = lv4_nullable_slot_guarded(fn, original, producer, use);
+  guarded |= lv4_nullable_slot_guarded(fn, original, producer, use);
   size_t returns = 0;
   for (size_t bi = 0; bi < callee->block_count; bi++) {
     yyjson_val* term = lv4_term(callee->blocks[bi].block);
@@ -314,10 +322,54 @@ static int lv4_declared_read_payload(const hako_lv4_input* in, hako_lv4_function
       !lv4_borrowed_result_readable(in, fn, value, state, use, position)) return 0;
   /* Caller entry support has no local New/Home. It lends lifetime only;
      payload class and nonnull remain the producer/guard proofs above. */
-  if (anchor && anchor->kind == LV4_TAGGED) return lv4_borrowed_tagged_formal(fn, anchor);
-  return anchor && (lv4_read_support_new(fn, anchor) || lv4_canonical_receiver(fn, anchor)) &&
-      anchor->object_id_set &&
-      lv4_readable_object(in, fn, anchor->id, state, use, anchor->object_id, 1);
+  int valid = anchor && anchor->kind == LV4_TAGGED ? lv4_borrowed_tagged_formal(fn, anchor)
+      : anchor && (lv4_read_support_new(fn, anchor) || lv4_canonical_receiver(fn, anchor)) &&
+        anchor->object_id_set && lv4_readable_object(in, fn, anchor->id, state, use, anchor->object_id, 1);
+  if (valid && retained_anchor) *retained_anchor = anchor;
+  return valid;
+}
+
+/* A use retains all Call.Normal intervals and one common caller anchor.
+ * Payload class is checked only when a consumer requests it; a BO kind or
+ * null comparison never issues a layout or an ownership capability. */
+typedef struct {
+  const hako_lv4_input* input;
+  const hako_lv4_state* state;
+  uint32_t use, object;
+  size_t position;
+  int check_object, guarded;
+  hako_lv4_value* anchor;
+} lv4_read_graph_use;
+static int lv4_read_graph_leaf(hako_lv4_function_index* fn, hako_lv4_value* leaf, void* data) {
+  lv4_read_graph_use* query = (lv4_read_graph_use*)data;
+  hako_lv4_value* anchor = NULL;
+  if (!lv4_borrowed_result_step(query->input, fn, leaf)) return 0;
+  if (query->check_object) {
+    if (!lv4_declared_read_leaf_payload(query->input, fn, leaf, query->state, query->use,
+        query->position, query->object, query->guarded, &anchor)) return 0;
+  } else {
+    if (!lv4_borrowed_result_readable(query->input, fn, leaf, query->state, query->use, query->position)) return 0;
+    anchor = lv4_borrowed_result_anchor(query->input, fn, leaf);
+  }
+  if (!anchor || (query->anchor && query->anchor != anchor)) return 0;
+  query->anchor = anchor;
+  return 1;
+}
+static int lv4_declared_read_graph(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position,
+    uint32_t object, int check_object) {
+  hako_lv4_value* root = lv4_read_result_join_root(fn, value);
+  if (!root || !root->definition_block) return 0;
+  hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->definition_block, "id"));
+  lv4_read_graph_use query = {in, state, use, object, position, check_object,
+      check_object && lv4_nullable_slot_guarded(fn, root, producer, use), NULL};
+  return lv4_read_call_graph(fn, value, lv4_read_graph_leaf, &query) && query.anchor;
+}
+static int lv4_declared_read_payload(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    hako_lv4_value* value, const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object) {
+  if (lv4_read_result_join_root(fn, value))
+    return lv4_declared_read_graph(in, fn, value, state, use, position, object, 1);
+  return lv4_declared_read_leaf_payload(in, fn, value, state, use, position, object, 0, NULL);
 }
 
 /* Scalar field readability adds its storage contract to the same payload proof. */
@@ -363,6 +415,8 @@ static int lv4_borrowed_receiver_readable(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, yyjson_val* consumer,
     const hako_lv4_state* state, uint32_t use, size_t position, uint32_t object) {
   hako_lv4_value* original = lv4_value_alias_root(fn, value);
+  /* Multi-Call receiver transport is not issued by the current source lane. */
+  if (lv4_read_result_join_root(fn, original)) return 0;
   if (original && original->kind == LV4_BORROWED_OBJECT &&
       yyjson_obj_get(lv4_borrowed_result_operation(fn, original), "result_read"))
     return lv4_readonly_call(fn, consumer, 1) &&

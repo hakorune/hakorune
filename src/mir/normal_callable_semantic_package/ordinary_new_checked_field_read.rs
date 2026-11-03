@@ -8,6 +8,18 @@ type Binding = (BasicBlockId, MirInstruction);
 type Finished = super::local_commit::physical_boundary::FinishedBindings;
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn field_read_branch_points_v1(&self, owner: FunctionOwnerIdV1)
+        -> Result<Vec<Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
+        let mut points = Vec::new();
+        for (_, row) in self.local_field_reads.borrow().iter().filter(|(site, _)| site.owner() == owner) {
+            if let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress {
+                if let Some(point) = read.binding_observation_v2().source_read_branch_v1()? {
+                    if !points.iter().any(|old| Rc::ptr_eq(old, &point)) { points.push(point); }
+                }
+            }
+        }
+        Ok(points)
+    }
     /// Recheck the source handle and the exact Borrow/Normal pair retained by
     /// the same checked read. A different clone cannot replace its support.
     fn shared_field_base_v1(
@@ -151,11 +163,11 @@ impl OrdinaryNewClaimLedgerV1 {
                     && *normal_landing == normal.0 && normal_landing != fault_landing && *dst != base)
         { return Err(fault("received/invoke-normal-drift")); }
         if let Some(view) = row.source.received.as_ref().and_then(|received| received.borrowed_read_v1()) {
-            let value = context.declared_result_read_v1(view, read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?)?.0;
+            let value = context.declared_value_read_v1(view, read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?)?.0;
             if value != base { return Err(fault("received/source-drift")); }
-        } else if let Some(received) = &row.source.received { context.with_taken_packet_v1(received.target().call_site(), |packet| {
+        } else if let Some(received) = &row.source.received { context.with_taken_packet_v1(received.target()?.call_site(), |packet| {
             let original = packet.original_row()?;
-            if original.source_target() != received.target() { return Err(fault("received/packet-source")); }
+            if original.source_target() != received.target()? { return Err(fault("received/packet-source")); }
             let value = if received.mixed().is_some() {
                 self.corroborate_mixed_call_using_v1(original, context)?;
                 let observation = self.mixed_call_source_v1(original.call_site())
@@ -210,10 +222,10 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         if let Some(view) = received.borrowed_read_v1() {
             let read = read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?;
-            context.declared_result_read_v1(view, read)?;
+            context.declared_value_read_v1(view, read)?;
             return read.original_copy_dependencies_v1().map(<[_]>::to_vec);
         }
-        context.with_taken_packet_v1(received.target().call_site(), |packet| {
+        context.with_taken_packet_v1(received.target()?.call_site(), |packet| {
             let normal = packet.outer_bindings()?.1;
             let MirInstruction::InvokeNormalResult { dst, .. } = normal.1 else { return Err(fault("received/packet-normal")); };
             read.as_ref().ok_or_else(|| fault("received/exact-read-missing"))?.loan_forwarded_copies(row.receiver, dst).map(<[_]>::to_vec)
@@ -228,7 +240,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut demanded = false;
         for (site, row) in rows.iter() {
             let Some(received) = row.source.received_root_source_v1() else { continue };
-            if received.mixed().is_some() || received.target().call_site() != target.call_site() { continue; }
+            if received.mixed().is_some() || !received.targets_v1().any(|original| original.call_site() == target.call_site()) { continue; }
             let requirement = self.source_field_requirement_v1(site)?
                 .ok_or_else(|| fault("received/expression-source-missing"))?;
             let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| fault("received/ingress-missing"))?
@@ -293,7 +305,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if let Some(view) = row.source.received.as_ref().and_then(|source| source.borrowed_read_v1()) {
                     let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress
                         else { return Err(fault("received/exact-read-missing")); };
-                    context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, finishing)?;
+                    context.validate_declared_value_transport_v1(view, read.binding_observation_v2(), function, finishing)?;
                 }
                 if let Some((loan, exclusion)) = row.source.received.as_ref().and_then(|source| source.borrowed_guard()) {
                     let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress

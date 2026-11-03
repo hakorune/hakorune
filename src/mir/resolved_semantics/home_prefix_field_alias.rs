@@ -87,13 +87,13 @@ impl PrefixLocalFlow<'_> {
                 }))
             },
             StoredLocal::BorrowedNullable(_) => {
-                let loan = self.declared_read_local_v1(binding)?;
-                let exclusion = if loan.payload_nonnull_v1() { None } else {
+                let super::super::NullableResultReferenceV1::DeclaredFrom(loan) = self.nullable_result_reference_v1(read?)? else { return None; };
+                let exclusion = if loan.payload_nonnull() { None } else {
                     if !self.nonnull.contains(&binding) { return None; }
                     Some(std::rc::Rc::clone(self.null_exclusions.get(&binding)?))
                 };
                 Some(FieldReadReceiverV1::CheckedReceived(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Borrowed {
-                    loan: super::super::BorrowedResultReadV1::issue_v1(self.input, loan, read?)?, exclusion,
+                    loan, exclusion,
                 }))
             },
             StoredLocal::ReceivedMixed(loan) if self.is_received_mixed_v1(binding) =>

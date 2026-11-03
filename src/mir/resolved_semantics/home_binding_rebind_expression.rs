@@ -237,7 +237,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         if source.nodes().len() != 1 || read.read().site() != assignment.value_site()
             || prior_homes.iter().any(|home| home.binding() == *target)
             || initial_dynamic_references.insert(0, CheckedExpressionReferenceV1::NullableResult(
-                super::super::NullableResultReferenceV1::DeclaredFrom(read.clone()))).is_some() { return Ok(None); }
+                super::super::NullableResultReferenceV1::DeclaredFrom(read.clone().into()))).is_some() { return Ok(None); }
     }
     let Some(mut reference_proofs) =
         super::evaluation::seed_current_expression_references_with_loop_text_v1(

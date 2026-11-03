@@ -267,16 +267,59 @@ impl BorrowedResultReadV1 {
     pub(crate) fn corroborates_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool { self.read.corroborates_v1(input) }
 }
 
+/// One readonly value surface; a multi-Call value never lends a representative loan.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum DeclaredReadValueV1 {
+    Single(BorrowedResultReadV1),
+    Flow(crate::mir::resolved_semantics::home_new_prefix::BorrowedFlowReadV1),
+}
+impl From<BorrowedResultReadV1> for DeclaredReadValueV1 {
+    fn from(read: BorrowedResultReadV1) -> Self { Self::Single(read) }
+}
+impl DeclaredReadValueV1 {
+    pub(crate) fn single(&self) -> Option<&BorrowedResultReadV1> { match self { Self::Single(read) => Some(read), Self::Flow(_) => None } }
+    pub(crate) fn binding(&self) -> BindingRefV1 { match self { Self::Single(read) => read.binding(), Self::Flow(read) => read.binding() } }
+    pub(crate) fn read(&self) -> &OwnedExprSiteV1 { match self { Self::Single(read) => read.read(), Self::Flow(read) => read.read() } }
+    pub(crate) fn loans(&self) -> impl Iterator<Item = &BorrowedNullableLocalSourceLoanV1> {
+        let flow = match self { Self::Flow(read) => Some(read.source()), _ => None };
+        self.single().map(BorrowedResultReadV1::source).into_iter().chain(flow.into_iter().flat_map(|source| source.loans()))
+    }
+    pub(crate) fn declared_type(&self) -> &str {
+        match self { Self::Single(read) => read.declaration.declared_type(), Self::Flow(read) => read.source().declared_type() }
+    }
+    pub(crate) fn payload_nonnull(&self) -> bool {
+        !matches!(self, Self::Flow(read) if read.source().has_literal_null()) && self.loans().all(|loan| loan.payload_nonnull_v1())
+    }
+    pub(crate) fn corroborates_v1(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+        match self { Self::Single(read) => read.corroborates_v1(input), Self::Flow(read) => read.corroborates(input) }
+    }
+    pub(crate) fn original_binding(&self) -> BindingRefV1 {
+        match self {
+            Self::Single(read) => read.current_root_binding_v1(),
+            Self::Flow(read) => read.source().binding(),
+        }
+    }
+    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
+        match self { Self::Single(read) => read.source().call(), Self::Flow(read) => read.read() }
+    }
+    fn same_reference(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Single(a), Self::Single(b)) => a.same_reference_v1(b),
+            (Self::Flow(a), Self::Flow(b)) => a.source() == b.source(), _ => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(crate) enum NullableResultReferenceV1 {
     StoredMapGet(Rc<MapFieldGetLocalV1>),
-    DeclaredFrom(BorrowedResultReadV1),
+    DeclaredFrom(DeclaredReadValueV1),
 }
 impl PartialEq for NullableResultReferenceV1 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::StoredMapGet(a), Self::StoredMapGet(b)) => Rc::ptr_eq(a, b),
-            (Self::DeclaredFrom(a), Self::DeclaredFrom(b)) => a.same_reference_v1(b),
+            (Self::DeclaredFrom(a), Self::DeclaredFrom(b)) => a.same_reference(b),
             _ => false,
         }
     }
@@ -287,10 +330,10 @@ impl NullableResultReferenceV1 {
         match self { Self::StoredMapGet(frame) => frame.binding(), Self::DeclaredFrom(view) => view.binding() }
     }
     pub(crate) fn original_binding_v1(&self) -> BindingRefV1 {
-        match self { Self::StoredMapGet(frame) => frame.binding(), Self::DeclaredFrom(view) => view.current_root_binding_v1() }
+        match self { Self::StoredMapGet(frame) => frame.binding(), Self::DeclaredFrom(view) => view.original_binding() }
     }
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        match self { Self::StoredMapGet(frame) => frame.site(), Self::DeclaredFrom(view) => view.source().call() }
+        match self { Self::StoredMapGet(frame) => frame.site(), Self::DeclaredFrom(view) => view.site() }
     }
     pub(crate) fn map_frame(&self) -> Option<&Rc<MapFieldGetLocalV1>> {
         match self { Self::StoredMapGet(frame) => Some(frame), _ => None }
@@ -299,17 +342,17 @@ impl NullableResultReferenceV1 {
         match self {
             Self::StoredMapGet(frame) => frame.source().get().owner() == frame.site().owner()
                 && frame.source().get().site() == frame.site().site(),
-            Self::DeclaredFrom(view) => view.source().is_declared_read_v1() && view.binding().owner() == view.source().call().owner(),
+            Self::DeclaredFrom(view) => view.loans().all(|loan| loan.is_declared_read_v1() && loan.call().owner() == view.read().owner()) && view.binding().owner() == view.read().owner(),
         }
     }
     pub(crate) fn accepts_prior_homes(&self, homes: &[LiveHomeV1]) -> bool {
         match self {
             Self::StoredMapGet(frame) => homes == frame.prior_homes(),
-            Self::DeclaredFrom(view) => !homes.iter().any(|home| home.binding() == view.source().destination() || home.binding() == view.binding())
-                && match view.source().owned_local_support_v1() {
+            Self::DeclaredFrom(view) => view.loans().all(|loan| !homes.iter().any(|home| home.binding() == loan.destination() || home.binding() == view.binding())
+                && match loan.owned_local_support_v1() {
                     Some((root, _, _)) => homes.iter().any(|home| home.binding() == root),
-                    None => view.source().entry_support_v1().is_some(),
-                },
+                    None => loan.entry_support_v1().is_some(),
+                }),
         }
     }
 }
