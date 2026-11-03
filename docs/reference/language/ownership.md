@@ -159,7 +159,8 @@ In short, three rules:
    (decided 2026-11-03): after `local r = node`, `consume(r)` and `move r` are
    rejected because `r` owns nothing, and `node` cannot move, End or be replaced
    while `r` is live. For a non-copy type the first assignment fixes whether a
-   local is a borrow or an owner, and a borrow never becomes an owner later.
+   local is a borrow or an owner (a local starting from null, as in
+   `local out: Span? = null`, is an owner), and a borrow never becomes an owner later.
    `=` acts by the kind of its left side, fixed at declaration: an owned local
    replaces its value and Ends the old one, a borrow local or read parameter
    re-points, and an `edit` parameter writes through to the borrowed place.
@@ -184,8 +185,13 @@ In short, three rules:
    placement and ABI version stay separate from this contract. Array/Map API
    extensions not used by selfhost are named rejections until needed.
 7. Copy: only a type with a declared copy contract can be copied. Implicit
-   copy follows the specified value category (numbers, Bool, unit enums, records
-   and `T?` of those; not Shared handles), never the value's size. Respelling `copy x` as `.copy()` is
+   copy follows the specified value category (numbers, Bool, unit enums and `T?`
+   of those; not Shared handles), never the value's size. `copy x` also works
+   without a declaration on a box with no `birth` and no `fini` whose fields are all
+   automatic-copy values or boxes meeting the same condition, and on `T?` of such a
+   box; it makes a separate object. `==` between two boxes is a compile error
+   (decided 2026-11-03); `x == null` stays. Compare contents field by field or in an
+   ordinary method such as `equals`; String keeps its content comparison. Respelling `copy x` as `.copy()` is
    deferred.
 8. Take (decided 2026-11-03): `take place` extracts ownership from a nullable
    place holding an owned value: a local, an `edit` parameter, a field or an array
@@ -278,18 +284,19 @@ explicitly and never produced by omission or failed inference. At the cutover
 the old meaning of an omitted annotation (dynamic Any) ends. A `T?` field without
 an initializer is declared null; a required field must be initialized on every
 Normal construction path; a moved field is never refilled with null. Automatic
-copy covers numbers, Bool, unit enums, records and `T?` of those (decided
+copy covers numbers, Bool, unit enums and `T?` of those (decided
 2026-11-03); an enum with a payload is never copied automatically, whatever the
 payload, and `copy e` is explicit. Rust retains structural type-reference syntax (Name/Apply/Array/Nullable);
 unsupported new parameter/result representations are named rejections. Bare `T`
 keeps its pre-cutover meaning and nullable-field defaults remain a separate
-connection. A `record` is a group of values with automatic copy (decided
-2026-11-03): it has no identity, owned resources or stored borrows, always copies,
-and is updated with `p with { x: 10 }`. A String, an enum with a payload, a Box or
-a Shared in a record is rejected with a hint to use a `box`. A `box` is an object
-with identity that may also group owned data, even when the group needs no
-identity: `new Token { kind: k, text: move s, span: sp }` (rule 13). Enums may own
-Unique and Shared values. The full list is the ADR-002 rows "固定した文法" and "凍結".
+connection. `record` and `with` retire around the cutover (decided 2026-11-03):
+every user-defined group is a `box`, an object with identity that may also group
+owned data, even when the group needs no identity:
+`new Span { start: 1, end: 5 }`, `new Token { kind: k, text: move s, span: sp }`
+(rule 13). Whether a box sits inside its parent or an array is not a language rule;
+a later compiler stage chooses it from evidence and otherwise allocates separately.
+Enums may own Unique and Shared values. The full list is the ADR-002 rows
+"record / box", "固定した文法" and "凍結".
 
 Sections 1-11 below describe the pre-cutover meaning where they conflict with
 this section (implicit alias copies, composite anchored results, bare aliases).

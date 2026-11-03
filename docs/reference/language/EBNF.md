@@ -281,8 +281,8 @@ record_field:= IDENT ':' TYPE_REF ('=' record_default_expr)? ','?
            ; ARG-DATA-003: scalar literal defaults are accepted for local
            ; record construction defaults. They are not runtime stored fields.
            ; MVP fields must be typed and non-weak.
-           ; Target (2026-11-03): fields hold only numbers, Bool, unit enums, other
-           ; records and `T?` of those; a record always copies (ownership.md §0 Types).
+           ; Target (2026-11-03): `record` and `with` retire around the cutover;
+           ; user-defined groups are boxes (ownership.md §0 Types, ADR-002 "record / box").
 
 expr      := logic
 logic     := compare (('&&' | '||') compare)*

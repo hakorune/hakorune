@@ -491,7 +491,9 @@ Equality is implemented as `eq_vm` (`src/backend/abi_util.rs`) and used by compa
 - `String != String` is the logical negation of the same String/Text equality.
 - Cross-kind coercions (Number-only):
   - `Integer` ↔ `Float` only, with a precise rule (avoid accidental true via float rounding)
-- `BoxRef == BoxRef` is pointer identity (`Arc::ptr_eq`).
+- `BoxRef == BoxRef` is pointer identity (`Arc::ptr_eq`). Target (2026-11-03,
+  ownership.md §0 rule 7): it becomes a compile error at the cutover, and content
+  comparison is written field by field or in an ordinary method.
 - `Void` is treated as equal to `BoxRef(VoidBox)` and `BoxRef(MissingBox)` for backward compatibility.
 - Other mixed kinds are `false` (not an error).
 
