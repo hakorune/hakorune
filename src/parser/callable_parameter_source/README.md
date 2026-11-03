@@ -21,7 +21,10 @@ Current I0 boundary:
   declaration loan using only sealed statement/inventory placement; the loan
   cannot escape and never searches by name;
 - `model.rs` owns the closed `Ordinary | Take | Edit` parameter vocabulary and separate receiver modes, explicit
-  `Absent | Explicit` type syntax, declaration kind, and exact ordinals;
+  `Absent | Explicit` type syntax, declaration kind, and exact ordinals. Explicit
+  parameters and declared results retain the common frontend `TypeReferenceV1`
+  (Name/Apply/Array/Nullable) beside the unchanged legacy spelling; consumers
+  do not recover Shared or nullable types by stripping their source names;
 - same-line typed `take`/`edit` and method-head `edit`/`take` retain the
   original transfer through the final semantic source and resolved batch. The
   common contract issuer rejects Edit parameters with `UnsupportedTransfer` and

@@ -368,6 +368,7 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     method_source_observation,
                     borrowed_result: None,
                     receiver_transfer: Default::default(),
+                    declared_result_type: None,
                 });
             }
 
@@ -378,6 +379,7 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
             let mut call_sources = Vec::new();
             for (syntax, row) in loan.rows().iter().zip(resolved.iter_mut()) {
                 row.receiver_transfer = syntax.receiver_transfer();
+                row.declared_result_type = syntax.declared_result_type().cloned();
                 row.borrowed_result = resolve_declared_borrowed_result_v1(syntax, row)?;
                 if let Some(observation) = syntax.method_source_observation() {
                     let ASTNode::FunctionDeclaration { name, params, .. } = syntax.declaration()

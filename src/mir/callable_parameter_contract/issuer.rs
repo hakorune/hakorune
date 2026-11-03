@@ -21,6 +21,7 @@ pub(crate) enum CallableParameterContractIssueV1 {
     },
     DeclarationCoverage,
     UnsupportedReceiverTransfer { _declaration: u32 },
+    UnsupportedResultType { _declaration: u32 },
     MissingParameterBinding {
         _declaration: u32,
         _parameter: u32,
@@ -62,6 +63,9 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                 if row.receiver_transfer() != crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Ordinary {
                     return Err(CallableParameterContractIssueV1::UnsupportedReceiverTransfer { _declaration: row.batch_slot() });
                 }
+                if row.declared_result_type().is_some_and(|reference| matches!(reference, crate::ast::TypeReferenceV1::Nullable(_))) {
+                    return Err(CallableParameterContractIssueV1::UnsupportedResultType { _declaration: row.batch_slot() });
+                }
                 let Some(source_parameters) = row.parameters() else {
                     continue;
                 };
@@ -80,6 +84,9 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                     let kind = match source_parameter.declared_type_name() {
                         None => CallableParameterContractKindV1::OpaqueHandle,
                         Some(source_type) => {
+                            if source_parameter.type_reference().and_then(crate::ast::TypeReferenceV1::name) != Some(source_type) {
+                                return Err(CallableParameterContractIssueV1::UnsupportedDeclaredType { declaration, parameter });
+                            }
                             if let Some(abi) = ExactTextFormalAbiV1::classify(source_type) {
                                 CallableParameterContractKindV1::ExactText(abi)
                             } else if let Some(abi) =

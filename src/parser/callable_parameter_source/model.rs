@@ -48,14 +48,18 @@ impl ParserParameterTransferSyntaxV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ParserParameterDeclaredTypeSyntaxV1 {
     Absent,
-    Explicit(Box<str>),
+    Explicit { spelling: Box<str>, reference: crate::ast::TypeReferenceV1 },
 }
 
 impl ParserParameterDeclaredTypeSyntaxV1 {
+    pub(crate) fn reference(&self) -> Option<&crate::ast::TypeReferenceV1> {
+        match self { Self::Absent => None, Self::Explicit { reference, .. } => Some(reference) }
+    }
+
     pub(crate) fn as_deref(&self) -> Option<&str> {
         match self {
             Self::Absent => None,
-            Self::Explicit(name) => Some(name),
+            Self::Explicit { spelling, .. } => Some(spelling),
         }
     }
 }
@@ -71,20 +75,20 @@ pub(crate) struct ParserCallableParameterSourceRowV1 {
 impl ParserCallableParameterSourceRowV1 {
     #[cfg(test)]
     pub(super) fn ordinary(ordinal: u32, declaration: &ParamDecl) -> Self {
-        Self::parsed(ordinal, declaration, ParserParameterTransferSyntaxV1::ordinary())
+        Self::parsed(ordinal, declaration, ParserParameterTransferSyntaxV1::ordinary()).expect("valid neutral parameter fixture")
     }
 
-    pub(super) fn parsed(ordinal: u32, declaration: &ParamDecl, transfer: ParserParameterTransferSyntaxV1) -> Self {
+    pub(super) fn parsed(ordinal: u32, declaration: &ParamDecl, transfer: ParserParameterTransferSyntaxV1) -> Result<Self, String> {
         let declared_type = match declaration.declared_type_name.as_deref() {
-            Some(name) => ParserParameterDeclaredTypeSyntaxV1::Explicit(name.into()),
+            Some(name) => ParserParameterDeclaredTypeSyntaxV1::Explicit { spelling: name.into(), reference: crate::ast::TypeReferenceV1::parse(name)? },
             None => ParserParameterDeclaredTypeSyntaxV1::Absent,
         };
-        Self {
+        Ok(Self {
             ordinal,
             name: declaration.name.clone().into_boxed_str(),
             declared_type,
             transfer,
-        }
+        })
     }
 
     pub(crate) const fn ordinal(&self) -> u32 {
@@ -150,6 +154,7 @@ pub(crate) struct ParserCallableParameterDeclarationSourceV1 {
     parameters: Box<[ParserCallableParameterSourceRowV1]>,
     borrowed_result: Option<ParserBorrowedResultSyntaxV1>,
     receiver_transfer: ParserReceiverTransferSyntaxV1,
+    declared_result_type: Option<crate::ast::TypeReferenceV1>,
 }
 
 impl ParserCallableParameterDeclarationSourceV1 {
@@ -162,6 +167,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
         parameters: Box<[ParserCallableParameterSourceRowV1]>,
         borrowed_result: Option<ParserBorrowedResultSyntaxV1>,
         receiver_transfer: ParserReceiverTransferSyntaxV1,
+        declared_result_type: Option<crate::ast::TypeReferenceV1>,
     ) -> Self {
         Self {
             source_site,
@@ -172,6 +178,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
             parameters,
             borrowed_result,
             receiver_transfer,
+            declared_result_type,
         }
     }
 
@@ -208,6 +215,8 @@ impl ParserCallableParameterDeclarationSourceV1 {
     pub(crate) fn borrowed_result(&self) -> Option<&ParserBorrowedResultSyntaxV1> {
         self.borrowed_result.as_ref()
     }
+    pub(crate) fn declared_result_type(&self) -> Option<&crate::ast::TypeReferenceV1> { self.declared_result_type.as_ref() }
+
     pub(crate) fn receiver_transfer(&self) -> ParserReceiverTransferSyntaxV1 { self.receiver_transfer }
 
     pub(in crate::parser) fn requires_retained_source(&self) -> bool {

@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini acceptance remains fixed8/8; bounded From unit is closed. Ownership step3a is selected by the current goal and its instruction file.
-Declaration-only Edit parameters and Edit/Take receiver modes retain original source through resolved declarations and fail by named common-contract refusal; existing names and Take semantics stay unchanged. Check/focused104 PASS, optimized target/quick CLI/runtime fixed8/8 and cohort1808 PASS/exact115 known failure names; three new declarations reject by name with no EXE. Production+53/test+29 lines.
-Next: common structured Name/Apply/Nullable type references, copy prefix and nullable field default; preserve all existing accepted meaning and defer3b restrictions.
-Then report edit place lending design with MIR/public/ABI evidence and stop; do not implement edit execution or share/update. New opcode/public contract or safety/compatibility change requires a decision.
-Preserve two stashes and unrelated selfhost inventory. Hako edit/copy/type parity remains deferred on the same existing unavailable execution boundary.
+APP-boxtorrent-mini acceptance remains fixed8/8. Ownership step3a: Edit parameters and Edit/Take receiver declaration retention landed; unsupported execution named-refuses, existing names and Take meaning stay unchanged.
+Common TypeReferenceV1 now retains Name/Apply/Array/Nullable across original parameters/results and field inventory; legacy strings/Stage1 JSON projection stay unchanged. New unsupported type consumers named-refuse; bare T/null behavior is unchanged.
+Optimized target/quick CLI/runtime fixed8/8, cohort1808 PASS/exact115 known failures, check PASS; focused143 PASS plus1 preexisting Stage1 Array<PageId> metadata failure (same name/reason on Oct30). Type unit production+86/test+20 lines.
+Next: copy prefix and declaration-origin nullable-field default, then report edit place lending proposal and stop. No edit execution/share/update; new public contract/opcode or compatibility/safety change requires a decision.
+Two stashes and unrelated inventory preserved. Hako edit/copy/type-reference parity remains deferred on its existing unavailable execution boundary; 19 shapes are deferred to cutover.
 """
 next_design_card = "none"
 next_design_card_path = "none"

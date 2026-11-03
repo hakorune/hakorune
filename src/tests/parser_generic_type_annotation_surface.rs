@@ -119,3 +119,17 @@ static box Main {
         "{error}"
     );
 }
+
+#[test]
+fn parser_type_references_preserve_nullable_and_applied_metadata() {
+    use crate::ast::TypeReferenceV1 as Type;
+    let statements = program_statements("box Store { child: Leaf? handles: Shared<Leaf?>[] } ");
+    let ASTNode::BoxDeclaration { field_decls, .. } = &statements[0] else { panic!("box"); };
+    assert_eq!(Type::parse(field_decls[0].declared_type_name.as_deref().unwrap()).unwrap(),
+        Type::Nullable(Box::new(Type::Name("Leaf".into()))));
+    assert_eq!(Type::parse(field_decls[1].declared_type_name.as_deref().unwrap()).unwrap(),
+        Type::Array(Box::new(Type::Apply { name: "Shared".into(), args: vec![Type::Nullable(Box::new(Type::Name("Leaf".into())))] })));
+    assert!(Type::parse("Shared<>").is_err());
+    assert!(Type::parse("Leaf?trailing").is_err());
+    assert_eq!(Type::parse("名前").unwrap().name(), Some("名前"));
+}

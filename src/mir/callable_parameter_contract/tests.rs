@@ -318,16 +318,21 @@ fn unadmitted_declared_box_name_still_rejects() {
 
 #[test]
 fn unsupported_explicit_type_rejects_without_opaque_fallback() {
-    let batch = batch("static box Api { run(value: f64) { return value } }", 9);
-    assert!(matches!(
-        issue_callable_parameter_contract_v1(&batch),
-        Err(
-            super::CallableParameterContractIssueV1::UnsupportedDeclaredType {
-                declaration: 0,
-                parameter: 0,
-            }
-        )
-    ));
+    for spelling in ["f64", "Leaf?", "Shared<Leaf>", "Shared<Leaf?>", "Array<Leaf[]>" ] {
+        let batch = batch(&format!("box Leaf {{}} static box Api {{ run(value: {spelling}) {{ return value }} }}"), 9);
+        batch.with_declaration_semantics(|semantic| {
+            let parameters = semantic.declarations().last().unwrap().parameters().unwrap();
+            assert_eq!(parameters[0].type_reference(), Some(&crate::ast::TypeReferenceV1::parse(spelling).unwrap()));
+        }).unwrap();
+        assert!(matches!(issue_callable_parameter_contract_v1(&batch),
+            Err(super::CallableParameterContractIssueV1::UnsupportedDeclaredType { .. })));
+    }
+    let batch = batch("box Leaf {} static box Api { run(): Leaf? { return null } }", 10);
+    batch.with_declaration_semantics(|semantic| {
+        assert!(matches!(semantic.declarations().last().unwrap().declared_result_type(), Some(crate::ast::TypeReferenceV1::Nullable(_))));
+    }).unwrap();
+    assert!(matches!(issue_callable_parameter_contract_v1(&batch), Err(super::CallableParameterContractIssueV1::UnsupportedResultType { .. })));
+
 }
 
 #[test]

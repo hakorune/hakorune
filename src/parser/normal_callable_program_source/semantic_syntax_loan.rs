@@ -33,6 +33,7 @@ pub(crate) struct FinalCallableParameterSourceRefV1<'source> {
     name: &'source str,
     declared_type_name: Option<&'source str>,
     transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1,
+    type_reference: Option<&'source crate::ast::TypeReferenceV1>,
 }
 
 /// Parser-issued, AST-free evidence that a final callable row is one exact
@@ -70,6 +71,7 @@ pub(crate) struct FinalCallableSemanticSyntaxRowRefV1<'source> {
     owner_name: Option<&'source str>,
     parameters: Option<Box<[FinalCallableParameterSourceRefV1<'source>]>>,
     receiver_transfer: crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1,
+    declared_result_type: Option<&'source crate::ast::TypeReferenceV1>,
     borrowed_result: Option<&'source crate::parser::callable_parameter_source::ParserBorrowedResultSyntaxV1>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
     callable_contract_source: &'source CallableContractSourceDispositionV1,
@@ -124,6 +126,8 @@ impl FinalCallableSemanticSyntaxRowRefV1<'_> {
         self.parameters.as_deref()
     }
 
+    pub(crate) fn declared_result_type(&self) -> Option<&crate::ast::TypeReferenceV1> { self.declared_result_type }
+
     pub(crate) fn receiver_transfer(&self) -> crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1 { self.receiver_transfer }
 
     pub(crate) fn borrowed_result(&self) -> Option<&crate::parser::callable_parameter_source::ParserBorrowedResultSyntaxV1> {
@@ -139,10 +143,12 @@ impl FinalCallableSemanticSyntaxRowRefV1<'_> {
     }
 }
 
-impl FinalCallableParameterSourceRefV1<'_> {
+impl<'source> FinalCallableParameterSourceRefV1<'source> {
     pub(crate) const fn ordinal(self) -> u32 {
         self.ordinal
     }
+
+    pub(crate) fn type_reference(self) -> Option<&'source crate::ast::TypeReferenceV1> { self.type_reference }
 
     pub(crate) const fn transfer(self) -> crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1 {
         self.transfer
@@ -197,6 +203,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
                     name: parameter.name(),
                     declared_type_name: parameter.declared_type().as_deref(),
                     transfer: parameter.transfer(),
+                    type_reference: parameter.declared_type().reference(),
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice()
@@ -220,6 +227,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
                             ordinal: ordinal as u32,
                             name,
                             declared_type_name: None,
+                            type_reference: None,
                             transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1::ordinary(),
                         })
                         .collect(),
@@ -234,6 +242,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
             declaration,
             owner_name: declaration_owner_name(ast, slot)?,
             parameters,
+            declared_result_type: projected.and_then(|declaration| declaration.declared_result_type()),
             receiver_transfer: projected.map(|declaration| declaration.receiver_transfer()).unwrap_or_default(),
             borrowed_result: projected.and_then(|declaration| declaration.borrowed_result()),
             method_source_observation: issue_method_source_observation(source),

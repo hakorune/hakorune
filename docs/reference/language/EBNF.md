@@ -111,7 +111,7 @@ target_move_expr     := 'move' HSPACE target_place  (* field operand decided 202
 target_take_expr     := IDENT("take") HTRIVIA target_place  (* decided 2026-11-03: nullable field place only; parser-inactive *)
 target_copy_expr     := IDENT("copy") HTRIVIA non_group_postfix_expr  (* decided 2026-11-03; parser-inactive *)
 target_match_move    := 'match' HSPACE 'move' HSPACE expr '{' match_arm+ default_arm? '}'  (* decided 2026-11-03; parser-inactive *)
-target_nullable_type := TYPE_REF '?'  (* decided 2026-11-02; parser-inactive; expression '?' stays Result propagation *)
+target_nullable_type := TYPE_REF '?'  (* Rust type syntax retained; unsupported consumers named-reject; expression '?' stays Result propagation *)
 target_fn_type       := 'fn' '(' ( param_mode? TYPE_REF ( ',' param_mode? TYPE_REF )* )? ')' ':' TYPE_REF  (* decided 2026-11-03; parser-inactive *)
 target_closure       := 'fn' '[' capture ( ',' capture )* ']' '(' params? ')' ':' TYPE_REF block  (* decided 2026-11-03; parser-inactive *)
 capture              := IDENT("edit")? IDENT
@@ -122,7 +122,7 @@ explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_
 
 `HTRIVIA` excludes line terminators. Release I0 narrows `HSPACE` to spaces and
 tabs; comment trivia is not part of that row. `take` is recognized at parameter
-head (`edit` likewise, as a target) and, as a target, at method head and at expression-prefix position when the
+head (`edit` likewise) and at method head; expression-prefix `take` remains a target when the
 next token starts `target_place`; `share` only at expression-prefix position when the next token
 is `move` or starts a non-group primary, and `release` only at statement head. Once recognized,
 an invalid operand is a diagnostic and never falls back to an ordinary call. See

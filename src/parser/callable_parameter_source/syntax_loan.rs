@@ -225,6 +225,7 @@ mod tests {
             vec![ParserCallableParameterSourceRowV1::ordinary(0, &parameter)].into_boxed_slice(),
             None,
             Default::default(),
+            None,
         );
         (
             ast,

@@ -34,12 +34,14 @@ pub(crate) struct DeclaredFieldValueSourceV1 {
     inventory: Rc<OriginalFieldWriterInventoryV1>,
     field: CanonicalFieldRefV1,
     declared_type_name: Option<Box<str>>,
+    declared_type_reference: Option<crate::ast::TypeReferenceV1>,
     writers: Box<[usize]>,
     birth_stores: Box<[Option<BirthStoreSourceRefV1>]>,
     qualified_writers: BTreeSet<usize>,
 }
 impl DeclaredFieldValueSourceV1 {
     pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
+    pub(crate) fn declared_type_reference(&self) -> Option<&crate::ast::TypeReferenceV1> { self.declared_type_reference.as_ref() }
     pub(crate) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
     pub(crate) fn writers(&self) -> impl Iterator<Item = &ObservedFieldWriteV1> {
         self.writers.iter().map(|index| &self.inventory.writes[*index])
@@ -62,7 +64,7 @@ impl DeclaredFieldValueSourceV1 {
     ) -> Option<(&'a ObservedFieldWriteV1, &'b ConstructionStoreV1)> {
         let mut writers = self.writers();
         let writer = writers.next()?;
-        if writers.next().is_some() || !writer.in_birth() || self.declared_type_name().is_some() {
+        if writers.next().is_some() || !writer.in_birth() || self.declared_type_reference().is_some() {
             return None;
         }
         let store = self.birth_store(constructors, 0).ok()??;
@@ -125,7 +127,7 @@ impl TextFieldValueSourceV1 {
         ingress: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::PreparedBorrowedFormalIngressV1,
         claims: &OrdinaryNewFieldWriteClaimsV1, source: &Rc<DeclaredFieldValueSourceV1>,
     ) -> Option<Self> {
-        if source.declared_type_name().is_some() { return None; }
+        if source.declared_type_reference().is_some() { return None; }
         let sum = ingress.source_field_value_sum_v1(claims, source)?;
         sum.text_only().then(|| Self { source: Rc::clone(source), sum })
     }
@@ -229,8 +231,11 @@ fn issue_one(
             }).count() != 1 { return Err(Issue::MissingWriter); }
         }
     }
+    let declared_type_reference = declared.as_deref().map(crate::ast::TypeReferenceV1::parse)
+        .transpose().map_err(|_| Issue::Declaration)?;
     Ok(DeclaredFieldValueSourceV1 {
         inventory: Rc::clone(inventory), field, declared_type_name: declared.map(Into::into),
+        declared_type_reference,
         writers: writers.into_boxed_slice(), birth_stores: birth_stores.into_boxed_slice(),
         qualified_writers: qualified.keys().copied().collect(),
     })

@@ -170,6 +170,11 @@ fn parse_optional_type_annotation(
                 type_text.push(']');
                 p.advance();
             }
+            TokenType::QUESTION => {
+                consumed_any = true;
+                type_text.push('?');
+                p.advance();
+            }
             TokenType::COMMA => {
                 if generic_depth == 0 && array_depth == 0 {
                     match site {
@@ -266,6 +271,11 @@ pub(crate) fn parse_optional_return_type_annotation(
     context: &str,
 ) -> Result<Option<String>, ParseError> {
     let result = parse_optional_type_annotation(p, context, TypeAnnotationSite::Return)?;
+    if let Some(spelling) = &result {
+        crate::ast::TypeReferenceV1::parse(spelling).map_err(|detail| ParseError::GrammarContract {
+            stable_reject_tag: "parser/type-reference", detail, line: p.current_token().line,
+        })?;
+    }
     if p.match_token(&TokenType::FROM) {
         return Err(crate::parser::callable_parameter_source::source_contract_required(true,
             "from requires a retained callable header", p.current_token().line));
@@ -283,6 +293,9 @@ pub(crate) fn parse_callable_return_source(
     use crate::parser::callable_parameter_source::{ParserBorrowedResultSyntaxV1 as ResultSyntax,
         ParserBorrowedResultSupportSyntaxV1 as Support};
     let result = parse_optional_type_annotation(p, context, TypeAnnotationSite::Return)?;
+    let parameters = parameters.with_declared_result_type(result.as_deref()).map_err(|detail| ParseError::GrammarContract {
+        stable_reject_tag: "parser/type-reference", detail, line: p.current_token().line,
+    })?;
     if !p.match_token(&TokenType::FROM) { return Ok((result, parameters)); }
     let line = p.current_token().line;
     let fail = |detail: &str| ParseError::GrammarContract {

@@ -20,6 +20,8 @@ pub mod result_option_prelude;
 pub mod rune_profile;
 mod span;
 mod utils;
+mod type_reference;
+pub use type_reference::TypeReferenceV1;
 pub use ast_node::{
     ASTNode, CatchClause, CheckItem, ContractClause, EnumMatchArm, EnumVariantDecl, FieldDecl,
 };

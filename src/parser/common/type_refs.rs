@@ -61,10 +61,12 @@ fn parse_type_ref_text_inner(
         text.push('>');
     }
 
-    while p.match_token(&TokenType::LBRACK) {
-        p.advance();
-        p.consume(TokenType::RBRACK)?;
-        text.push_str("[]");
+    loop {
+        if p.match_token(&TokenType::LBRACK) {
+            p.advance(); p.consume(TokenType::RBRACK)?; text.push_str("[]");
+        } else if p.match_token(&TokenType::QUESTION) {
+            p.advance(); text.push('?');
+        } else { break; }
     }
 
     Ok((text, pending_gt))

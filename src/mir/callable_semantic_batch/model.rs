@@ -62,6 +62,7 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
     pub(super) borrowed_result: Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>,
     pub(super) receiver_transfer: crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1,
+    pub(super) declared_result_type: Option<crate::ast::TypeReferenceV1>,
 }
 
 #[derive(Debug)]
@@ -121,6 +122,7 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
     name: &'batch str,
     declared_type_name: Option<&'batch str>,
     transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1,
+    type_reference: Option<&'batch crate::ast::TypeReferenceV1>,
 }
 
 impl VerifiedResolvedCallableSemanticBatchV1 {
@@ -368,6 +370,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                                 name: parameter.name(),
                                 declared_type_name: parameter.declared_type_name(),
                                 transfer: parameter.transfer(),
+                                type_reference: parameter.type_reference(),
                             })
                             .collect::<Vec<_>>()
                             .into_boxed_slice()
@@ -414,6 +417,8 @@ impl VerifiedResolvedCallableSemanticBatchRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
+    pub(crate) fn declared_result_type(&self) -> Option<&crate::ast::TypeReferenceV1> { self.semantic.declared_result_type.as_ref() }
+
     pub(crate) fn receiver_transfer(&self) -> crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1 { self.semantic.receiver_transfer }
     pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.semantic.identity
@@ -480,10 +485,12 @@ impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
     }
 }
 
-impl VerifiedResolvedCallableParameterSourceRefV1<'_> {
+impl<'batch> VerifiedResolvedCallableParameterSourceRefV1<'batch> {
     pub(crate) const fn ordinal(self) -> u32 {
         self.ordinal
     }
+
+    pub(crate) fn type_reference(self) -> Option<&'batch crate::ast::TypeReferenceV1> { self.type_reference }
 
     pub(crate) const fn transfer(self) -> crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1 {
         self.transfer

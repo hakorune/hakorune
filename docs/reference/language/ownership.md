@@ -234,7 +234,10 @@ the old meaning of an omitted annotation (dynamic Any) ends. A `T?` field withou
 an initializer is declared null; a required field must be initialized on every
 Normal construction path; a moved field is never refilled with null. Automatic
 copy covers numbers, Bool, unit enums and records holding only those; `copy e` is
-explicit. Enums may own Unique and Shared values; records stay limited to copyable
+explicit. Rust retains structural type-reference syntax (Name/Apply/Array/Nullable);
+unsupported new parameter/result representations are named rejections. Bare `T`
+keeps its pre-cutover meaning and nullable-field defaults remain a separate
+connection. Enums may own Unique and Shared values; records stay limited to copyable
 values for now. The full list is the ADR-002 row "固定した文法".
 
 Sections 1-11 below describe the pre-cutover meaning where they conflict with
