@@ -345,6 +345,24 @@ fn resolve_call_key_inner(
     Box<[ResultActualSourceV1]>,
 )> {
     if !resolving.insert(site.clone()) { return None; }
+    let result = resolve_call_key_source(site, function, body_shape, caller_key, batch, selected, field_write_claims, resolving);
+    resolving.remove(site);
+    result
+}
+
+fn resolve_call_key_source(
+    site: &SourceExprSiteV1,
+    function: &VerifiedResolvedFunctionV1,
+    body_shape: &VerifiedResolvedBodyShapeInventoryV1,
+    caller_key: &CanonicalSameModuleCallableKeyV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    resolving: &mut std::collections::BTreeSet<SourceExprSiteV1>,
+) -> Option<(
+    CanonicalSameModuleCallableKeyV1,
+    Box<[ResultActualSourceV1]>,
+)> {
     if let Some(target) = function.direct_call_target(site) {
         let callee_owner = target.callable().owner();
         let mut declarations = batch
@@ -407,17 +425,17 @@ fn resolve_call_key_inner(
                     let caller = callers.next()?;
                     if callers.next().is_some() { return None; }
                     let slot = caller.batch_slot();
-                    let read = batch.with_lowering_input(slot, |input|
-                        crate::mir::resolved_semantics::home_new_prefix::SourceCallResultReadV1::issue_v1(input, call.receiver_site())).ok()??;
-                    if read.binding() != binding { return None; }
-                    let (producer, _) = resolve_call_key_inner(read.producer().site(), function,
-                        body_shape, caller_key, batch, selected, field_write_claims, resolving)?;
-                    let slot = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(producer))?;
-                    let mut rows = batch.declarations().filter(|row| row.batch_slot() == slot);
-                    let row = rows.next()?;
-                    if rows.next().is_some() { return None; }
-                    let declared = row.borrowed_result()?;
-                    (declared.owner() == row.owner()).then(|| declared.declared_type().into())
+                    let source = batch.with_lowering_input(slot, |input|
+                        crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1::issue_source_v1(input, call.receiver_site(), |producer, _| {
+                            let Some((key, _)) = resolve_call_key_inner(producer.site(), function,
+                                body_shape, caller_key, batch, selected, field_write_claims, resolving) else { return Ok(None); };
+                            let Some(slot) = selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)) else { return Ok(None); };
+                            let mut rows = batch.declarations().filter(|row| row.batch_slot() == slot);
+                            let Some(row) = rows.next() else { return Ok(None); };
+                            if rows.next().is_some() { return Err("borrowed-nullable/callee-owner"); }
+                            Ok(row.borrowed_result().filter(|declared| declared.owner() == row.owner()).cloned())
+                        })).ok()?.ok()??;
+                    (source.binding() == binding).then(|| source.declared_type().into())
                 })?
             };
             super::lexical_instance_call::unique_instance_target(

@@ -77,20 +77,80 @@ static hako_lv4_value* lv4_borrowed_result_step(const hako_lv4_input* in,
   return lv4_index_value(fn, actual);
 }
 
-/* Resolve the SAME support through a finite original value chain. No live
- * slot is created and an invalid edge never retries another source. */
+/* Structural support fold only: state, interval and payload proofs stay with
+ * their use owners. One active/done set also catches Call -> Phi -> Call cycles. */
+typedef struct { hako_lv4_value* value; size_t next; hako_lv4_value* anchor; } lv4_anchor_frame;
 static hako_lv4_value* lv4_borrowed_result_anchor(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value) {
+  value = lv4_value_alias_root(fn, value);
+  if (!value || value->kind != LV4_BORROWED_OBJECT) return value;
+  if (!fn->value_count) return NULL;
+  hako_lv4_value* initial = value;
+  int joined = 0;
   for (size_t steps = 0; steps <= fn->value_count; steps++) {
     value = lv4_value_alias_root(fn, value);
     if (!value || value->kind != LV4_BORROWED_OBJECT) return value;
+    if (lv4_is(value->instruction, "op", "phi")) { joined = 1; break; }
     value = lv4_borrowed_result_step(in, fn, value);
   }
-  return NULL;
+  if (!joined) return NULL;
+  value = initial; /* Preserve allocation-free linear queries; fold all edges after a join. */
+  unsigned char* seen = (unsigned char*)calloc(fn->value_count, 1);
+  hako_lv4_value** memo = (hako_lv4_value**)calloc(fn->value_count, sizeof(*memo));
+  lv4_anchor_frame* stack = (lv4_anchor_frame*)calloc(fn->value_count, sizeof(*stack));
+  if (!seen || !memo || !stack) { free(seen); free(memo); free(stack); return NULL; }
+  size_t depth = 1;
+  int valid = 1, graph = 0, legacy = 0;
+  hako_lv4_value* root = value;
+  stack[0].value = value;
+  while (depth && valid) {
+    lv4_anchor_frame* frame = &stack[depth - 1];
+    value = frame->value;
+    size_t slot = (size_t)(value - fn->values);
+    if (slot >= fn->value_count) { valid = 0; break; }
+    yyjson_val* row = value->instruction;
+    if (!seen[slot]) {
+      seen[slot] = 1;
+      if (value->kind != LV4_BORROWED_OBJECT) {
+        memo[slot] = value; seen[slot] = 2; depth--; continue;
+      }
+      if (lv4_is(row, "op", "phi")) {
+        yyjson_val* inputs = yyjson_obj_get(row, "inputs");
+        graph = 1;
+        if (!value->definition_block || !yyjson_arr_size(inputs) ||
+            !hako_physical_phi_predecessors_exact(fn->function, lv4_u(value->definition_block, "id"), inputs)) { valid = 0; break; }
+      } else if (lv4_is(row, "op", "invoke_normal_result")) {
+        yyjson_val* op = lv4_borrowed_result_operation(fn, value);
+        legacy |= !yyjson_is_true(yyjson_obj_get(op, "result_read"));
+      } else { valid = 0; break; }
+    }
+    int phi = lv4_is(row, "op", "phi");
+    yyjson_val* inputs = yyjson_obj_get(row, "inputs");
+    size_t count = phi ? yyjson_arr_size(inputs) : 1;
+    if (frame->next == count) {
+      if (!frame->anchor) { valid = 0; break; }
+      memo[slot] = frame->anchor; seen[slot] = 2; depth--; continue;
+    }
+    hako_lv4_value* child = phi ? lv4_index_value(fn, lv4_u(yyjson_arr_get(inputs, frame->next), "value"))
+        : lv4_borrowed_result_step(in, fn, value);
+    child = lv4_value_alias_root(fn, child);
+    if (!child) { valid = 0; break; }
+    size_t child_slot = (size_t)(child - fn->values);
+    if (child_slot >= fn->value_count || seen[child_slot] == 1) { valid = 0; break; }
+    if (seen[child_slot] == 2) {
+      if (!memo[child_slot] || (frame->anchor && frame->anchor != memo[child_slot])) { valid = 0; break; }
+      frame->anchor = memo[child_slot]; frame->next++; continue;
+    }
+    if (depth == fn->value_count) { valid = 0; break; }
+    stack[depth++] = (lv4_anchor_frame){child, 0, NULL};
+  }
+  /* Legacy linear support keeps its old contract. Joined support never
+     obtains a read capability from an unqualified Call edge. */
+  hako_lv4_value* result = valid && !(graph && legacy) ? memo[(size_t)(root - fn->values)] : NULL;
+  free(seen); free(memo); free(stack);
+  return result;
 }
 
-/* The explicit read qualifier belongs to both the original function and Call.
- * All body blocks, including Fault/unreachable blocks, obey the support law. */
 static int lv4_declared_read_effects(hako_lv4_function_index* fn) {
   if (!yyjson_obj_get(fn->function, "result_read")) return 1;
   if (!yyjson_is_true(yyjson_obj_get(fn->function, "result_read")) ||

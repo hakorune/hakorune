@@ -22,6 +22,7 @@ impl BorrowedSupportReadV1 {
         Ok(Self { source, loans: loans.into(), anchor })
     }
     pub(crate) fn read(&self) -> &OwnedExprSiteV1 { self.source.read() }
+    pub(crate) fn binding(&self) -> BindingRefV1 { self.source.binding() }
     pub(crate) fn declared_type(&self) -> &str { self.source.declared_type() }
     pub(crate) fn loans(&self) -> impl Iterator<Item = &BorrowedNullableLocalSourceLoanV1> { self.loans.iter() }
     pub(crate) fn anchor(&self) -> &BorrowedLifetimeAnchorV1 { &self.anchor }
@@ -34,5 +35,74 @@ impl BorrowedSupportReadV1 {
     pub(crate) fn matches_value(&self, current: &DeclaredReadValueV1) -> bool {
         self.source.matches_value_v1(current) && self.loans.len() == current.loans().count()
             && self.loans().all(|original| current.loans().filter(|loan| *loan == original).count() == 1)
+    }
+}
+
+impl BorrowedSupportReadV1 {
+    fn same_original_source_v1(&self, other: &Self) -> bool {
+        self.source == other.source && self.anchor == other.anchor
+            && self.loans.len() == other.loans.len()
+            && self.loans().all(|loan| other.loans().filter(|original|
+                loan.same_original_source_v1(original)).count() == 1)
+    }
+}
+impl BorrowedLocalSupportV1 {
+    pub(super) fn same_original_source_v1(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Reborrow { callee: a, actual: x }, Self::Reborrow { callee: b, actual: y }) =>
+                a == b && x.same_original_source_v1(y),
+            _ => self == other,
+        }
+    }
+}
+impl BorrowedNullableLocalSourceLoanV1 {
+    /// Regenerating a Call may allocate a new wrapper, but never a new callee
+    /// witness, substitution, source declaration or permission.
+    fn same_original_source_v1(&self, other: &Self) -> bool {
+        let same_witness = |a: &Rc<ResultOriginWitnessV1>, b: &Rc<ResultOriginWitnessV1>|
+            Rc::ptr_eq(a, b) || (a.site() == b.site() && Self::same_original_call_witness_v1(a, b));
+        self.declared_result_matches_v1(other.declared_read_result_v1())
+            && self.declaration == other.declaration && self.destination == other.destination
+            && self.call == other.call && self.receiver == other.receiver
+            && self.key == other.key && self.callee_owner == other.callee_owner
+            && self.support.same_original_source_v1(&other.support)
+            && self.witnesses.len() == other.witnesses.len()
+            && self.witnesses.iter().all(|root|
+                self.witnesses.iter().filter(|a| same_witness(a, root)).count()
+                    == other.witnesses.iter().filter(|b| same_witness(b, root)).count())
+    }
+    /// Bind every nested support to this preparation's existing producer map.
+    /// The outer producer retains its original witnesses; no second issuer is
+    /// created and Prefix still requires exact canonical-loan equality.
+    pub(in crate::mir::normal_callable_semantic_package) fn canonical_supports_v1(
+        producers: &BTreeMap<OwnedExprSiteV1, Box<Self>>,
+    ) -> Result<BTreeMap<OwnedExprSiteV1, Box<Self>>, (OwnedExprSiteV1, &'static str)> {
+        fn visit(call: &OwnedExprSiteV1, producers: &BTreeMap<OwnedExprSiteV1, Box<BorrowedNullableLocalSourceLoanV1>>,
+            active: &mut BTreeSet<OwnedExprSiteV1>, memo: &mut BTreeMap<OwnedExprSiteV1, Box<BorrowedNullableLocalSourceLoanV1>>,
+        ) -> Result<Box<BorrowedNullableLocalSourceLoanV1>, &'static str> {
+            if let Some(loan) = memo.get(call) { return Ok(loan.clone()); }
+            if !active.insert(call.clone()) { return Err("borrowed-nullable/source-identity"); }
+            let original = producers.get(call).ok_or("borrowed-nullable/source-missing")?;
+            let mut loan = original.clone();
+            if let BorrowedLocalSupportV1::Reborrow { callee, actual } = &original.support {
+                let mut leaves = Vec::new();
+                for proposed in actual.loans() {
+                    let canonical = visit(proposed.call(), producers, active, memo)?;
+                    if !proposed.same_original_source_v1(&canonical) { return Err("borrowed-nullable/source-identity"); }
+                    leaves.push(*canonical);
+                }
+                loan.support = BorrowedLocalSupportV1::Reborrow { callee: *callee,
+                    actual: BorrowedSupportReadV1::issue(actual.source.clone(), leaves)? };
+            }
+            active.remove(call);
+            memo.insert(call.clone(), loan.clone());
+            Ok(loan)
+        }
+        let mut memo = BTreeMap::new();
+        let mut active = BTreeSet::new();
+        for call in producers.keys() {
+            visit(call, producers, &mut active, &mut memo).map_err(|issue| (call.clone(), issue))?;
+        }
+        Ok(memo)
     }
 }

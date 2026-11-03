@@ -185,13 +185,16 @@ impl BorrowedNullableLocalSourceLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates_call_witness_v1(
         &self, witness: &ResultOriginWitnessV1,
     ) -> bool {
-        let ResultWitnessStepV1::Call { site, key, callee, substitution } = witness.step()
+        let ResultWitnessStepV1::Call { site, key, .. } = witness.step()
             else { return false; };
-        site == self.call() && key == self.key() && self.witnesses().iter().any(|candidate| {
-            candidate.origin() == witness.origin() && matches!(candidate.step(),
-                ResultWitnessStepV1::Call { site: s, key: k, callee: c, substitution: a }
-                    if s == site && k == key && Rc::ptr_eq(c, callee) && a == substitution)
-        })
+        site == self.call() && key == self.key()
+            && self.witnesses().iter().any(|candidate| Self::same_original_call_witness_v1(candidate, witness))
+    }
+    fn same_original_call_witness_v1(a: &ResultOriginWitnessV1, b: &ResultOriginWitnessV1) -> bool {
+        matches!((a.step(), b.step()),
+            (ResultWitnessStepV1::Call { site: x, key: k, callee: c, substitution: s },
+             ResultWitnessStepV1::Call { site: y, key: l, callee: d, substitution: t })
+                if a.origin() == b.origin() && x == y && k == l && Rc::ptr_eq(c, d) && s == t)
     }
 }
 impl PartialEq for BorrowedNullableLocalSourceLoanV1 {
@@ -321,7 +324,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             || original.source.receiver.as_ref() != Some(&loan.receiver)
             || original.source.key != loan.key
             || original.source.callee_owner != loan.callee_owner
-            || original.support != loan.support
+            || !original.support.same_original_source_v1(&loan.support)
         {
             return Err("borrowed-nullable/source-identity");
         }
@@ -376,7 +379,9 @@ impl OrdinaryNewResultClassClaimsV1 {
             }
         } else if let Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }) = self.get(&source.key) {
             let actual = source.actuals.get(*ordinal as usize).ok_or("borrowed-nullable/actual-root")?;
-            let binding = actual.binding.ok_or("borrowed-nullable/actual-root")?;
+            let support_read = self.original_borrowed_read_v1(batch, selected, fields, parameters,
+                &source, actual, app_main)?;
+            let binding = actual.binding.or_else(|| support_read.as_ref().map(|read| read.binding())).ok_or("borrowed-nullable/actual-root")?;
             let kind = batch.with_lowering_input(source.caller_slot, |input|
                 input.function().binding(binding).map(|row| row.kind()))
                 .map_err(|_| "borrowed-nullable/caller-input")?;
@@ -395,8 +400,7 @@ impl OrdinaryNewResultClassClaimsV1 {
                     if original.construction.class() != declared.declared_type() { return Err("borrowed-nullable/source-identity"); }
                     BorrowedLocalSupportV1::OwnedLocal { callee_ordinal: *ordinal, actual: actual.clone(), source: original }
                 } else {
-                    let read = self.original_borrowed_read_v1(batch, selected, fields, parameters,
-                        &source, actual, app_main)?.ok_or("borrowed-nullable/actual-root")?;
+                    let read = support_read.ok_or("borrowed-nullable/actual-root")?;
                     let parameter = parameters.iter().find(|row| row.owner == source.callee_owner)
                         .and_then(|row| row.parameters.iter().find(|row| row.ordinal == *ordinal))
                         .ok_or("borrowed-nullable/formal-root")?;

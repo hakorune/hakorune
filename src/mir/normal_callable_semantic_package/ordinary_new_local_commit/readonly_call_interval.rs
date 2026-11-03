@@ -48,22 +48,33 @@ pub(super) fn validate_readonly_edge_v1(handoff: &super::super::FinalizedRootSou
 }
 
 /// The original support is a lifetime anchor, never the returned payload.
-pub(super) fn borrowed_lifetime_start_v1(context: CallValidationContextV1<'_>,
-    mut base: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
-) -> Result<(ValueId, Binding), String> {
-    while let Some(parent) = base.reborrowed_read_v1() { base = parent.single_loan().ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?; }
-    context.with_taken_packet_v1(base.call(), |packet| {
-        let original = context.ledger().borrowed_nullable_call_source_v1(base.call())
-            .ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
-        if original.borrowed_nullable() != Some(base) { return Err(freeze("read-argument/emitted-source-kind-drift")); }
-        let actual = packet.call_in_context(base.call().owner(), original.arguments(), context)?;
-        let value = match base.result_support_v1() {
-            crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) => actual.args.get(ordinal as usize).copied(),
-            crate::mir::instruction::BorrowedResultSupportV1::Receiver => actual.callee.receiver(),
-            _ => None,
-        }.ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
-        Ok((value, packet.outer_bindings()?.1.clone()))
-    })
+pub(super) fn borrowed_lifetime_starts_v1(context: CallValidationContextV1<'_>,
+    loan: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+) -> Result<Vec<(ValueId, Binding)>, String> {
+    let mut pending = vec![loan];
+    let mut visited = std::collections::BTreeMap::new();
+    let mut starts = Vec::new();
+    while let Some(base) = pending.pop() {
+        if let Some(original) = visited.insert(base.call(), base) {
+            if original != base { return Err(freeze("read-argument/emitted-source-kind-drift")); }
+            continue;
+        }
+        if let Some(parent) = base.reborrowed_read_v1() { pending.extend(parent.loans()); continue; }
+        starts.push(context.with_taken_packet_v1(base.call(), |packet| {
+            let original = context.ledger().borrowed_nullable_call_source_v1(base.call())
+                .ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
+            if original.borrowed_nullable() != Some(base) { return Err(freeze("read-argument/emitted-source-kind-drift")); }
+            let actual = packet.call_in_context(base.call().owner(), original.arguments(), context)?;
+            let value = match base.result_support_v1() {
+                crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal) => actual.args.get(ordinal as usize).copied(),
+                crate::mir::instruction::BorrowedResultSupportV1::Receiver => actual.callee.receiver(),
+                _ => None,
+            }.ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
+            Ok((value, packet.outer_bindings()?.1.clone()))
+        })?);
+    }
+    if starts.is_empty() { return Err(freeze("read-argument/emitted-source-kind-drift")); }
+    Ok(starts)
 }
 
 impl FinalizedRootSourceHandoffV1 {
@@ -107,8 +118,7 @@ impl FinalizedRootSourceHandoffV1 {
                 // all uses are absent; a live argument still requires Some.
                 let Some(normal) = projection.relation_binding(function, &normal)? else { return Ok(()); };
                 let MirInstruction::InvokeNormalResult { dst: payload, .. } = normal.1 else { return Err(freeze("field-argument/finished-read-removed")); };
-                let (anchor, start) = borrowed_lifetime_start_v1(context, &loan)?;
-                let start = projection.relation_binding(function, &start)?.ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
+                let starts = borrowed_lifetime_starts_v1(context, &loan)?;
                 let mut aliases = std::collections::BTreeSet::from([payload]);
                 loop {
                     let count = aliases.len();
@@ -147,8 +157,11 @@ impl FinalizedRootSourceHandoffV1 {
                         if check(at, row, &mut checked)? { return Err(freeze("field-argument/parent-or-child-invalidated")); }
                         let finish = (*block, row.clone());
                         intervals.require_before(&normal, &finish)?;
-                        intervals.borrowed_result_v1(anchor, payload)?.check_with_effects(&start, &finish,
-                            |at, row| check(at, row, &mut checked))?;
+                        for (anchor, start) in &starts {
+                            let start = projection.relation_binding(function, start)?.ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
+                            intervals.borrowed_result_v1(*anchor, payload)?.check_with_effects(&start, &finish,
+                                |at, row| check(at, row, &mut checked))?;
+                        }
                     }
                 }
                 Ok(())

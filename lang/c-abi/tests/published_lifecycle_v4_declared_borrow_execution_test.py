@@ -202,7 +202,7 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
         print('reject', label)
 
     # The same read/result safety boundary covers formal and real receiver support.
-    for suffix, symbol, expected in [('entry-field-phi-receiver-0', 'Leaf.maybe/2', 0), ('entry-field-phi-receiver-1', 'Leaf.maybe/2', 7), ('entry-field-phi-receiver-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-receiver-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-argument-0', 'Leaf.maybe/2', 0), ('entry-field-phi-argument-1', 'Leaf.maybe/2', 7), ('entry-field-phi-argument-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-argument-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-alias-0', 'Leaf.maybe/2', 0), ('entry-field-phi-alias-1', 'Leaf.maybe/2', 7), ('entry-field-phi-alias-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-alias-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-mixed-0', 'Leaf.maybe/2', 0), ('entry-field-phi-mixed-1', 'Leaf.maybe/2', 7), ('entry-field-phi-mixed-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-mixed-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-distinct-0', 'Leaf.maybe/2', 0), ('entry-field-phi-distinct-1', 'Leaf.maybe/2', 7), ('entry-field-phi-distinct-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-distinct-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-0', 'Leaf.maybe/2', 0), ('entry-field-phi-1', 'Leaf.maybe/2', 7), ('entry-field-phi-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-0', 'Leaf.maybe/2', 0), ('entry-field-1', 'Leaf.maybe/2', 7), ('phi-forward-0', 'Leaf.forward/2', 7), ('phi-forward-1', 'Leaf.forward/2', 7), ('phi-forward-0-unoptimized', 'Leaf.forward/2', 7), ('phi-forward-1-unoptimized', 'Leaf.forward/2', 7), ('branch-0', 'Leaf.identity/1', 7), ('branch-1', 'Leaf.identity/1', 7), ('branch-0-unoptimized', 'Leaf.identity/1', 7), ('branch-1-unoptimized', 'Leaf.identity/1', 7), ('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
+    for suffix, symbol, expected in [('entry-field-phi-reborrow-0', 'Leaf.maybe/2', 0), ('entry-field-phi-reborrow-1', 'Leaf.maybe/2', 7), ('entry-field-phi-reborrow-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-reborrow-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-receiver-reborrow-0', 'Leaf.maybe/2', 0), ('entry-field-phi-receiver-reborrow-1', 'Leaf.maybe/2', 7), ('entry-field-phi-receiver-reborrow-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-receiver-reborrow-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-receiver-0', 'Leaf.maybe/2', 0), ('entry-field-phi-receiver-1', 'Leaf.maybe/2', 7), ('entry-field-phi-receiver-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-receiver-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-argument-0', 'Leaf.maybe/2', 0), ('entry-field-phi-argument-1', 'Leaf.maybe/2', 7), ('entry-field-phi-argument-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-argument-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-alias-0', 'Leaf.maybe/2', 0), ('entry-field-phi-alias-1', 'Leaf.maybe/2', 7), ('entry-field-phi-alias-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-alias-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-mixed-0', 'Leaf.maybe/2', 0), ('entry-field-phi-mixed-1', 'Leaf.maybe/2', 7), ('entry-field-phi-mixed-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-mixed-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-distinct-0', 'Leaf.maybe/2', 0), ('entry-field-phi-distinct-1', 'Leaf.maybe/2', 7), ('entry-field-phi-distinct-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-distinct-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-phi-0', 'Leaf.maybe/2', 0), ('entry-field-phi-1', 'Leaf.maybe/2', 7), ('entry-field-phi-0-unoptimized', 'Leaf.maybe/2', 0), ('entry-field-phi-1-unoptimized', 'Leaf.maybe/2', 7), ('entry-field-0', 'Leaf.maybe/2', 0), ('entry-field-1', 'Leaf.maybe/2', 7), ('phi-forward-0', 'Leaf.forward/2', 7), ('phi-forward-1', 'Leaf.forward/2', 7), ('phi-forward-0-unoptimized', 'Leaf.forward/2', 7), ('phi-forward-1-unoptimized', 'Leaf.forward/2', 7), ('branch-0', 'Leaf.identity/1', 7), ('branch-1', 'Leaf.identity/1', 7), ('branch-0-unoptimized', 'Leaf.identity/1', 7), ('branch-1-unoptimized', 'Leaf.identity/1', 7), ('rebind-forward', 'Leaf.forward/1', 7), ('rebind-direct', 'Leaf.identity/1', 7), ('rebind-alias', 'Leaf.identity/1', 7), ('receiver-reborrow-alias', 'Leaf.identity/0', 7), ('receiver-reborrow', 'Leaf.identity/0', 7), ('receiver-reborrow-child', 'Leaf.identity/0', 7), ('reborrow-read-after', 'Leaf.identity/1', 7), ('reborrow-child', 'Leaf.identity/1', 7), ('reborrow', 'Leaf.identity/1', 7), ('reborrow-null-0', 'Leaf.identity/1', 0), ('reborrow-null-1', 'Leaf.identity/1', 7), ('local', 'Leaf.identity/1', 7), ('alias', 'Leaf.identity/1', 7), ('guarded-alias-0', 'Leaf.maybe/2', 0), ('guarded-alias-1', 'Leaf.maybe/2', 7), ('receiver', 'Leaf.identity/0', 7), ('receiver-forward', 'Leaf.forward/0', 7), ('field', 'Parent.identity/0', 7), ('field-forward', 'Parent.forward/0', 7), ('forward', 'Leaf.forward/2', 7), ('nullable-0', 'Leaf.maybe/2', 7), ('nullable-1', 'Leaf.maybe/2', 7), ('guarded-0', 'Leaf.maybe/2', 7), ('guarded-1', 'Leaf.maybe/2', 9), ('guarded-field-0', 'Leaf.maybe/2', 0), ('guarded-field-1', 'Leaf.maybe/2', 7)]:
         caller = 'Leaf.probe/2' if suffix.startswith('entry-field-') else ('Leaf.probe/1' if suffix.startswith('branch-') else 'main')
         # Copy and unanimous Phi retain the original explicit read Call.
         read = json.loads((INPUTS / f'hako-issued-declared-read-{suffix}.json').read_text())
@@ -268,24 +268,35 @@ with tempfile.TemporaryDirectory(prefix='hako declared borrow ') as directory:
             guards = [row['instruction'] for block in function(changed, caller)['blocks']
                       for row in block['instructions']
                       if row['instruction']['op'] == 'borrowed_null_compare']
-            assert len(guards) == 1
+            assert len(guards) == (2 if suffix.startswith('entry-field-phi-receiver-reborrow-') else 1)
             guards[0]['predicate'] = 'ne'
             compile_input(changed, accepted=False)
             print('reject swapped nullable field guard')
 
-        for side in ['call', 'callee']:
-            for marker in [None, False]:
-                data = copy.deepcopy(read)
-                callee = function(data, symbol)
-                call = next(block['terminator']['instruction']['operation']
-                            for block in function(data, caller)['blocks']
-                            if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call')
-                target = call if side == 'call' else callee
-                if marker is None:
-                    del target['result_read']
-                else:
-                    target['result_read'] = marker
-                compile_input(data, accepted=False)
+        # Reborrow cases check the outer result contract as well as every
+        # existing inner result boundary; no flag may silently downgrade it.
+        contracts = [symbol]
+        if suffix.startswith('entry-field-phi-reborrow-'):
+            contracts.append('Leaf.identity/1')
+        elif suffix.startswith('entry-field-phi-receiver-reborrow-'):
+            contracts.append('Leaf.identity/0')
+        for contract in contracts:
+            for sides in [('call',), ('callee',), ('call', 'callee')] if len(contracts) > 1 else [('call',), ('callee',)]:
+                for marker in [None, False]:
+                    data = copy.deepcopy(read)
+                    callee = function(data, contract)
+                    target_id = data['functions'].index(callee)
+                    call = next(block['terminator']['instruction']['operation']
+                                for block in function(data, caller)['blocks']
+                                if block['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call'
+                                and (len(contracts) == 1 or block['terminator']['instruction']['operation']['call']['target'] == target_id))
+                    for side in sides:
+                        target = call if side == 'call' else callee
+                        if marker is None:
+                            del target['result_read']
+                        else:
+                            target['result_read'] = marker
+                    compile_input(data, accepted=False)
         data = copy.deepcopy(read)
         blocks = function(data, caller)['blocks']
         call = next(block['terminator']['instruction'] for block in blocks

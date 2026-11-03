@@ -39,12 +39,12 @@ impl OrdinaryNewResultClassClaimsV1 {
         site: &crate::mir::resolved_semantics::SourceExprSiteV1, app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedSupportReadV1>, &'static str> {
         let Some(source) = self.declared_read_source_at_v1(batch, selected, fields, parameters, input, site, app_main, None)? else { return Ok(None); };
-        // This normalization preserves the existing single-Call boundary.
-        // A joined signature needs canonical support loans from its own issuer.
-        let read = source.source_read().ok_or("borrowed-nullable/multiple-call-read-uncovered")?;
-        let Some(loan) = self.borrowed_nullable_local_source_v1(batch, selected, fields, parameters,
-            read.producer(), read.destination(), app_main)? else { return Ok(None); };
-        BorrowedSupportReadV1::issue(source, vec![loan]).map(Some)
+        let mut loans = Vec::new();
+        for (call, destination, _) in source.original_calls_v1() {
+            loans.push(self.borrowed_nullable_local_source_v1(batch, selected, fields, parameters, call, destination, app_main)?
+                .ok_or("borrowed-nullable/source-missing")?);
+        }
+        BorrowedSupportReadV1::issue(source, loans).map(Some)
     }
 
     pub(super) fn original_borrowed_read_v1(&self,

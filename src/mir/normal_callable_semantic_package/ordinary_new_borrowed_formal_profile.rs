@@ -304,7 +304,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 }
             }
         }
+        let producers = super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1::canonical_supports_v1(&producers)
+            .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue: freeze(issue) })?;
         for need in rows.iter_mut().filter_map(|row| row.as_mut().ok().and_then(Option::as_mut)) {
+            if let LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(loan) = need.result_requirement() {
+                let canonical = producers.get(loan.call()).ok_or_else(||
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: loan.call().clone(), issue: freeze("borrowed-nullable/source-missing"),
+                    })?.clone();
+                need.set_result_requirement(LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(canonical));
+            }
             let PreparedSourceCallNeedV1::Lexical(target) = need else { continue; };
             // Declared receiver targets retain signatures only; the current
             // Prefix and its canonical loans qualify execution in actuals.

@@ -1,6 +1,6 @@
 //! Read-argument dispatch; each read issuer keeps its source and execution law.
 use super::*;
-use super::readonly_call_interval::{readonly_instruction_v1, validate_readonly_edge_v1, borrowed_lifetime_start_v1};
+use super::readonly_call_interval::{readonly_instruction_v1, validate_readonly_edge_v1, borrowed_lifetime_starts_v1};
 use crate::mir::normal_callable_semantic_package::OwnedArrayReadSourceLoanV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::ArrayElementSourceLoanV1;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
@@ -308,18 +308,19 @@ impl EmittedReadArgumentV1 {
         // Each original Call supplies its own lifetime interval; the current
         // PHI payload is never replaced by one selected producer or anchor.
         for loan in view.loans() {
-            let (anchor, start) = borrowed_lifetime_start_v1(context, loan)?;
-            let start = projection.relation_binding(function, &start)?.ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
             let normal = context.with_taken_packet_v1(loan.call(), |packet| Ok(packet.outer_bindings()?.1.clone()))?;
             let normal = projection.relation_binding(function, &normal)?.ok_or_else(|| freeze("field-argument/finished-read-removed"))?;
             let MirInstruction::InvokeNormalResult { dst: leaf, .. } = normal.1 else { return Err(freeze("field-argument/finished-read-removed")); };
-            intervals.require_before(&start, &outer)?;
-            intervals.borrowed_result_v1(anchor, leaf)?.check_with_effects(&start, &outer, |at, row| {
-                if matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. }) {
-                    validate_readonly_edge_v1(handoff, module, function, at, &edges, &mut checked)?;
-                    Ok(false)
-                } else { Ok(!readonly_instruction_v1(row)) }
-            })?;
+            for (anchor, start) in borrowed_lifetime_starts_v1(context, loan)? {
+                let start = projection.relation_binding(function, &start)?.ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
+                intervals.require_before(&start, &outer)?;
+                intervals.borrowed_result_v1(anchor, leaf)?.check_with_effects(&start, &outer, |at, row| {
+                    if matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. }) {
+                        validate_readonly_edge_v1(handoff, module, function, at, &edges, &mut checked)?;
+                        Ok(false)
+                    } else { Ok(!readonly_instruction_v1(row)) }
+                })?;
+            }
         }
         Ok(())
     }

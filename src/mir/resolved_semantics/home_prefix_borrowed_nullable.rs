@@ -223,11 +223,15 @@ impl PrefixLocalFlow<'_> {
                 matches!(row.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. }
                     if original == statement)).count() != 1 { return false; }
         }
-        if let Some((root, acquisition, read)) = loan.owned_local_support_v1() {
-            if self.home_acquisition(root) != Some(acquisition)
-                || self.direct_available_home(read.site()) != Some((root, acquisition)) { return false; }
+        if let Some(actual) = loan.reborrowed_read_v1() {
+            if !actual.loans().all(|inner| self.declared_read_support_live_v1(inner)) { return false; }
+        } else {
+            if let Some((root, acquisition, read)) = loan.owned_local_support_v1() {
+                if self.home_acquisition(root) != Some(acquisition)
+                    || self.direct_available_home(read.site()) != Some((root, acquisition)) { return false; }
+            }
+            if loan.entry_support_v1().is_some() && !self.borrowed_entry_support_live_v1(&loan) { return false; }
         }
-        if loan.entry_support_v1().is_some() && !self.borrowed_entry_support_live_v1(&loan) { return false; }
         self.store(
             loan.destination(),
             StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { origin: BorrowedReadOriginV1::Call(Box::new(loan)), read_valid: true }),
@@ -276,6 +280,9 @@ impl PrefixLocalFlow<'_> {
 
     /// A read keeps the original support kind; a caller entry is not a Home.
     pub(super) fn declared_read_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
+        if let Some(actual) = loan.reborrowed_read_v1() {
+            return actual.loans().all(|inner| self.declared_read_support_live_v1(inner));
+        }
         match loan.lifetime_anchor_v1() {
             Some(BorrowedLifetimeAnchorV1::Owned { root, acquisition }) => self.home_acquisition(root) == Some(&acquisition),
             _ => self.borrowed_entry_support_live_v1(loan),
