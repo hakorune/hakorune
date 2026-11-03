@@ -1,7 +1,7 @@
 //! Ownership-free nullable call result in the existing prefix state.
 use super::*;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
-use crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1;
+use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1, BorrowedLifetimeAnchorV1};
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 /// Branch-local read validity retains the same immutable source loan even
@@ -278,9 +278,9 @@ impl PrefixLocalFlow<'_> {
 
     /// A read keeps the original support kind; a caller entry is not a Home.
     pub(super) fn declared_read_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
-        match loan.owned_local_support_v1() {
-            Some((root, acquisition, _)) => self.home_acquisition(root) == Some(acquisition),
-            None => self.borrowed_entry_support_live_v1(loan),
+        match loan.lifetime_anchor_v1() {
+            Some(BorrowedLifetimeAnchorV1::Owned { root, acquisition }) => self.home_acquisition(root) == Some(&acquisition),
+            _ => self.borrowed_entry_support_live_v1(loan),
         }
     }
 
@@ -355,8 +355,8 @@ impl PrefixLocalFlow<'_> {
         for value in self.locals.values_mut() {
             let StoredLocal::BorrowedNullable(state) = value else { continue; };
             if !state.is_declared_read_v1() { continue; }
-            let independent = state.loans().all(|loan| loan.owned_local_support_v1().zip(root.as_ref()).is_some_and(
-                |((support, acquired, _), (written, site))| support != *written && acquired != site));
+            let independent = state.loans().all(|loan| matches!((loan.lifetime_anchor_v1(), root.as_ref()),
+                (Some(BorrowedLifetimeAnchorV1::Owned { root: support, acquisition }), Some((written, site))) if support != *written && acquisition != *site));
             if !independent { state.read_valid = false; }
         }
     }

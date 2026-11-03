@@ -2,7 +2,7 @@
 use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1,
     ResolvedLexicalRefV1, source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1}};
 use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1, MapFieldGetLocalV1};
-use crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1;
+use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1, BorrowedLifetimeAnchorV1};
 use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use std::{rc::Rc, sync::Arc};
@@ -370,9 +370,9 @@ impl NullableResultReferenceV1 {
         match self {
             Self::StoredMapGet(frame) => homes == frame.prior_homes(),
             Self::DeclaredFrom(view) => view.loans().all(|loan| !homes.iter().any(|home| home.binding() == loan.destination() || home.binding() == view.binding())
-                && match loan.owned_local_support_v1() {
-                    Some((root, _, _)) => homes.iter().any(|home| home.binding() == root),
-                    None => loan.entry_support_v1().is_some(),
+                && match loan.lifetime_anchor_v1() {
+                    Some(BorrowedLifetimeAnchorV1::Owned { root, .. }) => homes.iter().any(|home| home.binding() == root),
+                    anchor => matches!(anchor, Some(BorrowedLifetimeAnchorV1::Entry { .. })),
                 }),
         }
     }

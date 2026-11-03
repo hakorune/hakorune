@@ -172,7 +172,7 @@ impl ReceivedFieldReadSourceV1 {
                 let loan = matching.next().ok_or_else(|| fault("received/source-drift"))?;
                 if matching.next().is_some() { return Err(fault("received/source-drift")); }
                 if self.borrowed_read_v1().is_none_or(|view| view.binding() != request.receiver || view.read().site() != &request.receiver_site) || !loan.is_declared_read_v1() || (!view.payload_nonnull() && self.borrowed_guard().is_none())
-                    || (loan.owned_local_support_v1().is_none() && loan.entry_support_v1().is_none())
+                    || loan.lifetime_anchor_v1().is_none()
                     || target.borrowed_nullable_local_source() != Some(loan)
                     || !ingress.corroborated_original_v1() {
                     return Err(fault("received/source-drift"));

@@ -1,6 +1,14 @@
 //! Recheck original support substitution and retained result roots.
 use super::*;
 
+/// Common caller lifetime identity only. Original reads and payload class
+/// stay on their own source loans; no leaf read stands for a joined value.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum BorrowedLifetimeAnchorV1 {
+    Entry { root: BindingRefV1, caller_support: crate::mir::instruction::BorrowedResultSupportV1 },
+    Owned { root: BindingRefV1, acquisition: OwnedExprSiteV1 },
+}
+
 impl OrdinaryNewResultClassClaimsV1 {
     /// Source class folds retain only the exact Call and original declaration;
     /// Pending field roots, Home/nonnull and live-use proof are not consulted.

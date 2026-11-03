@@ -1,5 +1,6 @@
 //! Read-only Normal cleanup projection from the original sealed return proof.
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
+use crate::mir::normal_callable_semantic_package::BorrowedLifetimeAnchorV1;
 use super::{freeze, NormalReturnDispositionV1, OrdinaryNewClaimLedgerV1};
 use crate::mir::resolved_semantics::home_new_prefix::{
     ObjectReturnAcquisitionV1, RootHomeExitV1, TerminalObjectReturnObligationV1,
@@ -111,7 +112,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let observation = self
             .local_call_for_owner(owner, loan.call().site())
             .ok_or_else(|| freeze("borrowed-local-observation-missing"))?;
-        let (support_root, _, _) = loan.entry_support_v1().ok_or_else(|| freeze("borrowed-local-source-identity"))?;
+        let Some(BorrowedLifetimeAnchorV1::Entry { root: support_root, .. }) = loan.lifetime_anchor_v1() else { return Err(freeze("borrowed-local-source-identity")); };
         if completion.owner() != owner || !completion.explicit_sites().contains(exit)
             || value.owner() != owner || value.return_site() != exit
             || value.value_site().node() != &crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node()).child(

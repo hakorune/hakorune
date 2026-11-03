@@ -306,7 +306,7 @@ impl FinalizedRootSourceHandoffV1 {
         }
         // The original entry binding, not signature storage or
         // the final Return operand, establishes the support.
-        let (root, caller_support, _) = borrowed.entry_support_v1().ok_or_else(|| freeze("mixed-return/borrowed-support"))?;
+        let Some(crate::mir::normal_callable_semantic_package::BorrowedLifetimeAnchorV1::Entry { root, caller_support }) = borrowed.lifetime_anchor_v1() else { return Err(freeze("mixed-return/borrowed-support")); };
         if caller_support != outer_support { return Err(freeze("mixed-return/borrowed-support")); }
         if outer_support == crate::mir::instruction::BorrowedResultSupportV1::Receiver {
             let mut contracts = self.ledger.original_parameter_contracts.as_deref().ok_or_else(|| freeze("mixed-return/borrowed-support"))?

@@ -67,7 +67,7 @@ mod object_call_source;
 pub(crate) use object_call_source::ObjectCallSourceLoanV1;
 #[path = "ordinary_new_result_class_claim/object_return_loan.rs"]
 mod object_return_loan;
-pub(crate) use borrowed_nullable_local::{BorrowedNullableLocalSourceLoanV1, BorrowedFormalReturnSourceLoanV1};
+pub(crate) use borrowed_nullable_local::{BorrowedNullableLocalSourceLoanV1, BorrowedLifetimeAnchorV1, BorrowedFormalReturnSourceLoanV1};
 #[path = "ordinary_new_result_class_claim/witness.rs"]
 mod witness;
 pub(crate) use object_return_loan::ObjectReturnCallQualificationV1;

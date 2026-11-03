@@ -13,6 +13,7 @@ mod formal_return;
 #[path = "borrowed_support.rs"]
 mod support;
 pub(crate) use formal_return::BorrowedFormalReturnSourceLoanV1;
+pub(crate) use support::BorrowedLifetimeAnchorV1;
 
 /// Source support is not a result ABI: receiver storage is never a formal.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -109,12 +110,19 @@ impl BorrowedNullableLocalSourceLoanV1 {
     pub(crate) fn callee_ordinal(&self) -> Option<u32> {
         self.result_support_v1().formal_ordinal()
     }
+    pub(crate) fn lifetime_anchor_v1(&self) -> Option<BorrowedLifetimeAnchorV1> {
+        if let Some((root, caller_support, _)) = self.entry_support_v1() {
+            Some(BorrowedLifetimeAnchorV1::Entry { root, caller_support })
+        } else {
+            let (root, acquisition, _) = self.owned_local_support_v1()?;
+            Some(BorrowedLifetimeAnchorV1::Owned { root, acquisition: acquisition.clone() })
+        }
+    }
     /// The old payload-formal root exists only on the formal-forward lane.
     pub(crate) fn root(&self) -> Option<BindingRefV1> {
-        match &self.support { BorrowedLocalSupportV1::Reborrow { actual, .. } => actual.source().root(),
-            BorrowedLocalSupportV1::EntryForward { root, caller: crate::mir::instruction::BorrowedResultSupportV1::Formal(_), .. } => Some(*root),
-            BorrowedLocalSupportV1::EntryForward { .. } => None,
-            BorrowedLocalSupportV1::MapSlot(_) | BorrowedLocalSupportV1::OwnedLocal { .. } | BorrowedLocalSupportV1::OwnedReceiver { .. } => None }
+        match self.lifetime_anchor_v1()? {
+            BorrowedLifetimeAnchorV1::Entry { root, caller_support: crate::mir::instruction::BorrowedResultSupportV1::Formal(_) } => Some(root), _ => None,
+        }
     }
     /// Original entry support and read; a receiver is never a payload formal.
     pub(crate) fn entry_support_v1(&self) -> Option<(BindingRefV1, crate::mir::instruction::BorrowedResultSupportV1, &OwnedExprSiteV1)> {
@@ -671,7 +679,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         loan: &BorrowedNullableLocalSourceLoanV1,
     ) -> bool {
         if !loan.is_declared_read_v1() || loan.call().owner() != value.owner() { return false; }
-        let Some((binding, support, _)) = loan.entry_support_v1() else { return false; };
+        let Some(BorrowedLifetimeAnchorV1::Entry { root: binding, caller_support: support }) = loan.lifetime_anchor_v1() else { return false; };
         self.source_rows().any(|(key, _)| {
             let Some(read) = self.borrowed_result_declaration_v1(key) else { return false; };
             let matches_support = match (read.support(), support) {

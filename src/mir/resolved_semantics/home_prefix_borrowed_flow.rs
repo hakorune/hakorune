@@ -1,24 +1,8 @@
 //! Readonly result joins over the existing source value graph, without a new CFG.
 use super::*;
-use crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1 as Loan;
+use crate::mir::normal_callable_semantic_package::{BorrowedNullableLocalSourceLoanV1 as Loan, BorrowedLifetimeAnchorV1};
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueEdgeV1 as Edge, SourceValueOriginV1 as Origin, SourceValueRefV1, VerifiedSourceValueFlowV1};
 use std::sync::Arc;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum CallerSupportV1 {
-    Entry(BindingRefV1, crate::mir::instruction::BorrowedResultSupportV1),
-    Home(BindingRefV1, OwnedExprSiteV1),
-}
-impl CallerSupportV1 {
-    fn issue(loan: &Loan) -> Option<Self> {
-        if let Some((root, support, _)) = loan.entry_support_v1() {
-            Some(Self::Entry(root, support))
-        } else {
-            let (root, acquisition, _) = loan.owned_local_support_v1()?;
-            Some(Self::Home(root, acquisition.clone()))
-        }
-    }
-}
 
 /// Each original terminal has exactly its own loan, or an original literal
 /// Null. The current value, not just its terminal set, identifies the join.
@@ -30,7 +14,7 @@ pub(crate) struct BorrowedReadFlowV1 {
     statement: SourceStmtSiteV1,
     terminals: BTreeMap<SourceValueRefV1, Option<Loan>>,
     class: Box<str>,
-    support: CallerSupportV1,
+    support: BorrowedLifetimeAnchorV1,
 }
 impl PartialEq for BorrowedReadFlowV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -119,10 +103,10 @@ impl BorrowedReadFlowV1 {
         let mut calls = terminals.values().filter_map(Option::as_ref);
         let first = calls.next()?;
         let class = first.declared_read_result_v1()?.declared_type();
-        let support = CallerSupportV1::issue(first)?;
+        let support = first.lifetime_anchor_v1()?;
         for loan in calls {
             if !loan.is_declared_read_v1() || loan.declared_read_result_v1()?.declared_type() != class
-                || CallerSupportV1::issue(loan)? != support { return None; }
+                || loan.lifetime_anchor_v1()? != support { return None; }
         }
         Some(Self { flow: Arc::clone(flow), value, binding, statement: statement.clone(),
             class: class.into(), support, terminals })

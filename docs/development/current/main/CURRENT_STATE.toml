@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: readonly PHI receivers accepted; graph reborrow result/return scope remains"
+current_blocker_token = "ownership step 3a: readonly PHI receivers accepted; graph reborrow result actual-root/local-result-missing"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Readonly PHI receivers now separate passive signature discovery from Prefix-qualified full reads/current null guards retained in the existing Instance actual phase.
-Physical/final checks preserve every original loan and the current PHI/outer Invoke; qualified receiver input is orthogonal to scalar result issuance. Old duplicate single-loan retention/relay retired; no legacy downgrade.
-Optimized target/quick CLI/runtime plus rebuilt C shim: suite 8/8, cohort 1808 PASS and exact 115 failures; CLI PHI/alias receivers exit 0/7 and four unsafe uses refuse by name; C 80 current inputs PASS, old 76 unchanged.
-Production +100, existing tests +4; no new test file/checker/hook/MIR instruction/runtime ABI/layout. Current receiver nonnull evidence reuses existing families.
-Next: passive support graph and Prefix-qualified actual for reborrow results; literal-null/nested/direct PHI return remain incomplete. Descriptor extensions keep ADR boundary; cleanup A done, stashes protected, 19 shapes before cutover.
+Common caller lifetime anchors now serve Flow, prior Homes, field support, write invalidation and return projection; the old Flow-private CallerSupport is retired.
+Original Home/read and entry Me/read checks remain separate from anchor identity; physical lifetime starts are unchanged. This normalization adds no accepted source shape.
+Optimized target/quick CLI/runtime with existing C shim: suite 8/8, cohort 1808 PASS and exact 115 failures; C 80 current JSONs unchanged and existing EXE/Normal/Fault/tamper checks PASS. Production +1, tests unchanged.
+Current reborrow result probes refuse by name: formal actual-root (unrebound-only actual binding), receiver local-result-missing (single-only callee class lookup). The generic immutable binding gate stays intact.
+Next: full passive terminal signatures/canonical support loans plus Prefix-qualified actual; share type-only callee lookup with rechecks. From incomplete; descriptor changes keep ADR boundary, stashes protected, 19 shapes before cutover.
 """
 next_design_card = "none"
 next_design_card_path = "none"
