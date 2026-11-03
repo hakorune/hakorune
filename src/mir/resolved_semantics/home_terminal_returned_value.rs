@@ -644,7 +644,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
                     if locals.has_declared_read_origin_v1(binding))));
     let binary = input.function().expression_source().binary(value.site()).map(|row| row.operator());
     let add = binary == Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add);
-    if !stored_field && !add && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract) {
+    let copy = input.function().expression_source().unary(value.site()).is_some_and(|unary| unary.is_explicit_copy_v1());
+    if !stored_field && !add && !copy && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract) {
         return Ok(None);
     }
     let refused = || {
@@ -669,7 +670,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     };
     // Existing literal/field Add owners keep their original plans. Calls need
     // this complete evaluation so their Fault edges and cleanup stay ordered.
-    if add && !source.nodes().iter().any(|node| matches!(node.source(),
+    if add && !source.contains_copy_v1() && !source.nodes().iter().any(|node| matches!(node.source(),
         crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
         | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::DirectCall)) {
         return Ok(None);

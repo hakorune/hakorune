@@ -229,6 +229,7 @@ impl super::super::PlanNormalizer {
                 UnaryOperator::Weak => {
                     Err("[normalizer] Unary 'weak' is not supported yet".to_string())
                 }
+                UnaryOperator::Copy => Err("[type/copy_contract_unsupported] copy requires the checked source expression owner".into()),
                 UnaryOperator::Move => Err(
                     "[freeze:contract][ownership/move-not-supported] move has not reached the Home owner".to_string(),
                 ),

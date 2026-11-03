@@ -85,6 +85,17 @@ pattern["functions"][0]["blocks"][0]["instructions"].insert(2, {
 cases.append(("pattern-success", json.dumps(pattern), 0, 1, "generic", None))
 if len(sys.argv) > 2:
     cases.append(("source-dynamic", Path(sys.argv[2]).read_text(), 0, 1, "generic", None))
+# A copied constant can carry i1 metadata without an emitted SSA definition.
+# Both branch outcomes must compile; the generic emitter must inline the value.
+for bit in (0, 1):
+    branch = {"functions": [{"name": "main", "params": [],
+        "metadata": {"value_types": {"1": "i1", "2": "i1"}}, "blocks": [
+            {"id": 0, "instructions": [dict(const, dst=1, value={"type": "i64", "value": bit}),
+                {"op": "copy", "dst": 2, "src": 1},
+                {"op": "branch", "cond": 2, "then": 1, "else": 2}]},
+            {"id": 1, "instructions": [dict(const, dst=3), dict(ret, value=3)]},
+            {"id": 2, "instructions": [dict(const, dst=4, value={"type": "i64", "value": 0}), dict(ret, value=4)]}]}]}
+    cases.append((f"copied-bool-branch-{bit}", json.dumps(branch), 0, 1, "generic", None))
 # Deferred storage failure: early schema/pattern terminals win, actual demand fails.
 oom_cases = []
 for fail_at, count in ((1, 1), (2, 17)):
@@ -133,4 +144,9 @@ with tempfile.TemporaryDirectory(prefix="hakorune-document-test-") as directory:
         if error:
             assert error in result.stderr, result
         assert output.exists() == (rc == 0), label
+        if label.startswith("copied-bool-branch-"):
+            entry = Path(__file__).with_name("static_v2_ny_main_entry.c")
+            exe = output.with_suffix(".exe")
+            subprocess.run(["cc", str(output), str(entry), "-o", str(exe)], check=True)
+            assert subprocess.run([str(exe)]).returncode == (30 if label.endswith("1") else 0)
         print(label, result.stdout.strip())

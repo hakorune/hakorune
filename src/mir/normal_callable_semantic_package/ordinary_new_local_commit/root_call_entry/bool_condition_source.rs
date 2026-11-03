@@ -180,6 +180,16 @@ impl EmittedBoolConditionProjectionV1 {
                         require_binding(function, binding, finishing)?;
                     }
                 }
+                (Node::Unary(_), BoolConditionValueProofV1::Copy { append, operand }) => {
+                    let fail = || freeze("bool-condition/copy-source");
+                    let loan = self.frame.operations().iter().find(|loan| loan.node() == node.node).ok_or_else(&fail)?;
+                    let (child, _) = loan.scalar_copy_v1().ok_or_else(&fail)?;
+                    if !Rc::ptr_eq(loan.source(), source) { return Err(fail()); }
+                    let MirInstruction::Copy { dst, src } = append.1 else { return Err(fail()); };
+                    if dst != node.value || operand.values() != (self.node(child)?.value, src) { return Err(fail()); }
+                    operand.verify_projected(function, &mut |binding| mapped(binding, finishing))?;
+                    require_binding(function, append, finishing)?;
+                }
                 (Node::Reference(_), BoolConditionValueProofV1::Reference { read, producer }) => {
                     if !observed_references.insert(node.node) {
                         return Err(freeze("bool-condition/reference-duplicate"));

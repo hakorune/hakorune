@@ -487,7 +487,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 if matches!(
                     profile,
                     ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::BindingRebind
-                ) => {}
+                ) || source.nodes().iter().enumerate().any(|(parent, _)| source.copy_operand_node_v1(parent) == Some(index)) => {}
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null)
                 if profile == ExpressionLeafProfileV1::BoolCondition => {}
             ExpressionNodeSourceV1::Literal(_) => return Ok(None),

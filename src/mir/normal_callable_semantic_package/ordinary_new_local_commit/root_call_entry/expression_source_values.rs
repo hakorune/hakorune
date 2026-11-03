@@ -153,6 +153,17 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 }
                 continue;
             }
+            if let Some(operation) = self.frame.operations().iter().find(|loan| loan.node() == index && loan.scalar_copy_v1().is_some()) {
+                let (operand, kind) = operation.scalar_copy_v1().ok_or_else(|| freeze("expression/copy-contract"))?;
+                let Some(input) = self.values[operand].as_ref() else { return Err(freeze("expression/copy-contract")); };
+                if !matches!((kind, input, value),
+                    (crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer, EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)), Some(EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)))) |
+                    (crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool, EvaluatedExpressionValueV1::Bool(_) | EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)), Some(EvaluatedExpressionValueV1::Bool(_)))) {
+                    return Err(freeze("expression/copy-contract"));
+                }
+                self.require_unique(|row| matches!(row, MirInstruction::Copy { dst, src } if Some(*dst) == value.as_ref().and_then(|value| value.value()) && Some(*src) == input.value()))?;
+                continue;
+            }
             if let Some(tail) = source.transparent_tail_node_v1(index) {
                 if value.is_none() || self.values[index] != self.values[tail] {
                     return Err(freeze("print-expression/node-value"));

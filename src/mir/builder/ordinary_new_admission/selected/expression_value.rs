@@ -396,6 +396,27 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             }
             continue;
         }
+        if let Some(operation) = frame.operations().iter().find(|loan| loan.node() == index && loan.scalar_copy_v1().is_some()) {
+            let (operand, kind) = operation.scalar_copy_v1().ok_or_else(|| freeze("expression/copy-contract"))?;
+            let value = values[operand].as_ref().ok_or_else(|| freeze("expression/copy-contract"))?;
+            let copied = builder.next_value_id();
+            let result = match (kind, value) {
+                (crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer, EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_))) => EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(copied)),
+                (crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool, EvaluatedExpressionValueV1::Bool(_) | EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_))) => EvaluatedExpressionValueV1::Bool(copied),
+                _ => return Err(freeze("expression/copy-contract")),
+            };
+            let original = value.value().ok_or_else(|| freeze("expression/copy-contract"))?;
+            let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+            let instruction = MirInstruction::Copy { dst: copied, src: original };
+            builder.emit_instruction(instruction.clone())?;
+            builder.function_state.type_ctx.value_types.insert(copied, match kind {
+                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => MirType::Integer,
+                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => MirType::Bool,
+            });
+            bindings.push((block, instruction));
+            values[index] = Some(result);
+            continue;
+        }
         if let Some(tail) = source.transparent_tail_node_v1(index) {
             values[index] = Some(values[tail].clone().ok_or_else(|| freeze("print-expression/node-value"))?);
             continue;

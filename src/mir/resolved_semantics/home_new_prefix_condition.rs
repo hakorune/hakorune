@@ -21,6 +21,7 @@ fn requests_condition(
     condition: &SourceExprSiteV1,
 ) -> bool {
     use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+    if input.function().expression_source().unary(condition).is_some_and(|unary| unary.is_explicit_copy_v1()) { return true; }
     input.function().method_call(condition).is_some_and(|call| {
         call.selector() == "has"
             && input.body_shape().is_some_and(|shape| {
@@ -154,6 +155,7 @@ fn selects(
     use crate::mir::resolved_semantics::{
         ResolvedBinaryOperatorV1 as Op, ResolvedLiteralSourceV1 as Literal,
     };
+    if source.contains_copy_v1() { return true; }
     fn supported(source: &ExpressionSourcePlanV1, index: usize) -> bool {
         let node = &source.nodes()[index];
         if let Some(binary) = node.binary() {

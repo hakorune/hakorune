@@ -1,4 +1,15 @@
-      auto void emit_branch(long long cond_reg, long long then_id, long long else_id){ long long cond_base=resolve_copy_source_reg(cond_reg); int ty=get_type(cond_reg); if (ty==T_I1) EMIT("  br i1 %%r%lld, label %%bb%lld, label %%bb%lld\n", cond_base, then_id, else_id); else { long long cv; if (has_const(cond_base,&cv)) { EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", cond_reg, cv); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} else { EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", cond_reg, cond_base); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} } }
+      auto void emit_branch(long long cond_reg, long long then_id, long long else_id) {
+        long long base = resolve_copy_source_reg(cond_reg), constant;
+        if (has_const(base, &constant)) {
+          EMIT("  br i1 %s, label %%bb%lld, label %%bb%lld\n",
+               constant ? "true" : "false", then_id, else_id);
+        } else if (get_type(cond_reg) == T_I1) {
+          EMIT("  br i1 %%r%lld, label %%bb%lld, label %%bb%lld\n", base, then_id, else_id);
+        } else {
+          EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", cond_reg, base);
+          EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);
+        }
+      }
 
       auto void emit_jump(long long target){ EMIT("  br label %%bb%lld\n", target); }
 

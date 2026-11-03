@@ -6,6 +6,11 @@ use super::{
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
+pub(super) fn has_explicit_copy_source_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+    input.function().expression_source().unaries().any(|row|
+        row.is_explicit_copy_v1())
+}
+
 pub(super) fn has_print_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
     input.body_shape().is_some_and(|shape| {
         shape.statements().iter().any(|statement| {

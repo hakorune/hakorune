@@ -109,7 +109,14 @@ pub(crate) fn project_expression_nodes_v1(
             }
             // Their source operation/tail obligations are not closed by merely
             // lending a class to an enclosing operator.
-            ExpressionNodeSourceV1::Unary | ExpressionNodeSourceV1::Conditional => return None,
+            ExpressionNodeSourceV1::Unary(_) => {
+                let operand = plan.copy_operand_node_v1(index)?;
+                match nodes[operand] {
+                    value @ Class::Value(ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool) => value,
+                    _ => return None,
+                }
+            }
+            ExpressionNodeSourceV1::Conditional => return None,
             _ => leaf(index),
         } };
         nodes[index] = value;

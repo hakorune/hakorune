@@ -58,6 +58,7 @@ pub(in crate::mir::builder) struct PreparedRawUnaryV1 {
 }
 
 enum PreparedRawUnaryRouteV1 {
+    UnsupportedCopy,
     UnsupportedMove,
     UnsupportedShared,
     Weak {
@@ -79,6 +80,7 @@ enum PreparedRawOrdinaryUnaryOperatorV1 {
 impl PreparedRawUnaryV1 {
     pub(in crate::mir::builder) fn prepare(operator: UnaryOperator, operand: ASTNode) -> Self {
         let route = match operator {
+            UnaryOperator::Copy => PreparedRawUnaryRouteV1::UnsupportedCopy,
             UnaryOperator::Move => PreparedRawUnaryRouteV1::UnsupportedMove,
             UnaryOperator::Shared => PreparedRawUnaryRouteV1::UnsupportedShared,
             UnaryOperator::Weak => PreparedRawUnaryRouteV1::Weak { operand },
@@ -129,6 +131,7 @@ where
     Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
 {
     match prepared.route {
+        PreparedRawUnaryRouteV1::UnsupportedCopy => Err("[type/copy_contract_unsupported] copy requires the checked source expression owner".into()),
         PreparedRawUnaryRouteV1::UnsupportedMove => Err(
             "[freeze:contract][ownership/move-not-supported] move has not reached the Home owner"
                 .to_string(),
@@ -251,6 +254,7 @@ mod tests {
 
     fn route(prepared: PreparedRawUnaryV1) -> &'static str {
         match prepared.route {
+            PreparedRawUnaryRouteV1::UnsupportedCopy => "copy-unsupported",
             PreparedRawUnaryRouteV1::UnsupportedMove => "move-unsupported",
             PreparedRawUnaryRouteV1::UnsupportedShared => "shared-unsupported",
             PreparedRawUnaryRouteV1::Weak { .. } => "weak",

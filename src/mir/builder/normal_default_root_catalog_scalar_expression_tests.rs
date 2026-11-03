@@ -313,3 +313,49 @@ fn text_condition_keeps_short_circuit_and_final_source_operation() {
         }
     }
 }
+
+#[test]
+fn explicit_scalar_copy_uses_plain_main_source_and_rejects_unproved_payloads() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    for body in [
+        "local other = 9 local original = 5 local value = copy original + 2 return copy value + other",
+        "if copy true { return 7 } return 0",
+        "local flag = copy false local alias = copy flag if alias { return 1 } return 7",
+        "return copy \"1234567\"",
+    ] {
+        let source = callable_source(
+            &format!("static box Main {{ main() {{ {body} }} }}"),
+            ParserBuildConfig::default(),
+        );
+        let result = session().complete_normal_default_program_root_catalog_lifecycle(
+            source, CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        );
+        if body.contains("1234567") {
+            assert!(result.is_err(), "Text copy needs a separate ownership contract");
+        } else {
+            let completed = result.unwrap_or_else(|_| panic!("plain scalar copy: {body}"));
+            let (_, module, validate) = completed.into_artifact_parts();
+            if body.contains("other") {
+                let main = module.functions.get("main").unwrap();
+                let other = main.blocks.values().flat_map(|block| &block.instructions)
+                    .find_map(|instruction| match instruction {
+                        MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(9) } => Some(*dst),
+                        _ => None,
+                    }).unwrap();
+                let (block, row) = main.blocks.iter().flat_map(|(block, value)|
+                    value.instructions.iter().enumerate().filter_map(move |(row, instruction)|
+                        matches!(instruction, MirInstruction::Copy { src, .. } if *src != other)
+                            .then_some((*block, row)))).last().expect("source copy");
+                let mut changed = module.clone();
+                let instruction = &mut changed.functions.get_mut("main").unwrap()
+                    .blocks.get_mut(&block).unwrap().instructions[row];
+                let MirInstruction::Copy { src, .. } = instruction else { unreachable!() };
+                *src = other;
+                assert!(validate(&changed).is_err(), "same-type sibling is not the source operand");
+            } else {
+                validate(&module).expect("copy source survives final verification");
+            }
+        }
+    }
+}

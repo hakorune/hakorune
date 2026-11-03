@@ -353,6 +353,7 @@ impl EmittedBoolConditionProjectionV1 {
         for node in &self.nodes {
             match &node.proof {
                 Proof::Literal(row) => allowed.push(row.clone()),
+                Proof::Copy { append, operand } => { allowed.push(append.clone()); operand.append_observed_bindings_v1(&mut allowed); }
                 Proof::Field(row) => {
                     let source = self
                         .frame

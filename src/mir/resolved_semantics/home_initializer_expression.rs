@@ -358,9 +358,11 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         && matches!(reference_proofs.get(&0), Some(CheckedExpressionReferenceV1::DynamicInvocationResult(frame))
             if frame.dynamic_home_binding_v1().is_some_and(|owner| prior_homes.contains(&LiveHomeV1::Stable(owner))));
     // A root Equal/NotEqual over exact Text/Dynamic/Bool operands is a Bool Local.
-    let bool_root = classes[0] == Leaf::Value(Class::Bool)
+    let bool_comparison = classes[0] == Leaf::Value(Class::Bool)
         && source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
             crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual));
+    let copy_root = source.copy_operand_node_v1(0).is_some();
+    let bool_root = bool_comparison || (copy_root && classes[0] == Leaf::Value(Class::Bool));
     if !references.is_empty()
         || transferred.contains(&0)
         || (!matches!(classes[0], Leaf::Value(Class::String | Class::I64))
@@ -372,13 +374,13 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
                 .any(|read| read.requirement().node() == 0 && read.signed_only())
             && !signed_current
             && !loop_scalar_frame
-            && source.nodes()[0].binary().is_none())
+            && source.nodes()[0].binary().is_none() && !copy_root)
     {
         return Ok(None);
     }
     // Root purpose selects a binary; the shared operation law below owns its
     // supported operator/domain and exact original positive-divisor proof.
-    let Some((operations, owned_results)) = (if bool_root {
+    let Some((operations, owned_results)) = (if bool_comparison {
         // Operand subtrees (calls, Text adds) keep their own arithmetic law.
         let root = super::operations::qualify_comparison_operation_v1(&source, 0, &classes);
         let inner_order: Vec<usize> = order.iter().copied().filter(|node| *node != 0).collect();

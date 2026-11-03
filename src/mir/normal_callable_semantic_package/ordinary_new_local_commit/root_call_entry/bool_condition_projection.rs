@@ -32,6 +32,7 @@ pub(in crate::mir) struct BoolConditionCursorV1 {
 #[derive(Debug)]
 pub(in crate::mir) enum BoolConditionValueProofV1 {
     Literal(Binding),
+    Copy { append: Binding, operand: Rc<LocalSsaPhysicalRelationV1> },
     Reference {
         read: ExactLexicalReadV1,
         producer: Option<Binding>,

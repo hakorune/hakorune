@@ -235,6 +235,11 @@ pub(crate) fn qualify_condition_expression_v1<E>(
         let ExpressionChildrenV1::Known(children) = node.children() else {
             return Ok(None);
         };
+        if source.copy_operand_node_v1(index).is_some() {
+            let Some(copy) = super::operations::qualify_copy_operation_v1(&source, index, &classes) else { return Ok(None); };
+            operations.push(copy);
+            continue;
+        }
         let Some(binary) = node.binary() else {
             if children
                 .iter()

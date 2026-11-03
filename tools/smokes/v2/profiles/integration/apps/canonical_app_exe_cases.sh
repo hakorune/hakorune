@@ -26,6 +26,7 @@ CASES=(
   "typed_object_birth_param_min|typed-object-birth-param-min|30||"
   "ownership_move_min|ownership-move-min|30||"
   "ownership_move_direct_min|ownership-move-min|30|||direct_v0:Pair"
+  "ownership_copy_min|ownership-copy-min|7||"
   "ownership_shared_min|ownership-shared-min|10||"
   "ownership_typed_null_min|ownership-typed-null-min|5||"
   "ownership_tree_typed_min|ownership-tree-typed-min|3||"

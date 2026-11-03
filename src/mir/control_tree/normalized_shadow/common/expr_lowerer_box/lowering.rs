@@ -73,7 +73,7 @@ impl NormalizedExprLowererBox {
                 Ok(Some(dst))
             }
             UnaryOperator::BitNot => Ok(None),
-            UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => Ok(None), // Not supported in normalized lowering
+            UnaryOperator::Copy | UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => Ok(None), // Not supported in normalized lowering
         }
     }
 

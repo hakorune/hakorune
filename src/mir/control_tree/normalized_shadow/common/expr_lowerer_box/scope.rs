@@ -60,7 +60,7 @@ impl NormalizedExprLowererBox {
                     }
                 }
                 UnaryOperator::BitNot => Some(OutOfScopeReason::UnsupportedOperator),
-                UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => Some(OutOfScopeReason::UnsupportedOperator),
+                UnaryOperator::Copy | UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => Some(OutOfScopeReason::UnsupportedOperator),
             },
 
             ASTNode::BinaryOp {
@@ -154,7 +154,7 @@ impl NormalizedExprLowererBox {
                     }
                 }
                 UnaryOperator::BitNot => Some(OutOfScopeReason::UnsupportedOperator),
-                UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => Some(OutOfScopeReason::UnsupportedOperator),
+                UnaryOperator::Copy | UnaryOperator::Weak | UnaryOperator::Move | UnaryOperator::Shared => Some(OutOfScopeReason::UnsupportedOperator),
             },
 
             ASTNode::BinaryOp {

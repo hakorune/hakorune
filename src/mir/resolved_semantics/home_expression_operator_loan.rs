@@ -9,6 +9,7 @@ pub(crate) struct CheckedExpressionOperationLoanV1 {
 /// Raw nullable identity is a separate closed law, never a tagged operator.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum CheckedExpressionOperationProofV1 {
+    ScalarCopy(super::super::SourceScalarKind),
     Dynamic(Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>),
     Scalar(Rc<ExpressionScalarOperationLoanV1>),
     NullableFieldNull { reference: usize, null: usize, request: LocalFieldReadRequestV1 },
@@ -19,6 +20,10 @@ pub(super) enum CheckedExpressionOperationProofV1 {
     },
 }
 impl CheckedExpressionOperationLoanV1 {
+    pub(crate) fn scalar_copy_v1(&self) -> Option<(usize, super::super::SourceScalarKind)> {
+        let CheckedExpressionOperationProofV1::ScalarCopy(kind) = self.proof else { return None; };
+        Some((self.plan.copy_operand_node_v1(self.node)?, kind))
+    }
     pub(crate) fn node(&self) -> usize {
         self.node
     }
@@ -44,6 +49,10 @@ impl CheckedExpressionOperationLoanV1 {
     ) -> Option<crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1> {
         use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as ResultKind;
         match &self.proof {
+            CheckedExpressionOperationProofV1::ScalarCopy(kind) => Some(match kind {
+                super::super::SourceScalarKind::Integer => ResultKind::NormalInteger,
+                super::super::SourceScalarKind::Bool => ResultKind::TrivialBool,
+            }),
             CheckedExpressionOperationProofV1::Scalar(_) => self
                 .integer_operator_v1()
                 .map(|_| ResultKind::NormalInteger),

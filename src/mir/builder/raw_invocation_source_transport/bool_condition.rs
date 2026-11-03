@@ -170,6 +170,26 @@ impl RawInvocationChildPortV1<'_, '_> {
                 let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][bool-condition/no-function]")?;
                 (value, Proof::Literal(physical::definition(function, value)?.ok_or("[freeze:contract][bool-condition/literal-writer]")?))
             },
+            Node::Unary(unary) if unary.is_explicit_copy_v1() => {
+                let Some(copy) = frame.operations().iter().find(|loan| loan.node() == index).and_then(|loan| loan.scalar_copy_v1()) else {
+                    return Err("[freeze:contract][bool-condition/copy-source]".into());
+                };
+                let child_source = self.prepare_expression_child_source_v1(&input, crate::mir::resolved_semantics::ExprChildRoleV1::UnaryOperand)?;
+                let ASTNode::UnaryOp { operator: crate::ast::UnaryOperator::Copy, operand, .. } = input else {
+                    return Err("[freeze:contract][bool-condition/copy-source]".into());
+                };
+                let original = self.with_prepared_child_source_v1(child_source, |port|
+                    crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1(builder, port, *operand))?;
+                let expected = emission.borrow().value_at(source.nodes()[copy.0].site())?;
+                let value = builder.next_value_id();
+                let append = (physical::cursor(builder)?.block, crate::mir::MirInstruction::Copy { dst: value, src: original });
+                builder.emit_instruction(append.1.clone())?;
+                builder.function_state.type_ctx.value_types.insert(value, crate::mir::MirType::Bool);
+                let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][bool-condition/no-function]")?;
+                let operand = builder.function_state.local_ssa_correspondence.loan(function, expected, original)
+                    .ok_or("[freeze:contract][bool-condition/copy-operand]")?;
+                (value, Proof::Copy { append, operand })
+            },
             Node::Binary(binary) => {
                 let value = self.lower_expression_unobserved_v1(builder, input)?;
                 if matches!(binary.operator(), crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::And

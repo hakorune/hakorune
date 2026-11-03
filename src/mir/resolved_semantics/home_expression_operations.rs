@@ -9,6 +9,21 @@ use crate::mir::resolved_value_profile::{
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
 use std::collections::BTreeSet;
+/// Copy authority comes from the exact source class, never the wire carrier.
+pub(super) fn qualify_copy_operation_v1(
+    source: &Rc<ExpressionSourcePlanV1>, index: usize, classes: &[Leaf],
+) -> Option<Rc<CheckedExpressionOperationLoanV1>> {
+    let operand = source.copy_operand_node_v1(index)?;
+    let kind = match classes.get(operand)? {
+        Leaf::Value(Class::I64) => super::super::SourceScalarKind::Integer,
+        Leaf::Value(Class::Bool) => super::super::SourceScalarKind::Bool,
+        _ => return None,
+    };
+    Some(Rc::new(CheckedExpressionOperationLoanV1 {
+        plan: Rc::clone(source), node: index, proof: CheckedExpressionOperationProofV1::ScalarCopy(kind),
+    }))
+}
+
 /// One comparison of exact Text and/or opaque Dynamic operands, or of two exact
 /// Bools, producing a trivial Bool. The shared operator contract owns the law.
 pub(super) fn qualify_comparison_operation_v1(
@@ -69,6 +84,10 @@ pub(super) fn qualify_arithmetic_operations_v1(
     };
     for &index in order {
         if transferred.contains(&index) {
+            continue;
+        }
+        if source.copy_operand_node_v1(index).is_some() {
+            operations.push(qualify_copy_operation_v1(source, index, classes)?);
             continue;
         }
         let Some(binary) = source.nodes()[index].binary() else {

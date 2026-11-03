@@ -72,6 +72,7 @@ impl LoweredBoolConditionV1 {
         for node in &nodes {
             match &node.proof {
                 Proof::Literal(binding) => prefix.push(binding.clone()),
+                Proof::Copy { append, operand } => { prefix.push(append.clone()); operand.append_observed_bindings_v1(&mut prefix); }
                 Proof::Field(binding) => {
                     let source = self.frame.source().nodes().get(node.node)
                         .ok_or_else(|| freeze("bool-condition/field-node"))?;

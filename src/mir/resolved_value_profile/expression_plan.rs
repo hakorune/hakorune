@@ -92,7 +92,7 @@ pub(crate) enum ExpressionNodeSourceV1 {
     Binary(ResolvedBinaryExpressionSourceV1),
     Literal(ResolvedLiteralSourceV1),
     Reference(ResolvedLexicalRefV1),
-    Unary,
+    Unary(crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1),
     Conditional,
     /// Exact original sites remain requests to the existing call/input issuer.
     MethodCall,
@@ -142,6 +142,14 @@ impl ExpressionSourcePlanV1 {
     pub(crate) fn root(&self) -> &ExpressionPlanRootV1 {
         &self.root
     }
+    pub(crate) fn contains_copy_v1(&self) -> bool { (0..self.nodes.len()).any(|index| self.copy_operand_node_v1(index).is_some()) }
+
+    pub(crate) fn copy_operand_node_v1(&self, index: usize) -> Option<usize> {
+        let ExpressionNodeSourceV1::Unary(unary) = self.nodes.get(index)?.source() else { return None; };
+        if !unary.is_explicit_copy_v1() { return None; }
+        self.nodes.iter().position(|node| node.site() == unary.operand())
+    }
+
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
     }
@@ -472,7 +480,7 @@ fn build_plan(
                 ExpressionNodeSourceV1::Literal(row.clone())
             }
             ResolvedExpressionSourceV1::Reference(row) => ExpressionNodeSourceV1::Reference(row),
-            ResolvedExpressionSourceV1::Unary(_) => ExpressionNodeSourceV1::Unary,
+            ResolvedExpressionSourceV1::Unary(row) => ExpressionNodeSourceV1::Unary(row.clone()),
             ResolvedExpressionSourceV1::Conditional(_) => ExpressionNodeSourceV1::Conditional,
             ResolvedExpressionSourceV1::MethodCall(_) => ExpressionNodeSourceV1::MethodCall,
             ResolvedExpressionSourceV1::DirectCall => ExpressionNodeSourceV1::DirectCall,

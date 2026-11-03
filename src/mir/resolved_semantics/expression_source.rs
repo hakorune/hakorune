@@ -40,6 +40,7 @@ pub(crate) enum ResolvedBinaryOperatorV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedUnaryOperatorV1 {
+    Copy,
     Move,
     Shared,
     Minus,
@@ -72,6 +73,8 @@ impl ResolvedUnaryExpressionSourceV1 {
     pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
         &self.site
     }
+
+    pub(crate) fn is_explicit_copy_v1(&self) -> bool { self.operator == ResolvedUnaryOperatorV1::Copy }
 
     pub(crate) const fn operator(&self) -> ResolvedUnaryOperatorV1 {
         self.operator
@@ -322,6 +325,8 @@ impl ResolvedExpressionSourceInventoryV1 {
                 _ => None,
             })
     }
+
+    pub(crate) fn unaries(&self) -> impl Iterator<Item = &ResolvedUnaryExpressionSourceV1> { self.unaries.values() }
 
     pub(crate) fn unary(
         &self,
@@ -596,6 +601,7 @@ fn map_unary_operator(operator: &UnaryOperator) -> ResolvedUnaryOperatorV1 {
         UnaryOperator::Not => ResolvedUnaryOperatorV1::Not,
         UnaryOperator::BitNot => ResolvedUnaryOperatorV1::BitNot,
         UnaryOperator::Weak => ResolvedUnaryOperatorV1::Weak,
+        UnaryOperator::Copy => ResolvedUnaryOperatorV1::Copy,
         UnaryOperator::Move => ResolvedUnaryOperatorV1::Move,
         UnaryOperator::Shared => ResolvedUnaryOperatorV1::Shared,
     }

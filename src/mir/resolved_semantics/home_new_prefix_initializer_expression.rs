@@ -64,6 +64,7 @@ pub(super) fn observe<E>(
     else {
         return declined(statement.site(), 5);
     };
+    let copy_requested = source.contains_copy_v1();
     let root_add = source
         .nodes()
         .first()
@@ -87,7 +88,7 @@ pub(super) fn observe<E>(
     // evaluation frame, including a scalar literal or a plain read.
     let loop_scalar_requested = locals.in_source_loop_v1() && (root_reference || matches!(source.nodes()[0].source(),
         ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_) | ResolvedLiteralSourceV1::Bool(_))));
-    if !arithmetic_requested
+    if !copy_requested && !arithmetic_requested
         && !loop_scalar_requested
         && !root_add
         && !root_reference
@@ -200,7 +201,7 @@ pub(super) fn observe<E>(
         && !signed_entry
         && signed_root_sum.is_none()
         && !arithmetic_requested
-        && !loop_scalar_requested
+        && !loop_scalar_requested && !copy_requested
     {
         if debug {
             eprintln!("[initializer-expression] statement={:?} site={site:?} no admissible call or root", statement.site());

@@ -1,0 +1,11 @@
+static box Main {
+    main() {
+        local original = 5
+        local value = copy original + 2
+        local flag = copy false
+        local alias = copy flag
+        if alias { return 1 }
+        if copy true { return copy value }
+        return 2
+    }
+}

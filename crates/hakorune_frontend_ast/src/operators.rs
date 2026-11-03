@@ -7,6 +7,7 @@ pub enum UnaryOperator {
     Not,    // not x / !x
     BitNot, // ~x
     Weak,   // weak x
+    Copy,   // copy e
     Move,   // move x
     Shared, // Shared(x)
 }
@@ -41,6 +42,7 @@ impl fmt::Display for UnaryOperator {
             UnaryOperator::Not => "not",
             UnaryOperator::BitNot => "~",
             UnaryOperator::Weak => "weak",
+            UnaryOperator::Copy => "copy",
             UnaryOperator::Move => "move",
             UnaryOperator::Shared => "shared",
         };

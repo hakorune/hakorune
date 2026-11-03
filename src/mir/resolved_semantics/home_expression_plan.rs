@@ -154,7 +154,7 @@ impl HomeExpressionPlanV1 {
             || from.owner() != source.owner()
             || acquisition.owner() != source.owner()
             || source.nodes().len() != 2
-            || !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Unary)
+            || !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Unary(_))
             || unary.operator() != crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
             || unary.site() != source.nodes()[0].site()
             || unary.operand() != source.nodes()[1].site()
@@ -378,8 +378,8 @@ impl HomeExpressionPlanV1 {
                                 && shared.operator() == Op::Shared && moved.operator() == Op::Move
                                 && shared.site() == nodes[0].site() && shared.operand() == moved.site()
                                 && moved.site() == nodes[1].site() && moved.operand() == nodes[2].site()
-                                && matches!(nodes[0].source(), ExpressionNodeSourceV1::Unary)
-                                && matches!(nodes[1].source(), ExpressionNodeSourceV1::Unary)
+                                && matches!(nodes[0].source(), ExpressionNodeSourceV1::Unary(_))
+                                && matches!(nodes[1].source(), ExpressionNodeSourceV1::Unary(_))
                                 && matches!(nodes[2].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == *from)
                                 && prior_homes.iter().filter(|home| home.binding() == *from).count() == 1
                         }
