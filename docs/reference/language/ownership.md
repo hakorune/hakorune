@@ -78,7 +78,7 @@ superseded: text below that uses it describes a target that will not land.
 Rule 3 revives the spelling with a narrower input: a plain Box only as a fresh
 result or with explicit `move`.
 
-Rules 2, 3 and 5-12 were revised on 2026-11-03, and the grammar is frozen (ADR-002
+Rules 2, 3 and 5-13 were revised on 2026-11-03, and the grammar is frozen (ADR-002
 row "凍結"). They are targets, not connected yet: current code still adds a handle for a bare owned Shared local
 (`local copy = first`), and `Shared(move x)` / `Shared(fresh)` stay the live
 spelling until that connection.
@@ -184,8 +184,8 @@ In short, three rules:
    placement and ABI version stay separate from this contract. Array/Map API
    extensions not used by selfhost are named rejections until needed.
 7. Copy: only a type with a declared copy contract can be copied. Implicit
-   copy follows the specified value category (numbers, Bool; not Shared
-   handles), never the value's size. Respelling `copy x` as `.copy()` is
+   copy follows the specified value category (numbers, Bool, unit enums, records
+   and `T?` of those; not Shared handles), never the value's size. Respelling `copy x` as `.copy()` is
    deferred.
 8. Take (decided 2026-11-03): `take place` extracts ownership from a nullable
    place holding an owned value: a local, an `edit` parameter, a field or an array
@@ -238,6 +238,19 @@ In short, three rules:
    is Ended afterwards, and a Fault there leaves the new value in `dst`. It is not
    shorthand for a `move` followed by an assignment. The right side is only
    `move place`; `e = fold(move e)` stays rejected.
+13. Named initialization (decided 2026-11-03): `new T(args) { field: expr }` runs
+   declared initializers, then `birth` if any, then evaluates and stores the listed
+   fields in written order, then publishes the object. `birth` may be absent, and
+   named fields never stand in for its arguments. By publication every required
+   field is initialized; a missing, duplicate or unknown field is an error, and an
+   uninitialized field cannot be read. Each expression is evaluated once, and an
+   owned value becomes the field's responsibility once stored. Overwriting an
+   initialized field commits the new value, then Ends the old one. A Fault cleans up
+   what was acquired or stored with no double End, does not call the unpublished
+   parent's `fini`, and rolls back neither moved values nor completed effects, so
+   this differs on failure from assignments after a published `new T()`. The
+   required-field check starts at the cutover, and `new T { field: move x }` is not
+   connected yet.
 
 Decided 2026-11-02 (see ADR-002 for the cutover contract):
 
@@ -265,17 +278,18 @@ explicitly and never produced by omission or failed inference. At the cutover
 the old meaning of an omitted annotation (dynamic Any) ends. A `T?` field without
 an initializer is declared null; a required field must be initialized on every
 Normal construction path; a moved field is never refilled with null. Automatic
-copy covers numbers, Bool, unit enums and records holding only those; `copy e` is
-explicit. Rust retains structural type-reference syntax (Name/Apply/Array/Nullable);
+copy covers numbers, Bool, unit enums, records and `T?` of those (decided
+2026-11-03); an enum with a payload is never copied automatically, whatever the
+payload, and `copy e` is explicit. Rust retains structural type-reference syntax (Name/Apply/Array/Nullable);
 unsupported new parameter/result representations are named rejections. Bare `T`
 keeps its pre-cutover meaning and nullable-field defaults remain a separate
-connection. A `box` is an object with identity, `birth`, `fini` and methods; a `record` is a
-value without identity, updated with `with`. Enums and records may own Unique and
-Shared values, and ownership and copying follow the contents (decided 2026-11-03),
-so a record holding a String or Box is not copied implicitly. An owning record
-writes `(move a) with { x: 1 }` or, with a copy contract, `(copy a) with { x: 1 }`.
-Owning records stay named rejections until their connection. The full list is the
-ADR-002 rows "固定した文法" and "凍結".
+connection. A `record` is a group of values with automatic copy (decided
+2026-11-03): it has no identity, owned resources or stored borrows, always copies,
+and is updated with `p with { x: 10 }`. A String, an enum with a payload, a Box or
+a Shared in a record is rejected with a hint to use a `box`. A `box` is an object
+with identity that may also group owned data, even when the group needs no
+identity: `new Token { kind: k, text: move s, span: sp }` (rule 13). Enums may own
+Unique and Shared values. The full list is the ADR-002 rows "固定した文法" and "凍結".
 
 Sections 1-11 below describe the pre-cutover meaning where they conflict with
 this section (implicit alias copies, composite anchored results, bare aliases).

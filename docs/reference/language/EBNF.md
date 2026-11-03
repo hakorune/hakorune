@@ -281,6 +281,8 @@ record_field:= IDENT ':' TYPE_REF ('=' record_default_expr)? ','?
            ; ARG-DATA-003: scalar literal defaults are accepted for local
            ; record construction defaults. They are not runtime stored fields.
            ; MVP fields must be typed and non-weak.
+           ; Target (2026-11-03): fields hold only numbers, Bool, unit enums, other
+           ; records and `T?` of those; a record always copies (ownership.md §0 Types).
 
 expr      := logic
 logic     := compare (('&&' | '||') compare)*
@@ -620,6 +622,9 @@ local page = new Page(PageId(1)) { live: 1 }
 
 Unmentioned fields keep declaration defaults / birth behavior. Duplicate field
 entries and unknown user-defined box fields fail-fast.
+Target (2026-11-03): every required field is initialized before publication, a
+missing one is an error from the cutover, and on Fault this differs from assignments
+after a published `new T()` (ownership.md §0 rule 13).
 
 This is a field-set contract surface, not a source-size shortcut. Use
 same-owner `makeReport(fields)` helper scalarization to reduce repeated
