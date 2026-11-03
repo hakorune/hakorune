@@ -175,6 +175,12 @@ impl DeclaredCallReadSourceV1 {
         Ok(Some(Self { kind: DeclaredReadSourceKindV1::Flow { read: OwnedExprSiteV1::new(input.owner(), site.clone()), binding, value,
             flow: Arc::clone(flow), terminals, class: class.declared_type().into() } }))
     }
+    pub(crate) fn original_calls_v1(&self) -> impl Iterator<Item = (&OwnedExprSiteV1, BindingRefV1, &Arc<ResolvedCallableBorrowedResultDeclarationV1>)> {
+        let single = match &self.kind { DeclaredReadSourceKindV1::Single { read, declaration } => Some((read.producer(), read.destination(), declaration)), _ => None };
+        let terminals = match &self.kind { DeclaredReadSourceKindV1::Flow { terminals, .. } => terminals.as_slice(), _ => &[] };
+        single.into_iter().chain(terminals.iter().filter_map(|terminal| terminal.call.as_ref().map(|(call, binding, declaration)| (call, *binding, declaration))))
+    }
+    pub(crate) fn has_literal_null_v1(&self) -> bool { matches!(&self.kind, DeclaredReadSourceKindV1::Flow { terminals, .. } if terminals.iter().any(|row| row.call.is_none())) }
     /// Match the retained source signature to a separately qualified Prefix
     /// read. Metadata never creates a loan, liveness or a nonnull permission.
     pub(crate) fn matches_value_v1(&self, view: &DeclaredReadValueV1) -> bool {

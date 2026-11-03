@@ -213,7 +213,7 @@ impl PrefixLocalFlow<'_> {
     ) -> bool {
         if let Some(actual) = loan.reborrowed_read_v1() {
             if !matches!(self.nullable_result_reference_v1(actual.read().site()),
-                Some(super::super::NullableResultReferenceV1::DeclaredFrom(current)) if current.single() == Some(actual)) { return false; }
+                Some(super::super::NullableResultReferenceV1::DeclaredFrom(current)) if actual.matches_value(&current)) { return false; }
         }
         if loan.is_declared_read_v1() {
             // The outer Call completes this single initializer after all child
@@ -225,9 +225,7 @@ impl PrefixLocalFlow<'_> {
         }
         if let Some((root, acquisition, read)) = loan.owned_local_support_v1() {
             if self.home_acquisition(root) != Some(acquisition)
-                || self.direct_available_home(read.site()) != Some((root, acquisition)) {
-                return false;
-            }
+                || self.direct_available_home(read.site()) != Some((root, acquisition)) { return false; }
         }
         if loan.entry_support_v1().is_some() && !self.borrowed_entry_support_live_v1(&loan) { return false; }
         self.store(

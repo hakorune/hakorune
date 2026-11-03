@@ -51,7 +51,7 @@ pub(super) fn validate_readonly_edge_v1(handoff: &super::super::FinalizedRootSou
 pub(super) fn borrowed_lifetime_start_v1(context: CallValidationContextV1<'_>,
     mut base: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
 ) -> Result<(ValueId, Binding), String> {
-    while let Some(parent) = base.reborrowed_read_v1() { base = parent.source(); }
+    while let Some(parent) = base.reborrowed_read_v1() { base = parent.single_loan().ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?; }
     context.with_taken_packet_v1(base.call(), |packet| {
         let original = context.ledger().borrowed_nullable_call_source_v1(base.call())
             .ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;

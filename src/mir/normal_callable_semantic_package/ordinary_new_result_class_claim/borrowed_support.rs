@@ -31,18 +31,20 @@ impl OrdinaryNewResultClassClaimsV1 {
         })
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_read_at_v1(&self,
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_support_read_at_v1(&self,
         batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         parameters: &[OwnedCallableParameterContractDeclarationV1],
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1, app_main: Option<AppMainSourceRefV1<'_>>,
-    ) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1>, &'static str> {
-        let Some(declared) = self.declared_read_source_at_v1(batch, selected, fields, parameters, input, site, app_main, None)? else { return Ok(None); };
-        let read = declared.source_read().ok_or("borrowed-nullable/multiple-call-read-uncovered")?;
-        let Some(source) = self.borrowed_nullable_local_source_v1(batch, selected, fields, parameters,
+    ) -> Result<Option<BorrowedSupportReadV1>, &'static str> {
+        let Some(source) = self.declared_read_source_at_v1(batch, selected, fields, parameters, input, site, app_main, None)? else { return Ok(None); };
+        // This normalization preserves the existing single-Call boundary.
+        // A joined signature needs canonical support loans from its own issuer.
+        let read = source.source_read().ok_or("borrowed-nullable/multiple-call-read-uncovered")?;
+        let Some(loan) = self.borrowed_nullable_local_source_v1(batch, selected, fields, parameters,
             read.producer(), read.destination(), app_main)? else { return Ok(None); };
-        Ok(crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1::from_declared_v1(&source, declared))
+        BorrowedSupportReadV1::issue(source, vec![loan]).map(Some)
     }
 
     pub(super) fn original_borrowed_read_v1(&self,
@@ -51,9 +53,9 @@ impl OrdinaryNewResultClassClaimsV1 {
         parameters: &[OwnedCallableParameterContractDeclarationV1],
         outer: &call_witness::OriginalLocalCallSourceV1, actual: &ResultActualSourceV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
-    ) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1>, &'static str> {
+    ) -> Result<Option<BorrowedSupportReadV1>, &'static str> {
         batch.with_lowering_input(outer.caller_slot, |input|
-            self.borrowed_read_at_v1(batch, selected, fields, parameters, input, actual.site.site(), app_main))
+            self.borrowed_support_read_at_v1(batch, selected, fields, parameters, input, actual.site.site(), app_main))
             .map_err(|_| "borrowed-nullable/caller-input")?
     }
 
@@ -68,9 +70,11 @@ impl OrdinaryNewResultClassClaimsV1 {
         }
         if let BorrowedLocalSupportV1::Reborrow { callee, actual } = &loan.support {
             let declaration = loan.declared_read_result_v1().ok_or("borrowed-nullable/source-identity")?;
-            let inner = actual.source();
-            let inner_roots = self.checked_original_source_roots_v1(inner.key(), inner.callee_owner())?;
-            self.check_borrowed_nullable_roots_v1(inner, &inner_roots)?;
+            for inner in actual.loans() {
+                let inner_roots = self.checked_original_source_roots_v1(inner.key(), inner.callee_owner())?;
+                self.check_borrowed_nullable_roots_v1(inner, &inner_roots)?;
+                if inner.call() == loan.call() || !inner.is_declared_read_v1() { return Err("borrowed-nullable/source-identity"); }
+            }
             use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
             let matches = match declaration.support() {
                 Support::Formal { binding, ordinal } => {
@@ -82,12 +86,12 @@ impl OrdinaryNewResultClassClaimsV1 {
                 }
                 Support::Receiver { binding } => *callee == crate::mir::instruction::BorrowedResultSupportV1::Receiver
                     && actual.read().site() == loan.receiver()
-                    && inner.declared_read_result_v1().is_some_and(|read| read.declared_type() == loan.key().owner())
+                    && actual.declared_type() == loan.key().owner()
                     && roots.iter().all(|root| root.supports_receiver_v1(binding, declaration.declared_type())
                         && (root.is_literal_null_v1() || root.recheck_receiver_payload_v1(self))),
             };
             if !matches || declaration.owner() != loan.callee_owner()
-                || actual.read().owner() != loan.call().owner() || inner.call() == loan.call() || !inner.is_declared_read_v1()
+                || actual.read().owner() != loan.call().owner()
                 || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)) {
                 return Err("borrowed-nullable/source-identity");
             }
