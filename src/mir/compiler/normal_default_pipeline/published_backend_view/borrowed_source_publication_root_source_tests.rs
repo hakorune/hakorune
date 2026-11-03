@@ -164,3 +164,34 @@ fn unproven_bound_returns_stay_fail_closed() {
         );
     });
 }
+
+#[test]
+fn explicit_share_source_rejects_an_unrequested_physical_clone() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+    let text = "box Page { value: i64 birth() { me.value = 7 } }
+        static box Main { main() { local page = new Page()
+        local first = share move page local second = share first return 7 } }";
+    MirCompiler::with_options(false).compile_normal_with_published(request(text),
+        |view, verification| -> Result<(), String> {
+            require_artifact_verification(verification);
+            view.issue_lifecycle_physical_abi_input()?;
+            let main = &view.module().functions["main"];
+            let original = super::super::shared_initializer::bindings(Some(view.module()), main, Some(&view))?;
+            let extra = original.iter().find_map(|(_, instruction)| matches!(instruction,
+                MirInstruction::Invoke { operation: InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Clone { .. }), .. })
+                .then(|| instruction.clone())).ok_or("explicit share must select Clone")?;
+            let mut changed = view.module().clone();
+            let id = crate::mir::BasicBlockId::new(900_101);
+            let mut block = crate::mir::BasicBlock::new(id);
+            block.terminator = Some(extra);
+            changed.functions.get_mut("main").unwrap().blocks.insert(id, block);
+            // Check the publication coverage owner directly: a generic CFG/SSA
+            // refusal must not substitute for the original-source obligation.
+            let error = super::super::shared_initializer::bindings(Some(&changed),
+                &changed.functions["main"], Some(&view)).expect_err("no source share authorizes the extra Clone");
+            assert!(error.contains("shared-initializer/source-coverage"), "{error}");
+            Ok(())
+        }).unwrap();
+    });
+}

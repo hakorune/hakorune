@@ -82,6 +82,10 @@ Rules 2, 3 and 5-13 were revised on 2026-11-03, and the grammar is frozen (ADR-0
 row "凍結"). They are targets, not connected yet: current code still adds a handle for a bare owned Shared local
 (`local copy = first`), and `Shared(move x)` / `Shared(fresh)` stay the live
 spelling until that connection.
+Bounded Rust local `share new T(...)`, `share move x` and `share h` (an owned
+Shared local) are now connected to the existing checked Shared plan. The old
+constructor and bare-local implicit Clone remain only until the next retirement
+landing; `share(x)`, `share (x)` and `share[i]` remain ordinary syntax.
 
 In short, three rules:
 

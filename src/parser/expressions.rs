@@ -21,6 +21,19 @@ fn is_sugar_enabled() -> bool {
 }
 
 impl NyashParser {
+    fn contextual_value_prefix_v1(&self) -> Option<UnaryOperator> {
+        let operator = match &self.current_token().token_type {
+            TokenType::IDENTIFIER(name) if name == "copy" => UnaryOperator::Copy,
+            TokenType::IDENTIFIER(name) if name == "share" => UnaryOperator::Shared,
+            _ => return None,
+        };
+        let next = self.tokens.get(self.current + 1)?;
+        (next.line == self.current_token().line && matches!(next.token_type,
+            TokenType::IDENTIFIER(_) | TokenType::NUMBER(_) | TokenType::TypedNumber(_, _)
+            | TokenType::FLOAT(_) | TokenType::STRING(_) | TokenType::TRUE | TokenType::FALSE
+            | TokenType::NULL | TokenType::ME | TokenType::THIS | TokenType::NEW)).then_some(operator)
+    }
+
     /// 式をパース (演算子優先順位あり)
     pub(super) fn parse_expression(&mut self) -> Result<ASTNode, ParseError> {
         // Experimental bridge: Opt-in TokenCursor path (Phase 15.5 newline refactor)
@@ -198,19 +211,15 @@ impl NyashParser {
             });
         }
 
-        // Contextual prefix; a following '(' or '[' keeps the ordinary
-        // call/index use of a binding named copy, including spaced calls.
-        if matches!(&self.current_token().token_type, TokenType::IDENTIFIER(name) if name == "copy")
-            && self.tokens.get(self.current + 1).is_some_and(|next|
-                next.line == self.current_token().line && matches!(next.token_type,
-                    TokenType::IDENTIFIER(_) | TokenType::NUMBER(_) | TokenType::TypedNumber(_, _) | TokenType::FLOAT(_) | TokenType::STRING(_)
-                    | TokenType::TRUE | TokenType::FALSE | TokenType::NULL
-                    | TokenType::ME | TokenType::THIS | TokenType::NEW))
-        {
+        // Contextual prefixes share one FIRST/trivia rule. Parentheses and
+        // indexing keep an ordinary call/read of a binding named copy/share.
+        if let Some(operator) = self.contextual_value_prefix_v1() {
             let span = self.current_span();
             self.advance();
-            let operand = self.parse_call()?;
-            return Ok(ASTNode::UnaryOp { operator: UnaryOperator::Copy, operand: Box::new(operand), span });
+            let operand = if operator == UnaryOperator::Shared
+                && matches!(&self.current_token().token_type, TokenType::IDENTIFIER(name) if name == "move")
+            { self.parse_unary()? } else { self.parse_call()? };
+            return Ok(ASTNode::UnaryOp { operator, operand: Box::new(operand), span });
         }
 
         // `move root` is contextual and carries only a whole local name.

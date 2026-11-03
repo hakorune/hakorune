@@ -1,10 +1,10 @@
-date = "2026-11-03"
+date = "2026-11-04"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "step3a: scalar Copy landed; nullable declaration initialization and typed Place public contract await decision"
-current_design_stop = "nullable declaration defaults need a source initialization plan and Null-to-value storage contract; edit remains proposal-only"
+current_blocker_token = "step3a share: bounded local prefix connection, then legacy constructor and implicit Clone retirement"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8. Step3a declaration retention and structural Name/Apply/Array/Nullable references landed; existing unqualified programs and bare T/null meaning stay unchanged.
-Checked i64/Bool Copy now uses common source proof and existing MIR Copy through final verification; ordinary copy calls stay ordinary. Canonical Copy EXE exit7, production net+166/test and acceptance +74. Other unsupported Copy producers/types remain named refusals.
-Optimized target/quick CLI/runtime plus rebuilt C shim: fixed8/8, cohort1808 PASS/exact115 failure names; focused3 PASS plus1 preexisting forwarded-copy/root failure, C24 PASS. No 19-shape run this goal.
-T? declaration-default null remains unconnected: source declaration initialization and typed Null-to-value publication need a contract decision; no zero-bit or fake-AST workaround. Stage3 remainder is reported under its six-hour bound.
-Edit proposal covers caller marks, nullable local/edit/element take and rule12 atomic replacement; new public Place/operations/ABI await approval, no edit execution. Two stashes/unrelated inventory preserved; Hako edit/copy/type parity stays deferred.
+APP-boxtorrent-mini fixed8/8. Step3a share stage1: bounded local share new T(...), share move x and share h now reuse the existing Shared source plan and New/Clone; no new MIR/public contract/ABI/C changes.
+copy/share use common contextual recognition; clone source keeps explicit Unary plus exact Reference, operation choice stays in source. Ordinary share calls/index/names remain; invalid operands and nonlocal share named-refuse. Explicit forms EXE exit10, ordinary method exit7.
+Optimized target/quick CLI/runtime fixed8/8 (134.99s), cohort1808 PASS/exact115 failure names, focused29 PASS including extra-Clone source-to-publication refusal. Production net+84/test+54; existing Fault safety preserved.
+Next stage2: retire Shared(...) and bare-Shared implicit Clone with the existing exit10 app migration; the legacy constructor/implicit Clone remain intentionally only until that landing. Then report Shared<T> public boundaries and nullable cases(a)-(d), within total five hours.
+Typed Place edit execution/T? implementation/Hako parser remain excluded; two stashes/unrelated inventory preserved, no 19-shape run. Hako share parity remains pending on its existing unavailable path.
 """
-next_design_card = "APP-boxtorrent-mini"
-next_design_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "APP-boxtorrent-mini"
+next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

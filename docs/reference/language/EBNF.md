@@ -103,7 +103,7 @@ Accepted ownership grammar and implementation status:
 
 ```ebnf
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
-target_share_expr    := IDENT("share") HTRIVIA ( 'move' HSPACE IDENT | non_group_postfix_expr )  (* revised 2026-11-03; operand rules in ownership.md §0; parser-inactive *)
+target_share_expr    := IDENT("share") HTRIVIA ( 'move' HSPACE IDENT | non_group_postfix_expr )  (* Rust bounded local fresh/move/owned-Shared forms live; operand rules in ownership.md §0; Hako pending *)
 target_edit_param    := IDENT("edit") HTRIVIA IDENT HTRIVIA ':' type_ref  (* declaration source retained; execution named-rejected *)
 target_method_mode   := ( IDENT("edit") | IDENT("take") ) HTRIVIA method_decl  (* receiver declaration source retained; execution named-rejected *)
 target_place         := ( IDENT | 'me' ) ( '.' IDENT )*  (* move/take operand; calls and postfix '?' are not places *)

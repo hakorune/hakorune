@@ -213,7 +213,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
                 return Err(freeze("shared-initializer/exact-source-required"));
             };
-            let read_node = plan.nodes()[if is_clone { 0 } else { 2 }].site().node();
+            let read_node = plan.nodes().last().ok_or_else(|| freeze("shared-initializer/source-missing"))?.site().node();
             let initializer = plan.root().initializer().ok_or_else(|| freeze("shared-initializer/source-missing"))?;
             if context.site() != Some(plan.nodes()[0].site().node())
                 || !matches!(initializer.declaration_site(), crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. } if *original == ordinal)

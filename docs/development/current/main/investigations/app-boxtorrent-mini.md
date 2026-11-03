@@ -1,10 +1,12 @@
 # APP-boxtorrent-mini
 
-Status: **acceptance reached** (fixed suite 8/8; prior 11 rows consolidated). Date: 2026-11-03
+Status: **acceptance reached** (fixed suite 8/8; prior 11 rows consolidated). Date: 2026-11-04
 Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
 ## 現在地
+- share段階1着地: localのshare new/share move/share hを既存Shared source計画→New/Clone→publicationへ接続、copy/shareの文脈認識を共通化し新MIR/公開契約/ABI/C変更なし。最適化target/quick CLI/runtimeで新3形exit10・通常method exit7・6拒否入力は名前付き拒否/EXEなし、固定suite8/8（134.99秒）・cohort1808 PASS/既知115失敗名一致・focused29 PASS（sourceにないCloneのpublication拒否含む）。production +124/−40（純増84）・test +59/−5（純増54）。新しい意味・改変境界を既存familyへ統合、新test file/checkerなし。旧表記と暗黙Cloneは次の退役着地まで維持。
+- step3a share（2026-11-04選択）: local前置き3形を既存Shared New/Cloneと一つのsource判断へ接続→Shared(...)とbare Shared localの暗黙Cloneを退役（既存app exit10維持）→Shared<T>境界で公開契約が要る所を報告→T?の(a)未代入/(b)観測前exact-once/(c)分岐・先行read/escape/(d)公開後代入を確認し報告。合計5時間、4時間で確認・着地へ移る。通常Box alias、edit実行/take place/field move/match/T?実装/Hako parserは対象外。型付きPlace案Aは受理済みで実装は別goal。
 - 既存From契約: 結果型・支持関係・ReadOnly/LegacyUnqualifiedを分離し、新Fromのread欠落/false/片側のみ/不適合roleと、両側属性を消す改変も元宣言とのpublication照合で拒否。未指定をMutとせず旧未修飾/可変借用契約は維持。
   元Call/callee Rc/From宣言・現在read/Copy・Normal/Fault・支持元とpayloadの区別をsource→独立MIR→Cへ保持。支持元write/move/End/slot失効、結果write/mut/take/所有保存/Endを検査し、formal 0/Map slot/Homeへの偽装や新MIR命令/runtime ABIは使わない。
 - take接続済み: 明示birth/i64 field Boxのmove実引数、左→右一度評価、移転後の元binding/alias拒否と入場前caller/入場後calleeのNormal/Fault責任を保持。Normal/後続引数Fault/入場後Faultはexit 7/70/70、取得/End/free一致。詳細はGit履歴、通常Box/birth既定は維持。
@@ -36,7 +38,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 測定の限界: clock分解能0.01秒、depth14のwall範囲はDynamic 4.49–4.54/store 1.68–1.71/direct 0.30–0.31秒。storeはpayload解放後もregistry Vecの容量を保持するため、free件数はRSS返却を意味しない。region/arena最適化やGooseとの比較は未実施。この入力・profile以外の性能優位は主張しない。
 - step 2 A/B/C・二系統測定完了: `CARGO_BUILD_JOBS=4 cargo quick-build --bin hakorune`の最適化target/quick CLI＋同runtime・再build C shimで固定suite 8/8（SKIP/timeoutなし）、19形program関数/exit一致、cohort 1796 PASS・既知115失敗名完全一致。C既存96入力/直接配置/Fault/深さEnd検証とperf-observe既存test 11件PASS、観測なしruntimeへ復帰。今回production +137/−19行、既存test +17/−2行（観測ABIと不正event境界、新規test file/checkerなし）。旧object-store退役とarenaはstep 2対象外。既存stash 2件保持。
 - step 3a 型参照: 共通frontend TypeReferenceV1（Name/Apply/Array/Nullable）を元parameter/result宣言・field inventoryに保持。旧String metadataとStage1 JSONの旧array投影は維持し、旧private解析器を共通ownerへ移管。新compound parameter/nullable resultはUnsupportedDeclaredType/UnsupportedResultType、無印Tのnull/所有/省略規則は不変。最適化target/quick CLI＋同runtime/既存C shimで固定suite8/8（138.87秒）、cohort1808 PASS/既知115失敗名完全一致、check PASS、focused143 PASS＋既存Stage1 Array<PageId> metadata FAIL 1件（10/30の同名・同理由を確認、PASS扱いしない）。実CLIの3型も名前付き拒否・EXE未生成。共通表現、production +86/test +20行（元宣言の型構造と非降格境界を既存familyへ統合）。
-- Hako parser実行parity: HEADの既存経路が使えない（vm-reference無効＋`ParserBox.add_using`のloop拒否）ため、move fixturesはHako実行経路が戻った時に同じgateで確認する（maintainer判断、固定suiteのSKIPではない）。 step 3aのedit/copy/構造型参照もHako側は未対応のまま保持し、本goalでは編集・実行parity検証を行わない。
+- Hako parser実行parity: HEADの既存経路が使えない（vm-reference無効＋`ParserBox.add_using`のloop拒否）ため、move fixturesはHako実行経路が戻った時に同じgateで確認する（maintainer判断、固定suiteのSKIPではない）。 step 3aのedit/copy/share/構造型参照もHako側は未対応のまま保持し、本goalでは編集・実行parity検証を行わない。
 - 所有step 1 S2–S5部分: 同一scopeのNew由来Homeを移転し、実MIRの取得・Birth/Fault・Endをpublished側のownership SSAで再検証。`ownership-move-min`は正規EXEでexit 30、移転後使用・二重moveとMIR改変は拒否。`cargo quick-build --bin hakorune`の`target/quick/hakorune`と`target/quick` runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。Rust production +615/−57、test +176/−1、app +23・smoke +1行。純増の退役条件は旧local plannerの安全責務を後継へ移したS6。Shared(S7)は下記。
 - S6: caller-zero旧local plannerと専用guardを退役。source owner・重複Home拒否、move後の実MIR逆順End、未対応object再代入の拒否と旧Home保持を後継で確認。object再代入を将来受理する際はRHS成功後のcommit・旧EndとFault時の保持を実経路で検証する。Rust production +3/−556、test +103/−500。最適化CLIと同runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。既存region guardは基点から欠落する`direct_call_tests.rs`、下位guardは既存stale anchorで停止。
 - move ABI: sourceが証明した`i64`引数と未使用receiverを持つcallableも正規EXE exit 7、型未確定は名前付き拒否。同じ取得元の二重Homeも拒否。Rust production +63/−4、test +34。`target/quick/hakorune`と同runtimeで固定suite 8/8・19形一致・cohort失敗名84/1/0一致。receiver使用・その他の引数は未完。純増したlane照合はgeneral ownership ABIへ統合時に共通化する。
@@ -46,14 +48,8 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - step 3a残件/停止: T? fieldの宣言時既定nullは未接続。ConstructionStoreは実assignment由来のみ、typed object residenceは単一installで、既定Nullの後のbirth代入を既存契約では表せない。ゼロ埋め/架空AST/重複install緩和は使わず、宣言由来の初期化計画とNull→値の公開契約を判断してから再開（推定production600–1400/test150–350行、8–16時間＋検証）。段階3の6時間目安に従い残りを報告し、既存bare T/null規則は維持。
 - step 3a edit案のみ/実装停止: 凍結文法の呼出し側edit・nullable local/edit引数/配列要素take・rule12の一体置換を、共通typed Placeと準備→非Fault commit→旧値の残りEndで表す案を最終報告。raw address案と比較し、公開Place/操作/ABI・子を除外するcleanup責務が承認前の境界。所有recordは対象外。share/take place/field move/match/update/sync box/edit実行は追加しない。
 
-## この着地の内容（共有ownerへの追加と理由）
-- `{Text,null}`静的callを`DynamicCarrier`/`ordinary_nullable_text`で運ぶ。native: kernel `checked_publish_text_or_null_v1`/`checked_is_null_v1`、Text比較のcarrier operand、C shimの返却/呼出し/null比較/Return。理由: 返却Textがnullを取り得る`readData`/`get`を実EXEで動かすため。
-- String Addの右辺carrier、`Text + Bool`（`NormalBool` operand、tagged Bool表示を再利用しkernel変更なし）。理由: `"root_equal=" + root_equal`。
-- loop text carrierのReturn/call-Fault End、置換後のFault順序（置換Homeは置換元の位置を引き継ぐ）をRust builder/検証/MIR検証/Cで一致させた。理由: Rust検証とC検証で順序前提が食い違っていた。置換End自身のFaultは取得順のまま。
-- 条件・field: `<array field>.length() <cmp>`/`me.<field> <cmp>`の条件選択、`keys().length()`のfinished image、object-only borrowed entryのObject domain、received birth actualの`Outer`（`local x = new T(..)`）。理由: `chunkCount`/`firstChunkId`/`release`/`put`。
-- C: SLOT_BORROW phi（構造のみ、使う側が再証明）、Map要素借用のreceiver（`has`/null guardの枝内のみ）、object_field_borrow由来のnullable引数、動的Object初期化（`value_tag=object`）、`string_materialize`のcarrier、Copyのcarrier。理由: `put`/`release`/`birth`。
-- 借用区間の葉呼び出し: 引数なしで本体が**スカラfield読書のみ**（`dynamic_i64_replace`含む）の呼び出しはMap slotを変えないと証明できるため区間を切らない。それ以外のcall/birth_call/map操作は従来どおり拒否。
-- 既定OFFの診断: `[condition-select]` `[result-class]` `[field-array-return]` `[received-birth]` `[loop-call-ends]` `[invoke-verify]` `[root-home]` `[borrowed-actual]`、`NYASH_BUILDER_DEBUG`時のRust文字列検証の拒否内訳、`HAKO_PHYSICAL_DEBUG`時のCの拒否内訳（`[physical-refused]`/`[lifecycle-v4-refused]`/`[lifecycle-v4-receiver-mismatch]`）。使い捨てプローブは全撤去（`TMP-`なし）。
+## 完了したboxtorrent接続
+- nullable Text/Bool/loop cleanup・field/借用Callの接続詳細と既定OFF診断はGit履歴 `9342c2ae58` の同cardへ集約。残る共有ownerの退役条件は以下に保持する。
 
 ## 純増と退役条件
 - production行（このseries全体、概算）: 先行3commit +655/−74、今回 +482/−67 で**純増**（機能追加であり整理の主張なし）。

@@ -119,21 +119,8 @@ pub(super) fn observe<'a, E>(
         };
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
         if let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(site) {
-            if let Some(acquisition) = locals.shared_acquisition_v1(source).cloned() {
-                let scope = function.binding(binding).map(|row| row.owner_scope());
-                if scope.is_none() || function.binding(source).map(|row| row.owner_scope()) != scope
-                    || function.exact_scope_containing(statement.site().node()) != scope
-                    || source == binding || homes.iter().filter(|home| home.binding() == source).count() != 1
-                    || homes.iter().any(|home| home.binding() == binding) {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
-                    continue;
-                }
-                let prior_homes = homes.to_vec().into();
-                let plan = input.forest().callable_source_ledger(input.owner()).ok()
-                    .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
-                    .and_then(|source_plan| super::expression_plan::HomeExpressionPlanV1::shared_initializer(source_plan, SharedPayloadSourceV1::Existing { from: source, acquisition, is_clone: true }, None, None, prior_homes));
-                if !plan.is_some_and(|plan| locals.retain_expression_plan(plan))
-                    || !locals.install_shared_clone_v1(source, binding, owned, homes) {
+            if locals.shared_acquisition_v1(source).is_some() {
+                if !locals.retain_shared_clone_initializer_v1(relation, source, None, homes) {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
                 }
                 continue;
@@ -154,6 +141,14 @@ pub(super) fn observe<'a, E>(
                     matches!(origin, super::super::source_value_flow::SourceValueOriginV1::Expression(site) if site == acquisition.site()))
             };
             if unary.operator() == super::super::ResolvedUnaryOperatorV1::Shared {
+                if let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(unary.operand()) {
+                    if locals.shared_acquisition_v1(source).is_some() {
+                        if !locals.retain_shared_clone_initializer_v1(relation, source, Some(unary.clone()), homes) {
+                            unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+                        }
+                        continue;
+                    }
+                }
                 let payload = OwnedExprSiteV1::new(input.owner(), unary.operand().clone());
                 if result_sites.contains(&payload) {
                     let Some(construction) = function.expression_source().construction(unary.operand()) else {
@@ -192,7 +187,9 @@ pub(super) fn observe<'a, E>(
                 }
                 let Some(moved) = function.expression_source().unary(unary.operand())
                     .filter(|row| row.operator() == super::super::ResolvedUnaryOperatorV1::Move) else {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::SharedOperandUnsupported {
+                        site: site.clone(), guidance: "share requires an owned Shared local or a fresh/moved plain Box; for an owned plain Box use share move x; borrowed Box, values, Dynamic and nullable operands are unsupported",
+                    });
                     continue;
                 };
                 let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(moved.operand()) else {
@@ -201,6 +198,12 @@ pub(super) fn observe<'a, E>(
                 };
                 if locals.was_moved_out(source) {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::UseAfterMove(moved.operand().clone()));
+                    continue;
+                }
+                if locals.shared_acquisition_v1(source).is_some() {
+                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::SharedOperandUnsupported {
+                        site: site.clone(), guidance: "share move h cannot start sharing an existing Shared handle; use move h to transfer it, or share h to add one handle",
+                    });
                     continue;
                 }
                 let scope = function.binding(binding).map(|row| row.owner_scope());

@@ -87,6 +87,7 @@ pub(crate) enum HomePrefixUnavailableV1 {
     EntryDemandMissing,
     SourceMismatch,
     MoveUnsupported(SourceExprSiteV1),
+    SharedOperandUnsupported { site: SourceExprSiteV1, guidance: &'static str },
     UseAfterMove(SourceExprSiteV1),
     PrefixNotCovered(SourceStmtSiteV1),
     ArgumentNotCovered(SourceExprSiteV1),
@@ -517,7 +518,8 @@ pub(crate) fn scan_new_home_flow<E>(
             .declaration_sites()
             .any(|site| matches!(site, SourceBindingSiteV1::Receiver))
             && entry_home.is_none()))
-    .then_some(HomePrefixUnavailableV1::EntryDemandMissing);
+    .then_some(HomePrefixUnavailableV1::EntryDemandMissing)
+    .or_else(|| HomeExpressionPlanV1::validate_shared_local_positions_v1(input).err());
     let Ok(body) = input.source().root_body() else {
         return Ok((
             selected

@@ -368,11 +368,8 @@ impl HomeExpressionPlanV1 {
                     Rc::ptr_eq(source, &self.source)
                         && source.root().initializer().is_some_and(|row| row.binding().owner() == source.owner())
                         && match (payload_source, shared, moved) {
-                        (P::Existing { from, acquisition, is_clone: true }, None, None) => {
-                            from.owner() == source.owner() && acquisition.owner() == source.owner() && nodes.len() == 1
-                                && matches!(nodes[0].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == *from)
-                                && prior_homes.iter().filter(|home| home.binding() == *from).count() == 1
-                        }
+                        (P::Existing { from, acquisition, is_clone: true }, shared, None) =>
+                            Self::shared_clone_source_is_consistent_v1(source, *from, acquisition, shared.as_ref(), prior_homes),
                         (P::Existing { from, acquisition, is_clone: false }, Some(shared), Some(moved)) => {
                             from.owner() == source.owner() && acquisition.owner() == source.owner() && nodes.len() == 3
                                 && shared.operator() == Op::Shared && moved.operator() == Op::Move

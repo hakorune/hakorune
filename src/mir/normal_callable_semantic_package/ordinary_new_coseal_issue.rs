@@ -659,7 +659,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             result_prefixes,
                         )) => {
                             if let Some(issue) = completion.cleanup().root_flow()
-                                .and_then(|flow| flow.explicit_move_failure()) {
+                                .and_then(|flow| flow.explicit_ownership_failure()) {
                                 return Err(OrdinaryNewCoSealIssueV1::RootTerminalSource(issue));
                             }
                             field_reads::merge_staged_argument_field_reads(

@@ -201,6 +201,16 @@ mod tests {
 
     #[test]
     fn shared_constructor_retains_source_operator_and_checks_arity() {
+        for source in ["share new Page()", "share move value", "share handle"] {
+            let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(source).unwrap()
+                else { panic!("program") };
+            assert!(matches!(statements.as_slice(), [ASTNode::UnaryOp {
+                operator: crate::ast::UnaryOperator::Shared, ..
+            }]));
+        }
+        for source in ["share(x)", "share (x)", "share[i]", "local share = 3", "box X { share(x) { return x } }"] {
+            NyashParser::parse_from_string(source).expect("ordinary contextual spelling stays accepted");
+        }
         let program = NyashParser::parse_from_string("Shared(move value)").unwrap();
         let ASTNode::Program { statements, .. } = program else { panic!("program") };
         assert!(matches!(statements.as_slice(), [ASTNode::UnaryOp {

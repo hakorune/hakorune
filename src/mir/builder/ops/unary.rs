@@ -137,7 +137,7 @@ where
                 .to_string(),
         ),
         PreparedRawUnaryRouteV1::UnsupportedShared => Err(
-            "[freeze:contract][ownership/shared-not-supported] Shared has not reached the Home owner".to_string(),
+            "[freeze:contract][ownership/shared-not-supported] share is supported only by a checked local initializer; use share new T(), share move x or share h".to_string(),
         ),
         PreparedRawUnaryRouteV1::Weak { operand } => {
             let box_value = drive_legacy_expression_v1(builder, port, operand)?;

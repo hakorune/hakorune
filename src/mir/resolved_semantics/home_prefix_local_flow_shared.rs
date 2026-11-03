@@ -83,3 +83,33 @@ impl<'source> PrefixLocalFlow<'source> {
         true
     }
 }
+
+impl<'source> PrefixLocalFlow<'source> {
+    pub(in super::super) fn retain_shared_clone_initializer_v1(
+        &mut self, relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+        from: BindingRefV1,
+        shared: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
+        homes: &mut Vec<LiveHomeV1>,
+    ) -> bool {
+        let input = self.input;
+        let function = input.function();
+        let to = relation.binding();
+        let Some(site) = relation.initializer_site() else { return false; };
+        let acquisition = super::OwnedExprSiteV1::new(input.owner(), site.clone());
+        let crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, .. } = relation.declaration_site()
+            else { return false; };
+        let scope = function.binding(to).map(|row| row.owner_scope());
+        if scope.is_none() || function.binding(from).map(|row| row.owner_scope()) != scope
+            || function.exact_scope_containing(statement.node()) != scope
+            || from == to || homes.iter().filter(|home| home.binding() == from).count() != 1
+            || homes.iter().any(|home| home.binding() == to) { return false; }
+        let Some(original) = self.shared_acquisition_v1(from).cloned() else { return false; };
+        let plan = input.forest().callable_source_ledger(input.owner()).ok()
+            .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
+            .and_then(|source| crate::mir::resolved_semantics::home_new_prefix::HomeExpressionPlanV1::shared_initializer(source,
+                crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1::Existing { from, acquisition: original, is_clone: true },
+                shared, None, homes.to_vec().into()));
+        plan.is_some_and(|plan| self.retain_expression_plan(plan))
+            && self.install_shared_clone_v1(from, to, acquisition, homes)
+    }
+}
