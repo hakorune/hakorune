@@ -92,10 +92,13 @@ local and automatic End stay unmarked.
    there is no implicit last-use move. `return` of a whole owned local or of a
    fresh owned value needs no `move`, and a fresh value passes directly
    (`cache.put(Image.load(p))`). Use after move is a compile error.
-2. Parameters and receivers: `read` is the default and is not written; `mut`
-   and `take` are declared at the definition. A receiver's read/mut borrow
+2. Parameters and receivers: `read` is the default and is not written; `edit`
+   and `take` are declared at the definition. A receiver's read/edit borrow
    follows the method declaration and is not written at the call. Consuming a
-   receiver is explicit at the call: `(move image).into_bytes()`.
+   receiver is explicit at the call: `(move image).into_bytes()`. `edit` (decided
+   2026-11-03; `mut` is not a keyword) grants exclusive borrowed mutation: no
+   ownership moves and mutating is not required. `edit x: T` is the parameter
+   form; the receiver position is undecided and neither has a live grammar row.
 3. Shared: `share` yields one owned `Shared<T>` handle. `share new Config()` and
    `share move x` start sharing a fresh or owned plain Box: the count starts at
    1 and `x` is lost. `share h` on an existing `Shared<T>` (owned or borrowed)
@@ -175,7 +178,7 @@ local and automatic End stay unmarked.
 
 Decided 2026-11-02 (see ADR-002 for the cutover contract):
 
-- call-site marker for `mut` arguments: none; the caller marks only `move`,
+- call-site marker for `edit` arguments: none; the caller marks only `move`,
   `take` and `share`;
 - a `take` argument when a later argument evaluation faults: the caller keeps
   the pending transfer and Ends it; once the call has entered, the callee owns

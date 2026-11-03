@@ -4,7 +4,7 @@ Status: Durable cross-workstream design boundary; production activation 0
 
 Successor surface direction (2026-10-23):
 [ADR-002](../../../adr/adr-002-explicit-ownership-and-compiler-migration.md)
-records explicit move/copy/share, read/mut/take and the replacement task order.
+records explicit move/copy/share, read/edit/take and the replacement task order.
 It is not a production cutover. Existing Home/lifecycle/source laws below stay
 effective until their exact replacements are connected and selected; do not
 activate the old parked surface sequence in parallel with the successor.

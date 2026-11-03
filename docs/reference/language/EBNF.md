@@ -69,7 +69,7 @@ Ownership grammar status (2026-08-04):
   its read-borrow contract is connected. AST-only/raw projections reject these
   ownership headers rather than erase them. These retained-header rows do not
   activate Hako parser/grammar differential parity. `share` remains parser-inactive.
-- `take`, `share`, and `release` remain `IDENT` spellings and are not global
+- `take`, `edit`, `share`, and `release` remain `IDENT` spellings and are not global
   lexer keywords. Contextual recognition requires same-line lookahead.
   `share(...)`, `share (expr)`, `take(...)` and `take (expr)` are permanently
   ordinary calls;
@@ -104,6 +104,7 @@ Accepted ownership grammar and implementation status:
 ```ebnf
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
 target_share_expr    := IDENT("share") HTRIVIA ( 'move' HSPACE IDENT | non_group_postfix_expr )  (* revised 2026-11-03; operand rules in ownership.md §0; parser-inactive *)
+target_edit_param    := IDENT("edit") HTRIVIA IDENT HTRIVIA ':' type_ref  (* decided 2026-11-03; receiver position undecided; parser-inactive *)
 target_take_expr     := IDENT("take") HTRIVIA assign_target  (* decided 2026-11-03: nullable field place only; parser-inactive *)
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)
 explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_list? ')'
@@ -111,7 +112,7 @@ explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_
 
 `HTRIVIA` excludes line terminators. Release I0 narrows `HSPACE` to spaces and
 tabs; comment trivia is not part of that row. `take` is recognized at parameter
-head and, as a target, at expression-prefix position when the next token starts
+head (`edit` likewise, as a target) and, as a target, at expression-prefix position when the next token starts
 `assign_target`; `share` only at expression-prefix position when the next token
 is `move` or starts a non-group primary, and `release` only at statement head. Once recognized,
 an invalid operand is a diagnostic and never falls back to an ordinary call. See
