@@ -1,10 +1,10 @@
 date = "2026-11-03"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: direct readonly From Call return connected; multi-Call PHI return/support composition pending"
-current_design_stop = "none"
+current_blocker_token = "ownership step 3a: distinct-Call PHI return exceeds single-producer result_origin; graph descriptor decision pending"
+current_design_stop = "published readonly graph-return descriptor needs maintainer decision (ADR-002)"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Single outer readonly From Call can return directly over a PHI actual. Existing lexical requirements, producer map and port retain real Local/Return destinations and the same Call proof; no fake binding or owning downgrade.
-Exact ReturnValue/current read/all leaves/Entry anchor/original From stay checked. Existing Invoke/Normal and one cleanup graph acquire no borrowed result Home/End; independent MIR retains direct source evidence instead of fictitious local transport.
-Optimized target/quick CLI/runtime and existing C shim: CLI exit0/7, suite8/8, cohort1808 PASS/exact115 failures, C96 EXE/tamper and existing Normal/Fault PASS with final JSON unchanged; check/focused4 PASS. Production +367, tests +8 in existing families.
-Next inspect direct multi-Call PHI return with ALL incoming/original declaration correspondence. Receiver crossings/Null/nested/required support composition and From overall remain incomplete; descriptor extensions stay at ADR-002 boundary.
-Cleanup A done/update unselected, 19 shapes before cutover; two stashes and unrelated inventory preserved. This connected Return unit is verified; no disposable diagnostics or new test/checker files.
+Single outer readonly From Call Return is landed: CLI0/7, fixed8/8, exact115 failures, C96/focused4 PASS; no source WIP.
+Distinct-Call PHI direct Return is currently UnsupportedResultAnnotation on the optimized CLI. Existing published borrowed_call requires one Invoke/Normal producer and identical payload; common lifetime support cannot replace payload identity.
+ADR-002 explicitly requires user decision for descriptor/ABI extensions. Proposed separate readonly graph-return origin (borrowed_read, provisional) retains current definition/common outer Formal; existing borrowed_call contract stays strict.
+After approval reuse DeclaredReadValue::Flow/all-leaf source and physical interval checks through publication/C/EXE, with existing negative tests and fixed8/8/exact115 baseline. No new MIR opcode/runtime ABI/layout or representative leaf.
+From overall incomplete; receiver/Null/nested/required support composition remain. Cleanup A done/update unselected, 19 shapes before cutover; two stashes/unrelated inventory preserved.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "APP-boxtorrent-mini"
-next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+next_design_card = "APP-boxtorrent-mini"
+next_design_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+next_execution_card = "none (descriptor decision pending)"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
