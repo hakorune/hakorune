@@ -93,7 +93,7 @@ impl SourceCompositionContextV1<'_> {
                     Ok(Some(original)) => original, _ => return Ok(None),
                 };
                 if self.claims.outcomes(&original.key).is_none() {
-                    return if self.pending.contains(&original.key) { Err(original.key) } else { Ok(None) };
+                    return if self.pending.contains(&original.key) { Err(original.call_source.key) } else { Ok(None) };
                 }
                 if !ResolvedCallableBorrowedResultDeclarationV1::same_source(
                     self.claims.borrowed_result_declaration_v1(&original.key), Some(original_declaration)) { return Ok(None); }

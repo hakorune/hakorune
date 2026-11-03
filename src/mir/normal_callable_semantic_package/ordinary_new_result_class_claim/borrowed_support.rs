@@ -51,7 +51,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
         fields: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         parameters: &[OwnedCallableParameterContractDeclarationV1],
-        outer: &call_witness::OriginalLocalCallSourceV1, actual: &ResultActualSourceV1,
+        outer: &call_witness::OriginalCallSourceV1, actual: &ResultActualSourceV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedSupportReadV1>, &'static str> {
         batch.with_lowering_input(outer.caller_slot, |input|

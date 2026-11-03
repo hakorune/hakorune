@@ -15,6 +15,16 @@ use std::rc::Rc;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct OriginalLocalCallSourceV1 {
     pub(super) declaration: crate::mir::resolved_semantics::SourceBindingSiteV1,
+    pub(super) call_source: OriginalCallSourceV1,
+}
+impl std::ops::Deref for OriginalLocalCallSourceV1 {
+    type Target = OriginalCallSourceV1;
+    fn deref(&self) -> &Self::Target { &self.call_source }
+}
+
+/// Exact original Call coordinates, independent of its value destination.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct OriginalCallSourceV1 {
     pub(super) receiver: Option<crate::mir::resolved_semantics::SourceExprSiteV1>,
     pub(super) key: CanonicalSameModuleCallableKeyV1,
     pub(super) callee_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
@@ -50,7 +60,7 @@ impl MapSlotCallSubstitutionV1 {
     }
 }
 
-impl OriginalLocalCallSourceV1 {
+impl OriginalCallSourceV1 {
     pub(super) fn map_slot_substitution_v1(
         &self, batch: &super::VerifiedResolvedCallableSemanticBatchV1,
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
@@ -224,6 +234,29 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         if destination.owner() != call.owner() {
             return Err("borrowed-nullable/destination-owner");
         }
+        self.resolve_original_call_source_v1(batch, selected, fields, call, parameters,
+            app_main, require_outcomes, original_caller, |input| {
+                if require_outcomes { original_local_declaration_v1(input, call, destination) }
+                else { original_local_initializer_identity_v1(input, call, destination) }
+            }).map(|source| source.map(|(declaration, call_source)|
+                OriginalLocalCallSourceV1 { declaration, call_source }))
+    }
+
+    /// Authenticate the destination before resolving the shared Call. The
+    /// returned witness carries no invented binding or initializer obligation.
+    fn resolve_original_call_source_v1<A>(
+        &self,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        call: &OwnedExprSiteV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        app_main: Option<AppMainSourceRefV1<'_>>,
+        require_outcomes: bool,
+        original_caller: Option<&CanonicalSameModuleCallableKeyV1>,
+        authenticate: impl FnOnce(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>)
+            -> Result<A, &'static str>,
+    ) -> Result<Option<(A, OriginalCallSourceV1)>, &'static str> {
         let mut declarations = batch
             .declarations()
             .filter(|row| row.owner() == call.owner());
@@ -251,8 +284,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         batch
             .with_lowering_input(slot, |input| {
                 let function = input.function();
-                let declaration = if require_outcomes { original_local_declaration_v1(input, call, destination)? }
-                    else { original_local_initializer_identity_v1(input, call, destination)? };
+                let destination = authenticate(input)?;
                 let shape = input.body_shape().ok_or("borrowed-nullable/body-shape")?;
                 let Some((key, actuals)) = super::resolve_call_key(
                     call.site(),
@@ -288,15 +320,14 @@ impl super::OrdinaryNewResultClassClaimsV1 {
                 {
                     return Err("borrowed-nullable/callee-owner");
                 }
-                Ok(Some(OriginalLocalCallSourceV1 {
-                    declaration,
+                Ok(Some((destination, OriginalCallSourceV1 {
                     receiver,
                     key,
                     callee_owner,
                     caller_slot: slot,
                     actuals,
                     call: call.clone(),
-                }))
+                })))
             })
             .map_err(|_| "borrowed-nullable/caller-input")?
     }
@@ -338,11 +369,12 @@ impl super::OrdinaryNewResultClassClaimsV1 {
                 return Err("borrowed-nullable/original-call");
             }
             Ok(OriginalLocalCallSourceV1 {
-                declaration, receiver: Some(reference.receiver_site.clone()),
+                declaration, call_source: OriginalCallSourceV1 { receiver: Some(reference.receiver_site.clone()),
                 key: reference.target.clone(), callee_owner: reference.callee_owner,
                 caller_slot: slot,
                 actuals: super::call_actual_bindings(&reference.argument_sites, input.function()),
                 call: call.clone(),
+                },
             })
         }).map_err(|_| "borrowed-nullable/caller-input")?
     }
@@ -370,11 +402,12 @@ impl super::OrdinaryNewResultClassClaimsV1 {
                 return Err("returned-field/local-upvar-rebind");
             }
             Ok(OriginalLocalCallSourceV1 {
-                declaration, receiver: Some(target.receiver_site().clone()),
+                declaration, call_source: OriginalCallSourceV1 { receiver: Some(target.receiver_site().clone()),
                 key: target.target().clone(), callee_owner: target.callee_owner(),
                 caller_slot: caller.batch_slot(),
                 actuals: super::call_actual_bindings(target.argument_sites(), input.function()),
                 call: call.clone(),
+                },
             })
         }).map_err(|_| "returned-field/caller-input")?
     }

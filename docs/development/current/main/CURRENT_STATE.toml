@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: destination-neutral Call proof shared by locals; Return factory/terminal connection pending"
+current_blocker_token = "ownership step 3a: Call proof/factory shared by locals; direct Return observation/terminal connection pending"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,10 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Destination-neutral BorrowedCallResultSourceLoan now owns Call/support/witness queries; Local retains its real declaration/destination and immutable Deref only. Existing local production consumers use the shared model; no accepted source shape added.
-Strict declaration Arc/witness Rc equality and original-source header comparison remain; local rechecks stay destination-sensitive. Canonical rebinding updates only the same checked common support. Local741->575 lines plus common193; production +16, tests unchanged.
-Optimized target/quick CLI/runtime and existing C shim: suite8/8, cohort1808 PASS/exact115 failures; C92 JSON unchanged and existing EXE/Normal/Fault/tamper checks PASS; focused4 PASS.
-Next separate Call identity/support resolution from Local initializer authentication, then attach the same proof to existing Return expression execution. Direct return identity(q) remains ReturnValueNotCovered; no fake Local or owning-lane downgrade.
+OriginalCallSource now owns Call coordinates/actuals/substitution; Local retains its real declaration with immutable Deref. Existing consumers use the shared factory; accepted source shapes unchanged.
+Destination authentication stays before target/outcomes; caller/key/brand and prepared/raw target checks remain. Shared Call-result proof keeps original declaration/witness identity. This factory change: production +33, tests unchanged.
+Optimized target/quick CLI/runtime and existing C shim: suite8/8, cohort1808 PASS/exact115 failures; C92 JSON unchanged and existing EXE/Normal/Fault/tamper checks PASS; check and focused4 PASS.
+Next connect the common proof through existing lexical result requirements/producer map/argument port and Return expression execution. Direct return identity(q) remains ReturnValueNotCovered; no fake Local or owning-lane downgrade.
 From incomplete; receiver crossings/multi-Call PHI/Null/nested/required support composition remain. Cleanup A done/update unselected, 19 shapes before cutover, two stashes/unrelated inventory protected.
 """
 next_design_card = "none"
