@@ -90,7 +90,10 @@ impl PrefixLocalFlow<'_> {
                 let super::super::NullableResultReferenceV1::DeclaredFrom(loan) = self.nullable_result_reference_v1(read?)? else { return None; };
                 let exclusion = if loan.payload_nonnull() { None } else {
                     if !self.nonnull.contains(&binding) { return None; }
-                    Some(std::rc::Rc::clone(self.null_exclusions.get(&binding)?))
+                    let proof = self.null_exclusions.get(&binding)
+                        .or_else(|| self.null_exclusions.get(&loan.original_binding()))?;
+                    if !proof.corroborates_result_read_v1(self.input, &loan) { return None; }
+                    Some(std::rc::Rc::clone(proof))
                 };
                 Some(FieldReadReceiverV1::CheckedReceived(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::Borrowed {
                     loan, exclusion,
