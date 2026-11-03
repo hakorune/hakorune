@@ -75,16 +75,18 @@ general ownership semantics and Hako runtime parity are pending.
 Existing behavior changes only at the §10 cutover.
 Sections 1-11 keep the current/HomeV1 text. The old general `share x` target is
 superseded: text below that uses it describes a target that will not land.
-Rule 3 revives the spelling only for an existing `Shared<T>` handle.
+Rule 3 revives the spelling with a narrower input: a plain Box only as a fresh
+result or with explicit `move`.
 
 Rules 3, 5, 6, 7 and 8 were revised on 2026-11-03 and are targets, not connected
 yet: current code still adds a handle for a bare owned Shared local
-(`local copy = first`).
+(`local copy = first`), and `Shared(move x)` / `Shared(fresh)` stay the live
+spelling until that connection.
 
 In short: reading borrows. `move` hands over what you own. `take` extracts from a
-nullable place. `share` keeps the same Shared in another place. `Shared(...)`
-starts sharing. Fresh values, `return` of a whole local and automatic End stay
-unmarked.
+nullable place. `share` gets a shared handle: it starts sharing a fresh or moved
+Box, or adds a handle to an existing Shared. Fresh values, `return` of a whole
+local and automatic End stay unmarked.
 
 1. Move: an owned binding gives up ownership only through explicit `move x`;
    there is no implicit last-use move. `return` of a whole owned local or of a
@@ -94,21 +96,30 @@ unmarked.
    and `take` are declared at the definition. A receiver's read/mut borrow
    follows the method declaration and is not written at the call. Consuming a
    receiver is explicit at the call: `(move image).into_bytes()`.
-3. Shared: `Shared(move x)` wraps an owned value and consumes `x`;
-   `Shared(expr)` wraps a fresh value. Each owned handle has one End
-   obligation, and handles are never duplicated implicitly. `share h` acquires
-   an independent owned handle to the same payload from an existing `Shared<T>`
-   (owned or borrowed) without consuming `h`: +1 on Normal, nothing acquired on
-   Fault. `move h` transfers without adding one; reads and borrows add none.
-   `share` accepts only a handle statically known to be `Shared<T>` (exclude the
-   null of a `Shared<T>?` first); it never shares a plain Box, copies the
-   payload or consults the count. There is no `.share()` method or
+3. Shared: `share` yields one owned `Shared<T>` handle. `share new Config()` and
+   `share move x` start sharing a fresh or owned plain Box: the count starts at
+   1 and `x` is lost. `share h` on an existing `Shared<T>` (owned or borrowed)
+   adds one handle without consuming `h`. Each owned handle has one End
+   obligation, and handles are never duplicated implicitly. `move h` transfers
+   without adding one; reads and borrows add none. The operation is fixed once
+   and statically from the operand's type, its owned or borrowed contract and
+   the explicit `move` or received result; no later stage reselects it, and the
+   count is never consulted. `share f()`: an owned Box result starts sharing, a
+   borrowed Box result is rejected, an owned `Shared<T>` result is rejected (use
+   `f()` directly), and a `Shared<T> from ...` result adds a handle. Also
+   rejected: bare `share x` on an owned plain Box (suggest `share move x`), a
+   borrowed plain Box, `share move h` on a Shared (suggest `move h`), values,
+   `Dynamic`, an unconstrained type variable, and a nullable operand until its
+   null is excluded. On Fault, starting acquires nothing and the payload stays
+   with the caller's cleanup (`x` is not restored); after a successful start, a
+   later Fault Releases the acquired handle and does not End the payload again.
+   Adding acquires nothing and consumes nothing. `Shared(...)` is retired at the
+   connection with a guiding diagnostic. There is no `.share()` method or
    `Shared.clone`. Contents are read through the handle
    (`shared.width()`). Shared starts read-only; shared mutation and thread
    crossing need a later separate contract (an atomic count does not make the
-   contents thread-safe). At cutover this amends durable law 5: sharing starts
-   only at an explicit `Shared(...)`, and each further owner only at an
-   explicit `share h`.
+   contents thread-safe). At cutover this amends durable law 5: every shared
+   owner comes only from an explicit `share`.
 4. Borrowed results: a result may be borrowed only with a declared support,
    `: T from me` or `: T from <param>`; it is never inferred from the body.
    The body must satisfy the declared relation. While the borrow is live, no
@@ -189,10 +200,15 @@ explicitly and never produced by omission or failed inference. At the cutover
 the old meaning of an omitted annotation (dynamic Any) ends.
 
 Sections 1-11 below describe the pre-cutover meaning where they conflict with
-this section (implicit alias copies, composite anchored results, bare aliases);
-the cutover makes §0 the only normative text.
+this section (implicit alias copies, composite anchored results, bare aliases).
+Headings noted as "Pre-cutover contract" name the difference. The cutover makes
+§0 the only normative text for those rules, moves them to history and keeps the
+continuing Home and End contracts.
 
 ## 1. Thirty-second rule
+
+Pre-cutover contract. §0 differs: `local alias = node` on an owned value becomes
+an error, the call site writes `move`, and `share` follows rule 3.
 
 Every independent Box lifetime is represented by a **Home token** installed
 in a **Home slot/place**.
@@ -203,7 +219,7 @@ local alias = node       // alias only sees node's object; no new owner
 
 inspect(node)            // ordinary handle input; node keeps its Home
 adopt(node)              // if adopt declares a Home demand, node is consumed
-adopt(share node)        // superseded target; successor: Shared(move node), §0
+adopt(share node)        // superseded target; successor: share move node, §0
 release node             // end node's verified whole-root Home now
 ```
 
@@ -245,6 +261,9 @@ consumed cannot be used again unless a later exact operation installs a fresh
 Home in that place.
 
 ### Handle
+
+Pre-cutover contract. §0 differs: an owned local can no longer be aliased by
+`local b = a`; borrows keep that form.
 
 An ordinary read of a Box binding produces a non-owning handle to the object
 supported by its Home.
@@ -559,6 +578,9 @@ not evidence that either parser currently accepts the forms.
 
 ### Declaration-side Home demand
 
+Pre-cutover contract. §0 differs: an existing owned binding passed to `take` is
+written `move x`, and rule 8 adds the expression form `take place`.
+
 Canonical target:
 
 ```hako
@@ -651,6 +673,8 @@ compile error.
 
 ### ClosedCallable composite anchored results
 
+Pre-cutover contract. §0 rejects this form at the cutover.
+
 Decision (2026-10-07): a locally verified composite result may own fresh outer
 storage while a child field has the exact relation `Null`, `OwnedFresh`, or
 `BorrowedFromFormal(ordinal)`. This is an accepted target contract; passive
@@ -732,9 +756,10 @@ selects it.
 
 Superseded target (2026-10-30): the general contextual prefix `share x`, including
 `adopt(share node)` and `registry.adopt(share service)` over ordinary Boxes,
-never became parser-live and is replaced by `Shared(move x)` / `Shared(expr)`
-(§0 rule 3). Do not implement that general form. The prefix `share h` of §0 rule 3
-(2026-11-03) accepts only an existing `Shared<T>` handle. `share(...)`,
+never became parser-live and was replaced by explicit sharing (§0 rule 3). Do not
+implement that general form. The prefix `share` of §0 rule 3 (2026-11-03) takes a
+plain Box only as a fresh result or with explicit `move`, and never builds
+ownership from a borrow. `share(...)`,
 `share (...)`, `obj.share()` and bindings named `share` stay ordinary; the
 successor adds no `.share()` method.
 
@@ -788,8 +813,7 @@ The first program does not promise:
 - `drop root` / `drop(value)` as a compatibility alias;
 
 The list above describes the first HomeV1 program only. The successor surface
-of §0 (`move x`, `(move x).m()`, `Shared(...)`, `share h`, nullable-field
-`take place`, `from` sets) is decided and is not a promise made or withdrawn
+of §0 (`move x`, `(move x).m()`, `share`, nullable-field `take place`, `from` sets) is decided and is not a promise made or withdrawn
 here. General `take place_expr` beyond §0 rule 8, field move-out, and consuming
 receiver implementation are parked together
 until a real source consumer and storage replacement contract exist. They are
@@ -873,6 +897,9 @@ because some body text is visible. Their exact closure rule must be sealed or
 they remain a ContractBoundary/rejection.
 
 ## 6. Destination matrix
+
+Pre-cutover contract. §0 rules 3 and 6 replace its implicit transfers and its
+`share` rows: an owning destination receives ownership already acquired.
 
 The first verifier freezes exact source/destination behavior:
 

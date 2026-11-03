@@ -23,8 +23,8 @@ Decision:
 - accepted target: declaration-side contextual `take` parameters (typed,
   same line; the parser retains them, execution is being connected). The old
   general expression-side `share` is superseded by `Shared(...)` and must not be
-  implemented; the narrowed prefix `share h` and nullable-field `take place` are
-  decided targets (ownership.md §0, 2026-11-03). Contextual recognition never
+  implemented; the revised prefix `share` (`share new T()`, `share move x`,
+  `share h`) and nullable-field `take place` are decided targets (ownership.md §0, 2026-11-03). Contextual recognition never
   crosses a line terminator and `take` is not globally reserved;
 - provisional: contract-boundary `T from owner`;
 - unresolved: composite/generic classification, Shared representation,
@@ -400,7 +400,7 @@ The following remain parked and are not silently promised:
 - capture, suspension, cross-thread Home flow;
 - explicit source `region`;
 - general `owned T`, `view T`, `shared T`, or receiver-mode syntax. The
-  successor `move x` and `Shared(...)` are outside this first Home profile and
+  successor `move x` and `share` are outside this first Home profile and
   are specified by ownership.md §0.
 
 The first profile also rejects borrowed results rooted in temporary receivers

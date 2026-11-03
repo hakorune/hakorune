@@ -88,10 +88,11 @@ Ownership grammar status (2026-08-04):
 - The parked order is
   `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
   Support status is reported by `stage-profiles.md`.
-- Successor (ownership.md §0, decided 2026-10-30): `Shared(...)` replaces the
-  old general `share` target. Revised 2026-11-03: prefix `share h` (an existing
-  `Shared<T>` handle only) and `take place` (a nullable field place only) are
-  decided targets, parser-inactive until connected, and bare owned Shared locals
+- Successor (ownership.md §0, decided 2026-10-30): `Shared(...)` replaced the
+  old general `share` target and is the live spelling today. Revised 2026-11-03:
+  prefix `share` (`share new T()`, `share move x`, `share h`) replaces `Shared(...)`
+  at its connection, and `take place` (a nullable field place only) is a decided
+  target. Both are parser-inactive until connected, and bare owned Shared locals
   stop duplicating implicitly at that connection; bounded Rust `move` semantics are live, while Hako parity
   and bounded local `Shared(move x)` / `Shared(fresh)` with clone and read are live (independent MIR verification); Shared sharing across calls and threads remain pending.
   The consuming-receiver spelling `(move x).m()` is decided in ownership.md §0
@@ -102,7 +103,7 @@ Accepted ownership grammar and implementation status:
 
 ```ebnf
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
-target_share_expr    := IDENT("share") HTRIVIA non_group_postfix_expr  (* revised 2026-11-03: Shared<T> handle only; parser-inactive *)
+target_share_expr    := IDENT("share") HTRIVIA ( 'move' HSPACE IDENT | non_group_postfix_expr )  (* revised 2026-11-03; operand rules in ownership.md §0; parser-inactive *)
 target_take_expr     := IDENT("take") HTRIVIA assign_target  (* decided 2026-11-03: nullable field place only; parser-inactive *)
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)
 explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_list? ')'
@@ -112,7 +113,7 @@ explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_
 tabs; comment trivia is not part of that row. `take` is recognized at parameter
 head and, as a target, at expression-prefix position when the next token starts
 `assign_target`; `share` only at expression-prefix position when the next token
-starts a non-group primary, and `release` only at statement head. Once recognized,
+is `move` or starts a non-group primary, and `release` only at statement head. Once recognized,
 an invalid operand is a diagnostic and never falls back to an ordinary call. See
 `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
 for FIRST/precedence, ordinary-call preservation, and parser parity
