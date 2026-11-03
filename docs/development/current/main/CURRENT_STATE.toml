@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: readonly PHI alias guards accepted; graph read arguments/reborrow/return scope remains"
+current_blocker_token = "ownership step 3a: readonly PHI read arguments accepted; graph receiver/reborrow/return scope remains"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Readonly PHI alias guards retain the exact original join, every loan and the current read; lookup reuses source proof without globally narrowing aliases.
-Optimized target/quick CLI/runtime and existing C shim: suite 8/8, cohort 1808 PASS and exact 115 failures; normal CLI four EXEs exit 0/7 and three unsafe uses refuse by name.
-C 72 current inputs, alias EXEs and existing Normal/Fault/tamper checks PASS. Production +3, existing tests +2; no new test file/checker/hook/MIR instruction/runtime ABI/layout.
-Next: keep full DeclaredReadValue and current definition/all leaf dependencies through existing read-argument consumers; nullable arguments may guard inside the callee.
-From/reborrow/literal-null/nested/return scope remains incomplete; descriptor extensions retain the ADR decision boundary. Cleanup A done; stashes protected; 19 shapes before cutover.
+Readonly PHI read arguments retain the current definition and all original loans; each original Normal/result/support interval is checked separately from the actual argument slot.
+Source discovery reuses retained actuals; finalized Call traversal retains all argument points. C shares borrowed/scalar parameter checks for readonly i64/From calls and keeps full body/Fault/SCC nonmutation.
+Optimized target/quick CLI/runtime plus rebuilt C shim: suite 8/8, cohort 1808 PASS and exact 115 failures; normal CLI direct/alias EXEs exit 0/7 and unsafe-use named refusals PASS; C 76 current inputs PASS.
+Production +57, existing tests +21; no new test file/checker/hook/MIR instruction/runtime ABI/layout. New nullable-argument and mutating-consumer evidence uses existing families and an ordinary-argument control.
+Next: graph receiver/reborrow, literal-null/nested boundaries and declared re-return; descriptor extensions retain the ADR decision boundary. From incomplete; cleanup A done; stashes protected; 19 shapes before cutover.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -72,7 +72,12 @@ impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir) fn validate_declared_read_uses_v1(&self, module: &crate::mir::MirModule) -> Result<(), String> {
         let mut edges = Vec::new();
         let mut reads = Vec::new();
+        let mut call_points = std::collections::BTreeMap::<_, Vec<_>>::new();
         self.visit_finalized_call_structure_v1(module, |owner, _, packet, _, caller, at, _| {
+            let points = call_points.entry(owner).or_default();
+            for point in packet.read_argument_branch_points_v1()? {
+                if !points.iter().any(|old| std::rc::Rc::ptr_eq(old, &point)) { points.push(point); }
+            }
             let original = packet.original_source();
             edges.push((caller.signature.name.clone(), at, original.target().clone(), original.callee_owner()));
             let loan = match original {
@@ -90,7 +95,11 @@ impl FinalizedRootSourceHandoffV1 {
         let mut checked = std::collections::BTreeSet::new();
         let mut points = std::collections::BTreeMap::new();
         for (owner, symbol, loan, normal) in reads {
-            if !points.contains_key(&owner) { points.insert(owner, context.declared_read_branch_points_v1(owner)?); }
+            if !points.contains_key(&owner) {
+                let mut retained = context.declared_read_branch_points_v1(owner)?;
+                retained.extend(call_points.remove(&owner).unwrap_or_default());
+                points.insert(owner, retained);
+            }
             let function = module.functions.get(&symbol).ok_or_else(|| freeze("field-argument/source-missing"))?;
             self.ledger.with_finished_projection(owner, |original_symbol, projection| {
                 if original_symbol != &symbol { return Err(freeze("field-argument/source-missing")); }

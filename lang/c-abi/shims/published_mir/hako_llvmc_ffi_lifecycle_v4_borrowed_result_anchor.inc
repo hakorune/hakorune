@@ -392,6 +392,18 @@ static int lv4_declared_read_argument(const hako_lv4_input* in,
       (!check_object || lv4_declared_result_proves(in, target, object, 1, 0));
 }
 
+typedef struct {
+  const hako_lv4_input* input;
+  yyjson_val* consumer;
+  uint32_t object;
+  int check_object;
+} lv4_read_argument_query;
+static int lv4_read_argument_leaf(hako_lv4_function_index* fn, hako_lv4_value* leaf, void* data) {
+  lv4_read_argument_query* query = (lv4_read_argument_query*)data;
+  return lv4_declared_read_argument(query->input, fn, leaf, query->consumer,
+      query->object, query->check_object);
+}
+
 /* Shared borrowed argument permission: explicit read proves payload class;
  * legacy forwarding retains its existing anchor/slot class obligation. */
 static int lv4_borrowed_argument_readable(const hako_lv4_input* in,
@@ -399,6 +411,12 @@ static int lv4_borrowed_argument_readable(const hako_lv4_input* in,
     const hako_lv4_state* state, uint32_t use, size_t position,
     uint32_t object, int check_object) {
   if (!lv4_borrowed_result_readable(in, fn, value, state, use, position)) return 0;
+  if (lv4_read_result_join_root(fn, value)) {
+    /* Read arguments may remain nullable: the callee owns its own guard.
+       The shared readability fold above checks EVERY lifetime interval. */
+    lv4_read_argument_query query = {in, consumer, object, check_object};
+    return lv4_read_call_graph(fn, value, lv4_read_argument_leaf, &query);
+  }
   if (yyjson_obj_get(lv4_borrowed_result_operation(fn, value), "result_read"))
     return lv4_declared_read_argument(in, fn, value, consumer, object, check_object);
   if (!lv4_borrowed_result_forwardable(fn, value)) return 0;

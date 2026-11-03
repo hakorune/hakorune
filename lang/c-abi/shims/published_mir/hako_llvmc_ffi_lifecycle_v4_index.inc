@@ -384,23 +384,21 @@ static int lv4_readonly_call(const hako_lv4_function_index* fn, yyjson_val* op, 
       !hako_physical_u32(yyjson_obj_get(call, "receiver"), &receiver) ||
       !yyjson_is_arr(yyjson_obj_get(call, "args"))) return 0;
   const hako_lv4_function_index* callee = &fn->peers[target];
-  if (borrowed) {
-    yyjson_val* params = yyjson_obj_get(callee->function, "params");
-    if (!lv4_is(callee->function, "role", "ordinary_borrowed_nullable_handle") ||
-        !yyjson_is_true(yyjson_obj_get(callee->function, "result_read")) ||
-        !yyjson_is_arr(params) || yyjson_arr_size(params) != yyjson_arr_size(yyjson_obj_get(call, "args"))) return 0;
-    for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
-      yyjson_val* param = yyjson_arr_get(params, pi);
-      if (!lv4_is(param, "representation", "borrowed_kind_payload_v1") &&
-          !lv4_is(param, "representation", "i64")) return 0;
-    }
-    return !closed || callee->readonly_closed;
+  if (borrowed ?
+      (!lv4_is(callee->function, "role", "ordinary_borrowed_nullable_handle") ||
+       !yyjson_is_true(yyjson_obj_get(callee->function, "result_read"))) :
+      (!lv4_is(callee->function, "role", "ordinary_i64") ||
+       !yyjson_is_uint(yyjson_obj_get(callee->function, "receiver")))) return 0;
+  /* Readonly is a body/edge property, independent of result transport.
+     Only borrowed or scalar parameters may enter this closed read graph. */
+  yyjson_val* params = yyjson_obj_get(callee->function, "params");
+  if (!yyjson_is_arr(params) || yyjson_arr_size(params) != yyjson_arr_size(yyjson_obj_get(call, "args"))) return 0;
+  for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
+    yyjson_val* param = yyjson_arr_get(params, pi);
+    if (!lv4_is(param, "representation", "borrowed_kind_payload_v1") &&
+        !lv4_is(param, "representation", "i64")) return 0;
   }
-  return !yyjson_arr_size(yyjson_obj_get(call, "args")) && lv4_is(callee->function, "role", "ordinary_i64") &&
-      yyjson_is_uint(yyjson_obj_get(callee->function, "receiver")) &&
-      yyjson_is_arr(yyjson_obj_get(callee->function, "params")) &&
-      !yyjson_arr_size(yyjson_obj_get(callee->function, "params")) &&
-      (!closed || callee->readonly_closed);
+  return !closed || callee->readonly_closed;
 }
 
 static int lv4_body_readonly(hako_lv4_function_index* fn, int closed) {

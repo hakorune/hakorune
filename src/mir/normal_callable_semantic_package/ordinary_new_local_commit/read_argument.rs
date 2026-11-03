@@ -11,7 +11,7 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum ReadSourceKindV1 {
-    Declared(crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1),
+    Declared(crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1),
     Array(OwnedArrayReadSourceLoanV1),
     Field(Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>),
     /// Original Map-held payload field read, without any live-borrow authority.
@@ -36,10 +36,10 @@ pub(crate) struct ReadActualSourceLoanV1 {
     kind: ReadSourceKindV1,
 }
 impl ReadActualSourceLoanV1 {
-    pub(crate) fn from_declared_v1(read: crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1) -> Self {
+    pub(crate) fn from_declared_v1(read: crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1) -> Self {
         Self { kind: ReadSourceKindV1::Declared(read) }
     }
-    pub(crate) fn declared_read_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::BorrowedResultReadV1> {
+    pub(crate) fn declared_read_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1> {
         match &self.kind { ReadSourceKindV1::Declared(read) => Some(read), _ => None }
     }
     pub(crate) fn from_array_v1(source: OwnedArrayReadSourceLoanV1) -> Self {
@@ -94,7 +94,7 @@ impl ReadActualSourceLoanV1 {
     }
     pub(crate) fn class(&self) -> &str {
         match &self.kind {
-            ReadSourceKindV1::Declared(read) => read.source().declared_read_result_v1().expect("declared read source").declared_type(),
+            ReadSourceKindV1::Declared(read) => read.declared_type(),
             ReadSourceKindV1::Array(source) => source.class(),
             ReadSourceKindV1::Field(source) => source.returned_argument_v1().expect("checked Field source").2.class()
                 .expect("checked Field class"),
@@ -133,7 +133,7 @@ impl ReadActualSourceLoanV1 {
 
 #[derive(Debug)]
 enum EmittedReadKindV1 {
-    Declared { source: ReadActualSourceLoanV1, call: OwnedExprSiteV1, read: Rc<crate::mir::builder::ExactLexicalReadV1>, pair: [Binding; 2] },
+    Declared { source: ReadActualSourceLoanV1, call: OwnedExprSiteV1, read: Rc<crate::mir::builder::ExactLexicalReadV1>, definition: Binding },
     Array(Rc<EmittedOwnedArrayReadV1>),
     Field(field::EmittedFieldReadArgumentV1),
     MapField { source: ReadActualSourceLoanV1, call: OwnedExprSiteV1, receiver: Rc<crate::mir::builder::ExactLexicalReadV1>, pair: [Binding; 2], bindings: Vec<Binding> },
@@ -144,19 +144,26 @@ pub(crate) struct EmittedReadArgumentV1 {
     kind: EmittedReadKindV1,
 }
 impl EmittedReadArgumentV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn read_branch_point_v1(&self)
+        -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
+        match &self.kind {
+            EmittedReadKindV1::Declared { read, .. } => read.binding_observation_v2().source_read_branch_v1(),
+            _ => Ok(None),
+        }
+    }
     pub(in crate::mir) fn from_declared_v1(source: ReadActualSourceLoanV1, call: OwnedExprSiteV1,
         read: Rc<crate::mir::builder::ExactLexicalReadV1>, context: CallValidationContextV1<'_>, function: &MirFunction,
     ) -> Result<Self, String> {
         let view = source.declared_read_v1().ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
         if call.owner() != view.read().owner() { return Err(freeze("read-argument/emitted-source-kind-drift")); }
-        let (_, pair) = context.declared_result_read_v1(view, &read)?;
-        context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, None)?;
-        for binding in pair.iter().chain(read.original_copy_dependencies_v1()?) {
+        let (_, definition) = context.declared_value_read_v1(view, &read)?;
+        context.validate_declared_value_transport_v1(view, read.binding_observation_v2(), function, None)?;
+        for binding in std::iter::once(&definition).chain(read.original_copy_dependencies_v1()?) {
             if !super::physical_boundary::check_binding(function, None, binding.0, &binding.1)? {
                 return Err(freeze("read-argument/emitted-source-kind-drift"));
             }
         }
-        Ok(Self { kind: EmittedReadKindV1::Declared { source, call, read, pair } })
+        Ok(Self { kind: EmittedReadKindV1::Declared { source, call, read, definition } })
     }
     pub(crate) fn from_array_v1(read: Rc<EmittedOwnedArrayReadV1>) -> Self {
         Self { kind: EmittedReadKindV1::Array(read) }
@@ -208,10 +215,10 @@ impl EmittedReadArgumentV1 {
         context: CallValidationContextV1<'_>,
     ) -> Result<ValueId, String> {
         match (&self.kind, &source.kind) {
-            (EmittedReadKindV1::Declared { source: retained, call: original, read, pair }, ReadSourceKindV1::Declared(view))
+            (EmittedReadKindV1::Declared { source: retained, call: original, read, definition }, ReadSourceKindV1::Declared(view))
                 if retained == source && original == call => {
-                let (value, current) = context.declared_result_read_v1(view, read)?;
-                if &current != pair { return Err(freeze("read-argument/emitted-source-kind-drift")); }
+                let (value, current) = context.declared_value_read_v1(view, read)?;
+                if &current != definition { return Err(freeze("read-argument/emitted-source-kind-drift")); }
                 Ok(value)
             }
             (EmittedReadKindV1::Array(read), ReadSourceKindV1::Array(source)) =>
@@ -256,9 +263,9 @@ impl EmittedReadArgumentV1 {
         coordinate: (BasicBlockId, usize), ordinal: u32,
     ) -> Result<(), String> {
         match &self.kind {
-            EmittedReadKindV1::Declared { source, call: original, read, pair } => {
+            EmittedReadKindV1::Declared { source, call: original, read, definition } => {
                 if original != call { return Err(freeze("read-argument/emitted-source-kind-drift")); }
-                self.validate_declared_finished_v1(source, read, pair, module, function, projection, context, call, outer, coordinate, ordinal)
+                self.validate_declared_finished_v1(source, read, definition, module, function, projection, context, call, outer, coordinate, ordinal)
             }
             EmittedReadKindV1::Array(read) => read.validate_finished_v1(
                 function, projection, context.ledger(), call, outer, coordinate, ordinal),
@@ -275,26 +282,20 @@ impl EmittedReadArgumentV1 {
 
 impl EmittedReadArgumentV1 {
     fn validate_declared_finished_v1(&self, source: &ReadActualSourceLoanV1, read: &crate::mir::builder::ExactLexicalReadV1,
-        pair: &[Binding; 2], module: &crate::mir::MirModule, function: &MirFunction,
+        definition: &Binding, module: &crate::mir::MirModule, function: &MirFunction,
         projection: &super::physical_boundary::FinishedBindings, context: CallValidationContextV1<'_>,
         call: &OwnedExprSiteV1, outer: &Binding, coordinate: (BasicBlockId, usize), ordinal: u32,
     ) -> Result<(), String> {
         let payload = self.value_with_source_v1(call, source, context)?;
         let view = source.declared_read_v1().ok_or_else(|| freeze("read-argument/emitted-source-kind-drift"))?;
-        context.validate_declared_read_transport_v1(view.source(), read.binding_observation_v2(), function, Some(projection))?;
-        projection.required_effect_binding(function, &pair[0])?;
-        projection.relation_binding(function, &pair[1])?.ok_or_else(|| freeze("field-argument/finished-read-removed"))?;
+        context.validate_declared_value_transport_v1(view, read.binding_observation_v2(), function, Some(projection))?;
+        projection.relation_binding(function, definition)?.ok_or_else(|| freeze("field-argument/finished-read-removed"))?;
         for copy in read.original_copy_dependencies_v1()? { projection.relation_binding(function, copy)?; }
         let outer = projection.required_effect_binding(function, outer)?;
         if field::interval::locate(function, &outer)? != coordinate
             || !matches!(&outer.1, MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }
                 if call.args.get(ordinal as usize) == Some(&payload)) { return Err(freeze("field-argument/finished-argument-slot")); }
-        // The earliest retained Call supplies the lifetime anchor. Its actual
-        // is never substituted for the payload delivered to the new callee.
-        let (anchor, start) = borrowed_lifetime_start_v1(context, view.source())?;
-        let start = projection.relation_binding(function, &start)?.ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
         let intervals = IntervalViewV1::new(function);
-        intervals.require_before(&start, &outer)?;
         let CallValidationContextV1::Finalized(handoff) = context else { return Err(freeze("field-argument/source-missing")); };
         let mut edges = Vec::new();
         handoff.visit_finalized_call_structure_v1(module, |_, _, packet, _, caller, at, _| {
@@ -304,11 +305,22 @@ impl EmittedReadArgumentV1 {
         })?;
         let mut checked = std::collections::BTreeSet::new();
         validate_readonly_edge_v1(handoff, module, function, coordinate, &edges, &mut checked)?;
-        intervals.borrowed_result_v1(anchor, payload)?.check_with_effects(&start, &outer, |at, row| {
-            if matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. }) {
-                validate_readonly_edge_v1(handoff, module, function, at, &edges, &mut checked)?;
-                Ok(false)
-            } else { Ok(!readonly_instruction_v1(row)) }
-        })
+        // Each original Call supplies its own lifetime interval; the current
+        // PHI payload is never replaced by one selected producer or anchor.
+        for loan in view.loans() {
+            let (anchor, start) = borrowed_lifetime_start_v1(context, loan)?;
+            let start = projection.relation_binding(function, &start)?.ok_or_else(|| freeze("field-argument/finished-parent-removed"))?;
+            let normal = context.with_taken_packet_v1(loan.call(), |packet| Ok(packet.outer_bindings()?.1.clone()))?;
+            let normal = projection.relation_binding(function, &normal)?.ok_or_else(|| freeze("field-argument/finished-read-removed"))?;
+            let MirInstruction::InvokeNormalResult { dst: leaf, .. } = normal.1 else { return Err(freeze("field-argument/finished-read-removed")); };
+            intervals.require_before(&start, &outer)?;
+            intervals.borrowed_result_v1(anchor, leaf)?.check_with_effects(&start, &outer, |at, row| {
+                if matches!(row, MirInstruction::Invoke { operation: InvokeOperation::Call { .. }, .. }) {
+                    validate_readonly_edge_v1(handoff, module, function, at, &edges, &mut checked)?;
+                    Ok(false)
+                } else { Ok(!readonly_instruction_v1(row)) }
+            })?;
+        }
+        Ok(())
     }
 }

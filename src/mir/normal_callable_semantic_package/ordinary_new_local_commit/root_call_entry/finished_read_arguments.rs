@@ -4,6 +4,16 @@ use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::MirFunction;
 
 impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn read_argument_branch_points_v1(&self)
+        -> Result<Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
+        let mut points = Vec::new();
+        for argument in &self.prepared.arguments {
+            if let LexicalCallArgumentProjectionV1::BorrowedReadArgument { read, .. } = argument {
+                if let Some(point) = read.read_branch_point_v1()? { points.push(point); }
+            }
+        }
+        Ok(points)
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn array_read_records_v1(
         &self,
     ) -> impl Iterator<

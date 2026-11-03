@@ -170,6 +170,13 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    /// Borrow retained source uses without granting execution or requalification.
+    pub(in crate::mir::normal_callable_semantic_package) fn declared_read_argument_sources_v1(&self)
+        -> impl Iterator<Item = &crate::mir::resolved_semantics::home_new_prefix::DeclaredReadValueV1> {
+        self.opaque_actuals.iter().filter_map(|actual| match &actual.source {
+            BorrowedFormalActualSourceV1::Read(read) => read.declared_read_v1(), _ => None,
+        })
+    }
     /// Original source observations survive completion in their sole input
     /// proof. This immutable loan grants neither execution nor requalification.
     pub(super) fn source_static_snapshot_v1(&self) -> Option<&Self> {

@@ -362,6 +362,9 @@ impl OrdinaryNewClaimLedgerV1 {
         for row in self.local_field_reads.borrow().values() {
             if let Some(read) = row.source.received_root_source_v1().and_then(|source| source.borrowed_read_v1()) { retain(read); }
         }
+        for actuals in self.borrowed_formal_actuals.values().filter_map(|row| row.as_ref().ok()) {
+            for read in actuals.declared_read_argument_sources_v1() { retain(read); }
+        }
         output
     }
 
