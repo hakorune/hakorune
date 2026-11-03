@@ -78,7 +78,7 @@ superseded: text below that uses it describes a target that will not land.
 Rule 3 revives the spelling with a narrower input: a plain Box only as a fresh
 result or with explicit `move`.
 
-Rules 3, 5, 6, 7 and 8 were revised on 2026-11-03 and are targets, not connected
+Rules 3, 5, 6, 7 and 8-11 were revised on 2026-11-03 and are targets, not connected
 yet: current code still adds a handle for a bare owned Shared local
 (`local copy = first`), and `Shared(move x)` / `Shared(fresh)` stay the live
 spelling until that connection.
@@ -98,7 +98,14 @@ local and automatic End stay unmarked.
    receiver is explicit at the call: `(move image).into_bytes()`. `edit` (decided
    2026-11-03; `mut` is not a keyword) grants exclusive borrowed mutation: no
    ownership moves and mutating is not required. `edit x: T` is the parameter
-   form; the receiver position is undecided and neither has a live grammar row.
+   form and `edit inc(d: i64): void` / `take intoBytes(): Bytes` are the receiver
+   forms; `me` is not written as a parameter and `birth` needs no mode. An `edit`
+   place always holds a valid value at Normal and Fault boundaries: `e = make(v)`
+   is allowed, while `e = move n.left` and `e = fold(move e)` are rejected, so a
+   transformation consuming the old value is `fold(take e: Expr): Expr`. An `edit`
+   parameter borrows the place, and `x = next` writes through it. Places that are
+   proven disjoint may be borrowed together; overlapping borrows must both be
+   reads. None of these has a live grammar row yet.
 3. Shared: `share` yields one owned `Shared<T>` handle. `share new Config()` and
    `share move x` start sharing a fresh or owned plain Box: the count starts at
    1 and `x` is lost. `share h` on an existing `Shared<T>` (owned or borrowed)
@@ -171,10 +178,32 @@ local and automatic End stay unmarked.
    success the slot stays null and the result's current owner cleans up, so
    `me.child = fold(move old)` does not restore the child if `fold` faults.
    `take x: T` in a declaration receives ownership; `take place` in an
-   expression extracts it. `replace` is deferred: overwrite with
-   `me.body = move next`, and take a nullable field's old value with `take` plus
-   assignment. Whether `node.body = fold(move node.body)` needs a consuming form
-   is decided by the selfhost write-comparison gate (ADR-002).
+   expression extracts it. `take` needs `edit` or ownership, so a read method
+   cannot use it. `replace` is deferred: overwrite with `me.body = move next`, and
+   take a nullable field's old value with `take` plus assignment.
+9. Field move (decided 2026-11-03): an owner may `move` a direct field out of a
+   parent it solely owns (local, `take` parameter, `me` of a `take` method) when
+   the parent has no `fini` of its own. The moved field and the whole parent become
+   unusable; other fields stay usable. Refilling every missing field restores the
+   parent; otherwise only the remaining fields and the parent's storage are Ended.
+   Borrowed parents and Shared payloads are rejected, as is anything that observes
+   the whole parent meanwhile. `node.body = fold(move node.body)` is one use of
+   this rule, not a special form. `move` leaves nothing in the place; `take` leaves
+   null.
+10. Operands and patterns (decided 2026-11-03): `move` and `take` take places only
+   (`x`, `x.f`), so `move img.intoBytes()` and `move x?` are errors that suggest
+   `(move img).intoBytes()`. In a pattern, an identifier starting with an uppercase
+   letter resolves to a variant and is an error if unknown; one starting with a
+   lowercase letter binds the whole value. `match e` borrows with the permission of
+   `e` (read stays read; a direct mutable place gives `edit`). `match move e`
+   consumes. `_` and a whole binding satisfy exhaustiveness.
+11. Functions and containers (decided 2026-11-03): function types are
+   `fn(edit Chunk): void`; parameter names are optional and captures are not in
+   the type. Closures are `fn[delta, edit total](edit c: Chunk): void { ... }`,
+   synchronous and non-escaping for now. Arrays use `get(i): T? from me`,
+   `edit push(take v: T)`, `edit pop(): T?` and `edit remove(i): T`; `me.stmts[i]`
+   may be passed to an `edit` parameter. Maps use
+   `edit update(key: String, edit action: fn(edit V): void): Bool`.
 
 Decided 2026-11-02 (see ADR-002 for the cutover contract):
 
@@ -200,7 +229,12 @@ fields, named-function results) state their types and the body infers; types
 are non-null by default and `T?` marks a nullable type (`Node`, `Node?`,
 `Option<Node>`, `Shared<Node>?` are all distinct); `Dynamic` is written
 explicitly and never produced by omission or failed inference. At the cutover
-the old meaning of an omitted annotation (dynamic Any) ends.
+the old meaning of an omitted annotation (dynamic Any) ends. A `T?` field without
+an initializer is declared null; a required field must be initialized on every
+Normal construction path; a moved field is never refilled with null. Automatic
+copy covers numbers, Bool, unit enums and records holding only those; `copy e` is
+explicit. Enums may own Unique and Shared values; records stay limited to copyable
+values for now. The full list is the ADR-002 row "固定した文法".
 
 Sections 1-11 below describe the pre-cutover meaning where they conflict with
 this section (implicit alias copies, composite anchored results, bare aliases).

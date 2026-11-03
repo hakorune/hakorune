@@ -104,16 +104,26 @@ Accepted ownership grammar and implementation status:
 ```ebnf
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
 target_share_expr    := IDENT("share") HTRIVIA ( 'move' HSPACE IDENT | non_group_postfix_expr )  (* revised 2026-11-03; operand rules in ownership.md §0; parser-inactive *)
-target_edit_param    := IDENT("edit") HTRIVIA IDENT HTRIVIA ':' type_ref  (* decided 2026-11-03; receiver position undecided; parser-inactive *)
-target_take_expr     := IDENT("take") HTRIVIA assign_target  (* decided 2026-11-03: nullable field place only; parser-inactive *)
+target_edit_param    := IDENT("edit") HTRIVIA IDENT HTRIVIA ':' type_ref  (* decided 2026-11-03; parser-inactive *)
+target_method_mode   := ( IDENT("edit") | IDENT("take") ) HTRIVIA method_decl  (* decided 2026-11-03; receiver mode; parser-inactive *)
+target_place         := ( IDENT | 'me' ) ( '.' IDENT )*  (* move/take operand; calls and postfix '?' are not places *)
+target_move_expr     := 'move' HSPACE target_place  (* field operand decided 2026-11-03; parser-inactive; live row is move IDENT *)
+target_take_expr     := IDENT("take") HTRIVIA target_place  (* decided 2026-11-03: nullable field place only; parser-inactive *)
+target_copy_expr     := IDENT("copy") HTRIVIA non_group_postfix_expr  (* decided 2026-11-03; parser-inactive *)
+target_match_move    := 'match' HSPACE 'move' HSPACE expr '{' match_arm+ default_arm? '}'  (* decided 2026-11-03; parser-inactive *)
+target_nullable_type := TYPE_REF '?'  (* decided 2026-11-02; parser-inactive; expression '?' stays Result propagation *)
+target_fn_type       := 'fn' '(' ( param_mode? TYPE_REF ( ',' param_mode? TYPE_REF )* )? ')' ':' TYPE_REF  (* decided 2026-11-03; parser-inactive *)
+target_closure       := 'fn' '[' capture ( ',' capture )* ']' '(' params? ')' ':' TYPE_REF block  (* decided 2026-11-03; parser-inactive *)
+capture              := IDENT("edit")? IDENT
+param_mode           := IDENT("edit") | IDENT("take")
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)
 explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_list? ')'
 ```
 
 `HTRIVIA` excludes line terminators. Release I0 narrows `HSPACE` to spaces and
 tabs; comment trivia is not part of that row. `take` is recognized at parameter
-head (`edit` likewise, as a target) and, as a target, at expression-prefix position when the next token starts
-`assign_target`; `share` only at expression-prefix position when the next token
+head (`edit` likewise, as a target) and, as a target, at method head and at expression-prefix position when the
+next token starts `target_place`; `share` only at expression-prefix position when the next token
 is `move` or starts a non-group primary, and `release` only at statement head. Once recognized,
 an invalid operand is a diagnostic and never falls back to an ordinary call. See
 `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`
@@ -342,6 +352,9 @@ pattern   := '_'
            | STRING | INT | FLOAT | 'true' | 'false' | 'null' | 'void'
             | IDENT '(' IDENT? ')'           ; Type pattern or known-enum single-payload shorthand
             | IDENT                          ; Known-enum unit shorthand, e.g. None
+                                             ; Target (2026-11-03): uppercase-first resolves to a variant and is an
+                                             ; error if unknown; lowercase-first binds the whole value. `_` and a
+                                             ; whole binding satisfy exhaustiveness (ownership.md §0 rule 10).
             | IDENT '{' IDENT (',' IDENT)* '}' ; Known-enum record shorthand, e.g. Ident { name }
             | '[' (IDENT (',' '..' IDENT)? )? ']'
             | '{' ( (STRING|IDENT) ':' IDENT (',' '..')? )? '}'
