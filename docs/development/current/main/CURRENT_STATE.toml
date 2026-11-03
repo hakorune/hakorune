@@ -1,10 +1,10 @@
 date = "2026-11-03"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: distinct-Call PHI return exceeds single-producer result_origin; graph descriptor decision pending"
-current_design_stop = "published readonly graph-return descriptor needs maintainer decision (ADR-002)"
+current_blocker_token = "none: bounded From unit closed; remaining forms refused and grammar-dependent work unselected"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Single outer readonly From Call Return is landed: CLI0/7, fixed8/8, exact115 failures, C96/focused4 PASS; no source WIP.
-Distinct-Call PHI direct Return is currently UnsupportedResultAnnotation on the optimized CLI. Existing published borrowed_call requires one Invoke/Normal producer and identical payload; common lifetime support cannot replace payload identity.
-ADR-002 explicitly requires user decision for descriptor/ABI extensions. Proposed separate readonly graph-return origin (borrowed_read, provisional) retains current definition/common outer Formal; existing borrowed_call contract stays strict.
-After approval reuse DeclaredReadValue::Flow/all-leaf source and physical interval checks through publication/C/EXE, with existing negative tests and fixed8/8/exact115 baseline. No new MIR opcode/runtime ABI/layout or representative leaf.
-From overall incomplete; receiver/Null/nested/required support composition remain. Cleanup A done/update unselected, 19 shapes before cutover; two stashes/unrelated inventory preserved.
+Bounded From unit closed per maintainer: no graph-return descriptor. Common outgoing borrowed Call evidence now selects the full completion walk, so plain return me.a(p), local form and both branch returns all reach canonical EXE exit7.
+Optimized target/quick CLI/runtime and existing C shim: fixed8/8, cohort1808 PASS/exact115 FAIL names, C98 EXE/tamper plus existing Normal/Fault PASS and final JSON match; check/focused4 PASS. This fix production net0/test+4 in existing families.
+Receiver-result merge, literal-null PHI ingress, nested borrowed calls, Formal/Receiver support composition and distinct-Call PHI direct Return remain UnsupportedResultAnnotation in measured examples; no EXE or timeout. Card preserves exact boundaries and supported alternatives.
+From series production growth approx5.4k/test0.93k (explicit base and counting limits in card). Retire duplicate source rederivations/projection relays only after common-plan consumer replacement with identical safety coverage; keep independent verification and safety tests.
+No share/take/edit/update work until grammar is fixed and selected. Broader finite_product_goal remains incomplete; two stashes/unrelated inventory preserved. Verified changes are recorded in this landing; no graph-return implementation.
 """
-next_design_card = "APP-boxtorrent-mini"
-next_design_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
-next_execution_card = "none (descriptor decision pending)"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "none (await grammar and maintainer selection)"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

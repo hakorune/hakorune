@@ -192,7 +192,7 @@ pub(super) fn plain_main_integer_result_v1(
             .is_empty()
 }
 
-/// Original Instance input and borrowed LOCAL results require the same full walk.
+/// Original Instance input and borrowed Call results require the same full walk.
 /// No finished input or physical entry is used to choose its own prerequisites.
 pub(super) fn has_original_borrowed_walk_v1(
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
@@ -209,7 +209,7 @@ pub(super) fn has_original_borrowed_walk_v1(
             .filter_map(|row| row.as_ref().ok()?.as_ref())
             .any(|target| {
                 target.call_site().owner() == owner
-                    && target.borrowed_nullable_local_source().is_some()
+                    && target.borrowed_nullable_call_source().is_some()
                     || target.callee_owner() == owner && target.borrowed_nullable_local_source()
                         .is_some_and(|loan| loan.result_support_v1() == crate::mir::instruction::BorrowedResultSupportV1::Receiver)
             })
