@@ -24,6 +24,7 @@ pub(super) fn evaluate_row(
     batch_slot: u32,
     coverage: &ParserOrdinaryBoxSourceCoverageV1,
     borrowed: Option<&crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>,
+    context: Option<&super::witness::SourceCompositionContextV1<'_>>,
 ) -> ExitVerdictV1 {
     if let Some(read) = borrowed {
         use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
@@ -112,12 +113,13 @@ pub(super) fn evaluate_row(
                     return ExitVerdictV1::Dead;
                 };
                 legacy_eligible &= claims.contains_key(key);
-                let Some(composed) =
-                    call_source.with_receiver(receiver.as_ref()).compose(callee_rows, parameter_contracts, batch_slot)
-                else {
-                    return ExitVerdictV1::Dead;
+                witnesses = match call_source.with_receiver(receiver.as_ref())
+                    .compose_with_source(callee_rows, parameter_contracts, batch_slot, context) {
+                    Ok(Some(witnesses)) => witnesses,
+                    Ok(None) => return ExitVerdictV1::Dead,
+                    Err(key) if pending.contains(&key) => { waiting = true; continue; },
+                    Err(_) => return ExitVerdictV1::Dead,
                 };
-                witnesses = composed;
             }
         }
         if let Some(read) = borrowed {
@@ -339,6 +341,10 @@ impl OrdinaryNewResultClassClaimDraftV1 {
             let mut inserts = Vec::new();
             let mut deads = Vec::new();
             for (key, (batch_slot, exits, borrowed_result)) in &pending {
+                let context = super::witness::SourceCompositionContextV1 {
+                    batch, selected, fields: field_write_claims, claims: &claims, pending: &pending_keys,
+                    parameters: parameter_contracts, caller: key, batch_slot: *batch_slot,
+                };
                 match evaluate_row(
                     exits,
                     &claims,
@@ -347,6 +353,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     *batch_slot,
                     ordinary_box_coverage,
                     borrowed_result.as_deref(),
+                    borrowed_result.as_ref().map(|_| &context),
                 ) {
                     ExitVerdictV1::Resolvable(mut claim) => {
                         claim.borrowed_result = borrowed_result.clone();

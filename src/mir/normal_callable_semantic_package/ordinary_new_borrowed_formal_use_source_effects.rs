@@ -90,15 +90,24 @@ pub(super) fn require_declared_read_use_v1(
         (BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal }, Some(context),
             Some(Support::Formal { binding, ordinal: outer })) if binding == formal => {
             context.results.checked_original_source_roots_v1(context.key, formal.owner()).is_ok_and(|roots| {
-                let matching: Vec<_> = roots.iter().filter(|root| matches!(root.step(),
+                let matching: Vec<_> = roots.iter().flat_map(|root| root.source_calls_v1()).filter(|root| matches!(root.step(),
                     result_class_claim::ResultWitnessStepV1::Call { site: original, .. } if original == call)).collect();
                 !matching.is_empty() && matching.iter().all(|root| {
-                    let result_class_claim::ResultWitnessStepV1::Call { key, substitution: Some(result_class_claim::ResultSupportSubstitutionV1::Formal(actual)), .. } = root.step()
+                    let result_class_claim::ResultWitnessStepV1::Call { key, callee, substitution, .. } = root.step()
                         else { return false; };
-                    root.supports_formal_v1(formal, outer) && actual.argument_site == *site
-                        && actual.binding == formal && actual.callee_ordinal == *ordinal && actual.caller_ordinal == outer
-                        && context.results.borrowed_result_declaration_v1(key).is_some_and(|inner|
-                            matches!(inner.support(), Support::Formal { ordinal: index, .. } if index == *ordinal))
+                    if !root.supports_formal_v1(formal, outer)
+                        || !context.results.borrowed_result_declaration_v1(key).is_some_and(|inner|
+                            matches!(inner.support(), Support::Formal { ordinal: index, .. } if index == *ordinal)) { return false; }
+                    match substitution {
+                        Some(result_class_claim::ResultSupportSubstitutionV1::Formal(actual)) => actual.argument_site == *site
+                            && actual.binding == formal && actual.callee_ordinal == *ordinal && actual.caller_ordinal == outer,
+                        None if callee.is_literal_null_v1() => {
+                            let mut path = call.site().node().segments().to_vec();
+                            path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(*ordinal));
+                            site.owner() == call.owner() && site.site().node().segments() == path
+                        }
+                        _ => false,
+                    }
                 })
             })
         }

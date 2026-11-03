@@ -63,7 +63,7 @@ fn witness_composition_rejects_foreign_call_actual_and_wrong_argument_site() {
                         &BTreeSet::new(),
                         &package.parameter_contracts,
                         slot,
-                        package.batch.ordinary_box_coverage(), None,
+                        package.batch.ordinary_box_coverage(), None, None,
                     ),
                     ExitVerdictV1::Dead
                 ));
@@ -77,7 +77,7 @@ fn witness_composition_rejects_foreign_call_actual_and_wrong_argument_site() {
                     &pending,
                     &package.parameter_contracts,
                     slot,
-                    package.batch.ordinary_box_coverage(), None,
+                    package.batch.ordinary_box_coverage(), None, None,
                 );
                 if corruption < 3 {
                     assert!(matches!(unresolved, ExitVerdictV1::Dead));
@@ -238,6 +238,7 @@ fn declared_read_result_retains_single_support_across_returns_and_null() {
         ("give(p: Token): Token from p { loop(p != null) { return p } return null }", true),
         ("give(p: Token): Token from p { return null }", true),
         ("give(p: Token): Token from p { return me.relay(p) } relay(p: Token) { return p }", true),
+        ("give(p: Token): Token from p { local first = me.relay(0, p) local second = me.relay(1, p) local q = first if true { q = first } else { q = second } local final = me.keep(q) return final } keep(p: Token): Token from p { return p } relay(n: i64, p: Token): Token from p { return me.bridge(n, p) } bridge(n: i64, p: Token): Token from p { if n == 0 { return null } return p }", true),
         ("give(p: Token): Token from p { return new Token() }", false),
         ("give(p: Token, other: Token): Token from p { if p == null { return other } return p }", false),
         ("give(p: Other): Token from p { return p }", false),
@@ -254,6 +255,20 @@ fn declared_read_result_retains_single_support_across_returns_and_null() {
             if valid {
                 assert_eq!(facts.get(key), Some(&OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 }), "{method}");
                 assert!(std::sync::Arc::ptr_eq(facts.borrowed_result_declaration_v1(key).unwrap(), declaration.borrowed_result().unwrap()));
+                for root in facts.outcomes(key).unwrap().iter().flat_map(|row| row.witnesses()) {
+                    if let ResultWitnessStepV1::Call { site, key: target, callee, substitution: Some(actual @ ResultSupportSubstitutionV1::Read { .. }) } = root.step() {
+                        let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Formal { binding, ordinal } = declaration.borrowed_result().unwrap().support() else { unreachable!() };
+                        assert!(root.supports_formal_v1(binding, ordinal));
+                        for wrong_site in [false, true] {
+                            let mut changed = actual.clone();
+                            if let ResultSupportSubstitutionV1::Read { callee_ordinal, .. } = &mut changed { *callee_ordinal += u32::from(!wrong_site); }
+                            let forged = ResultOriginWitnessV1 { site: root.site().clone(), origin: root.origin().clone(),
+                                step: ResultWitnessStepV1::Call { site: if wrong_site { root.site().clone() } else { site.clone() },
+                                    key: target.clone(), callee: std::rc::Rc::clone(callee), substitution: Some(changed) } };
+                            assert!(!forged.supports_formal_v1(binding, ordinal), "indirect support keeps its exact callee ordinal and actual read");
+                        }
+                    }
+                }
             } else {
                 assert!(facts.get(key).is_none(), "invalid read support must not become an owned result: {method}");
                 assert!(facts.outcomes(key).is_none());

@@ -458,6 +458,16 @@ impl<'a> CallWitnessSourceV1<'a> {
         parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
         batch_slot: u32,
     ) -> Option<Vec<Rc<ResultOriginWitnessV1>>> {
+        self.compose_with_source(callee_rows, parameter_contracts, batch_slot, None).ok().flatten()
+    }
+
+    pub(super) fn compose_with_source(
+        self,
+        callee_rows: &[ResultExitOriginV1],
+        parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
+        batch_slot: u32,
+        context: Option<&super::witness::SourceCompositionContextV1<'_>>,
+    ) -> Result<Option<Vec<Rc<ResultOriginWitnessV1>>>, CanonicalSameModuleCallableKeyV1> {
         let Self {
             output_site,
             call_site,
@@ -469,48 +479,40 @@ impl<'a> CallWitnessSourceV1<'a> {
         for callee in callee_rows.iter().flat_map(|row| row.witnesses()) {
             let substitution = if let Some(ordinal) = callee.formal_ordinal() {
                 let Some(actual) = actuals.get(ordinal as usize) else {
-                    return None;
+                    return Ok(None);
                 };
-                let Some(binding) = actual.binding else {
-                    return None;
-                };
-                let Some(parameter) = parameter_contract(parameter_contracts, batch_slot, binding)
-                else {
-                    return None;
-                };
-                if !matches!(
-                    parameter.kind,
-                    CallableParameterContractKindV1::DeclaredObject(_)
-                        | CallableParameterContractKindV1::OpaqueHandle
-                ) {
-                    return None;
+                if let Some((binding, parameter)) = actual.binding.and_then(|binding|
+                    parameter_contract(parameter_contracts, batch_slot, binding).map(|row| (binding, row))) {
+                    if !matches!(parameter.kind, CallableParameterContractKindV1::DeclaredObject(_)
+                        | CallableParameterContractKindV1::OpaqueHandle) { return Ok(None); }
+                    Some(ResultSupportSubstitutionV1::Formal(ResultFormalSubstitutionV1 {
+                        argument_site: actual.site.clone(), binding, callee_ordinal: ordinal, caller_ordinal: parameter.ordinal,
+                    }))
+                } else {
+                    let Some(context) = context else { return Ok(None); };
+                    let Some(source) = context.read_actual_v1(actual, key, ordinal)? else { return Ok(None); };
+                    Some(ResultSupportSubstitutionV1::Read { callee_ordinal: ordinal, source })
                 }
-                Some(ResultSupportSubstitutionV1::Formal(ResultFormalSubstitutionV1 {
-                    argument_site: actual.site.clone(),
-                    binding,
-                    callee_ordinal: ordinal,
-                    caller_ordinal: parameter.ordinal,
-                }))
             } else {
                 None
             };
             // Receiver support is the original caller entry read, never
             // logical argument zero or an owned construction.
             let (origin, substitution) = match callee.origin() {
-                ResultValueOriginV1::MapHeld { .. } => return None,
+                ResultValueOriginV1::MapHeld { .. } => return Ok(None),
                 ResultValueOriginV1::BorrowedReceiver { .. } => {
-                    let actual = receiver?;
-                    let binding = actual.binding?;
+                    let Some(actual) = receiver else { return Ok(None); };
+                    let Some(binding) = actual.binding else { return Ok(None); };
                     if actual.site.owner() != call_site.owner()
                         || binding.owner() != call_site.owner()
                         || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-                        || callee.receiver_support_binding_v1().is_none() { return None; }
+                        || callee.receiver_support_binding_v1().is_none() { return Ok(None); }
                     (callee.origin().clone(), Some(ResultSupportSubstitutionV1::Receiver {
                         read: actual.site.clone(), binding,
                     }))
                 }
                 ResultValueOriginV1::ForwardFormal { .. } => {
-                    let ordinal = substitution.as_ref()?.formal_v1()?.caller_ordinal;
+                    let Some((_, ordinal)) = substitution.as_ref().and_then(|row| row.caller_formal_v1(call_site, callee)) else { return Ok(None); };
                     (ResultValueOriginV1::ForwardFormal { ordinal }, substitution)
                 }
                 other => (other.clone(), substitution),
@@ -526,7 +528,7 @@ impl<'a> CallWitnessSourceV1<'a> {
                 },
             }));
         }
-        Some(witnesses)
+        Ok(Some(witnesses))
     }
 }
 

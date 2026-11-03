@@ -5,6 +5,11 @@ use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
 
+#[path = "source_read_substitution.rs"]
+mod source_read;
+pub(super) use source_read::SourceCompositionContextV1;
+pub(crate) use source_read::SourceReadSubstitutionV1;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ResultFormalSubstitutionV1 {
     pub(crate) argument_site: OwnedExprSiteV1,
@@ -17,11 +22,20 @@ pub(crate) struct ResultFormalSubstitutionV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResultSupportSubstitutionV1 {
     Formal(ResultFormalSubstitutionV1),
+    Read { callee_ordinal: u32, source: SourceReadSubstitutionV1 },
     Receiver { read: OwnedExprSiteV1, binding: BindingRefV1 },
 }
 impl ResultSupportSubstitutionV1 {
+    pub(super) fn caller_formal_v1(&self, call: &OwnedExprSiteV1, callee: &ResultOriginWitnessV1) -> Option<(BindingRefV1, u32)> {
+        if let Some(actual) = self.formal_v1() { return Some((actual.binding, actual.caller_ordinal)); }
+        let Self::Read { callee_ordinal, source } = self else { return None; };
+        let mut path = call.site().node().segments().to_vec();
+        path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(*callee_ordinal));
+        (callee.formal_ordinal() == Some(*callee_ordinal) && source.read_v1().owner() == call.owner()
+            && source.read_v1().site().node().segments() == path).then(|| source.caller_formal_v1())
+    }
     pub(crate) fn formal_v1(&self) -> Option<&ResultFormalSubstitutionV1> {
-        match self { Self::Formal(actual) => Some(actual), Self::Receiver { .. } => None }
+        match self { Self::Formal(actual) => Some(actual), Self::Receiver { .. } | Self::Read { .. } => None }
     }
 }
 
@@ -92,6 +106,27 @@ pub(crate) struct ResultOriginWitnessV1 {
     pub(super) step: ResultWitnessStepV1,
 }
 impl ResultOriginWitnessV1 {
+    /// Only caller-local source Calls are traversed; callee bodies remain
+    /// separate owners. Indirect actuals retain every original local edge.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_calls_v1(&self) -> Vec<&Self> {
+        let mut pending = vec![self];
+        let mut calls = Vec::new();
+        while let Some(root) = pending.pop() {
+            if let ResultWitnessStepV1::Call { substitution, .. } = root.step() {
+                calls.push(root);
+                if let Some(ResultSupportSubstitutionV1::Read { source, .. }) = substitution {
+                    pending.extend(source.witnesses_v1());
+                }
+            }
+        }
+        calls
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn same_call_source_v1(&self, other: &Self) -> bool {
+        matches!((self.step(), other.step()),
+            (ResultWitnessStepV1::Call { site: x, key: k, callee: c, substitution: s },
+             ResultWitnessStepV1::Call { site: y, key: l, callee: d, substitution: t })
+                if self.origin() == other.origin() && x == y && k == l && Rc::ptr_eq(c, d) && s == t)
+    }
     /// The Return read and the New acquisition are distinct source positions.
     pub(crate) fn construction_site_v1(&self) -> Option<&OwnedExprSiteV1> {
         match &self.step {
@@ -117,8 +152,8 @@ impl ResultOriginWitnessV1 {
             ResultWitnessStepV1::NullLiteral => self.origin == ResultValueOriginV1::Null,
             ResultWitnessStepV1::Formal { binding: original, ordinal: index } =>
                 *original == binding && *index == ordinal,
-            ResultWitnessStepV1::Call { substitution: Some(actual), .. } =>
-                actual.formal_v1().is_some_and(|actual| actual.binding == binding && actual.caller_ordinal == ordinal),
+            ResultWitnessStepV1::Call { site, callee, substitution: Some(actual), .. } =>
+                actual.caller_formal_v1(site, callee) == Some((binding, ordinal)),
             ResultWitnessStepV1::Call { substitution: None, .. } => self.origin == ResultValueOriginV1::Null,
             _ => false,
         }
@@ -176,7 +211,7 @@ impl ResultOriginWitnessV1 {
     }
 
     /// A literal Null has no formal payload ancestry, even through a call.
-    pub(super) fn is_literal_null_v1(&self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn is_literal_null_v1(&self) -> bool {
         self.origin == ResultValueOriginV1::Null && match &self.step {
             ResultWitnessStepV1::NullLiteral => true,
             ResultWitnessStepV1::Call { callee, substitution: None, .. } => callee.is_literal_null_v1(),
@@ -187,8 +222,8 @@ impl ResultOriginWitnessV1 {
     pub(super) fn formal_ordinal(&self) -> Option<u32> {
         match &self.step {
             ResultWitnessStepV1::Formal { ordinal, .. } => Some(*ordinal),
-            ResultWitnessStepV1::Call { substitution, .. } => {
-                substitution.as_ref().and_then(|row| row.formal_v1()).map(|row| row.caller_ordinal)
+            ResultWitnessStepV1::Call { site, callee, substitution, .. } => {
+                substitution.as_ref().and_then(|row| row.caller_formal_v1(site, callee)).map(|(_, ordinal)| ordinal)
             }
             _ => None,
         }

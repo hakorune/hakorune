@@ -185,16 +185,21 @@ impl BorrowedNullableLocalSourceLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates_call_witness_v1(
         &self, witness: &ResultOriginWitnessV1,
     ) -> bool {
-        let ResultWitnessStepV1::Call { site, key, .. } = witness.step()
+        let ResultWitnessStepV1::Call { site, key, callee, substitution } = witness.step()
             else { return false; };
-        site == self.call() && key == self.key()
-            && self.witnesses().iter().any(|candidate| Self::same_original_call_witness_v1(candidate, witness))
+        if site != self.call() || key != self.key() { return false; }
+        if let BorrowedLocalSupportV1::Reborrow { callee: crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal), actual } = &self.support {
+            if !self.witnesses().iter().any(|root| Rc::ptr_eq(root, callee)) { return false; }
+            if substitution.is_none() { return callee.is_literal_null_v1() && witness.origin() == &ResultValueOriginV1::Null; }
+            let Some(ResultSupportSubstitutionV1::Read { callee_ordinal, source }) = substitution else { return false; };
+            let Some((_, caller_ordinal)) = substitution.as_ref().and_then(|row| row.caller_formal_v1(site, callee)) else { return false; };
+            let origin = match callee.origin() { ResultValueOriginV1::ForwardFormal { .. } => ResultValueOriginV1::ForwardFormal { ordinal: caller_ordinal }, other => other.clone() };
+            return callee_ordinal == ordinal && source.matches_support_v1(actual) && witness.origin() == &origin;
+        }
+        self.witnesses().iter().any(|candidate| Self::same_original_call_witness_v1(candidate, witness))
     }
     fn same_original_call_witness_v1(a: &ResultOriginWitnessV1, b: &ResultOriginWitnessV1) -> bool {
-        matches!((a.step(), b.step()),
-            (ResultWitnessStepV1::Call { site: x, key: k, callee: c, substitution: s },
-             ResultWitnessStepV1::Call { site: y, key: l, callee: d, substitution: t })
-                if a.origin() == b.origin() && x == y && k == l && Rc::ptr_eq(c, d) && s == t)
+        a.same_call_source_v1(b)
     }
 }
 impl PartialEq for BorrowedNullableLocalSourceLoanV1 {

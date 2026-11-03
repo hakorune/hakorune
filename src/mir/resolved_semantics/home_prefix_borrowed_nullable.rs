@@ -418,12 +418,13 @@ impl PrefixLocalFlow<'_> {
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None; };
         let StoredLocal::BorrowedNullable(state) = self.locals.get(&binding)? else { return None; };
         let loan = state.single_loan()?;
-        if !self.borrowed_entry_support_live_v1(loan) { return None; }
         if loan.is_declared_read_v1() {
-            if !state.read_valid { return None; }
+            if !state.read_valid || !matches!(loan.lifetime_anchor_v1(), Some(BorrowedLifetimeAnchorV1::Entry { .. }))
+                || !self.declared_read_support_live_v1(loan) { return None; }
             return super::super::BorrowedResultReadV1::issue_v1(self.input, loan, site)
                 .map(super::super::BorrowedNullableReturnV1::Declared);
         }
+        if !self.borrowed_entry_support_live_v1(loan) { return None; }
         (loan.destination() == binding && self.nonnull.contains(&binding))
             .then(|| super::super::BorrowedNullableReturnV1::Legacy(Box::new(loan.clone())))
     }

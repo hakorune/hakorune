@@ -37,6 +37,109 @@ pub(super) fn prepare(
     prepare_role(state, function, published.role())
 }
 
+/// Independent physical support correspondence, not entry identity for the
+/// returned payload. All traversed instructions remain visible to both scans.
+fn readonly_support_graph(
+    state: &FunctionUses, function: &MirFunction, value: ValueId, used: Coordinate,
+) -> Result<(BindingRefV1, BTreeMap<Coordinate, MirInstruction>), String> {
+    struct Definitions<'a> {
+        values: BTreeMap<ValueId, (Coordinate, &'a MirInstruction)>,
+        normal_results: BTreeMap<BasicBlockId, usize>,
+    }
+    let mut definitions = BTreeMap::new();
+    let mut normal_results = BTreeMap::new();
+    let mut successors = BTreeMap::new();
+    let mut predecessors: BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>> = BTreeMap::new();
+    for (block, body) in &function.blocks {
+        let next = body.successors_from_terminator();
+        for target in &next { predecessors.entry(*target).or_default().insert(*block); }
+        successors.insert(*block, next.into_iter().collect::<Vec<_>>());
+        for (index, row) in body.all_instructions().enumerate() {
+            if let MirInstruction::InvokeNormalResult { invoke_block, .. } = row {
+                *normal_results.entry(*invoke_block).or_default() += 1;
+            }
+            if let Some(dst) = row.dst_value() {
+                if state.roots.contains_key(&dst) || definitions.insert(dst, ((*block, index), row)).is_some() {
+                    return Err(fault("borrowed-formal-return/correspondence"));
+                }
+            }
+        }
+    }
+    fn visit(value: ValueId, used: Coordinate, state: &FunctionUses, function: &MirFunction,
+        defs: &Definitions<'_>, successors: &BTreeMap<BasicBlockId, Vec<BasicBlockId>>,
+        predecessors: &BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>>,
+        active: &mut BTreeSet<ValueId>, memo: &mut BTreeMap<ValueId, (Option<BindingRefV1>, bool)>,
+        retained: &mut BTreeMap<Coordinate, MirInstruction>,
+    ) -> Result<(Option<BindingRefV1>, bool), String> {
+        if let Some(root) = state.roots.get(&value) { return Ok((Some(*root), false)); }
+        let (at, row) = defs.values.get(&value).ok_or_else(|| fault("borrowed-formal-return/correspondence"))?;
+        if (at.0 == used.0 && at.1 >= used.1)
+            || (at.0 != used.0 && !super::path_dominates(function.entry_block, successors, at.0, used.0)) {
+            return Err(fault("borrowed-formal-return/correspondence"));
+        }
+        if let Some(result) = memo.get(&value) { return Ok(*result); }
+        if !active.insert(value) { return Err(fault("borrowed-formal-return/correspondence")); }
+        retained.insert(*at, (*row).clone());
+        let mut children = Vec::new();
+        let mut call_source = None;
+        match row {
+            MirInstruction::Copy { src, .. } => children.push((*src, *at)),
+            MirInstruction::Phi { inputs, .. } => {
+                let incoming: BTreeSet<_> = inputs.iter().map(|(block, _)| *block).collect();
+                if inputs.is_empty() || inputs.len() != incoming.len()
+                    || predecessors.get(&at.0) != Some(&incoming) { return Err(fault("borrowed-formal-return/correspondence")); }
+                for (block, value) in inputs {
+                    let end = function.blocks.get(block).ok_or_else(|| fault("borrowed-formal-return/block"))?.instructions.len();
+                    children.push((*value, (*block, end)));
+                }
+            }
+            MirInstruction::InvokeNormalResult { invoke_block, .. } => {
+                let body = function.blocks.get(invoke_block).ok_or_else(|| fault("borrowed-formal-return/block"))?;
+                let invoke = body.terminator.as_ref().ok_or_else(|| fault("borrowed-formal-return/correspondence"))?;
+                let MirInstruction::Invoke { normal_landing, operation: InvokeOperation::Call { call,
+                    result: InvokeCallResultKind::BorrowedNullableHandle {
+                        access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly,
+                        support: crate::mir::instruction::BorrowedResultSupportV1::Formal(inner) } }, .. } = invoke
+                    else { return Err(fault("borrowed-formal-return/correspondence")); };
+                if defs.normal_results.get(invoke_block) != Some(&1) || *normal_landing != at.0 || predecessors.get(normal_landing) != Some(&BTreeSet::from([*invoke_block])) {
+                    return Err(fault("borrowed-formal-return/correspondence"));
+                }
+                let coordinate = (*invoke_block, body.instructions.len());
+                retained.insert(coordinate, invoke.clone());
+                let actual = call.args.get(*inner as usize).ok_or_else(|| fault("borrowed-formal-return/correspondence"))?;
+                children.push((*actual, coordinate));
+                call_source = Some(state.arguments.get(&(coordinate.0, coordinate.1, *inner as usize)).copied());
+            }
+            _ => return Err(fault("borrowed-formal-return/correspondence")),
+        }
+        let mut anchor = None;
+        let mut witnessed = true;
+        for (child, used) in children {
+            let (root, seen) = visit(child, used, state, function, defs, successors, predecessors, active, memo, retained)?;
+            if let Some(root) = root {
+                if anchor.is_some_and(|previous| previous != root) { return Err(fault("borrowed-formal-return/correspondence")); }
+                anchor = Some(root);
+            }
+            witnessed &= seen;
+        }
+        match call_source {
+            Some(Some(original)) if anchor == Some(original) => witnessed = true,
+            Some(None) if witnessed => {},
+            Some(_) => return Err(fault("borrowed-formal-return/correspondence")),
+            None => {},
+        }
+        active.remove(&value);
+        memo.insert(value, (anchor, witnessed));
+        Ok((anchor, witnessed))
+    }
+    let definitions = Definitions { values: definitions, normal_results };
+    let mut retained = BTreeMap::new();
+    let (root, witnessed) = visit(value, used, state, function, &definitions, &successors, &predecessors,
+        &mut BTreeSet::new(), &mut BTreeMap::new(), &mut retained)?;
+    if !witnessed { return Err(fault("borrowed-formal-return/correspondence")); }
+    Ok((root.ok_or_else(|| fault("borrowed-formal-return/correspondence"))?, retained))
+}
+
 fn prepare_role(
     state: &mut FunctionUses,
     function: &MirFunction,
@@ -61,6 +164,7 @@ fn prepare_role(
             origin @ (FinalizedObjectReturnOriginV1::BorrowedReceiver { .. }
                 | FinalizedObjectReturnOriginV1::BorrowedReceiverField { .. }
                 | FinalizedObjectReturnOriginV1::BorrowedCall { .. }) => {
+                let mut graph_bindings = BTreeMap::new();
                 let (value, prefix) = match origin {
                     FinalizedObjectReturnOriginV1::BorrowedReceiver { value } => (*value, Vec::new()),
                     FinalizedObjectReturnOriginV1::BorrowedCall { invoke, producer, support } => {
@@ -82,8 +186,16 @@ fn prepare_role(
                             support: crate::mir::instruction::BorrowedResultSupportV1::Formal(inner) }, .. }, .. } = &invoke.1
                             else { return Err(fault("borrowed-formal-return/correspondence")); };
                         let at = coordinate(function, invoke)?;
-                        if state.arguments.get(&(at.0, at.1, *inner as usize)) != Some(outer) {
-                            return Err(fault("borrowed-formal-return/correspondence"));
+                        match state.arguments.get(&(at.0, at.1, *inner as usize)) {
+                            Some(root) if root == outer => {},
+                            None if outcome.declared_read_transport_v1().is_some() => {
+                                let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = &invoke.1 else { unreachable!() };
+                                let actual = *call.args.get(*inner as usize).ok_or_else(|| fault("borrowed-formal-return/correspondence"))?;
+                                let (root, bindings) = readonly_support_graph(state, function, actual, at)?;
+                                if root != *outer { return Err(fault("borrowed-formal-return/correspondence")); }
+                                graph_bindings = bindings;
+                            }
+                            _ => return Err(fault("borrowed-formal-return/correspondence")),
                         }
                         }
                         (producer.1.dst_value().ok_or_else(|| fault("borrowed-formal-return/original-entry"))?, vec![invoke, producer])
@@ -95,6 +207,11 @@ fn prepare_role(
                 let mut values = BTreeSet::from([value]);
                 let mut bindings = prefix.into_iter().map(|binding| Ok((coordinate(function, binding)?, binding.1.clone())))
                     .collect::<Result<BTreeMap<_, _>, String>>()?;
+                for (coordinate, row) in graph_bindings {
+                    if bindings.insert(coordinate, row.clone()).is_some_and(|old| old != row) {
+                        return Err(fault("borrowed-formal-return/duplicate-source"));
+                    }
+                }
                 if let Some(read) = outcome.declared_read_transport_v1() {
                     values.insert(read.value());
                     for binding in read.bindings() {

@@ -22,6 +22,7 @@ impl BorrowedSupportReadV1 {
         Ok(Self { source, loans: loans.into(), anchor })
     }
     pub(crate) fn read(&self) -> &OwnedExprSiteV1 { self.source.read() }
+    pub(crate) fn source_signature_v1(&self) -> &DeclaredCallReadSourceV1 { &self.source }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.source.binding() }
     pub(crate) fn declared_type(&self) -> &str { self.source.declared_type() }
     pub(crate) fn loans(&self) -> impl Iterator<Item = &BorrowedNullableLocalSourceLoanV1> { self.loans.iter() }
