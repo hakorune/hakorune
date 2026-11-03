@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ownership step 3a: Formal PHI result re-return connected; direct Return Call destination lacks shared readonly proof"
+current_blocker_token = "ownership step 3a: destination-neutral Call proof shared by locals; Return factory/terminal connection pending"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-Formal PHI-supported outer Call results now survive local/alias re-return to the original From declaration; explicit reads retain passive allleaf source support and strict canonical loans.
-Source ordinal/argument identity and every support remain checked; independent physical Copy/Phi/Call folding requires all source-backed paths, dominance and unique Normal, retaining each dependency in both scans. Direct formal/Legacy laws unchanged.
-Optimized target/quick CLI/runtime plus existing C shim: suite8/8, cohort1808 PASS/exact115 failures; C92 EXE/Normal/Fault/tamper/field-return PASS, old88 JSON unchanged. Production +296, tests +25 in existing families; no new ABI/checker.
-CLI local/alias returns exit0/7; support write/local escape/wrong From refuse. Direct return identity(q) still refuses ReturnValueNotCovered: normalize shared readonly Call proof across real Local and Return destinations; never fake a binding or use OwnedCall.
-From incomplete: receiver crossings, direct multi-Call PHI and Null/nested/required support composition remain. Cleanup A done/update unselected, 19 shapes before cutover, two stashes/unrelated inventory protected.
+Destination-neutral BorrowedCallResultSourceLoan now owns Call/support/witness queries; Local retains its real declaration/destination and immutable Deref only. Existing local production consumers use the shared model; no accepted source shape added.
+Strict declaration Arc/witness Rc equality and original-source header comparison remain; local rechecks stay destination-sensitive. Canonical rebinding updates only the same checked common support. Local741->575 lines plus common193; production +16, tests unchanged.
+Optimized target/quick CLI/runtime and existing C shim: suite8/8, cohort1808 PASS/exact115 failures; C92 JSON unchanged and existing EXE/Normal/Fault/tamper checks PASS; focused4 PASS.
+Next separate Call identity/support resolution from Local initializer authentication, then attach the same proof to existing Return expression execution. Direct return identity(q) remains ReturnValueNotCovered; no fake Local or owning-lane downgrade.
+From incomplete; receiver crossings/multi-Call PHI/Null/nested/required support composition remain. Cleanup A done/update unselected, 19 shapes before cutover, two stashes/unrelated inventory protected.
 """
 next_design_card = "none"
 next_design_card_path = "none"

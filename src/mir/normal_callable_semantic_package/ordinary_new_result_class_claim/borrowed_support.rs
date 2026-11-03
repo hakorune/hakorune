@@ -61,14 +61,14 @@ impl OrdinaryNewResultClassClaimsV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn check_borrowed_nullable_roots_v1(
         &self,
-        loan: &BorrowedNullableLocalSourceLoanV1,
+        loan: &BorrowedCallResultSourceLoanV1,
         roots: &[&Rc<ResultOriginWitnessV1>],
     ) -> Result<(), &'static str> {
         if !loan.declared_result_matches_v1(self.borrowed_result_declaration_v1(loan.key()))
             || roots.is_empty() || loan.witnesses.len() != roots.len() {
             return Err("borrowed-nullable/root-coverage");
         }
-        if let BorrowedLocalSupportV1::Reborrow { callee, actual } = &loan.support {
+        if let BorrowedCallSupportV1::Reborrow { callee, actual } = &loan.support {
             let declaration = loan.declared_read_result_v1().ok_or("borrowed-nullable/source-identity")?;
             for inner in actual.loans() {
                 let inner_roots = self.checked_original_source_roots_v1(inner.key(), inner.callee_owner())?;
@@ -97,7 +97,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             }
             return Ok(());
         }
-        if let BorrowedLocalSupportV1::MapSlot(map) = &loan.support {
+        if let BorrowedCallSupportV1::MapSlot(map) = &loan.support {
             if map.receiver.site() != loan.receiver() || map.receiver.owner() != loan.call().owner()
                 || map.holder.owner() != loan.call().owner() { return Err("borrowed-nullable/source-identity"); }
             for (witness, root) in loan.witnesses.iter().zip(roots) {
@@ -111,7 +111,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             }
             return Ok(());
         }
-        if let BorrowedLocalSupportV1::OwnedReceiver { read, source } = &loan.support {
+        if let BorrowedCallSupportV1::OwnedReceiver { read, source } = &loan.support {
             let declared = loan.declared_read_result_v1().ok_or("borrowed-nullable/source-identity")?;
             let crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { binding } = declared.support()
                 else { return Err("borrowed-nullable/root-origin"); };
@@ -124,7 +124,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             }
             return Ok(());
         }
-        if let BorrowedLocalSupportV1::OwnedLocal { callee_ordinal, actual, source } = &loan.support {
+        if let BorrowedCallSupportV1::OwnedLocal { callee_ordinal, actual, source } = &loan.support {
             use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
             let declared = loan.declared_read_result_v1().ok_or("borrowed-nullable/source-identity")?;
             let Support::Formal { binding, ordinal } = declared.support() else {
@@ -144,7 +144,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             }
             return Ok(());
         }
-        if let BorrowedLocalSupportV1::EntryForward { callee: crate::mir::instruction::BorrowedResultSupportV1::Receiver,
+        if let BorrowedCallSupportV1::EntryForward { callee: crate::mir::instruction::BorrowedResultSupportV1::Receiver,
             caller: crate::mir::instruction::BorrowedResultSupportV1::Receiver, root: binding, actual } = &loan.support {
             use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
             let declared = loan.declared_read_result_v1().ok_or("borrowed-nullable/source-identity")?;
@@ -161,7 +161,7 @@ impl OrdinaryNewResultClassClaimsV1 {
                 }) { return Err("borrowed-nullable/witness-identity"); }
             return Ok(());
         }
-        let BorrowedLocalSupportV1::EntryForward {
+        let BorrowedCallSupportV1::EntryForward {
             callee: crate::mir::instruction::BorrowedResultSupportV1::Formal(callee_ordinal),
             caller: crate::mir::instruction::BorrowedResultSupportV1::Formal(caller_ordinal), root: formal_root, .. } = loan.support
             else { return Err("borrowed-nullable/root-origin"); };
