@@ -71,6 +71,7 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
                 | BorrowedCallArgumentsV1::SourceResult { .. }
                 | BorrowedCallArgumentsV1::DynamicInvocationSource { .. }
                 | BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. }
+                | BorrowedCallArgumentsV1::BorrowedNullableReturnSource { .. }
                 | BorrowedCallArgumentsV1::MixedLocalSource { .. }
                 | BorrowedCallArgumentsV1::Object { .. }
                 | BorrowedCallArgumentsV1::CallEntryHomes { .. } => None,
@@ -133,7 +134,8 @@ fn seal_i64_call_arguments<E>(
         | Some(BorrowedCallArgumentsV1::SourceUnitDiscard { .. })
         | Some(BorrowedCallArgumentsV1::SourceResult { .. })
         | Some(BorrowedCallArgumentsV1::DynamicInvocationSource { .. })
-        | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
+        | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. }
+                | BorrowedCallArgumentsV1::BorrowedNullableReturnSource { .. })
         | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
         | Some(BorrowedCallArgumentsV1::Object { .. })
         | Some(BorrowedCallArgumentsV1::CallEntryHomes { .. }) => return Ok(None),
@@ -316,7 +318,8 @@ pub(crate) fn issue_static_i64_local_call<E>(
             | Some(BorrowedCallArgumentsV1::SourceResult { .. })
             | Some(BorrowedCallArgumentsV1::DynamicInvocationSource { .. })
             | Some(BorrowedCallArgumentsV1::SourceObject { .. })
-            | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
+            | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. }
+                | BorrowedCallArgumentsV1::BorrowedNullableReturnSource { .. })
             | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
             | Some(BorrowedCallArgumentsV1::Object { .. })
             | Some(BorrowedCallArgumentsV1::CallEntryHomes { .. }) => return Ok(None),

@@ -54,6 +54,16 @@ pub(super) fn observe_terminal_statement<'a, E>(
     let mut relation: Option<TerminalRelationV1> = None;
     // Qualified object returns are exclusive, including unavailable support.
     // They must never reach the scalar borrowed-argument shortcut.
+    let borrowed_terminal = match super::terminal_relation::observe_borrowed_call_return_v1(
+        input, statement, locals, homes, borrowed_actuals)? {
+        Some(Ok((terminal, observed))) => {
+            path_calls.insert(observed.site().clone());
+            local_calls.push(observed);
+            Some(Ok(terminal))
+        }
+        Some(Err(issue)) => Some(Err(issue)),
+        None => None,
+    };
     let stored_terminal = super::terminal_relation::observe_stored_return_v1(
         input,
         statement,
@@ -63,7 +73,9 @@ pub(super) fn observe_terminal_statement<'a, E>(
         maps,
         borrowed_actuals,
     )?;
-    let object_terminal = if stored_terminal.is_some() {
+    let object_terminal = if borrowed_terminal.is_some() {
+        borrowed_terminal
+    } else if stored_terminal.is_some() {
         stored_terminal
     } else if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
         if let Ok(value) = input

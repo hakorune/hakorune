@@ -46,7 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<bool, String> {
-        if target.borrowed_nullable_local_source().is_some() || target.mixed_local_source().is_some() {
+        if target.borrowed_nullable_call_source().is_some() || target.mixed_local_source().is_some() {
             return Ok(false);
         }
         if target.has_object_source_requirement() {
@@ -139,7 +139,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if site != source.call_site() {
                 return Err(freeze("lexical-object/slot-source"));
             }
-            if source.borrowed_nullable_local_source().is_some() || source.mixed_local_source().is_some() { continue; }
+            if source.borrowed_nullable_call_source().is_some() || source.mixed_local_source().is_some() { continue; }
             if let Some((kind, route, teardown, field_supports)) = self
                 .checked_object_lexical_slot_v1(source, selected, contracts, signatures, results)?
             {
@@ -397,7 +397,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // emission. The shared affine take preserves its exact pending source.
         let borrowed_pending = matches!(self.lexical_instance_calls.borrow().get(&owned),
             Some(LexicalInstanceCallDispositionSlotV1::SourcePending(source))
-                if source.borrowed_nullable_local_source().is_some());
+                if source.borrowed_nullable_call_source().is_some());
         if borrowed_pending { return self.take_lexical_instance_call(owner, site); }
         let object_slot = match self.lexical_instance_calls.borrow().get(&owned) {
             Some(LexicalInstanceCallDispositionSlotV1::SourcePending(_)) => true,

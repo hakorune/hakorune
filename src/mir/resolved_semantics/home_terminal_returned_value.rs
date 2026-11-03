@@ -17,23 +17,30 @@ pub(crate) use scalar_result::TerminalI64ScalarReturnV1;
 pub(crate) enum BorrowedNullableReturnV1 {
     Legacy(Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>),
     Declared(super::super::BorrowedResultReadV1),
+    Direct(Box<crate::mir::normal_callable_semantic_package::BorrowedCallSourceLoanV1>),
 }
 impl BorrowedNullableReturnV1 {
     pub(crate) fn read_v1(&self) -> Option<&super::super::BorrowedResultReadV1> {
-        match self { Self::Declared(read) => Some(read), Self::Legacy(_) => None }
+        match self { Self::Declared(read) => Some(read), Self::Legacy(_) | Self::Direct(_) => None }
     }
-    pub(crate) fn binding_v1(&self) -> BindingRefV1 {
-        self.read_v1().map_or_else(|| self.destination(), |read| read.binding())
+    pub(crate) fn local_v1(&self) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1> {
+        match self { Self::Legacy(loan) => Some(loan), Self::Declared(read) => Some(read.source()), Self::Direct(_) => None }
+    }
+    pub(crate) fn direct_v1(&self) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedCallSourceLoanV1> {
+        match self { Self::Direct(loan) => Some(loan), _ => None }
+    }
+    pub(crate) fn binding_v1(&self) -> Option<BindingRefV1> {
+        self.read_v1().map(|read| read.binding()).or_else(|| self.local_v1().map(|loan| loan.destination()))
     }
 }
 impl std::ops::Deref for BorrowedNullableReturnV1 {
-    type Target = crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1;
+    type Target = crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1;
     fn deref(&self) -> &Self::Target {
-        match self { Self::Legacy(loan) => loan, Self::Declared(read) => read.source() }
+        match self { Self::Legacy(loan) => loan, Self::Declared(read) => read.source(), Self::Direct(loan) => loan }
     }
 }
-impl AsRef<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1> for BorrowedNullableReturnV1 {
-    fn as_ref(&self) -> &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1 { self }
+impl AsRef<crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1> for BorrowedNullableReturnV1 {
+    fn as_ref(&self) -> &crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1 { self }
 }
 
 /// The exact source value a non-i64 terminal `return <expr>` hands to the
@@ -738,4 +745,34 @@ fn text_return_declined<T, E>(input: ResolvedFunctionLoweringInputV1<'_>, statem
         eprintln!("[text-return] declined owner={:?} statement={:?} check={check}", input.owner(), statement.site());
     }
     Ok(None)
+}
+
+/// The same exact Return Call owns its source observation and current read.
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call_return_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>, locals: &PrefixLocalFlow<'_>,
+    homes: &[super::super::LiveHomeV1],
+    actuals: &mut impl FnMut(&OwnedExprSiteV1, super::super::BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<super::super::BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<Result<(TerminalValueReturnV1, super::super::LocalCallObservationV1), super::HomePrefixUnavailableV1>>, E> {
+    if !matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) { return Ok(None); }
+    let Ok(value) = input.source().child_expr_from_stmt(statement, super::ExprChildRoleV1::ReturnValue)
+        else { return Ok(None); };
+    let site = OwnedExprSiteV1::new(input.owner(), value.site().clone());
+    let Some(observed) = super::super::local_call_flow::issue_borrowed_nullable_return_call(
+        input, statement.site(), &site, homes, actuals)? else { return Ok(None); };
+    Ok(Some(match observed {
+        Err(issue) => Err(issue),
+        Ok(observed) => {
+            let loan = observed.borrowed_nullable_call().expect("checked borrowed return observation");
+            if !locals.borrowed_call_support_available_v1(loan)
+                || !matches!(loan.lifetime_anchor_v1(), Some(crate::mir::normal_callable_semantic_package::BorrowedLifetimeAnchorV1::Entry { .. })) {
+                Err(super::HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone()))
+            } else {
+                let terminal = TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.site().clone(),
+                    TerminalReturnedSourceV1::BorrowedNullableLocal(BorrowedNullableReturnV1::Direct(Box::new(loan.clone()))));
+                Ok((terminal, observed))
+            }
+        }
+    }))
 }

@@ -63,7 +63,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|call| call.callee == owner)
         {
             let target = call.source.require_instance()?;
-            source_result_request |= target.borrowed_nullable_local_source().is_some_and(|loan| loan.is_declared_read_v1())
+            source_result_request |= target.borrowed_nullable_call_source().is_some_and(|loan| loan.is_declared_read_v1())
                 || self.has_original_unit_input_v1(target)
                 || source.original_object_producer_source_v1(target)?.is_some()
                 || source.original_mixed_input_source_v1(target)?.is_some()

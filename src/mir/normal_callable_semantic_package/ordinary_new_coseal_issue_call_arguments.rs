@@ -371,12 +371,25 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             pending,
             classes,
             site,
-            destination,
+            Some(destination),
         )
         .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
             site: site.clone(),
             issue,
         });
+    }
+    if let BorrowedCallActualRequestV1::BorrowedNullableReturnArguments(statement) = request {
+        let response = super::super::lexical_instance_call::borrowed_nullable_local_arguments_v1(
+            targets, contracts, source, pending, classes, site, None,
+        ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
+        if response.as_ref().is_some_and(|response| !matches!(response,
+            BorrowedCallArgumentsV1::BorrowedNullableReturnSource { loan, .. }
+                if loan.return_statement() == Some(statement))) {
+            return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(), issue: "borrowed-nullable/source-identity".into(),
+            });
+        }
+        return Ok(response);
     }
     if let BorrowedCallActualRequestV1::MixedLocalArguments(destination) = request {
         return super::super::lexical_instance_call::mixed_local_arguments_v1(
@@ -713,6 +726,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::ReceivedFieldAliasObjectArguments { .. }
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
         | BorrowedCallActualRequestV1::BorrowedNullableLocalArguments(_)
+        | BorrowedCallActualRequestV1::BorrowedNullableReturnArguments(_)
         | BorrowedCallActualRequestV1::MixedLocalArguments(_)
         | BorrowedCallActualRequestV1::SourceResultArguments { .. }
         | BorrowedCallActualRequestV1::SourceUnitDiscardArguments

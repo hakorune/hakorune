@@ -16,7 +16,7 @@ pub(crate) use formal_return::BorrowedFormalReturnSourceLoanV1;
 pub(crate) use support::BorrowedLifetimeAnchorV1;
 #[path = "borrowed_call_result.rs"]
 mod call_result;
-pub(crate) use call_result::BorrowedCallResultSourceLoanV1;
+pub(crate) use call_result::{BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1};
 #[path = "borrowed_support_read.rs"]
 mod support_read;
 pub(crate) use support_read::BorrowedSupportReadV1;
@@ -111,32 +111,73 @@ impl OrdinaryNewResultClassClaimsV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1, parameters: &[OwnedCallableParameterContractDeclarationV1],
         call: &OwnedExprSiteV1, destination: BindingRefV1,
     ) -> Result<Option<BorrowedNullableLocalSourceLoanV1>, &'static str> {
-        let roots = self
-            .checked_original_source_roots_v1(&original.source.key, original.source.callee_owner)?;
-        if roots.is_empty() {
-            return Err("borrowed-nullable/callee-roots-empty");
-        }
-        let witnesses = match &original.support {
-            BorrowedCallSupportV1::EntryForward { .. } => original.source.compose_at_v1(call, self, batch, parameters)?,
-            BorrowedCallSupportV1::MapSlot(map) => original.source.compose_map_slot_v1(map, &roots)?,
+        let common = self.lend_original_call_v1(original.source.call_source, original.support, batch, parameters, call)?;
+        Ok(Some(BorrowedNullableLocalSourceLoanV1 {
+            declaration: original.source.declaration, destination, common,
+        }))
+    }
+
+    fn lend_original_call_v1(&self, source: call_witness::OriginalCallSourceV1,
+        support: BorrowedCallSupportV1, batch: &VerifiedResolvedCallableSemanticBatchV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1], call: &OwnedExprSiteV1,
+    ) -> Result<BorrowedCallResultSourceLoanV1, &'static str> {
+        let roots = self.checked_original_source_roots_v1(&source.key, source.callee_owner)?;
+        if roots.is_empty() { return Err("borrowed-nullable/callee-roots-empty"); }
+        let witnesses = match &support {
+            BorrowedCallSupportV1::EntryForward { .. } => source.compose_at_v1(call, self, batch, parameters)?,
+            BorrowedCallSupportV1::MapSlot(map) => source.compose_map_slot_v1(map, &roots)?,
             BorrowedCallSupportV1::OwnedLocal { .. } | BorrowedCallSupportV1::OwnedReceiver { .. }
                 | BorrowedCallSupportV1::Reborrow { .. } => roots.iter().map(|root| Rc::clone(root)).collect(),
         };
-        let loan = BorrowedNullableLocalSourceLoanV1 {
-            declaration: original.source.declaration,
-            destination,
-            common: BorrowedCallResultSourceLoanV1 {
-                declared_borrow: self.borrowed_result_declaration_v1(&original.source.call_source.key).cloned(),
-                call: call.clone(),
-                receiver: original.source.call_source.receiver.ok_or("borrowed-nullable/method-source")?,
-                key: original.source.call_source.key,
-                callee_owner: original.source.call_source.callee_owner,
-                support: original.support,
-                witnesses: witnesses.into_boxed_slice(),
-            },
+        let loan = BorrowedCallResultSourceLoanV1 {
+            declared_borrow: self.borrowed_result_declaration_v1(&source.key).cloned(),
+            call: call.clone(), receiver: source.receiver.ok_or("borrowed-nullable/method-source")?,
+            key: source.key, callee_owner: source.callee_owner, support,
+            witnesses: witnesses.into_boxed_slice(),
         };
         self.check_borrowed_nullable_roots_v1(&loan, &roots)?;
-        Ok(Some(loan))
+        Ok(loan)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_nullable_return_source_v1(
+        &self, batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1], call: &OwnedExprSiteV1,
+        app_main: Option<AppMainSourceRefV1<'_>>,
+    ) -> Result<Option<BorrowedCallSourceLoanV1>, &'static str> {
+        let mut callers = batch.declarations().filter(|row| row.owner() == call.owner());
+        let Some(caller) = callers.next() else { return Ok(None); };
+        if callers.next().is_some() { return Err("borrowed-nullable/caller-not-unique"); }
+        if !batch.with_lowering_input(caller.batch_slot(), |input|
+            call_witness::original_return_statement_v1(input, call).is_some())
+            .map_err(|_| "borrowed-nullable/caller-input")? { return Ok(None); }
+        let Some((statement, source)) = self.resolve_original_call_source_v1(batch, selected, fields,
+            call, parameters, app_main, true, None, |input|
+                call_witness::original_return_statement_v1(input, call).ok_or("borrowed-nullable/source-identity"))?
+            else { return Ok(None); };
+        if self.borrowed_result_declaration_v1(&source.key).is_none() { return Ok(None); }
+        let Some(support) = self.borrowed_call_support_v1(batch, selected, fields, parameters,
+            &source, call, app_main)? else { return Ok(None); };
+        let loan = self.lend_original_call_v1(source, support, batch, parameters, call)?;
+        Ok(Some(BorrowedCallSourceLoanV1::Return { statement, loan }))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_borrowed_call_source_v1(
+        &self, batch: &VerifiedResolvedCallableSemanticBatchV1, selected: &VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1], loan: &BorrowedCallSourceLoanV1,
+        app_main: Option<AppMainSourceRefV1<'_>>,
+    ) -> Result<(), &'static str> {
+        if let Some(local) = loan.local() {
+            return self.recheck_borrowed_nullable_local_source_v1(batch, selected, fields, parameters, local, app_main);
+        }
+        let original = self.borrowed_nullable_return_source_v1(batch, selected, fields, parameters,
+            loan.call(), app_main)?.ok_or("borrowed-nullable/source-missing")?;
+        if original.return_statement() != loan.return_statement() || !original.same_original_source_v1(loan) {
+            return Err("borrowed-nullable/source-identity");
+        }
+        let roots = self.checked_original_source_roots_v1(loan.key(), loan.callee_owner())?;
+        self.check_borrowed_nullable_roots_v1(loan, &roots)
     }
 
     /// Demand rechecks source and original Rc coverage without minting new roots.
@@ -186,6 +227,18 @@ impl OrdinaryNewResultClassClaimsV1 {
         else {
             return Ok(None);
         };
+        let Some(support) = self.borrowed_call_support_v1(batch, selected, fields, parameters,
+            &source, call, app_main)? else { return Ok(None); };
+        Ok(Some(OriginalLocalCallV1 { source, support }))
+    }
+
+    fn borrowed_call_support_v1(&self, batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        source: &call_witness::OriginalCallSourceV1, call: &OwnedExprSiteV1,
+        app_main: Option<AppMainSourceRefV1<'_>>,
+    ) -> Result<Option<BorrowedCallSupportV1>, &'static str> {
         let receiver_read = self.borrowed_result_declaration_v1(&source.key).is_some_and(|read|
             matches!(read.support(), crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1::Receiver { .. }));
         let support = if receiver_read {
@@ -219,7 +272,7 @@ impl OrdinaryNewResultClassClaimsV1 {
         } else if let Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }) = self.get(&source.key) {
             let actual = source.actuals.get(*ordinal as usize).ok_or("borrowed-nullable/actual-root")?;
             let support_read = self.original_borrowed_read_v1(batch, selected, fields, parameters,
-                &source, actual, app_main)?;
+                source, actual, app_main)?;
             let binding = actual.binding.or_else(|| support_read.as_ref().map(|read| read.binding())).ok_or("borrowed-nullable/actual-root")?;
             let kind = batch.with_lowering_input(source.caller_slot, |input|
                 input.function().binding(binding).map(|row| row.kind()))
@@ -260,7 +313,7 @@ impl OrdinaryNewResultClassClaimsV1 {
             let Some(map) = source.map_slot_substitution_v1(batch, selected, fields, &roots)? else { return Ok(None); };
             BorrowedCallSupportV1::MapSlot(map)
         };
-        Ok(Some(OriginalLocalCallV1 { source, support }))
+        Ok(Some(support))
     }
 
 
@@ -523,7 +576,7 @@ impl OrdinaryNewResultClassClaimsV1 {
     /// kind inferred from the final Return operand or a generic escape exception.
     pub(in crate::mir::normal_callable_semantic_package) fn retains_declared_borrowed_return_v1(
         &self, value: &crate::mir::resolved_semantics::home_new_prefix::TerminalValueReturnV1,
-        loan: &BorrowedNullableLocalSourceLoanV1,
+        loan: &BorrowedCallResultSourceLoanV1,
     ) -> bool {
         if !loan.is_declared_read_v1() || loan.call().owner() != value.owner() { return false; }
         let Some(BorrowedLifetimeAnchorV1::Entry { root: binding, caller_support: support }) = loan.lifetime_anchor_v1() else { return false; };

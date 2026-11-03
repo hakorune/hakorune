@@ -211,10 +211,7 @@ impl PrefixLocalFlow<'_> {
         &mut self,
         loan: BorrowedNullableLocalSourceLoanV1,
     ) -> bool {
-        if let Some(actual) = loan.reborrowed_read_v1() {
-            if !matches!(self.nullable_result_reference_v1(actual.read().site()),
-                Some(super::super::NullableResultReferenceV1::DeclaredFrom(current)) if actual.matches_value(&current)) { return false; }
-        }
+        if !self.borrowed_call_support_available_v1(&loan) { return false; }
         if loan.is_declared_read_v1() {
             // The outer Call completes this single initializer after all child
             // Calls. Multiple LOCAL initializers need finer event ordering.
@@ -222,6 +219,21 @@ impl PrefixLocalFlow<'_> {
             if self.input.function().expression_source().initializers().filter(|row|
                 matches!(row.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. }
                     if original == statement)).count() != 1 { return false; }
+        }
+        self.store(
+            loan.destination(),
+            StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { origin: BorrowedReadOriginV1::Call(Box::new(loan)), read_valid: true }),
+        );
+        true
+    }
+
+    /// Current read authority is separate from the retained lifetime anchor.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn borrowed_call_support_available_v1(
+        &self, loan: &crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1,
+    ) -> bool {
+        if let Some(actual) = loan.reborrowed_read_v1() {
+            if !matches!(self.nullable_result_reference_v1(actual.read().site()),
+                Some(super::super::NullableResultReferenceV1::DeclaredFrom(current)) if actual.matches_value(&current)) { return false; }
         }
         if let Some(actual) = loan.reborrowed_read_v1() {
             if !actual.loans().all(|inner| self.declared_read_support_live_v1(inner)) { return false; }
@@ -232,10 +244,6 @@ impl PrefixLocalFlow<'_> {
             }
             if loan.entry_support_v1().is_some() && !self.borrowed_entry_support_live_v1(&loan) { return false; }
         }
-        self.store(
-            loan.destination(),
-            StoredLocal::BorrowedNullable(BorrowedNullableStateV1 { origin: BorrowedReadOriginV1::Call(Box::new(loan)), read_valid: true }),
-        );
         true
     }
 
@@ -269,7 +277,7 @@ impl PrefixLocalFlow<'_> {
         matches!(self.locals.get(&binding), Some(StoredLocal::BorrowedNullable(state)) if state.is_declared_read_v1())
     }
 
-    fn borrowed_entry_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
+    fn borrowed_entry_support_live_v1(&self, loan: &crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1) -> bool {
         let Some((root, support, actual)) = loan.entry_support_v1() else { return false; };
         match support {
             crate::mir::instruction::BorrowedResultSupportV1::Receiver => self.terminal_receiver_v1(actual.site()) == Some(root),
@@ -279,7 +287,7 @@ impl PrefixLocalFlow<'_> {
     }
 
     /// A read keeps the original support kind; a caller entry is not a Home.
-    pub(super) fn declared_read_support_live_v1(&self, loan: &BorrowedNullableLocalSourceLoanV1) -> bool {
+    pub(super) fn declared_read_support_live_v1(&self, loan: &crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1) -> bool {
         if let Some(actual) = loan.reborrowed_read_v1() {
             return actual.loans().all(|inner| self.declared_read_support_live_v1(inner));
         }

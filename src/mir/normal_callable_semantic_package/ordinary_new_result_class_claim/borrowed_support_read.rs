@@ -96,3 +96,30 @@ impl BorrowedNullableLocalSourceLoanV1 {
         Ok(memo)
     }
 }
+
+impl BorrowedCallSourceLoanV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn canonical_supports_v1(&mut self,
+        producers: &BTreeMap<OwnedExprSiteV1, Box<BorrowedNullableLocalSourceLoanV1>>,
+    ) -> Result<(), &'static str> {
+        match self {
+            Self::Local(local) => {
+                let canonical = producers.get(local.call()).ok_or("borrowed-nullable/source-missing")?;
+                if !local.same_original_source_v1(canonical) { return Err("borrowed-nullable/source-identity"); }
+                *local = *canonical.clone();
+            }
+            Self::Return { loan, .. } => {
+                if let BorrowedCallSupportV1::Reborrow { callee, actual } = &loan.support {
+                    let mut leaves = Vec::new();
+                    for proposed in actual.loans() {
+                        let canonical = producers.get(proposed.call()).ok_or("borrowed-nullable/source-missing")?;
+                        if !proposed.same_original_source_v1(canonical) { return Err("borrowed-nullable/source-identity"); }
+                        leaves.push(*canonical.clone());
+                    }
+                    loan.support = BorrowedCallSupportV1::Reborrow { callee: *callee,
+                        actual: BorrowedSupportReadV1::issue(actual.source.clone(), leaves)? };
+                }
+            }
+        }
+        Ok(())
+    }
+}

@@ -99,7 +99,11 @@ impl RootHomeCleanupOrderV1 {
                 exit: source.exit().clone().into(),
             })
             .collect();
-        self.prepend_fault_only_result(prefix)?;
+        if source.borrowed().is_some() {
+            if !prefix.is_empty() { return Err(freeze("direct-result-cleanup-order")); }
+        } else {
+            self.prepend_fault_only_result(prefix)?;
+        }
         self.direct.as_mut().unwrap().1 = Some(value);
         Ok(())
     }
@@ -217,6 +221,19 @@ impl RootHomeCleanupOrderV1 {
             )
         {
             return Err(freeze("direct-result-physical-attachment"));
+        }
+        if let Some(borrowed) = source.borrowed() {
+            let current = ledger.verified_terminal_call_source_v1(owner, exit)?
+                .ok_or_else(|| freeze("direct-result-call-source"))?;
+            current.corroborate_row(packet.original_row()?)?;
+            let returns: Vec<_> = bindings.iter().filter(|(_, row)| matches!(row, MirInstruction::Return { .. }))
+                .map(map).collect::<Result<_, _>>()?;
+            if current.borrowed_source() != Some(borrowed) || source.exit() != exit
+                || returns.len() != 1 || !matches!(returns[0].1, MirInstruction::Return { value: Some(dst) } if dst == value)
+                || self.full.iter().any(|origin| matches!(origin.subject(),
+                    RootHomeReleaseSubjectV1::DirectResult { .. } | RootHomeReleaseSubjectV1::DirectResultField { .. })) {
+                return Err(freeze("direct-result-cleanup-order"));
+            }
         }
         let expected = source.end_plan(value)?;
         if self.full.len() < expected.len()

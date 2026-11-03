@@ -83,7 +83,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         exit: &SourceStmtSiteV1,
     ) -> Result<
-        Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
+        Option<&crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1>,
         String,
     > {
         let Some(TerminalRelationV1::Value(value)) =
@@ -118,14 +118,21 @@ impl OrdinaryNewClaimLedgerV1 {
             || value.value_site().node() != &crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node()).child(
                 crate::mir::resolved_semantics::SourcePathSegmentV1::Value).node()
             || loan.call().owner() != owner || support_root.owner() != owner
-            || loan.destination().owner() != owner || loan.destination() == support_root
             || observation.site() != loan.call()
-            || observation.borrowed_nullable() != Some(loan.as_ref())
-            || observation.local_binding() != Some((loan.declaration(), loan.destination()))
+            || match loan.local_v1() {
+                Some(local) => local.destination().owner() != owner || local.destination() == support_root
+                    || observation.borrowed_nullable() != Some(local)
+                    || observation.local_binding() != Some((local.declaration(), local.destination()))
+                    || original.homes().iter().any(|home| home.binding() == local.destination()),
+                None => loan.direct_v1().is_none_or(|direct|
+                    observation.borrowed_nullable_call() != Some(direct) || direct.return_statement() != Some(exit)
+                        || !observation.is_expression_value()
+                        || loan.call().site() != value.value_site()),
+            }
             || observation.result() != crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::BorrowedNullable
             || !original.covered_calls().contains(loan.call())
             || loan.read_v1().is_some_and(|read| read.read().owner() != owner || read.read().site() != value.value_site())
-            || original.homes().iter().any(|home| home.binding() == loan.destination() || home.binding() == loan.binding_v1())
+            || original.homes().iter().any(|home| Some(home.binding()) == loan.binding_v1())
             || self.normal_return_dispositions.as_ref().is_some_and(|rows|
                 rows.contains_key(&(owner, exit.clone()))) {
             return Err(freeze("borrowed-local-source-identity"));

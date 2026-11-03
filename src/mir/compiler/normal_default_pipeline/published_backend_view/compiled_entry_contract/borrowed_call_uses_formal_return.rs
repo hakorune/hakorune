@@ -188,7 +188,7 @@ fn prepare_role(
                         let at = coordinate(function, invoke)?;
                         match state.arguments.get(&(at.0, at.1, *inner as usize)) {
                             Some(root) if root == outer => {},
-                            None if outcome.declared_read_transport_v1().is_some() => {
+                            None if outcome.has_declared_support_read_v1() => {
                                 let MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. } = &invoke.1 else { unreachable!() };
                                 let actual = *call.args.get(*inner as usize).ok_or_else(|| fault("borrowed-formal-return/correspondence"))?;
                                 let (root, bindings) = readonly_support_graph(state, function, actual, at)?;

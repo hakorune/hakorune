@@ -122,8 +122,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         if current != original.as_ref() || !current.corroborates_call_witness_v1(root) {
                             return Err(freeze("borrowed-return-edge"));
                         }
-                        self.mixed_borrowed_completion_v1(current, CallValidationContextV1::Lowering(self))?.map(|completion|
-                            MixedReturnEvidenceV1::BorrowedLocal { loan: current.clone(), completion })
+                        let local = original.local_v1().ok_or_else(|| freeze("borrowed-return-source"))?;
+                        self.mixed_borrowed_completion_v1(local, CallValidationContextV1::Lowering(self))?.map(|completion|
+                            MixedReturnEvidenceV1::BorrowedLocal { loan: local.clone(), completion })
                     }
                     _ => return Err(freeze("call-terminal-role")),
                 },

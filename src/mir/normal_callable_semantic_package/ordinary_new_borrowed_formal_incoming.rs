@@ -153,7 +153,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         (*site, (*reference).clone(), *requirement, input.as_deref())
     ));
     for (site, target, requirement, local_input) in retained {
-        let nullable = requirement.borrowed_nullable_local_source();
+        let nullable = requirement.borrowed_nullable_call_source();
         let mixed = requirement.mixed_local_source();
         let array_candidate = array_sources.is_some_and(|source| source.contains_candidate_v1(site));
         // A real zero-input scalar call has no borrowed-formal use draft.
@@ -207,7 +207,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     || loan.key() != &target.target
                     || loan.receiver() != &target.receiver_site
                     || loan.callee_owner() != contract.owner
-                    || loan.destination().owner() != site.owner()
+                    || loan.local().is_some_and(|local| local.destination().owner() != site.owner())
                     || loan.support_root().owner() != site.owner()
             })
             || qualifications.is_some_and(|rows| {

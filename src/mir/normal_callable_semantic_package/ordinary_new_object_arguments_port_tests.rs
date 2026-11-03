@@ -360,11 +360,12 @@ fn stored_nullable_source_branch_retains_exact_return_operand_and_root() {
                         if let TerminalReturnedSourceV1::BorrowedNullableLocal(loan) =
                             value.returned()
                         {
+                            let loan = loan.local_v1().expect("local Return fixture");
                             borrowed += 1;
                             let observed = ledger
                                 .local_call_for_owner(input.owner(), loan.call().site())
                                 .unwrap();
-                            assert_eq!(observed.borrowed_nullable(), Some(loan.as_ref()));
+                            assert_eq!(observed.borrowed_nullable(), Some(loan));
                             assert_ne!(Some(loan.destination()), loan.root());
                             assert_eq!(
                                 input.function().variable_ref(value.value_site()),
@@ -380,7 +381,7 @@ fn stored_nullable_source_branch_retains_exact_return_operand_and_root() {
                             assert_eq!(projection.homes().as_ptr(), original.homes().as_ptr());
                             assert_eq!(projection.fault_homes(), original.homes());
                             assert_eq!(ledger.checked_borrowed_nullable_return_source_v1(input.owner(), exit)
-                                .unwrap(), Some(loan.as_ref()));
+                                .unwrap(), Some(&**loan));
                             assert!(!completion
                                 .cleanup()
                                 .root_flow()

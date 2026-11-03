@@ -244,7 +244,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
 
     /// Authenticate the destination before resolving the shared Call. The
     /// returned witness carries no invented binding or initializer obligation.
-    fn resolve_original_call_source_v1<A>(
+    pub(super) fn resolve_original_call_source_v1<A>(
         &self,
         batch: &super::VerifiedResolvedCallableSemanticBatchV1,
         selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
@@ -412,6 +412,20 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         }).map_err(|_| "returned-field/caller-input")?
     }
 
+}
+
+/// The Call itself must be the exact Return value, not a descendant expression.
+pub(super) fn original_return_statement_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &OwnedExprSiteV1,
+) -> Option<crate::mir::resolved_semantics::SourceStmtSiteV1> {
+    if input.owner() != call.owner() { return None; }
+    let mut returns = input.body_shape()?.statements().iter().filter_map(|row| match row {
+        crate::mir::resolved_semantics::BodyStatementShapeV1::Return { site, value: Some(value) }
+            if value == call.site() => Some(site), _ => None,
+    });
+    let statement = returns.next()?.clone();
+    returns.next().is_none().then_some(statement)
 }
 
 /// Shared LOCAL spelling law. The owning returned-field DAG also rejects

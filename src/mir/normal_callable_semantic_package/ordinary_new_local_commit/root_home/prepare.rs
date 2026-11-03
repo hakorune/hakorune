@@ -111,6 +111,9 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             order.retain_direct_source(source)?;
         } else if let Some(source) = self.verified_terminal_call_source_v1(owner, &exit)? {
+            if let Some(borrowed) = source.borrowed_source() {
+                order.retain_direct_source(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::completion_index::DirectRootCleanupSourceV1::from_checked_borrowed(borrowed))?;
+            }
             if let Some(loan) = source
                 .legacy_terminal()
                 .and_then(|terminal| terminal.source_scalar())

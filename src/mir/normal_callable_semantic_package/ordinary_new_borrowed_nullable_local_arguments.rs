@@ -1,4 +1,4 @@
-//! Exact retained LOCAL borrowed source loan and original Instance argument rows.
+//! Exact retained borrowed Call source and original Instance argument rows.
 //! No result classification, owning acquisition or execution permission here.
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1;
@@ -10,7 +10,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn arguments_v1(
     pending: &PendingBorrowedFormalActualsV1,
     facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     site: &OwnedExprSiteV1,
-    destination: BindingRefV1,
+    destination: Option<BindingRefV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, String> {
     let mut prepared = Vec::new();
     for row in targets.as_ref().map_err(Clone::clone)? {
@@ -22,7 +22,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn arguments_v1(
     }
     let prepared_demand = prepared
         .iter()
-        .any(|row| row.borrowed_nullable_local_source().is_some());
+        .any(|row| row.borrowed_nullable_call_source().is_some());
     let ingress = match source {
         Ok(ingress) => ingress,
         Err(_) if !prepared_demand => return Ok(None),
@@ -38,7 +38,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn arguments_v1(
     }
     let original_target = original.and_then(|row| row.source.instance());
     let demanded = prepared_demand
-        || original_target.is_some_and(|row| row.borrowed_nullable_local_source().is_some());
+        || original_target.is_some_and(|row| row.borrowed_nullable_call_source().is_some());
     if !demanded {
         return Ok(None);
     }
@@ -48,12 +48,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn arguments_v1(
     let original = original.ok_or_else(|| freeze("original-missing"))?;
     let original_target = original.source.require_instance()?;
     let loan = original_target
-        .borrowed_nullable_local_source()
+        .borrowed_nullable_call_source()
         .ok_or_else(|| freeze("original-loan-missing"))?;
     if *target != original_target
         || original.callee != loan.callee_owner()
         || loan.call() != site
-        || loan.destination() != destination
+        || loan.local().map(|local| local.destination()) != destination
         || loan.key() != target.target()
         || loan.receiver() != target.receiver_site()
         || loan.support_root().owner() != site.owner()
@@ -76,9 +76,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn arguments_v1(
         crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1::Unavailable =>
             return Err(freeze("source-arguments-missing")),
     };
-    Ok(Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource {
-        loan: loan.clone(),
-        arguments,
+    Ok(Some(match loan.local() {
+        Some(local) => BorrowedCallArgumentsV1::BorrowedNullableLocalSource { loan: local.clone(), arguments },
+        None => BorrowedCallArgumentsV1::BorrowedNullableReturnSource { loan: loan.clone(), arguments },
     }))
 }
 fn freeze(reason: &str) -> String {

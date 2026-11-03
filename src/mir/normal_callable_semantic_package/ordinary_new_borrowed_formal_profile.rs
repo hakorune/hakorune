@@ -187,6 +187,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 need.set_result_requirement(LexicalCallSourceResultRequirementV1::MixedLocal(Box::new(loan)));
                 continue;
             }
+            if let Some(loan) = callable_result_classes.borrowed_nullable_return_source_v1(batch,
+                selected, field_write_claims, contracts, &reference.call_site,
+                app_main.map(|main| main.caller_source_ref_v1()))
+                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: reference.call_site.clone(), issue: freeze(issue),
+                })? {
+                need.set_result_requirement(LexicalCallSourceResultRequirementV1::BorrowedNullableCall(Box::new(loan)));
+                continue;
+            }
             if let Some(loan) = stored_nullable::original_local_loan_v1(
                 need,
                 batch,
@@ -201,7 +210,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 issue,
             })? {
                 need.set_result_requirement(
-                    LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(Box::new(loan)),
+                    LexicalCallSourceResultRequirementV1::BorrowedNullableCall(Box::new(super::super::result_class_claim::BorrowedCallSourceLoanV1::Local(loan))),
                 );
                 continue;
             }
@@ -296,8 +305,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     if let Ok(rows) = &mut needs {
         let mut producers = BTreeMap::new();
         for need in rows.iter().filter_map(|row| row.as_ref().ok().and_then(Option::as_ref)) {
-            if let LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(loan) = need.result_requirement() {
-                if producers.insert(loan.call().clone(), loan.clone()).is_some() {
+            if let Some(loan) = need.result_requirement().borrowed_nullable_local_source() {
+                if producers.insert(loan.call().clone(), Box::new(loan.clone())).is_some() {
                     return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
                         site: loan.call().clone(), issue: freeze("borrowed-formal/duplicate-source-call"),
                     });
@@ -307,12 +316,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         let producers = super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1::canonical_supports_v1(&producers)
             .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue: freeze(issue) })?;
         for need in rows.iter_mut().filter_map(|row| row.as_mut().ok().and_then(Option::as_mut)) {
-            if let LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(loan) = need.result_requirement() {
-                let canonical = producers.get(loan.call()).ok_or_else(||
-                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                        site: loan.call().clone(), issue: freeze("borrowed-nullable/source-missing"),
-                    })?.clone();
-                need.set_result_requirement(LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(canonical));
+            if let Some(loan) = need.result_requirement().borrowed_nullable_call_source() {
+                let mut canonical = loan.clone();
+                canonical.canonical_supports_v1(&producers).map_err(|issue|
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: loan.call().clone(), issue: freeze(issue) })?;
+                need.set_result_requirement(LexicalCallSourceResultRequirementV1::BorrowedNullableCall(Box::new(canonical)));
             }
             let PreparedSourceCallNeedV1::Lexical(target) = need else { continue; };
             // Declared receiver targets retain signatures only; the current
@@ -476,10 +484,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                         })?;
                                     true
                                 }
-                                LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(
+                                LexicalCallSourceResultRequirementV1::BorrowedNullableCall(
                                     loan,
                                 ) => {
-                                    stored_nullable::recheck_original_local_loan_v1(
+                                    stored_nullable::recheck_original_call_loan_v1(
                                         need,
                                         loan,
                                         batch,
@@ -781,7 +789,7 @@ fn stored_object_source_eligible_v1(
         LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
         | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
         | LexicalCallSourceResultRequirementV1::UnitDiscardSource(_)
-        | LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(_)
+        | LexicalCallSourceResultRequirementV1::BorrowedNullableCall(_)
         | LexicalCallSourceResultRequirementV1::MixedLocal(_) => {
             return Err(freeze("stored-child/object-source-requirement"))
         }

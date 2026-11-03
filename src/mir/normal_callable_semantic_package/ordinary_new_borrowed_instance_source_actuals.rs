@@ -107,7 +107,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     // The SAME LOCAL result's original key purpose selects source input
     // independently of callee domain/Completion success. It grants no Text.
     let borrowed_result = original_call.as_ref().and_then(|call| call.source.instance())
-        .and_then(|target| target.borrowed_nullable_local_source());
+        .and_then(|target| target.borrowed_nullable_call_source());
     let map_key = borrowed_result.and_then(|loan| loan.map_key_actual_v1());
     let read_request = borrowed_result.is_some_and(|loan| loan.is_declared_read_v1());
     let mut array_loans = Vec::new();
@@ -620,7 +620,7 @@ pub(super) fn selected_original_instance_forward_v1(
         }
         if let Some(target) = original.source.instance() {
             if target
-                .borrowed_nullable_local_source()
+                .borrowed_nullable_call_source()
                 .is_some_and(|loan| loan.map_key_actual_v1().is_some() || loan.is_declared_read_v1())
             {
                 return Ok(true);

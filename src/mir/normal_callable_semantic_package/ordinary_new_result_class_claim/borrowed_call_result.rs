@@ -191,3 +191,25 @@ impl PartialEq for BorrowedCallResultSourceLoanV1 {
     }
 }
 impl Eq for BorrowedCallResultSourceLoanV1 {}
+
+/// One borrowed Call result, authenticated at its actual source destination.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum BorrowedCallSourceLoanV1 {
+    Local(BorrowedNullableLocalSourceLoanV1),
+    Return { statement: crate::mir::resolved_semantics::SourceStmtSiteV1,
+        loan: BorrowedCallResultSourceLoanV1 },
+}
+impl BorrowedCallSourceLoanV1 {
+    pub(crate) fn local(&self) -> Option<&BorrowedNullableLocalSourceLoanV1> {
+        match self { Self::Local(local) => Some(local), Self::Return { .. } => None }
+    }
+    pub(crate) fn return_statement(&self) -> Option<&crate::mir::resolved_semantics::SourceStmtSiteV1> {
+        match self { Self::Return { statement, .. } => Some(statement), Self::Local(_) => None }
+    }
+}
+impl std::ops::Deref for BorrowedCallSourceLoanV1 {
+    type Target = BorrowedCallResultSourceLoanV1;
+    fn deref(&self) -> &Self::Target {
+        match self { Self::Local(local) => local, Self::Return { loan, .. } => loan }
+    }
+}

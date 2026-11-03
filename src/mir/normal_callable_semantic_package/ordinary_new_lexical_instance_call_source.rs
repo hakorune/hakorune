@@ -110,6 +110,9 @@ impl LexicalInstanceCallSourceTargetV1 {
     pub(crate) fn has_object_source_requirement(&self) -> bool {
         self.result_requirement.has_object_source_requirement()
     }
+    pub(crate) fn borrowed_nullable_call_source(&self) -> Option<&super::super::result_class_claim::BorrowedCallSourceLoanV1> {
+        self.result_requirement.borrowed_nullable_call_source()
+    }
     pub(crate) fn borrowed_nullable_local_source(
         &self,
     ) -> Option<&super::super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
@@ -136,7 +139,7 @@ impl LexicalInstanceCallSourceTargetV1 {
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
             | LexicalCallSourceResultRequirementV1::UnitDiscardSource(_)
             | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
-            | LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(_)
+            | LexicalCallSourceResultRequirementV1::BorrowedNullableCall(_)
             | LexicalCallSourceResultRequirementV1::MixedLocal(_)
             | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
         }

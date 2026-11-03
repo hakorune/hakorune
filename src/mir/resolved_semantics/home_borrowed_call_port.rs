@@ -110,6 +110,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     },
     ReceivedHandleArguments(crate::mir::resolved_semantics::BindingRefV1),
     BorrowedNullableLocalArguments(crate::mir::resolved_semantics::BindingRefV1),
+    BorrowedNullableReturnArguments(&'a crate::mir::resolved_semantics::SourceStmtSiteV1),
     MixedLocalArguments(crate::mir::resolved_semantics::BindingRefV1),
     ObjectArguments(
         &'a crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1,
@@ -150,6 +151,10 @@ pub(crate) enum BorrowedCallArgumentsV1 {
     /// Original nullable borrow and argument observation only, never a Home.
     BorrowedNullableLocalSource {
         loan: crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        arguments: Box<[LocalCallArgumentV1]>,
+    },
+    BorrowedNullableReturnSource {
+        loan: crate::mir::normal_callable_semantic_package::BorrowedCallSourceLoanV1,
         arguments: Box<[LocalCallArgumentV1]>,
     },
     /// SAME sealed result source and original arguments; no execution permission.

@@ -63,8 +63,8 @@ pub(crate) enum LexicalCallSourceResultRequirementV1 {
     ScalarReturnSource(borrowed_formal_result::original::OriginalReturnSourceLoanV1),
     /// Original parameterless statement demand; source is not execution proof.
     UnitDiscardSource(borrowed_formal_result::original::OriginalReturnSourceLoanV1),
-    /// Original borrowed LOCAL identity; never an owning Object requirement.
-    BorrowedNullableLocal(Box<super::result_class_claim::BorrowedNullableLocalSourceLoanV1>),
+    /// Original borrowed Call and its real destination; never an owning Object requirement.
+    BorrowedNullableCall(Box<super::result_class_claim::BorrowedCallSourceLoanV1>),
     /// All original Fresh/Forward/Null outcomes; no owning-only permission.
     MixedLocal(Box<super::result_class_claim::MixedLocalCallSourceLoanV1>),
     ObjectProducerDependency(Box<[super::result_class_claim::ObjectReturnCallQualificationV1]>),
@@ -100,11 +100,15 @@ impl LexicalCallSourceResultRequirementV1 {
         )
     }
 
+    pub(crate) fn borrowed_nullable_call_source(&self) -> Option<&super::result_class_claim::BorrowedCallSourceLoanV1> {
+        match self { Self::BorrowedNullableCall(loan) => Some(loan), _ => None }
+    }
+
     pub(crate) fn borrowed_nullable_local_source(
         &self,
     ) -> Option<&super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
         match self {
-            LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(loan) => Some(loan),
+            LexicalCallSourceResultRequirementV1::BorrowedNullableCall(loan) => loan.local(),
             _ => None,
         }
     }
@@ -128,7 +132,7 @@ impl LexicalCallSourceResultRequirementV1 {
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
             | LexicalCallSourceResultRequirementV1::UnitDiscardSource(_)
             | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
-            | LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(_)
+            | LexicalCallSourceResultRequirementV1::BorrowedNullableCall(_)
             | LexicalCallSourceResultRequirementV1::MixedLocal(_)
             | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
         }
@@ -344,7 +348,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let target = source.target().clone();
             let call_site = source.call_site().clone();
             let callee_owner = source.callee_owner();
-            let borrowed_nullable = source.borrowed_nullable_local_source().is_some();
+            let borrowed_nullable = source.borrowed_nullable_call_source().is_some();
             let mixed = source.mixed_local_source().is_some();
             // Slot result law and holder/key lifetime must precede a packet.
             // A Map element receiver of a scalar-result call carries no result slot
@@ -367,7 +371,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 // A selected Object local remains on its canonical route while
                 // its packet is pending. The affine take owns that refusal;
                 // missing readiness must not send it to a plain Call writer.
-                if borrowed_nullable || mixed || borrowed_receiver
+                if source.borrowed_nullable_local_source().is_some() || mixed || borrowed_receiver
                     || (!source.is_self_receiver()
                         && (self.handle_call_source(&call_site).is_some()
                             || self.nullable_call_source(&call_site).is_some())) {
@@ -612,7 +616,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         if let LexicalInstanceCallDispositionSlotV1::Ready(row) = slot {
             if row.result() == Some(InvokeCallResultKind::Unit) { self.corroborate_unit_discard_v1(row)?; }
-            if row.source_target().borrowed_nullable_local_source().is_some() { self.corroborate_borrowed_nullable_call_v1(row)?; }
+            if row.source_target().borrowed_nullable_call_source().is_some() { self.corroborate_borrowed_nullable_call_v1(row)?; }
         }
         match std::mem::replace(slot, LexicalInstanceCallDispositionSlotV1::Taken) {
             LexicalInstanceCallDispositionSlotV1::Ready(row) => Ok(Some(row)),

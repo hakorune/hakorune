@@ -693,7 +693,7 @@ impl OrdinaryNewClaimLedgerV1 {
             self.corroborate_unit_discard_v1(row)?;
             return Ok(Some(actuals));
         }
-        if row.source_target().borrowed_nullable_local_source().is_some() {
+        if row.source_target().borrowed_nullable_call_source().is_some() {
             self.corroborate_borrowed_nullable_call_v1(row)?;
             return Ok(Some(actuals));
         }

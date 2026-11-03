@@ -100,7 +100,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             if let Some(target) = call.source.instance() {
                 parameter_frame_request |= source.original_mixed_input_source_v1(target)?.is_some()
-                    || target.borrowed_nullable_local_source().is_some_and(|loan| loan.is_declared_read_v1())
+                    || target.borrowed_nullable_call_source().is_some_and(|loan| loan.is_declared_read_v1())
                     || self.has_original_owning_object_input_v1(source, target)?;
             }
         }

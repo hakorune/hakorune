@@ -32,7 +32,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut demanded = false;
         for row in source.source_incoming.exact_rows().filter(|row| row.callee == owner) {
             let Some(target) = row.source.instance() else { continue; };
-            let Some(loan) = target.borrowed_nullable_local_source() else { continue; };
+            let Some(loan) = target.borrowed_nullable_call_source() else { continue; };
             if loan.callee_owner() != owner || target.callee_owner() != owner
                 || loan.call() != &row.call || target.call_site() != &row.call
                 || loan.key() != target.target()

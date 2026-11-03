@@ -302,7 +302,7 @@ impl EmittedLexicalCallProjectionV1 {
         if let CallPacketSourceLoanV1::Instance(row) = self.row.loan() {
             if row
                 .source_target()
-                .borrowed_nullable_local_source()
+                .borrowed_nullable_call_source()
                 .is_some()
             {
                 ledger

@@ -2,7 +2,7 @@
 //! This projects the existing result loan; it grants no execution or owning Home.
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::AppMainSourceRefV1;
 use super::super::super::result_class_claim::{
-    BorrowedNullableLocalSourceLoanV1, OrdinaryNewResultClassClaimsV1, OrdinaryNewResultClassV1,
+    BorrowedNullableLocalSourceLoanV1, BorrowedCallSourceLoanV1, OrdinaryNewResultClassClaimsV1, OrdinaryNewResultClassV1,
 };
 use super::*;
 
@@ -50,13 +50,13 @@ pub(super) fn original_local_loan_v1(
          app_main)
         .map_err(freeze)?
         .ok_or_else(|| freeze("local-result-missing"))?;
-    recheck_original_local_loan_v1(need, &loan, batch, selected, contracts, fields, facts, app_main)?;
+    recheck_original_call_loan_v1(need, &BorrowedCallSourceLoanV1::Local(loan.clone()), batch, selected, contracts, fields, facts, app_main)?;
     Ok(Some(loan))
 }
 
-pub(super) fn recheck_original_local_loan_v1(
+pub(super) fn recheck_original_call_loan_v1(
     need: &PreparedSourceCallNeedV1,
-    loan: &BorrowedNullableLocalSourceLoanV1,
+    loan: &BorrowedCallSourceLoanV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -93,7 +93,7 @@ pub(super) fn recheck_original_local_loan_v1(
         return Err(freeze("callee-contract"));
     }
     facts
-        .recheck_borrowed_nullable_local_source_v1(batch, selected, fields, contracts, loan, app_main)
+        .recheck_borrowed_call_source_v1(batch, selected, fields, contracts, loan, app_main)
         .map_err(freeze)
 }
 fn freeze(reason: &str) -> String {

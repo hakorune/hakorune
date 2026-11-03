@@ -13,7 +13,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Option<&LocalCallObservationV1> {
         self.local_call_for_owner(site.owner(), site.site()).filter(|row|
             row.result() == LocalCallResultClassV1::BorrowedNullable
-                && row.site() == site && row.borrowed_nullable().is_some())
+                && row.site() == site && row.borrowed_nullable_call().is_some())
     }
 
     /// Re-demand the original relation without consulting affine slot state.
@@ -32,7 +32,7 @@ impl OrdinaryNewClaimLedgerV1 {
     fn checked_borrowed_nullable_call_source_v1(
         &self, source: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<(InvokeCallResultKind, &Rc<VerifiedFunctionCompletionV1>), String> {
-        let loan = source.borrowed_nullable_local_source()
+        let loan = source.borrowed_nullable_call_source()
             .ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
         let support = loan.result_support_v1();
         let kind = loan.result_kind_v1();
@@ -59,8 +59,12 @@ impl OrdinaryNewClaimLedgerV1 {
             || incoming.source.require_instance()? != source || loan.call() != source.call_site()
             || loan.key() != source.target() || loan.callee_owner() != source.callee_owner()
             || support.formal_ordinal().is_some_and(|ordinal| ordinal >= source.target().arity())
-            || observed.borrowed_nullable() != Some(loan) || observed.arguments() != arguments
-            || observed.local_binding().map(|(_, binding)| binding) != Some(loan.destination())
+            || observed.borrowed_nullable_call() != Some(loan) || observed.arguments() != arguments
+            || match loan.local() {
+                Some(local) => observed.local_binding() != Some((local.declaration(), local.destination())),
+                None => !observed.is_expression_value()
+                    || loan.return_statement() != Some(observed.statement()),
+            }
             || !completion.returns_value()
             || !self.root_home_flow_ready_v1(completion)?
         { return Err(freeze("borrowed-nullable-call/source-completion-drift")); }
@@ -69,7 +73,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
             let borrowed = result.borrowed_nullable()
                 .ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?;
-            borrowed.require_local_source_v1(loan, completion, &roots)?;
+            borrowed.require_local_source_v1(loan.local().ok_or_else(|| freeze("borrowed-nullable-call/source-completion-drift"))?, completion, &roots)?;
             if self.checked_completed_object_callee_target_exits_v1(source)?.is_none() {
                 return Err(freeze("borrowed-nullable-call/source-completion-drift"));
             }
@@ -173,20 +177,20 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let pending: Vec<_> = self.lexical_instance_calls.borrow().iter().filter_map(|(site, slot)| match slot {
             LexicalInstanceCallDispositionSlotV1::SourcePending(source)
-                if source.borrowed_nullable_local_source().is_some()
+                if source.borrowed_nullable_call_source().is_some()
                     && (!source.has_borrowed_receiver_source_v1() || source.declared_read_receiver_v1().is_some()) => Some((site.clone(), source.clone())),
             _ => None,
         }).collect();
         let mut upgrades = Vec::new();
         for (site, source) in &pending {
-            let loan = source.borrowed_nullable_local_source().ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
+            let loan = source.borrowed_nullable_call_source().ok_or_else(|| freeze("borrowed-nullable-call/source-missing"))?;
             // A storage result keeps its own support. Its SAME whole-result
             // source/Completion must close before this logical Call is ready;
             // final physical Return/ABI consumers still verify their packets.
             if loan.is_map_slot() && self.checked_completed_object_callee_target_exits_v1(source)?.is_none() {
                 continue;
             }
-            self.callable_result_classes.recheck_borrowed_nullable_local_source_v1(batch, selected, &self.field_write_claims, contracts, loan, self.app_main_caller_source_ref_v1())
+            self.callable_result_classes.recheck_borrowed_call_source_v1(batch, selected, &self.field_write_claims, contracts, loan, self.app_main_caller_source_ref_v1())
                 .map_err(|issue| freeze(issue))?;
             let Some(arguments) = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?
                 else { continue; };

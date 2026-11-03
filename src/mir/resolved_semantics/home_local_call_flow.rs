@@ -133,7 +133,7 @@ pub(crate) struct LocalCallObservationV1 {
         Option<crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1>,
     result_source: Option<LocalCallResultSourceV1>,
     borrowed_nullable: Option<
-        Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
+        Box<crate::mir::normal_callable_semantic_package::BorrowedCallSourceLoanV1>,
     >,
     mixed: Option<Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>>,
 }
@@ -279,11 +279,14 @@ impl LocalCallObservationV1 {
                 == crate::mir::dynamic_invocation_contract::DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation)
             .then(|| envelope.result_lifecycle())
     }
+    pub(crate) fn borrowed_nullable_call(&self) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedCallSourceLoanV1> {
+        self.borrowed_nullable.as_deref()
+    }
     pub(crate) fn borrowed_nullable(
         &self,
     ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>
     {
-        self.borrowed_nullable.as_deref()
+        self.borrowed_nullable.as_deref()?.local()
     }
 }
 
@@ -301,7 +304,7 @@ mod source_scalar_call;
 
 #[path = "home_local_borrowed_nullable_call.rs"]
 mod borrowed_nullable_call;
-pub(crate) use borrowed_nullable_call::issue_borrowed_nullable_local_call;
+pub(crate) use borrowed_nullable_call::{issue_borrowed_nullable_local_call, issue_borrowed_nullable_return_call};
 #[path = "home_local_mixed_call.rs"]
 mod mixed_call;
 pub(crate) use mixed_call::issue_mixed_local_call;

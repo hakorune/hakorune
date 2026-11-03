@@ -49,6 +49,11 @@ pub(in crate::mir) enum FinalizedObjectReturnOriginV1 {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+enum FinalizedReturnReadV1 {
+    Local(FinalizedDeclaredReadTransportV1),
+    Direct(Box<crate::mir::normal_callable_semantic_package::BorrowedCallSourceLoanV1>),
+}
+#[derive(Debug, Clone, PartialEq)]
 pub(in crate::mir) struct FinalizedObjectReturnOutcomeV1 {
     // Original OUTER support is independent of the inner Call's support.
     // The retained Invoke establishes actual substitution without inventing
@@ -57,11 +62,21 @@ pub(in crate::mir) struct FinalizedObjectReturnOutcomeV1 {
     returned: Binding,
     origin: FinalizedObjectReturnOriginV1,
     transport: Vec<Binding>,
-    declared_read: Option<FinalizedDeclaredReadTransportV1>,
+    declared_read: Option<FinalizedReturnReadV1>,
     field_supports: Box<[FinalizedObjectReturnFieldSupportV1]>,
 }
 impl FinalizedObjectReturnOutcomeV1 {
-    pub(in crate::mir) fn declared_read_transport_v1(&self) -> Option<&FinalizedDeclaredReadTransportV1> { self.declared_read.as_ref() }
+    pub(in crate::mir) fn declared_read_transport_v1(&self) -> Option<&FinalizedDeclaredReadTransportV1> {
+        match &self.declared_read { Some(FinalizedReturnReadV1::Local(read)) => Some(read), _ => None }
+    }
+    pub(in crate::mir) fn has_declared_support_read_v1(&self) -> bool {
+        match &self.declared_read {
+            Some(FinalizedReturnReadV1::Local(_)) => true,
+            Some(FinalizedReturnReadV1::Direct(source)) => source.is_declared_read_v1()
+                && source.return_statement().is_some() && source.reborrowed_read_v1().is_some(),
+            None => false,
+        }
+    }
     pub(in crate::mir) fn returned(&self) -> &Binding { &self.returned }
     pub(in crate::mir) fn origin(&self) -> &FinalizedObjectReturnOriginV1 { &self.origin }
     pub(in crate::mir) fn has_field_supports(&self) -> bool { !self.field_supports.is_empty() }
@@ -174,7 +189,7 @@ impl FinalizedObjectReturnOutcomeV1 {
         for support in &self.field_supports { support.validate_function(function, has_receiver)?; }
         let mut required = vec![&self.returned];
         required.extend(self.transport.iter());
-        if let Some(read) = &self.declared_read {
+        if let Some(read) = self.declared_read_transport_v1() {
             if !matches!((self.result, &self.origin),
                 (InvokeCallResultKind::BorrowedNullableHandle { access: crate::mir::instruction::BorrowedResultAccessV1::ReadOnly, .. },
                  FinalizedObjectReturnOriginV1::BorrowedCall { .. })) { return Err(freeze("object-return/physical-origin-role")); }
@@ -261,7 +276,7 @@ impl FinalizedRootSourceHandoffV1 {
             self.ledger.corroborate_borrowed_nullable_call_v1(row)?;
             let source = row.source_target();
             let loan = source
-                .borrowed_nullable_local_source()
+                .borrowed_nullable_call_source()
                 .ok_or_else(|| freeze("borrowed-return/original-loan"))?;
             if source.target() != key
                 || source.callee_owner() != loan.callee_owner()
@@ -284,15 +299,26 @@ impl FinalizedRootSourceHandoffV1 {
     /// Same source packet and entry-support correspondence for inferred Mixed
     /// and explicit read forwarding. Access remains the original caller law.
     fn project_borrowed_call_return_v1(
-        &self, borrowed: &crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
-        outer_support: crate::mir::instruction::BorrowedResultSupportV1, owner: FunctionOwnerIdV1,
+        &self, borrowed: &crate::mir::normal_callable_semantic_package::BorrowedCallResultSourceLoanV1,
+        destination: Option<&SourceStmtSiteV1>, outer_support: crate::mir::instruction::BorrowedResultSupportV1, owner: FunctionOwnerIdV1,
         namespace: hakorune_mir_defs::SameModuleCallableNamespaceV1,
         function: &MirFunction, projection: &super::super::physical_boundary::FinishedBindings,
         entry: &RootHomeExitEntry, access: crate::mir::instruction::BorrowedResultAccessV1,
     ) -> Result<FinalizedObjectReturnOriginV1, String> {
-        let packet = original_local_packet(entry, borrowed.call())?;
+        let packet = if let Some(statement) = destination {
+            let RootHomeExitEntry::Call { row: crate::mir::normal_callable_semantic_package::RootCallDispositionV1::Lexical(packet), invoke, projection, .. } = entry
+                else { return Err(freeze("mixed-return/borrowed-source")); };
+            let bindings = packet.outer_bindings()?;
+            if packet.call_site() != borrowed.call() || bindings != (invoke, projection)
+                || packet.original_row()?.source_target().borrowed_nullable_call_source()
+                    .and_then(|source| source.return_statement()) != Some(statement) {
+                return Err(freeze("mixed-return/borrowed-source"));
+            }
+            packet
+        } else { original_local_packet(entry, borrowed.call())? };
         let original = packet.original_row()?;
-        if original.source_target().borrowed_nullable_local_source() != Some(borrowed) {
+        if original.source_target().borrowed_nullable_call_source().is_none_or(|source|
+            &**source != borrowed || (destination.is_none() && source.local().is_none())) {
             return Err(freeze("mixed-return/borrowed-source"));
         }
         self.ledger.corroborate_borrowed_nullable_call_v1(original)?;
@@ -348,7 +374,7 @@ impl FinalizedRootSourceHandoffV1 {
         use super::super::super::result_class_claim::{ResultValueOriginV1, ResultWitnessStepV1};
         let owner = source.callee_owner();
         let loan = source
-            .borrowed_nullable_local_source()
+            .borrowed_nullable_call_source()
             .ok_or_else(|| freeze("borrowed-return/original-loan"))?;
         // This joins the SAME Completion, explicit exits, source witnesses and
         // original terminal relations; neither MIR shape nor names selects exits.
@@ -440,7 +466,7 @@ impl FinalizedRootSourceHandoffV1 {
                             && self.ledger.callable_result_classes.retains_declared_borrowed_return_v1(terminal, borrowed)
                             && borrowed.corroborates_call_witness_v1(root) => {
                         let origin = self.project_borrowed_call_return_v1(borrowed,
-                            loan.result_support_v1(), owner,
+                            borrowed.direct_v1().and_then(|source| source.return_statement()), loan.result_support_v1(), owner,
                             source.target().namespace(), function, projection, entry, loan.access_v1())?;
                         let FinalizedObjectReturnOriginV1::BorrowedCall { producer, .. } = &origin else { unreachable!() };
                         let expected = if let Some(view) = borrowed.read_v1() {
@@ -449,9 +475,12 @@ impl FinalizedRootSourceHandoffV1 {
                             let retained = FinalizedDeclaredReadTransportV1::issue(CallValidationContextV1::Finalized(self),
                                 view, read, function, projection)?;
                             let value = retained.value();
-                            declared_read = Some(retained);
+                            declared_read = Some(FinalizedReturnReadV1::Local(retained));
                             value
                         } else {
+                            if let Some(source) = borrowed.direct_v1() {
+                                declared_read = Some(FinalizedReturnReadV1::Direct(Box::new(source.clone())));
+                            }
                             producer.1.dst_value().ok_or_else(|| freeze("borrowed-return/source-kind"))?
                         };
                         (origin, expected)
@@ -591,7 +620,7 @@ impl FinalizedRootSourceHandoffV1 {
                         FinalizedObjectReturnOriginV1::OwnedCall { producer, invoke }
                     }
                     MixedReturnSourceV1::BorrowedLocal(borrowed) => {
-                        self.project_borrowed_call_return_v1(borrowed, crate::mir::instruction::BorrowedResultSupportV1::Formal(loan.callee_ordinal()), owner,
+                        self.project_borrowed_call_return_v1(borrowed, None, crate::mir::instruction::BorrowedResultSupportV1::Formal(loan.callee_ordinal()), owner,
                             source.target().namespace(), function, projection, entry,
                             crate::mir::instruction::BorrowedResultAccessV1::LegacyUnqualified)?
                     }
