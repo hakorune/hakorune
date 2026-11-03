@@ -108,7 +108,9 @@ target_edit_param    := IDENT("edit") HTRIVIA IDENT HTRIVIA ':' type_ref  (* dec
 target_method_mode   := ( IDENT("edit") | IDENT("take") ) HTRIVIA method_decl  (* receiver declaration source retained; execution named-rejected *)
 target_place         := ( IDENT | 'me' ) ( '.' IDENT )*  (* move/take operand; calls and postfix '?' are not places *)
 target_move_expr     := 'move' HSPACE target_place  (* field operand decided 2026-11-03; parser-inactive; live row is move IDENT *)
-target_take_expr     := IDENT("take") HTRIVIA target_place  (* decided 2026-11-03: nullable field place only; parser-inactive *)
+target_indexed_place := target_place ( '[' expr ']' ( '.' IDENT )* )*  (* take operand and edit argument *)
+target_take_expr     := IDENT("take") HTRIVIA target_indexed_place  (* revised 2026-11-03: any nullable place; parser-inactive *)
+target_edit_arg      := IDENT("edit") HTRIVIA target_indexed_place  (* decided 2026-11-03: call argument for an edit parameter; parser-inactive *)
 target_copy_expr     := IDENT("copy") HTRIVIA non_group_postfix_expr  (* decided 2026-11-03; parser-inactive *)
 target_match_move    := 'match' HSPACE 'move' HSPACE expr '{' match_arm+ default_arm? '}'  (* decided 2026-11-03; parser-inactive *)
 target_nullable_type := TYPE_REF '?'  (* Rust type syntax retained; unsupported consumers named-reject; expression '?' stays Result propagation *)
@@ -123,7 +125,7 @@ explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_
 `HTRIVIA` excludes line terminators. Release I0 narrows `HSPACE` to spaces and
 tabs; comment trivia is not part of that row. `take` is recognized at parameter
 head (`edit` likewise) and at method head; expression-prefix `take` remains a target when the
-next token starts `target_place`; `share` only at expression-prefix position when the next token
+next token starts `target_indexed_place`, and call-argument `edit` likewise; `share` only at expression-prefix position when the next token
 is `move` or starts a non-group primary, and `release` only at statement head. Once recognized,
 an invalid operand is a diagnostic and never falls back to an ordinary call. See
 `docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md`

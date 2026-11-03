@@ -78,30 +78,40 @@ superseded: text below that uses it describes a target that will not land.
 Rule 3 revives the spelling with a narrower input: a plain Box only as a fresh
 result or with explicit `move`.
 
-Rules 3, 5, 6, 7 and 8-11 were revised on 2026-11-03 and are targets, not connected
-yet: current code still adds a handle for a bare owned Shared local
+Rules 2, 3 and 5-12 were revised on 2026-11-03, and the grammar is frozen (ADR-002
+row "凍結"). They are targets, not connected yet: current code still adds a handle for a bare owned Shared local
 (`local copy = first`), and `Shared(move x)` / `Shared(fresh)` stay the live
 spelling until that connection.
 
-In short: reading borrows. `move` hands over what you own. `take` extracts from a
-nullable place. `share` gets a shared handle: it starts sharing a fresh or moved
-Box, or adds a handle to an existing Shared. Fresh values, `return` of a whole
-local and automatic End stay unmarked.
+In short, three rules:
+
+- Reading borrows; values with an implicit copy are copied.
+- Existing ownership moves or is duplicated only where written. `move` hands over
+  what you own, `take` extracts from a nullable place, `share` starts sharing a
+  fresh or moved Box or adds a handle to an existing Shared, and `copy` duplicates.
+  Fresh values, `return` of a whole local and automatic End stay unmarked. `edit`
+  marks a permission, not a transfer.
+- An `edit` place holds a valid value at every point user code can observe and at
+  Normal and Fault boundaries.
 
 1. Move: an owned binding gives up ownership only through explicit `move x`;
    there is no implicit last-use move. `return` of a whole owned local or of a
    fresh owned value needs no `move`, and a fresh value passes directly
    (`cache.put(Image.load(p))`). Use after move is a compile error.
 2. Parameters and receivers: `read` is the default and is not written; `edit`
-   and `take` are declared at the definition. A receiver's read/edit borrow
-   follows the method declaration and is not written at the call. Consuming a
+   and `take` are declared at the definition. The call shows the same split:
+   `show(node)`, `rewrite(edit node)`, `eat(move node)`; `obj.method(edit x)` and
+   `rewrite(edit me.stmts[i])` are marked too. A receiver's read/edit borrow
+   follows the method declaration and is not written at the call, and a closure
+   built in place has no `edit` mark. Consuming a
    receiver is explicit at the call: `(move image).into_bytes()`. `edit` (decided
    2026-11-03; `mut` is not a keyword) grants exclusive borrowed mutation: no
    ownership moves and mutating is not required. `edit x: T` is the parameter
    form and `edit inc(d: i64): void` / `take intoBytes(): Bytes` are the receiver
    forms; `me` is not written as a parameter and `birth` needs no mode. An `edit`
-   place always holds a valid value at Normal and Fault boundaries: `e = make(v)`
-   is allowed, while `e = move n.left` and `e = fold(move e)` are rejected, so a
+   place always holds a valid value at every point user code can observe and at
+   Normal and Fault boundaries: `e = make(v)` is allowed, `e = move n.left` is the
+   replacement of rule 12, and `e = fold(move e)` is rejected, so an arbitrary
    transformation consuming the old value is `fold(take e: Expr): Expr`. An `edit`
    parameter borrows the place, and `x = next` writes through it. Places that are
    proven disjoint may be borrowed together; overlapping borrows must both be
@@ -145,7 +155,16 @@ local and automatic End stay unmarked.
    withdrawn): `local r = me.sharedField` adds no handle, its alias
    `local q = r` adds none, and keeping it independently needs `share r`. Values
    with an implicit copy follow rule 7. A plain Box field is never implicitly
-   converted to a Shared handle.
+   converted to a Shared handle. A bare read of an owned local is the same borrow
+   (decided 2026-11-03): after `local r = node`, `consume(r)` and `move r` are
+   rejected because `r` owns nothing, and `node` cannot move, End or be replaced
+   while `r` is live. For a non-copy type the first assignment fixes whether a
+   local is a borrow or an owner, and a borrow never becomes an owner later.
+   `=` acts by the kind of its left side, fixed at declaration: an owned local
+   replaces its value and Ends the old one, a borrow local or read parameter
+   re-points, and an `edit` parameter writes through to the borrowed place.
+   `cur = cur.next` is allowed when the type fits and the real owner and reference
+   path stay live after re-pointing; it is not a dependency on the old `cur`.
 6. Shared type and storage (decided 2026-11-02): `Shared<T>` is a built-in type
    constructor, writable on fields, parameters and results (local inference is
    also allowed); it is distinct from a plain Box type and needs no general
@@ -153,7 +172,8 @@ local and automatic End stay unmarked.
    An owning field, element, `take` parameter or owned result receives ownership
    already acquired and never duplicates: `consume(move h)` adds none,
    `consume(share h)` adds one, and from an owned Shared local bare `consume(h)`
-   and `local b = h` are errors that suggest `move` or `share`. `return` of a
+   is an error that suggests `move` or `share`, while `local b = h` borrows
+   (rule 5). `return` of a
    whole local adds none; an owned `: Shared<T>` result from a borrowed field is
    `return share me.sharedField`, while `: Shared<T> from me` is a borrow and
    adds none. Replacing a field or
@@ -167,15 +187,18 @@ local and automatic End stay unmarked.
    copy follows the specified value category (numbers, Bool; not Shared
    handles), never the value's size. Respelling `copy x` as `.copy()` is
    deferred.
-8. Field take (decided 2026-11-03): `take place` extracts ownership from a
-   nullable field. On success the slot holds null, the result is an owned `T?`
+8. Take (decided 2026-11-03): `take place` extracts ownership from a nullable
+   place holding an owned value: a local, an `edit` parameter, a field or an array
+   element. On success the slot holds null, the result is an owned `T?`
    holding the old value, the old value is not Ended, and a Shared handle gets
-   no +1. The parent stays fully initialized, so this is not partial move. It
-   needs mutation permission on the field path, with one check for `me.child`,
-   `node.child` and `me.a.b`. Rejected: `take x` on a local (use `move x`), a
-   non-nullable `T` field, a field reached through a read borrow or a `Shared<T>`
-   payload, and a slot with a live borrow; array and Map elements are named
-   rejections for now. A Fault while evaluating the place changes nothing. After
+   no +1. Any parent stays fully initialized, so this is not partial move. It
+   needs ownership or `edit` permission, with one check for `pending`, `me.child`,
+   `node.child`, `me.a.b` and `slots[i]`. `move x` makes `x` unusable; `take x`
+   leaves a valid null. On an array element `take` leaves null and keeps the length;
+   `pop` and `remove` delete elements. Rejected: a non-nullable `T` place, a place
+   reached through a read borrow (a read borrow local included) or a `Shared<T>`
+   payload, and a slot with a live borrow; array elements until their connection
+   and Map elements are named rejections for now. A Fault while evaluating the place changes nothing. After
    success the slot stays null and the result's current owner cleans up, so
    `me.child = fold(move old)` does not restore the child if `fold` faults.
    `take x: T` in a declaration receives ownership; `take place` in an
@@ -192,7 +215,7 @@ local and automatic End stay unmarked.
    this rule, not a special form. `move` leaves nothing in the place; `take` leaves
    null.
 10. Operands and patterns (decided 2026-11-03): `move` and `take` take places only
-   (`x`, `x.f`), so `move img.intoBytes()` and `move x?` are errors that suggest
+   (`x`, `x.f`; `take` also `a[i]`), so `move img.intoBytes()` and `move x?` are errors that suggest
    `(move img).intoBytes()`. In a pattern, an identifier starting with an uppercase
    letter resolves to a variant and is an error if unknown; one starting with a
    lowercase letter binds the whole value. `match e` borrows with the permission of
@@ -202,14 +225,23 @@ local and automatic End stay unmarked.
    `fn(edit Chunk): void`; parameter names are optional and captures are not in
    the type. Closures are `fn[delta, edit total](edit c: Chunk): void { ... }`,
    synchronous and non-escaping for now. Arrays use `get(i): T? from me`,
-   `edit push(take v: T)`, `edit pop(): T?` and `edit remove(i): T`; `me.stmts[i]`
-   may be passed to an `edit` parameter. Maps use
+   `edit push(take v: T)`, `edit pop(): T?` and `edit remove(i): T`; `edit me.stmts[i]`
+   passes an element to an `edit` parameter. Maps use
    `edit update(key: String, edit action: fn(edit V): void): Bool`.
+12. Replacement from inside (decided 2026-11-03): `dst = move src`, where `src` is
+   a child inside `dst`, is one replacement, as with `e = move n.left` under
+   `edit e: Expr`. This is the only move out of a borrowed parent. The owning path
+   from the mutable `dst` to the child must be statically known, no discarded
+   ancestor has `fini`, and no invalidated alias, borrow or cleanup can observe the
+   old part. A failed preparation moves nothing. The commit moves the child into
+   `dst` with no Fault, user code or suspend in between; the rest of the old value
+   is Ended afterwards, and a Fault there leaves the new value in `dst`. It is not
+   shorthand for a `move` followed by an assignment. The right side is only
+   `move place`; `e = fold(move e)` stays rejected.
 
 Decided 2026-11-02 (see ADR-002 for the cutover contract):
 
-- call-site marker for `edit` arguments: none; the caller marks only `move`,
-  `take` and `share`;
+- call-site marker for `edit` arguments: `edit` (revised 2026-11-03, rule 2);
 - a `take` argument when a later argument evaluation faults: the caller keeps
   the pending transfer and Ends it; once the call has entered, the callee owns
   Normal and Fault cleanup;
@@ -237,8 +269,13 @@ copy covers numbers, Bool, unit enums and records holding only those; `copy e` i
 explicit. Rust retains structural type-reference syntax (Name/Apply/Array/Nullable);
 unsupported new parameter/result representations are named rejections. Bare `T`
 keeps its pre-cutover meaning and nullable-field defaults remain a separate
-connection. Enums may own Unique and Shared values; records stay limited to copyable
-values for now. The full list is the ADR-002 row "固定した文法".
+connection. A `box` is an object with identity, `birth`, `fini` and methods; a `record` is a
+value without identity, updated with `with`. Enums and records may own Unique and
+Shared values, and ownership and copying follow the contents (decided 2026-11-03),
+so a record holding a String or Box is not copied implicitly. An owning record
+writes `(move a) with { x: 1 }` or, with a copy contract, `(copy a) with { x: 1 }`.
+Owning records stay named rejections until their connection. The full list is the
+ADR-002 rows "固定した文法" and "凍結".
 
 Sections 1-11 below describe the pre-cutover meaning where they conflict with
 this section (implicit alias copies, composite anchored results, bare aliases).
@@ -248,8 +285,8 @@ continuing Home and End contracts.
 
 ## 1. Thirty-second rule
 
-Pre-cutover contract. §0 differs: `local alias = node` on an owned value becomes
-an error, the call site writes `move`, and `share` follows rule 3.
+Pre-cutover contract. §0 differs: `local alias = node` on an owned value is a read
+borrow, giving up ownership is written `move`, and `share` follows rule 3.
 
 Every independent Box lifetime is represented by a **Home token** installed
 in a **Home slot/place**.
@@ -303,8 +340,8 @@ Home in that place.
 
 ### Handle
 
-Pre-cutover contract. §0 differs: an owned local can no longer be aliased by
-`local b = a`; borrows keep that form.
+Pre-cutover contract. §0 differs: `local b = a` on an owned local is a read borrow,
+so `b.value = 10` is rejected.
 
 An ordinary read of a Box binding produces a non-owning handle to the object
 supported by its Home.
