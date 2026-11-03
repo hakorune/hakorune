@@ -88,13 +88,13 @@ Ownership grammar status (2026-08-04):
 - The parked order is
   `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`.
   Support status is reported by `stage-profiles.md`.
-- Successor (ownership.md §0, decided 2026-10-30): `Shared(...)` replaced the
-  old general `share` target and is the live spelling today. Revised 2026-11-03:
-  prefix `share` (`share new T()`, `share move x`, `share h`) replaces `Shared(...)`
-  at its connection, and `take place` (a nullable field place only) is a decided
-  target. Both are parser-inactive until connected, and bare owned Shared locals
-  stop duplicating implicitly at that connection; bounded Rust `move` semantics are live, while Hako parity
-  and bounded local `Shared(move x)` / `Shared(fresh)` with clone and read are live (independent MIR verification); Shared sharing across calls and threads remain pending.
+- Successor (ownership.md §0): bounded Rust local prefix `share new T(...)`,
+  `share move x` and `share h` (an owned Shared local) are live through the
+  existing checked Shared operations. `Shared(...)` is a migration diagnostic;
+  bare Shared-local reads no longer Clone and are named-refused until handle
+  borrowing is connected. The type constructor `Shared<T>` remains; its call,
+  result and field contracts are not connected. `take place` remains a decided,
+  parser-inactive nullable-place target. Hako `share` parity is pending.
   The consuming-receiver spelling `(move x).m()` is decided in ownership.md §0
   but has no grammar row yet (parser-inactive); the grammar below carries only
   `move IDENT`.

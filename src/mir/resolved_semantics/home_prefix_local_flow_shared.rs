@@ -88,7 +88,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(in super::super) fn retain_shared_clone_initializer_v1(
         &mut self, relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
         from: BindingRefV1,
-        shared: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
+        shared: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
         homes: &mut Vec<LiveHomeV1>,
     ) -> bool {
         let input = self.input;

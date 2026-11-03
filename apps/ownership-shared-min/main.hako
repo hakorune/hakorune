@@ -11,9 +11,9 @@ box Pair {
 static box Main {
   main() {
     local pair = new Pair(10, 20)
-    local first = Shared(move pair)
-    local fresh = Shared(new Pair(30, 40))
-    local copy = first
+    local first = share move pair
+    local fresh = share new Pair(30, 40)
+    local copy = share first
     local moved = move copy
     local value = moved.left
     return value

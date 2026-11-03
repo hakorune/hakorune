@@ -120,9 +120,9 @@ pub(super) fn observe<'a, E>(
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
         if let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(site) {
             if locals.shared_acquisition_v1(source).is_some() {
-                if !locals.retain_shared_clone_initializer_v1(relation, source, None, homes) {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
-                }
+                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::SharedOperandUnsupported {
+                    site: site.clone(), guidance: "Shared handle read borrowing is not connected; use share s for an owned clone or move s to transfer ownership",
+                });
                 continue;
             }
         }
@@ -143,7 +143,7 @@ pub(super) fn observe<'a, E>(
             if unary.operator() == super::super::ResolvedUnaryOperatorV1::Shared {
                 if let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(unary.operand()) {
                     if locals.shared_acquisition_v1(source).is_some() {
-                        if !locals.retain_shared_clone_initializer_v1(relation, source, Some(unary.clone()), homes) {
+                        if !locals.retain_shared_clone_initializer_v1(relation, source, unary.clone(), homes) {
                             unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));
                         }
                         continue;
@@ -177,7 +177,7 @@ pub(super) fn observe<'a, E>(
                     if prefix.is_err() { unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue; }
                     let plan = input.forest().callable_source_ledger(input.owner()).ok()
                         .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
-                        .and_then(|source| super::expression_plan::HomeExpressionPlanV1::shared_initializer(source, SharedPayloadSourceV1::Fresh { site: payload.clone() }, Some(unary.clone()), None, prior_homes.into()));
+                        .and_then(|source| super::expression_plan::HomeExpressionPlanV1::shared_initializer(source, SharedPayloadSourceV1::Fresh { site: payload.clone() }, unary.clone(), None, prior_homes.into()));
                     if !plan.is_some_and(|plan| locals.retain_expression_plan(plan))
                         || !locals.install_shared_fresh_v1(binding, shared_site, payload.clone(), construction_source, homes) {
                         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue;
@@ -225,7 +225,7 @@ pub(super) fn observe<'a, E>(
                 let prior_homes = homes.to_vec().into();
                 let plan = input.forest().callable_source_ledger(input.owner()).ok()
                     .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
-                    .and_then(|source_plan| super::expression_plan::HomeExpressionPlanV1::shared_initializer(source_plan, SharedPayloadSourceV1::Existing { from: source, acquisition, is_clone: false }, Some(unary.clone()), Some(moved.clone()), prior_homes));
+                    .and_then(|source_plan| super::expression_plan::HomeExpressionPlanV1::shared_initializer(source_plan, SharedPayloadSourceV1::Existing { from: source, acquisition, is_clone: false }, unary.clone(), Some(moved.clone()), prior_homes));
                 if !plan.is_some_and(|plan| locals.retain_expression_plan(plan))
                     || !locals.install_shared_move_v1(source, binding, owned, homes) {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::ArgumentNotCovered(site.clone()));

@@ -1,10 +1,10 @@
 date = "2026-11-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "step3a share: bounded local prefix connection, then legacy constructor and implicit Clone retirement"
-current_design_stop = "none"
+current_blocker_token = "step3a share local connection and legacy retirement landed; Shared<T> public boundary remains unconnected"
+current_design_stop = "Shared<T> parameter/result/field carrier and ownership contracts require a separate approved implementation; nullable cases(a)-(d) reported, no implementation"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8. Step3a share stage1: bounded local share new T(...), share move x and share h now reuse the existing Shared source plan and New/Clone; no new MIR/public contract/ABI/C changes.
-copy/share use common contextual recognition; clone source keeps explicit Unary plus exact Reference, operation choice stays in source. Ordinary share calls/index/names remain; invalid operands and nonlocal share named-refuse. Explicit forms EXE exit10, ordinary method exit7.
-Optimized target/quick CLI/runtime fixed8/8 (134.99s), cohort1808 PASS/exact115 failure names, focused29 PASS including extra-Clone source-to-publication refusal. Production net+84/test+54; existing Fault safety preserved.
-Next stage2: retire Shared(...) and bare-Shared implicit Clone with the existing exit10 app migration; the legacy constructor/implicit Clone remain intentionally only until that landing. Then report Shared<T> public boundaries and nullable cases(a)-(d), within total five hours.
-Typed Place edit execution/T? implementation/Hako parser remain excluded; two stashes/unrelated inventory preserved, no 19-shape run. Hako share parity remains pending on its existing unavailable path.
+APP-boxtorrent-mini fixed8/8. Step3a share stages1–2 landed: local share new/share move/share h use one source decision and existing Shared operations; Shared(...) migration-refuses and bare Shared reads no longer add a handle.
+Shared handle borrowing is not represented yet: bare local reads named-refuse with share/move guidance, never payload Borrow. Existing app migrated at unchanged exit10; ordinary calls/index/names and Box aliases stay unchanged.
+Optimized target/quick CLI/runtime fixed8/8 (135.97s), cohort1808 PASS/exact115 names, focused29 PASS incl extra-Clone publication refusal; C unchanged, 19 shapes deferred. Series production net+66/test+57, no new files/checker.
+Shared<T> read/take/result/field cross a public-carrier/ownership-contract boundary and remain named refusals. Typed make():Page still UnsupportedResultAnnotation. Stage3 is reported; no raw-i64/plain-Box/Shared-payload disguise.
+T? cases(a)-(d) reported without implementation: a/b can reuse single install with declaration/definite-init proof; c depends on observation; d has existing Object Replace wire but missing execution. Unify later with approved Place, not a T?-only contract. Two stashes/unrelated inventory/Hako pending path preserved; goal closes with this report.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "APP-boxtorrent-mini"
-next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+next_design_card = "APP-boxtorrent-mini"
+next_design_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

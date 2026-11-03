@@ -200,7 +200,7 @@ mod tests {
     }
 
     #[test]
-    fn shared_constructor_retains_source_operator_and_checks_arity() {
+    fn shared_prefix_preserves_ordinary_names_and_retires_constructor() {
         for source in ["share new Page()", "share move value", "share handle"] {
             let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(source).unwrap()
                 else { panic!("program") };
@@ -208,17 +208,22 @@ mod tests {
                 operator: crate::ast::UnaryOperator::Shared, ..
             }]));
         }
-        for source in ["share(x)", "share (x)", "share[i]", "local share = 3", "box X { share(x) { return x } }"] {
-            NyashParser::parse_from_string(source).expect("ordinary contextual spelling stays accepted");
+        for source in ["share(x)", "share (x)"] {
+            let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(source).unwrap()
+                else { panic!("program") };
+            assert!(matches!(statements.as_slice(), [ASTNode::FunctionCall { name, .. }] if name == "share"));
         }
-        let program = NyashParser::parse_from_string("Shared(move value)").unwrap();
-        let ASTNode::Program { statements, .. } = program else { panic!("program") };
-        assert!(matches!(statements.as_slice(), [ASTNode::UnaryOp {
-            operator: crate::ast::UnaryOperator::Shared, operand, ..
-        }] if matches!(operand.as_ref(), ASTNode::UnaryOp { operator: crate::ast::UnaryOperator::Move, .. })));
-        for source in ["Shared()", "Shared(a, b)"] {
-            let error = NyashParser::parse_from_string(source).expect_err("Shared needs one operand");
-            assert!(error.to_string().contains("parser/shared_one_operand"), "{error}");
+        let ASTNode::Program { statements, .. } = NyashParser::parse_from_string("share[i]").unwrap()
+            else { panic!("program") };
+        assert!(matches!(statements.as_slice(), [ASTNode::Index { target, .. }]
+            if matches!(target.as_ref(), ASTNode::Variable { name, .. } if name == "share")));
+        for source in ["local share = 3", "box X { share(x) { return x } }",
+            "box X { f(p: Shared<Page>): Shared<Page> { return p } }"] {
+            NyashParser::parse_from_string(source).expect("names and Shared type application stay accepted");
+        }
+        for source in ["Shared()", "Shared(move value)", "Shared(new Page())", "Shared(a, b)"] {
+            let error = NyashParser::parse_from_string(source).expect_err("retired syntax must not fall back to a call");
+            assert!(error.to_string().contains("parser/shared_constructor_retired"), "{error}");
         }
     }
 }

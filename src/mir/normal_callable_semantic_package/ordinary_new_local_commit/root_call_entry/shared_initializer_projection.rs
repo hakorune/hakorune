@@ -1,4 +1,4 @@
-//! Shared (`Shared(move x)`) Local initializer: source selection and local-commit validation.
+//! Explicit share Local initializer: source selection and local-commit validation.
 use super::*;
 use crate::mir::instruction::StringInvokeOperand as Operand;
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;

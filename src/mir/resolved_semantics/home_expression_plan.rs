@@ -112,12 +112,12 @@ enum InitializerFrameV1 {
         from: crate::mir::resolved_semantics::BindingRefV1,
         acquisition: crate::mir::resolved_semantics::OwnedExprSiteV1,
     },
-    /// One Shared handle: `Shared(fresh)`, `Shared(move x)` or a clone `local b = a`.
-    /// `shared`/`moved` keep the exact unary rows of the forms that have them.
+    /// One explicitly shared handle: fresh, moved plain Box or Shared clone.
+    /// Every operation retains its original share; only a moved Box has `moved`.
     Shared {
         source: Rc<ExpressionSourcePlanV1>,
         payload_source: super::SharedPayloadSourceV1,
-        shared: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
+        shared: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
         moved: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
         prior_homes: Rc<[LiveHomeV1]>,
     },
@@ -367,10 +367,10 @@ impl HomeExpressionPlanV1 {
                     let nodes = source.nodes();
                     Rc::ptr_eq(source, &self.source)
                         && source.root().initializer().is_some_and(|row| row.binding().owner() == source.owner())
-                        && match (payload_source, shared, moved) {
-                        (P::Existing { from, acquisition, is_clone: true }, shared, None) =>
-                            Self::shared_clone_source_is_consistent_v1(source, *from, acquisition, shared.as_ref(), prior_homes),
-                        (P::Existing { from, acquisition, is_clone: false }, Some(shared), Some(moved)) => {
+                        && match (payload_source, moved) {
+                        (P::Existing { from, acquisition, is_clone: true }, None) =>
+                            Self::shared_clone_source_is_consistent_v1(source, *from, acquisition, shared, prior_homes),
+                        (P::Existing { from, acquisition, is_clone: false }, Some(moved)) => {
                             from.owner() == source.owner() && acquisition.owner() == source.owner() && nodes.len() == 3
                                 && shared.operator() == Op::Shared && moved.operator() == Op::Move
                                 && shared.site() == nodes[0].site() && shared.operand() == moved.site()
@@ -380,7 +380,7 @@ impl HomeExpressionPlanV1 {
                                 && matches!(nodes[2].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == *from)
                                 && prior_homes.iter().filter(|home| home.binding() == *from).count() == 1
                         }
-                        (P::Fresh { site: payload }, Some(shared), None) => {
+                        (P::Fresh { site: payload }, None) => {
                             payload.owner() == source.owner() && shared.operator() == Op::Shared
                                 && nodes.first().is_some_and(|node| node.site() == shared.site())
                                 && shared.operand() == payload.site()

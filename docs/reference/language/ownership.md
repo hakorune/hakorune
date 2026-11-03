@@ -16,8 +16,9 @@ Home transfer, and the explicit boundary that adds an independent owner.
 Successor surface (decided 2026-10-30): §0 is the next-model specification;
 [ADR-002](../../development/adr/adr-002-explicit-ownership-and-compiler-migration.md)
 owns its rationale, staging and task order. Only bounded parts are live
-(same-scope `new`-derived local `move`, `Shared(move x)` / `Shared(fresh)` with
-clone and read, typed `take` parsing); the general rules are not implemented.
+(same-scope `new`-derived local `move`, checked scalar `copy`, bounded local
+`share new T(...)` / `share move x` / `share h` with payload reads, and typed
+`take` declarations); the general rules are not implemented.
 Until the cutover in §10, the existing source rules below remain in force. The
 separately accepted Array carrier destination amendment below applies now as a target.
 
@@ -50,7 +51,7 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | C′ last-Home finalization direction | accepted target; production 0 |
 | explicit `release root` direction | parser/source carrier live; Home semantics 0 |
 | generic/composite release | provisional; exact capability D0 open |
-| bounded HomeV1 source grammar | `release root` live; `take` inactive; old general `share` prefix superseded; narrowed `share h` and `take place` are parser-inactive targets (§0) |
+| bounded HomeV1 source grammar | `release root` parser/source live; typed `take`/`edit` declarations retained; bounded local `move`/`share` live; `take place` remains a target (§0) |
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako runtime parity remains unverified |
 | resolver Home-demand/root and Home Flow | bounded same-scope `move` of a `new`-derived local is implemented; general Home demand remains a target |
@@ -79,13 +80,16 @@ Rule 3 revives the spelling with a narrower input: a plain Box only as a fresh
 result or with explicit `move`.
 
 Rules 2, 3 and 5-13 were revised on 2026-11-03, and the grammar is frozen (ADR-002
-row "凍結"). They are targets, not connected yet: current code still adds a handle for a bare owned Shared local
-(`local copy = first`), and `Shared(move x)` / `Shared(fresh)` stay the live
-spelling until that connection.
-Bounded Rust local `share new T(...)`, `share move x` and `share h` (an owned
-Shared local) are now connected to the existing checked Shared plan. The old
-constructor and bare-local implicit Clone remain only until the next retirement
-landing; `share(x)`, `share (x)` and `share[i]` remain ordinary syntax.
+row "凍結"). Bounded Rust local `share new T(...)`, `share move x` and
+`share h` (an owned Shared local) are connected to the existing checked Shared
+plan. `Shared(...)` is now rejected with migration guidance; the type spelling
+`Shared<T>` remains. A bare `local r = h` no longer adds a handle: Shared-handle
+read borrowing is not connected yet, so this legal target is a named compiler
+coverage refusal suggesting `share h` or `move h`. `Shared::Borrow` remains a
+payload view and is not a handle-borrow substitute. Ordinary Box aliases retain
+their existing meaning until 3b. `share(x)`, `share (x)` and `share[i]` remain
+ordinary syntax. Shared parameters/results/fields and other revised forms
+remain unconnected targets; Hako parser parity remains pending.
 
 In short, three rules:
 

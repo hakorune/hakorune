@@ -6,7 +6,7 @@ impl HomeExpressionPlanV1 {
     pub(in crate::mir::resolved_semantics) fn shared_initializer(
         source: Rc<ExpressionSourcePlanV1>,
         payload_source: super::super::SharedPayloadSourceV1,
-        shared: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
+        shared: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
         moved: Option<crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
         prior_homes: Rc<[LiveHomeV1]>,
     ) -> Option<Self> {
@@ -23,20 +23,16 @@ impl HomeExpressionPlanV1 {
         source: &Rc<ExpressionSourcePlanV1>,
         from: crate::mir::resolved_semantics::BindingRefV1,
         acquisition: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        shared: Option<&crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1>,
+        shared: &crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
         prior_homes: &[LiveHomeV1],
     ) -> bool {
         let nodes = source.nodes();
         from.owner() == source.owner() && acquisition.owner() == source.owner()
             && prior_homes.iter().filter(|home| home.binding() == from).count() == 1
-            && match shared {
-                Some(unary) => nodes.len() == 2
-                    && unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared
-                    && unary.site() == nodes[0].site() && unary.operand() == nodes[1].site()
-                    && matches!(nodes[1].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == from),
-                None => nodes.len() == 1
-                    && matches!(nodes[0].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == from),
-            }
+            && nodes.len() == 2
+            && shared.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Shared
+            && shared.site() == nodes[0].site() && shared.operand() == nodes[1].site()
+            && matches!(nodes[1].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == from)
     }
 }
 

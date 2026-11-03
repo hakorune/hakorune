@@ -75,11 +75,7 @@ fn shared_move_retains_original_payload_and_fault_homes() {
 
 #[test]
 fn shared_clone_adds_a_distinct_home_with_original_handle_on_fault() {
-    for body in [
-        "local a = new Page() local b = share move a local c = b return 30",
-        "local a = new Page() local b = share move a local c = share b return 30",
-    ] {
-    let package = issue(&source(body))
+    let package = issue(&source("local a = new Page() local b = share move a local c = share b return 30"))
         .expect("Shared clone is source selected");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().unwrap();
@@ -92,12 +88,14 @@ fn shared_clone_adds_a_distinct_home_with_original_handle_on_fault() {
     let homes = flow.terminal_homes().unwrap();
     assert_eq!(homes.len(), 2);
     assert_ne!(homes[0].binding(), homes[1].binding());
-    }
+    let error = issue(&source("local a = share new Page() local borrowed = a return 30"))
+        .expect_err("a bare Shared read cannot create an owned handle");
+    assert!(format!("{error:?}").contains("Shared handle read borrowing is not connected"));
 }
 
 #[test]
 fn shared_move_transfers_one_existing_handle_without_a_clone() {
-    let package = issue(&source("local a = new Page() local b = share move a local c = b local d = move c return 30"))
+    let package = issue(&source("local a = new Page() local b = share move a local c = share b local d = move c return 30"))
         .expect("Shared handle move is source selected");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().unwrap();
