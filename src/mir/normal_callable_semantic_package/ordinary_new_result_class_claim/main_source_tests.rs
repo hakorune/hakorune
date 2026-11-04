@@ -221,7 +221,7 @@ fn main_direct_and_received_share_original_source_outcomes_and_callee_witnesses(
     assert!(Rc::ptr_eq(plan.source_v1(), original));
     assert_eq!(original.stores()[0].mode(), Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::FieldContractUnsupported));
     let text = plan.store_execution_v1(0).unwrap();
-    assert_eq!(text.mode(), crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize);
+    assert_eq!(text.mode(), crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE);
     assert!(text.text_input_v1().unwrap().text_only());
     assert!(text.fault_discharge().is_empty());
     let next = plan.store_execution_v1(1).unwrap();

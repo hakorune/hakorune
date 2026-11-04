@@ -112,7 +112,7 @@ impl BirthAbiHandoffV1 {
             let execution = plan.store_execution_v1(index).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
             let Some(sum) = execution.text_input_v1() else { return Ok(None) };
             if provided.is_some() || !sites.contains(site) || !covered.insert(site)
-                || execution.mode() != FieldSetModeV1::DynamicTextInitialize || !sum.text_only()
+                || execution.mode() != FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE || !sum.text_only()
                 || input.is_some_and(|prior| !std::rc::Rc::ptr_eq(prior, sum)) {
                 return Ok(None);
             }
@@ -177,7 +177,7 @@ impl BirthAbiHandoffV1 {
             if *binding != formal.binding() { continue; }
             let execution = plan.store_execution_v1(index).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
             if provided.is_some() || !sites.contains(site) || !covered.insert(site)
-                || execution.mode() != FieldSetModeV1::DynamicI64Initialize {
+                || execution.mode() != FieldSetModeV1::DYNAMIC_I64_INITIALIZE {
                 return Ok(false);
             }
         }

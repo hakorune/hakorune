@@ -340,23 +340,19 @@ pub(super) fn encode_invoke(
             use crate::mir::instruction::FieldSetModeV1 as Mode;
             match mode {
                 Mode::ExactSlot => {},
-                Mode::DynamicI64Replace => encoded["transaction"] = "dynamic_i64_replace".into(),
-                Mode::DynamicI64Initialize => encoded["transaction"] = "dynamic_i64_initialize".into(),
-                Mode::DynamicTextInitialize => {
-                    if abi_input.is_none() { return Err("[freeze:contract][construction-store/source-or-cleanup-contract]".into()); }
-                    encoded["transaction"] = "dynamic_text_initialize".into();
-                },
-                Mode::DynamicMapInitialize => encoded["transaction"] = "dynamic_map_initialize".into(),
                 Mode::DynamicValue(contract) => {
                     use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence,
                         DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent};
+                    if *mode == Mode::DYNAMIC_TEXT_INITIALIZE && abi_input.is_none() {
+                        return Err("[freeze:contract][construction-store/source-or-cleanup-contract]".into());
+                    }
                     encoded["transaction"] = match contract.intent() {
                         Intent::Initialize => "dynamic_value_initialize",
                         Intent::Replace => "dynamic_value_replace",
                     }.into();
                     encoded["value_tag"] = match contract.value_tag() {
                         Tag::Null => "null", Tag::I64 => "i64", Tag::Bool => "bool",
-                        Tag::Text => "text", Tag::Object => "object",
+                        Tag::Text => "text", Tag::Map => "map", Tag::Object => "object",
                         Tag::NullableObject => "nullable_object", Tag::Array => "array",
                     }.into();
                     match contract.residence() {
@@ -366,6 +362,10 @@ pub(super) fn encode_invoke(
                         }
                         Residence::TextHome => {
                             encoded["residence"] = "text_home".into();
+                            encoded["residence_object_id"] = Value::Null;
+                        }
+                        Residence::MapHome => {
+                            encoded["residence"] = "map_home".into();
                             encoded["residence_object_id"] = Value::Null;
                         }
                         Residence::ObjectHome(object) => {

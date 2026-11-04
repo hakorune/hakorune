@@ -619,10 +619,10 @@ pub(super) fn issue_construction_source_v1(
         use crate::mir::instruction::FieldSetModeV1 as Mode;
         let mode = if canonical.is_dynamic_slot_field(ordinal) {
             match &rhs {
-                ConstructionStoreRhsV1::LiteralI64(_) => Ok(Mode::DynamicI64Initialize),
-                ConstructionStoreRhsV1::LiteralText(_) => Ok(Mode::DynamicTextInitialize),
+                ConstructionStoreRhsV1::LiteralI64(_) => Ok(Mode::DYNAMIC_I64_INITIALIZE),
+                ConstructionStoreRhsV1::LiteralText(_) => Ok(Mode::DYNAMIC_TEXT_INITIALIZE),
                 ConstructionStoreRhsV1::ProviderConstruction { class, object: None, .. }
-                    if class.as_ref() == "MapBox" => Ok(Mode::DynamicMapInitialize),
+                    if class.as_ref() == "MapBox" => Ok(Mode::DYNAMIC_MAP_INITIALIZE),
                 ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. }
                     if !field_decls[ordinal].is_weak => {
                     use crate::mir::instruction::{DynamicFieldSetContractV1 as Contract,

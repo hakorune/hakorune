@@ -475,7 +475,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         /* Commit failure disposes the taken candidate inside the transaction.
            Commit success transfers it to the slot even if the old End faults. */
         state[value->origin] = 0;
-      } else if (lv4_is(op, "transaction", "dynamic_value_initialize")) {
+      } else if (lv4_is(op, "transaction", "dynamic_value_initialize") &&
+          hako_physical_dynamic_store_kind(op, NULL) != HAKO_DYN_STORE_I64_INIT &&
+          hako_physical_dynamic_store_kind(op, NULL) != HAKO_DYN_STORE_MAP_INIT &&
+          hako_physical_dynamic_store_kind(op, NULL) != HAKO_DYN_STORE_TEXT_INIT) {
         /* The source-selected tag and residence travel separately. A
            nullable object formal initializes an exact Dynamic Object Home
            in Birth; Null remains a non-owning tag, and the caller transfers
@@ -526,10 +529,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
            live so the caller's existing cleanup still owns it. */
         normal[array_home->origin] = 0;
         }
-      } else if (lv4_is(op, "transaction", "dynamic_i64_initialize") ||
-          lv4_is(op, "transaction", "dynamic_map_initialize") || lv4_is(op, "transaction", "dynamic_text_initialize")) {
-        int text = lv4_is(op, "transaction", "dynamic_text_initialize");
-        int map = lv4_is(op, "transaction", "dynamic_map_initialize");
+      } else if (hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_I64_INIT ||
+          hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_MAP_INIT ||
+          hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_TEXT_INIT) {
+        int text = hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_TEXT_INIT;
+        int map = hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_MAP_INIT;
         if (!birth || faulted || !value || !lv4_birth_dynamic(in, op) ||
             !lv4_is(range, "kind", "none") || !lv4_birth_commit(in, fn, op, normal, bi, 0)) return 0;
         if (text) {
@@ -546,7 +550,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               lv4_pred_count(fn, lv4_u(block, "id")) != 1) return 0;
           normal[value->origin] = 0; /* Fault still owns the in-flight candidate. */
         } else if (value->kind != LV4_I64) return 0;
-      } else if (lv4_is(op, "transaction", "dynamic_i64_replace")) {
+      } else if (hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_I64_REPLACE) {
         /* This source family carries signed I64 only, never tagged payloads or Homes. */
         if (birth || faulted || !value || value->kind != LV4_I64 ||
             !lv4_is(range, "kind", "none") || !base ||

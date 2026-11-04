@@ -466,7 +466,8 @@ callable results or Map-held mutation permissions.
 
 Canonical construction retains its field mode from the original declaration and
 RHS. Bare `new MapBox()` and literal I64 first writes to unannotated fields select
-`dynamic_map_initialize` and `dynamic_i64_initialize`, respectively. The scalar
+`dynamic_value_initialize` with tag `map` (residence `map_home`) and tag `i64`
+(residence `none`), respectively. The scalar
 entry `checked_dynamic_initialize_v1` shares replacement's validation/outcome
 owner, additionally checking Empty atomically. Thus every initialization Fault
 is precommit, including an attempted repeated Birth; the caller still owns the

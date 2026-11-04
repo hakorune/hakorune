@@ -397,7 +397,8 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
                             std::iter::once(&block["terminator"]["instruction"])))
                         .filter(|row| row["op"] == "invoke").map(|row| &row["operation"]).collect();
                     assert_eq!(operations.iter().filter(|row| row["kind"] == "field_set"
-                        && row["transaction"] == "dynamic_text_initialize").count(), 1);
+                        && row["transaction"] == "dynamic_value_initialize"
+                        && row["value_tag"] == "text" && row["residence"] == "text_home").count(), 1);
                     let call = &operations.iter().find(|row| row["kind"] == "birth_call").unwrap()["call"];
                     assert_eq!(call["args"][0]["kind"], "borrowed_text");
                     assert_eq!(call["args"][0]["operand"]["kind"], match actual { "name" => "borrowed_text", "\"猫\"" => "static_text", _ => "owned_string" });
@@ -461,7 +462,8 @@ fn declared_text_slot_fields_publish_dynamic_text_and_refuse_other_tags() {
                     .flat_map(|block| block["instructions"].as_array().unwrap().iter()
                         .chain(std::iter::once(&block["terminator"]["instruction"])))
                     .filter(|row| row["op"] == "invoke" && row["operation"]["kind"] == "field_set"
-                        && row["operation"]["transaction"] == "dynamic_text_initialize").count();
+                        && row["operation"]["transaction"] == "dynamic_value_initialize"
+                        && row["operation"]["value_tag"] == "text").count();
                 assert_eq!(texts, 1, "{field}: one Text initialize");
                 let module = view.module();
                 let object = module.canonical_object_definitions().and_then(|rows| rows.first()).expect("Label");
@@ -470,8 +472,8 @@ fn declared_text_slot_fields_publish_dynamic_text_and_refuse_other_tags() {
                 if field == "name" { return Ok(()); }
                 // Mutate only the store's tag: the declaration refuses every non-Text tag.
                 for mutated in [
-                    crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize,
-                    crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                    crate::mir::instruction::FieldSetModeV1::DYNAMIC_I64_INITIALIZE,
+                    crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE,
                     crate::mir::instruction::FieldSetModeV1::ExactSlot,
                 ] {
                     let mut changed = module.clone();
@@ -480,7 +482,7 @@ fn declared_text_slot_fields_publish_dynamic_text_and_refuse_other_tags() {
                         for block in function.blocks.values_mut() {
                             for row in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
                                 if let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode, .. }, .. } = row {
-                                    if *mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize {
+                                    if *mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE {
                                         *mode = mutated; touched += 1;
                                     }
                                 }

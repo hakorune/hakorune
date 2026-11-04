@@ -342,7 +342,10 @@ def field_keys_program(text_snapshot=False, text_replace=False):
     map_value = birth.invoke(dict(kind="string_materialize", value=dict(kind="static_text", utf8="雪🐱"))
                             if text_snapshot else dict(kind="map_new"), [], True)
     birth.invoke(dict(kind="field_set", object_id=0, field_ordinal=0, base=10, value=map_value,
-                      transaction="dynamic_text_initialize" if text_snapshot else "dynamic_map_initialize",
+                      transaction="dynamic_value_initialize",
+                      **(dict(value_tag="text", residence="text_home") if text_snapshot
+                         else dict(value_tag="map", residence="map_home")),
+                      residence_object_id=None,
                       exact_numeric_runtime_check=dict(kind="none")),
                  [dict(kind="string_end", value=map_value) if text_snapshot else dict(kind="map_end", map=map_value)])
     birth.term(birth.current, dict(op="return", value=1))
@@ -618,8 +621,8 @@ int main(void) { return (int)ny_main(); }
         if operation.get("kind") == "string_materialize":
             operation.pop("value")
             operation["kind"] = "map_new"
-        elif operation.get("transaction") == "dynamic_text_initialize":
-            operation["transaction"] = "dynamic_map_initialize"
+        elif operation.get("transaction") == "dynamic_value_initialize" and operation.get("value_tag") == "text":
+            operation["value_tag"], operation["residence"] = "map", "map_home"
         elif operation.get("kind") == "string_end":
             operation["kind"], operation["map"] = "map_end", operation.pop("value")
     compile_input(wrong_tag)

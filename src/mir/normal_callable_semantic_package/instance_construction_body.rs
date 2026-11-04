@@ -195,7 +195,7 @@ fn owned_field_after_store_v1(
 ) -> Option<OwnedFieldChildV1> {
     use crate::mir::instruction::{FieldResidenceEndModeV1 as End, FieldSetModeV1 as Mode};
     let kind = match mode {
-        Mode::DynamicI64Initialize | Mode::DynamicMapInitialize | Mode::DynamicTextInitialize
+        Mode::DYNAMIC_I64_INITIALIZE | Mode::DYNAMIC_MAP_INITIALIZE | Mode::DYNAMIC_TEXT_INITIALIZE
         | Mode::DynamicValue(_) => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
         _ => match store.rhs() {
             ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. } => OwnedFieldChildKindV1::Object(child.object()),
@@ -263,8 +263,8 @@ impl ConstructionPlanV1 {
                     // A declared Text slot takes Text only: no I64 or Object dynamic mode.
                     let source_dynamic = if definition.text_slot(ordinal).is_some() { None } else { qualify_dynamic(store) };
                     let source_dynamic_available = source_dynamic.is_some();
-                    let dynamic = source_dynamic.filter(|mode| match mode {
-                        crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize => true,
+                    let dynamic = source_dynamic.filter(|mode| match *mode {
+                        crate::mir::instruction::FieldSetModeV1::DYNAMIC_I64_INITIALIZE => true,
                         crate::mir::instruction::FieldSetModeV1::DynamicValue(contract) => {
                             use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence,
                                 DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent};
@@ -283,7 +283,7 @@ impl ConstructionPlanV1 {
                                 store.field(), source.object(), sum.as_ref().map(|sum| format!("{sum:?}")));
                         }
                         let sum = sum.filter(|sum| sum.text_only()).ok_or(U::FieldContractUnsupported)?;
-                        (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum))
+                        (crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE, Some(sum))
                     }
                 }
                 Err(reason) => return Err(reason),
@@ -322,8 +322,8 @@ impl ConstructionPlanV1 {
         let mut stores = Vec::with_capacity(source.stores.len());
         for (index, (store, (mode, text_input))) in source.stores.iter().zip(qualified).enumerate() {
             if !match (mode, text_input.as_ref()) {
-                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum)) => sum.text_only(),
-                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) =>
+                (crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE, Some(sum)) => sum.text_only(),
+                (crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE, None) =>
                     matches!(store.rhs(), ConstructionStoreRhsV1::LiteralText(_)),
                 (_, loan) => loan.is_none(),
             } {
@@ -373,8 +373,8 @@ pub(super) fn qualified_field_demands_v1(
         use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence,
             DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent,
             FieldSetModeV1 as Mode};
-        let text = modes[index] == Ok(Mode::DynamicTextInitialize);
-        let dynamic_i64 = modes[index] == Ok(Mode::DynamicI64Initialize)
+        let text = modes[index] == Ok(Mode::DYNAMIC_TEXT_INITIALIZE);
+        let dynamic_i64 = modes[index] == Ok(Mode::DYNAMIC_I64_INITIALIZE)
             && dynamic_slot
             && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. });
         let dynamic_object = matches!(modes[index], Ok(Mode::DynamicValue(contract))

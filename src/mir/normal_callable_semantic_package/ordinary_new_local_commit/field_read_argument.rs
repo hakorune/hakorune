@@ -234,7 +234,7 @@ fn validate_map_scalar_callee_v1(module: &crate::mir::MirModule, function: &MirF
             | MirInstruction::ObjectFieldGet { base, field, .. } => origins.origin(*base) == Some(receiver) && field.object() == protected.object(),
             MirInstruction::Invoke { operation: InvokeOperation::FieldSet { base, field, mode, .. }, .. } =>
                 origins.origin(*base) == Some(receiver) && field.object() == protected.object() && *field != protected
-                    && matches!(mode, crate::mir::instruction::FieldSetModeV1::ExactSlot | crate::mir::instruction::FieldSetModeV1::DynamicI64Replace),
+                    && matches!(*mode, crate::mir::instruction::FieldSetModeV1::ExactSlot | crate::mir::instruction::FieldSetModeV1::DYNAMIC_I64_REPLACE),
             MirInstruction::FieldGet { base, field, .. } =>
                 origins.origin(*base) == Some(receiver) && named_ordinal(field).is_some(),
             MirInstruction::FieldSet { base, field, declared_type: Some(crate::mir::MirType::Integer), .. } =>
@@ -316,8 +316,8 @@ fn validate_map_completion_effects_v1(
                         }
                         MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field, mode, .. }, .. } =>
                             *field != map_field && *field != child_field
-                                && matches!(mode, crate::mir::instruction::FieldSetModeV1::ExactSlot
-                                    | crate::mir::instruction::FieldSetModeV1::DynamicI64Replace)
+                                && matches!(*mode, crate::mir::instruction::FieldSetModeV1::ExactSlot
+                                    | crate::mir::instruction::FieldSetModeV1::DYNAMIC_I64_REPLACE)
                                 && module.canonical_field_definition(*field).and_then(|field| field.declared_type_name.as_deref())
                                     .is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name),
                         // The named form of the same integer slot write: the field is

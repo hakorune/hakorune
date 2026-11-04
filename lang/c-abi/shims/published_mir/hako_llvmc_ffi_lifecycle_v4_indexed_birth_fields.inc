@@ -184,12 +184,10 @@ static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* f
       yyjson_val* store = lv4_birth_store(fn, i);
       if (state[i] == LV4_BIRTH_FIELD && lv4_is(store, "kind", "field_set") &&
           lv4_birth_base(fn, store) && lv4_u(store, "field_ordinal") == ordinal &&
-          (lv4_is(store, "transaction", "dynamic_i64_initialize") ||
-           lv4_is(store, "transaction", "dynamic_map_initialize") ||
-           lv4_is(store, "transaction", "dynamic_text_initialize") ||
-           (lv4_is(store, "transaction", "dynamic_value_initialize") &&
-            (lv4_is(store, "value_tag", "nullable_object") || lv4_is(store, "value_tag", "object")) &&
-            lv4_is(store, "residence", "object_home")))) matched++;
+          (hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_I64_INIT ||
+           hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_MAP_INIT ||
+           hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_TEXT_INIT ||
+           hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_OBJECT_INIT)) matched++;
     }
     if (matched != 1) return 0;
     expected++;

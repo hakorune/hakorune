@@ -164,7 +164,7 @@ static int lv4_dynamic_alloca(FILE* f, const hako_lv4_input* in, yyjson_val* op,
   }
   char name[32]; snprintf(name, sizeof(name), "dyn%u", block);
   return lv4_field_outcome_alloca(f, name, abi, lv4_is(op, "kind", "field_set") &&
-      !lv4_is(op, "transaction", "dynamic_map_initialize"));
+      hako_physical_dynamic_store_kind(op, NULL) != HAKO_DYN_STORE_MAP_INIT);
 }
 
 /* -1 is another operation family, 0 is invalid, 1 emitted both existing edges. */
@@ -189,18 +189,12 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
     return !ferror(f);
   }
   int replace = lv4_is(op, "kind", "field_set");
-  int initialize = lv4_is(op, "transaction", "dynamic_text_initialize") ? 3 :
-      lv4_is(op, "transaction", "dynamic_map_initialize") ? 2 :
-      lv4_is(op, "transaction", "dynamic_i64_initialize") ? 1 :
-      (lv4_is(op, "transaction", "dynamic_value_initialize") &&
-       lv4_is(op, "value_tag", "array") && lv4_is(op, "residence", "empty_array_home") &&
-       yyjson_is_null(yyjson_obj_get(op, "residence_object_id"))) ? 5 :
-      (lv4_is(op, "transaction", "dynamic_value_initialize") &&
-       (lv4_is(op, "value_tag", "nullable_object") || lv4_is(op, "value_tag", "object")) &&
-       lv4_is(op, "residence", "object_home") &&
-       yyjson_is_uint(yyjson_obj_get(op, "residence_object_id"))) ? 6 : 0;
-  int take_text = hako_physical_text_field_replace(op);
-  if (!(replace ? (initialize || take_text || lv4_is(op, "transaction", "dynamic_i64_replace")) :
+  int store_kind = hako_physical_dynamic_store_kind(op, NULL);
+  int initialize = (store_kind == HAKO_DYN_STORE_I64_INIT || store_kind == HAKO_DYN_STORE_MAP_INIT ||
+      store_kind == HAKO_DYN_STORE_TEXT_INIT || store_kind == HAKO_DYN_STORE_ARRAY_INIT ||
+      store_kind == HAKO_DYN_STORE_OBJECT_INIT) ? store_kind : 0;
+  int take_text = store_kind == HAKO_DYN_STORE_TEXT_REPLACE;
+  if (!(replace ? (initialize || take_text || store_kind == HAKO_DYN_STORE_I64_REPLACE) :
       lv4_is(op, "transaction", "take_dynamic"))) return 0;
   char name[32], site[32], base[32], candidate[32], token[32];
   snprintf(name, sizeof(name), "dyn%u", block);

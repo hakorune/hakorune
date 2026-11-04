@@ -88,7 +88,7 @@ impl FieldWriteSourceLoanV1 {
             // for an absent declaration. It remains Dynamic, never an I64 slot.
             return match entry.declared_type() {
                 Some("i64") => Ok(FieldSetModeV1::ExactSlot),
-                None => Ok(FieldSetModeV1::DynamicI64Replace),
+                None => Ok(FieldSetModeV1::DYNAMIC_I64_REPLACE),
                 _ => Err(fail()),
             };
         }
@@ -110,7 +110,7 @@ impl FieldWriteSourceLoanV1 {
             // The source and same-expression check above has already proved a
             // signed I64 RHS with no Home. Dynamic replacement retains that
             // value law and lets the runtime detach any prior residence.
-            return Ok(FieldSetModeV1::DynamicI64Replace);
+            return Ok(FieldSetModeV1::DYNAMIC_I64_REPLACE);
         }
         if local.construction().allocation_only_i64_field(local.original().write().field()) != Some(local.field()) {
             return Err(fail());

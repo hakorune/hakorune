@@ -66,7 +66,7 @@ fn dynamic_i64_birth_base_v1(
     let (store_index, original) = stores.next()?;
     if stores.next().is_some()
         || plan.store_execution_v1(store_index)?.mode()
-            != crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize
+            != crate::mir::instruction::FieldSetModeV1::DYNAMIC_I64_INITIALIZE
         || original.field() != store.field()
     {
         return None;
@@ -358,7 +358,7 @@ impl FieldCandidatesV1 {
                         .store_execution_v1(*store_index)
                         .is_some_and(|execution| {
                             execution.mode()
-                                == crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize
+                                == crate::mir::instruction::FieldSetModeV1::DYNAMIC_I64_INITIALIZE
                         })
             }
             BirthBaseV1::NewParameter {

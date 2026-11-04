@@ -56,8 +56,8 @@ impl RetainedConstructionValidation {
         let store = stores.get(&source.key()).ok_or_else(|| fault("emission-drift"))?;
         if self.owner != owner || store.field != source.field() || store.receiver_site != source.receiver_site().cloned()
             || store.receiver_binding != source.receiver_binding() || store.rhs != *source.rhs()
-            || source.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
-            || store.mode != crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+            || source.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE)
+            || store.mode != crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE {
             return Err(fault("emission-drift"));
         }
         self.validate_artifact_after_compiler_finishing(function)
@@ -199,8 +199,8 @@ impl ConstructionState {
         if actual_count
             != stores.len()
                 + provider_count
-                + 2 * stores.values().filter(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize).count()
-                + stores.values().filter(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize).count()
+                + 2 * stores.values().filter(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE).count()
+                + stores.values().filter(|store| store.mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE).count()
                 + 3 * birth_providers
                 + nobirth_providers
                 + nested_releases
@@ -369,7 +369,7 @@ impl ConstructionState {
                     Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode, field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
                     if *mode == store.mode && actual == &field && b == base && v == value
                         && normal_landing == normal && *fault_frame == frame_id
-                        && if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+                        && if store.mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE {
                             matches!(function.blocks.get(fault_landing).and_then(|b| b.terminator.as_ref()),
                                 Some(MirInstruction::Invoke {
                                     operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map }),
@@ -377,7 +377,7 @@ impl ConstructionState {
                                 if map == value && *f == frame_id && n != e
                                     && jump_target(function, *n) == Some(*discharge)
                                     && jump_target(function, *e) == Some(*discharge))
-                        } else if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize {
+                        } else if store.mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE {
                             // The same-row Text replay above checks fresh End and both Fault edges.
                             true
                         } else { fault_landing == discharge }),
@@ -399,7 +399,7 @@ impl ConstructionState {
                             fault_frame,
                             fault_landing,
                             normal_landing,
-                        }) if (if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+                        }) if (if store.mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE {
                                 *operation == InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::New)
                             } else { *operation == InvokeOperation::IntrinsicArrayNew })
                             && *normal_landing == *block

@@ -114,7 +114,7 @@ pub(super) fn original_call_slots(
             // Only the retained whole-constructor replay can distinguish this
             // formal from an ordinary borrowed entry with the same carrier.
             if matches!(&row.1, MirInstruction::Invoke { operation: InvokeOperation::FieldSet {
-                mode: crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, .. }, .. }) {
+                mode: crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE, .. }, .. }) {
                 selected.remove(&function.signature.name);
             }
             image.field_writes.push((function.signature.name.clone(), row));

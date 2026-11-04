@@ -174,7 +174,7 @@ impl CallableSemanticLoweringState {
                         // class; this physical consumer owns `ArrayBox` and
                         // emits the checked intrinsic itself.
                         let operation = match store.mode {
-                            crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize =>
+                            crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE =>
                                 InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::New),
                             crate::mir::instruction::FieldSetModeV1::ExactSlot if class.as_ref() == "ArrayBox" =>
                                 InvokeOperation::IntrinsicArrayNew,
@@ -482,7 +482,7 @@ impl CallableSemanticLoweringState {
         let normal = builder.next_block_id();
         let candidate_fault = if let Some(text) = &text {
             text.candidate_fault_v1(builder, fault_frame, fault_landing)?
-        } else if store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+        } else if store.mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE {
             let tail = builder.next_block_id();
             let normal = jump_landing(builder, fault_landing)?;
             let fault_edge = jump_landing(builder, fault_landing)?;
@@ -592,7 +592,7 @@ None
         };
         *next_step += 1;
         if let Some(site) = provider_site {
-            if object_child.is_some() || store.mode == crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
+            if object_child.is_some() || store.mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE {
                 return Ok(value);
             }
             // The generic new lane records a claimed provider allocation on

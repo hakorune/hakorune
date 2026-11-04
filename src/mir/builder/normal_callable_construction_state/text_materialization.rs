@@ -23,7 +23,7 @@ impl CallableSemanticLoweringState {
     ) -> Result<Option<PreparedTextInputV1>, String> {
         let ConstructionState::Selected { plan, stores, parameters, .. } = &self.construction else { return Ok(None) };
         let store = stores.get(&taken.site).ok_or_else(|| fault("emission-site"))?;
-        if store.mode != Mode::DynamicTextInitialize { return Ok(None); }
+        if store.mode != Mode::DYNAMIC_TEXT_INITIALIZE { return Ok(None); }
         let (ordinal, source) = plan.stores().iter().enumerate()
             .find(|(_, source)| source.key() == taken.site)
             .ok_or_else(|| fault("source-or-cleanup-contract"))?;
@@ -146,7 +146,7 @@ impl TextStoreAcquisitionV1 {
             || function.blocks.get(&self.entry()).and_then(|body| body.terminator.as_ref()) != Some(&self.pair[0].1) {
             return Err(fault("emission-drift"));
         }
-        let Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: Mode::DynamicTextInitialize,
+        let Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: Mode::DYNAMIC_TEXT_INITIALIZE,
             field, base, value: actual }, fault_frame, normal_landing, fault_landing }) =
             function.blocks.get(&block).and_then(|body| body.terminator.as_ref()) else { return Err(fault("emission-drift")) };
         if *field != store.field || *actual != value || *normal_landing != normal || *fault_frame != frame
@@ -168,8 +168,8 @@ impl ConstructionState {
         // Non-Text physical fixtures retain their existing protocol. Only a
         // source or emitted Text obligation demands this original-source join.
         if !plan.stores().iter().enumerate().any(|(index, _)| plan.store_execution_v1(index)
-                .is_some_and(|execution| execution.mode() == Mode::DynamicTextInitialize))
-            && !stores.values().any(|store| store.mode == Mode::DynamicTextInitialize
+                .is_some_and(|execution| execution.mode() == Mode::DYNAMIC_TEXT_INITIALIZE))
+            && !stores.values().any(|store| store.mode == Mode::DYNAMIC_TEXT_INITIALIZE
                 || matches!(&store.progress, StoreProgress::Emitted { text: Some(_), .. })) {
             return Ok(());
         }
@@ -186,7 +186,7 @@ impl ConstructionState {
                 _ => false,
             });
             match (store.mode, text) {
-                (Mode::DynamicTextInitialize, Some(text)) if matches_input => {
+                (Mode::DYNAMIC_TEXT_INITIALIZE, Some(text)) if matches_input => {
                     let (_, owner) = plan.constructor().ok_or_else(|| fault("source-or-cleanup-contract"))?;
                     if parameters.iter().any(|binding| binding.owner() != *owner)
                         || source.rhs() != &store.rhs || source.field() != store.field {
@@ -197,7 +197,7 @@ impl ConstructionState {
                     text.validate_v1(store, function, parameters, frame)?;
                     if let PreparedTextInputV1::Parameter { ordinal, .. } = &text.input { formals.insert(ordinal + 1); }
                 }
-                (Mode::DynamicTextInitialize, _) | (_, Some(_)) => return Err(fault("source-or-cleanup-contract")),
+                (Mode::DYNAMIC_TEXT_INITIALIZE, _) | (_, Some(_)) => return Err(fault("source-or-cleanup-contract")),
                 _ => (),
             }
         }

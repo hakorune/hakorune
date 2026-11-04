@@ -130,12 +130,48 @@ static int hako_physical_field_range_check(yyjson_val* check) {
       hako_physical_string(yyjson_obj_get(check, "declared_type"), "usize");
 }
 
+/* The one classification of a dynamic field_set: its (transaction, value_tag,
+ * residence) triple. 0 is any other triple (invalid). `*object` receives the
+ * residence object id for an Object/NullableObject Home. The numeric values are
+ * the emitter's `initialize` codes (1 I64, 2 Map, 3 Text, 5 Array, 6 Object). */
+enum {
+  HAKO_DYN_STORE_NONE = 0,
+  HAKO_DYN_STORE_I64_INIT = 1,
+  HAKO_DYN_STORE_MAP_INIT = 2,
+  HAKO_DYN_STORE_TEXT_INIT = 3,
+  HAKO_DYN_STORE_ARRAY_INIT = 5,
+  HAKO_DYN_STORE_OBJECT_INIT = 6,
+  HAKO_DYN_STORE_I64_REPLACE = 7,
+  HAKO_DYN_STORE_TEXT_REPLACE = 8
+};
+
+static int hako_physical_dynamic_store_kind(yyjson_val* op, uint32_t* object) {
+  uint32_t ignored = 0;
+  if (!object) object = &ignored;
+  yyjson_val* transaction = yyjson_obj_get(op, "transaction");
+  yyjson_val* tag = yyjson_obj_get(op, "value_tag");
+  yyjson_val* residence = yyjson_obj_get(op, "residence");
+  int null_id = yyjson_is_null(yyjson_obj_get(op, "residence_object_id"));
+  int initialize = hako_physical_string(transaction, "dynamic_value_initialize");
+  if (!initialize && !hako_physical_string(transaction, "dynamic_value_replace")) return HAKO_DYN_STORE_NONE;
+  if (hako_physical_string(tag, "i64") && hako_physical_string(residence, "none") && null_id)
+    return initialize ? HAKO_DYN_STORE_I64_INIT : HAKO_DYN_STORE_I64_REPLACE;
+  if (hako_physical_string(tag, "text") && hako_physical_string(residence, "text_home") && null_id)
+    return initialize ? HAKO_DYN_STORE_TEXT_INIT : HAKO_DYN_STORE_TEXT_REPLACE;
+  if (!initialize) return HAKO_DYN_STORE_NONE;
+  if (hako_physical_string(tag, "map") && hako_physical_string(residence, "map_home") && null_id)
+    return HAKO_DYN_STORE_MAP_INIT;
+  if (hako_physical_string(tag, "array") && hako_physical_string(residence, "empty_array_home") && null_id)
+    return HAKO_DYN_STORE_ARRAY_INIT;
+  if ((hako_physical_string(tag, "object") || hako_physical_string(tag, "nullable_object")) &&
+      hako_physical_string(residence, "object_home") && hako_physical_u32(yyjson_obj_get(op, "residence_object_id"), object))
+    return HAKO_DYN_STORE_OBJECT_INIT;
+  return HAKO_DYN_STORE_NONE;
+}
+
 /* A Text replacement takes the exact owned pair on both operation exits. */
 static int hako_physical_text_field_replace(yyjson_val* op) {
-  return hako_physical_string(yyjson_obj_get(op, "transaction"), "dynamic_value_replace") &&
-      hako_physical_string(yyjson_obj_get(op, "value_tag"), "text") &&
-      hako_physical_string(yyjson_obj_get(op, "residence"), "text_home") &&
-      yyjson_is_null(yyjson_obj_get(op, "residence_object_id"));
+  return hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_TEXT_REPLACE;
 }
 
 static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* functions,
@@ -144,7 +180,6 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   static const char* const ordinary_keys[] = {"kind", "call", "result"};
   static const char* const new_keys[] = {"kind", "object_id", "site"};
   static const char* const field_keys[] = {"kind", "object_id", "field_ordinal", "base", "value", "site", "exact_numeric_runtime_check"};
-  static const char* const dynamic_field_keys[] = {"kind", "object_id", "field_ordinal", "base", "value", "site", "exact_numeric_runtime_check", "transaction"};
   static const char* const dynamic_value_field_keys[] = {"kind", "object_id", "field_ordinal", "base", "value", "site", "exact_numeric_runtime_check", "transaction", "value_tag", "residence", "residence_object_id"};
   static const char* const dynamic_access_keys[] = {"kind", "object_id", "field_ordinal", "base", "site", "transaction"};
   static const char* const field_access_keys[] = {"kind", "object_id", "field_ordinal", "base", "site"};
@@ -411,8 +446,8 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         (hako_physical_string(transaction, "dynamic_value_initialize") ||
          hako_physical_string(transaction, "dynamic_value_replace"));
     if (native || !hako_physical_exact_keys(operation,
-        dynamic ? (write ? (dynamic_value ? dynamic_value_field_keys : dynamic_field_keys) : dynamic_access_keys) : (write ? field_keys : field_access_keys),
-        dynamic ? (write ? (dynamic_value ? 11 : 8) : 6) : (write ? 7 : 5)) ||
+        dynamic ? (write ? dynamic_value_field_keys : dynamic_access_keys) : (write ? field_keys : field_access_keys),
+        dynamic ? (write ? 11 : 6) : (write ? 7 : 5)) ||
         !hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) ||
         !hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) ||
         !hako_physical_u32(yyjson_obj_get(operation, "base"), &value) ||
@@ -420,26 +455,12 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) ||
         hako_physical_field_storage(layouts, object_id, ordinal) !=
             (dynamic ? HAKO_LLVMC_LIFECYCLE_STORAGE_DYNAMIC : HAKO_LLVMC_LIFECYCLE_STORAGE_I64)) return 0;
-    if (dynamic && !(write ?
-        (dynamic_value || hako_physical_string(transaction, "dynamic_i64_replace") ||
-         hako_physical_string(transaction, "dynamic_i64_initialize") ||
-         hako_physical_string(transaction, "dynamic_map_initialize") ||
-         hako_physical_string(transaction, "dynamic_text_initialize")) :
-        hako_physical_string(transaction, "take_dynamic"))) return 0;
+    if (dynamic && !(write ? dynamic_value : hako_physical_string(transaction, "take_dynamic"))) return 0;
     if (dynamic_value) {
-      int empty_array = hako_physical_string(yyjson_obj_get(operation, "value_tag"), "array") &&
-          hako_physical_string(yyjson_obj_get(operation, "residence"), "empty_array_home") &&
-          yyjson_is_null(yyjson_obj_get(operation, "residence_object_id"));
       uint32_t child_object = 0;
-      int nullable_object = hako_physical_string(yyjson_obj_get(operation, "value_tag"), "nullable_object") &&
-          hako_physical_string(yyjson_obj_get(operation, "residence"), "object_home") &&
-          hako_physical_u32(yyjson_obj_get(operation, "residence_object_id"), &child_object) &&
-          hako_physical_layout_has_object(layouts, child_object);
-      int owned_object = hako_physical_string(yyjson_obj_get(operation, "value_tag"), "object") &&
-          hako_physical_string(yyjson_obj_get(operation, "residence"), "object_home") &&
-          hako_physical_u32(yyjson_obj_get(operation, "residence_object_id"), &child_object) &&
-          hako_physical_layout_has_object(layouts, child_object);
-      if (!empty_array && !nullable_object && !owned_object && !hako_physical_text_field_replace(operation)) return 0;
+      int store = hako_physical_dynamic_store_kind(operation, &child_object);
+      if (store == HAKO_DYN_STORE_NONE) return 0;
+      if (store == HAKO_DYN_STORE_OBJECT_INIT && !hako_physical_layout_has_object(layouts, child_object)) return 0;
     }
     if (!write) return hako_physical_drain_matches(layouts, operation);
     yyjson_val* range = yyjson_obj_get(operation, "exact_numeric_runtime_check");

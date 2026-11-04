@@ -10,35 +10,31 @@ use crate::mir::{Effect, EffectMask, ValueId};
 pub enum FieldSetModeV1 {
     /// Unit on Normal; validation Fault leaves the slot unchanged.
     ExactSlot,
-    /// No-Home I64 candidate. Validation Fault leaves the slot unchanged;
-    /// commit detaches the old residence, then End consumes it. An End Fault
-    /// does not roll back the new slot. Both Faults unwind the same caller Homes.
-    DynamicI64Replace,
-    /// Birth first-write: runtime checks Empty before committing the scalar.
-    DynamicI64Initialize,
-    /// Birth first-write: Empty validation precedes a move into stable Map storage.
-    DynamicMapInitialize,
-    /// Birth first-write of an independently materialized Text residence.
-    DynamicTextInitialize,
-    /// Tagged dynamic payload with a separately selected source residence.
-    /// Text Replace takes its candidate at operation entry: a precommit Fault
-    /// ends it internally; after commit the slot owns it, even if old End faults.
+    /// Tagged dynamic payload with a separately selected source residence. The
+    /// named contracts on `DynamicFieldSetContractV1` (`I64_REPLACE`,
+    /// `I64_INITIALIZE`, `TEXT_INITIALIZE`, `MAP_INITIALIZE`) are the former
+    /// special modes. Text Replace takes its candidate at operation entry: a
+    /// precommit Fault ends it internally; after commit the slot owns it, even
+    /// if old End faults.
     DynamicValue(DynamicFieldSetContractV1),
 }
 
 impl FieldSetModeV1 {
-    /// The dynamic value tag this mode stores; `None` for an exact slot or a Map.
+    pub(crate) const DYNAMIC_I64_REPLACE: Self = Self::DynamicValue(DynamicFieldSetContractV1::I64_REPLACE);
+    pub(crate) const DYNAMIC_I64_INITIALIZE: Self = Self::DynamicValue(DynamicFieldSetContractV1::I64_INITIALIZE);
+    pub(crate) const DYNAMIC_TEXT_INITIALIZE: Self = Self::DynamicValue(DynamicFieldSetContractV1::TEXT_INITIALIZE);
+    pub(crate) const DYNAMIC_MAP_INITIALIZE: Self = Self::DynamicValue(DynamicFieldSetContractV1::MAP_INITIALIZE);
+
+    /// The dynamic value tag this mode stores; `None` for an exact slot.
     pub(crate) fn stored_value_tag_v1(self) -> Option<DynamicFieldValueTagV1> {
         match self {
-            Self::DynamicI64Replace | Self::DynamicI64Initialize => Some(DynamicFieldValueTagV1::I64),
-            Self::DynamicTextInitialize => Some(DynamicFieldValueTagV1::Text),
+            Self::ExactSlot => None,
             Self::DynamicValue(contract) => Some(contract.value_tag()),
-            Self::ExactSlot | Self::DynamicMapInitialize => None,
         }
     }
 
     pub(crate) fn has_owned_text_candidate_v1(self) -> bool {
-        self == Self::DynamicTextInitialize || self.consumes_text_candidate_on_fault_v1()
+        self == Self::DYNAMIC_TEXT_INITIALIZE || self.consumes_text_candidate_on_fault_v1()
     }
     pub(crate) fn consumes_text_candidate_on_fault_v1(self) -> bool {
         matches!(self, Self::DynamicValue(contract)
@@ -56,6 +52,8 @@ pub enum DynamicFieldValueTagV1 {
     I64,
     Bool,
     Text,
+    /// A Map moved into stable Map storage (Birth first-write only).
+    Map,
     Object,
     /// A nullable object payload in a typed Birth formal. The slot is Null
     /// or an Object of the residence's exact class; the same End descriptor
@@ -69,6 +67,8 @@ pub enum DynamicFieldValueTagV1 {
 pub enum DynamicFieldResidenceV1 {
     None,
     TextHome,
+    /// The Map moved into the slot; validated empty before the move.
+    MapHome,
     ObjectHome(hakorune_mir_defs::CanonicalObjectIdV1),
     /// An empty Array handle moved into a Dynamic slot. This is narrower than
     /// a general Array residence: the source issuer proves no element was
@@ -92,6 +92,33 @@ pub struct DynamicFieldSetContractV1 {
 }
 
 impl DynamicFieldSetContractV1 {
+    /// No-Home I64 candidate. Validation Fault leaves the slot unchanged; commit
+    /// detaches the old residence, then End consumes it. An End Fault does not
+    /// roll back the new slot. Both Faults unwind the same caller Homes.
+    pub(crate) const I64_REPLACE: Self = Self {
+        intent: DynamicFieldWriteIntentV1::Replace,
+        value_tag: DynamicFieldValueTagV1::I64,
+        residence: DynamicFieldResidenceV1::None,
+    };
+    /// Birth first-write: the runtime checks Empty before committing the scalar.
+    pub(crate) const I64_INITIALIZE: Self = Self {
+        intent: DynamicFieldWriteIntentV1::Initialize,
+        value_tag: DynamicFieldValueTagV1::I64,
+        residence: DynamicFieldResidenceV1::None,
+    };
+    /// Birth first-write of an independently materialized Text residence.
+    pub(crate) const TEXT_INITIALIZE: Self = Self {
+        intent: DynamicFieldWriteIntentV1::Initialize,
+        value_tag: DynamicFieldValueTagV1::Text,
+        residence: DynamicFieldResidenceV1::TextHome,
+    };
+    /// Birth first-write: Empty validation precedes a move into stable Map storage.
+    pub(crate) const MAP_INITIALIZE: Self = Self {
+        intent: DynamicFieldWriteIntentV1::Initialize,
+        value_tag: DynamicFieldValueTagV1::Map,
+        residence: DynamicFieldResidenceV1::MapHome,
+    };
+
     pub(crate) fn issue(
         intent: DynamicFieldWriteIntentV1,
         value_tag: DynamicFieldValueTagV1,
@@ -102,6 +129,7 @@ impl DynamicFieldSetContractV1 {
             (DynamicFieldValueTagV1::Null | DynamicFieldValueTagV1::I64 | DynamicFieldValueTagV1::Bool,
                 DynamicFieldResidenceV1::None)
                 | (DynamicFieldValueTagV1::Text, DynamicFieldResidenceV1::TextHome)
+                | (DynamicFieldValueTagV1::Map, DynamicFieldResidenceV1::MapHome)
                 | (DynamicFieldValueTagV1::Object, DynamicFieldResidenceV1::ObjectHome(_))
                 | (DynamicFieldValueTagV1::NullableObject, DynamicFieldResidenceV1::ObjectHome(_))
                 | (DynamicFieldValueTagV1::Array, DynamicFieldResidenceV1::EmptyArrayHome)
@@ -523,7 +551,7 @@ impl InvokeOperation {
             Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldGet { .. } | Self::ObjectFieldBorrow { .. } => EffectMask::READ.add(Effect::Control),
             Self::ArrayElementWrite { value: ArrayElementWriteValueV1::Text(_), .. } => EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
-            Self::FieldSet { mode: FieldSetModeV1::DynamicMapInitialize, .. } =>
+            Self::FieldSet { mode: FieldSetModeV1::DYNAMIC_MAP_INITIALIZE, .. } =>
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control),
             Self::FieldSet { .. }
             | Self::ObjectFieldSet { .. }

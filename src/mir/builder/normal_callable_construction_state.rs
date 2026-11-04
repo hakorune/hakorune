@@ -300,8 +300,8 @@ impl CallableSemanticLoweringState {
         for (ordinal, store) in plan.stores().iter().enumerate() {
             let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
             if !match (execution.mode(), execution.text_input_v1()) {
-                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, Some(sum)) => sum.text_only(),
-                (crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize, None) =>
+                (crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE, Some(sum)) => sum.text_only(),
+                (crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE, None) =>
                     matches!(store.rhs(), ConstructionStoreRhsV1::LiteralText(_)),
                 (_, loan) => loan.is_none(),
             } {

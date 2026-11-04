@@ -164,7 +164,7 @@ pub(super) fn check(
                     // requires the same retained construction-source store.
                     || (matches!(instruction, MirInstruction::Invoke {
                         operation: InvokeOperation::FieldSet {
-                            mode: crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                            mode: crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE,
                             value: candidate, .. }, .. } if value == *candidate)
                         && results[&value].0 == Kind::Map)
                     || matches!(instruction,
@@ -298,7 +298,7 @@ fn visit(
         }
         if let MirInstruction::Invoke {
             operation: InvokeOperation::FieldSet {
-                mode: crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                mode: crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE,
                 value, .. }, ..
         } = term {
             if !live.contains(value) { return Err("map-install-not-live"); }
@@ -364,7 +364,7 @@ fn visit(
             let mut next = live.clone();
             if let MirInstruction::Invoke {
                 operation: InvokeOperation::FieldSet {
-                    mode: crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                    mode: crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE,
                     value, .. }, normal_landing, ..
             } = term {
                 // Empty validation makes every Fault precommit; only Normal

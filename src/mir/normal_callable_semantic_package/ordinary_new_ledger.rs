@@ -110,7 +110,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.borrowed_formal_source.as_ref()?.as_ref().ok()?
             .lend_source_value_sum_v1(*binding)
             .filter(|sum| sum.signed_only())
-            .map(|_| Mode::DynamicI64Initialize)
+            .map(|_| Mode::DYNAMIC_I64_INITIALIZE)
     }
 
     /// Existing source New claims already cloned initial eligibility. Update

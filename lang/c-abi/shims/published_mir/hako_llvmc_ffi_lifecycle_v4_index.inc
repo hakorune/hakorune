@@ -366,7 +366,7 @@ static int lv4_body_leaf_scalar(hako_lv4_function_index* fn) {
     if (!lv4_is(term, "op", "invoke")) continue;
     yyjson_val* op = yyjson_obj_get(term, "operation");
     if (!(lv4_is(op, "kind", "field_get") || (lv4_is(op, "kind", "field_set") &&
-          (!yyjson_obj_get(op, "transaction") || lv4_is(op, "transaction", "dynamic_i64_replace"))))) return 0;
+          (!yyjson_obj_get(op, "transaction") || hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_I64_REPLACE)))) return 0;
   }
   return 1;
 }

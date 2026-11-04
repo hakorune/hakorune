@@ -68,7 +68,7 @@ impl DeclaredFieldValueSourceV1 {
             return None;
         }
         let store = self.birth_store(constructors, 0).ok()??;
-        (store.mode() == Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
+        (store.mode() == Ok(crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE)
             && matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
                 object: None, class, .. } if class.as_ref() == "MapBox"))
             .then_some((writer, store))
