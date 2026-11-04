@@ -192,6 +192,73 @@ fn lexical_i64_call_claims_zero_argument_call() {
 }
 
 #[test]
+fn lexical_i64_call_claims_arithmetic_over_exact_i64_values() {
+    // A computed i64 (`+ - *` over Integer literals and exact-i64 formals)
+    // is a no-borrow scalar result: it joins the same lane as a literal or
+    // formal return, with no instance-specific path.
+    for body in ["return x + 1", "return 1 + 2", "return x * x - 3", "return (x + 1) * 2"] {
+        let source = format!(
+            "box Calc {{ birth() {{ }}
+                add(x: i64): i64 {{ {body} }} }}
+            static box Main {{ main() {{
+                local c = new Calc()
+                local r = c.add(3)
+                return r
+            }} }}"
+        );
+        let package = issue(&source).unwrap_or_else(|issue| panic!("{body} package: {issue:?}"));
+        assert!(
+            local_calls(&package).iter().any(|call| call.result() == LocalCallResultClassV1::I64),
+            "{body}: claims an i64 local-call row"
+        );
+        assert!(new_claim_prefix_covered(&package), "{body}: prefix covered");
+    }
+}
+
+#[test]
+fn lexical_i64_call_keeps_non_arithmetic_results_unclaimed() {
+    // Kept apart from `lexical_i64_call_stays_fail_closed`, whose earlier rows
+    // fail before reaching these.
+    for (label, method, call) in [
+        // Division and comparison are not part of the proved arithmetic set.
+        (
+            "divide-result",
+            "bad(x: i64): i64 { return x / 2 }",
+            "pool.bad(4)",
+        ),
+        (
+            "compare-result",
+            "bad(x: i64): i64 { return x > 2 }",
+            "pool.bad(4)",
+        ),
+        // An arithmetic operand that is not an exact formal or literal.
+        (
+            "field-operand",
+            "bad(x: i64): i64 { return me.size + x }",
+            "pool.bad(4)",
+        ),
+    ] {
+        let source = format!(
+            "box Pool {{
+                size: i64 = 0
+                birth() {{ }}
+                {method}
+            }}
+            static box Main {{ main() {{
+                local pool = new Pool()
+                local r = {call}
+                return 0
+            }} }}"
+        );
+        let package = issue(&source).unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        assert!(
+            local_calls(&package).iter().all(|call| call.result() != LocalCallResultClassV1::I64),
+            "{label}: unclaimed call issues no i64 local-call row"
+        );
+    }
+}
+
+#[test]
 fn lexical_i64_call_keeps_construction_callee_on_handle_lane() {
     // `pool.make()` uniformly constructs — the Handle lane owns it; the
     // i64 lane must never claim it first.

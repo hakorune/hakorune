@@ -214,24 +214,34 @@ pub(super) fn lexical_i64_result_call(
             };
             !sites.is_empty()
                 && sites.iter().all(|site| {
-                    let function = callee_input.function();
-                    matches!(
-                        function.expression_source().literal(site),
-                        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_))
-                    ) || matches!(
-                        function.variable_ref(site),
-                        Some(
-                            crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(
-                                binding
-                            )
-                        ) if contract
-                            .parameters
-                            .iter()
-                            .any(|parameter| parameter.binding == binding)
-                    )
+                    exact_i64_return_expression_v1(callee_input.function(), site, &|binding| {
+                        contract.parameters.iter().any(|parameter| parameter.binding == binding)
+                    })
                 })
         })
         .unwrap_or(false)
+}
+
+/// An exact-I64 value: an Integer literal, an exact-I64 formal, or `+ - *` of
+/// two such values. Anything else (calls, fields, locals, comparisons) is not
+/// proved here and keeps its existing owner.
+fn exact_i64_return_expression_v1(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    is_exact_formal: &dyn Fn(BindingRefV1) -> bool,
+) -> bool {
+    use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1 as Op, ResolvedLexicalRefV1, ResolvedLiteralSourceV1};
+    if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Integer(_))) {
+        return true;
+    }
+    if let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(site) {
+        return is_exact_formal(binding);
+    }
+    function.expression_source().binary(site).is_some_and(|binary| {
+        matches!(binary.operator(), Op::Add | Op::Subtract | Op::Multiply)
+            && exact_i64_return_expression_v1(function, binary.lhs(), is_exact_formal)
+            && exact_i64_return_expression_v1(function, binary.rhs(), is_exact_formal)
+    })
 }
 
 /// A `recv.m(...)` local-call site whose receiver is a claim-local `new`
