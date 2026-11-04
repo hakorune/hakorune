@@ -37,6 +37,7 @@ plugins/**/*.a
 **/target/
 /.cargo-target/
 Cargo.lock
+!/Cargo.lock
 plugins/**/Cargo.lock
 
 # 🔧 Rust開発用ディレクトリ（Git追跡除外）
