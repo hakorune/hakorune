@@ -221,3 +221,48 @@ fn invoke_usize_range_contract_keeps_canonical_row_identity() {
             }).unwrap();
     });
 }
+
+/// A box that is declared but never constructed has no physical function. Its
+/// range contracts are inert only because no resolved call chain reaches it
+/// from the Root; breaking that chain restores the uncovered-function fault.
+#[test]
+fn unreachable_function_contracts_are_inert_but_reachable_ones_still_fault() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            "box Unused { v: i64 birth(v) { me.v = v } }
+            box Counter { capacity: usize birth(n) { me.capacity = n } }
+            static box Main { main() { local c = new Counter(7) return 0 } }",
+            crate::parser::ParserBuildConfig::default()).unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("source") };
+        MirCompiler::with_options(false).compile_normal_with_published(
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
+            |view, _| -> Result<(), String> {
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)?;
+                let module = view.module();
+                let unused_contracts = module.functions.values()
+                    .filter(|f| f.signature.name.contains("Unused"))
+                    .map(|f| f.metadata.exact_numeric_runtime_check_contracts.len())
+                    .sum::<usize>();
+                assert!(unused_contracts > 0, "the unused birth carries range contracts");
+                assert!(input.program().reachable_symbols_v1(module).is_some());
+                // The reachable Counter contract is still issued.
+                let checks = super::row_obligations::issue_exact_numeric_checks(module, input.program())?;
+                assert_eq!(checks.len(), 1);
+                // Dropping the reachable birth symbol makes the walk unresolvable, so
+                // every function is back in scope and the unused birth faults.
+                let mut changed = module.clone();
+                let birth = changed.functions.keys().find(|name| name.contains("Counter") && name.contains("birth"))
+                    .cloned().expect("reachable birth symbol");
+                let function = changed.functions.remove(&birth).unwrap();
+                changed.functions.insert(format!("{birth}_renamed"), function);
+                assert!(input.program().reachable_symbols_v1(&changed).is_none());
+                let error = super::row_obligations::issue_exact_numeric_checks(&changed, input.program())
+                    .expect_err("unresolved reachability keeps the uncovered fault");
+                assert!(error.contains("check-uncovered-function"), "{error}");
+                Ok(())
+            }).unwrap();
+    });
+}

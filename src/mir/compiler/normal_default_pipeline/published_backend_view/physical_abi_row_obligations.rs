@@ -16,11 +16,18 @@ pub(super) fn issue_exact_numeric_checks(
 ) -> Result<Vec<PublishedLifecycleExactNumericCheckV1>, String> {
     let mut checks = Vec::new();
     let mut coordinates = BTreeSet::new();
+    let reachable = program.reachable_symbols_v1(module);
     for (name, function) in &module.functions {
         for contract in &function.metadata.exact_numeric_runtime_check_contracts {
             if contract.kind
                 != crate::mir::function::ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
             {
+                continue;
+            }
+            // A function no resolved call chain reaches from the Root has no
+            // physical function and nothing to run; its contracts are inert.
+            // Unresolved calls leave `reachable` empty and keep today's check.
+            if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str())) {
                 continue;
             }
             let (ordinal, physical) = program

@@ -192,6 +192,67 @@ impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
     pub(crate) fn functions(&self) -> &[PublishedLifecyclePhysicalFunctionV1<'module>] {
         &self.functions
     }
+
+    /// Function symbols reachable from the program's Root through resolved call
+    /// edges of the published MIR itself (not any source plan). `None` when any
+    /// reachable function holds a call this walk cannot resolve to a module
+    /// symbol; every function then stays in scope, exactly as without the walk.
+    pub(crate) fn reachable_symbols_v1<'m>(
+        &self,
+        module: &'m crate::mir::MirModule,
+    ) -> Option<std::collections::BTreeSet<&'m str>> {
+        use crate::mir::definitions::Callee;
+        use crate::mir::instruction::InvokeOperation;
+        let mut reached = std::collections::BTreeSet::new();
+        let mut pending = Vec::new();
+        for physical in self.functions() {
+            if matches!(physical.role(), PublishedLifecyclePhysicalFunctionRoleV1::Root { .. }) {
+                let (symbol, _) = module.functions.get_key_value(physical.name())?;
+                pending.push(symbol.as_str());
+            }
+        }
+        if pending.is_empty() {
+            return None;
+        }
+        while let Some(symbol) = pending.pop() {
+            if !reached.insert(symbol) {
+                continue;
+            }
+            for block in module.functions.get(symbol)?.blocks.values() {
+                for instruction in block.all_instructions() {
+                    let key = match instruction {
+                        MirInstruction::Call(call) => match &call.callee {
+                            Callee::SameModuleInstance { key, .. } | Callee::BirthConstructor { key, .. } => key,
+                            Callee::Extern(_) => continue,
+                            _ => return None,
+                        },
+                        MirInstruction::Invoke { operation, .. } => match operation {
+                            InvokeOperation::Birth(birth) => &birth.key,
+                            InvokeOperation::Call { call, .. } => match &call.callee {
+                                Callee::SameModuleInstance { key, .. } | Callee::BirthConstructor { key, .. } => key,
+                                Callee::Extern(_) => continue,
+                                _ => return None,
+                            },
+                            // A selector-dispatched call has no static target.
+                            InvokeOperation::DynamicInvocation(_) => return None,
+                            // Object End has no user hook in a lifecycle program
+                            // (`NoHook` only); the remaining operations are builtin.
+                            _ => continue,
+                        },
+                        MirInstruction::LegacyCallV0 { .. }
+                        | MirInstruction::NewClosure { .. }
+                        | MirInstruction::NewBox { .. }
+                        | MirInstruction::CheckedCallOut { .. } => return None,
+                        _ => continue,
+                    };
+                    let target = module.canonical_callable_definition_symbol(key)?;
+                    let (target, _) = module.functions.get_key_value(target)?;
+                    pending.push(target.as_str());
+                }
+            }
+        }
+        Some(reached)
+    }
 }
 
 /// One admitted ordinary call site with its physical result kind. The MirCall

@@ -48,7 +48,13 @@ pub(super) fn enforce(
             }
         }
     }
+    // Functions no resolved call chain reaches from the Root are inert; an
+    // unresolved call keeps every function in scope.
+    let reachable = input.program().reachable_symbols_v1(module);
     for (name, function) in &module.functions {
+        if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str())) {
+            continue;
+        }
         enforce_contracts(
             module,
             input,
