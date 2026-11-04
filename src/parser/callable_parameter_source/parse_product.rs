@@ -10,7 +10,7 @@ use super::model::{ParserCallableParameterSourceRowV1, ParserParameterTransferSy
 #[derive(Debug)]
 pub(in crate::parser) struct ParsedCallableParameterListV1 {
     neutral: Vec<ParamDecl>,
-    receiver_transfer: super::model::ParserReceiverTransferSyntaxV1,
+    receiver_transfer: super::model::ParserTransferKindV1,
     declared_result_type: Option<crate::ast::TypeReferenceV1>,
     rows: Box<[ParserCallableParameterSourceRowV1]>,
     borrowed_result: Option<super::model::ParserBorrowedResultSyntaxV1>,
@@ -54,7 +54,7 @@ impl ParsedCallableParameterListV1 {
         Ok(self)
     }
 
-    pub(in crate::parser) fn with_receiver_transfer(mut self, transfer: super::model::ParserReceiverTransferSyntaxV1) -> Self {
+    pub(in crate::parser) fn with_receiver_transfer(mut self, transfer: super::model::ParserTransferKindV1) -> Self {
         self.receiver_transfer = transfer;
         self
     }
@@ -75,9 +75,9 @@ impl ParsedCallableParameterListV1 {
         self.rows.get(ordinal).is_some_and(|row| row.transfer().is_take())
     }
     pub(in crate::parser) fn has_from(&self) -> bool { self.borrowed_result.is_some() }
-    pub(in crate::parser) fn requires_retained_source(&self) -> bool { self.receiver_transfer != super::model::ParserReceiverTransferSyntaxV1::Ordinary || self.has_modified_parameters() || self.has_from() }
+    pub(in crate::parser) fn requires_retained_source(&self) -> bool { self.receiver_transfer != super::model::ParserTransferKindV1::Ordinary || self.has_modified_parameters() || self.has_from() }
 
-    pub(super) fn into_parts(self) -> (Vec<ParamDecl>, Box<[ParserCallableParameterSourceRowV1]>, Option<super::model::ParserBorrowedResultSyntaxV1>, super::model::ParserReceiverTransferSyntaxV1, Option<crate::ast::TypeReferenceV1>) {
+    pub(super) fn into_parts(self) -> (Vec<ParamDecl>, Box<[ParserCallableParameterSourceRowV1]>, Option<super::model::ParserBorrowedResultSyntaxV1>, super::model::ParserTransferKindV1, Option<crate::ast::TypeReferenceV1>) {
         (self.neutral, self.rows, self.borrowed_result, self.receiver_transfer, self.declared_result_type)
     }
 }

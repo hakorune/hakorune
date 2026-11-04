@@ -445,17 +445,17 @@ pub(crate) fn parse_box_member_body(
                 }
             }
 
-            let mut receiver_transfer = crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Ordinary;
+            let mut receiver_transfer = crate::parser::callable_parameter_source::ParserTransferKindV1::Ordinary;
             if matches!(field_or_method.as_str(), "edit" | "take")
-                && p.current_token().line == field_or_method_line
-                && matches!(p.current_token().token_type, TokenType::IDENTIFIER(_))
-                && p.tokens.get(p.current + 1).is_some_and(|next| next.line == field_or_method_line && matches!(next.token_type, TokenType::LPAREN))
+                && p.token_on_line(p.current, field_or_method_line, |name| matches!(name, TokenType::IDENTIFIER(_)))
+                && p.token_on_line(p.current + 1, field_or_method_line, |paren| matches!(paren, TokenType::LPAREN))
             {
                 receiver_transfer = if field_or_method == "edit" {
-                    crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Edit
-                } else { crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Take };
-                let TokenType::IDENTIFIER(name) = p.current_token().token_type.clone() else { unreachable!() };
-                field_or_method = name;
+                    crate::parser::callable_parameter_source::ParserTransferKindV1::Edit
+                } else { crate::parser::callable_parameter_source::ParserTransferKindV1::Take };
+                if let TokenType::IDENTIFIER(name) = p.current_token().token_type.clone() {
+                    field_or_method = name;
+                }
                 p.advance();
             }
             if box_try_method_or_field(
@@ -489,7 +489,7 @@ pub(crate) fn parse_box_member_body(
 fn box_try_method_or_field(
     p: &mut NyashParser,
     name: String,
-    receiver_transfer: crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1,
+    receiver_transfer: crate::parser::callable_parameter_source::ParserTransferKindV1,
     declaration_span: crate::ast::Span,
     is_override: bool,
     state: &mut BoxMemberState,

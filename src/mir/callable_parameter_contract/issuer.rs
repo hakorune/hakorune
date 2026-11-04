@@ -60,7 +60,7 @@ pub(crate) fn issue_callable_parameter_contract_v1(
             let mut bindings = BTreeSet::new();
             let mut declarations = Vec::with_capacity(semantic.declarations().len());
             for row in semantic.declarations() {
-                if row.receiver_transfer() != crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1::Ordinary {
+                if row.receiver_transfer() != crate::parser::callable_parameter_source::ParserTransferKindV1::Ordinary {
                     return Err(CallableParameterContractIssueV1::UnsupportedReceiverTransfer { _declaration: row.batch_slot() });
                 }
                 if row.declared_result_type().is_some_and(|reference| matches!(reference, crate::ast::TypeReferenceV1::Nullable(_))) {

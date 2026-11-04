@@ -70,7 +70,7 @@ pub(crate) struct FinalCallableSemanticSyntaxRowRefV1<'source> {
     declaration: &'source ASTNode,
     owner_name: Option<&'source str>,
     parameters: Option<Box<[FinalCallableParameterSourceRefV1<'source>]>>,
-    receiver_transfer: crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1,
+    receiver_transfer: crate::parser::callable_parameter_source::ParserTransferKindV1,
     declared_result_type: Option<&'source crate::ast::TypeReferenceV1>,
     borrowed_result: Option<&'source crate::parser::callable_parameter_source::ParserBorrowedResultSyntaxV1>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
@@ -128,7 +128,7 @@ impl FinalCallableSemanticSyntaxRowRefV1<'_> {
 
     pub(crate) fn declared_result_type(&self) -> Option<&crate::ast::TypeReferenceV1> { self.declared_result_type }
 
-    pub(crate) fn receiver_transfer(&self) -> crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1 { self.receiver_transfer }
+    pub(crate) fn receiver_transfer(&self) -> crate::parser::callable_parameter_source::ParserTransferKindV1 { self.receiver_transfer }
 
     pub(crate) fn borrowed_result(&self) -> Option<&crate::parser::callable_parameter_source::ParserBorrowedResultSyntaxV1> {
         self.borrowed_result

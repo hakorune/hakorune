@@ -75,7 +75,7 @@ impl NyashParser {
             }
             if self.try_parse_externcall_source_syntax(&mut expr)? {
                 continue;
-            } else if self.current_is_contextual_with() {
+            } else if self.current_context_word("with") {
                 expr = self.parse_record_update(expr)?;
                 continue;
             } else if self.match_token(&TokenType::DOT) {
@@ -260,10 +260,6 @@ impl NyashParser {
         }
 
         Ok(expr)
-    }
-
-    fn current_is_contextual_with(&self) -> bool {
-        matches!(&self.current_token().token_type, TokenType::IDENTIFIER(name) if name == "with")
     }
 
     fn parse_record_update(&mut self, base: ASTNode) -> Result<ASTNode, ParseError> {

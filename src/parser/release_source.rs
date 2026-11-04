@@ -226,4 +226,30 @@ mod tests {
             assert!(error.to_string().contains("parser/shared_constructor_retired"), "{error}");
         }
     }
+
+    #[test]
+    fn contextual_marks_need_a_same_line_follower() {
+        for (source, mark) in [("share\nvalue", "share"), ("copy\nvalue", "copy")] {
+            let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(source).unwrap()
+                else { panic!("program") };
+            assert!(matches!(statements.as_slice(), [ASTNode::Variable { name, .. }, ASTNode::Variable { .. }]
+                if name == mark), "{source}");
+        }
+        let ASTNode::Program { statements, .. } = NyashParser::parse_from_string("copy value").unwrap()
+            else { panic!("program") };
+        assert!(matches!(statements.as_slice(), [ASTNode::UnaryOp {
+            operator: crate::ast::UnaryOperator::Copy, ..
+        }]));
+        for source in ["local take = 1", "box X { take(x) { return x } }", "box X { f(take: Int) { return 1 } }"] {
+            NyashParser::parse_from_string(source).expect("ordinary names stay accepted");
+        }
+        for source in ["box X { f(take p: Page) { return 1 } }", "box X { take m() { return 1 } }",
+            "box X { edit m() { return 1 } }"] {
+            let error = NyashParser::parse_from_string(source).expect_err("marks need retained source");
+            assert!(error.to_string().contains("source-contract-required"), "{source}: {error}");
+        }
+        let error = NyashParser::parse_from_string("box X { f(take\np: Page) { return 1 } }")
+            .expect_err("a newline keeps `take` an ordinary parameter name");
+        assert!(!error.to_string().contains("source-contract-required"), "{error}");
+    }
 }

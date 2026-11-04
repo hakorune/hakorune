@@ -29,10 +29,6 @@ fn take_identifier(p: &mut NyashParser, expected: &str) -> Result<String, ParseE
     Ok(name)
 }
 
-fn match_contextual_ident(p: &NyashParser, expected: &str) -> bool {
-    matches!(&p.current_token().token_type, TokenType::IDENTIFIER(name) if name == expected)
-}
-
 pub(crate) fn parse_delegate_decl(
     p: &mut NyashParser,
     source_member_ordinal: u32,
@@ -40,7 +36,7 @@ pub(crate) fn parse_delegate_decl(
     p.consume(TokenType::DELEGATE)?;
     let field_name = take_identifier(p, "delegate field name")?;
 
-    if !match_contextual_ident(p, "exposes") {
+    if !p.current_context_word("exposes") {
         return Err(ParseError::UnexpectedToken {
             found: p.current_token().token_type.clone(),
             expected: "'exposes' after delegate field name".to_string(),
@@ -65,7 +61,7 @@ pub(crate) fn parse_delegate_decl(
         }
 
         let source_name = take_identifier(p, "method name in delegate exposes list")?;
-        let exposed_name = if match_contextual_ident(p, "as") {
+        let exposed_name = if p.current_context_word("as") {
             p.advance(); // contextual `as`
             take_identifier(p, "alias name after delegate expose 'as'")?
         } else {

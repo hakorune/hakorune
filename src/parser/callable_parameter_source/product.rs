@@ -405,11 +405,11 @@ impl ParsedProgramWithCallableParameterSourceV1 {
     ) -> Result<ParsedNormalCallableProgramV1, ParseError> {
         if self.has_source_only_callable_contract() && !self.completed.is_source_backed() {
             self.discard_after_source_plan_rejection();
-            return Err(ParseError::GrammarContract {
-                stable_reject_tag: "parser/take-source-contract-required",
-                detail: "take cannot enter the AST-only compatibility cohort".into(),
-                line: 0,
-            });
+            return Err(super::source_contract_required(
+                false,
+                "take cannot enter the AST-only compatibility cohort",
+                0,
+            ));
         }
         let Self {
             completed,

@@ -384,7 +384,7 @@ fn issuer_keeps_resolver_and_forest_outside_the_contract_owner() {
 
 #[test]
 fn explicit_edit_and_receiver_modes_survive_resolution_and_reject_execution() {
-    use crate::parser::callable_parameter_source::ParserReceiverTransferSyntaxV1 as Receiver;
+    use crate::parser::callable_parameter_source::ParserTransferKindV1 as Receiver;
     for (source, receiver, parameter_edit) in [
         ("box Api { run(edit value: i64) { return value } }", Receiver::Ordinary, true),
         ("box Api { edit run() { return 0 } }", Receiver::Edit, false),

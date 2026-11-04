@@ -119,7 +119,7 @@ impl NyashParser {
         }
         self.advance(); // consume 'guard'
 
-        if self.current_is_contextual_let() {
+        if self.current_context_word("let") {
             return self.parse_guard_let_after_guard();
         }
 
@@ -148,13 +148,6 @@ impl NyashParser {
             else_body: None,
             span: Span::unknown(),
         })
-    }
-
-    fn current_is_contextual_let(&self) -> bool {
-        matches!(
-            &self.current_token().token_type,
-            TokenType::IDENTIFIER(name) if name == "let"
-        )
     }
 
     fn parse_guard_let_after_guard(&mut self) -> Result<ASTNode, ParseError> {

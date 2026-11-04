@@ -33,7 +33,7 @@ pub(in crate::parser) use catalog::{
 #[cfg(test)]
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
-pub(crate) use model::{ParserParameterTransferSyntaxV1, ParserReceiverTransferSyntaxV1, ParserBorrowedResultSyntaxV1, ParserBorrowedResultSupportSyntaxV1};
+pub(crate) use model::{ParserParameterTransferSyntaxV1, ParserTransferKindV1, ParserBorrowedResultSyntaxV1, ParserBorrowedResultSupportSyntaxV1};
 pub(in crate::parser) use model::{
     ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
 };

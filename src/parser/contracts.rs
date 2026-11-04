@@ -82,8 +82,4 @@ impl NyashParser {
             _ => None,
         }
     }
-
-    fn current_context_word(&self, word: &str) -> bool {
-        matches!(&self.current_token().token_type, TokenType::IDENTIFIER(name) if name == word)
-    }
 }

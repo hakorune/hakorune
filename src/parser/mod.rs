@@ -30,6 +30,7 @@ pub(crate) use callable_source_anchor::CallableDeclarationIdentityV1;
 pub(crate) use initial_callable_program_source::InitialCallableFinalSlotV1;
 mod common;
 mod constructor_source_catalog;
+mod contextual_word;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;

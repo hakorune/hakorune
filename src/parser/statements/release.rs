@@ -8,22 +8,10 @@ impl NyashParser {
     /// same source line. Parenthesized and newline-separated spellings remain
     /// in the ordinary identifier/call grammar.
     pub(super) fn is_release_statement_start(&self) -> bool {
-        let Some(prefix) = self.tokens.get(self.current) else {
-            return false;
-        };
-        let TokenType::IDENTIFIER(name) = &prefix.token_type else {
-            return false;
-        };
-        if name != "release" {
-            return false;
-        }
-        let Some(root) = self.tokens.get(self.current + 1) else {
-            return false;
-        };
-        matches!(
-            root.token_type,
-            TokenType::IDENTIFIER(_) | TokenType::ME | TokenType::THIS
-        ) && root.line == prefix.line
+        self.context_word_then(self.current, &["release"], |root| {
+            matches!(root, TokenType::IDENTIFIER(_) | TokenType::ME | TokenType::THIS)
+        })
+        .is_some()
     }
 
     pub(super) fn parse_release_statement(&mut self) -> Result<ASTNode, ParseError> {
