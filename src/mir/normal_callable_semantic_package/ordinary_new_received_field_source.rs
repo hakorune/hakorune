@@ -58,9 +58,9 @@ impl ReceivedFieldReadSourceV1 {
             let target = original_lexical_target_at_v1(targets_context, acquisition)?;
             targets.push(target.ok_or_else(|| fault("received/original-target-missing"))?.clone());
         }
-        let mut callers = batch.declarations().filter(|row| row.owner() == request.site.owner());
-        let caller = callers.next().ok_or_else(|| fault("received/caller-missing"))?;
-        if callers.next().is_some() { return Err(fault("received/caller-ambiguous")); }
+        let caller = batch.unique_declaration_for_owner(request.site.owner())
+            .map_err(|_| fault("received/caller-ambiguous"))?
+            .ok_or_else(|| fault("received/caller-missing"))?;
         let exact = batch.with_lowering_input(caller.batch_slot(), |input| {
             if let ReceivedFieldReadRequestV1::Borrowed { loan, exclusion } = original {
                 return loan.binding() == request.receiver && loan.read().site() == &request.receiver_site

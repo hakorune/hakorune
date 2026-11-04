@@ -10,6 +10,23 @@ use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
 
+/// Cataloged key of the caller at `slot`: its selected key, or the checked app
+/// main's key when the caller is unselected. Any other selection is rejected.
+fn selected_or_main_caller_key_v1<'a>(
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &'a crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    parameters: &[OwnedCallableParameterContractDeclarationV1],
+    app_main: Option<AppMainSourceRefV1<'a>>,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    slot: u32,
+) -> Result<&'a CanonicalSameModuleCallableKeyV1, &'static str> {
+    match selected.key_for_batch_slot(slot) {
+        Some(super::SelectedNormalCallableKeyV1::Cataloged(key)) => Ok(key),
+        None => app_main.ok_or("borrowed-nullable/caller-key")?.checked_caller_key(batch, parameters, owner, slot),
+        Some(_) => Err("borrowed-nullable/caller-key"),
+    }
+}
+
 /// The original local initializer edge, shared by nullable borrowing and
 /// construction-child provenance. This does not classify ownership or issue Home.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -257,15 +274,9 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         authenticate: impl FnOnce(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>)
             -> Result<A, &'static str>,
     ) -> Result<Option<(A, OriginalCallSourceV1)>, &'static str> {
-        let mut declarations = batch
-            .declarations()
-            .filter(|row| row.owner() == call.owner());
-        let declaration = declarations
-            .next()
+        let declaration = batch.unique_declaration_for_owner(call.owner())
+            .map_err(|_| "borrowed-nullable/caller-not-unique")?
             .ok_or("borrowed-nullable/caller-missing")?;
-        if declarations.next().is_some() {
-            return Err("borrowed-nullable/caller-not-unique");
-        }
         let slot = declaration.batch_slot();
         let caller_key = if let Some(original) = original_caller {
             // The source context already bound owner/catalog/declaration/arity.
@@ -275,12 +286,7 @@ impl super::OrdinaryNewResultClassClaimsV1 {
                 return Err("borrowed-nullable/caller-key");
             }
             original
-        } else { match selected.key_for_batch_slot(slot) {
-            Some(super::SelectedNormalCallableKeyV1::Cataloged(key)) => key,
-            None => app_main.ok_or("borrowed-nullable/caller-key")?
-                .checked_caller_key(batch, parameters, call.owner(), slot)?,
-            Some(_) => return Err("borrowed-nullable/caller-key"),
-        }};
+        } else { selected_or_main_caller_key_v1(batch, selected, parameters, app_main, call.owner(), slot)? };
         batch
             .with_lowering_input(slot, |input| {
                 let function = input.function();
@@ -344,16 +350,11 @@ impl super::OrdinaryNewResultClassClaimsV1 {
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<OriginalLocalCallSourceV1, &'static str> {
         let call = &reference.call_site;
-        let mut callers = batch.declarations().filter(|row| row.owner() == call.owner());
-        let caller = callers.next().ok_or("borrowed-nullable/caller-missing")?;
-        if callers.next().is_some() { return Err("borrowed-nullable/caller-not-unique"); }
+        let caller = batch.unique_declaration_for_owner(call.owner())
+            .map_err(|_| "borrowed-nullable/caller-not-unique")?
+            .ok_or("borrowed-nullable/caller-missing")?;
         let slot = caller.batch_slot();
-        match selected.key_for_batch_slot(slot) {
-            Some(super::SelectedNormalCallableKeyV1::Cataloged(_)) => {},
-            None => { app_main.ok_or("borrowed-nullable/caller-key")?
-                .checked_caller_key(batch, parameters, call.owner(), slot)?; },
-            Some(_) => return Err("borrowed-nullable/caller-key"),
-        }
+        selected_or_main_caller_key_v1(batch, selected, parameters, app_main, call.owner(), slot)?;
         let mut callees = batch.declarations().filter(|row| row.batch_slot() == reference.target_batch_slot);
         let callee = callees.next().ok_or("borrowed-nullable/callee-owner")?;
         if callees.next().is_some() || callee.owner() != reference.callee_owner
@@ -391,9 +392,9 @@ impl super::OrdinaryNewResultClassClaimsV1 {
     ) -> Result<OriginalLocalCallSourceV1, &'static str> {
         self.recheck_object_call_source_v1(batch, selected, target, loan)?;
         let call = target.call_site();
-        let mut callers = batch.declarations().filter(|row| row.owner() == call.owner());
-        let caller = callers.next().ok_or("returned-field/caller-missing")?;
-        if callers.next().is_some() { return Err("returned-field/caller-ambiguous"); }
+        let caller = batch.unique_declaration_for_owner(call.owner())
+            .map_err(|_| "returned-field/caller-ambiguous")?
+            .ok_or("returned-field/caller-missing")?;
         batch.with_lowering_input(caller.batch_slot(), |input| {
             let declaration = original_local_declaration_v1(input, call, destination)?;
             if input.forest().semantic_owners().any(|(_, function)|
@@ -475,13 +476,7 @@ impl<'a> CallWitnessSourceV1<'a> {
             return None;
         }
         for (ordinal, actual) in actuals.iter().enumerate() {
-            let mut expected = call_site.site().node().segments().to_vec();
-            expected.push(
-                crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal as u32),
-            );
-            if actual.site.owner() != call_site.owner()
-                || actual.site.site().node().segments() != expected
-            {
+            if !actual.site.is_argument_of(call_site, ordinal as u32) {
                 return None;
             }
         }

@@ -421,9 +421,7 @@ fn resolve_call_key_source(
                 ).or_else(|| {
                     // Type-only consultation follows the same original read
                     // relation as argument folds; it grants no live loan/nonnull.
-                    let mut callers = batch.declarations().filter(|row| row.owner() == function.owner());
-                    let caller = callers.next()?;
-                    if callers.next().is_some() { return None; }
+                    let caller = batch.unique_declaration_for_owner(function.owner()).ok().flatten()?;
                     let slot = caller.batch_slot();
                     let source = batch.with_lowering_input(slot, |input|
                         crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1::issue_source_v1(input, call.receiver_site(), |producer, _| {

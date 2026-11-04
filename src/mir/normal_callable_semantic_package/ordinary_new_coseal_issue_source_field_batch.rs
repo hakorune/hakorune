@@ -620,9 +620,8 @@ fn borrow_fixed_array_source(
     if request.receiver != receiver || request.home != receiver || request.nullable || request.formal
         || request.alias_class.is_some() || request.received.is_some() || request.path.is_some()
         || request.alias_path.is_some() || request.owned_ready.is_some() { return Ok(None); }
-    let mut rows = batch.declarations().filter(|row| row.owner() == request.site.owner());
-    let Some(row) = rows.next() else { return Ok(None); };
-    if rows.next().is_some() { return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: request.site.clone() }); }
+    let Some(row) = batch.unique_declaration_for_owner(request.site.owner())
+        .map_err(|_| OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: request.site.clone() })? else { return Ok(None); };
     let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(row.batch_slot())
         else { return Ok(None); };
     if caller.owner() != box_source.name()

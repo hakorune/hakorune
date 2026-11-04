@@ -159,9 +159,7 @@ pub(crate) fn map_argument_outward(
     {
         return Err("map-membership-missing");
     }
-    let mut expected = call.site().node().segments().to_vec();
-    expected.push(SourcePathSegmentV1::Argument(ordinal));
-    if site.site().node().segments() != expected.as_slice() {
+    if !site.site().is_argument_of(call.site(), ordinal) {
         return Err("map-argument-site-mismatch");
     }
     let mut relations = shape.relations().iter().filter(|row| {

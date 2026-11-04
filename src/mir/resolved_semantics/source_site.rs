@@ -194,6 +194,12 @@ impl SourceExprSiteV1 {
     pub fn node(&self) -> &SourceNodeSiteV1 {
         &self.0
     }
+
+    /// True when this is exactly argument `ordinal` of the Call/New at `parent`.
+    pub(crate) fn is_argument_of(&self, parent: &SourceExprSiteV1, ordinal: u32) -> bool {
+        self.0.segments().split_last()
+            == Some((&SourcePathSegmentV1::Argument(ordinal), parent.0.segments()))
+    }
 }
 
 /// Exact source origin for a control transfer.
@@ -283,6 +289,11 @@ impl OwnedExprSiteV1 {
 
     pub const fn site(&self) -> &SourceExprSiteV1 {
         &self.site
+    }
+
+    /// True when this is exactly argument `ordinal` of `call`, in the same owner.
+    pub(crate) fn is_argument_of(&self, call: &OwnedExprSiteV1, ordinal: u32) -> bool {
+        self.owner == call.owner && self.site.is_argument_of(&call.site, ordinal)
     }
 }
 

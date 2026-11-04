@@ -43,9 +43,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
                 batch, constructors, owner, |_, input| check(input)).map_err(|_| ())
         } else {
-            let mut declarations = batch.declarations().filter(|row| row.owner() == owner);
-            let Some(declaration) = declarations.next() else { return false; };
-            if declarations.next().is_some() { return false; }
+            let Some(declaration) = batch.unique_declaration_for_owner(owner).ok().flatten() else { return false; };
             batch.with_lowering_input(declaration.batch_slot(), check).map_err(|_| ())
         };
         if checked != Ok(true) { return false; }

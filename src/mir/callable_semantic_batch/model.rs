@@ -108,6 +108,10 @@ pub(crate) struct VerifiedResolvedCallableSemanticBatchRefV1<'batch> {
     rows: Box<[VerifiedResolvedCallableSemanticRowRefV1<'batch>]>,
 }
 
+/// More than one batch declaration shares one function owner.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct AmbiguousDeclarationOwnerV1;
+
 #[derive(Debug)]
 pub(crate) struct VerifiedResolvedCallableSemanticRowRefV1<'batch> {
     semantic: &'batch VerifiedResolvedCallableSemanticRowV1,
@@ -205,6 +209,17 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         self.rows
             .iter()
             .map(|row| VerifiedResolvedCallableSemanticDeclarationRefV1 { row })
+    }
+
+    /// The one declaration owned by `owner`: `Ok(None)` when absent, `Err`
+    /// when the owner is declared more than once.
+    pub(crate) fn unique_declaration_for_owner(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Option<VerifiedResolvedCallableSemanticDeclarationRefV1<'_>>, AmbiguousDeclarationOwnerV1> {
+        let mut rows = self.declarations().filter(|row| row.owner() == owner);
+        let first = rows.next();
+        if rows.next().is_some() { Err(AmbiguousDeclarationOwnerV1) } else { Ok(first) }
     }
 
     pub(crate) fn with_lowering_input<R>(

@@ -145,9 +145,8 @@ impl OrdinaryNewResultClassClaimsV1 {
         parameters: &[OwnedCallableParameterContractDeclarationV1], call: &OwnedExprSiteV1,
         app_main: Option<AppMainSourceRefV1<'_>>,
     ) -> Result<Option<BorrowedCallSourceLoanV1>, &'static str> {
-        let mut callers = batch.declarations().filter(|row| row.owner() == call.owner());
-        let Some(caller) = callers.next() else { return Ok(None); };
-        if callers.next().is_some() { return Err("borrowed-nullable/caller-not-unique"); }
+        let Some(caller) = batch.unique_declaration_for_owner(call.owner())
+            .map_err(|_| "borrowed-nullable/caller-not-unique")? else { return Ok(None); };
         if !batch.with_lowering_input(caller.batch_slot(), |input|
             call_witness::original_return_statement_v1(input, call).is_some())
             .map_err(|_| "borrowed-nullable/caller-input")? { return Ok(None); }

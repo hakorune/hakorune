@@ -49,11 +49,8 @@ pub(super) fn with_original_source_input_v1<R>(
     callback: impl for<'source> FnOnce(OriginalCallSourceCallerV1<'source>, ResolvedFunctionLoweringInputV1<'source>) -> R,
 ) -> Result<R, String> {
     let reject = || "[freeze:contract][original-call/source-owner]".to_owned();
-    let mut declarations = batch.declarations().filter(|row| row.owner() == owner);
-    if let Some(declaration) = declarations.next() {
-        if declarations.next().is_some()
-            || constructors.rows().iter().any(|row| row.forest().roots() == [owner])
-        { return Err(reject()); }
+    if let Some(declaration) = batch.unique_declaration_for_owner(owner).map_err(|_| reject())? {
+        if constructors.rows().iter().any(|row| row.forest().roots() == [owner]) { return Err(reject()); }
         let slot = declaration.batch_slot();
         return batch.with_lowering_input(slot, |input|
             callback(OriginalCallSourceCallerV1::Declaration { batch_slot: slot }, input))

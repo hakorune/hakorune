@@ -189,9 +189,9 @@ struct FieldWalkV1<'a, 't> {
 }
 impl<'a, 't> FieldWalkV1<'a, 't> {
     fn slot(&self, site: &OwnedExprSiteV1) -> Result<u32, &'static str> {
-        let mut rows = self.batch.declarations().filter(|row| row.owner() == site.owner());
-        let row = rows.next().ok_or("returned-field/source-owner")?;
-        if rows.next().is_some() { return Err("returned-field/source-owner-duplicate"); }
+        let row = self.batch.unique_declaration_for_owner(site.owner())
+            .map_err(|_| "returned-field/source-owner-duplicate")?
+            .ok_or("returned-field/source-owner")?;
         Ok(row.batch_slot())
     }
     fn field(&mut self, read: &OwnedExprSiteV1) -> Result<Option<(CanonicalFieldRefV1, CanonicalObjectIdV1)>, &'static str> {

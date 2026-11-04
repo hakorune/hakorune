@@ -34,9 +34,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let field_array_access = |input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>| {
         let Some(fields) = fields else { return Ok(None); };
-        let mut declarations = batch.declarations().filter(|row| row.owner() == input.owner());
-        let Some(declaration) = declarations.next() else { return Ok(None); };
-        if declarations.next().is_some() { return Err(freeze("array-read/caller-source-drift")); }
+        let Some(declaration) = batch.unique_declaration_for_owner(input.owner())
+            .map_err(|_| freeze("array-read/caller-source-drift"))? else { return Ok(None); };
         let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller)) = selected.key_for_batch_slot(declaration.batch_slot())
             else { return Ok(None); };
         // An existing exact Integer Element source keeps its own result
@@ -95,9 +94,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             .filter(|flow| flow.owner() == input.owner() && flow.is_complete())?;
         let value = flow.read(object, binding)?;
         if !matches!(flow.origin(value), Some(Origin::Expression(original)) if original == &initializer) { return None; }
-        let mut declarations = batch.declarations().filter(|row| row.owner() == input.owner());
-        let declaration = declarations.next()?;
-        if declarations.next().is_some() { return None; }
+        let declaration = batch.unique_declaration_for_owner(input.owner()).ok().flatten()?;
         let slot = declaration.batch_slot();
         let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
             selected, batch, entry_home_loans.for_batch_slot(slot), slot);

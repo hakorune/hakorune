@@ -241,6 +241,27 @@ pub(super) fn has_original_borrowed_walk_v1(
 }
 
 /// Original typed Static edges demand complete caller/callee source analysis.
+/// `caller` is a selected callable of this batch (same slot and identity) or the
+/// checked app main. `key` pins the expected cataloged caller key when known.
+fn caller_is_selected_or_checked_main_v1(
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+    main: Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
+    caller: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
+    key: Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
+) -> bool {
+    let slot = caller.batch_slot();
+    let at_slot = match key {
+        Some(key) => selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key.clone())) == Some(slot),
+        None => selected.key_for_batch_slot(slot).is_some_and(|key| selected.batch_slot(&key) == Some(slot)),
+    };
+    (at_slot && selected.identity_for_batch_slot(slot).is_some_and(|identity| identity.same_as(caller.identity())))
+        || main.is_some_and(|main| main.caller_source_ref_v1()
+            .checked_caller_key(batch, contracts, caller.owner(), slot)
+            .is_ok_and(|checked| key.is_none_or(|key| checked == key)))
+}
+
 /// This is preparation only: it grants no execution row or module participant.
 pub(super) fn typed_static_walk_owners_v1(
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
@@ -307,18 +328,7 @@ pub(super) fn typed_static_walk_owners_v1(
         {
             return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
         }
-        let caller_key =
-            crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(original.caller().clone());
-        let selected_caller = selected.batch_slot(&caller_key) == Some(caller.batch_slot())
-            && selected
-                .identity_for_batch_slot(caller.batch_slot())
-                .is_some_and(|identity| identity.same_as(caller.identity()));
-        let checked_main = main.is_some_and(|main| {
-            main.caller_source_ref_v1()
-                .checked_caller_key(batch, contracts, caller.owner(), caller.batch_slot())
-                .is_ok_and(|key| key == original.caller())
-        });
-        if selected_caller || checked_main {
+        if caller_is_selected_or_checked_main_v1(batch, selected, contracts, main, &caller, Some(original.caller())) {
             owners.extend([caller.owner(), callee.owner()]);
         }
     }
@@ -370,18 +380,7 @@ pub(super) fn text_completion_order_v1<'a>(
         {
             return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
         }
-        let caller_key =
-            crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(original.caller().clone());
-        let selected_caller = selected.batch_slot(&caller_key) == Some(caller.batch_slot())
-            && selected
-                .identity_for_batch_slot(caller.batch_slot())
-                .is_some_and(|identity| identity.same_as(caller.identity()));
-        let checked_main = main.is_some_and(|main| {
-            main.caller_source_ref_v1()
-                .checked_caller_key(batch, contracts, caller.owner(), caller.batch_slot())
-                .is_ok_and(|key| key == original.caller())
-        });
-        if !(selected_caller || checked_main) {
+        if !caller_is_selected_or_checked_main_v1(batch, selected, contracts, main, &caller, Some(original.caller())) {
             continue;
         }
         let required = batch
@@ -400,12 +399,7 @@ pub(super) fn text_completion_order_v1<'a>(
         let Some(caller) = declarations.iter().find(|row| row.owner() == target.call_site().owner()) else { continue; };
         let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(target.target().clone());
         if selected.batch_slot(&key) != Some(target.target_batch_slot()) { continue; }
-        let selected_caller = selected.key_for_batch_slot(caller.batch_slot()).is_some_and(|key|
-            selected.batch_slot(&key) == Some(caller.batch_slot())
-                && selected.identity_for_batch_slot(caller.batch_slot()).is_some_and(|identity| identity.same_as(caller.identity())));
-        let checked_main = main.is_some_and(|main| main.caller_source_ref_v1()
-            .checked_caller_key(batch, contracts, caller.owner(), caller.batch_slot()).is_ok());
-        if !(selected_caller || checked_main) { continue; }
+        if !caller_is_selected_or_checked_main_v1(batch, selected, contracts, main, caller, None) { continue; }
         let Some(callee) = declarations.iter().find(|row| row.batch_slot() == target.target_batch_slot()) else {
             return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
         };
@@ -458,20 +452,7 @@ pub(super) fn text_completion_order_v1<'a>(
             {
                 continue;
             }
-            let selected_caller = selected
-                .key_for_batch_slot(caller.batch_slot())
-                .is_some_and(|key| {
-                    selected.batch_slot(&key) == Some(caller.batch_slot())
-                        && selected
-                            .identity_for_batch_slot(caller.batch_slot())
-                            .is_some_and(|identity| identity.same_as(caller.identity()))
-                });
-            let checked_main = main.is_some_and(|main| {
-                main.caller_source_ref_v1()
-                    .checked_caller_key(batch, contracts, caller.owner(), caller.batch_slot())
-                    .is_ok()
-            });
-            if !(selected_caller || checked_main) {
+            if !caller_is_selected_or_checked_main_v1(batch, selected, contracts, main, caller, None) {
                 continue;
             }
             if caller.batch_slot() != callee.batch_slot() {

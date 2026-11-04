@@ -413,16 +413,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("borrowed-terminal/incoming-missing"));
                 }
                 LocalCallArgumentV1::CallResult(inner) => {
-                    let expected =
-                        crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())
-                            .child(
-                                crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(
-                                    ordinal as u32,
-                                ),
-                            )
-                            .expr();
-                    if inner.site().owner() != site.owner()
-                        || inner.site().site() != &expected
+                    if !inner.site().is_argument_of(site, ordinal as u32)
                         || inner.prior_homes() != homes
                     {
                         return Err(freeze("borrowed-terminal/nested-site-or-homes"));

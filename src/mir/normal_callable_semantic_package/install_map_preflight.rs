@@ -117,13 +117,8 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         }
         let undertaking = undertaking.with_call_edges(call_edges);
         for owner in obligations.iter().map(|row| row.owner()) {
-            let mut declarations = self.batch.declarations().filter(|d| d.owner() == owner);
-            let declaration = declarations
-                .next()
+            let declaration = self.batch.unique_declaration_for_owner(owner).ok().flatten()
                 .ok_or(Issue::MapLifecycleConsumerMissing)?;
-            if declarations.next().is_some() {
-                return Err(Issue::MapLifecycleConsumerMissing);
-            }
             self.batch
                 .with_lowering_input(declaration.batch_slot(), |input| {
                     let function = input.function();

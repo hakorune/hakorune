@@ -721,9 +721,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_fixed_alias_v1(
     writers: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 ) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedArrayFieldSourceV1>, String> {
     if caller.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod { return Ok(None); }
-    let mut declarations = batch.declarations().filter(|row| row.owner() == input.owner());
-    let Some(declaration) = declarations.next() else { return Ok(None); };
-    if declarations.next().is_some() || selected.key_for_batch_slot(declaration.batch_slot())
+    let declaration = batch.unique_declaration_for_owner(input.owner())
+        .map_err(|_| freeze("array-read/receiver-source-caller"))?;
+    let Some(declaration) = declaration else { return Ok(None); };
+    if selected.key_for_batch_slot(declaration.batch_slot())
         != Some(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller.clone())) {
         return Err(freeze("array-read/receiver-source-caller"));
     }

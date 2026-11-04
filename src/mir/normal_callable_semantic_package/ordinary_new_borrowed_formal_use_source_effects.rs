@@ -101,11 +101,7 @@ pub(super) fn require_declared_read_use_v1(
                     match substitution {
                         Some(result_class_claim::ResultSupportSubstitutionV1::Formal(actual)) => actual.argument_site == *site
                             && actual.binding == formal && actual.callee_ordinal == *ordinal && actual.caller_ordinal == outer,
-                        None if callee.is_literal_null_v1() => {
-                            let mut path = call.site().node().segments().to_vec();
-                            path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(*ordinal));
-                            site.owner() == call.owner() && site.site().node().segments() == path
-                        }
+                        None if callee.is_literal_null_v1() => site.is_argument_of(call, *ordinal),
                         _ => false,
                     }
                 })

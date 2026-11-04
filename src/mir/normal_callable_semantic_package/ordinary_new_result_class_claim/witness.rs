@@ -29,10 +29,8 @@ impl ResultSupportSubstitutionV1 {
     pub(super) fn caller_formal_v1(&self, call: &OwnedExprSiteV1, callee: &ResultOriginWitnessV1) -> Option<(BindingRefV1, u32)> {
         if let Some(actual) = self.formal_v1() { return Some((actual.binding, actual.caller_ordinal)); }
         let Self::Read { callee_ordinal, source } = self else { return None; };
-        let mut path = call.site().node().segments().to_vec();
-        path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(*callee_ordinal));
-        (callee.formal_ordinal() == Some(*callee_ordinal) && source.read_v1().owner() == call.owner()
-            && source.read_v1().site().node().segments() == path).then(|| source.caller_formal_v1())
+        (callee.formal_ordinal() == Some(*callee_ordinal)
+            && source.read_v1().is_argument_of(call, *callee_ordinal)).then(|| source.caller_formal_v1())
     }
     pub(crate) fn formal_v1(&self) -> Option<&ResultFormalSubstitutionV1> {
         match self { Self::Formal(actual) => Some(actual), Self::Receiver { .. } | Self::Read { .. } => None }

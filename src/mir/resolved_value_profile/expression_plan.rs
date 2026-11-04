@@ -426,8 +426,7 @@ pub(crate) fn call_argument_expression_source_plan_v1(
     { return Err(Issue::ChildIdentity); }
     let argument = call.arguments().get(ordinal as usize).filter(|argument| argument.ordinal() == ordinal)
         .ok_or(Issue::ChildIdentity)?;
-    let expected = SourcePathV1::from_node(call.site().node()).child(SourcePathSegmentV1::Argument(ordinal)).expr();
-    if argument.site() != &expected || !inventory.contains_expression(argument.site()) {
+    if !argument.site().is_argument_of(call.site(), ordinal) || !inventory.contains_expression(argument.site()) {
         return Err(Issue::ChildIdentity);
     }
     let statement = inventory.containing_statement(call.site()).ok_or(Issue::MissingSource)?;
@@ -450,8 +449,7 @@ pub(crate) fn new_argument_expression_source_plan_v1(
         || !inventory.contains_expression(new_site.site()) { return Err(Issue::ChildIdentity); }
     let construction = input.function().expression_source().construction(new_site.site()).ok_or(Issue::MissingSource)?;
     let argument = construction.arguments().get(ordinal as usize).ok_or(Issue::ChildIdentity)?;
-    let expected = SourcePathV1::from_node(new_site.site().node()).child(SourcePathSegmentV1::Argument(ordinal)).expr();
-    if construction.site() != new_site.site() || argument != &expected
+    if construction.site() != new_site.site() || !argument.is_argument_of(new_site.site(), ordinal)
         || !inventory.contains_expression(argument) { return Err(Issue::ChildIdentity); }
     let statement = inventory.containing_statement(new_site.site()).ok_or(Issue::MissingSource)?;
     build_plan(&ledger, input.body_shape(), ExpressionPlanRootV1::NewArgument {

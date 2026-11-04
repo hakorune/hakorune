@@ -24,9 +24,8 @@ impl OrdinaryNewResultClassClaimsV1 {
         if !batch.declarations().any(|row| row.owner() == input.owner()) { return Ok(None); }
         DeclaredCallReadSourceV1::issue_source_v1(input, site, |producer, destination| {
             let Some(original) = self.original_local_call_identity_v1(batch, selected, fields, producer, destination, parameters, app_main, caller)? else { return Ok(None); };
-            let mut callees = batch.declarations().filter(|row| row.owner() == original.callee_owner);
-            let Some(callee) = callees.next() else { return Err("borrowed-nullable/callee-owner"); };
-            if callees.next().is_some() { return Err("borrowed-nullable/callee-owner"); }
+            let Some(callee) = batch.unique_declaration_for_owner(original.callee_owner).ok().flatten()
+                else { return Err("borrowed-nullable/callee-owner"); };
             Ok(callee.borrowed_result().map(std::sync::Arc::clone))
         })
     }
@@ -78,10 +77,8 @@ impl OrdinaryNewResultClassClaimsV1 {
             use crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultSupportV1 as Support;
             let matches = match declaration.support() {
                 Support::Formal { binding, ordinal } => {
-                    let mut path = loan.call().site().node().segments().to_vec();
-                    path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal));
                     *callee == crate::mir::instruction::BorrowedResultSupportV1::Formal(ordinal)
-                        && actual.read().site().node().segments() == path
+                        && actual.read().site().is_argument_of(loan.call().site(), ordinal)
                         && roots.iter().all(|root| root.is_literal_null_v1() || root.supports_formal_v1(binding, ordinal))
                 }
                 Support::Receiver { binding } => *callee == crate::mir::instruction::BorrowedResultSupportV1::Receiver
@@ -130,11 +127,9 @@ impl OrdinaryNewResultClassClaimsV1 {
             let Support::Formal { binding, ordinal } = declared.support() else {
                 return Err("borrowed-nullable/root-origin");
             };
-            let mut path = loan.call().site().node().segments().to_vec();
-            path.push(crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal));
             if ordinal != *callee_ordinal || declared.owner() != loan.callee_owner()
                 || actual.binding != Some(source.binding) || source.binding.owner() != loan.call().owner()
-                || actual.site.owner() != loan.call().owner() || actual.site.site().node().segments() != path
+                || !actual.site.is_argument_of(loan.call(), ordinal)
                 || source.construction.class() != declared.declared_type()
                 || roots.iter().zip(loan.witnesses()).any(|(root, kept)| !Rc::ptr_eq(root, kept)
                     || root.site().owner() != loan.callee_owner()
@@ -193,13 +188,7 @@ impl OrdinaryNewResultClassClaimsV1 {
                         && actual.callee_ordinal == ordinal
                         && actual.caller_ordinal == caller_ordinal =>
                 {
-                    let mut path = loan.call.site().node().segments().to_vec();
-                    path.push(
-                        crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal),
-                    );
-                    if actual.argument_site.owner() != loan.call.owner()
-                        || actual.argument_site.site().node().segments() != path
-                    {
+                    if !actual.argument_site.is_argument_of(&loan.call, ordinal) {
                         return Err("borrowed-nullable/argument-identity");
                     }
                 }
