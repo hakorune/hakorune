@@ -574,6 +574,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             Ok(lexical_i64_result_call(
                                 selected,
                                 batch,
+                                instance_constructors,
                                 parameter_contracts,
                                 &callable_result_classes,
                                 &candidates,

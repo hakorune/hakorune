@@ -216,6 +216,50 @@ fn lexical_i64_call_claims_arithmetic_over_exact_i64_values() {
 }
 
 #[test]
+fn lexical_i64_call_claims_exact_i64_receiver_fields_in_arithmetic() {
+    for body in ["return me.base + x", "return me.base * 10 + x", "return me.base"] {
+        let source = format!(
+            "box Calc {{ base: i64
+                birth(base) {{ me.base = base }}
+                f(x: i64): i64 {{ {body} }} }}
+            static box Main {{ main() {{
+                local c = new Calc(7)
+                local r = c.f(3)
+                return r
+            }} }}"
+        );
+        let package = issue(&source).unwrap_or_else(|issue| panic!("{body} package: {issue:?}"));
+        assert!(
+            local_calls(&package).iter().any(|call| call.result() == LocalCallResultClassV1::I64),
+            "{body}: claims an i64 local-call row"
+        );
+    }
+    // Only a declared-i64 `me` field is exact evidence: an untyped field or a
+    // missing field stays unclaimed.
+    for (label, field, body) in [
+        ("untyped-field", "base", "return me.base + x"),
+        ("missing-field", "base: i64", "return me.nothere + x"),
+    ] {
+        let source = format!(
+            "box Calc {{ {field}
+                birth(base) {{ me.base = base }}
+                f(x: i64): i64 {{ {body} }} }}
+            static box Main {{ main() {{
+                local c = new Calc(7)
+                local r = c.f(3)
+                return r
+            }} }}"
+        );
+        if let Ok(package) = issue(&source) {
+            assert!(
+                local_calls(&package).iter().all(|call| call.result() != LocalCallResultClassV1::I64),
+                "{label}: unclaimed"
+            );
+        }
+    }
+}
+
+#[test]
 fn lexical_i64_call_keeps_non_arithmetic_results_unclaimed() {
     // Kept apart from `lexical_i64_call_stays_fail_closed`, whose earlier rows
     // fail before reaching these.
@@ -229,12 +273,6 @@ fn lexical_i64_call_keeps_non_arithmetic_results_unclaimed() {
         (
             "compare-result",
             "bad(x: i64): i64 { return x > 2 }",
-            "pool.bad(4)",
-        ),
-        // An arithmetic operand that is not an exact formal or literal.
-        (
-            "field-operand",
-            "bad(x: i64): i64 { return me.size + x }",
             "pool.bad(4)",
         ),
     ] {
@@ -349,10 +387,10 @@ fn lexical_i64_call_stays_fail_closed() {
             "mix(x: i64): i64 { if x > 0 { return x } return new Page() }",
             "pool.mix(1)",
         ),
-        // A `me` field read is neither a literal nor an i64 formal.
+        // A `me.<i64 field>` read is an exact operand now; division still is not.
         (
-            "field-return",
-            "look(x: i64): i64 { return me.size }",
+            "field-division",
+            "look(x: i64): i64 { return me.size / 2 }",
             "pool.look(3)",
         ),
     ] {

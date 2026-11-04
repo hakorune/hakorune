@@ -630,6 +630,7 @@ pub(super) fn probe_source_home_prefixes_v1(
             Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
                 selected,
                 batch,
+                instance_constructors,
                 parameter_contracts,
                 &callable_result_classes,
                 &candidates,
