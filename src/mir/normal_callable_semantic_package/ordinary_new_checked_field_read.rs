@@ -27,8 +27,15 @@ impl OrdinaryNewClaimLedgerV1 {
         cleanup: &CheckedFieldReadCleanupV1,
     ) -> Result<Option<ValueId>, String> {
         let Some(support) = row.source.shared_support_v1() else { return Ok(None); };
-        let CheckedFieldReadCleanupV1::SourceHomes { requirement, normal_prefix, .. } = cleanup
-            else { return Err(fault("shared-field/cleanup-missing")); };
+        let requirement = self.source_field_requirement_v1(site)?
+            .ok_or_else(|| fault("shared-field/cleanup-missing"))?;
+        let normal_prefix = match cleanup {
+            CheckedFieldReadCleanupV1::SourceHomes { requirement: original, normal_prefix, .. } => {
+                if original != requirement { return Err(fault("shared-field/requirement-drift")); }
+                normal_prefix
+            },
+            CheckedFieldReadCleanupV1::EnclosingExpression { normal_prefix } => normal_prefix,
+        };
         if requirement.request().shared_support.as_ref() != Some(support) || requirement.request().site != *site {
             return Err(fault("shared-field/requirement-drift"));
         }
@@ -36,11 +43,11 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut invokes = normal_prefix.iter().filter_map(|(block, instruction)| match instruction {
             MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Shared(
                 crate::mir::instruction::SharedInvokeOperation::Borrow { descriptor: actual, handle: source }),
-                normal_landing, fault_landing, .. } if actual == &descriptor && *source == handle && normal_landing != fault_landing =>
-                Some((*block, *normal_landing, *fault_landing)),
+                fault_frame, normal_landing, fault_landing } if actual == &descriptor && *source == handle && normal_landing != fault_landing =>
+                Some((*block, *normal_landing, *fault_landing, *fault_frame)),
             _ => None,
         });
-        let (origin, landing, fault_landing) = invokes.next().ok_or_else(|| fault("shared-field/borrow-missing"))?;
+        let (origin, landing, fault_landing, fault_frame) = invokes.next().ok_or_else(|| fault("shared-field/borrow-missing"))?;
         if invokes.next().is_some() { return Err(fault("shared-field/borrow-duplicate")); }
         let mut results = normal_prefix.iter().filter_map(|(block, instruction)| match instruction {
             MirInstruction::InvokeNormalResult { invoke_block, dst } if *invoke_block == origin && *block == landing => Some(*dst),
@@ -53,7 +60,8 @@ impl OrdinaryNewClaimLedgerV1 {
             LocalReadProgress::CheckedEmitted { read: Some(read), invoke, .. }
                 if read.value_for(site.owner(), row.receiver_site.node(), row.receiver).ok() == Some(handle)
                     && invoke.0 == landing
-                    && matches!(&invoke.1, MirInstruction::Invoke { fault_landing: field_fault, .. } if *field_fault == fault_landing) => {},
+                    && matches!(&invoke.1, MirInstruction::Invoke { fault_landing: field_fault, fault_frame: field_frame, .. }
+                        if *field_fault == fault_landing && *field_frame == fault_frame) => {},
             _ => return Err(fault("shared-field/support-drift")),
         }
         Ok(Some(value))

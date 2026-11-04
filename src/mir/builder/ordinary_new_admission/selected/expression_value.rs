@@ -366,15 +366,16 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                 let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
                     normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
-                let (value, pair) = builder.append_checked_received_field_read_v1(base, &descriptor,
-                    fault_frame, normal, graph.acquisition_fault)?;
+                let (value, pair, prefix) = builder.append_checked_received_field_read_v1(base, &descriptor,
+                    &site, ledger, fault_frame, normal, graph.acquisition_fault)?;
                 // A direct path uses the SAME committed root read. Nested
                 // paths retain their existing checked-parent Normal proof.
                 let read = if path.parent().is_none() {
                     let root_site = OwnedExprSiteV1::new(owner, path.root_site().clone());
                     Some(Rc::clone(path_reads.get(&root_site).ok_or_else(|| freeze("print-expression/path-root-missing"))?))
                 } else { None };
-                ledger.record_enclosed_checked_local_field_read_v1(&site, &descriptor, read, pair[0].clone(), pair[1].clone())?;
+                ledger.record_enclosed_checked_local_field_read_v1(&site, &descriptor, read, pair[0].clone(), pair[1].clone(), prefix.clone())?;
+                bindings.extend(prefix);
                 bindings.extend(pair);
                 value
             } else {
@@ -454,10 +455,11 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
                         normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
-                    let (value, pair) = builder.append_checked_received_field_read_v1(base, &source,
-                        fault_frame, normal, graph.acquisition_fault)?;
+                    let (value, pair, prefix) = builder.append_checked_received_field_read_v1(base, &source,
+                        &site, ledger, fault_frame, normal, graph.acquisition_fault)?;
                     ledger.record_enclosed_checked_local_field_read_v1(&site, &source,
-                        Some(Rc::new(original_read.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?)), pair[0].clone(), pair[1].clone())?;
+                        Some(Rc::new(original_read.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?)), pair[0].clone(), pair[1].clone(), prefix.clone())?;
+                    bindings.extend(prefix);
                     bindings.extend(pair);
                     value
                 } else {

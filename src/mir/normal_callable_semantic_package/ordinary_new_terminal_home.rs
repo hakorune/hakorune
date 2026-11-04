@@ -333,8 +333,16 @@ pub(super) fn local_read_field(
 > {
     let declared = local_read_field_declaration(constructors, candidates, coverage,
         receiver, site, home, alias_class, field)?;
+    Ok(classify_declared_read_field_v1(coverage, declared))
+}
+
+/// The declared field law is independent of the payload's local/result position.
+pub(super) fn classify_declared_read_field_v1(
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    declared: Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<String>)>,
+) -> Option<Rc<LocalFieldReadSourceV1>> {
     let Some((field_ref, declared)) = declared else {
-        return Ok(None);
+        return None;
     };
     use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
     let result = match declared.as_deref() {
@@ -342,11 +350,11 @@ pub(super) fn local_read_field(
             LocalFieldReadResultV1::Scalar
         }
         Some(name) if coverage.contains_box(name) => LocalFieldReadResultV1::Alias(name.into()),
-        _ => return Ok(None),
+        _ => return None,
     };
-    Ok(Some(LocalFieldReadSourceV1::from_declaration(
+    Some(LocalFieldReadSourceV1::from_declaration(
         field_ref, result, Some(declared.expect("classified declared field type").into_boxed_str()),
-    )))
+    ))
 }
 
 /// Integer-field proof for a non-null-narrowed received nullable: `class`

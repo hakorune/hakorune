@@ -193,5 +193,20 @@ fn explicit_share_source_rejects_an_unrequested_physical_clone() {
             assert!(error.contains("shared-initializer/source-coverage"), "{error}");
             Ok(())
         }).unwrap();
+        for tail in [
+            "local v = s.right return v",
+            "local t = share s local v = t.right return v",
+            "local t = move s local v = t.right return v",
+            "return s.right",
+        ] {
+            let text = format!("box Pair {{ left: i64 right: i64 birth(left, right) {{ me.left = left me.right = right }} }}
+                static box Main {{ main() {{ local s = share new Pair(4, 5) {tail} }} }}");
+            MirCompiler::with_options(false).compile_normal_with_published(request(&text),
+                |view, verification| -> Result<(), String> {
+                    require_artifact_verification(verification);
+                    view.issue_lifecycle_physical_abi_input()?;
+                    Ok(())
+                }).unwrap_or_else(|error| panic!("fresh Shared payload read {tail}: {error}"));
+        }
     });
 }

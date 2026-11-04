@@ -567,7 +567,7 @@ pub(super) fn probe_source_home_prefixes_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameter_contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
     callable_result_classes: &result_class_claim::OrdinaryNewResultClassClaimsV1,
-    candidates: &[OrdinaryNewCandidate],
+    candidates: &[OrdinaryNewCandidate], result_constructions: &[OrdinaryNewSiteResolutionV1],
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     array_i64_field_sets: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
@@ -705,7 +705,7 @@ pub(super) fn probe_source_home_prefixes_v1(
         &mut |requests, demand| {
             prove_local_field_read_batch(
                 instance_constructors,
-                &candidates,
+                &candidates, result_constructions,
                 batch.ordinary_box_coverage(),
                 receiver_proof,
                 entry_home,

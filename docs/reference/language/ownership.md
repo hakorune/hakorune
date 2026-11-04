@@ -82,7 +82,9 @@ result or with explicit `move`.
 Rules 2, 3 and 5-13 were revised on 2026-11-03, and the grammar is frozen (ADR-002
 row "凍結"). Bounded Rust local `share new T(...)`, `share move x` and
 `share h` (an owned Shared local) are connected to the existing checked Shared
-plan. `Shared(...)` is now rejected with migration guidance; the type spelling
+plan. Declared i64 payload fields of these locals use the same checked Borrow
+through local reads and direct returns, including explicit handle clone/move.
+`Shared(...)` is now rejected with migration guidance; the type spelling
 `Shared<T>` remains. A bare `local r = h` no longer adds a handle: Shared-handle
 read borrowing is not connected yet, so this legal target is a named compiler
 coverage refusal suggesting `share h` or `move h`. `Shared::Borrow` remains a

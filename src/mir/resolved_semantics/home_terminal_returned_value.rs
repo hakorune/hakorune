@@ -641,7 +641,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
             if locals.stored_get_reference_v1(&object).is_some()
                 || matches!(input.function().variable_ref(&object), Some(super::super::ResolvedLexicalRefV1::Local(binding))
-                    if locals.has_declared_read_origin_v1(binding))));
+                    if locals.has_declared_read_origin_v1(binding)
+                        || matches!(locals.field_read_receiver(binding, Some(object)),
+                            Some(super::super::local_flow::FieldReadReceiverV1::Shared { .. })))));
     let binary = input.function().expression_source().binary(value.site()).map(|row| row.operator());
     let add = binary == Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add);
     let copy = input.function().expression_source().unary(value.site()).is_some_and(|unary| unary.is_explicit_copy_v1());

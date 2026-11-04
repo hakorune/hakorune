@@ -33,6 +33,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_formal_class_v1(
 pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_batch(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     candidates: &[OrdinaryNewCandidate],
+    result_constructions: &[OrdinaryNewSiteResolutionV1],
     coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
     receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
@@ -239,12 +240,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         let source = if let Some(support) = &request.shared_support {
             if request.owned_ready.is_some() || request.path.is_some() || request.received.is_some()
                 || !matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) { return Ok(None); }
-            let mut matching = candidates.iter().filter(|candidate| candidate.site == support.1);
-            let Some(candidate) = matching.next() else { return Ok(None); };
-            if matching.next().is_some() || candidate.site.owner() != request.site.owner() { return Ok(None); }
-            let Some(source) = terminal_home::local_read_field(constructors, candidates, coverage,
-                receiver_proof, &request.site, candidate.destination, None, &request.field)? else { return Ok(None); };
-            if source.field().object() != candidate.object { return Ok(None); }
+            let mut origins = candidates.iter().filter(|row| row.site == support.1)
+                .map(|row| (&row.box_source, row.object))
+                .chain(result_constructions.iter().filter(|row| row.site == support.1)
+                    .map(|row| (&row.box_source, row.object)));
+            let Some((box_source, object)) = origins.next() else { return Ok(None); };
+            if origins.next().is_some() || support.1.owner() != request.site.owner() { return Ok(None); }
+            let declared = terminal_home::source_declared_field(constructors, box_source,
+                &request.site, &request.field)?;
+            let Some(source) = terminal_home::classify_declared_read_field_v1(coverage, declared)
+                else { return Ok(None); };
+            if source.field().object() != object { return Ok(None); }
             LocalFieldReadSourceV1::with_shared_support(&source, support)
         } else if array_receiver.is_some() { array_receiver } else if object_source.is_some() { object_source } else if request.owned_ready.is_some() {
             let Some((field, declared)) = terminal_home::local_read_field_declaration(

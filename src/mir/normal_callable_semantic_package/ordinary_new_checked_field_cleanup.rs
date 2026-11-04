@@ -7,7 +7,7 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) enum CheckedFieldReadCleanupV1 {
-    EnclosingExpression,
+    EnclosingExpression { normal_prefix: Vec<Binding> },
     SourceHomes {
         requirement: ExpressionFieldRequirementV1,
         frame: Binding,
@@ -18,10 +18,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) enum C
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn record_enclosed_checked_local_field_read_v1(
         &self, site: &OwnedExprSiteV1, source: &Rc<LocalFieldReadSourceV1>,
-        read: Option<Rc<ExactLexicalReadV1>>, invoke: Binding, normal: Binding,
+        read: Option<Rc<ExactLexicalReadV1>>, invoke: Binding, normal: Binding, normal_prefix: Vec<Binding>,
     ) -> Result<(), String> {
         self.record_checked_local_field_read_v1(site, source, read, invoke, normal,
-            CheckedFieldReadCleanupV1::EnclosingExpression)
+            CheckedFieldReadCleanupV1::EnclosingExpression { normal_prefix })
     }
     pub(in crate::mir) fn record_source_checked_local_field_read_v1(
         &self, site: &OwnedExprSiteV1, source: &Rc<LocalFieldReadSourceV1>,
@@ -37,8 +37,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.local_field_reads.borrow();
         let row = rows.get(site).ok_or_else(|| fault_error("source-cleanup/read"))?;
         match &row.progress {
-            LocalReadProgress::CheckedEmitted { cleanup: CheckedFieldReadCleanupV1::SourceHomes { normal_prefix, .. }, .. } => Ok(normal_prefix.clone()),
-            LocalReadProgress::CheckedEmitted { .. } => Ok(Vec::new()),
+            LocalReadProgress::CheckedEmitted { cleanup: CheckedFieldReadCleanupV1::SourceHomes { normal_prefix, .. }
+                | CheckedFieldReadCleanupV1::EnclosingExpression { normal_prefix }, .. } => Ok(normal_prefix.clone()),
             _ => Err(fault_error("source-cleanup/unconsumed")),
         }
     }

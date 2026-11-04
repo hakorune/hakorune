@@ -12,9 +12,42 @@ impl crate::mir::MirBuilder {
     pub(in crate::mir::builder) fn append_checked_received_field_read_v1(
         &mut self, base: ValueId,
         source: &crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1,
+        site: &OwnedExprSiteV1, ledger: &OrdinaryNewClaimLedgerV1,
         fault_frame: ValueId, normal: crate::mir::BasicBlockId, fault: crate::mir::BasicBlockId,
-    ) -> Result<(ValueId, [(crate::mir::BasicBlockId, crate::mir::MirInstruction); 2]), String> {
-        self.append_checked_field_read_with_destination_v1(base, source, fault_frame, normal, fault, None)
+    ) -> Result<(ValueId, [(BasicBlockId, MirInstruction); 2], Vec<(BasicBlockId, MirInstruction)>), String> {
+        let (base, prefix) = self.append_checked_field_receiver_v1(base, source, site, ledger, fault_frame, fault)?;
+        let (value, pair) = self.append_checked_field_read_with_destination_v1(base, source, fault_frame, normal, fault, None)?;
+        Ok((value, pair, prefix))
+    }
+
+    /// Source and enclosing-expression reads use one Shared Borrow transaction.
+    fn append_checked_field_receiver_v1(
+        &mut self, base: ValueId, source: &LocalFieldReadSourceV1,
+        site: &OwnedExprSiteV1, ledger: &OrdinaryNewClaimLedgerV1,
+        fault_frame: ValueId, fault: BasicBlockId,
+    ) -> Result<(ValueId, Vec<(BasicBlockId, MirInstruction)>), String> {
+        let Some(support) = source.shared_support_v1() else { return Ok((base, Vec::new())); };
+        let required = ledger.source_field_requirement_v1(site)?
+            .ok_or("[freeze:contract][ordinary-field-read/checked-source-context-missing]")?;
+        let (descriptor, handle, _) = ledger.prepare_shared_clone_handle_v1(required.request().receiver,
+            &support.0, required.prior_homes())?;
+        if handle != base || descriptor.payload != source.field().object()
+            || required.request().shared_support.as_ref() != Some(support) {
+            return Err("[freeze:contract][shared-field/support-drift]".into());
+        }
+        let block = self.function_state.current_block.ok_or("[freeze:contract][shared-field/no-block]")?;
+        let normal = self.next_block_id();
+        let invoke = MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::Shared(
+                crate::mir::instruction::SharedInvokeOperation::Borrow { descriptor, handle }),
+            fault_frame, normal_landing: normal, fault_landing: fault,
+        };
+        self.emit_instruction(invoke.clone())?;
+        self.start_new_block(normal)?;
+        let value = self.next_value_id();
+        let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst: value };
+        self.emit_instruction(projection.clone())?;
+        Ok((value, vec![(block, invoke), (normal, projection)]))
     }
     fn append_checked_field_read_with_destination_v1(
         &mut self, base: ValueId,
@@ -85,26 +118,8 @@ impl crate::mir::MirBuilder {
         let outward = self.next_block_id();
         append_block(self, outward, MirInstruction::ReturnFault { fault_frame }, &mut fault)?;
         let landing = cleanup_chain(self, fault_frame, operations, outward, &mut fault)?;
-        let base = if let Some(support) = source.shared_support_v1() {
-            let (descriptor, handle, _) = ledger.prepare_shared_clone_handle_v1(required.request().receiver, &support.0, required.prior_homes())?;
-            if handle != base || descriptor.payload != field.object() {
-                return Err("[freeze:contract][shared-field/support-drift]".into());
-            }
-            let block = self.function_state.current_block.ok_or("[freeze:contract][shared-field/no-block]")?;
-            let normal = self.next_block_id();
-            let invoke = MirInstruction::Invoke {
-                operation: crate::mir::instruction::InvokeOperation::Shared(
-                    crate::mir::instruction::SharedInvokeOperation::Borrow { descriptor, handle }),
-                fault_frame, normal_landing: normal, fault_landing: landing,
-            };
-            self.emit_instruction(invoke.clone())?;
-            self.start_new_block(normal)?;
-            let value = self.next_value_id();
-            let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst: value };
-            self.emit_instruction(projection.clone())?;
-            normal_prefix.extend([(block, invoke), (normal, projection)]);
-            value
-        } else { base };
+        let (base, shared_prefix) = self.append_checked_field_receiver_v1(base, source, site, ledger, fault_frame, landing)?;
+        normal_prefix.extend(shared_prefix);
         let normal = self.next_block_id();
         let (value, pair) = self.append_checked_field_read_with_destination_v1(base, source, fault_frame, normal, landing, destination)?;
         ledger.record_source_checked_local_field_read_v1(site, source, read, pair[0].clone(), pair[1].clone(), frame,

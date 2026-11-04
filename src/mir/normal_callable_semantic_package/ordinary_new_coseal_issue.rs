@@ -344,7 +344,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         brands, source_core_calls, input, &new_sites, entry_home, explicit_sites, pending_actuals,
                         dynamic_source_calls,
                         batch_slot, selected, batch, parameter_contracts,
-                        &callable_result_classes, &candidates, instance_constructors,
+                        &callable_result_classes, &candidates, &result_resolutions, instance_constructors,
                         receiver_proof, &array_i64_field_sets,
                         &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call, &receiver_call_observations, &field_write_claims, completed,
                     )
@@ -504,7 +504,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     let mut local_field_read = |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], demand| {
                         let probe = matches!(&demand, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1::SourceExpression { probe: true, .. });
                         let Some(rows) = source_claims::prove_local_field_read_batch(
-                            instance_constructors, &candidates, batch.ordinary_box_coverage(),
+                            instance_constructors, &candidates, &result_resolutions, batch.ordinary_box_coverage(),
                             receiver_proof, entry_home, source_core_calls, requests, demand, &borrowed_i64_results, &borrowed_formal_source,
                             &mut |home| lexical::nullable_received_result_class(
                                 selected, batch, &callable_result_classes, &candidates, input, receiver_proof, home,

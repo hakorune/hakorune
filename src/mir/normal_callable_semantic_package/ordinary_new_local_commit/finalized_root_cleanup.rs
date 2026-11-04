@@ -134,7 +134,8 @@ impl FinalizedRootSourceHandoffV1 {
             };
             let mut candidates = bindings.to_vec();
             entry.append_bindings(&mut candidates);
-            if !candidates.iter().any(|(_, row)| matches!(row,
+            let expression = order.return_expression_bindings_v1(CallValidationContextV1::Finalized(self))?;
+            if !candidates.iter().chain(expression.iter()).any(|(_, row)| matches!(row,
                 MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }
                     | crate::mir::instruction::InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { .. }), .. }))
             { continue; }
@@ -159,6 +160,7 @@ impl FinalizedRootSourceHandoffV1 {
                         function, Some(projection))?;
                 }
                 lend_conditional_end_bindings(&mut result, function, projection, &candidates, finishing)?;
+                lend_conditional_end_bindings(&mut result, function, projection, &expression, Some(projection))?;
                 Ok(())
             })?;
         }

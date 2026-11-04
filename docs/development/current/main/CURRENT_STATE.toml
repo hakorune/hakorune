@@ -1,10 +1,10 @@
 date = "2026-11-04"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "step3a share local connection and legacy retirement landed; Shared<T> public boundary remains unconnected"
-current_design_stop = "Shared<T> parameter/result/field carrier and ownership contracts require a separate approved implementation; nullable cases(a)-(d) reported, no implementation"
+current_blocker_token = "step3a nullable: Shared payload reads landed; connect box nullable-field single initialization"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8. Step3a share stages1–2 landed: local share new/share move/share h use one source decision and existing Shared operations; Shared(...) migration-refuses and bare Shared reads no longer add a handle.
-Shared handle borrowing is not represented yet: bare local reads named-refuse with share/move guidance, never payload Borrow. Existing app migrated at unchanged exit10; ordinary calls/index/names and Box aliases stay unchanged.
-Optimized target/quick CLI/runtime fixed8/8 (135.97s), cohort1808 PASS/exact115 names, focused29 PASS incl extra-Clone publication refusal; C unchanged, 19 shapes deferred. Series production net+66/test+57, no new files/checker.
-Shared<T> read/take/result/field cross a public-carrier/ownership-contract boundary and remain named refusals. Typed make():Page still UnsupportedResultAnnotation. Stage3 is reported; no raw-i64/plain-Box/Shared-payload disguise.
-T? cases(a)-(d) reported without implementation: a/b can reuse single install with declaration/definite-init proof; c depends on observation; d has existing Object Replace wire but missing execution. Unify later with approved Place, not a T?-only contract. Two stashes/unrelated inventory/Hako pending path preserved; goal closes with this report.
+APP-boxtorrent-mini fixed8/8. Approved nullable goal: Shared payload reads landed; box T? initialization/source diagnostics and annotated-birth report remain; total five hours.
+Shared Fresh/Clone/Move/direct-return payload reads use common origin and checked Borrow/cleanup. Six optimized EXEs exit as expected; no new public contract/ABI/C changes.
+Optimized target/quick CLI/runtime: suite8/8, cohort1808 PASS/known115 exact FAIL names, check/focused3 PASS. Rust production +43/test +15; existing publication family retains source/clone safety evidence.
+Next: T? declaration/assignment Init origin, explicit Null without Home, one install and original-source observation checks. No post-publication replacement or branched acceptance; public contract/ABI or weaker safety stops implementation.
+Report typed i64 birth publication separately from ordinary callable annotations and include frozen edit proposal item4b without implementation. Two stashes/unrelated inventory preserved; Hako/19 shapes excluded.
 """
-next_design_card = "APP-boxtorrent-mini"
-next_design_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "APP-boxtorrent-mini"
+next_execution_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/app-boxtorrent-mini.md (optimization phase item 1)"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

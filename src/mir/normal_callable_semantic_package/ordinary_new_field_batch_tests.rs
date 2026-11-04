@@ -167,7 +167,7 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
             completion.attach_root_home_flow(flow);
             let candidates = collect_local_candidates_v1(package.batch(), package.instance_constructors(), input).unwrap();
             let prove = |plan| prove_local_field_read_batch(
-                package.instance_constructors(), &candidates, package.batch().ordinary_box_coverage(),
+                package.instance_constructors(), &candidates, &[], package.batch().ordinary_box_coverage(),
                 None, None, None, &requests,
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1::SourceExpression { plan, probe: false },
                 &ledger.borrowed_i64_results, ledger.borrowed_formal_source.as_ref().unwrap(),
@@ -574,7 +574,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                         &mut |_| can_install,
                         &mut |requests, demand| {
                             *batches += 1;
-                            let Some(rows) = prove_local_field_read_batch(package.instance_constructors(), &candidates,
+                            let Some(rows) = prove_local_field_read_batch(package.instance_constructors(), &candidates, &[],
                                 package.batch().ordinary_box_coverage(), None, None, None, requests, demand,
                                 &ledger.borrowed_i64_results, ledger.borrowed_formal_source.as_ref().unwrap(),
                                 &mut |_| None, &mut |_| Ok(None), None).map_err(|issue| format!("{issue:?}"))? else { return Ok(false) };
