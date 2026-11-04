@@ -195,9 +195,10 @@ fn owned_field_after_store_v1(
 ) -> Option<OwnedFieldChildV1> {
     use crate::mir::instruction::{FieldResidenceEndModeV1 as End, FieldSetModeV1 as Mode};
     let kind = match mode {
-        Mode::DYNAMIC_I64_INITIALIZE | Mode::DYNAMIC_MAP_INITIALIZE | Mode::DYNAMIC_TEXT_INITIALIZE
-        | Mode::DynamicValue(_) => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
-        _ => match store.rhs() {
+        // Every dynamic store (any tag, either intent) leaves a dynamic residence to drain.
+        // A Birth store is always an Initialize; a Replace never reaches a construction plan.
+        Mode::DynamicValue(_) => OwnedFieldChildKindV1::Residence(End::DynamicResidence),
+        Mode::ExactSlot => match store.rhs() {
             ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. } => OwnedFieldChildKindV1::Object(child.object()),
             ConstructionStoreRhsV1::ProviderConstruction { object: None, class, .. } if class.as_ref() == "ArrayBox" =>
                 OwnedFieldChildKindV1::Residence(End::ArrayResidence),

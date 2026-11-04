@@ -28,9 +28,7 @@ pub(super) fn issue_exact_numeric_checks(
             // physical function has nothing to run; its contracts are inert. A
             // physical function keeps its checks even if no edge reaches it.
             // Unresolved calls leave `reachable` empty and keep today's check.
-            if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str()))
-                && !program.functions().iter().any(|physical| physical.name() == name.as_str())
-            {
+            if program.range_contracts_are_inert_v1(&reachable, name.as_str()) {
                 continue;
             }
             let (ordinal, physical) = program

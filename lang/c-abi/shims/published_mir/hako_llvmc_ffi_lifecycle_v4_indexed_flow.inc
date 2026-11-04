@@ -467,7 +467,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
       yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");
-      if (hako_physical_text_field_replace(op)) {
+      const int store_kind = hako_physical_dynamic_store_kind(op, NULL);
+      if (store_kind == HAKO_DYN_STORE_TEXT_REPLACE) {
         if (birth || faulted || !value || value->kind != LV4_OWNED_STRING ||
             !lv4_birth_dynamic(in, op) || !lv4_is(range, "kind", "none") ||
             !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id"), use_position) ||
@@ -475,10 +476,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         /* Commit failure disposes the taken candidate inside the transaction.
            Commit success transfers it to the slot even if the old End faults. */
         state[value->origin] = 0;
-      } else if (lv4_is(op, "transaction", "dynamic_value_initialize") &&
-          hako_physical_dynamic_store_kind(op, NULL) != HAKO_DYN_STORE_I64_INIT &&
-          hako_physical_dynamic_store_kind(op, NULL) != HAKO_DYN_STORE_MAP_INIT &&
-          hako_physical_dynamic_store_kind(op, NULL) != HAKO_DYN_STORE_TEXT_INIT) {
+      } else if (store_kind == HAKO_DYN_STORE_ARRAY_INIT || store_kind == HAKO_DYN_STORE_OBJECT_INIT) {
         /* The source-selected tag and residence travel separately. A
            nullable object formal initializes an exact Dynamic Object Home
            in Birth; Null remains a non-owning tag, and the caller transfers
@@ -529,11 +527,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
            live so the caller's existing cleanup still owns it. */
         normal[array_home->origin] = 0;
         }
-      } else if (hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_I64_INIT ||
-          hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_MAP_INIT ||
-          hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_TEXT_INIT) {
-        int text = hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_TEXT_INIT;
-        int map = hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_MAP_INIT;
+      } else if (store_kind == HAKO_DYN_STORE_I64_INIT || store_kind == HAKO_DYN_STORE_MAP_INIT ||
+          store_kind == HAKO_DYN_STORE_TEXT_INIT) {
+        int text = store_kind == HAKO_DYN_STORE_TEXT_INIT;
+        int map = store_kind == HAKO_DYN_STORE_MAP_INIT;
         if (!birth || faulted || !value || !lv4_birth_dynamic(in, op) ||
             !lv4_is(range, "kind", "none") || !lv4_birth_commit(in, fn, op, normal, bi, 0)) return 0;
         if (text) {
@@ -550,7 +547,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               lv4_pred_count(fn, lv4_u(block, "id")) != 1) return 0;
           normal[value->origin] = 0; /* Fault still owns the in-flight candidate. */
         } else if (value->kind != LV4_I64) return 0;
-      } else if (hako_physical_dynamic_store_kind(op, NULL) == HAKO_DYN_STORE_I64_REPLACE) {
+      } else if (store_kind == HAKO_DYN_STORE_I64_REPLACE) {
         /* This source family carries signed I64 only, never tagged payloads or Homes. */
         if (birth || faulted || !value || value->kind != LV4_I64 ||
             !lv4_is(range, "kind", "none") || !base ||

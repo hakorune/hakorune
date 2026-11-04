@@ -182,12 +182,11 @@ static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* f
     size_t matched = 0;
     for (size_t i = 0; i < fn->block_count; i++) {
       yyjson_val* store = lv4_birth_store(fn, i);
+      const int store_kind = hako_physical_dynamic_store_kind(store, NULL);
       if (state[i] == LV4_BIRTH_FIELD && lv4_is(store, "kind", "field_set") &&
           lv4_birth_base(fn, store) && lv4_u(store, "field_ordinal") == ordinal &&
-          (hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_I64_INIT ||
-           hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_MAP_INIT ||
-           hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_TEXT_INIT ||
-           hako_physical_dynamic_store_kind(store, NULL) == HAKO_DYN_STORE_OBJECT_INIT)) matched++;
+          (store_kind == HAKO_DYN_STORE_I64_INIT || store_kind == HAKO_DYN_STORE_MAP_INIT ||
+           store_kind == HAKO_DYN_STORE_TEXT_INIT || store_kind == HAKO_DYN_STORE_OBJECT_INIT)) matched++;
     }
     if (matched != 1) return 0;
     expected++;

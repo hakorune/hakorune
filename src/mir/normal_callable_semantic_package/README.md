@@ -4597,7 +4597,7 @@ Checked FieldSet physical correspondence is owned by CheckedFieldWriteGraphV1:
 LocalSSA pins, original Invoke/Normal continuation, finishing and Fault inventory.
 Source packets retain source-origin and exact operand proofs; the graph itself
 cannot authorize a field write or replace an independent final source scan.
-The source loan selects explicit ExactSlot or DynamicI64Replace semantics;
+The source loan selects explicit ExactSlot or the `I64_REPLACE` dynamic contract semantics;
 finishing and both final scans retain that mode. Dynamic replacement admits
 only a source-proved no-Home signed candidate: precommit Fault leaves the slot,
 postcommit old-End Fault retains the new slot. The original all-writer/read

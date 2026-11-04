@@ -619,6 +619,10 @@ pub(super) fn issue_construction_source_v1(
         use crate::mir::instruction::FieldSetModeV1 as Mode;
         let mode = if canonical.is_dynamic_slot_field(ordinal) {
             match &rhs {
+                // A declared Text slot takes Text only: no scalar, Map or child mode is issued.
+                // (A formal's store stays `Err` here and is qualified later against Text.)
+                other if canonical.text_slot(ordinal).is_some()
+                    && !matches!(other, ConstructionStoreRhsV1::LiteralText(_)) => Err(U::FieldContractUnsupported),
                 ConstructionStoreRhsV1::LiteralI64(_) => Ok(Mode::DYNAMIC_I64_INITIALIZE),
                 ConstructionStoreRhsV1::LiteralText(_) => Ok(Mode::DYNAMIC_TEXT_INITIALIZE),
                 ConstructionStoreRhsV1::ProviderConstruction { class, object: None, .. }

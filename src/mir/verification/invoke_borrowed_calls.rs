@@ -90,7 +90,7 @@ pub(super) fn original_call_slots(
             MirInstruction::Invoke { operation: InvokeOperation::FieldGet { field, .. }
                 | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field, .. })
                 | InvokeOperation::ObjectFieldBorrow { field, .. }, .. } =>
-                module.canonical_dynamic_slot_field(*field),
+                module.canonical_field_demands_dynamic_view(*field),
             MirInstruction::Invoke { operation: InvokeOperation::FieldSet {
                 mode, .. }, .. } => *mode != crate::mir::instruction::FieldSetModeV1::ExactSlot,
             _ => false,

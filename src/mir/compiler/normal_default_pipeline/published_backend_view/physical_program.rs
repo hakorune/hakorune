@@ -193,6 +193,19 @@ impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
         &self.functions
     }
 
+    /// A function whose range contracts need no check: no resolved call chain
+    /// reaches it from the Root AND it has no physical function. A physical
+    /// function keeps its checks even without an edge; an unresolved walk
+    /// (`reachable == None`) keeps every function in scope.
+    pub(crate) fn range_contracts_are_inert_v1(
+        &self,
+        reachable: &Option<std::collections::BTreeSet<&str>>,
+        name: &str,
+    ) -> bool {
+        reachable.as_ref().is_some_and(|reached| !reached.contains(name))
+            && !self.functions().iter().any(|physical| physical.name() == name)
+    }
+
     /// Function symbols reachable from the program's Root through resolved call
     /// edges of the published MIR itself (not any source plan). `None` when any
     /// reachable function holds a call this walk cannot resolve to a module

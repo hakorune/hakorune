@@ -470,30 +470,46 @@ fn declared_text_slot_fields_publish_dynamic_text_and_refuse_other_tags() {
                 assert!(object.is_dynamic_slot_field(0), "{field}: dynamic slot");
                 assert_eq!(object.text_slot(0).is_some(), field != "name", "{field}: declared Text slot");
                 if field == "name" { return Ok(()); }
-                // Mutate only the store's tag: the declaration refuses every non-Text tag.
-                for mutated in [
-                    crate::mir::instruction::FieldSetModeV1::DYNAMIC_I64_INITIALIZE,
-                    crate::mir::instruction::FieldSetModeV1::DYNAMIC_MAP_INITIALIZE,
-                    crate::mir::instruction::FieldSetModeV1::ExactSlot,
-                ] {
+                // Mutate only the store: the declaration refuses every non-Text tag and
+                // an ObjectFieldSet; each refusal carries its own tag.
+                use crate::mir::instruction::{DynamicFieldResidenceV1 as Residence, DynamicFieldSetContractV1 as Contract,
+                    DynamicFieldValueTagV1 as Tag, DynamicFieldWriteIntentV1 as Intent, FieldSetModeV1 as Mode};
+                let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+                let nullable = field.ends_with('?');
+                let mutations: Vec<(&str, Option<Mode>)> = vec![
+                    ("i64", Some(Mode::DYNAMIC_I64_INITIALIZE)),
+                    ("map", Some(Mode::DYNAMIC_MAP_INITIALIZE)),
+                    ("object", Contract::issue(Intent::Initialize, Tag::Object, Residence::ObjectHome(object)).map(Mode::DynamicValue)),
+                    ("null", Contract::issue(Intent::Initialize, Tag::Null, Residence::None).map(Mode::DynamicValue)),
+                    ("exact-slot", Some(Mode::ExactSlot)),
+                    ("object-field-set", None),
+                ];
+                for (label, mutated) in mutations {
                     let mut changed = module.clone();
                     let mut touched = 0;
                     for function in changed.functions.values_mut() {
                         for block in function.blocks.values_mut() {
                             for row in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
-                                if let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode, .. }, .. } = row {
-                                    if *mode == crate::mir::instruction::FieldSetModeV1::DYNAMIC_TEXT_INITIALIZE {
-                                        *mode = mutated; touched += 1;
-                                    }
-                                }
+                                let MirInstruction::Invoke { operation, .. } = row else { continue };
+                                let InvokeOperation::FieldSet { mode, field: slot, base, value } = operation.clone() else { continue };
+                                if mode != Mode::DYNAMIC_TEXT_INITIALIZE { continue; }
+                                *operation = match mutated {
+                                    Some(mode) => InvokeOperation::FieldSet { mode, field: slot, base, value },
+                                    None => InvokeOperation::ObjectFieldSet { field: slot, base, value, child: object },
+                                };
+                                touched += 1;
                             }
                         }
                     }
-                    assert_eq!(touched, 1);
+                    assert_eq!(touched, 1, "{field}/{label}");
                     let error = format!("{:?}", crate::mir::verification::MirVerifier::new().verify_module(&changed));
-                    assert!(error.contains("field-text-slot-tag") || mutated == crate::mir::instruction::FieldSetModeV1::ExactSlot,
-                        "{field}/{mutated:?}: {error}");
-                    assert!(!error.is_empty() && error.contains("Err"), "{field}/{mutated:?} must be refused: {error}");
+                    let text_slot_refusal = error.contains("field-text-slot-tag");
+                    match label {
+                        // Null enters a `String?` slot without the Text-slot refusal (other rules decide).
+                        "null" if nullable => assert!(!text_slot_refusal, "{field}/null: {error}"),
+                        // An exact slot is no Text tag either: the same refusal, not a generic failure.
+                        _ => assert!(text_slot_refusal, "{field}/{label}: {error}"),
+                    }
                 }
                 Ok(())
             }).unwrap_or_else(|error| panic!("Text slot {field}: {error}"));

@@ -53,9 +53,7 @@ pub(super) fn enforce(
     // unresolved call keeps every function in scope.
     let reachable = input.program().reachable_symbols_v1(module);
     for (name, function) in &module.functions {
-        if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str()))
-            && !input.program().functions().iter().any(|physical| physical.name() == name.as_str())
-        {
+        if input.program().range_contracts_are_inert_v1(&reachable, name.as_str()) {
             continue;
         }
         enforce_contracts(

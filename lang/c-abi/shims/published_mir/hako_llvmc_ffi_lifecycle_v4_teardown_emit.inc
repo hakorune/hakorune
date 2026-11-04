@@ -78,8 +78,8 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  %%%s_payload = getelementptr { i32, i32, i64, i64 }, ptr %%%s_candidate, i32 0, i32 2\n"
       "  store i64 %s, ptr %%%s_payload, align 8\n",
       name, name, name, name, candidate, name);
-  if (initialize == 5) fprintf(f, "  store i32 6, ptr %%%s_candidate, align 4\n", name);
-  if (initialize == 6) {
+  if (initialize == HAKO_DYN_STORE_ARRAY_INIT) fprintf(f, "  store i32 6, ptr %%%s_candidate, align 4\n", name);
+  if (initialize == HAKO_DYN_STORE_OBJECT_INIT) {
     /* initialize selects presence; the caller already validated the uint and
        layout membership. Canonical class zero names a real descriptor. */
     if (!candidate_kind) return 0;
@@ -89,7 +89,7 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
         "  store i32 %%%s_kind, ptr %%%s_candidate, align 4\n",
         name, candidate_kind, name, name, name, name);
   }
-  if (initialize == 3 || take_text) {
+  if (initialize == HAKO_DYN_STORE_TEXT_INIT || take_text) {
     if (!candidate || !candidate_token) return 0;
     fprintf(f, "  store i32 4, ptr %%%s_candidate, align 4\n"
         "  %%%s_token = getelementptr { i32, i32, i64, i64 }, ptr %%%s_candidate, i32 0, i32 3\n"
@@ -100,16 +100,16 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       "  %%%s_init = call i32 @\"nyash.object.field_outcome_init_v1\"(ptr %%%s_out)\n"
       "  switch i32 %%%s_init, label %%invalid [ i32 0, label %%%s_prepare ]\n%s_prepare:\n",
       name, name, name, name, name);
-  if (initialize == 2) fprintf(f,
+  if (initialize == HAKO_DYN_STORE_MAP_INIT) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_map_field_install_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %s, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, candidate, name);
-  else if (initialize == 3 || take_text) fprintf(f,
+  else if (initialize == HAKO_DYN_STORE_TEXT_INIT || take_text) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_text_end_descriptor, ptr %%%s_out)\n",
       name, take_text ? "checked_dynamic_replace" : "checked_dynamic_initialize", profile, site, base, type, slot, name, name);
-  else if (initialize == 5) fprintf(f,
+  else if (initialize == HAKO_DYN_STORE_ARRAY_INIT) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_array_end_descriptor, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, name, name);
-  else if (initialize == 6) fprintf(f,
+  else if (initialize == HAKO_DYN_STORE_OBJECT_INIT) fprintf(f,
       "  %%%s_commit = call i32 @\"nyash.object.checked_dynamic_initialize_v1\"(ptr %%frame, i32 %u, i64 %s, i64 %s, i64 %lld, i64 %d, ptr %%%s_candidate, ptr @hako_lifecycle_object_end_descriptor_%u, ptr %%%s_out)\n",
       name, profile, site, base, type, slot, name, residence_object, name);
   else if (candidate) fprintf(f,
@@ -121,8 +121,8 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       name, profile, site, base, type, slot, name);
   fprintf(f,
       "  switch i32 %%%s_commit, label %%invalid [ i32 0, label %%%s_%s i32 1, label %%%s_unissued ]\n",
-      name, name, initialize == 2 ? "moved" : "end", name);
-  if (initialize == 2) fprintf(f,
+      name, name, initialize == HAKO_DYN_STORE_MAP_INIT ? "moved" : "end", name);
+  if (initialize == HAKO_DYN_STORE_MAP_INIT) fprintf(f,
       "%s_moved:\n  %%%s_source_dispose = call i32 @\"nyash.map.storage_dispose_v1\"(ptr %s)\n"
       "  switch i32 %%%s_source_dispose, label %%invalid [ i32 0, label %%%s_end ]\n",
       name, name, candidate, name, name);
@@ -144,7 +144,7 @@ static int lv4_emit_dynamic_transaction(FILE* f, const char* name, uint32_t prof
       name, name, name, name, take_text ? text_cancel : fault, name,
       name, site, name, name, name, name, name, name, name,
       name, name, name, name, normal,
-      (initialize == 5 || initialize == 6) ? fault : (initialize ? "invalid" : fault));
+      (initialize == HAKO_DYN_STORE_ARRAY_INIT || initialize == HAKO_DYN_STORE_OBJECT_INIT) ? fault : (initialize ? "invalid" : fault));
   return !ferror(f);
 }
 
@@ -205,7 +205,7 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
   uint32_t residence_object = 0;
   char candidate_kind[32];
   const char* candidate_kind_operand = NULL;
-  if (initialize == 6) {
+  if (initialize == HAKO_DYN_STORE_OBJECT_INIT) {
     if (!hako_physical_u32(yyjson_obj_get(op, "residence_object_id"), &residence_object) ||
         !lv4_layout(in, residence_object)) return 0;
     /* An owned Object candidate is never Null: canonical class one. */
@@ -215,7 +215,7 @@ static int lv4_dynamic_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op,
   }
   return lv4_emit_dynamic_transaction(f, name, in->profile, site, base,
       (long long)lv4_type_id(in, op), lv4_slot(in, op), replace ? candidate : NULL,
-      (initialize == 3 || take_text) ? token : NULL, initialize, take_text, residence_object,
+      (initialize == HAKO_DYN_STORE_TEXT_INIT || take_text) ? token : NULL, initialize, take_text, residence_object,
       candidate_kind_operand, normal, fault);
 }
 

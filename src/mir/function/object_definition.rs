@@ -318,6 +318,15 @@ impl MirModule {
             .is_some_and(|definition| definition.is_dynamic_slot_field(field.declaration_ordinal() as usize))
     }
 
+    /// Selects the Dynamic-view verification demand: any non-weak untyped field
+    /// (a fixed Array residence candidate included, as before the Text slot) or a
+    /// dynamic slot. Never narrower than the untyped test it replaces.
+    pub(crate) fn canonical_field_demands_dynamic_view(&self, field: CanonicalFieldRefV1) -> bool {
+        self.canonical_field_definition(field)
+            .is_some_and(|declaration| !declaration.is_weak && declaration.declared_type_name.is_none())
+            || self.canonical_dynamic_slot_field(field)
+    }
+
     pub(in crate::mir) fn preflight_object_definition_install(&self) -> Result<(), String> {
         if self.canonical_object_definitions.is_some() {
             return Err("[freeze:contract][mir/object-definitions/already-installed]".into());
