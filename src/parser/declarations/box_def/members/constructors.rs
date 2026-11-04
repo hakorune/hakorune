@@ -10,7 +10,7 @@ use crate::tokenizer::TokenType;
 pub(crate) fn try_parse_constructor(
     p: &mut NyashParser,
     is_override: bool,
-) -> Result<Option<(String, ASTNode)>, ParseError> {
+) -> Result<Option<(String, ASTNode, u32)>, ParseError> {
     // init(...)
     if p.match_token(&TokenType::INIT) && p.peek_token() == &TokenType::LPAREN {
         if is_override {
@@ -54,7 +54,7 @@ pub(crate) fn try_parse_constructor(
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());
-        return Ok(Some((key, node)));
+        return Ok(Some((key, node, 0)));
     }
 
     // pack(...)
@@ -92,7 +92,7 @@ pub(crate) fn try_parse_constructor(
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());
-        return Ok(Some((key, node)));
+        return Ok(Some((key, node, 0)));
     }
 
     // birth(...)
@@ -109,8 +109,8 @@ pub(crate) fn try_parse_constructor(
         p.advance(); // consume 'birth'
         p.consume(TokenType::LPAREN)?;
 
-        let param_decls =
-            crate::parser::common::params::parse_param_decl_list(p, "constructor (birth)")?;
+        let (param_decls, takes) =
+            crate::parser::common::params::parse_birth_param_decl_list(p, "constructor (birth)")?;
         let params = crate::ast::ParamDecl::names(&param_decls);
 
         p.consume(TokenType::RPAREN)?;
@@ -130,7 +130,7 @@ pub(crate) fn try_parse_constructor(
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());
-        return Ok(Some((key, node)));
+        return Ok(Some((key, node, takes)));
     }
 
     Ok(None)

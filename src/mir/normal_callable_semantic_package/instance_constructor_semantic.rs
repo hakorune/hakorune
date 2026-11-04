@@ -78,6 +78,8 @@ pub(crate) struct InstanceConstructorSourceDataV1 {
     key: Box<str>,
     kind: ConstructorSourceKindV1,
     source_arity: u32,
+    /// Bit `i` set: birth formal `i` is declared `take` (parser-retained; the AST has no mark).
+    birth_take_mask: u32,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
     body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
@@ -373,6 +375,10 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
 }
 
 impl InstanceConstructorSourceDataV1 {
+    pub(crate) const fn birth_formal_is_take(&self, ordinal: u32) -> bool {
+        ordinal < 32 && self.birth_take_mask & (1 << ordinal) != 0
+    }
+
     pub(super) fn box_source_v1(&self) -> &ParserOrdinaryBoxSourceRowV1 {
         &self.box_source
     }

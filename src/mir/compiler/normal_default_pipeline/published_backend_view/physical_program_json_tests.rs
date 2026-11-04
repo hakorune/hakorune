@@ -757,6 +757,39 @@ fn unresolved_call_result_type_reaches_the_owning_rejection_without_a_panic() {
     }
 }
 
+/// `birth(take x: T)` is accepted only for a non-null object formal fed by `move`; every
+/// other form reaches a named refusal, and nothing silently falls back to a borrow.
+#[test]
+fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let compile = |formal: &str, field: &str, actual: &str, tail: &str| {
+        let source = format!(
+            "box Leaf {{\n  value: i64\n  birth(value) {{ me.value = value }}\n}}\n\
+             box Node {{\n  {field}\n  v: i64\n  birth({formal}, v: i64) {{ me.next = next  me.v = v }}\n}}\n\
+             static box Main {{\n  main() {{\n    local leaf = new Leaf(1)\n    local n = new Node({actual}, 5)\n    {tail}\n  }}\n}}\n"
+        );
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            MirCompiler::with_options(false)
+                .compile_normal_with_published(request(&source), |view, _| {
+                    view.issue_lifecycle_physical_abi_input().map(|_| ())
+                })
+                .map(|_| ())
+        })
+    };
+    compile("take next: Leaf", "next: Leaf", "move leaf", "return n.v")
+        .unwrap_or_else(|error| panic!("take with move: {error}"));
+    let cases = [
+        ("take next: Leaf", "next: Leaf", "leaf", "return n.v", "TakeActualRequiresMove"),
+        ("take next: i64", "next: i64", "3", "return n.v", "take-formal-declaration-unavailable"),
+        ("take next: Leaf?", "next: Leaf?", "move leaf", "return n.v", "take-formal-declaration-unavailable"),
+        ("take next: Leaf", "next: Leaf", "move leaf", "return leaf.value", "artifact-source-unavailable"),
+    ];
+    for (formal, field, actual, tail, tag) in cases {
+        let error = compile(formal, field, actual, tail).expect_err(&format!("{formal} / {actual} / {tail}"));
+        assert!(error.contains(tag), "{formal} / {actual} / {tail}: {error}");
+    }
+}
+
 #[test]
 fn diagnostic_finishing_accepts_the_same_optimized_pair_cleanup() {
     crate::runtime::ring0::ensure_global_ring0_initialized();

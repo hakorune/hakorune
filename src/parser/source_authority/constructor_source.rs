@@ -78,6 +78,8 @@ pub(in crate::parser) struct ConstructorSourceRelationV1 {
     signature: ConstructorSourceSignatureV1,
     origin: ConstructorSourceOriginV1,
     initializer_triggers: Box<[GeneratedBirthTriggerSourceV1]>,
+    /// Bit `i` set: parameter `i` is declared `take` (a birth only; the AST keeps no mark).
+    take_mask: u32,
 }
 
 impl ConstructorSourceRelationV1 {
@@ -91,6 +93,10 @@ impl ConstructorSourceRelationV1 {
 
     pub(in crate::parser) fn origin(&self) -> &ConstructorSourceOriginV1 {
         &self.origin
+    }
+
+    pub(in crate::parser) const fn take_mask(&self) -> u32 {
+        self.take_mask
     }
 
     pub(in crate::parser) fn initializer_triggers(&self) -> &[GeneratedBirthTriggerSourceV1] {
@@ -184,6 +190,15 @@ impl OpenBoxMethodSourceTransactionV1 {
         key: &str,
         declaration: &ASTNode,
     ) -> Result<(), ParseError> {
+        self.commit_constructor_with_takes_at_current(key, declaration, 0)
+    }
+
+    pub(in crate::parser) fn commit_constructor_with_takes_at_current(
+        &mut self,
+        key: &str,
+        declaration: &ASTNode,
+        take_mask: u32,
+    ) -> Result<(), ParseError> {
         let actual =
             canonical_constructor_key(declaration).ok_or_else(|| ParseError::BuildCfg {
                 message: "constructor source row is not a supported function declaration"
@@ -221,6 +236,7 @@ impl OpenBoxMethodSourceTransactionV1 {
                     member: self.current_member_site(),
                 }),
                 initializer_triggers: Box::new([]),
+                take_mask,
             });
         Ok(())
     }
@@ -275,6 +291,7 @@ impl OpenBoxMethodSourceTransactionV1 {
                             .generated_birth_triggers
                             .clone()
                             .into_boxed_slice(),
+                        take_mask: 0,
                     });
             }
         }

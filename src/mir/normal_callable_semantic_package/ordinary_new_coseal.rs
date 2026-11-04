@@ -666,6 +666,12 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
         arity: usize,
     },
+    /// A `take` birth formal needs an explicit `move x` actual: there is no implicit move.
+    TakeActualRequiresMove {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        ordinal: u32,
+    },
     DuplicateSite {
         site: OwnedExprSiteV1,
     },

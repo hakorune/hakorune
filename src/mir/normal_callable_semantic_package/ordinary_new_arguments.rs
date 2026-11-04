@@ -61,6 +61,8 @@ pub(crate) struct OrdinaryNewTrivialArgumentV1 {
     ordinal: u32,
     site: SourceExprSiteV1,
     kind: OrdinaryNewTrivialArgumentKindV1,
+    /// The source actual is written `move x` (a `take` formal requires it).
+    explicit_move: bool,
     /// Original actual/formal/field provenance only, never a Home grant.
     child_relations: Box<[Rc<SourceConstructionChildRelationV1>]>,
     field_array_read: Option<Rc<ArgumentFieldArrayReadSourceV1>>,
@@ -103,9 +105,18 @@ impl OrdinaryNewTrivialArgumentV1 {
             ordinal,
             site,
             kind,
+            explicit_move: false,
             child_relations: Box::new([]),
             field_array_read: None,
         }
+    }
+
+    pub(crate) fn with_explicit_move(mut self, explicit_move: bool) -> Self {
+        self.explicit_move = explicit_move;
+        self
+    }
+    pub(crate) const fn explicit_move(&self) -> bool {
+        self.explicit_move
     }
 
     pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {

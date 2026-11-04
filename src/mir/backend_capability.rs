@@ -65,6 +65,19 @@ fn verify_source_moves_on_published_mir(
         let takes: std::collections::BTreeSet<_> = call.actual().arguments().iter()
             .filter(|actual| input.object_birth_actual(actual.source().new_site(), actual.source().ordinal()).is_some())
             .map(|actual| actual.source().ordinal()).collect();
+        // A declared `take` formal must be fed by a transferred object actual: its permission
+        // comes from the declaration, so a missing transfer is a contract error, not a skip.
+        let declared_takes = input.entry().births().iter()
+            .find(|birth| birth.function_index() == call.function_index())
+            .into_iter().flat_map(|birth| birth.formals())
+            .filter(|formal| formal.contract().is_some_and(|contract| contract.declaration()
+                == crate::mir::normal_callable_semantic_package::BirthFormalDeclarationClassV1::ExactObjectTake))
+            .filter_map(|formal| formal.source_ordinal());
+        for ordinal in declared_takes {
+            if !takes.contains(&ordinal) {
+                return Err("[ownership/birth-take-actual-missing]".into());
+            }
+        }
         if birth_takes.insert(call.actual().target().clone(), takes.clone()).is_some_and(|old| old != takes) {
             return Err("[ownership/birth-source-contract-drift]".into());
         }

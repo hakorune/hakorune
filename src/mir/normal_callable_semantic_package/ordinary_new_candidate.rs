@@ -250,3 +250,30 @@ pub(super) fn verified_birth_recipe_for_site_v1(
         handoff,
     ))
 }
+
+/// Every `take` birth formal is fed by an explicit `move x` of a handle local. A
+/// plain `x`, a literal, or any other actual has no ownership to hand over.
+pub(super) fn validate_take_actuals_v1(
+    site: &OwnedExprSiteV1,
+    class: &str,
+    row: &VerifiedInstanceConstructorSemanticRowV1,
+    arguments: &[OrdinaryNewTrivialArgumentV1],
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalDeclarationClassV1 as Declaration;
+    for formal in row.formal_contracts() {
+        if formal.declaration() != Declaration::ExactObjectTake {
+            continue;
+        }
+        let moved = arguments.iter().any(|argument| argument.ordinal() == formal.ordinal()
+            && argument.explicit_move()
+            && matches!(argument.kind(), OrdinaryNewTrivialArgumentKindV1::Handle { .. }));
+        if !moved {
+            return Err(OrdinaryNewCoSealIssueV1::TakeActualRequiresMove {
+                site: site.clone(),
+                class: class.into(),
+                ordinal: formal.ordinal(),
+            });
+        }
+    }
+    Ok(())
+}

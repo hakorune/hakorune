@@ -77,6 +77,25 @@ HAKO
   CASES+=("ownership_take_entry|$TMP_ROOT.take.hako|7||")
 fi
 
+# `birth(take x: T)`: the moved Leaf is Ended once on Normal, on a Fault before the
+# constructor is entered (the caller Ends it), and on a Fault after entry (the constructor
+# unwinding Ends it and the caller does not End it again).
+if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_birth_take ]; then
+  cat > "$TMP_ROOT.birth-take.hako" <<'HAKO'
+box Leaf {
+  value: i64
+  birth(value) { me.value = value }
+}
+box Node {
+  next: Leaf
+  v: i64
+  birth(take next: Leaf, v: i64) { me.next = next  me.v = v }
+}
+static box Main { main() { local leaf = new Leaf(1)  local n = new Node(move leaf, 5)  return n.v } }
+HAKO
+  CASES+=("ownership_birth_take|$TMP_ROOT.birth-take.hako|5||")
+fi
+
 # Explicit read return borrows the same local Home; only its scalar snapshot escapes.
 if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_from_read ]; then
   cat > "$TMP_ROOT.from.hako" <<'HAKO'
@@ -185,7 +204,7 @@ run_case() {
   local name="$1" app="$HAKO_ROOT/apps/$2/main.hako" expected_rc="$3" expected_line="$4" flag="$5" profile="${6:-}"
   if [[ "$2" = /* ]]; then app="$2"; fi
   local extra_link=()
-  if [ "$name" = ownership_take_entry ]; then
+  if [ "$name" = ownership_take_entry ] || [ "$name" = ownership_birth_take ]; then
     local probe="$TMP_ROOT.take-probe.o"
     "${CC:-cc}" -DHAKO_TEST_OWNED_CALL_RESULT -c \
       "$HAKO_ROOT/lang/c-abi/tests/published_lifecycle_v4_runtime_probe.c" -o "$probe" || {
@@ -235,17 +254,22 @@ run_case() {
     test_fail "$SMOKE_NAME/$name: $problem"
     return 1
   fi
-  local executions=("|$expected_rc|$expected_line||")
-  if [ "$name" = ownership_take_entry ]; then
-    executions=("|7||OWNED 3 3 3|COUNTS 1 3 3 0 0 1"
-      "2|70||OWNED 2 1 1|COUNTS 1 1 1 0 1 1"
-      "3|70||OWNED 3 2 2|COUNTS 1 2 2 0 1 1")
+  local executions=("||$expected_rc|$expected_line||")
+  if [ "$name" = ownership_birth_take ]; then
+    executions=("||5||OWNED 2 2 2|COUNTS 1 3 2 0 0 1"
+      "2||70||OWNED 2 1 1|COUNTS 1 1 1 0 1 1"
+      "|2|70||OWNED 2 2 2|COUNTS 1 2 1 1 1 1")
   fi
-  local execution fault expected_owned expected_counts
+  if [ "$name" = ownership_take_entry ]; then
+    executions=("||7||OWNED 3 3 3|COUNTS 1 3 3 0 0 1"
+      "2||70||OWNED 2 1 1|COUNTS 1 1 1 0 1 1"
+      "3||70||OWNED 3 2 2|COUNTS 1 2 2 0 1 1")
+  fi
+  local execution fault store_fault expected_owned expected_counts
   for execution in "${executions[@]}"; do
-    IFS='|' read -r fault expected_rc expected_line expected_owned expected_counts <<<"$execution"
+    IFS='|' read -r fault store_fault expected_rc expected_line expected_owned expected_counts <<<"$execution"
     set +e
-    env -u V4_PROBE_FAULT_AT -u V4_PROBE_HOME_FAULT_AT \
+    env -u V4_PROBE_HOME_FAULT_AT V4_PROBE_FAULT_AT="$store_fault" \
       V4_PROBE_NEW_FAULT_AT="$fault" V4_PROBE_MODE=normal NYASH_DISABLE_PLUGINS=1 \
       timeout "$RUN_TIMEOUT_SECS" "$exe" >"$run_log" 2>&1
     local exe_rc=$?

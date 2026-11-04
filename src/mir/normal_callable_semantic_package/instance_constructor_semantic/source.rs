@@ -45,6 +45,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                     Box::<str>::from(syntax.key()),
                     syntax.kind(),
                     syntax.source_arity(),
+                    syntax.take_mask(),
                     syntax.declaration(),
                     view,
                 ));
@@ -87,6 +88,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                     key,
                     kind,
                     source_arity,
+                    birth_take_mask,
                     declaration,
                     view,
                 ),
@@ -195,6 +197,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                     key,
                     kind,
                     source_arity,
+                    birth_take_mask,
                     forest,
                     projection,
                     body_shapes: constructor_shapes,

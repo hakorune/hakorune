@@ -19,6 +19,8 @@ pub(crate) enum BirthFormalDeclarationClassV1 {
     Unannotated,
     ExactI64,
     ExactText,
+    /// `take x: T` where `T` is a user box: the callee receives ownership of one `T`.
+    ExactObjectTake,
     ExplicitUnsupported,
 }
 
@@ -52,6 +54,8 @@ pub(crate) struct BirthFormalContractV1 {
     declaration: BirthFormalDeclarationClassV1,
     uses: BirthFormalUseCoverageV1,
     disposition: BirthFormalPhysicalDispositionV1,
+    /// The source declares this formal `take` (whether or not its type is admitted).
+    take: bool,
 }
 
 impl BirthFormalContractV1 {
@@ -67,6 +71,10 @@ impl BirthFormalContractV1 {
         self.declaration
     }
 
+    pub(crate) const fn is_take(&self) -> bool {
+        self.take
+    }
+
     pub(crate) fn uses(&self) -> &BirthFormalUseCoverageV1 {
         &self.uses
     }
@@ -77,7 +85,9 @@ impl BirthFormalContractV1 {
         let admitted = match self.declaration {
             BirthFormalDeclarationClassV1::Unannotated => true,
             BirthFormalDeclarationClassV1::ExactText => admit_exact_text,
-            _ => false,
+            BirthFormalDeclarationClassV1::ExactI64
+            | BirthFormalDeclarationClassV1::ExactObjectTake
+            | BirthFormalDeclarationClassV1::ExplicitUnsupported => false,
         };
         match &self.uses {
             BirthFormalUseCoverageV1::UnqualifiedFieldStores { sites } if admitted => Some(sites),
@@ -162,7 +172,7 @@ pub(super) fn issue_birth_formal_contracts(
             if !seen.insert(binding) {
                 return Err(BirthFormalContractIssueV1::DuplicateBinding);
             }
-            let declaration = classify_declaration(parameter, is_user_box);
+            let declaration = classify_declaration(parameter, row.birth_formal_is_take(ordinal), is_user_box);
             let uses = classify_uses(construction, definition, binding, declaration);
             Ok(BirthFormalContractV1 {
                 ordinal,
@@ -170,13 +180,22 @@ pub(super) fn issue_birth_formal_contracts(
                 declaration,
                 disposition: disposition(declaration, &uses),
                 uses,
+                take: row.birth_formal_is_take(ordinal),
             })
         })
         .collect::<Result<Vec<_>, _>>()
         .map(Vec::into_boxed_slice)
 }
 
-fn classify_declaration(parameter: &ParamDecl, is_user_box: &dyn Fn(&str) -> bool) -> BirthFormalDeclarationClassV1 {
+fn classify_declaration(parameter: &ParamDecl, take: bool, is_user_box: &dyn Fn(&str) -> bool) -> BirthFormalDeclarationClassV1 {
+    if take {
+        // A `take` formal owns exactly one user box: `T` must name a declared box
+        // (never a scalar, Text, or builtin spelling); `T?` is not connected here.
+        return match parameter.declared_type_name.as_deref() {
+            Some(name) if is_user_box(name) => BirthFormalDeclarationClassV1::ExactObjectTake,
+            _ => BirthFormalDeclarationClassV1::ExplicitUnsupported,
+        };
+    }
     match parameter.declared_type_name.as_deref() {
         None => BirthFormalDeclarationClassV1::Unannotated,
         // A user-declared box owns its spelling; an object formal is unsupported.
@@ -260,6 +279,17 @@ fn disposition(
             BirthFormalPhysicalDispositionV1::UnavailableUnsupportedDeclaration
         }
         _ if matches!(uses, BirthFormalUseCoverageV1::UnqualifiedFieldStores { .. }) => {
+            BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation
+        }
+        BirthFormalDeclarationClassV1::ExactObjectTake
+            if matches!(
+                uses,
+                BirthFormalUseCoverageV1::NoUse | BirthFormalUseCoverageV1::ObjectFieldStores { .. }
+            ) =>
+        {
+            BirthFormalPhysicalDispositionV1::DeferredActualBinding
+        }
+        BirthFormalDeclarationClassV1::ExactObjectTake => {
             BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation
         }
         BirthFormalDeclarationClassV1::ExactText | BirthFormalDeclarationClassV1::Unannotated

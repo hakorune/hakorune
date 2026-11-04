@@ -410,6 +410,12 @@ impl<'module> PublishedMirBackendView<'module> {
                 if formal.kind() == CompiledEntryFormalKindV1::Receiver {
                     continue;
                 }
+                // A `take` formal owns exactly one user box; any other declared type has no
+                // ownership meaning here and is refused by name before any other lane.
+                if formal.contract().is_some_and(|contract| contract.is_take()
+                    && contract.declaration() != Declaration::ExactObjectTake) {
+                    return Err(fault("take-formal-declaration-unavailable"));
+                }
                 if abi.text_formal_source_v1(formal.source_ordinal().ok_or_else(|| fault("formal-contract-missing"))?)?.is_some() {
                     text_birth = true;
                     continue;
@@ -417,11 +423,12 @@ impl<'module> PublishedMirBackendView<'module> {
                 let contract = formal
                     .contract()
                     .ok_or_else(|| fault("formal-contract-missing"))?;
-                match contract.declaration() {
-                    Declaration::Unannotated => {}
-                    Declaration::ExactI64
-                        if matches!(contract.uses(), Uses::NoUse | Uses::I64FieldStores { .. }) => {}
-                    _ => return Err(fault("formal-declaration-unavailable")),
+                match (contract.declaration(), contract.uses()) {
+                    (Declaration::Unannotated, _) => {}
+                    (Declaration::ExactI64, Uses::NoUse | Uses::I64FieldStores { .. }) => {}
+                    (Declaration::ExactObjectTake, Uses::NoUse | Uses::ObjectFieldStores { .. }) => {}
+                    (Declaration::ExactI64 | Declaration::ExactText | Declaration::ExactObjectTake
+                        | Declaration::ExplicitUnsupported, _) => return Err(fault("formal-declaration-unavailable")),
                 }
                 let source_ordinal = formal.source_ordinal()
                     .ok_or_else(|| fault("formal-contract-missing"))?;

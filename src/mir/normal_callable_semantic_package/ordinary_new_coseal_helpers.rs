@@ -43,7 +43,8 @@ pub(super) fn convert_selected_new_arguments(
             }
         };
         Ok(OrdinaryNewTrivialArgumentV1::new(observation.new_site().owner(),
-            observation.new_site().clone(), row.ordinal(), row.site().clone(), kind))
+            observation.new_site().clone(), row.ordinal(), row.site().clone(), kind)
+            .with_explicit_move(row.explicit_move()))
     }).collect()
 
 }

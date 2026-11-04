@@ -101,7 +101,7 @@ fn box_try_constructor(
     is_override: bool,
     state: &mut BoxMemberState,
 ) -> Result<bool, ParseError> {
-    if let Some((key, node)) =
+    if let Some((key, node, takes)) =
         crate::parser::declarations::box_def::members::constructors::try_parse_constructor(
             p,
             is_override,
@@ -109,7 +109,7 @@ fn box_try_constructor(
     {
         let mut node = node;
         p.attach_pending_runes_to_declaration(&mut node)?;
-        state.source_tx.commit_constructor_at_current(&key, &node)?;
+        state.source_tx.commit_constructor_with_takes_at_current(&key, &node, takes)?;
         state.constructors.insert(key, node);
         return Ok(true);
     }

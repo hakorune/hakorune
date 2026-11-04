@@ -357,6 +357,23 @@ pub(crate) fn parse_param_decl_list(
     Ok(product.neutral().to_vec())
 }
 
+/// A `birth` parameter list: `take x: T` is retained as a bit in the returned mask
+/// (the neutral AST stays transfer-free); `edit` and every other mark keep the
+/// existing refusal.
+pub(crate) fn parse_birth_param_decl_list(
+    p: &mut NyashParser,
+    context: &str,
+) -> Result<(Vec<crate::ast::ParamDecl>, u32), ParseError> {
+    let product = parse_param_decl_list_product(p, context)?;
+    let refuse = |p: &NyashParser, what: &str| crate::parser::callable_parameter_source::source_contract_required(
+        false, format!("{what} requires a retained callable parameter source in {context}"), p.current_token().line);
+    if product.has_non_take_modifier() {
+        return Err(refuse(p, "edit"));
+    }
+    let mask = product.take_mask().ok_or_else(|| refuse(p, "take beyond 32 parameters"))?;
+    Ok((product.neutral().to_vec(), mask))
+}
+
 fn declared_type_required(
     transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1,
     detail: &str,

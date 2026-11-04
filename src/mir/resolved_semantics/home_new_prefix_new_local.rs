@@ -217,7 +217,9 @@ pub(super) fn observe_new_arguments_v1<E>(
                     }
                     _ => {}
                 }
-                rows.push(SelectedNewArgumentV1::new(ordinal, site.clone(), kind));
+                let explicit_move = input.function().expression_source().unary(site)
+                    .is_some_and(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
+                rows.push(SelectedNewArgumentV1::new(ordinal, site.clone(), kind).with_explicit_move(explicit_move));
             }
             None => {
                 error.get_or_insert(SelectedNewArgumentUnavailableV1::ArgumentNotTrivial {

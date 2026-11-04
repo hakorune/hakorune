@@ -108,7 +108,9 @@ impl PublishedMirBackendView<'_> {
                     .ok_or_else(|| fault("birth-actual-formal-missing"))?
                     .contract();
                 let object_formal = formal_contract.is_some_and(|contract| {
-                        matches!(
+                        contract.declaration() == crate::mir::normal_callable_semantic_package
+                            ::BirthFormalDeclarationClassV1::ExactObjectTake
+                        || matches!(
                             contract.uses(),
                             crate::mir::normal_callable_semantic_package
                                 ::BirthFormalUseCoverageV1::ObjectFieldStores { .. }
@@ -171,6 +173,14 @@ impl PublishedMirBackendView<'_> {
                     actual.source().new_site(), actual.source().ordinal(),
                     actual.source().kind(), value, caller.value_types().get(&value),
                 );
+                // A `take` formal receives ownership of one live user box: only a Handle
+                // transport (3) carries that; Null, nullable and mixed transports do not.
+                if formal_contract.is_some_and(|contract| contract.declaration()
+                    == crate::mir::normal_callable_semantic_package::BirthFormalDeclarationClassV1::ExactObjectTake)
+                    && !matches!(transport, Some(ObjectBirthActualTransportV1::Handle))
+                {
+                    return Err(contextualize(fault("take-actual-not-owned-handle"), "take-actual"));
+                }
                 if object_formal != object_actual {
                     return Err(contextualize(fault("actual-kind-unavailable"), "object-formal-mismatch"));
                 }

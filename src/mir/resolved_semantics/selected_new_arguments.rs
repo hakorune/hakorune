@@ -44,12 +44,15 @@ pub(crate) struct SelectedNewArgumentV1 {
     ordinal: u32,
     site: SourceExprSiteV1,
     kind: SelectedNewArgumentKindV1,
+    /// The source actual is written `move x`; plain `x` is never a move here.
+    explicit_move: bool,
 }
 
 impl PartialEq for SelectedNewArgumentV1 {
     fn eq(&self, other: &Self) -> bool {
         self.ordinal == other.ordinal
             && self.site == other.site
+            && self.explicit_move == other.explicit_move
             && match (&self.kind, &other.kind) {
                 (
                     SelectedNewArgumentKindV1::Expression { evaluation: a },
@@ -71,7 +74,15 @@ impl SelectedNewArgumentV1 {
             ordinal,
             site,
             kind,
+            explicit_move: false,
         }
+    }
+    pub(crate) fn with_explicit_move(mut self, explicit_move: bool) -> Self {
+        self.explicit_move = explicit_move;
+        self
+    }
+    pub(crate) const fn explicit_move(&self) -> bool {
+        self.explicit_move
     }
     pub(crate) const fn ordinal(&self) -> u32 {
         self.ordinal

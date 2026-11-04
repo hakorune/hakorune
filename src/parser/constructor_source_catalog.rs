@@ -78,6 +78,7 @@ pub(crate) struct FinalConstructorSemanticSyntaxRowRefV1<'source> {
     key: &'source str,
     declaration: &'source ASTNode,
     signature: ConstructorSourceSignatureV1,
+    take_mask: u32,
 }
 
 #[derive(Debug)]
@@ -122,6 +123,11 @@ impl FinalConstructorSemanticSyntaxRowRefV1<'_> {
 
     pub(crate) const fn source_arity(&self) -> u32 {
         self.signature.source_arity()
+    }
+
+    /// Bit `i` set: birth parameter `i` is declared `take`.
+    pub(crate) const fn take_mask(&self) -> u32 {
+        self.take_mask
     }
 }
 
@@ -238,6 +244,7 @@ impl ParserConstructorSourceCatalogV1 {
                 key: row.relation.key(),
                 declaration,
                 signature: row.relation.signature(),
+                take_mask: row.relation.take_mask(),
             });
         }
         Ok(FinalConstructorSemanticSyntaxLoanV1 {
