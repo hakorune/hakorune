@@ -24,10 +24,13 @@ pub(super) fn issue_exact_numeric_checks(
             {
                 continue;
             }
-            // A function no resolved call chain reaches from the Root has no
-            // physical function and nothing to run; its contracts are inert.
+            // A function no resolved call chain reaches from the Root AND with no
+            // physical function has nothing to run; its contracts are inert. A
+            // physical function keeps its checks even if no edge reaches it.
             // Unresolved calls leave `reachable` empty and keep today's check.
-            if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str())) {
+            if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str()))
+                && !program.functions().iter().any(|physical| physical.name() == name.as_str())
+            {
                 continue;
             }
             let (ordinal, physical) = program

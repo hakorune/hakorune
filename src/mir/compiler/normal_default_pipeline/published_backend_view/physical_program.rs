@@ -235,15 +235,41 @@ impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
                             },
                             // A selector-dispatched call has no static target.
                             InvokeOperation::DynamicInvocation(_) => return None,
-                            // Object End has no user hook in a lifecycle program
-                            // (`NoHook` only); the remaining operations are builtin.
-                            _ => continue,
+                            // Every other operation has no user call target (Object End
+                            // has no user hook: lifecycle programs are `NoHook` only).
+                            // Listed in full: a new variant must be classified here.
+                            InvokeOperation::NewBox { .. }
+                            | InvokeOperation::IntrinsicArrayNew
+                            | InvokeOperation::ScriptArgumentsNew { .. }
+                            | InvokeOperation::Map(_)
+                            | InvokeOperation::String(_)
+                            | InvokeOperation::DynamicArrayGet { .. }
+                            | InvokeOperation::DynamicCarrierInteger { .. }
+                            | InvokeOperation::DynamicCarrierSubI64 { .. }
+                            | InvokeOperation::DynamicCarrierEnd { .. }
+                            | InvokeOperation::OwnedArray(_)
+                            | InvokeOperation::Shared(_)
+                            | InvokeOperation::DynamicCarrierArray(_)
+                            | InvokeOperation::ArrayStateContractClaim { .. }
+                            | InvokeOperation::ArrayElementWrite { .. }
+                            | InvokeOperation::FieldGet { .. }
+                            | InvokeOperation::ObjectFieldBorrow { .. }
+                            | InvokeOperation::FieldSet { .. }
+                            | InvokeOperation::ObjectFieldSet { .. }
+                            | InvokeOperation::HomeRelease { .. }
+                            | InvokeOperation::HomeReleaseIfLive { .. }
+                            | InvokeOperation::ObjectEndIfOwned { .. }
+                            | InvokeOperation::ReclaimUnpublished { .. }
+                            | InvokeOperation::OwnedFieldResidenceRelease { .. }
+                            | InvokeOperation::OwnedObjectFieldRelease { .. } => continue,
                         },
                         MirInstruction::LegacyCallV0 { .. }
                         | MirInstruction::NewClosure { .. }
                         | MirInstruction::NewBox { .. }
                         | MirInstruction::CheckedCallOut { .. } => return None,
-                        _ => continue,
+                        // No call target. Listed in full so a new instruction must be classified.
+                        MirInstruction::Const { .. } | MirInstruction::BinOp { .. } | MirInstruction::UnaryOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Load { .. } | MirInstruction::StaticDataLoad { .. } | MirInstruction::Store { .. } | MirInstruction::MapLiteralEntryWrite { .. } | MirInstruction::ArrayElementWrite { .. } | MirInstruction::ArrayRead { .. } | MirInstruction::ArrayStateContractClaim { .. } | MirInstruction::MemOp { .. } | MirInstruction::PinnedTextOp { .. } | MirInstruction::PinnedTextResidenceFinish { .. } | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. } | MirInstruction::WeakFieldWrite { .. } | MirInstruction::VariantMake { .. } | MirInstruction::VariantTag { .. } | MirInstruction::VariantProject { .. } | MirInstruction::Branch { .. } | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::InvokeNormalResult { .. } | MirInstruction::ReturnFault { .. } | MirInstruction::FaultFrameEnter { .. } | MirInstruction::PinnedTextResidenceEnter { .. } | MirInstruction::PinnedTextResidenceTrap { .. } | MirInstruction::CheckedCallOutNormalResult { .. } | MirInstruction::CheckedCallOutEnd { .. } | MirInstruction::CheckedCallOutFault { .. } | MirInstruction::Phi { .. } | MirInstruction::TypeOp { .. } | MirInstruction::Copy { .. } | MirInstruction::CopyOwned { .. } | MirInstruction::DestroyOwned { .. } | MirInstruction::ArrayResidenceRelease { .. } | MirInstruction::StringResidenceInstall { .. } | MirInstruction::LocalContractWrite { .. } | MirInstruction::RecordFieldContractCheck { .. } | MirInstruction::RecordValuePublish { .. }
+                        | MirInstruction::Debug { .. } | MirInstruction::KeepAlive { .. } | MirInstruction::ReleaseStrong { .. } | MirInstruction::Throw { .. } | MirInstruction::Catch { .. } | MirInstruction::Safepoint { .. } | MirInstruction::RefNew { .. } | MirInstruction::WeakRef { .. } | MirInstruction::Barrier { .. } | MirInstruction::FutureNew { .. } | MirInstruction::FutureSet { .. } | MirInstruction::Await { .. } | MirInstruction::Select { .. } => continue,
                     };
                     let target = module.canonical_callable_definition_symbol(key)?;
                     let (target, _) = module.functions.get_key_value(target)?;

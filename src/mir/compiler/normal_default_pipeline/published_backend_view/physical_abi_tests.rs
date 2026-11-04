@@ -251,6 +251,23 @@ fn unreachable_function_contracts_are_inert_but_reachable_ones_still_fault() {
                 // The reachable Counter contract is still issued.
                 let checks = super::row_obligations::issue_exact_numeric_checks(module, input.program())?;
                 assert_eq!(checks.len(), 1);
+                // A function with a physical function keeps its check even when no MIR
+                // edge reaches it: replace every Birth edge, the walk stays resolvable.
+                let mut unreached = module.clone();
+                for function in unreached.functions.values_mut() {
+                    for block in function.blocks.values_mut() {
+                        for instruction in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
+                            if let crate::mir::MirInstruction::Invoke { operation, .. } = instruction {
+                                if matches!(operation, crate::mir::instruction::InvokeOperation::Birth(_)) {
+                                    *operation = crate::mir::instruction::InvokeOperation::IntrinsicArrayNew;
+                                }
+                            }
+                        }
+                    }
+                }
+                assert!(input.program().reachable_symbols_v1(&unreached).is_some());
+                let still_checked = super::row_obligations::issue_exact_numeric_checks(&unreached, input.program())?;
+                assert_eq!(still_checked.len(), 1, "a physical function keeps its check without an edge");
                 // Dropping the reachable birth symbol makes the walk unresolvable, so
                 // every function is back in scope and the unused birth faults.
                 let mut changed = module.clone();

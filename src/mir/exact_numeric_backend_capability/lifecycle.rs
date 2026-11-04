@@ -48,11 +48,14 @@ pub(super) fn enforce(
             }
         }
     }
-    // Functions no resolved call chain reaches from the Root are inert; an
+    // Functions no resolved call chain reaches from the Root and that have no
+    // physical function are inert; a physical function keeps its checks, and an
     // unresolved call keeps every function in scope.
     let reachable = input.program().reachable_symbols_v1(module);
     for (name, function) in &module.functions {
-        if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str())) {
+        if reachable.as_ref().is_some_and(|reached| !reached.contains(name.as_str()))
+            && !input.program().functions().iter().any(|physical| physical.name() == name.as_str())
+        {
             continue;
         }
         enforce_contracts(

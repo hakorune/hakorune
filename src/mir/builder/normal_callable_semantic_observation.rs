@@ -103,6 +103,18 @@ impl CallableSemanticLoweringState {
         self.insert_value(binding, value)
     }
 
+    /// The variable-read site behind a selected `new` actual: the actual itself
+    /// when the source resolved it as a variable read, else the operand of its
+    /// explicit `move`. The choice comes from the source's variable table; no
+    /// second attempt is made after a failed observation.
+    pub(in crate::mir::builder) fn actual_variable_site<'a>(
+        &self,
+        actual: &'a SourceNodeSiteV1,
+        move_operand: &'a SourceNodeSiteV1,
+    ) -> &'a SourceNodeSiteV1 {
+        if self.variables.contains_key(actual) { actual } else { move_operand }
+    }
+
     pub(in crate::mir::builder) fn observe_variable_site(
         &mut self,
         site: &SourceNodeSiteV1,
