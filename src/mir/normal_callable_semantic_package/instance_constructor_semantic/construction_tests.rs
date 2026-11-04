@@ -262,3 +262,25 @@ fn construction_plan_declines_nobirth_provider_variants() {
         );
     }
 }
+
+#[test]
+fn nullable_initialization_reports_order_and_alias_observation() {
+    for (body, reason) in [
+        ("me.next = null me.next = new Node()", "duplicate-write"),
+        ("if true { me.next = null }", "conditional-write"),
+        ("loop(false) { me.next = null }", "loop-write"),
+        ("local previous = me.next me.next = null", "read-before-initialize"),
+        ("me.next = me.next", "read-before-initialize"),
+        ("me.touch() me.next = null", "receiver-call-before-initialize"),
+        ("Sink.keep(me) me.next = null", "receiver-escape-before-initialize"),
+        ("local alias = me local previous = alias.next me.next = null", "read-before-initialize"),
+        ("local alias = me Sink.keep(alias) me.next = null", "receiver-escape-before-initialize"),
+    ] {
+        let text = format!("static box Sink {{ keep(value) {{ return 0 }} }}
+            box Node {{ next: Node? birth() {{ {body} }} touch() {{ return 0 }} }}");
+        let error = super::super::brand_catalog_tests::issue_with_brand_catalog(&text)
+            .err().unwrap_or_else(|| panic!("unexpectedly accepted {body}"));
+        assert!(format!("{error:?}").contains(&format!("nullable-field-initialization/{reason}")),
+            "{body}: {error:?}");
+    }
+}

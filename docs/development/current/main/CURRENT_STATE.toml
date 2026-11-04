@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "step3a nullable: formal/new box nullable fields landed; declaration defaults/literal Null and source diagnostics remain"
+current_blocker_token = "step3a nullable: source-once initialization diagnostics landed; declaration defaults/literal Null execution remain"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8. Nullable goal: Shared reads and box T? straightline formal/new stores plus existing reads landed; declaration defaults/literal-null stores/source diagnostics remain; total five hours.
-Original nullable spelling is retained; source, layout and independent verification use common nominal/canonical-child queries. No new public contract/ABI/C changes, bare T semantics preserved.
-Optimized target/quick CLI/runtime: three nullable EXEs exit5/7/5, suite8/8, cohort1808 PASS/known115 exact FAIL names, check/focused2 PASS. Rust production +29/test +6 for this part.
-Next: declaration/assignment Init origin with real source identity and entry receiver, explicit Null without Home, one install and source-once observation diagnostics; no fake AST/site, post-publication replacement or branched acceptance.
-Report typed i64 birth publication and frozen edit item4b without implementation. Two stashes/unrelated inventory preserved; Hako/19 shapes excluded; report remaining scope at five-hour limit.
+APP-boxtorrent-mini fixed8/8. Shared reads, box T? straightline formal/new stores and source-once initialization diagnostics landed; declaration defaults/literal-null execution remain; five-hour goal.
+Resolved source retains one field initialization choice and original identity. Duplicate/control-flow/pre-observation stores have named coverage refusals, including receiver aliases; existing nonescape and independent safety remain.
+Optimized target/quick CLI/runtime: nine named refusals/EXE absent, three positive EXEs exit5/7/5, suite8/8, cohort1809 PASS/known115 exact FAIL names. Rust production +163/test +22 for this part; no new C/ABI.
+Next: common declaration/assignment Init origin with real entry receiver, explicit Null without Home and one install. No fake AST/site, post-publication replacement or branched acceptance; public contract/ABI or weaker safety stops implementation.
+Report typed i64 birth publication and frozen edit item4b without implementation. Two stashes/unrelated inventory preserved; Hako/19 shapes excluded; close/report at five hours.
 """
 next_design_card = "none"
 next_design_card_path = "none"

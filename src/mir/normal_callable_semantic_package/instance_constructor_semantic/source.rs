@@ -133,16 +133,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                     }
                     constructor_shapes.insert(owner, shape);
                 }
+                let object = object_sources.iter().find(|(own, _)| own.same_source_as(&box_source))
+                    .map(|(_, id)| *id).ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+                let mut nullable_initialization = None;
                 let birth_completion = if kind == ConstructorSourceKindV1::Birth {
                     let shape = constructor_shapes
                         .get(root)
                         .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?;
-                    super::super::instance_constructor_non_escape::verify_receiver_non_escape_v1(
+                    let receiver = super::super::instance_constructor_non_escape::capture_receiver_uses_v1(
                         function, shape, &forest,
-                    )
-                    .map_err(|_issue| {
-                        InstanceConstructorSemanticBatchIssueV1::ReceiverNonEscape { _issue }
-                    })?;
+                    ).map_err(|_issue| InstanceConstructorSemanticBatchIssueV1::ReceiverNonEscape { _issue })?;
+                    nullable_initialization = source.with_ordinary_box_syntax(&box_source, |declaration|
+                        super::super::instance_constructor_initialization::issue_nullable_initialization_v1(
+                            &box_source, object, declaration, function, shape, &receiver, &object_sources))
+                        .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
+                        .map_err(|_issue| InstanceConstructorSemanticBatchIssueV1::NullableInitialization { _issue })?;
+                    receiver.verify_non_escape()
+                        .map_err(|_issue| InstanceConstructorSemanticBatchIssueV1::ReceiverNonEscape { _issue })?;
                     let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
                         declaration,
                         &forest,
@@ -159,11 +166,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                 } else {
                     None
                 };
-                let object = object_sources
-                    .iter()
-                    .find(|(own, _)| own.same_source_as(&box_source))
-                    .map(|(_, id)| *id)
-                    .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                 rows.push(InstanceConstructorSourceDataV1 {
                     // Only the exact unannotated source contract is selected.
                     // Explicit constructor contracts need their own admission;
@@ -196,6 +198,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn capture_instance_constru
                     forest,
                     projection,
                     body_shapes: constructor_shapes,
+                    nullable_initialization,
                     birth_completion,
                 });
             }

@@ -227,6 +227,7 @@ pub(super) fn issue_construction_source_v1(
         CanonicalObjectIdV1,
     )],
     definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
+    nullable_initialization: Option<&super::instance_constructor_initialization::NullableConstructionInitializationV1>,
 ) -> ConstructionSourceEligibilityV1 {
     use ConstructionUnavailableV1 as U;
     // Parser normalization moves declared defaults into Birth stores. The
@@ -329,6 +330,9 @@ pub(super) fn issue_construction_source_v1(
         }
         return Ok(Rc::new(plan));
     };
+    if nullable_initialization.is_some_and(|plan| !plan.matches(source, input.owner())) {
+        return Err(U::SourceRelationMissing);
+    }
     plan.constructor = Some((source_id.clone(), input.owner()));
     let function = input.function();
     let shape = input.body_shape().ok_or(U::SourceRelationMissing)?;
@@ -584,6 +588,13 @@ pub(super) fn issue_construction_source_v1(
         ]);
         let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
             .ok_or(U::SourceRelationMissing)?;
+        if let Some(original) = nullable_initialization.and_then(|plan| plan.field(field)) {
+            if original.assignment.as_ref() != Some(row) || !match &rhs {
+                ConstructionStoreRhsV1::Parameter { provided, .. } => *provided == Some(original.child),
+                ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. } => child.object() == original.child,
+                _ => false,
+            } { return Err(U::SourceRelationMissing); }
+        }
         use crate::mir::instruction::FieldSetModeV1 as Mode;
         let mode = if field_decls[ordinal].declared_type_name.is_none() && !canonical.is_array_field(ordinal) {
             match &rhs {

@@ -56,6 +56,9 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     SourceProjection {
         _error: String,
     },
+    NullableInitialization {
+        _issue: super::instance_constructor_initialization::NullableInitializationIssueV1,
+    },
     ReceiverNonEscape {
         _issue: super::instance_constructor_non_escape::BirthReceiverNonEscapeIssueV1,
     },
@@ -78,6 +81,7 @@ pub(crate) struct InstanceConstructorSourceDataV1 {
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
     body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+    nullable_initialization: Option<std::rc::Rc<super::instance_constructor_initialization::NullableConstructionInitializationV1>>,
     birth_completion: Option<VerifiedFunctionCompletionV1>,
     birth_effect: Option<DeclaredInstanceCallSemanticEffectV1>,
 }
@@ -536,7 +540,7 @@ impl CapturedInstanceConstructorSourcesV1 {
                     && row.box_source.same_source_as(parent)) { continue; }
                 let source = batch.with_ordinary_box_syntax(parent, |declaration|
                     issue_construction_source_v1(*object, parent, declaration, None, None,
-                        &birth_rows, &object_sources, &object_definitions))
+                        &birth_rows, &object_sources, &object_definitions, None))
                     .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                 let plan = ConstructionPlanV1::without_child_calls(&source);
                 no_birth_construction.push((parent.clone(), source, plan));
@@ -558,7 +562,7 @@ impl CapturedInstanceConstructorSourcesV1 {
                             .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                         issue_construction_source_v1(source.object, &source.box_source, declaration,
                             Some((&source.source_id, input)), Some((caller, provider_static_arguments.as_ref())),
-                            &birth_rows, &object_sources, &object_definitions)
+                            &birth_rows, &object_sources, &object_definitions, source.nullable_initialization.as_deref())
                     } else {
                         Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
                     };

@@ -21,11 +21,43 @@ pub(in crate::mir) enum BirthReceiverNonEscapeIssueV1 {
     UnprovenUse { _site: SourceExprSiteV1 },
 }
 
+#[derive(Debug)]
+pub(super) struct BirthReceiverUsesV1 {
+    receiver: BindingRefV1,
+    occurrences: BTreeSet<SourceExprSiteV1>,
+    admitted: BTreeSet<SourceExprSiteV1>,
+    captures: Vec<BindingRefV1>,
+}
+impl BirthReceiverUsesV1 {
+    pub(super) fn receiver(&self) -> BindingRefV1 { self.receiver }
+    pub(super) fn is_receiver(&self, site: &SourceExprSiteV1) -> bool { self.occurrences.contains(site) }
+    pub(super) fn unproven_uses(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.occurrences.difference(&self.admitted)
+    }
+    pub(super) fn verify_non_escape(&self) -> Result<(), BirthReceiverNonEscapeIssueV1> {
+        if let Some(binding) = self.captures.first() {
+            return Err(BirthReceiverNonEscapeIssueV1::Capture { _binding: *binding });
+        }
+        if let Some(site) = self.unproven_uses().next() {
+            return Err(BirthReceiverNonEscapeIssueV1::UnprovenUse { _site: site.clone() });
+        }
+        Ok(())
+    }
+}
+
 pub(super) fn verify_receiver_non_escape_v1(
     function: &VerifiedResolvedFunctionV1,
     shape: &VerifiedResolvedBodyShapeInventoryV1,
     forest: &VerifiedSemanticOwnerForestV1,
 ) -> Result<(), BirthReceiverNonEscapeIssueV1> {
+    capture_receiver_uses_v1(function, shape, forest)?.verify_non_escape()
+}
+
+pub(super) fn capture_receiver_uses_v1(
+    function: &VerifiedResolvedFunctionV1,
+    shape: &VerifiedResolvedBodyShapeInventoryV1,
+    forest: &VerifiedSemanticOwnerForestV1,
+) -> Result<BirthReceiverUsesV1, BirthReceiverNonEscapeIssueV1> {
     if shape.owner() != function.owner() || forest.roots() != [function.owner()] {
         return Err(BirthReceiverNonEscapeIssueV1::OwnerMismatch);
     }
@@ -95,14 +127,9 @@ pub(super) fn verify_receiver_non_escape_v1(
         }
     }
 
-    // Captures live in child owners, not necessarily the root expression list.
-    for upvar in forest.upvars() {
-        if aliases.contains(&upvar.source()) {
-            return Err(BirthReceiverNonEscapeIssueV1::Capture {
-                _binding: upvar.source(),
-            });
-        }
-    }
+    // Capture retains aliases too; observing it grants no escape permission.
+    let captures = forest.upvars().iter().filter_map(|upvar|
+        aliases.contains(&upvar.source()).then_some(upvar.source())).collect();
 
     let mut admitted = local_targets;
     admitted.extend(alias_edges.into_iter().map(|(site, _)| site));
@@ -111,16 +138,7 @@ pub(super) fn verify_receiver_non_escape_v1(
             admitted.insert(object.clone());
         }
     }
-    // The generic child-relation list is not exhaustive. Every occurrence must
-    // instead have one of the explicit, admitted source roles above. In
-    // particular method receivers, arguments, return/store values and compound
-    // expressions never disappear because a generic child relation is missing.
-    if let Some(site) = occurrences.difference(&admitted).next() {
-        return Err(BirthReceiverNonEscapeIssueV1::UnprovenUse {
-            _site: site.clone(),
-        });
-    }
-    Ok(())
+    Ok(BirthReceiverUsesV1 { receiver: *receiver, occurrences, admitted, captures })
 }
 
 fn is_local(function: &VerifiedResolvedFunctionV1, binding: BindingRefV1) -> bool {
