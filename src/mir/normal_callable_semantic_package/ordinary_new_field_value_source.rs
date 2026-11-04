@@ -286,3 +286,58 @@ impl OrdinaryNewFieldWriteClaimsV1 {
         Ok((Rc::new(source), targets.into_boxed_slice()))
     }
 }
+
+impl OrdinaryNewFieldWriteClaimsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn object_sources_with_sums_v1(
+        &self, coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+        mut sum_for: impl FnMut(&Rc<DeclaredFieldValueSourceV1>) -> Option<Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>>,
+    ) -> ObjectFieldClassSourcesV1 {
+        let mut additional = BTreeMap::new();
+        for (class, name, source) in self.value_sources() {
+            let Ok(source) = source else { continue };
+            let Some(sum) = sum_for(source) else { continue };
+            let key = (Box::<str>::from(class), Box::<str>::from(name));
+            if !self.object_classes.contains_key(&key) {
+                if let Some(proof) = self.object_source_from_sum_v1(class, name, source, &sum, coverage, constructors) {
+                    additional.insert(key, proof);
+                }
+            }
+        }
+        if additional.is_empty() { return Rc::clone(&self.object_classes); }
+        let mut all = self.object_classes.as_ref().clone();
+        all.extend(additional);
+        Rc::new(all)
+    }
+    /// A declared child class from the exact closed writer sum, not an owned
+    /// child permission. The sole Birth store still retains its original RHS.
+    pub(in crate::mir::normal_callable_semantic_package) fn object_source_from_sum_v1(
+        &self, parent: &str, name: &str, source: &Rc<DeclaredFieldValueSourceV1>,
+        sum: &Rc<crate::mir::normal_callable_semantic_package::SourceValueSumV1>,
+        coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> Option<Rc<ObjectFieldClassSourceV1>> {
+        use crate::mir::normal_callable_semantic_package::{SourceValueAlternativeV1 as Value, ConstructionStoreRhsV1};
+        if !source.same_inventory(self) || !self.value_source(parent, name)?.as_ref().ok()
+            .is_some_and(|original| Rc::ptr_eq(original, source)) { return None; }
+        let declared = source.declared_type_name()?;
+        let nominal = crate::mir::declared_type_storage::declared_object_field_type_v1(declared)?;
+        let class = nominal.class_name();
+        let child_source = coverage.row_for(class).ok().flatten()?;
+        let child = constructors.object_for(&child_source).ok()?;
+        let mut writers = source.writers();
+        let writer = writers.next()?;
+        if writers.next().is_some() || !writer.in_birth() || !writer.is_attributed()
+            || writer.owner_box() != Some(parent) || writer.field() != name { return None; }
+        let store = source.birth_store(constructors, 0).ok().flatten()?;
+        if !matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: Some(object), .. } if *object == child)
+            || sum.alternatives().is_empty()
+            || !sum.alternatives().iter().all(|value| matches!(value, Value::Null)
+                || matches!(value, Value::Object(actual) if actual.as_ref() == class)) { return None; }
+        Some(Rc::new(ObjectFieldClassSourceV1 {
+            inventory: Rc::clone(&self.writers), class: class.into(),
+            declaration: Some((source.field(), Some(declared.to_owned()))), array_qualified: false,
+            source_sum: Some((Rc::clone(source), Rc::clone(sum))),
+        }))
+    }
+}
