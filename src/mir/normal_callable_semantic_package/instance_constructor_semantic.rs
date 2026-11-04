@@ -586,7 +586,7 @@ impl CapturedInstanceConstructorSourcesV1 {
                         let caller = source.published_birth_key.as_ref()
                             .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                         issue_construction_source_v1(source.object, &source.box_source, declaration,
-                            Some((&source.source_id, input)), Some((caller, provider_static_arguments.as_ref())),
+                            Some((&source.source_id, input, &source)), Some((caller, provider_static_arguments.as_ref())),
                             &birth_rows, &object_sources, &object_definitions, source.nullable_initialization.as_ref())
                     } else {
                         Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)

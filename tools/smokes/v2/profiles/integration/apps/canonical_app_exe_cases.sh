@@ -89,7 +89,7 @@ box Leaf {
 box Node {
   next: Leaf
   v: i64
-  birth(take next: Leaf, v: i64) { me.next = next  me.v = v }
+  birth(take next: Leaf, v: i64) { me.next = move next  me.v = v }
 }
 static box Main { main() { local leaf = new Leaf(1)  local n = new Node(move leaf, 5)  return n.v } }
 HAKO

@@ -672,6 +672,13 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
         ordinal: u32,
     },
+    /// The birth body stores a formal with the wrong spelling: a `take` formal
+    /// is stored only by `me.f = move x`, and `move x` is only for `take` formals.
+    BirthStoreOwnershipMismatch {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        issue: super::instance_construction::ConstructionUnavailableV1,
+    },
     DuplicateSite {
         site: OwnedExprSiteV1,
     },

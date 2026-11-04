@@ -260,6 +260,12 @@ pub(super) fn validate_take_actuals_v1(
     arguments: &[OrdinaryNewTrivialArgumentV1],
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
     use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalDeclarationClassV1 as Declaration;
+    use crate::mir::normal_callable_semantic_package::instance_construction::ConstructionUnavailableV1 as Unavailable;
+    if let Err(issue @ (Unavailable::TakeStoreRequiresMove | Unavailable::MoveRequiresTakeFormal)) = row.construction_source() {
+        return Err(OrdinaryNewCoSealIssueV1::BirthStoreOwnershipMismatch {
+            site: site.clone(), class: class.into(), issue: *issue,
+        });
+    }
     for formal in row.formal_contracts() {
         if formal.declaration() != Declaration::ExactObjectTake {
             continue;

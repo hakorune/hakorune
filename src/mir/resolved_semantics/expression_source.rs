@@ -326,6 +326,15 @@ impl ResolvedExpressionSourceInventoryV1 {
             })
     }
 
+    /// The site that names a stored value: the site itself, or the whole-name
+    /// operand of an explicit `move <name>`. Every store classifier uses this
+    /// one rule so a moved formal is never classified differently per consumer.
+    pub(crate) fn stored_value_operand<'a>(&'a self, site: &'a SourceExprSiteV1) -> &'a SourceExprSiteV1 {
+        self.unary(site)
+            .filter(|row| row.operator() == ResolvedUnaryOperatorV1::Move)
+            .map_or(site, |row| row.operand())
+    }
+
     pub(crate) fn unaries(&self) -> impl Iterator<Item = &ResolvedUnaryExpressionSourceV1> { self.unaries.values() }
 
     pub(crate) fn unary(

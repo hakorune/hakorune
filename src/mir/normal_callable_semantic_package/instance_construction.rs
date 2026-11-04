@@ -9,7 +9,7 @@ use super::{ConstructionInitKeyV1, ConstructionInitOriginV1, OwnedFieldChildKind
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::ast::{ASTNode, LiteralValue};
+use crate::ast::{ASTNode, LiteralValue, UnaryOperator};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{
@@ -31,6 +31,10 @@ pub(crate) enum ConstructionUnavailableV1 {
     BodyCoverageUnsupported,
     InitializationContractMissing,
     OverrideUnsupported,
+    /// `me.f = x` for a `take` formal: only `me.f = move x` hands it over.
+    TakeStoreRequiresMove,
+    /// `me.f = move x` for a formal that does not own its argument.
+    MoveRequiresTakeFormal,
 }
 
 /// Exact RHS accepted under the constructor declaration loan.
@@ -211,6 +215,7 @@ pub(super) fn issue_construction_source_v1(
     birth: Option<(
         &crate::parser::ConstructorSourceIdV1,
         ResolvedFunctionLoweringInputV1<'_>,
+        &super::instance_constructor_semantic::InstanceConstructorSourceDataV1,
     )>,
     provider_static_sources: Option<(
         &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
@@ -298,7 +303,7 @@ pub(super) fn issue_construction_source_v1(
         constructor: None,
         steps: Vec::new().into_boxed_slice(),
     };
-    let Some((source_id, input)) = birth else {
+    let Some((source_id, input, birth_source)) = birth else {
         if !fields.is_empty() {
             let definition = definitions.get(object_id.declaration_index() as usize)
                 .ok_or(U::SourceRelationMissing)?;
@@ -470,6 +475,8 @@ pub(super) fn issue_construction_source_v1(
         // consumed at take time against the receiver object, never as a
         // physical field read.
         let mut me_reads = Vec::new();
+        // The `move` operand read, covered under its own sealed site.
+        let mut moved_operand = None;
         let rhs = match rhs.node() {
             ASTNode::Literal {
                 value: LiteralValue::Integer(value),
@@ -484,7 +491,12 @@ pub(super) fn issue_construction_source_v1(
             }
             ASTNode::Literal { value: LiteralValue::String(value), .. } =>
                 ConstructionStoreRhsV1::LiteralText(value.as_str().into()),
-            ASTNode::Variable { .. } => {
+            ASTNode::Variable { .. } | ASTNode::UnaryOp { operator: UnaryOperator::Move, .. } => {
+                // `move <name>` is the only spelling that hands a `take` formal to the
+                // store (ownership.md rule 1); a bare name only borrows its formal.
+                let operand_site = input.function().expression_source().stored_value_operand(row.value_site()).clone();
+                let moved = &operand_site != row.value_site();
+                moved_operand = moved.then(|| operand_site.clone());
                 let binding = shape
                     .expressions()
                     .iter()
@@ -492,7 +504,7 @@ pub(super) fn issue_construction_source_v1(
                         BodyExpressionShapeV1::Variable {
                             site,
                             resolved: ResolvedLexicalRefV1::Local(binding),
-                        } if site == row.value_site()
+                        } if site == &operand_site
                             && matches!(
                                 function.binding(*binding).map(|record| record.kind()),
                                 Some(BindingKindV1::Parameter { .. })
@@ -503,6 +515,14 @@ pub(super) fn issue_construction_source_v1(
                         _ => None,
                     })
                     .ok_or(U::BodyCoverageUnsupported)?;
+                let Some(BindingKindV1::Parameter { index }) = function.binding(binding).map(|record| record.kind()) else {
+                    return Err(U::BodyCoverageUnsupported);
+                };
+                match (birth_source.birth_formal_is_take(index as u32), moved) {
+                    (true, false) => return Err(U::TakeStoreRequiresMove),
+                    (false, true) => return Err(U::MoveRequiresTakeFormal),
+                    (true, true) | (false, false) => {}
+                }
                 // A parameter stored into a field that declares a user
                 // object class is the provided-object arm: exact
                 // membership resolves the declared class to its canonical
@@ -532,7 +552,7 @@ pub(super) fn issue_construction_source_v1(
                     _ => None,
                 };
                 ConstructionStoreRhsV1::Parameter {
-                    site: row.value_site().clone(),
+                    site: operand_site,
                     binding,
                     provided,
                 }
@@ -606,6 +626,8 @@ pub(super) fn issue_construction_source_v1(
             object.clone(),
             row.value_site().clone(),
         ]);
+        // `move <name>` covers the operand read under its own sealed site.
+        expressions.extend(moved_operand);
         let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
             .ok_or(U::SourceRelationMissing)?;
         if let Some(original) = nullable_initialization.and_then(|plan| plan.field(field)) {

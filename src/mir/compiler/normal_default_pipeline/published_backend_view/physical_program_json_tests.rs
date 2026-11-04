@@ -762,10 +762,10 @@ fn unresolved_call_result_type_reaches_the_owning_rejection_without_a_panic() {
 #[test]
 fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    let compile_with_second = |formal: &str, field: &str, actual: &str, second: &str, tail: &str| {
+    let compile_stored = |formal: &str, store: &str, field: &str, actual: &str, second: &str, tail: &str| {
         let source = format!(
             "box Leaf {{\n  value: i64\n  birth(value) {{ me.value = value }}\n}}\n\
-             box Node {{\n  {field}\n  v: i64\n  birth({formal}, v: i64) {{ me.next = next  me.v = v }}\n}}\n\
+             box Node {{\n  {field}\n  v: i64\n  birth({formal}, v: i64) {{ me.next = {store}  me.v = v }}\n}}\n\
              static box Main {{\n  main() {{\n    local leaf = new Leaf(1)\n    local n = new Node({actual}, {second})\n    {tail}\n  }}\n}}\n"
         );
         crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
@@ -775,6 +775,11 @@ fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
                 })
                 .map(|_| ())
         })
+    };
+    // A `take` formal is stored only by `move`; every other formal is stored by its bare name.
+    let compile_with_second = |formal: &str, field: &str, actual: &str, second: &str, tail: &str| {
+        let store = if formal.starts_with("take ") { "move next" } else { "next" };
+        compile_stored(formal, store, field, actual, second, tail)
     };
     let compile = |formal: &str, field: &str, actual: &str, tail: &str| compile_with_second(formal, field, actual, "5", tail);
     compile("take next: Leaf", "next: Leaf", "move leaf", "return n.v")
@@ -788,6 +793,15 @@ fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
     for (formal, field, actual, tail, tag) in cases {
         let error = compile(formal, field, actual, tail).expect_err(&format!("{formal} / {actual} / {tail}"));
         assert!(error.contains(tag), "{formal} / {actual} / {tail}: {error}");
+    }
+    // Ownership spelling: `me.f = x` for a `take` formal and `move x` for a plain formal are
+    // named refusals, not a silent borrow and not a raw `move` lowering failure.
+    for (formal, store, issue) in [
+        ("take next: Leaf", "next", "TakeStoreRequiresMove"),
+        ("next", "move next", "MoveRequiresTakeFormal"),
+    ] {
+        let error = compile_stored(formal, store, "next: Leaf", "move leaf", "5", "return n.v").unwrap_err();
+        assert!(error.contains("BirthStoreOwnershipMismatch") && error.contains(issue), "{formal} / {store}: {error}");
     }
     // Arguments evaluate in source order: a read after `move` inside the same `new` is a
     // use after move, a read before it is not, and a plain handle argument transfers too.

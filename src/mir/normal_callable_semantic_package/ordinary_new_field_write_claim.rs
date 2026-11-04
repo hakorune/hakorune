@@ -571,7 +571,7 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                     Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)) => ObservedFieldStoreV1::Null,
                 None => {
                     let provided = matches!(
-                        shape.expression_shape(assignment.value_site()),
+                        shape.expression_shape(function.expression_source().stored_value_operand(assignment.value_site())),
                         Some(BodyExpressionShapeV1::Variable {
                             resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
                             ..
