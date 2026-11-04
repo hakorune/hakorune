@@ -56,7 +56,7 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako runtime parity remains unverified |
 | resolver Home-demand/root and Home Flow | bounded same-scope `move` of a `new`-derived local is implemented; general Home demand remains a target |
 | callable Home ABI | bounded declaration-only receipt exists; source `take` linkage absent |
-| canonical Builder/source producers | bounded explicit local `move` is connected through the published EXE route |
+| canonical Builder/source producers | bounded explicit local `move` is connected through the published EXE route, including `new T(move x, ...)` for a handle local (an unannotated `birth` formal; `birth(take x: T)` stays rejected at the parser). Instance results computed from exact `i64` values (`+ - *` over literals, `i64` formals and declared-`i64` `me` fields) run through `local r = c.f(..)` and `return c.f(<Integer literals>)`; `birth(name: String)` is the same exact Text formal as `StringBox` (typed `String`/`StringBox` fields still stop, a public MIR slot mode is needed); a field a `birth` fills with its own `new` is readable (`me.next == null`); an unconstructed box no longer blocks compilation |
 | Ownership SSA / ownership opcodes | published local-move and bounded local Shared MIR are independently checked; general ownership remains a target |
 | current ordinary Box assignment | transitional SharedV1 behavior |
 | successor surface (§0) | decided 2026-10-30; bounded local `move` and `Shared` (new/clone/borrow read/release) are live, Hako parity pending; SharedV1 stays until the §10 cutover |
