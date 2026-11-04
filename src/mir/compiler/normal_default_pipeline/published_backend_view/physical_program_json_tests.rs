@@ -733,17 +733,26 @@ fn exact_i64_birth_formals_keep_their_declaration_to_the_physical_input() {
 #[test]
 fn unresolved_call_result_type_reaches_the_owning_rejection_without_a_panic() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    for body in ["return me.base + x", "return x + 1"] {
+    let compile = |body: &str| {
         let source = format!(
             "box Calc {{\n  base: i64\n  birth() {{ me.base = 10 }}\n  add(x: i64): i64 {{ {body} }}\n}}\n\
              static box Main {{\n  main() {{\n    local c = new Calc()\n    local r = c.add(3)\n    return r\n  }}\n}}\n"
         );
-        let error = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
             MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&source), |_, _| Ok::<(), String>(()))
                 .map(|_| ())
         })
-        .unwrap_err();
+    };
+    // Arithmetic over exact i64 values (literals, formals, declared-i64 `me` fields) is a
+    // proved scalar result since `2a4ca90e93` / `724f63882d`: these used to be refused
+    // here and now compile. Neither path may panic.
+    for body in ["return me.base + x", "return x + 1"] {
+        compile(body).unwrap_or_else(|error| panic!("{body}: {error}"));
+    }
+    // An unproved result still reaches its owning rejection, never a panic.
+    for body in ["return x / 2", "local y = x + 1\n    return y"] {
+        let error = compile(body).unwrap_err();
         assert!(error.contains("artifact-source-unavailable"), "{body}: {error}");
     }
 }
