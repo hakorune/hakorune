@@ -208,6 +208,18 @@ fn projects_exact_text_without_reinterpreting_it_as_an_opaque_handle() {
 }
 
 #[test]
+fn user_declared_string_box_wins_over_the_text_spelling() {
+    let batch = batch("box String { v: i64 } static box Api { run(value: String) { return 0 } }", 83);
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
+    let declarations = catalog.declarations().collect::<Vec<_>>();
+    let parameter = &declarations.last().unwrap().parameters()[0];
+    assert!(
+        !matches!(parameter.kind(), CallableParameterContractKindV1::ExactText(_)),
+        "a declared `box String` is the class authority, got {:?}", parameter.kind()
+    );
+}
+
+#[test]
 fn parser_scan_loop_box_preserves_exact_i64_parameter_contracts() {
     let batch = batch(
         include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"),

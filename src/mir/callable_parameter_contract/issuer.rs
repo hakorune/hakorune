@@ -87,7 +87,13 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                             if source_parameter.type_reference().and_then(crate::ast::TypeReferenceV1::name) != Some(source_type) {
                                 return Err(CallableParameterContractIssueV1::UnsupportedDeclaredType { declaration, parameter });
                             }
-                            if let Some(abi) = ExactTextFormalAbiV1::classify(source_type) {
+                            // A user-declared box named `String` is the class authority;
+                            // the ADR spelling only means Text when no such box exists.
+                            let user_declared_string = source_type == "String"
+                                && matches!(batch.ordinary_box_coverage().row_for(source_type), Ok(Some(_)));
+                            if let Some(abi) = ExactTextFormalAbiV1::classify(source_type)
+                                .filter(|_| !user_declared_string)
+                            {
                                 CallableParameterContractKindV1::ExactText(abi)
                             } else if let Some(abi) =
                                 ExactTrivialParameterAbiV1::classify(source_type)
