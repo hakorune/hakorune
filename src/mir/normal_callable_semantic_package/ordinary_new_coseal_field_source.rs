@@ -406,6 +406,7 @@ pub(in crate::mir) struct StoredChildFieldSourceV1 {
     declared: bool,
     paired_all: bool,
     relations: Vec<std::rc::Rc<super::super::super::result_class_claim::SourceConstructionChildRelationV1>>,
+    initialization: Option<super::super::super::field_write_claim::NullFieldInitializationSourceV1>,
 }
 
 /// The same original witness alternatives feed issuance and revalidation.
@@ -502,7 +503,7 @@ pub(super) fn dynamic_stored_child_field_v1(
     if child_classes.next().is_some() { return Ok(None); }
     Ok(Some(StoredChildFieldSourceV1 {
         field, child, child_class: child_source.name().into(), nullable, paired_fields,
-        parent_class: parent_class.into(), field_name: field_name.into(), declared: false, paired_all: true, relations,
+        parent_class: parent_class.into(), field_name: field_name.into(), declared: false, paired_all: true, relations, initialization: None,
     }))
 }
 
@@ -527,6 +528,7 @@ impl StoredChildFieldSourceV1 {
             ResolvedBinaryOperatorV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1};
         let Some(shape) = input.body_shape() else { return false; };
         let mut names = BTreeSet::new();
+        if self.initialization.is_some() { names.insert(self.field_name.as_ref()); }
         for relation in &self.relations {
             if self.paired_fields.contains(&relation.field()) {
                 let Ok(name) = relation.original_field_name_v1() else { return false; };
@@ -575,6 +577,13 @@ impl StoredChildFieldSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_v1(
         &self, facts: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1, field_name: &str,
     ) -> bool {
+        if let Some(initialization) = &self.initialization {
+            return self.declared && self.nullable && self.relations.is_empty()
+                && self.field_name.as_ref() == field_name
+                && self.paired_fields == BTreeSet::from([self.field])
+                && initialization.recheck(self.field, self.child, field_name)
+                && facts.field_inventory_v1().is_some_and(|inventory| initialization.same_inventory(inventory));
+        }
         let current: Vec<_> = facts.construction_child_relation_loans().filter(|row|
             row.is_unqualified_dynamic_v1() != self.declared && row.field().object() == self.field.object()
                 && (self.paired_all || row.field() == self.field)).collect();
@@ -621,6 +630,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn declared_stored_child_fi
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { return Ok(None); };
     let child = constructors.object_for(child_source)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    if let Some(initialization) = constructors.original_field_value_source_v1(parent_class, field_name)
+        .and_then(|source| source.null_initialization_v1(constructors)) {
+        let source = StoredChildFieldSourceV1 {
+            field, child, child_class: class.into(), nullable: true, paired_fields: BTreeSet::from([field]),
+            parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all,
+            relations: Vec::new(), initialization: Some(initialization),
+        };
+        return Ok(source.recheck_v1(facts, field_name).then_some(source));
+    }
     let Some(sites) = facts.child_construction_sites_v1(field.object()) else { return Ok(None); };
     let relations: Vec<_> = facts.construction_child_relation_loans().filter(|row|
         !row.is_unqualified_dynamic_v1() && row.field().object() == field.object()
@@ -633,7 +651,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn declared_stored_child_fi
     if actual_child != child { return Ok(None); }
     Ok(Some(StoredChildFieldSourceV1 {
         field, child, child_class: class.into(), nullable, paired_fields,
-        parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all, relations,
+        parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all, relations, initialization: None,
     }))
 }
 

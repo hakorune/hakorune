@@ -41,6 +41,8 @@ pub(crate) enum ConstructionUnavailableV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ConstructionStoreRhsV1 {
     LiteralI64(i64),
+    /// Declared nullable slot initialization; no child Home is acquired.
+    Null { child: CanonicalObjectIdV1 },
     /// Exact bytes at this store's original RHS, materialized into a fresh
     /// owned Text before the Dynamic slot transaction.
     LiteralText(Box<str>),
@@ -463,6 +465,13 @@ pub(super) fn issue_construction_source_v1(
                 value: LiteralValue::Integer(value),
                 ..
             } => ConstructionStoreRhsV1::LiteralI64(*value),
+            ASTNode::Literal { value: LiteralValue::Null, .. } => {
+                let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
+                    .ok_or(U::SourceRelationMissing)?;
+                let original = nullable_initialization.and_then(|plan| plan.field(field))
+                    .ok_or(U::FieldContractUnsupported)?;
+                ConstructionStoreRhsV1::Null { child: original.child }
+            }
             ASTNode::Literal { value: LiteralValue::String(value), .. } =>
                 ConstructionStoreRhsV1::LiteralText(value.as_str().into()),
             ASTNode::Variable { .. } => {
@@ -592,6 +601,7 @@ pub(super) fn issue_construction_source_v1(
             if original.assignment.as_ref() != Some(row) || !match &rhs {
                 ConstructionStoreRhsV1::Parameter { provided, .. } => *provided == Some(original.child),
                 ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. } => child.object() == original.child,
+                ConstructionStoreRhsV1::Null { child } => *child == original.child,
                 _ => false,
             } { return Err(U::SourceRelationMissing); }
         }

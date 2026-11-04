@@ -76,7 +76,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !lv4_is(fn->function, "role", "ordinary_nullable_text") &&
           !lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") &&
           !lv4_is(fn->function, "role", "ordinary_mixed_handle") &&
-          !lv4_null_lane_present(fn)) return 0;
+          !lv4_null_lane_present(fn) && !(birth && lv4_birth_null_instruction(in, fn, ins))) return 0;
     } else if (lv4_is(ins, "op", "copy")) {
       hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
       hako_lv4_value* dest = lv4_index_value(fn, lv4_u(ins, "dst"));

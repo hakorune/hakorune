@@ -35,9 +35,9 @@ use crate::parser::{ConstructorSourceIdV1, ParserOrdinaryBoxSourceCoverageV1};
 
 #[path = "ordinary_new_field_value_source.rs"]
 mod value_source;
-pub(crate) use value_source::{DeclaredFieldValueSourceV1, FieldValueSourceIssueV1, TextFieldValueSourceV1};
+pub(crate) use value_source::{NullFieldInitializationSourceV1, DeclaredFieldValueSourceV1, FieldValueSourceIssueV1, TextFieldValueSourceV1};
 
-type FieldValueSourcesV1 = BTreeMap<
+pub(in crate::mir::normal_callable_semantic_package) type FieldValueSourcesV1 = BTreeMap<
     (Box<str>, Box<str>), Result<Rc<DeclaredFieldValueSourceV1>, FieldValueSourceIssueV1>,
 >;
 
@@ -328,6 +328,10 @@ impl OriginalFieldWriteSourceLoanV1 {
 }
 
 impl OrdinaryNewFieldWriteClaimsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn original_inventory_v1(&self) -> &Rc<OriginalFieldWriterInventoryV1> {
+        &self.writers
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn array_provider_source_v1(
         &self, owner_box: &str, field: &str,
         constructor: &ConstructorSourceIdV1, provider_site: &SourceExprSiteV1,
@@ -435,6 +439,7 @@ impl ObservedFieldWriteV1 {
 /// class authority for the transferred object.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum OwnedFieldResidenceV1 {
+    Null,
     Provider(Box<str>),
     Provided,
 }
@@ -449,6 +454,7 @@ pub(crate) type OwnedFieldResidencesV1 = BTreeMap<(Box<str>, Box<str>), OwnedFie
 /// other stored value (vetoes the field).
 #[derive(Debug)]
 enum ObservedFieldStoreV1 {
+    Null,
     Construction(Box<str>),
     Provided,
     Other,
@@ -553,6 +559,8 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 Some(construction) => {
                     ObservedFieldStoreV1::Construction(construction.class().into())
                 }
+                None if matches!(function.expression_source().literal(assignment.value_site()),
+                    Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)) => ObservedFieldStoreV1::Null,
                 None => {
                     let provided = matches!(
                         shape.expression_shape(assignment.value_site()),
@@ -626,6 +634,13 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
 }
 
 impl OriginalFieldWriterInventoryV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn value_sources_v1(
+        self: &Rc<Self>, coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
+    ) -> FieldValueSourcesV1 {
+        value_source::issue_value_sources_v1(self, coverage, constructors)
+    }
+
     /// Qualify only the fixed original empty builtin Array provider profile.
     pub(in crate::mir::normal_callable_semantic_package) fn qualify_fixed_array_fields_v1(
         self: &Rc<Self>, object: hakorune_mir_defs::CanonicalObjectIdV1, owner_box: &str,
@@ -695,6 +710,7 @@ impl OriginalFieldWriterInventoryV1 {
                         ObservedFieldStoreV1::Provided => {
                             residences.insert(key, OwnedFieldResidenceV1::Provided);
                         }
+                        ObservedFieldStoreV1::Null => { residences.insert(key, OwnedFieldResidenceV1::Null); }
                         _ => {}
                     }
                 }
@@ -736,9 +752,8 @@ impl OriginalFieldWriterInventoryV1 {
         let mut claims = OrdinaryNewFieldWriteClaimsV1 {
             object_classes, writers, value_sources: BTreeMap::new(),
         };
-        claims.value_sources = value_source::issue_value_sources_v1(
-            &claims.writers, ordinary_box_coverage, constructors,
-        );
+        claims.value_sources = constructors.original_field_value_sources_v1(&claims.writers)
+            .cloned().unwrap_or_else(|| claims.writers.value_sources_v1(ordinary_box_coverage, constructors));
         (claims, residences)
     }
 }

@@ -27,11 +27,9 @@ static yyjson_val* lv4_unique_field_writer(const hako_lv4_input* in,
   return selected;
 }
 
-/* The same unique Provided Birth store and owned tuple support observations
- * and receivers. Nonnull guard admission is a separate physical CFG query. */
-static int lv4_typed_field_store(const hako_lv4_input* in,
-    uint32_t object, uint32_t field, uint32_t child,
-    hako_lv4_function_index** writer_out, uint32_t* ordinal_out) {
+/* One canonical tuple query for constant and Provided initializers. */
+static int lv4_typed_field_tuple(const hako_lv4_input* in,
+    uint32_t object, uint32_t field, uint32_t child) {
   yyjson_val* layout = lv4_layout(in, object);
   if (!layout || !lv4_layout(in, child) ||
       lv4_u(yyjson_arr_get(yyjson_obj_get(layout, "fields"), field), "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64) return 0;
@@ -41,7 +39,29 @@ static int lv4_typed_field_store(const hako_lv4_input* in,
     yyjson_val* row = yyjson_arr_get(rows, i);
     if (lv4_u(row, "field_ordinal") == field && lv4_u(row, "child_object_id") == child) tuples++;
   }
-  if (tuples != 1) return 0;
+  return tuples == 1;
+}
+
+/* A unique Birth constant supplies no formal ordinal, Home or nonnull proof. */
+static int lv4_null_field_writer(const hako_lv4_input* in,
+    uint32_t object, uint32_t field, uint32_t child) {
+  hako_lv4_function_index* writer = NULL;
+  yyjson_val* store = lv4_unique_field_writer(in, object, field, &writer);
+  if (!writer || !lv4_typed_field_tuple(in, object, field, child) ||
+      !lv4_is(writer->function, "role", "birth_unit") || !writer->receiver_object_set ||
+      writer->receiver_object != object || !lv4_is(store, "kind", "object_field_set") ||
+      lv4_u(store, "child_object_id") != child) return 0;
+  hako_lv4_value* base = lv4_value_alias_root(writer, lv4_index_value(writer, lv4_u(store, "base")));
+  hako_lv4_value* value = lv4_value_alias_root(writer, lv4_index_value(writer, lv4_u(store, "value")));
+  return base && base->origin == -2 && base->id == lv4_u(writer->function, "receiver") &&
+      value && value->kind == LV4_HANDLE && value->origin == -1 && lv4_is(value->instruction, "op", "const_null");
+}
+
+/* Only this Provided source supplies a formal ordinal for paired-field proofs. */
+static int lv4_typed_field_store(const hako_lv4_input* in,
+    uint32_t object, uint32_t field, uint32_t child,
+    hako_lv4_function_index** writer_out, uint32_t* ordinal_out) {
+  if (!lv4_typed_field_tuple(in, object, field, child)) return 0;
   hako_lv4_function_index* writer = NULL;
   if (!lv4_unique_field_writer(in, object, field, &writer) || !writer) return 0;
   yyjson_val* params = yyjson_obj_get(writer->function, "params");
@@ -56,8 +76,9 @@ static int lv4_typed_field_store(const hako_lv4_input* in,
 }
 static int lv4_typed_field_borrow(const hako_lv4_input* in, yyjson_val* op) {
   return lv4_is(op, "kind", "object_field_borrow") &&
-      lv4_typed_field_store(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"),
-          lv4_u(op, "expected_object_id"), NULL, NULL);
+      (lv4_typed_field_store(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"),
+          lv4_u(op, "expected_object_id"), NULL, NULL) ||
+       lv4_null_field_writer(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), lv4_u(op, "expected_object_id")));
 }
 
 static int lv4_field_provider_writer(const hako_lv4_input* in,

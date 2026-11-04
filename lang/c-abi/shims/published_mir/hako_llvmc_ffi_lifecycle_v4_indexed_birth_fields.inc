@@ -1,9 +1,9 @@
 /* Normal-committed Birth field markers reuse store block origin slots. */
-enum { LV4_BIRTH_FIELD = 258, LV4_BIRTH_PROVIDED_FIELD = 259 }; /* Map tags occupy a separate high-word domain. */
+enum { LV4_BIRTH_FIELD = 258, LV4_BIRTH_PROVIDED_FIELD = 259, LV4_BIRTH_NULL_FIELD = 260 }; /* Map tags occupy a separate high-word domain. */
 static int lv4_birth_marker(hako_lv4_state state) {
-  return state == LV4_BIRTH_FIELD || state == LV4_BIRTH_PROVIDED_FIELD;
+  return state == LV4_BIRTH_FIELD || state == LV4_BIRTH_PROVIDED_FIELD || state == LV4_BIRTH_NULL_FIELD;
 }
-_Static_assert(LV4_BIRTH_FIELD < LV4_TRANSFER_BASE, "Birth/Map marker domains overlap");
+_Static_assert(LV4_BIRTH_NULL_FIELD < LV4_TRANSFER_BASE, "Birth/Map marker domains overlap");
 
 static int lv4_birth_dynamic(const hako_lv4_input* in, yyjson_val* op) {
   yyjson_val* layout = lv4_layout(in, lv4_u(op, "object_id"));
@@ -57,6 +57,26 @@ static int lv4_birth_base(hako_lv4_function_index* fn, yyjson_val* op) {
       lv4_u(op, "object_id") == fn->receiver_object;
 }
 
+/* An initialized Null is neither an empty slot nor a child lease. */
+static int lv4_birth_null_store(const hako_lv4_input* in, hako_lv4_function_index* fn,
+    yyjson_val* op, hako_lv4_value* value) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
+  return lv4_is(fn->function, "role", "birth_unit") && lv4_is(op, "kind", "object_field_set") &&
+      lv4_birth_base(fn, op) && lv4_birth_owned(in, op, 1) && root &&
+      root->kind == LV4_HANDLE && root->origin == -1 && lv4_is(root->instruction, "op", "const_null");
+}
+static int lv4_birth_null_instruction(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, yyjson_val* instruction) {
+  for (size_t i = 0; i < fn->block_count; i++) {
+    yyjson_val* op = yyjson_obj_get(lv4_term(fn->blocks[i].block), "operation");
+    if (!lv4_is(op, "kind", "object_field_set")) continue;
+    hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+    hako_lv4_value* root = lv4_value_alias_root(fn, value);
+    if (root && root->instruction == instruction && lv4_birth_null_store(in, fn, op, value)) return 1;
+  }
+  return 0;
+}
+
 static yyjson_val* lv4_birth_store(hako_lv4_function_index* fn, size_t origin) {
   return yyjson_obj_get(lv4_term(yyjson_arr_get(
       hako_physical_blocks(fn->function), origin)), "operation");
@@ -81,8 +101,8 @@ static int lv4_birth_commit(const hako_lv4_input* in, hako_lv4_function_index* f
          normal[i] == LV4_BIRTH_PROVIDED_FIELD &&
          lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(prior, "value"))) == value)) return 0;
   }
-  normal[origin] = object && value && value->origin == -3 ?
-      LV4_BIRTH_PROVIDED_FIELD : LV4_BIRTH_FIELD;
+  normal[origin] = object && lv4_birth_null_store(in, fn, op, value) ? LV4_BIRTH_NULL_FIELD :
+      object && value && value->origin == -3 ? LV4_BIRTH_PROVIDED_FIELD : LV4_BIRTH_FIELD;
   return 1;
 }
 
@@ -184,8 +204,13 @@ static int lv4_birth_finish(const hako_lv4_input* in, hako_lv4_function_index* f
 static int lv4_birth_drop_provided(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_state* state) {
   for (size_t i = 0; i < fn->block_count; i++) {
-    if (state[i] != LV4_BIRTH_PROVIDED_FIELD) continue;
+    if (state[i] != LV4_BIRTH_PROVIDED_FIELD && state[i] != LV4_BIRTH_NULL_FIELD) continue;
     yyjson_val* store = lv4_birth_store(fn, i);
+    if (state[i] == LV4_BIRTH_NULL_FIELD) {
+      if (!lv4_birth_null_store(in, fn, store, lv4_index_value(fn, lv4_u(store, "value")))) return 0;
+      state[i] = 0;
+      continue;
+    }
     hako_lv4_value* value = lv4_value_alias_root(fn,
         lv4_index_value(fn, lv4_u(store, "value")));
     if (!lv4_is(store, "kind", "object_field_set") || !lv4_birth_base(fn, store) ||

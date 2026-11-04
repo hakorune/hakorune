@@ -299,11 +299,12 @@ copy covers numbers, Bool, unit enums and `T?` of those (decided
 payload, and `copy e` is explicit. Rust retains structural type-reference syntax (Name/Apply/Array/Nullable);
 unsupported new parameter/result representations are named rejections. Box `T?`
 fields share the canonical child, layout and End contracts for straightline
-birth assignments from a formal or `new`, and keep the reads supported for bare
-`T`. One retained source analysis names repeated/control-flow stores and stores
+birth assignments from a formal, `new` or literal `null`, and keep the reads
+supported for bare `T`. A literal-null install acquires no Home and emits no
+child End; Fresh and Forward installs retain their existing Normal/Fault cleanup. One retained source analysis names repeated/control-flow stores and stores
 after a field read, receiver call or receiver escape (including aliases) as
-compiler coverage refusals. Declaration-default null and a literal-null birth
-store remain separate connections. Bare `T` keeps its pre-cutover meaning. `record` and `with` retire around the cutover (decided 2026-11-03):
+compiler coverage refusals. Declaration-default null remains a separate
+connection. Bare `T` keeps its pre-cutover meaning. `record` and `with` retire around the cutover (decided 2026-11-03):
 every user-defined group is a `box`, an object with identity that may also group
 owned data, even when the group needs no identity:
 `new Span { start: 1, end: 5 }`, `new Token { kind: k, text: move s, span: sp }`

@@ -340,6 +340,50 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
                 store['field_ordinal'] = 1
             reject(data, ('published-lifecycle-physical-parser', 'published-lifecycle-v4/unsupported-cohort'))
 
+    null_path = DIRECTORY / 'hako-issued-null-field-initialization.json'
+    if null_path.exists():
+        original = json.loads(null_path.read_text())
+        checked([driver, null_path, obj], env=ENV)
+        wraps = ('fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
+                 'object.checked_field_set', 'object.checked_residence_set',
+                 'object.home_release_plain_i64', 'object.reclaim_unpublished')
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        normal = run([exe], env=ENV)
+        assert normal.returncode == 5 and 'COUNTS 1 4 2 0 0 1\n' in normal.stdout, normal
+        # Null is installed first; a Fresh child is then installed before the
+        # final scalar write faults. Only the live child releases, once.
+        for at, counts in (('1', '1 1 0 1 1 1'), ('4', '1 4 1 1 1 1')):
+            fault = run([exe], env=dict(ENV, V4_PROBE_FAULT_AT=at))
+            assert fault.returncode == 70 and f'COUNTS {counts}\n' in fault.stdout, fault
+        for mutation in ('false-null', 'wrong-child', 'duplicate-install', 'null-release', 'nonnull'):
+            data = copy.deepcopy(original)
+            birth = next(f for f in data['functions'] if f['name'] == 'Parent.birth/0')
+            null = next(r['instruction'] for b in birth['blocks'] for r in b['instructions']
+                        if r['instruction']['op'] == 'const_null')
+            stores = [b['terminator']['instruction']['operation'] for b in birth['blocks']
+                      if b['terminator']['instruction'].get('operation', {}).get('kind') == 'object_field_set']
+            first = next(op for op in stores if op['value'] == null['dst'])
+            if mutation == 'false-null':
+                null.update(op='const_i64', value=0)
+            elif mutation == 'wrong-child':
+                first['child_object_id'] = max(row['object_id'] for row in data['layouts']) + 1
+            elif mutation == 'duplicate-install':
+                second = next(op for op in stores if op is not first)
+                second['field_ordinal'] = first['field_ordinal']
+            elif mutation == 'null-release':
+                release = next(b['terminator']['instruction']['operation'] for b in birth['blocks']
+                               if b['terminator']['instruction'].get('operation', {}).get('kind') == 'object_field_release')
+                release['field_ordinal'] = first['field_ordinal']
+            else:
+                check = next(f for f in data['functions'] if f['name'] == 'Parent.check/0')
+                borrow = next(b['terminator']['instruction']['operation'] for b in check['blocks']
+                              if b['terminator']['instruction'].get('operation', {}).get('kind') == 'object_field_borrow')
+                borrow['nullable'] = False
+            reject(data, ('published-lifecycle-physical-parser', 'published-lifecycle-v4/unsupported-cohort'))
+        print('Null/Fresh initializer: normal and Fault cleanup; forged Null/tuple/reinstall reject')
+
     recursive_path = DIRECTORY / 'hako-issued-typed-recursive-field-borrow.json'
     if recursive_path.exists():
         recursive = json.loads(recursive_path.read_text())

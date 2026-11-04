@@ -47,6 +47,7 @@ pub(super) struct SourceResultRowV1 {
 #[derive(Debug, Default)]
 pub(crate) struct VerifiedSourceCallableResultFactsV1 {
     rows: BTreeMap<CanonicalSameModuleCallableKeyV1, SourceResultRowV1>,
+    field_writers: Option<std::rc::Rc<super::super::field_write_claim::OriginalFieldWriterInventoryV1>>,
     child_relations: BTreeMap<
         (OwnedExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1),
         std::rc::Rc<super::child_relation::SourceConstructionChildRelationV1>,
@@ -59,6 +60,13 @@ pub(crate) struct VerifiedSourceCallableResultFactsV1 {
     map_installs: BTreeMap<OwnedExprSiteV1, std::rc::Rc<super::witness::MapStoredResultSourceV1>>,
 }
 impl VerifiedSourceCallableResultFactsV1 {
+    pub(super) fn attach_field_inventory_v1(&mut self, fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1) {
+        self.field_writers = Some(std::rc::Rc::clone(fields.original_inventory_v1()));
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn field_inventory_v1(&self) -> Option<&std::rc::Rc<super::super::field_write_claim::OriginalFieldWriterInventoryV1>> {
+        self.field_writers.as_ref()
+    }
+
     pub(crate) fn new() -> Self {
         Self::default()
     }

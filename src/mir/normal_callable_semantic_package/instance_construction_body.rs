@@ -401,6 +401,10 @@ pub(super) fn qualified_field_demands_v1(
                 ConstructionStoreRhsV1::LiteralI64(_) | ConstructionStoreRhsV1::Parameter { .. }
             ),
             Some(name) => match store.rhs() {
+                ConstructionStoreRhsV1::Null { child } =>
+                    crate::mir::declared_type_storage::declared_object_field_type_v1(name)
+                        .is_some_and(|ty| ty.explicitly_nullable() && objects.iter()
+                            .any(|(source, id)| source.name() == ty.class_name() && id == child)),
                 ConstructionStoreRhsV1::ProviderConstruction {
                     class, object, ..
                 } => {
@@ -449,7 +453,7 @@ pub(super) fn qualified_field_demands_v1(
             field.declared_type_name.as_deref(),
             Some("i64") | Some("usize")
         );
-        if object_field && !matches!(store.rhs(), ConstructionStoreRhsV1::LiteralI64(_)) {
+        if object_field && !matches!(store.rhs(), ConstructionStoreRhsV1::LiteralI64(_) | ConstructionStoreRhsV1::Null { .. }) {
             demands[ordinal] = HomeDemandV1::Handle;
         }
     }

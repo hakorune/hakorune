@@ -30,11 +30,15 @@ impl CallableSemanticLoweringState {
             return Err(fault("provider-value-foreign"));
         }
         let mut provider_site = None;
-        let mut provided_child = None;
+        let mut field_child = None;
         let value = match &taken.rhs {
             ConstructionStoreRhsV1::LiteralI64(value) => Some(
                 crate::mir::builder::emission::constant::emit_integer(builder, *value)?,
             ),
+            ConstructionStoreRhsV1::Null { child } => {
+                field_child = Some(*child);
+                Some(crate::mir::builder::emission::constant::emit_null(builder)?)
+            }
             ConstructionStoreRhsV1::LiteralText(_) => None,
             ConstructionStoreRhsV1::Parameter {
                 site,
@@ -45,7 +49,7 @@ impl CallableSemanticLoweringState {
                     .value_for_exact_binding(self.owner, *binding)
                     .map_err(|error| error.to_string())?;
                 self.observe_variable_site(site.node(), *binding, value)?;
-                provided_child = *provided;
+                field_child = *provided;
                 Some(value)
             }
             ConstructionStoreRhsV1::ProviderConstruction { site, .. } => {
@@ -532,9 +536,9 @@ impl CallableSemanticLoweringState {
                 };
                 (operation, head)
             }
-            None => match provided_child {
-                // Caller retains the provided Home on Fault; only Birth
-                // Normal transfers it into this declared field.
+            None => match field_child {
+                // A formal keeps its caller Home on Fault; Null has no
+                // Home. Both use the same checked object-slot install.
                 Some(child) => (
                     InvokeOperation::ObjectFieldSet { field: store.field, base, value, child },
                     fault_landing,

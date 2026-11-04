@@ -109,6 +109,59 @@ impl DeclaredFieldValueSourceV1 {
     }
 }
 
+/// A constant initializer is a field source, never a forwarded formal loan.
+#[derive(Debug, Clone)]
+pub(crate) struct NullFieldInitializationSourceV1 {
+    source: Rc<DeclaredFieldValueSourceV1>,
+    construction: Rc<crate::mir::normal_callable_semantic_package::instance_construction::ConstructionSourceStructureV1>,
+    store: usize,
+}
+impl PartialEq for NullFieldInitializationSourceV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.construction, &other.construction)
+            && self.store == other.store
+    }
+}
+impl Eq for NullFieldInitializationSourceV1 {}
+impl NullFieldInitializationSourceV1 {
+    pub(crate) fn same_inventory(&self, inventory: &Rc<OriginalFieldWriterInventoryV1>) -> bool {
+        Rc::ptr_eq(&self.source.inventory, inventory)
+    }
+    pub(crate) fn recheck(&self, field: CanonicalFieldRefV1, child: hakorune_mir_defs::CanonicalObjectIdV1, name: &str) -> bool {
+        let Some(store) = self.construction.stores().get(self.store) else { return false; };
+        let mut writers = self.source.writers();
+        let Some(writer) = writers.next() else { return false; };
+        writers.next().is_none() && writer.field() == name && self.source.field() == field
+            && store.field() == field && store.assignment() == writer.assignment()
+            && store.receiver_site() == writer.receiver_site()
+            && Some(store.receiver_binding()) == writer.receiver()
+            && self.construction.constructor().is_some_and(|(source, owner)|
+                writer.birth_source() == Some(source) && *owner == writer.owner())
+            && matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::Null { child: actual } if *actual == child)
+    }
+}
+impl DeclaredFieldValueSourceV1 {
+    pub(crate) fn null_initialization_v1(self: &Rc<Self>, constructors: &VerifiedInstanceConstructorSemanticBatchV1)
+        -> Option<NullFieldInitializationSourceV1>
+    {
+        let declaration = crate::mir::declared_type_storage::declared_object_field_type_v1(self.declared_type_name()?)?;
+        if !declaration.explicitly_nullable() { return None; }
+        let mut writers = self.writers();
+        let writer = writers.next()?;
+        if writers.next().is_some() || !writer.in_birth() { return None; }
+        let mut births = constructors.rows().iter().filter(|row|
+            row.kind() == ConstructorSourceKindV1::Birth && Some(row.box_name()) == writer.owner_box());
+        let birth = births.next()?;
+        if births.next().is_some() { return None; }
+        let store = self.birth_store(constructors, 0).ok()??;
+        let crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::Null { child } = store.rhs() else { return None; };
+        let construction = birth.construction_source().as_ref().ok()?;
+        let ordinal = construction.stores().iter().position(|row| std::ptr::eq(row, store))?;
+        let proof = NullFieldInitializationSourceV1 { source: Rc::clone(self), construction: Rc::clone(construction), store: ordinal };
+        proof.recheck(self.field(), *child, writer.field()).then_some(proof)
+    }
+}
+
 /// Source class for the same complete original writer cohort. This grants
 /// neither a borrowed field payload nor an owned Text result.
 #[derive(Debug, Clone)]

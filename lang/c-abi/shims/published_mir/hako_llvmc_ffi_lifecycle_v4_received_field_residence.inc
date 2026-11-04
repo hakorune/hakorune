@@ -44,6 +44,7 @@ static int lv4_received_field_fresh(const hako_lv4_input* in,
   if (!store || writer != constructor || !constructor->receiver_object_set ||
       constructor->receiver_object != object) return 0;
   if (lv4_field_borrow_writer(in, object, field, child)) { *nullable = 0; return 1; }
+  if (lv4_null_field_writer(in, object, field, child)) { *nullable = 1; return 1; }
   yyjson_val* params = yyjson_obj_get(constructor->function, "params");
   yyjson_val* args = yyjson_obj_get(call, "args");
   if (!yyjson_is_arr(args) || yyjson_arr_size(params) != yyjson_arr_size(args)) return 0;

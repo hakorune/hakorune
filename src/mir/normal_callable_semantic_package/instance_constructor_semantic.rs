@@ -112,6 +112,8 @@ impl std::ops::Deref for VerifiedInstanceConstructorSemanticRowV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
+    field_writers: std::rc::Rc<super::ordinary_new_coseal::OriginalFieldWriterInventoryV1>,
+    field_values: std::cell::OnceCell<super::ordinary_new_coseal::FieldValueSourcesV1>,
     rows: Box<[VerifiedInstanceConstructorSemanticRowV1]>,
     box_sources: ParserOrdinaryBoxSourceCoverageV1,
     object_sources: Box<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>,
@@ -134,6 +136,20 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    /// Reuse original writer/source correspondences; later qualified claims do
+    /// not mutate this catalog. A foreign inventory must be issued separately.
+    pub(super) fn original_field_value_sources_v1(
+        &self, inventory: &std::rc::Rc<super::ordinary_new_coseal::OriginalFieldWriterInventoryV1>,
+    ) -> Option<&super::ordinary_new_coseal::FieldValueSourcesV1> {
+        std::rc::Rc::ptr_eq(inventory, &self.field_writers).then(|| self.field_values.get_or_init(||
+            self.field_writers.value_sources_v1(&self.box_sources, self)))
+    }
+    pub(super) fn original_field_value_source_v1(
+        &self, class: &str, name: &str,
+    ) -> Option<&std::rc::Rc<super::ordinary_new_coseal::DeclaredFieldValueSourceV1>> {
+        self.original_field_value_sources_v1(&self.field_writers)?
+            .get(&(class.into(), name.into()))?.as_ref().ok()
+    }
     /// Source store contracts precede object result ancestry. They depend on
     /// original Birth formals and child relations, never lexical packet readiness.
     pub(super) fn finish_source_store_plans_v1(
@@ -580,6 +596,7 @@ impl CapturedInstanceConstructorSourcesV1 {
                 });
             }
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {
+                field_writers: std::rc::Rc::clone(field_writers), field_values: std::cell::OnceCell::new(),
                 rows: rows.into_boxed_slice(), box_sources, object_sources,
                 object_definitions: std::cell::RefCell::new(Some(object_definitions.into_boxed_slice())),
                 no_birth_construction,

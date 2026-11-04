@@ -356,10 +356,8 @@ impl ConstructionState {
                         && *fault_landing == *store_discharge
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
                 (
-                    ConstructionStoreRhsV1::Parameter {
-                        provided: Some(child),
-                        ..
-                    },
+                    ConstructionStoreRhsV1::Parameter { provided: Some(child), .. }
+                        | ConstructionStoreRhsV1::Null { child },
                     None,
                 ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
@@ -589,18 +587,19 @@ impl ConstructionState {
                 (None, _, Some(_)) => return Err(fault("provider-birth-foreign")),
                 (None, _, None) => {}
             }
-            if let ConstructionStoreRhsV1::LiteralI64(expected) = &store.rhs {
+            if matches!(&store.rhs, ConstructionStoreRhsV1::LiteralI64(_) | ConstructionStoreRhsV1::Null { .. }) {
                 let literal_matches = function
                     .blocks
                     .get(block)
                     .into_iter()
                     .flat_map(|block| block.all_instructions())
                     .any(|instruction| {
-                        matches!(instruction,
-                            MirInstruction::Const {
-                                dst,
-                                value: crate::mir::ConstValue::Integer(actual),
-                            } if *dst == *value && *actual == *expected)
+                        matches!((instruction, &store.rhs),
+                            (MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(actual) },
+                                ConstructionStoreRhsV1::LiteralI64(expected)) if *dst == *value && actual == expected)
+                            || matches!((instruction, &store.rhs),
+                                (MirInstruction::Const { dst, value: crate::mir::ConstValue::Null },
+                                    ConstructionStoreRhsV1::Null { .. }) if *dst == *value)
                     });
                 if !literal_matches {
                     return Err(fault("literal-value-drift"));

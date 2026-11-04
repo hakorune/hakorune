@@ -617,10 +617,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          stores the pair's payload — zero means the slot stays Void and
          no lease changes hands. */
       int nullable_formal = value && value->origin == -3;
+      int nonlease = nullable_formal || (birth && lv4_birth_null_store(in, fn, op, value));
       if ((fi && !ordinary && !birth) || faulted || lv4_slot(in, op) < 0 || !value ||
-          value->kind != LV4_HANDLE || (value->origin < 0 && !nullable_formal) ||
+          value->kind != LV4_HANDLE || (value->origin < 0 && !nonlease) ||
           !lv4_layout(in, lv4_u(op, "child_object_id")) ||
-          (!nullable_formal &&
+          (!nonlease &&
               !lv4_indexed_live(fn, value->id, LV4_HANDLE, state,
                   lv4_u(op, "child_object_id"), 1)) ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
@@ -632,13 +633,13 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          not a live lease, so it names no typed-live source. */
       if (lv4_birth_reserved(in, op) &&
           (!lv4_birth_owned(in, op, 1) ||
-           (!nullable_formal && !lv4_borrowed_typed_live(in, fn, value, state)))) return 0;
+           (!nonlease && !lv4_borrowed_typed_live(in, fn, value, state)))) return 0;
       if (lv4_direct_layout(in, lv4_u(op, "object_id")) &&
           (!birth || !lv4_birth_base(fn, op))) return 0;
-      if (!nullable_formal && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
+      if (!nonlease && lv4_direct_layout(in, lv4_u(op, "object_id")) &&
           !lv4_direct_initialized(in, fn, value, lv4_u(block, "id"))) return 0;
       if (birth && !lv4_birth_commit(in, fn, op, normal, bi, 1)) return 0;
-      if (!nullable_formal) normal[value->origin] = 0;
+      if (!nonlease) normal[value->origin] = 0;
     } else if (lv4_is(op, "kind", "object_field_release")) {
       /* Same child-slot discharge as a field residence release, keyed on
          the canonical child object — the emitted helper owns the child's

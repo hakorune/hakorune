@@ -240,6 +240,12 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
             static box Main { main() { local a = new TreeNode(null, null, 6)
                 local n = new TreeNode(a, null, 5) local v = n.check() return v } }";
         for (text, count, callee_name, file) in [
+            ("box Leaf { value: i64 birth() { me.value = 7 } }
+              box Parent { empty: Leaf? child: Leaf? value: i64
+                birth() { me.empty = null me.child = new Leaf() me.value = 5 }
+                check(): i64 { if me.empty == null { return me.value } return me.value } }
+              static box Main { main() { local p = new Parent() return p.check() } }",
+                1, "Parent.check/0", "hako-issued-null-field-initialization.json"),
             (text, 1, "TreeNode.check/0", "hako-issued-typed-null-field-borrow.json"),
             (include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-tree-typed-min/main.hako")),
                 3, "TreeNode.itemCheck/0", "hako-issued-typed-recursive-field-borrow.json"),
@@ -257,7 +263,16 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
                         .filter(|op| op["kind"] == "object_field_borrow").collect();
                     assert_eq!(borrows.len(), count, "{wire}");
                     assert_eq!(borrows.iter().filter(|op| op["nullable"] == true).count(), 1, "{wire}");
-                    assert_eq!(borrows[0]["object_id"], borrows[0]["expected_object_id"], "{wire}");
+                    if file != "hako-issued-null-field-initialization.json" {
+                        assert_eq!(borrows[0]["object_id"], borrows[0]["expected_object_id"], "{wire}");
+                    }
+                    for borrow in borrows {
+                        let layout = json["layouts"].as_array().unwrap().iter()
+                            .find(|row| row["object_id"] == borrow["object_id"]).unwrap();
+                        assert!(layout["owned_object_residences"].as_array().unwrap().iter().any(|row|
+                            row["field_ordinal"] == borrow["field_ordinal"]
+                                && row["child_object_id"] == borrow["expected_object_id"]), "{wire}");
+                    }
                     std::fs::write(std::env::temp_dir().join(file), wire).unwrap();
                     Ok(())
                 }).unwrap();

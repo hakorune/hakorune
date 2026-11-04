@@ -121,6 +121,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn att
     fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     parameters: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
 ) -> Result<(), super::super::OrdinaryNewCoSealIssueV1> {
+    facts.attach_field_inventory_v1(fields);
     let mut dynamic_classes = BTreeMap::<CanonicalFieldRefV1, BTreeSet<CanonicalObjectIdV1>>::new();
     let mut expected_dynamic_sites = BTreeMap::<CanonicalObjectIdV1, BTreeSet<OwnedExprSiteV1>>::new();
     let mut sites_complete = true;

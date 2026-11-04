@@ -210,7 +210,7 @@ pub(super) fn owned_field_children_of(
                     // the declared field type is the sole authority and
                     // it must be a user class — builtin/`ArrayBox` fields
                     // keep their provider-only boundary.
-                    field_write_claim::OwnedFieldResidenceV1::Provided => {
+                    field_write_claim::OwnedFieldResidenceV1::Provided | field_write_claim::OwnedFieldResidenceV1::Null => {
                         let name = match nominal.as_ref() {
                             Some(ty) => ty.class_name(),
                             None => {
