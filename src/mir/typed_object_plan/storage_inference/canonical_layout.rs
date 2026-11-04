@@ -47,9 +47,10 @@ fn layout(
                         .map(|_| TypedObjectFieldStorage::Handle)
                 })
             })
-            // Absence of a source annotation declares a dynamic slot. It is
-            // not a request to infer fixed storage from later MIR writes.
-            .or_else(|| field.declared_type_name.is_none()
+            // Absence of a source annotation, or a declared Text slot
+            // (`String`, `String?`), declares a dynamic slot. It is not a
+            // request to infer fixed storage from later MIR writes.
+            .or_else(|| definition.is_dynamic_slot_field(ordinal)
                 .then_some(TypedObjectFieldStorage::Dynamic));
         let Some(storage) = storage else {
             return Ok(Err(Unavailable::FieldType(slot)));

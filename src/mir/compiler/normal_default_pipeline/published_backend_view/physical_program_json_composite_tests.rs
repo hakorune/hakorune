@@ -439,3 +439,71 @@ fn owned_array_transport_preserves_descriptor_and_borrowed_result_role() {
         }
     }
 }
+
+/// A declared Text slot (`String`, `StringBox`, `String?`) is a dynamic slot whose
+/// Birth store publishes the Text transaction; a store of another tag is refused
+/// from the public MIR and the declaration alone.
+#[test]
+fn declared_text_slot_fields_publish_dynamic_text_and_refuse_other_tags() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for field in ["name", "name: String", "name: StringBox", "name: String?"] {
+            let source = format!(
+                "box Label {{ {field} birth(name) {{ me.name = name }} }} \
+                 static box Main {{ main() {{ local label = new Label(\"猫\") return 0 }} }}"
+            );
+            MirCompiler::with_options(false).compile_normal_with_published(request(&source), |view, verification| {
+                assert!(verification.is_ok(), "{verification:?}");
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let json: Value = serde_json::from_str(&emit_lifecycle_physical_abi_json(&input)?).unwrap();
+                let functions = json["functions"].as_array().unwrap();
+                let texts = functions.iter().flat_map(|function| function["blocks"].as_array().unwrap().iter())
+                    .flat_map(|block| block["instructions"].as_array().unwrap().iter()
+                        .chain(std::iter::once(&block["terminator"]["instruction"])))
+                    .filter(|row| row["op"] == "invoke" && row["operation"]["kind"] == "field_set"
+                        && row["operation"]["transaction"] == "dynamic_text_initialize").count();
+                assert_eq!(texts, 1, "{field}: one Text initialize");
+                let module = view.module();
+                let object = module.canonical_object_definitions().and_then(|rows| rows.first()).expect("Label");
+                assert!(object.is_dynamic_slot_field(0), "{field}: dynamic slot");
+                assert_eq!(object.text_slot(0).is_some(), field != "name", "{field}: declared Text slot");
+                if field == "name" { return Ok(()); }
+                // Mutate only the store's tag: the declaration refuses every non-Text tag.
+                for mutated in [
+                    crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize,
+                    crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize,
+                    crate::mir::instruction::FieldSetModeV1::ExactSlot,
+                ] {
+                    let mut changed = module.clone();
+                    let mut touched = 0;
+                    for function in changed.functions.values_mut() {
+                        for block in function.blocks.values_mut() {
+                            for row in block.instructions.iter_mut().chain(block.terminator.iter_mut()) {
+                                if let MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode, .. }, .. } = row {
+                                    if *mode == crate::mir::instruction::FieldSetModeV1::DynamicTextInitialize {
+                                        *mode = mutated; touched += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    assert_eq!(touched, 1);
+                    let error = format!("{:?}", crate::mir::verification::MirVerifier::new().verify_module(&changed));
+                    assert!(error.contains("field-text-slot-tag") || mutated == crate::mir::instruction::FieldSetModeV1::ExactSlot,
+                        "{field}/{mutated:?}: {error}");
+                    assert!(!error.is_empty() && error.contains("Err"), "{field}/{mutated:?} must be refused: {error}");
+                }
+                Ok(())
+            }).unwrap_or_else(|error| panic!("Text slot {field}: {error}"));
+        }
+        // Source-level: another tag into a declared Text slot is a named refusal.
+        for actual in ["5", "true"] {
+            let source = format!(
+                "box Label {{ name: String birth(name) {{ me.name = name }} }} \
+                 static box Main {{ main() {{ local label = new Label({actual}) return 0 }} }}"
+            );
+            let result = MirCompiler::with_options(false).compile_normal_with_published(request(&source), |_, _| Ok(()));
+            assert!(result.is_err(), "a {actual} actual must not enter a String slot");
+        }
+    });
+}

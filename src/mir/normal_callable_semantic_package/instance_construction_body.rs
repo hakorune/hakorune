@@ -251,14 +251,17 @@ impl ConstructionPlanV1 {
             return Err(U::BodyCoverageUnsupported);
         }
         let mut qualified = Vec::with_capacity(source.stores.len());
+        let definition = definitions.get(source.object().declaration_index() as usize).ok_or(U::SourceRelationMissing)?;
         for store in source.stores.iter() {
-            let field = declarations.get(store.field().declaration_ordinal() as usize).ok_or(U::SourceRelationMissing)?;
+            let ordinal = store.field().declaration_ordinal() as usize;
+            declarations.get(ordinal).ok_or(U::SourceRelationMissing)?;
             if store.field().object() != source.object() { return Err(U::SourceRelationMissing); }
             let next = match store.mode() {
                 Ok(mode) => (mode, None),
-                Err(U::FieldContractUnsupported) if field.declared_type_name.is_none() && !field.is_weak
+                Err(U::FieldContractUnsupported) if definition.is_dynamic_slot_field(ordinal)
                     && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. }) => {
-                    let source_dynamic = qualify_dynamic(store);
+                    // A declared Text slot takes Text only: no I64 or Object dynamic mode.
+                    let source_dynamic = if definition.text_slot(ordinal).is_some() { None } else { qualify_dynamic(store) };
                     let source_dynamic_available = source_dynamic.is_some();
                     let dynamic = source_dynamic.filter(|mode| match mode {
                         crate::mir::instruction::FieldSetModeV1::DynamicI64Initialize => true,
@@ -355,7 +358,10 @@ pub(super) fn qualified_field_demands_v1(
 ) -> Result<Box<[HomeDemandV1]>, ConstructionUnavailableV1> {
     use ConstructionUnavailableV1 as U;
     let mut demands = vec![HomeDemandV1::Trivial; field_decls.len()];
+    let definition = stores.first()
+        .and_then(|store| definitions.get(store.field().object().declaration_index() as usize));
     for (ordinal, field) in field_decls.iter().enumerate() {
+        let dynamic_slot = definition.ok_or(U::InitializationContractMissing)?.is_dynamic_slot_field(ordinal);
         let (index, store) = stores
             .iter().enumerate()
             .find(|(_, store)| store.field().declaration_ordinal() as usize == ordinal)
@@ -369,7 +375,7 @@ pub(super) fn qualified_field_demands_v1(
             FieldSetModeV1 as Mode};
         let text = modes[index] == Ok(Mode::DynamicTextInitialize);
         let dynamic_i64 = modes[index] == Ok(Mode::DynamicI64Initialize)
-            && field.declared_type_name.is_none() && !field.is_weak
+            && dynamic_slot
             && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. });
         let dynamic_object = matches!(modes[index], Ok(Mode::DynamicValue(contract))
             if contract.intent() == Intent::Initialize
@@ -382,17 +388,17 @@ pub(super) fn qualified_field_demands_v1(
                                 // itself own Dynamic fields, provided its source End is
                                 // hook-free and those fields have their own complete drain.
                                 .is_some_and(|definition| definition.destruction_disposition().has_no_hook())))
-            && field.declared_type_name.is_none() && !field.is_weak
+            && dynamic_slot
             && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. });
         // A source-proven nested constructor supplies its exact class, not
         // a formal SUM. Retain the same tagged residence law for this fresh Home.
-        let dynamic_provider = field.declared_type_name.is_none() && !field.is_weak
+        let dynamic_provider = dynamic_slot
             && matches!((modes[index], store.rhs()),
                 (Ok(Mode::DynamicValue(contract)), ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), .. })
                 if contract.intent() == Intent::Initialize && contract.value_tag() == Tag::Object
                     && contract.residence() == Residence::ObjectHome(child.object()));
         let supported = if dynamic_provider { true }
-        else if text || dynamic_i64 || dynamic_object { field.declared_type_name.is_none() && !field.is_weak
+        else if text || dynamic_i64 || dynamic_object { dynamic_slot
             && (matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { provided: None, .. })
                 || text && matches!(store.rhs(), ConstructionStoreRhsV1::LiteralText(_)))
         } else { match field.declared_type_name.as_deref() {

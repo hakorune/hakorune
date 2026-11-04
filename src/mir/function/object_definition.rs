@@ -130,6 +130,9 @@ pub(crate) struct CanonicalObjectDefinitionV1 {
     diagnostic_name: Box<str>,
     fields: Box<[UserBoxFieldDecl]>,
     fixed_array_fields: Box<[CanonicalFieldRefV1]>,
+    /// Declared Text slots by declaration ordinal: `Some(nullable)` for a
+    /// `String`/`StringBox`(`?`) field no user box shadows.
+    text_slots: Box<[Option<bool>]>,
     local_layout: Result<(), ObjectLayoutUnavailableV1>,
     destruction: ObjectDestructionDispositionV1,
     runtime_layout: Option<CanonicalObjectLayoutV1>,
@@ -146,6 +149,7 @@ impl CanonicalObjectDefinitionV1 {
     ) -> Self {
         Self {
             diagnostic_name,
+            text_slots: vec![None; fields.len()].into_boxed_slice(),
             fields,
             fixed_array_fields,
             local_layout,
@@ -153,6 +157,13 @@ impl CanonicalObjectDefinitionV1 {
             runtime_layout: None,
             direct_placement: None,
         }
+    }
+
+    /// Record the declared Text slots decided at the source seal (one entry per field).
+    pub(in crate::mir) fn with_text_slots(mut self, text_slots: Box<[Option<bool>]>) -> Self {
+        debug_assert_eq!(text_slots.len(), self.fields.len());
+        self.text_slots = text_slots;
+        self
     }
 
     pub(crate) fn diagnostic_name(&self) -> &str {
@@ -167,6 +178,18 @@ impl CanonicalObjectDefinitionV1 {
         self.fields.get(ordinal).is_some_and(|field| !field.is_weak
             && (field.declared_type_name.as_deref() == Some("ArrayBox")
                 || self.fixed_array_fields.iter().any(|field| field.declaration_ordinal() as usize == ordinal)))
+    }
+
+    /// The declared Text slot of this field (`Some(nullable)`), if any.
+    pub(crate) fn text_slot(&self, ordinal: usize) -> Option<bool> {
+        self.text_slots.get(ordinal).copied().flatten()
+    }
+
+    /// One answer to "does this field live in a dynamic slot": untyped, or a
+    /// declared Text slot. Array fields and weak fields never do.
+    pub(crate) fn is_dynamic_slot_field(&self, ordinal: usize) -> bool {
+        self.fields.get(ordinal).is_some_and(|field| !field.is_weak && !self.is_array_field(ordinal)
+            && (field.declared_type_name.is_none() || self.text_slot(ordinal).is_some()))
     }
 
     pub(in crate::mir) fn validate_fixed_array_fields(&self, object: CanonicalObjectIdV1) -> Result<(), String> {
@@ -280,6 +303,19 @@ impl MirModule {
         self.canonical_object_definition(field.object())?
             .fields()
             .get(field.declaration_ordinal() as usize)
+    }
+
+    /// `Some(nullable)` when the canonical declaration says this field is a Text slot.
+    pub(crate) fn canonical_text_slot(&self, field: CanonicalFieldRefV1) -> Option<bool> {
+        self.canonical_object_definition(field.object())?
+            .text_slot(field.declaration_ordinal() as usize)
+    }
+
+    /// The canonical declaration says this field lives in a dynamic slot (untyped
+    /// or a declared Text slot). Layout and residence are checked separately.
+    pub(crate) fn canonical_dynamic_slot_field(&self, field: CanonicalFieldRefV1) -> bool {
+        self.canonical_object_definition(field.object())
+            .is_some_and(|definition| definition.is_dynamic_slot_field(field.declaration_ordinal() as usize))
     }
 
     pub(in crate::mir) fn preflight_object_definition_install(&self) -> Result<(), String> {

@@ -515,8 +515,7 @@ pub(super) fn issue_construction_source_v1(
                             ::exact_numeric_storage_for_declared_type(declared)
                             .is_none()
                             && declared != "ArrayBox"
-                            && (!crate::mir::declared_type_storage::is_declared_text_type_name_v1(declared)
-                                || objects.iter().any(|(own, _)| own.name() == declared))
+                            && canonical.text_slot(ordinal).is_none()
                             && !crate::box_trait::is_builtin_box(declared) =>
                     {
                         let nominal = crate::mir::declared_type_storage::declared_object_field_type_v1(declared)
@@ -618,7 +617,7 @@ pub(super) fn issue_construction_source_v1(
             } { return Err(U::SourceRelationMissing); }
         }
         use crate::mir::instruction::FieldSetModeV1 as Mode;
-        let mode = if field_decls[ordinal].declared_type_name.is_none() && !canonical.is_array_field(ordinal) {
+        let mode = if canonical.is_dynamic_slot_field(ordinal) {
             match &rhs {
                 ConstructionStoreRhsV1::LiteralI64(_) => Ok(Mode::DynamicI64Initialize),
                 ConstructionStoreRhsV1::LiteralText(_) => Ok(Mode::DynamicTextInitialize),

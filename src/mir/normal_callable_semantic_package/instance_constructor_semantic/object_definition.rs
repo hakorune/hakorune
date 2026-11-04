@@ -135,13 +135,24 @@ pub(super) fn capture_declaration(
 impl ObjectDeclarationSourceV1 {
     pub(super) fn fields(&self) -> &[UserBoxFieldDecl] { &self.fields }
 
-    pub(super) fn seal(self, fixed_array_fields: Box<[hakorune_mir_defs::CanonicalFieldRefV1]>) -> CanonicalObjectDefinitionV1 {
+    pub(super) fn seal(
+        self,
+        fixed_array_fields: Box<[hakorune_mir_defs::CanonicalFieldRefV1]>,
+        is_user_box: &dyn Fn(&str) -> bool,
+    ) -> CanonicalObjectDefinitionV1 {
         let Self {
             name,
             fields: projected_fields,
             declaration_shape,
             ordinary_members,
         } = self;
+        // A declared Text slot, unless a user box of that name owns the spelling.
+        let text_slots: Box<[Option<bool>]> = projected_fields.iter().map(|field| {
+            field.declared_type_name.as_deref()
+                .and_then(crate::mir::declared_type_storage::text_slot_declaration_v1)
+                .filter(|(name, _)| !is_user_box(name))
+                .map(|(_, nullable)| nullable)
+        }).collect();
         let destruction = if let Err(reason) = declaration_shape {
             Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
         } else if projected_fields.iter().any(|field| field.is_weak) {
@@ -157,6 +168,7 @@ impl ObjectDeclarationSourceV1 {
                     )
                     .is_none()
                 && !is_user_object_field(field)
+                && text_slots[ordinal].is_none()
                 && field.declared_type_name.is_some()
         }) {
             Destruction::Unavailable(DestructionUnavailable::FieldType)
@@ -166,9 +178,10 @@ impl ObjectDeclarationSourceV1 {
             let array = !fixed_array_fields.is_empty() || projected_fields.iter()
                 .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"));
             let dynamic = projected_fields.iter().enumerate().any(|(ordinal, field)|
-                field.declared_type_name.is_none() && !fixed_array_fields.iter()
+                (field.declared_type_name.is_none() || text_slots[ordinal].is_some()) && !fixed_array_fields.iter()
                     .any(|field| field.declaration_ordinal() as usize == ordinal));
-            Destruction::no_hook_fields(array, projected_fields.iter().any(is_user_object_field), dynamic)
+            Destruction::no_hook_fields(array, projected_fields.iter().enumerate()
+                .any(|(ordinal, field)| text_slots[ordinal].is_none() && is_user_object_field(field)), dynamic)
         };
         CanonicalObjectDefinitionV1::from_source_declaration(
             name,
@@ -177,6 +190,7 @@ impl ObjectDeclarationSourceV1 {
             destruction,
             fixed_array_fields,
         )
+        .with_text_slots(text_slots)
     }
 }
 
@@ -223,22 +237,32 @@ mod tests {
             assert_eq!(
                 capture_declaration(&declaration(text))
                     .unwrap()
-                    .seal(Box::new([]))
+                    .seal(Box::new([]), &|_| false)
                     .destruction_disposition(),
                 Destruction::NUMERIC_NO_HOOK
             );
         }
-        for text in ["box Plain { value }", "box Plain { value: StringBox }"] {
-            let definition = capture_declaration(&declaration(text)).unwrap().seal(Box::new([]));
+        // An untyped field and a declared Text slot are both dynamic slots; a
+        // Text spelling that a user box owns is not (it is an object field, or
+        // for the builtin `StringBox` spelling, unavailable).
+        for (text, shadowed, expected) in [
+            ("box Plain { value }", false, Destruction::no_hook_fields(false, false, true)),
+            ("box Plain { value: StringBox }", false, Destruction::no_hook_fields(false, false, true)),
+            ("box Plain { value: String }", false, Destruction::no_hook_fields(false, false, true)),
+            ("box Plain { value: String? }", false, Destruction::no_hook_fields(false, false, true)),
+            ("box Plain { value: StringBox }", true, Destruction::Unavailable(DestructionUnavailable::FieldType)),
+            ("box Plain { value: String }", true, Destruction::no_hook_fields(false, true, false)),
+        ] {
+            let definition = capture_declaration(&declaration(text)).unwrap()
+                .seal(Box::new([]), &|name| shadowed && (name == "String" || name == "StringBox"));
             assert!(definition.local_fields_for_layout().is_ok());
-            assert_eq!(
-                definition.destruction_disposition(),
-                if text == "box Plain { value }" {
-                    Destruction::no_hook_fields(false, false, true)
-                } else { Destruction::Unavailable(DestructionUnavailable::FieldType) }
-            );
+            assert_eq!(definition.destruction_disposition(), expected, "{text} shadowed={shadowed}");
+            assert_eq!(definition.is_dynamic_slot_field(0), expected == Destruction::no_hook_fields(false, false, true),
+                "{text} shadowed={shadowed}: dynamic slot");
             // Dynamic requirements never acquire a static NoHook profile.
-            assert!(!definition.destruction_disposition().supports_static_no_hook());
+            if definition.is_dynamic_slot_field(0) {
+                assert!(!definition.destruction_disposition().supports_static_no_hook());
+            }
         }
         let mut node = declaration("box Plain { value: i64 }");
         let ASTNode::BoxDeclaration { field_decls, .. } = &mut node else {
@@ -248,7 +272,7 @@ mod tests {
         assert_eq!(
             capture_declaration(&node)
                 .unwrap()
-                .seal(Box::new([]))
+                .seal(Box::new([]), &|_| false)
                 .destruction_disposition(),
             Destruction::Unavailable(DestructionUnavailable::WeakField)
         );
@@ -262,7 +286,7 @@ mod tests {
             "box Plain { value: i64 = 1 }",
             "box Plain { value: i64\nbirth(x) { me.value = x } }",
         ] {
-            let definition = capture_declaration(&declaration(text)).unwrap().seal(Box::new([]));
+            let definition = capture_declaration(&declaration(text)).unwrap().seal(Box::new([]), &|_| false);
             assert_eq!(definition.diagnostic_name(), "Plain");
             assert_eq!(
                 definition.local_fields_for_layout().unwrap(),
@@ -277,7 +301,7 @@ mod tests {
             "box Holder { explicit: i64\ninit { count, items, explicit, count } }",
         ))
         .unwrap()
-        .seal(Box::new([]));
+        .seal(Box::new([]), &|_| false);
         let fields = definition.fields();
         assert_eq!(
             fields
@@ -301,7 +325,7 @@ mod tests {
             unreachable!()
         };
         weak_fields.push("handle".into());
-        let definition = capture_declaration(&node).unwrap().seal(Box::new([]));
+        let definition = capture_declaration(&node).unwrap().seal(Box::new([]), &|_| false);
         assert_eq!(definition.fields().len(), 1);
         assert!(definition.fields()[0].is_weak);
         assert_eq!(
@@ -353,7 +377,7 @@ mod tests {
                 Unavailable::Contracts => invariants.push(declaration("box Contract {}")),
                 Unavailable::StaticInitialization => *static_init = Some(Vec::new()),
             }
-            let definition = capture_declaration(&node).unwrap().seal(Box::new([]));
+            let definition = capture_declaration(&node).unwrap().seal(Box::new([]), &|_| false);
             assert_eq!(definition.local_fields_for_layout(), Err(reason));
             assert_eq!(
                 definition.destruction_disposition(),

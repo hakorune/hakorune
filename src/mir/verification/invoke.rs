@@ -242,6 +242,18 @@ pub(super) fn check_module_with_source(
                         {
                             errors.push(error(*id, "field-read-definition-invalid"));
                         }
+                        // A declared Text slot (`String`, `String?`) takes a Text tag only
+                        // (plus Null when nullable), whatever the value's inferred type is.
+                        InvokeOperation::FieldSet { mode, field, .. }
+                            if !text_slot_admits(module, *field, mode.stored_value_tag_v1()) =>
+                        {
+                            errors.push(error(*id, "field-text-slot-tag"));
+                        }
+                        InvokeOperation::ObjectFieldSet { field, .. }
+                            if module.canonical_text_slot(*field).is_some() =>
+                        {
+                            errors.push(error(*id, "field-text-slot-tag"));
+                        }
                         InvokeOperation::FieldSet { mode, field, .. }
                             if module.canonical_field_definition(*field).is_none()
                                 || (*mode == crate::mir::instruction::FieldSetModeV1::ExactSlot
@@ -617,11 +629,25 @@ mod call_tests;
 
 /// The original canonical declaration/layout, never a value's inferred MIR type.
 fn dynamic_field(module: &crate::mir::MirModule, field: hakorune_mir_defs::CanonicalFieldRefV1) -> bool {
-    module.canonical_field_definition(field).is_some_and(|declaration|
-        !declaration.is_weak && declaration.declared_type_name.is_none())
+    module.canonical_dynamic_slot_field(field)
         && module.canonical_object_definition(field.object()).and_then(|definition| definition.runtime_layout())
             .is_some_and(|layout| layout.as_ref().is_ok_and(|layout|
                 layout.fields.get(field.declaration_ordinal() as usize).is_some_and(|slot|
                     slot.slot == field.declaration_ordinal()
                         && slot.storage == crate::mir::function::TypedObjectFieldStorage::Dynamic)))
+}
+
+/// Whether a store of `tag` (None: exact slot or Map) fits the field's declared
+/// Text slot. A field that is not a Text slot admits everything here; its own
+/// rules decide.
+fn text_slot_admits(
+    module: &crate::mir::MirModule,
+    field: hakorune_mir_defs::CanonicalFieldRefV1,
+    tag: Option<crate::mir::instruction::DynamicFieldValueTagV1>,
+) -> bool {
+    use crate::mir::instruction::DynamicFieldValueTagV1 as Tag;
+    match module.canonical_text_slot(field) {
+        None => true,
+        Some(nullable) => matches!(tag, Some(Tag::Text)) || (nullable && matches!(tag, Some(Tag::Null))),
+    }
 }

@@ -106,6 +106,7 @@ pub(super) fn issue_birth_formal_contracts(
     row: &InstanceConstructorSourceDataV1,
     construction: &ConstructionSourceEligibilityV1,
     definition: &crate::mir::function::CanonicalObjectDefinitionV1,
+    is_user_box: &dyn Fn(&str) -> bool,
 ) -> Result<Box<[BirthFormalContractV1]>, BirthFormalContractIssueV1> {
     let ASTNode::FunctionDeclaration {
         params,
@@ -161,7 +162,7 @@ pub(super) fn issue_birth_formal_contracts(
             if !seen.insert(binding) {
                 return Err(BirthFormalContractIssueV1::DuplicateBinding);
             }
-            let declaration = classify_declaration(parameter);
+            let declaration = classify_declaration(parameter, is_user_box);
             let uses = classify_uses(construction, definition, binding, declaration);
             Ok(BirthFormalContractV1 {
                 ordinal,
@@ -175,9 +176,13 @@ pub(super) fn issue_birth_formal_contracts(
         .map(Vec::into_boxed_slice)
 }
 
-fn classify_declaration(parameter: &ParamDecl) -> BirthFormalDeclarationClassV1 {
+fn classify_declaration(parameter: &ParamDecl, is_user_box: &dyn Fn(&str) -> bool) -> BirthFormalDeclarationClassV1 {
     match parameter.declared_type_name.as_deref() {
         None => BirthFormalDeclarationClassV1::Unannotated,
+        // A user-declared box owns its spelling; an object formal is unsupported.
+        Some(source) if crate::mir::declared_type_storage::is_declared_text_type_name_v1(source) && is_user_box(source) => {
+            BirthFormalDeclarationClassV1::ExplicitUnsupported
+        }
         Some(source) if ExactTrivialParameterAbiV1::classify(source) == Some(ExactTrivialParameterAbiV1::I64) => {
             BirthFormalDeclarationClassV1::ExactI64
         }
@@ -224,7 +229,7 @@ fn classify_uses(
                         return BirthFormalUseCoverageV1::UncoveredSelectedBody;
                     }
                     Some("i64" | "usize") => scalar_sites.push(site.clone()),
-                    None if !definition.is_array_field(ordinal) => unqualified_sites.push(site.clone()),
+                    _ if definition.is_dynamic_slot_field(ordinal) => unqualified_sites.push(site.clone()),
                     _ => return BirthFormalUseCoverageV1::UncoveredSelectedBody,
                 }
             }

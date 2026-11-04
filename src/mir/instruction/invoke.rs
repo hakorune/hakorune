@@ -27,6 +27,16 @@ pub enum FieldSetModeV1 {
 }
 
 impl FieldSetModeV1 {
+    /// The dynamic value tag this mode stores; `None` for an exact slot or a Map.
+    pub(crate) fn stored_value_tag_v1(self) -> Option<DynamicFieldValueTagV1> {
+        match self {
+            Self::DynamicI64Replace | Self::DynamicI64Initialize => Some(DynamicFieldValueTagV1::I64),
+            Self::DynamicTextInitialize => Some(DynamicFieldValueTagV1::Text),
+            Self::DynamicValue(contract) => Some(contract.value_tag()),
+            Self::ExactSlot | Self::DynamicMapInitialize => None,
+        }
+    }
+
     pub(crate) fn has_owned_text_candidate_v1(self) -> bool {
         self == Self::DynamicTextInitialize || self.consumes_text_candidate_on_fault_v1()
     }

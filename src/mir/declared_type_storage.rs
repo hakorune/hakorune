@@ -43,6 +43,22 @@ pub(crate) fn is_declared_text_type_name_v1(type_name: &str) -> bool {
     matches!(type_name, "String" | "StringBox")
 }
 
+/// A declared Text slot: `String`/`StringBox`, optionally `?`. The spelling is
+/// decided by the shared `TypeReferenceV1`; a user-declared box of the same name
+/// is excluded by the object definition that seals the field, not here.
+pub(crate) fn text_slot_declaration_v1(declared: &str) -> Option<(String, bool)> {
+    use crate::ast::TypeReferenceV1 as Type;
+    let (name, nullable) = match Type::parse(declared).ok()? {
+        Type::Name(name) => (name, false),
+        Type::Nullable(inner) => match *inner {
+            Type::Name(name) => (name, true),
+            _ => return None,
+        },
+        _ => return None,
+    };
+    is_declared_text_type_name_v1(&name).then_some((name, nullable))
+}
+
 fn legacy_storage_for_declared_type(
     metadata: &ModuleMetadata,
     type_name: &str,

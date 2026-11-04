@@ -548,7 +548,7 @@ impl CapturedInstanceConstructorSourcesV1 {
             for (declaration, (parent, object)) in declarations.into_vec().into_iter().zip(&object_sources) {
                 let fixed = field_writers.qualify_fixed_array_fields_v1(*object, parent.name(), declaration.fields(), &sources, loan.program())
                     .map_err(|_error| InstanceConstructorSemanticBatchIssueV1::SourceProjection { _error })?;
-                let definition = declaration.seal(fixed);
+                let definition = declaration.seal(fixed, &|name| object_sources.iter().any(|(parent, _)| parent.name() == name));
                 definition.validate_fixed_array_fields(*object)
                     .map_err(|_error| InstanceConstructorSemanticBatchIssueV1::SourceProjection { _error })?;
                 object_definitions.push(definition);
@@ -589,7 +589,8 @@ impl CapturedInstanceConstructorSourcesV1 {
                     let formal_contracts = if source.kind == ConstructorSourceKindV1::Birth {
                         formal_contract::issue_birth_formal_contracts(input.source().root(), &source, &construction_source,
                             object_definitions.get(source.object.declaration_index() as usize)
-                                .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?)
+                                .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?,
+                            &|name| object_sources.iter().any(|(parent, _)| parent.name() == name))
                             .map_err(|issue| InstanceConstructorSemanticBatchIssueV1::FormalContract { _issue: issue })?
                     } else { Box::new([]) };
                     Ok((construction_source, construction, provider_static_arguments, formal_contracts))

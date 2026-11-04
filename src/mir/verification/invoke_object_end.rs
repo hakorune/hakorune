@@ -22,7 +22,7 @@ pub(super) fn check(module: &MirModule, object: CanonicalObjectIdV1, end: &[Step
         let Some(field) = CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal) else { return false; };
         let step = if module.canonical_array_field(field) {
             Step::FieldResidence { field, mode: Mode::ArrayResidence }
-        } else if row.declared_type_name.is_none() {
+        } else if definition.is_dynamic_slot_field(ordinal) || row.declared_type_name.is_none() {
             if !super::dynamic_field(module, field) { return false; }
             Step::FieldResidence { field, mode: Mode::DynamicResidence }
         } else if row.declared_type_name.as_deref().and_then(
