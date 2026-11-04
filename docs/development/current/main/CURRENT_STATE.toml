@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "step3a nullable closeout: explicit-Birth defaults landed; no-birth remains; edit proposal only"
+current_blocker_token = "security step 1 and parser tidy landed; typed i64 Birth goal goes to Sonnet"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8. Bounded nullable closeout: Shared reads, T? formal/new/literal-null and explicit-Birth declaration defaults/read, source-once diagnostics landed; no-birth remains reported.
-Declaration/statement Init origin+key use original source and the real entry receiver, no fake AST/site/owner/Home. Null and Fresh/Forward Normal/Fault and independent validation retained; no new public opcode/ABI/runtime.
-Final optimized target/quick CLI/runtime + matching C shim: defaults exit5/5, controls5/7/5/5/5, fixed8/8, cohort1809 PASS/known115 exact FAIL names, check/focused and C family PASS. This part production +155/test +4.
-No-birth needs original New initialization and exact incomplete-storage reclaim/use/cycle proofs; current named refusal retained. Typed i64 Birth publication and frozen edit item4b proposals/costs are in the card, report only.
-Stop after commit/push and final report within five hours. No edit/take-place/post-publication/branched acceptance or Hako/19-shape work selected; two stashes and unrelated inventory preserved.
+APP-boxtorrent-mini fixed8/8 on main with the tracked Cargo.lock. Security step 1 landed: action SHA pins, Dependabot, SECURITY.md, root lock; GitHub private reporting, secret scanning, push protection and Dependabot alerts on. cargo-deny waits on branch security-step1 (33 workspace advisories, none in default nyash-rust).
+Parser tidy landed (Sonnet, Opus audited): one contextual-word recognizer, shared ParserTransferKindV1, Shared(...) registry row rejected; Rust production +12, test +26, behaviour unchanged, known parser failures unchanged.
+Registry rows for from/take/edit/copy/share/T? not added: AST evidence refuses source-only marks and no Rust-only marker exists. Hako parser still accepts Shared(...).
+Existing reds on main: naming charter guard, vm-reference debug build (type_ops.rs), explicit_externcall corpus drift; substrate full gate therefore unrun.
+Next: Sonnet goal for typed i64 Birth, reading fields filled by Birth new, and the me.base + x panic. No-birth T? and edit Place wait until after 2026-11-08.
 """
 next_design_card = "none"
 next_design_card_path = "none"
