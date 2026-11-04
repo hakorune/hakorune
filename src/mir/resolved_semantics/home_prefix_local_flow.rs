@@ -981,6 +981,19 @@ impl<'source> PrefixLocalFlow<'source> {
         if let Some(observation) = self.observe(site) {
             return Ok(observation.into_selected_argument());
         }
+        // An explicit `move x` actual is the operand's own handle transfer.
+        if let Some(moved) = self
+            .input
+            .function()
+            .expression_source()
+            .unary(site)
+            .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move)
+        {
+            return Ok(self
+                .observe(moved.operand())
+                .and_then(|observation| observation.into_selected_argument())
+                .filter(|kind| matches!(kind, SelectedNewArgumentKindV1::Handle { .. })));
+        }
         let Ok(expr) = self
             .input
             .source()

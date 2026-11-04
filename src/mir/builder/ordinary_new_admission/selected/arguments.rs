@@ -63,8 +63,14 @@ pub(super) fn materialize_arguments(
                 let value = state
                     .value_for_exact_binding(site.owner(), *binding)
                     .map_err(|_| freeze("argument-binding-unavailable"))?;
+                // An explicit `move x` actual observes `x` at the move's operand
+                // site; the state validates that site is a read of this binding.
+                let operand = crate::mir::resolved_semantics::SourcePathV1::from_node(row.site().node())
+                    .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Operand)
+                    .expr();
                 state
                     .observe_variable_site(row.site().node(), *binding, value)
+                    .or_else(|_| state.observe_variable_site(operand.node(), *binding, value))
                     .map_err(|_| freeze("argument-local-observation"))?;
                 Ok(value)
             }

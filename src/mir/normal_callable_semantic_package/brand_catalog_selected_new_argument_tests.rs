@@ -448,3 +448,44 @@ fn selected_new_rejects_unproven_field_arguments() {
         );
     }
 }
+
+#[test]
+fn selected_new_arguments_admit_an_explicit_move_of_a_handle_local() {
+    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    let header = "box Leaf { value: i64 birth(value) { me.value = value } }
+        box Node { next: Leaf v: i64 birth(next, v) { me.next = next me.v = v } }";
+    // `move leaf` is the operand's own handle transfer, like the plain local.
+    let package = super::brand_catalog_tests::issue_with_brand_catalog(&format!(
+        "{header} static box Main {{ main() {{
+            local leaf = new Leaf(1)
+            local n = new Node(move leaf, 5)
+            return 0 }} }}"
+    ))
+    .expect("an explicit move of a handle local is a selected New argument");
+    let kinds: Vec<_> = package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test()
+        .values()
+        .filter_map(|claim| claim.argument_rows().ok())
+        .flat_map(|rows| rows.iter().map(|row| matches!(row.kind(), OrdinaryNewTrivialArgumentKindV1::Handle { .. })).collect::<Vec<_>>())
+        .collect();
+    assert!(kinds.iter().any(|is_handle| *is_handle), "the moved local is a Handle argument");
+    // A moved local cannot be passed again or moved again.
+    for tail in [
+        "local m = new Node(leaf, 6) return 0",
+        "local m = new Node(move leaf, 6) return 0",
+    ] {
+        let source = format!(
+            "{header} static box Main {{ main() {{
+                local leaf = new Leaf(1)
+                local n = new Node(move leaf, 5)
+                {tail} }} }}"
+        );
+        let rejected = match super::brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Err(_) => true,
+            Ok(package) => package.ordinary_new_claim_ledger.pending_claims_for_test().values()
+                .any(|claim| claim.home_prefix().is_err()),
+        };
+        assert!(rejected, "{tail}: a use after the move must not be admitted");
+    }
+}
