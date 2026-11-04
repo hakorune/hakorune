@@ -514,9 +514,9 @@ compat2025 = { status = "canonical", normalization_mode = "canonical_shape", nor
 row_id = "shared_constructor_expr"
 family = "ownership"
 spelling_id = "shared_constructor_expr"
-production = "Shared ( expression )"
-canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "SharedExpr", semantic_owner = "ownership", stable_reject_tag = "parser/shared_one_operand", positive_fixture_ids = ["shared_constructor_canonical"], negative_fixture_ids = ["shared_empty_canonical_reject", "shared_multiple_canonical_reject"] }
-compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "SharedExpr", semantic_owner = "ownership", stable_reject_tag = "parser/shared_one_operand", positive_fixture_ids = ["shared_constructor_compat"], negative_fixture_ids = ["shared_empty_compat_reject", "shared_multiple_compat_reject"] }
+production = "Shared ( expression ) (retired; use `share expression`)"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "ownership", stable_reject_tag = "parser/shared_constructor_retired", positive_fixture_ids = [], negative_fixture_ids = ["shared_constructor_canonical_reject", "shared_empty_canonical_reject", "shared_multiple_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "ownership", stable_reject_tag = "parser/shared_constructor_retired", positive_fixture_ids = [], negative_fixture_ids = ["shared_constructor_compat_reject", "shared_empty_compat_reject", "shared_multiple_compat_reject"] }
 
 [[rows]]
 row_id = "weak_unary_expr"

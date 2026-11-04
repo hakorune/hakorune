@@ -202,6 +202,7 @@ DETECTORS: dict[str, Detector] = {
     "repeat_loop": _word("repeat"),
     "until_loop": _word("until"),
     "weak_paren_expr": _sequence(("identifier", "weak"), ("symbol", "(")),
+    "shared_constructor_expr": _sequence(("identifier", "Shared"), ("symbol", "(")),
     "map_literal_legacy_brace_colon": _legacy_map,
 }
 

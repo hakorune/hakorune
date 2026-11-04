@@ -159,8 +159,8 @@ static box GrammarContractProjection {
       return "parser/profile_mismatch"
     }
     if row_id == "shared_constructor_expr" {
-      if profile == "canonical" { return "canonical" }
-      if profile == "compat2025" { return "canonical" }
+      if profile == "canonical" { return "rejected" }
+      if profile == "compat2025" { return "rejected" }
       return "parser/profile_mismatch"
     }
     if row_id == "weak_unary_expr" {
@@ -388,8 +388,8 @@ static box GrammarContractProjection {
       return "parser/profile_mismatch"
     }
     if row_id == "shared_constructor_expr" {
-      if profile == "canonical" { return "SharedExpr" }
-      if profile == "compat2025" { return "SharedExpr" }
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
       return "parser/profile_mismatch"
     }
     if row_id == "weak_unary_expr" {
@@ -617,8 +617,8 @@ static box GrammarContractProjection {
       return "parser/profile_mismatch"
     }
     if row_id == "shared_constructor_expr" {
-      if profile == "canonical" { return "parser/shared_one_operand" }
-      if profile == "compat2025" { return "parser/shared_one_operand" }
+      if profile == "canonical" { return "parser/shared_constructor_retired" }
+      if profile == "compat2025" { return "parser/shared_constructor_retired" }
       return "parser/profile_mismatch"
     }
     if row_id == "weak_unary_expr" {
