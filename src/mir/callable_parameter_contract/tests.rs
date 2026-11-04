@@ -190,6 +190,21 @@ fn projects_exact_text_without_reinterpreting_it_as_an_opaque_handle() {
     assert_eq!(parameters[0].ordinal(), 0);
     assert_eq!(parameters[1].ordinal(), 1);
     assert_ne!(parameters[0].binding(), parameters[1].binding());
+
+    // The ADR spelling `String` is the same exact Text contract.
+    let spelled = self::batch(
+        "static box TextApi { run(source: String, needle: StringBox) { return 0 } }",
+        82,
+    );
+    let catalog = issue_callable_parameter_contract_v1(&spelled).unwrap();
+    assert!(catalog.declarations().next().unwrap().parameters().iter().all(|parameter| {
+        matches!(
+            parameter.kind(),
+            CallableParameterContractKindV1::ExactText(
+                crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1::STRING_BOX
+            )
+        )
+    }));
 }
 
 #[test]

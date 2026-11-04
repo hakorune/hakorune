@@ -37,13 +37,20 @@ pub(crate) fn exact_numeric_storage_for_declared_type(
     })
 }
 
+/// The one spelling table for a declared Text type: `String` (ADR spelling)
+/// and `StringBox` (legacy spelling) name the same exact Text formal/field.
+pub(crate) fn is_declared_text_type_name_v1(type_name: &str) -> bool {
+    matches!(type_name, "String" | "StringBox")
+}
+
 fn legacy_storage_for_declared_type(
     metadata: &ModuleMetadata,
     type_name: &str,
 ) -> Option<TypedObjectFieldStorage> {
     match type_name {
         name if is_inline_i64_storage_type_name(name) => Some(TypedObjectFieldStorage::I64),
-        "StringBox" | "String" | "str" | "ArrayBox" | "DirectArrayI64" | "MapBox" => {
+        name if is_declared_text_type_name_v1(name) => Some(TypedObjectFieldStorage::Handle),
+        "str" | "ArrayBox" | "DirectArrayI64" | "MapBox" => {
             Some(TypedObjectFieldStorage::Handle)
         }
         name if declared_object_field_type_v1(name).is_some_and(|ty|

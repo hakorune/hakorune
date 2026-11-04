@@ -515,6 +515,7 @@ pub(super) fn issue_construction_source_v1(
                             ::exact_numeric_storage_for_declared_type(declared)
                             .is_none()
                             && declared != "ArrayBox"
+                            && !crate::mir::declared_type_storage::is_declared_text_type_name_v1(declared)
                             && !crate::box_trait::is_builtin_box(declared) =>
                     {
                         let nominal = crate::mir::declared_type_storage::declared_object_field_type_v1(declared)
