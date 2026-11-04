@@ -418,7 +418,8 @@ impl OrdinaryNewClaimLedgerV1 {
             let required = requirement.ok_or_else(|| fault("required-source-loan-missing"))?;
             let request = required.request();
             if row.numeric_source.is_some()
-                || row.source.declared_type_name() != loan.declared_v1().then_some(loan.child_class())
+                || !crate::mir::declared_type_storage::declared_object_field_matches_v1(
+                    row.source.declared_type_name(), loan.declared_v1().then_some(loan.child_class()))
                 || loan.field() != row.source.field() || !loan.recheck_v1(&self.callable_result_classes, &request.field)
                 || !(row.source.receiver_return.is_some() || request.is_nullable_object_comparison_v1(required.plan()))
                 || row.receiver_site != request.receiver_site || row.receiver != request.receiver || row.home != request.home {

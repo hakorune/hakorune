@@ -98,11 +98,7 @@ pub(super) fn check_module_with_source(
                                 Some(name) => {
                                     crate::mir::numeric_substrate::is_numeric_integer_type_name(
                                         name,
-                                    ) || module
-                                        .metadata
-                                        .canonical_object_membership
-                                        .as_ref()
-                                        .is_some_and(|members| members.get(name).is_some())
+                                    ) || module.canonical_object_field_child_v1(*field).is_some()
                                 }
                                 _ => false,
                             }
@@ -219,22 +215,7 @@ pub(super) fn check_module_with_source(
                         // graph, not a verification bound) — and the
                         // parent an owned-object-fields object.
                         InvokeOperation::OwnedObjectFieldRelease { field, child, .. }
-                            if !(module.canonical_field_definition(*field).is_some_and(
-                                |definition| {
-                                    !definition.is_weak
-                                        && definition
-                                            .declared_type_name
-                                            .as_deref()
-                                            .and_then(|name| {
-                                                module
-                                                    .metadata
-                                                    .canonical_object_membership
-                                                    .as_ref()
-                                                    .and_then(|members| members.get(name))
-                                            })
-                                            .is_some_and(|resolved| resolved == child)
-                                },
-                            ) && module
+                            if !(module.canonical_object_field_child_v1(*field) == Some(*child) && module
                                 .canonical_object_definition(*child)
                                 .is_some_and(|definition| {
                                     (definition.destruction_disposition()).supports_static_no_hook()
@@ -281,22 +262,7 @@ pub(super) fn check_module_with_source(
                         // a verification bound) — matching the release
                         // side's bound exactly.
                         InvokeOperation::ObjectFieldSet { field, child, .. }
-                            if !(module.canonical_field_definition(*field).is_some_and(
-                                |definition| {
-                                    !definition.is_weak
-                                        && definition
-                                            .declared_type_name
-                                            .as_deref()
-                                            .and_then(|name| {
-                                                module
-                                                    .metadata
-                                                    .canonical_object_membership
-                                                    .as_ref()
-                                                    .and_then(|members| members.get(name))
-                                            })
-                                            .is_some_and(|resolved| resolved == child)
-                                },
-                            ) && module
+                            if !(module.canonical_object_field_child_v1(*field) == Some(*child) && module
                                 .canonical_object_definition(*child)
                                 .is_some_and(|definition| {
                                     (definition.destruction_disposition()).supports_static_no_hook()

@@ -96,7 +96,9 @@ pub(super) fn issue_provider_rhs_v1(
             let kind = if declared == "ArrayBox" {
                 OwnedFieldChildKindV1::Residence(crate::mir::instruction::FieldResidenceEndModeV1::ArrayResidence)
             } else {
-                let mut matches = objects.iter().filter(|(source, _)| source.name() == declared);
+                let nominal = crate::mir::declared_type_storage::declared_object_field_type_v1(declared)
+                    .ok_or(U::FieldContractUnsupported)?;
+                let mut matches = objects.iter().filter(|(source, _)| source.name() == nominal.class_name());
                 let (_, object) = matches.next().ok_or(U::FieldContractUnsupported)?;
                 if matches.next().is_some() { return Err(U::SourceRelationMissing); }
                 OwnedFieldChildKindV1::Object(*object)

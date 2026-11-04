@@ -360,7 +360,9 @@ impl OrdinaryNewFieldWriteClaimsV1 {
         use crate::mir::normal_callable_semantic_package::{SourceValueAlternativeV1 as Value, ConstructionStoreRhsV1};
         if !source.same_inventory(self) || !self.value_source(parent, name)?.as_ref().ok()
             .is_some_and(|original| Rc::ptr_eq(original, source)) { return None; }
-        let class = source.declared_type_name()?;
+        let declared = source.declared_type_name()?;
+        let nominal = crate::mir::declared_type_storage::declared_object_field_type_v1(declared)?;
+        let class = nominal.class_name();
         let child_source = coverage.row_for(class).ok().flatten()?;
         let child = constructors.object_for(&child_source).ok()?;
         let mut writers = source.writers();
@@ -374,7 +376,7 @@ impl OrdinaryNewFieldWriteClaimsV1 {
                 || matches!(value, Value::Object(actual) if actual.as_ref() == class)) { return None; }
         Some(Rc::new(ObjectFieldClassSourceV1 {
             inventory: Rc::clone(&self.writers), class: class.into(),
-            declaration: Some((source.field(), Some(class.to_owned()))), array_qualified: false,
+            declaration: Some((source.field(), Some(declared.to_owned()))), array_qualified: false,
             source_sum: Some((Rc::clone(source), Rc::clone(sum))),
         }))
     }

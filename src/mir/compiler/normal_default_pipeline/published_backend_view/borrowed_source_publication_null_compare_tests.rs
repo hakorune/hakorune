@@ -111,9 +111,10 @@ fn null_compare_publishes_the_dedicated_physical_row() {
 fn me_object_field_read_publishes_object_get_and_null_compare() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for declared in ["Node?", "Node"] {
         for (suffix, compare, predicate) in [("eq", "l == null", "eq"), ("ne", "l != null", "ne")] {
             let text = format!(
-                "box Node {{ left: Node value: i64 \
+                "box Node {{ left: {declared} value: i64 \
                  birth(left, value) {{ me.left = left me.value = value }} \
                  probe(): i64 {{ local l = me.left local c = {compare} return 0 }} }} \
                  static box Main {{ main() {{ local n = new Node(null, 7) return n.probe() }} }}"
@@ -260,6 +261,7 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
                     std::fs::write(std::env::temp_dir().join(file), wire).unwrap();
                     Ok(())
                 }).unwrap();
+        }
         }
     });
 }

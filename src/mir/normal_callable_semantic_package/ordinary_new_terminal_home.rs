@@ -349,7 +349,11 @@ pub(super) fn classify_declared_read_field_v1(
         Some(name) if crate::mir::numeric_substrate::is_numeric_integer_type_name(name) => {
             LocalFieldReadResultV1::Scalar
         }
-        Some(name) if coverage.contains_box(name) => LocalFieldReadResultV1::Alias(name.into()),
+        Some(name) => {
+            let ty = crate::mir::declared_type_storage::declared_object_field_type_v1(name)?;
+            if !coverage.contains_box(ty.class_name()) { return None; }
+            LocalFieldReadResultV1::Alias(ty.class_name().into())
+        },
         _ => return None,
     };
     Some(LocalFieldReadSourceV1::from_declaration(

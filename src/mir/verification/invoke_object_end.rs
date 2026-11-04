@@ -29,9 +29,8 @@ pub(super) fn check(module: &MirModule, object: CanonicalObjectIdV1, end: &[Step
             crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type).is_some() {
             continue;
         } else {
-            let child = row.declared_type_name.as_deref().and_then(|name|
-                module.metadata.canonical_object_membership.as_ref().and_then(|members| members.get(name)));
-            let Some(child) = child.copied().filter(|child| releasable(module, *child)) else { return false; };
+            let Some(child) = module.canonical_object_field_child_v1(field)
+                .filter(|child| releasable(module, *child)) else { return false; };
             Step::ObjectField { field, child }
         };
         required.push(step);

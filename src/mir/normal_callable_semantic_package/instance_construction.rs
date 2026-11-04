@@ -494,9 +494,11 @@ pub(super) fn issue_construction_source_v1(
                             && declared != "ArrayBox"
                             && !crate::box_trait::is_builtin_box(declared) =>
                     {
+                        let nominal = crate::mir::declared_type_storage::declared_object_field_type_v1(declared)
+                            .ok_or(U::FieldContractUnsupported)?;
                         let mut resolved = objects
                             .iter()
-                            .filter_map(|(own, id)| (own.name() == declared).then_some(*id));
+                            .filter_map(|(own, id)| (own.name() == nominal.class_name()).then_some(*id));
                         let child = resolved.next().ok_or(U::SourceRelationMissing)?;
                         if resolved.next().is_some() {
                             return Err(U::SourceRelationMissing);

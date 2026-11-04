@@ -42,9 +42,9 @@ fn layout(
             })
             .or_else(|| {
                 field.declared_type_name.as_deref().and_then(|name| {
-                    (!crate::box_trait::is_builtin_box(name)
-                        && membership.is_some_and(|m| m.contains_key(name)))
-                    .then_some(TypedObjectFieldStorage::Handle)
+                    crate::mir::declared_type_storage::declared_object_field_type_v1(name)
+                        .filter(|ty| membership.is_some_and(|m| m.contains_key(ty.class_name())))
+                        .map(|_| TypedObjectFieldStorage::Handle)
                 })
             })
             // Absence of a source annotation declares a dynamic slot. It is

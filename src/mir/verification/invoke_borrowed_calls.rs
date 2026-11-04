@@ -354,15 +354,14 @@ pub(super) fn declared_object_field(module: &crate::mir::MirModule,
             matching.next().is_some_and(|row| row.kind == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(child))
                 && matching.next().is_none()
         });
-    module.canonical_field_definition(field).is_some_and(|declaration|
-        !declaration.is_weak && declaration.declared_type_name.as_deref()
-            .and_then(|name| module.metadata.canonical_object_membership.as_ref()?.get(name)) == Some(&child))
-        && inventory_matches && module.canonical_object_definition(field.object()).is_some_and(|definition|
-            definition.destruction_disposition().supports_static_object_fields()
-                && definition.runtime_layout().is_some_and(|layout| layout.as_ref().is_ok_and(|layout|
-                    layout.fields.get(field.declaration_ordinal() as usize).is_some_and(|slot|
-                        slot.slot == field.declaration_ordinal()
-                            && slot.storage == crate::mir::function::TypedObjectFieldStorage::Handle))))
+    let declared = module.canonical_object_field_child_v1(field) == Some(child);
+    let layout = module.canonical_object_definition(field.object()).is_some_and(|definition|
+        definition.destruction_disposition().supports_static_object_fields()
+            && definition.runtime_layout().is_some_and(|layout| layout.as_ref().is_ok_and(|layout|
+                layout.fields.get(field.declaration_ordinal() as usize).is_some_and(|slot|
+                    slot.slot == field.declaration_ordinal()
+                        && slot.storage == crate::mir::function::TypedObjectFieldStorage::Handle))));
+    declared && inventory_matches && layout
 }
 
 /// Check before Document's early return and the argument loop: a zero-argument

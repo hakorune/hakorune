@@ -6,6 +6,17 @@ use hakorune_mir_defs::CanonicalObjectIdV1;
 use std::collections::{BTreeMap, HashMap};
 
 impl MirModule {
+    /// Resolve a declared nominal child without changing the retained spelling.
+    pub(in crate::mir) fn canonical_object_field_child_v1(
+        &self, field: hakorune_mir_defs::CanonicalFieldRefV1,
+    ) -> Option<CanonicalObjectIdV1> {
+        let declaration = self.canonical_field_definition(field)?;
+        if declaration.is_weak { return None; }
+        let ty = crate::mir::declared_type_storage::declared_object_field_type_v1(
+            declaration.declared_type_name.as_deref()?)?;
+        self.metadata.canonical_object_membership.as_ref()?.get(ty.class_name()).copied()
+    }
+
     pub(in crate::mir) fn prepare_object_definition_membership(
         &self,
         names: &HashMap<String, Vec<String>>,

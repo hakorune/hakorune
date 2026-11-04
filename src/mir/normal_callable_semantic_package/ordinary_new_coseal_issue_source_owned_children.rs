@@ -52,7 +52,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn sto
     ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else {
         return Ok(None);
     };
-    if declared.as_deref() != dynamic.declared_v1().then_some(dynamic.child_class())
+    if !crate::mir::declared_type_storage::declared_object_field_matches_v1(
+        declared.as_deref(), dynamic.declared_v1().then_some(dynamic.child_class()))
         || call_field != dynamic.field() || !dynamic.paired_field(call_field) {
         return Ok(None);
     }
@@ -78,7 +79,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn sto
             constructors, parent_source,
             &OwnedExprSiteV1::new(input.owner(), call.site().clone()), guard_name,
         ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { continue; };
-        if guard_declared.as_deref() != dynamic.declared_v1().then_some(dynamic.child_class())
+        if !crate::mir::declared_type_storage::declared_object_field_matches_v1(
+            guard_declared.as_deref(), dynamic.declared_v1().then_some(dynamic.child_class()))
             || !dynamic.paired_field(guard_field) { continue; }
         let return_site = function.with_if_region_for_condition(&condition, |row| {
             let bundle = row.bundle();
@@ -176,6 +178,7 @@ pub(super) fn owned_field_children_of(
             let mut children = Vec::new();
             for (ordinal, field) in definition.fields().iter().enumerate() {
                 let declared = field.declared_type_name.as_deref();
+                let nominal = declared.and_then(crate::mir::declared_type_storage::declared_object_field_type_v1);
                 if declared
                     .and_then(
                         crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
@@ -208,8 +211,8 @@ pub(super) fn owned_field_children_of(
                     // it must be a user class — builtin/`ArrayBox` fields
                     // keep their provider-only boundary.
                     field_write_claim::OwnedFieldResidenceV1::Provided => {
-                        let name = match declared {
-                            Some(name) => name,
+                        let name = match nominal.as_ref() {
+                            Some(ty) => ty.class_name(),
                             None => {
                                 visiting.remove(&object);
                                 return None;
@@ -225,7 +228,8 @@ pub(super) fn owned_field_children_of(
                 // The sole birth write must store the declared class
                 // exactly — a proven residence of a different class does
                 // not satisfy the typed field.
-                if declared != Some(class) && !(class == "ArrayBox" && definition.is_array_field(ordinal)) {
+                if !crate::mir::declared_type_storage::declared_object_field_matches_v1(declared, Some(class))
+                    && !(class == "ArrayBox" && definition.is_array_field(ordinal)) {
                     visiting.remove(&object);
                     return None;
                 }
@@ -642,7 +646,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
                 .filter(|(_, row)| row.name == name.as_ref());
             let (ordinal, declaration) = fields.next()?;
             if fields.next().is_some() || declaration.is_weak
-                || declaration.declared_type_name.as_deref().is_some_and(|declared| declared != class.as_ref())
+                || declaration.declared_type_name.as_deref().is_some_and(|declared|
+                    !crate::mir::declared_type_storage::declared_object_field_matches_v1(Some(declared), Some(class)))
             {
                 return None;
             }

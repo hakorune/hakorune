@@ -170,8 +170,9 @@ pub(super) fn capture_child_call_source_v1(
     let (field, _) = super::scalar::me_field_read_row(shape, receiver, call.receiver_site(), object, fields)?;
     let Some(ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), class, .. }) =
         super::scalar::prior_store_rhs(stores, field) else { return Err(U::BodyCoverageUnsupported); };
-    if child.object() == object || declarations.get(field.declaration_ordinal() as usize)
-        .and_then(|declaration| declaration.declared_type_name.as_deref()) != Some(class.as_ref()) {
+    if child.object() == object || !crate::mir::declared_type_storage::declared_object_field_matches_v1(
+        declarations.get(field.declaration_ordinal() as usize)
+            .and_then(|declaration| declaration.declared_type_name.as_deref()), Some(class)) {
         return Err(U::BodyCoverageUnsupported);
     }
     // The original provider already resolved this exact class/object pair.
@@ -403,7 +404,7 @@ pub(super) fn qualified_field_demands_v1(
                 ConstructionStoreRhsV1::ProviderConstruction {
                     class, object, ..
                 } => {
-                    class.as_ref() == name
+                    crate::mir::declared_type_storage::declared_object_field_matches_v1(Some(name), Some(class))
                         && object.is_some()
                             == (crate::runtime::CoreBoxId::from_name(name).is_none())
                 }
@@ -418,9 +419,11 @@ pub(super) fn qualified_field_demands_v1(
                     if crate::runtime::CoreBoxId::from_name(name).is_some() {
                         false
                     } else {
+                        let nominal = crate::mir::declared_type_storage::declared_object_field_type_v1(name)
+                            .ok_or(U::FieldContractUnsupported)?;
                         let mut resolved = objects
                             .iter()
-                            .filter_map(|(own, id)| (own.name() == name).then_some(*id));
+                            .filter_map(|(own, id)| (own.name() == nominal.class_name()).then_some(*id));
                         match (resolved.next(), resolved.next()) {
                             (Some(child), None) => definitions
                                 .get(child.declaration_index() as usize)

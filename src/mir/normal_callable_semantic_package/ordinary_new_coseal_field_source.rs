@@ -614,7 +614,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn declared_stored_child_fi
     let Some((field, Some(class))) = super::super::super::terminal_home::source_declared_field(
         constructors, parent, site, field_name,
     ).map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { return Ok(None); };
-    let Some(child_source) = batch.ordinary_box_coverage().row_for(&class)
+    let Some(nominal) = crate::mir::declared_type_storage::declared_object_field_type_v1(&class)
+        else { return Ok(None); };
+    let class = nominal.class_name();
+    let Some(child_source) = batch.ordinary_box_coverage().row_for(class)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))? else { return Ok(None); };
     let child = constructors.object_for(child_source)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
@@ -629,7 +632,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn declared_stored_child_fi
         |name, object| name == class && object == child) else { return Ok(None); };
     if actual_child != child { return Ok(None); }
     Ok(Some(StoredChildFieldSourceV1 {
-        field, child, child_class: class.into_boxed_str(), nullable, paired_fields,
+        field, child, child_class: class.into(), nullable, paired_fields,
         parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all, relations,
     }))
 }

@@ -145,9 +145,12 @@ fn nullable_birth_actual_publishes_nullable_pair_lane() {
     use crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1;
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for declared in ["Inner?", "Inner"] {
+        let source = include_str!("../../../../../apps/nullable-birth-actual-min/main.hako")
+            .replace("inner: Inner", &format!("inner: {declared}"));
         let mut compiler = MirCompiler::with_options(false);
         compiler.compile_normal_with_published(
-            request(include_str!("../../../../../apps/nullable-birth-actual-min/main.hako")),
+            request(&source),
             |view, verification| -> Result<(), String> {
                 assert!(verification.is_ok(), "{verification:?}");
                 let entry = view.issue_lifecycle_compiled_entry_contract()?;
@@ -231,6 +234,7 @@ fn nullable_birth_actual_publishes_nullable_pair_lane() {
                 Ok(())
             },
         ).unwrap();
+        }
     });
 }
 
