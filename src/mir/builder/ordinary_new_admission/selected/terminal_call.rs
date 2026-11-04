@@ -220,13 +220,24 @@ pub(in crate::mir::builder) fn emit_instance(
     row: RootInstanceCallDispositionRowV1,
     receiver: ValueId,
 ) -> Result<ValueId, String> {
+    let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    let mut arguments = Vec::with_capacity(row.argument_literals().len());
+    let mut argument_values = Vec::with_capacity(row.argument_literals().len());
+    for literal in row.argument_literals() {
+        let constant = crate::mir::builder::emission::constant::emit_integer(builder, *literal)?;
+        arguments.push((
+            block,
+            MirInstruction::Const { dst: constant, value: crate::mir::ConstValue::Integer(*literal) },
+        ));
+        argument_values.push(constant);
+    }
     let call = MirCall::new(
         None,
         crate::mir::definitions::Callee::SameModuleInstance {
             key: row.target().clone(),
             receiver,
         },
-        Vec::new(),
+        argument_values,
     );
     let result = row.result();
     let value = builder.next_value_id();
@@ -245,7 +256,7 @@ pub(in crate::mir::builder) fn emit_instance(
         value,
         Some(RootExitIngress::Call(Emission {
             source: Source::Existing(RootCallDispositionV1::Instance(row)),
-            arguments: Vec::new(),
+            arguments,
             call,
             result,
         })),

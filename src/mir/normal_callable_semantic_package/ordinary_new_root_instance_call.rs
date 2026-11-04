@@ -33,6 +33,9 @@ pub(crate) struct RootInstanceCallDispositionRowV1 {
     target: CanonicalSameModuleCallableKeyV1,
     target_batch_slot: u32,
     argument_sites: Box<[SourceExprSiteV1]>,
+    /// Integer-literal actuals, one per argument site, each landing in an
+    /// `OrdinaryScalar` lane of the callee's physical signature.
+    argument_literals: Box<[i64]>,
     result: crate::mir::instruction::InvokeCallResultKind,
 }
 
@@ -71,6 +74,10 @@ impl RootInstanceCallDispositionRowV1 {
 
     pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
         &self.argument_sites
+    }
+
+    pub(crate) fn argument_literals(&self) -> &[i64] {
+        &self.argument_literals
     }
 
     /// The callee's source-issued result class, sealed at issue time from
@@ -267,7 +274,23 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("root-instance-call-signature-contract"));
         }
-            if !call.arguments().is_empty() || !terminal.arguments().is_empty() {
+            // Only Integer-literal actuals into `OrdinaryScalar` formals: the
+            // terminal's own `I64` arguments, one per source argument.
+            let argument_literals = terminal
+                .arguments()
+                .iter()
+                .map(|argument| match argument {
+                    crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(value) => Some(*value),
+                    _ => None,
+                })
+                .collect::<Option<Box<[i64]>>>()
+                .filter(|literals| literals.len() == call.arguments().len())
+                .ok_or_else(|| freeze("root-instance-call-arguments-unsupported"))?;
+            if signature.lanes().iter().skip(1).any(|lane| {
+                lane.role() != PhysicalCallableLaneRoleV1::OrdinaryScalar
+                    || lane.logical_ordinal().is_none_or(|ordinal| ordinal as usize >= argument_literals.len())
+            }) || signature.lanes().len() != argument_literals.len() + 1
+            {
                 return Err(freeze("root-instance-call-arguments-unsupported"));
             }
             let receiver_object = claim.object();
@@ -297,6 +320,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             .iter()
                             .map(|argument| argument.site().clone())
                             .collect(),
+                        argument_literals,
                         result: call_result,
                     }),
                 )

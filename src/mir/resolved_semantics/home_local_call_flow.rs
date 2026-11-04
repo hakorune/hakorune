@@ -639,17 +639,29 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
     else {
         return terminal_call_absent(input.owner(), statement, "the lexical i64 argument row is unavailable");
     };
-    if !borrowed_actuals::contains_borrowed_actual_v1(&arguments) {
-        return terminal_call_absent(input.owner(), statement, "the call has no borrowed actual (a zero-argument call or only literals)");
-    }
+    // Plain Integer-literal arguments carry no borrowed evidence: they use the
+    // same `I64` terminal argument as the static terminal and never select the
+    // borrowed seam. Any other plain argument shape stays unavailable.
+    let terminal_arguments = if borrowed_actuals::contains_borrowed_actual_v1(&arguments) {
+        arguments.into_iter().map(super::TerminalCallArgumentV1::Lexical).collect()
+    } else {
+        let Some(literals) = arguments
+            .iter()
+            .map(|argument| match argument {
+                LocalCallArgumentV1::Integer(value) => Some(super::TerminalCallArgumentV1::I64(*value)),
+                _ => None,
+            })
+            .collect::<Option<Box<[_]>>>()
+        else {
+            return terminal_call_absent(input.owner(), statement, "the call has no borrowed actual and a non-literal argument");
+        };
+        literals
+    };
     Ok(Some(super::TerminalI64CallReturnV1::issue(
         input.owner(),
         statement.site().clone(),
         value.site().clone(),
-        arguments
-            .into_iter()
-            .map(super::TerminalCallArgumentV1::Lexical)
-            .collect(),
+        terminal_arguments,
     )))
 }
 

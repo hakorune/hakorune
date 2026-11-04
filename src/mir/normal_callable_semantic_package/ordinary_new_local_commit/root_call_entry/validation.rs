@@ -300,9 +300,18 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("lexical-terminal/strict-row"))
                     }
                     RootCallDispositionV1::Instance(row) => {
-                        if !typed.is_empty() || row.argument_sites().iter().next().is_some() {
+                        // Literal actuals only: each typed argument is an I64 constant
+                        // equal to the row's sealed literal, in source order.
+                        if typed.len() != row.argument_literals().len()
+                            || row.argument_sites().len() != typed.len()
+                            || arguments.iter().zip(row.argument_literals()).any(|((_, instruction), literal)| {
+                                !matches!(instruction, MirInstruction::Const { value: ConstValue::Integer(value), .. } if value == literal)
+                            })
+                            || typed.iter().any(|(_, class)| *class != crate::mir::resolved_semantics::ExactCallableParamAbiV1::I64)
+                        {
                             return Err(freeze("instance-call-arguments"));
                         }
+                        let argument_ids: Vec<_> = typed.iter().map(|(value, _)| *value).collect();
                         let receiver = self.resolve_instance_receiver(owner, row)?;
                         let MirInstruction::Invoke {
                             operation:
@@ -331,7 +340,7 @@ impl OrdinaryNewClaimLedgerV1 {
                                     key: row.target().clone(),
                                     receiver,
                                 },
-                                Vec::new(),
+                                argument_ids,
                             )
                         {
                             return Err(freeze("instance-call-target"));

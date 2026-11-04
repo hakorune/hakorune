@@ -793,3 +793,51 @@ fn owned_field_receiver_home_seals_call_entry_and_residence_release() {
         .seal_finalized_root_birth_handoff("Main.main/1".into(), &module, &birth_keys, None, Vec::new())
         .unwrap_or_else(|e| panic!("seal must accept the owned-field Call entry: {e}"));
 }
+
+#[test]
+fn instance_return_with_integer_literal_arguments_takes_a_plain_root_row() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Calc { base: i64
+        birth(base) { me.base = base }
+        f(a: i64, b: i64): i64 { return a * 10 + b } }
+        static box Main { main() {
+        local c = new Calc(2)
+        return c.f(4, 2) } }",
+    )
+    .expect("literal-argument instance return is source-admitted");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let owner = ledger.root_completion_for_test().owner();
+    assert!(ledger.root_instance_call_expected(owner));
+    let (_, terminal) = ledger.call_source_completion().expect("terminal call");
+    // The plain scalar terminal never selects the borrowed seam.
+    assert!(ledger.borrowed_terminal_arguments_v1(owner, terminal.return_site()).unwrap().is_none());
+    let call_site = terminal.call_site().clone();
+    let row = ledger
+        .take_root_instance_call(owner, &call_site)
+        .expect("take source row")
+        .expect("instance call row");
+    assert_eq!(row.argument_literals(), &[4, 2]);
+    assert_eq!(row.argument_sites().len(), 2);
+}
+
+#[test]
+fn instance_return_with_non_literal_arguments_stays_unissued_as_a_plain_row() {
+    for call in ["c.f(n)", "c.f(n + 1)", "c.f(0 - 1)"] {
+        let source = format!(
+            "box Calc {{ base: i64
+            birth(base) {{ me.base = base }}
+            f(a: i64): i64 {{ return a + 1 }} }}
+            static box Main {{ main() {{
+            local c = new Calc(2)
+            local n = 5
+            return {call} }} }}"
+        );
+        match super::super::brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Err(_) => {}
+            Ok(package) => assert!(
+                package.ordinary_new_claim_ledger.root_instance_call_is_empty(),
+                "{call}: no plain root row is issued"
+            ),
+        }
+    }
+}
