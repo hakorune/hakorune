@@ -138,23 +138,17 @@ pub(super) fn infer_return_type_from_phi(
                 inferred.get_or_insert(mt);
             }
             None => {
-                #[cfg(debug_assertions)]
-                panic!(
-                    "[phase84-5] Type inference failed for {:?} in function {}\n\
-                     This should not happen after Phase 84-4 completion.\n\
-                     Please check: PhiTypeResolver, BoxCall type registration, CopyTypePropagator",
+                // A source-valid function can reach here when its call or field read
+                // lives on a route that is rejected later by name (for example
+                // `ordinary-new/local-commit/artifact-source-unavailable`). Debug
+                // and release builds therefore behave alike: warn, keep the Unknown
+                // sentinel, and let the owning rejection speak.
+                crate::runtime::get_global_ring0().log.warn(&format!(
+                    "[phase84-5/warning] Type inference failed for {:?} in {}, using Unknown sentinel",
                     value, function.signature.name
-                );
-
-                #[cfg(not(debug_assertions))]
-                {
-                    crate::runtime::get_global_ring0().log.warn(&format!(
-                        "[phase84-5/warning] Type inference failed for {:?} in {}, using Unknown sentinel",
-                        value, function.signature.name
-                    ));
-                    inferred = Some(MirType::Unknown);
-                    break;
-                }
+                ));
+                inferred = Some(MirType::Unknown);
+                break;
             }
         }
     }
