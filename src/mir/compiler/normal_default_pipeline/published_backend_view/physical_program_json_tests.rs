@@ -762,11 +762,11 @@ fn unresolved_call_result_type_reaches_the_owning_rejection_without_a_panic() {
 #[test]
 fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    let compile = |formal: &str, field: &str, actual: &str, tail: &str| {
+    let compile_with_second = |formal: &str, field: &str, actual: &str, second: &str, tail: &str| {
         let source = format!(
             "box Leaf {{\n  value: i64\n  birth(value) {{ me.value = value }}\n}}\n\
              box Node {{\n  {field}\n  v: i64\n  birth({formal}, v: i64) {{ me.next = next  me.v = v }}\n}}\n\
-             static box Main {{\n  main() {{\n    local leaf = new Leaf(1)\n    local n = new Node({actual}, 5)\n    {tail}\n  }}\n}}\n"
+             static box Main {{\n  main() {{\n    local leaf = new Leaf(1)\n    local n = new Node({actual}, {second})\n    {tail}\n  }}\n}}\n"
         );
         crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
             MirCompiler::with_options(false)
@@ -776,18 +776,27 @@ fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
                 .map(|_| ())
         })
     };
+    let compile = |formal: &str, field: &str, actual: &str, tail: &str| compile_with_second(formal, field, actual, "5", tail);
     compile("take next: Leaf", "next: Leaf", "move leaf", "return n.v")
         .unwrap_or_else(|error| panic!("take with move: {error}"));
     let cases = [
         ("take next: Leaf", "next: Leaf", "leaf", "return n.v", "TakeActualRequiresMove"),
         ("take next: i64", "next: i64", "3", "return n.v", "take-formal-declaration-unavailable"),
         ("take next: Leaf?", "next: Leaf?", "move leaf", "return n.v", "take-formal-declaration-unavailable"),
-        ("take next: Leaf", "next: Leaf", "move leaf", "return leaf.value", "artifact-source-unavailable"),
+        ("take next: Leaf", "next: Leaf", "move leaf", "return leaf.value", "UseAfterMove"),
     ];
     for (formal, field, actual, tail, tag) in cases {
         let error = compile(formal, field, actual, tail).expect_err(&format!("{formal} / {actual} / {tail}"));
         assert!(error.contains(tag), "{formal} / {actual} / {tail}: {error}");
     }
+    // Arguments evaluate in source order: a read after `move` inside the same `new` is a
+    // use after move, a read before it is not, and a plain handle argument transfers too.
+    compile_with_second("take next: Leaf", "next: Leaf", "move leaf", "leaf.value", "return n.v")
+        .expect_err("read after move in the same argument list");
+    let error = compile_with_second("take next: Leaf", "next: Leaf", "move leaf", "leaf.value", "return n.v").unwrap_err();
+    assert!(error.contains("UseAfterMove"), "{error}");
+    let error = compile_with_second("next", "next: Leaf", "leaf", "leaf.value", "return n.v").unwrap_err();
+    assert!(error.contains("UseAfterMove"), "plain handle argument: {error}");
 }
 
 #[test]

@@ -99,7 +99,7 @@ pub(super) fn observe_selected_new_local<E>(
     }
     for moved in moved_arguments {
         homes.retain(|home| home.binding() != moved);
-        locals.consume_home(moved);
+        locals.consume_argument_home(moved);
     }
     // This is the Normal successor only, after exact local commit.
     homes.push(LiveHomeV1::Stable(binding));
@@ -159,6 +159,7 @@ pub(super) fn observe_new_arguments_v1<E>(
     };
     let mut rows = Vec::with_capacity(arity);
     let mut moved = Vec::new();
+    let mut transfer_sites = Vec::new();
     let mut error = None;
     let mut unavailable = None;
     for (index, site) in source.arguments().iter().enumerate() {
@@ -180,6 +181,8 @@ pub(super) fn observe_new_arguments_v1<E>(
             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
             continue;
         }
+        let explicit_move = input.function().expression_source().unary(site)
+            .is_some_and(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
         let observed = locals.observe_selected_argument(site, argument_i64_field)?;
         // Already-proved scalar leaves keep their exact old domain. Opaque
         // bindings/otherwise uncovered Text need their own original evaluation.
@@ -213,12 +216,17 @@ pub(super) fn observe_new_arguments_v1<E>(
                     | SelectedNewArgumentKindV1::BoundValue { binding }
                         if homes.iter().any(|home| home.binding() == *binding) =>
                     {
-                        moved.push(*binding)
+                        {
+                        moved.push(*binding);
+                        // Only a local name or an explicit `move` names its own
+                        // Home; other expressions merely bind a value to one.
+                        if explicit_move || input.function().variable_ref(site).is_some() {
+                            transfer_sites.push(site.clone());
+                        }
+                    }
                     }
                     _ => {}
                 }
-                let explicit_move = input.function().expression_source().unary(site)
-                    .is_some_and(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
                 rows.push(SelectedNewArgumentV1::new(ordinal, site.clone(), kind).with_explicit_move(explicit_move));
             }
             None => {
@@ -230,6 +238,13 @@ pub(super) fn observe_new_arguments_v1<E>(
                     HomePrefixUnavailableV1::ArgumentNotCovered(site.clone())
                 });
             }
+        }
+    }
+    // Same source-order use-after-move walk as a method-call entry transfer;
+    // every argument whose Home leaves the frame is a transfer site.
+    if !transfer_sites.is_empty() || locals.has_moved_out() {
+        if let Err(issue) = locals.validate_pending_call_uses_v1(new_site, &transfer_sites) {
+            unavailable.get_or_insert(issue);
         }
     }
     Ok((

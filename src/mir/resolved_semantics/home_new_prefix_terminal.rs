@@ -623,7 +623,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                         homes.retain(|home| {
                                                                             home.binding() != moved
                                                                         });
-                                                                        locals.consume_home(moved);
+                                                                        locals.consume_argument_home(moved);
                                                                     }
                                                                     let result_prefix = match &*unavailable {
                                                             Some(issue) => Err(issue.clone()),

@@ -8,6 +8,12 @@ impl PrefixLocalFlow<'_> {
         self.store(binding, StoredLocal::Consumed);
     }
 
+    /// An argument Home leaves the frame at the invoke's Normal edge, so later
+    /// uses are `UseAfterMove` exactly as after a method-call entry transfer.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn consume_argument_home(&mut self, binding: BindingRefV1) {
+        self.store(binding, StoredLocal::MovedOut);
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn was_moved_out(&self, binding: BindingRefV1) -> bool {
         matches!(self.locals.get(&binding), Some(StoredLocal::MovedOut))
     }
@@ -56,7 +62,10 @@ impl PrefixLocalFlow<'_> {
 
     /// Validate the original expression order without changing its retained
     /// actual snapshots or the caller's pre-entry cleanup responsibilities.
-    fn validate_pending_call_uses_v1(&self, call: &OwnedExprSiteV1) -> Result<(), HomePrefixUnavailableV1> {
+    /// Shared by method-call entry and `new` argument transfer.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn validate_pending_call_uses_v1(
+        &self, call: &OwnedExprSiteV1, transfer_sites: &[SourceExprSiteV1],
+    ) -> Result<(), HomePrefixUnavailableV1> {
         use crate::mir::resolved_value_profile::expression_children::{expression_children_v1,
             ExpressionChildrenV1, ExpressionChildReachV1};
         let input = self.input;
@@ -69,6 +78,8 @@ impl PrefixLocalFlow<'_> {
         while let Some((site, after)) = pending.pop() {
             let moved = input.function().expression_source().unary(&site).filter(|unary|
                 unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
+            // A plain `new` argument whose Home leaves the frame transfers
+            // without a `move` operator: the operand is the site itself.
             if after {
                 if let Some(moved) = moved {
                     let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(moved.operand())
@@ -77,6 +88,12 @@ impl PrefixLocalFlow<'_> {
                         return Err(HomePrefixUnavailableV1::MoveUnsupported(site));
                     }
                     simulated.store(binding, StoredLocal::MovedOut);
+                } else if transfer_sites.contains(&site) {
+                    // A plain `new` argument whose Home leaves the frame transfers
+                    // without a `move` operator; the caller already proved the Home.
+                    if let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(&site) {
+                        simulated.store(binding, StoredLocal::MovedOut);
+                    }
                 }
                 continue;
             }
@@ -100,16 +117,22 @@ impl PrefixLocalFlow<'_> {
                     return Err(HomePrefixUnavailableV1::UseAfterMove(method.receiver_site().clone()));
                 }
             }
-            let children = expression_children_v1(&ledger, input.body_shape(), &site)
-                .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)?;
-            let ExpressionChildrenV1::Known(children) = children else {
-                return Err(HomePrefixUnavailableV1::MoveUnsupported(site));
+            let children: Vec<SourceExprSiteV1> = if let Some(construction) = input.function().expression_source().construction(&site) {
+                // Arguments evaluate in source order, always.
+                construction.arguments().to_vec()
+            } else {
+                let children = expression_children_v1(&ledger, input.body_shape(), &site)
+                    .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)?;
+                let ExpressionChildrenV1::Known(children) = children else {
+                    return Err(HomePrefixUnavailableV1::MoveUnsupported(site));
+                };
+                if children.iter().any(|child| child.reach != ExpressionChildReachV1::Always) {
+                    return Err(HomePrefixUnavailableV1::MoveUnsupported(site));
+                }
+                children.into_iter().map(|child| child.site).collect()
             };
-            if children.iter().any(|child| child.reach != ExpressionChildReachV1::Always) {
-                return Err(HomePrefixUnavailableV1::MoveUnsupported(site));
-            }
             pending.push((site, true));
-            pending.extend(children.into_iter().rev().map(|child| (child.site, false)));
+            pending.extend(children.into_iter().rev().map(|child| (child, false)));
         }
         Ok(())
     }
@@ -137,7 +160,7 @@ impl PrefixLocalFlow<'_> {
                 self.invalidate_declared_read_call_v1(statement);
             }
             if !taken.is_empty() || self.has_moved_out() {
-                if let Err(issue) = self.validate_pending_call_uses_v1(call.site()) {
+                if let Err(issue) = self.validate_pending_call_uses_v1(call.site(), &[]) {
                     unavailable.get_or_insert(issue);
                     continue;
                 }
