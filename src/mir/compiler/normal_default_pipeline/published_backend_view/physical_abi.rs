@@ -417,8 +417,11 @@ impl<'module> PublishedMirBackendView<'module> {
                 let contract = formal
                     .contract()
                     .ok_or_else(|| fault("formal-contract-missing"))?;
-                if contract.declaration() != Declaration::Unannotated {
-                    return Err(fault("formal-declaration-unavailable"));
+                match contract.declaration() {
+                    Declaration::Unannotated => {}
+                    Declaration::ExactI64
+                        if matches!(contract.uses(), Uses::NoUse | Uses::I64FieldStores { .. }) => {}
+                    _ => return Err(fault("formal-declaration-unavailable")),
                 }
                 let source_ordinal = formal.source_ordinal()
                     .ok_or_else(|| fault("formal-contract-missing"))?;

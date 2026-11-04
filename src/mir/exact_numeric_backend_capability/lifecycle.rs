@@ -205,7 +205,10 @@ fn enforce_contracts(
             .contract()
             .ok_or_else(|| fault("formal-contract-missing"))?;
         if formal.kind() != CompiledEntryFormalKindV1::Parameter
-            || source.declaration() != BirthFormalDeclarationClassV1::Unannotated
+            || !matches!(
+                source.declaration(),
+                BirthFormalDeclarationClassV1::Unannotated | BirthFormalDeclarationClassV1::ExactI64
+            )
             || !matches!(
                 source.uses(),
                 BirthFormalUseCoverageV1::I64FieldStores { .. }

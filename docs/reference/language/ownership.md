@@ -1083,7 +1083,11 @@ it does not turn ordinary method formals, rebound aliases or opaque payloads
 into hidden Home-demand parameters. Before field installation the selected
 constructor argument owner retains its obligation; after installation only the
 field owns it. Constructor Fault drains installed fields and never restores a
-caller Home or ends the transferred argument a second time.
+caller Home or ends the transferred argument a second time. A constructor
+formal declared `i64` keeps that declaration to the physical input: it shares
+the unannotated formal's `i64` field-store lane, requires a proven Integer
+actual, and any other actual or a store into another residence (a `usize`
+field included) is a named rejection.
 
 Evaluate the Place and RHS once in source order. Prepare the candidate and
 validate the destination before commit. String preparation acquires independent

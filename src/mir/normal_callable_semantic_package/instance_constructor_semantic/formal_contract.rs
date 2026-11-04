@@ -148,7 +148,7 @@ pub(super) fn issue_birth_formal_contracts(
                 return Err(BirthFormalContractIssueV1::DuplicateBinding);
             }
             let declaration = classify_declaration(parameter);
-            let uses = classify_uses(construction, definition, binding);
+            let uses = classify_uses(construction, definition, binding, declaration);
             Ok(BirthFormalContractV1 {
                 ordinal,
                 binding,
@@ -178,6 +178,7 @@ fn classify_uses(
     construction: &ConstructionSourceEligibilityV1,
     definition: &crate::mir::function::CanonicalObjectDefinitionV1,
     binding: BindingRefV1,
+    declaration: BirthFormalDeclarationClassV1,
 ) -> BirthFormalUseCoverageV1 {
     let Ok(source) = construction else {
         return BirthFormalUseCoverageV1::UncoveredSelectedBody;
@@ -204,6 +205,10 @@ fn classify_uses(
                 object_sites.push(site.clone());
             } else {
                 match field.declared_type_name.as_deref() {
+                    // An exact `i64` formal never narrows into another residence.
+                    Some("usize") if declaration == BirthFormalDeclarationClassV1::ExactI64 => {
+                        return BirthFormalUseCoverageV1::UncoveredSelectedBody;
+                    }
                     Some("i64" | "usize") => scalar_sites.push(site.clone()),
                     None if !definition.is_array_field(ordinal) => unqualified_sites.push(site.clone()),
                     _ => return BirthFormalUseCoverageV1::UncoveredSelectedBody,

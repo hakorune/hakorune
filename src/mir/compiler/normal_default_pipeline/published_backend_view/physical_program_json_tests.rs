@@ -694,22 +694,37 @@ fn bool_actuals_keep_kind_and_do_not_specialize_the_birth_definition() {
     });
 }
 
+/// The original `i64` declaration is kept to the physical input: the same lane
+/// serves the unannotated and the exact formal, an Integer actual is required,
+/// and no exact formal narrows into another residence.
 #[test]
-fn exact_annotation_remains_unavailable_despite_integer_actual() {
+fn exact_i64_birth_formals_keep_their_declaration_to_the_physical_input() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let source = include_str!("../../../../../apps/typed-object-birth-min/main.hako")
-            .replace("birth(left, right)", "birth(left: i64, right)");
-        MirCompiler::with_options(false)
-            .compile_normal_with_published(request(&source), |view, _| {
-                assert!(view
-                    .issue_lifecycle_physical_abi_input()
-                    .unwrap_err()
-                    .contains("formal-declaration-unavailable"));
-                Ok::<(), String>(())
-            })
-            .unwrap();
-    });
+    let base = include_str!("../../../../../apps/typed-object-birth-min/main.hako");
+    let issue = |source: &str| -> Result<(), String> {
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            MirCompiler::with_options(false)
+                .compile_normal_with_published(request(source), |view, _| {
+                    view.issue_lifecycle_physical_abi_input().map(|_| ())
+                })
+                .map(|_| ())
+        })
+    };
+    for header in ["birth(left: i64, right: i64)", "birth(left: i64, right)", "birth(left, right: i64)"] {
+        issue(&base.replace("birth(left, right)", header)).expect(header);
+    }
+    let exact = base.replace("birth(left, right)", "birth(left: i64, right: i64)");
+    let error = issue(&exact.replace("new Pair(10, 20)", "new Pair(true, 20)")).unwrap_err();
+    assert!(error.contains("exact-i64-actual-mismatch"), "{error}");
+    let usize_field = exact
+        .replace("right: i64\n\n  birth", "right: usize\n\n  birth")
+        .replace("return pair.left + pair.right", "return pair.left");
+    let error = issue(&usize_field).unwrap_err();
+    assert!(error.contains("formal-declaration-unavailable"), "{error}");
+    // The same shape with an unannotated formal is unchanged.
+    issue(&usize_field.replace("birth(left: i64, right: i64)", "birth(left, right)")).expect("unannotated usize lane");
+    // An unannotated formal keeps its own runtime tag check for the same actual.
+    issue(&base.replace("new Pair(10, 20)", "new Pair(true, 20)")).expect("unannotated lane is unchanged");
 }
 
 #[test]

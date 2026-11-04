@@ -96,7 +96,7 @@ impl PublishedMirBackendView<'_> {
                     super::super::physical_program::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } => abi,
                     _ => return Err(fault("birth-actual-formal-missing")),
                 };
-                let object_formal = entry
+                let formal_contract = entry
                     .births()
                     .iter()
                     .find(|birth| birth.function_index() == call.function_index())
@@ -106,14 +106,16 @@ impl PublishedMirBackendView<'_> {
                         })
                     })
                     .ok_or_else(|| fault("birth-actual-formal-missing"))?
-                    .contract()
-                    .is_some_and(|contract| {
+                    .contract();
+                let object_formal = formal_contract.is_some_and(|contract| {
                         matches!(
                             contract.uses(),
                             crate::mir::normal_callable_semantic_package
                                 ::BirthFormalUseCoverageV1::ObjectFieldStores { .. }
                         )
                     }) || birth_abi.dynamic_object_formal_source_v1(actual.source().ordinal())?.is_some();
+                let exact_i64_formal = formal_contract.is_some_and(|contract| contract.declaration()
+                    == crate::mir::normal_callable_semantic_package::BirthFormalDeclarationClassV1::ExactI64);
                 let finite = if let Some(source) = entry.program().handoff().root_source() {
                     let function = self.module().functions.get(caller.name()).ok_or_else(|| fault("birth-caller-draft-missing"))?;
                     source.finite_entry_birth_argument_v1(call.actual(), actual.source().ordinal(), function)?.is_some()
@@ -184,8 +186,13 @@ impl PublishedMirBackendView<'_> {
                     }
                     continue;
                 }
-                scalar_actual_kind(actual.source().kind(), value, caller.value_types())
+                let kind = scalar_actual_kind(actual.source().kind(), value, caller.value_types())
                     .map_err(|error| contextualize(error, "scalar-kind"))?;
+                // The original `i64` declaration admits only a proven Integer actual;
+                // the unannotated lane keeps its runtime tag check.
+                if exact_i64_formal && kind != 1 {
+                    return Err(contextualize(fault("exact-i64-actual-mismatch"), "exact-i64"));
+                }
             }
         }
         Ok((borrowed, object))
