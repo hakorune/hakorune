@@ -1,6 +1,5 @@
 //! Construction, affine takes and root identity access for the New ledger.
 use super::*;
-use crate::mir::normal_callable_semantic_package::{BirthFormalDeclarationClassV1, BirthFormalUseCoverageV1};
 
 impl OrdinaryNewClaimLedgerV1 {
     /// An original New requires lifecycle context even while its execution
@@ -25,8 +24,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let formal = row.formal_contracts().iter().enumerate().find_map(|(index, formal)|
             (formal.binding() == *binding && formal.ordinal() as usize == index).then_some(formal))?;
-        if !matches!(formal.declaration(), BirthFormalDeclarationClassV1::Unannotated | BirthFormalDeclarationClassV1::ExactText)
-            || !matches!(formal.uses(), BirthFormalUseCoverageV1::UnqualifiedFieldStores { sites } if sites.contains(site)) {
+        if !formal.unqualified_store_sites_v1(true).is_some_and(|sites| sites.contains(site)) {
             return None;
         }
         self.borrowed_formal_source.as_ref()?.as_ref().ok()?.lend_source_value_sum_v1(*binding)

@@ -67,6 +67,28 @@ impl PartialEq for BirthAbiHandoffV1 {
 impl Eq for BirthAbiHandoffV1 {}
 
 impl BirthAbiHandoffV1 {
+    /// One ordinal's lane and formal, rejecting any source/ABI drift.
+    fn checked_lane_and_formal_v1(&self, ordinal: u32) -> Result<(&BirthFormalLaneV1, &BirthFormalContractV1), String> {
+        const DRIFT: &str = "[freeze:contract][constructor-unit/new-source-drift]";
+        let lane = self.parameters.get(ordinal as usize).ok_or(DRIFT)?;
+        let formal = self.formal_contracts.get(ordinal as usize).ok_or(DRIFT)?;
+        if lane.source_ordinal() != Some(ordinal) || lane.binding() != formal.binding()
+            || formal.ordinal() != ordinal || formal.binding().owner() != self.owner {
+            return Err(DRIFT.into());
+        }
+        Ok((lane, formal))
+    }
+
+    /// The issued construction plan, checked to belong to this birth.
+    fn checked_construction_plan_v1(&self) -> Result<Option<&ConstructionPlanV1>, String> {
+        let Ok(plan) = &self.construction else { return Ok(None) };
+        if plan.object() != self.object || !matches!(plan.constructor(), Some((source, owner))
+            if source.same_as(&self.source_id) && *owner == self.owner) {
+            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+        }
+        Ok(Some(plan))
+    }
+
     pub(in crate::mir) fn construction_plan_v1(&self) -> Option<&ConstructionPlanV1> {
         self.construction.as_ref().ok()
     }
@@ -77,22 +99,11 @@ impl BirthAbiHandoffV1 {
     pub(in crate::mir) fn text_formal_source_v1(
         &self, ordinal: u32,
     ) -> Result<Option<&std::rc::Rc<super::super::SourceValueSumV1>>, String> {
-        use super::super::instance_constructor_semantic::{BirthFormalDeclarationClassV1 as D, BirthFormalUseCoverageV1 as U};
         use super::super::instance_construction::ConstructionStoreRhsV1;
         use crate::mir::instruction::FieldSetModeV1;
-        let lane = self.parameters.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
-        let formal = self.formal_contracts.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
-        if lane.source_ordinal() != Some(ordinal) || lane.binding() != formal.binding()
-            || formal.ordinal() != ordinal || formal.binding().owner() != self.owner {
-            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
-        }
-        if !matches!(formal.declaration(), D::Unannotated | D::ExactText) { return Ok(None); }
-        let U::UnqualifiedFieldStores { sites } = formal.uses() else { return Ok(None) };
-        let Ok(plan) = &self.construction else { return Ok(None) };
-        if plan.object() != self.object || !matches!(plan.constructor(), Some((source, owner))
-            if source.same_as(&self.source_id) && *owner == self.owner) {
-            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
-        }
+        let (lane, formal) = self.checked_lane_and_formal_v1(ordinal)?;
+        let Some(sites) = formal.unqualified_store_sites_v1(true) else { return Ok(None) };
+        let Some(plan) = self.checked_construction_plan_v1()? else { return Ok(None) };
         let mut covered = std::collections::BTreeSet::new();
         let mut input = None;
         for (index, store) in plan.stores().iter().enumerate() {
@@ -118,24 +129,11 @@ impl BirthAbiHandoffV1 {
         &self,
         ordinal: u32,
     ) -> Result<Option<(CanonicalObjectIdV1, bool)>, String> {
-        use super::super::instance_constructor_semantic::{
-            BirthFormalDeclarationClassV1 as D, BirthFormalUseCoverageV1 as U,
-        };
         use super::super::instance_construction::ConstructionStoreRhsV1;
         use crate::mir::instruction::FieldSetModeV1;
-        let lane = self.parameters.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
-        let formal = self.formal_contracts.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
-        if lane.source_ordinal() != Some(ordinal) || lane.binding() != formal.binding()
-            || formal.ordinal() != ordinal || formal.binding().owner() != self.owner {
-            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
-        }
-        if formal.declaration() != D::Unannotated { return Ok(None); }
-        let U::UnqualifiedFieldStores { sites } = formal.uses() else { return Ok(None) };
-        let Ok(plan) = &self.construction else { return Ok(None) };
-        if plan.object() != self.object || !matches!(plan.constructor(), Some((source, owner))
-            if source.same_as(&self.source_id) && *owner == self.owner) {
-            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
-        }
+        let (lane, formal) = self.checked_lane_and_formal_v1(ordinal)?;
+        let Some(sites) = formal.unqualified_store_sites_v1(false) else { return Ok(None) };
+        let Some(plan) = self.checked_construction_plan_v1()? else { return Ok(None) };
         let mut covered = std::collections::BTreeSet::new();
         let mut child = None;
         let mut nullable = false;
@@ -168,24 +166,11 @@ impl BirthAbiHandoffV1 {
         &self,
         ordinal: u32,
     ) -> Result<bool, String> {
-        use super::super::instance_constructor_semantic::{
-            BirthFormalDeclarationClassV1 as D, BirthFormalUseCoverageV1 as U,
-        };
         use super::super::instance_construction::ConstructionStoreRhsV1;
         use crate::mir::instruction::FieldSetModeV1;
-        let lane = self.parameters.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
-        let formal = self.formal_contracts.get(ordinal as usize).ok_or("[freeze:contract][constructor-unit/new-source-drift]")?;
-        if lane.source_ordinal() != Some(ordinal) || lane.binding() != formal.binding()
-            || formal.ordinal() != ordinal || formal.binding().owner() != self.owner {
-            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
-        }
-        if formal.declaration() != D::Unannotated { return Ok(false); }
-        let U::UnqualifiedFieldStores { sites } = formal.uses() else { return Ok(false) };
-        let Ok(plan) = &self.construction else { return Ok(false) };
-        if plan.object() != self.object || !matches!(plan.constructor(), Some((source, owner))
-            if source.same_as(&self.source_id) && *owner == self.owner) {
-            return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
-        }
+        let (lane, formal) = self.checked_lane_and_formal_v1(ordinal)?;
+        let Some(sites) = formal.unqualified_store_sites_v1(false) else { return Ok(false) };
+        let Some(plan) = self.checked_construction_plan_v1()? else { return Ok(false) };
         let mut covered = std::collections::BTreeSet::new();
         for (index, store) in plan.stores().iter().enumerate() {
             let ConstructionStoreRhsV1::Parameter { site, binding, provided } = store.rhs() else { continue };

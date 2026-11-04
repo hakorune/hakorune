@@ -71,6 +71,20 @@ impl BirthFormalContractV1 {
         &self.uses
     }
 
+    /// Original stores into unannotated residences, when this declaration is
+    /// admitted: `Unannotated`, plus `ExactText` when `admit_exact_text`.
+    pub(crate) fn unqualified_store_sites_v1(&self, admit_exact_text: bool) -> Option<&[SourceExprSiteV1]> {
+        let admitted = match self.declaration {
+            BirthFormalDeclarationClassV1::Unannotated => true,
+            BirthFormalDeclarationClassV1::ExactText => admit_exact_text,
+            _ => false,
+        };
+        match &self.uses {
+            BirthFormalUseCoverageV1::UnqualifiedFieldStores { sites } if admitted => Some(sites),
+            _ => None,
+        }
+    }
+
     pub(crate) const fn disposition(&self) -> BirthFormalPhysicalDispositionV1 {
         self.disposition
     }
