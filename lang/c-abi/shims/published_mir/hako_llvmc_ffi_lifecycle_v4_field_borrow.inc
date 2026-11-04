@@ -74,11 +74,16 @@ static int lv4_typed_field_store(const hako_lv4_input* in,
   if (writer_out) *writer_out = writer;
   return 1;
 }
+static int lv4_field_provider_writer(const hako_lv4_input*, uint32_t, uint32_t, uint32_t, int);
 static int lv4_typed_field_borrow(const hako_lv4_input* in, yyjson_val* op) {
   return lv4_is(op, "kind", "object_field_borrow") &&
       (lv4_typed_field_store(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"),
           lv4_u(op, "expected_object_id"), NULL, NULL) ||
-       lv4_null_field_writer(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), lv4_u(op, "expected_object_id")));
+       lv4_null_field_writer(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), lv4_u(op, "expected_object_id")) ||
+       /* The sole writer is the Birth's own `new` of this exact child: the same
+          proof the received-field reads use (`lv4_field_provider_writer`). */
+       (lv4_typed_field_tuple(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), lv4_u(op, "expected_object_id")) &&
+        lv4_field_provider_writer(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"), lv4_u(op, "expected_object_id"), 0)));
 }
 
 static int lv4_field_provider_writer(const hako_lv4_input* in,

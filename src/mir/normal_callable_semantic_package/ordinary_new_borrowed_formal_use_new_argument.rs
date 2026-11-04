@@ -87,7 +87,7 @@ pub(super) fn construction_child_argument_kind_v1(
             .filter(|row| row.site() == relation.outer().site());
         let construction = constructions.next().ok_or(BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
         if constructions.next().is_some() || relation.outer().owner() != input.owner()
-            || construction.arguments().get(relation.formal_ordinal() as usize) != Some(site)
+            || relation.formal_ordinal().and_then(|ordinal| construction.arguments().get(ordinal as usize)) != Some(site)
             || relation.witnesses().len() != 2
             || relation.witnesses().iter().any(|witness| witness.site() != relation.actual()
                 || !matches!(witness.step(), ResultWitnessStepV1::Formal { binding: source, ordinal }

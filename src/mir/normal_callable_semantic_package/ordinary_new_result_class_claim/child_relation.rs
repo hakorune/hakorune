@@ -21,8 +21,9 @@ pub(crate) struct SourceConstructionChildRelationV1 {
     unqualified_dynamic: bool,
     constructor_source: crate::parser::ConstructorSourceIdV1,
     constructor_owner: FunctionOwnerIdV1,
-    formal_binding: BindingRefV1,
-    formal_ordinal: u32,
+    /// The Birth formal that carried the child; `None` when the Birth body
+    /// itself constructs the stored child (a provider `new`).
+    formal: Option<(BindingRefV1, u32)>,
     actual: OwnedExprSiteV1,
     witnesses: Box<[Rc<ResultOriginWitnessV1>]>,
     store: crate::mir::resolved_semantics::ResolvedAssignmentSourceV1,
@@ -53,11 +54,11 @@ impl SourceConstructionChildRelationV1 {
     pub(crate) fn constructor_owner(&self) -> FunctionOwnerIdV1 {
         self.constructor_owner
     }
-    pub(crate) fn formal_binding(&self) -> BindingRefV1 {
-        self.formal_binding
+    pub(crate) fn formal_binding(&self) -> Option<BindingRefV1> {
+        self.formal.map(|(binding, _)| binding)
     }
-    pub(crate) fn formal_ordinal(&self) -> u32 {
-        self.formal_ordinal
+    pub(crate) fn formal_ordinal(&self) -> Option<u32> {
+        self.formal.map(|(_, ordinal)| ordinal)
     }
     pub(crate) fn actual(&self) -> &OwnedExprSiteV1 {
         &self.actual
@@ -69,7 +70,7 @@ impl SourceConstructionChildRelationV1 {
     /// Local New provenance remains in the source census; it is not an
     /// incoming argument loan or permission to transfer a Home.
     pub(crate) fn requires_argument_loan_v1(&self) -> bool {
-        !matches!(self.witnesses.as_ref(), [witness]
+        self.formal.is_some() && !matches!(self.witnesses.as_ref(), [witness]
             if witness.site() == &self.actual
                 && matches!(witness.origin(), ResultValueOriginV1::Fresh(_))
                 && matches!(witness.step(), ResultWitnessStepV1::LocalConstruction(_)))
@@ -89,8 +90,16 @@ impl SourceConstructionChildRelationV1 {
         }
         let source = self.store_source.as_ref().map_err(|issue| *issue)?
             .as_ref().ok_or("returned-field/store-source-missing")?;
-        if !source.corroborates_sole_provided_birth_v1(owner_box, &self.constructor_source,
-            self.constructor_owner, &self.store) {
+        let corroborated = match (self.formal, self.witnesses.as_ref()) {
+            (Some(_), _) => source.corroborates_sole_provided_birth_v1(owner_box, &self.constructor_source,
+                self.constructor_owner, &self.store),
+            // A Birth-constructed child: the sole writer is that Birth's own `new`.
+            (None, [witness]) => matches!(witness.origin(), ResultValueOriginV1::Fresh(class)
+                if source.corroborates_sole_construction_provider_v1(owner_box, source.write().field(),
+                    &self.constructor_source, self.actual.site(), class)),
+            (None, _) => false,
+        };
+        if !corroborated {
             return Err("returned-field/store-source-incomplete");
         }
         Ok(source)
@@ -330,6 +339,38 @@ fn join_outer(
         return result;
     }
     for store in plan.stores() {
+        if let ConstructionStoreRhsV1::ProviderConstruction { site, class: provider_class, object: Some(provider_child), .. } = store.rhs() {
+            // The Birth body constructs the stored child itself: its Fresh
+            // construction is the whole provenance, with no caller actual.
+            let sole = plan.stores().iter().filter(|other| other.field() == store.field()).count() == 1;
+            let same_class = batch.ordinary_box_coverage().row_for(provider_class).ok().flatten()
+                .and_then(|row| constructors.object_for(&row).ok()) == Some(provider_child.object());
+            let declared = matches!(store.mode(), Ok(crate::mir::instruction::FieldSetModeV1::ExactSlot));
+            let Some(assignment) = store.assignment() else { continue; };
+            if !sole || !same_class || !declared || store.field().object() != plan.object() {
+                note_relation_declined(outer, store.field(), 96);
+                continue;
+            }
+            let actual = OwnedExprSiteV1::new(*owner, site.clone());
+            result.push(SourceConstructionChildRelationV1 {
+                outer: outer.clone(),
+                field: store.field(),
+                child: provider_child.object(),
+                unqualified_dynamic: false,
+                constructor_source: source.clone(),
+                constructor_owner: *owner,
+                formal: None,
+                actual: actual.clone(),
+                witnesses: Box::new([Rc::new(ResultOriginWitnessV1 {
+                    site: actual,
+                    origin: ResultValueOriginV1::Fresh(provider_class.clone()),
+                    step: super::witness::ResultWitnessStepV1::FreshConstruction,
+                })]),
+                store: assignment.clone(),
+                store_source: fields.original_write_source_v1(*owner, assignment.target_site()),
+            });
+            continue;
+        }
         let ConstructionStoreRhsV1::Parameter { site, binding, provided } = store.rhs() else {
             note_relation_declined(outer, store.field(), 99);
             continue;
@@ -402,8 +443,7 @@ fn join_outer(
             unqualified_dynamic,
             constructor_source: source.clone(),
             constructor_owner: *owner,
-            formal_binding: *binding,
-            formal_ordinal: formal.ordinal(),
+            formal: Some((*binding, formal.ordinal())),
             actual,
             witnesses: witnesses.into_boxed_slice(),
             store: assignment.clone(),

@@ -49,8 +49,12 @@ fn retain_argument_loans(
     };
     let mut retained_relations = Vec::new();
     for relation in &relations {
+        // Only formal-carried children need an argument loan.
+        let (Some(formal_binding), Some(formal_ordinal)) = (relation.formal_binding(), relation.formal_ordinal()) else {
+            return Err(mismatch());
+        };
         if relation.field().object() != core.object
-            || relation.formal_ordinal() as usize >= core.arity
+            || formal_ordinal as usize >= core.arity
         {
             return Err(mismatch());
         }
@@ -60,7 +64,7 @@ fn retain_argument_loans(
             if !constructor.same_as(birth.source_id())
                 || !relation.constructor_source().same_as(constructor)
                 || relation.constructor_owner() != *owner
-                || relation.formal_binding().owner() != *owner
+                || formal_binding.owner() != *owner
                 || relation.unqualified_field_source_v1(&core.class).is_err()
             {
                 return Err(mismatch());
@@ -74,11 +78,11 @@ fn retain_argument_loans(
         let (source, owner) = plan.constructor().ok_or_else(mismatch)?;
         if !relation.constructor_source().same_as(source)
             || !relation.constructor_source().same_as(birth.source_id())
-            || relation.constructor_owner() != *owner || relation.formal_binding().owner() != *owner
+            || relation.constructor_owner() != *owner || formal_binding.owner() != *owner
             || plan.object() != core.object
             || plan.stores().iter().filter(|store| store.field() == relation.field()
                 && matches!(store.rhs(), ConstructionStoreRhsV1::Parameter { binding, provided: Some(child), .. }
-                    if *binding == relation.formal_binding() && *child == relation.child())).count() != 1
+                    if *binding == formal_binding && *child == relation.child())).count() != 1
         { return Err(mismatch()); }
         retained_relations.push(*relation);
     }
@@ -91,7 +95,7 @@ fn retain_argument_loans(
             .filter(|argument| {
                 argument.owner() == core.site.owner()
                     && argument.new_site() == &core.site
-                    && argument.ordinal() == relation.formal_ordinal()
+                    && Some(argument.ordinal()) == relation.formal_ordinal()
                     && argument.site() == relation.actual().site()
             })
             .count();
@@ -102,7 +106,7 @@ fn retain_argument_loans(
     for argument in arguments.iter_mut() {
         let retained = retained_relations
             .iter()
-            .filter(|relation| relation.formal_ordinal() == argument.ordinal())
+            .filter(|relation| relation.formal_ordinal() == Some(argument.ordinal()))
             .map(|relation| Rc::clone(relation))
             .collect::<Vec<_>>()
             .into_boxed_slice();
@@ -171,7 +175,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for argument in core.argument_rows.as_ref().unwrap().iter() {
             for loan in argument.child_relations() {
                 assert_eq!(loan.outer(), site);
-                assert_eq!(loan.formal_ordinal(), argument.ordinal());
+                assert_eq!(loan.formal_ordinal(), Some(argument.ordinal()));
                 assert_eq!(loan.actual().site(), argument.site());
                 let original = facts
                     .construction_child_relation_loans()

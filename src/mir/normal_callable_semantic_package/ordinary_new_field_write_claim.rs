@@ -312,6 +312,14 @@ impl OriginalFieldWriteSourceLoanV1 {
         &self, owner_box: &str, field: &str,
         constructor: &ConstructorSourceIdV1, provider_site: &SourceExprSiteV1,
     ) -> bool {
+        self.corroborates_sole_construction_provider_v1(owner_box, field, constructor, provider_site, "ArrayBox")
+    }
+
+    /// The sole writer is this Birth's own `new <class>` at `provider_site`.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_sole_construction_provider_v1(
+        &self, owner_box: &str, field: &str,
+        constructor: &ConstructorSourceIdV1, provider_site: &SourceExprSiteV1, class: &str,
+    ) -> bool {
         let write = self.write();
         if self.inventory.opaque || self.inventory.value_incomplete
             || self.inventory.unattributed_fields.contains(field)
@@ -319,7 +327,7 @@ impl OriginalFieldWriteSourceLoanV1 {
             || write.field() != field || write.assignment().value_site() != provider_site
             || write.assignment().form() != crate::mir::resolved_semantics::ResolvedAssignmentFormV1::Plain
             || !write.birth_source().is_some_and(|source| source.same_as(constructor))
-            || !matches!(&write.object_store, ObservedFieldStoreV1::Construction(class) if class.as_ref() == "ArrayBox")
+            || !matches!(&write.object_store, ObservedFieldStoreV1::Construction(stored) if stored.as_ref() == class)
             || write.source().is_err() { return false; }
         let mut writers = self.inventory.writes.iter().enumerate().filter(|(_, row)|
             row.owner_box() == Some(owner_box) && row.field() == field);

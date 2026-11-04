@@ -242,7 +242,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect();
         let reordered = arguments.iter().any(|argument| {
             let expected: Vec<_> = original.iter()
-                .filter(|relation| relation.formal_ordinal() == argument.ordinal())
+                .filter(|relation| relation.formal_ordinal() == Some(argument.ordinal()))
                 .collect();
             expected.len() != argument.child_relations().len()
                 || expected.iter().zip(argument.child_relations())
@@ -254,7 +254,7 @@ impl OrdinaryNewClaimLedgerV1 {
             || retained.iter().any(|(argument, relation)|
                 relation.outer() != site || relation.actual().owner() != site.owner()
                     || relation.actual().site() != argument.site()
-                    || relation.formal_ordinal() != argument.ordinal())
+                    || relation.formal_ordinal() != Some(argument.ordinal()))
         {
             return Err(freeze("object-return/leaf-child-relation-identity"));
         }

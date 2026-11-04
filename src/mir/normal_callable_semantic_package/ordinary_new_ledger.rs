@@ -76,8 +76,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 && relation.field() == store.field()
                 && relation.constructor_source().same_as(constructor)
                 && relation.constructor_owner() == *owner
-                && relation.formal_binding() == *binding
-                && relation.formal_ordinal() == formal.ordinal())
+                && relation.formal_binding() == Some(*binding)
+                && relation.formal_ordinal() == Some(formal.ordinal()))
             .collect();
         for relation in &relations {
             if relation.field().object() != row.object()

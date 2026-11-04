@@ -28,8 +28,9 @@ impl FinalizedObjectReturnFieldSupportV1 {
         hakorune_mir_defs::CanonicalFieldRefV1, hakorune_mir_defs::CanonicalObjectIdV1, u32, u32,
     ), String> {
         let source = self.sources.first().ok_or_else(|| freeze("object-return/field-support-empty"))?;
-        Ok((source.relation.field(), source.relation.child(),
-            source.relation.formal_ordinal(), source.ordinal))
+        let formal_ordinal = source.relation.formal_ordinal()
+            .ok_or_else(|| freeze("object-return/field-support-provider-child"))?;
+        Ok((source.relation.field(), source.relation.child(), formal_ordinal, source.ordinal))
     }
     pub(in crate::mir) fn entry(&self) -> ValueId { self.entry }
     pub(in crate::mir) fn copies(&self) -> &[(BasicBlockId, MirInstruction)] { &self.copies }

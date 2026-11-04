@@ -38,10 +38,10 @@ fn child_relation_real_page_heap_pins_all_sites_and_retains_prefix_failures() {
     let mut exact_frontiers = 0;
     for relation in &relations {
         assert_eq!(relation.field().declaration_ordinal(), 2);
-        assert_eq!(relation.formal_ordinal(), 2);
+        assert_eq!(relation.formal_ordinal(), Some(2));
         assert_eq!(
-            relation.formal_binding().owner(),
-            relation.constructor_owner()
+            relation.formal_binding().map(|binding| binding.owner()),
+            Some(relation.constructor_owner())
         );
         let mut argument = relation.outer().site().node().segments().to_vec();
         argument.push(P::Argument(2));
@@ -447,7 +447,7 @@ fn child_relation_full_facade_does_not_duplicate_callee_constructions() {
 fn child_relation_declared_formal_retains_null_and_anchor_provenance_only() {
     let facts = facts(&source("wrap(h: Token) { return new Holder(h) }"));
     let relation = facts.construction_child_relations().next().unwrap();
-    assert_eq!(relation.formal_ordinal(), 0);
+    assert_eq!(relation.formal_ordinal(), Some(0));
     assert_eq!(relation.witnesses().len(), 2);
     for witness in relation.witnesses() {
         assert!(matches!(
@@ -652,4 +652,28 @@ fn returned_field_source_closes_original_initializer_dag_and_refuses_incomplete_
             }
         });
     }
+}
+
+#[test]
+fn birth_constructed_child_relation_has_no_formal_and_a_fresh_witness() {
+    let package = issue(
+        "box Leaf { value: i64 birth(value) { me.value = value } }
+        box Node { next: Leaf?
+            birth(v) { me.next = new Leaf(1) }
+            check(): i64 { if me.next == null { return 7 } return 5 } }
+        static box Main { main() { local n = new Node(5) return n.check() } }",
+    )
+    .expect("birth-constructed child is source-admitted");
+    let facts = &package.ordinary_new_claim_ledger.callable_result_classes;
+    let relations: Vec<_> = facts.construction_child_relations().collect();
+    let [relation] = relations.as_slice() else { panic!("one relation, got {}", relations.len()) };
+    assert_eq!(relation.formal_binding(), None);
+    assert_eq!(relation.formal_ordinal(), None);
+    assert!(!relation.requires_argument_loan_v1(), "a Birth-built child needs no argument loan");
+    assert!(!relation.is_unqualified_dynamic_v1());
+    let [witness] = relation.witnesses() else { panic!("one witness") };
+    assert!(matches!(witness.origin(), ResultValueOriginV1::Fresh(class) if class.as_ref() == "Leaf"));
+    assert!(matches!(witness.step(), ResultWitnessStepV1::FreshConstruction));
+    // The relation's own writer evidence is the Birth's `new`, never a Parameter store.
+    assert!(relation.provided_field_source_v1("Node").is_ok());
 }

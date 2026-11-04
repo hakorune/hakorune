@@ -143,9 +143,9 @@ impl FinalizedRootSourceHandoffV1 {
                 if store.field() != relation.field() { return false; }
                 match (relation.is_unqualified_dynamic_v1(), store.rhs()) {
                     (false, ConstructionStoreRhsV1::Parameter { binding, provided: Some(child), .. }) =>
-                        *binding == relation.formal_binding() && *child == received.object,
+                        Some(*binding) == relation.formal_binding() && *child == received.object,
                     (true, ConstructionStoreRhsV1::Parameter { binding, provided: None, .. })
-                        if *binding == relation.formal_binding() => {
+                        if Some(*binding) == relation.formal_binding() => {
                             matches!(plan.store_execution_v1(*index).map(|execution| execution.mode()),
                                 Some(crate::mir::instruction::FieldSetModeV1::DynamicValue(contract))
                                     if contract.intent() == crate::mir::instruction::DynamicFieldWriteIntentV1::Initialize
@@ -159,7 +159,7 @@ impl FinalizedRootSourceHandoffV1 {
                 }
             }).count();
             if relation.outer() != actual.site() || relation.actual().owner() != binding.owner()
-                || relation.actual().site() != source.site() || relation.formal_ordinal() != ordinal
+                || relation.actual().site() != source.site() || relation.formal_ordinal() != Some(ordinal)
                 || relation.field().object() != outer.object || relation.child() != received.object
                 || relation.constructor_owner() != *owner || !relation.constructor_source().same_as(constructor)
                 || relation_store_count != 1
