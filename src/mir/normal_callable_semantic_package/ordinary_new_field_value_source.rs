@@ -101,8 +101,8 @@ impl DeclaredFieldValueSourceV1 {
             || plan.object() != self.field.object()
         { return Err(Issue::ConstructorIdentity); }
         let store = plan.stores().get(reference.store_ordinal).ok_or(Issue::StoreIdentity)?;
-        if store.field() != self.field || store.assignment() != write.assignment()
-            || store.receiver_site() != write.receiver_site()
+        if store.field() != self.field || store.assignment() != Some(write.assignment())
+            || store.receiver_site() != Some(write.receiver_site())
             || Some(store.receiver_binding()) != write.receiver()
         { return Err(Issue::StoreIdentity); }
         Ok(Some(store))
@@ -112,32 +112,71 @@ impl DeclaredFieldValueSourceV1 {
 /// A constant initializer is a field source, never a forwarded formal loan.
 #[derive(Debug, Clone)]
 pub(crate) struct NullFieldInitializationSourceV1 {
-    source: Rc<DeclaredFieldValueSourceV1>,
+    source: NullFieldValueOriginV1,
     construction: Rc<crate::mir::normal_callable_semantic_package::instance_construction::ConstructionSourceStructureV1>,
     store: usize,
 }
+#[derive(Debug, Clone)]
+enum NullFieldValueOriginV1 {
+    Assignment(Rc<DeclaredFieldValueSourceV1>),
+    Declaration { inventory: Rc<OriginalFieldWriterInventoryV1>,
+        initialization: Rc<crate::mir::normal_callable_semantic_package::instance_constructor_initialization::NullableConstructionInitializationV1> },
+}
+impl PartialEq for NullFieldValueOriginV1 {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Assignment(a), Self::Assignment(b)) => Rc::ptr_eq(a, b),
+            (Self::Declaration { inventory: a, initialization: ai }, Self::Declaration { inventory: b, initialization: bi }) =>
+                Rc::ptr_eq(a, b) && Rc::ptr_eq(ai, bi),
+            _ => false,
+        }
+    }
+}
+impl OriginalFieldWriterInventoryV1 {
+    fn corroborates_unwritten_field_v1(&self, class: &str, name: &str) -> bool {
+        !self.opaque && !self.value_incomplete && !self.unattributed_fields.contains(name)
+            && !self.writes.iter().any(|write| write.field() == name
+                && (write.owner_box() == Some(class) || write.owner_box().is_none() || !write.is_attributed()))
+    }
+}
 impl PartialEq for NullFieldInitializationSourceV1 {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.source, &other.source) && Rc::ptr_eq(&self.construction, &other.construction)
+        self.source == other.source && Rc::ptr_eq(&self.construction, &other.construction)
             && self.store == other.store
     }
 }
 impl Eq for NullFieldInitializationSourceV1 {}
 impl NullFieldInitializationSourceV1 {
     pub(crate) fn same_inventory(&self, inventory: &Rc<OriginalFieldWriterInventoryV1>) -> bool {
-        Rc::ptr_eq(&self.source.inventory, inventory)
+        match &self.source {
+            NullFieldValueOriginV1::Assignment(source) => Rc::ptr_eq(&source.inventory, inventory),
+            NullFieldValueOriginV1::Declaration { inventory: original, .. } => Rc::ptr_eq(original, inventory),
+        }
     }
     pub(crate) fn recheck(&self, field: CanonicalFieldRefV1, child: hakorune_mir_defs::CanonicalObjectIdV1, name: &str) -> bool {
         let Some(store) = self.construction.stores().get(self.store) else { return false; };
-        let mut writers = self.source.writers();
-        let Some(writer) = writers.next() else { return false; };
-        writers.next().is_none() && writer.field() == name && self.source.field() == field
-            && store.field() == field && store.assignment() == writer.assignment()
-            && store.receiver_site() == writer.receiver_site()
-            && Some(store.receiver_binding()) == writer.receiver()
-            && self.construction.constructor().is_some_and(|(source, owner)|
-                writer.birth_source() == Some(source) && *owner == writer.owner())
-            && matches!(store.rhs(), crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::Null { child: actual } if *actual == child)
+        if store.field() != field || !matches!(store.rhs(),
+            crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::Null { child: actual } if *actual == child) {
+            return false;
+        }
+        match &self.source {
+            NullFieldValueOriginV1::Assignment(source) => {
+                let mut writers = source.writers();
+                let Some(writer) = writers.next() else { return false; };
+                writers.next().is_none() && writer.field() == name && source.field() == field
+                    && store.assignment() == Some(writer.assignment()) && store.receiver_site() == Some(writer.receiver_site())
+                    && Some(store.receiver_binding()) == writer.receiver()
+                    && self.construction.constructor().is_some_and(|(id, owner)| writer.birth_source() == Some(id) && *owner == writer.owner())
+            }
+            NullFieldValueOriginV1::Declaration { inventory, initialization } => {
+                let crate::mir::normal_callable_semantic_package::ConstructionInitOriginV1::Declaration { source, field: actual } = store.origin()
+                    else { return false; };
+                Rc::ptr_eq(source, initialization) && *actual == field
+                    && self.construction.constructor().is_some_and(|(_, owner)|
+                        initialization.declaration_default(*owner, field, child, name))
+                    && inventory.corroborates_unwritten_field_v1(initialization.parent_class(), name)
+            }
+        }
     }
 }
 impl DeclaredFieldValueSourceV1 {
@@ -157,8 +196,44 @@ impl DeclaredFieldValueSourceV1 {
         let crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::Null { child } = store.rhs() else { return None; };
         let construction = birth.construction_source().as_ref().ok()?;
         let ordinal = construction.stores().iter().position(|row| std::ptr::eq(row, store))?;
-        let proof = NullFieldInitializationSourceV1 { source: Rc::clone(self), construction: Rc::clone(construction), store: ordinal };
+        let proof = NullFieldInitializationSourceV1 { source: NullFieldValueOriginV1::Assignment(Rc::clone(self)), construction: Rc::clone(construction), store: ordinal };
         proof.recheck(self.field(), *child, writer.field()).then_some(proof)
+    }
+}
+
+impl NullFieldInitializationSourceV1 {
+    pub(crate) fn declaration_default_v1(constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+        class: &str, name: &str, field: CanonicalFieldRefV1, child: hakorune_mir_defs::CanonicalObjectIdV1) -> Option<Self> {
+        let mut births = constructors.rows().iter().filter(|row| row.kind() == ConstructorSourceKindV1::Birth && row.box_name() == class);
+        let birth = births.next()?;
+        if births.next().is_some() { return None; }
+        let construction = birth.construction_source().as_ref().ok()?;
+        let (store, original) = construction.stores().iter().enumerate().find(|(_, row)| row.field() == field)?;
+        let crate::mir::normal_callable_semantic_package::ConstructionInitOriginV1::Declaration { source, .. } = original.origin()
+            else { return None; };
+        if source.parent_class() != class { return None; }
+        let proof = Self { source: NullFieldValueOriginV1::Declaration {
+            inventory: Rc::clone(constructors.original_field_writers_v1()), initialization: Rc::clone(source),
+        }, construction: Rc::clone(construction), store };
+        proof.recheck(field, child, name).then_some(proof)
+    }
+}
+
+pub(super) fn add_declaration_null_residences_v1(
+    inventory: &Rc<OriginalFieldWriterInventoryV1>,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1, residences: &mut OwnedFieldResidencesV1,
+) {
+    if !Rc::ptr_eq(inventory, constructors.original_field_writers_v1()) { return; }
+    for birth in constructors.rows() {
+        let Ok(plan) = birth.construction_source() else { continue; };
+        for store in plan.stores() {
+            let crate::mir::normal_callable_semantic_package::ConstructionInitOriginV1::Declaration { source, field } = store.origin()
+                else { continue; };
+            let Some(row) = source.field(*field) else { continue; };
+            if NullFieldInitializationSourceV1::declaration_default_v1(constructors, source.parent_class(), &row.name, *field, row.child).is_some() {
+                residences.insert((source.parent_class().into(), row.name.clone()), OwnedFieldResidenceV1::Null);
+            }
+        }
     }
 }
 
@@ -260,10 +335,10 @@ fn issue_one(
                 || construction.object() != field.object()
             { return Err(Issue::ConstructorIdentity); }
             let mut stores = construction.stores().iter().enumerate()
-                .filter(|(_, store)| store.assignment() == write.assignment());
+                .filter(|(_, store)| store.assignment() == Some(write.assignment()));
             let (ordinal, store) = stores.next().ok_or(Issue::StoreIdentity)?;
             if stores.next().is_some() || store.field() != field
-                || store.receiver_site() != write.receiver_site()
+                || store.receiver_site() != Some(write.receiver_site())
             || Some(store.receiver_binding()) != write.receiver()
             { return Err(Issue::StoreIdentity); }
             Some(BirthStoreSourceRefV1 { constructor: source.clone(), store_ordinal: ordinal })
@@ -280,7 +355,7 @@ fn issue_one(
             if writers.iter().filter(|index| {
                 let write = &inventory.writes[**index];
                 write.birth_source() == Some(constructor.source_id())
-                    && write.assignment() == store.assignment()
+                    && store.assignment() == Some(write.assignment())
             }).count() != 1 { return Err(Issue::MissingWriter); }
         }
     }

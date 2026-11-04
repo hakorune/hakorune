@@ -9,7 +9,7 @@
 
 use super::CallableSemanticLoweringState;
 use crate::mir::normal_callable_semantic_package::{
-    ConstructionEligibilityV1, ConstructionPlanV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
+    ConstructionInitKeyV1, ConstructionEligibilityV1, ConstructionPlanV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
 use crate::mir::resolved_semantics::{HomeDemandV1, SourceNodeSiteV1};
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
@@ -43,7 +43,7 @@ pub(super) enum ConstructionState {
         /// Original semantic order; neither field ordinal nor map iteration order.
         steps: Box<[ConstructionSourceStepV1]>,
         next_step: usize,
-        stores: BTreeMap<SourceNodeSiteV1, SelectedConstructionStore>,
+        stores: BTreeMap<ConstructionInitKeyV1, SelectedConstructionStore>,
         /// Actual affine Call packets, in the same source-step sequence.
         calls: Vec<child_call::ConstructionCallEmissionV1>,
         frame: Option<(ValueId, BasicBlockId)>,
@@ -150,7 +150,7 @@ pub(super) struct ProviderBirthEmission {
 #[derive(Debug)]
 pub(super) struct SelectedConstructionStore {
     field: CanonicalFieldRefV1,
-    receiver_site: crate::mir::resolved_semantics::SourceExprSiteV1,
+    receiver_site: Option<crate::mir::resolved_semantics::SourceExprSiteV1>,
     receiver_binding: crate::mir::resolved_semantics::BindingRefV1,
     rhs: ConstructionStoreRhsV1,
     mode: crate::mir::instruction::FieldSetModeV1,
@@ -164,7 +164,7 @@ pub(super) struct SelectedConstructionStore {
 /// Physical loan result, not a second semantic receipt or reusable plan.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct TakenConstructionStore {
-    site: SourceNodeSiteV1,
+    site: ConstructionInitKeyV1,
     field: CanonicalFieldRefV1,
     receiver: ValueId,
     rhs: ConstructionStoreRhsV1,
@@ -177,12 +177,12 @@ impl TakenConstructionStore {
 }
 
 impl ConstructionState {
-    fn require_next_store(&self, site: &SourceNodeSiteV1) -> Result<(), String> {
+    fn require_next_store(&self, site: &ConstructionInitKeyV1) -> Result<(), String> {
         let Self::Selected { steps, next_step, stores, completed, .. } = self else {
             return Err(fault("step-unselected"));
         };
         if *completed { return Err(fault("take-after-completion")); }
-        if !matches!(steps.get(*next_step), Some(ConstructionSourceStepV1::Store(expected)) if expected.node() == site) {
+        if !matches!(steps.get(*next_step), Some(ConstructionSourceStepV1::Store(expected)) if expected == site) {
             return Err(fault("step-order-or-kind"));
         }
         if !stores.get(site).is_some_and(|store| matches!(store.progress, StoreProgress::Pending | StoreProgress::Taken)) {
@@ -196,7 +196,7 @@ impl ConstructionState {
         let mut seen = std::collections::BTreeSet::new();
         for step in steps.iter() {
             if let ConstructionSourceStepV1::Store(site) = step {
-                if !seen.insert(site.node()) || !stores.contains_key(site.node()) {
+                if !seen.insert(site) || !stores.contains_key(site) {
                     return Err(fault("step-store-coverage"));
                 }
             }
@@ -293,7 +293,7 @@ impl CallableSemanticLoweringState {
         }).collect();
         if original_stores.len() != plan.stores().len()
             || original_stores.iter().zip(plan.stores()).any(|(site, store)|
-                *site != store.assignment().statement_site()) {
+                **site != store.key()) {
             return Err(fault("source-store-order-drift"));
         }
         let mut stores = BTreeMap::new();
@@ -309,10 +309,10 @@ impl CallableSemanticLoweringState {
             }
             if stores
                 .insert(
-                    store.assignment().statement_site().node().clone(),
+                    store.key(),
                     SelectedConstructionStore {
                         field: store.field(),
-                        receiver_site: store.receiver_site().clone(),
+                        receiver_site: store.receiver_site().cloned(),
                         receiver_binding: store.receiver_binding(),
                         rhs: store.rhs().clone(),
                         mode: execution.mode(),
@@ -337,8 +337,26 @@ impl CallableSemanticLoweringState {
     }
 
     pub(in crate::mir::builder) fn take_construction_store(
+        &mut self, site: &SourceNodeSiteV1,
+    ) -> Result<Option<TakenConstructionStore>, String> {
+        self.take_construction_initialization(&ConstructionInitKeyV1::Statement(site.clone()))
+    }
+
+    pub(in crate::mir::builder) fn take_next_declaration_construction_store(
         &mut self,
-        site: &SourceNodeSiteV1,
+    ) -> Result<Option<TakenConstructionStore>, String> {
+        let key = match &self.construction {
+            ConstructionState::Selected { steps, next_step, .. } => match steps.get(*next_step) {
+                Some(ConstructionSourceStepV1::Store(key @ ConstructionInitKeyV1::Declaration(_))) => key.clone(),
+                _ => return Ok(None),
+            },
+            _ => return Ok(None),
+        };
+        self.take_construction_initialization(&key)
+    }
+
+    fn take_construction_initialization(
+        &mut self, site: &ConstructionInitKeyV1,
     ) -> Result<Option<TakenConstructionStore>, String> {
         if matches!(self.construction, ConstructionState::Transferred) {
             return Err(fault("state-transferred"));
@@ -378,7 +396,11 @@ impl CallableSemanticLoweringState {
         let receiver = self
             .value_for_exact_binding(self.owner, binding)
             .map_err(|error| error.to_string())?;
-        self.observe_variable_site(receiver_site.node(), receiver_binding, receiver)?;
+        if let Some(receiver_site) = receiver_site {
+            self.observe_variable_site(receiver_site.node(), receiver_binding, receiver)?;
+        } else if !matches!(site, ConstructionInitKeyV1::Declaration(expected) if *expected == field) {
+            return Err(fault("declaration-source-drift"));
+        }
         for read_site in me_reads.iter() {
             self.observe_variable_site(read_site.node(), receiver_binding, receiver)?;
         }

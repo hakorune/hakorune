@@ -5,7 +5,7 @@
 //! Fault, even when every field demand is Trivial. A store commits only on its
 //! Normal edge. No MIR type, event absence or non-escape result issues this plan.
 
-use super::{OwnedFieldChildKindV1, OwnedFieldChildV1};
+use super::{ConstructionInitKeyV1, ConstructionInitOriginV1, OwnedFieldChildKindV1, OwnedFieldChildV1};
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -100,9 +100,8 @@ impl ProviderConstructionChildV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructionStoreV1 {
-    assignment: ResolvedAssignmentSourceV1,
+    origin: ConstructionInitOriginV1,
     field: CanonicalFieldRefV1,
-    receiver_site: SourceExprSiteV1,
     receiver_binding: BindingRefV1,
     rhs: ConstructionStoreRhsV1,
     mode: Result<crate::mir::instruction::FieldSetModeV1, ConstructionUnavailableV1>,
@@ -117,17 +116,15 @@ pub(crate) struct ConstructionStoreV1 {
 }
 
 impl ConstructionStoreV1 {
-    pub(crate) const fn assignment(&self) -> &ResolvedAssignmentSourceV1 {
-        &self.assignment
-    }
+    pub(crate) fn assignment(&self) -> Option<&ResolvedAssignmentSourceV1> { self.origin.assignment() }
+    pub(crate) fn key(&self) -> ConstructionInitKeyV1 { self.origin.key() }
+    pub(crate) fn origin(&self) -> &ConstructionInitOriginV1 { &self.origin }
 
     pub(crate) const fn field(&self) -> CanonicalFieldRefV1 {
         self.field
     }
 
-    pub(crate) const fn receiver_site(&self) -> &SourceExprSiteV1 {
-        &self.receiver_site
-    }
+    pub(crate) fn receiver_site(&self) -> Option<&SourceExprSiteV1> { self.origin.receiver_site() }
 
     pub(crate) const fn receiver_binding(&self) -> BindingRefV1 {
         self.receiver_binding
@@ -229,7 +226,7 @@ pub(super) fn issue_construction_source_v1(
         CanonicalObjectIdV1,
     )],
     definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
-    nullable_initialization: Option<&super::instance_constructor_initialization::NullableConstructionInitializationV1>,
+    nullable_initialization: Option<&Rc<super::instance_constructor_initialization::NullableConstructionInitializationV1>>,
 ) -> ConstructionSourceEligibilityV1 {
     use ConstructionUnavailableV1 as U;
     // Parser normalization moves declared defaults into Birth stores. The
@@ -370,6 +367,19 @@ pub(super) fn issue_construction_source_v1(
     let mut initialized = BTreeSet::new();
     let mut statements = BTreeSet::new();
     let mut expressions = BTreeSet::new();
+    if let Some(initialization) = nullable_initialization {
+        for row in initialization.fields().iter().filter(|row| row.assignment.is_none()) {
+            if !initialized.insert(row.field.declaration_ordinal() as usize) { return Err(U::SourceRelationMissing); }
+            let origin = ConstructionInitOriginV1::Declaration { source: Rc::clone(initialization), field: row.field };
+            steps.push(ConstructionSourceStepV1::Store(origin.key()));
+            stores.push(ConstructionStoreV1 {
+                origin, field: row.field, receiver_binding: *receiver,
+                rhs: ConstructionStoreRhsV1::Null { child: row.child },
+                mode: Ok(crate::mir::instruction::FieldSetModeV1::ExactSlot),
+                fault_discharge: Box::new([]), me_reads: Box::new([]),
+            });
+        }
+    }
     for index in 0..body.statements().len() {
         let statement = input
             .source()
@@ -624,11 +634,10 @@ pub(super) fn issue_construction_source_v1(
             }
         } else { Ok(Mode::ExactSlot) };
         let fault_discharge = body::prior_owned_fields_v1(&stores);
-        steps.push(ConstructionSourceStepV1::Store(statement.site().clone()));
+        let origin = ConstructionInitOriginV1::Assignment { assignment: row.clone(), receiver_site: object.clone() };
+        steps.push(ConstructionSourceStepV1::Store(origin.key()));
         stores.push(ConstructionStoreV1 {
-            assignment: row.clone(),
-            field,
-            receiver_site: object.clone(),
+            origin, field,
             receiver_binding: *receiver,
             rhs,
             mode,
@@ -643,7 +652,7 @@ pub(super) fn issue_construction_source_v1(
             .statements()
             .iter()
             .any(|row| !statements.contains(row.site()))
-        || shape.assignment_sources().len() != stores.len()
+        || shape.assignment_sources().len() != stores.iter().filter(|store| store.assignment().is_some()).count()
         || function
             .expression_sites()
             .any(|site| !expressions.contains(site))

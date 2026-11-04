@@ -4,11 +4,38 @@ use std::rc::Rc;
 use crate::ast::{ASTNode, TypeReferenceV1};
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, FunctionOwnerIdV1,
     ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1, ResolvedAssignmentTargetV1,
-    SourceNodeSiteV1, SourcePathSegmentV1 as Segment, VerifiedResolvedBodyShapeInventoryV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1 as Segment, VerifiedResolvedBodyShapeInventoryV1,
     VerifiedResolvedFunctionV1};
 use crate::parser::ParserOrdinaryBoxSourceRowV1;
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use super::instance_constructor_non_escape::BirthReceiverUsesV1;
+
+/// Statement evaluation and declaration initialization are distinct origins.
+/// A declaration key never fabricates a resolver statement or expression site.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) enum ConstructionInitKeyV1 {
+    Statement(SourceNodeSiteV1),
+    Declaration(CanonicalFieldRefV1),
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ConstructionInitOriginV1 {
+    Assignment { assignment: ResolvedAssignmentSourceV1, receiver_site: SourceExprSiteV1 },
+    Declaration { source: Rc<NullableConstructionInitializationV1>, field: CanonicalFieldRefV1 },
+}
+impl ConstructionInitOriginV1 {
+    pub(crate) fn key(&self) -> ConstructionInitKeyV1 {
+        match self {
+            Self::Assignment { assignment, .. } => ConstructionInitKeyV1::Statement(assignment.statement_site().node().clone()),
+            Self::Declaration { field, .. } => ConstructionInitKeyV1::Declaration(*field),
+        }
+    }
+    pub(crate) fn assignment(&self) -> Option<&ResolvedAssignmentSourceV1> {
+        match self { Self::Assignment { assignment, .. } => Some(assignment), Self::Declaration { .. } => None }
+    }
+    pub(crate) fn receiver_site(&self) -> Option<&SourceExprSiteV1> {
+        match self { Self::Assignment { receiver_site, .. } => Some(receiver_site), Self::Declaration { .. } => None }
+    }
+}
 
 #[derive(Debug, Clone, Copy)]
 pub(super) enum NullableInitializationReasonV1 {
@@ -35,6 +62,7 @@ impl std::fmt::Debug for NullableInitializationIssueV1 {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct NullableFieldInitializationV1 {
+    pub(super) name: Box<str>,
     pub(super) field: CanonicalFieldRefV1,
     pub(super) child: CanonicalObjectIdV1,
     pub(super) declared: TypeReferenceV1,
@@ -47,6 +75,13 @@ pub(crate) struct NullableConstructionInitializationV1 {
     fields: Box<[NullableFieldInitializationV1]>,
 }
 impl NullableConstructionInitializationV1 {
+    pub(super) fn parent_class(&self) -> &str { self.source.name() }
+    pub(super) fn declaration_default(&self, owner: FunctionOwnerIdV1, field: CanonicalFieldRefV1,
+        child: CanonicalObjectIdV1, name: &str) -> bool {
+        self.owner == owner && self.field(field).is_some_and(|row|
+            row.child == child && row.name.as_ref() == name && row.assignment.is_none())
+    }
+
     pub(super) fn matches(&self, source: &ParserOrdinaryBoxSourceRowV1, owner: FunctionOwnerIdV1) -> bool {
         self.source.same_source_as(source) && self.owner == owner
     }
@@ -116,7 +151,7 @@ pub(super) fn issue_nullable_initialization_v1(
             }
             Some((*write).clone())
         } else { None };
-        fields.push(NullableFieldInitializationV1 { field, child,
+        fields.push(NullableFieldInitializationV1 { name: declaration.name.clone().into(), field, child,
             declared: TypeReferenceV1::parse(declaration.declared_type_name.as_deref().expect("declared nullable type"))
                 .expect("same structural query already parsed this declaration"), assignment });
     }

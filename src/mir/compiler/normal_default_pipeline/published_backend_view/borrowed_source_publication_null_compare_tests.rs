@@ -239,13 +239,15 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
             check(): i64 { if me.left == null { return me.value } return me.value } }
             static box Main { main() { local a = new TreeNode(null, null, 6)
                 local n = new TreeNode(a, null, 5) local v = n.check() return v } }";
-        for (text, count, callee_name, file) in [
-            ("box Leaf { value: i64 birth() { me.value = 7 } }
+        let initialized = "box Leaf { value: i64 birth() { me.value = 7 } }
               box Parent { empty: Leaf? child: Leaf? value: i64
                 birth() { me.empty = null me.child = new Leaf() me.value = 5 }
                 check(): i64 { if me.empty == null { return me.value } return me.value } }
-              static box Main { main() { local p = new Parent() return p.check() } }",
-                1, "Parent.check/0", "hako-issued-null-field-initialization.json"),
+              static box Main { main() { local p = new Parent() return p.check() } }";
+        let declaration_default = initialized.replace("me.empty = null ", "");
+        for (text, count, callee_name, file) in [
+            (initialized, 1, "Parent.check/0", "hako-issued-null-field-initialization.json"),
+            (declaration_default.as_str(), 1, "Parent.check/0", "hako-issued-null-field-default.json"),
             (text, 1, "TreeNode.check/0", "hako-issued-typed-null-field-borrow.json"),
             (include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/apps/ownership-tree-typed-min/main.hako")),
                 3, "TreeNode.itemCheck/0", "hako-issued-typed-recursive-field-borrow.json"),
@@ -263,7 +265,7 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
                         .filter(|op| op["kind"] == "object_field_borrow").collect();
                     assert_eq!(borrows.len(), count, "{wire}");
                     assert_eq!(borrows.iter().filter(|op| op["nullable"] == true).count(), 1, "{wire}");
-                    if file != "hako-issued-null-field-initialization.json" {
+                    if callee_name.starts_with("TreeNode.") {
                         assert_eq!(borrows[0]["object_id"], borrows[0]["expected_object_id"], "{wire}");
                     }
                     for borrow in borrows {

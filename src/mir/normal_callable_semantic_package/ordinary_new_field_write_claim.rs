@@ -737,6 +737,7 @@ impl OriginalFieldWriterInventoryV1 {
                 object_classes.insert((owner_box, field), class.clone());
             }
         }
+        value_source::add_declaration_null_residences_v1(&self, constructors, &mut residences);
         let writers = self;
         let object_classes = Rc::new(object_classes.into_iter().map(|(key, class)| {
             let declaration = ordinary_box_coverage.row_for(&key.0).ok().flatten()

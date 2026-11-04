@@ -136,6 +136,9 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    pub(super) fn original_field_writers_v1(&self) -> &std::rc::Rc<super::ordinary_new_coseal::OriginalFieldWriterInventoryV1> {
+        &self.field_writers
+    }
     /// Reuse original writer/source correspondences; later qualified claims do
     /// not mutate this catalog. A foreign inventory must be issued separately.
     pub(super) fn original_field_value_sources_v1(
@@ -578,7 +581,7 @@ impl CapturedInstanceConstructorSourcesV1 {
                             .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                         issue_construction_source_v1(source.object, &source.box_source, declaration,
                             Some((&source.source_id, input)), Some((caller, provider_static_arguments.as_ref())),
-                            &birth_rows, &object_sources, &object_definitions, source.nullable_initialization.as_deref())
+                            &birth_rows, &object_sources, &object_definitions, source.nullable_initialization.as_ref())
                     } else {
                         Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
                     };

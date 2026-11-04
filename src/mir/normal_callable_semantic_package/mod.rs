@@ -32,6 +32,7 @@ mod instance_construction;
 mod instance_constructor_loan;
 mod instance_constructor_non_escape;
 mod instance_constructor_initialization;
+pub(crate) use instance_constructor_initialization::{ConstructionInitKeyV1, ConstructionInitOriginV1};
 mod instance_constructor_semantic;
 pub(crate) use instance_constructor_semantic::provider_source::{ProviderStaticArgumentSourceV1, PreparedProviderStaticArgumentV1};
 mod instance_entry_home;

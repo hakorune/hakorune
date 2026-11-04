@@ -1,9 +1,9 @@
 date = "2026-11-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "step3a nullable: explicit Null install/read landed; declaration defaults remain"
+current_blocker_token = "step3a nullable closeout: explicit-Birth defaults landed; no-birth remains; edit proposal only"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8. Shared reads, T? straightline formal/new/literal-null install+reads and source-once diagnostics landed; declaration defaults remain; five-hour goal.
-Null uses original writer/store and the same inventory retained in Facts, no formal loan or Home. C checks original ConstNull, exact tuple, one install and separate Null/Fresh Fault cleanup; no new opcode/public ABI/runtime change.
-Optimized target/quick CLI/runtime + rebuilt C shim: Null EXEs exit5/5, controls5/7/5, fixed8/8, cohort1809 PASS/known115 exact FAIL names, focused and C family PASS. This part production +177/test +59.
-Next: common declaration/assignment Init origin and real entry receiver for declaration-default Null. No fake AST/site, post-publication replacement or branched acceptance; public contract/ABI or weaker safety stops implementation.
-Report typed i64 birth publication and frozen edit item4b without implementation. Two stashes/unrelated inventory preserved; Hako/19 shapes excluded; close/report at five hours.
+APP-boxtorrent-mini fixed8/8. Bounded nullable closeout: Shared reads, T? formal/new/literal-null and explicit-Birth declaration defaults/read, source-once diagnostics landed; no-birth remains reported.
+Declaration/statement Init origin+key use original source and the real entry receiver, no fake AST/site/owner/Home. Null and Fresh/Forward Normal/Fault and independent validation retained; no new public opcode/ABI/runtime.
+Final optimized target/quick CLI/runtime + matching C shim: defaults exit5/5, controls5/7/5/5/5, fixed8/8, cohort1809 PASS/known115 exact FAIL names, check/focused and C family PASS. This part production +155/test +4.
+No-birth needs original New initialization and exact incomplete-storage reclaim/use/cycle proofs; current named refusal retained. Typed i64 Birth publication and frozen edit item4b proposals/costs are in the card, report only.
+Stop after commit/push and final report within five hours. No edit/take-place/post-publication/branched acceptance or Hako/19-shape work selected; two stashes and unrelated inventory preserved.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
-    ConstructionStoreRhsV1, ConstructionUnavailableV1,
+    ConstructionInitKeyV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1,
@@ -65,13 +65,13 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     let plan = package.instance_constructors().rows()[0].construction().as_ref().unwrap().clone();
     let mut state = ConstructionState::Selected {
         plan, parameters: Box::new([]),
-        steps: vec![ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()))].into_boxed_slice(),
+        steps: vec![ConstructionSourceStepV1::Store(ConstructionInitKeyV1::Statement(site.clone()))].into_boxed_slice(),
         next_step: 1, calls: Vec::new(),
         stores: BTreeMap::from([(
-            site.clone(),
+            ConstructionInitKeyV1::Statement(site.clone()),
             SelectedConstructionStore {
                 field,
-                receiver_site,
+                receiver_site: Some(receiver_site),
                 receiver_binding,
                 rhs: ConstructionStoreRhsV1::LiteralI64(7),
                 mode: crate::mir::instruction::FieldSetModeV1::ExactSlot,
@@ -95,7 +95,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     // The same sole validator rejects the retired Provided release tail.
     let child = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(1).unwrap();
     if let ConstructionState::Selected { stores, .. } = &mut state {
-        stores.get_mut(&site).unwrap().rhs = ConstructionStoreRhsV1::Parameter {
+        stores.get_mut(&ConstructionInitKeyV1::Statement(site.clone())).unwrap().rhs = ConstructionStoreRhsV1::Parameter {
             site: crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone()),
             binding: receiver_binding, provided: Some(child),
         };
@@ -117,7 +117,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         assert!(state.validate_bindings(&drift).is_err(), "extra Provided release must reject");
     }
     if let ConstructionState::Selected { stores, .. } = &mut state {
-        stores.get_mut(&site).unwrap().rhs = ConstructionStoreRhsV1::LiteralI64(7);
+        stores.get_mut(&ConstructionInitKeyV1::Statement(site.clone())).unwrap().rhs = ConstructionStoreRhsV1::LiteralI64(7);
     }
     let mut literal_drift = function.clone();
     literal_drift.blocks.get_mut(&origin).unwrap().instructions[0] = MirInstruction::Const {
@@ -214,10 +214,10 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         fault_frame: frame, normal_landing: second_normal, fault_landing: landing,
     });
     pair.add_block(second_block);
-    let original_step = ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()));
-    let second_step = ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(second_site.clone()));
+    let original_step = ConstructionSourceStepV1::Store(ConstructionInitKeyV1::Statement(site.clone()));
+    let second_step = ConstructionSourceStepV1::Store(ConstructionInitKeyV1::Statement(second_site.clone()));
     if let ConstructionState::Selected { steps, next_step, stores, .. } = &mut state {
-        let original = stores.get(&site).unwrap();
+        let original = stores.get(&ConstructionInitKeyV1::Statement(site.clone())).unwrap();
         let second = SelectedConstructionStore {
             field, receiver_site: original.receiver_site.clone(), receiver_binding,
             rhs: ConstructionStoreRhsV1::LiteralI64(9), mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, fault_discharge: Box::new([]), me_reads: Box::new([]),
@@ -226,7 +226,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                 provider_child: None, discharge: landing,
             },
         };
-        stores.insert(second_site.clone(), second);
+        stores.insert(ConstructionInitKeyV1::Statement(second_site.clone()), second);
         *steps = vec![original_step.clone(), second_step.clone()].into_boxed_slice();
         *next_step = 2;
     }
@@ -237,7 +237,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     if let ConstructionState::Selected { steps, next_step, completed, .. } = &mut state {
         steps.swap(0, 1); *next_step = 0; *completed = false;
     }
-    assert!(state.require_next_store(&second_site).unwrap_err().contains("step-order-or-kind"));
+    assert!(state.require_next_store(&ConstructionInitKeyV1::Statement(second_site.clone())).unwrap_err().contains("step-order-or-kind"));
     if let ConstructionState::Selected { next_step, completed, .. } = &mut state { *next_step = 1; *completed = true; }
     assert!(state.finish().unwrap_err().contains("step-residual"));
     if let ConstructionState::Selected { steps, next_step, .. } = &mut state { *steps = Box::new([]); *next_step = 0; }
@@ -248,7 +248,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     }
     assert!(state.validate_bindings(&pair).unwrap_err().contains("step-store-coverage"));
     if let ConstructionState::Selected { steps, next_step, stores, .. } = &mut state {
-        stores.remove(&second_site); *steps = vec![original_step].into_boxed_slice(); *next_step = 1;
+        stores.remove(&ConstructionInitKeyV1::Statement(second_site.clone())); *steps = vec![original_step].into_boxed_slice(); *next_step = 1;
     }
     let ConstructionState::Selected {
         stores, completed, ..
@@ -257,7 +257,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         unreachable!()
     };
     *completed = false;
-    stores.get_mut(&site).unwrap().progress = StoreProgress::Taken;
+    stores.get_mut(&ConstructionInitKeyV1::Statement(site.clone())).unwrap().progress = StoreProgress::Taken;
     assert!(state.finish().unwrap_err().contains("completion-missing"));
     assert!(state
         .validate_bindings(&function)

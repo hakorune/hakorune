@@ -6,7 +6,7 @@ use crate::mir::function::TypedObjectFieldStorage;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ConstructionSourceStepV1 {
-    Store(SourceStmtSiteV1),
+    Store(ConstructionInitKeyV1),
     StoredChildCall(ConstructionChildCallSourceV1),
 }
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -258,8 +258,8 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
             .iter()
             .all(|store| store.field().object() == plan.object()));
         assert_ne!(
-            plan.stores()[0].assignment().statement_site(),
-            plan.stores()[1].assignment().statement_site()
+            plan.stores()[0].assignment().unwrap().statement_site(),
+            plan.stores()[1].assignment().unwrap().statement_site()
         );
         assert_eq!(
             plan.stores()
@@ -283,8 +283,8 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
         let ConstructionStoreRhsV1::Parameter { site, .. } = parameter.rhs() else {
             panic!("expected parameter RHS at field index {parameter_index}");
         };
-        assert_eq!(site, parameter.assignment().value_site());
-        assert_ne!(parameter.receiver_site(), site);
+        assert_eq!(site, parameter.assignment().unwrap().value_site());
+        assert_ne!(parameter.receiver_site(), Some(site));
         assert!(plan.reclaims_unpublished_outer_storage());
         let row = batch.birth_for(parent, 1).unwrap().unwrap();
         assert_eq!(

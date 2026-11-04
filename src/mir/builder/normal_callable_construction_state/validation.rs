@@ -53,8 +53,8 @@ impl RetainedConstructionValidation {
     ) -> Result<(), String> {
         let ConstructionState::Selected { stores, .. } = &self.construction
             else { return Err(fault("artifact-construction-not-complete")) };
-        let store = stores.get(source.assignment().statement_site().node()).ok_or_else(|| fault("emission-drift"))?;
-        if self.owner != owner || store.field != source.field() || store.receiver_site != *source.receiver_site()
+        let store = stores.get(&source.key()).ok_or_else(|| fault("emission-drift"))?;
+        if self.owner != owner || store.field != source.field() || store.receiver_site != source.receiver_site().cloned()
             || store.receiver_binding != source.receiver_binding() || store.rhs != *source.rhs()
             || source.mode() != Ok(crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize)
             || store.mode != crate::mir::instruction::FieldSetModeV1::DynamicMapInitialize {
@@ -97,8 +97,8 @@ impl RetainedConstructionValidation {
             }
             for (ordinal, source) in plan.stores().iter().enumerate() {
                 let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
-                let store = stores.get(source.assignment().statement_site().node()).ok_or_else(|| fault("source-or-cleanup-contract"))?;
-                if source.field() != store.field || source.receiver_site() != &store.receiver_site
+                let store = stores.get(&source.key()).ok_or_else(|| fault("source-or-cleanup-contract"))?;
+                if source.field() != store.field || source.receiver_site().cloned() != store.receiver_site
                     || source.receiver_binding() != store.receiver_binding || source.rhs() != &store.rhs
                     || source.me_reads() != store.me_reads.as_ref() || execution.mode() != store.mode
                     || execution.fault_discharge() != store.fault_discharge.as_ref() {
@@ -613,7 +613,7 @@ impl ConstructionState {
         for step in steps.iter() {
             let (entry, normal) = match step {
                 ConstructionSourceStepV1::Store(site) => {
-                    let store = stores.get(site.node()).ok_or_else(|| fault("step-store-missing"))?;
+                    let store = stores.get(site).ok_or_else(|| fault("step-store-missing"))?;
                     let StoreProgress::Emitted { block, normal, provider, ref text, .. } = store.progress else {
                         return Err(fault("store-residual"));
                     };

@@ -631,7 +631,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn declared_stored_child_fi
     let child = constructors.object_for(child_source)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
     if let Some(initialization) = constructors.original_field_value_source_v1(parent_class, field_name)
-        .and_then(|source| source.null_initialization_v1(constructors)) {
+        .and_then(|source| source.null_initialization_v1(constructors))
+        .or_else(|| super::super::super::field_write_claim::NullFieldInitializationSourceV1::declaration_default_v1(
+            constructors, parent_class, field_name, field, child)) {
         let source = StoredChildFieldSourceV1 {
             field, child, child_class: class.into(), nullable: true, paired_fields: BTreeSet::from([field]),
             parent_class: parent_class.into(), field_name: field_name.into(), declared: true, paired_all,

@@ -42,7 +42,7 @@ impl CallableSemanticLoweringState {
                 let Some(ConstructionSourceStepV1::StoredChildCall(source)) = steps.get(*next_step) else { return Err(fault("call-step-kind")); };
                 if loan.call() != source || self.receiver != Some(source.receiver_binding())
                     || steps[..*next_step].iter().any(|step| match step {
-                        ConstructionSourceStepV1::Store(site) => !stores.get(site.node())
+                        ConstructionSourceStepV1::Store(site) => !stores.get(site)
                             .is_some_and(|store| matches!(store.progress, StoreProgress::Emitted { .. })),
                         ConstructionSourceStepV1::StoredChildCall(_) => false,
                     })

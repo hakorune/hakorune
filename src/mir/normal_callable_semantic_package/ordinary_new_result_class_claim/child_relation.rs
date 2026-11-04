@@ -394,6 +394,7 @@ fn join_outer(
         {
             continue;
         }
+        let Some(assignment) = store.assignment() else { continue; };
         result.push(SourceConstructionChildRelationV1 {
             outer: outer.clone(),
             field: store.field(),
@@ -405,8 +406,8 @@ fn join_outer(
             formal_ordinal: formal.ordinal(),
             actual,
             witnesses: witnesses.into_boxed_slice(),
-            store: store.assignment().clone(),
-            store_source: fields.original_write_source_v1(*owner, store.assignment().target_site()),
+            store: assignment.clone(),
+            store_source: fields.original_write_source_v1(*owner, assignment.target_site()),
         });
     }
     result

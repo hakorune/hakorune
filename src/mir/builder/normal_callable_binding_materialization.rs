@@ -92,6 +92,12 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
                 .metadata
                 .physical_param_carriers = Some(carriers);
         }
+        // Real instance entry values already exist. Declaration defaults use
+        // this receiver directly; they have no fabricated source read/site.
+        loop {
+            let Some(taken) = ledger.borrow_mut().take_next_declaration_construction_store()? else { break; };
+            ledger.borrow_mut().emit_construction_store(builder, taken, None)?;
+        }
         let owner = ledger.borrow().checked_compare_entry_owner_v1()?;
         if self
             .ordinary_new_claim_ledger

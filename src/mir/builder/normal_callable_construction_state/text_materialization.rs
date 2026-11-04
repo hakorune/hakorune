@@ -25,7 +25,7 @@ impl CallableSemanticLoweringState {
         let store = stores.get(&taken.site).ok_or_else(|| fault("emission-site"))?;
         if store.mode != Mode::DynamicTextInitialize { return Ok(None); }
         let (ordinal, source) = plan.stores().iter().enumerate()
-            .find(|(_, source)| source.assignment().statement_site().node() == &taken.site)
+            .find(|(_, source)| source.key() == taken.site)
             .ok_or_else(|| fault("source-or-cleanup-contract"))?;
         let execution = plan.store_execution_v1(ordinal).filter(|execution| execution.mode() == store.mode)
             .ok_or_else(|| fault("source-or-cleanup-contract"))?;
@@ -175,7 +175,7 @@ impl ConstructionState {
         }
         let mut formals = std::collections::BTreeSet::new();
         for (ordinal, source) in plan.stores().iter().enumerate() {
-            let store = stores.get(source.assignment().statement_site().node()).ok_or_else(|| fault("emission-site"))?;
+            let store = stores.get(&source.key()).ok_or_else(|| fault("emission-site"))?;
             let text = match &store.progress { StoreProgress::Emitted { text, .. } => text.as_ref(), _ => None };
             let execution = plan.store_execution_v1(ordinal).ok_or_else(|| fault("source-or-cleanup-contract"))?;
             if execution.mode() != store.mode { return Err(fault("source-or-cleanup-contract")); }
