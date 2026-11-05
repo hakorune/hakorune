@@ -157,6 +157,38 @@ pub(super) fn check_call_edge(
     }
 }
 
+/// An `I64` Call result must be what the cataloged callee's published signature
+/// declares. The caller's Invoke only names the kind; the callee definition is
+/// the independent authority, so a result kind that disagrees with the callee's
+/// declared return type is drift (the same edge the C shim corroborates).
+pub(super) fn check_call_result(
+    module: &crate::mir::MirModule,
+    function: &MirFunction,
+    block: BasicBlockId,
+    call: &crate::mir::definitions::MirCall,
+    result: crate::mir::instruction::InvokeCallResultKind,
+    edge_policy: CatalogedCallEdgePolicyV1,
+    errors: &mut Vec<VerificationError>,
+) {
+    if matches!(edge_policy, CatalogedCallEdgePolicyV1::Document)
+        || result != crate::mir::instruction::InvokeCallResultKind::I64
+    {
+        return;
+    }
+    let Some((callee, _)) = cataloged_call_target(module, call) else {
+        return;
+    };
+    if callee.signature.return_type != crate::mir::MirType::Integer {
+        errors.push(VerificationError::ControlFlowError {
+            block,
+            reason: format!(
+                "[freeze:contract][mir/invoke/call-result-type-drift] caller={} callee={} result=I64 declared={:?}",
+                function.signature.name, callee.signature.name, callee.signature.return_type
+            ),
+        });
+    }
+}
+
 fn call_argument_drift(
     caller: &MirFunction,
     callee: &MirFunction,

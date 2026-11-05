@@ -115,6 +115,9 @@ pub(super) fn check_module_with_source(
                     } => Some(call),
                     _ => None,
                 };
+                if let MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. } = instruction {
+                    call_edge::check_call_result(module, function, *id, call, *result, edge_policy, &mut errors);
+                }
                 if let Some(call) = call {
                     let slots = loans.remove(&(function.signature.name.clone(), *id, index));
                     check_call_edge(
