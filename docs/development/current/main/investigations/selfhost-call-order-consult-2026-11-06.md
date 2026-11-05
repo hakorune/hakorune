@@ -37,8 +37,11 @@ builder の規模調査は、4 と 5 の間の位置のままです。
 | `if Main.a(1) < 3`、`Main.a(1) + Main.b(2)`、`print(Main.a(1))` | 拒否 `qualified-preflight` |
 | loop の中の `local r = Main.a(i)` | 拒否 `direct-scalar/physical-binding` |
 | `local p = new P()` の後の `Main.a(1)` | 拒否 `static-execution/local-contract` |
-| `a` が `local y = Main.a(x - 1)` で再帰する | 拒否 `physical-boundary/finished-sequence` |
-| method の中の `local y = me.inc(x)` | 拒否 `artifact-source-unavailable` |
+| 自己再帰と相互再帰(`local m = n - 1`、`local f = Main.a(m)`、`return n + f`) | 通る。`a(4)` は 10 |
+| 引数に `x - 定数`(`Main.b(x - 1)`。再帰でなくても同じ) | 拒否 `physical-boundary/finished-sequence` |
+| callee の `return n * f`、`local g = n * f`(呼び出しがなくても同じ) | 拒否 `static-execution/completion-not-ready` |
+| 深さ 100 万の再帰 | 実行で exit 139(Fault にならず落ちる) |
+| instance method の中の `local y = x` の後の `return y` | 呼ぶ側で拒否 `artifact-source-unavailable` |
 | `a(s: String)` に `"x"` | 拒否 `borrowed-static/source-actual-unavailable` |
 | `a(x: i64): bool` | 拒否 `UnsupportedResultAnnotation` |
 | 型なしの `a(x)` に `1` | 拒否 `qualified-preflight`(ADR 57 行は型を必須としているので、新しいコードには不要) |
@@ -50,6 +53,7 @@ builder の規模調査は、4 と 5 の間の位置のままです。
 相談文に書いた次の点は、測り直すと強すぎました。下の回答はこれを前提に読んでください。回答の結論は変わりません。
 
 - 「呼ばれた関数がさらに呼ぶ形は拒否」: `local` で受ければ通ります。止まっていたのは `return Main.a(x) + 1` のような式の中の呼び出しです。
+- 「再帰は拒否」: 再帰そのものは通ります。止まっていたのは `x - 定数` の引数と `*` です。回答の 2 節にある、再帰のために宣言契約と本体の証明を分ける話は、この前提で読み直してください。
 - 「`local b = a + 1` は拒否」: 生きた Box があって `print` がなければ通ります。計算した local を `print` に渡す形が拒否されます。
 - 「`new ArrayBox` だけは拒否」: `return 0` だけの形は `ny-llvmc` が無いだけで、言語の拒否ではありません。`print` と組むと `lexical-call-prior-home-unavailable` です。
 - 「`normal-projection-exit` の 101 本」: 既存の拒否を包み直す名前です(`ordinary_new_normal_return_projection.rs:178-183`)。中身は `PrefixNotCovered` 97 本、`TerminalNotCovered` 4 本で、一つの壁ではありません。
