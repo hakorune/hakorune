@@ -249,20 +249,13 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     {
         return Ok(None);
     }
-    let mut homes = BTreeSet::new();
-    if prior_homes
-        .iter()
-        .any(|home| home.owner() != source.owner() || !homes.insert(home.binding()))
-    {
+    if !source.admits_prior_homes_v1(&prior_homes) {
         return Ok(None);
     }
     let Ok(order) = source.ordered_postorder_v1() else {
         return Ok(None);
     };
-    if source.nodes().iter().any(|node| {
-        !matches!(node.children(), ExpressionChildrenV1::Known(children)
-        if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
-    }) {
+    if !source.children_always_known_v1() {
         return Ok(None);
     }
     let mut initial = Vec::new();

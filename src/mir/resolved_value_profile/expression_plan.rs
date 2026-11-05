@@ -153,6 +153,16 @@ impl ExpressionSourcePlanV1 {
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
     }
+    /// Every node's children are known and always evaluated (no conditional reach).
+    pub(crate) fn children_always_known_v1(&self) -> bool {
+        self.nodes.iter().all(|node| matches!(node.children(), ExpressionChildrenV1::Known(children)
+            if children.iter().all(|child| child.reach == super::expression_children::ExpressionChildReachV1::Always)))
+    }
+    /// Prior Homes belong to this source's owner and bind each binding once.
+    pub(crate) fn admits_prior_homes_v1(&self, homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1]) -> bool {
+        let mut unique = BTreeSet::new();
+        homes.iter().all(|home| home.owner() == self.owner && unique.insert(home.binding()))
+    }
     /// Exact original containment, including inputs delegated to another Call.
     /// This locates a source container; it grants no execution or packet loan.
     pub(crate) fn contains_call_site_v1(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1) -> bool {

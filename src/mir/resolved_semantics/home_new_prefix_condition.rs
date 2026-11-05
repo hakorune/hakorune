@@ -93,10 +93,7 @@ fn has_unconditional_nested_call_v1(
     let Ok(source) = condition_expression_source_plan_v1(input, statement) else {
         return false;
     };
-    if source.nodes().iter().any(|node| {
-        !matches!(node.children(), ExpressionChildrenV1::Known(children)
-            if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
-    }) {
+    if !source.children_always_known_v1() {
         return false;
     }
     source.nodes().iter().any(|outer| {

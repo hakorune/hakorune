@@ -170,11 +170,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     use ExpressionLeafClassV1 as Leaf;
     use ExpressionValueClassV1 as Class;
     use ResolvedBinaryOperatorV1 as Op;
-    let mut homes = BTreeSet::new();
-    if prior_homes
-        .iter()
-        .any(|home| home.owner() != source.owner() || !homes.insert(home.binding()))
-    {
+    if !source.admits_prior_homes_v1(&prior_homes) {
         return Ok(None);
     }
     let condition = match source.root() {

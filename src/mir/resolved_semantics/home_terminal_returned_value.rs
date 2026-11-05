@@ -392,10 +392,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
             .nodes()
             .first()
             .is_none_or(|node| node.site() != value)
-        || source.nodes().iter().any(|node| {
-            !matches!(node.children(), ExpressionChildrenV1::Known(children)
-            if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
-        })
+        || !source.children_always_known_v1()
     {
         return text_return_declined(input, statement, 4);
     }

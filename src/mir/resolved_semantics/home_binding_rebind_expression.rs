@@ -167,11 +167,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         reject_rebind!("source-identity-or-assignment-shape");
     }
     let prior_homes = prepared.prior_homes().to_vec();
-    let mut unique_homes = BTreeSet::new();
-    if prior_homes
-        .iter()
-        .any(|home| home.owner() != source.owner() || !unique_homes.insert(home.binding()))
-    {
+    if !source.admits_prior_homes_v1(&prior_homes) {
         reject_rebind!("prior-homes");
     }
     match &destination {
@@ -212,10 +208,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     let Ok(order) = source.ordered_postorder_v1() else {
         reject_rebind!("postorder");
     };
-    if source.nodes().iter().any(|node| {
-        !matches!(node.children(), ExpressionChildrenV1::Known(children)
-        if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
-    }) {
+    if !source.children_always_known_v1() {
         reject_rebind!("conditional-expression-child");
     }
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();

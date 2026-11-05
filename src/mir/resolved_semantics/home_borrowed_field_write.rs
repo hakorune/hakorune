@@ -73,11 +73,7 @@ impl CheckedFieldWriteFrameV1 {
         entry: crate::mir::normal_callable_semantic_package::EntryFieldWriteSourceV1,
         homes: &[LiveHomeV1],
     ) -> Option<Rc<Self>> {
-        let mut unique = std::collections::BTreeSet::new();
-        if homes
-            .iter()
-            .any(|home| home.owner() != entry.source().owner() || !unique.insert(home.binding()))
-        {
+        if !entry.source().admits_prior_homes_v1(homes) {
             return None;
         }
         Some(Rc::new(Self {
@@ -101,11 +97,8 @@ impl CheckedFieldWriteFrameV1 {
         local: crate::mir::normal_callable_semantic_package::OwnedLocalFieldWriteSourceV1,
         homes: &[LiveHomeV1],
     ) -> Option<Rc<Self>> {
-        let mut unique = std::collections::BTreeSet::new();
         if !homes.iter().any(|home| home.binding() == local.root())
-            || homes.iter().any(|home| {
-                home.owner() != local.source().owner() || !unique.insert(home.binding())
-            })
+            || !local.source().admits_prior_homes_v1(homes)
         {
             return None;
         }
@@ -142,11 +135,7 @@ impl HomeExpressionPlanV1 {
         {
             return None;
         }
-        let mut unique = std::collections::BTreeSet::new();
-        if homes
-            .iter()
-            .any(|home| home.owner() != source.owner() || !unique.insert(home.binding()))
-        {
+        if !source.admits_prior_homes_v1(homes) {
             return None;
         }
         let frame = Rc::new(CheckedFieldWriteFrameV1 {

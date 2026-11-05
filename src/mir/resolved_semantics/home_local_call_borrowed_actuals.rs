@@ -410,10 +410,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_expression_actu
     };
     if source.owner() != input.owner()
         || source.root().statement() != statement.site()
-        || source.nodes().iter().any(|node| {
-            !matches!(node.children(), ExpressionChildrenV1::Known(children)
-            if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
-        })
+        || !source.children_always_known_v1()
     {
         return Ok(false);
     }

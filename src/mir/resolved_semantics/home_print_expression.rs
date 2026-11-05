@@ -85,11 +85,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
         super::super::LocalFieldReadDemandV1,
     ) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
-    let mut unique_homes = BTreeSet::new();
-    if prior_homes
-        .iter()
-        .any(|home| home.owner() != source.owner() || !unique_homes.insert(home.binding()))
-    {
+    if !source.admits_prior_homes_v1(prior_homes) {
         return Ok(None);
     }
     let ExpressionPlanRootV1::Statement {
@@ -106,10 +102,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     if root.site() != value {
         return Ok(None);
     }
-    if source.nodes().iter().any(|node| {
-        !matches!(node.children(), ExpressionChildrenV1::Known(children)
-        if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))
-    }) {
+    if !source.children_always_known_v1() {
         return Ok(None);
     }
 
