@@ -484,7 +484,9 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
         "\"n=\" + c.n",
         "(\"n=\" + c.n) + (\" m=\" + c.other)",
         "\"n=\" + c.read()",
-        "\"bad=\" + c.echo(9)",
+        // A literal actual into an unannotated formal is a supported call now:
+        // the EXE prints `arg=7` (checked against the CLI), so this is accepted.
+        "\"arg=\" + c.echo(9)",
         "\"p=\" + c.run(h)",
         "\"bad=\" + c",
         "\"bad=\" + true",
@@ -492,7 +494,9 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
         "c.n + \"bad\"",
         "(\"bad=\" + c.n) + c",
         "(\"bad=\" + c.read()) + true",
-        "\"bad=\" + c.plain(9)",
+        // `plain(p) { return p }` with the literal actual 9 is a corroborated I64
+        // source at the package (the CLI refuses it later, at lowering).
+        "\"arg=\" + c.plain(9)",
         "\"bad-store=\" + c.other + c.n",
     ] {
         let wrong_store = expression.contains("bad-store");
@@ -611,7 +615,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                     }
                     if expression.contains("7 + 9") { assert_eq!(print.owned_result_nodes(), &[0]); }
                     assert_eq!(plan.source_fields().len(), staged.len());
-                    assert_eq!(print.calls().len(), usize::from(expression.contains("read()") || expression.contains("run(h)")));
+                    assert_eq!(print.calls().len(), usize::from(expression.contains("read()") || expression.contains("run(h)") || expression.contains("echo(9)") || expression.contains("plain(9)")));
                     for call in print.calls() {
                         assert!(call.is_expression_value());
                         assert_eq!(call.prior_homes(), homes.as_slice());
