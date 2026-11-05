@@ -464,11 +464,15 @@ fn borrowed_call_result_keeps_unannotated_i64_bounded() {
     }
     // The same opaque return with a Bool incoming actual is no I64 source.
     let bool_actual = "box Transport { birth() { } probe(p) { return p } } static box Main { main() { local recv = new Transport() local out = recv.probe(true) return 0 } }";
-    match crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(bool_actual) {
-        Err(_) => {}
-        Ok(package) => {
-            assert!(package.ordinary_new_claim_ledger.borrowed_i64_results.values().all(|proof| proof.is_err()), "Bool actual acquired an I64 permission");
-        }
+    // The package accepts the call; the callee's only result row is the named
+    // `source-not-i64` refusal, so no I64 permission exists for it.
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(bool_actual)
+        .unwrap_or_else(|error| panic!("Bool actual: {error:?}"));
+    let rows = &package.ordinary_new_claim_ledger.borrowed_i64_results;
+    assert_eq!(rows.len(), 1, "Bool actual: the one callee row");
+    for row in rows.values() {
+        let error = row.as_ref().expect_err("Bool actual acquired an I64 permission");
+        assert!(error.contains("borrowed-result/source-not-i64"), "Bool actual: {error}");
     }
 }
 

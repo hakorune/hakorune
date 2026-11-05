@@ -13,19 +13,46 @@ fn issue(leaf: &str, body: &str) -> Result<VerifiedNormalCallableSemanticPackage
     .map_err(|error| format!("{error:?}"))
 }
 
-/// The nullable leaf row stays `Nullable`; every other row is the named
-/// `source-not-i64` refusal — never an I64 proof.
-fn assert_nullable_leaf_grants_no_i64(package: &VerifiedNormalCallableSemanticPackageV1, leaf: &str, body: &str) {
-    for row in package.ordinary_new_claim_ledger.borrowed_i64_results.values() {
-        match row {
-            Ok(proof) => assert!(matches!(proof.class, BorrowedResultClassV1::Nullable), "{leaf}/{body}: {:?}", proof.class),
-            Err(error) => assert!(error.contains("borrowed-result/source-not-i64"), "{leaf}/{body}: {error}"),
+const SOURCE_NOT_I64: &str = "borrowed-result/source-not-i64";
+
+/// How one `(leaf, body)` row must end. `Refused` names the exact refusal the
+/// package stops at; `AcceptedNullableLeaf` is the one row whose leaf is a
+/// nullable object: the package accepts, the leaf row stays `Nullable`, and
+/// every other row is the named `source-not-i64` refusal — never an I64 proof.
+#[derive(Clone, Copy)]
+enum Outcome {
+    Refused(&'static str),
+    AcceptedNullableLeaf,
+}
+
+fn assert_outcome(leaf: &str, body: &str, outcome: Outcome) {
+    match (outcome, issue(leaf, body)) {
+        (Outcome::Refused(name), Err(error)) => {
+            assert!(error.contains(name), "{leaf}/{body}: expected {name}: {error}");
+        }
+        (Outcome::Refused(name), Ok(_)) => panic!("{leaf}/{body}: expected refusal {name}, was accepted"),
+        (Outcome::AcceptedNullableLeaf, Err(error)) => {
+            panic!("{leaf}/{body}: expected acceptance, refused: {error}")
+        }
+        (Outcome::AcceptedNullableLeaf, Ok(package)) => {
+            let rows = &package.ordinary_new_claim_ledger.borrowed_i64_results;
+            let nullable = rows
+                .values()
+                .filter(|row| matches!(row, Ok(proof) if matches!(proof.class, BorrowedResultClassV1::Nullable)))
+                .count();
+            assert_eq!(nullable, 1, "{leaf}/{body}: exactly the leaf row is Nullable");
+            for row in rows.values() {
+                match row {
+                    Ok(proof) => assert!(matches!(proof.class, BorrowedResultClassV1::Nullable), "{leaf}/{body}: {:?}", proof.class),
+                    Err(error) => assert!(error.contains(SOURCE_NOT_I64), "{leaf}/{body}: {error}"),
+                }
+            }
         }
     }
 }
 
 #[test]
-fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
+fn call_result_source_accepts_rebind_and_grants_no_i64_for_non_i64_or_ungrounded_cycles() {
     assert!(issue("return 7", "local out = recv.leaf(p) return out").is_ok());
     // Rebinding to a literal makes the literal the result source: every row is a
     // genuine I64 proof (the call result is no longer returned).
@@ -34,33 +61,28 @@ fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
     assert!(rebound.ordinary_new_claim_ledger.borrowed_i64_results.values().all(|row| {
         row.as_ref().is_ok_and(|proof| matches!(proof.class, BorrowedResultClassV1::I64))
     }));
-    for (leaf, body) in [
-        ("return null", "local out = recv.leaf(p) return out"),
+    let refused = Outcome::Refused(SOURCE_NOT_I64);
+    for (leaf, body, outcome) in [
+        ("return null", "local out = recv.leaf(p) return out", refused),
         (
             "if p == null { return null } return new Transport()",
             "local out = recv.leaf(p) return out",
+            Outcome::AcceptedNullableLeaf,
         ),
         (
             "local recv = new Transport() local out = recv.bridge(p) return out",
             "local out = recv.leaf(p) return out",
+            refused,
         ),
         (
             "return 7",
             "if p == null { return 0 } local out = recv.bridge(p) return out",
+            refused,
         ),
-        ("return", "local out = recv.leaf(p) return out"),
-        ("return 7", "local out = recv.bridge(p) return out"),
+        ("return", "local out = recv.leaf(p) return out", refused),
+        ("return 7", "local out = recv.bridge(p) return out", refused),
     ] {
-        let error = match issue(leaf, body) {
-            Err(error) => error,
-            // A nullable-object leaf is accepted by the package, but no caller
-            // row may carry an I64 permission derived from it.
-            Ok(package) => {
-                assert_nullable_leaf_grants_no_i64(&package, leaf, body);
-                continue;
-            }
-        };
-        assert!(error.contains("borrowed-result/"), "{leaf}/{body}: {error}");
+        assert_outcome(leaf, body, outcome);
     }
     for (birth, update, actual, expected) in [
         ("me.n = capacity", "me.n = me.n + step", "0", true),
@@ -484,33 +506,30 @@ fn composed_result_corroboration_rejects_foreign_dependencies_and_propagates_cal
 }
 
 #[test]
-fn direct_call_result_source_rejects_non_i64_and_ungrounded_cycles() {
+fn direct_call_result_source_grants_no_i64_for_non_i64_or_ungrounded_cycles() {
     assert!(issue("return 7", "return recv.leaf(p)").is_ok());
-    for (leaf, body) in [
-        ("return null", "return recv.leaf(p)"),
-        ("return", "return recv.leaf(p)"),
+    let refused = Outcome::Refused(SOURCE_NOT_I64);
+    for (leaf, body, outcome) in [
+        ("return null", "return recv.leaf(p)", refused),
+        ("return", "return recv.leaf(p)", refused),
         (
             "if p == null { return null } return new Transport()",
             "return recv.leaf(p)",
+            Outcome::AcceptedNullableLeaf,
         ),
-        ("return 7", "return recv.bridge(p)"),
+        ("return 7", "return recv.bridge(p)", refused),
         (
             "local recv = new Transport() return recv.bridge(p)",
             "return recv.leaf(p)",
+            refused,
         ),
         (
             "return 7",
             "if p == null { return 0 } return recv.bridge(p)",
+            refused,
         ),
     ] {
-        let error = match issue(leaf, body) {
-            Err(error) => error,
-            Ok(package) => {
-                assert_nullable_leaf_grants_no_i64(&package, leaf, body);
-                continue;
-            }
-        };
-        assert!(error.contains("borrowed-result/"), "{leaf}/{body}: {error}");
+        assert_outcome(leaf, body, outcome);
     }
 }
 

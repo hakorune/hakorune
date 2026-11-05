@@ -297,18 +297,22 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
 fn non_null_equalities_stay_fail_closed_before_publication() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (suffix, prefix, condition) in [
-            ("ne", "", "handle != null"),
-            ("zero", "", "handle == 0"),
-            ("bool", "", "handle == false"),
-            ("formal", "local q = handle ", "q == handle"),
+        // `None`: an Integer comparison, published and executed once. `Some(stop)`:
+        // the exact refusal for the non-null equality.
+        for (suffix, prefix, condition, stop) in [
+            // Stopped before the source use completes, rather than at the artifact.
+            ("ne", "", "handle != null", Some("borrowed-entry/source-use-completion-pending")),
+            ("zero", "", "handle == 0", None),
+            // A Bool actual is stopped at the callee's exit coverage.
+            ("bool", "", "handle == false", Some("object-input/callee-exit")),
+            ("formal", "local q = handle ", "q == handle", None),
         ] {
             let text = format!(
                 "box Store {{ limit: i64 birth() {{ me.limit = 10 }} \
                  check(handle) {{ {prefix}if {condition} {{ return 7 }} return 3 }} }} \
                  static box Main {{ main() {{ local s = new Store() return s.check(5) }} }}"
             );
-            let integer = matches!(suffix, "zero" | "formal");
+            let integer = stop.is_none();
             let outcome = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
                     require_artifact_verification(verification);
@@ -334,15 +338,8 @@ fn non_null_equalities_stay_fail_closed_before_publication() {
             }
             let error = outcome.err()
                 .unwrap_or_else(|| panic!("{suffix}: unexpectedly admitted"));
-            assert!(
-                error.contains("artifact-source-unavailable")
-                    // The non-null equality is stopped before the source use
-                    // completes, rather than at the artifact.
-                    || error.contains("borrowed-entry/source-use-completion-pending")
-                    // A Bool actual is stopped at the callee's exit coverage.
-                    || error.contains("object-input/callee-exit"),
-                "{suffix}: {error}"
-            );
+            let stop = stop.unwrap();
+            assert!(error.contains(stop), "{suffix}: expected {stop}: {error}");
         }
     });
 }

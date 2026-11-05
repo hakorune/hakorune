@@ -182,10 +182,26 @@ fn reject_drifted_ctor_view(input: &super::super::super::PublishedLifecyclePhysi
 fn undominated_new_argument_view_still_rejects() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (label, body) in [
-            ("unguarded", "local h = new Item(p, 3) return 1"),
-            ("pre-guard", "local h = new Item(p, 3) if p > me.limit { return 0 } return 1"),
-            ("inside-arm", "if p > me.limit { local h = new Item(p, 3) return 0 } return 1"),
+        for (label, body, stop) in [
+            // The unguarded `new Item(p, 3)` never receives the dominated view's
+            // actuals: the lexical-i64 emission names them missing.
+            (
+                "unguarded",
+                "local h = new Item(p, 3) return 1",
+                "lexical-i64/borrowed-actuals-missing",
+            ),
+            // The package stops the undominated `new` argument at the static
+            // input's qualified-use identity, before any emission.
+            (
+                "pre-guard",
+                "local h = new Item(p, 3) if p > me.limit { return 0 } return 1",
+                "static-input/qualified-use-identity",
+            ),
+            (
+                "inside-arm",
+                "if p > me.limit { local h = new Item(p, 3) return 0 } return 1",
+                "static-input/qualified-use-identity",
+            ),
         ] {
             let text = format!(
                 "box Item {{ id: i64 serial: i64 birth(id, serial) {{ me.id = id me.serial = serial }} }} \
@@ -202,26 +218,7 @@ fn undominated_new_argument_view_still_rejects() {
                 })
                 .err()
                 .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
-            assert!(
-                error.contains("actual-kind-unavailable")
-                    || error.contains("borrowed-carrier")
-                    || error.contains("borrowed-use")
-                    || error.contains("borrowed-formal")
-                    || error.contains("call-argument")
-                    // An unconsumed borrowed carrier fails the terminal-homes
-                    // obligation wrapped in the local-commit artifact freeze.
-                    || error.contains("artifact-source-unavailable")
-                    // A `new` inside a guarded arm lands on an unowned
-                    // lifecycle site — still fail-closed, different stage.
-                    || error.contains("artifact-unowned-lifecycle-site")
-                    // An unguarded `new Item(p, 3)` never receives the dominated
-                    // view's actuals — the lexical-i64 emission names them missing.
-                    || error.contains("lexical-i64/borrowed-actuals-missing")
-                    // The package stops the undominated `new` argument at the static
-                    // input's qualified-use identity before any emission.
-                    || error.contains("static-input/qualified-use-identity"),
-                "{label}: {error}"
-            );
+            assert!(error.contains(stop), "{label}: expected {stop}: {error}");
         }
     });
 }
