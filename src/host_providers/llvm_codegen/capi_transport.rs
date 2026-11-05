@@ -211,6 +211,17 @@ fn resolve_ffi_library_path() -> Result<PathBuf, String> {
         .ok_or_else(|| "FFI library not found (set HAKO_AOT_FFI_LIB)".to_string())
 }
 
+/// Test builds only: one process-wide C session at a time. Tests start several
+/// C compile sessions on parallel threads in one process; concurrent sessions
+/// into the shim fail with an empty `no_lowering_variant` diagnostic that no
+/// single session reproduces. This is a separate lock from
+/// `PROCESS_STATE_LOCK` (which env-scoped tests hold while they compile).
+#[cfg(all(test, feature = "plugins"))]
+pub(super) fn c_compile_session_guard() -> std::sync::MutexGuard<'static, ()> {
+    static SESSION: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    SESSION.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
 #[cfg(feature = "plugins")]
 fn load_ffi_library() -> Result<libloading::Library, String> {
     let lib_path = resolve_ffi_library_path()?;
@@ -234,6 +245,8 @@ fn compile_via_capi_with_options(
     let owned = OwnedPhysicalCompileContract::from_request(compile_recipe, compat_replay, opts)?;
     let contract = owned.row();
     unsafe {
+        #[cfg(test)]
+        let _session = c_compile_session_guard();
         let lib = load_ffi_library()?;
         type CompileFn = unsafe extern "C" fn(
             *const c_char,
@@ -317,6 +330,8 @@ pub(super) fn compile_published_lifecycle_physical_v4(
     let json_in = transport_io::prepare_backend_input_json_file(&input.serialize()?)?;
     transport_io::ensure_backend_output_parent(obj_out);
     let result = (|| unsafe {
+        #[cfg(test)]
+        let _session = c_compile_session_guard();
         let lib = load_ffi_library()?;
         type CompileFn = unsafe extern "C" fn(
             *const c_char,
@@ -387,6 +402,8 @@ pub(super) fn link_via_capi(
     }
 
     unsafe {
+        #[cfg(test)]
+        let _session = c_compile_session_guard();
         let lib = load_ffi_library()?;
         type LinkFn = unsafe extern "C" fn(
             *const c_char,
@@ -445,6 +462,8 @@ pub(super) fn link_via_capi_v2(
     }
 
     unsafe {
+        #[cfg(test)]
+        let _session = c_compile_session_guard();
         let lib = load_ffi_library()?;
         type LinkFn = unsafe extern "C" fn(
             *const c_char,
