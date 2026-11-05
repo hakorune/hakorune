@@ -34,7 +34,7 @@ which ends it once. Measured as connected: `print(t.f)`, `print(t.f + "x")`, `lo
 `local n = t.f.length()` (and `me.f` in a method), and an unannotated `get() { return me.f }`
 that returns the copy. A field with no type that only receives Text is readable the same way (`print(a.v)`).
 Other shapes are refused, mostly with a generic tag that does not name the form (`artifact-source-unavailable`
-and similar): a `String?` field, `local s = t.f`, `return t.f.length()`, `print(t.f.length())`, comparing the
+and similar): reading a `String?` field (storing one through an unannotated `birth(n)` formal is connected, through a `String?`-annotated formal it is not), `local s = t.f`, `return t.f.length()`, `print(t.f.length())`, comparing the
 field, passing the field to `new`, a read in a loop, and a write after publication. Only a `: String` result
 annotation is refused by name. See the [status index](status-index.md#ownership-forms-measured) for the rows.
 

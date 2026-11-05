@@ -89,30 +89,32 @@ not inherit permission from that snapshot.
 
 Measured on commit `c1739a89c2` (2026-11-05) with the `cargo quick-build --bin hakorune` binary, one source per row, `--backend mir --emit-exe`, then running the EXE. Only the Rust route is measured: the Hako parser cannot be run today (`cargo build --features vm-reference` does not compile at this commit: E0004 in `src/backend/mir_interpreter/handlers/type_ops.rs`; see also the Hako parser line in `docs/development/current/main/investigations/app-boxtorrent-mini.md`), and the `.hako` parser change for `Shared(...)` is source-only.
 
-Results: `connected` = the EXE is built and its exit and output match the expectation (for an undecided row, it is built and ran); `refused-named` = the refusal text names the form or its cause; `refused-generic` = refused, but the text does not name the form (`artifact-source-unavailable`, `ResolverDeferred`, `unsupported-cohort` and similar); `parser-refused` = the parser stops; `against-frozen` = the frozen grammar rejects the form (or expects another result) and the compiler accepts it. A row whose frozen expectation is `reject` and whose result is any refusal is a correct refusal. Basis: `L56`/`L58` are lines of ADR-002, `rule N` is a numbered rule of the frozen grammar block, `3a`/`3b` are migration steps. Every row is a small standalone program; several rows combine a form with the smallest surrounding code that can run, so a generic refusal can come from that surrounding code and the row says what it spells.
+Results: `connected` = the EXE is built and its exit and output match the expectation (for a row with no accept/reject expectation, it is built and ran; a `reject from 3b` row that still builds is also `connected`, because ADR-002 keeps the current behaviour until 3b); `refused-named` = the refusal text names the form or its cause; `refused-generic` = refused, but the text does not name the form (`artifact-source-unavailable`, `ResolverDeferred`, `unsupported-cohort` and similar); `parser-refused` = the parser stops; `against-frozen` = the frozen grammar rejects the form (or expects another result) and the compiler accepts it. A row whose frozen expectation is `reject` and whose result is any refusal is a correct refusal. Basis: `L56`/`L58` are lines of ADR-002, `rule N` is a numbered rule of the frozen grammar block, `3a`/`3b` are migration steps. Every row is a small standalone program; several rows combine a form with the smallest surrounding code that can run, so a generic refusal can come from that surrounding code and the row says what it spells.
 
-| Group | connected | refused-named | refused-generic | parser-refused | against-frozen | total |
-|---|---|---|---|---|---|---|
-| `move` | 3 | 8 | 1 | 4 | 0 | 16 |
-| declaration `take` | 1 | 3 | 2 | 0 | 0 | 6 |
-| expression `take` | 0 | 0 | 6 | 0 | 0 | 6 |
-| `edit` | 0 | 3 | 4 | 0 | 0 | 7 |
-| `share` | 3 | 5 | 2 | 1 | 0 | 11 |
-| `copy` | 1 | 3 | 1 | 0 | 0 | 5 |
-| `from` | 0 | 2 | 1 | 1 | 0 | 4 |
-| `T?` | 1 | 1 | 5 | 0 | 0 | 7 |
-| field types (store / read / write after publication) | 8 | 1 | 15 | 0 | 0 | 24 |
-| mixed field types in one box | 3 | 2 | 2 | 0 | 0 | 7 |
-| object field reads | 0 | 0 | 3 | 0 | 0 | 3 |
-| `new T { f: x }` construction | 0 | 1 | 3 | 0 | 0 | 4 |
-| pattern and `match` | 0 | 0 | 1 | 3 | 0 | 4 |
-| function types and closures | 0 | 0 | 0 | 3 | 0 | 3 |
-| containers | 0 | 1 | 3 | 0 | 0 | 4 |
-| rules that change in 3b | 0 | 0 | 4 | 0 | 0 | 4 |
-| String field reads | 6 | 1 | 7 | 0 | 2 | 16 |
-| **all** | 26 | 31 | 60 | 12 | 2 | 131 |
+**The frozen grammar accepts 129 of these 149 forms; 34 of those 129 are connected.** The other rows are rejections (16), rules that change at 3b (3) and one open form (1: `from a, b`, whose acceptance ADR-002 still leaves open).
 
-### `move`: 3 connected of 16
+| Group | connected | refused-named | refused-generic | parser-refused | against-frozen | total | accepted by the frozen grammar | of those connected |
+|---|---|---|---|---|---|---|---|---|
+| `move` | 3 | 8 | 1 | 4 | 0 | 16 | 11 | 3 |
+| declaration `take` | 1 | 3 | 2 | 0 | 0 | 6 | 5 | 1 |
+| expression `take` | 0 | 0 | 6 | 0 | 0 | 6 | 5 | 0 |
+| `edit` | 0 | 3 | 4 | 0 | 0 | 7 | 5 | 0 |
+| `share` | 3 | 5 | 2 | 1 | 0 | 11 | 9 | 3 |
+| `copy` | 1 | 3 | 1 | 0 | 0 | 5 | 4 | 1 |
+| `from` | 0 | 2 | 1 | 1 | 0 | 4 | 3 | 0 |
+| `T?` | 1 | 1 | 5 | 0 | 0 | 7 | 7 | 1 |
+| field types (store / read / write after publication) | 16 | 1 | 25 | 0 | 0 | 42 | 42 | 16 |
+| mixed field types in one box | 3 | 2 | 2 | 0 | 0 | 7 | 7 | 3 |
+| object field reads | 0 | 0 | 3 | 0 | 0 | 3 | 3 | 0 |
+| `new T { f: x }` construction | 0 | 1 | 3 | 0 | 0 | 4 | 2 | 0 |
+| pattern and `match` | 0 | 0 | 2 | 2 | 0 | 4 | 4 | 0 |
+| function types and closures | 0 | 0 | 0 | 3 | 0 | 3 | 3 | 0 |
+| containers | 0 | 1 | 3 | 0 | 0 | 4 | 4 | 0 |
+| rules that change in 3b | 0 | 0 | 4 | 0 | 0 | 4 | 2 | 0 |
+| String field reads | 6 | 1 | 7 | 0 | 2 | 16 | 13 | 6 |
+| **all** | 34 | 31 | 71 | 11 | 2 | 149 | 129 | 34 |
+
+### `move`: 3 connected of 16 (3 of the 11 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -121,11 +123,11 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | f(move x) to take param | accept, exit 5 [rule 4] | connected | `exit 5` |
 | new H(move x) with birth(take) | accept, exit 0 [rule 2] | connected | `exit 0` |
 | new H(move x) inside if | accept, exit 0 [rule 2] | refused-named | `move-not-supported` |
-| me.f = move x (in birth) | accept, exit 0 [rule 2/rule6] | refused-named | `BirthStoreOwnershipMismatch` |
-| h.keep = move y (after publication) | undecided [3a excludes] | refused-named | `move-argument-unplanned` |
+| me.f = move q in birth(q: P) (plain formal, not take) | reject [ownership.md:59 (user decision 2026-11-05: move into a plain formal is refused; tag BirthStoreOwnershipMismatch)] | refused-named | `BirthStoreOwnershipMismatch` |
+| h.keep = move y (after publication) | accept, exit 0 [L63 (owned field assignment is a transfer point), rule 6, L58 item 4] | refused-named | `move-argument-unplanned` |
 | return move x | accept, exit 6 [rule 5] | refused-named | `move-not-supported` |
 | (move x).m() consuming receiver | accept, exit 7 [rule 4] | refused-named | `UnsupportedReceiverTransfer` |
-| match move e | undecided [rule 2 pattern] | refused-generic | `ResolverDeferred` |
+| match move e | accept, exit 7 [L57 (match move consumes)] | refused-generic | `ResolverDeferred` |
 | move x.f (direct field of owner) | accept, exit 8 [rule 6] | parser-refused | `Unexpected token DOT, expected [freeze:contract][parser/move_exact_root_required] move req` |
 | e = move n.left (replacement from inside) | accept, exit 0 [rule12] | parser-refused | `Unexpected token DOT, expected [freeze:contract][parser/move_exact_root_required] move req` |
 | move x? (error) | reject [L56] | parser-refused | `parse` |
@@ -133,7 +135,7 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | second move of a moved local | reject [rule 2] | refused-named | `UseAfterMove` |
 | read after move | reject [rule 2] | refused-named | `UseAfterMove` |
 
-### declaration `take`: 1 connected of 6
+### declaration `take`: 1 connected of 6 (1 of the 5 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -144,7 +146,7 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | receiver take m() declared, never called | accept, exit 0 [L56] | refused-named | `UnsupportedReceiverTransfer` |
 | receiver take m() called plainly x.m() | reject [rule 4 (implied)] | refused-named | `UnsupportedReceiverTransfer` |
 
-### expression `take`: 0 connected of 6
+### expression `take`: 0 connected of 6 (0 of the 5 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -155,19 +157,19 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | take(p) ordinary call | accept, exit 3 [L56] | refused-generic | `artifact-source-unavailable` |
 | take on non-nullable T place | reject [L56] | refused-generic | `misparsed as identifier take + separate statement; then ResolverDeferred` |
 
-### `edit`: 0 connected of 7
+### `edit`: 0 connected of 7 (0 of the 5 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
 | edit param declared, never called | accept, exit 0 [rule 4] | refused-named | `UnsupportedTransfer` |
 | rewrite(edit x) | accept, exit 5 [rule 4] | refused-generic | `ResolverDeferred` |
 | receiver edit m() | accept, exit 5 [rule 4] | refused-named | `UnsupportedReceiverTransfer` |
-| edit me.s[i] as argument | undecided [rule11] | refused-generic | `ResolverDeferred` |
+| edit me.s[i] as argument | accept, exit 0 [L58 item 5, L57 (edit me.stmts[i])] | refused-generic | `ResolverDeferred` |
 | e = make(v) through edit param | accept, exit 9 [L56] | refused-generic | `ResolverDeferred` |
 | e = fold(move e) (error) | reject [L56] | refused-generic | `ResolverDeferred` |
 | call omits edit for an edit param | reject [rule 4] | refused-named | `UnsupportedTransfer` |
 
-### `share`: 3 connected of 11
+### `share`: 3 connected of 11 (3 of the 9 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -183,7 +185,7 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | Shared<T> field | accept, exit 0 [3a bound excluded] | refused-named | `SharedOperandUnsupported` |
 | Shared(new T()) retired | reject [rule 2] | parser-refused | `Unexpected token IDENTIFIER("Shared"), expected [freeze:contract][parser/shared_constructo` |
 
-### `copy`: 1 connected of 5
+### `copy`: 1 connected of 5 (1 of the 4 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -193,16 +195,16 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | copy of Box without copy contract | reject [rule 2] | refused-named | `copy_contract_unsupported` |
 | copy(x) ordinary call | accept, exit 4 [rule] | refused-generic | `artifact-source-unavailable` |
 
-### `from`: 0 connected of 4
+### `from`: 0 connected of 4 (0 of the 3 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
 | get(): T from me | accept, exit 5 [rule5] | refused-named | `UnsupportedResultAnnotation` |
 | f(a: P, b: P): P from a | accept, exit 6 [rule5] | refused-generic | `nullable-ordinal` |
-| from a, b | undecided [3a/後続: 受理開始は未決] | parser-refused | `[freeze:contract][parser/from-support-unavailable] from requires exactly one receiver or p` |
+| from a, b | undecided [L104: starting to accept `from a, b` is still open (後続 row)] | parser-refused | `[freeze:contract][parser/from-support-unavailable] from requires exactly one receiver or p` |
 | name(): String from me | accept, exit 0 [rule5] | refused-named | `UnsupportedResultAnnotation` |
 
-### `T?`: 1 connected of 7
+### `T?`: 1 connected of 7 (1 of the 7 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -214,36 +216,54 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | h.c == null | accept, exit 1 [] | refused-generic | `artifact-source-unavailable` |
 | move after null check | accept, exit 2 [L56] | refused-generic | `EdgeArgumentsForbidden` |
 
-### field types (store / read / write after publication): 8 connected of 24
+### field types (store / read / write after publication): 16 connected of 42 (16 of the 42 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
-| i64 field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
-| i64 field: read after store | accept, exit 3 [rule/field] | connected | `exit 3` |
-| i64 field: write after publication | accept, exit 3 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
-| Bool field: store via birth | accept, exit 0 [rule/field] | refused-generic | `artifact-source-unavailable` |
-| Bool field: read after store | accept, exit 1 [rule/field] | refused-generic | `artifact-source-unavailable` |
-| Bool field: write after publication | accept, exit 1 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
-| String field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
-| String field: read after store | accept, exit 0 [rule/field] | connected | `exit 0` |
-| String field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
-| StringBox field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
-| StringBox field: read after store | accept, exit 0 [rule/field] | connected | `exit 0` |
-| StringBox field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
-| String? field: store via birth | accept, exit 0 [rule/field] | refused-generic | `artifact-source-unavailable` |
-| String? field: read after store | accept, exit 0 [rule/field] | refused-generic | `print-expression` |
-| String? field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
-| T field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
-| T field: read after store | accept, exit 0 [rule/field] | refused-generic | `ResolverDeferred` |
-| T field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `ResolverDeferred` |
-| T? field: store via birth | accept, exit 0 [rule/field] | refused-named | `TakeFormalDeclarationUnavailable` |
-| T? field: read after store | accept, exit 0 [rule/field] | refused-generic | `ResolverDeferred` |
-| T? field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `ResolverDeferred` |
-| untyped field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
-| untyped field: read after store | accept, exit 5 [rule/field] | refused-generic | `artifact-source-unavailable` |
-| untyped field: write after publication | accept, exit 5 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| i64 field: store via birth(f: i64) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| i64 field: read after store (birth(f: i64)) | accept, exit 3 [rule/field] | connected | `exit 3` |
+| i64 field: write after publication (birth(f: i64)) | accept, exit 3 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| Bool field: store via birth(f: Bool) | accept, exit 0 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| Bool field: read after store (birth(f: Bool)) | accept, exit 1 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| Bool field: write after publication (birth(f: Bool)) | accept, exit 1 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| String field: store via birth(f: String) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| String field: read after store (birth(f: String)) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| String field: write after publication (birth(f: String)) | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| StringBox field: store via birth(f: StringBox) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| StringBox field: read after store (birth(f: StringBox)) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| StringBox field: write after publication (birth(f: StringBox)) | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| String? field: store via birth(f: String?) | accept, exit 0 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| String? field: read after store (birth(f: String?)) | accept, exit 0 [rule/field] | refused-generic | `print-expression` |
+| String? field: write after publication (birth(f: String?)) | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| T field: store via birth(take f: P) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| T field: read after store (birth(take f: P)) | accept, exit 0 [rule/field] | refused-generic | `ResolverDeferred` |
+| T field: write after publication (birth(take f: P)) | accept, exit 0 [3a excludes (public write)] | refused-generic | `ResolverDeferred` |
+| T? field: store via birth(take f: P?) | accept, exit 0 [rule/field] | refused-named | `TakeFormalDeclarationUnavailable` |
+| T? field: read after store (birth(take f: P?)) | accept, exit 0 [rule/field] | refused-generic | `ResolverDeferred` |
+| T? field: write after publication (birth(take f: P?)) | accept, exit 0 [3a excludes (public write)] | refused-generic | `ResolverDeferred` |
+| untyped field: store via birth(f) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| untyped field: read after store (birth(f)) | accept, exit 5 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| untyped field: write after publication (birth(f)) | accept, exit 5 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| i64 field: store via unannotated birth(n) { me.f = n } | accept, exit 0 [rule/field] | connected | `exit 0` |
+| i64 field: read after store (unannotated birth(n)) | accept, exit 3 [rule/field] | connected | `exit 3` |
+| i64 field: write after publication (unannotated birth(n)) | accept, exit 3 [L58 item 4 / public write] | refused-generic | `artifact-source-unavailable` |
+| Bool field: store via unannotated birth(n) { me.f = n } | accept, exit 0 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| Bool field: read after store (unannotated birth(n)) | accept, exit 1 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| Bool field: write after publication (unannotated birth(n)) | accept, exit 1 [L58 item 4 / public write] | refused-generic | `artifact-source-unavailable` |
+| String field: store via unannotated birth(n) { me.f = n } | accept, exit 0 [rule/field] | connected | `exit 0` |
+| String field: read after store (unannotated birth(n)) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| String field: write after publication (unannotated birth(n)) | accept, exit 0 [L58 item 4 / public write] | refused-generic | `artifact-source-unavailable` |
+| StringBox field: store via unannotated birth(n) { me.f = n } | accept, exit 0 [rule/field] | connected | `exit 0` |
+| StringBox field: read after store (unannotated birth(n)) | accept, exit 0 [rule/field] | connected | `exit 0` |
+| StringBox field: write after publication (unannotated birth(n)) | accept, exit 0 [L58 item 4 / public write] | refused-generic | `artifact-source-unavailable` |
+| String? field: store via unannotated birth(n) { me.f = n } | accept, exit 0 [rule/field] | connected | `exit 0` |
+| String? field: read after store (unannotated birth(n)) | accept, exit 0 [rule/field] | refused-generic | `print-expression` |
+| String? field: write after publication (unannotated birth(n)) | accept, exit 0 [L58 item 4 / public write] | refused-generic | `artifact-source-unavailable` |
+| untyped field: store via unannotated birth(n) { me.f = n } | accept, exit 0 [rule/field] | connected | `exit 0` |
+| untyped field: read after store (unannotated birth(n)) | accept, exit 5 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| untyped field: write after publication (unannotated birth(n)) | accept, exit 5 [L58 item 4 / public write] | refused-generic | `artifact-source-unavailable` |
 
-### mixed field types in one box: 3 connected of 7
+### mixed field types in one box: 3 connected of 7 (3 of the 7 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -255,7 +275,7 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | T + i64 | accept, exit 2 | connected | `exit 2` |
 | untyped only holding Text, read print(a.v) | accept, exit 0 [ownership.md (Text-only untyped field)] | connected | `exit 0` |
 
-### object field reads: 0 connected of 3
+### object field reads: 0 connected of 3 (0 of the 3 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -263,51 +283,51 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | local x = h.keep; x.val() | accept, exit 7 [rule/field read borrow] | refused-generic | `root-instance-call` |
 | h.keep.val() | accept, exit 7 [rule/field read borrow] | refused-generic | `artifact-source-unavailable` |
 
-### `new T { f: x }` construction: 0 connected of 4
+### `new T { f: x }` construction: 0 connected of 4 (0 of the 2 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
-| new T { f: x } | accept, exit 0 [rule 2 example] | refused-generic | `OverridesNotCovered` |
-| new T(a) { f: x } | accept, exit 0 [rule 2 example] | refused-generic | `artifact-source-unavailable` |
-| new T { } with a field missing | reject [ (書き忘れ)] | refused-generic | `OverridesNotCovered` |
-| new T { f: x, f: y } duplicate | reject [ (重複)] | refused-named | `duplicate-field` |
+| new T { f: x } | accept, exit 0 [L58 item 4, 2 example] | refused-generic | `OverridesNotCovered` |
+| new T(a) { f: x } | accept, exit 0 [L58 item 4, 2 example] | refused-generic | `artifact-source-unavailable` |
+| new T { } with a field missing | reject from 3b (current behaviour stays until then) [L58 item 4 (required-field check starts at 3b)] | refused-generic | `OverridesNotCovered` |
+| new T { f: x, f: y } duplicate | reject [L58 item 4 (duplicate is an error)] | refused-named | `duplicate-field` |
 
-### pattern and `match`: 0 connected of 4
-
-| Form (spelling) | Frozen expectation | Measured | Tag or exit |
-|---|---|---|---|
-| ordinary match on a value, _ arm | accept, exit 1 [L58] | refused-generic | `ResolverDeferred` |
-| match with variant name | undecided [L58] | parser-refused | `[freeze:contract][parser/enum_match_unit_binding] enum variant `Some` for `Option` require` |
-| match with lowercase binder | undecided [L58] | parser-refused | `Unexpected token RETURN, expected _ => <expr> in match at line 3` |
-| unbound .. in a variant pattern | undecided [L58] | parser-refused | `Unexpected token RANGE, expected record pattern field name at line 2` |
-
-### function types and closures: 0 connected of 3
+### pattern and `match`: 0 connected of 4 (0 of the 4 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
-| fn(Expr): Bool parameter type | undecided [rule11] | parser-refused | `Unexpected token FN, expected type name in static box method parameter type annotation at ` |
-| closure fn[delta, edit total](...) | undecided [rule11] | parser-refused | `Unexpected token LBRACK, expected LBRACE at line 6` |
-| update(key, edit action) | undecided [rule11] | parser-refused | `Unexpected token COLON, expected parameter name at line 2` |
+| ordinary match with _ arm (expression) | accept, exit 7 [L58] | refused-generic | `ResolverDeferred` |
+| match on Option with variants Some(v) / None | accept, exit 3 [L57 (patterns), option.md] | refused-generic | `ResolverDeferred` |
+| lowercase identifier binds the whole value | accept, exit 5 [L57] | parser-refused | `Unexpected token RETURN, expected _ => <expr> in match at line 3` |
+| unbound fields written as .. in a record pattern | accept, exit 0 [L57 (.. keeps disposal responsibility)] | parser-refused | `Unexpected token RANGE, expected record pattern field name at line 2` |
 
-### containers: 0 connected of 4
-
-| Form (spelling) | Frozen expectation | Measured | Tag or exit |
-|---|---|---|---|
-| get(i): T? from me | undecided [rule11] | refused-named | `UnsupportedResultType` |
-| edit push(take v: T) | undecided [rule11] | refused-generic | `ResolverDeferred` |
-| array pop | undecided [rule11] | refused-generic | `unowned-lifecycle-site` |
-| array remove | undecided [rule11] | refused-generic | `unowned-lifecycle-site` |
-
-### rules that change in 3b: 0 connected of 4
+### function types and closures: 0 connected of 3 (0 of the 3 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
-| Box == Box | undecided [3b] | refused-generic | `unsupported-cohort` |
-| record declaration | undecided [3b] | refused-generic | `birth-global-legacy-stopped` |
-| release x (the `release root` statement) | undecided [EBNF release_stmt] | refused-generic | `ResolverDeferred` |
-| sync box | undecided [3b] | refused-generic | `new-source-drift` |
+| fn(Expr): Bool parameter type | accept, exit 0 [L57 (function types)] | parser-refused | `Unexpected token FN, expected type name in static box method parameter type annotation at ` |
+| closure fn[delta, edit total](...) | accept, exit 0 [L57 (closure)] | parser-refused | `Unexpected token LBRACK, expected LBRACE at line 6` |
+| update(key, edit action) | accept, exit 0 [L57 (Map edit update)] | parser-refused | `Unexpected token COLON, expected parameter name at line 2` |
 
-### String field reads: 6 connected of 16
+### containers: 0 connected of 4 (0 of the 4 accepted forms)
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| get(i): T? from me | accept, exit 0 [L57 (containers)] | refused-named | `UnsupportedResultType` |
+| edit push(take v: T) with a moved local | accept, exit 0 [L57 (containers)] | refused-generic | `array-holder/append-source` |
+| array pop | accept, exit 0 [L57 (containers)] | refused-generic | `unowned-lifecycle-site` |
+| array remove | accept, exit 0 [L57 (containers)] | refused-generic | `unowned-lifecycle-site` |
+
+### rules that change in 3b: 0 connected of 4 (0 of the 2 accepted forms)
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| Box == Box | reject from 3b (current behaviour stays until then) [L58 (rejecting Box == Box starts at 3b; until then the current behaviour stays)] | refused-generic | `unsupported-cohort` |
+| record declaration | reject from 3b (current behaviour stays until then) [L58 (record is removed at 3b; until then it stays)] | refused-generic | `birth-global-legacy-stopped` |
+| release x (the `release root` statement) | accept, exit 0 [EBNF release_stmt (parser and source live, semantic 0)] | refused-generic | `ResolverDeferred` |
+| sync box | accept, exit 0 [L102 (one sync box example is connected before the switch)] | refused-generic | `new-source-drift` |
+
+### String field reads: 6 connected of 16 (6 of the 13 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |
 |---|---|---|---|
@@ -328,24 +348,26 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | get(): String { return me.f } annotated, no from | reject [rule5] | refused-named | `UnsupportedResultAnnotation` |
 | print(t.get()) with unannotated get | reject [rule5] | against-frozen | `exit 0` |
 
+
 ### Remaining before 3b
 
 The order follows ADR-002 (3a continuation, then 3b). Status is only `done`, `partial` or `not started`; evidence is a row above or a commit. No effort estimate is given.
 
 | Step | Status | Evidence |
 |---|---|---|
-| `take` declaration through call entry, End and independent verification | partial | `birth(take x: T)` stored with `me.f = move x` is connected (rows `birth(take x: T) stored in field`); a `take` parameter fed by `move` is connected (`f(move x) to take param`); a non-stored `take` formal, a fresh `new T` actual, an ordinary-method `take` with a fresh actual and a receiver `take` are refused |
-| `from` (single support) | partial | refused in this table (`get(): T from me`, `f(a, b): P from a`, `: String from me`); `from a, b` stops in the parser; the `ownership_from_read` and `ownership_from_receiver` smoke cases in `tools/smokes/v2/profiles/integration/apps/canonical_app_exe_cases.sh` are the connected `from` shapes and were not re-measured here |
-| `edit` / `take` declarations (receiver, argument, closure), types, `copy`, initialization | partial | `copy` of an i64 is connected; `edit` declarations are refused by name; receiver `take`/`edit` are refused by name; closures and function types stop in the parser; `T?` has one connected shape (literal `null` store) |
+| `take` declaration through call entry, End and independent verification | partial | `birth(take x: T)` stored with `me.f = move x` is connected, and so is a `take` parameter fed by `move`; a non-stored `take` formal, a fresh `new T` actual, an ordinary-method `take` with a fresh actual and a receiver `take` are refused. `move` into a plain (non-`take`) formal is rejected, as decided |
+| `from` (single support) | partial | the spellings in the `from` group are refused; `from a, b` stops in the parser (open in ADR-002). The `ownership_from_read` and `ownership_from_receiver` smoke cases in `tools/smokes/v2/profiles/integration/apps/canonical_app_exe_cases.sh` are the connected `from` shapes and were not re-measured here |
+| `edit` / `take` declarations (receiver, argument, closure), types, `copy`, initialization | partial | `copy` of an i64 is connected; `edit` declarations are refused by name; receiver `take`/`edit` are refused by name; function types and closures stop in the parser; field types: i64, String and StringBox store and read, `String?` stores through an unannotated formal, Bool and `T`/`T?` do not; `T?` has one connected shape (literal `null` store) |
 | `share` | partial | local initializers `share new T()`, `share move x`, `share h` are connected; `Shared<T>` as parameter, result and field is refused by name; a method call on a Shared local is refused; `Shared(...)` is rejected by the Rust parser (commit `4949c16b4c`) and by the `.hako` parser (commit `c1739a89c2`); Hako `share` parity is unverified |
 | `take place` | not started | expression `take` is not parsed: `local y = take x` is read as the identifier `take` followed by a separate statement |
-| enum ownership class, `match` re-borrow, `match move`, field `move` | not started | `match` with a variant or binder and the unbound `..` stop in the parser; `move x.f` stops in the parser; `match move` is refused |
-| array `pop` / `remove` | not started | refused without a named reason |
-| `update` | not started | the call spelling stops in the parser |
+| enum ownership class, `match` re-borrow, `match move`, field `move` | not started | `match` on `Option` and `match move` are refused without a named reason; a lowercase binder and `..` in a record pattern stop in the parser; `move x.f` stops in the parser |
+| array `pop` / `remove`, `push(take v)`, `get(i): T? from me` | not started | refused (`get(i)` by name, the others without a named reason) |
+| `update` | not started | the call spelling with a closure stops in the parser |
 | `sync box` (one example) | not started | refused without a named reason |
-| 9 task execution | not started | not measured in this pass |
-| 3b structure cleanups (A: `PartialEq` for parameter contracts, B: the three `main0` loop lowerers) | not verified | not measured in this pass |
-| 3b switch (non-null default, Box `==`, `record`, app edits, enforcement, 19 forms) | not started | the 3b-rule rows are all refused |
+| 9 comparison tasks (the "書き比べの9課題" of ADR-002 line 102) | not started | the nine tasks are not recorded in the repository and no commit runs them |
+| 3b structure cleanup (A): `PartialEq` for parameter contracts, one `HomeDemandV1` construction point | done | commit `f6c8754902` (Consolidate parameter contract equality and transfer demand projection); `docs/development/current/main/investigations/app-boxtorrent-mini.md:19` records "整理A完了" with the suite and cohort unchanged; `home_demand()` lives in `src/mir/callable_parameter_contract/model.rs` |
+| 3b structure cleanup (B): merge the common part of the three `main0` loop lowerers, split the big files by responsibility | not started | the three `main0` families (`continue`, `derived_predicate`, `in_body_step`) still exist as three parallel sets of eight files each in `src/mir/compiler/` (`main0_*_{recipe_coseal,root_selection,semantic_program,source_map,source_map_issue,syntax_facts}.rs` and tests); no commit merges them |
+| 3b switch (non-null default, Box `==` rejection, `record` removal, required-field check, app edits, enforcement, 19 forms) | not started | the rows that change at 3b still show today's behaviour (Box `==`, `record` and a missing field are refused without a named reason) |
 
 ## Known conflict set
 
