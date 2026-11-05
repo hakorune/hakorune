@@ -67,13 +67,12 @@ impl Eq for StaticSourceActualIdentityV1 {}
 
 /// Passive argument plans borrow the complete original source census. They must
 /// not insert omitted callers into the legacy static-observation projection.
-/// The call sits in an argument position of another original Static call, so
-/// its result is an expression value rather than a statement-level local.
-fn is_static_call_argument_v1(prepared: &PreparedBorrowedFormalIngressV1, call: &OwnedExprSiteV1) -> bool {
-    prepared.source_incoming.source_rows_v1().any(|row| matches!(&row.source,
-        super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(outer)
-            if outer.call_site().owner() == call.owner()
-                && outer.argument_sites().iter().any(|site| site == call.site())))
+/// The call is an expression value (argument, operand, condition, printed or
+/// returned value), not the whole initializer of a Local; statement-level
+/// Local calls keep their own writer and are never staged here.
+pub(in crate::mir::normal_callable_semantic_package) fn is_expression_value_call_v1(call: &OwnedExprSiteV1) -> bool {
+    !matches!(call.site().node().segments().last(),
+        Some(crate::mir::resolved_semantics::SourcePathSegmentV1::Initializer(_)))
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn original_static_source_v1<'a>(
@@ -309,7 +308,7 @@ pub(super) fn prepare_static_source_actuals_v1(
     let original_source = original
         .is_some_and(|source| {
             source.is_zeroarg_i64_v1()
-                || (source.is_qualified_i64_source_v1() && is_static_call_argument_v1(prepared, call))
+                || (source.is_qualified_i64_source_v1() && is_expression_value_call_v1(call))
                 || source.is_current_owner_i64_source_v1()
                 || source.is_current_owner_bool_source_v1()
                 || prepared.is_static_terminal_source_v1(source)

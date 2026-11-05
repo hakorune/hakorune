@@ -231,9 +231,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         if matches!(original.source_result(),
             crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactI64 { .. })
             && !expression.is_some_and(|plan| plan.owner() == site.owner()
-                && matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }))
+                && !plan.site_is_whole_binding_value_v1(site.site()))
         {
-            return ordinary_result_absent(site, "scalar result requires its argument-purpose frame");
+            return ordinary_result_absent(site, "a whole-binding scalar result belongs to its statement-level writer");
         }
         return source_static_result_arguments_v1(
             source, pending, contracts, site, selected, completed,

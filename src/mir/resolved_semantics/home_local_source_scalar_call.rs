@@ -534,8 +534,7 @@ pub(crate) fn issue_source_expression_call_v1<E>(
         LocalCallResultSourceV1::Scalar(loan) if loan.kind() == SourceScalarKind::Integer =>
             loan.source().receiver_binding().ok().and_then(receiver_path),
         LocalCallResultSourceV1::Ordinary(loan) if loan.static_source().is_some()
-            && loan.result() == LocalCallResultClassV1::I64 && matches!(source.root(),
-                crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }) => None,
+            && loan.result() == LocalCallResultClassV1::I64 && !source.site_is_whole_binding_value_v1(site.site()) => None,
         LocalCallResultSourceV1::Ordinary(loan) if loan.static_source().is_some() && loan.result() == LocalCallResultClassV1::Text && (plain_assignment || matches!(source.root(),
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. }
                 | crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. }

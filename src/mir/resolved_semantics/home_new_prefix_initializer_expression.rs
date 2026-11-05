@@ -100,9 +100,10 @@ pub(super) fn observe<E>(
     {
         return declined(statement.site(), 6);
     }
-    if root_compare {
-        // A comparison is not itself a call root: stage every call under it in
-        // source order from this real Prefix, as the whole-expression consumers do.
+    if root_compare || (arithmetic_requested || root_add) && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) {
+        // A comparison or arithmetic root is not itself a call root: stage every
+        // call under it in source order from this real Prefix, as the
+        // whole-expression consumers do.
         local_call_flow::stage_expression_actuals_v1(
             input, statement, &source, locals, prefix_known, homes, local_calls, path_calls, fields, port,
         )?;
@@ -195,6 +196,7 @@ pub(super) fn observe<E>(
     };
     if !prepared.has_core()
         && !prepared.has_owned_text_call()
+        && !prepared.has_static_i64_call()
         && !prepared.has_dynamic_invocation_call()
         && !(root_reference && locals.dynamic_invocation_result_reference_v1(site).is_some())
         && !(root_compare && (has_parent_text || prepared.has_dynamic_invocation_call()))

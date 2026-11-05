@@ -153,6 +153,13 @@ impl ExpressionSourcePlanV1 {
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
     }
+    /// The node at `site` is the entire value of a Local initializer or an
+    /// Assignment; the statement-level writers own that position. Any other
+    /// place a call can stand is an expression value.
+    pub(crate) fn site_is_whole_binding_value_v1(&self, site: &SourceExprSiteV1) -> bool {
+        matches!(self.root, ExpressionPlanRootV1::LocalInitializer { .. } | ExpressionPlanRootV1::Assignment { .. })
+            && self.nodes.first().is_some_and(|node| node.site() == site)
+    }
     /// Every node's children are known and always evaluated (no conditional reach).
     pub(crate) fn children_always_known_v1(&self) -> bool {
         self.nodes.iter().all(|node| matches!(node.children(), ExpressionChildrenV1::Known(children)

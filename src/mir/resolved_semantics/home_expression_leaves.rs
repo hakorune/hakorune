@@ -80,6 +80,11 @@ impl PreparedExpressionCallsV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_owned_text_call(&self) -> bool {
         self.calls.values().any(|call| matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::Ordinary(loan)) if loan.result() == super::super::LocalCallResultClassV1::Text))
     }
+    /// An original Static exact-i64 call stands in this expression as a value.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_static_i64_call(&self) -> bool {
+        self.calls.values().any(|call| matches!(call.result_source(), Some(super::super::LocalCallResultSourceV1::Ordinary(loan))
+            if loan.static_source().is_some() && loan.result() == super::super::LocalCallResultClassV1::I64))
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_dynamic_invocation_call(
         &self,
     ) -> bool {

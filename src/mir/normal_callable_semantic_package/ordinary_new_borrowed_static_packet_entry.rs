@@ -504,6 +504,22 @@ impl OrdinaryNewClaimLedgerV1 {
                 found = true;
             }
         }
+        // An exact-i64 Static call standing as an expression value (argument,
+        // operand, condition, printed or returned value) is realized by its
+        // checked argument frame and needs no local route row; its owner still
+        // selects the ordinary root route.
+        for row in source.source_incoming.source_rows_v1().filter(|row| row.call.owner() == owner) {
+            if let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source {
+                if original.is_qualified_i64_source_v1()
+                    && super::super::borrowed_formal_actuals::is_expression_value_call_v1(&row.call)
+                    && original.parameters().iter().all(|formal| formal.kind
+                        == CallableParameterContractKindV1::ExactTrivial(
+                            crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
+                {
+                    found = true;
+                }
+            }
+        }
         for (row, legacy) in source
             .source_incoming
             .exact_rows().map(|row| (row, true))
