@@ -78,8 +78,6 @@ impl PrefixLocalFlow<'_> {
         while let Some((site, after)) = pending.pop() {
             let moved = input.function().expression_source().unary(&site).filter(|unary|
                 unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
-            // A plain `new` argument whose Home leaves the frame transfers
-            // without a `move` operator: the operand is the site itself.
             if after {
                 if let Some(moved) = moved {
                     let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(moved.operand())

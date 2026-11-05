@@ -216,14 +216,12 @@ pub(super) fn observe_new_arguments_v1<E>(
                     | SelectedNewArgumentKindV1::BoundValue { binding }
                         if homes.iter().any(|home| home.binding() == *binding) =>
                     {
-                        {
                         moved.push(*binding);
                         // Only a local name or an explicit `move` names its own
                         // Home; other expressions merely bind a value to one.
                         if explicit_move || input.function().variable_ref(site).is_some() {
                             transfer_sites.push(site.clone());
                         }
-                    }
                     }
                     _ => {}
                 }
