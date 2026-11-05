@@ -172,12 +172,8 @@ fn qualified_static_call_claim_resolves_import_alias() {
     assert_eq!(call.result(), LocalCallResultClassV1::I64);
     assert_eq!(call.arguments(), &[LocalCallArgumentV1::Integer(7)]);
     assert!(new_claim_prefix_covered(&package));
-}
-
-/// A compound scalar argument is part of the scalar seal (`3965b758ba`): the
-/// claim is one I64 call whose only argument is the original expression.
-#[test]
-fn qualified_static_call_claim_admits_compound_scalar_argument() {
+    // A compound scalar argument is part of the scalar seal (`3965b758ba`): one I64
+    // call whose only argument is the original expression.
     let package = issue(
         "box Page { birth() { } }
         static box LayoutBox { class_id(size) { return size } }
