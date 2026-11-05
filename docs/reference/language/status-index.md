@@ -76,7 +76,7 @@ not inherit permission from that snapshot.
 | `Channel<T>` | `topic_owned` | `scaffold`/`deferred` by route | [concurrency semantics](../concurrency/semantics.md), stage profiles | `channel-route-gated` | Separate concurrency decision | Reference queue surface; broad Program/MIR/LLVM use remains gated. |
 | `sync box` / `context` / `task_scope` | `topic_owned` | `scaffold`/`deferred` | [concurrency boundary](../concurrency/boundary-model.md), stage profiles | `sync-boundary-gated` | Separate concurrency decision | Do not infer parser-live or broad runtime support from reference docs. |
 | `worker_scope` / `parallel` / raw `thread` / `lock<T>` / `worker_local` | `reserved`/`topic_owned` | `prohibited`/`deferred` | [stage profiles](stage-profiles.md), concurrency docs | `concurrency-substrate-only` | New language decision required | Design/substrate surfaces; no language-core activation. |
-| Home ownership: declaration `take`, result `from`, expression `share` | `topic_owned` | take/share accepted target; from provisional; production 0 | [ownership](ownership.md), [Home syntax D0](../../development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md), stage profiles | existing inactive-ownership reject boundary | release source I0 -> take declaration I0 -> capability/Home ABI rows; share after representation D0 | `take` is declaration-only contextual; `share` is a non-group postfix prefix. Neither is globally reserved; `share(...)` remains an ordinary call. Former `move/view/shared` syntax is historical. |
+| Home ownership: declaration `take`, result `from`, expression `share` | `topic_owned` | take/share accepted target; bounded Rust forms connected (see [Ownership forms measured](#ownership-forms-measured)); from provisional; Hako parity unverified | [ownership](ownership.md), [Home syntax D0](../../development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md), stage profiles | existing inactive-ownership reject boundary | release source I0 -> take declaration I0 -> capability/Home ABI rows; share after representation D0 | `take` is declaration-only contextual; `share` is a non-group postfix prefix. Neither is globally reserved; `share(...)` remains an ordinary call. Former `move/view/shared` syntax is historical. |
 | contextual `release root` | `topic_owned` | parser/source carrier live; semantics 0 | [ownership](ownership.md), [Home syntax D0](../../development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md), [release I0](../../development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md) | `index:home-release-semantics-missing` | root capability/Home Flow I0 + reference receipts | Dedicated exact-root AST/source row only. `release(value)` remains an ordinary call; `release` is not globally reserved; no Home is ended until later semantic/physical rows close. |
 | `@rune CallableContract(query)` | `topic_owned` | accepted target / production 0 | [callable contracts](callable-contracts.md), [runes](runes.md) | `index:callable-contract-query-production-missing` | ordered Box-method inventory -> parser parity -> declared contract -> body conformance | Whole-call query obligation; signature owns types/arity, physical ABI remains downstream. Existing `Contract(pure|readonly)` is not silently promoted. |
 | Box method namespace / name collision | ordinary method declaration and delegate exposure grammar | accepted target; direct duplicate rejection live; delegate forwarding production 0 | [callable contracts](callable-contracts.md), [call evaluation](function-call-evaluation.md), [delegation](field-visibility-and-delegation.md), EBNF | `index:delegate-forwarding-production-missing` | exact resolver relation -> unique delegate forwarder relation -> Builder/MIR consumer | One flat visible-method namespace per nominal Box. No Box-method overload by arity or static/instance kind; aliases must be unique. Same names on different Boxes are valid. FreeStatic `name/arity` identity is separate. |
@@ -84,6 +84,268 @@ not inherit permission from that snapshot.
 | ordinary Dynamic member invocation | `topic_owned` | selector-independent contract accepted; caller-zero semantic-envelope issuer live; production consumer 0 | [Dynamic invocation](dynamic-invocation.md), [failure/outcomes](failure-outcome-relations.md), [ownership](ownership.md) | `index:dynamic-invocation-envelope-production-consumer-missing` | Recipe Dynamic value/CallSlot -> provider admission/plan -> physical canary/cutover | One `OpaqueObservable`, synchronous non-detached but `MaySuspend`, borrowed-input, self-contained-result, Normal-or-Fault contract. Runtime tags and selectors do not choose semantics; no retry/fallback. |
 | Dynamic `+` / `<` operator contracts | `topic_owned` | contract, canonical issuer, and exact V9/V17 lifecycle co-seal live; physical consumer 0 | [Dynamic operators](dynamic-operators.md), [types](types.md), [ownership](ownership.md) | `index:dynamic-carrier-ingress-lifecycle-missing` | initial V1/B0 ingress disposition -> rebind/cleanup -> physicalization | Add borrows operands and publishes a non-aliasing carrier only on Normal; Less publishes trivial Bool. Fault publishes no result or rebind. Initial plain-parameter ingress may not inherit V17's end obligation. Runtime/provider inference and invocation-envelope reuse are forbidden. |
 | `Option<T>` / `Result<T,E>` constructors | `canonical` narrow rows | `live` narrow enum/prelude profile | [option](option.md), EBNF, stage profiles | `option-result-narrow` | Expand only by explicit capability row | Constructors are live independently; typed Result `?` remains pending and Option `?` is rejected. |
+
+## Ownership forms measured
+
+Measured on commit `c1739a89c2` (2026-11-05) with the `cargo quick-build --bin hakorune` binary, one source per row, `--backend mir --emit-exe`, then running the EXE. Only the Rust route is measured: the Hako parser cannot be run today (`cargo build --features vm-reference` does not compile at this commit: E0004 in `src/backend/mir_interpreter/handlers/type_ops.rs`; see also the Hako parser line in `docs/development/current/main/investigations/app-boxtorrent-mini.md`), and the `.hako` parser change for `Shared(...)` is source-only.
+
+Results: `connected` = the EXE is built and its exit and output match the expectation (for an undecided row, it is built and ran); `refused-named` = the refusal text names the form or its cause; `refused-generic` = refused, but the text does not name the form (`artifact-source-unavailable`, `ResolverDeferred`, `unsupported-cohort` and similar); `parser-refused` = the parser stops; `against-frozen` = the frozen grammar rejects the form (or expects another result) and the compiler accepts it. A row whose frozen expectation is `reject` and whose result is any refusal is a correct refusal. Basis: `L56`/`L58` are lines of ADR-002, `rule N` is a numbered rule of the frozen grammar block, `3a`/`3b` are migration steps. Every row is a small standalone program; several rows combine a form with the smallest surrounding code that can run, so a generic refusal can come from that surrounding code and the row says what it spells.
+
+| Group | connected | refused-named | refused-generic | parser-refused | against-frozen | total |
+|---|---|---|---|---|---|---|
+| `move` | 3 | 8 | 1 | 4 | 0 | 16 |
+| declaration `take` | 1 | 3 | 2 | 0 | 0 | 6 |
+| expression `take` | 0 | 0 | 6 | 0 | 0 | 6 |
+| `edit` | 0 | 3 | 4 | 0 | 0 | 7 |
+| `share` | 3 | 5 | 2 | 1 | 0 | 11 |
+| `copy` | 1 | 3 | 1 | 0 | 0 | 5 |
+| `from` | 0 | 2 | 1 | 1 | 0 | 4 |
+| `T?` | 1 | 1 | 5 | 0 | 0 | 7 |
+| field types (store / read / write after publication) | 8 | 1 | 15 | 0 | 0 | 24 |
+| mixed field types in one box | 3 | 2 | 2 | 0 | 0 | 7 |
+| object field reads | 0 | 0 | 3 | 0 | 0 | 3 |
+| `new T { f: x }` construction | 0 | 1 | 3 | 0 | 0 | 4 |
+| pattern and `match` | 0 | 0 | 1 | 3 | 0 | 4 |
+| function types and closures | 0 | 0 | 0 | 3 | 0 | 3 |
+| containers | 0 | 1 | 3 | 0 | 0 | 4 |
+| rules that change in 3b | 0 | 0 | 4 | 0 | 0 | 4 |
+| String field reads | 6 | 1 | 7 | 0 | 2 | 16 |
+| **all** | 26 | 31 | 60 | 12 | 2 | 131 |
+
+### `move`: 3 connected of 16
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| local y = move x | accept, exit 3 [rule 2] | connected | `exit 3` |
+| y = move x | accept, exit 4 [rule 2] | refused-named | `move-not-supported` |
+| f(move x) to take param | accept, exit 5 [rule 4] | connected | `exit 5` |
+| new H(move x) with birth(take) | accept, exit 0 [rule 2] | connected | `exit 0` |
+| new H(move x) inside if | accept, exit 0 [rule 2] | refused-named | `move-not-supported` |
+| me.f = move x (in birth) | accept, exit 0 [rule 2/rule6] | refused-named | `BirthStoreOwnershipMismatch` |
+| h.keep = move y (after publication) | undecided [3a excludes] | refused-named | `move-argument-unplanned` |
+| return move x | accept, exit 6 [rule 5] | refused-named | `move-not-supported` |
+| (move x).m() consuming receiver | accept, exit 7 [rule 4] | refused-named | `UnsupportedReceiverTransfer` |
+| match move e | undecided [rule 2 pattern] | refused-generic | `ResolverDeferred` |
+| move x.f (direct field of owner) | accept, exit 8 [rule 6] | parser-refused | `Unexpected token DOT, expected [freeze:contract][parser/move_exact_root_required] move req` |
+| e = move n.left (replacement from inside) | accept, exit 0 [rule12] | parser-refused | `Unexpected token DOT, expected [freeze:contract][parser/move_exact_root_required] move req` |
+| move x? (error) | reject [L56] | parser-refused | `parse` |
+| move img.intoBytes() (error) | reject [L56] | parser-refused | `Unexpected token DOT, expected [freeze:contract][parser/move_exact_root_required] move req` |
+| second move of a moved local | reject [rule 2] | refused-named | `UseAfterMove` |
+| read after move | reject [rule 2] | refused-named | `UseAfterMove` |
+
+### declaration `take`: 1 connected of 6
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| birth(take x: T) stored in field, move local | accept, exit 0 [3a] | connected | `exit 0` |
+| birth(take x: T) stored in field, fresh new T actual | accept, exit 0 [rule 3: fresh value passes directly] | refused-generic | `argument-source-unavailable` |
+| birth(take x: T) not stored | accept, exit 0 [3a] | refused-named | `TakeFormalNotStored` |
+| ordinary method take param | accept, exit 1 [rule 4] | refused-generic | `borrowed-view/declared-object-class` |
+| receiver take m() declared, never called | accept, exit 0 [L56] | refused-named | `UnsupportedReceiverTransfer` |
+| receiver take m() called plainly x.m() | reject [rule 4 (implied)] | refused-named | `UnsupportedReceiverTransfer` |
+
+### expression `take`: 0 connected of 6
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| take x (nullable local) | accept, exit 2 [L56] | refused-generic | `misparsed as identifier take + separate statement; then ResolverDeferred` |
+| take me.f | accept, exit 0 [L56] | refused-generic | `misparsed as identifier take + separate statement; then ResolverDeferred` |
+| take a[i] | accept, exit 0 [L56 (named-refuse until connected)] | refused-generic | `misparsed as identifier take + separate statement; then ResolverDeferred` |
+| return take me.f | accept, exit 0 [L56] | refused-generic | `misparsed as identifier take + separate statement; then ResolverDeferred` |
+| take(p) ordinary call | accept, exit 3 [L56] | refused-generic | `artifact-source-unavailable` |
+| take on non-nullable T place | reject [L56] | refused-generic | `misparsed as identifier take + separate statement; then ResolverDeferred` |
+
+### `edit`: 0 connected of 7
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| edit param declared, never called | accept, exit 0 [rule 4] | refused-named | `UnsupportedTransfer` |
+| rewrite(edit x) | accept, exit 5 [rule 4] | refused-generic | `ResolverDeferred` |
+| receiver edit m() | accept, exit 5 [rule 4] | refused-named | `UnsupportedReceiverTransfer` |
+| edit me.s[i] as argument | undecided [rule11] | refused-generic | `ResolverDeferred` |
+| e = make(v) through edit param | accept, exit 9 [L56] | refused-generic | `ResolverDeferred` |
+| e = fold(move e) (error) | reject [L56] | refused-generic | `ResolverDeferred` |
+| call omits edit for an edit param | reject [rule 4] | refused-named | `UnsupportedTransfer` |
+
+### `share`: 3 connected of 11
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| share new T() | accept, exit 3 [rule 2] | connected | `exit 3` |
+| share new T() then call a method on the Shared local | accept, exit 3 [rule 2/rule3 (read through handle)] | refused-generic | `root-instance-call` |
+| share move x | accept, exit 3 [rule 2] | connected | `exit 3` |
+| share h (increase) | accept, exit 3 [rule 2] | connected | `exit 3` |
+| share f() (function result) | accept, exit 3 [L56] | refused-named | `UnsupportedResultAnnotation` |
+| share x of plain Box (error) | reject [rule 2] | refused-named | `SharedOperandUnsupported` |
+| share(x) ordinary call | accept, exit 3 [L56] | refused-generic | `artifact-source-unavailable` |
+| Shared<T> parameter | accept, exit 3 [3a bound excluded] | refused-named | `UnsupportedDeclaredType` |
+| Shared<T> result | accept, exit 3 [3a bound excluded] | refused-named | `UnsupportedResultAnnotation` |
+| Shared<T> field | accept, exit 0 [3a bound excluded] | refused-named | `SharedOperandUnsupported` |
+| Shared(new T()) retired | reject [rule 2] | parser-refused | `Unexpected token IDENTIFIER("Shared"), expected [freeze:contract][parser/shared_constructo` |
+
+### `copy`: 1 connected of 5
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| copy of i64 | accept, exit 4 [rule 2] | connected | `exit 4` |
+| copy of Bool | accept, exit 1 [rule 2] | refused-named | `copy_contract_unsupported` |
+| copy of String | accept, exit 0 [rule 2] | refused-named | `copy_contract_unsupported` |
+| copy of Box without copy contract | reject [rule 2] | refused-named | `copy_contract_unsupported` |
+| copy(x) ordinary call | accept, exit 4 [rule] | refused-generic | `artifact-source-unavailable` |
+
+### `from`: 0 connected of 4
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| get(): T from me | accept, exit 5 [rule5] | refused-named | `UnsupportedResultAnnotation` |
+| f(a: P, b: P): P from a | accept, exit 6 [rule5] | refused-generic | `nullable-ordinal` |
+| from a, b | undecided [3a/後続: 受理開始は未決] | parser-refused | `[freeze:contract][parser/from-support-unavailable] from requires exactly one receiver or p` |
+| name(): String from me | accept, exit 0 [rule5] | refused-named | `UnsupportedResultAnnotation` |
+
+### `T?`: 1 connected of 7
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| field T? set in birth | accept, exit 0 [3b] | refused-named | `TakeFormalDeclarationUnavailable` |
+| formal T? with null actual | accept, exit 0 [3b] | refused-generic | `formal-declaration-unavailable` |
+| literal null store in birth | accept, exit 0 [3b] | connected | `exit 0` |
+| T? field without birth (default null) | accept, exit 0 [3b] | refused-generic | `instruction-unsupported` |
+| read T? field | accept, exit 0 [rule/読み借用] | refused-generic | `formal-declaration-unavailable` |
+| h.c == null | accept, exit 1 [] | refused-generic | `artifact-source-unavailable` |
+| move after null check | accept, exit 2 [L56] | refused-generic | `EdgeArgumentsForbidden` |
+
+### field types (store / read / write after publication): 8 connected of 24
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| i64 field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
+| i64 field: read after store | accept, exit 3 [rule/field] | connected | `exit 3` |
+| i64 field: write after publication | accept, exit 3 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| Bool field: store via birth | accept, exit 0 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| Bool field: read after store | accept, exit 1 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| Bool field: write after publication | accept, exit 1 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| String field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
+| String field: read after store | accept, exit 0 [rule/field] | connected | `exit 0` |
+| String field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| StringBox field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
+| StringBox field: read after store | accept, exit 0 [rule/field] | connected | `exit 0` |
+| StringBox field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| String? field: store via birth | accept, exit 0 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| String? field: read after store | accept, exit 0 [rule/field] | refused-generic | `print-expression` |
+| String? field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+| T field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
+| T field: read after store | accept, exit 0 [rule/field] | refused-generic | `ResolverDeferred` |
+| T field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `ResolverDeferred` |
+| T? field: store via birth | accept, exit 0 [rule/field] | refused-named | `TakeFormalDeclarationUnavailable` |
+| T? field: read after store | accept, exit 0 [rule/field] | refused-generic | `ResolverDeferred` |
+| T? field: write after publication | accept, exit 0 [3a excludes (public write)] | refused-generic | `ResolverDeferred` |
+| untyped field: store via birth | accept, exit 0 [rule/field] | connected | `exit 0` |
+| untyped field: read after store | accept, exit 5 [rule/field] | refused-generic | `artifact-source-unavailable` |
+| untyped field: write after publication | accept, exit 5 [3a excludes (public write)] | refused-generic | `artifact-source-unavailable` |
+
+### mixed field types in one box: 3 connected of 7
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| String + i64 | accept, exit 3 | refused-generic | `IncompleteOrdinaryNewCoverage` |
+| String + T | accept, exit 0 | refused-named | `TakeBirthSourceUnconnected` |
+| String + T (plain birth, T stored by assignment) | accept, exit 0 | refused-generic | `object-field-set-invalid` |
+| String + untyped (Text) field | accept, exit 0 | connected | `exit 0` |
+| String + untyped holding an object | accept, exit 0 | refused-named | `move-argument-unplanned` |
+| T + i64 | accept, exit 2 | connected | `exit 2` |
+| untyped only holding Text, read print(a.v) | accept, exit 0 [ownership.md (Text-only untyped field)] | connected | `exit 0` |
+
+### object field reads: 0 connected of 3
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| local x = h.keep | accept, exit 7 [rule/field read borrow] | refused-generic | `unsupported-cohort` |
+| local x = h.keep; x.val() | accept, exit 7 [rule/field read borrow] | refused-generic | `root-instance-call` |
+| h.keep.val() | accept, exit 7 [rule/field read borrow] | refused-generic | `artifact-source-unavailable` |
+
+### `new T { f: x }` construction: 0 connected of 4
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| new T { f: x } | accept, exit 0 [rule 2 example] | refused-generic | `OverridesNotCovered` |
+| new T(a) { f: x } | accept, exit 0 [rule 2 example] | refused-generic | `artifact-source-unavailable` |
+| new T { } with a field missing | reject [ (書き忘れ)] | refused-generic | `OverridesNotCovered` |
+| new T { f: x, f: y } duplicate | reject [ (重複)] | refused-named | `duplicate-field` |
+
+### pattern and `match`: 0 connected of 4
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| ordinary match on a value, _ arm | accept, exit 1 [L58] | refused-generic | `ResolverDeferred` |
+| match with variant name | undecided [L58] | parser-refused | `[freeze:contract][parser/enum_match_unit_binding] enum variant `Some` for `Option` require` |
+| match with lowercase binder | undecided [L58] | parser-refused | `Unexpected token RETURN, expected _ => <expr> in match at line 3` |
+| unbound .. in a variant pattern | undecided [L58] | parser-refused | `Unexpected token RANGE, expected record pattern field name at line 2` |
+
+### function types and closures: 0 connected of 3
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| fn(Expr): Bool parameter type | undecided [rule11] | parser-refused | `Unexpected token FN, expected type name in static box method parameter type annotation at ` |
+| closure fn[delta, edit total](...) | undecided [rule11] | parser-refused | `Unexpected token LBRACK, expected LBRACE at line 6` |
+| update(key, edit action) | undecided [rule11] | parser-refused | `Unexpected token COLON, expected parameter name at line 2` |
+
+### containers: 0 connected of 4
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| get(i): T? from me | undecided [rule11] | refused-named | `UnsupportedResultType` |
+| edit push(take v: T) | undecided [rule11] | refused-generic | `ResolverDeferred` |
+| array pop | undecided [rule11] | refused-generic | `unowned-lifecycle-site` |
+| array remove | undecided [rule11] | refused-generic | `unowned-lifecycle-site` |
+
+### rules that change in 3b: 0 connected of 4
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| Box == Box | undecided [3b] | refused-generic | `unsupported-cohort` |
+| record declaration | undecided [3b] | refused-generic | `birth-global-legacy-stopped` |
+| release x (the `release root` statement) | undecided [EBNF release_stmt] | refused-generic | `ResolverDeferred` |
+| sync box | undecided [3b] | refused-generic | `new-source-drift` |
+
+### String field reads: 6 connected of 16
+
+| Form (spelling) | Frozen expectation | Measured | Tag or exit |
+|---|---|---|---|
+| print(t.f) | accept, exit 0 [rule1/field read] | connected | `exit 0` |
+| print(me.f) inside a method | accept, exit 0 [rule1/field read] | connected | `exit 0` |
+| print(t.f + "x") | accept, exit 0 [rule1/field read] | connected | `exit 0` |
+| local s = t.f + "x" | accept, exit 0 [rule1/field read] | connected | `exit 0` |
+| local n = t.f.length() | accept, exit 3 [rule1/field read] | connected | `exit 3` |
+| local s = t.f | accept, exit 0 [rule1/field read] | refused-generic | `artifact-source-unavailable` |
+| return t.f.length() | accept, exit 3 [rule1/field read] | refused-generic | `artifact-source-unavailable` |
+| print(t.f.length()) | accept, exit 0 [rule1/field read] | refused-generic | `print-expression` |
+| if t.f.length() > 2 | accept, exit 0 [rule1/field read] | refused-generic | `artifact-source-unavailable` |
+| t.f == "abc" comparison | accept, exit 0 [rule1/field read] | refused-generic | `print-expression` |
+| new Tag(t.f) | accept, exit 0 [rule1/field read] | refused-generic | `argument-source-unavailable` |
+| read inside a loop | accept, exit 0 [rule1/field read] | refused-generic | `facts-absent` |
+| read inside an if | accept, exit 0 [rule1/field read] | connected | `exit 0` |
+| get() { return me.f } unannotated | reject [rule5 (borrow return needs from me)] | against-frozen | `exit 0` |
+| get(): String { return me.f } annotated, no from | reject [rule5] | refused-named | `UnsupportedResultAnnotation` |
+| print(t.get()) with unannotated get | reject [rule5] | against-frozen | `exit 0` |
+
+### Remaining before 3b
+
+The order follows ADR-002 (3a continuation, then 3b). Status is only `done`, `partial` or `not started`; evidence is a row above or a commit. No effort estimate is given.
+
+| Step | Status | Evidence |
+|---|---|---|
+| `take` declaration through call entry, End and independent verification | partial | `birth(take x: T)` stored with `me.f = move x` is connected (rows `birth(take x: T) stored in field`); a `take` parameter fed by `move` is connected (`f(move x) to take param`); a non-stored `take` formal, a fresh `new T` actual, an ordinary-method `take` with a fresh actual and a receiver `take` are refused |
+| `from` (single support) | partial | refused in this table (`get(): T from me`, `f(a, b): P from a`, `: String from me`); `from a, b` stops in the parser; the `ownership_from_read` and `ownership_from_receiver` smoke cases in `tools/smokes/v2/profiles/integration/apps/canonical_app_exe_cases.sh` are the connected `from` shapes and were not re-measured here |
+| `edit` / `take` declarations (receiver, argument, closure), types, `copy`, initialization | partial | `copy` of an i64 is connected; `edit` declarations are refused by name; receiver `take`/`edit` are refused by name; closures and function types stop in the parser; `T?` has one connected shape (literal `null` store) |
+| `share` | partial | local initializers `share new T()`, `share move x`, `share h` are connected; `Shared<T>` as parameter, result and field is refused by name; a method call on a Shared local is refused; `Shared(...)` is rejected by the Rust parser (commit `4949c16b4c`) and by the `.hako` parser (commit `c1739a89c2`); Hako `share` parity is unverified |
+| `take place` | not started | expression `take` is not parsed: `local y = take x` is read as the identifier `take` followed by a separate statement |
+| enum ownership class, `match` re-borrow, `match move`, field `move` | not started | `match` with a variant or binder and the unbound `..` stop in the parser; `move x.f` stops in the parser; `match move` is refused |
+| array `pop` / `remove` | not started | refused without a named reason |
+| `update` | not started | the call spelling stops in the parser |
+| `sync box` (one example) | not started | refused without a named reason |
+| 9 task execution | not started | not measured in this pass |
+| 3b structure cleanups (A: `PartialEq` for parameter contracts, B: the three `main0` loop lowerers) | not verified | not measured in this pass |
+| 3b switch (non-null default, Box `==`, `record`, app edits, enforcement, 19 forms) | not started | the 3b-rule rows are all refused |
 
 ## Known conflict set
 
