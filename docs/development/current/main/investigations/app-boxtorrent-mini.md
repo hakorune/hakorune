@@ -1,6 +1,6 @@
 # APP-boxtorrent-mini
 
-Status: **acceptance reached** (fixed suite 8/8; prior 11 rows consolidated). Date: 2026-11-04
+Status: **acceptance reached** (fixed suite 8/8; prior 11 rows consolidated). Date: 2026-11-05
 Scope: unchanged boxtorrent-mini, canonical EXE, expected output and exit.
 Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home contract](../../../../reference/language/ownership.md), [Map contract](../../../../reference/runtime/runtime-data-dispatch.md).
 
@@ -9,7 +9,7 @@ Refs: [RULES](../../../RULES.md), [CURRENT_STATE](../CURRENT_STATE.toml), [Home 
 - 宣言Null着地（明示Birth）: Statement/Declarationの共通Init origin/keyで元Box宣言・field/type・完全zero-writer inventoryへ結び、実在entry receiverでbody前に一度install。NullにHome/Endはなく、後続のFresh/ForwardとFault検証を保持。AST/site/Birth/ownerの捏造、未設定slotのnull読み、AllocationOnlyの初期化済み扱い、新opcode/公開ABI/runtime変更なし。
 - 整理/保護着地（Sonnet実装・Opus監査）: actions SHA固定、Dependabot、SECURITY.md、ルートCargo.lock追跡、GitHub保護有効化。parserは文脈語判定と`ParserTransferKindV1`へ統合し`Shared(...)`行をrejectedへ（Rust production +12/test +26、main上で最適化CLI固定8/8、parser失敗16名は既知）。未追加: from/take/edit/copy/share/T?行（AST evidence不可、Rust限定印なし）。既存の赤: naming guard、vm-reference build、externcall drift。cargo-denyはbranch `security-step1`で保留（33件）。宣言Null検証の詳細はGit履歴。
 - 残件報告: no-birthのNode.next:Node?読取は正規CLIでordinary-new/local-commit/root-call-entry-unavailable、EXEなし。元宣言＋New siteの初期化execution、inline全installと未公開outer reclaimの独立検証、各New rootの全use/再実行/公開前区間を既存opcodeで結ぶ別seriesが必要（推定Rust350–650行＋C検証、4–8時間以上の見込みで本5時間goalへ押し込まない）。公開後置換・分岐受理・edit/take place・Hako/19形は未選択。
-- 段階4報告のみ: birthのExactI64元宣言はsourceにあるがphysical ABIでUnannotated以外を拒否。通常callableのExactTrivial/OrdinaryScalarを共用し、原宣言一致・引数検査・全consumer/独立検証を接続する（実引数から無注釈を偽造しない）。新opcode/ABI不要と見込み、推定production150–350/test80–180行。通常callableには同じ一律拒否はなく、旧拒否ピン＋通常ExactI64保持の既存3test PASS。実装しない。
+- 所有/String読み統合（2026-11-05、Sonnet実装・Opus監査、3dc3721bdc→b71d33b1a4、src/lang/crates +2733/−1147）: Birthの型つきi64 formal、`new T(move x)`、`birth(take x:T)`＋`me.f = move x`、`String`/`StringBox` fieldの格納と読み（`print(t.f)`、`t.f + "x"`、`local n = t.f.length()`、無注釈`get()`、読みごとに複製1つ）、`new`経路1本化と拒否原因の保持。固定suite8/8、115失敗名は旧main実測と完全一致、213入力の受理55件同一。未接続: `local s = t.f`、`return x.length()`、fieldの比較、`String?`読み、`: String`結果、String＋型つきobject field、格納しないtake。Fault実測はscratch probeのみでrepo test未了。詳細はGit履歴。
 - 凍結edit案（項目4b、未実装）: 案Aの型付きPlace（root＋canonical path/index＋型/nullability/権限）を推奨。callerのeditと宣言を一致させ、local/field/配列要素を一度評価して貸す。takeはnullable slotを原子的にnullへ、長さ維持・旧値End/+1なし。rule12はowning path/祖先fini/alias不在を証明した単一replacement、準備Faultは無変更・commit中Fault/利用者codeなし・旧残部EndのFaultでも新dstを維持。
 - edit実行の不足/費用: 現parameter/physical lane/Invoke/Array Getは値・読取loanで、書ける場所を渡せない。新しいPlace操作、公開descriptor/parameter契約とC/runtime ABI、独立した排他/非重複/全incoming/Normal-Fault検証が要る。take/fromのentry責任・支持元/区間検査を再利用しreadをeditへ偽装しない。get/set/take thunk案も新ABI/検証が必要で境界が増えるため案Aを選ぶ。推定全体production2000–4400/test800–1700行（重複含む概算）、owned recordは除外。文法再検討でなく公開Place/ABIの具体化が次の判断。
 - share段階3境界（未実装）: read/take Shared<T>はUnsupportedDeclaredType、Shared<T>結果とshare me.make():PageはUnsupportedResultAnnotation、field入力もargument-source-unavailableでEXE未生成。parameter種別・公開carrier/所有権・結果/field End契約がなく、raw i64/普通Box/payload Borrowへ偽装しない。推定production: read400–800、take/結果各500–1000、field700–1400行、test各150–350行（重複あり、単純合計しない）。既存RC coreを使えても公開MIR/C照合は要るため本goalの停止境界。

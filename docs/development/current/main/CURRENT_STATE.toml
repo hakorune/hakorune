@@ -1,9 +1,9 @@
-date = "2026-11-04"
+date = "2026-11-05"
 development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "security step 1 and parser tidy landed; typed i64 Birth goal goes to Sonnet"
+current_blocker_token = "ownership and String read stack integrated; measured grammar table and reference sweep go to Sonnet"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,11 +17,11 @@ current_execution_design = "docs/development/current/main/investigations/app-box
 latest_card = "app-boxtorrent-mini"
 latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-mini.md"
 latest_card_summary = """
-APP-boxtorrent-mini fixed8/8 on main with the tracked Cargo.lock. Security step 1 landed: action SHA pins, Dependabot, SECURITY.md, root lock; GitHub private reporting, secret scanning, push protection and Dependabot alerts on. cargo-deny waits on branch security-step1 (33 workspace advisories, none in default nyash-rust).
-Parser tidy landed (Sonnet, Opus audited): one contextual-word recognizer, shared ParserTransferKindV1, Shared(...) registry row rejected; Rust production +12, test +26, behaviour unchanged, known parser failures unchanged.
-Registry rows for from/take/edit/copy/share/T? not added: AST evidence refuses source-only marks and no Rust-only marker exists. Hako parser still accepts Shared(...).
-Existing reds on main: naming charter guard, vm-reference debug build (type_ops.rs), explicit_externcall corpus drift; substrate full gate therefore unrun.
-Next: Sonnet goal for typed i64 Birth, reading fields filled by Birth new, and the me.base + x panic. No-birth T? and edit Place wait until after 2026-11-08.
+APP-boxtorrent-mini fixed8/8 on main at b71d33b1a4. Integrated the Sonnet stack (Opus audited): typed i64 Birth formals, new T(move x), birth(take x: T) with me.f = move x, typed String fields, one new-expression route with kept refusal causes.
+String field reads connected: print(t.f), t.f + "x", local n = t.f.length(), unannotated get() { return me.f }. Each read materializes one copy; a Fault ends field and copy once each (measured with a scratch probe, repo test owed).
+Refused for now: local s = t.f, return x.length() (Text locals too), comparing a field, String?, a : String result, String next to a typed object field, non-storing take. Hako parser still accepts Shared(...).
+Existing reds on main: known 115 cohort names (old main measured, identical), published_backend_view 18, Python v4 tests unrunnable, naming charter guard, vm-reference debug build, explicit_externcall drift. cargo-deny waits on branch security-step1.
+Next (user order): measured grammar table and reference sweep, read-only triage of known reds, remaining String reads, non-storing take, edit after 2026-11-08, 3b.
 """
 next_design_card = "none"
 next_design_card_path = "none"
