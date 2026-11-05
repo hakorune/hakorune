@@ -78,7 +78,7 @@ pub(crate) enum BorrowedViewUseRequestV1<'a> {
 #[path = "selected_new_arguments.rs"]
 mod selected_new_arguments;
 pub(crate) use selected_new_arguments::{
-    SelectedNewArgumentKindV1, SelectedNewArgumentObservationV1, SelectedNewArgumentUnavailableV1,
+    argument_source_unavailable_tag_v1, SelectedNewArgumentKindV1, SelectedNewArgumentObservationV1, SelectedNewArgumentUnavailableV1,
     SelectedNewArgumentV1,
 };
 

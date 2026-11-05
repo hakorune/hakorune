@@ -498,7 +498,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     let source = row
                         .home_prefix
                         .as_ref()
-                        .map_err(|_| freeze("argument-source-unavailable"))?;
+                        .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?;
                     if normal {
                         source.normal_homes()
                     } else {
@@ -510,7 +510,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     let source = row
                         .home_prefix
                         .as_ref()
-                        .map_err(|_| freeze("argument-source-unavailable"))?;
+                        .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?;
                     if normal {
                         source.normal_homes()
                     } else {
@@ -721,7 +721,7 @@ impl FinalizedRootSourceHandoffV1 {
                 _ => return Err(freeze("argument-source-drift")),
             };
             let original = row.new_argument_rows().ok_or_else(|| freeze("argument-source-unavailable"))?
-                .as_ref().map_err(|_| freeze("argument-source-unavailable"))?;
+                .as_ref().map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?;
             if target != Some(actual.target()) || destination != actual.destination()
                 || original.get(ordinal as usize) != Some(argument.source()) { return Err(freeze("argument-source-drift")); }
             let Some(NewEmissionProgress::Emitted { result, arguments, bindings,

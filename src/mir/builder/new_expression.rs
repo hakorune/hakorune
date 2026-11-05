@@ -127,11 +127,8 @@ impl PreparedRawNewExpressionV1 {
             return Ok(());
         }
         let claim = port.try_take_ordinary_new_claim(&self.class, arguments.len())?;
-        if claim
-            .as_ref()
-            .is_some_and(|claim| claim.argument_rows().is_err())
-        {
-            return Err("[freeze:contract][ordinary-new/argument-source-unavailable]".into());
+        if let Some(Err(reason)) = claim.as_ref().map(|claim| claim.argument_rows()) {
+            return Err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1(&reason));
         }
         let mut selected = false;
         match claim {

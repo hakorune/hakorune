@@ -455,7 +455,7 @@ fn provider_construction_store_rejects_foreign_shapes() {
             // supported store shape.
             (
                 "box Holder { capacity: i64 = [1] birth() { } seed() { } } static box Main { main() { return 1 } }",
-                "BodyCoverageUnsupported",
+                "StoreValueUnsupported",
             ),
         ];
         for (source, expected) in cases {

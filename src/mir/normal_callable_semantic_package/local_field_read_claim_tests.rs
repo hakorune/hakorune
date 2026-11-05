@@ -112,7 +112,7 @@ fn local_field_read_claims_object_alias_on_selected_new_home() {
             assert_eq!(source.stores().len(), 1);
             assert!(matches!(source.steps()[0], super::instance_construction::ConstructionSourceStepV1::Store(_)));
             assert!(matches!(source.steps()[1], super::instance_construction::ConstructionSourceStepV1::StoredChildCall(_)));
-            assert_eq!(constructor.construction(), &Err(ConstructionUnavailableV1::BodyCoverageUnsupported),
+            assert_eq!(constructor.construction(), &Err(ConstructionUnavailableV1::ChildCallsPending),
                 "retained source structure grants no execution eligibility");
             // Same source structure survives the shared caller census. A
             // structurally equal reissued Rc must never impersonate its loan.
@@ -164,7 +164,7 @@ fn local_field_read_claims_object_alias_on_selected_new_home() {
         assert_eq!(field.declaration_ordinal(), 0);
         match unavailable {
             0 => assert!(claim.construction().is_ok()),
-            1 => assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::BodyCoverageUnsupported)),
+            1 => assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::ChildCallsPending)),
             _ => assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::OverrideUnsupported)),
         }
         if unavailable == 2 {

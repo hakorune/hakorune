@@ -28,7 +28,21 @@ use scalar::{me_field_read_row, prior_store_rhs, scalar_literal_operand};
 pub(crate) enum ConstructionUnavailableV1 {
     SourceRelationMissing,
     FieldContractUnsupported,
-    BodyCoverageUnsupported,
+    /// Declaration extras, several owners, a statement that is not a plain assignment,
+    /// or a target that is not `me.<field>`.
+    BodyFormUnsupported,
+    /// The same field is stored twice (needs old-value release semantics).
+    ReplacementStoreUnsupported,
+    /// The stored value is not a parameter, literal, null, provider `new`, or foldable `me` scalar.
+    StoreValueUnsupported,
+    /// A store after a stored-child call, or a call whose receiver is not a stored provider child.
+    ChildCallSequenceUnsupported,
+    /// Valid source that contains stored-child calls; the ordered Unit-call qualifier decides later.
+    ChildCallsPending,
+    /// The body has statements or expressions the construction source did not cover.
+    BodyNotFullyCovered,
+    /// Not a `birth`: no construction source exists.
+    NotBirthConstructor,
     InitializationContractMissing,
     OverrideUnsupported,
     /// `me.f = x` for a `take` formal: only `me.f = move x` hands it over.
@@ -341,7 +355,7 @@ pub(super) fn issue_construction_source_v1(
     let function = input.function();
     let shape = input.body_shape().ok_or(U::SourceRelationMissing)?;
     if shape.owner() != input.owner() || input.forest().owners().count() != 1 {
-        return Err(U::BodyCoverageUnsupported);
+        return Err(U::BodyFormUnsupported);
     }
     let ASTNode::FunctionDeclaration {
         uses,
@@ -353,7 +367,7 @@ pub(super) fn issue_construction_source_v1(
         return Err(U::SourceRelationMissing);
     };
     if !uses.is_empty() || !contracts.is_empty() || !attrs.is_empty() {
-        return Err(U::BodyCoverageUnsupported);
+        return Err(U::BodyFormUnsupported);
     }
     let receivers: Vec<_> = function
         .bindings()
@@ -409,7 +423,7 @@ pub(super) fn issue_construction_source_v1(
             continue;
         }
         let ASTNode::Assignment { .. } = statement.node() else {
-            return Err(U::BodyCoverageUnsupported);
+            return Err(U::BodyFormUnsupported);
         };
         let mut rows = shape
             .assignment_sources()
@@ -422,7 +436,7 @@ pub(super) fn issue_construction_source_v1(
         let Some(ResolvedAssignmentTargetV1::FieldWrite { receiver: object }) =
             function.assignment_target(row.target_site())
         else {
-            return Err(U::BodyCoverageUnsupported);
+            return Err(U::BodyFormUnsupported);
         };
         let field = shape
             .expressions()
@@ -441,7 +455,7 @@ pub(super) fn issue_construction_source_v1(
             BodyExpressionShapeV1::Me { site, receiver: BodyMeReceiverV1::Lexical(binding) }
                 if site == object && binding == receiver)
         }) {
-            return Err(U::BodyCoverageUnsupported);
+            return Err(U::BodyFormUnsupported);
         }
         let ordinal = fields
             .iter()
@@ -462,7 +476,7 @@ pub(super) fn issue_construction_source_v1(
                     Some("i64") | Some("usize")
                 ))
         {
-            return Err(U::BodyCoverageUnsupported);
+            return Err(U::ReplacementStoreUnsupported);
         }
         let rhs = input
             .source()
@@ -514,9 +528,9 @@ pub(super) fn issue_construction_source_v1(
                         }
                         _ => None,
                     })
-                    .ok_or(U::BodyCoverageUnsupported)?;
+                    .ok_or(U::StoreValueUnsupported)?;
                 let Some(BindingKindV1::Parameter { index }) = function.binding(binding).map(|record| record.kind()) else {
-                    return Err(U::BodyCoverageUnsupported);
+                    return Err(U::StoreValueUnsupported);
                 };
                 match (birth_source.birth_formal_is_take(index as u32), moved) {
                     (true, false) => return Err(U::TakeStoreRequiresMove),
@@ -584,7 +598,7 @@ pub(super) fn issue_construction_source_v1(
                     Some(ConstructionStoreRhsV1::LiteralI64(value)) => {
                         ConstructionStoreRhsV1::LiteralI64(*value)
                     }
-                    _ => return Err(U::BodyCoverageUnsupported),
+                    _ => return Err(U::StoreValueUnsupported),
                 }
             }
             ASTNode::BinaryOp { .. } => {
@@ -606,7 +620,7 @@ pub(super) fn issue_construction_source_v1(
                     &input, shape, *receiver, object_id, fields, &stores, binary.rhs(),
                 )?;
                 if lhs_reads.is_empty() && rhs_reads.is_empty() {
-                    return Err(U::BodyCoverageUnsupported);
+                    return Err(U::StoreValueUnsupported);
                 }
                 expressions.extend(lhs_sites.into_iter().chain(rhs_sites));
                 me_reads.extend(lhs_reads.into_iter().chain(rhs_reads));
@@ -616,10 +630,10 @@ pub(super) fn issue_construction_source_v1(
                     ResolvedBinaryOperatorV1::Multiply => lhs.checked_mul(rhs_value),
                     _ => None,
                 }
-                .ok_or(U::BodyCoverageUnsupported)?;
+                .ok_or(U::StoreValueUnsupported)?;
                 ConstructionStoreRhsV1::LiteralI64(folded)
             }
-            _ => return Err(U::BodyCoverageUnsupported),
+            _ => return Err(U::StoreValueUnsupported),
         };
         expressions.extend([
             row.target_site().clone(),
@@ -684,7 +698,7 @@ pub(super) fn issue_construction_source_v1(
             .expression_sites()
             .any(|site| !expressions.contains(site))
     {
-        return Err(U::BodyCoverageUnsupported);
+        return Err(U::BodyNotFullyCovered);
     }
     if initialized.len() != fields.len() {
         return Err(U::InitializationContractMissing);

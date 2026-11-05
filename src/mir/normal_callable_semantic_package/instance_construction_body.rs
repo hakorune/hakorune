@@ -169,11 +169,11 @@ pub(super) fn capture_child_call_source_v1(
     let call = input.function().method_call(&site).ok_or(U::SourceRelationMissing)?;
     let (field, _) = super::scalar::me_field_read_row(shape, receiver, call.receiver_site(), object, fields)?;
     let Some(ConstructionStoreRhsV1::ProviderConstruction { object: Some(child), class, .. }) =
-        super::scalar::prior_store_rhs(stores, field) else { return Err(U::BodyCoverageUnsupported); };
+        super::scalar::prior_store_rhs(stores, field) else { return Err(U::ChildCallSequenceUnsupported); };
     if child.object() == object || !crate::mir::declared_type_storage::declared_object_field_matches_v1(
         declarations.get(field.declaration_ordinal() as usize)
             .and_then(|declaration| declaration.declared_type_name.as_deref()), Some(class)) {
-        return Err(U::BodyCoverageUnsupported);
+        return Err(U::ChildCallSequenceUnsupported);
     }
     // The original provider already resolved this exact class/object pair.
     // Method selection, inputs, Completion and result remain late obligations.
@@ -225,11 +225,11 @@ impl ConstructionPlanV1 {
                 ConstructionSourceStepV1::Store(_) if saw_call => {
                     // Existing literal folds do not prove reads across opaque
                     // effects. Keep this source form unavailable until its owner does.
-                    return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported));
+                    return Ok(Err(ConstructionUnavailableV1::ChildCallSequenceUnsupported));
                 }
                 ConstructionSourceStepV1::StoredChildCall(call) => {
                     saw_call = true;
-                    if !qualify(source, call.site())? { return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported)); }
+                    if !qualify(source, call.site())? { return Ok(Err(ConstructionUnavailableV1::ChildCallSequenceUnsupported)); }
                 }
                 _ => {}
             }
@@ -249,7 +249,7 @@ impl ConstructionPlanV1 {
         let source = source.as_ref().map_err(|reason| *reason)?;
         if !matches!(source.completion(), ConstructionCompletionV1::InitializedFields)
             || source.steps().iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
-            return Err(U::BodyCoverageUnsupported);
+            return Err(U::ChildCallsPending);
         }
         let mut qualified = Vec::with_capacity(source.stores.len());
         let definition = definitions.get(source.object().declaration_index() as usize).ok_or(U::SourceRelationMissing)?;
@@ -300,7 +300,7 @@ impl ConstructionPlanV1 {
         let source = source.as_ref().map_err(|reason| *reason)?;
         source.require_initialized_fields()?;
         if source.steps.iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
-            return Err(ConstructionUnavailableV1::BodyCoverageUnsupported);
+            return Err(ConstructionUnavailableV1::ChildCallsPending);
         }
         Self::seal_original_execution_v1(source)
     }

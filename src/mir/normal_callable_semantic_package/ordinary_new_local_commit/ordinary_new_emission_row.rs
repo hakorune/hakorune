@@ -103,7 +103,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 let source_arguments = row_argument_rows
                     .as_ref()
-                    .map_err(|_| freeze("argument-source-unavailable"))?;
+                    .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?;
                 if source_arguments.len() != arguments.len() {
                     return Err(freeze("argument-count-drift"));
                 }

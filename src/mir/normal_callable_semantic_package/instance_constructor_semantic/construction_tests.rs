@@ -76,7 +76,7 @@ fn construction_plan_declines_forward_and_parameter_field_reads() {
             .expect_err(&format!("{label} stays declined"));
         assert_eq!(
             error,
-            &U::BodyCoverageUnsupported,
+            &U::StoreValueUnsupported,
             "{label} fails closed"
         );
     }

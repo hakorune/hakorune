@@ -603,7 +603,7 @@ fn provider_static_original_base_keeps_source_evidence_through_ready() {
             .unwrap_or_else(|issue| panic!("{body}: {issue:?}"));
         if !suffix.is_empty() && expected {
             let parent = package.instance_constructors().rows().iter().find(|row| row.box_name() == "Parent").unwrap();
-            assert!(matches!(parent.construction(), Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::BodyCoverageUnsupported)));
+            assert!(matches!(parent.construction(), Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::ChildCallsPending)));
         }
         let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
         let context = ledger.borrowed_i64_results.field_candidates.as_ref().unwrap();

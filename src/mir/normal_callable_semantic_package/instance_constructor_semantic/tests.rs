@@ -356,11 +356,11 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
         ),
         (
             "box Page { value: i64\nbirth() { me.value = [1] } }",
-            U::BodyCoverageUnsupported,
+            U::StoreValueUnsupported,
         ),
         (
             "box Page { value: i64\nbirth(other) { other.value = 1 } }",
-            U::BodyCoverageUnsupported,
+            U::BodyFormUnsupported,
         ),
         (
             "box Page { value: i64\nbirth() { me.value = new Page() } }",
@@ -368,23 +368,23 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
         ),
         (
             "box Page { value: i64\nbirth() { me.value = fn() { return 1 } } }",
-            U::BodyCoverageUnsupported,
+            U::BodyFormUnsupported,
         ),
         (
             "box Page { value: i64\nbirth() { me.value = 1 + 2 } }",
-            U::BodyCoverageUnsupported,
+            U::StoreValueUnsupported,
         ),
         (
             "box Page { value: i64\nbirth() { me.value += 1 } }",
-            U::BodyCoverageUnsupported,
+            U::BodyFormUnsupported,
         ),
         (
             "box Page { value: i64\nbirth() { me.value = 1\nme.value = 2 } }",
-            U::BodyCoverageUnsupported,
+            U::ReplacementStoreUnsupported,
         ),
         (
             "box Page { value: i64\nbirth() { local x = 1\nme.value = x } }",
-            U::BodyCoverageUnsupported,
+            U::BodyFormUnsupported,
         ),
         (
             "box Page { value: i64\nbirth() { me.other = 1 } }",

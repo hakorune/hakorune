@@ -196,7 +196,7 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
         use super::instance_construction::ConstructionUnavailableV1 as U;
         for row in self.rows.iter_mut() {
             if row.kind != ConstructorSourceKindV1::Birth || row.source_arity != 0
-                || row.construction != Err(U::BodyCoverageUnsupported)
+                || row.construction != Err(U::ChildCallsPending)
                 || !row.construction_source.as_ref().is_ok_and(|source| source.steps().iter().any(|step|
                     matches!(step, super::instance_construction::ConstructionSourceStepV1::StoredChildCall(_)))) {
                 continue;
@@ -589,7 +589,7 @@ impl CapturedInstanceConstructorSourcesV1 {
                             Some((&source.source_id, input, &source)), Some((caller, provider_static_arguments.as_ref())),
                             &birth_rows, &object_sources, &object_definitions, source.nullable_initialization.as_ref())
                     } else {
-                        Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
+                        Err(super::instance_construction::ConstructionUnavailableV1::NotBirthConstructor)
                     };
                     let construction = ConstructionPlanV1::without_child_calls(&construction_source);
                     let formal_contracts = if source.kind == ConstructorSourceKindV1::Birth {

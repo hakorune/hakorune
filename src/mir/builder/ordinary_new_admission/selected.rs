@@ -91,7 +91,7 @@ pub(in crate::mir::builder) fn emit(
     let arity = claim.arity();
     let rows = claim
         .argument_rows()
-        .map_err(|_| freeze("argument-source-unavailable"))?
+        .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?
         .to_vec();
     let constructor = claim.constructor();
     emit_selected_new(
@@ -127,7 +127,7 @@ pub(in crate::mir::builder) fn emit_result(
     let arity = claim.arity();
     let rows = claim
         .argument_rows()
-        .map_err(|_| freeze("argument-source-unavailable"))?
+        .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?
         .to_vec();
     let constructor = claim.constructor();
     emit_selected_new(

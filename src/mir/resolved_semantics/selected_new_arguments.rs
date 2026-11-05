@@ -109,6 +109,12 @@ pub(crate) enum SelectedNewArgumentUnavailableV1 {
     },
 }
 
+/// The refusal tag for every ordinary-`new` argument-source failure: the tag stays
+/// the stable prefix, the cause and its site follow it.
+pub(crate) fn argument_source_unavailable_tag_v1(reason: &impl std::fmt::Debug) -> String {
+    format!("[freeze:contract][ordinary-new/argument-source-unavailable] reason={reason:?}")
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SelectedNewArgumentObservationV1 {
     new_site: OwnedExprSiteV1,

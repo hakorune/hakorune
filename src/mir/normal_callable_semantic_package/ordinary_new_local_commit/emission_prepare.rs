@@ -277,7 +277,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = { let rows = self.local_commits.borrow();
             rows.get(site).and_then(LocalCommitV1::new_argument_rows)
                 .ok_or_else(|| freeze("record-without-take"))?.as_ref()
-                .map_err(|_| freeze("argument-source-unavailable"))?.to_vec() };
+                .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?.to_vec() };
         if source.len() != arguments.len() { return Err(freeze("argument-count-drift")); }
         let arguments = source.into_iter().zip(arguments).map(|(source, value)|
             EmittedNewArgumentV1::new_v1(source, crate::mir::instruction::BirthArgumentV1::Value(value), None, None)).collect();
@@ -298,7 +298,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .new_argument_rows()
             .ok_or_else(|| freeze("record-without-take"))?
             .as_ref()
-            .map_err(|_| freeze("argument-source-unavailable"))?
+            .map_err(crate::mir::resolved_semantics::home_new_prefix::argument_source_unavailable_tag_v1)?
             .to_vec();
         if source_arguments.len() != arguments.len() {
             return Err(freeze("argument-count-drift"));

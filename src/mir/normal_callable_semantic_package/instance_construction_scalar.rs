@@ -49,7 +49,7 @@ pub(super) fn me_field_read_row(
         BodyExpressionShapeV1::Me { site, receiver: BodyMeReceiverV1::Lexical(binding) }
             if site == object && *binding == receiver)
     }) {
-        return Err(U::BodyCoverageUnsupported);
+        return Err(U::BodyFormUnsupported);
     }
     let ordinal = fields
         .iter()
@@ -95,9 +95,9 @@ pub(super) fn scalar_literal_operand(
                 Some(ConstructionStoreRhsV1::LiteralI64(value)) => {
                     Ok((*value, sites, vec![me_site]))
                 }
-                _ => Err(U::BodyCoverageUnsupported),
+                _ => Err(U::StoreValueUnsupported),
             }
         }
-        _ => Err(U::BodyCoverageUnsupported),
+        _ => Err(U::StoreValueUnsupported),
     }
 }

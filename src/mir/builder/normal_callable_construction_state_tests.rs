@@ -306,7 +306,7 @@ fn artifact_requires_completed_source_construction() {
     for state in [
         ConstructionState::NotConstruction,
         ConstructionState::Transferred,
-        ConstructionState::RetainedUnavailable(ConstructionUnavailableV1::BodyCoverageUnsupported),
+        ConstructionState::RetainedUnavailable(ConstructionUnavailableV1::ChildCallsPending),
         ConstructionState::Selected {
             plan, parameters: Box::new([]),
             steps: Box::new([]), next_step: 0, calls: Vec::new(),
