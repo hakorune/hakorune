@@ -66,11 +66,11 @@ fn lexical_instance_return_retains_initializer_and_claim_object_identity() {
 #[test]
 fn root_instance_call_rejects_emitted_receiver_mutation() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Page { birth() { } sum(): i64 { return 30 } }
+        "box Page { birth() { } sum(n: i64): i64 { return n + 1 } }
         static box Main { main() {
         local first = new Page()
         local second = new Page()
-        return second.sum() } }",
+        return second.sum(1) } }",
     )
     .expect("two same-typed receiver source");
     let ledger = &package.ordinary_new_claim_ledger;
@@ -186,26 +186,32 @@ fn unannotated_instance_return_retains_source_scalar_without_duplicate_root_row(
     assert!(ledger.root_instance_call_is_empty());
 }
 
+// The `run(n: i64): i64 { return n + 1 }` / `holder.run(1)` shape below is the plain
+// root row: a zero-argument terminal call, or one whose callee ignores its formal
+// (`return 0`), takes the lexical borrowed terminal seam instead and issues no root
+// row (`ordinary_new_root_instance_call.rs`, the `borrowed_terminal_arguments_v1` skip).
 #[test]
 fn root_instance_call_stays_unissued_for_unreleasable_terminal_home() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth() { } }
-        box Holder { init { inner }
+        box Holder { inner: MapBox
         birth() { me.inner = new Page() }
-        run(): i64 { return 0 } }
+        run(n: i64): i64 { return n + 1 } }
         static box Main { main() {
         local holder = new Holder()
-        return holder.run() } }",
+        return holder.run(1) } }",
     )
     .expect("unreleasable receiver home source");
     let ledger = &package.ordinary_new_claim_ledger;
     let owner = ledger.root_completion_for_test().owner();
     // The terminal call is still a known instance call ...
     assert!(ledger.root_instance_call_expected(owner));
-    // ... but `holder`'s claim is unreleasable (`init`-declared fields give
+    // ... but `holder`'s claim is unreleasable (`inner: MapBox` is a declared
+    // type that is no numeric, Array, Text or user-box slot, so it gives
     // `Destruction::Unavailable(FieldType)`), so `prepare_root_home_exit`
     // can never take the row. The issuer must withhold it instead of
-    // stranding `Ready` rows.
+    // stranding `Ready` rows. (An untyped `init { inner }` field is a releasable
+    // Dynamic slot now and does not reach this branch.)
     assert!(ledger.root_instance_call_is_empty());
 }
 
@@ -219,12 +225,12 @@ fn unreleasable_root_call_receiver_passes_finishing_but_not_the_seal() {
     // lane stays the sole rejection authority (`root-call-entry-unavailable`).
     let mut package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth() { } }
-        box Holder { init { inner }
+        box Holder { inner: MapBox
         birth() { me.inner = new Page() }
-        run(): i64 { return 0 } }
+        run(n: i64): i64 { return n + 1 } }
         static box Main { main() {
         local holder = new Holder()
-        return holder.run() } }",
+        return holder.run(1) } }",
     )
     .expect("unreleasable receiver home source");
     let mut loans = package.direct_call_loans.take();
@@ -683,24 +689,28 @@ fn mixed_or_unproven_add_discards_terminal_and_all_staged_reads() {
 
 #[test]
 fn root_instance_call_admits_owned_field_receiver_with_sealed_children() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Page { birth() { } }
-        box Holder { inner: Page
-        birth() { me.inner = new Page() }
-        run(): i64 { return 0 } }
-        static box Main { main() {
+    // `inner: Page` makes `Holder` `OwnedObjectFieldsNoHook`; its sole birth write is a
+    // `Provider` store of the declared class, so the children inventory seals and the
+    // home is releasable — the issuer keeps the `Ready` row for `emit_instance`. An
+    // untyped `init { inner }` field is a Dynamic slot that is releasable too (the EXE
+    // runs `OWNED 2 2 2`: attempts, acquisitions and releases balance, also under
+    // injected Faults), so it keeps the row as well.
+    for declaration in ["inner: Page", "init { inner }"] {
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(&format!(
+            "box Page {{ birth() {{ }} }}
+        box Holder {{ {declaration}
+        birth() {{ me.inner = new Page() }}
+        run(n: i64): i64 {{ return n + 1 }} }}
+        static box Main {{ main() {{
         local holder = new Holder()
-        return holder.run() } }",
-    )
-    .expect("sealed owned-field receiver home source");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let owner = ledger.root_completion_for_test().owner();
-    assert!(ledger.root_instance_call_expected(owner));
-    // `inner: Page` makes `Holder` `OwnedObjectFieldsNoHook`; its sole
-    // birth write is a `Provider` store of the declared class, so the
-    // children inventory seals and the home is releasable — the issuer
-    // keeps the `Ready` row for `emit_instance`.
-    assert!(!ledger.root_instance_call_is_empty());
+        return holder.run(1) }} }}"
+        ))
+        .unwrap_or_else(|error| panic!("{declaration}: {error:?}"));
+        let ledger = &package.ordinary_new_claim_ledger;
+        let owner = ledger.root_completion_for_test().owner();
+        assert!(ledger.root_instance_call_expected(owner), "{declaration}");
+        assert!(!ledger.root_instance_call_is_empty(), "{declaration}");
+    }
 }
 
 #[test]
@@ -709,10 +719,10 @@ fn root_instance_call_stays_unissued_for_owned_field_without_sealed_children() {
         "box Page { birth() { } }
         box Holder { inner: Page
         birth() { }
-        run(): i64 { return 0 } }
+        run(n: i64): i64 { return n + 1 } }
         static box Main { main() {
         local holder = new Holder()
-        return holder.run() } }",
+        return holder.run(1) } }",
     )
     .expect("unsealed owned-field receiver home source");
     let ledger = &package.ordinary_new_claim_ledger;
