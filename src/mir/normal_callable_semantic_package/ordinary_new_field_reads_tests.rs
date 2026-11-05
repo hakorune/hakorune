@@ -278,7 +278,7 @@ fn terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression() {
                 })
                 .unwrap_err();
             assert!(
-                error.contains("ordinary-field-read/root-exit-phase"),
+                error.contains("ordinary-new/local-commit/root-home-not-installed"),
                 "{error}"
             );
         }

@@ -174,6 +174,29 @@ fn qualified_static_call_claim_resolves_import_alias() {
     assert!(new_claim_prefix_covered(&package));
 }
 
+/// A compound scalar argument is part of the scalar seal (`3965b758ba`): the
+/// claim is one I64 call whose only argument is the original expression.
+#[test]
+fn qualified_static_call_claim_admits_compound_scalar_argument() {
+    let package = issue(
+        "box Page { birth() { } }
+        static box LayoutBox { class_id(size) { return size } }
+        static box Main { main() {
+            local nine = 9
+            local page = new Page()
+            local x = LayoutBox.class_id(nine + 1)
+            local page2 = new Page()
+            return 0
+        } }",
+    )
+    .expect("compound argument package");
+    let calls = local_calls(&package);
+    let [call] = calls.as_slice() else { panic!("one claim, got {calls:?}") };
+    assert_eq!(call.result(), LocalCallResultClassV1::I64);
+    assert!(matches!(call.arguments(), [LocalCallArgumentV1::Expression { ordinal: 0, .. }]));
+    assert!(new_claim_prefix_covered(&package));
+}
+
 #[test]
 fn qualified_static_call_claim_stays_fail_closed() {
     for (label, call) in [
@@ -184,8 +207,6 @@ fn qualified_static_call_claim_stays_fail_closed() {
         ("non-static-target", "Page.class_id(7)"),
         // `Any.make` has an `ExactNominalBox` disposition, not `ExactI64`.
         ("unproven-result", "Any.make()"),
-        // A compound argument is outside the scalar seal.
-        ("non-trivial-arg", "LayoutBox.class_id(nine + 1)"),
         // A Home argument is not scalar evidence.
         ("handle-arg", "LayoutBox.class_id(page)"),
     ] {
@@ -233,20 +254,23 @@ fn qualified_static_call_claim_rejects_non_i64_evidence_at_required_ordinal() {
 
 #[test]
 fn static_i64_call_claim_preserves_current_owner_boundary() {
-    for (label, callee, expression, accepted) in [
-        ("zeroarg-i64", "word() { return 7 }", "me.word()", true),
+    for (label, callee, expression, accepted, class) in [
+        ("zeroarg-i64", "word() { return 7 }", "me.word()", true, LocalCallResultClassV1::I64),
         (
             "nonzeroarg-i64",
             "word(size: i64): i64 { return size }",
             "me.word(7)",
             true,
+            LocalCallResultClassV1::I64,
         ),
-        ("zeroarg-bool", "word() { return true }", "me.word()", false),
+        // Bool and Text results are claimed with their own exact class.
+        ("zeroarg-bool", "word() { return true }", "me.word()", true, LocalCallResultClassV1::Bool),
         (
             "zeroarg-text",
             "word() { return \"text\" }",
             "me.word()",
-            false,
+            true,
+            LocalCallResultClassV1::Text,
         ),
     ] {
         let package = issue(&format!(
@@ -269,7 +293,7 @@ fn static_i64_call_claim_preserves_current_owner_boundary() {
             "{label}: original route membership"
         );
         if accepted {
-            assert_eq!(calls[0].result(), LocalCallResultClassV1::I64);
+            assert_eq!(calls[0].result(), class, "{label}");
             if label == "nonzeroarg-i64" {
                 assert!(matches!(
                     calls[0].arguments(),
@@ -278,7 +302,13 @@ fn static_i64_call_claim_preserves_current_owner_boundary() {
             } else {
                 assert!(calls[0].arguments().is_empty());
             }
-            assert!(calls[0].local_binding().is_some());
+            // I64 and Bool claims bind the call result to the local; the Text
+            // pair is transferred by its own owned-result lane.
+            assert_eq!(
+                calls[0].local_binding().is_some(),
+                class != LocalCallResultClassV1::Text,
+                "{label}"
+            );
         }
         assert_eq!(
             new_claim_prefix_covered(&package),

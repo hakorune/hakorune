@@ -405,7 +405,8 @@ fn array_i64_field_escape_and_alias_rebind_keep_dynamic() {
     )
     .expect_err("an unproven `me.<field>` actual reaches a real edge");
     assert!(
-        format!("{error:?}").contains("borrowed-actual"),
+        format!("{error:?}").contains("borrowed-instance/opaque-source-unsupported")
+            && format!("{error:?}").contains("actual=FieldAccess"),
         "{error:?}"
     );
     // `local a = me.block_used` then rebinding `a` severs the proven
@@ -431,8 +432,8 @@ fn array_i64_field_escape_and_alias_rebind_keep_dynamic() {
     );
 }
 
-/// Bounded arm: `return me.<field>.get(..)` on a non-borrowed owner
-/// mints no terminal relation — the terminal arm is a separate slice.
+/// `return me.<field>.get(..)` on a non-borrowed owner mints exactly one
+/// terminal I64 scalar relation for that return (no entry read, no evaluation).
 #[test]
 fn array_i64_return_position_mints_no_terminal_relation() {
     let package = issue_with_brand_catalog(
@@ -447,14 +448,13 @@ fn array_i64_return_position_mints_no_terminal_relation() {
     )
     .expect("return-position package");
     let owner = probe_owner(&package);
-    // No terminal relation may be minted for `return me.<field>.get(..)` —
-    // the bounded arm admits the local-result form only.
+    let relations = package
+        .ordinary_new_claim_ledger
+        .terminal_relations_for_owner(owner);
     assert!(
-        package
-            .ordinary_new_claim_ledger
-            .terminal_relations_for_owner(owner)
-            .is_empty(),
-        "a return-position get keeps its named unavailability"
+        matches!(relations.as_slice(),
+            [crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(_)]),
+        "a return-position get mints one I64 scalar relation: {relations:?}"
     );
 }
 

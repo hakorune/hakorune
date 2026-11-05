@@ -200,9 +200,19 @@ static box Main {
 "#,
     )
     .expect("non-uniform callee source package");
-    // Forwarded/local returns stay unclaimed — `NullableObject` is only for
-    // the exact `new`/`null` grammar.
-    for name in ["via_local", "null_only", "mixed_local"] {
+    // A returned local that holds a fresh `new` (on every exit) claims the
+    // exact object class; a null-only body stays unclaimed — `NullableObject`
+    // is only for the exact `new`/`null` grammar.
+    for name in ["via_local", "mixed_local"] {
+        assert!(
+            matches!(
+                result_class_claim_row(&package, "Page", name),
+                Some((_, super::OrdinaryNewResultClassV1::Object(class))) if &**class == "Page"
+            ),
+            "Page.{name} claims the exact returned object class"
+        );
+    }
+    for name in ["null_only"] {
         assert!(
             result_class_claim_row(&package, "Page", name).is_none(),
             "Page.{name} must carry no result-class claim"

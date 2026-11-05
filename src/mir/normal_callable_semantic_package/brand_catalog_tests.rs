@@ -465,7 +465,9 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
         ("return first.missing", false),
         ("return first.left + true", false),
         ("return false + first.left", false),
-        ("return first.left - second.right", false),
+        // Subtraction of two field reads is a supported suffix: a negative result
+        // Faults at run time (exit 70) while the cleanup stays the two stable Homes.
+        ("return first.left - second.right", true),
         ("return first.left.right", false),
         ("local value = first.left return value", true),
     ] {

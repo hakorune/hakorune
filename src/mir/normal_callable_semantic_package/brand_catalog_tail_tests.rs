@@ -16,18 +16,17 @@ fn birth_receiver_non_escape_rejects_unproven_uses_before_row_publication() {
     ] {
         let source = format!("box Page {{ value: i64 birth(value, other) {{ {body} }} }}");
         let error = issue_with_brand_catalog(&source).expect_err("unproven Birth receiver use");
-        // Direct nested `me` is already stopped by the upstream resolver.
-        // Keep it as dependency evidence, not as acceptance for the new check;
-        // the separate alias-capture case below must reach ReceiverNonEscape.
+        // Direct nested `me` is no longer stopped by the upstream resolver:
+        // it reaches ReceiverNonEscape as a Capture, like the alias case below.
         if body == "local nested = fn() { return me }" {
             assert!(
                 matches!(
                     &error,
                     super::NormalCallableSemanticPackageIssueV1::InstanceConstructors {
-                        _error: InstanceConstructorSemanticBatchIssueV1::Resolver(_),
+                        _error: InstanceConstructorSemanticBatchIssueV1::ReceiverNonEscape { .. },
                     }
-                ) && format!("{error:?}").contains("body Me shape lacks exact receiver authority"),
-                "wrong upstream boundary: {error:?}"
+                ) && format!("{error:?}").contains("ReceiverNonEscape { _issue: Capture"),
+                "direct nested `me` must be a ReceiverNonEscape Capture: {error:?}"
             );
             continue;
         }

@@ -669,9 +669,10 @@ fn empty_branch_trampoline_preserves_original_return_and_complete_boundary() {
                 if let Some(MirInstruction::Branch { then_edge_args, .. }) =
                     &mut drift.blocks.get_mut(&BasicBlockId(0)).unwrap().terminator
                 {
+                    // An empty `Some` is read as no edge values (a no-op); carry a value.
                     *then_edge_args = Some(EdgeArgs {
                         layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
-                        values: vec![],
+                        values: vec![ValueId(1)],
                     });
                 }
             }

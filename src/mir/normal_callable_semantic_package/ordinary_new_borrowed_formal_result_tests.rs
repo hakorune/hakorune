@@ -90,7 +90,7 @@ fn borrowed_call_refuses_annotation_without_explicit_value_return() {
     let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).err().expect("selected call needs an explicit return");
     let error = format!("{error:?}");
     assert!(
-        error.contains("borrowed-result/explicit-value-return-missing"),
+        error.contains("lexical-instance-call/unit-value-use"),
         "{error}"
     );
 }
