@@ -331,7 +331,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
     )>,
     order: &[usize],
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
+) -> Result<Result<QualifiedExpressionLeavesV1, &'static str>, E> {
     let PreparedExpressionCallsV1 {
         source,
         profile,
@@ -358,17 +358,17 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             )
         ) {
             let Some(request) = field_request(node.site()) else {
-                return leaves_declined(1);
+                return Ok(Err("field-read-not-requested"));
             };
             if request.node_in_plan(source) != Some(index) {
-                return leaves_declined(2);
+                return Ok(Err("field-request-outside-plan"));
             }
             let Some(receiver) = source
                 .nodes()
                 .iter()
                 .position(|node| node.site() == &request.receiver_site)
             else {
-                return leaves_declined(3);
+                return Ok(Err("field-receiver-outside-plan"));
             };
             leaves[receiver] = Leaf::Identity;
             leaves[index] = if request
@@ -400,21 +400,21 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
         if !core.matches_plan(source, core.node())
             || !array.matches_expression_receiver_v1(source)
         {
-            return leaves_declined(4);
+            return Ok(Err("field-array-core-mismatch"));
         }
         let receiver = core.source().source().receiver_site();
         let Some(index) = source.nodes().iter().position(|node| node.site() == receiver) else {
-            return leaves_declined(5);
+            return Ok(Err("field-array-receiver-outside-plan"));
         };
         if array.receiver_alias_v1().is_none() {
-            let Some(request) = field_request(receiver) else { return Ok(None); };
-            if request.node_in_plan(source) != Some(index) { return Ok(None); }
+            let Some(request) = field_request(receiver) else { return Ok(Err("field-array-receiver-unrequested")); };
+            if request.node_in_plan(source) != Some(index) { return Ok(Err("field-array-request-outside-plan")); }
             fields.push(request);
         }
         match leaves[index] {
             Leaf::Unresolved => leaves[index] = Leaf::Identity,
             Leaf::Identity => {}
-            _ => return Ok(None),
+            _ => return Ok(Err("field-array-receiver-class-conflict")),
         }
     }
     // A Core Text receiver read is a distinct source contract from the
@@ -426,22 +426,22 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             continue;
         };
         if !core.matches_plan(core.plan(), core.node()) || !Rc::ptr_eq(read.source_plan(), source) {
-            return leaves_declined(6);
+            return Ok(Err("text-entry-core-mismatch"));
         }
         let Some(leaf) = leaves.get_mut(read.node()) else {
-            return leaves_declined(7);
+            return Ok(Err("text-entry-node-missing"));
         };
         if !matches!(source.nodes().get(read.node()), Some(node)
             if node.site() == read.read()
                 && matches!(node.source(), ExpressionNodeSourceV1::Reference(
                     crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == read.binding()))
         {
-            return leaves_declined(8);
+            return Ok(Err("text-entry-node-not-local"));
         }
         match *leaf {
             Leaf::Unresolved => *leaf = Leaf::Value(Class::String),
             Leaf::Value(Class::String) => {}
-            _ => return Ok(None),
+            _ => return Ok(Err("text-entry-receiver-class-conflict")),
         }
     }
     for &index in order {
@@ -467,7 +467,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                 ) || source.nodes().iter().enumerate().any(|(parent, _)| source.copy_operand_node_v1(parent) == Some(index)) => {}
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Null)
                 if profile == ExpressionLeafProfileV1::BoolCondition => {}
-            ExpressionNodeSourceV1::Literal(_) => return Ok(None),
+            ExpressionNodeSourceV1::Literal(_) => return Ok(Err("literal-leaf-unsupported")),
             ExpressionNodeSourceV1::Shape(
                 crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. },
             ) => {}
@@ -482,10 +482,10 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             ) && leaves[index] == Leaf::Unresolved =>
             {
                 let Some((original, kind)) = scalar_reference(node.site()) else {
-                    return leaves_declined(9);
+                    return Ok(Err("scalar-reference-unproved"));
                 };
                 if original != *binding || binding.owner() != source.owner() {
-                    return leaves_declined(10);
+                    return Ok(Err("scalar-reference-binding-drift"));
                 }
                 leaves[index] = Leaf::Value(match kind {
                     super::super::SourceScalarKind::Integer => Class::I64,
@@ -498,7 +498,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
     }
     let Some(classes) = project_expression_nodes_v1(&source, &transferred, |index| leaves[index])
     else {
-        return leaves_declined(11);
+        return Ok(Err("node-classes-unprojectable"));
     };
     // A Core result never erases its receiver or argument obligations. Those
     // children were evaluated in the SAME postorder, unlike transferred Calls.
@@ -517,7 +517,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
             Leaf::Value(Class::String)
         };
         if class(original.receiver_site()) != Some(expected_receiver) {
-            return leaves_declined(12);
+            return Ok(Err("core-receiver-class-mismatch"));
         }
         for (argument, parameter) in original
             .arguments()
@@ -529,14 +529,14 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
                     if core.dynamic_i64_operand_contains(argument.site()) => Class::Dynamic,
                 crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter => Class::I64,
                 crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter => Class::String,
-                _ => return Ok(None),
+                _ => return Ok(Err("core-parameter-relation-unsupported")),
             };
             if class(argument.site()) != Some(Leaf::Value(expected)) {
-                return leaves_declined(13);
+                return Ok(Err("core-argument-class-mismatch"));
             }
         }
     }
-    Ok(Some(QualifiedExpressionLeavesV1 {
+    Ok(Ok(QualifiedExpressionLeavesV1 {
         classes,
         calls,
         cores,
@@ -544,12 +544,4 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
         transferred,
         references,
     }))
-}
-
-/// Default-off: which gate refused this expression's leaf qualification.
-fn leaves_declined<T, E>(gate: u32) -> Result<Option<T>, E> {
-    if crate::config::env::builder_debug_enabled() {
-        eprintln!("[expression-leaves] declined gate={gate}");
-    }
-    Ok(None)
 }

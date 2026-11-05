@@ -122,7 +122,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     else {
         return Ok(None);
     };
-    let Some((evaluation, fields)) = qualify_statement_evaluation_v1(
+    let Ok((evaluation, fields)) = qualify_statement_evaluation_v1(
         prepared,
         Vec::new(),
         static_reference,
@@ -181,13 +181,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
     loop_text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopTextReadV1>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-) -> Result<Option<(CheckedExpressionEvaluationV1, Vec<LocalFieldReadRequestV1>)>, E> {
+) -> Result<Result<(CheckedExpressionEvaluationV1, Vec<LocalFieldReadRequestV1>), &'static str>, E> {
     use ExpressionLeafClassV1 as Leaf;
     use ExpressionValueClassV1 as Class;
     let source = Rc::clone(prepared.source());
     let prior_homes = prepared.prior_homes().to_vec();
     let Ok(order) = source.ordered_postorder_v1() else {
-        return statement_evaluation_declined(1);
+        return Ok(Err("postorder-unavailable"));
     };
     let reference_order: Vec<_> = (0..source.nodes().len()).collect();
     let Some(mut reference_proofs) =
@@ -203,30 +203,30 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
             },
         )
     else {
-        return statement_evaluation_declined(2);
+        return Ok(Err("reference-seeds-unproved"));
     };
-    let Some(super::leaves::QualifiedExpressionLeavesV1 {
+    let super::leaves::QualifiedExpressionLeavesV1 {
         classes,
         mut calls,
         cores,
         fields,
         transferred,
         references,
-    }) = super::leaves::qualify_expression_leaves_with_calls_v1::<E>(
+    } = match super::leaves::qualify_expression_leaves_with_calls_v1::<E>(
         prepared,
         &mut |_| None,
         &order,
         field_request,
-    )?
-    else {
-        return statement_evaluation_declined(3);
+    )? {
+        Ok(leaves) => leaves,
+        Err(reason) => return Ok(Err(reason)),
     };
     if !references.is_empty() {
-        return statement_evaluation_declined(4);
+        return Ok(Err("scalar-references-unsupported"));
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) {
-        return statement_evaluation_declined(5);
+        return Ok(Err("root-class-not-text-or-i64"));
     }
     let Some((operations, mut owned_results)) = super::operations::qualify_arithmetic_operations_v1(
         &source,
@@ -234,7 +234,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
         &classes,
         &transferred,
     ) else {
-        return statement_evaluation_declined(6);
+        return Ok(Err("arithmetic-operations-unproved"));
     };
     owned_results.extend(order.iter().copied().filter(|node| !transferred.contains(node)
         && classes[*node] == Leaf::Value(Class::String)
@@ -259,15 +259,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
         transferred_inputs: transferred,
     };
     if !evaluation.retain_core_text_entry_reads_v1() || !evaluation.reference_coverage_is_exact() {
-        return statement_evaluation_declined(7);
+        return Ok(Err("core-text-entry-or-reference-coverage"));
     }
-    Ok(Some((evaluation, fields)))
-}
-
-/// Default-off: which qualification gate refused this statement expression.
-fn statement_evaluation_declined<T, E>(gate: u32) -> Result<Option<T>, E> {
-    if crate::config::env::builder_debug_enabled() {
-        eprintln!("[statement-evaluation] declined gate={gate}");
-    }
-    Ok(None)
+    Ok(Ok((evaluation, fields)))
 }

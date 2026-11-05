@@ -37,23 +37,6 @@ pub(in crate::mir::builder) fn retained_argument_frame_v1(
     Ok(Some(std::rc::Rc::clone(frame)))
 }
 
-pub(in crate::mir::builder) fn emit(
-    builder: &mut MirBuilder,
-    state: &mut CallableSemanticLoweringState,
-    ledger: &OrdinaryNewClaimLedgerV1,
-    call: &OwnedExprSiteV1,
-    ordinal: u32,
-    site: &SourceExprSiteV1,
-    consume_receiver: &dyn Fn(
-        &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
-    ) -> Result<(), String>,
-) -> Result<(ValueId, Projection), String> {
-    // The direct caller completes scalar arguments before its Call. Owned Text
-    // must enter through the lifecycle caller that retains the ordered packet.
-    ledger.argument_expression_frame_v1(call, ordinal, site)?;
-    emit_with_prefix(builder, state, ledger, call, ordinal, site, consume_receiver, None, None)
-}
-
 pub(in crate::mir::builder) fn emit_with_prefix(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,

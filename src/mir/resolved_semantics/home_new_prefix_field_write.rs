@@ -75,7 +75,7 @@ pub(super) fn observe<E>(
                                 homes, local_calls, path_calls, fields, actuals,
                             )? { return field_write_declined(input, statement, 1); }
                             let purpose = OwnedExprSiteV1::new(input.owner(), assignment.value_site().clone());
-                            let Some(evaluation) = super::expression_plan::qualify_text_evaluation_v1(
+                            let Ok(evaluation) = super::expression_plan::qualify_text_evaluation_v1(
                                 input, Rc::clone(frame.source()), &purpose, locals,
                                 homes, local_calls, actuals, None,
                             )? else { return field_write_declined(input, statement, 2); };

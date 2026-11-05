@@ -319,7 +319,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     ) else {
         return Ok(None);
     };
-    let Some(super::leaves::QualifiedExpressionLeavesV1 {
+    let Ok(super::leaves::QualifiedExpressionLeavesV1 {
         classes,
         mut calls,
         cores,

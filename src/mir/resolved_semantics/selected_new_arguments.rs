@@ -103,6 +103,8 @@ pub(crate) enum SelectedNewArgumentUnavailableV1 {
     ArgumentNotTrivial {
         new_site: OwnedExprSiteV1,
         site: SourceExprSiteV1,
+        /// The expression qualification gate that declined, when one ran.
+        reason: Option<&'static str>,
     },
     ArgumentOrdinalOverflow {
         new_site: OwnedExprSiteV1,

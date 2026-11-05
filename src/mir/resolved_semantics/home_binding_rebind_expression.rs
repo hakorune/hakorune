@@ -254,7 +254,7 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
     else {
         reject_rebind!("reference-seed");
     };
-    let Some(super::leaves::QualifiedExpressionLeavesV1 {
+    let Ok(super::leaves::QualifiedExpressionLeavesV1 {
         classes,
         mut calls,
         cores,

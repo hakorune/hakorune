@@ -192,9 +192,13 @@ pub(super) fn observe_new_arguments_v1<E>(
                     | SelectedNewArgumentKindV1::BoundValue { .. }
             )
         );
+        let mut declined = None;
         let evaluation = if needs_expression {
             match crate::mir::resolved_value_profile::expression_plan::new_argument_expression_source_plan_v1(input, new_site, ordinal) {
-                Ok(plan) => super::expression_plan::qualify_text_evaluation_v1(input, plan, new_site, locals, homes, calls, actuals, None)?,
+                Ok(plan) => match super::expression_plan::qualify_text_evaluation_v1(input, plan, new_site, locals, homes, calls, actuals, None)? {
+                    Ok(evaluation) => Some(evaluation),
+                    Err(reason) => { declined = Some(reason); None }
+                },
                 Err(_) => {
                     error.get_or_insert(SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: new_site.clone() });
                     unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
@@ -230,6 +234,7 @@ pub(super) fn observe_new_arguments_v1<E>(
                 error.get_or_insert(SelectedNewArgumentUnavailableV1::ArgumentNotTrivial {
                     new_site: new_site.clone(),
                     site: site.clone(),
+                    reason: declined,
                 });
                 unavailable.get_or_insert_with(|| {
                     HomePrefixUnavailableV1::ArgumentNotCovered(site.clone())

@@ -203,7 +203,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     ) else {
         return Ok(None);
     };
-    let Some(QualifiedExpressionLeavesV1 {
+    let Ok(QualifiedExpressionLeavesV1 {
         classes,
         mut calls,
         cores,

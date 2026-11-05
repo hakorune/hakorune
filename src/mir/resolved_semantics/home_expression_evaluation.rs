@@ -704,12 +704,13 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluati
         &crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1,
     >,
 ) -> Result<
-    Option<
+    Result<
         std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
+        &'static str,
     >,
     E,
 > {
-    let Some((evaluation, fields)) = prepare_value_evaluation_v1(
+    let (evaluation, fields) = match prepare_value_evaluation_v1(
         input,
         source,
         crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String,
@@ -721,11 +722,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluati
         field_text_source,
         &std::collections::BTreeMap::new(),
         &mut |_| None,
-    )?
-    else {
-        return Ok(None);
+    )? {
+        Ok(prepared) => prepared,
+        Err(reason) => return Ok(Err(reason)),
     };
-    Ok(fields.is_empty().then_some(evaluation))
+    Ok(if fields.is_empty() { Ok(evaluation) } else { Err("evaluation-requests-field-reads") })
 }
 
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluation_v1<E>(
@@ -751,17 +752,17 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
     field_seeds: &std::collections::BTreeMap<usize, crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LocalFieldReadRequestV1>,
 ) -> Result<
-    Option<(
+    Result<(
         std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
         Vec<super::super::LocalFieldReadRequestV1>,
-    )>,
+    ), &'static str>,
     E,
 > {
     use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
     let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(&source,
         crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, field_seeds, homes,
         &mut |site| super::super::local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
-            &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return value_evaluation_declined(input, purpose_site, 0) };
+            &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return Ok(Err("call-preparation-declined")) };
     let mut initial = Vec::new();
     for (node, original) in source.nodes().iter().enumerate() {
         if !prepared.is_active_reference(node) {
@@ -790,7 +791,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
                 if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
                     eprintln!("[field-text-append] owner={:?} reason=text-entry-read-unavailable read={:?}", input.owner(), original.site());
                 }
-                return Ok(None);
+                return Ok(Err("text-entry-read-unavailable"));
             };
             initial.push((node, crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::ArgumentEntry(read)));
         } else if let Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(&owned,
@@ -800,29 +801,20 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluat
             }));
         }
     }
-    let Some((evaluation, fields)) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_statement_evaluation_v1(prepared, initial,
+    let (evaluation, fields) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_statement_evaluation_v1(prepared, initial,
         &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
         &mut |site| locals.loop_text_reference_v1(site, homes),
-        &mut |site| locals.current_scalar_read_v1(site, calls), field_request)? else {
-            if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
-                eprintln!("[field-text-append] owner={:?} reason=evaluation-qualification-missing", input.owner());
+        &mut |site| locals.current_scalar_read_v1(site, calls), field_request)? {
+            Ok(qualified) => qualified,
+            Err(reason) => {
+                if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
+                    eprintln!("[field-text-append] owner={:?} reason=evaluation-qualification-missing:{reason}", input.owner());
+                }
+                return Ok(Err(reason));
             }
-            return value_evaluation_declined(input, purpose_site, 1);
         };
     if evaluation.root_class() != ExpressionLeafClassV1::Value(expected) {
-        if crate::config::env::builder_debug_enabled() {
-            eprintln!("[value-evaluation] root class {:?} is not the expected {expected:?}", evaluation.root_class());
-        }
-        return value_evaluation_declined(input, purpose_site, 2);
+        return Ok(Err("root-class-mismatch"));
     }
-    Ok(Some((std::rc::Rc::new(evaluation), fields)))
-}
-
-/// Default-off (builder debug flag): which numbered check declined a value evaluation.
-#[inline(never)]
-fn value_evaluation_declined<T, E>(input: ResolvedFunctionLoweringInputV1<'_>, purpose: &OwnedExprSiteV1, check: u32) -> Result<Option<T>, E> {
-    if crate::config::env::builder_debug_enabled() {
-        eprintln!("[value-evaluation] declined owner={:?} purpose={:?} check={check}", input.owner(), purpose.site());
-    }
-    Ok(None)
+    Ok(Ok((std::rc::Rc::new(evaluation), fields)))
 }

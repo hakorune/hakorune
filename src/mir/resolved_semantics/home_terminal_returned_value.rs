@@ -438,7 +438,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
             }
         }
     }
-    let Some((evaluation, requests)) = prepare_value_evaluation_v1(
+    let Ok((evaluation, requests)) = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
         crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String,
@@ -584,7 +584,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_stored_return
     {
         return Ok(unavailable());
     }
-    let Some(key) =
+    let Ok(key) =
         qualify_text_evaluation_v1(input, plan, &site, locals, homes, calls, actuals, None)?
     else {
         return Ok(unavailable());
@@ -680,7 +680,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     // The complete Return evaluation borrows its Call and field leaves from
     // their existing source issuers and retains their ordered cleanup proof.
     let purpose = OwnedExprSiteV1::new(input.owner(), value.site().clone());
-    let Some((evaluation, requests)) = prepare_value_evaluation_v1(
+    let Ok((evaluation, requests)) = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
         crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64,

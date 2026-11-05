@@ -138,24 +138,6 @@ pub(in crate::mir::builder) fn emit_with_prefix(
 
 /// DynamicInvocation has its own source-bound Invoke projection. It never
 /// consumes a lexical Call disposition or enters the legacy Call packet.
-pub(in crate::mir::builder) fn emit_with_dynamic(
-    builder: &mut MirBuilder,
-    state: &mut CallableSemanticLoweringState,
-    ledger: &OrdinaryNewClaimLedgerV1,
-    frame: &CheckedExpressionEvaluationV1,
-    call: &LocalCallObservationV1,
-    acquired: &[(usize, ValueId)],
-    values: &[Option<EvaluatedExpressionValueV1>],
-    bindings: &mut Vec<Binding>,
-    consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
-    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
-) -> Result<ExpressionCallEmissionV1, String> {
-    emit_with_dynamic_and_argument_frames(
-        builder, state, ledger, frame, call, acquired, values, bindings,
-        consume_receiver, static_source, &[],
-    )
-}
-
 pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
