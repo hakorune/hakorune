@@ -61,8 +61,6 @@ pub(in crate::host_providers::llvm_codegen) fn compile_published_static_v2(
         }
     }
     unsafe {
-        #[cfg(test)]
-        let _session = super::c_compile_session_guard();
         let library = load_ffi_library()?;
         let open: Open = *library
             .get(b"hako_llvmc_static_open_v2_with_options\0")
