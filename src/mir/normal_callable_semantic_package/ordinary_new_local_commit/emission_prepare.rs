@@ -100,8 +100,13 @@ impl OrdinaryNewClaimLedgerV1 {
                     if crate::config::env::builder_debug_enabled() && !prior.end_available() {
                         eprintln!("[new-emission] site={site:?} prior Home {binding:?} End unavailable: {}", prior.end_unavailable_reason());
                     }
-                    available &= prior.end_available();
-                    operands.extend(prior.end_operations());
+                    // The plan exists only where the sealed residence proof
+                    // does; an unavailable prior Home leaves the row retained.
+                    if prior.end_available() {
+                        operands.extend(prior.end_operations());
+                    } else {
+                        available = false;
+                    }
                 }
             }
         }

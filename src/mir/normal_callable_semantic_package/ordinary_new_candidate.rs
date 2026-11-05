@@ -251,6 +251,24 @@ pub(super) fn verified_birth_recipe_for_site_v1(
     ))
 }
 
+/// A `take` formal owns exactly one non-optional user box. This is a property of
+/// the declaration alone, so it is judged before any actual is classified.
+pub(super) fn validate_take_declarations_v1(
+    site: &OwnedExprSiteV1,
+    class: &str,
+    row: &VerifiedInstanceConstructorSemanticRowV1,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalDeclarationClassV1 as Declaration;
+    match row.formal_contracts().iter().find(|formal| formal.is_take() && formal.declaration() != Declaration::ExactObjectTake) {
+        Some(formal) => Err(OrdinaryNewCoSealIssueV1::TakeFormalDeclarationUnavailable {
+            site: site.clone(),
+            class: class.into(),
+            ordinal: formal.ordinal(),
+        }),
+        None => Ok(()),
+    }
+}
+
 /// Every `take` birth formal is fed by an explicit `move x` of a handle local. A
 /// plain `x`, a literal, or any other actual has no ownership to hand over.
 pub(super) fn validate_take_actuals_v1(

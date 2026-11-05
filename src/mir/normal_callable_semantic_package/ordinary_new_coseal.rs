@@ -672,6 +672,13 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
         ordinal: u32,
     },
+    /// A `take` formal owns exactly one non-optional user box; any other declared
+    /// type is refused by name at the source, before any lane or the backend view.
+    TakeFormalDeclarationUnavailable {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        ordinal: u32,
+    },
     /// The birth body stores a formal with the wrong spelling: a `take` formal
     /// is stored only by `me.f = move x`, and `move x` is only for `take` formals.
     BirthStoreOwnershipMismatch {

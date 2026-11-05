@@ -786,8 +786,8 @@ fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
         .unwrap_or_else(|error| panic!("take with move: {error}"));
     let cases = [
         ("take next: Leaf", "next: Leaf", "leaf", "return n.v", "TakeActualRequiresMove"),
-        ("take next: i64", "next: i64", "3", "return n.v", "take-formal-declaration-unavailable"),
-        ("take next: Leaf?", "next: Leaf?", "move leaf", "return n.v", "take-formal-declaration-unavailable"),
+        ("take next: i64", "next: i64", "3", "return n.v", "TakeFormalDeclarationUnavailable"),
+        ("take next: Leaf?", "next: Leaf?", "move leaf", "return n.v", "TakeFormalDeclarationUnavailable"),
         ("take next: Leaf", "next: Leaf", "move leaf", "return leaf.value", "UseAfterMove"),
     ];
     for (formal, field, actual, tail, tag) in cases {

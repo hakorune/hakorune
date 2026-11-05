@@ -162,9 +162,13 @@ pub(super) fn append_source_claims(
                     new_site: site.clone(),
                 })
             });
-        if let (Ok(rows), super::super::OrdinaryNewConstructorDispositionV1::Birth(_)) = (&argument_rows, &constructor) {
+        if let super::super::OrdinaryNewConstructorDispositionV1::Birth(_) = &constructor {
             if let Some(birth) = instance_constructors.birth_for(&box_source, arity).ok().flatten() {
-                crate::mir::normal_callable_semantic_package::ordinary_new_coseal::candidate::validate_take_actuals_v1(&site, &class, birth, rows)?;
+                use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::candidate as take;
+                take::validate_take_declarations_v1(&site, &class, birth)?;
+                if let Ok(rows) = &argument_rows {
+                    take::validate_take_actuals_v1(&site, &class, birth, rows)?;
+                }
             }
         }
         if claims
