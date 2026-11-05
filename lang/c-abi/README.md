@@ -738,8 +738,14 @@ input). Run `TMPDIR=<empty dir> RUST_MIN_STACK=67108864 <lib test binary>
 published_backend_view --test-threads=4`, then pass that directory (or the named
 capture files) to each `published_lifecycle_v4_*_test.py` with
 `HAKO_TEST_LIFECYCLE_ARCHIVE=<archive>`. Run at most four tests at a time, and not
-beside a cargo build: each links with `cc`. `declared_borrow` and `borrowed_source`
-take 10 to 20 minutes alone.
+beside a cargo build: each links with `cc`. The tests share
+`tests/published_lifecycle_v4_test_support.py`, which links with mold when it is
+installed (`HAKO_AOT_FUSE_LD=default` keeps the compiler default,
+`HAKO_AOT_FUSE_LD=<name>` picks that linker, as the product AOT does). Build the C
+shims once with `python3 lang/c-abi/tests/published_lifecycle_v4_test_support.py
+build-shims <dir>` and set `HAKO_TEST_LLVMC_SHIM_DIR=<dir>` to skip the per-test
+shim build. With the default `ld`, `declared_borrow` and `borrowed_source` take 10
+to 20 minutes alone.
 
 This checks actual effects, allocation/release accounting, callee Print/New/Home
 Fault cleanup and role/result/value/projection refusals. The runtime archive must
