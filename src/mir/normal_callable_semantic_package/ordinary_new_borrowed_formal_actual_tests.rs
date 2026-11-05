@@ -521,6 +521,21 @@ fn mixed_actuals_check_the_nonopaque_formal_ordinal() {
         .unwrap()
         .incoming[0]
         .callee;
+    // The undrifted catalog prepares: the refusal below comes from the ordinal drift alone.
+    prepare_borrowed_call_actuals_v1(
+        package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap(),
+        &package.parameter_contracts,
+        &call,
+        &actuals,
+        &[],
+        None,
+        &mut |_| None,
+    )
+    .expect("the undrifted contracts prepare");
     let mut contracts =
         crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test(
             &package.parameter_contracts,
@@ -546,7 +561,7 @@ fn mixed_actuals_check_the_nonopaque_formal_ordinal() {
         &mut |_| None,
     )
     .unwrap_err();
-    assert!(error.contains("borrowed-actual/source-identity"), "{error}");
+    assert!(error.contains("borrowed-instance/actual-identity"), "{error}");
 }
 
 #[test]
