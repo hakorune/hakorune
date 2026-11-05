@@ -199,6 +199,26 @@ JSON着地後のレビュー（2026-10-28、読取りworker3人。未実行）�
 
 未確認: 式の位置の呼び出しを既存の`ExpressionValue`のemitで物理に載せられるか（足りなければ公開MIRかABIの追加なので、S2の最初に確かめて止めて聞く）。`x - 定数`で`Const`が消える理由。loopの中の呼び出しの理由（形ごとに別）。旧経路で今どの形が通っているか。深い再帰がexit 139で落ちること（Fault契約の外。順番の⑤までに扱いを決める）。
 
+S1着地（2026-11-06、Sonnet実装・Opus監査、`1de52b773a`）: 述語2種、封印の共通部、結果の写し、`precedes`を統合し、token cursorのparser経路とcaller 0の関数26本を削除。production +133/−1926。固定suite 8/8、比較229入力は差0（拒否名の差も0）、cohortとpublished_backend_viewの失敗名は前と同じ。統合しなかった差（D4、D9、`seal_local`だけの条件）は報告`sonnet-mir-s1-report.md`の第2節と第8節。
+
+## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
+
+材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
+
+判断の一元化と、物理MIRの検証の一般化は進める。ただし**source→MIRの対応検査は残す**。呼び出しを丸ごと消したMIRや、同じABIの別のcalleeへ取り違えたMIRは、所有の上では安全でもsourceどおりではない。
+
+| 責務 | 判断すること |
+| --- | --- |
+| sourceの意味解析 | 何を評価し、誰から借り、どこで所有を移すか。事実ごとに最初の決定の場所が持ち、他は聞くだけ |
+| source→MIRの対応検査 | 必要な評価、効果、順序、対象が生成物に保存されたか（例: `finalized_initializer_homes.rs:13`はpacketと命令が一緒に消えても検出する） |
+| 公開MIRの独立検証 | 実CFGの上で型、借用、取得、移転、Endが整合するか。生成側の`Proof`型や判定関数を取り込まず、実MIRと公開宣言から状態を作る。loopと合流は固定点で解く |
+
+- 同じsourceの判断を出し直す所は消す。生成物を調べて宣言や計画と一致するか確かめる所は消さない。receiptも、source siteと実命令を結ぶ役割なら運搬ではない。
+- 今の検証の範囲: 呼び出しの結果型はCが確かめる（`hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc:156`、`indexed_return.inc:117`）がRustは見ない（`return_outcome.rs:8`）。普通のobjectのEndはCが全関数で確かめるが、`ownership_ssa`は`move`、`share`、`take`のある関数だけ（`backend_capability.rs:105`）。`image.field_reads`は実MIRと照らし直している。
+- 直す順: Cの必須検査を保つ → S2でRustに呼び出しの結果型の独立検査を足す → objectの資源の検証を全関数へ一般化する（結果の所有の契約、`initially_published`を公開の構築契約と実commitから照合する形へ）→ 対応検査との依存を整理する。
+- Rustへ寄せること自体は独立性を生まない。Cの意味の検査を外すのは、新しい検証が同じ違反を実MIRから拒否し、公開の入力経路すべてで迂回できず、検証後の変換とJSON化の不整合も検出できると確かめた規則だけ。
+- S2の最初の完了単位: 生きたobjectのHomeを持つcallerで、型付き呼び出しの結果を別の呼び出しの引数に使う。正規EXE、Normal・後の引数のFault・callee入場後のFaultのEnd、MIR改変の拒否（結果型、Fault側のEnd欠落、二重End。呼び出しの欠落は対応検査）、対象のsource判断の出し手をn個から1個へ、置き換えた旧edgeのcaller 0。削除した責務と追加した責務は分けて報告する。
+
 ## Remaining parked responsibilities
 
 過去の構造調査は再開許可ではない。次の未完責務を保持する。
