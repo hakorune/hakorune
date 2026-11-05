@@ -322,6 +322,37 @@ fn map_argument_edge(
         .unwrap_or(false)
 }
 
+/// The local-call contract both seals share. Each seal adds its own lane
+/// evidence (static: callee completion and exact formals; lifecycle:
+/// signature, call terminals and the Map edge).
+pub(super) fn local_call_gate(
+    local: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
+    site: &OwnedExprSiteV1,
+    argument_count: usize,
+) -> Result<(), &'static str> {
+    if local.owner() != site.owner() || local.site() != site {
+        Err("local-site-mismatch")
+    } else if local.result() != LocalCallResultClassV1::I64 {
+        Err("result-not-i64")
+    } else if !local.prior_homes().is_empty() {
+        Err("live-home")
+    } else if local.local_binding().is_none() {
+        Err("not-local-bound")
+    } else if local.arguments().len() != argument_count {
+        Err("argument-cardinality")
+    } else {
+        Ok(())
+    }
+}
+
+/// The caller's own exit evidence: it returns a value and every exit is ready.
+pub(super) fn completion_ready(
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+) -> bool {
+    completion.returns_value()
+        && completion.cleanup().root_flow().is_some_and(|flow| flow.all_exits_ready())
+}
+
 pub(super) fn exact_formals(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameters: &[OwnedCallableParameterContractDeclarationV1],
@@ -578,22 +609,15 @@ impl DirectCallDispositionLoanV1 {
                 }
                 let caller = root.completion_for_owner(self.owner).ok_or(reject)?;
                 if local.owner() != self.owner
-                    || local.site() != site
+                    || local_call_gate(local, site, row.argument_sites.len()).is_err()
                     || !matches!(local.local_binding(), Some((_, binding)) if binding.owner() == self.owner)
-                    || local.arguments().len() != row.argument_sites.len()
-                    || local.result() != LocalCallResultClassV1::I64
                     || signature.arity() != row.argument_sites.len()
                     || signature.result() != Some(ExactTrivialScalarAbiV1::I64)
                     || caller.owner() != self.owner
                     || call_terminals
                         .iter()
                         .any(|terminal| !caller.explicit_sites().contains(terminal.return_site()))
-                    || !caller.returns_value()
-                    || !caller
-                        .cleanup()
-                        .root_flow()
-                        .is_some_and(|flow| flow.all_exits_ready())
-                    || !local.prior_homes().is_empty()
+                    || !completion_ready(caller)
                 {
                     return Err(reject);
                 }
@@ -611,12 +635,7 @@ impl DirectCallDispositionLoanV1 {
             // `return <call>` site and a local `local m = <call>` site both
             // consume the same caller terminal Homes accounting.
             let caller = root.completion_for_owner(self.owner).ok_or(reject)?;
-            if !caller.returns_value()
-                || !caller
-                    .cleanup()
-                    .root_flow()
-                    .is_some_and(|flow| flow.all_exits_ready())
-            {
+            if !completion_ready(caller) {
                 return Err(reject);
             }
             // The source scan classifies a local call by the callee's

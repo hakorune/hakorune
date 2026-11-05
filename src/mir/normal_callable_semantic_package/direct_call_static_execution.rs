@@ -89,17 +89,12 @@ fn seal_local(
     site: &OwnedExprSiteV1, row: &mut DirectCallDispositionRowV1,
 ) -> Result<(), String> {
     let local = ledger.local_call_for_owner(site.owner(), site.site()).ok_or_else(|| reject("local-source"))?;
-    if local.owner() != site.owner() || local.site() != site || local.result() != LocalCallResultClassV1::I64
-        || !local.prior_homes().is_empty() || local.local_binding().is_none()
-        || local.arguments().len() != row.argument_sites.len() || !exact_i64(row)
-        || (row.static_source_v1().is_none() && !lifecycle::exact_formals(batch, parameters, row)) {
-        return Err(reject("local-contract"));
-    }
+    lifecycle::local_call_gate(local, site, row.argument_sites.len()).map_err(reject)?;
+    if !exact_i64(row) { return Err(reject("signature-not-exact-i64")); }
+    if row.static_source_v1().is_none() && !lifecycle::exact_formals(batch, parameters, row) { return Err(reject("formals-not-exact")); }
     for owner in [site.owner(), row.callee_owner_v1()] {
         let completion = ledger.completion_for_owner(owner).ok_or_else(|| reject("completion"))?;
-        if !completion.returns_value() || !completion.cleanup().root_flow().is_some_and(|flow| flow.all_exits_ready()) {
-            return Err(reject("completion-not-ready"));
-        }
+        if !lifecycle::completion_ready(completion) { return Err(reject("completion-not-ready")); }
     }
     row.execution = DirectCallExecutionV1::Lifecycle;
     ledger.record_lifecycle_local_call_site(site.owner(), site.clone());
