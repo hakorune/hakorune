@@ -13,7 +13,8 @@ fn package() -> VerifiedNormalCallableSemanticPackageV1 {
         super::resolved_selected_handoff_tests::final_source(
             r#"
 static box Scan {
-  run(s) {
+  run(unused) {
+    local s = "abc"
     local i = 0
     loop(i < s.length()) {
       local ch = s.substring(i, i + 1)
