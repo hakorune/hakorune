@@ -19,6 +19,18 @@ pub(in crate::mir::builder) enum OrdinaryNewClaimTakeV1 {
 }
 
 impl OrdinaryNewClaimTakeV1 {
+    /// The legacy route has no `move`, so an unplanned claim with an explicit-`move`
+    /// argument has no route left: the refusal names why the plan was not made.
+    fn unplanned_move_refusal(&self) -> Option<String> {
+        let (rows, home) = match self {
+            Self::Local(claim) => (claim.argument_rows(), claim.home_prefix().err().map(|r| format!("{r:?}"))),
+            Self::Result(claim) => (claim.argument_rows(), claim.home_prefix().err().map(|r| format!("{r:?}"))),
+        };
+        rows.is_ok_and(|rows| rows.iter().any(|row| row.explicit_move())).then(|| format!(
+            "[freeze:contract][ordinary-new/move-argument-unplanned] cause={}",
+            home.as_deref().unwrap_or("NewEmissionUnavailable")))
+    }
+
     fn constructor(
         self,
     ) -> crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1 {
@@ -173,7 +185,10 @@ impl PreparedRawNewExpressionV1 {
         }
         self.plan = match claim {
             Some((true, claim)) => PreparedNewPlanV1::Selected(SelectedNewPlanV1::Claim(claim)),
-            Some((false, claim)) => PreparedNewPlanV1::Untargeted(Some(claim.constructor())),
+            Some((false, claim)) => match claim.unplanned_move_refusal() {
+                Some(refusal) => return Err(refusal),
+                None => PreparedNewPlanV1::Untargeted(Some(claim.constructor())),
+            },
             None => PreparedNewPlanV1::Untargeted(
                 port.try_take_ordinary_new_birth_recipe(&self.class, arguments.len())?
                     .map(crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1::Birth),

@@ -42,29 +42,6 @@ pub(super) struct QualifiedExpressionLeavesV1 {
     >,
 }
 
-pub(super) fn qualify_expression_leaves_v1<E>(
-    source: &Rc<ExpressionSourcePlanV1>,
-    profile: ExpressionLeafProfileV1,
-    seeded: &BTreeMap<usize, Leaf>,
-    scalar_reference: &mut impl FnMut(
-        &SourceExprSiteV1,
-    ) -> Option<(
-        crate::mir::resolved_semantics::BindingRefV1,
-        super::super::SourceScalarKind,
-    )>,
-    prior_homes: &[LiveHomeV1],
-    order: &[usize],
-    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
-) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
-    let Some(prepared) =
-        prepare_expression_calls_v1(source, profile, seeded, prior_homes, source_call)?
-    else {
-        return Ok(None);
-    };
-    qualify_expression_leaves_with_calls_v1(prepared, scalar_reference, order, field_request)
-}
-
 /// Invocation-local scope from the sole original Call/Core classification.
 /// Consumed by leaf completion; no independent source, Home or physical grant.
 pub(crate) struct PreparedExpressionCallsV1 {

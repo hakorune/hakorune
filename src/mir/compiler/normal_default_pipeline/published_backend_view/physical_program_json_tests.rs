@@ -807,6 +807,10 @@ fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
         let error = compile_stored(formal, store, "next: Leaf", "move leaf", "5", "return n.v").unwrap_err();
         assert!(error.contains("BirthStoreOwnershipMismatch") && error.contains(issue), "{formal} / {store}: {error}");
     }
+    // A `take` formal the birth never hands to a field has nowhere to go: a named refusal,
+    // not a late physical-parse failure.
+    let error = compile_stored("take next: Leaf", "null", "next: Leaf?", "move leaf", "5", "return n.v").unwrap_err();
+    assert!(error.contains("TakeFormalNotStored"), "{error}");
     // Arguments evaluate in source order: a read after `move` inside the same `new` is a
     // use after move, a read before it is not, and a plain handle argument transfers too.
     compile_with_second("take next: Leaf", "next: Leaf", "move leaf", "leaf.value", "return n.v")

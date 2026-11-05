@@ -672,6 +672,12 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
         ordinal: u32,
     },
+    /// A `take` formal the birth never hands to a field: ownership would have nowhere to go.
+    TakeFormalNotStored {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        ordinal: u32,
+    },
     /// A `take` formal owns exactly one non-optional user box; any other declared
     /// type is refused by name at the source, before any lane or the backend view.
     TakeFormalDeclarationUnavailable {

@@ -304,6 +304,13 @@ pub(super) fn validate_take_actuals_v1(
                 ordinal: formal.ordinal(),
             });
         }
+        if matches!(formal.uses(), crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1::NoUse) {
+            return Err(OrdinaryNewCoSealIssueV1::TakeFormalNotStored {
+                site: site.clone(),
+                class: class.into(),
+                ordinal: formal.ordinal(),
+            });
+        }
     }
     Ok(())
 }
