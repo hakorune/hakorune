@@ -228,6 +228,27 @@ impl OrdinaryNewClaimLedgerV1 {
             .expect("verified completion")
             .as_ref()
     }
+    /// Semantic-only handoff tests never run the builder, so no return exit is ever
+    /// prepared. Record every explicit return exit as the cleanup-unavailable outcome
+    /// the builder would have recorded, so the ledger can drain.
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn record_return_exits_unavailable_for_test(
+        &self,
+    ) {
+        let exits = self
+            .completion_index
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+            .flat_map(|completion| {
+                completion.explicit_sites().iter().map(move |site| (completion.owner(), site.clone()))
+            })
+            .collect::<Vec<_>>();
+        for (owner, site) in exits {
+            self.root_exits
+                .borrow_mut()
+                .insert((owner, site.into()), super::local_commit::RootHomeExitProgress::Unavailable);
+        }
+    }
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn pending_claims_for_test(
         &self,
