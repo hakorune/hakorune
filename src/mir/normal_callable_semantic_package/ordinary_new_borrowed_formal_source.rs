@@ -292,9 +292,7 @@ pub(super) fn arg_site_binding(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
 ) -> Option<BindingRefV1> {
-    let site = input.function().expression_source().unary(site)
-        .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move)
-        .map_or(site, |unary| unary.operand());
+    let site = input.function().expression_source().stored_value_operand(site);
     if let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) =
         input.function().variable_ref(site)
     {

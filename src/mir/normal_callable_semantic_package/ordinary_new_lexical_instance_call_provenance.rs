@@ -412,8 +412,7 @@ impl LexicalReceiverClassSourceV1<'_> {
         }
         // A move keeps the original nominal class; it never grants a new Home.
         // Retain this receiver's binding and use the same operand flow as Home.
-        if let Some(unary) = input.function().expression_source().unary(initializer_site)
-            .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move) {
+        if let Some(unary) = input.function().expression_source().moved(initializer_site) {
             use crate::mir::resolved_semantics::{ResolvedAssignmentTargetV1, source_value_flow::SourceValueOriginV1};
             let function = input.function();
             let Some(flow) = function.expression_source().value_flow() else { return Ok(None); };
@@ -436,9 +435,7 @@ impl LexicalReceiverClassSourceV1<'_> {
             if !stable(source) { return Ok(None); }
             let Some(value) = flow.read(unary.operand(), source) else { return Ok(None); };
             let terminal = flow.alias_terminal_with_read_site(value, |origin| {
-                let read = function.expression_source().unary(origin)
-                    .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move)
-                    .map_or(origin, |unary| unary.operand());
+                let read = function.expression_source().stored_value_operand(origin);
                 let reference = function.variable_ref(read)?;
                 matches!(reference, ResolvedLexicalRefV1::Local(binding) if stable(binding))
                     .then(|| (read.clone(), reference))

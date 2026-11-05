@@ -76,8 +76,7 @@ impl PrefixLocalFlow<'_> {
         let mut simulated = self.clone();
         let mut pending = vec![(call.site().clone(), false)];
         while let Some((site, after)) = pending.pop() {
-            let moved = input.function().expression_source().unary(&site).filter(|unary|
-                unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
+            let moved = input.function().expression_source().moved(&site);
             if after {
                 if let Some(moved) = moved {
                     let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(moved.operand())

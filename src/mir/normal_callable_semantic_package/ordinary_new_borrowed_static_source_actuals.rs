@@ -379,8 +379,7 @@ pub(super) fn prepare_static_source_actuals_v1(
             BorrowedCallActualValueV1::Home { binding, root, acquisition, moved: Some(moved) }
                 if formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
                     && binding.owner() == call.owner() && root.owner() == call.owner()
-                    && acquisition.owner() == call.owner() && moved.site() == &actual.site
-                    && moved.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move =>
+                    && acquisition.owner() == call.owner() && moved.site() == &actual.site && moved.is_move() =>
             {
                 // Original owned source only. The common actual constructor
                 // still proves its acquisition/class before entry adoption.

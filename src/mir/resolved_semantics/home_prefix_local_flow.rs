@@ -986,8 +986,7 @@ impl<'source> PrefixLocalFlow<'source> {
             .input
             .function()
             .expression_source()
-            .unary(site)
-            .filter(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move)
+            .moved(site)
         {
             return Ok(self
                 .observe(moved.operand())

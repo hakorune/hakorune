@@ -155,7 +155,7 @@ impl HomeExpressionPlanV1 {
             || acquisition.owner() != source.owner()
             || source.nodes().len() != 2
             || !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::Unary(_))
-            || unary.operator() != crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
+            || !unary.is_move()
             || unary.site() != source.nodes()[0].site()
             || unary.operand() != source.nodes()[1].site()
             || !matches!(source.nodes()[1].source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == from)
@@ -357,7 +357,7 @@ impl HomeExpressionPlanV1 {
                         && from.owner() == source.owner()
                         && acquisition.owner() == source.owner()
                         && source.nodes().len() == 2
-                        && unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
+                        && unary.is_move()
                         && unary.site() == source.nodes()[0].site()
                         && unary.operand() == source.nodes()[1].site()
                 }
@@ -372,7 +372,7 @@ impl HomeExpressionPlanV1 {
                             Self::shared_clone_source_is_consistent_v1(source, *from, acquisition, shared, prior_homes),
                         (P::Existing { from, acquisition, is_clone: false }, Some(moved)) => {
                             from.owner() == source.owner() && acquisition.owner() == source.owner() && nodes.len() == 3
-                                && shared.operator() == Op::Shared && moved.operator() == Op::Move
+                                && shared.operator() == Op::Shared && moved.is_move()
                                 && shared.site() == nodes[0].site() && shared.operand() == moved.site()
                                 && moved.site() == nodes[1].site() && moved.operand() == nodes[2].site()
                                 && matches!(nodes[0].source(), ExpressionNodeSourceV1::Unary(_))

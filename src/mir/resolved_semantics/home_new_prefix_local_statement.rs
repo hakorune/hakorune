@@ -131,10 +131,7 @@ pub(super) fn observe<'a, E>(
                 let Some(flow) = function.expression_source().value_flow() else { return false };
                 let Some(value) = flow.read(read_site, source) else { return false };
                 let terminal = flow.alias_terminal_with_read_site(value, |origin| {
-                    let read = match function.expression_source().unary(origin) {
-                        Some(previous) if previous.operator() == super::super::ResolvedUnaryOperatorV1::Move => previous.operand(),
-                        _ => origin,
-                    };
+                    let read = function.expression_source().stored_value_operand(origin);
                     function.variable_ref(read).map(|reference| (read.clone(), reference))
                 }, |origin| origin == acquisition.site());
                 terminal.and_then(|value| flow.origin(value)).is_some_and(|origin|
@@ -185,8 +182,7 @@ pub(super) fn observe<'a, E>(
                     result_prefixes.insert(payload, prefix);
                     continue;
                 }
-                let Some(moved) = function.expression_source().unary(unary.operand())
-                    .filter(|row| row.operator() == super::super::ResolvedUnaryOperatorV1::Move) else {
+                let Some(moved) = function.expression_source().moved(unary.operand()) else {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::SharedOperandUnsupported {
                         site: site.clone(), guidance: "share requires an owned Shared local or a fresh/moved plain Box; for an owned plain Box use share move x; borrowed Box, values, Dynamic and nullable operands are unsupported",
                     });
@@ -232,7 +228,7 @@ pub(super) fn observe<'a, E>(
                 }
                 continue;
             }
-            if unary.operator() == super::super::ResolvedUnaryOperatorV1::Move {
+            if unary.is_move() {
                 let source = match function.variable_ref(unary.operand()) {
                     Some(ResolvedLexicalRefV1::Local(source)) => source,
                     _ => {

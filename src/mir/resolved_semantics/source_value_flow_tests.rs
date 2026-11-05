@@ -124,9 +124,7 @@ fn moved_local_provenance_uses_the_original_operand_read() {
     let value = read(&product, &[P::Body(1), P::Value]);
     let original = read(&product, &[P::Body(0), P::Initializer(0), P::Operand]);
     let terminal = flow(&product).alias_terminal_with_read_site(value, |site| {
-        let read = product.expression_source().unary(site)
-            .filter(|row| row.operator() == super::ResolvedUnaryOperatorV1::Move)
-            .map(|row| row.operand()).unwrap_or(site);
+        let read = product.expression_source().stored_value_operand(site);
         product.variable_ref(read).map(|reference| (read.clone(), reference))
     }, |_| false);
     assert_eq!(terminal, Some(original));

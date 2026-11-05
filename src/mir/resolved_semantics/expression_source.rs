@@ -76,6 +76,9 @@ impl ResolvedUnaryExpressionSourceV1 {
 
     pub(crate) fn is_explicit_copy_v1(&self) -> bool { self.operator == ResolvedUnaryOperatorV1::Copy }
 
+    /// The only syntactic test for an explicit `move`; consumers never compare operators.
+    pub(crate) fn is_move(&self) -> bool { self.operator == ResolvedUnaryOperatorV1::Move }
+
     pub(crate) const fn operator(&self) -> ResolvedUnaryOperatorV1 {
         self.operator
     }
@@ -330,9 +333,13 @@ impl ResolvedExpressionSourceInventoryV1 {
     /// operand of an explicit `move <name>`. Every store classifier uses this
     /// one rule so a moved formal is never classified differently per consumer.
     pub(crate) fn stored_value_operand<'a>(&'a self, site: &'a SourceExprSiteV1) -> &'a SourceExprSiteV1 {
-        self.unary(site)
-            .filter(|row| row.operator() == ResolvedUnaryOperatorV1::Move)
-            .map_or(site, |row| row.operand())
+        self.moved(site).map_or(site, |row| row.operand())
+    }
+
+    /// The explicit `move <operand>` row at `site`, if the site is one. The operand
+    /// is returned as written (a name or any other place); this decides nothing else.
+    pub(crate) fn moved(&self, site: &SourceExprSiteV1) -> Option<&ResolvedUnaryExpressionSourceV1> {
+        self.unary(site).filter(|row| row.is_move())
     }
 
     pub(crate) fn unaries(&self) -> impl Iterator<Item = &ResolvedUnaryExpressionSourceV1> { self.unaries.values() }

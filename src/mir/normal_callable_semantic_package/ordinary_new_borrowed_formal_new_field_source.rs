@@ -270,9 +270,8 @@ pub(super) fn observe_local_uses_v1(
             || !result.bindings.insert(binding) { return None; }
         result.reads.extend(reads.get(&binding).into_iter().flatten().cloned());
         let mut next = function.expression_source().initializers().filter_map(|init| {
-            let unary = function.expression_source().unary(init.initializer_site()?)?;
-            (unary.operator() == ResolvedUnaryOperatorV1::Move
-                && arg_site_binding(input, unary.operand()) == Some(binding)).then_some((init, unary))
+            let unary = function.expression_source().moved(init.initializer_site()?)?;
+            (arg_site_binding(input, unary.operand()) == Some(binding)).then_some((init, unary))
         });
         let Some((target, unary)) = next.next() else { return Some(result); };
         if next.next().is_some() || !result.moves.insert(unary.operand().clone()) { return None; }

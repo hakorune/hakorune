@@ -181,8 +181,7 @@ pub(super) fn observe_new_arguments_v1<E>(
             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
             continue;
         }
-        let explicit_move = input.function().expression_source().unary(site)
-            .is_some_and(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
+        let explicit_move = input.function().expression_source().moved(site).is_some();
         let observed = locals.observe_selected_argument(site, argument_i64_field)?;
         // Already-proved scalar leaves keep their exact old domain. Opaque
         // bindings/otherwise uncovered Text need their own original evaluation.

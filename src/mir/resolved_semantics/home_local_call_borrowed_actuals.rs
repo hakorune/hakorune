@@ -96,8 +96,7 @@ fn observe_one_borrowed_call_actuals(
             .iter()
             .map(|argument| {
                 let site = argument.site();
-                let moved = input.function().expression_source().unary(site).filter(|unary|
-                    unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move);
+                let moved = input.function().expression_source().moved(site);
                 let read_site = moved.map_or(site, |unary| unary.operand());
                 let value = match borrowed_actual_source_atom_v1(input, read_site) {
                     Some(BorrowedCallActualValueV1::FieldAccess) => {

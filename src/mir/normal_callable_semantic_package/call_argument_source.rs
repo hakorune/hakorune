@@ -20,10 +20,7 @@ impl BorrowedFormalActualSourceV1 {
             Self::TypedHome {
                 moved: Some(moved), ..
             } => {
-                if moved.site() != actual
-                    || moved.operator()
-                        != crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
-                {
+                if moved.site() != actual || !moved.is_move() {
                     return Err(freeze("borrowed-actual/argument-source-identity"));
                 }
                 Ok(moved.operand())
@@ -59,9 +56,7 @@ pub(super) fn bind_original_argument_plans_v1(
                 moved: Some(moved), ..
             } => {
                 if moved.site() != &candidate.site
-                    || moved.operator()
-                        != crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move
-                    || input.function().expression_source().unary(&candidate.site) != Some(moved)
+                    || input.function().expression_source().moved(&candidate.site) != Some(moved)
                 {
                     return Err(reject());
                 }
@@ -227,8 +222,7 @@ impl ObjectActualHomeSourceV1<'_> {
             else { return Err(freeze("borrowed-actual/source-identity")); };
         if formal.ordinal != actual.ordinal
             || (formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home) != moved.is_some()
-            || moved.as_ref().is_some_and(|unary| unary.site() != &actual.site
-                || unary.operator() != crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Move) {
+            || moved.as_ref().is_some_and(|unary| unary.site() != &actual.site || !unary.is_move()) {
             return Err(freeze("borrowed-actual/source-identity"));
         }
         let Some(class) = self.home_class(call, *binding, *root, acquisition)? else { return Ok(None); };
