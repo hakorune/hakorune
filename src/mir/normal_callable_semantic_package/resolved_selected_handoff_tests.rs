@@ -120,10 +120,7 @@ fn declared_instance_package() -> super::VerifiedNormalCallableSemanticPackageV1
     let mut resolver = FunctionSemanticResolverSessionV1::new(952).expect("resolver");
     issue_normal_callable_semantic_package_v1(
         &mut resolver,
-        // `return me.value(7)` into `return p`: a literal actual makes the callee an I64
-        // source, and neither return is an IntegerLiteral relation that only the builder
-        // can complete.
-        final_source("box Counter { call() { return me.value(7) } value(p) { return p } }"),
+        final_source("box Counter { call() { return me.value() } value() { return 1 } }"),
     )
     .expect("declared-instance package")
 }
@@ -132,8 +129,8 @@ fn consume_declared_instance_selected_rows(
     port: &mut super::NormalCallableSemanticPackagePortV1<'_>,
     call_site: Option<&crate::mir::resolved_semantics::OwnedExprSiteV1>,
 ) {
-    for (method, arity) in [("call", 0), ("value", 1)] {
-        let key = CanonicalSameModuleCallableKeyV1::test_instance_box_method("Counter", method, arity);
+    for method in ["call", "value"] {
+        let key = CanonicalSameModuleCallableKeyV1::test_instance_box_method("Counter", method, 0);
         port.with_selected_cataloged_lowering_input_signature_and_declared_instance_locator(
             admission(&key),
             |input, signature, mut locator| {
@@ -168,9 +165,6 @@ fn consume_declared_instance_selected_rows(
 #[test]
 fn declared_instance_selected_handoff_consumes_locator_and_finishes() {
     let package = declared_instance_package();
-    // No builder runs here: record the return exits it would have recorded so
-    // `complete()` reaches the locator check behind the ledger check.
-    package.ordinary_new_claim_ledger.record_return_exits_unavailable_for_test();
     let call_site = match package.declared_instance_call_locators() {
         DeclaredInstanceCallPackageLocatorDispositionV1::Published(catalog) => catalog
             .rows()
@@ -199,9 +193,6 @@ fn declared_instance_selected_handoff_consumes_locator_and_finishes() {
 #[test]
 fn declared_instance_selected_handoff_rejects_residual_locator() {
     let package = declared_instance_package();
-    // No builder runs here: record the return exits it would have recorded so
-    // `complete()` reaches the locator check behind the ledger check.
-    package.ordinary_new_claim_ledger.record_return_exits_unavailable_for_test();
     let mut context = CompilationContext::new();
     let installed = package
         .prepare_install(&mut context)
