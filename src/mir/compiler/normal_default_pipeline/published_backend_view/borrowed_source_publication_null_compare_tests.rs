@@ -64,9 +64,17 @@ fn null_compare_publishes_the_dedicated_physical_row() {
                             .iter()
                             .filter(|row| row["op"] == "borrowed_null_compare")
                             .collect();
-                        // One source compare; the edge-port model evaluates
-                        // the same projection twice.
-                        assert_eq!(compares.len(), 2, "{suffix}: {wire}");
+                        // One source compare, executed once: its Bool feeds the
+                        // condition Branch without replaying the projection.
+                        assert_eq!(compares.len(), 1, "{suffix}: {wire}");
+                        let compare_dst = compares[0]["dst"].as_u64().unwrap();
+                        assert!(
+                            callee["blocks"].as_array().unwrap().iter().any(|b| {
+                                let t = &b["terminator"]["instruction"];
+                                t["op"] == "branch" && t["condition"].as_u64() == Some(compare_dst)
+                            }),
+                            "{suffix}: the single compare is the Branch condition: {wire}"
+                        );
                         let nulls: Vec<u64> = rows
                             .iter()
                             .filter(|row| row["op"] == "const_null")
