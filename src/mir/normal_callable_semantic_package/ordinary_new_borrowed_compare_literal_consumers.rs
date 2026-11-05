@@ -1,5 +1,6 @@
 //! Mandatory source-ordered literal-to-Compare correspondence.
 use super::*;
+use super::compare_consumers::precedes;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
@@ -195,31 +196,7 @@ fn check_literal_group(
         .get(&operand)
         .ok_or_else(|| freeze("borrowed-literal/operand-identity"))?;
     precedes(function, root, compare)?;
-    precedes(function, definition, compare)
-}
-fn precedes(function: &MirFunction, source: &Binding, target: &Binding) -> Result<(), String> {
-    let dominators = crate::mir::verification::utils::compute_dominators(function);
-    if !dominators.is_reachable(source.0)
-        || !dominators.is_reachable(target.0)
-        || !dominators.dominates(source.0, target.0)
-    {
-        return Err(freeze("borrowed-literal/dominance"));
-    }
-    if source.0 == target.0 {
-        let rows = &function.blocks[&source.0].instructions;
-        let from = rows
-            .iter()
-            .position(|i| i == &source.1)
-            .ok_or_else(|| freeze("borrowed-literal/root-missing"))?;
-        let to = rows
-            .iter()
-            .position(|i| i == &target.1)
-            .ok_or_else(|| freeze("borrowed-literal/consumer-missing"))?;
-        if from >= to {
-            return Err(freeze("borrowed-literal/order"));
-        }
-    }
-    Ok(())
+    precedes(function, *definition, compare)
 }
 
 #[cfg(test)]

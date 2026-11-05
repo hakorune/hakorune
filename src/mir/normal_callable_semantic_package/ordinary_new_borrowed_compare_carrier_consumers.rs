@@ -1,5 +1,6 @@
 //! SAME source carrier loans, exact ordered consumers and mandatory bindings.
 use super::*;
+use super::compare_consumers::precedes;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
@@ -203,35 +204,6 @@ fn check_group(
         .ok_or_else(|| freeze("borrowed-carrier/operand"))?;
     precedes(function, previous, compare)?;
     precedes(function, *definition, compare)
-}
-fn precedes(
-    function: &MirFunction,
-    source: Option<&Binding>,
-    target: &Binding,
-) -> Result<(), String> {
-    let block = source.map_or(function.entry_block, |source| source.0);
-    let dominators = crate::mir::verification::utils::compute_dominators(function);
-    if !dominators.is_reachable(block)
-        || !dominators.is_reachable(target.0)
-        || !dominators.dominates(block, target.0)
-    {
-        return Err(freeze("borrowed-carrier/dominance"));
-    }
-    if let Some(source) = source.filter(|source| source.0 == target.0) {
-        let rows = &function.blocks[&block].instructions;
-        let from = rows
-            .iter()
-            .position(|row| *row == source.1)
-            .ok_or_else(|| freeze("borrowed-carrier/original-missing"))?;
-        let to = rows
-            .iter()
-            .position(|row| *row == target.1)
-            .ok_or_else(|| freeze("borrowed-carrier/consumer-missing"))?;
-        if from >= to {
-            return Err(freeze("borrowed-carrier/order"));
-        }
-    }
-    Ok(())
 }
 
 #[cfg(test)]

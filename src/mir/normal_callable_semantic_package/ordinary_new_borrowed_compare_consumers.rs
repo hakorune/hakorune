@@ -237,6 +237,35 @@ pub(super) fn exact(function: &MirFunction, binding: &Binding) -> Result<(), Str
     Ok(())
 }
 
+/// `source` (or the function entry when absent) dominates `target`, and within one
+/// block comes strictly before it.
+pub(super) fn precedes<'a>(function: &MirFunction, source: impl Into<Option<&'a Binding>>, target: &Binding) -> Result<(), String> {
+    let source = source.into();
+    let block = source.map_or(function.entry_block, |source| source.0);
+    let dominators = crate::mir::verification::utils::compute_dominators(function);
+    if !dominators.is_reachable(block)
+        || !dominators.is_reachable(target.0)
+        || !dominators.dominates(block, target.0)
+    {
+        return Err(freeze("borrowed-compare/dominance"));
+    }
+    if let Some(source) = source.filter(|source| source.0 == target.0) {
+        let rows = &function.blocks[&block].instructions;
+        let from = rows
+            .iter()
+            .position(|row| *row == source.1)
+            .ok_or_else(|| freeze("borrowed-compare/original-missing"))?;
+        let to = rows
+            .iter()
+            .position(|row| *row == target.1)
+            .ok_or_else(|| freeze("borrowed-compare/consumer-missing"))?;
+        if from >= to {
+            return Err(freeze("borrowed-compare/order"));
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_compare_consumer_tests.rs"]
 mod tests;
