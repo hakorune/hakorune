@@ -107,6 +107,11 @@ def _expression_node(expression: Any) -> dict[str, Any]:
         if not isinstance(elements, list):
             raise RustProjectionError("Rust array elements are missing")
         return _node("ArrayLiteral", children=[_expression_node(item) for item in elements])
+    if kind == "ExplicitExternCall":
+        target = expression.get("target")
+        if not isinstance(target, str):
+            raise RustProjectionError("Rust explicit externcall target is missing")
+        return _node("ExplicitExternCall", value=target)
     if kind == "New":
         box_name = expression.get("box_name")
         arguments = expression.get("args")
@@ -479,6 +484,7 @@ def project_rust_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         "literal_void",
         "array_literal",
         "construction_new_box",
+        "explicit_externcall",
     }:
         return _remaining_expression(program, row_id)
     raise RustProjectionError(f"Rust grammar row projection is missing: {row_id}")

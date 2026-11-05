@@ -235,7 +235,7 @@ fn source_to_program_json_v0_transports_local_type_annotation_metadata() {
     let source = r#"
 static box Main {
   main() {
-local ids: Array<PageId> = null
+local ids: Array<i64> = null
 return 0
   }
 }
@@ -247,7 +247,7 @@ return 0
 
     assert_eq!(body[0]["type"], "Local");
     assert_eq!(body[0]["name"], "ids");
-    assert_eq!(body[0]["declared_type"], "Array<PageId>");
+    assert_eq!(body[0]["declared_type"], "Array<i64>");
 }
 
 #[test]

@@ -90,7 +90,7 @@ rg -F -q 'record_literal_allowed(expr_context)' \
 if rg -q 'ParserPeekBox\.parse' lang/src/compiler/parser/expr/parser_expr_box.hako; then
   guard_fail "legacy Hako Peek JSON route is still live"
 fi
-if rg -q 'option_inventory|\"name\":\"Option\"' \
+if rg -q 'option_inventory|"name":"Option"' \
   lang/src/compiler/parser/grammar_profile_facade.hako; then
   guard_fail "Hako grammar facade still owns an Option-specific inventory"
 fi
