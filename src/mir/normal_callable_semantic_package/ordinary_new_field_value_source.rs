@@ -275,9 +275,7 @@ impl TextFieldValueSourceV1 {
         claims: &OrdinaryNewFieldWriteClaimsV1, source: &Rc<DeclaredFieldValueSourceV1>,
     ) -> Option<Self> {
         if !Self::declaration_admits_v1(source.declared_type_name()) { return None; }
-        let sum = ingress.source_field_value_sum_v1(claims, source);
-        if crate::config::env::builder_debug_enabled() { eprintln!("[text-lend] sum={:?}", sum); }
-        let sum = sum?;
+        let sum = ingress.source_field_value_sum_v1(claims, source)?;
         sum.text_only().then(|| Self { source: Rc::clone(source), sum })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck(
