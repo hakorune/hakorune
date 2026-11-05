@@ -168,13 +168,21 @@ fn guarded_formal_field_read_publishes_object_view() {
 /// PARAMFIELD/FIELDRESULT census pin: the guarded formal field read is
 /// admitted both as an initializer read and as a direct `i64` return —
 /// `pa-guarded-handlearg` graduated to the positive publication. The
-/// remaining variants re-pin their named stops: unguarded reads and `!=`
-/// guards keep the callee coverage envelope (`IncompleteOrdinaryNewCoverage`
-/// / `artifact-source-unavailable`), a rebound alias and an object-typed
-/// field keep `borrowed-result/source-not-i64`, a mixed i64/nullable
-/// return set keeps `borrowed-result/source-class-mixed`, and the
-/// literal-null/inline-new/received-nullable actual arm keeps
-/// `borrowed-actual/unsupported-or-unavailable`.
+/// remaining variants re-pin their named stops, each case by its own label:
+/// - `borrowed-compare/source-only-entry`: the callee reads the formal unguarded
+///   (`pa-unguarded-nullarg`, `pa-newarg-unguarded`), or compares it with null
+///   while the actual is a local `new` (`pa-eqnull-localnewarg`).
+/// - `borrowed-result/source-not-i64`: a literal-null actual (`pa-guarded-nullarg*`),
+///   an inline `new` actual with a guarded read (`pa-newarg-guarded`), a rebound
+///   alias and a `!=` guard (`fr-alias-handlearg`, `fr-neqguard-handlearg`), and an
+///   object-typed field (`fr-object-field`).
+/// - `IncompleteOrdinaryNewCoverage`: the callee coverage envelope for an
+///   unguarded read through a received handle and a mixed i64/nullable return set
+///   (`fr-unguarded-handlearg`, `fr-mixed-handlearg`).
+/// - `borrowed-entry/actuals-missing`: an inline `new` actual to a callee that
+///   reads no field of it (`pa-trivial-newarg`, `pa-eqnull-newarg`).
+/// - `borrowed-actual/unsupported-or-unavailable`: a rebound alias of the
+///   received nullable binding (`pa-trivial-handlearg-alias`).
 #[test]
 fn parameter_field_frontiers_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();

@@ -387,7 +387,7 @@ fn completed_object_acquisition_rejects_changed_snapshot_with_matching_terminal_
 }
 
 #[test]
-fn completed_object_acquisition_raw_only_opaque_definition_cannot_grant_execution() {
+fn completed_object_acquisition_proof_ignores_definition_membership_and_return_stays_pending() {
     for received in [false, true] {
         let mut package = package(received, true);
         let value = terminal(&package);

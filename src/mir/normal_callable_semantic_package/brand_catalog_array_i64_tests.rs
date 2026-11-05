@@ -435,7 +435,7 @@ fn array_i64_field_escape_and_alias_rebind_keep_dynamic() {
 /// `return me.<field>.get(..)` on a non-borrowed owner mints exactly one
 /// terminal I64 scalar relation for that return (no entry read, no evaluation).
 #[test]
-fn array_i64_return_position_mints_no_terminal_relation() {
+fn array_i64_return_position_mints_one_i64_scalar_relation() {
     let package = issue_with_brand_catalog(
         "box Page { block_used: ArrayBox = new ArrayBox()
         birth() { }

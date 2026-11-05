@@ -351,10 +351,6 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
             U::InitializationContractMissing,
         ),
         (
-            "box Page { value\nbirth() { me.value = 1 } }",
-            U::FieldContractUnsupported,
-        ),
-        (
             "box Page { value: i64\nbirth() { me.value = [1] } }",
             U::StoreValueUnsupported,
         ),
@@ -413,25 +409,32 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
                 assert!(!retained.as_ref().unwrap().is_allocation_only_i64());
                 assert!(retained.as_ref().unwrap().allocation_only_i64_field("value").is_none());
             }
-        } else if source == "box Page { value\nbirth() { me.value = 1 } }" {
-            let retained = retained.as_ref().expect("original scalar Birth stores survive execution refusal");
-            assert_eq!(retained.completion(), &ConstructionCompletionV1::InitializedFields);
-            assert!(retained.constructor().is_some() && retained.allocation_only_fields().is_none());
-            assert_eq!(retained.stores().len(), 1);
         } else {
             assert!(retained.is_err(), "unsupported source must not gain allocation-only completion: {source}");
         }
         let actual = batch.construction_for(parent, arity).unwrap();
-        if source == "box Page { value\nbirth() { me.value = 1 } }" {
-            // An untyped field with one literal store is a supported Dynamic
-            // construction plan (its store survives above); only execution of
-            // the Dynamic field is refused downstream.
-            match actual {
-                Ok(plan) if plan.stores().len() == 1 => {}
-                other => failures.push(format!("{source}: expected one literal store plan, got {other:?}")),
-            }
-        } else if actual != &Err(expected) {
+        if actual != &Err(expected) {
             failures.push(format!("{source}: expected {expected:?}, got {actual:?}"));
+        }
+    }
+    // An untyped field with one literal store is a supported Dynamic construction:
+    // the Birth store survives as an initialized-fields source and a one-store plan
+    // (`box Page { value\nbirth() { me.value = 1 } }` compiles to an EXE, and
+    // `print(p.value)` prints `1`).
+    {
+        let source = "box Page { value\nbirth() { me.value = 1 } }";
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(source)
+            .unwrap_or_else(|error| panic!("source {source}: {error:?}"));
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+        let retained = batch.construction_source_for(parent, 0).unwrap();
+        let retained = retained.as_ref().expect("the original scalar Birth store is retained");
+        assert_eq!(retained.completion(), &ConstructionCompletionV1::InitializedFields);
+        assert!(retained.constructor().is_some() && retained.allocation_only_fields().is_none());
+        assert_eq!(retained.stores().len(), 1);
+        match batch.construction_for(parent, 0).unwrap() {
+            Ok(plan) if plan.stores().len() == 1 => {}
+            other => failures.push(format!("{source}: expected one literal store plan, got {other:?}")),
         }
     }
     // Declared initializers on supported scalar shapes now lower through the

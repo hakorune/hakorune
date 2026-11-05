@@ -249,7 +249,7 @@ fn qualified_static_call_claim_rejects_non_i64_evidence_at_required_ordinal() {
 }
 
 #[test]
-fn static_i64_call_claim_preserves_current_owner_boundary() {
+fn static_call_claim_carries_exact_result_class_at_current_owner_boundary() {
     for (label, callee, expression, accepted, class) in [
         ("zeroarg-i64", "word() { return 7 }", "me.word()", true, LocalCallResultClassV1::I64),
         (

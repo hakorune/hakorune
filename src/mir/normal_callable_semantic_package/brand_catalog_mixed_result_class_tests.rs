@@ -170,7 +170,7 @@ static box Main {
 }
 
 #[test]
-fn non_literal_or_forwarded_exits_issue_no_result_class_claim() {
+fn returned_fresh_local_claims_object_class_and_null_only_stays_unclaimed() {
     let package = issue_with_brand_catalog(
         r#"
 box Page {

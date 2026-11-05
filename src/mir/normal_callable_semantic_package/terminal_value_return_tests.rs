@@ -249,11 +249,12 @@ fn return_void_issues_the_unit_terminal_relation() {
 }
 
 /// `return <qualified call>` — the sealed method-call row proves a
-/// qualified receiver outside the lexical environment. The OpaqueCall
-/// relation records owner and sites only: it owns no callee identity,
-/// result class, argument handoff, or Invoke authority.
+/// qualified receiver outside the lexical environment. A qualified static
+/// call whose result is returned directly issues the typed terminal I64
+/// `Call` relation; its target and argument sites stay in the package's
+/// existing affine Call row. (`return Main.main()` is refused instead.)
 #[test]
-fn qualified_call_return_issues_opaque_call_relation() {
+fn qualified_call_return_issues_call_relation() {
     // `return Main.main()` (a call into the root) is refused by the package at the
     // borrowed-static incoming identity instead of issuing any relation.
     let error = issue(
