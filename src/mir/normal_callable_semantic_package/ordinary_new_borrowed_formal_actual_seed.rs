@@ -36,6 +36,12 @@ pub(super) enum OriginalFormalActualSeedV1 {
         class: Box<str>,
         source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>,
     },
+    /// A Text field of the entry receiver or of a locally constructed object. The graph closes it
+    /// through the field's complete all-writer node; the read itself is issued separately.
+    FieldText {
+        read: OwnedExprSiteV1,
+        source: Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_write_claim::DeclaredFieldValueSourceV1>,
+    },
     ReturnedField(Box<super::super::super::result_class_claim::ReturnedFieldSourceLoanV1>),
     Mixed {
         source: Box<super::super::super::result_class_claim::MixedLocalCallSourceLoanV1>,
@@ -76,7 +82,7 @@ impl OriginalFormalActualSeedV1 {
     /// Scalar reaching-value analysis must not replace their original proof.
     fn retains_original_binding_anchor_v1(&self) -> bool {
         match self {
-            Self::DeclaredRead(_) | Self::MapField { .. } | Self::FormalField { .. } | Self::ReturnedField(_) | Self::Mixed { .. } | Self::Class(_)
+            Self::DeclaredRead(_) | Self::MapField { .. } | Self::FormalField { .. } | Self::FieldText { .. } | Self::ReturnedField(_) | Self::Mixed { .. } | Self::Class(_)
                 | Self::Forward { .. } | Self::ProviderStatic(_) => true,
             Self::SourceOnly(source) | Self::SumUnknown(source)
                 | Self::PointValue { legacy: source, .. } => source.retains_original_binding_anchor_v1(),
@@ -163,7 +169,7 @@ impl OriginalFormalActualSeedV1 {
             Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => {
                 legacy.project_source_integer_v1(current_i64)
             }
-            Self::MapField { .. } | Self::FormalField { .. }
+            Self::MapField { .. } | Self::FormalField { .. } | Self::FieldText { .. }
             | Self::Binary { .. }
             | Self::Conflict
             | Self::ProviderStatic(_)
@@ -195,7 +201,7 @@ impl OriginalFormalActualSeedV1 {
             Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => {
                 legacy.project_selected_v1(caller, transport_owners)
             }
-            Self::MapField { .. } | Self::FormalField { .. }
+            Self::MapField { .. } | Self::FormalField { .. } | Self::FieldText { .. }
             | Self::Binary { .. }
             | Self::Conflict
             | Self::ProviderStatic(_)

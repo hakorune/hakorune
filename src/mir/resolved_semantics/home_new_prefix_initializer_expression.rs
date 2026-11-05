@@ -107,10 +107,11 @@ pub(super) fn observe<E>(
             input, statement, &source, locals, prefix_known, homes, local_calls, path_calls, fields, port,
         )?;
     }
+    let field_seeds = field_read::text_field_seeds_v1(input, &source, locals, fields);
     let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(
         &source,
         super::expression_plan::ExpressionLeafProfileV1::LocalInitializer,
-        &BTreeMap::new(),
+        &field_seeds,
         homes,
         &mut |site| {
             local_call_flow::issue_source_expression_call_v1(

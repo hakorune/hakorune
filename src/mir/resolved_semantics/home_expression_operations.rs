@@ -195,3 +195,16 @@ pub(super) fn qualify_arithmetic_operations_v1(
     }
     Some((operations, owned_results))
 }
+
+/// A plain field read classified String materializes an owned copy: it is one more acquisition of the SAME ordered evaluation.
+pub(super) fn owned_text_field_nodes_v1<'a>(
+    source: &'a crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+    order: &'a [usize],
+    classes: &'a [Leaf],
+    transferred: &'a BTreeSet<usize>,
+) -> impl Iterator<Item = usize> + 'a {
+    order.iter().copied().filter(move |node| !transferred.contains(node)
+        && classes[*node] == Leaf::Value(Class::String)
+        && matches!(source.nodes()[*node].source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })))
+}

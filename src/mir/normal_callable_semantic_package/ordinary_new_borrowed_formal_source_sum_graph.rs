@@ -226,6 +226,12 @@ impl Graph<'_> {
                     }
                 } else { row.invalid = true; }
             }
+            OriginalFormalActualSeedV1::FieldText { source, .. } => {
+                match self.fields.get(&source.field()) {
+                    Some((original, node)) if Rc::ptr_eq(original, source) => row.union.push(*node),
+                    _ => row.invalid = true,
+                }
+            }
             OriginalFormalActualSeedV1::FormalField { read, formal, class, source } => {
                 if read.owner() != formal.owner() {
                     row.invalid = true;

@@ -394,6 +394,8 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     };
     // Owned Text transfers one root residence; I64 retains no Home. Its Text
     // child acquisitions still belong to the SAME ordered evaluation/cleanup.
+    let mut owned_results = owned_results;
+    owned_results.extend(super::operations::owned_text_field_nodes_v1(&source, &order, &classes, &transferred));
     let owned_results =
         super::evaluation::owned_result_nodes(&order, &owned_results, &cores, &calls);
     if classes[0] == Leaf::Value(Class::String) && !owned_results.contains(&0) {

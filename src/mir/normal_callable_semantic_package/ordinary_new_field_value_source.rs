@@ -255,7 +255,7 @@ impl TextFieldValueSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn declaration_admits_v1(declared: Option<&str>) -> bool {
         declared.is_none_or(crate::mir::declared_type_storage::is_declared_text_type_name_v1)
     }
-    /// A Print root admits the read at any node; a Return admits only a value that IS this read.
+    /// A Print root or a local initializer admits the read at any node; a Return admits only a value that IS this read.
     pub(in crate::mir::normal_callable_semantic_package) fn role_admits_v1(
         plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
         read: &crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -265,6 +265,7 @@ impl TextFieldValueSourceV1 {
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement { role: Role::PrintValue, .. } => true,
             crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement { role: Role::ReturnValue, .. } =>
                 plan.nodes().first().is_some_and(|node| node.site() == read),
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LocalInitializer { .. } => true,
             _ => false,
         }
     }

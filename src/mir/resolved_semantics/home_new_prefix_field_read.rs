@@ -532,3 +532,24 @@ pub(super) fn probed_text_field_seed_v1<E>(
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)))
 }
+
+/// Every plain field read of the plan that the probed field batch proves to be a closed Text
+/// source starts as String; the caller hands the map to the expression-call preparation.
+/// A probe that fails leaves its read unseeded (the previous behavior for that statement): the
+/// same request still goes through the caller's final field batch, which reports a real failure.
+pub(super) fn text_field_seeds_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    locals: &PrefixLocalFlow<'_>,
+    fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+) -> std::collections::BTreeMap<usize, crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1> {
+    let mut seeds = std::collections::BTreeMap::new();
+    for (index, node) in source.nodes().iter().enumerate() {
+        if !matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
+            BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
+        let Some(request) = expression_field_read_request(input, source, node.site(), locals) else { continue };
+        if request.path.is_some() || request.received.is_some() { continue; }
+        if let Ok(Some(seed)) = probed_text_field_seed_v1(source, &request, fields) { seeds.insert(index, seed); }
+    }
+    seeds
+}

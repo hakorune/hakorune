@@ -89,6 +89,22 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 class: class.into(), source: Rc::clone(source),
             });
         }
+        // A Text field of the entry receiver or of a locally constructed object closes through the
+        // field's own all-writer node (the same node a stored Map payload read uses).
+        let owner_class: Option<Box<str>> = batch.unique_declaration_for_owner(input.owner()).ok().flatten().and_then(|declaration| {
+            let slot = declaration.batch_slot();
+            candidates.get(&slot).and_then(|rows| rows.as_ref().ok())
+                .and_then(|rows| rows.iter().find(|candidate| candidate.destination == binding).map(|candidate| candidate.class.clone()))
+                .or_else(|| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                    selected, batch, entry_home_loans.for_batch_slot(slot), slot)
+                    .filter(|(root, _)| *root == binding).map(|(_, row)| row.name().into()))
+        });
+        if let Some(class) = owner_class {
+            let source = fields.value_source(&class, field)?.as_ref().ok()?;
+            if !source.same_inventory(fields)
+                || !super::super::super::super::TextFieldValueSourceV1::declaration_admits_v1(source.declared_type_name()) { return None; }
+            return Some(OriginalFormalActualSeedV1::FieldText { read: OwnedExprSiteV1::new(input.owner(), site.clone()), source: Rc::clone(source) });
+        }
         let initializer = super::super::super::super::result_class_claim::sole_initializer_site(input.function(), binding)?;
         let flow = input.function().expression_source().value_flow()
             .filter(|flow| flow.owner() == input.owner() && flow.is_complete())?;

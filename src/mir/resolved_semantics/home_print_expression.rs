@@ -237,10 +237,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
     ) else {
         return Ok(Err("arithmetic-operations-unproved"));
     };
-    owned_results.extend(order.iter().copied().filter(|node| !transferred.contains(node)
-        && classes[*node] == Leaf::Value(Class::String)
-        && matches!(source.nodes()[*node].source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
-            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))));
+    owned_results.extend(super::operations::owned_text_field_nodes_v1(&source, &order, &classes, &transferred));
     if crate::config::env::builder_debug_enabled() {
         eprintln!("[statement-evaluation] owner={:?} order={:?} owned_candidates={:?} transferred={:?} classes={:?} nodes={:?}",
             source.owner(), order, owned_results, transferred, classes, source.nodes().iter().map(|node| format!("{:?}", node.source())).collect::<Vec<_>>());
