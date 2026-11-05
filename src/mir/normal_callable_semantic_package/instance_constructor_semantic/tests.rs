@@ -460,6 +460,23 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
+/// A `take` formal handed over by `me.f = move x` is gone: a later store, read or second
+/// move of it is a named construction refusal, not a generic uncovered body.
+#[test]
+fn construction_refuses_a_take_formal_used_after_its_move() {
+    use super::super::instance_construction::ConstructionUnavailableV1 as U;
+    for (label, birth) in [
+        ("second-move", "me.a = move x\nme.b = move x"),
+        ("read-after-move", "me.a = move x\nme.n = x.v"),
+    ] {
+        let source = format!("box Leaf {{ v: i64 }}\nbox Page {{ a: Leaf\nb: Leaf\nn: i64\nbirth(take x: Leaf) {{ {birth} }} }}");
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+        assert_eq!(batch.construction_source_for(parent, 1).unwrap(), &Err(U::UseAfterMove), "{label}");
+    }
+}
+
 #[test]
 fn construction_plan_rejects_foreign_parent_and_birth_arity_not_as_no_birth() {
     let source = "box Page { value: i64\nbirth(value) { me.value = value } }";

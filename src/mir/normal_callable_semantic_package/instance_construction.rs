@@ -43,6 +43,8 @@ pub(crate) enum ConstructionUnavailableV1 {
     BodyNotFullyCovered,
     /// Not a `birth`: no construction source exists.
     NotBirthConstructor,
+    /// A `take` formal is read or moved again after `me.f = move x` handed it over.
+    UseAfterMove,
     InitializationContractMissing,
     OverrideUnsupported,
     /// `me.f = x` for a `take` formal: only `me.f = move x` hands it over.
@@ -386,6 +388,7 @@ pub(super) fn issue_construction_source_v1(
     let mut initialized = BTreeSet::new();
     let mut statements = BTreeSet::new();
     let mut expressions = BTreeSet::new();
+    let mut moved_formals = Vec::new();
     if let Some(initialization) = nullable_initialization {
         for row in initialization.fields().iter().filter(|row| row.assignment.is_none()) {
             if !initialized.insert(row.field.declaration_ordinal() as usize) { return Err(U::SourceRelationMissing); }
@@ -405,6 +408,11 @@ pub(super) fn issue_construction_source_v1(
             .body_stmt(&body, index)
             .map_err(|_| U::SourceRelationMissing)?;
         statements.insert(statement.site().clone());
+        if shape.expressions().iter().any(|expression| matches!(expression,
+            BodyExpressionShapeV1::Variable { site, resolved: ResolvedLexicalRefV1::Local(binding) }
+                if moved_formals.contains(binding) && site.node().segments().starts_with(statement.site().node().segments()))) {
+            return Err(U::UseAfterMove);
+        }
         if matches!(statement.node(), ASTNode::Return { value: None, .. })
             && index + 1 == body.statements().len()
         {
@@ -532,6 +540,9 @@ pub(super) fn issue_construction_source_v1(
                 let Some(BindingKindV1::Parameter { index }) = function.binding(binding).map(|record| record.kind()) else {
                     return Err(U::StoreValueUnsupported);
                 };
+                if moved {
+                    moved_formals.push(binding);
+                }
                 match (birth_source.birth_formal_is_take(index as u32), moved) {
                     (true, false) => return Err(U::TakeStoreRequiresMove),
                     (false, true) => return Err(U::MoveRequiresTakeFormal),
