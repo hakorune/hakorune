@@ -1,0 +1,129 @@
+// T6: a value bundle of span plus an owned expression.
+// PAPER ONLY. Never compiled.
+
+// === COMMON ===
+record Span {
+    start: i64
+    end: i64
+}
+
+box Expr {
+    value: i64
+}
+
+box NegNode {
+    span: Span
+    body: Expr
+}
+
+// === V1a box bundle required field (natural first draft) ===
+box ParsedRequired {
+    span: Span
+    expr: Expr
+
+    // A read record parameter stored into a field: `copy` is the only spelled form
+    // (ADR example `local r = copy q`; rule 7 gives implicit copy to numbers and Bool only).
+    birth(span: Span, take expr: Expr) {
+        me.span = copy span
+        me.expr = move expr
+    }
+}
+
+static box ParserA {
+    atom(start: i64): ParsedRequired {
+        return new ParsedRequired(Span { start: start, end: start + 1 }, new Expr { value: start })
+    }
+
+    // Reading works with no marker.
+    read_value(p: ParsedRequired): i64 {
+        return p.expr.value
+    }
+
+    // First draft, rejected:
+    //   wrap(take p: ParsedRequired): NegNode {
+    //       return new NegNode { span: copy p.span, body: move p.expr }
+    //   }
+    // `move p.expr`: not grammar (EBNF.md:278) and a partial move (ADR 採用する方向 item 6).
+    // `take p.expr`: T field (ownership.md rule 8). The field-storing candidate does not help
+    // because the value does not return to the same field. A consuming receiver does not
+    // help: its body still has to get the field out, and rule 2's own example
+    // `(move image).into_bytes()` has no writable body when `bytes` is an owned required
+    // field. Unbundling is therefore impossible; only a deep copy of `expr` is left.
+    wrap_by_copy(p: ParsedRequired): NegNode {
+        return new NegNode { span: copy p.span, body: new Expr { value: p.expr.value } }
+    }
+}
+
+// === V1b box bundle nullable field (decided rules) ===
+// Forced extra nullable on a field that is never null after birth. Each unbundling adds a
+// null test whose failure path is unreachable. The non-null invariant is no longer checked
+// by the type: ADR 後続 forbids this as a gate pass ("全部nullableにしたり").
+box ParsedNullable {
+    span: Span
+    expr: Expr?
+}
+
+static box ParserB {
+    atom(start: i64): ParsedNullable {
+        return new ParsedNullable { span: Span { start: start, end: start + 1 }, expr: new Expr { value: start } }
+    }
+
+    wrap(take p: ParsedNullable): NegNode {
+        local e = take p.expr
+        if e == null {
+            panic("parsed bundle without expr")
+        }
+        return new NegNode { span: copy p.span, body: move e }
+    }
+}
+
+// === V2 record holding the box (undecided option B) ===
+// Rejected today by option A (ADR record / box row). Option B only adds the permission to
+// hold the field; extraction still needs the consuming destructure the same row names.
+// GAP: record has no pattern at all. EBNF patterns give record shorthand to known enums only
+// (`IDENT '{' IDENT (',' IDENT)* '}'`, "Known-enum record shorthand").
+record ParsedRecord {
+    span: Span
+    expr: Expr
+}
+
+static box ParserC {
+    atom(start: i64): ParsedRecord {
+        return ParsedRecord { span: Span { start: start, end: start + 1 }, expr: new Expr { value: start } }
+    }
+
+    wrap(take p: ParsedRecord): NegNode {
+        return match move p {
+            ParsedRecord { span, expr } => new NegNode { span: move span, body: move expr }
+        }
+    }
+}
+
+// === V3 one-variant enum (no new permission) ===
+// Equivalent to option B and allowed by the current text: enum payloads may hold Unique
+// (ADR 型検査), and option A restricts record only. It needs `match move`, like B.
+enum ParsedEnum {
+    Of { span: Span, expr: Expr }
+}
+
+static box ParserD {
+    atom(start: i64): ParsedEnum {
+        return ParsedEnum::Of { span: Span { start: start, end: start + 1 }, expr: new Expr { value: start } }
+    }
+
+    wrap(take p: ParsedEnum): NegNode {
+        return match move p {
+            Of { span, expr } => new NegNode { span: move span, body: move expr }
+        }
+    }
+}
+
+// === caller ===
+static box Main {
+    main(): i64 {
+        local a = ParserB.wrap(ParserB.atom(1))
+        local b = ParserC.wrap(ParserC.atom(2))
+        local c = ParserD.wrap(ParserD.atom(3))
+        return a.body.value + b.body.value + c.body.value
+    }
+}

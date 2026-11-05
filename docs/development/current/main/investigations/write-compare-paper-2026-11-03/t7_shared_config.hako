@@ -1,0 +1,99 @@
+// T7: shared read-only config passed to several AST nodes using `share`.
+// PAPER ONLY. Never compiled. `share` is parser-inactive (EBNF.md:106).
+
+box Config {
+    tab_width: i64
+    strict: Bool
+
+    is_strict(): Bool {
+        return me.strict
+    }
+}
+
+box Sub {
+    level: i64
+}
+
+box NumNode {
+    cfg: Shared<Config>
+    value: i64
+
+    birth(take cfg: Shared<Config>, value: i64) {
+        me.cfg = move cfg
+        me.value = value
+    }
+
+    // RULE-OK: reads go through the handle (ownership.md rule 3).
+    width(): i64 {
+        return me.cfg.tab_width
+    }
+
+    // RULE-OK: `: Shared<T> from me` is a borrow and adds nothing (rule 6).
+    cfg_ref(): Shared<Config> from me {
+        return me.cfg
+    }
+
+    // RULE-OK: an owned handle from a borrowed field needs `share` (rule 6).
+    cfg_owned(): Shared<Config> {
+        return share me.cfg
+    }
+}
+
+box VarNode {
+    cfg: Shared<Config>
+    name: String
+}
+
+static box Reports {
+    // RULE-OK: a read parameter of Shared type.
+    check_shared(c: Shared<Config>): Bool {
+        return c.is_strict()
+    }
+
+    // A helper written against the plain Box type.
+    check_plain(c: Config): Bool {
+        return c.is_strict()
+    }
+}
+
+static box Main {
+    main(): i64 {
+        local cfg = share new Config { tab_width: 4, strict: true }
+        local a = new NumNode(share cfg, 1)
+        local b = new VarNode { cfg: share cfg, name: "x" }
+
+        // A list of nodes built in a loop. Each element holds one handle.
+        local nodes: Array<NumNode> = []
+        loop i in 0..3 {
+            nodes.push(new NumNode(share cfg, i))
+        }
+
+        // Last user: `move` instead of `share`. Using `share` here is also legal. Nothing
+        // diagnoses the redundant handle, because the count is never consulted (rule 3).
+        local c = new NumNode(move cfg, 2)
+
+        // First drafts, each rejected:
+        //   local d = new NumNode(a.cfg, 3)    bare borrowed handle to an owning `take` (rule 6)
+        //   local e = cfg                      bare owned Shared local (rule 6): use move or share
+        //   local f = share a                  plain Box: use `share move a` (rule 3)
+
+        // Borrow, then an independent handle from the borrow (rule 5).
+        local r = a.cfg_ref()
+        local kept = share r
+
+        // Through a read parameter of Shared type: no marker.
+        local s = Reports.check_shared(a.cfg)
+
+        // GAP: passing the handle to a plain read parameter is not settled:
+        //   Reports.check_plain(a.cfg)
+        // rule 6 says Shared<T> is distinct from a plain Box and rule 5 forbids an implicit
+        // conversion from Box to Shared, but nothing states the reverse direction for a read
+        // borrow of the payload. A receiver does get a payload read (`c.is_strict()`), so
+        // the same payload borrow exists for `me` but has no written form for an argument.
+
+        if s {
+            return a.width() + b.cfg.tab_width + c.value + kept.tab_width
+        }
+        return 0
+    }
+}

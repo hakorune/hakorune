@@ -1,0 +1,262 @@
+// T4b: the T4a rewrite where a child is a required non-nullable field.
+// PAPER ONLY. Never compiled.
+// Rewrites: -(num) => num, -(-x) => x, if(const) a else b => a or b.
+// No field is made nullable beyond the language-level else branch, and no dummy node is used.
+
+// === COMMON box AST ===
+record Span {
+    start: i64
+    end: i64
+}
+
+box NumNode {
+    span: Span
+    value: i64
+}
+
+box NegNode {
+    span: Span
+    body: Expr
+}
+
+box IfNode {
+    span: Span
+    cond: Expr
+    then_e: Expr
+    else_e: Expr?
+}
+
+enum Expr {
+    Num(NumNode)
+    Neg(NegNode)
+    If(IfNode)
+}
+
+// Read helpers. `_` would not satisfy known-enum exhaustiveness, so every arm is listed
+// or `guard let` is used.
+static box Q {
+    is_num(e: Expr): Bool {
+        guard let Expr::Num(n) = e else {
+            return false
+        }
+        return true
+    }
+
+    num_value(e: Expr): i64 {
+        guard let Expr::Num(n) = e else {
+            return 0
+        }
+        return n.value
+    }
+
+    neg_body(e: Expr): Expr? from e {
+        guard let Expr::Neg(n) = e else {
+            return null
+        }
+        return n.body
+    }
+
+    // Box has no copy contract (ADR copy row: "Boxの新identity" still open), so this is hand
+    // written. `copy n.span` is the only spelled way to reuse a record from a borrow
+    // (ADR example `local r = copy q`). GAP: copy has no EBNF row and no contract spelling.
+    clone_expr(e: Expr): Expr {
+        return match e {
+            Num(n) => Expr::Num(new NumNode { span: copy n.span, value: n.value })
+            Neg(n) => Expr::Neg(new NegNode { span: copy n.span, body: Q.clone_expr(n.body) })
+            If(n) => Expr::If(new IfNode {
+                span: copy n.span,
+                cond: Q.clone_expr(n.cond),
+                then_e: Q.clone_expr(n.then_e),
+                else_e: Q.clone_opt(n.else_e)
+            })
+        }
+    }
+
+    clone_opt(e: Expr?): Expr? {
+        if e == null {
+            return null
+        }
+        return Q.clone_expr(e)
+    }
+}
+
+// === V1 candidate node.body = fold(move node.body) ===
+// UNDECIDED candidate (ADR 前置きの所有操作). Needs an EBNF change: `move` takes IDENT only
+// (EBNF.md:278). It also needs `match move`, a named rejection until connected (ADR 型検査),
+// because an owned NegNode cannot otherwise be obtained from an owned Expr.
+static box FolderCandidate {
+    fold(take e: Expr): Expr {
+        // `e` is consumed by the scrutinee, so unchanged variants are rebuilt. No pattern
+        // binds the whole value: IDENT alone means a unit variant (EBNF pattern, notes).
+        return match move e {
+            Num(n) => Expr::Num(move n)
+            Neg(n) => me.fold_neg(move n)
+            If(n) => me.fold_if(move n)
+        }
+    }
+
+    fold_opt(take e: Expr?): Expr? {
+        if e == null {
+            return null
+        }
+        return me.fold(move e)
+    }
+
+    fold_neg(take node: NegNode): Expr {
+        node.body = me.fold(move node.body)
+        if Q.is_num(node.body) {
+            return Expr::Num(new NumNode { span: copy node.span, value: -Q.num_value(node.body) })
+        }
+        // -(-x) => x removes the parent. The candidate requires a re-store into the same
+        // field in the same assignment, so `return move inner.body` stays rejected.
+        // Forced copy: the subtree is duplicated and the original is Ended with the parent.
+        local inner = Q.neg_body(node.body)
+        if inner != null {
+            return Q.clone_expr(inner)
+        }
+        return Expr::Neg(move node)
+    }
+
+    fold_if(take node: IfNode): Expr {
+        node.cond = me.fold(move node.cond)
+        node.then_e = me.fold(move node.then_e)
+        node.else_e = me.fold_opt(take node.else_e)
+        if Q.is_num(node.cond) {
+            if Q.num_value(node.cond) != 0 {
+                // Required child: copy. Same rewrite on the nullable child below: `take`.
+                return Q.clone_expr(node.then_e)
+            }
+            local e = take node.else_e
+            if e != null {
+                return e
+            }
+            return Expr::Num(new NumNode { span: copy node.span, value: 0 })
+        }
+        return Expr::If(move node)
+    }
+}
+
+// === V2 decided rules read to fresh rebuild ===
+// Uses only `match` read borrows, read parameters and fresh results. No `take`, `move` on a
+// field or `match move`. Every node is rebuilt and the old tree is Ended by the caller.
+// Caller writes `root = FolderRebuild.fold(root)`: RHS reads, commit, End old.
+static box FolderRebuild {
+    fold(e: Expr): Expr {
+        return match e {
+            Num(n) => Expr::Num(new NumNode { span: copy n.span, value: n.value })
+            Neg(n) => me.fold_neg(n)
+            If(n) => me.fold_if(n)
+        }
+    }
+
+    fold_opt(e: Expr?): Expr? {
+        if e == null {
+            return null
+        }
+        return me.fold(e)
+    }
+
+    fold_neg(node: NegNode): Expr {
+        local body = me.fold(node.body)
+        if Q.is_num(body) {
+            return Expr::Num(new NumNode { span: copy node.span, value: -Q.num_value(body) })
+        }
+        local inner = Q.neg_body(body)
+        if inner != null {
+            return Q.clone_expr(inner)
+        }
+        return Expr::Neg(new NegNode { span: copy node.span, body: move body })
+    }
+
+    fold_if(node: IfNode): Expr {
+        local cond = me.fold(node.cond)
+        if Q.is_num(cond) {
+            if Q.num_value(cond) != 0 {
+                return me.fold(node.then_e)
+            }
+            if node.else_e != null {
+                return me.fold(node.else_e)
+            }
+            return Expr::Num(new NumNode { span: copy node.span, value: 0 })
+        }
+        return Expr::If(new IfNode {
+            span: copy node.span,
+            cond: move cond,
+            then_e: me.fold(node.then_e),
+            else_e: me.fold_opt(node.else_e)
+        })
+    }
+}
+
+// === V3 enum payload layout with match move ===
+// Decided in meaning, connection pending (ADR 型検査: named rejection until connected).
+// Children live directly in the enum, so no Box field is ever moved out.
+enum E {
+    Num(i64)
+    Neg(E)
+    If { cond: E, then_e: E, else_e: E? }
+}
+
+static box FolderConsume {
+    fold(take e: E): E {
+        // Record-variant arms must be expressions: block-bodied record shorthand arms are not
+        // in the current cut (EBNF enum notes, types.md guardrails). Forced split into fold_if.
+        return match move e {
+            Num(v) => E::Num(v)
+            Neg(x) => me.fold_neg(me.fold(move x))
+            If { cond, then_e, else_e } => me.fold_if(me.fold(move cond), move then_e, move else_e)
+        }
+    }
+
+    fold_opt(take e: E?): E? {
+        if e == null {
+            return null
+        }
+        return me.fold(move e)
+    }
+
+    fold_neg(take x: E): E {
+        // `x` is consumed, so the unchanged arm rebuilds it field by field.
+        return match move x {
+            Num(v) => E::Num(-v)
+            Neg(y) => move y
+            If { cond, then_e, else_e } => E::Neg(E::If { cond: move cond, then_e: move then_e, else_e: move else_e })
+        }
+    }
+
+    // The parameters are not named cond/then_e/else_e: record patterns bind the field names
+    // and have no rename form (EBNF pattern), so the last arm would shadow them and the outer
+    // branches would be silently Ended. Rust writes `E::If { cond: c2, .. }`.
+    fold_if(take c: E, take t: E, take f: E?): E {
+        return match move c {
+            Num(v) => me.pick(v, move t, move f)
+            Neg(x) => E::If { cond: E::Neg(move x), then_e: me.fold(move t), else_e: me.fold_opt(move f) }
+            If { cond, then_e, else_e } => E::If {
+                cond: E::If { cond: move cond, then_e: move then_e, else_e: move else_e },
+                then_e: me.fold(move t),
+                else_e: me.fold_opt(move f)
+            }
+        }
+    }
+
+    pick(v: i64, take t: E, take f: E?): E {
+        if v != 0 {
+            return me.fold(move t)
+        }
+        if f != null {
+            return me.fold(move f)
+        }
+        return E::Num(0)
+    }
+}
+
+// === caller ===
+static box Main {
+    main(): i64 {
+        local leaf = Expr::Num(new NumNode { span: Span { start: 2, end: 3 }, value: 7 })
+        local root = Expr::Neg(new NegNode { span: Span { start: 1, end: 3 }, body: move leaf })
+        root = FolderCandidate.fold(move root)
+        root = FolderRebuild.fold(root)
+        return Q.num_value(root)
+    }
+}

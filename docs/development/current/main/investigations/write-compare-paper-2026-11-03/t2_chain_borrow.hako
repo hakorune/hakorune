@@ -1,0 +1,129 @@
+// T2: from a borrowed child, read a grandchild (chained borrow through two calls).
+// PAPER ONLY. Never compiled.
+
+// === required chain ===
+box Block {
+    count: i64
+}
+
+box FnDecl {
+    body: Block
+
+    body_ref(): Block from me {
+        return me.body
+    }
+}
+
+box Module {
+    entry: FnDecl
+
+    entry_ref(): FnDecl from me {
+        return me.entry
+    }
+
+    // RULE-OK: two calls chained with no local. ADR 構文と借用 連鎖借用 first class:
+    // the reborrow composes support and intermediate slot validity.
+    entry_body(): Block from me {
+        return me.entry_ref().body_ref()
+    }
+}
+
+// === nullable chain ===
+record Span {
+    start: i64
+    end: i64
+}
+
+box NumNode {
+    span: Span
+    value: i64
+}
+
+box NegNode {
+    span: Span
+    body: Expr
+}
+
+box IfNode {
+    span: Span
+    cond: Expr
+    then_e: Expr
+    else_e: Expr?
+}
+
+enum Expr {
+    Num(NumNode)
+    Neg(NegNode)
+    If(IfNode)
+}
+
+static box Ast {
+    first_child(e: Expr): Expr? from e {
+        return match e {
+            Num(n) => null
+            Neg(n) => n.body
+            If(n) => n.cond
+        }
+    }
+
+    // First draft `return Ast.first_child(Ast.first_child(e))` is rejected: the inner
+    // result is Expr? and the parameter is Expr. There is no chaining form for T?:
+    // Option `?` is rejected and `?` is Result-only (LANGUAGE_REFERENCE_2025.md:885-886,
+    // grammar-contract.md:56). So one helper local plus one null test per level.
+    first_grandchild(e: Expr): Expr? from e {
+        local c = Ast.first_child(e)
+        if c == null {
+            return null
+        }
+        // RULE-OK by ADR 連鎖借用. GAP (wording): ownership.md rule 4 says "The support is
+        // never a local that dies in the callee". `c` is such a local; only the ADR
+        // composition reading makes this legal.
+        return Ast.first_child(c)
+    }
+
+    // Read a scalar out of the grandchild. A scalar result needs no `from`.
+    grandchild_value(e: Expr): i64 {
+        local g = Ast.first_grandchild(e)
+        if g == null {
+            return 0
+        }
+        return match g {
+            Num(n) => n.value
+            Neg(n) => 0
+            If(n) => 0
+        }
+    }
+}
+
+// === temporary root ===
+static box Temp {
+    make(): Expr {
+        return Expr::Num(new NumNode { span: Span { start: 0, end: 1 }, value: 7 })
+    }
+
+    // First draft: `return match Temp.make() { Num(n) => n.value  Neg(n) => 0  If(n) => 0 }`.
+    // GAP: arm bindings are read borrows of the scrutinee (ADR 型検査), and a borrow rooted
+    // in an owned temporary is deferred (ADR 構文と借用 連鎖借用 second class). Nothing says
+    // whether a match keeps its scrutinee temporary alive through the arms. The safe reading
+    // forces one helper local. A parser's `match me.next_token()` hits this at every use.
+    value_of_fresh(): i64 {
+        local t = Temp.make()
+        return match t {
+            Num(n) => n.value
+            Neg(n) => 0
+            If(n) => 0
+        }
+    }
+}
+
+// === caller ===
+static box Main {
+    main(): i64 {
+        local m = new Module { entry: new FnDecl { body: new Block { count: 3 } } }
+        local b = m.entry_body()
+        local num = Expr::Num(new NumNode { span: Span { start: 2, end: 3 }, value: 7 })
+        local neg = Expr::Neg(new NegNode { span: Span { start: 1, end: 3 }, body: move num })
+        local root = Expr::Neg(new NegNode { span: Span { start: 0, end: 3 }, body: move neg })
+        return b.count + Ast.grandchild_value(root)
+    }
+}

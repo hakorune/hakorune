@@ -1,0 +1,148 @@
+// T5: scope-chain lookup returning a borrowed symbol from either the local or the parent scope.
+// PAPER ONLY. Never compiled. `/*mut me*/` marks a mut receiver, which has no spelling.
+
+// === COMMON ===
+box Symbol {
+    name: String
+    id: i64
+}
+
+box Table {
+    entries: Map<String, Symbol>
+
+    get(name: String): Symbol? from me {
+        return me.entries.get(name)
+    }
+}
+
+// === V1 from a, b ===
+// Decided in meaning, a named rejection until accepted (ownership.md Decided list).
+// Grammar gap: the `from` clause has only one name in the headers carried today
+// (ownership.md §3). No EBNF row for the clause exists at all.
+static box TwoScopes {
+    find(inner: Table, outer: Table, name: String): Symbol? from inner, outer {
+        local hit = inner.get(name)
+        if hit != null {
+            return hit
+        }
+        return outer.get(name)
+    }
+
+    // Caller keeps both supports alive until the borrow ends (ownership.md Decided list),
+    // even when only `inner` supplied the result.
+    resolve_id(inner: Table, outer: Table, name: String): i64 {
+        local s = TwoScopes.find(inner, outer, name)
+        if s == null {
+            return -1
+        }
+        return s.id
+    }
+}
+
+// === V2 single support with one owner chain ===
+// RULE-OK with decided rules: all supports root at `me`, composed through the owned parent.
+// Forced: a child scope must own its parent. A stored borrow is rejected (ownership.md
+// rule 4: "not stored into a field"), so `parent: Table` as a borrow is not writable.
+box Scope {
+    table: Table
+    parent: Scope?
+
+    birth(take parent: Scope?) {
+        me.table = new Table { entries: new Map<String, Symbol>() }
+        me.parent = move parent
+    }
+
+    lookup(name: String): Symbol? from me {
+        local hit = me.table.get(name)
+        if hit != null {
+            return hit
+        }
+        if me.parent == null {
+            return null
+        }
+        return me.parent.lookup(name)
+    }
+}
+
+box Resolver {
+    // Forced extra nullable. `cur: Scope` would make `enter` unwritable through a mut receiver:
+    // the old scope must move into the new one, `take` rejects T fields (rule 8), and the
+    // candidate excludes a mut parent (ADR 前置きの所有操作).
+    cur: Scope?
+
+    enter() /*mut me*/: void {
+        me.cur = new Scope(take me.cur)
+    }
+
+    leave() /*mut me*/: void {
+        local old = take me.cur
+        if old != null {
+            me.cur = take old.parent
+        }
+    }
+
+    // Forced null test on every access because of the extra nullable above.
+    lookup(name: String): Symbol? from me {
+        if me.cur == null {
+            return null
+        }
+        return me.cur.lookup(name)
+    }
+
+    // A helper returning the current table as a `mut` borrow is not writable: a generic mut
+    // borrow result is deferred (ADR 3a 汎用mut借用返却). Every mutating use spells the whole
+    // path. GAP: `name` is a read String stored as a Map key. Rule 7 gives implicit copy to
+    // numbers and Bool only, and String is not mentioned.
+    define(name: String, take sym: Symbol) /*mut me*/: void {
+        if me.cur != null {
+            me.cur.table.entries.set(name, move sym)
+        }
+    }
+}
+
+// === V3 single support with two independent owners ===
+// Two tables owned by different owners, decided rules only. A result supported by either
+// cannot be returned from one function, and a local merge is rejected too:
+//   local s = inner.get(name)
+//   if s == null { s = outer.get(name) }
+// ADR 3a names "異なる支持元の合流" a named rejection, and reassigning a borrowed local has
+// no written meaning (GAP, ownership.md:1001-1012). So the continuation is duplicated.
+static box TwoOwners {
+    report_id(inner: Table, outer: Table, name: String): i64 {
+        local a = inner.get(name)
+        if a != null {
+            return a.id
+        }
+        local b = outer.get(name)
+        if b != null {
+            return b.id
+        }
+        return -1
+    }
+}
+
+// Alternative: return an owned scalar ID instead of a borrow. This is the ADR's stated form
+// for symbol cross references ("明示的なowner+ID", ADR record / box row).
+static box ById {
+    find_id(inner: Table, outer: Table, name: String): i64 {
+        return TwoOwners.report_id(inner, outer, name)
+    }
+}
+
+// === caller ===
+static box Main {
+    main(): i64 {
+        local r = new Resolver { cur: null }
+        r.enter()
+        r.enter()
+        // `r.leave()` while `s` is live would be rejected (rule 4: no mutation of the
+        // support while the borrow is live), so the scalar is read out first.
+        local s = r.lookup("x")
+        local id = 0
+        if s != null {
+            id = s.id
+        }
+        r.leave()
+        return id
+    }
+}

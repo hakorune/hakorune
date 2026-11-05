@@ -1,0 +1,89 @@
+// T3: symbol table as a Map. Update one entry for a short section while recording into a
+// local error list or counter.
+// PAPER ONLY. Never compiled.
+//
+// Spellings with no decided form are shown as block comments, not invented:
+//   /*mut me*/      mut receiver: rule 2 says it "follows the method declaration", but no
+//                   declaration spelling exists anywhere (no EBNF row, no parser row).
+//   /*capture ...*/ mut capture: ADR 型検査 says it is explicit, no spelling exists.
+// Other assumptions, each listed in results.md:
+//   `mut s` as a closure parameter, by analogy with `take x: T`. No grammar row.
+//   Map<K,V>: appears in design docs only; GEN-002 does not list it.
+//   `update(key, fn)`: named in ADR 3a. No written signature or result. `has`/`set` assumed.
+
+// === COMMON ===
+box Symbol {
+    name: String
+    is_const: Bool
+    uses: i64
+    writes: i64
+}
+
+// === update with mut capture (natural form) ===
+box CheckerCapture {
+    symbols: Map<String, Symbol>
+    errors: Array<String>
+
+    // Natural form. ADR 型検査 permits a mut capture only when exclusivity against the Map
+    // Place is proved; here me.errors and a local counter are disjoint from me.symbols.
+    // ADR 3a connects only the capture-free form; ADR 後続 lists the capture form as open.
+    note_write(name: String, line: i64) /*mut me*/: i64 {
+        local bad = 0
+        if !me.symbols.has(name) {
+            // GAP: `update` has no specified miss result, so a miss needs a prior lookup.
+            me.errors.push("line " + line + ": undefined " + name)
+            return 1
+        }
+        me.symbols.update(name, fn(mut s) /*capture mut me.errors, mut bad*/ {
+            s.writes = s.writes + 1
+            if s.is_const {
+                me.errors.push("line " + line + ": write to const " + s.name)
+                bad = bad + 1
+            }
+        })
+        return bad
+    }
+}
+
+// === update without capture (3a form, decided rules) ===
+box CheckerNoCapture {
+    symbols: Map<String, Symbol>
+    errors: Array<String>
+
+    // Forced: the decision is computed before the update and the message is built after it.
+    // `s` is a read borrow from the Map; it must be dead before `update` (ADR 3a: Map
+    // exclusive for the section). Two lookups plus a Bool helper and a split of one section
+    // into read, update and record.
+    note_write(name: String, line: i64) /*mut me*/: i64 {
+        local s = me.symbols.get(name)
+        if s == null {
+            me.errors.push("line " + line + ": undefined " + name)
+            return 1
+        }
+        local was_const = s.is_const
+        me.symbols.update(name, fn(mut sym) {
+            sym.writes = sym.writes + 1
+        })
+        if was_const {
+            me.errors.push("line " + line + ": write to const " + name)
+            return 1
+        }
+        return 0
+    }
+}
+
+// === no update: get is read-only ===
+// First draft, rejected and kept as a comment:
+//   local s = me.symbols.get(name)
+//   s.writes = s.writes + 1
+// `get` returns `Symbol? from me`, a read borrow (ADR 型検査). Field write through a read
+// borrow is not permitted, and a borrowed mut result is deferred (ADR 3a 汎用mut借用返却).
+// There is also no take-out and put-back: Map elements are a named rejection for `take`
+// (ownership.md rule 8) and Map deletion returns Bool (ADR line 63).
+
+static box Main {
+    main(): i64 {
+        local c = new CheckerCapture { symbols: new Map<String, Symbol>(), errors: [] }
+        return c.note_write("x", 1)
+    }
+}
