@@ -71,12 +71,16 @@ fn borrowed_call_refuses_old_literal_i64_defaults_for_other_source_domains() {
     // it stays rejected beside the other unclassified scalar domains.
     for body in ["return \"text\"", "return null"] {
         let source = format!("box Transport {{ birth() {{ }} probe(p) {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(0) return 0 }} }}");
-        let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected result must be source-I64");
-        let error = format!("{error:?}");
-        assert!(
-            error.contains("borrowed-result/source-not-i64"),
-            "{body}: {error}"
-        );
+        // The package accepts the call; the callee's result row is the named
+        // `source-not-i64` refusal, so no I64 permission exists for it.
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
+            .unwrap_or_else(|error| panic!("{body}: {error:?}"));
+        let rows = &package.ordinary_new_claim_ledger.borrowed_i64_results;
+        assert!(!rows.is_empty(), "{body}");
+        for row in rows.values() {
+            let error = row.as_ref().expect_err("selected result must be source-I64");
+            assert!(error.contains("borrowed-result/source-not-i64"), "{body}: {error}");
+        }
     }
 }
 
@@ -413,7 +417,7 @@ fn borrowed_call_result_keeps_unannotated_i64_bounded() {
             "implicit-exit",
             "",
             "local x = 1",
-            "borrowed-result/explicit-value-return-missing",
+            "lexical-instance-call/unit-value-use",
         ),
         (
             "bool-annotation",
@@ -438,14 +442,32 @@ fn borrowed_call_result_keeps_unannotated_i64_bounded() {
             // profile at the use-draft frontier, so no result row exists to
             // demand at package level; the pin is that no callee ever
             // acquires the corroborated I64 permission.
-            Ok(package) => assert!(
-                package
-                    .ordinary_new_claim_ledger
-                    .borrowed_i64_results
-                    .values()
-                    .all(|proof| proof.is_err()),
-                "{label}: an opaque-return callee acquired an I64 permission"
-            ),
+            Ok(package) => {
+                let rows = &package.ordinary_new_claim_ledger.borrowed_i64_results;
+                if label == "opaque-return" {
+                    // `return p` with the incoming literal actual `0` is corroborated
+                    // by that I64 source (checked against a Bool actual below).
+                    assert!(
+                        rows.values().all(|row| row.as_ref().is_ok_and(|proof| {
+                            matches!(proof.class, BorrowedResultClassV1::I64) && proof.contract_corroborated
+                        })),
+                        "{label}: the literal actual is the only I64 source"
+                    );
+                } else {
+                    assert!(
+                        rows.values().all(|proof| proof.is_err()),
+                        "{label}: an opaque-return callee acquired an I64 permission"
+                    );
+                }
+            }
+        }
+    }
+    // The same opaque return with a Bool incoming actual is no I64 source.
+    let bool_actual = "box Transport { birth() { } probe(p) { return p } } static box Main { main() { local recv = new Transport() local out = recv.probe(true) return 0 } }";
+    match crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(bool_actual) {
+        Err(_) => {}
+        Ok(package) => {
+            assert!(package.ordinary_new_claim_ledger.borrowed_i64_results.values().all(|proof| proof.is_err()), "Bool actual acquired an I64 permission");
         }
     }
 }

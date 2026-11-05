@@ -13,11 +13,28 @@ fn issue(leaf: &str, body: &str) -> Result<VerifiedNormalCallableSemanticPackage
     .map_err(|error| format!("{error:?}"))
 }
 
+/// The nullable leaf row stays `Nullable`; every other row is the named
+/// `source-not-i64` refusal — never an I64 proof.
+fn assert_nullable_leaf_grants_no_i64(package: &VerifiedNormalCallableSemanticPackageV1, leaf: &str, body: &str) {
+    for row in package.ordinary_new_claim_ledger.borrowed_i64_results.values() {
+        match row {
+            Ok(proof) => assert!(matches!(proof.class, BorrowedResultClassV1::Nullable), "{leaf}/{body}: {:?}", proof.class),
+            Err(error) => assert!(error.contains("borrowed-result/source-not-i64"), "{leaf}/{body}: {error}"),
+        }
+    }
+}
+
 #[test]
 fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
     assert!(issue("return 7", "local out = recv.leaf(p) return out").is_ok());
+    // Rebinding to a literal makes the literal the result source: every row is a
+    // genuine I64 proof (the call result is no longer returned).
+    let rebound = issue("return 7", "local out = recv.leaf(p) out = 8 return out")
+        .expect("rebound literal result");
+    assert!(rebound.ordinary_new_claim_ledger.borrowed_i64_results.values().all(|row| {
+        row.as_ref().is_ok_and(|proof| matches!(proof.class, BorrowedResultClassV1::I64))
+    }));
     for (leaf, body) in [
-        ("return 7", "local out = recv.leaf(p) out = 8 return out"),
         ("return null", "local out = recv.leaf(p) return out"),
         (
             "if p == null { return null } return new Transport()",
@@ -34,9 +51,15 @@ fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
         ("return", "local out = recv.leaf(p) return out"),
         ("return 7", "local out = recv.bridge(p) return out"),
     ] {
-        let error = issue(leaf, body)
-            .err()
-            .expect("selected source result is unproven");
+        let error = match issue(leaf, body) {
+            Err(error) => error,
+            // A nullable-object leaf is accepted by the package, but no caller
+            // row may carry an I64 permission derived from it.
+            Ok(package) => {
+                assert_nullable_leaf_grants_no_i64(&package, leaf, body);
+                continue;
+            }
+        };
         assert!(error.contains("borrowed-result/"), "{leaf}/{body}: {error}");
     }
     for (birth, update, actual, expected) in [
@@ -480,9 +503,13 @@ fn direct_call_result_source_rejects_non_i64_and_ungrounded_cycles() {
             "if p == null { return 0 } return recv.bridge(p)",
         ),
     ] {
-        let error = issue(leaf, body)
-            .err()
-            .expect("direct result lacks an I64 proof");
+        let error = match issue(leaf, body) {
+            Err(error) => error,
+            Ok(package) => {
+                assert_nullable_leaf_grants_no_i64(&package, leaf, body);
+                continue;
+            }
+        };
         assert!(error.contains("borrowed-result/"), "{leaf}/{body}: {error}");
     }
 }
