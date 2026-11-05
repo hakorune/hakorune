@@ -231,7 +231,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         if matches!(original.source_result(),
             crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactI64 { .. })
             && !expression.is_some_and(|plan| plan.owner() == site.owner()
-                && !plan.site_is_whole_binding_value_v1(site.site()))
+                && (matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. })
+                    // Any other use site takes this result only while its
+                    // actuals are still passive source rows; once another
+                    // writer advanced them, that writer keeps the call.
+                    || (!plan.site_is_whole_binding_value_v1(site.site())
+                        && pending.get(site).is_some_and(|rows| rows.as_ref().is_ok_and(|rows| rows.source_static_snapshot_v1().is_some())))))
         {
             return ordinary_result_absent(site, "a whole-binding scalar result belongs to its statement-level writer");
         }
