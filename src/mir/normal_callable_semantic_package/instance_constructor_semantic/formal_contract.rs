@@ -71,8 +71,15 @@ impl BirthFormalContractV1 {
         self.declaration
     }
 
+    /// The syntax carries `take` (the user wrote the mark).
     pub(crate) const fn is_take(&self) -> bool {
         self.take
+    }
+
+    /// The declaration is exactly one user box: the only type a `take` formal
+    /// may own. Syntax (`is_take`) and this declaration judgement are distinct.
+    pub(crate) const fn declares_exact_object(&self) -> bool {
+        matches!(self.declaration, BirthFormalDeclarationClassV1::ExactObjectTake)
     }
 
     pub(crate) fn uses(&self) -> &BirthFormalUseCoverageV1 {

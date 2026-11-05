@@ -413,7 +413,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 // A `take` formal owns exactly one user box; any other declared type has no
                 // ownership meaning here and is refused by name before any other lane.
                 if formal.contract().is_some_and(|contract| contract.is_take()
-                    && contract.declaration() != Declaration::ExactObjectTake) {
+                    && !contract.declares_exact_object()) {
                     return Err(fault("take-formal-declaration-unavailable"));
                 }
                 if abi.text_formal_source_v1(formal.source_ordinal().ok_or_else(|| fault("formal-contract-missing"))?)?.is_some() {

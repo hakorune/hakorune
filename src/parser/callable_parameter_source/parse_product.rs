@@ -78,12 +78,9 @@ impl ParsedCallableParameterListV1 {
     pub(in crate::parser) fn has_non_take_modifier(&self) -> bool {
         self.rows.iter().any(|row| !row.transfer().is_ordinary() && !row.transfer().is_take())
     }
-    /// Bit `i` is set when parameter `i` is declared `take`; `None` past 32 parameters.
-    pub(in crate::parser) fn take_mask(&self) -> Option<u32> {
-        if self.rows.len() > 32 { return None; }
-        Some(self.rows.iter().enumerate()
-            .filter(|(_, row)| row.transfer().is_take())
-            .fold(0u32, |mask, (index, _)| mask | (1 << index)))
+    /// The transfer syntax of every parameter, in ordinal order.
+    pub(in crate::parser) fn transfers(&self) -> Box<[super::model::ParserParameterTransferSyntaxV1]> {
+        self.rows.iter().map(|row| row.transfer()).collect()
     }
     pub(in crate::parser) fn has_from(&self) -> bool { self.borrowed_result.is_some() }
     pub(in crate::parser) fn requires_retained_source(&self) -> bool { self.receiver_transfer != super::model::ParserTransferKindV1::Ordinary || self.has_modified_parameters() || self.has_from() }

@@ -66,10 +66,12 @@ fn new_home_alias_ends_once_across_normal_and_fault_edges() {
             result: crate::mir::instruction::InvokeCallResultKind::I64,
         }, 1, 2);
     assert!(verify_ownership_ssa_v1(&caller, &call_abi).is_ok());
-    assert!(verify_ownership_ssa_v1(&caller, &entry_abi).is_err());
+    let r = verify_ownership_ssa_v1(&caller, &entry_abi);
+    assert!(matches!(r, Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { .. })), "a call without a declared take cannot move the parameter: {r:?}");
     // Entry transfer consumes on Fault as well: the caller cannot End again.
     invoke(&mut caller, 2, InvokeOperation::HomeRelease { object, value: parameter }, 1, 1);
-    assert!(verify_ownership_ssa_v1(&caller, &call_abi).is_err());
+    let r = verify_ownership_ssa_v1(&caller, &call_abi);
+    assert!(matches!(r, Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })), "a moved parameter cannot be Ended on the Fault edge: {r:?}");
     let missing_class = entry_abi.clone().with_source_owned_parameters(Default::default());
     assert!(matches!(verify_ownership_ssa_v1(&entry, &missing_class), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
     let mut wrong_class = entry.clone();
@@ -84,10 +86,10 @@ fn new_home_alias_ends_once_across_normal_and_fault_edges() {
 
 }
 
-/// A published object moves into a Birth only through a `take` formal: the permission is
+/// Hand-assembled MIR (not the real pipeline): the verifier admits a published object into a Birth only through a declared `take` ordinal; the permission is
 /// the declared ordinal, a single transfer, and nothing may End the same value twice.
 #[test]
-fn birth_take_formal_is_the_only_way_a_published_object_moves_into_birth() {
+fn hand_assembled_birth_take_permission_is_the_declared_ordinal_only() {
     use crate::mir::instruction::{BirthArgumentV1, BirthInvokeV1, InvokeOperation};
     let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();
     let holder = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(1).unwrap();
@@ -131,12 +133,12 @@ fn birth_take_formal_is_the_only_way_a_published_object_moves_into_birth() {
     // Ending the moved value again on the Normal path is a double End.
     let mut double_end = function.clone();
     invoke(&mut double_end, 5, InvokeOperation::HomeRelease { object, value: parameter }, 6, 6);
-    assert!(verify_ownership_ssa_v1(&double_end, &take_abi).is_err(), "a moved value cannot be Ended again");
+    assert!(matches!(verify_ownership_ssa_v1(&double_end, &take_abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })), "a moved value cannot be Ended again");
     // The same value in two take positions is moved twice.
     let mut twice = function.clone();
     if let Some(MirInstruction::Invoke { operation: InvokeOperation::Birth(row), .. }) = &mut twice.get_block_mut(bb(1)).unwrap().terminator {
         row.arguments = vec![BirthArgumentV1::Value(parameter), BirthArgumentV1::Value(parameter)].into_boxed_slice();
     }
     let both = base_abi.with_source_birth_takes([(key, [0u32, 1].into_iter().collect())].into_iter().collect());
-    assert!(verify_ownership_ssa_v1(&twice, &both).is_err(), "one value cannot be taken twice");
+    assert!(matches!(verify_ownership_ssa_v1(&twice, &both), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })), "one value cannot be taken twice");
 }

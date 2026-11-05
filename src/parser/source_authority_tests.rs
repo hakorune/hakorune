@@ -149,7 +149,7 @@ fn constructor_inventory_preserves_written_member_order() {
         ("birth/0", constructor("birth", 0)),
     ] {
         transaction
-            .commit_constructor_at_current(key, &node)
+            .commit_constructor_at_current(key, &node, Box::new([]))
             .unwrap();
         constructors.insert(key.to_owned(), node);
         transaction.finish_member().unwrap();
@@ -184,7 +184,7 @@ fn constructor_source_signature_preserves_kind_and_arity() {
     let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 15);
     let node = constructor("birth", 3);
     transaction
-        .commit_constructor_at_current("birth/3", &node)
+        .commit_constructor_at_current("birth/3", &node, Box::new([]))
         .unwrap();
     transaction.finish_member().unwrap();
     let mut constructors = std::collections::HashMap::new();
@@ -204,12 +204,12 @@ fn duplicate_constructor_key_rejects_before_map_overwrite() {
     let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 9);
     let node = constructor("init", 1);
     transaction
-        .commit_constructor_at_current("init/1", &node)
+        .commit_constructor_at_current("init/1", &node, Box::new([]))
         .unwrap();
     transaction.finish_member().unwrap();
 
     let error = transaction
-        .commit_constructor_at_current("init/1", &node)
+        .commit_constructor_at_current("init/1", &node, Box::new([]))
         .expect_err("same key must not be overwritten");
     assert!(error
         .to_string()
@@ -222,14 +222,14 @@ fn selected_gate_rebases_constructor_site_and_rejects_key_collision() {
     let mut destination = OpenBoxMethodSourceTransactionV1::open(brand, 11);
     let direct = constructor("init", 1);
     destination
-        .commit_constructor_at_current("init/1", &direct)
+        .commit_constructor_at_current("init/1", &direct, Box::new([]))
         .unwrap();
     destination.finish_member().unwrap();
 
     let mut selected = destination.branch();
     let gated = constructor("pack", 1);
     selected
-        .commit_constructor_at_current("pack/1", &gated)
+        .commit_constructor_at_current("pack/1", &gated, Box::new([]))
         .unwrap();
     selected.finish_member().unwrap();
     destination
@@ -258,12 +258,12 @@ fn selected_gate_rebases_constructor_site_and_rejects_key_collision() {
     let brand = ParserInvocationBrandV1::issue();
     let mut collision = OpenBoxMethodSourceTransactionV1::open(brand, 12);
     collision
-        .commit_constructor_at_current("init/1", &direct)
+        .commit_constructor_at_current("init/1", &direct, Box::new([]))
         .unwrap();
     collision.finish_member().unwrap();
     let mut duplicate = collision.branch();
     duplicate
-        .commit_constructor_at_current("init/1", &direct)
+        .commit_constructor_at_current("init/1", &direct, Box::new([]))
         .unwrap();
     duplicate.finish_member().unwrap();
     let error = collision
@@ -320,7 +320,7 @@ fn generated_initializer_attaches_to_existing_birth_arity() {
 
     let birth = constructor("birth", 1);
     transaction
-        .commit_constructor_at_current("birth/1", &birth)
+        .commit_constructor_at_current("birth/1", &birth, Box::new([]))
         .unwrap();
     transaction.finish_member().unwrap();
     let mut constructors = std::collections::HashMap::new();
@@ -342,7 +342,7 @@ fn constructor_source_retains_only_committed_branch_initializer_triggers() {
     for selected in [false, true] {
         let mut root = OpenBoxMethodSourceTransactionV1::open(ParserInvocationBrandV1::issue(), 16);
         let birth = constructor("birth", 0);
-        root.commit_constructor_at_current("birth/0", &birth)
+        root.commit_constructor_at_current("birth/0", &birth, Box::new([]))
             .unwrap();
         root.finish_member().unwrap();
         let mut branch = root.branch();
@@ -379,12 +379,12 @@ fn generated_initializer_attaches_to_all_birth_arities() {
 
     let birth_zero = constructor("birth", 0);
     transaction
-        .commit_constructor_at_current("birth/0", &birth_zero)
+        .commit_constructor_at_current("birth/0", &birth_zero, Box::new([]))
         .unwrap();
     transaction.finish_member().unwrap();
     let birth_two = constructor("birth", 2);
     transaction
-        .commit_constructor_at_current("birth/2", &birth_two)
+        .commit_constructor_at_current("birth/2", &birth_two, Box::new([]))
         .unwrap();
     transaction.finish_member().unwrap();
     let constructors = [
@@ -407,7 +407,7 @@ fn explicit_birth_without_initializer_does_not_gain_trigger() {
     let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 18);
     let birth = constructor("birth", 2);
     transaction
-        .commit_constructor_at_current("birth/2", &birth)
+        .commit_constructor_at_current("birth/2", &birth, Box::new([]))
         .unwrap();
     transaction.finish_member().unwrap();
     let constructors = [("birth/2".to_owned(), birth)].into_iter().collect();
@@ -425,7 +425,7 @@ fn constructor_seal_rejects_missing_and_malformed_ast_coverage() {
     let mut missing = OpenBoxMethodSourceTransactionV1::open(brand, 13);
     let node = constructor("init", 1);
     missing
-        .commit_constructor_at_current("init/1", &node)
+        .commit_constructor_at_current("init/1", &node, Box::new([]))
         .unwrap();
     missing.finish_member().unwrap();
     assert!(missing

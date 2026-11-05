@@ -259,7 +259,7 @@ pub(super) fn validate_take_declarations_v1(
     row: &VerifiedInstanceConstructorSemanticRowV1,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
     use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalDeclarationClassV1 as Declaration;
-    match row.formal_contracts().iter().find(|formal| formal.is_take() && formal.declaration() != Declaration::ExactObjectTake) {
+    match row.formal_contracts().iter().find(|formal| formal.is_take() && !formal.declares_exact_object()) {
         Some(formal) => Err(OrdinaryNewCoSealIssueV1::TakeFormalDeclarationUnavailable {
             site: site.clone(),
             class: class.into(),
@@ -285,7 +285,7 @@ pub(super) fn validate_take_actuals_v1(
         });
     }
     for formal in row.formal_contracts() {
-        if formal.declaration() != Declaration::ExactObjectTake {
+        if !formal.declares_exact_object() {
             continue;
         }
         let moved = arguments.iter().any(|argument| argument.ordinal() == formal.ordinal()

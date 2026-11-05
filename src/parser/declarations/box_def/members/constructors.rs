@@ -10,7 +10,7 @@ use crate::tokenizer::TokenType;
 pub(crate) fn try_parse_constructor(
     p: &mut NyashParser,
     is_override: bool,
-) -> Result<Option<(String, ASTNode, u32)>, ParseError> {
+) -> Result<Option<(String, ASTNode, Box<[crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1]>)>, ParseError> {
     // init(...)
     if p.match_token(&TokenType::INIT) && p.peek_token() == &TokenType::LPAREN {
         if is_override {
@@ -54,7 +54,7 @@ pub(crate) fn try_parse_constructor(
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());
-        return Ok(Some((key, node, 0)));
+        return Ok(Some((key, node, Box::new([]))));
     }
 
     // pack(...)
@@ -92,7 +92,7 @@ pub(crate) fn try_parse_constructor(
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());
-        return Ok(Some((key, node, 0)));
+        return Ok(Some((key, node, Box::new([]))));
     }
 
     // birth(...)

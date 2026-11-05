@@ -794,6 +794,10 @@ fn birth_take_formal_and_actual_forms_reach_named_outcomes() {
         let error = compile(formal, field, actual, tail).expect_err(&format!("{formal} / {actual} / {tail}"));
         assert!(error.contains(tag), "{formal} / {actual} / {tail}: {error}");
     }
+    // The unmarked formal keeps its meaning: the same actual `leaf` that a `take` formal
+    // refuses (`TakeActualRequiresMove`) is accepted for a plain formal.
+    compile_stored("next", "next", "next: Leaf", "leaf", "5", "return n.v")
+        .unwrap_or_else(|error| panic!("plain formal with a plain actual: {error}"));
     // Ownership spelling: `me.f = x` for a `take` formal and `move x` for a plain formal are
     // named refusals, not a silent borrow and not a raw `move` lowering failure.
     for (formal, store, issue) in [

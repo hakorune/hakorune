@@ -78,7 +78,7 @@ pub(crate) struct FinalConstructorSemanticSyntaxRowRefV1<'source> {
     key: &'source str,
     declaration: &'source ASTNode,
     signature: ConstructorSourceSignatureV1,
-    take_mask: u32,
+    transfers: &'source [crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1],
 }
 
 #[derive(Debug)]
@@ -125,9 +125,9 @@ impl FinalConstructorSemanticSyntaxRowRefV1<'_> {
         self.signature.source_arity()
     }
 
-    /// Bit `i` set: birth parameter `i` is declared `take`.
-    pub(crate) const fn take_mask(&self) -> u32 {
-        self.take_mask
+    /// Transfer syntax of each birth parameter, in ordinal order.
+    pub(crate) const fn transfers(&self) -> &[crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1] {
+        self.transfers
     }
 }
 
@@ -244,7 +244,7 @@ impl ParserConstructorSourceCatalogV1 {
                 key: row.relation.key(),
                 declaration,
                 signature: row.relation.signature(),
-                take_mask: row.relation.take_mask(),
+                transfers: row.relation.transfers(),
             });
         }
         Ok(FinalConstructorSemanticSyntaxLoanV1 {
