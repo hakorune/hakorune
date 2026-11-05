@@ -27,20 +27,6 @@ use crate::mir::source_call_target::{
 };
 use std::collections::BTreeMap;
 
-pub(crate) fn issue_source_core_method_calls_v1(
-    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-) -> Result<
-    BTreeMap<
-        SelectedNormalCallableKeyV1,
-        BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
-    >,
-    String,
-> {
-    issue_source_core_method_calls_with_dynamic_calls_v1(catalog, batch, selected, &[])
-}
-
 pub(crate) fn issue_source_core_method_calls_with_dynamic_calls_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,

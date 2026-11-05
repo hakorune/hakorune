@@ -35,7 +35,6 @@ impl OrdinaryArgumentCallSourceV1 {
         if scalar { matches!(kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) }
         else { matches!(kind, CallableParameterContractKindV1::OpaqueHandle) }
     }
-    pub(super) fn is_instance(&self) -> bool { matches!(self.source, BorrowedIncomingSourceV1::Instance(_)) }
     pub(super) fn method_source(&self) -> &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1> { &self.method }
     pub(super) fn validate_input_v1(
         &self, input: ResolvedFunctionLoweringInputV1<'_>,

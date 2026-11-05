@@ -176,25 +176,6 @@ impl<'collector> PreparedFunctionDraftAdmissionV1<'collector> {
         })
     }
 
-    /// Infallible terminal for callers that already compared the exact draft
-    /// symbol and arity against this admission. The debug assertions guard
-    /// the local preflight contract; collection remains a move-only commit.
-    pub(in crate::mir::builder) fn seal_after_exact_signature_preflight(
-        self,
-        draft: MirFunction,
-    ) -> UnpublishedFunctionDraftV1<'collector> {
-        debug_assert_eq!(draft.signature.name, self.expected_symbol);
-        debug_assert_eq!(draft.signature.params.len(), self.expected_arity);
-        UnpublishedFunctionDraftV1 {
-            collector: self.collector,
-            key: self.key,
-            policy: self.policy,
-            replacement: self.replacement,
-            draft,
-            construction: None,
-            _seal: UnpublishedFunctionDraftSealV1,
-        }
-    }
 }
 
 /// One non-Clone completed draft which has not entered a `MirModule`.

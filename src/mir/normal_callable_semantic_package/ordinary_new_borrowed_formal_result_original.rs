@@ -190,14 +190,6 @@ impl OriginalReturnSourceLoanV1 {
             OriginalReturnBodySourceV1::UnitCandidate { .. } => &[],
         }
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn scalar_class_v1(&self) -> Option<BorrowedResultClassV1> {
-        match &self.0.body {
-            OriginalReturnBodySourceV1::Fields { .. } => Some(BorrowedResultClassV1::I64),
-            OriginalReturnBodySourceV1::LiteralScalars { class, .. } => Some(*class),
-            OriginalReturnBodySourceV1::ComputedValueReturns { .. } => None,
-            OriginalReturnBodySourceV1::UnitCandidate { .. } => None,
-        }
-    }
     /// Exact computed returns may be considered only after the independent
     /// result owner has sealed a supported scalar class for the same plans.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn corroborates_scalar_class_v1(

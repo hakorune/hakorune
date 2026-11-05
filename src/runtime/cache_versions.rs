@@ -6,12 +6,6 @@ use std::sync::Mutex;
 
 static CACHE_VERSIONS: Lazy<Mutex<HashMap<String, u32>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 
-/// Get current version for a cache label (default 0)
-pub(crate) fn get_version(label: &str) -> u32 {
-    let map = CACHE_VERSIONS.lock().unwrap();
-    *map.get(label).unwrap_or(&0)
-}
-
 /// Bump version for a cache label
 pub(crate) fn bump_version(label: &str) {
     let mut map = CACHE_VERSIONS.lock().unwrap();

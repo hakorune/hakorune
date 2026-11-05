@@ -134,23 +134,6 @@ impl TerminatorCfgViewV1 {
     }
 }
 
-/// Derives CFG facts from terminators without reading or updating CFG caches.
-pub(in crate::mir::builder) fn derive_terminator_cfg_view_v1(
-    function: &MirFunction,
-) -> Result<TerminatorCfgViewV1, Vec<PhiEdgeVerificationErrorV1>> {
-    let (predecessors, reachable, mut errors) = terminator_cfg(function, false);
-    errors.sort_by_key(PhiEdgeVerificationErrorV1::sort_key);
-    if !errors.is_empty() {
-        return Err(errors);
-    }
-    let dominators = terminator_dominators(function, &predecessors, &reachable);
-    Ok(TerminatorCfgViewV1 {
-        predecessors,
-        reachable,
-        dominators,
-    })
-}
-
 /// Read-only candidate for an unused Phi deletion.
 ///
 /// It intentionally exposes no commit. A later side-artifact closure owner

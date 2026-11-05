@@ -4,11 +4,7 @@
 //! is kept in `operation_emitter`; this module owns no placement, operation,
 //! or value publication authority.
 
-use super::operation_target::VerifiedLoopOperationTargetBlockV1;
-use crate::mir::builder::resolved_lowering::canonical_cfg::{
-    CanonicalCfgSessionV1, CanonicalOpenInstructionTargetErrorV1,
-    VerifiedCanonicalOpenInstructionTargetV1,
-};
+use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{BasicBlockId, ValueId};
@@ -152,24 +148,4 @@ impl<'a> LoopPhysicalServicesV1<'a> {
         Ok(block)
     }
 
-    /// Co-seal the existing Loop target receipt with the CFG session that
-    /// created its physical block. This is a narrow open-target proof; it
-    /// does not issue operands, dominance, or instruction meaning.
-    pub(in crate::mir::builder::resolved_lowering) fn prepare_open_instruction_target(
-        &self,
-        target: &VerifiedLoopOperationTargetBlockV1,
-    ) -> Result<VerifiedCanonicalOpenInstructionTargetV1, CanonicalOpenInstructionTargetErrorV1>
-    {
-        let function = self
-            .builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or(CanonicalOpenInstructionTargetErrorV1::FunctionMissing)?;
-        self.cfg.prepare_created_open_instruction_target(
-            function,
-            target.owner(),
-            target.physical_block(),
-        )
-    }
 }

@@ -25,13 +25,6 @@ impl CanonicalFunctionRolePolicyV1 {
         }
     }
 
-    pub(super) const fn is_normal_main(self) -> bool {
-        matches!(
-            self,
-            Self::NormalMain0 | Self::NormalMainDirectCall0 | Self::NormalMainQualifiedMethods
-        )
-    }
-
     pub(super) const fn allows_zero_parameter_direct_call(self) -> bool {
         matches!(
             self,

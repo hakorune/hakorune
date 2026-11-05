@@ -428,16 +428,6 @@ impl DirectCallDispositionLoanV1 {
                 })
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn has_map_target(
-        &self,
-        batch: &VerifiedResolvedCallableSemanticBatchV1,
-    ) -> bool {
-        self.rows.values().any(|slot| match slot {
-            DirectCallDispositionSlotV1::Ready(row) => map_owned(batch, row),
-            DirectCallDispositionSlotV1::Taken => false,
-        })
-    }
-
     pub(in crate::mir::normal_callable_semantic_package) fn map_target_owners(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,

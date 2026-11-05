@@ -1,9 +1,7 @@
 //! FlowBox observability tags (strict/dev only).
 
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::lower::Freeze;
 use crate::mir::builder::control_flow::lower::{CorePlan, LoweredRecipe};
-use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
 
 #[derive(Clone, Copy)]
 pub(in crate::mir::builder) enum FlowboxVia {
@@ -53,18 +51,6 @@ pub(in crate::mir::builder) fn box_kind_from_core_plan(
     }
 }
 
-pub(in crate::mir::builder) fn box_kind_from_facts(
-    facts: Option<&CanonicalLoopFacts>,
-) -> FlowboxBoxKind {
-    let Some(facts) = facts else {
-        return FlowboxBoxKind::Loop;
-    };
-    match facts.skeleton_kind {
-        SkeletonKind::Loop => FlowboxBoxKind::Loop,
-        SkeletonKind::StraightLine => FlowboxBoxKind::Seq,
-    }
-}
-
 pub(in crate::mir::builder) fn features_from_facts(
     facts: Option<&CanonicalLoopFacts>,
 ) -> Vec<&'static str> {
@@ -94,15 +80,6 @@ pub(in crate::mir::builder) fn features_from_facts(
         features.push("nested_loop");
     }
     features
-}
-
-pub(in crate::mir::builder) fn emit_flowbox_adopt_tag_from_coreplan(
-    strict_or_dev: bool,
-    core_plan: &LoweredRecipe,
-    facts: Option<&CanonicalLoopFacts>,
-    via: FlowboxVia,
-) {
-    emit_flowbox_adopt_tag_for_coreplan(strict_or_dev, core_plan, facts, &[], via);
 }
 
 pub(in crate::mir::builder) fn emit_flowbox_adopt_tag_for_coreplan(
@@ -142,46 +119,6 @@ pub(in crate::mir::builder) fn emit_flowbox_adopt_tag(
         box_kind.as_str(),
         features_csv,
         via.as_str()
-    );
-    let _ = ring0.io.stderr_write(format!("{}\n", msg).as_bytes());
-}
-
-pub(in crate::mir::builder) fn emit_flowbox_freeze_tag_from_facts(
-    strict_or_dev: bool,
-    code: &str,
-    facts: Option<&CanonicalLoopFacts>,
-) {
-    let features = features_from_facts(facts);
-    let box_kind = box_kind_from_facts(facts);
-    emit_flowbox_freeze_tag(strict_or_dev, code, box_kind, &features);
-}
-
-pub(in crate::mir::builder) fn emit_flowbox_freeze_contract(
-    strict_or_dev: bool,
-    code: &str,
-    facts: Option<&CanonicalLoopFacts>,
-    message: &str,
-) -> String {
-    emit_flowbox_freeze_tag_from_facts(strict_or_dev, code, facts);
-    Freeze::contract(message).to_string()
-}
-
-pub(in crate::mir::builder) fn emit_flowbox_freeze_tag(
-    strict_or_dev: bool,
-    code: &str,
-    box_kind: FlowboxBoxKind,
-    features: &[&'static str],
-) {
-    if !strict_or_dev {
-        return;
-    }
-    let features_csv = features.join(",");
-    let ring0 = crate::runtime::get_global_ring0();
-    let msg = format!(
-        "[flowbox/freeze code={} box_kind={} features={}]",
-        code,
-        box_kind.as_str(),
-        features_csv
     );
     let _ = ring0.io.stderr_write(format!("{}\n", msg).as_bytes());
 }

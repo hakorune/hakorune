@@ -18,17 +18,6 @@ fn sample_every() -> usize {
     *SAMPLE_EVERY.get_or_init(|| crate::config::env::builder_debug_sample_every().unwrap_or(0))
 }
 
-/// Dev‑only: emit a resolve.try event（candidates inspection）。
-pub(crate) fn emit_try(builder: &MirBuilder, meta: serde_json::Value) {
-    let fn_name = builder
-        .function_state
-        .current_function
-        .as_ref()
-        .map(|f| f.signature.name.as_str());
-    let region = builder.debug_current_region_id();
-    crate::debug::hub::emit("resolve", "try", fn_name, region.as_deref(), meta);
-}
-
 /// Dev-only lazy resolve.try relay. The callback is not called until the Hub
 /// accepts the event, so caller-owned candidate lookup stays behind the gate.
 pub(crate) fn emit_try_lazy<F>(builder: &mut MirBuilder, build: F)

@@ -199,17 +199,6 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// The loan selects its original guard; only retained physical observations
-    /// are lent. The finishing owner and both final scans still owe projection.
-    pub(in crate::mir) fn with_borrowed_field_write_guard_original_v1(
-        &self, source: &crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
-        visit: impl FnOnce(&Binding, &[Rc<LocalSsaPhysicalRelationV1>; 2],
-            &Rc<IfConditionMaterializationV1>, &Binding, &[Binding]) -> Result<(), String>,
-    ) -> Result<(), String> {
-        source.validate_source(self)?;
-        let owner = source.frame().source().owner();
-        self.with_borrowed_entry_null_guard_original_v1(owner, source.null_guard_v1(), visit)
-    }
 
     pub(in crate::mir::normal_callable_semantic_package) fn with_borrowed_entry_null_guard_original_v1(
         &self, owner: FunctionOwnerIdV1, guard: &SourceNodeSiteV1,

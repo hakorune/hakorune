@@ -213,7 +213,6 @@ run targeted planner/facts tests
 - rationale:
   - fail-fast validation and debug-contract surface
 - actual owner surface already landed:
-  - `verify/diagnostics::span_format`
   - `verify/observability::flowbox_tags`
   - `verify::verifier`
   - `verify::coreloop_body_contract`

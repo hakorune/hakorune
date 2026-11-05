@@ -91,15 +91,6 @@ impl LocalCommitV1 {
             Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) | Self::TextResidence(_) | Self::DynamicCarrierResidence(_) | Self::Shared(_) => None,
         }
     }
-    pub(super) fn new_children(
-        &self,
-    ) -> Option<&Option<Box<[super::super::OwnedFieldChildV1]>>> {
-        match self {
-            Self::Ordinary(row) => Some(&row.children),
-            Self::Result(row) => Some(&row.children),
-            Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) | Self::TextResidence(_) | Self::DynamicCarrierResidence(_) | Self::Shared(_) => None,
-        }
-    }
     pub(super) fn binding(&self) -> Option<BindingRefV1> {
         match self {
             Self::Ordinary(row) => Some(row.binding),

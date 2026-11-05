@@ -323,30 +323,6 @@ fn array_read_is(inst: &MirInstruction) -> bool {
     })
 }
 
-fn method_call_is_with_receiver_arg(
-    inst: &MirInstruction,
-    allowed_box_names: &[&str],
-    expected_method: &str,
-    expected_arg_count: usize,
-) -> bool {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee: Some(Callee::Method {
-                box_name, method, ..
-            }),
-            args,
-            ..
-        } => {
-            let legacy_arg_shape = args.len() == expected_arg_count;
-            let unified_arg_shape = args.len() == expected_arg_count + 1;
-            method == expected_method
-                && (legacy_arg_shape || unified_arg_shape)
-                && allowed_box_names.iter().any(|allowed| *allowed == box_name)
-        }
-        _ => false,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

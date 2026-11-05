@@ -4,7 +4,6 @@
 //! - Control-flow effects: ExitIf / IfEffect (loop-only)
 //! - AST helpers for generic loop normalization
 
-use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::lower::CoreEffectPlan;
 
 pub(in crate::mir::builder) fn is_leaf_effect_plan(effect: &CoreEffectPlan) -> bool {
@@ -32,11 +31,4 @@ pub(in crate::mir::builder) fn has_control_flow_effect(effects: &[CoreEffectPlan
             CoreEffectPlan::ExitIf { .. } | CoreEffectPlan::IfEffect { .. }
         )
     })
-}
-
-pub(in crate::mir::builder) fn is_effect_only_stmt(stmt: &ASTNode) -> bool {
-    matches!(
-        stmt,
-        ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. } | ASTNode::Call { .. }
-    )
 }

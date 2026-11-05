@@ -484,33 +484,6 @@ fn emit_standard_value_terminal_with_lookup_v1(
     Ok(request.destination)
 }
 
-/// Receipt-required sibling for the bounded pre-loop candidate only.
-///
-/// The ordinary terminal retains its compatibility facade. This sibling shares
-/// the same prepared standard Method request but requires the existing generic
-/// physical Call terminal and therefore never accepts a rewrite, BoxCall, or
-/// legacy fallback as success.
-pub(super) fn emit_standard_value_terminal_with_receipt_v1<Port>(
-    builder: &mut MirBuilder,
-    port: &mut Port,
-    receiver: ValueId,
-    method: String,
-    arguments: Vec<ValueId>,
-) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1>
-where
-    Port: RawFunctionHeaderLookupPortV1,
-{
-    let request = PreparedStandardValueCallRequestV1::prepare(builder, receiver, method, arguments);
-    port.with_function_headers(|lookup| {
-        builder.emit_unified_value_call_with_lookup_receipt_v1(
-            request.destination,
-            request.target,
-            request.arguments,
-            lookup,
-        )
-    })
-}
-
 struct PreparedStandardValueCallRequestV1 {
     destination: ValueId,
     target: CallTarget,

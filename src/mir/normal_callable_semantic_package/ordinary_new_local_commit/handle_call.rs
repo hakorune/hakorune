@@ -116,20 +116,6 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
-    /// Prior-home unwind operands for an i64-result lexical instance
-    /// call's fault landing — the same newest-first live-Home chain the
-    /// Handle lane emits; the receiver stays a live prior Home.
-    pub(crate) fn lexical_i64_call_prior_home_unwind(
-        &self,
-        site: &OwnedExprSiteV1,
-    ) -> Result<Vec<InvokeOperation>, String> {
-        let call = self
-            .lexical_i64_call_source(site)
-            .ok_or_else(|| freeze("lexical-i64-call-source-missing"))?;
-        self.prior_home_unwind(call.prior_homes())
-            .ok_or_else(|| freeze("lexical-i64-call-prior-home-unavailable"))
-    }
-
     /// Newest-first live-Home unwind for one sealed prior-Home list —
     /// statement calls pass their observation's list, argument-position
     /// calls pass the enclosing call's live set (the same program point).

@@ -19,13 +19,6 @@ impl<'loan> super::SelectedCallableLoweringInputRefV1<'loan> {
             .map(|row| (row.ordinal, row.binding, row.kind.clone()))
     }
 
-    /// The same declaration rows, including ownership for the Home walk.
-    pub(crate) fn parameter_home_contracts(&self) -> impl ExactSizeIterator<Item = (
-        u32, BindingRefV1, CallableParameterContractKindV1, crate::mir::resolved_semantics::HomeDemandV1,
-    )> + '_ {
-        self.parameter_contracts.iter().map(|row| (row.ordinal, row.binding, row.kind.clone(), row.demand))
-    }
-
     /// Borrow the resolver-owned BlockExpr expectation from the same batch
     /// row. This is transport only: no count is recomputed and the receipt is
     /// neither cloned nor reissued by the installed package.
