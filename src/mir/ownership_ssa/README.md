@@ -23,4 +23,4 @@ liveness until the pre-canonical construction shape is retired. Typed calls
 never consult the legacy `func` field, and `ManagedCallOwnershipUnsupported`
 remains the fail-fast terminal until a named managed-call ABI issuer exists.
 
-Production callers remain zero until the atomic canonical-owner cutover.
+`verify_ownership_ssa_v1` has one production caller: the published-MIR backend capability check in `src/mir/backend_capability.rs` (reached through `enforce_mir_backend_supported` from the runner exec paths). No other production code calls it; the canonical-owner cutover is still ahead.

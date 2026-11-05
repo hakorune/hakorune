@@ -55,7 +55,7 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | Box `obj.x` place / `obj.x()` call prerequisite | accepted target; Property production retirement parked |
 | Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako runtime parity remains unverified |
 | resolver Home-demand/root and Home Flow | bounded same-scope `move` of a `new`-derived local is implemented; general Home demand remains a target |
-| callable Home ABI | bounded declaration-only receipt exists; source `take` linkage absent |
+| callable Home ABI | bounded declaration receipt exists; `take` linkage is connected for `birth(take x: T)` stored with `me.f = move x` and for a `take` parameter fed by `move` (measured, [status index](status-index.md#ownership-forms-measured)); a non-stored `take` formal, a receiver `take` and an `edit` declaration are refused by name |
 | canonical Builder/source producers | bounded explicit local `move` is connected through the published EXE route, including `new T(move x, ...)` for a handle local (an unannotated `birth` formal); `birth(take x: T)` takes a non-null object formal fed by `move` and stores it only with `me.f = move x` (a bare `me.f = x` for a `take` formal and `move x` for a plain formal are the `BirthStoreOwnershipMismatch` refusals; any other `take` birth whose source the builder cannot yet connect is `TakeBirthSourceUnconnected`, and a `take` formal never stored is `TakeFormalNotStored`). Instance results computed from exact `i64` values (`+ - *` over literals, `i64` formals and declared-`i64` `me` fields) run through `local r = c.f(..)` and `return c.f(<Integer literals>)`; `birth(name: String)` is the same exact Text formal as `StringBox`, and a `String` / `StringBox` / `String?` field is a dynamic slot that takes Text only (no new slot kind) and is readable in the listed borrow shapes (see "Reads check" below and strings.md `String` fields); a field a `birth` fills with its own `new` is readable (`me.next == null`); an unconstructed box no longer blocks compilation |
 | Ownership SSA / ownership opcodes | published local-move and bounded local Shared MIR are independently checked; general ownership remains a target |
 | current ordinary Box assignment | transitional SharedV1 behavior |
@@ -1107,13 +1107,21 @@ Connected on the published EXE route (2026-11-05): a read of a `String` / `Strin
 field whose every writer stores Text materializes one independent copy that
 the expression owns and ends once; the field string is neither moved nor ended by the
 read, and a Fault after the read ends the field string and the copy exactly once each.
-Shapes: `print(t.f)`, `print(me.f)`, `print(t.f + "x")`, `local s = t.f + "x"`,
-`local n = t.f.length()` (also `me.f` inside a method) and an unannotated
-`get() { return me.f }`, which returns the independent copy. Refused by name:
-`local s = t.f` as a borrowed alias, `return t.f.length()`, `return me.f + ..`, a `String?` field, a `==`
-or `null` comparison of the field, a `: String` result annotation, a String field
-next to a typed object field, a field another writer fills with a non-Text value, and a
-store after publication.
+Measured shapes (2026-11-05, [status index](status-index.md#ownership-forms-measured)):
+connected are `print(t.f)`, `print(me.f)` inside a method, `print(t.f + "x")`,
+`local s = t.f + "x"`, `local n = t.f.length()`, `print(t.f)` inside an `if`, and an
+unannotated `get() { return me.f }` (also `print(t.get())`), which returns the independent
+copy. A field with no type that only ever receives Text is readable too (`print(a.v)`), also
+next to a `String` field. Refused with a generic tag that does not name the form
+(`artifact-source-unavailable`, `print-expression/source-unavailable`,
+`argument-source-unavailable`, `callable-loop/facts-absent`): `local s = t.f`,
+`return t.f.length()`, `print(t.f.length())`, `if t.f.length() > 2`, `print(t.f == "abc")`,
+`new Tag(t.f)`, a read inside a loop, a `String?` field, a store after publication, and a
+`String` field next to a typed object field. Refused by name: a `: String` result annotation
+(`UnsupportedResultAnnotation`) and an untyped field that receives an object next to a
+`String` field (`move-argument-unplanned`). The unannotated `get() { return me.f }` is accepted
+although the frozen rule 5 asks for `from me` on a borrowed return; how it should be treated is
+an open design question and this page records only the measurement.
 Box reads create no Home: they borrow the exact holder/slot support, which
 replacement or holder end invalidates. Reject source uses whose support does
 not cover them. Such a borrow cannot become a self-contained Dynamic result

@@ -66,9 +66,12 @@ Ownership grammar status (2026-08-04):
   with call-entry transfer and Normal/Fault cleanup. Other forms remain bounded.
   Rust direct callable headers also retain `: T from me` or `: T from param`
   separately from the result type; execution is still explicitly refused until
-  its read-borrow contract is connected. AST-only/raw projections reject these
+  its read-borrow contract is connected (measured 2026-11-05: `get(): T from me`
+  and `f(a, b): P from a` are refused; `from a, b` stops in the parser). AST-only/raw projections reject these
   ownership headers rather than erase them. These retained-header rows do not
-  activate Hako parser/grammar differential parity. `share` remains parser-inactive.
+  activate Hako parser/grammar differential parity. In the Rust parser `share`
+  is live as a local initializer prefix (see the Successor bullet below); the
+  Hako parser parity is unverified.
 - `take`, `edit`, `share`, and `release` remain `IDENT` spellings and are not global
   lexer keywords. Contextual recognition requires same-line lookahead.
   `share(...)`, `share (expr)`, `take(...)` and `take (expr)` are permanently
@@ -96,8 +99,12 @@ Ownership grammar status (2026-08-04):
   result and field contracts are not connected. `take place` remains a decided,
   parser-inactive nullable-place target. Hako `share` parity is pending.
   The consuming-receiver spelling `(move x).m()` is decided in ownership.md §0
-  but has no grammar row yet (parser-inactive); the grammar below carries only
-  `move IDENT`.
+  but has no grammar row yet; measured 2026-11-05: the Rust parser accepts the
+  spelling, and a `take` receiver declaration is refused by name
+  (`UnsupportedReceiverTransfer`);
+  the grammar below carries only `move IDENT`. Expression `take` is not parsed:
+  `local y = take x` is read as the identifier `take` and a separate statement.
+  Measured forms: [status index](status-index.md#ownership-forms-measured).
 
 Accepted ownership grammar and implementation status:
 
@@ -111,7 +118,7 @@ target_move_expr     := 'move' HSPACE target_place  (* field operand decided 202
 target_indexed_place := target_place ( '[' expr ']' ( '.' IDENT )* )*  (* take operand and edit argument *)
 target_take_expr     := IDENT("take") HTRIVIA target_indexed_place  (* revised 2026-11-03: any nullable place; parser-inactive *)
 target_edit_arg      := IDENT("edit") HTRIVIA target_indexed_place  (* decided 2026-11-03: call argument for an edit parameter; parser-inactive *)
-target_copy_expr     := IDENT("copy") HTRIVIA non_group_postfix_expr  (* Rust prefix retained; checked i64/Bool expression subset live, other consumers named-reject; Hako pending *)
+target_copy_expr     := IDENT("copy") HTRIVIA non_group_postfix_expr  (* Rust prefix retained; checked expression subset live (measured 2026-11-05: `copy x` of an i64 local connected; of a Bool, String or Box local refused by name, `copy_contract_unsupported`); Hako pending *)
 target_match_move    := 'match' HSPACE 'move' HSPACE expr '{' match_arm+ default_arm? '}'  (* decided 2026-11-03; parser-inactive *)
 target_nullable_type := TYPE_REF '?'  (* Rust retains structure; box fields support straightline formal/new/literal-null initialization and existing reads; source-order/observation refusals named; declaration defaults connected for explicit birth; no-birth initialization pending; other consumers named-reject; expression '?' is Result propagation *)
 target_fn_type       := 'fn' '(' ( param_mode? TYPE_REF ( ',' param_mode? TYPE_REF )* )? ')' ':' TYPE_REF  (* decided 2026-11-03; parser-inactive *)

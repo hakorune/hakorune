@@ -299,7 +299,7 @@ Do not create one card per spelling, fixture, adapter, or rerun.
 
 ```text
 grammar_registry_substrate = 1
-ownership_grammar_rows = 0
+ownership_grammar_rows = 3
 canonical_default_activated = 0
 compat2025_activated = 0
 live_parse_witness_conformance = 0
@@ -312,3 +312,11 @@ type_contract_activation = 0
 failure_model_change = 0
 selfhost_claim = 0
 ```
+
+`ownership_grammar_rows = 3` counts the `ownership` family rows in
+`grammar/language-v1-registry.toml` as of 2026-11-05: `release_statement`,
+`move_unary_expr` and `shared_constructor_expr` (rejected with
+`parser/shared_constructor_retired` in both the Rust and the `.hako` parser).
+`take`, `share`, `edit`, `copy` and `from` have no registry row.
+`parser_sharing = 0` is unrelated to `Shared(...)`: it records that the Rust and
+Hako parsers share no code.

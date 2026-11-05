@@ -9,7 +9,7 @@ guarantees EXE support. The [verified-guide task](../../development/current/main
 will replace this mixed summary with tested examples and reproducible commands.
 
 Purpose
-- Compact navigation for current syntax and accepted target contracts.
+- Compact navigation for current Hakorune syntax and accepted target contracts.
 - Keep grammar minimal; clarify rules that often cause confusion.
 
 Ownership note
@@ -18,9 +18,13 @@ Ownership note
   a sealed destination demand transfers one Home, and only explicit `share`
   may add an independent owner.
 - Declaration `take` and non-group postfix expression `share` are accepted
-  contextual targets but are not added to this current-syntax sheet until
-  their Rust/Hako parser rows close. Result `from` remains provisional. Do not
-  infer parser support from the target reference.
+  contextual targets. The Rust parser accepts them and a bounded set reaches an
+  EXE (`birth(take x: T)` whose argument is stored with `me.f = move x`;
+  `share new T()`, `share move x` and `share h` as local initializers; the
+  measured list is in the status index, section "Ownership forms measured").
+  Hako parser parity is unverified (it cannot be run today); `Shared(...)` is
+  rejected by the Rust and the `.hako` parser. Result `from` remains
+  provisional. Do not infer EXE support from the target reference.
 - Contextual statement `release root` has a live Rust/Hako syntax and
   parser-owned source carrier. Home capability, availability, DropPlan, and
   execution remain inactive, so parser acceptance alone does not release an
@@ -61,9 +65,9 @@ Selected current reserved keywords
 
 Selected contextual forms
 - declaration header: `uses`
-- accepted inactive Home targets: declaration `take` and expression `share`;
-  provisional result `from` (none is a current reserved keyword, and
-  `share(...)` remains an ordinary call)
+- accepted Home targets, partly connected in Rust (see the status index):
+  declaration `take` and expression `share`; provisional result `from` (none
+  is a current reserved keyword, and `share(...)` remains an ordinary call)
 
 Expressions and Calls
 - Function call: `f(a, b)`

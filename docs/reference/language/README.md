@@ -1,6 +1,7 @@
 # Hakorune Language Reference – Index
 
-This index leads to Hakorune's language contracts and implementation information.
+This index leads to Hakorune's language contracts and implementation information;
+it is the current Hakorune language reference entry point.
 Status: Current navigation index; the reference includes planned features.
 
 - **Language meaning:** use the topic pages below. Their contracts describe
