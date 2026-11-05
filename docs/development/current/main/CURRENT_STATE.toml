@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "order changed 2026-11-06: typed call composition comes next; form-table and test-repair await audit and integration"
+current_blocker_token = "MIR builder cleanup S1 is next, with no acceptance change; typed call composition follows as S2"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,9 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/app-boxtorrent-
 latest_card_summary = """
 APP-boxtorrent-mini fixed8/8 on main at b71d33b1a4. Integrated the Sonnet stack (Opus audited): typed i64 Birth formals, new T(move x), birth(take x: T) with me.f = move x, typed String fields, one new-expression route with kept refusal causes.
 String field reads connected: print(t.f), t.f + "x", local n = t.f.length(), unannotated get() { return me.f }. Each read materializes one copy; a Fault ends field and copy once each (measured with a scratch probe, repo test owed).
-Refused for now: local s = t.f, return x.length() (Text locals too), comparing a field, String?, a : String result, String next to a typed object field, non-storing take. Hako parser still accepts Shared(...).
-Existing reds on main: known 115 cohort names (old main measured, identical), published_backend_view 18, Python v4 tests unrunnable, naming charter guard, vm-reference debug build, explicit_externcall drift. cargo-deny waits on branch security-step1.
-Next (user order 2026-11-06, record: investigations/selfhost-call-order-consult-2026-11-06.md): typed call composition; results, basic expressions, containers, non-storing take; edit (after 2026-11-08) and remaining ADR stages; 3b and retirement; builder survey; .hako parser parity; selfhost.
+Refused for now: local s = t.f, return x.length() (Text locals too), comparing a field, String?, a : String result, String next to a typed object field, non-storing take. Ownership forms measured: 34 of the 129 forms the grammar accepts reach an EXE (status-index.md).
+Existing reds on main (a9aea1065e, measured): cohort 84 names, published_backend_view 12, Python v4 PASS 17 / FAIL 0 / unrunnable 4 (Bool and object actuals to untyped formals are refused), vm-reference debug build. cargo-deny waits on branch security-step1.
+Next (user order 2026-11-06, investigations/selfhost-call-order-consult-2026-11-06.md and the cleanup section of the MirBuilder structure queue): cleanup S1, typed call composition S2, results and basic expressions S3 with non-storing take, S4, edit (after 2026-11-08) and remaining ADR stages, 3b and retirement, builder survey, .hako parser parity, selfhost.
 """
 next_design_card = "none"
 next_design_card_path = "none"

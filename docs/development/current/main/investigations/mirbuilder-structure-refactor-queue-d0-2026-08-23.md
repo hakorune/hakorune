@@ -170,6 +170,35 @@ JSON着地後のレビュー（2026-10-28、読取りworker3人。未実行）�
 （独立検査としてScalar/SelfRooted/Home/ReceivedNullableの写像を持つ。再利用すると循環する）、`ordinary_core_source_v1` の2実装（型が別で約4行）。
 非test本体に無条件の `eprintln!` は見つからなかった（116か所は抜き取りでdebug gate内）。
 
+## 呼び出しと撤退の整理（2026-11-06、ユーザー承認）
+
+新しいIR、全面の書き直し、ディレクトリの大移動はしない。やることは、同じ事実を決める場所を一つにすることと、新しい経路が通した分の古い経路を同じseriesで消すこと。順番の正本は[順番の決定](selfhost-call-order-consult-2026-11-06.md)。
+
+実測（読むだけの調査、行番号は2026-11-06のmain）: 通らない呼び出しの形は少なくとも5つの別々の原因で、再帰は通る。呼び出しの許可の判定は少なくとも7か所、`seal_local`と`direct_call_lifecycle.rs:565-596`は同じ条件の封印。`home_local_source_scalar_call.rs:545-575`と`role_admits_v1`は位置ごとの手書きの許可表。`*`は3つの形だけ、`-`はrootごとの例外。`Object→Handle`の写しが3か所。述語の写しが7か所と8か所。形×段階のfileが約14,000行。ファイルの置き場所だけを変える再編は、`OrdinaryNewClaimLedgerV1`の`impl`が139 fileに散っているので効果がない。
+
+| 事実 | 唯一の持ち主（既存） | 消す物 |
+| --- | --- | --- |
+| この呼び出しは何で、結果をどこで使うか | `LocalCallObservationV1`（宛先の`ExpressionValue`は既存） | `join_static_execution_v1`の`local_binding`のfilter、`static_local_route`の分岐 |
+| 呼び出しを実行してよいか | `seal_local`。拒否名は条件ごと | `direct_call_lifecycle.rs`の同じ条件、総称の`local-contract` |
+| 結果の型 | 結果契約。入口`ExactTrivialScalarAbiV1`を広げる。写しは型のmethod | 各所の`match`、`lexical_i64_result_call`、`exact_i64_return_expression_v1` |
+| 式の評価 | `CheckedExpressionEvaluationV1`。文脈は使い先と制御辺だけを渡す | 述語の写し、位置ごとの手書きの許可表 |
+| 演算の許可 | `home_scalar_operation_preflight.rs`の一つの表 | `Op::Multiply if ...`の腕、`-`のrootごとの例外 |
+
+分けたまま残す: `physical_boundary.rs`の対応の検査、`check_binding`、`src/mir/verification`、C shim。生成後の独立検証は生成側と共有しない。
+
+| series | 内容 | 製品の受理 | 完了の条件 |
+| --- | --- | --- | --- |
+| S1 | 述語、封印、結果の写し、`precedes`の統合。token cursorのparser経路の撤退（ユーザー決定）。caller 0の関数の削除 | 変えない（拒否の名前だけ） | 固定suite、比較入力の受理と拒否の入れ替わり0、cohortの新しい赤0、production純減 |
+| S2 | 順番の①。位置の制限、生きたHome、methodの結果、`x - 定数`、loopの中の呼び出し。`qualified-preflight`の旧経路を、今通る形を測って移してから撤退。`DeclaredInstanceLocatorNotConsumed`の検査へbuilderの経路から届かせる | 広がる | Normal、後の引数のFault、呼ばれた後のFaultのEnd、MIR改変の拒否。`ordinary_new_*`のfileを増やさない |
+| S3 | 順番の②。`: bool`と`: String`の入口、演算の表、基本の式、container | 広がる | 各形のEXEとEnd。公開MIRの追加が要れば止めて聞く |
+| S4 | 形×段階の整理。compareとmul、static finishの共通の2句、loopの位置別loan | 変えない | 消えた型と関数の名前、production純減 |
+
+3bで撤退: `legacy_port.rs`、`raw_ordinary_new_claim`のlegacyのimpl、`birth-global-legacy-stopped`、`FromCall`。撤退しない: `MirFinishScheduleV1::Legacy`（今の既定の経路）、`resolved_semantics/shadow/`、`resolved_lowering/`（canonicalのCFGとSSAを多くの所が使う）。micro seedのplan群は公開JSONの契約に関わるのでユーザー判断。
+
+やらない: 行数の目標、行数だけのfile分割、置き場所だけの移動、`finished-sequence`を緩めること（`x - 定数`の直し先は下書きを作る側）、形ごとのfileやproducerの追加、「選ばれた後の欠け」を黙って`None`に落とすこと、`Static*InputFinishV1`を一つにすること、`freeze`と`reject`の一括のmacro化。
+
+未確認: 式の位置の呼び出しを既存の`ExpressionValue`のemitで物理に載せられるか（足りなければ公開MIRかABIの追加なので、S2の最初に確かめて止めて聞く）。`x - 定数`で`Const`が消える理由。loopの中の呼び出しの理由（形ごとに別）。旧経路で今どの形が通っているか。深い再帰がexit 139で落ちること（Fault契約の外。順番の⑤までに扱いを決める）。
+
 ## Remaining parked responsibilities
 
 過去の構造調査は再開許可ではない。次の未完責務を保持する。
