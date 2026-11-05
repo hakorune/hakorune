@@ -49,7 +49,7 @@ pub(super) fn me_field_read_row(
         BodyExpressionShapeV1::Me { site, receiver: BodyMeReceiverV1::Lexical(binding) }
             if site == object && *binding == receiver)
     }) {
-        return Err(U::BodyFormUnsupported);
+        return Err(U::StoreValueUnsupported);
     }
     let ordinal = fields
         .iter()

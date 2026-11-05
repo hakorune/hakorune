@@ -679,8 +679,9 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
         ordinal: u32,
     },
-    /// The birth body stores a formal with the wrong spelling: a `take` formal
-    /// is stored only by `me.f = move x`, and `move x` is only for `take` formals.
+    /// The birth's source is unavailable and it owns a `take` formal or moves one: the
+    /// wrong spelling (a `take` formal is stored only by `me.f = move x`, and `move x` is
+    /// only for `take` formals) or any other named reason the source was refused.
     BirthStoreOwnershipMismatch {
         site: OwnedExprSiteV1,
         class: Box<str>,

@@ -279,10 +279,16 @@ pub(super) fn validate_take_actuals_v1(
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
     use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalDeclarationClassV1 as Declaration;
     use crate::mir::normal_callable_semantic_package::instance_construction::ConstructionUnavailableV1 as Unavailable;
-    if let Err(issue @ (Unavailable::TakeStoreRequiresMove | Unavailable::MoveRequiresTakeFormal)) = row.construction_source() {
-        return Err(OrdinaryNewCoSealIssueV1::BirthStoreOwnershipMismatch {
-            site: site.clone(), class: class.into(), issue: *issue,
-        });
+    // A birth with a `take` formal has no legacy route (it cannot lower `move`), so every
+    // reason its source or plan is unavailable is a refusal, not only the two spelling errors.
+    if let Some(issue) = row.construction_source().as_ref().err().or(row.construction().as_ref().err()) {
+        if matches!(issue, Unavailable::TakeStoreRequiresMove | Unavailable::MoveRequiresTakeFormal)
+            || row.formal_contracts().iter().any(|formal| formal.is_take())
+        {
+            return Err(OrdinaryNewCoSealIssueV1::BirthStoreOwnershipMismatch {
+                site: site.clone(), class: class.into(), issue: *issue,
+            });
+        }
     }
     for formal in row.formal_contracts() {
         if !formal.declares_exact_object() {
