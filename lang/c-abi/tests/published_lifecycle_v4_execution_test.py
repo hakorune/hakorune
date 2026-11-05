@@ -19,7 +19,8 @@ YYJSON = ROOT / "plugins/nyash-json-plugin/c/yyjson"
 issued = json.loads(Path(sys.argv[1]).read_text())
 bool_inputs = [json.loads(Path(path).read_text()) for path in sys.argv[2:]]
 assert len(bool_inputs) == 2, "pass source-issued Pair JSON and both source-issued Bool JSON files"
-archive = Path(os.environ.get("HAKO_LIFECYCLE_NYRT", ROOT / "target/lifecycle-kernel/release")) / "libnyash_lifecycle_kernel.a"
+archive = Path(os.environ.get("HAKO_TEST_LIFECYCLE_ARCHIVE",
+                             ROOT / "target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a"))
 assert archive.is_file()
 env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
 

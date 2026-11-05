@@ -177,7 +177,7 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
                     .collect();
                 assert_eq!(calls.len(), 1, "one real Unit ordinary call: {wire}");
                 assert!(calls[0]["operation"]["call"]["dst"].is_null());
-                std::fs::write(format!("/tmp/hako-issued-borrowed-unit-{case}.json"), &wire).unwrap();
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-borrowed-unit-{case}.json")), &wire).unwrap();
                 Ok(())
             })
         });
@@ -219,7 +219,7 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
                     .filter(|row| row["operation"]["kind"] == "ordinary_call" && row["operation"]["result"] == "bool")
                     .collect();
                 assert_eq!(calls.len(), 1, "one real Bool call, no I64 coercion: {wire}");
-                std::fs::write(format!("/tmp/hako-issued-borrowed-bool-discard-{returned}.json"), wire).unwrap();
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-borrowed-bool-discard-{returned}.json")), wire).unwrap();
                 Ok(())
             })
         }).unwrap_or_else(|error| panic!("original Bool discard must publish ({returned}): {error}"));
@@ -271,7 +271,7 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
             }
             assert_eq!(calls, 2, "both original stored-child Unit calls");
             let wire = crate::mir::emit_lifecycle_physical_abi_json(&input)?;
-            std::fs::write("/tmp/hako-issued-constructor-unit.json", wire).unwrap();
+            std::fs::write(std::env::temp_dir().join("hako-issued-constructor-unit.json"), wire).unwrap();
             Ok(())
         })
     });

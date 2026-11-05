@@ -152,7 +152,7 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
         };
         publish_alias(
             DEEP_PROVIDER,
-            Some("/tmp/hako-issued-print-deep-provider.json"),
+            Some(std::env::temp_dir().join("hako-issued-print-deep-provider.json").to_str().unwrap()),
         )
         .unwrap_or_else(|error| panic!("deep provider Print publication: {error}"));
         publish_alias(
@@ -160,7 +160,7 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
             box Parent { child: Leaf birth() { me.child = new Leaf() } }
             static box Main { main() { local p = new Parent() local alias = p.child
                 print(\"n=\" + alias.read()) return 0 } }",
-            Some("/tmp/hako-issued-print-alias.json"),
+            Some(std::env::temp_dir().join("hako-issued-print-alias.json").to_str().unwrap()),
         )
         .unwrap();
         for text in [
@@ -187,8 +187,8 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
                 box Maker {{ fetch(flag: i64) {{ if flag == 0 {{ return null }} return new Counter() }} }}
                 static box Main {{ main() {{ local maker = new Maker() local c = maker.fetch({flag})
                     print(\"n=\" + c.n) return 0 }} }}");
-            let path = format!("/tmp/hako-issued-received-field-{flag}.json");
-            publish_alias(&text, Some(&path))
+            let path = std::env::temp_dir().join(format!("hako-issued-received-field-{flag}.json"));
+            publish_alias(&text, Some(path.to_str().unwrap()))
                 .unwrap_or_else(|error| panic!("received Print source {flag}: {error}"));
             let wire: serde_json::Value =
                 serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();

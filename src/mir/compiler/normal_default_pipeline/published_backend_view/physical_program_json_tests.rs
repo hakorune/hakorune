@@ -324,7 +324,7 @@ fn nullable_birth_handle_actual_publishes_move_pair() {
                 assert_eq!(object_formals.len(), 1, "one object-field formal");
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 let json = emit_lifecycle_physical_abi_json(&input)?;
-                std::fs::write(format!("/tmp/hako-issued-birth-handle-actual-{shape}.json"), &json).unwrap();
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-birth-handle-actual-{shape}.json")), &json).unwrap();
                 let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
                 let functions = decoded["functions"].as_array().unwrap();
                 let caller = functions

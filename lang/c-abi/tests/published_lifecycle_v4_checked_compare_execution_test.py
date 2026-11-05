@@ -16,7 +16,8 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
 TARGET = Path(os.environ.get('CARGO_TARGET_DIR', ROOT / 'target'))
-ARCHIVE = TARGET / 'lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+    TARGET / 'lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'

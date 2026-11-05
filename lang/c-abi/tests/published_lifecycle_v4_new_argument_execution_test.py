@@ -2,11 +2,11 @@
 """Execute dominated new-argument JSON emitted by the original-source Rust tests.
 
 The checked compare lends one Normal-Integer view of the borrowed tagged
-carrier; the dominated `new Item(p, 3)` argument spells the proven tagged
-pair, the caller re-proves kind==1 at the call edge, and the birth unit's own
-prologue reads the same pair — the constructed `Item` holds the carrier's
-integer payload. Non-integer kinds still fault at the compare site before
-the `new` is reached.
+carrier; the dominated `new Item(p, 3)` argument keeps the caller's checked
+representation (a signed i64 payload for Integer callers, the tagged pair
+otherwise), the caller re-proves kind==1 at the call edge, and the constructed
+`Item` holds the carrier's integer payload. Non-integer kinds still fault at
+the compare site before the `new` is reached.
 """
 import json
 import os
@@ -17,7 +17,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+    ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'
@@ -65,7 +66,11 @@ with tempfile.TemporaryDirectory(prefix='hako dominated new ') as directory:
                   or row.get('kind') == 'birth_call']
         assert len(births) == 1, 'one routed constructor call'
         args = births[0]['call']['args']
-        assert args[0]['kind'] == 'tagged', 'dominated view spells tagged pair'
+        # Same expectation as the Rust owner (dominated_new_argument_preserves_
+        # checked_caller_representation): only the Integer cases lend a signed entry.
+        signed = not faulted
+        assert callee['params'][0].get('integer_view', False) == signed, 'signed entry only for Integer callers'
+        assert args[0]['kind'] == (1 if signed else 'tagged'), 'actual keeps the caller representation'
         assert args[1]['kind'] == 1, 'literal actual stays i64 payload'
         checked([driver, path, obj], env=ENV)
         assert not list(work.glob('source.o.*')), 'temporary artifact leak'
@@ -79,4 +84,4 @@ with tempfile.TemporaryDirectory(prefix='hako dominated new ') as directory:
         else:
             assert 'FAULT ' not in run.stdout, (suffix, run.stdout)
         print(suffix, 'dominated new-argument view executes; call edge re-proves kind==1')
-    print('3 checked-compare inputs execute unchanged; tagged birth actual transports')
+    print('4 checked-compare inputs execute unchanged; birth actual keeps the caller representation')
