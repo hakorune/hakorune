@@ -379,7 +379,15 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
         malformed_inputs.append(data)
     malformed_case(lambda d: d.update(schema="hako.published-lifecycle-physical-program.v1"))
     malformed_case(lambda d: d["functions"][1].update(params=[0, 1, 2]))
-    malformed_case(lambda d: d["functions"][1]["params"][0].update(representation="i64"))
+    # `representation="i64"` is the valid formal for a kind-1 (Integer) actual: that pair
+    # compiles and runs like the original (exit 30, COUNTS 1 2 1 0 0 1). Against a Bool
+    # actual the formal and actual disagree.
+    mismatch = copy.deepcopy(issued)
+    mismatch["functions"][1]["params"][0].update(representation="i64")
+    call_args(mismatch)[0].update(kind=2)
+    refused = compile_input(mismatch, False)
+    assert "published-lifecycle-physical-parser/function-body" in refused.stderr, refused
+    malformed_inputs.append(mismatch)
     malformed_case(lambda d: d["functions"][1].update(receiver=d["functions"][1]["params"][0]["value"]))
     malformed_case(lambda d: call_args(d)[0].pop("kind"))
     malformed_case(lambda d: call_args(d)[0].update(kind=99))

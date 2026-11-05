@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Check optional ownership tuple syntax on unchanged source-issued ABI inputs.
+"""Check the ownership tuple on unchanged source-issued ABI inputs.
 
 This exercises the external V2 schema boundary only; it grants no V4 borrowed
-receiver, Birth commit/discharge, or runtime ownership permission.
+receiver, Birth commit/discharge, or runtime ownership permission. The tuple is
+optional where `main` releases no child object field (`null-only`). Where `main`
+releases one (`constructed`, `object_field_release` with `child_object_id`) the
+tuple is required, so removing it is refused at `function-body`.
 """
 import copy
 import ctypes
@@ -43,13 +46,18 @@ with tempfile.TemporaryDirectory(prefix="hako owned layout syntax ") as director
             legacy = copy.deepcopy(data)
             for layout in legacy["layouts"]:
                 layout.pop("owned_object_residences")
-            check(legacy)
+            check(legacy, None if shape == "null-only" else "function-body")
             if shape == "null-only":
                 continue
             parent = next(row for row in data["layouts"] if row["owned_object_residences"])
             assert len(parent["owned_object_residences"]) == 1
-            for mutation in ("duplicate", "out-of-range", "self-child", "unknown-child",
-                             "array-overlap", "extra-key", "invalid-ordinal"):
+            # A layout that names itself as its child is a valid layout shape: it does not
+            # stop at `abi-layout` but at `function-body`, where it no longer matches
+            # `main`'s ops. The other mutations are malformed at `abi-layout`.
+            abi_layout = ("duplicate", "out-of-range", "unknown-child",
+                          "array-overlap", "extra-key", "invalid-ordinal")
+            function_body = ("self-child",)
+            for mutation in abi_layout + function_body:
                 changed = copy.deepcopy(data)
                 layout = next(row for row in changed["layouts"] if row["object_id"] == parent["object_id"])
                 row = layout["owned_object_residences"][0]
@@ -67,6 +75,9 @@ with tempfile.TemporaryDirectory(prefix="hako owned layout syntax ") as director
                     row["permission"] = "owned"
                 else:
                     row["field_ordinal"] = "0"
-                check(changed, "abi-layout")
-                print(optimize, mutation, "rejected at external layout schema")
-    print("4 original inputs and 4 legacy shapes accepted; 14 malformed tuple inputs rejected")
+                reason = "function-body" if mutation in function_body else "abi-layout"
+                check(changed, reason)
+                print(optimize, mutation, "rejected at", reason)
+    print("4 original inputs and 2 legacy null-only shapes accepted; 2 legacy constructed shapes "
+          "rejected at function-body; 14 malformed tuple inputs rejected "
+          "(12 at abi-layout, 2 self-child at function-body)")
