@@ -422,7 +422,15 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
             assert!(retained.is_err(), "unsupported source must not gain allocation-only completion: {source}");
         }
         let actual = batch.construction_for(parent, arity).unwrap();
-        if actual != &Err(expected) {
+        if source == "box Page { value\nbirth() { me.value = 1 } }" {
+            // An untyped field with one literal store is a supported Dynamic
+            // construction plan (its store survives above); only execution of
+            // the Dynamic field is refused downstream.
+            match actual {
+                Ok(plan) if plan.stores().len() == 1 => {}
+                other => failures.push(format!("{source}: expected one literal store plan, got {other:?}")),
+            }
+        } else if actual != &Err(expected) {
             failures.push(format!("{source}: expected {expected:?}, got {actual:?}"));
         }
     }

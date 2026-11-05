@@ -254,9 +254,18 @@ fn return_void_issues_the_unit_terminal_relation() {
 /// result class, argument handoff, or Invoke authority.
 #[test]
 fn qualified_call_return_issues_opaque_call_relation() {
+    // `return Main.main()` (a call into the root) is refused by the package at the
+    // borrowed-static incoming identity instead of issuing any relation.
+    let error = issue(
+        "static box Work { make(args) { local m = %{\"k\" => 1} return Main.main() }
+                     helper(x) { return x } }
+                 static box Main { main() { return 30 } }",
+    )
+    .err()
+    .expect("root call return is refused");
+    assert!(format!("{error:?}").contains("borrowed-static/incoming-source-identity"), "{error:?}");
     for body in [
         "local m = %{\"k\" => 1} return Work.helper(0)",
-        "local m = %{\"k\" => 1} return Main.main()",
     ] {
         let package = issue(&format!(
             "static box Work {{ make(args) {{ {body} }}
@@ -265,9 +274,12 @@ fn qualified_call_return_issues_opaque_call_relation() {
         ))
         .expect("qualified-call return package");
         let contract = work_contract(&package);
-        let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.sole_terminal_relation()
+        // A qualified static call whose result is returned directly is the typed
+        // terminal I64 Call relation; its target and argument sites stay in the
+        // package's existing affine Call row.
+        let Some(TerminalRelationV1::Call(relation)) = contract.sole_terminal_relation()
         else {
-            panic!("{body} issues an OpaqueCall relation");
+            panic!("{body} issues a Call relation, got {:?}", contract.sole_terminal_relation());
         };
         assert_eq!(relation.owner(), contract.owner());
         assert_eq!(
