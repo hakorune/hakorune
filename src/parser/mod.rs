@@ -32,7 +32,6 @@ mod common;
 mod constructor_source_catalog;
 mod contextual_word;
 mod contracts;
-mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
 mod delegate_batch;
 mod delegate_lowering;
@@ -40,12 +39,10 @@ mod delegate_source_relation;
 mod delegate_target_index;
 pub(crate) mod env;
 // depth_tracking.rs was a legacy depth counter for Smart advance.
-// Phase 15.5: removed in favor of TokenCursor-centric newline handling.
 pub mod entry_sugar; // helper to parse with sugar level
 #[cfg(test)]
 mod explicit_externcall_source_tests;
 mod expr;
-mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;
 mod from_transport_boundary;
 mod generated_callable_anchor;
@@ -661,7 +658,7 @@ impl NyashParser {
     }
 }
 
-// ---- Minimal ParserUtils impl (depth-less; TokenCursor handles newline policy) ----
+// ---- Minimal ParserUtils impl (depth-less) ----
 impl common::ParserUtils for NyashParser {
     fn tokens(&self) -> &Vec<Token> {
         &self.tokens

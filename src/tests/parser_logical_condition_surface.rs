@@ -31,14 +31,5 @@ static box Main {
 
 #[test]
 fn c197_multiline_logical_conditions_parse_default_route() {
-    crate::tests::helpers::env::with_env_var("NYASH_PARSER_TOKEN_CURSOR", "0", || {
-        NyashParser::parse_from_string(c197_source()).expect("C197 logical condition parse");
-    });
-}
-
-#[test]
-fn c197_multiline_logical_conditions_parse_token_cursor_route() {
-    crate::tests::helpers::env::with_env_var("NYASH_PARSER_TOKEN_CURSOR", "1", || {
-        NyashParser::parse_from_string(c197_source()).expect("C197 cursor condition parse");
-    });
+    NyashParser::parse_from_string(c197_source()).expect("C197 logical condition parse");
 }

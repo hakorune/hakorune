@@ -17,7 +17,6 @@ EBNF="docs/reference/language/EBNF.md"
 PARSER_TEST="src/tests/parser_check_block_surface.rs"
 AST="crates/hakorune_frontend_ast/src/ast_node.rs"
 PARSER_PRIMARY="src/parser/expr/primary.rs"
-PARSER_CURSOR="crates/hakorune_frontend_parser/src/parser/expr_cursor/primary.rs"
 BUILDER="src/mir/builder/exprs_check.rs"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_check_block_surface_guard.sh"
@@ -36,7 +35,6 @@ guard_require_files \
   "$PARSER_TEST" \
   "$AST" \
   "$PARSER_PRIMARY" \
-  "$PARSER_CURSOR" \
   "$BUILDER" \
   "$INDEX" \
   "$SELF_SCRIPT"
@@ -49,10 +47,8 @@ guard_expect_in_file "$TAG" 'C199 compound assignment surface` \| Complete' "$PL
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C198 card must be complete"
 guard_expect_in_file "$TAG" 'CheckExpr' "$AST" "AST must carry CheckExpr"
 guard_expect_in_file "$TAG" 'parse_check_expr' "$PARSER_PRIMARY" "default parser must parse check blocks"
-guard_expect_in_file "$TAG" 'parse_check_or_variable' "$PARSER_CURSOR" "TokenCursor parser must parse check blocks"
 guard_expect_in_file "$TAG" 'build_check_expression' "$BUILDER" "MIR builder must lower check blocks"
 guard_expect_in_file "$TAG" 'MirInstruction::Select' "$BUILDER" "check lowering must use eager scalar accumulation"
-guard_expect_in_file "$TAG" 'NYASH_PARSER_TOKEN_CURSOR' "$PARSER_TEST" "parser test must cover TokenCursor route"
 guard_expect_in_file "$TAG" 'check "c198 eager proof"' "$APP" "proof app must use check syntax"
 guard_expect_in_file "$TAG" 'still eager after failure' "$APP" "proof app must prove eager evaluation"
 guard_expect_in_file "$TAG" 'summary=ok' "$APP" "proof app must expose stable summary"

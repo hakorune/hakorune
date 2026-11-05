@@ -14,34 +14,16 @@ static box Main {
 
 #[test]
 fn parser_birth_rejects_direct_receiver_birth_call_legacy_expr_parser() {
-    crate::tests::helpers::env::with_env_var("NYASH_PARSER_TOKEN_CURSOR", "0", || {
-        let err = NyashParser::parse_from_string(direct_birth_call_source())
-            .expect_err("direct receiver birth call must reject");
-        let msg = err.to_string();
-        assert!(msg.contains("birth"), "{msg}");
-        assert!(msg.contains("constructor hook"), "{msg}");
-        assert!(
-            msg.contains("direct receiver `birth(...)` calls are forbidden"),
-            "{msg}"
-        );
-        assert!(msg.contains("use `new Box(...)` for construction"), "{msg}");
-    });
-}
-
-#[test]
-fn parser_birth_rejects_direct_receiver_birth_call_token_cursor() {
-    crate::tests::helpers::env::with_env_var("NYASH_PARSER_TOKEN_CURSOR", "1", || {
-        let err = NyashParser::parse_from_string(direct_birth_call_source())
-            .expect_err("direct receiver birth call must reject");
-        let msg = err.to_string();
-        assert!(msg.contains("birth"), "{msg}");
-        assert!(msg.contains("constructor hook"), "{msg}");
-        assert!(
-            msg.contains("direct receiver `birth(...)` calls are forbidden"),
-            "{msg}"
-        );
-        assert!(msg.contains("use `new Box(...)` for construction"), "{msg}");
-    });
+    let err = NyashParser::parse_from_string(direct_birth_call_source())
+        .expect_err("direct receiver birth call must reject");
+    let msg = err.to_string();
+    assert!(msg.contains("birth"), "{msg}");
+    assert!(msg.contains("constructor hook"), "{msg}");
+    assert!(
+        msg.contains("direct receiver `birth(...)` calls are forbidden"),
+        "{msg}"
+    );
+    assert!(msg.contains("use `new Box(...)` for construction"), "{msg}");
 }
 
 #[test]

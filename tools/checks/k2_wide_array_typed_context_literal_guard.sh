@@ -17,7 +17,6 @@ require_text "$card" "293x-313 ARRAY-001 typed context array literal"
 require_text "$ssot" "Typed Array Literal Context SSOT"
 require_text docs/reference/language/EBNF.md 'ARRAY-001 implements typed-context array literal lowering for `Array<T>` only.'
 require_text src/parser/expr/primary.rs "Stage1 owns typed-context checks"
-require_text src/parser/expr_cursor.rs "Stage1 owns typed-context checks"
 require_text src/stage1/program_json_v0/lowering.rs '"type": "ArrayLiteral"'
 require_text src/stage1/program_json_v0/lowering.rs "PackedArray literal lowering is deferred; no Array<T> fallback"
 require_text src/runner/json_v0_bridge/ast.rs "ArrayLiteral"

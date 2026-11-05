@@ -45,31 +45,25 @@ pub trait ParserUtils {
         }
     }
 
-    /// 位置を1つ進める（改行スキップ：Cursor無効時のみ最小限）
+    /// 位置を1つ進める（改行スキップは最小限）
     fn advance(&mut self) {
         if !self.is_at_end() {
             *self.current_mut() += 1;
 
-            // 改行スキップは Cursor 無効時のみ最小限で行う（互換用）。
-            // NYASH_PARSER_TOKEN_CURSOR=1 の場合は Cursor 側で一元管理する。
-            let cursor_on = crate::parser::env::parser_token_cursor_enabled();
-            if !cursor_on {
-                let allow_sc = crate::parser::env::parser_allow_semicolon();
-                loop {
-                    let is_nl = matches!(self.current_token().token_type, TokenType::NEWLINE);
-                    let is_sc =
-                        allow_sc && matches!(self.current_token().token_type, TokenType::SEMICOLON);
-                    if (is_nl || is_sc) && !self.is_at_end() {
-                        *self.current_mut() += 1; // 非再帰的に前進
-                        continue;
-                    }
-                    break;
+            // 改行とセミコロンの最小限のスキップ（互換用）。
+            let allow_sc = crate::parser::env::parser_allow_semicolon();
+            loop {
+                let is_nl = matches!(self.current_token().token_type, TokenType::NEWLINE);
+                let is_sc =
+                    allow_sc && matches!(self.current_token().token_type, TokenType::SEMICOLON);
+                if (is_nl || is_sc) && !self.is_at_end() {
+                    *self.current_mut() += 1; // 非再帰的に前進
+                    continue;
                 }
+                break;
             }
         }
     }
-
-    // 旧来の should_auto_skip_newlines / skip_newlines 系は撤去（Cursor に集約）
 
     /// 指定されたトークンタイプを消費 (期待通りでなければエラー)
     fn consume(&mut self, expected: TokenType) -> Result<Token, ParseError> {

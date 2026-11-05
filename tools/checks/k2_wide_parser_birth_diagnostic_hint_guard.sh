@@ -15,7 +15,6 @@ TASKBOARD="docs/development/current/main/phases/phase-293x/293x-mimalloc-port-ta
 INDEX="docs/tools/check-scripts-index.md"
 PARSER_POLICY="src/parser/lifecycle.rs"
 PARSER_CALL="src/parser/expr/call.rs"
-PARSER_CURSOR="src/parser/expr_cursor.rs"
 TEST_FILE="src/tests/parser_direct_birth_call.rs"
 SELF_SCRIPT="tools/checks/k2_wide_parser_birth_diagnostic_hint_guard.sh"
 
@@ -31,7 +30,6 @@ guard_require_files \
   "$INDEX" \
   "$PARSER_POLICY" \
   "$PARSER_CALL" \
-  "$PARSER_CURSOR" \
   "$TEST_FILE" \
   "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
@@ -44,7 +42,6 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 guard_expect_in_file "$TAG" 'direct receiver `birth\(\.\.\.\)` calls are forbidden' "$PARSER_POLICY" "policy helper must keep the direct receiver call rejection"
 guard_expect_in_file "$TAG" 'use `new Box\(\.\.\.\)` for construction' "$PARSER_POLICY" "policy helper must own the new-expression hint"
 guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CALL" "legacy parser must keep using the lifecycle policy helper"
-guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CURSOR" "TokenCursor parser must keep using the lifecycle policy helper"
 
 guard_expect_in_file "$TAG" 'parser_birth_direct_call_diagnostic_points_to_new_expression' "$TEST_FILE" "diagnostic hint fixture missing"
 guard_expect_in_file "$TAG" 'use `new Box\(\.\.\.\)` for construction' "$TEST_FILE" "test must assert the new-expression hint"

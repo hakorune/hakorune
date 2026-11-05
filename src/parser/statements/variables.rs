@@ -9,7 +9,6 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::parser::common::ParserUtils;
-use crate::parser::cursor::TokenCursor;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::BTreeSet;
@@ -44,12 +43,6 @@ impl NyashParser {
             self.advance();
         }
 
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
         self.advance(); // consume 'local'
 
         // Skip any NEWLINE tokens after 'local' keyword

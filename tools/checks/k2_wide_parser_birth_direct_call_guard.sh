@@ -15,7 +15,6 @@ TASKBOARD="docs/development/current/main/phases/phase-293x/293x-mimalloc-port-ta
 INDEX="docs/tools/check-scripts-index.md"
 PARSER_POLICY="src/parser/lifecycle.rs"
 PARSER_CALL="src/parser/expr/call.rs"
-PARSER_CURSOR="src/parser/expr_cursor.rs"
 FROM_CALL_A="src/parser/expressions.rs"
 FROM_CALL_B="src/parser/expr/primary.rs"
 TEST_FILE="src/tests/parser_direct_birth_call.rs"
@@ -34,7 +33,6 @@ guard_require_files \
   "$INDEX" \
   "$PARSER_POLICY" \
   "$PARSER_CALL" \
-  "$PARSER_CURSOR" \
   "$FROM_CALL_A" \
   "$FROM_CALL_B" \
   "$TEST_FILE" \
@@ -55,11 +53,8 @@ guard_expect_in_file "$TAG" 'DIRECT_BIRTH_CALL_EXPECTED' "$PARSER_POLICY" "parse
 guard_expect_in_file "$TAG" 'direct receiver `birth\(\.\.\.\)` calls are forbidden' "$PARSER_POLICY" "parser lifecycle policy must forbid direct receiver birth calls"
 guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CALL" "legacy expression parser must use the lifecycle rejection helper"
 guard_expect_in_file "$TAG" 'TokenType::BIRTH' "$PARSER_CALL" "legacy expression parser must inspect birth after receiver dot"
-guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CURSOR" "TokenCursor expression parser must use the lifecycle rejection helper"
-guard_expect_in_file "$TAG" 'TokenType::BIRTH' "$PARSER_CURSOR" "TokenCursor expression parser must inspect birth after receiver dot"
 
 guard_expect_in_file "$TAG" 'parser_birth_rejects_direct_receiver_birth_call_legacy_expr_parser' "$TEST_FILE" "legacy parser negative fixture missing"
-guard_expect_in_file "$TAG" 'parser_birth_rejects_direct_receiver_birth_call_token_cursor' "$TEST_FILE" "TokenCursor parser negative fixture missing"
 guard_expect_in_file "$TAG" 'parser_birth_accepts_constructor_declaration' "$TEST_FILE" "constructor declaration fixture missing"
 guard_expect_in_file "$TAG" 'parser_birth_keeps_parent_constructor_delegation' "$TEST_FILE" "parent constructor delegation fixture missing"
 guard_expect_in_file "$TAG" 'parser_direct_birth_call' "$TEST_MOD" "parser test module must include direct birth fixture"

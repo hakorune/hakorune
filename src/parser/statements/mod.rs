@@ -373,8 +373,7 @@ impl NyashParser {
 
             // Fallback: expression statement
             _ => {
-                // Thin-adapt with Cursor in stmt mode to normalize leading newlines
-                self.with_stmt_cursor(|p| Ok(p.parse_expression()?))
+                Ok(self.parse_expression()?)
             }
         };
 

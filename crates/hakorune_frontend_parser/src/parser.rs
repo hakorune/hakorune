@@ -6,18 +6,14 @@
 
 pub mod build_cfg;
 pub mod build_config;
-pub mod cursor;
 pub mod delegate_lowering;
 pub mod error;
-pub mod expr_cursor;
 pub mod lifecycle;
 pub mod metadata;
 pub mod sugar;
 pub use build_cfg::BuildGateExplainReport;
 pub use build_config::{BuildMode, GrammarProfile, ParserBuildConfig};
-pub use cursor::{NewlineMode, TokenCursor};
 pub use error::ParseError;
-pub use expr_cursor::ExprParserWithCursor;
 pub use metadata::ParserMetadata;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

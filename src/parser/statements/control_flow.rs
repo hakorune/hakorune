@@ -10,7 +10,6 @@
 
 use crate::ast::{ASTNode, EnumMatchArm, EnumVariantDecl, LiteralValue, Span, UnaryOperator};
 use crate::parser::common::ParserUtils;
-use crate::parser::cursor::TokenCursor;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
@@ -63,13 +62,6 @@ impl NyashParser {
 
     /// Parse if statement: if (condition) { body } else if ... else { body }
     pub(super) fn parse_if(&mut self) -> Result<ASTNode, ParseError> {
-        // Thin-adapt statement start when Cursor route is enabled
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
         self.advance(); // consume 'if'
 
         if self.match_token(&TokenType::SOME) {
@@ -111,12 +103,6 @@ impl NyashParser {
     /// C200 keeps `guard` as source sugar only. It lowers to:
     /// `if !(condition) { early-exit body }`
     pub(super) fn parse_guard_else(&mut self) -> Result<ASTNode, ParseError> {
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
         self.advance(); // consume 'guard'
 
         if self.current_context_word("let") {
@@ -331,12 +317,6 @@ impl NyashParser {
     /// Stage-3 compatibility:
     /// - `while cond { ... }` parses to the same `ASTNode::Loop` output.
     pub(super) fn parse_loop(&mut self) -> Result<ASTNode, ParseError> {
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
 
         let is_while_compat = self.match_token(&TokenType::WHILE);
         self.advance(); // consume 'loop' or Stage-3 compatibility 'while'
@@ -473,12 +453,6 @@ impl NyashParser {
 
     /// Parse return statement
     pub(super) fn parse_return(&mut self) -> Result<ASTNode, ParseError> {
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
         self.advance(); // consume 'return'
 
         // Check if there's a return value

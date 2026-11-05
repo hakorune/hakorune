@@ -102,10 +102,6 @@ pub(crate) fn parser_trace_blocks() -> bool {
     std::env::var("NYASH_PARSER_TRACE_BLOCKS").ok().as_deref() == Some("1")
 }
 
-pub(crate) fn parser_token_cursor_enabled() -> bool {
-    env_flag("NYASH_PARSER_TOKEN_CURSOR").unwrap_or(false)
-}
-
 pub(crate) fn syntax_sugar_level_raw() -> Option<String> {
     std::env::var("NYASH_SYNTAX_SUGAR_LEVEL").ok()
 }

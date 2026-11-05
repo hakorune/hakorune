@@ -93,10 +93,9 @@ ExternCall（env.*）と println 正規化: `docs/reference/runtime/externcall.m
 
 Phase‑15（2025‑09）アップデート
 - LLVM は ny‑llvmc（クレート backend）が product main。llvmlite は内部ハーネスとして ny‑llvmc から呼び出されます（利用者は ny‑llvmc/スクリプトを使えばOK）。
-- パーサの改行処理は TokenCursor に統一中（`NYASH_PARSER_TOKEN_CURSOR=1`）。
 - if/else の PHI は実際の遷移元（exit）を pred として使用（VM/LLVM パリティ緑）。
 - 自己ホスト準備として Ny 製 JSON ライブラリと Ny Executor（最小命令）を既定OFFトグルで段階導入予定。
-- 推奨トグル: `NYASH_LLVM_USE_HARNESS=1`, `NYASH_PARSER_TOKEN_CURSOR=1`, `NYASH_JSON_PROVIDER=ny`, `NYASH_SELFHOST_EXEC=1`。
+- 推奨トグル: `NYASH_LLVM_USE_HARNESS=1`, `NYASH_JSON_PROVIDER=ny`, `NYASH_SELFHOST_EXEC=1`。
 
 仕様と既知制約
 - 必須不変条件（Invariants）: `docs/reference/invariants.md`

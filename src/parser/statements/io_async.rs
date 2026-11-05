@@ -8,7 +8,6 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::parser::common::ParserUtils;
-use crate::parser::cursor::TokenCursor;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
@@ -28,12 +27,6 @@ impl NyashParser {
 
     /// Parse print statement
     pub(super) fn parse_print(&mut self) -> Result<ASTNode, ParseError> {
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
         self.advance(); // consume 'print'
         self.consume(TokenType::LPAREN)?;
         let value = Box::new(self.parse_expression()?);

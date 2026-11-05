@@ -59,26 +59,14 @@ fn assert_c198_shape(ast: ASTNode) {
 
 #[test]
 fn c198_check_block_parses_default_route() {
-    crate::tests::helpers::env::with_env_var("NYASH_PARSER_TOKEN_CURSOR", "0", || {
-        let ast = NyashParser::parse_from_string(c198_source()).expect("C198 check block parse");
-        assert_c198_shape(ast);
-    });
-}
-
-#[test]
-fn c198_check_block_parses_token_cursor_route() {
-    crate::tests::helpers::env::with_env_var("NYASH_PARSER_TOKEN_CURSOR", "1", || {
-        let ast =
-            NyashParser::parse_from_string(c198_source()).expect("C198 cursor check block parse");
-        assert_c198_shape(ast);
-    });
+    let ast = NyashParser::parse_from_string(c198_source()).expect("C198 check block parse");
+    assert_c198_shape(ast);
 }
 
 #[test]
 fn c198_check_identifier_still_parses_as_ordinary_name() {
-    crate::tests::helpers::env::with_env_var("NYASH_PARSER_TOKEN_CURSOR", "0", || {
-        NyashParser::parse_from_string(
-            r#"
+    NyashParser::parse_from_string(
+        r#"
 static box Main {
     main(args) {
         local check = 1
@@ -86,7 +74,6 @@ static box Main {
     }
 }
 "#,
-        )
-        .expect("ordinary identifier named check should still parse");
-    });
+    )
+    .expect("ordinary identifier named check should still parse");
 }

@@ -42,7 +42,6 @@ guard_expect_in_file "$TAG" 'C197 logical condition surface hardening` \| Comple
 guard_expect_in_file "$TAG" 'C198 check block surface` \| Complete' "$PLAN" "check block must remain a separate completed row"
 guard_expect_in_file "$TAG" 'proof-list semantics' "$SHORT_CIRCUIT_SSOT" "short-circuit SSOT must keep proof-list semantics separate"
 guard_expect_in_file "$TAG" 'all-items-evaluated contract' "$SHORT_CIRCUIT_SSOT" "short-circuit SSOT must document eager check behavior separately"
-guard_expect_in_file "$TAG" 'NYASH_PARSER_TOKEN_CURSOR' "$PARSER_TEST" "parser test must cover TokenCursor route"
 guard_expect_in_file "$TAG" '\&\& \(\(x = x \+ 1\) == 1\)' "$APP" "proof app must preserve AND RHS side-effect check"
 guard_expect_in_file "$TAG" '\|\| \(\(x = x \+ 10\) == 10\)' "$APP" "proof app must preserve OR RHS side-effect check"
 guard_expect_in_file "$TAG" 'summary=ok' "$APP" "proof app must expose stable summary"
