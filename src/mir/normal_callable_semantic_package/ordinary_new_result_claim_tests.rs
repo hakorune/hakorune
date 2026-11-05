@@ -448,7 +448,7 @@ fn defaulted_scalar_field_accepts_birth_overwrite() {
 
 /// A re-stored object field needs real release of the stored `new` — in
 /// the same defaulted box where the scalar overwrite is admitted, the
-/// object-field re-store stays `BodyCoverageUnsupported`.
+/// object-field re-store stays `ReplacementStoreUnsupported`.
 #[test]
 fn defaulted_object_field_rejects_birth_overwrite() {
     let package = issue(
@@ -473,8 +473,8 @@ fn defaulted_object_field_rejects_birth_overwrite() {
 }
 
 /// A copy of a birth formal is a `Local` binding, not the `Parameter`
-/// itself — the store falls to the same `BodyCoverageUnsupported`
-/// boundary as any non-formal RHS.
+/// itself — the store falls to `BodyFormUnsupported`
+/// (a `local` statement), like any non-formal RHS.
 #[test]
 fn provided_parameter_store_rejects_copied_local() {
     let package = issue(

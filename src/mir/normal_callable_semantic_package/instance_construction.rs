@@ -9,7 +9,7 @@ use super::{ConstructionInitKeyV1, ConstructionInitOriginV1, OwnedFieldChildKind
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::ast::{ASTNode, LiteralValue, UnaryOperator};
+use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{
@@ -513,7 +513,7 @@ pub(super) fn issue_construction_source_v1(
             }
             ASTNode::Literal { value: LiteralValue::String(value), .. } =>
                 ConstructionStoreRhsV1::LiteralText(value.as_str().into()),
-            ASTNode::Variable { .. } | ASTNode::UnaryOp { operator: UnaryOperator::Move, .. } => {
+            node if matches!(node, ASTNode::Variable { .. }) || input.function().expression_source().moved(row.value_site()).is_some() => {
                 // `move <name>` is the only spelling that hands a `take` formal to the
                 // store (ownership.md rule 1); a bare name only borrows its formal.
                 let operand_site = input.function().expression_source().stored_value_operand(row.value_site()).clone();
