@@ -152,7 +152,7 @@ pub(in crate::mir) use local_commit::{EvaluatedExpressionValueV1, BranchScalarPh
 pub(in crate::mir) use local_commit::ExpressionPhysicalProjectionRefV1;
 pub(in crate::mir) use local_commit::EmittedDynamicInvocationCallProjectionV1;
 pub(crate) use local_commit::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
-pub(crate) use local_commit::PendingChildPhysicalValidationV1;
+pub(crate) use local_commit::{NewEmissionSelectionV1, NewEmissionUnavailableV1, PendingChildPhysicalValidationV1};
 pub(crate) use local_commit::PendingRootHomeExitV1;
 pub(crate) use local_commit::PendingSelectedStaticLoopViewV1;
 pub(in crate::mir) use local_commit::PendingStaticCallProjectionV1;
@@ -685,10 +685,16 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
         ordinal: u32,
     },
-    /// The birth's source is unavailable and it owns a `take` formal or moves one: the
-    /// wrong spelling (a `take` formal is stored only by `me.f = move x`, and `move x` is
-    /// only for `take` formals) or any other named reason the source was refused.
+    /// The wrong spelling: a `take` formal is stored only by `me.f = move x`, and `move x`
+    /// is only for `take` formals. `issue` is `TakeStoreRequiresMove` or `MoveRequiresTakeFormal`.
     BirthStoreOwnershipMismatch {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        issue: super::instance_construction::ConstructionUnavailableV1,
+    },
+    /// The birth owns a `take` formal and its source is spelled correctly, but the form
+    /// is not connected yet (`issue` names why). A take birth has no legacy route.
+    TakeBirthSourceUnconnected {
         site: OwnedExprSiteV1,
         class: Box<str>,
         issue: super::instance_construction::ConstructionUnavailableV1,

@@ -512,7 +512,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         &mut self,
         _builder: &crate::mir::MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
         self.check_new_emission_scope(claim.site())?;
         self.ordinary_new_claim_ledger
             .as_ref()
@@ -589,7 +589,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         &mut self,
         _builder: &crate::mir::MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
         self.check_new_emission_scope(claim.site())?;
         let result = self
             .ordinary_new_claim_ledger

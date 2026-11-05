@@ -112,7 +112,7 @@ fn root_instance_call_rejects_emitted_receiver_mutation() {
             .try_take(site, "Page", 0)
             .expect("claim take")
             .expect("selected claim");
-        assert!(ledger.prepare_new_emission(&claim).expect("prepare"));
+        assert!(ledger.prepare_new_emission(&claim).expect("prepare").is_ok());
         ledger.begin_new_emission(site).expect("begin");
         let initializer = crate::mir::ValueId(100 + index as u32 * 2);
         let local = crate::mir::ValueId(101 + index as u32 * 2);

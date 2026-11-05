@@ -6,6 +6,20 @@ use super::super::{
 use super::*;
 use crate::mir::function::ObjectDestructionDispositionV1;
 
+/// Why a claim's emission was not prepared. The first cause in the check order wins; the
+/// claim stays retained and the refusal text names this instead of a fixed label.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NewEmissionUnavailableV1 {
+    Execution(super::super::ConstructionUnavailableV1),
+    DestructionIncomplete,
+    HomePrefix,
+    PriorHomeEnd,
+    ArgumentRows,
+}
+
+/// `Ok` is a prepared emission; `Err` is the retained cause. A refusal of the plan itself is the outer `Err(String)`.
+pub(crate) type NewEmissionSelectionV1 = Result<(), NewEmissionUnavailableV1>;
+
 pub(crate) struct PendingChildPhysicalValidationV1<'ledger> {
     ledger: &'ledger OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
@@ -41,7 +55,7 @@ impl OrdinaryNewClaimLedgerV1 {
         destruction: ObjectDestructionDispositionV1,
         children: Option<&[super::super::OwnedFieldChildV1]>,
         prior_homes: Option<(&[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1], &OwnedExprSiteV1)>,
-    ) -> Result<NewEmissionProgress, String> {
+    ) -> Result<(NewEmissionProgress, NewEmissionSelectionV1), String> {
         if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
             let physical = arity
                 .checked_add(1)
@@ -77,13 +91,17 @@ impl OrdinaryNewClaimLedgerV1 {
             eprintln!("[new-emission] site={site:?} execution={:?} destruction_complete={} prior_homes_known={}",
                 execution.as_ref().map(|_| ()), destruction.supports_complete_execution(children.is_some()), prior_homes.is_some());
         }
-        let mut available = execution.is_ok();
+        let mut cause = execution.err().map(NewEmissionUnavailableV1::Execution);
         // Owned publication still requires sealed residences for Normal
         // Home teardown. Birth owns partial-field Fault cleanup; its
         // external caller retains only source-backed storage reclaim.
-        available &= destruction.supports_complete_execution(children.is_some());
+        if !destruction.supports_complete_execution(children.is_some()) {
+            cause.get_or_insert(NewEmissionUnavailableV1::DestructionIncomplete);
+        }
         match prior_homes {
-            None => available = false,
+            None => {
+                cause.get_or_insert(NewEmissionUnavailableV1::HomePrefix);
+            }
             Some((prior_homes, required_unwind)) => {
                 if required_unwind != site {
                     return Err(freeze("prepare-outward-site"));
@@ -105,17 +123,19 @@ impl OrdinaryNewClaimLedgerV1 {
                     if prior.end_available() {
                         operands.extend(prior.end_operations());
                     } else {
-                        available = false;
+                        cause.get_or_insert(NewEmissionUnavailableV1::PriorHomeEnd);
                     }
                 }
             }
         }
-        Ok(if available {
-            NewEmissionProgress::Prepared { operands, reclaim }
-        } else {
-            NewEmissionProgress::RetainedUnavailable {
-                progress: UnavailableLocalProgress::PendingExpression,
-            }
+        Ok(match cause {
+            None => (NewEmissionProgress::Prepared { operands, reclaim }, Ok(())),
+            Some(cause) => (
+                NewEmissionProgress::RetainedUnavailable {
+                    progress: UnavailableLocalProgress::PendingExpression,
+                },
+                Err(cause),
+            ),
         })
     }
 
@@ -124,7 +144,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn prepare_new_emission(
         &self,
         claim: &OrdinaryNewAdmissionClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<NewEmissionSelectionV1, String> {
         if claim.core.allocation_execution.is_some() {
             let completion = self.completion_source_for_owner_v1(claim.site().owner())
                 .ok_or_else(|| freeze("allocation-only/completion-missing"))?;
@@ -151,7 +171,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .home_prefix()
             .ok()
             .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
-        let next = self.compute_emission_prepare(
+        let (next, selection) = self.compute_emission_prepare(
             &rows,
             claim.site(),
             claim.arity(),
@@ -163,8 +183,7 @@ impl OrdinaryNewClaimLedgerV1 {
             claim.core.children.as_deref(),
             prior_homes,
         )?;
-        let available = matches!(next, NewEmissionProgress::Prepared { .. });
-        if !available {
+        if selection.is_err() {
             self.release_staged_argument_reads(claim.site())?;
         }
         drop(rows);
@@ -173,7 +192,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(LocalCommitV1::ordinary_mut)
             .expect("checked ordinary row")
             .emission = next;
-        Ok(available)
+        Ok(selection)
     }
 
     /// Return-position claims prepare through the same selected products;
@@ -181,7 +200,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn prepare_result_new_emission(
         &self,
         claim: &OrdinaryNewResultClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<NewEmissionSelectionV1, String> {
         let rows = self.local_commits.borrow();
         let row = rows
             .get(claim.site())
@@ -197,7 +216,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .home_prefix()
             .ok()
             .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
-        let mut next = self.compute_emission_prepare(
+        let (mut next, mut selection) = self.compute_emission_prepare(
             &rows,
             claim.site(),
             claim.arity(),
@@ -220,15 +239,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 eprintln!("[new-emission] not prepared site={:?} (prior Home or constructor unavailable)", claim.site());
             }
         }
-        if claim.argument_rows().is_err()
-            && matches!(next, NewEmissionProgress::Prepared { .. })
-        {
+        if claim.argument_rows().is_err() && selection.is_ok() {
             next = NewEmissionProgress::RetainedUnavailable {
                 progress: UnavailableLocalProgress::PendingExpression,
             };
+            selection = Err(NewEmissionUnavailableV1::ArgumentRows);
         }
-        let available = matches!(next, NewEmissionProgress::Prepared { .. });
-        if !available {
+        if selection.is_err() {
             self.release_staged_argument_reads(claim.site())?;
         }
         drop(rows);
@@ -237,7 +254,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(LocalCommitV1::result_mut)
             .expect("checked result row")
             .emission = next;
-        Ok(available)
+        Ok(selection)
     }
 
     /// Shared begin for ordinary and result rows — the physical emission

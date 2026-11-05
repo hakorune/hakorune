@@ -14,7 +14,7 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     let ledger = package.ordinary_new_claim_ledger;
     let site = ledger.claims.borrow().keys().next().unwrap().clone();
     let claim = ledger.try_take(&site, "Page", 0).unwrap().unwrap();
-    assert!(ledger.prepare_new_emission(&claim).unwrap());
+    assert!(ledger.prepare_new_emission(&claim).unwrap().is_ok());
     let (_, reclaim) = ledger.begin_new_emission(&site).unwrap();
     let reclaim = reclaim.expect("Birth construction retains reclaim origin");
     let entry = BasicBlockId(0);
@@ -203,7 +203,7 @@ fn retained_unavailable_claim_releases_staged_argument_reads() {
         .expect("result claim present");
     assert!(claim.argument_rows().is_ok(), "the same field argument remains staged");
     assert_eq!(claim.construction().is_ok(), ready, "only runtime Birth arithmetic remains unsupported");
-    let prepared = ledger.prepare_result_new_emission(&claim).unwrap();
+    let prepared = ledger.prepare_result_new_emission(&claim).unwrap().is_ok();
     if ready {
         assert!(prepared, "the supported Unit statement no longer declines the claim");
         continue;

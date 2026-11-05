@@ -247,8 +247,10 @@ impl ConstructionPlanV1 {
     ) -> ConstructionEligibilityV1 {
         use ConstructionUnavailableV1 as U;
         let source = source.as_ref().map_err(|reason| *reason)?;
-        if !matches!(source.completion(), ConstructionCompletionV1::InitializedFields)
-            || source.steps().iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
+        if matches!(source.completion(), ConstructionCompletionV1::AllocationOnly { .. }) {
+            return Err(U::InitializationContractMissing);
+        }
+        if source.steps().iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
             return Err(U::ChildCallsPending);
         }
         let mut qualified = Vec::with_capacity(source.stores.len());

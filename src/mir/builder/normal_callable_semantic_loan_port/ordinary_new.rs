@@ -83,7 +83,7 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         &mut self,
         builder: &MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
         self.check_new_ledger_identity()?;
         self.inner.prepare_ordinary_new_emission(builder, claim)
     }
@@ -222,7 +222,7 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         &mut self,
         builder: &MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
         self.check_new_ledger_identity()?;
         self.inner.prepare_result_new_emission(builder, claim)
     }

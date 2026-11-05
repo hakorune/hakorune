@@ -128,7 +128,7 @@ fn retained_result_position_commit_completes_when_its_expression_is_recorded() {
         .expect("result take")
         .expect("result claim present");
     assert!(
-        !ledger.prepare_result_new_emission(&claim).unwrap(),
+        ledger.prepare_result_new_emission(&claim).unwrap().is_err(),
         "non-trivial argument retains the claim"
     );
     assert!(
@@ -345,7 +345,7 @@ fn provided_parameter_object_store_seals_and_prepares() {
         .expect("result take")
         .expect("Wrap claim present");
     assert!(
-        ledger.prepare_result_new_emission(&claim).unwrap(),
+        ledger.prepare_result_new_emission(&claim).unwrap().is_ok(),
         "sealed construction plus provided children prepares the site"
     );
 }

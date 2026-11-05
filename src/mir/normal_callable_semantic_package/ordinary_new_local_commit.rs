@@ -720,7 +720,7 @@ mod pending_selected_static_loop;
 pub(crate) use pending_selected_static_loop::PendingSelectedStaticLoopViewV1;
 #[path = "ordinary_new_local_commit/emission_prepare.rs"]
 mod emission_prepare;
-pub(crate) use emission_prepare::PendingChildPhysicalValidationV1;
+pub(crate) use emission_prepare::{NewEmissionSelectionV1, NewEmissionUnavailableV1, PendingChildPhysicalValidationV1};
 #[path = "ordinary_new_local_commit/emission_validation.rs"]
 mod emission_validation;
 #[path = "ordinary_new_local_commit/handle_call.rs"]

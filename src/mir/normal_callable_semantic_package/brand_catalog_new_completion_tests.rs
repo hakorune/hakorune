@@ -69,7 +69,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     );
     for (index, site) in sites.iter().enumerate() {
         let claim = ledger.try_take(site, "Page", 0).unwrap().unwrap();
-        assert!(ledger.prepare_new_emission(&claim).unwrap());
+        assert!(ledger.prepare_new_emission(&claim).unwrap().is_ok());
         let (prior, reclaim) = ledger.begin_new_emission(site).unwrap();
         let reclaim = reclaim.expect("Birth construction retains reclaim origin");
         assert_eq!(

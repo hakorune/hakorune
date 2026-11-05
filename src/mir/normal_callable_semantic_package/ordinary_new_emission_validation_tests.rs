@@ -64,7 +64,7 @@ pub(super) fn fixture() -> EmissionFixture {
         .try_take(&site, "Page", 2)
         .expect("claim take")
         .expect("selected claim");
-    assert!(ledger.prepare_new_emission(&claim).expect("prepare"));
+    assert!(ledger.prepare_new_emission(&claim).expect("prepare").is_ok());
     let (_, reclaim) = ledger.begin_new_emission(&site).expect("begin emission");
     let reclaim = reclaim.expect("Birth reclaim origin");
     let mut function = crate::mir::MirFunction::new(
@@ -240,7 +240,7 @@ fn ordinary_new_finalizer_rejects_residual_emission() {
     let ledger = package.ordinary_new_claim_ledger;
     ledger.register_new_root(owner).expect("root registration");
     let claim = ledger.try_take(&site, "Page", 2).unwrap().unwrap();
-    assert!(ledger.prepare_new_emission(&claim).unwrap());
+    assert!(ledger.prepare_new_emission(&claim).unwrap().is_ok());
     ledger.begin_new_emission(&site).expect("emission begun");
     let function = crate::mir::MirFunction::new(
         FunctionSignature {

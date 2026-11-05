@@ -21,14 +21,18 @@ pub(in crate::mir::builder) enum OrdinaryNewClaimTakeV1 {
 impl OrdinaryNewClaimTakeV1 {
     /// The legacy route has no `move`, so an unplanned claim with an explicit-`move`
     /// argument has no route left: the refusal names why the plan was not made.
-    fn unplanned_move_refusal(&self) -> Option<String> {
+    fn unplanned_move_refusal(&self, cause: crate::mir::normal_callable_semantic_package::NewEmissionUnavailableV1) -> Option<String> {
+        use crate::mir::normal_callable_semantic_package::NewEmissionUnavailableV1 as Cause;
         let (rows, home) = match self {
             Self::Local(claim) => (claim.argument_rows(), claim.home_prefix().err().map(|r| format!("{r:?}"))),
             Self::Result(claim) => (claim.argument_rows(), claim.home_prefix().err().map(|r| format!("{r:?}"))),
         };
         rows.is_ok_and(|rows| rows.iter().any(|row| row.explicit_move())).then(|| format!(
             "[freeze:contract][ordinary-new/move-argument-unplanned] cause={}",
-            home.as_deref().unwrap_or("NewEmissionUnavailable")))
+            match (cause, home) {
+                (Cause::HomePrefix, Some(home)) => home,
+                (cause, _) => format!("NewEmissionUnavailable({cause:?})"),
+            }))
     }
 
     fn constructor(
@@ -178,14 +182,14 @@ impl PreparedRawNewExpressionV1 {
                     .map(|f| f.signature.name.as_str())
                     .unwrap_or("<none>"),
                 self.class,
-                claim.as_ref().is_some_and(|(selected, _)| *selected),
+                claim.as_ref().is_some_and(|(selected, _)| selected.is_ok()),
                 claim.is_some(),
                 arguments
             );
         }
         self.plan = match claim {
-            Some((true, claim)) => PreparedNewPlanV1::Selected(SelectedNewPlanV1::Claim(claim)),
-            Some((false, claim)) => match claim.unplanned_move_refusal() {
+            Some((Ok(()), claim)) => PreparedNewPlanV1::Selected(SelectedNewPlanV1::Claim(claim)),
+            Some((Err(cause), claim)) => match claim.unplanned_move_refusal(cause) {
                 Some(refusal) => return Err(refusal),
                 None => PreparedNewPlanV1::Untargeted(Some(claim.constructor())),
             },

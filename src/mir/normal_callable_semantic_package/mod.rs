@@ -195,7 +195,7 @@ pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
     FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1, QualifiedFieldWriteReceiverV1,
     LexicalInstanceCallDispositionRowV1, LexicalInstanceCallSourceTargetV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
-    OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1,
+    NewEmissionSelectionV1, NewEmissionUnavailableV1, OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1,
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1,
     OwnedFieldChildV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
     PreparedTerminalMapGetReturnV1, StoredMapGetSourceLoanV1, StoredMapGetReturnSourceLoanV1, QualifiedStaticCallArgumentKindV1,

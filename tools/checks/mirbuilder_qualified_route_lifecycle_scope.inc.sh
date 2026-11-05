@@ -459,7 +459,7 @@ rg -q 'get_result_index_rejects_plain_copy_of_get_result' "$BORROWED_FIELD_RECEI
 # to a non-self `PlainI64NoHook` user class, and defaulted scalar
 # (`i64`/`usize`) fields admit the generated-initializer overwrite —
 # the dead literal releases trivially while object-field re-stores stay
-# `BodyCoverageUnsupported`. `OwnedFieldResidenceV1::Provided` records
+# `ReplacementStoreUnsupported`. `OwnedFieldResidenceV1::Provided` records
 # the sole birth-attributed formal store without minting a stored-`new`
 # class claim; the physical install contract accepts `Handle` demand
 # only on ordinals carrying a `Parameter` store (provider ordinals keep

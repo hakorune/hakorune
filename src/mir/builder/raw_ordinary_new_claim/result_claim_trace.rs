@@ -32,7 +32,7 @@ pub(super) fn take<E: std::fmt::Debug>(
     }
 }
 
-pub(super) fn prepare(claim: &OrdinaryNewResultClaimV1, result: &Result<bool, String>) {
+pub(super) fn prepare(claim: &OrdinaryNewResultClaimV1, result: &Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String>) {
     if crate::config::env::builder_mir_compile_trace() {
         eprintln!(
             "[mir-compile/result-new-prepare] site={:?} class={} selected={result:?}",

@@ -175,7 +175,7 @@ fn local_field_read_claims_object_alias_on_selected_new_home() {
         drop(claims);
         if unavailable != 0 {
             let taken = package.ordinary_new_claim_ledger.try_take(&claim_site, "Pool", 0).unwrap().unwrap();
-            assert!(!package.ordinary_new_claim_ledger.prepare_new_emission(&taken).unwrap(),
+            assert!(package.ordinary_new_claim_ledger.prepare_new_emission(&taken).unwrap().is_err(),
                 "source alias cannot grant New execution");
         }
     }

@@ -52,7 +52,7 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
     let ledger = package.ordinary_new_claim_ledger;
     ledger.register_new_root(site.owner()).unwrap();
     let claim = ledger.try_take(&site, "Parent", 0).unwrap().unwrap();
-    assert!(ledger.prepare_new_emission(&claim).unwrap());
+    assert!(ledger.prepare_new_emission(&claim).unwrap().is_ok());
     let (_, origin) = ledger.begin_new_emission(&site).unwrap();
     let origin = origin.unwrap();
     let frame = ValueId(1);

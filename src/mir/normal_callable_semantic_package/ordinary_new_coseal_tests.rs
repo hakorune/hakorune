@@ -100,7 +100,7 @@ fn exact_claim_is_consumed_once() {
         .reclaims_unpublished_outer_storage());
     assert!(!ledger.is_empty(), "target take is not local completion");
     assert!(
-        !ledger.prepare_new_emission(&taken).unwrap(),
+        ledger.prepare_new_emission(&taken).unwrap().is_err(),
         "unavailable prefix stays fenced"
     );
     let SourceBindingSiteV1::Local { statement, ordinal } = &taken.declaration else {
@@ -332,7 +332,7 @@ fn ordinary_new_local_commit_rejects_drift_without_consuming_pending_installatio
         .complete_new_expression(&site, "Page", ValueId(8))
         .unwrap_err()
         .contains("expression-before-emission"));
-    assert!(!ledger.prepare_new_emission(&taken).unwrap());
+    assert!(ledger.prepare_new_emission(&taken).unwrap().is_err());
     assert!(ledger
         .complete_new_expression(&site, "Other", ValueId(8))
         .unwrap_err()
@@ -424,7 +424,7 @@ fn local_batch_rejection_does_not_install_an_earlier_row() {
     );
     for (site, value) in [(&first_site, ValueId(8)), (&second_site, ValueId(10))] {
         let taken = ledger.try_take(site, "Page", 0).unwrap().unwrap();
-        assert!(!ledger.prepare_new_emission(&taken).unwrap());
+        assert!(ledger.prepare_new_emission(&taken).unwrap().is_err());
         ledger.complete_new_expression(site, "Page", value).unwrap();
     }
     let mut bad = completed;

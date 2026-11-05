@@ -81,7 +81,7 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         &mut self,
         _builder: &crate::mir::MirBuilder,
         _claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
         Err("[freeze:contract][raw-ordinary-new/no-physical-owner]".into())
     }
 
@@ -110,7 +110,7 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         &mut self,
         _builder: &crate::mir::MirBuilder,
         _claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
-    ) -> Result<bool, String> {
+    ) -> Result<crate::mir::normal_callable_semantic_package::NewEmissionSelectionV1, String> {
         Err("[freeze:contract][raw-ordinary-new/no-physical-owner]".into())
     }
 
