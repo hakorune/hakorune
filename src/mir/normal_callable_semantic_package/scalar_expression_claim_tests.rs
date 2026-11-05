@@ -197,7 +197,9 @@ fn scalar_expression_claims_order_compare_field_operands() {
         static box Main { main() { local s = new Store() local h = s.check(5) return s.release(h) } }",
     )
     .expect("guarded formal order compare package");
-    assert_eq!(staged_count(&formal), 3);
+    // `release` stages its three exact operands; `check`'s own guard
+    // `p > me.limit` stages `me.limit` through the same authority.
+    assert_eq!(staged_count(&formal), 4);
     // A whole Bool frame now owns both exact field uses and comparison laws.
     // Direct order comparisons still keep their existing admission owner.
     let owned = package("if (pool.size > 0) && (pool.size == 1) { return 1 } return 0");
