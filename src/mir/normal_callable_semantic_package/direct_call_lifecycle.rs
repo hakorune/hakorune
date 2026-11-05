@@ -334,8 +334,6 @@ pub(super) fn local_call_gate(
         Err("local-site-mismatch")
     } else if local.result() != LocalCallResultClassV1::I64 {
         Err("result-not-i64")
-    } else if !local.prior_homes().is_empty() {
-        Err("live-home")
     } else if local.local_binding().is_none() {
         Err("not-local-bound")
     } else if local.arguments().len() != argument_count {

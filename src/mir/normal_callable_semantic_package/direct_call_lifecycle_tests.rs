@@ -401,10 +401,7 @@ fn root_map_before_first_call_keeps_prior_homes_rejection() {
             )
         })
         .expect("lowering input");
-    assert!(matches!(
-        result,
-        Err(error) if error.contains("local-call-prior-homes-unsupported")
-    ));
+    assert!(matches!(result, Err(error) if error.contains("local-call-prior-homes-unsupported")));
 }
 
 #[test]
@@ -576,23 +573,16 @@ fn non_map_local_call_selects_lifecycle_without_reclassifying_terminal() {
 }
 
 #[test]
-fn non_map_local_call_with_prior_home_rejects_instead_of_scalar_fallback() {
-    let result = issue(
+fn non_map_local_call_with_prior_home_is_issued_as_lifecycle_call() {
+    // A live object Home no longer forces a rejection: the call is sealed as a
+    // lifecycle call and its fault path ends the Home (see the end-to-end EXE probes).
+    let package = issue(
         "box Page {} static box Main {
          main() { local page = new Page() local first = helper(10) return helper(20) }
          helper(value: i64): i64 { return value } }",
-    );
-    assert!(
-        matches!(
-            result,
-            Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
-                _error: super::issuer::DirectCallDispositionIssueV1::Loan(
-                    DirectCallLoanErrorV1::LifecycleSourceMismatch
-                ),
-            })
-        ),
-        "{result:?}"
-    );
+    )
+    .expect("a live object Home does not block the lifecycle seal");
+    assert!(package.direct_call_loans.is_some());
 }
 
 #[test]

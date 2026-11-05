@@ -699,6 +699,21 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(Some(rows));
             }
         }
+        // A nested call whose every formal is an exact i64 carries no borrowed
+        // handle: its arguments live in the retained argument frame, so the
+        // packet has no opaque actuals. Only an expression-origin call, whose
+        // observation the caller already holds, takes this route.
+        if let Some(observation) = expression_observation {
+            if original.is_qualified_i64_source_v1()
+                && !original.parameters().is_empty()
+                && original.parameters().iter().all(|formal| formal.kind
+                    == CallableParameterContractKindV1::ExactTrivial(
+                        crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
+                && observation.arguments().len() == original.argument_sites().len()
+            {
+                return Ok(Some(&[]));
+            }
+        }
         if original.is_current_owner_i64_source_v1() && original.argument_sites().len() == 1 {
             if let Some(rows) = self.checked_static_scalar_packet_actuals_v1(original)? {
                 return Ok(Some(rows));

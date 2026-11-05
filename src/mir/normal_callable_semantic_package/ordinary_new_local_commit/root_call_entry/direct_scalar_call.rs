@@ -231,9 +231,11 @@ impl DirectScalarCallProjectionV1 {
                 let MirInstruction::InvokeNormalResult { invoke_block, dst } = normal.1 else {
                     return Err(freeze("direct-scalar/normal"));
                 };
+                // The callee-fault path ends every prior Home newest-first, then returns the Fault.
+                let unwind = context.ledger().prior_home_unwind_for(self.source.prior_homes())?;
                 if actual != &call || *normal_landing != normal.0 || invoke_block != invoke.0
                     || !self.original.contains(invoke) || !self.original.contains(normal)
-                    || !self.original.contains(&(*fault_landing, MirInstruction::ReturnFault { fault_frame: *fault_frame }))
+                    || super::super::owned_array::check_fault_chain(&self.original, *fault_landing, *fault_frame, None, &unwind).is_err()
                     || !self.original.iter().any(|(_, row)| matches!(row, MirInstruction::FaultFrameEnter { dst, .. } if dst == fault_frame)) {
                     return Err(freeze("direct-scalar/call-or-continuation"));
                 }

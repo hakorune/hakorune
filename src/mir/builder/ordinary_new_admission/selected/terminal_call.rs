@@ -326,7 +326,11 @@ pub(in crate::mir::builder) fn emit_local(
     let relation = ledger
         .local_call_for_owner(owner, site)
         .ok_or_else(|| freeze("local-call-source-missing"))?;
-    if !relation.prior_homes().is_empty() {
+    // A live Home must be ended on the callee-fault path before this frame
+    // returns the Fault, exactly as `emit_local_lexical` does for its receiver.
+    let unwind = ledger.prior_home_unwind_for(relation.prior_homes())?;
+    // Map Homes keep their own lane; only object Homes are unwound here.
+    if unwind.iter().any(|operation| matches!(operation, InvokeOperation::Map(_))) {
         return Err(freeze("local-call-prior-homes-unsupported"));
     }
     let result_kind = row.result();
@@ -360,12 +364,14 @@ pub(in crate::mir::builder) fn emit_local(
     // records the same pair again — coverage deduplicates on (block,
     // instruction), so the group stays authoritative in both shapes.
     let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
+    let outward = fault_landing;
     append_block(
         builder,
-        fault_landing,
+        outward,
         MirInstruction::ReturnFault { fault_frame: frame },
         &mut bindings,
     )?;
+    let fault_landing = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
     let invoke = MirInstruction::Invoke {
         operation: InvokeOperation::Call {
             call,
