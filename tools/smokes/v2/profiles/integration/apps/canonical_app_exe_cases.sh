@@ -80,6 +80,10 @@ fi
 # `birth(take x: T)`: the moved Leaf is Ended once on Normal, on a Fault before the
 # constructor is entered (the caller Ends it), and on a Fault after entry (the constructor
 # unwinding Ends it and the caller does not End it again).
+# A Fault from a later birth argument (`new Node(move leaf, me.later())`) cannot be written
+# yet: that argument is rejected as `argument-source-unavailable` (or `static-execution/
+# local-contract`). The allocation Fault of a fresh `new` stands in for it: it also
+# precedes entry to the constructor, so the caller Ends the moved actual exactly once.
 if [ -z "$ONLY_CASE" ] || [ "$ONLY_CASE" = ownership_birth_take ]; then
   cat > "$TMP_ROOT.birth-take.hako" <<'HAKO'
 box Leaf {
