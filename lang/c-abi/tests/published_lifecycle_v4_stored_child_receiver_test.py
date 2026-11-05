@@ -6,31 +6,15 @@ keep the source graph and isolate the named wire boundary where possible.
 """
 import copy
 import json
-import os
 import re
 from pathlib import Path
-import subprocess
 import sys
 import tempfile
+from published_lifecycle_v4_test_support import TESTS, ARCHIVE, checked, env, release_driver, run
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-                             ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 DIRECTORY = Path(sys.argv[1])
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off',
-           V4_PROBE_MODE='normal')
+ENV = env(V4_PROBE_MODE='normal')
 ENV.pop('V4_PROBE_FAULT_AT', None)
-
-
-def run(args, **kwargs):
-    return subprocess.run([str(arg) for arg in args], capture_output=True, text=True, **kwargs)
-
-
-def checked(args, **kwargs):
-    result = run(args, **kwargs)
-    assert result.returncode == 0, (args, result.stdout, result.stderr)
-    return result
 
 
 def owned_slot_mutant(base, flavor):
@@ -111,9 +95,7 @@ def owned_slot_mutant(base, flavor):
 with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'source.o', 'source')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c',
-             '-L' + str(ROOT / 'target/release'), '-lhako_llvmc_ffi',
-             '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    driver = release_driver(work)
     paths = sorted(DIRECTORY.glob('hako-issued-borrowed-stored-child-*.json'))
     assert len(paths) == 96, ('original source witness count', len(paths))
     for path in paths:

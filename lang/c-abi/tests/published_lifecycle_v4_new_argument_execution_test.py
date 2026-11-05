@@ -9,17 +9,13 @@ otherwise), the caller re-proves kind==1 at the call edge, and the constructed
 the compare site before the `new` is reached.
 """
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from published_lifecycle_v4_test_support import TESTS, ARCHIVE, env, checked, release_driver
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-    ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
+ENV = env()
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'
 DIRECTORY = Path(sys.argv[1])
@@ -39,17 +35,10 @@ CASES = [
 ]
 
 
-def checked(argv, **kwargs):
-    result = subprocess.run([str(x) for x in argv], capture_output=True, text=True, **kwargs)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
-
-
 with tempfile.TemporaryDirectory(prefix='hako dominated new ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'source.o', 'source')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    driver = release_driver(work)
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
              'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64',
              'object.reclaim_unpublished']

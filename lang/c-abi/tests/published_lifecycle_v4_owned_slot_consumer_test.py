@@ -7,17 +7,11 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from functools import partial
+from published_lifecycle_v4_test_support import checked as _checked, release_driver
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / "lang/c-abi/tests"
 ENV = dict(os.environ, HAKO_NYRT_PLUGIN_HOST="off")
-
-
-def checked(args):
-    result = subprocess.run([str(arg) for arg in args], text=True,
-                            capture_output=True, env=ENV)
-    assert result.returncode == 0, (args, result.stdout, result.stderr)
-    return result
+checked = partial(_checked, env=ENV)
 
 
 def operation(block):
@@ -44,9 +38,7 @@ assert len(sys.argv) == 3, "pass unchanged provider captures for both optimizati
 with tempfile.TemporaryDirectory(prefix="hako Birth slots ") as directory:
     work = Path(directory)
     driver, obj = work / "driver", work / "out.o"
-    checked(["cc", TESTS / "published_lifecycle_v4_driver.c",
-             "-L" + str(ROOT / "target/release"), "-lhako_llvmc_ffi",
-             "-Wl,-rpath," + str(ROOT / "target/release"), "-o", driver])
+    driver = release_driver(work)
     for argument in sys.argv[1:]:
         path = Path(argument).resolve()
         original = json.loads(path.read_text())

@@ -12,13 +12,10 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from published_lifecycle_v4_test_support import ROOT, TESTS, ARCHIVE, env, checked, release_driver
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
 TARGET = Path(os.environ.get('CARGO_TARGET_DIR', ROOT / 'target'))
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-    TARGET / 'lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
+ENV = env()
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'
 DIRECTORY = Path(sys.argv[1])
@@ -60,17 +57,10 @@ if RETURN_MODE:
              for mode in ['false', 'true']]
 
 
-def checked(argv, **kwargs):
-    result = subprocess.run([str(x) for x in argv], capture_output=True, text=True, **kwargs)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
-
-
 with tempfile.TemporaryDirectory(prefix='hako checked compare ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'source.o', 'source')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(TARGET / 'release'),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(TARGET / 'release'), '-o', driver])
+    driver = release_driver(work, TARGET / 'release')
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
              'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
     for suffix, expected, faulted in CASES:

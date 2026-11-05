@@ -7,28 +7,17 @@ builds explicit physical graphs, and preserves caller Normal/Fault cleanup.
 import copy
 import json
 import os
-import shlex
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from published_lifecycle_v4_test_support import ROOT, TESTS, ARCHIVE, env, checked, release_driver
 
-ROOT = Path(__file__).resolve().parents[3]
 FFI = Path(os.environ.get('HAKO_TEST_FFI_DIR', ROOT / 'target/release'))
-TESTS = ROOT / 'lang/c-abi/tests'
 layout = json.loads(Path(sys.argv[1]).read_text())['layouts'][0]
 OBJECT = layout['object_id']
 FIELD = layout['fields'][0]['declaration_ordinal']
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-                             ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
-CC = shlex.split(os.environ.get('CC', 'cc'))
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
-
-
-def checked(argv, **kw):
-    result = subprocess.run([str(x) for x in argv], capture_output=True, text=True, **kw)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
+ENV = env()
 
 
 def block(number, rows, term, targets=()):
@@ -355,8 +344,7 @@ def borrowed_text_graph(owned=False, add=False, two=False, text="猫\x00🐱", r
 with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'borrowed.o', 'borrowed')]
-    checked([*CC, TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(FFI),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(FFI), '-o', driver])
+    driver = release_driver(work, FFI)
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
              'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
 
@@ -400,7 +388,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
         block(11, [], {'op': 'return', 'value': 22}),
     ]
     compile_input(shared)
-    checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+    checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
              *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
              '-lpthread', '-ldl', '-lm', '-o', exe])
     result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
@@ -434,7 +422,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     for owned, result_kind in [(False, 'i64'), (True, 'i64'), (True, 'unit'), (True, 'bool')]:
         data, text = borrowed_text_graph(owned, result=result_kind)
         compile_input(data)
-        checked([*CC, '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+        checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps + ['string.checked_end', 'string.checked_print', 'string.checked_add']],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
         for mode, expected_exit in [('normal', 7), ('fault-first', 70)]:
@@ -507,7 +495,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
                 root['terminator']['index'] = len(root['instructions'])
                 args[1] = {'kind': 1, 'value': 12}
         compile_input(data)
-        checked([*CC, '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+        checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps +
                    ['string.checked_end', 'string.checked_print', 'string.checked_add']],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
@@ -568,7 +556,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
         print('borrowed Text Add', result_kind, owned, 'two ordinals', two, 'profile', profile, 'separate callee acquisition, Print/Call Fault, failed Add without End PASS')
     empty, _ = borrowed_text_graph(text='')
     compile_input(empty)
-    checked([*CC, '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+    checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
              *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps +
                ['string.checked_end', 'string.checked_print', 'string.checked_add']],
              '-lpthread', '-ldl', '-lm', '-o', exe])
@@ -580,7 +568,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
 
     data = graph(1, integer_view=True)
     compile_input(data)
-    checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+    checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
              *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
              '-lpthread', '-ldl', '-lm', '-o', exe])
     for mode, expected in [('normal', 7), ('fault-first', 70)]:
@@ -614,7 +602,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     tail['edges'] = [{'target': 1, 'args': None}]
     static['functions'][2]['blocks'] = [b for b in static['functions'][2]['blocks'] if b['id'] != 2]
     compile_input(static)
-    checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+    checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
              *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
              '-lpthread', '-ldl', '-lm', '-o', exe])
     result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
@@ -632,7 +620,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             root['blocks'][1]['instructions'][1]['instruction'] = {'op': 'const_bool', 'dst': 10, 'value': True}
             root['blocks'][1]['terminator']['instruction']['operation']['call']['args'][0]['kind'] = 2
         compile_input(checked_pair)
-        checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
         result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
@@ -642,7 +630,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     for null_result in [False, True]:
         data = received_field_read_graph(null_result)
         compile_input(data)
-        checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
         result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
@@ -680,7 +668,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
 
     for kind, payload in [(1, 0), (1, -7), (1, 1), (2, 0), (2, 1), (3, 1)]:
         compile_input(graph(kind, payload))
-        checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
         for mode, status, counts in [('normal', 7, '1 1 1 0 0 1'),
@@ -702,7 +690,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
         op = leaf['blocks'][0]['terminator']['instruction']['operation']
         op['exact_numeric_runtime_check'] = {'kind': 'dynamic_integer_range', 'declared_type': 'usize'}
         compile_input(data)
-        checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
         result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
@@ -745,7 +733,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
         op = leaf['blocks'][0]['terminator']['instruction']['operation']
         op.update(base=3, value=6, exact_numeric_runtime_check={'kind': 'dynamic_integer_range', 'declared_type': 'usize'})
         compile_input(data)
-        checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
         result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
@@ -767,7 +755,7 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     tagged_return = graph(1, 7)
     tagged_return['functions'][2]['blocks'][1]['terminator']['instruction']['value'] = 3
     compile_input(tagged_return)
-    checked([*CC, obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+    checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
              *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
              '-lpthread', '-ldl', '-lm', '-o', exe])
     result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)

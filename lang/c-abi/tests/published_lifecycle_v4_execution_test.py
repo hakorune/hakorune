@@ -6,54 +6,23 @@ Range variants below test the physical ABI only, not new source acceptance.
 """
 import copy
 import json
-import os
-import shlex
 from pathlib import Path
-import subprocess
 import sys
 import tempfile
+from published_lifecycle_v4_test_support import (ARCHIVE as archive, TESTS, checked, compile_driver,
+                                              env as make_env, run)
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / "lang/c-abi/tests"
-YYJSON = ROOT / "plugins/nyash-json-plugin/c/yyjson"
 issued = json.loads(Path(sys.argv[1]).read_text())
 bool_inputs = [json.loads(Path(path).read_text()) for path in sys.argv[2:]]
 assert len(bool_inputs) == 2, "pass source-issued Pair JSON and both source-issued Bool JSON files"
-archive = Path(os.environ.get("HAKO_TEST_LIFECYCLE_ARCHIVE",
-                             ROOT / "target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a"))
 assert archive.is_file()
-env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
-
-
-CC = shlex.split(os.environ.get("CC") or "cc")
-
-
-def run(argv, **kw):
-    command = [str(x) for x in argv]
-    if command and command[0] == "cc":
-        command = CC + command[1:]
-    return subprocess.run(command, text=True, capture_output=True, **kw)
-
-
-def checked(argv, **kw):
-    r = run(argv, **kw)
-    assert r.returncode == 0, (argv, r.stdout, r.stderr)
-    return r
+env = make_env()
 
 
 with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
     work = Path(directory)
-    driver, obj, exe = [work / name for name in ("driver", "pair.o", "pair")]
-    test_ffi = work / "libhako_llvmc_ffi_test.so"
-    checked(["cc", "-DHAKO_LLVMC_LIFECYCLE_TEST_SEAM", "-fPIC", "-shared",
-             "-I" + str(YYJSON), "-o", test_ffi,
-             ROOT / "lang/c-abi/shims/hako_llvmc_ffi.c",
-             ROOT / "lang/c-abi/shims/hako_aot.c",
-             ROOT / "lang/c-abi/shims/hako_json_v1.c",
-             YYJSON / "yyjson.c"])
-    checked(["cc", TESTS / "published_lifecycle_v4_driver.c",
-             "-L" + str(work), "-lhako_llvmc_ffi_test",
-             "-Wl,-rpath," + str(work), "-o", driver])
+    obj, exe = [work / name for name in ("pair.o", "pair")]
+    driver = compile_driver(work, seam=True)
     wraps = ["fault.frame_init", "fault.frame_dispose", "fault.report_final",
              "object.checked_field_set", "object.checked_residence_set", "object.home_release_plain_i64", "object.reclaim_unpublished"]
 

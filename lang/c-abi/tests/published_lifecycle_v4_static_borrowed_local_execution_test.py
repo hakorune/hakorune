@@ -7,24 +7,19 @@ Build a private current-source shim; leave shared binaries untouched.
 """
 import copy
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from functools import partial
+from published_lifecycle_v4_test_support import checked as _checked, compile_driver, env
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
 SOURCE, ARCHIVE = map(Path, sys.argv[1:3])
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
+ENV = env()
 base = json.loads(SOURCE.read_text())
 
 
-def checked(argv):
-    result = subprocess.run(list(map(str, argv)), capture_output=True,
-                            text=True, timeout=120, env=ENV)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
+checked = partial(_checked, timeout=120, env=ENV)
 
 
 def static_function(data):
@@ -42,14 +37,8 @@ def static_call(data):
 
 with tempfile.TemporaryDirectory(prefix='hako static borrowed local ') as directory:
     work = Path(directory)
-    shim = ROOT / 'lang/c-abi/shims'
-    yyjson = ROOT / 'plugins/nyash-json-plugin/c/yyjson'
-    checked(['cc', '-fPIC', '-shared', '-I' + str(yyjson), '-o',
-             work / 'libhako_llvmc_ffi.so', shim / 'hako_llvmc_ffi.c',
-             shim / 'hako_aot.c', shim / 'hako_json_v1.c', yyjson / 'yyjson.c'])
-    driver, obj, exe = [work / name for name in ('driver', 'source.o', 'source')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(work),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(work), '-o', driver])
+    driver = compile_driver(work)
+    obj, exe = [work / name for name in ('source.o', 'source')]
     checked([driver, SOURCE, obj])
     checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
     checked([exe])

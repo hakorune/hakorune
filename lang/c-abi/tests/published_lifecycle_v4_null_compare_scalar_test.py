@@ -8,39 +8,27 @@ Build the current shim in a temporary directory, leaving shared binaries alone.
 """
 import copy
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from functools import partial
+from published_lifecycle_v4_test_support import TESTS, checked as _checked, compile_driver, env
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
 SOURCE = Path(sys.argv[1])
 ARCHIVE = Path(sys.argv[2])
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1',
-           HAKO_NYRT_PLUGIN_HOST='off', V4_PROBE_MODE='normal')
+ENV = env(V4_PROBE_MODE='normal')
 ENV.pop('V4_PROBE_FAULT_AT', None)
 
 
-def checked(argv, **kwargs):
-    result = subprocess.run([str(arg) for arg in argv], capture_output=True,
-                            text=True, timeout=120, **kwargs)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
+checked = partial(_checked, timeout=120)
 
 
 base = json.loads(SOURCE.read_text())
 with tempfile.TemporaryDirectory(prefix='hako scalar null compare ') as directory:
     work = Path(directory)
-    shim = ROOT / 'lang/c-abi/shims'
-    yyjson = ROOT / 'plugins/nyash-json-plugin/c/yyjson'
-    checked(['cc', '-fPIC', '-shared', '-I' + str(yyjson),
-             '-o', work / 'libhako_llvmc_ffi.so', shim / 'hako_llvmc_ffi.c',
-             shim / 'hako_aot.c', shim / 'hako_json_v1.c', yyjson / 'yyjson.c'])
-    driver, obj, exe = [work / name for name in ('driver', 'case.o', 'case')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(work),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(work), '-o', driver])
+    driver = compile_driver(work)
+    obj, exe = [work / name for name in ('case.o', 'case')]
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
              'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64',
              'object.reclaim_unpublished']

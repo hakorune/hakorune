@@ -7,34 +7,23 @@ backend admission; their graph mutations are not Rust source acceptance.
 """
 import copy
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import time
+from published_lifecycle_v4_test_support import TESTS, ARCHIVE, env, checked, release_driver
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-    ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
+ENV = env()
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'
 DIRECTORY = Path(sys.argv[1])
 
 
-def checked(argv, **kwargs):
-    result = subprocess.run([str(x) for x in argv], capture_output=True, text=True, **kwargs)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
-
-
 with tempfile.TemporaryDirectory(prefix='hako original borrowed source ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'source.o', 'source')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    driver = release_driver(work)
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
              'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
     profiles = [(shape, domain) for domain in ('zero', 'negative', 'true', 'false', 'object', 'scalar', 'bool-scalar')
@@ -85,8 +74,7 @@ if any(flag in sys.argv for flag in ('--unit', '--unit-only', '--constructor-uni
     with tempfile.TemporaryDirectory(prefix='hako original unit source ') as directory:
         work = Path(directory)
         driver, obj, exe = [work / name for name in ('driver', 'unit.o', 'unit')]
-        checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-                 '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+        driver = release_driver(work)
         unit_wraps = wraps + ['object.checked_new', 'string.checked_print']
         for case in ([6] if '--constructor-unit-only' in sys.argv else range(7)):
             path = DIRECTORY / ('hako-issued-constructor-unit.json' if case == 6 else
@@ -213,8 +201,7 @@ if '--bool-discard' in sys.argv or '--bool-discard-only' in sys.argv:
     with tempfile.TemporaryDirectory(prefix='hako original bool discard ') as directory:
         work = Path(directory)
         driver, obj, exe = [work / name for name in ('driver', 'bool.o', 'bool')]
-        checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-                 '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+        driver = release_driver(work)
         for returned in ('true', 'false'):
             path = DIRECTORY / f'hako-issued-borrowed-bool-discard-{returned}.json'
             original = json.loads(path.read_text())
@@ -264,8 +251,7 @@ if '--print-alias' in sys.argv or '--print-alias-only' in sys.argv:
     with tempfile.TemporaryDirectory(prefix='hako original print alias ') as directory:
         work = Path(directory)
         driver, obj, exe = [work / name for name in ('driver', 'alias.o', 'alias')]
-        checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-                 '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+        driver = release_driver(work)
         path = DIRECTORY / 'hako-issued-print-alias.json'
         original = json.loads(path.read_text())
         checked([driver, path, obj], env=ENV)
@@ -384,8 +370,7 @@ if '--argv-only' in sys.argv:
     with tempfile.TemporaryDirectory(prefix='hako original argv source ') as directory:
         work = Path(directory)
         driver, obj, exe = [work / name for name in ('driver', 'argv.o', 'argv')]
-        checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-                 '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+        driver = release_driver(work)
         for shape, count in [('empty', 0), ('text', 4), ('body-empty', 0), ('body-text', 4)]:
             path = DIRECTORY / f'hako-issued-main-arguments-{shape}.json'
             checked([driver, path, obj], env=ENV)
@@ -444,8 +429,7 @@ if '--birth-handle-only' in sys.argv:
     with tempfile.TemporaryDirectory(prefix='hako provided birth source ') as directory:
         work = Path(directory)
         driver, obj, exe = [work / name for name in ('driver', 'provided.o', 'provided')]
-        checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-                 '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+        driver = release_driver(work)
         for shape in ('only', 'before', 'after', 'nullable-wire'):
             path = DIRECTORY / f'hako-issued-birth-handle-actual-{shape}.json'
             if shape == 'nullable-wire':

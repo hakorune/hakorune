@@ -1,33 +1,22 @@
 #!/usr/bin/env python3
 """Execute exact source-issued direct field results after both finishing modes."""
-import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from published_lifecycle_v4_test_support import TESTS, ARCHIVE, env, checked, release_driver
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
 INPUTS = Path(sys.argv[1])
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-                             ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
+ENV = env()
 ENV.pop('V4_PROBE_FAULT_AT', None)
 WRAPS = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
          'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
 
 
-def checked(argv):
-    result = subprocess.run([str(x) for x in argv], capture_output=True, text=True)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
-
-
 with tempfile.TemporaryDirectory(prefix='hako field return projection ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'issued.o', 'issued')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    driver = release_driver(work)
     for optimize in [False, True]:
         for shape, expected, stores in [('root', 5, 1), ('object', 5, 2), ('null', 7, 1)]:
             path = INPUTS / f'hako-issued-field-return-projection-{shape}-opt{str(optimize).lower()}.json'

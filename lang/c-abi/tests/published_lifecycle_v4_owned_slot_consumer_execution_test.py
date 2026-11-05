@@ -1,27 +1,17 @@
 #!/usr/bin/env python3
 """Run unchanged supported Birth inventory captures with each runtime Fault."""
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-    ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
-def checked(args, **kwargs):
-    result = subprocess.run([str(x) for x in args], capture_output=True, text=True, **kwargs)
-    assert result.returncode == 0, (args, result.stdout, result.stderr)
-    return result
+from published_lifecycle_v4_test_support import TESTS, ARCHIVE, env, checked, release_driver
+ENV = env()
 assert len(sys.argv) == 3 and ARCHIVE.is_file()
 with tempfile.TemporaryDirectory(prefix='hako owned slots ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / x for x in ['driver', 'source.o', 'source']]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c',
-        '-L' + str(ROOT / 'target/release'), '-lhako_llvmc_ffi',
-        '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    driver = release_driver(work)
     wraps = ['object.checked_new_v1', 'array.checked_new_v1',
         'object.checked_field_set_v1', 'object.checked_residence_set_v1',
         'object.home_release_plain_i64_v1',

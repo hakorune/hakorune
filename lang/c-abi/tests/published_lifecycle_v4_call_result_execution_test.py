@@ -2,31 +2,21 @@
 """Execute exact source-issued composed call results and exact cleanup in both finishing modes."""
 import copy
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from published_lifecycle_v4_test_support import TESTS, ARCHIVE, env, checked, release_driver
 
-ROOT = Path(__file__).resolve().parents[3]
-TESTS = ROOT / 'lang/c-abi/tests'
 INPUTS = Path(sys.argv[1])
 STEM = sys.argv[2] if len(sys.argv) > 2 else 'hako-issued-borrowed-call-result'
 MODE = sys.argv[3] if len(sys.argv) > 3 else ''
 OWNED = MODE == 'owned'
-ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
-                             ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
-ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
+ENV = env()
 for key in ['V4_PROBE_FAULT_AT', 'V4_PROBE_NEW_FAULT_AT', 'V4_PROBE_HOME_FAULT_AT']:
     ENV.pop(key, None)
 WRAPS = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
          'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
-
-
-def checked(argv):
-    result = subprocess.run([str(x) for x in argv], capture_output=True, text=True)
-    assert result.returncode == 0, (argv, result.stdout, result.stderr)
-    return result
 
 
 def link_owned_probe(driver, path, obj, exe):
@@ -365,8 +355,7 @@ def owned_results(driver, obj, exe, work):
 with tempfile.TemporaryDirectory(prefix='hako call result composition ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'issued.o', 'issued')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    driver = release_driver(work)
     if MODE == 'take':
         take_entries(driver, obj, exe, work)
         sys.exit(0)
