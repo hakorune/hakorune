@@ -112,11 +112,7 @@ impl ReceivedFieldReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn object_result_kind_v1(&self)
         -> Option<crate::mir::instruction::InvokeCallResultKind> {
         match self {
-            Self::Object { loan, .. } => match loan.result_class() {
-                OrdinaryNewResultClassV1::Object(_) => Some(crate::mir::instruction::InvokeCallResultKind::Handle),
-                OrdinaryNewResultClassV1::NullableObject(_) => Some(crate::mir::instruction::InvokeCallResultKind::NullableHandle),
-                _ => None,
-            },
+            Self::Object { loan, .. } => loan.result_class().invoke_result_kind(),
             Self::Mixed { .. } => None,
             Self::Borrowed { request: ReceivedFieldReadRequestV1::Borrowed { loan, .. }, .. } =>
                 loan.single().map(|read| read.source().result_kind_v1()),

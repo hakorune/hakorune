@@ -112,13 +112,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 self.callable_result_classes
                     .recheck_object_call_roots_v1(source, producer)
                     .map_err(|issue| freeze(&format!("lexical-object/array-source/{issue}")))?;
-                use crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1;
-                let expected = match producer.result_class() {
-                    OrdinaryNewResultClassV1::Object(_) => InvokeCallResultKind::Handle,
-                    OrdinaryNewResultClassV1::NullableObject(_) => {
-                        InvokeCallResultKind::NullableHandle
-                    }
-                    _ => return Err(freeze("lexical-object/array-source-result")),
+                let Some(expected) = producer.result_class().invoke_result_kind() else {
+                    return Err(freeze("lexical-object/array-source-result"));
                 };
                 if result.is_some_and(|kind| kind != expected) {
                     return Err(freeze("lexical-object/array-result-observation"));

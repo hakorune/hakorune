@@ -157,13 +157,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(kind) = self
             .callable_result_classes
             .get(source.target())
-            .and_then(|class| match class {
-                OrdinaryNewResultClassV1::Object(_) => Some(InvokeCallResultKind::Handle),
-                OrdinaryNewResultClassV1::NullableObject(_) => {
-                    Some(InvokeCallResultKind::NullableHandle)
-                }
-                _ => None,
-            })
+            .and_then(OrdinaryNewResultClassV1::invoke_result_kind)
         else {
             return Ok(None);
         };

@@ -102,6 +102,24 @@ impl OrdinaryNewResultClassV1 {
             Self::NullableForwarded { .. } => None,
         }
     }
+    /// The Invoke result kind of a class-bearing result; forwarded results have none.
+    pub(crate) fn invoke_result_kind(&self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
+        use crate::mir::instruction::InvokeCallResultKind as Kind;
+        match self {
+            Self::Object(_) => Some(Kind::Handle),
+            Self::NullableObject(_) => Some(Kind::NullableHandle),
+            Self::NullableForwarded { .. } => None,
+        }
+    }
+    /// The local-call result class of a class-bearing result; forwarded results have none.
+    pub(crate) fn local_call_result(&self) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        match self {
+            Self::Object(_) => Some(Class::Handle),
+            Self::NullableObject(_) => Some(Class::Nullable),
+            Self::NullableForwarded { .. } => None,
+        }
+    }
 }
 
 /// Single source product; legacy lookups expose only safe class projections.

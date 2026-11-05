@@ -250,10 +250,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
     {
         return Err(freeze("producer-dependency-identity"));
     }
-    let result = match classes.get(target.target()) {
-        Some(OrdinaryNewResultClassV1::Object(_)) => LocalCallResultClassV1::Handle,
-        Some(OrdinaryNewResultClassV1::NullableObject(_)) => LocalCallResultClassV1::Nullable,
-        _ => return Err(freeze("producer-result-missing")),
+    let Some(result) = classes.get(target.target()).and_then(OrdinaryNewResultClassV1::local_call_result) else {
+        return Err(freeze("producer-result-missing"));
     };
     let receiver = target.receiver_binding()?;
     let receiver_source_matches = match field_alias {
