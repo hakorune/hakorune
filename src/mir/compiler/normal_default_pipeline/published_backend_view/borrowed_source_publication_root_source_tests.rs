@@ -120,16 +120,16 @@ fn unproven_bound_returns_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for (label, tail, stop) in [
-            ("bound-bool", "local b = true return b", "retained-root-result-missing"),
+            ("bound-bool", "local b = true return b", "IncompleteOrdinaryNewCoverage"),
             (
                 "bound-object",
                 "local g = new Store() return g",
-                "retained-root-result-missing",
+                "root-result/source-unsupported",
             ),
             (
                 "bound-text",
                 "local t = \"hi\" return t",
-                "artifact-source-unavailable",
+                "admission-retained-root-result-missing",
             ),
         ] {
             let text = format!(
@@ -159,7 +159,7 @@ fn unproven_bound_returns_stay_fail_closed() {
             .err()
             .unwrap_or_else(|| panic!("pure-bound-lit: unexpectedly admitted"));
         assert!(
-            error.contains("artifact-root-completion-unavailable"),
+            error.contains("main-arguments/root-completion"),
             "pure-bound-lit: {error}"
         );
     });

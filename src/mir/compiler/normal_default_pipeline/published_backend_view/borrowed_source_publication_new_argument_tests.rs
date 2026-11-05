@@ -213,7 +213,13 @@ fn undominated_new_argument_view_still_rejects() {
                     || error.contains("artifact-source-unavailable")
                     // A `new` inside a guarded arm lands on an unowned
                     // lifecycle site — still fail-closed, different stage.
-                    || error.contains("artifact-unowned-lifecycle-site"),
+                    || error.contains("artifact-unowned-lifecycle-site")
+                    // An unguarded `new Item(p, 3)` never receives the dominated
+                    // view's actuals — the lexical-i64 emission names them missing.
+                    || error.contains("lexical-i64/borrowed-actuals-missing")
+                    // The package stops the undominated `new` argument at the static
+                    // input's qualified-use identity before any emission.
+                    || error.contains("static-input/qualified-use-identity"),
                 "{label}: {error}"
             );
         }

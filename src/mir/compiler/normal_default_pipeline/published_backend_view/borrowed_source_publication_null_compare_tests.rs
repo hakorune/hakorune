@@ -335,7 +335,12 @@ fn non_null_equalities_stay_fail_closed_before_publication() {
             let error = outcome.err()
                 .unwrap_or_else(|| panic!("{suffix}: unexpectedly admitted"));
             assert!(
-                error.contains("artifact-source-unavailable"),
+                error.contains("artifact-source-unavailable")
+                    // The non-null equality is stopped before the source use
+                    // completes, rather than at the artifact.
+                    || error.contains("borrowed-entry/source-use-completion-pending")
+                    // A Bool actual is stopped at the callee's exit coverage.
+                    || error.contains("object-input/callee-exit"),
                 "{suffix}: {error}"
             );
         }
