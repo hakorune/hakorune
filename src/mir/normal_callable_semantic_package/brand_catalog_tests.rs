@@ -49,12 +49,15 @@ fn ordinary_new_retains_unavailable_descriptors_through_candidate_co_seal() {
     assert_eq!(rows.len(), 1);
     let claim = rows.values().next().unwrap();
     assert!(claim.construction().is_err());
-    assert!(claim.construction_source().is_err());
+    // The Dynamic field keeps its retained allocation-only source (no initialized plan).
+    assert!(matches!(
+        claim.construction_source().as_ref().expect("allocation-only source retained").completion(),
+        super::instance_construction::ConstructionCompletionV1::AllocationOnly { .. }
+    ));
+    // Dynamic fields tear down through the Dynamic residence requirement.
     assert_eq!(
         claim.destruction(),
-        crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
-            crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
-        )
+        crate::mir::function::ObjectDestructionDispositionV1::no_hook_fields(false, false, true)
     );
     assert_eq!(
         package
@@ -106,11 +109,13 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         assert!(matches!(retained.completion(),
             super::instance_construction::ConstructionCompletionV1::AllocationOnly { .. }));
         assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
-        if retained.is_allocation_only_i64() {
-            assert!(matches!(claim.execution_profile().unwrap(),
-                super::instance_construction::NewExecutionProfileRefV1::AllocationOnly(lease)
-                    if std::rc::Rc::ptr_eq(lease.source(), retained)));
-        } else { assert!(claim.execution_profile().is_err(), "Dynamic source is not an execution lease"); }
+        // The typed `i64` and the Dynamic (untyped) allocation-only source both hold
+        // exactly the one retained AllocationOnly lease (the Dynamic program compiles
+        // and runs end to end; no other profile exists for either).
+        assert!(matches!(claim.execution_profile().unwrap(),
+            super::instance_construction::NewExecutionProfileRefV1::AllocationOnly(lease)
+                if std::rc::Rc::ptr_eq(lease.source(), retained)),
+            "{declaration}");
         let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.site().owner()).unwrap();
         let flow = completion.cleanup().root_flow().expect("retained original source flow");
         let writes: Vec<_> = flow.expression_plans().iter().filter_map(|plan| {
@@ -125,7 +130,9 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             let source = package.ordinary_new_claim_ledger.field_write_source_at_v1(frame.source().owner(), frame.source().root().statement())
                 .unwrap().expect("source-origin loan before physical activation");
             source.validate_source(&package.ordinary_new_claim_ledger).unwrap();
-            assert_eq!(source.require_current_execution(super::CallValidationContextV1::Lowering(&package.ordinary_new_claim_ledger)).is_ok(), retained.is_allocation_only_i64());
+            // Typed and Dynamic allocation-only sources both hold current execution
+            // (the Dynamic program compiles and runs; checked against the CLI).
+            assert!(source.require_current_execution(super::CallValidationContextV1::Lowering(&package.ordinary_new_claim_ledger)).is_ok(), "{declaration}");
             assert!(source.borrowed().is_none());
             let rhs = plan.field_write_rhs().expect("same qualified whole-RHS source");
             assert!(std::rc::Rc::ptr_eq(source.qualified_rhs().unwrap(), rhs));
@@ -234,10 +241,15 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         "holder.items = items local alias = holder",
         "holder.items = items local closure = fn() { return items }",
         "holder.items = items local closure = fn() { holder = null return 0 }"] {
-        let denied = issue_with_brand_catalog(&sentinel.replace("holder.items = items", replacement))
-            .expect("unproved Array source remains descriptive");
-        assert!(denied.ordinary_new_claim_ledger.terminal_i64_field_return().is_none(),
-            "alias/mutation/reuse or Array payload cannot lend Integer: {replacement}");
+        // Every alias/mutation/reuse/payload replacement is refused by the array-holder
+        // append source (stronger than a descriptive package that lends no Integer).
+        let error = issue_with_brand_catalog(&sentinel.replace("holder.items = items", replacement))
+            .expect_err("unproved Array source is refused");
+        let reason = if replacement == "items.push(1) holder.items = items" { "CandidateSource" } else { "HolderEscape" };
+        assert!(
+            format!("{error:?}").contains(&format!("[array-holder/append-source]: {reason}")),
+            "alias/mutation/reuse or Array payload cannot lend Integer: {replacement}: {error:?}"
+        );
     }
     for body in ["return pair.left", "pair.right = 10 return pair.left",
         "pair.left = 10 pair.touch() return pair.left",
