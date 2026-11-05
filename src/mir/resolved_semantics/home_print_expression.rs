@@ -10,7 +10,7 @@ use crate::mir::resolved_value_profile::{
     expression_projection::ExpressionLeafClassV1,
     expression_root::StatementExpressionRoleV1,
 };
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Print purpose authority wraps the SAME qualified expression body. The body
 /// alone neither selects a Print root nor installs a Home observation.
@@ -75,6 +75,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     loop_text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LoopTextReadV1>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
+    field_seeds: &BTreeMap<usize, ExpressionLeafClassV1>,
     source_call: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,
@@ -115,7 +116,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     let Some(prepared) = super::leaves::prepare_expression_calls_v1(
         &source,
         super::leaves::ExpressionLeafProfileV1::Print,
-        &std::collections::BTreeMap::new(),
+        field_seeds,
         prior_homes,
         source_call,
     )?

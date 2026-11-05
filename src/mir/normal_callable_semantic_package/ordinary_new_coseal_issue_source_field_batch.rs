@@ -311,16 +311,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 let numeric = if matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) {
                     match terminal_home::local_read_field_declaration(constructors, candidates, coverage,
                         receiver_proof, &request.site, request.home, alias_class.as_deref(), &request.field)? {
-                        Some((field, None)) => {
+                        Some((field, declared)) if declared.as_deref().is_none_or(crate::mir::declared_type_storage::is_declared_text_type_name_v1) => {
                             if crate::config::env::builder_debug_enabled() {
                                 eprintln!("[field-read] text candidate site={:?} field={} path={} received={} stored_get={stored_get} owned_ready={}",
                                     request.site, request.field, request.path.is_some(), request.received.is_some(), request.owned_ready.is_some());
                             }
                             let text = if (request.path.is_none() || stored_get && request.path.as_ref().is_some_and(|path| path.parent().is_none() && !path.is_intermediate())) && (request.received.is_none() || stored_get) && request.owned_ready.is_none()
                                 && matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
-                                    if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
-                                        role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })
-                                        && plan.nodes().first().is_some_and(|node| node.site() == request.site.site())) {
+                                    if crate::mir::normal_callable_semantic_package::TextFieldValueSourceV1::role_admits_v1(plan, request.site.site())) {
                                 received_context.and_then(|(_, _, _, _, claims)| {
                                     let ingress = ingress.as_ref().ok()?;
                                     claims.value_sources().filter_map(|(_, _, source)| source.as_ref().ok())
@@ -330,7 +328,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                             } else { None };
                             if let Some(value) = text {
                                 Some(LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Text(Rc::new(value)), None))
-                            } else if ingress.as_ref().is_ok_and(|ingress|
+                            } else if declared.is_none() && ingress.as_ref().is_ok_and(|ingress|
                                 super::super::super::lexical_instance_call::ClosedNumericFieldSourceLoanV1::from_declaration(
                                     results, ingress, field, None, &request.field).is_ok()) {
                                 Some(LocalFieldReadSourceV1::from_declaration(field, LocalFieldReadResultV1::Scalar, None))

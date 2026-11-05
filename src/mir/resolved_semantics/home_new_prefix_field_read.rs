@@ -518,3 +518,17 @@ pub(super) fn install_local_field_read_result(
         }
     }
 }
+
+/// The one answer to "does this field read start as a closed Text value": the probed
+/// field batch (`probe: true`, no commit) classified exactly this request as `Text`.
+pub(super) fn probed_text_field_seed_v1<E>(
+    source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    request: &LocalFieldReadRequestV1,
+    fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+) -> Result<Option<crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1>, E> {
+    Ok(fields(std::slice::from_ref(request), LocalFieldReadDemandV1::SourceExpression {
+        probe: true, plan: std::rc::Rc::clone(source),
+    })?.filter(|classes| matches!(classes.as_slice(), [LocalFieldReadResultV1::Text(_)])).map(|_|
+        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String)))
+}

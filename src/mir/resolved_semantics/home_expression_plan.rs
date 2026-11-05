@@ -627,6 +627,7 @@ mod installation_tests {
                 &mut |_| None,
                 &mut |_| None,
                 &mut |_| None,
+                &std::collections::BTreeMap::new(),
                 &mut |_| Ok(None),
                 &mut |plan| installation.approve(plan),
                 &mut |fields, _| {
@@ -693,6 +694,7 @@ mod installation_tests {
             &mut |_| None,
             &mut |_| None,
             &mut |_| None,
+            &std::collections::BTreeMap::new(),
             &mut |_| Ok(None),
             &mut |plan| installation.approve(plan),
             &mut |_, _| {
@@ -976,6 +978,7 @@ mod installation_tests {
                 &mut |_| None,
                 &mut |_| None,
                 &mut |_| None,
+                &std::collections::BTreeMap::new(),
                 &mut |_| Ok(None),
                 &mut |plan| installation.approve(plan),
                 &mut |_, _| {
@@ -1084,6 +1087,7 @@ mod installation_tests {
                 &mut |_| None,
                 &mut |_| None,
                 &mut |_| None,
+                &std::collections::BTreeMap::new(),
                 &mut |_| Ok(None),
                 &mut |_| { panic!("unproved condition cannot install") },
                 &mut |_, _| {

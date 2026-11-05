@@ -561,6 +561,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                                 receiver, home: receiver, shared_support: None, alias_class: None, nullable: false, formal: false, received: None, path: None, alias_path: None, field: field.clone(), owned_ready: None,
                             })
                         },
+                        &std::collections::BTreeMap::new(),
                         &mut |site| crate::mir::resolved_semantics::home_new_prefix::issue_source_scalar_expression_call(
                             input, statement.site(), site, &homes, &mut |_| None,
                             &mut |site, request| {

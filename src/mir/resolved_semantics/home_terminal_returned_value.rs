@@ -428,13 +428,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
                 binding.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver) {
                 return text_return_declined(input, statement, 5);
             }
-            if let Some(classes) = fields(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression {
-                probe: true, plan: std::rc::Rc::clone(&source),
-            })? {
-                if matches!(classes.as_slice(), [super::super::LocalFieldReadResultV1::Text(_)]) {
-                    field_seeds.insert(root, crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-                        crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String));
-                }
+            if let Some(seed) = super::super::field_read::probed_text_field_seed_v1(&source, &request, fields)? {
+                field_seeds.insert(root, seed);
             }
         }
     }

@@ -251,12 +251,31 @@ impl PartialEq for TextFieldValueSourceV1 {
 }
 impl Eq for TextFieldValueSourceV1 {}
 impl TextFieldValueSourceV1 {
+    /// Untyped, or a declared Text slot (`String` / `StringBox` / `String?`): any other declared type is not a Text class.
+    pub(in crate::mir::normal_callable_semantic_package) fn declaration_admits_v1(declared: Option<&str>) -> bool {
+        declared.is_none_or(crate::mir::declared_type_storage::is_declared_text_type_name_v1)
+    }
+    /// A Print root admits the read at any node; a Return admits only a value that IS this read.
+    pub(in crate::mir::normal_callable_semantic_package) fn role_admits_v1(
+        plan: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
+        read: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> bool {
+        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1 as Role;
+        match plan.root() {
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement { role: Role::PrintValue, .. } => true,
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement { role: Role::ReturnValue, .. } =>
+                plan.nodes().first().is_some_and(|node| node.site() == read),
+            _ => false,
+        }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn lend(
         ingress: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::PreparedBorrowedFormalIngressV1,
         claims: &OrdinaryNewFieldWriteClaimsV1, source: &Rc<DeclaredFieldValueSourceV1>,
     ) -> Option<Self> {
-        if source.declared_type_reference().is_some() { return None; }
-        let sum = ingress.source_field_value_sum_v1(claims, source)?;
+        if !Self::declaration_admits_v1(source.declared_type_name()) { return None; }
+        let sum = ingress.source_field_value_sum_v1(claims, source);
+        if crate::config::env::builder_debug_enabled() { eprintln!("[text-lend] sum={:?}", sum); }
+        let sum = sum?;
         sum.text_only().then(|| Self { source: Rc::clone(source), sum })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck(

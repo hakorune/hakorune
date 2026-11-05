@@ -922,7 +922,7 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 &source_ledger, shape, statement.site()).unwrap().unwrap();
             let plan = crate::mir::resolved_semantics::home_new_prefix::qualify_print_expression_v1::<()>(
                 source, &[],
-                &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| Ok(None), &mut |_| true,
+                &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None, &std::collections::BTreeMap::new(), &mut |_| Ok(None), &mut |_| true,
                 &mut |fields, _| { assert!(fields.is_empty()); Ok(true) }).unwrap().unwrap();
             Rc::clone(plan.print_frame().unwrap())
         }).unwrap();

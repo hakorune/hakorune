@@ -61,6 +61,17 @@ pub(super) fn observe<E>(
         return print_declined(statement.site(), 5);
     }
     let mut installation = None;
+    // A field read that the probed field batch proves to be a closed Text source starts as String.
+    let mut field_seeds = BTreeMap::new();
+    for (index, node) in source.nodes().iter().enumerate() {
+        if !matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
+        let Some(request) = super::field_read::expression_field_read_request(input, &source, node.site(), locals) else { continue };
+        if request.path.is_some() || request.received.is_some() { continue; }
+        if let Some(seed) = super::field_read::probed_text_field_seed_v1(&source, &request, fields)? {
+            field_seeds.insert(index, seed);
+        }
+    }
     let plan = qualify_print_expression_v1(
         std::rc::Rc::clone(&source),
         homes,
@@ -69,6 +80,7 @@ pub(super) fn observe<E>(
         &mut |site| locals.loop_text_reference_v1(site, homes),
         &mut |site| locals.current_scalar_read_v1(site, local_calls),
         &mut |site| super::field_read::expression_field_read_request(input, &source, site, locals),
+        &field_seeds,
         &mut |site| {
             local_call_flow::issue_source_expression_call_v1(
                 input,

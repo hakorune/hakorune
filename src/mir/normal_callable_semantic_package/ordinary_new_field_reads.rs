@@ -432,10 +432,10 @@ impl OrdinaryNewClaimLedgerV1 {
             let request = required.request();
             let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| fault("required-source-loan-missing"))?
                 .as_ref().map_err(Clone::clone)?;
-            if row.numeric_source.is_some() || row.source.declared_type_name().is_some()
+            if row.numeric_source.is_some() || !super::TextFieldValueSourceV1::declaration_admits_v1(row.source.declared_type_name())
                 || loan.field() != row.source.field() || !loan.recheck(ingress, &self.field_write_claims, &request.field)
                 || request.path.is_some() || request.received.is_some() || request.owned_ready.is_some()
-                || !required.plan().nodes().first().is_some_and(|node| node.site() == site.site())
+                || !super::TextFieldValueSourceV1::role_admits_v1(required.plan(), site.site())
                 || row.receiver_site != request.receiver_site || row.receiver != request.receiver || row.home != request.home {
                 return Err(fault("required-source-read-drift"));
             }
