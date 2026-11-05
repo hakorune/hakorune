@@ -56,7 +56,7 @@ successor `move` (§0) is its own decision, not a revival of those cards.
 | Rust/Hako parser and AST Home carriers | Rust `move` syntax live; Hako runtime parity remains unverified |
 | resolver Home-demand/root and Home Flow | bounded same-scope `move` of a `new`-derived local is implemented; general Home demand remains a target |
 | callable Home ABI | bounded declaration-only receipt exists; source `take` linkage absent |
-| canonical Builder/source producers | bounded explicit local `move` is connected through the published EXE route, including `new T(move x, ...)` for a handle local (an unannotated `birth` formal); `birth(take x: T)` takes a non-null object formal fed by `move` and stores it only with `me.f = move x` (a bare `me.f = x` for a `take` formal, and `move x` for a plain formal, are named refusals). Instance results computed from exact `i64` values (`+ - *` over literals, `i64` formals and declared-`i64` `me` fields) run through `local r = c.f(..)` and `return c.f(<Integer literals>)`; `birth(name: String)` is the same exact Text formal as `StringBox`, and a `String` / `StringBox` / `String?` field is a dynamic slot that takes Text only (no new slot kind; reads follow the untyped-field coverage); a field a `birth` fills with its own `new` is readable (`me.next == null`); an unconstructed box no longer blocks compilation |
+| canonical Builder/source producers | bounded explicit local `move` is connected through the published EXE route, including `new T(move x, ...)` for a handle local (an unannotated `birth` formal); `birth(take x: T)` takes a non-null object formal fed by `move` and stores it only with `me.f = move x` (a bare `me.f = x` for a `take` formal and `move x` for a plain formal are the `BirthStoreOwnershipMismatch` refusals; any other `take` birth whose source the builder cannot yet connect is `TakeBirthSourceUnconnected`, and a `take` formal never stored is `TakeFormalNotStored`). Instance results computed from exact `i64` values (`+ - *` over literals, `i64` formals and declared-`i64` `me` fields) run through `local r = c.f(..)` and `return c.f(<Integer literals>)`; `birth(name: String)` is the same exact Text formal as `StringBox`, and a `String` / `StringBox` / `String?` field is a dynamic slot that takes Text only (no new slot kind) and is readable in the listed borrow shapes (see "Reads check" below and strings.md `String` fields); a field a `birth` fills with its own `new` is readable (`me.next == null`); an unconstructed box no longer blocks compilation |
 | Ownership SSA / ownership opcodes | published local-move and bounded local Shared MIR are independently checked; general ownership remains a target |
 | current ordinary Box assignment | transitional SharedV1 behavior |
 | successor surface (§0) | decided 2026-10-30; bounded local `move` and `Shared` (new/clone/borrow read/release) are live, Hako parity pending; SharedV1 stays until the §10 cutover |
@@ -1103,6 +1103,17 @@ transaction; payload and disposition cannot be committed separately.
 Reads check I64/Bool/Text/object kind without bit reinterpretation or default
 coercion. Scalar reads copy values. String reads either retain a verified
 bounded view or materialize an independent immutable value before escape.
+Connected on the published EXE route (2026-11-05): a read of a `String` / `StringBox`
+field whose every writer stores Text materializes one independent copy that
+the expression owns and ends once; the field string is neither moved nor ended by the
+read, and a Fault after the read ends the field string and the copy exactly once each.
+Shapes: `print(t.f)`, `print(me.f)`, `print(t.f + "x")`, `local s = t.f + "x"`,
+`local n = t.f.length()` (also `me.f` inside a method) and an unannotated
+`get() { return me.f }`, which returns the independent copy. Refused by name:
+`local s = t.f` as a borrowed alias, `return t.f.length()`, `return me.f + ..`, a `String?` field, a `==`
+or `null` comparison of the field, a `: String` result annotation, a String field
+next to a typed object field, a field another writer fills with a non-Text value, and a
+store after publication.
 Box reads create no Home: they borrow the exact holder/slot support, which
 replacement or holder end invalidates. Reject source uses whose support does
 not cover them. Such a borrow cannot become a self-contained Dynamic result

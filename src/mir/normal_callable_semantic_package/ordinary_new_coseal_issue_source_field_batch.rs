@@ -311,7 +311,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 let numeric = if matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) {
                     match terminal_home::local_read_field_declaration(constructors, candidates, coverage,
                         receiver_proof, &request.site, request.home, alias_class.as_deref(), &request.field)? {
-                        Some((field, declared)) if declared.as_deref().is_none_or(crate::mir::declared_type_storage::is_declared_text_type_name_v1) => {
+                        Some((field, declared)) if crate::mir::normal_callable_semantic_package::TextFieldValueSourceV1::declaration_admits_v1(declared.as_deref()) => {
                             if crate::config::env::builder_debug_enabled() {
                                 eprintln!("[field-read] text candidate site={:?} field={} path={} received={} stored_get={stored_get} owned_ready={}",
                                     request.site, request.field, request.path.is_some(), request.received.is_some(), request.owned_ready.is_some());

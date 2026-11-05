@@ -251,9 +251,10 @@ impl PartialEq for TextFieldValueSourceV1 {
 }
 impl Eq for TextFieldValueSourceV1 {}
 impl TextFieldValueSourceV1 {
-    /// Untyped, or a declared Text slot (`String` / `StringBox` / `String?`): any other declared type is not a Text class.
+    /// Untyped, or a declared non-null Text slot (`String` / `StringBox`). A nullable `String?` slot and any other
+    /// declared type are not a Text class here: the null arm has no connected read.
     pub(in crate::mir::normal_callable_semantic_package) fn declaration_admits_v1(declared: Option<&str>) -> bool {
-        declared.is_none_or(crate::mir::declared_type_storage::is_declared_text_type_name_v1)
+        declared.is_none_or(|name| crate::mir::declared_type_storage::text_slot_declaration_v1(name).is_some_and(|(_, nullable)| !nullable))
     }
     /// A Print root or a local initializer admits the read at any node; a Return admits only a value that IS this read.
     pub(in crate::mir::normal_callable_semantic_package) fn role_admits_v1(
@@ -489,3 +490,7 @@ impl OrdinaryNewFieldWriteClaimsV1 {
         }))
     }
 }
+
+#[cfg(test)]
+#[path = "ordinary_new_text_field_source_tests.rs"]
+mod text_field_source_tests;

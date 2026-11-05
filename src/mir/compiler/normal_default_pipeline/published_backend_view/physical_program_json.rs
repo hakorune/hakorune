@@ -508,3 +508,7 @@ fn fault(reason: &str) -> String {
 #[cfg(test)]
 #[path = "physical_program_json_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "physical_program_json_text_read_tests.rs"]
+mod text_read_tests;

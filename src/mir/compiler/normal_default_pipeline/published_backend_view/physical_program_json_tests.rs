@@ -4,7 +4,7 @@ use crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunc
 use crate::parser::NyashParser;
 use std::collections::HashMap;
 
-fn request(source: &str) -> NormalCompileRequestV1 {
+pub(super) fn request(source: &str) -> NormalCompileRequestV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         crate::parser::ParserBuildConfig::default(),

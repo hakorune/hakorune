@@ -26,6 +26,15 @@ capability contract projection, not a new global runtime toggle: the
 provider/export admission is a later step. It does not authorize Rust-VM
 parity or generic String compatibility fallback.
 
+## `String` fields
+
+A `String`, `StringBox` or `String?` field is a dynamic slot that takes Text only. Reading a `String` or `StringBox` field never
+moves the field string: the read materializes one independent copy owned by the enclosing expression,
+which ends it once. Connected shapes: `print(t.f)`, `print(t.f + "x")`, `local s = t.f + "x"`,
+`local n = t.f.length()` (and `me.f` in a method), and an unannotated `get() { return me.f }`
+that returns the copy. Other shapes (a `String?` field, a borrowed `local s = t.f`, `return t.f.length()`, comparing
+the field, a `: String` result annotation, writes after publication) are refused by name.
+
 ## CoreMethod semantic-law projection
 
 The `.hako` `CoreMethodContractBox` is the callable semantic owner. Its v2
