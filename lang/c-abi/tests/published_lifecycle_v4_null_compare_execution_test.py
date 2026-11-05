@@ -62,7 +62,7 @@ with tempfile.TemporaryDirectory(prefix='hako null compare ') as directory:
         data = json.loads(path.read_text())
         compares = [row for row in instructions(data, 'Store.check/1')
                     if row['op'] == 'borrowed_null_compare']
-        assert len(compares) == 2, 'edge-port re-evaluation of the one source compare'
+        assert len(compares) == 1, 'the one source compare executes once and feeds the Branch'
         for predicate in ['eq', 'ne']:
             # Eq preserves source-issued input; Ne additionally exercises the
             # physical predicate contract, without claiming source admission.

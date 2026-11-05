@@ -75,7 +75,7 @@ with tempfile.TemporaryDirectory(prefix='hako scalar null compare ') as director
                         rows.append(row)
                     block['instructions'] = rows
                     block['terminator']['index'] = len(rows)
-                assert comparisons == 2, 'expected both source compare edge ports'
+                assert comparisons == 1, 'expected the one source compare (no edge-port replay)'
                 path = work / 'input.json'
                 path.write_text(json.dumps(data))
                 checked([driver, path, obj], env=ENV)

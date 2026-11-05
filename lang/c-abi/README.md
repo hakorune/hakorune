@@ -731,6 +731,16 @@ HAKO_TEST_LIFECYCLE_ARCHIVE=target/quick/libnyash_lifecycle_kernel.a \
   python3 lang/c-abi/tests/published_lifecycle_v4_borrowed_source_execution_test.py /tmp --unit-only
 ```
 
+Capturing for the V4 Python tests: the Rust tests write `hako-issued-*.json` under
+`std::env::temp_dir()`, so give each run its own fresh `TMPDIR` (a stale directory,
+for example `/tmp` with captures from older commits, lets a test pass against old
+input). Run `TMPDIR=<empty dir> RUST_MIN_STACK=67108864 <lib test binary>
+published_backend_view --test-threads=4`, then pass that directory (or the named
+capture files) to each `published_lifecycle_v4_*_test.py` with
+`HAKO_TEST_LIFECYCLE_ARCHIVE=<archive>`. Run at most four tests at a time, and not
+beside a cargo build: each links with `cc`. `declared_borrow` and `borrowed_source`
+take 10 to 20 minutes alone.
+
 This checks actual effects, allocation/release accounting, callee Print/New/Home
 Fault cleanup and role/result/value/projection refusals. The runtime archive must
 match the selected runtime source. Constructor committed-field and borrowed-self
