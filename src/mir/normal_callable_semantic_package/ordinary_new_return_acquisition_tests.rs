@@ -394,6 +394,18 @@ fn completed_object_acquisition_raw_only_opaque_definition_cannot_grant_executio
         let TerminalReturnedSourceV1::OwnedCall(original) = value.returned() else {
             panic!("owned")
         };
+        let before = package
+            .ordinary_new_claim_ledger
+            .checked_completed_object_acquisition_v1(
+                &value,
+                &package.selected,
+                &package.parameter_contracts,
+                &package.physical_signature,
+            )
+            .unwrap()
+            .unwrap()
+            .arguments()
+            .to_vec();
         let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
         let source = ledger
             .borrowed_formal_source
@@ -408,7 +420,12 @@ fn completed_object_acquisition_raw_only_opaque_definition_cannot_grant_executio
             .callee_owner();
         source.retain_only_source_definition_for_test(owner);
         assert!(!source.contains_definition_for_test(owner));
-        assert!(ledger
+        // The original QualifiedObject family owns its whole input cohort
+        // (`checked_completed_opaque_object_target_arguments_v1`): its acquisition
+        // is independent of executable membership, so removing the definition
+        // changes nothing about the proof. Membership stays passive and the
+        // Object return stays pending.
+        let after = ledger
             .checked_completed_object_acquisition_v1(
                 &value,
                 &package.selected,
@@ -416,7 +433,8 @@ fn completed_object_acquisition_raw_only_opaque_definition_cannot_grant_executio
                 &package.physical_signature,
             )
             .unwrap()
-            .is_none());
+            .unwrap();
+        assert_eq!(after.arguments(), before.as_slice());
         assert!(ledger.validate_no_pending_object_returns_v1().is_err());
     }
 }

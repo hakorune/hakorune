@@ -553,7 +553,15 @@ fn original_print_source_reaches_normal_compiler_and_finished_string_lifetimes()
             match mutation {
                 "outer-condition" => *condition = result,
                 "outer-target" => *then_bb = *else_bb,
-                "outer-args" => *then_edge_args = None,
+                // The original arm carries `Some(EdgeArgs { values: [] })`, which the
+                // checked CFG treats as no edge values; dropping it to `None` was a
+                // no-op. Carry a real value on the arm instead.
+                "outer-args" => {
+                    *then_edge_args = Some(crate::mir::edge_args::EdgeArgs {
+                        layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
+                        values: vec![result],
+                    })
+                }
                 _ => unreachable!(),
             }
             edits += 1;

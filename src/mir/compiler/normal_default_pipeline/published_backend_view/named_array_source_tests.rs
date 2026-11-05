@@ -519,6 +519,24 @@ fn user_object_provider_construction_reaches_artifact_lane() {
                         _ => false,
                     }).count();
                     assert_eq!(field_sets, 1, "provider store retains its exact residence mode");
+                    // Newest-first: from the residence release the chain reaches the
+                    // child's HomeRelease (Normal landing, through plain Jumps) before
+                    // the Fault frame returns.
+                    for function in view.module().functions.values() {
+                        for block in function.blocks.values() {
+                            let Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease { .. }, normal_landing, .. }) = &block.terminator else { continue };
+                            let mut at = *normal_landing;
+                            let reached = loop {
+                                match function.blocks[&at].terminator.as_ref() {
+                                    Some(MirInstruction::Jump { target, .. }) => at = *target,
+                                    Some(MirInstruction::Invoke { operation, .. }) => break Some(operation.clone()),
+                                    _ => break None,
+                                }
+                            };
+                            assert!(matches!(reached, Some(crate::mir::instruction::InvokeOperation::HomeRelease { .. })),
+                                "residence release precedes the child's storage release: {reached:?}");
+                        }
+                    }
                     let reclaims = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished { .. }, .. })).count();
                     assert_eq!(reclaims, 1, "birth fault reclaims the unpublished child");
@@ -558,7 +576,11 @@ fn provider_owned_array_child_reaches_artifact_lane() {
                     };
                     let residences = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease { .. }, .. })).count();
-                    assert_eq!(residences, 2, "one residence release on each cleanup chain");
+                    // Only the store-Fault chain holds a published child whose array
+                    // residence is resident; the Birth-Fault chain reclaims the
+                    // unpublished child. The Normal End is derived from the layout
+                    // and has no MIR residence release.
+                    assert_eq!(residences, 1, "one residence release on the store-Fault chain");
                     let reclaims = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished { .. }, .. })).count();
                     assert_eq!(reclaims, 1, "birth fault reclaims the unpublished child");

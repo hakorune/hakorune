@@ -476,7 +476,9 @@ fn guarded_object_actuals_refuse_static_source_and_reconstructed_snapshot_drift(
         match mutation {
             0 => drifted.phase = BorrowedCallActualEvidencePhaseV1::Executable,
             1 => drifted.opaque_actuals[0].ordinal += 1,
-            _ => drifted.opaque_actuals[0].source = BorrowedFormalActualSourceV1::Integer(7),
+            // The reconstructed original already spells `Integer(7)`; drift to a
+            // different literal so the mutation changes the snapshot.
+            _ => drifted.opaque_actuals[0].source = BorrowedFormalActualSourceV1::Integer(8),
         }
         assert!(super::super::revalidate_passive_object_incoming_v1(
             source,
