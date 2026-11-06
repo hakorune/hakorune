@@ -194,6 +194,19 @@ fn parsed_box(source: &str) -> ASTNode {
     statements.remove(0)
 }
 
+/// Raw child lowering needs a source receipt for every expression; the roots
+/// these tests drive carry the script-root lineage and no payload.
+fn drive_rooted(
+    builder: &mut MirBuilder,
+    port: &mut RawInvocationChildPortV1<'_, '_>,
+    node: ASTNode,
+) -> Result<crate::mir::ValueId, String> {
+    port.with_source_transport_v1(
+        RawInvocationSourceTransportV1::root((), RawInvocationRootLineageV1::ScriptRoot),
+        |port, ()| drive_legacy_expression_v1(builder, port, node),
+    )
+}
+
 fn assert_raw_indirect_unified_contract() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
         let mut builder = MirBuilder::new();
@@ -268,7 +281,7 @@ fn raw_invocation_port_collects_static_and_instance_box_methods() {
             "static box RawStatic { run() { return 7 } }",
             "box RawInstance { run() { return 8 } }",
         ] {
-            drive_legacy_expression_v1(builder, &mut port, parsed_box(source)).unwrap();
+            drive_rooted(builder, &mut port, parsed_box(source)).unwrap();
         }
     });
 
@@ -316,9 +329,9 @@ fn raw_invocation_port_preserves_binary_and_unary_children() {
     builder.enter_function_for_test("raw_port_binary_unary/0".to_string());
     with_port!(builder, port, {
         let binary =
-            drive_legacy_expression_v1(builder, &mut port, add(int(1), add(int(2), int(3))))
+            drive_rooted(builder, &mut port, add(int(1), add(int(2), int(3))))
                 .unwrap();
-        let unary = drive_legacy_expression_v1(
+        let unary = drive_rooted(
             builder,
             &mut port,
             ASTNode::UnaryOp {
@@ -366,7 +379,7 @@ fn raw_invocation_port_preserves_async_qmark_check_collection_and_print_children
                 span: Span::unknown(),
             },
         ] {
-            drive_legacy_expression_v1(builder, &mut port, node).unwrap();
+            drive_rooted(builder, &mut port, node).unwrap();
         }
         assert!(instructions(builder)
             .iter()
@@ -451,14 +464,14 @@ fn raw_invocation_port_preserves_call_and_from_children() {
             arguments: vec![add(int(3), int(4))],
             span: Span::unknown(),
         };
-        drive_legacy_expression_v1(builder, &mut port, indirect).unwrap();
+        drive_rooted(builder, &mut port, indirect).unwrap();
         let from = ASTNode::FromCall {
             parent: "Parent".to_string(),
             method: "build".to_string(),
             arguments: vec![add(int(5), int(6))],
             span: Span::unknown(),
         };
-        drive_legacy_expression_v1(builder, &mut port, from).unwrap();
+        drive_rooted(builder, &mut port, from).unwrap();
         assert!(instructions(builder)
             .iter()
             .any(|row| matches!(row, MirInstruction::LegacyCallV0 { .. })));
@@ -471,13 +484,13 @@ fn raw_invocation_port_preserves_function_preflight_children() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_function_preflight/0".to_string());
     with_port!(builder, port, {
-        let typeop = drive_legacy_expression_v1(
+        let typeop = drive_rooted(
             builder,
             &mut port,
             function_call("isType", vec![add(int(1), int(2)), string("Integer")]),
         )
         .unwrap();
-        let externcall = drive_legacy_expression_v1(
+        let externcall = drive_rooted(
             builder,
             &mut port,
             function_call("externcall", vec![string("io.print"), add(int(3), int(4))]),
@@ -510,7 +523,7 @@ fn raw_invocation_port_preserves_if_children() {
             else_body: Some(vec![add(int(3), int(4))]),
             span: Span::unknown(),
         };
-        let output = drive_legacy_expression_v1(builder, &mut port, if_node).unwrap();
+        let output = drive_rooted(builder, &mut port, if_node).unwrap();
         assert!(instructions(builder).iter().any(|row| matches!(
             row,
             MirInstruction::Phi { dst, .. } if *dst == output
@@ -601,8 +614,8 @@ fn raw_invocation_port_preserves_new_and_field_record_children() {
             field_initializers: vec![("value".to_string(), add(int(3), int(4)))],
             span: Span::unknown(),
         };
-        drive_legacy_expression_v1(builder, &mut port, new).unwrap();
-        let record_value = drive_legacy_expression_v1(
+        drive_rooted(builder, &mut port, new).unwrap();
+        let record_value = drive_rooted(
             builder,
             &mut port,
             field(record(vec![("value", add(int(5), int(6)))]), "value"),
@@ -624,7 +637,7 @@ fn raw_invocation_port_preserves_throw_child() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_throw/0".to_string());
     with_port!(builder, port, {
-        drive_legacy_expression_v1(
+        drive_rooted(
             builder,
             &mut port,
             ASTNode::Throw {
