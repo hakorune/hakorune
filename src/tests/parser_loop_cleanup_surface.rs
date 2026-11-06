@@ -1,11 +1,12 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
 use crate::tests::helpers::env::with_stage3_features;
+use crate::tests::helpers::parser::parse_ok_compat;
 
 #[test]
 fn parser_loopclean_while_stage3_normalizes_to_loop_ast() {
     with_stage3_features(|| {
-        let ast = NyashParser::parse_from_string(
+        let ast = parse_ok_compat(
             r#"
 static box Main {
   main() {
@@ -17,8 +18,7 @@ static box Main {
   }
 }
 "#,
-        )
-        .expect("parse while sugar");
+        );
 
         let ASTNode::Program { statements, .. } = ast else {
             panic!("expected Program");

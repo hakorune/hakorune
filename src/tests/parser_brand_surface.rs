@@ -42,5 +42,5 @@ brand Bytes: usize
 #[test]
 fn parser_brand_surface_rejects_missing_underlying_type() {
     let err = NyashParser::parse_from_string("brand PageId:").unwrap_err();
-    assert!(err.to_string().contains("brand underlying type"), "{err}");
+    assert!(err.to_string().contains("parser/brand_declaration_invalid] underlying type"), "{err}");
 }

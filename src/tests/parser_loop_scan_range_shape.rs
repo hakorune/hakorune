@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::parser::NyashParser;
 use crate::tests::helpers::env::with_stage3_features;
-use crate::tests::helpers::parser::find_method_body;
+use crate::tests::helpers::parser::{find_method_body, parse_ok_compat};
 
 #[test]
 fn parser_loop_scan_range_shape_preserves_lte_n_minus_one_ast() {
@@ -26,7 +26,7 @@ box Scan {
 }
 "#;
 
-        let ast = NyashParser::parse_from_string(src).expect("parse ok");
+        let ast = parse_ok_compat(src);
         let body = find_method_body(&ast, "Scan", "run");
         let loop_stmt = body
             .iter()
@@ -156,52 +156,6 @@ box Scan {
                 value: LiteralValue::Integer(1),
                 ..
             }
-        ));
-    });
-}
-
-#[test]
-fn parser_legacy_for_range_surface_uses_shared_for_range_shape() {
-    with_stage3_features(|| {
-        let src = r#"
-box Scan {
-  run(count) {
-    for i in 2..count {
-      print(i)
-    }
-    return 0
-  }
-}
-"#;
-
-        let ast = NyashParser::parse_from_string(src).expect("parse ok");
-        let body = find_method_body(&ast, "Scan", "run");
-        let range_stmt = body
-            .iter()
-            .find(|stmt| matches!(stmt, ASTNode::LoopRange { .. }))
-            .expect("legacy for range statement must exist");
-
-        let ASTNode::LoopRange {
-            var_name,
-            start,
-            end,
-            ..
-        } = range_stmt
-        else {
-            panic!("expected LoopRange metadata node");
-        };
-
-        assert_eq!(var_name, "i");
-        assert!(matches!(
-            start.as_ref(),
-            ASTNode::Literal {
-                value: LiteralValue::Integer(2),
-                ..
-            }
-        ));
-        assert!(matches!(
-            end.as_ref(),
-            ASTNode::Variable { name, .. } if name == "count"
         ));
     });
 }

@@ -281,14 +281,19 @@ box NestedChoice {
   gate Build.test {
     outer_branch_field: i64
     gate Build.release {
-      ignored() { return 1 }
+      inner_field_a: i64
+      inner_field_b: i64
+      selected_else() { return 1 }
     } else {
       inner_field_a: i64
       inner_field_b: i64
       selected_else() { return 2 }
     }
   } else {
-    ignored_outer() { return 3 }
+    outer_branch_field: i64
+    inner_field_a: i64
+    inner_field_b: i64
+    selected_else() { return 3 }
   }
   after() { return 4 }
 }
