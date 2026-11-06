@@ -527,16 +527,3 @@ fn build_plan(
         nodes: nodes.into_boxed_slice(),
     }))
 }
-
-/// The one position rule for a Call standing in an expression: it is an
-/// expression value (argument, operand, condition, printed, returned or
-/// assigned value) unless it is the whole initializer of a Local or a
-/// statement of its own; those two positions keep their statement-level
-/// writers. Decided from the exact source path, so every consumer agrees.
-pub(crate) fn site_stands_as_expression_value_v1(site: &SourceExprSiteV1) -> bool {
-    !matches!(site.node().segments().last(),
-        Some(SourcePathSegmentV1::Initializer(_) | SourcePathSegmentV1::Body(_) | SourcePathSegmentV1::ProgramBody(_)
-            | SourcePathSegmentV1::ScopeBody(_) | SourcePathSegmentV1::TaskScopeBody(_) | SourcePathSegmentV1::FastMemBody(_)
-            | SourcePathSegmentV1::IfThen(_) | SourcePathSegmentV1::IfElse(_) | SourcePathSegmentV1::LoopBody(_)
-            | SourcePathSegmentV1::LambdaBody(_)))
-}

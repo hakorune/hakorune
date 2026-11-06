@@ -511,7 +511,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for row in source.source_incoming.source_rows_v1().filter(|row| row.call.owner() == owner) {
             if let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source {
                 if original.is_qualified_i64_source_v1()
-                    && crate::mir::resolved_value_profile::expression_plan::site_stands_as_expression_value_v1(row.call.site())
+                    && crate::mir::resolved_value_profile::expression_position::site_stands_as_expression_value_v1(row.call.site())
                     && original.parameters().iter().all(|formal| formal.kind
                         == CallableParameterContractKindV1::ExactTrivial(
                             crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
