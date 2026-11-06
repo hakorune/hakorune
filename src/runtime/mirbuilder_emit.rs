@@ -28,10 +28,9 @@ pub fn imports_from_env() -> BTreeMap<String, String> {
 pub fn emit_program_json_to_mir_json_with_env_imports(
     program_json: &str,
 ) -> Result<String, String> {
-    let _env_guard = crate::host_providers::mir_builder::Phase0MirJsonEnvGuard::new();
     let mut module = lower_input_json_to_module(program_json, imports_from_env())?;
     crate::host_providers::mir_builder::refresh_bridge_semantic_metadata(&mut module)?;
-    let mir_json = crate::host_providers::mir_builder::module_to_mir_json(&module)?;
+    let mir_json = crate::host_providers::mir_builder::module_to_program_json_bridge_mir_json(&module)?;
     crate::host_providers::mir_builder::normalize_program_json_bridge_backend_shape(&mir_json)
 }
 

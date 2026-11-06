@@ -8,7 +8,7 @@ use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
 #[cfg(test)]
-use super::{trace_enabled, trace_log, Phase0MirJsonEnvGuard};
+use super::{trace_enabled, trace_log};
 
 /// Convert Program(JSON v0) to MIR(JSON v0) and return it as a String.
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
@@ -23,26 +23,24 @@ pub(super) fn program_json_to_mir_json_with_imports(
     program_json: &str,
     imports: BTreeMap<String, String>,
 ) -> Result<String, String> {
-    let _env_guard = Phase0MirJsonEnvGuard::new();
     parse_input_json(program_json)?;
     let module = lower_program_json_to_module_with_imports(program_json, imports)?;
-    super::module_to_mir_json(&module)
+    super::module_to_program_json_bridge_mir_json(&module)
 }
 
 #[cfg(test)]
 fn program_json_to_mir_json_impl(program_json: &str) -> Result<String, String> {
     // Phase-0 contract: MIR JSON v0 must be executable via `--mir-json-file` v0 loader.
     // That loader supports `externcall`/`boxcall` but not unified `mir_call` lowering.
-    // Therefore we force unified-call OFF for both compilation and emission here.
-    let _env_guard = Phase0MirJsonEnvGuard::new();
-
+    // The emission profile is passed as a value (`PROGRAM_JSON_V0_BRIDGE`); the process
+    // environment is not touched.
     parse_input_json(program_json)?;
     let module = match runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
         Ok(module) => module,
         Err(error) => return Err(super::failfast_error(error)),
     };
 
-    super::module_to_mir_json(&module)
+    super::module_to_program_json_bridge_mir_json(&module)
 }
 
 #[cfg(test)]

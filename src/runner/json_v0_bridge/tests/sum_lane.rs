@@ -527,8 +527,7 @@ fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
 
 #[test]
 fn sum_ops_survive_mir_json_roundtrip() {
-    let _lock = env_guard().lock().expect("env lock");
-    std::env::set_var("NYASH_JSON_SCHEMA_V1", "0");
+    let _schema_v0 = crate::test_support::ScopedTestConfig::set("NYASH_JSON_SCHEMA_V1", "0");
 
     let json = json!({
         "version": 0,
@@ -569,7 +568,6 @@ fn sum_ops_survive_mir_json_roundtrip() {
         .expect("emit mir json");
     let reparsed =
         crate::runner::mir_json_v0::parse_mir_v0_to_module(&emitted).expect("reparse mir json");
-    std::env::remove_var("NYASH_JSON_SCHEMA_V1");
 
     let insts = main_instructions(&reparsed);
     assert!(

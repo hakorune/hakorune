@@ -1,5 +1,5 @@
 use super::{
-    failfast_error, module_to_mir_json, refresh_bridge_semantic_metadata, with_phase0_mir_json_env,
+    failfast_error, module_to_program_json_bridge_mir_json, refresh_bridge_semantic_metadata,
     Stage1UserBoxDecls, FAILFAST_TAG,
 };
 use crate::mir::types::ConstValue;
@@ -130,15 +130,14 @@ impl Stage1ProgramJsonValue {
 }
 
 impl Stage1FinalizedMirModule {
+    #[cfg(test)]
     pub(super) fn emit_mir_json(self) -> Result<String, String> {
-        module_to_mir_json(&self.module)
+        super::module_to_mir_json(&self.module)
     }
 
     pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
-        with_phase0_mir_json_env(|| {
-            let mir_json = self.emit_mir_json()?;
-            super::normalize_program_json_bridge_backend_shape(&mir_json)
-        })
+        let mir_json = module_to_program_json_bridge_mir_json(&self.module)?;
+        super::normalize_program_json_bridge_backend_shape(&mir_json)
     }
 }
 

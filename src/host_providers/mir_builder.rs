@@ -35,44 +35,6 @@ pub(crate) fn failfast_error(message: impl Display) -> String {
     tag
 }
 
-pub(crate) struct ScopedEnvVar {
-    key: &'static str,
-    prev: Option<String>,
-}
-
-impl ScopedEnvVar {
-    pub(crate) fn set(key: &'static str, value: &'static str) -> Self {
-        let prev = std::env::var(key).ok();
-        std::env::set_var(key, value);
-        Self { key, prev }
-    }
-}
-
-impl Drop for ScopedEnvVar {
-    fn drop(&mut self) {
-        match self.prev.take() {
-            Some(v) => std::env::set_var(self.key, v),
-            None => std::env::remove_var(self.key),
-        }
-    }
-}
-
-pub(crate) struct Phase0MirJsonEnvGuard {
-    _schema_v1: ScopedEnvVar,
-    _unified_call: ScopedEnvVar,
-    _methodize: ScopedEnvVar,
-}
-
-impl Phase0MirJsonEnvGuard {
-    pub(crate) fn new() -> Self {
-        Self {
-            _schema_v1: ScopedEnvVar::set("NYASH_JSON_SCHEMA_V1", "0"),
-            _unified_call: ScopedEnvVar::set("NYASH_MIR_UNIFIED_CALL", "0"),
-            _methodize: ScopedEnvVar::set("HAKO_MIR_BUILDER_METHODIZE", "0"),
-        }
-    }
-}
-
 /// Convert Program(JSON v0) to MIR(JSON v0) and return it as a String.
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
 #[cfg(test)]
@@ -110,22 +72,28 @@ pub(crate) fn program_json_to_mir_json_with_imports(
     lowering::program_json_to_mir_json_with_imports(program_json, imports)
 }
 
+/// Emit under the ambient profile selectors.
+#[cfg(test)]
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
     crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(module)
         .map_err(failfast_error)
+}
+
+/// Emit the Program(JSON v0) bridge MIR JSON: the profile is passed as a value.
+pub(crate) fn module_to_program_json_bridge_mir_json(
+    module: &crate::mir::MirModule,
+) -> Result<String, String> {
+    crate::runner::mir_json_emit::emit_mir_json_string_with_profile(
+        module,
+        crate::runner::mir_json_emit::JsonEgressProfile::PROGRAM_JSON_V0_BRIDGE,
+    )
+    .map_err(failfast_error)
 }
 
 pub(crate) fn refresh_bridge_semantic_metadata(
     module: &mut crate::mir::MirModule,
 ) -> Result<(), String> {
     crate::mir::semantic_refresh::refresh_module_semantic_metadata(module)
-}
-
-fn with_phase0_mir_json_env<T>(
-    emit_mir_json: impl FnOnce() -> Result<T, String>,
-) -> Result<T, String> {
-    let _env_guard = Phase0MirJsonEnvGuard::new();
-    emit_mir_json()
 }
 
 #[cfg(test)]

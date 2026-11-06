@@ -49,6 +49,17 @@ pub fn emit_mir_json_string_for_harness_bin(
     serialize_mir_json_root(&root)
 }
 
+/// Emit the harness MIR JSON string under a profile the caller selected, without reading the
+/// ambient profile selectors.
+pub(crate) fn emit_mir_json_string_with_profile(
+    module: &crate::mir::MirModule,
+    profile: super::root::JsonEgressProfile,
+) -> Result<String, String> {
+    let refreshed = refreshed_export_module(module)?;
+    let root = super::root::build_mir_json_root_with_profile(refreshed.module(), profile)?;
+    serialize_mir_json_root(&root)
+}
+
 /// Emit the canonical MIR JSON document through the published view.
 ///
 /// The named-array discharge runs inside `build_published_body_root` via

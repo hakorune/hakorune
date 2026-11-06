@@ -104,8 +104,13 @@ fn fixture() -> MirModule {
 }
 
 fn emit(module: &MirModule) -> Value {
-    let wire = crate::runner::mir_json_emit::emit_mir_json_string_for_unpublished_candidate(module)
-        .unwrap();
+    // The emit reads the profile selectors from the process environment: pin them unset under
+    // the shared test lock so a concurrent selector-mutation window cannot change the profile.
+    let wire = crate::test_support::with_env_vars(
+        &[("NYASH_JSON_SCHEMA_V1", None), ("NYASH_MIR_UNIFIED_CALL", None), ("HAKO_MIR_BUILDER_METHODIZE", None)],
+        || crate::runner::mir_json_emit::emit_mir_json_string_for_unpublished_candidate(module),
+    )
+    .unwrap();
     parse_canonical_document_transport_v1(&wire).unwrap()
 }
 

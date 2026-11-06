@@ -65,6 +65,11 @@ impl JsonEgressProfile {
         }
     }
 
+    /// The Program(JSON v0) bridge profile: MIR JSON v0 that the `--mir-json-file` v0 loader
+    /// executes (`externcall`/`boxcall`, no unified `mir_call`, no methodize). The caller passes
+    /// it as a value; it is never written into the process environment.
+    pub(crate) const PROGRAM_JSON_V0_BRIDGE: Self = Self::CompatibilityV0 { methodize: false };
+
     pub(crate) fn from_env() -> Result<Self, String> {
         Self::from_values(
             std::env::var("NYASH_JSON_SCHEMA_V1").ok().as_deref(),

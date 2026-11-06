@@ -7,12 +7,6 @@ use crate::mir::thin_entry::{
 use crate::mir::thin_entry_selection::ThinEntrySelectionState;
 use crate::mir::{MirInstruction, MirModule};
 use serde_json::json;
-use std::sync::{Mutex, OnceLock};
-
-pub(super) fn env_guard() -> &'static Mutex<()> {
-    static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
-    GUARD.get_or_init(|| Mutex::new(()))
-}
 
 pub(super) fn option_enum_decls() -> serde_json::Value {
     json!([
