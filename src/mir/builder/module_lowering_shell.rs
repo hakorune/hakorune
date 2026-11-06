@@ -161,10 +161,6 @@ impl ModuleLoweringShellV1 {
         self.declaration_lanes_are_vacant() && self.module.metadata.source_file.is_none()
     }
 
-    pub(in crate::mir::builder) fn source_file(&self) -> Option<&str> {
-        self.module.metadata.source_file.as_deref()
-    }
-
     #[cfg(test)]
     pub(in crate::mir::builder) fn publish_function_for_test(&mut self, function: MirFunction) {
         self.module.add_function(function);
@@ -210,10 +206,6 @@ impl ModuleLoweringShellDrainInventoryV1 {
             symbols: symbols.into_boxed_slice(),
             _seal: ModuleLoweringShellDrainInventorySealV1,
         })
-    }
-
-    pub(in crate::mir::builder) fn symbols(&self) -> &[String] {
-        &self.symbols
     }
 }
 

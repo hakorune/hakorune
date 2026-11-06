@@ -18,10 +18,6 @@ struct InvocationBrandedOwnerSealV1;
 
 pub(in crate::mir) type BrandedShellV1<T> = InvocationBranded<T>;
 pub(in crate::mir) type BrandedCollectorV1<T> = InvocationBranded<T>;
-pub(in crate::mir::builder) type BrandedLedgerV1<T> = InvocationBranded<T>;
-pub(in crate::mir::builder) type BrandedCompleteV1<T> = InvocationBranded<T>;
-pub(in crate::mir::builder) type BrandedDrainedV1<T> = InvocationBranded<T>;
-pub(in crate::mir::builder) type BrandedFinalizedV1<T> = InvocationBranded<T>;
 
 impl<T> InvocationBranded<T> {
     /// The only production-side constructor: the caller must already own a

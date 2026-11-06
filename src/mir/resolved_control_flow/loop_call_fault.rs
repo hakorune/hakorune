@@ -14,7 +14,6 @@ pub(crate) struct LoopCallFaultContinuationV1 {
 impl LoopCallFaultContinuationV1 {
     pub(crate) fn call(&self) -> &OwnedExprSiteV1 { &self.call }
     pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 { &self.loop_site }
-    pub(crate) fn target_function(&self) -> RegionId { self.target_function }
     pub(crate) fn crossed_scopes(&self) -> &[ScopeId] { &self.crossed_scopes }
 }
 

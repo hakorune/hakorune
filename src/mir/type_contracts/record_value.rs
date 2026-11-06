@@ -9,7 +9,6 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(crate) const RECORD_VALUE_CONTRACT_CAPABILITY: &str = "record_value_contracts";
 pub(crate) const RECORD_CONTRACT_STALE_CARRIER_TAG: &str = "[type/record_contract_stale_carrier]";
 pub(crate) const RECORD_CONTRACT_SOURCE_DRIFT_TAG: &str = "[type/record_contract_source_drift]";
-pub(crate) const RECORD_CONTRACT_REFRESH_BYPASS_TAG: &str = "[type/record_contract_refresh_bypass]";
 
 pub(crate) fn record_schema_fingerprint(decl: &RecordDecl) -> String {
     let mut source = format!("record-v1|{}:{}|", decl.name.len(), decl.name);

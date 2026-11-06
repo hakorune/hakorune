@@ -54,10 +54,6 @@ impl VerifiedNormalMain0BridgePlanV1 {
     pub(crate) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
         &self.forest
     }
-
-    pub(crate) const fn projection(&self) -> &VerifiedSourceProjectionV1 {
-        &self.projection
-    }
 }
 
 #[derive(Debug)]

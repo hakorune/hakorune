@@ -20,7 +20,7 @@ fn requests_condition(
     input: ResolvedFunctionLoweringInputV1<'_>,
     condition: &SourceExprSiteV1,
 ) -> bool {
-    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+    
     if input.function().expression_source().unary(condition).is_some_and(|unary| unary.is_explicit_copy_v1()) { return true; }
     input.function().method_call(condition).is_some_and(|call| {
         call.selector() == "has"
@@ -76,10 +76,7 @@ fn has_unconditional_nested_call_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
 ) -> bool {
-    use crate::mir::resolved_value_profile::{
-        expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
-        expression_plan::ExpressionNodeSourceV1,
-    };
+    use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
     let Ok(source) = condition_expression_source_plan_v1(input, statement) else {
         return false;
     };

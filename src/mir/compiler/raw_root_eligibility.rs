@@ -442,9 +442,6 @@ pub(in crate::mir) struct RejectedRawRootPhysicalOpenV1 {
 }
 
 impl RejectedRawRootPhysicalOpenV1 {
-    pub(in crate::mir) const fn error(&self) -> &RawRootPhysicalOpenErrorV1 {
-        &self.error
-    }
 
     pub(in crate::mir) fn discard(self) {}
 }

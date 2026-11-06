@@ -25,7 +25,7 @@ use super::selected_callable_deferred::{
     SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverDeferredV1,
     SelectedCallableResolverInputV1, SelectedCallableResolverSourceIdentityV1,
 };
-use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
+use super::shadow::ShadowLambdaSyntaxV0;
 use super::VerifiedResolvedBodyShapeInventoryV1;
 use super::{
     EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1,

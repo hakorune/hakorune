@@ -57,12 +57,6 @@ impl<'source> CanonicalNestedPredicatePlanV1<'source> {
         &self.emission
     }
 
-    pub(crate) fn completion(
-        &self,
-    ) -> &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
-        &self.completion
-    }
-
     pub(crate) fn seal_resolved_owner_header_v1(
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {

@@ -131,12 +131,6 @@ impl<'facts, 'catalog: 'facts> VerifiedQualifiedCallRouteFactsV1<'facts, 'catalo
         self.receiver
     }
 
-    pub(crate) const fn lexical_owner(
-        &self,
-    ) -> &VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog> {
-        self.lexical
-    }
-
     pub(super) fn matches_import_view(
         &self,
         imports: &VerifiedStaticImportAliasViewV1<'catalog>,

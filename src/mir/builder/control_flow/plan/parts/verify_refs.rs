@@ -101,8 +101,5 @@ pub(super) fn verify_item_refs_in_range(
             }
             Ok(())
         }
-        _ => Err(format!(
-            "[freeze:contract][recipe] verifier_saw_unsupported_item: ctx={context}"
-        )),
     }
 }

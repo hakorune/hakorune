@@ -187,9 +187,8 @@ mod binding_rebind;
 #[path = "home_expression_plan.rs"]
 mod expression_plan;
 pub(crate) use expression_plan::{
-    qualify_argument_expression_v1, qualify_binding_rebind_expression_v1,
-    qualify_binding_rebind_expression_with_loop_dynamic_v1,
-    qualify_bool_condition_v1, qualify_condition_expression_v1, qualify_initializer_expression_v1,
+    qualify_argument_expression_v1,
+    qualify_binding_rebind_expression_with_loop_dynamic_v1, qualify_condition_expression_v1, qualify_initializer_expression_v1,
     qualify_print_expression_v1, BindingRebindDestinationV1, CheckedArgumentExpressionFrameV1,
     CheckedBindingRebindFrameV1, CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1,
     CheckedExpressionReferenceV1, CheckedExpressionOperationLoanV1, CheckedFieldWriteFrameV1, CheckedInitializerExpressionFrameV1,
@@ -213,7 +212,7 @@ pub(crate) use local_flow::{
     LiveHomeV1, LoopHeaderValueBasisV1, LoopI64PreStateRequestV1, LoopTextReadV1, SourceScalarKind,
     StaticTextReadV1, TextResidenceAcquisitionV1,
 };
-pub(crate) use local_flow::{TaggedDynamicReadV1, TaggedDynamicValueV1};
+pub(crate) use local_flow::TaggedDynamicReadV1;
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;

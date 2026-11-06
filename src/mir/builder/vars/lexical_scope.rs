@@ -17,12 +17,6 @@ pub(in crate::mir::builder) struct LexicalScopeFrame {
     pub(in crate::mir::builder) restore_binding: BTreeMap<String, Option<BindingId>>,
 }
 
-impl LexicalScopeFrame {
-    fn new() -> Self {
-        Self::default()
-    }
-}
-
 #[derive(Debug)]
 pub(in crate::mir::builder) enum LexicalScopeCloseErrorV1 {
     Unbalanced { function: Box<str>, depth: usize },

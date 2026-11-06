@@ -216,10 +216,6 @@ impl VerifiedResolvedFunctionFlowV1 {
         &self.if_flows
     }
 
-    pub(crate) fn if_flow(&self, site: &SourceStmtSiteV1) -> Option<&VerifiedResolvedIfFlowV1> {
-        self.if_flows.iter().find(|flow| flow.site() == site)
-    }
-
     pub(crate) const fn coverage(&self) -> &VerifiedFunctionFlowCoverageV1 {
         &self.coverage
     }

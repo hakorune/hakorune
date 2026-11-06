@@ -36,10 +36,7 @@ pub(crate) use callable_catalog_source::{
     NormalCallableCatalogSourceErrorV1, NormalCallableCatalogSourceStageV1,
     RejectedNormalCallableCatalogSourceV1, VerifiedNormalCallableCatalogSourceUnitV1,
 };
-pub(crate) use callable_source::{
-    NormalCallableSourceErrorV1, NormalCallableSourceStageV1, RejectedNormalCallableSourceV1,
-    VerifiedNormalCallableSourceUnitV1,
-};
+pub(crate) use callable_source::RejectedNormalCallableSourceV1;
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
 pub(crate) use compatibility_origin::{
     NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
@@ -49,35 +46,23 @@ pub(in crate::mir::compiler) use instance_function_plan::{
     RejectedGeneralFunctionPlanSetV1, VerifiedNormalInstanceFunctionFactsV1,
     VerifiedNormalInstanceFunctionPlanSetV1, VerifiedNormalInstanceFunctionPlanV1,
 };
-pub(crate) use instance_i64_parameter_return_plan::{
-    NormalInstanceI64ParameterReturnRecipeV1, VerifiedNormalInstanceI64ParameterReturnPlanV1,
-    VerifiedNormalInstanceI64ParameterV1,
-};
-pub(crate) use instance_integer_local_return_plan::{
-    NormalInstanceIntegerLocalReturnRecipeV1, VerifiedNormalInstanceIntegerLocalReturnPlanV1,
-    VerifiedNormalInstanceLocalV1,
-};
-pub(crate) use instance_integer_return_plan::{
-    NormalInstanceIntegerReturnRecipeV1, VerifiedNormalInstanceIntegerReturnPlanV1,
-};
 pub(crate) use main0_bridge::{
     NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1, RejectedNormalMain0BridgeV1,
     VerifiedNormalMain0BridgePlanV1, VerifiedNormalModuleFunctionPlanSetV1,
 };
 pub(crate) use main_direct_call_plan::{
-    NormalMainDirectCallPlanErrorV1, NormalMainDirectCallPreflightV1,
-    RejectedNormalMainDirectCallPlanV1, VerifiedNormalMainDirectCallPlanV1,
+    NormalMainDirectCallPreflightV1,
+    RejectedNormalMainDirectCallPlanV1,
 };
 pub(crate) use main_direct_call_source::{
     NormalMainDirectCallSourceErrorV1, NormalMainDirectCallSourceStageV1,
     RejectedNormalMainDirectCallSourceV1, VerifiedNormalMainDirectCallSourceUnitV1,
 };
 pub(crate) use main_function_plan::{
-    NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1, RejectedNormalMainFunctionPlanV1,
-    VerifiedNormalMainFunctionPlanV1,
+    NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1,
 };
 pub(crate) use main_resolved_source::{
-    NormalMainResolvedSourceErrorV1, RejectedNormalMainResolvedSourceV1,
+    NormalMainResolvedSourceErrorV1,
     VerifiedNormalMainResolvedSourceUnitV1, VerifiedNormalMainRoleV1,
 };
 pub(crate) use main_source::{
@@ -85,8 +70,7 @@ pub(crate) use main_source::{
     VerifiedNormalMainFunctionSourceUnitV1,
 };
 pub(crate) use main_thunk_plan::{
-    seal_normal_main_physical_relation_v1, NormalMainThunkPlanErrorV1,
-    RejectedNormalMainThunkPlanV1, VerifiedNormalMainEntryRelationV1,
+    seal_normal_main_physical_relation_v1, NormalMainThunkPlanErrorV1, VerifiedNormalMainEntryRelationV1,
     VerifiedNormalMainPhysicalRelationV1, VerifiedNormalMainThunkPlanV1,
     VerifiedNormalMainThunkResultV1,
 };
@@ -102,7 +86,6 @@ pub(crate) use normal_acyclic_module_plan::{
     VerifiedNormalHelperTopologyPlanV1, VerifiedNormalRecursiveCallableModulePlanV1,
 };
 pub(crate) use normal_callable_transaction_handoff::{
-    ConsumableNormalMainLoweringProofV1, NormalCallableHandoffStageV1,
     NormalHelperDraftAbiExpectationErrorV1, OpenNormalCallableModuleTransactionV1,
     OwnedNormalHelperLoweringScheduleV1, PreparedNormalHelperTopologyReceiptV1,
     RejectedNormalCallableHandoffV1, RejectedNormalMainProofBindingV1,
@@ -124,7 +107,7 @@ pub(crate) use script_physical_entry::{
     RejectedNormalScriptPhysicalEntryV1,
 };
 pub(crate) use script_recipe::{
-    NormalScriptRecipeStageV1, RejectedNormalScriptRecipeV1, RetainedNormalScriptSourceV1,
+    RetainedNormalScriptSourceV1,
     VerifiedNormalScriptRecipeV1,
 };
 #[cfg(test)]

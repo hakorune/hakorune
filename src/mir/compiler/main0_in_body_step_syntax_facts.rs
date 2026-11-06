@@ -58,10 +58,6 @@ impl Main0LiteralAssignFactV1 {
         &self.target_site
     }
 
-    pub(crate) fn target_shape(&self) -> &SourceExprShapeV1 {
-        &self.target_shape
-    }
-
     pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
         &self.value_site
     }

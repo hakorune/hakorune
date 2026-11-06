@@ -50,10 +50,6 @@ impl TrivialProfileStopV1 {
         Self { site, reason }
     }
 
-    pub(crate) const fn site(&self) -> &TrivialProfileStopSiteV1 {
-        &self.site
-    }
-
     pub(crate) const fn reason(&self) -> TrivialProfileStopReasonV1 {
         self.reason
     }

@@ -64,21 +64,6 @@ pub(in crate::mir) struct DynamicFullLoopPhysicalInputViewV2<'program> {
 }
 
 impl DynamicFullLoopPhysicalInputViewV2<'_> {
-    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(in crate::mir) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        self.frame
-    }
-
-    pub(in crate::mir) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-
-    pub(in crate::mir) fn provenance(&self) -> &LoopRecipeProvenanceV1 {
-        self.provenance
-    }
 
     pub(in crate::mir) fn placements(
         &self,

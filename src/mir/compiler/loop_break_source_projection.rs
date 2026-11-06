@@ -119,20 +119,8 @@ impl VerifiedLoopBreakSourceProjectionV1 {
         &self.loop_site
     }
 
-    pub(crate) fn loop_condition_site(&self) -> &SourceExprSiteV1 {
-        &self.loop_condition_site
-    }
-
     pub(crate) fn break_if_site(&self) -> &SourceStmtSiteV1 {
         &self.break_if_site
-    }
-
-    pub(crate) fn break_condition_site(&self) -> &SourceExprSiteV1 {
-        &self.break_condition_site
-    }
-
-    pub(crate) fn break_exit_site(&self) -> &SourceStmtSiteV1 {
-        &self.break_exit_site
     }
 
     pub(crate) const fn break_exit(&self) -> ResolvedExitRecordV1 {
@@ -153,12 +141,6 @@ impl VerifiedLoopBreakSourceProjectionV1 {
 
     pub(crate) fn step_site(&self) -> &SourceStmtSiteV1 {
         &self.step_site
-    }
-
-    pub(crate) const fn root_frame_key(
-        &self,
-    ) -> &crate::mir::resolved_semantics::LoopExecutionFrameKeyV1 {
-        &self.root_frame_key
     }
 
     pub(crate) fn matches_source_identity(

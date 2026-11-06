@@ -73,16 +73,9 @@ pub(in crate::mir) struct RawRootContinuationV1 {
 }
 
 impl RawRootContinuationV1 {
-    pub(in crate::mir) const fn origin(&self) -> RawSourceOriginV1 {
-        self.origin
-    }
 
     pub(in crate::mir) const fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
-    }
-
-    pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
-        self.policy
     }
 
     pub(in crate::mir) fn into_callable_main_decision(
@@ -116,13 +109,6 @@ pub(in crate::mir) struct RawPostCallableMainContinuationV1 {
 }
 
 impl RawPostCallableMainContinuationV1 {
-    pub(in crate::mir) const fn origin(&self) -> RawSourceOriginV1 {
-        self.origin
-    }
-
-    pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
-        self.policy
-    }
 
     pub(in crate::mir) fn selected_entry(&self) -> &SelectedSourceEntryContinuationV1 {
         &self.selected_entry
@@ -130,16 +116,9 @@ impl RawPostCallableMainContinuationV1 {
 }
 
 impl RawSourceContinuationV1 {
-    pub(in crate::mir) const fn origin(&self) -> RawSourceOriginV1 {
-        self.origin
-    }
 
     pub(in crate::mir) const fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
-    }
-
-    pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
-        self.policy
     }
 
     pub(in crate::mir) fn into_root_continuation(self) -> RawRootContinuationV1 {
@@ -252,10 +231,6 @@ impl SourceBoundRawPackageV1 {
 
     pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
         self.token.family()
-    }
-
-    pub(in crate::mir) const fn token(&self) -> &ModuleInvocationTokenV1 {
-        &self.token
     }
 
     pub(in crate::mir) const fn source(&self) -> &OwnedRawSourceV1 {

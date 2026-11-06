@@ -1,8 +1,6 @@
 use std::path::PathBuf;
 
 use super::capi_transport::compile_via_capi_keep;
-use super::ll_emit_compare_driver::mir_json_to_object_hako_ll_compare;
-use super::normalize::validate_backend_mir_shape;
 use super::provider_keep::mir_json_to_object_llvmlite;
 use super::{CodegenRouteRequestV1, Opts};
 
@@ -24,12 +22,6 @@ fn hako_ll_bridge_lane(recipe: Option<&str>) -> Option<HakoLlBridgeLane> {
     }
 }
 
-struct HakoLlRouteContext {
-    acceptance_case: String,
-    transport_owner: String,
-    legacy_daily_allowed: String,
-}
-
 fn llvm_route_trace_enabled() -> bool {
     matches!(
         std::env::var("NYASH_LLVM_ROUTE_TRACE").ok().as_deref(),
@@ -49,84 +41,6 @@ fn required_hako_ll_context_field(
             field_name
         )
     })
-}
-
-fn validate_hako_ll_route_context(lane: HakoLlBridgeLane) -> Result<HakoLlRouteContext, String> {
-    let acceptance_case = required_hako_ll_context_field(
-        "acceptance_case",
-        crate::config::env::backend_acceptance_case(),
-        lane,
-    )?;
-    let transport_owner = required_hako_ll_context_field(
-        "transport_owner",
-        crate::config::env::backend_transport_owner(),
-        lane,
-    )?;
-    if transport_owner != "hako_ll_emitter" {
-        return Err(format!(
-            "[llvmemit/hako-ll/context-mismatch] lane={} field=transport_owner expected=hako_ll_emitter got={}",
-            lane.tag(),
-            transport_owner
-        ));
-    }
-    let legacy_daily_allowed = required_hako_ll_context_field(
-        "legacy_daily_allowed",
-        crate::config::env::backend_legacy_daily_allowed(),
-        lane,
-    )?;
-    if legacy_daily_allowed != "no" {
-        return Err(format!(
-            "[llvmemit/hako-ll/context-mismatch] lane={} field=legacy_daily_allowed expected=no got={}",
-            lane.tag(),
-            legacy_daily_allowed
-        ));
-    }
-    Ok(HakoLlRouteContext {
-        acceptance_case,
-        transport_owner,
-        legacy_daily_allowed,
-    })
-}
-
-fn emit_hako_ll_route_trace(
-    recipe: Option<&str>,
-    compat_replay: Option<&str>,
-    ctx: &HakoLlRouteContext,
-) {
-    if !llvm_route_trace_enabled() {
-        return;
-    }
-    eprintln!(
-        "[llvm-route/select] owner={} recipe={} compat_replay={} acceptance_case={} legacy_daily_allowed={}",
-        ctx.transport_owner,
-        recipe.unwrap_or("unset"),
-        compat_replay.unwrap_or("unset"),
-        ctx.acceptance_case,
-        ctx.legacy_daily_allowed
-    );
-    eprintln!(
-        "[llvm-route/replay] lane=compare reason=explicit_bridge acceptance_case={}",
-        ctx.acceptance_case
-    );
-}
-
-pub(super) fn try_compile_via_hako_ll_bridge(
-    mir_json: &str,
-    opts: &Opts,
-) -> Result<Option<PathBuf>, String> {
-    match hako_ll_bridge_lane(opts.compile_recipe.as_deref()) {
-        Some(HakoLlBridgeLane::Compare) => {
-            let ctx = validate_hako_ll_route_context(HakoLlBridgeLane::Compare)?;
-            emit_hako_ll_route_trace(
-                opts.compile_recipe.as_deref(),
-                opts.compat_replay.as_deref(),
-                &ctx,
-            );
-            validate_backend_mir_shape(mir_json)?;
-            mir_json_to_object_hako_ll_compare(mir_json, opts).map(Some)
-        }
-        _ => Ok(None),
-    }
 }
 
 pub(super) fn try_compile_via_capi_keep(

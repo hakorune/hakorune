@@ -156,21 +156,6 @@ fn ensure_inner_with_policy(
     }
 }
 
-fn try_materialize_local_v1(
-    builder: &mut MirBuilder,
-    v: ValueId,
-    kind: LocalKind,
-    forbid_non_pure: bool,
-) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
-    materialize::materialize_local_v1(
-        builder,
-        v,
-        kind,
-        forbid_non_pure,
-        LocalSsaFailurePolicyV1::Checked,
-    )
-}
-
 #[inline]
 pub fn recv(builder: &mut MirBuilder, v: ValueId) -> ValueId {
     ensure(builder, v, LocalKind::Recv)

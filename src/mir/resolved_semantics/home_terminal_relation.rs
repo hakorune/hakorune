@@ -116,9 +116,6 @@ impl TerminalBoolLiteralReturnV1 {
     pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
         &self.return_site
     }
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
-    }
     pub(crate) const fn value(&self) -> bool {
         self.value
     }
@@ -459,9 +456,6 @@ impl TerminalOpaqueCallReturnV1 {
     }
     pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
         &self.return_site
-    }
-    pub(crate) fn call_site(&self) -> &SourceExprSiteV1 {
-        &self.call_site
     }
 }
 

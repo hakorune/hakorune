@@ -411,10 +411,6 @@ impl CompilationContext {
         self.static_scalar_method_facts.get(func_name)
     }
 
-    pub fn static_scalar_method_fact_count(&self) -> usize {
-        self.static_scalar_method_facts.len()
-    }
-
     pub fn declared_field_type_name(&self, box_name: &str, field_name: &str) -> Option<&str> {
         self.user_box_field_decls
             .get(box_name)
@@ -486,11 +482,6 @@ impl CompilationContext {
         self.field_origin_by_box.insert((base_box, field), origin);
     }
 
-    /// Replace imported static-box alias bindings for the next compilation.
-    pub fn set_using_import_boxes(&mut self, imports: HashMap<String, String>) {
-        self.using_import_boxes = imports;
-    }
-
     /// Resolve an imported static-box alias to a concrete box name.
     pub fn resolve_imported_static_box(&self, alias: &str) -> Option<&str> {
         self.using_import_boxes.get(alias).map(|name| name.as_str())
@@ -524,11 +515,6 @@ impl CompilationContext {
     pub fn clear_method_tail_index(&mut self) {
         self.method_tail_index.index.clear();
         self.method_tail_index.source_len = 0;
-    }
-
-    /// Clear current slot registry
-    pub fn clear_slot_registry(&mut self) {
-        self.current_slot_registry = None;
     }
 }
 

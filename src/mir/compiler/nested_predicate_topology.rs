@@ -235,16 +235,6 @@ impl VerifiedNestedPhysicalEmissionInputV1 {
     pub(crate) fn topology(&self) -> &VerifiedNestedPhysicalTopologyV1 {
         &self.topology
     }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        crate::mir::loop_recipe_contract::VerifiedLoopRecipeV1,
-        crate::mir::loop_recipe_contract::VerifiedLoopJoinSigV1,
-        VerifiedNestedPhysicalTopologyV1,
-    ) {
-        (self.recipe, self.join_sig, self.topology)
-    }
 }
 
 /// Consumes the semantic product and its one-time source handoff. No caller is

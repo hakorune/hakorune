@@ -4,7 +4,6 @@
 //! first narrow Script product without creating a second forest authority or
 //! changing the existing Function API.
 
-use super::direct_call::ResolvedDirectCallTargetV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::product::{
     VerifiedResolvedFunctionV1, VerifiedResolvedOwnerCoreV1, VerifiedResolvedScriptV1,
@@ -61,10 +60,6 @@ impl VerifiedSemanticOwnerProductV1 {
         self.core().data().function_scope
     }
 
-    pub(crate) const fn function_region(&self) -> RegionId {
-        self.core().data().function_region
-    }
-
     pub(crate) fn binding(&self, id: BindingRefV1) -> Option<&ResolvedBindingRecordV1> {
         (id.owner() == self.owner())
             .then(|| self.core().data().bindings.get(&id.binding()))
@@ -95,12 +90,6 @@ impl VerifiedSemanticOwnerProductV1 {
             .map(|(scope, record)| (*scope, record))
     }
 
-    pub(crate) fn region(&self, id: RegionId) -> Option<&ResolvedRegionRecordV1> {
-        (id.owner() == self.owner())
-            .then(|| self.core().data().regions.get(&id))
-            .flatten()
-    }
-
     pub(crate) fn regions(&self) -> impl Iterator<Item = (RegionId, &ResolvedRegionRecordV1)> {
         self.core()
             .data()
@@ -129,16 +118,6 @@ impl VerifiedSemanticOwnerProductV1 {
         self.core().data().assignment_targets.iter()
     }
 
-    pub(crate) fn direct_call_targets(
-        &self,
-    ) -> impl Iterator<Item = (&SourceExprSiteV1, ResolvedDirectCallTargetV1)> {
-        self.core()
-            .data()
-            .direct_call_targets
-            .iter()
-            .map(|(site, target)| (site, *target))
-    }
-
     pub(crate) fn resolved_exits(
         &self,
     ) -> impl Iterator<Item = (&ResolvedExitSiteV1, &ResolvedExitRecordV1)> {
@@ -152,13 +131,6 @@ impl VerifiedSemanticOwnerProductV1 {
 
     pub(crate) fn normalized_graph(&self) -> &NormalizedResolvedFunctionGraphV1 {
         self.core().normalized_graph()
-    }
-
-    pub(crate) fn into_function(self) -> Option<VerifiedResolvedFunctionV1> {
-        match self {
-            Self::Function(product) => Some(product),
-            Self::Script(_) => None,
-        }
     }
 
     pub(crate) fn as_function(&self) -> Option<&VerifiedResolvedFunctionV1> {

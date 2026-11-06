@@ -71,10 +71,6 @@ impl PhysicalCallableParameterDescriptorV1 {
         &self.diagnostic_name
     }
 
-    pub(in crate::mir) fn source_declared_type_name(&self) -> Option<&str> {
-        self.source_declared_type_name.as_deref()
-    }
-
     pub(in crate::mir) const fn carrier(&self) -> PhysicalCallableLaneCarrierV1 {
         self.carrier
     }

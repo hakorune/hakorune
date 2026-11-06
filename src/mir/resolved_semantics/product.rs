@@ -16,13 +16,13 @@ use super::loop_region::ResolvedLoopRegionIndexV1;
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::owner_root_profile::SemanticOwnerRootProfileV1;
 use super::records::{
-    BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
+    RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
     ResolvedBindingRecordV1, ResolvedExitRecordV1, ResolvedLexicalRefV1, ResolvedRegionRecordV1,
     ResolvedScopeRecordV1, ScopeKindV1, ScopeOriginV1,
 };
 use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+    SourcePathSegmentV1, SourcePathV1,
 };
 use super::source_site_inventory::{
     seal_source_site_inventory_v1, ResolvedSourceSiteInventoryDraftV1,
@@ -312,13 +312,6 @@ impl VerifiedResolvedFunctionV1 {
         self.core.data.direct_call_observations.iter()
     }
 
-    pub(crate) fn brand_call_relation(
-        &self,
-        site: &SourceExprSiteV1,
-    ) -> Option<&VerifiedBrandCallSourceRelationV1> {
-        self.core.data.brand_call_relations.get(site)
-    }
-
     pub(crate) fn brand_call_relations(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedBrandCallSourceRelationV1)> {
@@ -327,13 +320,6 @@ impl VerifiedResolvedFunctionV1 {
 
     pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
         self.core.source_sites.expression_sites()
-    }
-
-    pub(crate) fn explicit_extern_call(
-        &self,
-        site: &SourceExprSiteV1,
-    ) -> Option<&ResolvedExplicitExternCallV1> {
-        self.core.data.explicit_extern_calls.get(site)
     }
 
     pub(crate) fn explicit_extern_calls(
@@ -499,21 +485,10 @@ impl VerifiedResolvedScriptV1 {
         self.core.data.declarations.get(site).copied()
     }
 
-    pub(crate) fn brand_call_relation(
-        &self,
-        site: &SourceExprSiteV1,
-    ) -> Option<&VerifiedBrandCallSourceRelationV1> {
-        self.core.data.brand_call_relations.get(site)
-    }
-
     pub(crate) fn brand_call_relations(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedBrandCallSourceRelationV1)> {
         self.core.data.brand_call_relations.iter()
-    }
-
-    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
-        self.core.source_sites.expression_sites()
     }
 
     pub(crate) fn record_literal_demands(&self) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {

@@ -224,9 +224,6 @@ impl LoopTextReadV1 {
     pub(crate) fn read(&self) -> &SourceExprSiteV1 {
         &self.read
     }
-    pub(crate) fn value(&self) -> SourceValueRefV1 {
-        self.value
-    }
     pub(crate) fn producer(&self) -> &SourceLoopTextProducerV1 {
         &self.producer
     }

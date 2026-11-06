@@ -102,11 +102,6 @@ impl PluginHandleInner {
     }
 
     #[inline]
-    fn invoke_self(&self, method_id: u32, tlv_args: &[u8]) -> (i32, usize, Vec<u8>) {
-        self.invoke_with_instance(method_id, self.instance_id, tlv_args)
-    }
-
-    #[inline]
     fn fini_tlv_args() -> [u8; 4] {
         [1, 0, 0, 0]
     }

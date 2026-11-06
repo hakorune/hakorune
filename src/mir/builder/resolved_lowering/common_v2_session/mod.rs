@@ -51,7 +51,6 @@ mod s6c_operand_issuer;
 pub(in crate::mir::builder) use s6c_operand_issuer::S6CTextEqOperandIssuerRejectV1;
 
 mod s6c_text_eq_occurrence;
-pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrencePhysicalViewV1;
 #[cfg(test)]
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1;
 

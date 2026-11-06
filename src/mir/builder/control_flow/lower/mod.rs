@@ -7,7 +7,6 @@ mod planner_compat;
 
 pub(in crate::mir::builder) mod normalize;
 
-pub(in crate::mir::builder) use self::planner_compat::{ tags,
-    CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan,
-    CorePlan, Freeze, LoopStepMode, LoweredRecipe, PlanBuildOutcome, PlanLowerer, PlanRuleId,
+pub(in crate::mir::builder) use self::planner_compat::{ CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan,
+    CorePlan, Freeze, LoopStepMode, LoweredRecipe, PlanLowerer,
 };

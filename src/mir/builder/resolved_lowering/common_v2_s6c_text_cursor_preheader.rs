@@ -151,10 +151,6 @@ impl<'source, 'rows, 'facts> CommonV2S6CTextCursorPreheaderPlanV1<'source, 'rows
         &self.roots
     }
 
-    pub(in crate::mir::builder) const fn relation(&self) -> CommonV2S6CTextCursorSourceRelationV1 {
-        self.relation
-    }
-
     /// Lend the existing source cohort and root-load obligations together.
     /// No part of the plan remains available after this consuming call.
     pub(in crate::mir::builder) fn consume<R>(

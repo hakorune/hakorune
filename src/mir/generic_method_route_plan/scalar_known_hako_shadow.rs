@@ -27,12 +27,6 @@ use super::scalar_known_typed_direct_closeout_contract::{
 };
 use super::{GenericMethodRouteDecision, GenericMethodRouteKind, GenericMethodRouteProof};
 
-pub(super) fn mapload_scalar_i64_shadow_consumed_decision(
-    route_proof: GenericMethodRouteProof,
-) -> GenericMethodRouteDecision {
-    mapload_scalar_i64_hako_route_authority_pilot_decision(route_proof)
-}
-
 pub(super) fn mapload_scalar_i64_hako_route_authority_pilot_decision(
     route_proof: GenericMethodRouteProof,
 ) -> GenericMethodRouteDecision {

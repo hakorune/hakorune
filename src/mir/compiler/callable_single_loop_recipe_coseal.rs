@@ -14,7 +14,7 @@ use crate::mir::loop_recipe_contract::{
     LoopJoinSigRejectReasonV1, LoopNodeKeyV1, LoopRecipeArtifactV1, LoopRecipeBindingRelationV1,
     LoopRecipeProducerIdV1, LoopRecipeProvenanceV1, LoopRecipeRejectReasonV1, LoopValueClassV1,
     LoopValueKeyV1, VerifiedLoopContinuationContractV1, VerifiedLoopCoreProductV1,
-    VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopPhysicalBoundaryV1,
+    VerifiedLoopInitializedLocalInputSourceSetV1,
     VerifiedLoopSemanticContextV1,
 };
 use crate::mir::loop_structural_facts::bind_resolved_loop_root_v1;
@@ -190,17 +190,6 @@ impl VerifiedLoopRecipeCoSealV1 {
             self.context,
             self.continuation,
         )
-    }
-
-    pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
-        let Self {
-            core,
-            continuation,
-            input: _,
-            operations: _,
-            context: _,
-        } = self;
-        VerifiedLoopPhysicalBoundaryV1::from_parts(core, continuation.into_after())
     }
 }
 

@@ -281,34 +281,6 @@ impl VerifiedResolvedFunctionV1 {
             .ok_or_else(|| ResolvedLoopRegionLookupErrorV1::MissingExactBundle(site.clone()))
     }
 
-    /// Checks exact source containment for one selected Loop body.
-    ///
-    /// The loop-region index is the authority for the selected statement and
-    /// region origin. Consumers must use this resolver-owned check instead of
-    /// rebuilding a path prefix from AST or route-local coordinates.
-    pub(crate) fn loop_body_contains_site(
-        &self,
-        loop_site: &SourceStmtSiteV1,
-        site: &SourceExprSiteV1,
-    ) -> Result<bool, ResolvedLoopRegionLookupErrorV1> {
-        let bundle = self.loop_region_bundle(loop_site)?;
-        let pair = bundle.loop_pair();
-        let region = self
-            .region(pair.region())
-            .ok_or(ResolvedLoopRegionLookupErrorV1::PairContractMismatch)?;
-        if region.kind() != RegionKindV1::Loop
-            || region.origin() != &RegionOriginV1::Source(loop_site.node().clone())
-        {
-            return Err(ResolvedLoopRegionLookupErrorV1::PairContractMismatch);
-        }
-        Ok(super::verifier::source_region_contains_site_v1(
-            self.root_profile(),
-            region.kind(),
-            region.origin(),
-            site.node(),
-        ))
-    }
-
     /// Classifies one expression against a sealed Loop source site.
     ///
     /// The Loop index first proves the selected source identity. Only then is

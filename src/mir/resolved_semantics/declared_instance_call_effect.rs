@@ -41,9 +41,6 @@ pub(crate) struct VerifiedDeclaredInstanceCallEffectRowV1 {
 }
 
 impl VerifiedDeclaredInstanceCallEffectRowV1 {
-    pub(crate) fn caller_identity(&self) -> &CallableDeclarationIdentityV1 {
-        &self.caller_identity
-    }
 
     pub(crate) const fn caller_owner(&self) -> FunctionOwnerIdV1 {
         self.caller_owner

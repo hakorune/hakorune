@@ -76,10 +76,6 @@ impl DynamicInvocationCarrierLifecycleRowRefV1<'_> {
         self.row.producer
     }
 
-    pub(in crate::mir) const fn producer_source(&self) -> &SourceExprSiteV1 {
-        &self.row.producer_source
-    }
-
     pub(in crate::mir) const fn result(&self) -> LoopValueKeyV1 {
         self.row.result
     }

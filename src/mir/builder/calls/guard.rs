@@ -176,13 +176,6 @@ impl<'a> CalleeGuardBox<'a> {
         Ok(callee)
     }
 
-    /// receiver型の検証（ヘルパー）
-    ///
-    /// 指定されたreceiverがBox型を持っているか確認
-    pub fn has_box_type(&self, receiver: ValueId) -> bool {
-        matches!(self.value_types.get(&receiver), Some(MirType::Box(_)))
-    }
-
     /// receiver型の取得（ヘルパー）
     ///
     /// 指定されたreceiverのBox型名を返す（存在しない場合はNone）

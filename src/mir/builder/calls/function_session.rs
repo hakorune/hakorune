@@ -22,7 +22,7 @@ pub(in crate::mir::builder) use payload_terminal::{
 pub(in crate::mir::builder) use terminal::{
     CanonicalFunctionSessionRestorationReceiptV1, LegacyFunctionPendingSessionV1,
     PendingFunctionSessionCloseV1, PreparedFunctionSessionCloseV1,
-    PreparedFunctionSessionCommitInputV1, RejectedFunctionSessionCloseV1,
+    PreparedFunctionSessionCommitInputV1,
 };
 
 #[derive(Debug)]

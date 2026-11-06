@@ -42,18 +42,6 @@ impl GenericLoopAdmissionObservationV1 {
     pub(in crate::mir::builder) fn method_source(&self) -> &CallableMethodSourceObservationV1 {
         &self.method_source
     }
-
-    pub(in crate::mir::builder) fn loop_source(&self) -> &RawInvocationSourceContextV1 {
-        &self.loop_source
-    }
-
-    pub(in crate::mir::builder) fn initializers(&self) -> &[LocalInitializerObservationV1] {
-        &self.initializers
-    }
-
-    pub(in crate::mir::builder) const fn admission_index(&self) -> u32 {
-        self.admission_index
-    }
 }
 
 #[derive(Debug)]
@@ -128,9 +116,5 @@ impl GenericLoopAdmissionDiagnosticStateV1 {
         let index = self.next_index.get();
         self.next_index.set(index.saturating_add(1));
         index
-    }
-
-    pub(in crate::mir::builder) fn observations(&self) -> Vec<GenericLoopAdmissionObservationV1> {
-        self.observations.borrow().clone()
     }
 }

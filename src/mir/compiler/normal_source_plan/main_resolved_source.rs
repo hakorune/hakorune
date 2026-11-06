@@ -107,13 +107,6 @@ pub(crate) struct RejectedNormalMainResolvedSourceV1 {
 }
 
 impl RejectedNormalMainResolvedSourceV1 {
-    pub(crate) fn error(&self) -> &NormalMainResolvedSourceErrorV1 {
-        &self.error
-    }
-
-    pub(crate) fn discard(self) {
-        drop(self);
-    }
 
     pub(in crate::mir) fn into_parts(
         self,

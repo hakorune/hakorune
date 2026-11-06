@@ -2,7 +2,7 @@
 //! The selected entry must separately lend receiver/value guards and field.
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
-use crate::mir::resolved_semantics::{BindingRefV1, ResolvedAssignmentFormV1};
+use crate::mir::resolved_semantics::ResolvedAssignmentFormV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

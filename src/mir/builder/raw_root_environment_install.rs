@@ -321,24 +321,8 @@ impl InstalledRawRootEnvironmentV1 {
             .is_ok()
     }
 
-    pub(in crate::mir) fn app_main_declaration_installed(&self) -> bool {
-        self.session.builder().comp_ctx.is_user_defined_box("Main")
-    }
-
     pub(in crate::mir) fn tracker_completed_children(&self) -> usize {
         self.physical.tracker_completed_children()
-    }
-
-    pub(in crate::mir) fn session_brand(
-        &self,
-    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
-        self.session.brand()
-    }
-
-    pub(in crate::mir) fn physical_brand(
-        &self,
-    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
-        self.physical.brand()
     }
 }
 

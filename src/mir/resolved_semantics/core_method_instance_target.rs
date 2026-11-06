@@ -165,18 +165,6 @@ impl CoreMethodInstanceTargetIssuerV1 {
         })
     }
 
-    pub(crate) const fn manifest_brand(&self) -> CoreMethodManifestBrandV2 {
-        self.manifest_brand
-    }
-
-    pub(crate) const fn schema(&self) -> CoreMethodHomeSchemaV1 {
-        self.schema
-    }
-
-    pub(crate) const fn relation_brand(&self) -> HomeRelationBrandV1 {
-        self.relation_brand
-    }
-
     pub(crate) fn issue(
         &mut self,
         row: CoreMethodManifestRowRefV2,

@@ -147,14 +147,6 @@ impl VerifiedNestedPhysicalBlockProjectionV1 {
         )
     }
 
-    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) fn root_frame_key(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.root_frame_key
-    }
-
     pub(crate) fn symbolic_node_count(&self) -> usize {
         11
     }
@@ -205,10 +197,6 @@ impl VerifiedNestedPhysicalCandidateInputV1 {
 
     pub(crate) fn emission(&self) -> &VerifiedNestedPhysicalEmissionInputV1 {
         &self.emission
-    }
-
-    pub(crate) fn blocks(&self) -> &VerifiedNestedPhysicalBlockProjectionV1 {
-        &self.blocks
     }
 
     pub(crate) fn into_parts(

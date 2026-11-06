@@ -45,7 +45,7 @@ use crate::mir::loop_route_policy::VerifiedGenericFamilyObservationG0;
 use crate::mir::resolved_semantics::VerifiedLoopFamilyWindowLeaseV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, BindingRefV1, FunctionOwnerIdV1,
-    SourceBindingSiteV1, SourceStmtSiteV1, VerifiedResolvedBodyShapeInventoryV1,
+    SourceBindingSiteV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use super::generic_g0_physical_operation_cohort::{
@@ -160,10 +160,6 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
         self.input.owner()
     }
 
-    pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
-        self.product.context().loop_site()
-    }
-
     pub(crate) fn product(&self) -> &VerifiedGenericRecipeProductG0 {
         &self.product
     }
@@ -253,16 +249,8 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
         self.parent.physical_emitter_source_parts()
     }
 
-    pub(crate) fn source_input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
-        self.parent.source_input()
-    }
-
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.parent.owner()
-    }
-
-    pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
-        self.parent.loop_site()
     }
 
     pub(crate) fn product(&self) -> &VerifiedGenericRecipeProductG0 {

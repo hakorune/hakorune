@@ -55,9 +55,6 @@ impl SourceBoundRawPackageV1 {
 }
 
 impl SourceBoundRawRootPackageV1 {
-    pub(in crate::mir) const fn token(&self) -> &ModuleInvocationTokenV1 {
-        &self.token
-    }
 
     pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.token.brand()

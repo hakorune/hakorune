@@ -108,8 +108,7 @@ pub(crate) fn test_global_target<S: AsRef<str>>(
         .expect("test global target fixture must use a non-empty name")
 }
 pub(crate) use compiler::canonical_core_dispatch::{
-    CanonicalCallableDispatchStageV1, CanonicalCoreDispatchStageV1,
-    CanonicalCoreInvocationFailureReportV1, CanonicalCoreSourcePlanCompileRequestV1,
+    CanonicalCallableDispatchStageV1, CanonicalCoreDispatchStageV1, CanonicalCoreSourcePlanCompileRequestV1,
     NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
 pub(crate) use compiler::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;

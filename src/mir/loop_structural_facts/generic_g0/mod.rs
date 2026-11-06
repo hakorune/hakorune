@@ -161,10 +161,6 @@ impl VerifiedGenericStructuralFactsG0 {
         &self.root_loop
     }
 
-    pub(crate) fn child_loop(&self) -> &SourceStmtSiteV1 {
-        &self.child_loop
-    }
-
     pub(crate) fn outer_condition(&self) -> &GenericG0ConditionSitesV1 {
         &self.outer_condition
     }
@@ -597,10 +593,6 @@ impl VerifiedGenericG0PolicyHandoffV1 {
 
     pub(crate) fn post_loop_read(&self) -> &VerifiedGenericG0PostLoopReadV1 {
         &self.post_loop_read
-    }
-
-    pub(crate) const fn target(&self) -> NumericTarget {
-        self.target
     }
 
     pub(crate) fn into_parts(

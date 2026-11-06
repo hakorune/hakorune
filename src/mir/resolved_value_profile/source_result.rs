@@ -85,45 +85,12 @@ pub(crate) enum SourceCallDispositionV1 {
     Absent { site: SourceExprSiteV1 },
 }
 
-impl SourceCallDispositionV1 {
-    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
-        match self {
-            Self::Static { site, .. } | Self::Dynamic { site } | Self::Absent { site } => site,
-        }
-    }
-
-    pub(crate) fn static_target(&self) -> Option<&CanonicalSameModuleCallableKeyV1> {
-        match self {
-            Self::Static { target, .. } => Some(target),
-            Self::Dynamic { .. } | Self::Absent { .. } => None,
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SourceBoolFactV1 {
     owner: CanonicalSameModuleCallableKeyV1,
     site: SourceExprSiteV1,
     lhs: SourceExprSiteV1,
     null_operand: SourceExprSiteV1,
-}
-
-impl SourceBoolFactV1 {
-    pub(crate) fn owner(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.owner
-    }
-
-    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
-        &self.site
-    }
-
-    pub(crate) fn lhs(&self) -> &SourceExprSiteV1 {
-        &self.lhs
-    }
-
-    pub(crate) fn null_operand(&self) -> &SourceExprSiteV1 {
-        &self.null_operand
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -174,10 +141,6 @@ struct SourceResultProductSealV1;
 impl VerifiedSourceResultProductV1 {
     pub(crate) const fn catalog_identity(&self) -> usize {
         self.catalog_identity
-    }
-
-    pub(crate) fn owner(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.owner
     }
 
     pub(crate) const fn result(&self) -> SourceResultClassV1 {

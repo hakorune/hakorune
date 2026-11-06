@@ -56,9 +56,9 @@ pub(crate) use qualified_route_facts::{
     QualifiedReceiverAdmissionV1, VerifiedQualifiedCallRouteFactsV1,
 };
 pub(crate) use raw_callable_source_view::{
-    RawLocatedBodyInputV1, RawLocatedCallArgumentStageV1, RawLocatedExprInputV1,
-    RawLocatedMethodCallInputV1, RawLocatedStmtInputV1, RejectedRawLocatedCallArgumentV1,
-    VerifiedRawCallableSourceViewV1, VerifiedRawLocatedCallArgumentV1,
+    RawLocatedBodyInputV1, RawLocatedExprInputV1,
+    RawLocatedMethodCallInputV1, RawLocatedStmtInputV1,
+    VerifiedRawCallableSourceViewV1,
 };
 pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;
 pub(crate) use script_call_coverage::{
@@ -75,9 +75,7 @@ pub(crate) use script_direct_static::{
     ScriptDirectStaticCallTargetErrorV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
 };
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
-pub(crate) use whole_source_inventory::{
-    VerifiedWholeSourceMethodCallSiteV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
-};
+pub(crate) use whole_source_inventory::VerifiedWholeSourceStaticCallTargetInventoryV1;
 pub(crate) use whole_source_inventory_error::WholeSourceStaticCallTargetInventoryErrorV1;
 
 #[cfg(test)]

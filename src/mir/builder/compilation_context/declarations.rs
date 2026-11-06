@@ -15,12 +15,6 @@ impl CompilationContext {
         self.brand_decls.contains_key(name)
     }
 
-    /// Phase 285LLVM-1.1: Register a user-defined box with field information
-    pub fn register_user_box_with_fields(&mut self, name: String, fields: Vec<String>) {
-        self.user_defined_boxes.insert(name.clone(), fields);
-        self.user_box_field_decls.insert(name, Vec::new());
-    }
-
     /// Register declared fields for a user box from parser-emitted field surfaces.
     ///
     /// This is the normalization boundary for `fields`, `field_decls`,

@@ -58,16 +58,6 @@ pub(crate) struct VerifiedCallableSccEdgeV1 {
     target: CallableSccIdV1,
 }
 
-impl VerifiedCallableSccEdgeV1 {
-    pub(crate) const fn caller(&self) -> &CallableSccIdV1 {
-        &self.caller
-    }
-
-    pub(crate) const fn target(&self) -> &CallableSccIdV1 {
-        &self.target
-    }
-}
-
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedCallableSccPartitionV1 {
     inventory: VerifiedCallableGraphInventoryV1,

@@ -135,18 +135,6 @@ impl ResolvedFactCoverageDraftV1 {
         )
     }
 
-    pub(super) fn method_call(
-        &mut self,
-        product: &VerifiedResolvedFunctionV1,
-        site: &SourceExprSiteV1,
-    ) -> Result<(), TrivialProfileContractErrorV1> {
-        product.method_call(site).ok_or_else(|| {
-            TrivialProfileContractErrorV1::MissingMethodCallResolution { site: site.clone() }
-        })?;
-        self.method_calls.insert(site.clone());
-        Ok(())
-    }
-
     fn require_owner(&self, binding: BindingRefV1) -> Result<(), TrivialProfileContractErrorV1> {
         if binding.owner() != self.owner {
             return Err(TrivialProfileContractErrorV1::ForeignBinding { binding });

@@ -11,7 +11,7 @@ use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::ShadowTraversalProfileV1;
 use super::shadow::{
     resolve_owner_shadow_view_v0, resolve_owner_shadow_view_with_profile_and_brand_catalog_v1,
-    resolve_owner_shadow_view_with_profile_v0, resolve_script_owner_shadow_view_v0,
+    resolve_owner_shadow_view_with_profile_v0,
     resolve_script_owner_shadow_view_with_brand_catalog_v1, ShadowLambdaSyntaxV0,
     ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
     VerifiedScriptRootDemandWindowV1,

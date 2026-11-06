@@ -68,10 +68,6 @@ impl NormalInstanceIntegerLocalReturnRecipeV1 {
         &self.local_site
     }
 
-    pub(crate) const fn initializer_site(&self) -> &SourceExprSiteV1 {
-        &self.initializer_site
-    }
-
     pub(crate) const fn initializer_value(&self) -> i64 {
         self.initializer_value
     }

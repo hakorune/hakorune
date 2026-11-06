@@ -4,7 +4,6 @@
 //! ID-only carrier is a rebuildable seal witness so Lower never discovers the
 //! body `Sequence` root by scanning those arenas.
 
-use super::ids::{RegionId, ScopeId};
 use super::product::{ResolvedFunctionDataV1, ResolvedScopeRegionPairV1};
 use super::records::{RegionKindV1, RegionOriginV1, ScopeKindV1, ScopeOriginV1};
 

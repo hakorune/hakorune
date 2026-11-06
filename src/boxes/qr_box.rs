@@ -233,15 +233,6 @@ impl QRBox {
         true
     }
 
-    /// 簡単なハッシュ関数（デモ用）
-    fn simple_hash(&self, data: &str) -> u32 {
-        let mut hash = 5381u32;
-        for byte in data.bytes() {
-            hash = hash.wrapping_mul(33).wrapping_add(byte as u32);
-        }
-        hash
-    }
-
     #[cfg(not(target_arch = "wasm32"))]
     /// Non-WASM環境用のダミー実装
     pub fn draw_to_canvas(&self, canvas_id: &str) -> bool {

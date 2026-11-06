@@ -97,20 +97,6 @@ pub(in crate::mir) enum SourceEntryResultV1 {
     Fault(SealedSourceFaultV1),
 }
 
-impl SourceEntryResultV1 {
-    pub(in crate::mir) fn kind(&self) -> SourceEntryResultKindV1 {
-        match self {
-            Self::Unit(_) => SourceEntryResultKindV1::Unit,
-            Self::Integer(_) => SourceEntryResultKindV1::Integer,
-            Self::Bool(_) => SourceEntryResultKindV1::Bool,
-            Self::Float(_) => SourceEntryResultKindV1::Float,
-            Self::String(_) => SourceEntryResultKindV1::String,
-            Self::Object(_) => SourceEntryResultKindV1::Object,
-            Self::Fault(_) => SourceEntryResultKindV1::Fault,
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) struct ProcessExitCodeV1(u8);
 
@@ -131,10 +117,6 @@ impl ProcessExitCodeV1 {
         u8::try_from(value)
             .map(Self)
             .map_err(|_| ProcessFaultV1::ExitCodeOutOfRange { value })
-    }
-
-    pub(in crate::mir) const fn value(self) -> u8 {
-        self.0
     }
 
     pub(in crate::mir) fn normalized_i64(self) -> i64 {

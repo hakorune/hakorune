@@ -297,13 +297,6 @@ fn reject_app(
 }
 
 impl RejectedRawDrainInvocationV1 {
-    pub(in crate::mir) const fn stage(&self) -> RawDrainFailureStageV1 {
-        self.stage
-    }
-
-    pub(in crate::mir) fn error(&self) -> &RawDrainErrorV1 {
-        &self.error
-    }
 
     pub(in crate::mir) fn discard(self) {}
 }

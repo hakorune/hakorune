@@ -134,10 +134,8 @@ mod plan_build_session;
 // - planner::build_plan_with_facts_ctx (Facts + recipe contract)
 // - PlanVerifier::verify (CorePlan invariants)
 // - PlanLowerer::lower (CorePlan → MIR)
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::verify::PlanVerifier;
-pub(in crate::mir::builder) use lowerer::PlanLowerer;
 pub(in crate::mir::builder) use normalizer::PlanNormalizer;
-pub(in crate::mir::builder) use planner::{build_plan_with_facts_ctx, PlanBuildOutcome};
+pub(in crate::mir::builder) use planner::PlanBuildOutcome;
 
 pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
 pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;

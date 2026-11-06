@@ -366,21 +366,6 @@ impl PrefixLocalFlow<'_> {
     ) {
         self.store(binding, StoredLocal::Text { root, acquisition });
     }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn signed_entry_reference(
-        &self,
-        site: &SourceExprSiteV1,
-    ) -> Option<BindingRefV1> {
-        let OrdinaryObservation::TrivialLocal(binding, Some(SourceScalarKind::Integer)) =
-            self.observe(site)?
-        else {
-            return None;
-        };
-        let flow = self.input.function().expression_source().value_flow()?;
-        let root = flow.alias_entry_origin(flow.read(site, binding)?, |site| {
-            self.input.function().variable_ref(site)
-        })?;
-        self.signed_formals.contains(&root).then_some(binding)
-    }
 }
 
 #[cfg(test)]

@@ -112,10 +112,6 @@ impl Main0ConditionFactsV1 {
         &self.lhs_site
     }
 
-    pub(crate) fn lhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.lhs_shape
-    }
-
     pub(crate) fn rhs_site(&self) -> &SourceExprSiteV1 {
         &self.rhs_site
     }
@@ -153,10 +149,6 @@ impl Main0GuardFactsV1 {
 
     pub(crate) fn lhs_site(&self) -> &SourceExprSiteV1 {
         &self.lhs_site
-    }
-
-    pub(crate) fn lhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.lhs_shape
     }
 
     pub(crate) fn rhs_site(&self) -> &SourceExprSiteV1 {
@@ -222,20 +214,12 @@ impl Main0StepFactsV1 {
         &self.target_site
     }
 
-    pub(crate) fn target_shape(&self) -> &SourceExprShapeV1 {
-        &self.target_shape
-    }
-
     pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
         &self.value_site
     }
 
     pub(crate) fn lhs_site(&self) -> &SourceExprSiteV1 {
         &self.lhs_site
-    }
-
-    pub(crate) fn lhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.lhs_shape
     }
 
     pub(crate) fn rhs_site(&self) -> &SourceExprSiteV1 {
@@ -278,10 +262,6 @@ impl Main0TailReturnFactV1 {
 
     pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
         &self.value_site
-    }
-
-    pub(crate) fn value_shape(&self) -> &SourceExprShapeV1 {
-        &self.value_shape
     }
 }
 

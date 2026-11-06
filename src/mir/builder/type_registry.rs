@@ -67,35 +67,6 @@ impl TypeRegistry {
         }
     }
 
-    /// パラメータ型を記録
-    pub fn record_param(&mut self, vid: ValueId, param_name: &str, param_type: Option<MirType>) {
-        if let Some(ty) = param_type.clone() {
-            self.types.insert(vid, ty.clone());
-
-            if self.trace_enabled {
-                let entry = TraceEntry {
-                    vid,
-                    source: format!("param:{}:{:?}", param_name, ty),
-                    timestamp: self.trace_log.len(),
-                };
-                self.trace_log.push(entry.clone());
-                get_global_ring0()
-                    .log
-                    .debug(&format!("[type-registry] {} {:?}", entry.source, vid));
-            }
-        } else if self.trace_enabled {
-            let entry = TraceEntry {
-                vid,
-                source: format!("param:{}:no_type", param_name),
-                timestamp: self.trace_log.len(),
-            };
-            self.trace_log.push(entry.clone());
-            get_global_ring0()
-                .log
-                .debug(&format!("[type-registry] {} {:?}", entry.source, vid));
-        }
-    }
-
     /// 型注釈を明示的に設定
     pub fn record_type(&mut self, vid: ValueId, ty: MirType) {
         self.types.insert(vid, ty.clone());

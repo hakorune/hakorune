@@ -49,13 +49,6 @@ impl<'decl, 'evidence, 'owner, 'body, 'source_contract, 'carrier>
     pub(crate) fn contract(&self) -> DeclaredInstanceMethodContractRefV1<'decl> {
         self.contract
     }
-
-    pub(crate) fn evidence(
-        &self,
-    ) -> &'evidence VerifiedQueryBodyConformanceEvidenceV1<'owner, 'body, 'source_contract, 'carrier>
-    {
-        self.evidence
-    }
 }
 
 /// Full-coverage catalog for the bounded selected Query cohort.
@@ -91,9 +84,6 @@ impl<'decl, 'evidence, 'owner, 'body, 'source_contract, 'carrier>
         'carrier,
     >
 {
-    pub(crate) const fn resolver_brand(&self) -> ResolverCatalogBrandV1 {
-        self.resolver_brand
-    }
 
     pub(crate) fn rows(
         &self,

@@ -331,42 +331,6 @@ impl RawRootSourceFactsV1 {
             }
         }
     }
-
-    pub(in crate::mir) const fn route(&self) -> RawRootSourceRouteV1 {
-        self.route
-    }
-    pub(in crate::mir) const fn physical(&self) -> RawPhysicalRootIdentityV1 {
-        self.physical
-    }
-    pub(in crate::mir) fn main(&self) -> Option<&RawSourceLocatorV1> {
-        self.main.as_ref()
-    }
-    pub(in crate::mir) fn helper_schedule(&self) -> &[RawSourceLocatorV1] {
-        &self.helper_schedule
-    }
-
-    pub(in crate::mir) const fn helper_count(&self) -> usize {
-        self.helper_schedule.len()
-    }
-
-    pub(in crate::mir) fn body_statement_count(&self) -> usize {
-        match &self.body {
-            RawRootBodyFactV1::Script(program) => program.statements().len(),
-            RawRootBodyFactV1::App { body, .. } => body.statements().len(),
-        }
-    }
-
-    pub(in crate::mir) fn callable_count(&self) -> usize {
-        self.callable_catalog.len()
-    }
-    pub(in crate::mir) fn callable_catalog(
-        &self,
-    ) -> &VerifiedSameModuleCallableDeclarationCatalogV1 {
-        &self.callable_catalog
-    }
-    pub(in crate::mir) fn body(&self) -> &RawRootBodyFactV1 {
-        &self.body
-    }
 }
 
 impl RawRootPostInstallFactsV1 {
@@ -374,24 +338,8 @@ impl RawRootPostInstallFactsV1 {
         self.route
     }
 
-    pub(in crate::mir) const fn physical(&self) -> RawPhysicalRootIdentityV1 {
-        self.physical
-    }
-
-    pub(in crate::mir) fn main(&self) -> Option<&RawSourceLocatorV1> {
-        self.main.as_ref()
-    }
-
-    pub(in crate::mir) fn helper_schedule(&self) -> &[RawSourceLocatorV1] {
-        &self.helper_schedule
-    }
-
     pub(in crate::mir) const fn helper_count(&self) -> usize {
         self.helper_schedule.len()
-    }
-
-    pub(in crate::mir) fn body_recipe(&self) -> &RawRootBodyRecipeV1 {
-        &self.body_recipe
     }
 
     pub(in crate::mir) fn body_statement_count(&self) -> usize {
@@ -429,29 +377,6 @@ pub(in crate::mir) struct RawAppMainMetadataFactsV1 {
 }
 
 impl RawAppMainMetadataFactsV1 {
-    pub(in crate::mir) const fn parameter_count(self) -> usize {
-        self.parameter_count
-    }
-
-    pub(in crate::mir) const fn parameter_decl_count(self) -> usize {
-        self.parameter_decl_count
-    }
-
-    pub(in crate::mir) const fn return_annotation_present(self) -> bool {
-        self.return_annotation_present
-    }
-
-    pub(in crate::mir) const fn uses_count(self) -> usize {
-        self.uses_count
-    }
-
-    pub(in crate::mir) const fn contract_count(self) -> usize {
-        self.contract_count
-    }
-
-    pub(in crate::mir) const fn rune_count(self) -> usize {
-        self.rune_count
-    }
 
     const fn is_empty(self) -> bool {
         self.parameter_count == 0

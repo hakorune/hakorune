@@ -152,28 +152,6 @@ pub(in crate::mir::builder) struct RawExpansionReservationV1 {
     _seal: RawExpansionReservationSealV1,
 }
 
-impl RawExpansionReservationV1 {
-    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.brand
-    }
-
-    pub(in crate::mir::builder) fn key(&self) -> &FunctionDraftKeyV1 {
-        &self.request.key
-    }
-
-    pub(in crate::mir::builder) fn symbol(&self) -> &str {
-        &self.request.symbol
-    }
-
-    pub(in crate::mir::builder) const fn arity(&self) -> usize {
-        self.request.arity
-    }
-
-    pub(in crate::mir::builder) const fn policy(&self) -> DraftPublicationPolicyV1 {
-        self.request.policy
-    }
-}
-
 #[derive(Debug)]
 struct RawExpansionReservationSealV1;
 

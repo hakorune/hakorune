@@ -49,12 +49,6 @@ pub(in crate::mir) struct RawStaticHelper0V1 {
     locator: RawSourceLocatorV1,
 }
 
-impl RawStaticHelper0V1 {
-    pub(in crate::mir) fn locator(&self) -> &RawSourceLocatorV1 {
-        &self.locator
-    }
-}
-
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) struct RawStaticHelperCoverageV1 {
     rows: Box<[RawStaticHelper0V1]>,

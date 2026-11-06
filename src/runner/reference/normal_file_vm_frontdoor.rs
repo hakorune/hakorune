@@ -177,8 +177,6 @@ impl RejectedNormalFileSourceV1 {
             Self::SourceProfile { error, .. } => NormalFileSourceErrorV1::SourceProfile(*error),
         }
     }
-
-    pub(crate) fn discard(self) {}
 }
 
 #[derive(Debug)]

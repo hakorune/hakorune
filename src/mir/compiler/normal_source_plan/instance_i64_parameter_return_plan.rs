@@ -69,20 +69,12 @@ impl NormalInstanceI64ParameterReturnRecipeV1 {
         self.parameter
     }
 
-    pub(crate) const fn parameter_site(&self) -> &SourceBindingSiteV1 {
-        &self.parameter_site
-    }
-
     pub(crate) const fn return_site(&self) -> &SourceStmtSiteV1 {
         &self.return_site
     }
 
     pub(crate) const fn value_site(&self) -> &SourceExprSiteV1 {
         &self.value_site
-    }
-
-    pub(crate) const fn abi(&self) -> ExactTrivialParameterAbiV1 {
-        self.abi
     }
 }
 

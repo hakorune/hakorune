@@ -5,7 +5,7 @@
 //! or lower a Recipe.  Each source family keeps its typed key and has one
 //! explicit query instead of being flattened into a route-local map.
 
-use super::direct_call::{ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1};
+use super::direct_call::ResolvedDirectCallTargetV1;
 use super::ids::BindingRefV1;
 use super::ordered_capture::OrderedCaptureDemandV1;
 use super::owner_forest::VerifiedSemanticOwnerForestV1;
@@ -410,14 +410,6 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         site: &SourceStmtSiteV1,
     ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
         self.function.issue_callable_loop_membership(site)
-    }
-
-    pub(crate) fn loop_body_contains_site(
-        &self,
-        loop_site: &SourceStmtSiteV1,
-        site: &SourceExprSiteV1,
-    ) -> Result<bool, ResolvedLoopRegionLookupErrorV1> {
-        self.function.loop_body_contains_site(loop_site, site)
     }
 
     pub(crate) fn resolved_loop_placement(

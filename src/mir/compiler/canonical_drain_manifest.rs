@@ -64,10 +64,6 @@ impl CanonicalDrainRowV1 {
     pub(super) const fn arity(&self) -> usize {
         self.arity
     }
-
-    pub(super) const fn inserted(&self) -> CanonicalInsertedSealV1 {
-        self.inserted
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

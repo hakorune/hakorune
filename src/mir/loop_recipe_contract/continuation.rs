@@ -36,8 +36,4 @@ impl VerifiedLoopContinuationContractV1 {
     pub(crate) fn after(&self) -> &VerifiedLoopAfterBindingV1 {
         &self.after
     }
-
-    pub(crate) fn into_after(self) -> VerifiedLoopAfterBindingV1 {
-        self.after
-    }
 }

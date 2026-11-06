@@ -51,9 +51,6 @@ pub(in crate::mir) struct RetainedNormalHelperDraftPrefixV1 {
 }
 
 impl RetainedNormalHelperDraftPrefixV1 {
-    pub(in crate::mir) const fn topology(&self) -> &PreparedNormalHelperTopologyReceiptV1 {
-        &self.topology
-    }
 
     pub(in crate::mir) fn drafts(&self) -> &[VerifiedNormalHelperDraftV1] {
         &self.drafts
@@ -149,12 +146,6 @@ pub(in crate::mir) enum RejectedNormalHelperDraftPrefixV1 {
         prefix: RetainedNormalHelperDraftPrefixV1,
         failure: NormalHelperDraftPrefixFailureV1,
     },
-}
-
-impl RejectedNormalHelperDraftPrefixV1 {
-    pub(in crate::mir) fn discard(self) {
-        drop(self);
-    }
 }
 
 impl MirBuilder {

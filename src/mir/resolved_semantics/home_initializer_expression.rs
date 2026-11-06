@@ -4,12 +4,11 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::FiniteEntryReadV1;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
-    expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
     expression_class::ExpressionValueClassV1 as Class,
     expression_plan::ExpressionPlanRootV1,
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone)]
 pub(crate) struct TextResidenceReadV1 {
@@ -90,18 +89,6 @@ impl CheckedInitializerExpressionFrameV1 {
             .values()
             .filter_map(|read| match read {
                 CheckedExpressionReferenceV1::FiniteEntry { read, .. } => Some(read),
-                _ => None,
-            })
-            .collect()
-    }
-    pub(crate) fn dynamic_entry_reads(
-        &self,
-    ) -> Vec<&crate::mir::normal_callable_semantic_package::DynamicEntryReadV1> {
-        self.evaluation
-            .references()
-            .values()
-            .filter_map(|read| match read {
-                CheckedExpressionReferenceV1::DynamicEntry(read) => Some(read),
                 _ => None,
             })
             .collect()
@@ -196,9 +183,6 @@ impl CheckedInitializerExpressionFrameV1 {
     }
     pub(crate) fn owns_root(&self) -> bool {
         self.evaluation.owned_result_nodes().contains(&0)
-    }
-    pub(crate) fn transfers_node(&self, node: usize) -> bool {
-        self.evaluation.transfers_node(node)
     }
 }
 

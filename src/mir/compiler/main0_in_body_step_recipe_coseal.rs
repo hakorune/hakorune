@@ -104,10 +104,6 @@ impl VerifiedMain0InBodyStepRecipeProductV1 {
         &self.input
     }
 
-    pub(crate) fn context(&self) -> &VerifiedLoopSemanticContextV1 {
-        &self.context
-    }
-
     pub(crate) fn continuation(&self) -> &VerifiedLoopContinuationContractV1 {
         &self.continuation
     }

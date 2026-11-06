@@ -332,10 +332,6 @@ impl ParserCallableSourceSessionV1 {
         &self.rows
     }
 
-    pub(super) fn into_rows(self) -> Vec<PreparedDirectCallableSourceV1> {
-        self.rows
-    }
-
     pub(super) fn into_postpass_parts(
         self,
     ) -> (

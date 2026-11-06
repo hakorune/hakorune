@@ -47,7 +47,7 @@ pub(crate) use named_array_requirement::{
 };
 pub(crate) use named_array_residence::{
     detect_field_residence_claim, resolve_birth_provider, seal_field_residence_requirement,
-    verify_field_residence_relations, NamedArrayFieldResidenceClaimV1,
+    verify_field_residence_relations,
     NamedArrayFieldResidenceIssueV1, NamedArrayFieldResidenceObjectV1,
     NamedArrayFieldResidenceRequirementV1, NamedArrayRequirementV1, NamedArrayResultDemandV1,
 };
@@ -113,7 +113,7 @@ pub(crate) use brand_source_relation::{
 pub(crate) use callable_catalog::{
     CallableCatalogOwnerSealErrorV1, CallableCatalogSealOutcomeV1,
     CatalogSealedResolverContinuationV1, PreparedCallableCatalogSealV1,
-    VerifiedCallableCatalogSourceUnitV1, VerifiedCallableCatalogV1, VerifiedCallableDeclarationV1,
+    VerifiedCallableCatalogSourceUnitV1, VerifiedCallableCatalogV1,
 };
 pub(crate) use callable_catalog_candidate::{
     CallableCatalogCandidateSealErrorV1, PreparedOwnerFreeCallableCatalogV1,
@@ -147,7 +147,6 @@ pub(crate) use core_method_instance_target::{
 pub(crate) use declared_instance_call_effect::{
     DeclaredInstanceCallEffectIssueV1, DeclaredInstanceCallEffectIssuerV1,
     DeclaredInstanceCallEffectSourceDispositionV1, DeclaredInstanceCallSemanticEffectV1,
-    VerifiedDeclaredInstanceCallEffectCatalogV1, VerifiedDeclaredInstanceCallEffectRowV1,
 };
 pub(crate) use declared_instance_call_relation::{
     DeclaredInstanceCallRelationIssueV1, DeclaredInstanceCallRelationIssuerV1,
@@ -176,14 +175,11 @@ pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1
 pub(crate) use explicit_extern_call::ResolvedExplicitExternCallV1;
 pub(crate) use expression_source::{
     ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
-    ResolvedConditionalExpressionSourceV1, ResolvedExpressionIfConsumerV1,
+    ResolvedConditionalExpressionSourceV1,
     ResolvedExpressionSourceInventoryV1, ResolvedInitializerRelationV1, ResolvedLiteralSourceV1,
     ResolvedNewExpressionSourceV1, ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
 };
-pub(crate) use function_root::{
-    ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
-    ResolvedOwnerLoweringRootsV1,
-};
+pub(crate) use function_root::ResolvedFunctionLoweringRootsV1;
 pub(crate) use function_view::FunctionSyntaxViewV1;
 pub(in crate::mir) use function_view::ReceiverPolicyV1;
 pub(crate) use home_abi::{
@@ -193,12 +189,11 @@ pub(crate) use home_abi::{
     VerifiedInstanceEntryHomeParameterV1,
 };
 pub(crate) use home_relation::{
-    HomeDemandV1, HomeDestinationV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,
-    HomeRelationRejectV1, HomeResultRelationV1, HomeRootRefV1,
+    HomeDemandV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,
+    HomeRelationRejectV1, HomeResultRelationV1,
 };
 pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
-pub use if_region::ResolvedIfRegionVerificationErrorV1;
 pub(crate) use if_region::{
     ResolvedIfConditionRegionRefV1, ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1,
 };
@@ -227,20 +222,12 @@ pub(crate) use loop_family_window::{
 };
 #[cfg(test)]
 pub(crate) use loop_region::loop_execution_frame_key_for_test;
-pub use loop_region::ResolvedLoopRegionVerificationErrorV1;
 pub(crate) use loop_region::{
     LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1, ResolvedLoopRegionBundleV1,
-    ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1,
-    VerifiedResolvedLoopSourceForestMemberV1, VerifiedResolvedLoopSourceForestV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1, VerifiedResolvedLoopSourceForestV1,
     VerifiedResolvedLoopSourceV1,
 };
-pub use normalized::{
-    NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,
-    NormalizedBindingRecordV1, NormalizedControlTransferV1, NormalizedDeclarationV1,
-    NormalizedExitV1, NormalizedRegionKeyV1, NormalizedRegionRecordV1,
-    NormalizedResolvedFunctionGraphV1, NormalizedScopeKeyV1, NormalizedScopeRecordV1,
-    NormalizedVariableUseV1,
-};
+pub use normalized::NormalizedResolvedFunctionGraphV1;
 pub(crate) use normalized_callable_catalog::{
     NormalizedCallableCatalogRowV1, NormalizedCallableCatalogV1,
 };
@@ -281,19 +268,14 @@ pub(in crate::mir) use query_body_conformance_evidence::{
     VerifiedQueryBodyConformanceEvidenceCatalogV1, VerifiedQueryBodyConformanceEvidenceV1,
     VerifiedQueryBodyHomeFlowEvidenceV1,
 };
-pub(in crate::mir) use query_body_facts::{
-    OrdinaryReturnFactV1, QueryBodyFactsDeclineV1, QueryBodyFactsIssueV1, QueryBodyFactsIssuerV1,
-    QueryBodyFactsRejectV1, QueryBodyFactsUnresolvedV1, ReceiverReadFactV1,
-    VerifiedCallableQueryBodyFactsCatalogV1, VerifiedCallableQueryBodyFactsRowV1,
-};
 pub(crate) use record_schema_demand::{
     FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1,
 };
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
     ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,
-    ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1,
-    ScopeOriginV1, SyntheticBindingKindV1,
+    ResolvedLexicalRefV1, ScopeKindV1,
+    ScopeOriginV1,
 };
 pub(crate) use resolver::{
     AppMainFreeStaticResolverIssueV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
@@ -305,12 +287,12 @@ pub(crate) use resolver_core_method_callable_contract::{
 };
 pub(crate) use script_view::ScriptSyntaxViewV1;
 pub(crate) use selected_callable_deferred::{
-    SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverDeferredV1,
-    SelectedCallableResolverInputV1, SelectedCallableResolverSourceIdentityV1,
+    SelectedCallableResolverDeferredBatchV1,
+    SelectedCallableResolverInputV1,
 };
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
-    observe_script_method_calls_shadow_view_v0, ShadowMethodCallObservationV0,
+    observe_script_method_calls_shadow_view_v0,
     ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 pub(crate) use shadow::{
@@ -325,7 +307,7 @@ pub(crate) use shadow::{
 };
 pub(crate) use source_path_policy::{
     assignment_value_sibling_v1, is_statement_expression_surface_v1, BodyChildRoleV1,
-    ExprChildRoleV1, ExprChildSyntaxV1, ResolvedBodyChildV1, ResolvedExprChildV1, SourceBodyKindV1,
+    ExprChildRoleV1, ExprChildSyntaxV1, SourceBodyKindV1,
 };
 pub(in crate::mir) use source_projection::{
     project_source_body_node_v1, project_source_node_v1, ProjectedSourceNodeV1,

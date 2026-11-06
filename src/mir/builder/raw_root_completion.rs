@@ -54,14 +54,6 @@ impl RawInvocationRootWitnessV1 {
         self.callable_main
     }
 
-    pub(in crate::mir::builder) fn exit(&self) -> &RawRootBodyExitWitnessV1 {
-        &self.exit
-    }
-
-    pub(in crate::mir) fn main_entry_target(&self) -> &RawMainEntryTargetV1 {
-        &self.entry_target
-    }
-
     pub(in crate::mir::builder) fn main_receipt(
         &self,
     ) -> &InvocationBranded<CollectedDraftAdmissionReceiptV1> {

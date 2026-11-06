@@ -100,16 +100,8 @@ impl Main0DerivedConditionFactsV1 {
         &self.add_lhs_site
     }
 
-    pub(crate) fn add_lhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.add_lhs_shape
-    }
-
     pub(crate) fn add_rhs_site(&self) -> &SourceExprSiteV1 {
         &self.add_rhs_site
-    }
-
-    pub(crate) fn add_rhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.add_rhs_shape
     }
 
     pub(crate) const fn add_operator(&self) -> SyntaxBinaryOperatorV1 {
@@ -118,10 +110,6 @@ impl Main0DerivedConditionFactsV1 {
 
     pub(crate) fn rhs_site(&self) -> &SourceExprSiteV1 {
         &self.rhs_site
-    }
-
-    pub(crate) fn rhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.rhs_shape
     }
 
     pub(crate) const fn operator(&self) -> SyntaxBinaryOperatorV1 {

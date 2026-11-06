@@ -33,14 +33,6 @@ pub(crate) struct SelectedCallableResolverInputV1<'source> {
 }
 
 impl<'source> SelectedCallableResolverInputV1<'source> {
-    pub(crate) fn callable(
-        identity: CallableDeclarationIdentityV1,
-        diagnostic_owner: Option<&str>,
-        diagnostic_name: &str,
-        view: FunctionSyntaxViewV1<'source>,
-    ) -> Self {
-        Self::callable_with_header(identity, diagnostic_owner, diagnostic_name, view, None)
-    }
 
     pub(crate) fn callable_with_header(
         identity: CallableDeclarationIdentityV1,

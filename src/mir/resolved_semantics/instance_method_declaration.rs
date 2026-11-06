@@ -38,10 +38,6 @@ impl ResolverNominalBoxTypeIdV1 {
     pub(crate) const fn brand(self) -> ResolverCatalogBrandV1 {
         self.brand
     }
-
-    pub(crate) const fn slot(self) -> u32 {
-        self.slot
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

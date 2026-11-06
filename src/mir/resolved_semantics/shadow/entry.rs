@@ -115,32 +115,6 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
     .map(|resolver| resolver.finish_owner(profile).function)
 }
 
-pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'ast>(
-    view: ScriptSyntaxViewV1<'ast>,
-    window: &'ast VerifiedScriptRootDemandWindowV1,
-    record_schemas: &dyn RecordSchemaDemandV1,
-    enum_variants: &dyn EnumVariantDemandV1,
-    enum_matches: &dyn EnumMatchDemandV1,
-) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    let input = ShadowRootTraversalInputV1::sparse_script(
-        view,
-        window,
-        record_schemas,
-        enum_variants,
-        enum_matches,
-    );
-    let profile = input.root_profile();
-    traverse_shadow_root_v1(
-        input,
-        ShadowLambdaModeV0::Inventory,
-        BTreeSet::new(),
-        BTreeSet::new(),
-        ShadowMethodCallObservationModeV0::Disabled,
-        true,
-    )
-    .map(|resolver| resolver.finish_owner(profile))
-}
-
 pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_with_brand_catalog_v1<
     'ast,
     'catalog,

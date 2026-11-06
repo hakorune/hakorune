@@ -207,9 +207,6 @@ impl RejectedRawRootCompletionV1 {
     pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.owner.brand()
     }
-
-    /// Deliberately the only terminal exposed for a rejected preflight owner.
-    pub(in crate::mir::builder) fn discard(self) {}
 }
 
 #[cfg(test)]

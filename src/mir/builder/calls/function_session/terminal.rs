@@ -274,10 +274,6 @@ impl LegacyFunctionPendingSessionV1<'_> {
     ) -> Result<R, E> {
         self.pending.complete_before_restore(complete)
     }
-
-    pub(in crate::mir::builder) fn abort_and_restore(self) {
-        self.pending.abort_and_restore();
-    }
 }
 
 impl<'builder> PreparedFunctionSessionCloseV1<'builder> {

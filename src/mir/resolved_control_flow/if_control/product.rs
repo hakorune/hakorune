@@ -110,18 +110,8 @@ impl ResolvedIfControlMaterializationV1 {
         self.regions
     }
 
-    pub(crate) const fn then_port(&self) -> ResolvedIfFallthroughPortV1 {
-        self.then_port
-    }
-
     pub(crate) const fn else_port(&self) -> ResolvedIfElsePortV1 {
         self.else_port
-    }
-
-    pub(crate) const fn outer_range(
-        &self,
-    ) -> &crate::mir::compiler::located::ConsumedSourceRangeV1 {
-        &self.outer_range
     }
 
     pub(crate) fn claim_statement(

@@ -26,7 +26,7 @@ mod shared;
 mod leaves;
 pub(crate) use leaves::ExpressionCallSourceV1;
 pub(super) use leaves::{
-    prepare_expression_calls_v1, ExpressionLeafProfileV1, PreparedExpressionCallsV1,
+    prepare_expression_calls_v1, ExpressionLeafProfileV1,
 };
 #[path = "home_field_write_expression.rs"]
 mod field_write_expression;
@@ -52,7 +52,7 @@ pub(crate) use initializer_expression::{
 #[path = "home_binding_rebind_expression.rs"]
 mod binding_rebind_expression;
 pub(crate) use binding_rebind_expression::{
-    qualify_binding_rebind_expression_v1, qualify_binding_rebind_expression_with_loop_dynamic_v1,
+    qualify_binding_rebind_expression_with_loop_dynamic_v1,
     BindingRebindDestinationV1, CheckedBindingRebindFrameV1,
 };
 #[path = "home_expression_evaluation.rs"]

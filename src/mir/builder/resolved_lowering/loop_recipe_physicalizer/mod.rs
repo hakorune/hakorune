@@ -67,7 +67,6 @@ pub(in crate::mir::builder) use main0_derived_predicate_lowerer::lower_main0_der
 pub(in crate::mir::builder) use loop_node_lowerer::{
     lower_loop_node_physical_admission_v1,
     lower_loop_node_physical_admission_with_callable_entry_values_v1,
-    LoopNodeWinnerPhysicalContinuationV1,
 };
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 #[cfg(test)]

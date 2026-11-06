@@ -9,12 +9,10 @@ use crate::mir::resolved_semantics::brand_source_relation::{
 use crate::mir::resolved_semantics::expression_source::ShadowExpressionSourceDraftV1;
 use crate::mir::resolved_semantics::function_view::ReceiverPolicyV1;
 use crate::mir::resolved_semantics::source_site::{
-    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
-use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
 use crate::mir::resolved_semantics::{
     EnumMatchDemandV1, EnumVariantAdmissionV1, EnumVariantDemandV1, RecordSchemaDemandV1,
-    ScriptSyntaxViewV1, VerifiedScriptRootDemandWindowV1,
 };
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};

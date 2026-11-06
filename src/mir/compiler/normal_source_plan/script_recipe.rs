@@ -76,10 +76,6 @@ impl VerifiedNormalScriptRecipeV1 {
         self.source.input.identity().display_name()
     }
 
-    pub(in crate::mir) fn into_recipe(self) -> RawScriptBodyRecipeV1 {
-        self.recipe
-    }
-
     pub(crate) fn into_physical_parts(
         self,
     ) -> (RetainedNormalScriptSourceV1, RawScriptBodyRecipeV1) {
@@ -112,18 +108,6 @@ impl RejectedNormalScriptRecipeV1 {
         self,
     ) -> (SealedNormalScriptSourceV1, RawScriptRecipeProjectionErrorV1) {
         (self.source, self.error)
-    }
-
-    pub(crate) const fn stage(&self) -> NormalScriptRecipeStageV1 {
-        self.stage
-    }
-
-    pub(in crate::mir) fn error(&self) -> &RawScriptRecipeProjectionErrorV1 {
-        &self.error
-    }
-
-    pub(crate) fn discard(self) {
-        drop(self);
     }
 }
 

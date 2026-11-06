@@ -57,10 +57,6 @@ impl VerifiedNormalCallableSourceUnitV1 {
         self.main_method.method_key()
     }
 
-    pub(crate) fn source_identity(&self) -> &str {
-        self.identity.display_name()
-    }
-
     pub(super) fn into_parts(
         self,
     ) -> (

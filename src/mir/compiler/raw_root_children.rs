@@ -39,9 +39,6 @@ impl RawRootChildScheduleV1 {
     fn pop(&mut self) -> Option<RawSourceLocatorV1> {
         self.remaining.pop_front()
     }
-    fn len(&self) -> usize {
-        self.remaining.len()
-    }
 }
 
 #[derive(Debug)]

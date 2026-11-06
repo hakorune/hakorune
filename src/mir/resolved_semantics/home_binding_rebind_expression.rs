@@ -6,12 +6,10 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::home_new_prefix::LoopHeaderValueBasisV1;
 use crate::mir::resolved_semantics::{ResolvedAssignmentFormV1, ResolvedAssignmentTargetV1};
 use crate::mir::resolved_value_profile::{
-    expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
     expression_class::ExpressionValueClassV1 as Class,
     expression_plan::ExpressionPlanRootV1,
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
-use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BindingRebindDestinationV1 {

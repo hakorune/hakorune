@@ -57,12 +57,6 @@ impl SourceValueClassFactsV1 {
             );
         (self.proves_value(flow, value) || exact_formal_entry).then_some(value)
     }
-    pub(in crate::mir) fn flow(
-        &self,
-    ) -> &std::sync::Arc<crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1>
-    {
-        &self.flow
-    }
 }
 
 impl PreparedBorrowedFormalIngressV1 {

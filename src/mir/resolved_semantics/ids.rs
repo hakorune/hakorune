@@ -129,10 +129,6 @@ impl ScopeId {
     pub const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }
-
-    pub const fn slot(self) -> u32 {
-        self.slot
-    }
 }
 
 /// Structured-control-region handle local to one resolved function.

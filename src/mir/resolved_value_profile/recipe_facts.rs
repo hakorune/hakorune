@@ -190,13 +190,6 @@ impl IfFactDraftV1 {
             else_direct_call_site: None,
         }
     }
-
-    fn assignments(&self, branch: RecipeBranchV1) -> &[AssignmentFactV1] {
-        match branch {
-            RecipeBranchV1::Then => &self.then_assignments,
-            RecipeBranchV1::Else => &self.else_assignments,
-        }
-    }
 }
 
 /// The owner-branded witness emitted by the same traversal as the trivial
@@ -238,10 +231,6 @@ impl VerifiedTrivialIfRecipeFactsV1 {
 
     pub(crate) fn else_assignment_count(&self) -> usize {
         self.if_fact.else_assignments.len()
-    }
-
-    pub(super) fn assignments(&self, branch: RecipeBranchV1) -> &[AssignmentFactV1] {
-        self.if_fact.assignments(branch)
     }
 
     pub(crate) fn continuation_read(&self) -> Option<&SourceExprSiteV1> {

@@ -118,10 +118,6 @@ impl RejectedCanonicalCoreNormalDispatchV1 {
         self.stage
     }
 
-    pub(in crate::mir) fn cause(&self) -> &CanonicalCoreDispatchErrorV1 {
-        &self.cause
-    }
-
     pub(crate) fn callable_stage(&self) -> Option<CanonicalCallableDispatchStageV1> {
         match &self.cause {
             CanonicalCoreDispatchErrorV1::Callable(stage) => Some(*stage),
@@ -168,68 +164,6 @@ pub(crate) struct CompletedCanonicalCoreSourceEntryCandidateV1 {
 pub(crate) enum RejectedCanonicalCorePublishedSourceEntryV1 {
     Dispatch(RejectedCanonicalCoreNormalDispatchV1),
     Publication(publication::RejectedCanonicalSourceEntryPublicationV1),
-}
-
-/// Bounded MIR-to-runner rejection report for the canonical-core lane.
-///
-/// This adapter consumes retained compiler owners without exposing them to the
-/// runner. Executed program faults never use this report.
-#[derive(Debug)]
-pub(crate) struct CanonicalCoreInvocationFailureReportV1 {
-    stage: CanonicalCoreInvocationFailureStageV1,
-    code: &'static str,
-    detail: Box<str>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum CanonicalCoreInvocationFailureStageV1 {
-    Dispatch,
-    Publication,
-}
-
-impl CanonicalCoreInvocationFailureReportV1 {
-    pub(crate) const fn stage(&self) -> CanonicalCoreInvocationFailureStageV1 {
-        self.stage
-    }
-
-    pub(crate) const fn code(&self) -> &'static str {
-        self.code
-    }
-
-    pub(crate) fn detail(&self) -> &str {
-        &self.detail
-    }
-}
-
-impl From<RejectedCanonicalCorePublishedSourceEntryV1> for CanonicalCoreInvocationFailureReportV1 {
-    fn from(rejected: RejectedCanonicalCorePublishedSourceEntryV1) -> Self {
-        match rejected {
-            RejectedCanonicalCorePublishedSourceEntryV1::Dispatch(rejected) => {
-                let detail = format!("stage={:?}", rejected.stage()).into_boxed_str();
-                rejected.discard();
-                Self {
-                    stage: CanonicalCoreInvocationFailureStageV1::Dispatch,
-                    code: "canonical-core-dispatch-rejected",
-                    detail,
-                }
-            }
-            RejectedCanonicalCorePublishedSourceEntryV1::Publication(rejected) => {
-                let detail = format!("stage={:?}", rejected.stage()).into_boxed_str();
-                rejected.discard();
-                Self {
-                    stage: CanonicalCoreInvocationFailureStageV1::Publication,
-                    code: "canonical-core-publication-rejected",
-                    detail,
-                }
-            }
-        }
-    }
-}
-
-impl RejectedCanonicalCorePublishedSourceEntryV1 {
-    pub(crate) fn discard(self) {
-        drop(self);
-    }
 }
 
 /// The only owner allowed to select a canonical-core source family.

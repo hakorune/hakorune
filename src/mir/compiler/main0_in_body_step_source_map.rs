@@ -48,17 +48,6 @@ pub(crate) struct Main0InBodyStepMapRowV1 {
 }
 
 impl Main0InBodyStepMapRowV1 {
-    pub(crate) const fn statement(
-        site: SourceStmtSiteV1,
-        role: Main0InBodyStepMapRoleV1,
-        target: Main0ContinueMapTargetV1,
-    ) -> Self {
-        Self {
-            site: Main0ContinueMapSiteV1::Statement(site),
-            role,
-            target,
-        }
-    }
 
     pub(crate) const fn expression(
         site: SourceExprSiteV1,
@@ -156,35 +145,6 @@ impl VerifiedMain0InBodyStepSourceMapV1 {
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
-    }
-
-    pub(crate) const fn origin(&self) -> FunctionOriginV1 {
-        self.origin
-    }
-
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
-    pub(crate) fn loop_source(&self) -> &VerifiedResolvedLoopSourceV1 {
-        &self.loop_source
-    }
-
-    pub(crate) fn loop_frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.loop_frame
-    }
-
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-
-    /// Source site of the write-only `<effect> = <integer>` statement.
-    pub(crate) fn effect_site(&self) -> &SourceStmtSiteV1 {
-        &self.effect_site
-    }
-
-    pub(crate) fn rows(&self) -> &[Main0InBodyStepMapRowV1] {
-        &self.rows
     }
 
     /// Test-only rebuild used to exercise missing/extra-row rejection at the

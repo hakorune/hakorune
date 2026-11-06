@@ -60,10 +60,6 @@ impl ConditionSyntaxFactsV1 {
         &self.lhs_site
     }
 
-    pub(crate) fn lhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.lhs_shape
-    }
-
     pub(crate) fn rhs_site(&self) -> &SourceExprSiteV1 {
         &self.rhs_site
     }
@@ -91,16 +87,9 @@ pub(crate) struct StepSyntaxFactsV1 {
 }
 
 impl StepSyntaxFactsV1 {
-    pub(crate) fn statement_site(&self) -> &SourceStmtSiteV1 {
-        &self.statement_site
-    }
 
     pub(crate) fn target_site(&self) -> &SourceExprSiteV1 {
         &self.target_site
-    }
-
-    pub(crate) fn target_shape(&self) -> &SourceExprShapeV1 {
-        &self.target_shape
     }
 
     pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
@@ -109,10 +98,6 @@ impl StepSyntaxFactsV1 {
 
     pub(crate) fn lhs_site(&self) -> &SourceExprSiteV1 {
         &self.lhs_site
-    }
-
-    pub(crate) fn lhs_shape(&self) -> &SourceExprShapeV1 {
-        &self.lhs_shape
     }
 
     pub(crate) fn rhs_site(&self) -> &SourceExprSiteV1 {

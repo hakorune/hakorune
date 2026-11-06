@@ -81,13 +81,6 @@ pub(crate) struct RejectedResolvedCallableModuleV1 {
 }
 
 impl RejectedResolvedCallableModuleV1 {
-    pub(crate) const fn error(&self) -> &ResolveCallableModuleErrorV1 {
-        &self.error
-    }
-
-    pub(crate) fn discard(self) {
-        drop(self);
-    }
 
     fn into_error(self) -> ResolveCallableModuleErrorV1 {
         self.error

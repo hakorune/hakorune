@@ -8,10 +8,6 @@ use super::MirCompileResult;
 use crate::ast::ASTNode;
 use crate::mir::RawPublishedCompileRequestV1;
 
-pub(in crate::mir) enum RawPublicIngressPolicyV1 {
-    NarrowV1,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawPublicImportDispositionV1 {
     None,

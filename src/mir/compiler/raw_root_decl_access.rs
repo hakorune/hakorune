@@ -365,13 +365,6 @@ impl RawRootBodyCompleteInvocationV1 {
 }
 
 impl RejectedRawRootBatchInvocationV1 {
-    pub(in crate::mir) const fn stage(&self) -> RawRootBatchFailureStageV1 {
-        self.stage
-    }
-
-    pub(in crate::mir) fn error(&self) -> &RawRootBatchErrorV1 {
-        &self.error
-    }
 
     pub(in crate::mir) fn discard(self) {}
 }
@@ -532,10 +525,6 @@ fn body_failure_stage(error: &RawRootBodyLoweringErrorV1) -> RawRootBodyFailureS
 impl RejectedRawRootBodyInvocationV1 {
     pub(in crate::mir) const fn stage(&self) -> RawRootBodyFailureStageV1 {
         self.stage
-    }
-
-    pub(in crate::mir) fn error(&self) -> &RawRootBodyErrorV1 {
-        &self.error
     }
 
     pub(in crate::mir) fn discard(self) {}
@@ -716,9 +705,6 @@ fn declare_app(
 }
 
 impl RejectedRawRootEnvironmentInvocationV1 {
-    pub(in crate::mir) const fn stage(&self) -> RawRootEnvironmentFailureStageV1 {
-        self.stage
-    }
 
     pub(in crate::mir) fn error(&self) -> &RawRootEnvironmentErrorV1 {
         &self.error
@@ -753,15 +739,6 @@ impl DeclaredRawRootInvocationV1 {
         match self {
             Self::Script(ready) => ready.core.installed.tracker_completed_children(),
             Self::App(ready) => ready.core.installed.tracker_completed_children(),
-        }
-    }
-
-    pub(in crate::mir) fn token_brand(
-        &self,
-    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
-        match self {
-            Self::Script(ready) => ready.core.token.brand(),
-            Self::App(ready) => ready.core.token.brand(),
         }
     }
 }

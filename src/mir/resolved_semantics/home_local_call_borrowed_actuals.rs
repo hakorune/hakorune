@@ -404,10 +404,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_expression_actu
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<bool, E> {
-    use crate::mir::resolved_value_profile::{
-        expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
-        expression_plan::ExpressionNodeSourceV1,
-    };
+    use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
     if source.owner() != input.owner()
         || source.root().statement() != statement.site()
         || !source.children_always_known_v1()

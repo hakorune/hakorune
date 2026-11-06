@@ -5,7 +5,7 @@ use super::named_array_requirement::{
 };
 use super::{
     CallableSemanticSourceLedgerView, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1, SourcePathSegmentV1,
     VerifiedResolvedMethodCallSourceV1,
 };
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
@@ -107,10 +107,6 @@ impl NamedArrayAppendOnlySourceV1 {
             .iter()
             .find(|row| row.call() == call)
             .map(NamedArrayAppendSourceV1::null_candidate)
-    }
-
-    pub(crate) fn returned_values(&self) -> &[SourceExprSiteV1] {
-        &self.returned_values
     }
 
     pub(crate) fn issue(

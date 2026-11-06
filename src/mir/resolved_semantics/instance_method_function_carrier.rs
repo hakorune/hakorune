@@ -17,7 +17,7 @@ use super::source_site::SourcePathSegmentV1;
 use super::{
     FunctionOriginV1, FunctionOwnerIdV1, FunctionSemanticResolverSessionV1, ReceiverPolicyV1,
     ResolveOwnerForestErrorV1, ResolvedScopeRegionPairV1, ResolverCatalogBrandV1,
-    ResolverNominalBoxTypeIdV1, SemanticOwnerRootProfileV1, SemanticOwnerSourceKindV1,
+    ResolverNominalBoxTypeIdV1, SemanticOwnerSourceKindV1,
     VerifiedInstanceMethodDeclarationCatalogV1, VerifiedResolvedBodyShapeInventoryV1,
     VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
@@ -99,10 +99,6 @@ impl VerifiedInstanceMethodFunctionCarrierRowV1 {
         self.nominal_box_type
     }
 
-    pub(crate) const fn function_origin(&self) -> FunctionOriginV1 {
-        self.function_origin
-    }
-
     pub(crate) fn root_function(&self) -> &VerifiedResolvedFunctionV1 {
         let [root] = self.forest.roots() else {
             unreachable!("verified carrier forest always has one root")
@@ -114,10 +110,6 @@ impl VerifiedInstanceMethodFunctionCarrierRowV1 {
 
     pub(crate) const fn body_root(&self) -> &SourcePathSegmentV1 {
         &self.body_root
-    }
-
-    pub(crate) const fn body_pair(&self) -> ResolvedScopeRegionPairV1 {
-        self.body_pair
     }
 
     pub(crate) fn body_coverage(&self) -> &VerifiedMethodBodyCoverageV1 {

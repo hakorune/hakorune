@@ -85,9 +85,6 @@ impl OpenScriptPhysicalEntryV1 {
 }
 
 impl CompletedScriptPhysicalExitV1 {
-    pub(crate) fn draft(&self) -> &crate::mir::MirFunction {
-        self.draft.draft()
-    }
 
     pub(in crate::mir) fn into_parts(
         self,
@@ -96,20 +93,6 @@ impl CompletedScriptPhysicalExitV1 {
         CompletedScriptPhysicalFunctionV1,
     ) {
         (self.source, self.draft)
-    }
-}
-
-impl RejectedNormalScriptPhysicalEntryV1 {
-    pub(crate) const fn stage(&self) -> NormalScriptPhysicalEntryStageV1 {
-        self.stage
-    }
-
-    pub(in crate::mir::compiler) fn cause(&self) -> &ScriptPhysicalEntrySessionErrorV1 {
-        &self.cause
-    }
-
-    pub(crate) fn discard(self) {
-        drop(self);
     }
 }
 

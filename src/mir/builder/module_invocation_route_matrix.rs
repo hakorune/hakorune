@@ -56,10 +56,6 @@ impl InvocationFailureLawV1 {
         self.collector_prefix_unchanged
     }
 
-    pub(in crate::mir::builder) const fn parent_restored_once(self) -> bool {
-        self.parent_restored_once
-    }
-
     pub(in crate::mir::builder) const fn invocation_dropped_without_publish(self) -> bool {
         self.invocation_dropped_without_publish
     }

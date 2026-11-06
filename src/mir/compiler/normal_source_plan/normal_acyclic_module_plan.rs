@@ -73,10 +73,6 @@ impl RejectedNormalMainHelperResolutionV1 {
         NormalMainHelperResolutionStageV1::HelperSemanticResolution
     }
 
-    pub(crate) const fn error(&self) -> &ResolveCallableModuleErrorV1 {
-        &self.error
-    }
-
     pub(crate) fn discard(self) {
         drop(self);
     }

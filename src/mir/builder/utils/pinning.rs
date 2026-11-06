@@ -13,7 +13,6 @@
 //! - PHI participation (registered in variable_map for merge points)
 //! - Metadata propagation (type/origin tracking)
 
-use crate::mir::SpannedInstruction;
 
 impl super::super::MirBuilder {
     /// Pin a block-crossing ephemeral value into a pseudo local slot and register it in variable_map
@@ -55,47 +54,5 @@ impl super::super::MirBuilder {
             .variable_map
             .insert(slot_name, dst);
         Ok(dst)
-    }
-
-    /// Insert a Copy immediately after PHI nodes in the current block (position-stable).
-    pub(crate) fn insert_copy_after_phis(
-        &mut self,
-        dst: super::super::ValueId,
-        src: super::super::ValueId,
-    ) -> Result<(), String> {
-        if let (Some(ref mut function), Some(bb)) = (
-            &mut self.function_state.current_function,
-            self.function_state.current_block,
-        ) {
-            if crate::config::env::builder_schedule_trace() {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[utils/insert-copy-after-phis] bb={:?} dst=%{} src=%{} attempting...",
-                    bb, dst.0, src.0
-                ));
-            }
-            if let Some(block) = function.get_block_mut(bb) {
-                if crate::config::env::builder_schedule_trace() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[utils/insert-copy-after-phis] bb={:?} dst=%{} src=%{} phi_count={} SUCCESS",
-                        bb, dst.0, src.0, block.phi_instructions().count()));
-                }
-                // Propagate effects on the block
-                block.insert_spanned_after_phis(SpannedInstruction {
-                    inst: super::super::MirInstruction::Copy { dst, src },
-                    span: self.metadata_ctx.current_span(),
-                });
-                // Lightweight metadata propagation (unified)
-                crate::mir::builder::metadata::propagate::propagate(self, src, dst);
-                return Ok(());
-            } else {
-                if crate::config::env::builder_schedule_trace() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[utils/insert-copy-after-phis] bb={:?} dst=%{} src=%{} FAILED: block not found",
-                        bb, dst.0, src.0));
-                }
-            }
-        }
-        Err("No current function/block to insert copy".to_string())
     }
 }

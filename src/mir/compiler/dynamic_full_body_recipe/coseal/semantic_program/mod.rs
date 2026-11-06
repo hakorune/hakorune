@@ -185,13 +185,6 @@ impl VerifiedDynamicFullLoopSemanticProgramV2 {
         callback(authority)
     }
 
-    pub(in crate::mir) fn with_a_prime_source_relation<R>(
-        &self,
-        callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,
-    ) -> Result<R, DynamicAPrimeI64SourceRelationRejectV1> {
-        self.envelope.with_a_prime_source_relation(callback)
-    }
-
     pub(in crate::mir) fn a_prime_source_relation_view(
         &self,
     ) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1>

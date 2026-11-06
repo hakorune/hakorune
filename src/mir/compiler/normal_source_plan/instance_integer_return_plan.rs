@@ -32,9 +32,6 @@ pub(crate) struct NormalInstanceIntegerReturnRecipeV1 {
 }
 
 impl NormalInstanceIntegerReturnRecipeV1 {
-    pub(crate) const fn receiver(&self) -> BindingRefV1 {
-        self.receiver
-    }
 
     pub(crate) const fn return_site(&self) -> &SourceStmtSiteV1 {
         &self.return_site
@@ -57,9 +54,6 @@ pub(crate) struct VerifiedNormalInstanceIntegerReturnPlanV1 {
 }
 
 impl VerifiedNormalInstanceIntegerReturnPlanV1 {
-    pub(crate) const fn facts(&self) -> &VerifiedNormalInstanceFunctionFactsV1 {
-        &self.facts
-    }
 
     pub(crate) const fn recipe(&self) -> &NormalInstanceIntegerReturnRecipeV1 {
         &self.recipe

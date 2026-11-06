@@ -325,10 +325,6 @@ impl VerifiedCallableTerminalCompatibilityV1 {
     pub(crate) const fn abi(&self) -> ExactTrivialReturnAbiV1 {
         self.abi
     }
-
-    pub(crate) fn statement(&self) -> &crate::mir::resolved_semantics::SourceStmtSiteV1 {
-        &self.statement
-    }
 }
 
 /// One pre-effect callable execution product.  Completion is moved into this

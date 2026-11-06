@@ -53,14 +53,6 @@ impl VerifiedNestedPrefixInitializedBindingV1 {
         self.binding
     }
 
-    pub(crate) fn initializer_statement_site(&self) -> &SourceStmtSiteV1 {
-        &self.initializer_statement_site
-    }
-
-    pub(crate) fn initializer_value_site(&self) -> &SourceExprSiteV1 {
-        &self.initializer_value_site
-    }
-
     pub(crate) const fn initial(&self) -> i64 {
         self.initial
     }
@@ -206,20 +198,8 @@ impl NestedAssignmentClaimV1 {
         self.role
     }
 
-    pub(crate) fn statement_site(&self) -> &SourceStmtSiteV1 {
-        &self.statement_site
-    }
-
     pub(crate) fn target_site(&self) -> &SourceExprSiteV1 {
         &self.target_site
-    }
-
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
-    }
-
-    pub(crate) fn lhs_site(&self) -> &SourceExprSiteV1 {
-        &self.lhs_site
     }
 
     pub(crate) const fn binding(&self) -> BindingRefV1 {
@@ -246,16 +226,8 @@ impl NestedFirstAssignmentClaimV1 {
         self.role
     }
 
-    pub(crate) fn statement_site(&self) -> &SourceStmtSiteV1 {
-        &self.statement_site
-    }
-
     pub(crate) fn target_site(&self) -> &SourceExprSiteV1 {
         &self.target_site
-    }
-
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
     }
 
     pub(crate) const fn binding(&self) -> BindingRefV1 {
@@ -305,18 +277,6 @@ impl VerifiedNestedScopeRetirementClaimV1 {
 
     pub(crate) const fn region(&self) -> RegionId {
         self.region
-    }
-
-    pub(crate) const fn binding(&self) -> BindingRefV1 {
-        self.binding
-    }
-
-    pub(crate) fn root_loop_site(&self) -> &SourceStmtSiteV1 {
-        &self.root_loop_site
-    }
-
-    pub(crate) const fn boundary(&self) -> NestedScopeRetirementBoundaryV1 {
-        self.boundary
     }
 }
 
@@ -374,15 +334,6 @@ impl VerifiedNestedBindingExecutionClaimsV1 {
 
     pub(crate) fn effect_plan(&self) -> &VerifiedNestedBindingEffectPlanV1 {
         &self.effect_plan
-    }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedNestedPrefixInputV1,
-        VerifiedNestedBindingEffectPlanV1,
-    ) {
-        (self.prefix, self.effect_plan)
     }
 }
 

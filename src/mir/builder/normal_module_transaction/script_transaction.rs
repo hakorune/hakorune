@@ -339,20 +339,6 @@ impl VerifiedScriptEntryResultContractV1 {
     }
 }
 
-impl RejectedNormalScriptModuleTransactionV1 {
-    pub(in crate::mir) const fn stage(&self) -> NormalScriptModuleTransactionStageV1 {
-        self.stage
-    }
-
-    pub(in crate::mir) fn cause(&self) -> &NormalScriptModuleTransactionErrorV1 {
-        &self.cause
-    }
-
-    pub(in crate::mir) fn discard(self) {
-        drop(self);
-    }
-}
-
 impl CompletedNormalScriptModuleCandidateV1 {
     pub(in crate::mir) fn module(&self) -> &MirModule {
         &self.module
@@ -380,10 +366,6 @@ impl CompletedNormalScriptModuleCandidateV1 {
 impl CompletedNormalScriptModuleEvidenceV1 {
     pub(in crate::mir) fn target(&self) -> &CanonicalNormalMainEntryTargetV1 {
         &self.target
-    }
-
-    pub(in crate::mir) fn exit(&self) -> &CompletedScriptPhysicalExitCoreV1 {
-        &self.exit
     }
 
     pub(in crate::mir) fn result(&self) -> &VerifiedScriptEntryResultContractV1 {

@@ -150,10 +150,6 @@ impl<'loan, 'source, 'join> PreparedPhysicalFunctionSkeletonV1<'loan, 'source, '
         &self.descriptors
     }
 
-    pub(crate) fn loan(&self) -> &S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join> {
-        &self.loan
-    }
-
     /// Move the retained cohort, detached shell, and descriptor rows into the
     /// one compiler-only session transaction. No public caller can recover a
     /// second shell after this handoff.

@@ -51,10 +51,6 @@ impl LocalCallRouteV1 {
     pub(crate) const fn is_lexical_i64(&self) -> bool {
         matches!(self, Self::LexicalI64)
     }
-
-    pub(crate) const fn is_lexical_nullable(&self) -> bool {
-        matches!(self, Self::LexicalNullable)
-    }
 }
 
 /// Seal one routed call: the route names the issuer, the issuer checks the call

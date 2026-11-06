@@ -1,6 +1,6 @@
 //! Canonical resolved-function seal verifier.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use hakorune_mir_core::BindingId;
 
@@ -9,7 +9,7 @@ use super::function_root::{
     build_verified_function_lowering_roots_v1, ResolvedFunctionLoweringRootsV1,
     ResolvedFunctionRootVerificationErrorV1,
 };
-use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
+use super::ids::{BindingRefV1, RegionId, ScopeId};
 use super::if_region::{
     build_verified_if_region_index_v1, ResolvedIfRegionIndexV1, ResolvedIfRegionVerificationErrorV1,
 };

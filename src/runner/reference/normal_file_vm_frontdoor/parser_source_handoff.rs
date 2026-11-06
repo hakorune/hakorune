@@ -41,10 +41,6 @@ impl CanonicalParserSourceHandoffV1 {
         }
     }
 
-    pub(super) fn profile_is_canonical_core(&self) -> bool {
-        self.profile.is_canonical_core()
-    }
-
     pub(super) fn receipt(&self) -> &NormalFileSourceReceiptV1 {
         &self.receipt
     }
@@ -79,9 +75,5 @@ impl CanonicalParserSourceHandoffV1 {
         profile.discard_after_source_plan_terminal();
         receipt.discard_after_source_plan_terminal();
         drop(_seal);
-    }
-
-    pub(super) fn script_input(&self) -> &CanonicalScriptSourceInputDispositionV1 {
-        &self.script_input
     }
 }

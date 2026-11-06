@@ -123,12 +123,4 @@ impl<'a> CallableModuleHeaderSyntaxViewV1<'a> {
         (0..self.statement_count)
             .map(|statement_index| SourceCallableDeclarationSiteV1 { statement_index })
     }
-
-    pub(crate) fn located_header(
-        self,
-        site: SourceCallableDeclarationSiteV1,
-    ) -> Option<LocatedCallableHeaderSyntaxViewV1<'a>> {
-        let statement = self.statements.get(site.statement_index() as usize)?;
-        LocatedCallableHeaderSyntaxViewV1::from_statement(site, statement)
-    }
 }

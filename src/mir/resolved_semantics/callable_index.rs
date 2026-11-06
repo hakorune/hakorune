@@ -182,10 +182,6 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
         &self.symbol
     }
 
-    pub(crate) const fn signature(&self) -> &ExactTrivialCallableSignatureV1 {
-        &self.signature
-    }
-
     pub(super) fn attach_owner(self, owner: FunctionOwnerIdV1) -> VerifiedCallableHeaderV1 {
         VerifiedCallableHeaderV1 {
             callable: ResolvedCallableRefV1::new(owner),

@@ -94,20 +94,9 @@ pub(crate) struct IssuedLoopNodeWinnerV1 {
 }
 
 impl IssuedLoopNodeWinnerV1 {
-    pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
-        &self.site
-    }
-
-    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame
-    }
 
     pub(crate) fn recipe(&self) -> &LoopNodeWinnerRecipeV1 {
         &self.recipe
-    }
-
-    pub(crate) fn into_recipe(self) -> LoopNodeWinnerRecipeV1 {
-        self.recipe
     }
 
     pub(crate) fn into_parts(

@@ -84,12 +84,6 @@ pub(in crate::mir) struct RejectedCanonicalLoweringV1<'a> {
     error: CanonicalPlanLoweringErrorV1,
 }
 
-impl RejectedCanonicalLoweringV1<'_> {
-    pub(in crate::mir) fn error(&self) -> &CanonicalPlanLoweringErrorV1 {
-        &self.error
-    }
-}
-
 #[derive(Debug)]
 pub(in crate::mir) enum LoweredCanonicalPlanV1<'a> {
     Single {
@@ -147,9 +141,6 @@ pub(in crate::mir) enum CanonicalPhysicalOpenErrorV1 {
 }
 
 impl<'a> RejectedCanonicalPhysicalOpenV1<'a> {
-    pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalOpenErrorV1 {
-        &self.error
-    }
 
     pub(in crate::mir) fn into_error(self) -> CanonicalPhysicalOpenErrorV1 {
         self.error
@@ -173,9 +164,6 @@ pub(in crate::mir) struct RejectedCanonicalPhysicalLoweringV1<'a> {
 }
 
 impl RejectedCanonicalPhysicalLoweringV1<'_> {
-    pub(in crate::mir) fn error(&self) -> &CanonicalPlanLoweringErrorV1 {
-        &self.rejected.error
-    }
 
     pub(in crate::mir) fn into_error(self) -> CanonicalPlanLoweringErrorV1 {
         self.rejected.error
@@ -379,9 +367,6 @@ impl CollectedCanonicalPhysicalInvocationV1<'_> {
 }
 
 impl RejectedCanonicalPhysicalCollectionInvocationV1<'_> {
-    pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalCollectionErrorV1 {
-        self.physical.error()
-    }
 
     pub(in crate::mir) fn into_error(self) -> CanonicalPhysicalCollectionErrorV1 {
         self.physical.into_error()

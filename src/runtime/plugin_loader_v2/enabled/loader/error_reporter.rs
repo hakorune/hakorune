@@ -71,20 +71,6 @@ impl PluginErrorContext {
         }
     }
 
-    /// Create error context for init failure
-    pub fn init_failed(plugin_name: &str, error_msg: &str) -> Self {
-        Self {
-            kind: PluginErrorKind::InitFailed,
-            plugin_name: plugin_name.to_string(),
-            message: format!(
-                "Plugin '{}' initialization failed: {}",
-                plugin_name, error_msg
-            ),
-            attempted_paths: vec![],
-            hint: Some("Check plugin logs for initialization errors".to_string()),
-        }
-    }
-
     /// Log structured error using global ring0 logger
     pub fn log_structured(&self) {
         use crate::runtime::get_global_ring0;

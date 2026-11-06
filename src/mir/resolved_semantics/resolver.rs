@@ -338,24 +338,6 @@ impl FunctionSemanticResolverSessionV1 {
         self.seal_canonical_owner(canonical)
     }
 
-    pub(super) fn seal_owner_with_callable_index(
-        &mut self,
-        owner: super::FunctionOwnerIdV1,
-        origin: FunctionOriginV1,
-        draft: ShadowResolvedFunctionV0,
-        callable_index: &VerifiedCallableIndexV1,
-    ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(
-            owner,
-            origin,
-            draft,
-            &BTreeMap::new(),
-            Some(callable_index),
-            DirectCallCanonicalizationPolicyV1::RequireCallableIndex,
-        )?;
-        self.seal_canonical_owner(canonical)
-    }
-
     fn seal_canonical_owner(
         &mut self,
         canonical: CanonicalizedDraftV1,

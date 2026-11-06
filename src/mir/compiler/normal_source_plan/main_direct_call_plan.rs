@@ -49,14 +49,6 @@ impl VerifiedNormalMainDirectCallPlanV1 {
         &self.completion
     }
 
-    pub(crate) const fn if_control(&self) -> &VerifiedResolvedFunctionIfControlV1 {
-        &self.if_control
-    }
-
-    pub(crate) const fn block_expr_count(&self) -> usize {
-        self.block_expr_count
-    }
-
     pub(super) fn into_parts(
         self,
     ) -> (
@@ -80,16 +72,6 @@ impl VerifiedNormalMainDirectCallPlanV1 {
 pub(crate) struct RejectedNormalMainDirectCallPlanV1 {
     owner: VerifiedNormalMainDirectCallSourceUnitV1,
     error: NormalMainDirectCallPlanErrorV1,
-}
-
-impl RejectedNormalMainDirectCallPlanV1 {
-    pub(crate) const fn error(&self) -> &NormalMainDirectCallPlanErrorV1 {
-        &self.error
-    }
-
-    pub(crate) fn discard(self) {
-        drop(self);
-    }
 }
 
 pub(crate) struct NormalMainDirectCallPreflightV1;

@@ -94,36 +94,16 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
         std::ptr::eq(self.declarations, declarations) && self.targets.is_branded_by(declarations)
     }
 
-    pub(crate) fn call(
-        &self,
-        caller: &CanonicalSameModuleCallableKeyV1,
-        site: &SourceExprSiteV1,
-    ) -> Option<&VerifiedSourceMethodCallSiteV1<'catalog>> {
-        self.calls
-            .get(&(caller.clone(), site.clone()))
-            .map(VerifiedWholeSourceMethodCallSiteV1::call)
-    }
-
     pub(crate) fn calls(
         &self,
     ) -> impl Iterator<Item = &VerifiedWholeSourceMethodCallSiteV1<'catalog>> {
         self.calls.values()
     }
 
-    pub(crate) const fn declarations(
-        &self,
-    ) -> &'catalog VerifiedSameModuleCallableDeclarationCatalogV1 {
-        self.declarations
-    }
-
     pub(crate) fn observed_callers(
         &self,
     ) -> impl Iterator<Item = &CanonicalSameModuleCallableKeyV1> {
         self.observed_callers.iter()
-    }
-
-    pub(crate) const fn targets(&self) -> &VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
-        &self.targets
     }
 
     pub(crate) fn target(

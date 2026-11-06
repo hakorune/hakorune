@@ -89,13 +89,6 @@ impl CallableSourceMapSiteV1 {
             Self::Statement(_) => None,
         }
     }
-
-    pub(crate) fn statement(&self) -> Option<&SourceStmtSiteV1> {
-        match self {
-            Self::Statement(site) => Some(site),
-            Self::Expression(_) => None,
-        }
-    }
 }
 
 impl CallableSourceMapTargetV1 {

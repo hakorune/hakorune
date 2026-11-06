@@ -31,8 +31,7 @@ pub(crate) use scalar::{
     BranchNormalScalarSourceV1, CurrentScalarProducerV1, CurrentScalarReadV1, SourceScalarKind,
 };
 pub(crate) use source_loop::{
-    BranchNormalTextSourceV1, LoopDynamicReadV1, LoopHeaderValueBasisV1, LoopTextReadV1,
-    SourceLoopDynamicProducerV1, SourceLoopTextProducerV1, SourceLoopValueProducerV1,
+    BranchNormalTextSourceV1, LoopHeaderValueBasisV1, LoopTextReadV1, SourceLoopTextProducerV1,
 };
 #[path = "home_prefix_text.rs"]
 mod text;
@@ -294,42 +293,6 @@ impl TaggedDynamicValueV1 {
 impl TaggedDynamicReadV1 {
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.binding
-    }
-    pub(crate) fn read(&self) -> &SourceExprSiteV1 {
-        &self.read
-    }
-    pub(crate) fn is_formal(&self) -> bool {
-        self.points.proves_formal(self.binding)
-    }
-    pub(crate) fn value(&self) -> crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1 {
-        self.value
-    }
-    pub(crate) fn leaf_class(
-        &self,
-    ) -> crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1 {
-        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Dynamic,
-        )
-    }
-    pub(crate) fn matches_source_node(
-        &self,
-        source: &crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
-        node: usize,
-    ) -> bool {
-        let Some(original) = source.nodes().get(node) else {
-            return false;
-        };
-        source.owner() == self.binding.owner()
-            && original.site() == &self.read
-            && matches!(
-                original.source(),
-                crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(
-                    ResolvedLexicalRefV1::Local(binding)
-                ) if *binding == self.binding
-            )
-            && self.points.proves_value(self.points.flow(), self.value)
-            && self.points.proves_read(self.points.flow(), &self.read, self.binding)
-                == Some(self.value)
     }
 }
 

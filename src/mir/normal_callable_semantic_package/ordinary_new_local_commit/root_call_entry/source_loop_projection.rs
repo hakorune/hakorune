@@ -607,9 +607,7 @@ pub(in crate::mir) use cleanup::SourceLoopCleanupPlanV2;
 mod frames;
 #[path = "source_loop_physical.rs"]
 mod physical;
-pub(in crate::mir) use physical::{
-    PreparedSourceLoopPhysicalCompletionV2, SourceLoopPhysicalProofV2,
-};
+pub(in crate::mir) use physical::SourceLoopPhysicalProofV2;
 
 impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn source_loop_dependencies_v2(

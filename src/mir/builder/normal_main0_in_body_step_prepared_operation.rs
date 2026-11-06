@@ -17,7 +17,6 @@ use crate::mir::loop_recipe_contract::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
     VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopSemanticContextV1,
 };
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum PreparedMain0InBodyStepLoopOperationRejectV1 {
@@ -111,9 +110,6 @@ impl<'source> PreparedMain0InBodyStepLoopIngressV1<'source> {
 }
 
 impl<'source> PreparedMain0InBodyStepOperationProgramV1<'source> {
-    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.input.owner()
-    }
 
     pub(in crate::mir::builder) fn into_parts(
         self,

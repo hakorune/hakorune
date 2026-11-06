@@ -66,10 +66,6 @@ impl<'source, 'envelope, 'completion>
         self.input
     }
 
-    pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
-        &self.loop_site
-    }
-
     pub(crate) fn outer_if(&self) -> &VerifiedResolvedFunctionIfControlV1 {
         &self.outer_if
     }

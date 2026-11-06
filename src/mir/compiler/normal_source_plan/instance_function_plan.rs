@@ -58,10 +58,6 @@ impl VerifiedNormalInstanceFunctionFactsV1 {
     pub(crate) const fn receiver(&self) -> BindingRefV1 {
         self.receiver
     }
-
-    pub(crate) fn owner_count(&self) -> usize {
-        self.forest.owner_count()
-    }
 }
 
 #[derive(Debug)]

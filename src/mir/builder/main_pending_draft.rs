@@ -62,13 +62,6 @@ impl MainDraftIdentityV1 {
         }
     }
 
-    pub(in crate::mir::builder) fn new(symbol: impl Into<Box<str>>, arity: usize) -> Self {
-        Self {
-            symbol: symbol.into(),
-            arity,
-        }
-    }
-
     pub(in crate::mir::builder) fn symbol(&self) -> &str {
         &self.symbol
     }

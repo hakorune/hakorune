@@ -27,8 +27,7 @@ mod variable_bound_mul;
 
 pub(crate) use resolved_source_adapter::{
     bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1, LoopRootSourceBindingRejectV1,
-    LoopSourceForestBindingRejectV1, VerifiedLoopRootSourceV1,
-    VerifiedLoopSourceForestBindingMemberV1, VerifiedLoopSourceForestBindingV1,
+    LoopSourceForestBindingRejectV1, VerifiedLoopRootSourceV1, VerifiedLoopSourceForestBindingV1,
 };
 
 #[cfg(test)]

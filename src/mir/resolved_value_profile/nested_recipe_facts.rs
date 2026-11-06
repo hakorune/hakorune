@@ -45,14 +45,6 @@ impl NestedIfNodeFactsV1 {
         &self.condition
     }
 
-    pub(crate) fn then_body(&self) -> &SourceBodySiteV1 {
-        &self.then_body
-    }
-
-    pub(crate) fn else_body(&self) -> &SourceBodySiteV1 {
-        &self.else_body
-    }
-
     pub(crate) fn then_assignments(&self) -> &[AssignmentFactV1] {
         &self.then_assignments
     }

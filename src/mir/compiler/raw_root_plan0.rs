@@ -79,10 +79,6 @@ impl RawRootWorkItemV1 {
     pub(in crate::mir) const fn kind(&self) -> RawRootWorkKindV1 {
         self.kind
     }
-
-    pub(in crate::mir) fn name(&self) -> Option<&str> {
-        self.name.as_deref()
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -104,12 +100,6 @@ pub(in crate::mir) struct RawDeclarationFactRowV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct RawDeclarationFactPlanV1 {
     rows: Box<[RawDeclarationFactRowV1]>,
-}
-
-impl RawDeclarationFactPlanV1 {
-    pub(in crate::mir) fn rows(&self) -> &[RawDeclarationFactRowV1] {
-        &self.rows
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -159,16 +149,6 @@ pub(in crate::mir) struct RawCallableHeaderPlanV1 {
     rows: Box<[RawCallableHeaderRowV1]>,
 }
 
-impl RawCallableHeaderRowV1 {
-    pub(in crate::mir) fn symbol(&self) -> &str {
-        &self.symbol
-    }
-
-    pub(in crate::mir) const fn arity(&self) -> usize {
-        self.arity
-    }
-}
-
 impl RawCallableHeaderPlanV1 {
     pub(in crate::mir) fn rows(&self) -> &[RawCallableHeaderRowV1] {
         &self.rows
@@ -189,10 +169,6 @@ impl RawRootEnvironmentPlanV1 {
         &self.work_schedule
     }
 
-    pub(in crate::mir) const fn declarations(&self) -> &RawDeclarationFactPlanV1 {
-        &self.declarations
-    }
-
     pub(in crate::mir) const fn callable_headers(&self) -> &RawCallableHeaderPlanV1 {
         &self.callable_headers
     }
@@ -211,12 +187,6 @@ pub(in crate::mir) struct RawScriptRootPlanV1 {
     statement_count: usize,
 }
 
-impl RawScriptRootPlanV1 {
-    pub(in crate::mir) const fn statement_count(&self) -> usize {
-        self.statement_count
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct RawAppRootPlanV1 {
     main: RawSourceLocatorV1,
@@ -231,10 +201,6 @@ impl RawAppRootPlanV1 {
 
     pub(in crate::mir) fn static_children(&self) -> &[RawSourceLocatorV1] {
         &self.static_children
-    }
-
-    pub(in crate::mir) const fn callable_main(&self) -> &RawSourceLocatorV1 {
-        &self.callable_main
     }
 }
 

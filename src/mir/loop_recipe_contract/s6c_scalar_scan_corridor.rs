@@ -89,14 +89,6 @@ impl<'a, 'rows, 'facts> S6CScalarScanSourceRefV1<'a, 'rows, 'facts> {
         self.index_binding
     }
 
-    pub(crate) const fn subject_input(self) -> LoopValueKeyV1 {
-        self.subject_input
-    }
-
-    pub(crate) const fn needle_input(self) -> LoopValueKeyV1 {
-        self.needle_input
-    }
-
     pub(crate) const fn index_input(self) -> LoopValueKeyV1 {
         self.index_input
     }

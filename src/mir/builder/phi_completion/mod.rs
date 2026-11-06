@@ -199,13 +199,6 @@ pub(in crate::mir::builder) struct CompletedPhiV1 {
 }
 
 impl CompletedPhiV1 {
-    pub(in crate::mir::builder) fn draft(&self) -> &PhiDraftV1 {
-        &self.draft
-    }
-
-    pub(in crate::mir::builder) fn logical_inputs(&self) -> &[(BasicBlockId, ValueId)] {
-        &self.logical_inputs
-    }
 
     pub(in crate::mir::builder) fn prepared_type(&self) -> &PreparedPhiTypePublicationV1 {
         &self.prepared_type

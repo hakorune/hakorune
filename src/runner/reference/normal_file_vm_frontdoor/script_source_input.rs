@@ -121,14 +121,6 @@ impl CanonicalScriptSourceInputHandoffV1 {
         &self.rows
     }
 
-    pub(crate) fn source_identity(&self) -> &str {
-        &self.source_identity
-    }
-
-    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
-        self.source_digest
-    }
-
     pub(crate) const fn receipt_counts(&self) -> (u8, u8) {
         (self.read_count, self.parse_count)
     }

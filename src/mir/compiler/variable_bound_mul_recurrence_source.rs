@@ -97,27 +97,6 @@ impl ObservedVariableBoundMulSourceV1 {
     pub(crate) fn loop_source(&self) -> &VerifiedResolvedLoopSourceV1 {
         &self.loop_source
     }
-    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame
-    }
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-    pub(crate) fn condition(&self) -> &SourceExprSiteV1 {
-        &self.condition
-    }
-    pub(crate) fn update(&self) -> &SourceStmtSiteV1 {
-        &self.update
-    }
-    pub(crate) fn update_value(&self) -> &SourceExprSiteV1 {
-        &self.update_value
-    }
-    pub(crate) fn step(&self) -> &SourceStmtSiteV1 {
-        &self.step
-    }
-    pub(crate) fn step_value(&self) -> &SourceExprSiteV1 {
-        &self.step_value
-    }
     pub(crate) const fn bindings(&self) -> [BindingRefV1; 3] {
         [self.scale, self.induction, self.bound]
     }

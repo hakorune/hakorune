@@ -27,16 +27,6 @@ pub(crate) struct TextEqResidenceScopeSuppressedCleanupV1 {
     v9: Option<SourceBoundV9RuntimeProducerRejectV1>,
 }
 
-impl TextEqResidenceScopeSuppressedCleanupV1 {
-    pub(crate) const fn exact_text(&self) -> Option<TextFormalLeaseFinishRejectV1> {
-        self.exact_text
-    }
-
-    pub(crate) fn v9(&self) -> Option<SourceBoundV9RuntimeProducerRejectV1> {
-        self.v9.clone()
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct TextEqResidenceScopeFailureV1 {
     primary: TextEqResidenceScopePrimaryFailureV1,

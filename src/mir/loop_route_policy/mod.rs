@@ -76,9 +76,7 @@ pub(crate) use generic_g0::{
 };
 pub(crate) use generic_g0_observation::{
     issue_generic_g0_family_observation_v1, GenericG0FamilyObservationV1,
-    GenericG0ObservationContextV1, GenericG0ObservationDeclineV1, GenericG0ObservationEvidenceV1,
-    GenericG0ObservationRejectV1, GenericG0ObservationUnresolvedV1,
-    VerifiedGenericG0FamilyCandidateV1,
+    GenericG0ObservationContextV1, GenericG0ObservationEvidenceV1,
 };
 pub(crate) use loop_cond_break_continue_observation::LoopCondFamilyObservationV1;
 pub(crate) use loop_true_break_continue::{
@@ -109,6 +107,4 @@ pub(crate) use policy::{
     VerifiedDirectAccumPolicyReceiptV1, VerifiedDirectAccumRouteAdmissionV1,
 };
 pub(crate) use policy_evidence::LoopRoutePolicySourceDeclineReasonV1;
-pub(crate) use schema::{
-    CANONICAL_LOOP_ROUTE_COUNT_V1, CANONICAL_LOOP_ROUTE_ORDER_V1,
-};
+pub(crate) use schema::CANONICAL_LOOP_ROUTE_ORDER_V1;

@@ -111,40 +111,9 @@ pub struct NormalizedResolvedFunctionGraphV1 {
 }
 
 impl NormalizedResolvedFunctionGraphV1 {
-    pub const fn function_origin(&self) -> FunctionOriginV1 {
-        self.function_origin
-    }
 
     pub const fn source_kind(&self) -> super::SemanticOwnerSourceKindV1 {
         self.source_kind
-    }
-
-    pub fn bindings(&self) -> &[NormalizedBindingRecordV1] {
-        &self.bindings
-    }
-
-    pub fn scopes(&self) -> &[NormalizedScopeRecordV1] {
-        &self.scopes
-    }
-
-    pub fn regions(&self) -> &[NormalizedRegionRecordV1] {
-        &self.regions
-    }
-
-    pub fn declarations(&self) -> &[NormalizedDeclarationV1] {
-        &self.declarations
-    }
-
-    pub fn variable_uses(&self) -> &[NormalizedVariableUseV1] {
-        &self.variable_uses
-    }
-
-    pub fn assignments(&self) -> &[NormalizedAssignmentV1] {
-        &self.assignments
-    }
-
-    pub fn exits(&self) -> &[NormalizedExitV1] {
-        &self.exits
     }
 }
 

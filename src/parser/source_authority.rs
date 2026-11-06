@@ -466,10 +466,6 @@ impl OpenBoxMethodSourceTransactionV1 {
         }
     }
 
-    pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
-        self.cursor.box_site()
-    }
-
     pub(super) fn current_member_site(&self) -> SourceBoxMemberSiteV1 {
         self.cursor.current_member_site()
     }
@@ -650,10 +646,6 @@ impl OpenBoxMethodSourceTransactionV1 {
 
     pub(super) fn inventory(&self) -> &BoxMethodInventoryV1 {
         &self.inventory
-    }
-
-    pub(super) fn method_relations(&self) -> &[MethodSourceRelationV1] {
-        &self.method_relations
     }
 
     pub(super) fn delegate_source_declarations(&self) -> &[DelegateSourceDeclarationV1] {

@@ -117,18 +117,6 @@ impl RawRootPhysicalManifestV1 {
         }
     }
 
-    pub(in crate::mir) fn facts(&self) -> &RawRootPostInstallFactsV1 {
-        &self.facts
-    }
-
-    pub(in crate::mir) fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
-        &self.runtime_inputs
-    }
-
-    pub(in crate::mir) fn route(&self) -> RawRootSourceRouteV1 {
-        self.facts.route()
-    }
-
     /// Consume the manifest once into the Builder projection and the exact
     /// BODY/runtime remainder. No catalog clone or second source scan occurs.
     pub(in crate::mir) fn into_install_parts(
@@ -156,13 +144,6 @@ impl RawRootPhysicalManifestV1 {
 }
 
 impl RawRootPostInstallManifestV1 {
-    pub(in crate::mir) fn facts(&self) -> &RawRootPostInstallFactsV1 {
-        &self.facts
-    }
-
-    pub(in crate::mir) fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
-        &self.runtime_inputs
-    }
 
     pub(in crate::mir) fn into_body_parts(
         self,

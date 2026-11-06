@@ -156,13 +156,6 @@ impl CollectedCanonicalCallablePhysicalV1 {
 }
 
 impl RejectedCanonicalPhysicalCollectionV1 {
-    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.shell.brand()
-    }
-
-    pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalCollectionErrorV1 {
-        &self.error
-    }
 
     pub(in crate::mir) fn into_error(self) -> CanonicalPhysicalCollectionErrorV1 {
         self.error
@@ -328,17 +321,6 @@ impl InvocationPhysicalStateV1 {
             collector,
             error: CanonicalPhysicalCollectionErrorV1::CapabilityMissing,
         }
-    }
-}
-
-impl InvocationBranded<ModuleDraftCollectorV1> {
-    /// Issue a receipt only through the branded physical collector owner.
-    /// Callers cannot attach a brand to a receipt without holding this owner.
-    pub(in crate::mir::builder) fn issue_collected_receipt(
-        &self,
-        receipt: CollectedDraftAdmissionReceiptV1,
-    ) -> InvocationBranded<CollectedDraftAdmissionReceiptV1> {
-        InvocationBranded::from_source(self.brand(), receipt)
     }
 }
 

@@ -61,19 +61,6 @@ impl VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
         Ok(prepared.commit(source))
     }
 
-    pub(crate) fn candidates(
-        &self,
-    ) -> impl Iterator<
-        Item = (
-            SourceCallableDeclarationSiteV1,
-            &VerifiedOwnerFreeCallableHeaderV1,
-        ),
-    > {
-        self.candidates_by_site
-            .iter()
-            .map(|(site, candidate)| (*site, candidate))
-    }
-
     pub(crate) fn candidate_count(&self) -> usize {
         self.candidates_by_site.len()
     }

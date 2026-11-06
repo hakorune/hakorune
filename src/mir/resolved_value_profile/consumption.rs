@@ -25,10 +25,6 @@ impl TrivialProfileConsumptionV1 {
         Self { product, next: 0 }
     }
 
-    pub(crate) fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.product.owner()
-    }
-
     pub(crate) fn parameter_entry_count(&self) -> usize {
         self.product.parameter_entries().len()
     }

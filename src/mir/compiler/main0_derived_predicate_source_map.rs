@@ -19,7 +19,7 @@
 
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedScopeRegionPairV1,
-    SemanticOwnerSourceKindV1, SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedLoopSourceV1,
+    SemanticOwnerSourceKindV1, SourceExprSiteV1, VerifiedResolvedLoopSourceV1,
 };
 
 use super::main0_continue_source_map::{Main0ContinueMapSiteV1, Main0ContinueMapTargetV1};
@@ -49,17 +49,6 @@ pub(crate) struct Main0DerivedPredicateMapRowV1 {
 }
 
 impl Main0DerivedPredicateMapRowV1 {
-    pub(crate) const fn statement(
-        site: SourceStmtSiteV1,
-        role: Main0DerivedPredicateMapRoleV1,
-        target: Main0ContinueMapTargetV1,
-    ) -> Self {
-        Self {
-            site: Main0ContinueMapSiteV1::Statement(site),
-            role,
-            target,
-        }
-    }
 
     pub(crate) const fn expression(
         site: SourceExprSiteV1,
@@ -157,35 +146,6 @@ impl VerifiedMain0DerivedPredicateSourceMapV1 {
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
-    }
-
-    pub(crate) const fn origin(&self) -> FunctionOriginV1 {
-        self.origin
-    }
-
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
-    pub(crate) fn loop_source(&self) -> &VerifiedResolvedLoopSourceV1 {
-        &self.loop_source
-    }
-
-    pub(crate) fn loop_frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.loop_frame
-    }
-
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-
-    /// Source site of the admitted derived-predicate `Add` expression.
-    pub(crate) fn derived_add_site(&self) -> &SourceExprSiteV1 {
-        &self.derived_add_site
-    }
-
-    pub(crate) fn rows(&self) -> &[Main0DerivedPredicateMapRowV1] {
-        &self.rows
     }
 
     /// Test-only rebuild used to exercise missing/extra-row rejection at the

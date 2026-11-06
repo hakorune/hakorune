@@ -89,21 +89,3 @@ pub fn propagate(builder: &mut MirBuilder, src: ValueId, dst: ValueId) {
         .propagate_record_local_value(src, dst);
     type_trace::propagate("meta", src, dst);
 }
-
-/// dst に型注釈を明示的に設定し、必要ならば起源情報を消去/維持する。
-/// 🎯 TypeRegistry 経由モード対応（NYASH_USE_TYPE_REGISTRY=1）
-#[inline]
-pub fn propagate_with_override(builder: &mut MirBuilder, dst: ValueId, ty: MirType) {
-    let use_registry = crate::config::env::builder_use_type_registry();
-
-    // clone once for dual paths + trace
-    let ty_clone = ty.clone();
-    if use_registry {
-        // 🎯 新: TypeRegistry 経由
-        builder.comp_ctx.type_registry.record_type(dst, ty);
-    } else {
-        // 従来: 直接アクセス
-        builder.function_state.type_ctx.value_types.insert(dst, ty);
-    }
-    type_trace::ty("override", dst, &ty_clone);
-}

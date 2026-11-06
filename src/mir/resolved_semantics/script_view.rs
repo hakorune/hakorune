@@ -25,10 +25,6 @@ impl<'a> ScriptSyntaxViewV1<'a> {
         })
     }
 
-    pub(crate) const fn program(self) -> &'a ASTNode {
-        self.program
-    }
-
     pub(crate) const fn body(self) -> &'a [ASTNode] {
         self.body
     }

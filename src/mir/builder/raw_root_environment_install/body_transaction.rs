@@ -320,6 +320,4 @@ impl RejectedRawRootBodyPhysicalV1 {
     pub(in crate::mir) fn error(&self) -> &RawRootBodyLoweringErrorV1 {
         &self.error
     }
-
-    pub(in crate::mir) fn discard(self) {}
 }

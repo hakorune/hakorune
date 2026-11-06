@@ -141,14 +141,6 @@ impl ConsumableNormalMainLoweringProofV1 {
         self.completion.owner()
     }
 
-    pub(crate) const fn role(&self) -> VerifiedNormalMainRoleV1 {
-        self.role
-    }
-
-    pub(crate) fn direct_call_count(&self) -> usize {
-        self.profile.direct_calls().len()
-    }
-
     fn validates_input(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
         let owner = input.owner();
         self.if_control.owner() == owner
@@ -178,13 +170,6 @@ impl PreparedNormalHelperTopologyReceiptV1 {
         match self {
             Self::Acyclic(graph) => graph.nodes().len(),
             Self::Recursive(partition) => partition.inventory().nodes().len(),
-        }
-    }
-
-    pub(crate) fn recursive_component_count(&self) -> usize {
-        match self {
-            Self::Acyclic(_) => 0,
-            Self::Recursive(partition) => partition.recursive_component_count(),
         }
     }
 }
@@ -234,16 +219,6 @@ pub(crate) struct RejectedNormalMainProofBindingV1 {
     owner: OpenNormalCallableModuleTransactionV1,
     proof: ConsumableNormalMainLoweringProofV1,
     error: CanonicalLoweringErrorV1,
-}
-
-impl RejectedNormalMainProofBindingV1 {
-    pub(crate) fn error(&self) -> &CanonicalLoweringErrorV1 {
-        &self.error
-    }
-
-    pub(crate) fn discard(self) {
-        drop(self);
-    }
 }
 
 impl RejectedNormalCallableHandoffV1 {

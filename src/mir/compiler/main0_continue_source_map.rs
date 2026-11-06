@@ -58,13 +58,6 @@ impl Main0ContinueMapSiteV1 {
             Self::Statement(_) => None,
         }
     }
-
-    pub(crate) fn statement(&self) -> Option<&SourceStmtSiteV1> {
-        match self {
-            Self::Statement(site) => Some(site),
-            Self::Expression(_) => None,
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -93,26 +86,10 @@ impl Main0ContinueMapTargetV1 {
         }
     }
 
-    pub(crate) fn binding(&self) -> Option<BindingRefV1> {
-        match self {
-            Self::Binding(binding) => Some(*binding),
-            Self::LocalDeclaration { binding, .. } => Some(*binding),
-            Self::Tail { binding, .. } => Some(*binding),
-            _ => None,
-        }
-    }
-
     pub(crate) fn literal(&self) -> Option<&SourceLiteralShapeV1> {
         match self {
             Self::Literal(literal) => Some(literal),
             Self::LocalDeclaration { literal, .. } => Some(literal),
-            _ => None,
-        }
-    }
-
-    pub(crate) fn operator(&self) -> Option<SyntaxBinaryOperatorV1> {
-        match self {
-            Self::Operator(operator) => Some(*operator),
             _ => None,
         }
     }
@@ -253,40 +230,6 @@ impl VerifiedMain0ContinueSourceMapV1 {
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
-    }
-
-    pub(crate) const fn origin(&self) -> FunctionOriginV1 {
-        self.origin
-    }
-
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
-    pub(crate) fn loop_source(&self) -> &VerifiedResolvedLoopSourceV1 {
-        &self.loop_source
-    }
-
-    pub(crate) fn loop_frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.loop_frame
-    }
-
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-
-    /// Source site of the in-loop `if` statement that owns the continue arm.
-    pub(crate) fn if_site(&self) -> &SourceStmtSiteV1 {
-        &self.if_site
-    }
-
-    /// Source site of the `continue` statement.
-    pub(crate) fn continue_site(&self) -> &SourceStmtSiteV1 {
-        &self.continue_site
-    }
-
-    pub(crate) fn rows(&self) -> &[Main0ContinueMapRowV1] {
-        &self.rows
     }
 
     /// Test-only rebuild used to exercise missing/extra-row rejection at the

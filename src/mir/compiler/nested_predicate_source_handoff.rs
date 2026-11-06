@@ -6,13 +6,13 @@
 
 use crate::mir::loop_structural_facts::VerifiedLoopSourceForestBindingV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ScopeId, SourceBindingSiteV1,
+    FunctionOwnerIdV1, LoopExecutionFrameKeyV1, SourceBindingSiteV1,
     SourceStmtSiteV1,
 };
 
 use super::nested_predicate_projection::{
-    NestedBindingEvidenceV1, NestedChildBodyRoleV1, NestedPredicateConditionEvidenceV1,
-    NestedPredicateUpdateEvidenceV1, NestedRootBodyRoleV1, NestedRootInitializerEvidenceV1,
+    NestedBindingEvidenceV1, NestedPredicateConditionEvidenceV1,
+    NestedPredicateUpdateEvidenceV1, NestedRootInitializerEvidenceV1,
     VerifiedNestedLoopSourceShapeV1,
 };
 
@@ -142,21 +142,5 @@ impl VerifiedNestedPhysicalSourceHandoffV1 {
 
     pub(crate) fn root_initializers(&self) -> &[NestedRootInitializerEvidenceV1; 2] {
         &self.shape.root_initializers
-    }
-
-    pub(crate) fn root_body_roles(&self) -> &[NestedRootBodyRoleV1; 4] {
-        &self.shape.root_body_roles
-    }
-
-    pub(crate) fn child_body_roles(&self) -> &[NestedChildBodyRoleV1; 2] {
-        &self.shape.child_body_roles
-    }
-
-    pub(crate) fn binding_refs(&self) -> [BindingRefV1; 3] {
-        self.shape.bindings.map(|evidence| evidence.binding)
-    }
-
-    pub(crate) fn lexical_scopes(&self) -> [ScopeId; 3] {
-        self.shape.bindings.map(|evidence| evidence.lexical_scope)
     }
 }

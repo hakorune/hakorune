@@ -32,7 +32,6 @@ mod home_after;
 pub(in crate::mir) use home_after::{VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;
-pub(in crate::mir::builder) use super::loop_cond::SourceLoopCondPhysicalInputV1;
 use super::loop_true;
 use super::loop_true::CallableLoopTrueSourceFactsV1;
 pub(in crate::mir::builder) use super::loop_true::SourceLoopTruePhysicalInputV1;

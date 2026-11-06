@@ -115,10 +115,6 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
         self.owner
     }
 
-    pub(in crate::mir) const fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        self.frame
-    }
-
     pub(in crate::mir) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
         self.scope_region
     }
@@ -149,10 +145,6 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
 
     pub(in crate::mir) const fn initializer(&self) -> &SourceExprSiteV1 {
         self.initializer
-    }
-
-    pub(in crate::mir) const fn loop_site(&self) -> &SourceStmtSiteV1 {
-        self.loop_site
     }
 
     pub(in crate::mir) const fn condition_i(&self) -> &SourceExprSiteV1 {

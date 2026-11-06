@@ -35,9 +35,8 @@ pub(in crate::mir) use coseal::{
     DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };
 pub(in crate::mir) use physical_demand::{
-    issue_dynamic_full_loop_operation_physical_demand_v2, DynamicFullLoopPhysicalDemandCoverageV2,
+    issue_dynamic_full_loop_operation_physical_demand_v2,
     DynamicFullLoopPhysicalDemandRejectV2, PreparedDynamicLoopOperationProgramV2,
-    VerifiedDynamicLoopOperationPhysicalDemandV2,
 };
 
 #[cfg(test)]

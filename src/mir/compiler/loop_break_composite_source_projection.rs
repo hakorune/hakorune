@@ -101,23 +101,6 @@ impl VerifiedLoopBreakCompositeSourceProjectionV1 {
     pub(crate) fn forest(&self) -> &VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
         &self.forest
     }
-
-    pub(crate) const fn root_frame_key(
-        &self,
-    ) -> &crate::mir::resolved_semantics::LoopExecutionFrameKeyV1 {
-        &self.root_frame_key
-    }
-
-    pub(crate) fn matches_source_identity(
-        &self,
-        function_origin: FunctionOriginV1,
-        source_kind: SemanticOwnerSourceKindV1,
-        site: &SourceStmtSiteV1,
-    ) -> bool {
-        self.function_origin == function_origin
-            && self.source_kind == source_kind
-            && &self.loop_site == site
-    }
 }
 
 pub(crate) fn issue_loop_break_composite_source_projection_v1(

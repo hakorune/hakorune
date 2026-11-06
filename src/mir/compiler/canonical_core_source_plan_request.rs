@@ -184,11 +184,4 @@ impl CanonicalScriptSourcePlanInputV1 {
             Self::Rejected(transport) => transport.state_name(),
         }
     }
-
-    pub(crate) fn discard_before_a_consumer(self) {
-        match self {
-            Self::SourceEnvelopeReady(envelope) => envelope.discard_before_a_consumer(),
-            Self::Rejected(transport) => transport.discard_before_a_consumer(),
-        }
-    }
 }

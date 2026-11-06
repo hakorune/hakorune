@@ -121,10 +121,6 @@ impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
         self.input
     }
 
-    pub(in crate::mir) fn selected_key(&self) -> &SelectedNormalCallableKeyV1 {
-        &self.selected_key
-    }
-
     pub(in crate::mir) fn physical_header(&self) -> &NormalCatalogedBoxMethodDraftAdmissionV1 {
         self.physical_function_header.catalog()
     }

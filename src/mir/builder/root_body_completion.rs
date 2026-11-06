@@ -313,13 +313,6 @@ impl RootBodyCompletionTrackerV1 {
 }
 
 impl ActiveRootBodyCompletionTrackerV1 {
-    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.tracker.brand
-    }
-
-    pub(in crate::mir::builder) fn tracker_mut(&mut self) -> &mut RootBodyCompletionTrackerV1 {
-        &mut self.tracker
-    }
 
     pub(in crate::mir::builder) fn seal_root_body(
         self,

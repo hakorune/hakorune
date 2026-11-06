@@ -12,7 +12,6 @@ use crate::mir::BasicBlockId;
 #[cfg(test)]
 use crate::mir::ValueId;
 
-use super::common_v2_session::S6CTextEqOccurrencePhysicalViewV1;
 use super::physical_entry_lane_adoption::PhysicalTextEntryLaneSidecarV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -87,9 +86,6 @@ pub(in crate::mir::builder) struct CommonV2S6CTextRefPublishedPairBatchRef<'batc
 }
 
 impl CommonV2S6CTextRefPublishedPairBatchRef<'_> {
-    pub(in crate::mir::builder) const fn len(&self) -> usize {
-        self.pairs.len()
-    }
 
     pub(in crate::mir::builder) fn with_pairs<R>(
         &self,
@@ -219,27 +215,6 @@ pub(in crate::mir::builder) fn issue_common_v2_s6c_textref_entry_bridge_plan_v1(
         max_lane_index,
         rows: rows.into_boxed_slice(),
     })
-}
-
-/// Bind the physical plan to the already-issued source/segment occurrence.
-/// The sidecar remains the lane-index authority; this check prevents a plan
-/// for one entry/cohort from being paired with a different TextEq occurrence.
-pub(in crate::mir::builder) fn issue_common_v2_s6c_textref_entry_bridge_plan_for_occurrence_v1(
-    occurrence: &S6CTextEqOccurrencePhysicalViewV1<'_>,
-    sidecar: &PhysicalTextEntryLaneSidecarV1,
-    plan_stamp: u64,
-) -> Result<CommonV2S6CTextRefEntryBridgePlanV1, CommonV2S6CTextRefEntryBridgeRejectV1> {
-    if occurrence.owner() != sidecar.owner() || occurrence.entry() != sidecar.entry() {
-        return Err(CommonV2S6CTextRefEntryBridgeRejectV1::OwnerMismatch);
-    }
-    let matching_rows = sidecar.rows().iter().filter(|row| {
-        row.binding() == occurrence.binding()
-            && row.logical_ordinal() == occurrence.logical_ordinal()
-    });
-    if matching_rows.count() != 1 {
-        return Err(CommonV2S6CTextRefEntryBridgeRejectV1::OccurrenceBindingMismatch);
-    }
-    issue_common_v2_s6c_textref_entry_bridge_plan_v1(sidecar, plan_stamp)
 }
 
 #[cfg(test)]

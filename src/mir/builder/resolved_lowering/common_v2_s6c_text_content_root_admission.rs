@@ -73,10 +73,6 @@ impl CommonV2S6CTextContentRootRowV1 {
         self.root_index
     }
 
-    pub(in crate::mir::builder) const fn published_pair_index(self) -> u32 {
-        self.published_pair_index
-    }
-
     pub(in crate::mir::builder) const fn slot_lane_index(self) -> u32 {
         self.slot_lane_index
     }

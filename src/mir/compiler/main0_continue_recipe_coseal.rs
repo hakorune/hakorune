@@ -47,10 +47,6 @@ impl VerifiedMain0ContinueControlSourceV1 {
         self.owner
     }
 
-    pub(crate) fn if_site(&self) -> &SourceStmtSiteV1 {
-        &self.if_site
-    }
-
     pub(crate) fn continue_site(&self) -> &SourceStmtSiteV1 {
         &self.continue_site
     }
@@ -107,10 +103,6 @@ impl VerifiedMain0ContinueRecipeProductV1 {
 
     pub(crate) fn input(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
         &self.input
-    }
-
-    pub(crate) fn context(&self) -> &VerifiedLoopSemanticContextV1 {
-        &self.context
     }
 
     pub(crate) fn continuation(&self) -> &VerifiedLoopContinuationContractV1 {

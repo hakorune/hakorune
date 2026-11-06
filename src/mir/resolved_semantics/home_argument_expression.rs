@@ -1,7 +1,7 @@
 //! Completed semantic argument qualification at the real covered Prefix point.
 //! Mandatory entry requirements remain obligations, not physical descriptors.
 use super::super::{
-    BindingRefV1, LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind,
+    BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind,
 };
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
@@ -9,12 +9,11 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
-    expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
     expression_class::ExpressionValueClassV1 as Class,
     expression_plan::ExpressionPlanRootV1,
     expression_projection::ExpressionLeafClassV1 as Leaf,
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedArgumentExpressionFrameV1 {

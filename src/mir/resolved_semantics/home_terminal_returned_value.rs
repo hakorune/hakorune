@@ -360,7 +360,6 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
     ) -> Result<Option<Vec<super::super::LocalFieldReadResultV1>>, E>,
 ) -> Result<Option<TerminalValueReturnV1>, E> {
     use crate::mir::resolved_value_profile::{
-        expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
         expression_plan::ExpressionPlanRootV1,
         expression_root::StatementExpressionRoleV1,
     };

@@ -10,8 +10,6 @@
 //! condition expressions, providing clear Fail-Fast when conditions reference
 //! unsupported loop-body variables.
 
-use crate::ast::ASTNode;
-use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use std::collections::HashSet;
 
 mod var_analyzer;
@@ -122,58 +120,6 @@ pub fn extract_loop_body_local_names(vars: &[CondVarInfo]) -> Vec<&String> {
 ///
 /// This is the main analyzer that determines variable scopes for condition expressions.
 pub struct LoopConditionScopeBox;
-
-impl LoopConditionScopeBox {
-    /// Analyze condition variable scopes for a loop
-    ///
-    /// # Arguments
-    ///
-    /// * `loop_param_name` - Name of the loop parameter (e.g., "i" in loop(i < 10))
-    /// * `condition_nodes` - Array of AST nodes containing conditions to analyze
-    /// * `scope` - LoopScopeShape with information about variable definitions
-    ///
-    /// # Returns
-    ///
-    /// LoopConditionScope with classified variables
-    ///
-    /// # Algorithm
-    ///
-    /// 1. Extract all variables from condition AST nodes using the local variable analyzer
-    /// 2. Classify each variable:
-    ///    - If matches loop_param_name → LoopParam
-    ///    - Else if in outer scope (via the local variable analyzer) → OuterLocal
-    ///    - Else → `LoopBodyLocal` (conservative body-local default)
-    pub(crate) fn analyze(
-        loop_param_name: &str,
-        condition_nodes: &[&ASTNode],
-        scope: Option<&LoopScopeShape>,
-    ) -> LoopConditionScope {
-        let mut result = LoopConditionScope::new();
-        let mut found_vars = HashSet::new();
-
-        // Phase 170-D-impl-2: Use condition variable analyzer for extraction
-        for node in condition_nodes {
-            let vars = var_analyzer::extract_all_variables(node);
-            found_vars.extend(vars);
-        }
-
-        // Classify each variable
-        for var_name in found_vars {
-            let var_scope = if var_name == loop_param_name {
-                CondVarScope::LoopParam
-            } else if var_analyzer::is_outer_scope_variable(&var_name, scope) {
-                CondVarScope::OuterLocal
-            } else {
-                // Default: assume it is body-local if not identified as outer
-                CondVarScope::LoopBodyLocal
-            };
-
-            result.add_var(var_name, var_scope);
-        }
-
-        result
-    }
-}
 
 #[cfg(test)]
 mod tests {

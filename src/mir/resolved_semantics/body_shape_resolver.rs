@@ -5,7 +5,7 @@
 
 use super::assignment_source::record_shadow_assignment_source;
 use super::body_shape::{
-    BodyEffectKindV1, BodyShapeRelationV0, ShadowBodyShapeDraftV0, ShadowExpressionShapeV0,
+    BodyEffectKindV1, BodyShapeRelationV0, ShadowExpressionShapeV0,
     ShadowStatementShapeV0,
 };
 use super::source_site::{

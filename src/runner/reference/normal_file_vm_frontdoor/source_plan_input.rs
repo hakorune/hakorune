@@ -378,18 +378,6 @@ impl ClassifiedNormalFileSourcePlanV1 {
     }
 }
 
-impl RejectedCanonicalCoreSourcePlanHandoffV1 {
-    pub(crate) const fn error(&self) -> CanonicalCoreSourcePlanHandoffErrorV1 {
-        self.error
-    }
-
-    pub(crate) fn discard(self) {
-        let Self { owner, error } = self;
-        discard_canonical_handoff_error_at_named_terminal(error);
-        owner.discard_before_a_consumer();
-    }
-}
-
 impl ClassifiedNormalFileSourcePlanV1 {
     fn discard_before_a_consumer(self) {
         let Self {
@@ -501,12 +489,6 @@ fn discard_lineage_issue_at_named_terminal(error: NormalParserSourceLineageError
         NormalParserSourceLineageErrorV1::InvalidReadParseReceipt
         | NormalParserSourceLineageErrorV1::EmptySourceIdentity
         | NormalParserSourceLineageErrorV1::ParserInvocationMissing => {}
-    }
-}
-
-fn discard_canonical_handoff_error_at_named_terminal(error: CanonicalCoreSourcePlanHandoffErrorV1) {
-    match error {
-        CanonicalCoreSourcePlanHandoffErrorV1::ProfileExcludesCanonicalCore => {}
     }
 }
 

@@ -224,10 +224,3 @@ pub struct PluginMeta {
     pub require_prefix: bool,
     pub expose_short_names: bool,
 }
-
-pub fn get_plugin_meta(plugin: &str) -> Option<PluginMeta> {
-    GLOBAL
-        .read()
-        .ok()
-        .and_then(|g| g.plugin_meta.get(plugin).cloned())
-}

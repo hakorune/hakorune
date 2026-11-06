@@ -73,10 +73,6 @@ impl VerifiedNestedPredicateRecipeProductV1 {
         &self.operations
     }
 
-    pub(crate) fn inputs(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
-        &self.inputs
-    }
-
     pub(crate) fn source_handoff(&self) -> &VerifiedNestedPhysicalSourceHandoffV1 {
         &self.source_handoff
     }

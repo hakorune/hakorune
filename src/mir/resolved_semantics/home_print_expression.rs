@@ -4,13 +4,12 @@ use super::super::{LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1};
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::{
-    expression_children::{ExpressionChildReachV1, ExpressionChildrenV1},
     expression_class::ExpressionValueClassV1,
     expression_plan::ExpressionPlanRootV1,
     expression_projection::ExpressionLeafClassV1,
     expression_root::StatementExpressionRoleV1,
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 /// Print purpose authority wraps the SAME qualified expression body. The body
 /// alone neither selects a Print root nor installs a Home observation.
@@ -34,9 +33,6 @@ impl CheckedPrintExpressionFrameV1 {
     pub(crate) fn prior_homes(&self) -> &[LiveHomeV1] {
         self.evaluation.prior_homes()
     }
-    pub(crate) fn ordered_nodes(&self) -> &[usize] {
-        self.evaluation.ordered_nodes()
-    }
     pub(crate) fn calls(&self) -> &[LocalCallObservationV1] {
         self.evaluation.calls()
     }
@@ -45,15 +41,6 @@ impl CheckedPrintExpressionFrameV1 {
     }
     pub(crate) fn owned_result_nodes(&self) -> &[usize] {
         self.evaluation.owned_result_nodes()
-    }
-    pub(crate) fn root_class(&self) -> ExpressionLeafClassV1 {
-        self.evaluation.root_class()
-    }
-    pub(crate) fn transfers_node(&self, node: usize) -> bool {
-        self.evaluation.transfers_node(node)
-    }
-    pub(crate) fn node_is_identity(&self, node: usize) -> bool {
-        self.evaluation.node_is_identity(node)
     }
 }
 

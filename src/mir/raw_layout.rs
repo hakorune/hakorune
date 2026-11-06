@@ -147,12 +147,6 @@ impl std::fmt::Display for RawLayoutError {
 
 impl std::error::Error for RawLayoutError {}
 
-pub(crate) fn scalar_storage_for_raw_layout_type(
-    type_name: &str,
-) -> Result<RawLayoutScalarStorage, &'static str> {
-    scalar_storage_for_raw_layout_type_for_target(type_name, NumericTarget::host())
-}
-
 pub(crate) fn scalar_storage_for_raw_layout_type_for_target(
     type_name: &str,
     target: NumericTarget,

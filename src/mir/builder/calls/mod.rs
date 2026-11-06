@@ -114,8 +114,5 @@ pub mod unified_emitter; // Phase 3-A: Unified call emitter (統一Call発行専
 pub mod utils; // Phase 3-C: Call materializer (Call前処理・準備専用箱)
 
 // Re-export public interfaces
-pub use build::*;
+pub(in crate::mir::builder) use build::*;
 pub use call_target::CallTarget;
-pub use emit::*;
-pub use lowering::*;
-pub use utils::*;

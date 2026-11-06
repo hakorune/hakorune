@@ -37,9 +37,6 @@ impl NewFaultContinuationV1 {
     pub(crate) fn target_function(&self) -> RegionId {
         self.target_function
     }
-    pub(crate) fn crossed_scopes(&self) -> &[crate::mir::resolved_semantics::ScopeId] {
-        &self.crossed_scopes
-    }
 }
 
 pub(crate) fn issue_new_fault_continuation_v1(

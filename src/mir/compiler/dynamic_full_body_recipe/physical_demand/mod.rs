@@ -9,6 +9,6 @@ mod model;
 
 pub(in crate::mir) use issuer::issue_dynamic_full_loop_operation_physical_demand_v2;
 pub(in crate::mir) use model::{
-    DynamicFullLoopPhysicalDemandCoverageV2, DynamicFullLoopPhysicalDemandRejectV2,
-    PreparedDynamicLoopOperationProgramV2, VerifiedDynamicLoopOperationPhysicalDemandV2,
+    DynamicFullLoopPhysicalDemandRejectV2,
+    PreparedDynamicLoopOperationProgramV2,
 };

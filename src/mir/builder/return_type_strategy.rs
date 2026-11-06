@@ -12,20 +12,6 @@ use super::MirBuilder;
 use crate::mir::{MirFunction, MirInstruction, MirType, TypeOpKind, ValueId};
 use std::collections::BTreeMap;
 
-/// Classify a resolver miss for the existing optional debug observation.
-pub(super) fn classify_return_type_strategy_miss(
-    hint: Option<&MirType>,
-    function_name: &str,
-) -> &'static str {
-    if hint.is_some() {
-        "Case A (hint付き)"
-    } else if primary_hint::is_primary_target(function_name) {
-        "Case B (P1/P2/P3-A/B hint失敗)"
-    } else {
-        "Case D (P3-C uniform-PHI fallback失敗)"
-    }
-}
-
 /// Infer a missing return type from the completed function's terminal Return.
 ///
 /// The first matching strategy wins, in this fixed order:

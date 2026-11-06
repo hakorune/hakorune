@@ -208,26 +208,11 @@ mod typed_schema_v2_structure_tests;
 
 // Keep one stable facade for the caller-zero common-V2 parent; the products
 // remain source-only and do not open the physical session.
-pub(crate) use common_v2_after_boundary::{
-    AfterBoundaryIssueRejectV1, LoopV2AfterBoundaryRelationV1,
-    VerifiedLoopV2AfterBoundarySourceRelationV1,
-};
-pub(crate) use common_v2_condition_operand_inventory::{
-    ConditionOperandInventoryRejectV1, PreparedLoopV2ConditionOperandInventoryV1,
-    PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2ConditionOperandRowV1,
-};
-pub(crate) use common_v2_initial_index_seed::{
-    InitialIndexSeedRelationRejectV1, PreparedLoopV2InitialIndexSeedRelationV1,
-};
+pub(crate) use common_v2_after_boundary::LoopV2AfterBoundaryRelationV1;
+pub(crate) use common_v2_condition_operand_inventory::PreparedLoopV2ConditionOperandKindV1;
+pub(crate) use common_v2_initial_index_seed::PreparedLoopV2InitialIndexSeedRelationV1;
 pub(crate) use common_v2_issuers::{
-    issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,
-    PreparedLoopControlTransferProgramV2, PreparedLoopOperationProgramV2,
-    PreparedLoopOperationRowV2, PreparedLoopV2PreSessionEnvelopeV1,
-    VerifiedLoopV2EnvelopeCoverageV1,
-};
-pub(crate) use common_v2_layout_input::{
-    LayoutInputRejectV1, PreparedLoopV2LayoutLoopV1, PreparedLoopV2LayoutSegmentRefV1,
-    PreparedLoopV2PhysicalLayoutInputV1,
+    issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2, PreparedLoopV2PreSessionEnvelopeV1,
 };
 pub(crate) use common_v2_predicate_branch_plan::{
     issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
@@ -266,10 +251,7 @@ pub(crate) use input_source::{
     issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
     LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
 };
-pub(crate) use internal_declaration::{
-    LoopInternalDeclarationModeV1, LoopInternalDeclarationRejectV1,
-    VerifiedLoopInternalDeclarationSetV1, VerifiedLoopInternalDeclarationV1,
-};
+pub(crate) use internal_declaration::LoopInternalDeclarationModeV1;
 pub(crate) use join_sig::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinBoundaryTransferRefV1,
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV1, LoopJoinBranchArmV2,
@@ -298,16 +280,15 @@ pub(crate) use operation_effect::{
     VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationSourceEvidenceV1,
 };
 pub(crate) use operation_physical_demand::{
-    LoopOperationCoverageReceiptV1, LoopOperationPhysicalDemandRejectV1,
-    PreparedLoopOperationProgramV1, PreparedLoopOperationRowV1, PreparedLoopOperationScheduleRowV1,
+    LoopOperationPhysicalDemandRejectV1,
+    PreparedLoopOperationProgramV1,
     PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
     VerifiedLoopOperationPhysicalDemandV1,
 };
-pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhysicalInputV1};
+pub(crate) use physical_input::{ VerifiedLoopPhysicalInputV1};
 pub(crate) use physical_layout::{
-    LoopPhysicalLayoutCoverageReceiptV1, LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1,
-    LoopPhysicalSegmentRoleV1, LoopPhysicalTargetV1, LoopPhysicalTransferV1,
-    PreparedLoopControlSegmentV1, PreparedLoopPhysicalLayoutV1,
+    LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1,
+    LoopPhysicalSegmentRoleV1, LoopPhysicalTargetV1, LoopPhysicalTransferV1, PreparedLoopPhysicalLayoutV1,
 };
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 pub(crate) use variable_bound_mul_producer::{
@@ -315,7 +296,7 @@ pub(crate) use variable_bound_mul_producer::{
     VerifiedLoopHomeAfterLoanV1, VerifiedVariableBoundMulRecipeProductV1,
 };
 pub(crate) use recipe_draft::{
-    LoopRecipeDraftProductV1, LoopRecipeDraftRejectV1, LoopRecipeDraftV1,
+    LoopRecipeDraftRejectV1, LoopRecipeDraftV1,
 };
 pub(crate) use s6c_prephysical_ingress::{
     issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
@@ -325,19 +306,10 @@ pub(crate) use s6c_prephysical_ingress::{
 pub(crate) use s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
 pub(crate) use s6c_scalar_scan_corridor::{S6CScalarScanSourceRefV1, S6CScalarScanSourceRejectV1};
 pub(crate) use s6c_scan_with_init::{
-    produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
-    S6CScanWithInitRecipeProductRefV2, S6CScanWithInitRecipeRolesRefV2,
-    S6CVerifiedRecipeReadViewV2, VerifiedS6CJoinRoleSealV2, VerifiedS6CScanWithInitRecipeProductV2,
+    produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2, VerifiedS6CScanWithInitRecipeProductV2,
 };
-pub(crate) use s6c_scan_with_init_joinir::{
-    with_s6c_scan_with_init_logical_join_input, S6CLogicalCallInputRefV1, S6CLogicalCallRoleV1,
-    S6CLogicalJoinInputRejectV1, S6CScanWithInitLogicalJoinInputRefV1,
-};
-pub(crate) use s6c_scan_with_init_joinir_output::{
-    issue_s6c_scan_with_init_logical_output_v1, S6CLogicalCallPairsRefV1,
-    S6CLogicalCallWithSourceRefV1, S6CScanWithInitLogicalOutputRefV1,
-    VerifiedS6CScanWithInitLogicalOutputV1,
-};
+pub(crate) use s6c_scan_with_init_joinir::S6CLogicalCallRoleV1;
+pub(crate) use s6c_scan_with_init_joinir_output::issue_s6c_scan_with_init_logical_output_v1;
 pub(crate) use s6c_scan_with_init_joinir_output_rows::{
     S6CLogicalCallArgsV1, S6CLogicalCallSlotV1, S6CLogicalItemV1,
 };
@@ -353,10 +325,10 @@ pub(crate) use s6c_text_eq_site_contract::{
 pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,
     LoopNodeSourceBindingV1, LoopNodeV1, LoopOperationV1, LoopRecipeArtifactV1,
-    LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1, LoopRecipeExitV1,
-    LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeReadOnlyInputV1, LoopRecipeSourceBindingV1,
+    LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1,
+    LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1,
     LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
-    LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
+    LoopSourcePathV1, LoopValueClassV1,
 };
 pub(crate) use schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
@@ -368,8 +340,7 @@ pub(crate) use schema_v2::{
 pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
 pub(crate) use source_bound_core::{
     issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
-    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopRecipeBindingRelationV1,
-    VerifiedLoopBindingEffectRelationV1, VerifiedLoopCoreProductV1,
+    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopRecipeBindingRelationV1, VerifiedLoopCoreProductV1,
     VerifiedLoopRecipeBindingRelationV1,
 };
 pub(crate) use typed_schema_v2::{
@@ -377,7 +348,7 @@ pub(crate) use typed_schema_v2::{
     VerifiedLoopRecipeV2,
 };
 pub(crate) use variable_accum_recurrence_producer::{
-    produce_variable_accum_recurrence_recipe_v1, VariableAccumRecurrenceRecipeProducerRejectV1,
+    produce_variable_accum_recurrence_recipe_v1,
     VerifiedVariableAccumRecurrenceRecipeProductV1,
 };
 pub(crate) use verify::{
