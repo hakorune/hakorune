@@ -156,17 +156,31 @@ pub(super) fn declared_bool_source_agrees_v1(
 
 /// R2: no exit may prove a scalar class other than the declared one. An exit that proves no scalar
 /// (Unit, a Text or Map value, an opaque call) is left to the later stages that own it.
-pub(super) fn declared_result_disagrees_with_exits_v1(
+pub(super) fn require_declared_result_agrees_with_exits_v1(
     result: Option<ExactTrivialScalarAbiV1>,
     terminals: &std::collections::BTreeMap<crate::mir::resolved_semantics::SourceStmtSiteV1, crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1>,
-) -> bool {
+    batch_slot: u32,
+) -> Result<(), CallablePhysicalHeaderIssueV1> {
     use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind as Kind;
-    let declared = match result {
-        Some(ExactTrivialScalarAbiV1::I64) => Kind::Integer,
-        Some(ExactTrivialScalarAbiV1::Bool) => Kind::Bool,
-        None => return false,
+    let Some(abi) = result else { return Ok(()) };
+    let declared = match abi {
+        ExactTrivialScalarAbiV1::I64 => Kind::Integer,
+        ExactTrivialScalarAbiV1::Bool => Kind::Bool,
     };
-    terminals.values().any(|terminal| terminal.scalar_class().is_some_and(|class| class != declared))
+    if terminals.values().any(|terminal| terminal.scalar_class().is_some_and(|class| class != declared)) {
+        return Err(CallablePhysicalHeaderIssueV1::DeclaredResultDisagrees { _batch_slot: batch_slot, _name: abi.source_type_name().into() });
+    }
+    Ok(())
+}
+
+/// R9: the declaration, when present, is a scalar result (`i64` or `Bool`) that the retained
+/// completion supports; an absent declaration agrees with any proven scalar source. Which scalar the
+/// body returns is the solver's body proof (R2) and the per-class `declaration_agrees_v1`.
+pub(super) fn declared_scalar_source_agrees_v1(
+    result: Option<ExactTrivialScalarAbiV1>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> bool {
+    declared_i64_source_agrees_v1(result, completion) || declared_bool_source_agrees_v1(result, completion)
 }
 
 pub(super) fn validate_result(

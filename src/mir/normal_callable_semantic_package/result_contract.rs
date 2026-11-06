@@ -290,12 +290,9 @@ impl<'a> CallableResultContractRefV1<'a> {
             && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
     }
 
-    /// The declaration, when present, is a scalar result (`i64` or `Bool`) that the retained
-    /// completion supports (R9: an absent declaration agrees with any proven scalar source). Which
-    /// scalar the body returns is the solver's body proof (R2) and the per-kind finishing check.
+    /// R9: the declaration agrees with a proven scalar source (see `declared_scalar_source_agrees_v1`).
     pub(super) fn declared_result_agrees_with_scalar_source(&self) -> bool {
-        declared_i64_source_agrees_v1(self.result, self.completion)
-            || declared_bool_source_agrees_v1(self.result, self.completion)
+        super::physical_header::declared_scalar_source_agrees_v1(self.result, self.completion)
     }
 
     /// Agreement with the independent ExactBool source result. An absent
@@ -435,12 +432,7 @@ impl VerifiedCallableResultContractBuilderV1 {
         let batch_slot = declaration.batch_slot();
         let result = super::physical_header::validate_declared_result(completion.as_ref(), declaration.owner(),
             batch_slot, declaration.borrowed_result().map(|row| row.as_ref()))?;
-        if super::physical_header::declared_result_disagrees_with_exits_v1(result, &terminal_relations) {
-            return Err(CallablePhysicalHeaderIssueV1::DeclaredResultDisagrees {
-                _batch_slot: batch_slot,
-                _name: result.map_or("", |abi| abi.source_type_name()).into(),
-            });
-        }
+        super::physical_header::require_declared_result_agrees_with_exits_v1(result, &terminal_relations, batch_slot)?;
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
