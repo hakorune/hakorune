@@ -398,7 +398,15 @@ impl ResultExpressionSourceV1 {
         {
             return None;
         }
+        // A Core call's result class is its table row's. The call's own receiver operand (a declared
+        // field, a local, a formal or a literal alike) is closed by the Core source and is not
+        // classified as a value; its leaf stays in place so its own obligations are still checked.
+        let core_receivers: BTreeSet<usize> = self.leaves.iter().filter_map(|leaf| match leaf {
+            LeafV1::Core(core) => self.plan.nodes().iter().position(|node| node.site() == core.source().source().receiver_site()),
+            _ => None,
+        }).collect();
         let class = project_expression_class_v1(&self.plan, |index| match &self.leaves[index] {
+            _ if core_receivers.contains(&index) => ExpressionLeafClassV1::Identity,
             LeafV1::Core(core) if core.source().target().checked_text_keys_law_v1() => ExpressionLeafClassV1::Identity,
             LeafV1::Core(core) => core.result_class().map(ExpressionLeafClassV1::Value)
                 .unwrap_or(ExpressionLeafClassV1::Unresolved),

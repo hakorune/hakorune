@@ -30,6 +30,10 @@ fn text_field_reads_compile_in_the_listed_shapes() {
             ("  show(): i64 { print(me.name + \"x\")  return 0 }", "return t.show()"),
             ("  len(): i64 { local k = me.name.length()  return k }", "return t.len()"),
             ("  get() { return me.name }", "print(t.get())  return 0"),
+            // A Core call's receiver is its operand whatever the receiver is: a local here.
+            ("  len(): i64 { local s = \"xyz\"  local k = s.length()  return k }", "return t.len()"),
+            ("  len(): i64 { local s = \"xyz\"  local k = s.length() + 1  return k }", "return t.len()"),
+            ("  len(): i64 { local s = \"xyz\"  local k = s.indexOf(\"z\")  return k }", "return t.len()"),
         ] {
             compile(field_type, members, body)
                 .unwrap_or_else(|error| panic!("{field_type} / {members} / {body}: {error}"));

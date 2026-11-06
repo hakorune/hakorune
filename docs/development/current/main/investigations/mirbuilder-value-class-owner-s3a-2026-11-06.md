@@ -72,7 +72,7 @@ D は callee の終端 relation から I64 を作る。C が membership(封印�
 | `me.<field>` | その field の根拠(census)が I64 の時 I64。物理が raw `i64` かは別の軸(使い先の制限) |
 | 二項演算 | `binary_expression_class_v1` の表を引く(左の種類、右の種類 → 結果の種類か拒否) |
 | 呼び出し | callee の結果の種類(宣言があれば宣言、無ければ本体の return から。再帰は不動点) |
-| Core method の呼び出し(`recv.length()` など) | 結果の種類は Core method の表の行(`expression_result_class_v1`)。受け手が宣言済み field の読みなら、その読みは呼び出しの operand で、Core の source が閉じる。受け手を値の種類として分類しない(局所の初期値でも同じ) |
+| Core method の呼び出し(`recv.length()` など) | 結果の種類は Core method の表の行(`expression_result_class_v1`)。受け手は呼び出しの operand で、Core の source が閉じる(宣言済み field、local、formal、literal のどれでも同じ)。受け手を値の種類として分類せず、受け手の種類で規則を分けない |
 | `return e` | 宣言の結果の型と `e` の型が合わなければ拒否 |
 
 ### 使い先の制限(種類とは別の軸。1 か所に書く)
