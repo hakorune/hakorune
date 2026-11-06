@@ -201,6 +201,8 @@ JSON着地後のレビュー（2026-10-28、読取りworker3人。未実行）�
 
 S1着地（2026-11-06、Sonnet実装・Opus監査、`1de52b773a`）: 述語2種、封印の共通部、結果の写し、`precedes`を統合し、token cursorのparser経路とcaller 0の関数26本を削除。production +133/−1926。固定suite 8/8、比較229入力は差0（拒否名の差も0）、cohortとpublished_backend_viewの失敗名は前と同じ。統合しなかった差（D4、D9、`seal_local`だけの条件）は報告`sonnet-mir-s1-report.md`の第2節と第8節。
 
+S2着地（2026-11-06、Sonnet実装・Opus監査、`5b82d1db73`、docs `662b84ffa0`）: 物理MIRの追加なしで、入れ子の引数、生きたHomeがあるcallerの呼び出し、`print`・加算の項・`return`の値の呼び出しが通る（測った形14のうち8、[status-index](../../../../reference/language/status-index.md)）。旧`qualified-preflight`経路は撤退し`qualified-route-retired`の拒否名にした。Rustの独立検証が`I64`の呼び出し結果をcalleeの宣言と照らす（`call-result-type-drift`）。Fault側のHomeのEndは対応検査`check_fault_chain`が鎖を照合する。production +127/−260。比較229入力は差0、前に通っていた`apps/**`100本はexitと出力が前後同じ（Opusが測定）、cohortとpublished_backend_viewの失敗名は前と同じ。残り（`x - 定数`、`*`、条件、Assignment、instance methodの結果、loopの中、2つの位置判定の食い違い、撤退で残ったcaller 0の層、End欠落の独立検証）はS2bへ。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
