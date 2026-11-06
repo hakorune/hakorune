@@ -404,6 +404,7 @@ A function result declared `: Bool` is a result-contract row and takes the route
 | i64 input `t(x: i64): Bool`, called from `main` or from a method (`local b = Main.t(4)`, `if Main.t(4)`, `print(Main.t(4))`) | refused-named | refused-named | `borrowed-static/source-unobserved` (no Bool route exists for an exact-i64 static call) |
 | `t(s): Bool` whose exits return `1`/`2`, or `true` and `2` | refused-named | refused-named | `PhysicalHeader DeclaredResultDisagrees` (declared) |
 | `: bool`, `: Boolean`, `: BoolBox` | refused-named | refused-named | `UnsupportedResultAnnotation` |
+| `bad(x: i64): i64 { return true }` (a declared `i64` whose exit proves a Bool) | refused-named | refused-named | `PhysicalHeader DeclaredResultDisagrees` (was `terminal-scalar-source-missing`) |
 | a `Bool` parameter `t(b: Bool)` | refused-named | refused-named | `ParameterContract UnsupportedDeclaredType` (unchanged) |
 | `print(4 > 1)` | refused-named | n/a | `print-expression/source-unavailable` (unchanged) |
 

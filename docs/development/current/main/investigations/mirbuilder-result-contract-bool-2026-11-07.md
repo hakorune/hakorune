@@ -43,3 +43,9 @@ ParentCurrentCard: `docs/development/current/main/investigations/app-boxtorrent-
 - Bool の結果の使い先(`print`、`local` への格納、`if` の条件)の物理への接続。これらは結果の契約ではなく、使い先の式の規則(R6、R8)と物理の接続の側にある。接続が無い使い先は名前つきの拒否のままで、実測の一覧を報告に書く。
 - String、Nominal、`Nullable(T)` の結果。
 - 公開 MIR、ABI、descriptor の追加。Bool は既存の `Bool` / `ordinary_bool` だけを使う。足す必要が見つかった部分は止めて報告する。
+
+## 5. 実測の結果(2026-11-07)
+
+- 宣言の `: Bool` は、宣言の無い同じ関数と同じ道を通り、同じ名前つきの結果になる(R9)。通る形は Text 入力の static / instance の Bool(`json-stream-aggregator` の `boolField(line, key): Bool` と `ingestLine(line): Bool`、`local b = P.t(line)  if b`)。
+- 宣言の無い Bool の結果が今も繋がっていない形は、宣言があっても同じ名前で拒否される。比較を返す本体(`return x > 1`、`return s == "a"`)、`if f()` の条件に直接置く形、Bool を返す関数を返す形(`return P.t(s)`)、instance の `c.t(..)`、再帰、`print(f())`、exact-i64 入力の static の Bool(`local b = Main.t(4)`)。最後の形に Bool の経路が無いのは、静的な scalar の呼び出しの claim が `ExactI64` の結果だけを前提にしているためで、結果の契約の行(R7)ではなく、使い先の経路の側(§4)にある。
+- 本体が宣言と違う scalar を返す形は `PhysicalHeader DeclaredResultDisagrees` で拒否される(R2)。
