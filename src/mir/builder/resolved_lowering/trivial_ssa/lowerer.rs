@@ -108,29 +108,6 @@ impl<'builder, 'source, 'port> CanonicalTrivialSsaLowererV1<'builder, 'source, '
         })
     }
 
-    pub(in crate::mir::builder::resolved_lowering) fn new_with_qualified_method_port(
-        builder: &'builder mut MirBuilder,
-        input: ResolvedFunctionLoweringInputV1<'source>,
-        if_control: VerifiedResolvedFunctionIfControlV1,
-        completion: VerifiedFunctionCompletionV1,
-        profile: VerifiedTrivialCanonicalOwnerV1,
-        block_expr_count: usize,
-        if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
-        qualified_method_port: &'port mut dyn QualifiedMethodRecipePortV1,
-    ) -> Result<Self, String> {
-        let mut lowerer = Self::new(
-            builder,
-            input,
-            if_control,
-            completion,
-            profile,
-            block_expr_count,
-            if_recipe,
-        )?;
-        lowerer.qualified_method_port = Some(qualified_method_port);
-        Ok(lowerer)
-    }
-
     pub(in crate::mir::builder::resolved_lowering) fn lower(
         mut self,
     ) -> Result<ReadyFunctionDraftSealV1, String> {

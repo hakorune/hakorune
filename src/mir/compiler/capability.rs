@@ -213,33 +213,6 @@ impl CanonicalLoweringPreflightV1 {
         }
     }
 
-    pub(crate) fn verify_normal_main0_function_with_qualified_methods_v1<'a>(
-        function: ResolvedFunctionLoweringInputV1<'a>,
-        role: super::normal_source_plan::VerifiedNormalMainRoleV1,
-    ) -> Result<CanonicalTrivialBindingSsaPlanV1<'a>, CanonicalLoweringErrorV1> {
-        match Self::verify_function_with_policy(
-            function,
-            DirectCallAdmissionV1::QualifiedMethods,
-            CanonicalFunctionRolePolicyV1::NormalMainQualifiedMethods,
-            Some(role),
-        )? {
-            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
-            CanonicalFirstFamilyPlanV1::Loop(_) => unsupported(
-                "root",
-                function.source().root(),
-                "qualified_methods_not_loop_family",
-            ),
-            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
-                let (function, ..) = plan.into_parts();
-                unsupported(
-                    "root",
-                    function.source().root(),
-                    "qualified_methods_requires_trivial_binding_ssa",
-                )
-            }
-        }
-    }
-
     fn verify_function_with_policy<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
         direct_call_admission: DirectCallAdmissionV1,
