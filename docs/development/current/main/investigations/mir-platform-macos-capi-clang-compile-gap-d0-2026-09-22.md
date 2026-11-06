@@ -10,6 +10,13 @@ Implementation permission: false; no compiler substitution, fallback, or C rewri
 
 # macOS CAPI clang compile-gap D0
 
+## 2026-11-06 re-measure and user decision
+
+- Manual `portability-ci` run `scope=macos` on main `1d73cfdb36` (run 42145618877): the Rust library builds and the provider lifetime test passes; the CAPI lifetime test still stops at Apple clang (`function definition is not allowed here`), the same boundary as below.
+- `gcc -fsyntax-only -Wpedantic` on `hako_llvmc_ffi.c` counts 789 nested functions in 92 of 172 shim `.inc` files. `gcc -Wtrampolines` reports none and the object's stack stays non-executable, so this is a portability gap, not a Linux security gap.
+- The release-build job (no C shim compile) last passed on 2026-11-04. `portability-ci` runs only on pull requests and manual dispatch, not on pushes to main.
+- User decision: hoist the nested functions to file scope after step 4 of the approved order (3b and retirement), when the shim is smaller; not before.
+
 ## Six-line brief
 
 Decision: the macOS CAPI surface is blocked at a compiler portability
