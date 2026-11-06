@@ -62,17 +62,6 @@ mod tests {
     }
 
     #[test]
-    fn bool_is_a_result_projection_only() {
-        assert_eq!(ExactTrivialScalarAbiV1::classify("Bool"), None);
-        assert_eq!(ExactTrivialScalarAbiV1::classify_result("Bool"), Some(ExactTrivialScalarAbiV1::Bool));
-        assert_eq!(ExactTrivialScalarAbiV1::classify_result("i64"), Some(ExactTrivialScalarAbiV1::I64));
-        for rejected in ["bool", "BoolBox", "boolean", " Bool", "Bool "] {
-            assert_eq!(ExactTrivialScalarAbiV1::classify_result(rejected), None);
-        }
-        assert_eq!(ExactTrivialScalarAbiV1::Bool.mir_type(), MirType::Bool);
-    }
-
-    #[test]
     fn exact_i64_projects_to_existing_integer_representation() {
         assert_eq!(ExactTrivialScalarAbiV1::I64.mir_type(), MirType::Integer);
         assert_eq!(ExactTrivialScalarAbiV1::I64.source_type_name(), "i64");

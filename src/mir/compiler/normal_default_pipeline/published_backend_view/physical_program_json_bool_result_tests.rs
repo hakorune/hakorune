@@ -9,7 +9,7 @@ fn compile(annotation: &str, body: &str) -> Result<(), String> {
         "static box P {{\n  t(s){annotation} {{ {body} }}\n}}\n\
          box R {{\n  n: i64\n  birth() {{ me.n = 0 }}\n  run(line) {{\n    local b = P.t(line)\n    \
          if b {{ me.n = me.n + 1 }} else {{ me.n = me.n + 10 }}\n    return true\n  }}\n}}\n\
-         static box Main {{\n  main() {{ local r = new R()  r.run(\"a\")  print(r.n)  return 0 }}\n}}\n"
+         static box Main {{\n  main() {{\n    local r = new R()\n    r.run(\"a\")\n    print(r.n)\n    return 0\n  }}\n}}\n"
     );
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         MirCompiler::with_options(false)
@@ -29,7 +29,7 @@ fn declared_bool_result_takes_the_route_of_the_undeclared_one() {
     for body in [
         LITERALS,
         "return s == \"a\"",
-        "local c = s == \"a\"  return c",
+        "local c = s == \"a\"; return c",
         "if s == \"a\" { return true } else { return false }",
     ] {
         let undeclared = compile("", body);
