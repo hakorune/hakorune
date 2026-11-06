@@ -82,9 +82,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
             Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
                 selected,
                 batch,
-                instance_constructors,
                 parameter_contracts,
                 &callable_result_classes,
+                &borrowed_i64_results,
                 &candidates,
                 input,
                 site,

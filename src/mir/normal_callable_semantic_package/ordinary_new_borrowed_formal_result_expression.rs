@@ -62,6 +62,9 @@ enum LeafV1 {
         stored_receiver: Option<super::super::StoredReceiverSourceV1>,
         receiver_site: SourceExprSiteV1,
     },
+    /// A `local` read: its class is its sole initializer's class, taken from that
+    /// initializer's own expression plan (the type rule `Local = initializer`).
+    Local(Rc<ResultExpressionSourceV1>),
     Unresolved,
 }
 #[derive(Debug)]
@@ -70,10 +73,65 @@ pub(super) struct ResultExpressionSourceV1 {
     leaves: Box<[LeafV1]>,
 }
 impl ResultExpressionSourceV1 {
+    /// Every leaf this expression's class depends on, including the leaves of the
+    /// initializer expressions of the locals it reads.
+    fn leaves_deep(&self) -> Vec<&LeafV1> {
+        let mut out = Vec::new();
+        for leaf in self.leaves.iter() {
+            match leaf {
+                LeafV1::Local(inner) => out.extend(inner.leaves_deep()),
+                leaf => out.push(leaf),
+            }
+        }
+        out
+    }
+    /// Every Multiply of this expression multiplies exact values — declared exact
+    /// `i64` formals, integer literals, `i64` fields, other operations and locals of
+    /// such — so it is an ordinary I64 operation and needs no borrowed Mul product.
+    pub(super) fn multiplies_exact_values_v1(&self) -> bool {
+        let exact = |site: &SourceExprSiteV1| {
+            self.plan.nodes().iter().position(|node| node.site() == site).is_some_and(|index| match &self.leaves[index] {
+                LeafV1::Structural | LeafV1::Field { .. } | LeafV1::ObjectField { .. } => true,
+                LeafV1::Integer(basis) => matches!(basis, OriginalIntegerBasisV1::Declared { .. }),
+                LeafV1::Local(inner) => inner.multiplies_exact_values_v1(),
+                _ => false,
+            })
+        };
+        self.plan.nodes().iter().all(|node| node.binary().is_none_or(|binary| {
+            binary.operator() != crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Multiply
+                || (exact(binary.lhs()) && exact(binary.rhs()))
+        })) && self.leaves.iter().all(|leaf| match leaf {
+            LeafV1::Local(inner) => inner.multiplies_exact_values_v1(),
+            _ => true,
+        })
+    }
+    /// The expression's value is a raw `i64` computed on the Normal path alone, the
+    /// contract of the exact-`i64` result lane: literals, exact `i64` formals,
+    /// declared-`i64` fields of the receiver, locals of such values, and operators
+    /// without a Fault exit. A call, a unary, a conditional, an undeclared field or
+    /// any other read can leave through a Fault or hold a non-raw representation.
+    pub(super) fn is_raw_normal_i64_v1(&self) -> bool {
+        self.plan.nodes().iter().all(|node| match node.source() {
+            ExpressionNodeSourceV1::Literal(_)
+            | ExpressionNodeSourceV1::Reference(_)
+            | ExpressionNodeSourceV1::ReceiverQualification { .. }
+            | ExpressionNodeSourceV1::Shape(_) => true,
+            ExpressionNodeSourceV1::Binary(binary) => {
+                crate::mir::resolved_value_profile::expression_class::binary_operator_cannot_fault_v1(binary.operator())
+            }
+            _ => false,
+        }) && self.leaves.iter().all(|leaf| match leaf {
+            LeafV1::Structural | LeafV1::Receiver(_) => true,
+            LeafV1::Integer(basis) => matches!(basis, OriginalIntegerBasisV1::Declared { .. }),
+            LeafV1::Field { source, .. } => source.declared_type_name() == Some("i64"),
+            LeafV1::Local(inner) => inner.is_raw_normal_i64_v1(),
+            _ => false,
+        })
+    }
     /// This scalar equation depends on an original explicit From read, not
     /// merely an i64 annotation or a particular call/field syntax shape.
     pub(super) fn requires_declared_read_source_v1(&self) -> bool {
-        self.leaves.iter().any(|leaf| matches!(leaf, LeafV1::DeclaredRead(_)))
+        self.leaves_deep().into_iter().any(|leaf| matches!(leaf, LeafV1::DeclaredRead(_)))
     }
     pub(super) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.plan
@@ -142,6 +200,9 @@ impl ResultExpressionSourceV1 {
                     .map(LeafV1::Integer)
                     .or_else(|| map_local_source_v1(input, *binding, class, receiver,
                         batch, selected, constructors, claims))
+                    .or_else(|| local_initializer_plan_v1(input, *binding).map(|initializer| LeafV1::Local(Rc::new(Self::prepare(
+                        input, initializer, class, receiver, fields, objects, original, constructors, definitions,
+                        contracts, needs, batch, selected, claims, results)))))
                     .unwrap_or(LeafV1::Unresolved),
                     }
                 },
@@ -330,6 +391,11 @@ impl ResultExpressionSourceV1 {
             LeafV1::Field { key, .. } if fields.contains(key) => {
                 ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64)
             }
+            LeafV1::Local(inner) => match inner.class(fields, results) {
+                Some(BorrowedResultClassV1::I64) => ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64),
+                Some(BorrowedResultClassV1::Bool) => ExpressionLeafClassV1::Value(ExpressionValueClassV1::Bool),
+                _ => ExpressionLeafClassV1::Unresolved,
+            },
             LeafV1::Call { reference, .. } => match results.get(&reference.callee_owner) {
                 Some(BorrowedResultClassV1::I64) => {
                     ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64)
@@ -375,24 +441,24 @@ impl ResultExpressionSourceV1 {
         }
     }
     pub(super) fn uses_fields(&self) -> bool {
-        self.leaves
-            .iter()
+        self.leaves_deep()
+            .into_iter()
             .any(|leaf| matches!(leaf, LeafV1::Field { .. }))
     }
     pub(super) fn fields(&self) -> impl Iterator<Item = &FieldKeyV1> {
-        self.leaves.iter().filter_map(|leaf| match leaf {
+        self.leaves_deep().into_iter().filter_map(|leaf| match leaf {
             LeafV1::Field { key, .. } => Some(key),
             _ => None,
         })
     }
     pub(super) fn calls(&self) -> impl Iterator<Item = &CallTargetReferenceV1> {
-        self.leaves.iter().filter_map(|leaf| match leaf {
+        self.leaves_deep().into_iter().filter_map(|leaf| match leaf {
             LeafV1::Call { reference, .. } => Some(reference),
             _ => None,
         })
     }
     pub(super) fn calls_ready(&self, source: &PreparedBorrowedFormalIngressV1) -> bool {
-        self.core_sources_match() && self.leaves.iter().all(|leaf| {
+        self.core_sources_match() && self.leaves_deep().into_iter().all(|leaf| {
             if let LeafV1::Core(core) = leaf {
                 return source.ordinary_core_source_v1(&OwnedExprSiteV1::new(self.plan.owner(), core.source().source().site().clone()))
                     .is_some_and(|original| core.borrows_original_v1(original));
@@ -418,7 +484,7 @@ impl ResultExpressionSourceV1 {
         })
     }
     pub(super) fn fields_closed(&self, fields: &BTreeSet<FieldKeyV1>) -> bool {
-        self.core_sources_match() && self.leaves.iter().all(|leaf| match leaf {
+        self.core_sources_match() && self.leaves_deep().into_iter().all(|leaf| match leaf {
             LeafV1::Field { key, .. } => fields.contains(key),
             _ => true,
         })
@@ -434,6 +500,7 @@ impl ResultExpressionSourceV1 {
                         if *binding == read.binding())),
             LeafV1::CoreReceiver(index) => matches!(self.leaves.get(*index), Some(LeafV1::Core(core))
                 if (core.field_map().is_some() || core.field_array_access_v1().is_some()) && core.matches_plan(&self.plan, *index)),
+            LeafV1::Local(inner) => inner.core_sources_match(),
             _ => true,
         })
     }
@@ -443,7 +510,7 @@ impl ResultExpressionSourceV1 {
         sources: &FieldSourcesV1,
         objects: &ObjectFieldClassSourcesV1,
     ) -> bool {
-        self.core_sources_match() && self.leaves.iter().all(|leaf| match leaf {
+        self.core_sources_match() && self.leaves_deep().into_iter().all(|leaf| match leaf {
             LeafV1::Core(core) => core.field_map().is_none_or(|field|
                 sources.values().any(|original| field.matches_declared_source_v1(original))),
             LeafV1::MapLocal { binding, key, source } => {
@@ -464,7 +531,7 @@ impl ResultExpressionSourceV1 {
             } => {
                 key.0.as_ref() == source.parent_class.as_ref()
                     && key.1.as_ref() == source.field_name.as_ref()
-                    && self.leaves.iter().any(|candidate| matches!(candidate,
+                    && self.leaves_deep().into_iter().any(|candidate| matches!(candidate,
                         LeafV1::Call {
                             reference: actual,
                             stored_receiver: Some(stored),
@@ -478,7 +545,7 @@ impl ResultExpressionSourceV1 {
 
     /// Recheck any source-sum class against the same sealed ingress solve.
     pub(super) fn object_field_sums_match(&self, ingress: &PreparedBorrowedFormalIngressV1) -> bool {
-        self.leaves.iter().all(|leaf| match leaf {
+        self.leaves_deep().into_iter().all(|leaf| match leaf {
             LeafV1::ObjectField { key, source } => source.source_sum().is_none_or(|sum|
                 ingress.source_declared_field_sum_v1(&key.0, &key.1)
                     .is_some_and(|current| Rc::ptr_eq(sum, &current))),
@@ -492,6 +559,21 @@ impl ResultExpressionSourceV1 {
     ) -> bool {
         self.fields_match(sources, objects) && ingress.is_none_or(|ingress| self.object_field_sums_match(ingress))
     }
+}
+
+/// The expression plan of a local's sole initializer, for a local that is never
+/// rebound or captured: its read has the class of that expression.
+fn local_initializer_plan_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    binding: BindingRefV1,
+) -> Option<Rc<ExpressionSourcePlanV1>> {
+    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim;
+    let function = input.function();
+    result_class_claim::sole_initializer_site(function, binding)?;
+    let relation = function.expression_source().sole_initializer(binding)?;
+    let ledger = input.forest().callable_source_ledger(input.owner()).ok()?;
+    if !ledger.uncaptured_binding(binding) { return None; }
+    crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok()
 }
 
 fn stored_receiver_field_v1(

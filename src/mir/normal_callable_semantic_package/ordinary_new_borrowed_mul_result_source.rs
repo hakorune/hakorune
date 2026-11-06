@@ -25,7 +25,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         // A complete original Return plan can prove there is no Mul operation
         // to lend. Missing borrowed-use drafts alone are never that proof.
         if proof.multiplications.is_empty() && proof.original_return.as_ref().is_some_and(|original|
-            original.receiver().owner() == owner && original.corroborates_no_mul_returns_v1(&proof.returns))
+            original.receiver().owner() == owner
+                && original.corroborates_no_borrowed_mul_returns_v1(&proof.returns, |plan| proof.expressions.iter()
+                    .any(|expression| Rc::ptr_eq(expression.plan(), plan) && expression.multiplies_exact_values_v1())))
         { return Ok(()); }
         // The same result producer checked the original parameter census and
         // retained this declaration; no borrowed Mul product can be issued there.

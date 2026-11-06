@@ -173,108 +173,35 @@ pub(super) fn lexical_handle_result_call(
 }
 
 /// A `recv.m(...)` local-call site whose receiver is a claim-local `new`
-/// binding and whose uniquely selected callee's every verified value-return
-/// is a literal or an exact-`i64` formal — the sole scan-side proof that
-/// the callee's co-sealed disposition mints `InvokeCallResultKind::I64`.
+/// binding, whose uniquely selected callee takes only exact-`i64` formals and
+/// whose every verified value-return is an exact `i64` computed on the Normal
+/// path alone — the sole scan-side proof that the callee's co-sealed
+/// disposition mints `InvokeCallResultKind::I64`.
 ///
-/// The scan cannot re-read terminal relations minted by the same cohort walk.
-/// Only Integer literals and the callee's exact-I64 formals prove the source
-/// representation here. A return annotation alone does not verify the literal
-/// type: Float, Bool, String and Null must not enter this lane. Other result
-/// shapes keep their existing owner. The emitter separately corroborates the
-/// minted row's `result == Some(I64)`; disagreement freezes without fallback.
+/// The result class is the callee's result-cohort class (the type rules over
+/// its return expressions, including the locals they read); this function only
+/// asks it. A return annotation alone does not verify the literal type: Float,
+/// Bool, String and Null must not enter this lane. The emitter separately
+/// corroborates the minted row's `result == Some(I64)`; disagreement freezes
+/// without fallback.
 pub(super) fn lexical_i64_result_call(
     selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    constructors: &crate::mir::normal_callable_semantic_package::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    borrowed_i64_results: &super::super::lexical_instance_call::BorrowedResultCohortV1,
     candidates: &[OrdinaryNewCandidate],
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
 ) -> bool {
-    let Some((key, target_batch_slot, callee_owner, arity)) =
+    let Some((key, _target_batch_slot, callee_owner, arity)) =
         lexical_claim_local_target(selected, batch, candidates, input, site)
     else {
         return false;
     };
-    let Some(contract) = all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)
-    else {
-        return false;
-    };
-    if callable_result_classes.contains_key(&key) {
-        return false;
-    }
-    // The receiver class's exact `i64` fields: `me.<field>` of such a field is an
-    // exact-I64 operand (its declared type is the only evidence used).
-    let i64_fields: std::collections::BTreeSet<String> = batch
-        .ordinary_box_coverage()
-        .row_for(key.owner())
-        .ok()
-        .flatten()
-        .and_then(|row| {
-            constructors
-                .with_source_object_definition(row, |_, definition| {
-                    definition
-                        .fields()
-                        .iter()
-                        .filter(|field| !field.is_weak && field.declared_type_name.as_deref() == Some("i64"))
-                        .map(|field| field.name.clone())
-                        .collect()
-                })
-                .ok()
-        })
-        .unwrap_or_default();
-    batch
-        .with_lowering_input(target_batch_slot, |callee_input| {
-            let Some(shape) = callee_input.body_shape() else {
-                return false;
-            };
-            let Some(sites) = super::super::verified_value_return_sites(callee_input, shape) else {
-                return false;
-            };
-            let owner = callee_input.owner();
-            let is_me_i64_field = |site: &crate::mir::resolved_semantics::SourceExprSiteV1| {
-                callee_input
-                    .source()
-                    .expr_at(&OwnedExprSiteV1::new(owner, site.clone()))
-                    .is_ok_and(|expr| matches!(expr.node(), crate::ast::ASTNode::FieldAccess { object, field, .. }
-                        if matches!(object.as_ref(), crate::ast::ASTNode::Me { .. }) && i64_fields.contains(field)))
-            };
-            !sites.is_empty()
-                && sites.iter().all(|site| {
-                    exact_i64_return_expression_v1(callee_input.function(), site, &|binding| {
-                        contract.parameters.iter().any(|parameter| parameter.binding == binding)
-                    }, &is_me_i64_field)
-                })
-        })
-        .unwrap_or(false)
-}
-
-/// An exact-I64 value: an Integer literal, an exact-I64 formal, `me.<i64 field>`,
-/// or `+ - *` of two such values. Anything else (calls, fields, locals, comparisons) is not
-/// proved here and keeps its existing owner.
-fn exact_i64_return_expression_v1(
-    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
-    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    is_exact_formal: &dyn Fn(BindingRefV1) -> bool,
-    is_exact_field: &dyn Fn(&crate::mir::resolved_semantics::SourceExprSiteV1) -> bool,
-) -> bool {
-    use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1 as Op, ResolvedLexicalRefV1, ResolvedLiteralSourceV1};
-    if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Integer(_))) {
-        return true;
-    }
-    if let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(site) {
-        return is_exact_formal(binding);
-    }
-    if is_exact_field(site) {
-        return true;
-    }
-    function.expression_source().binary(site).is_some_and(|binary| {
-        matches!(binary.operator(), Op::Add | Op::Subtract | Op::Multiply)
-            && exact_i64_return_expression_v1(function, binary.lhs(), is_exact_formal, is_exact_field)
-            && exact_i64_return_expression_v1(function, binary.rhs(), is_exact_formal, is_exact_field)
-    })
+    all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity).is_some()
+        && !callable_result_classes.contains_key(&key)
+        && borrowed_i64_results.is_normal_i64_result_v1(&callee_owner)
 }
 
 /// A `recv.m(...)` local-call site whose receiver is a claim-local `new`

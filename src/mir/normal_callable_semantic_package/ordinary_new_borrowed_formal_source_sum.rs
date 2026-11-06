@@ -508,11 +508,24 @@ pub(super) fn resolve_original_source_sums_v1(
                     formal.binding == *binding
                         && formal.kind == CallableParameterContractKindV1::OpaqueHandle
                 });
+            let declared_i64 = contracts
+                .iter()
+                .filter(|contract| contract.owner == binding.owner())
+                .flat_map(|contract| &contract.parameters)
+                .any(|formal| {
+                    formal.binding == *binding
+                        && matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64())
+                });
             if untyped {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[source-sum] untyped formal {binding:?} has no incoming row; defaulting to TaggedDynamic");
                 }
                 row.atoms.insert(SourceValueAlternativeV1::TaggedDynamic);
+                row.unconditional = true;
+            } else if declared_i64 {
+                // A formal declared `i64` has the declared class by rule, whether or not
+                // a call site supplies a seed for it.
+                row.atoms.insert(SourceValueAlternativeV1::SignedI64);
                 row.unconditional = true;
             } else {
                 row.invalid = true;

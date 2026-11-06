@@ -259,7 +259,13 @@ impl OriginalReturnSourceLoanV1 {
             && returns.iter().all(|site| plans.iter().filter(|plan| plan.nodes().first()
                 .is_some_and(|node| plan.owner() == site.owner() && node.site() == site.site())).count() == 1)
     }
-    pub(super) fn corroborates_no_mul_returns_v1(&self, returns: &[OwnedExprSiteV1]) -> bool {
+    /// No return needs a retained borrowed Mul product: every Multiply of a plan is
+    /// an ordinary I64 operation over exact values, as `plain_multiply` states.
+    pub(super) fn corroborates_no_borrowed_mul_returns_v1(
+        &self,
+        returns: &[OwnedExprSiteV1],
+        plain_multiply: impl Fn(&Rc<ExpressionSourcePlanV1>) -> bool,
+    ) -> bool {
         let plans = self.plans();
         !plans.is_empty() && plans.len() == returns.len()
             && plans.iter().all(|plan| {
@@ -267,7 +273,8 @@ impl OriginalReturnSourceLoanV1 {
                 plan.owner() == self.0.owner
                     && returns.iter().filter(|returned| returned.owner() == plan.owner() && returned.site() == site).count() == 1
                     && plan.nodes().iter().all(|node| node.binary().is_none_or(|binary|
-                        binary.operator() != crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Multiply))
+                        binary.operator() != crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Multiply
+                            || plain_multiply(plan)))
             })
             && returns.iter().all(|returned| plans.iter().filter(|plan|
                 plan.root().expression_site().is_some_and(|site|
@@ -459,6 +466,11 @@ impl BorrowedResultCohortV1 {
             BorrowedResultClassV1::Bool => Some(SourceValue::Bool),
             BorrowedResultClassV1::UnresolvedScalar | BorrowedResultClassV1::Nullable => None,
         }
+    }
+    /// The callee's explicit value returns are a Normal-only exact i64 (see
+    /// `BorrowedI64ResultSourceV1::is_normal_i64_result_v1`).
+    pub(in crate::mir::normal_callable_semantic_package) fn is_normal_i64_result_v1(&self, owner: &FunctionOwnerIdV1) -> bool {
+        self.get(owner).and_then(|row| row.as_ref().ok()).is_some_and(|proof| proof.is_normal_i64_result_v1())
     }
     // Existing scalar-map projection. No caller sees source-only rows as a
     // successful or unresolved numeric result; ordering is still canonical.

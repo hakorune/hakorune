@@ -95,6 +95,16 @@ impl std::ops::Deref for BorrowedI64ResultSourceV1 {
 }
 
 impl BorrowedI64ResultSourceV1 {
+    /// Every value return is a raw `i64` computed on the Normal path alone: the
+    /// result class is `I64` and no return is a call, a field-array read, an
+    /// operation that can Fault or a read of a non-raw representation.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_normal_i64_result_v1(&self) -> bool {
+        self.class == BorrowedResultClassV1::I64
+            && self.dependencies.is_empty()
+            && self.field_array_reads.is_empty()
+            && !matches!(&self.phase, pending::BorrowedResultSourcePhaseV1::Pending { calls, .. } if !calls.is_empty())
+            && self.expressions.iter().all(|expression| expression.is_raw_normal_i64_v1())
+    }
     fn verify_original_return_v1(&self) -> Result<(), String> {
         if let Some(original) = &self.original_return {
             if original.is_unit_candidate_v1() { return Err(freeze("borrowed-result/unit-is-not-scalar")); }

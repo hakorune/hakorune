@@ -25,6 +25,15 @@ pub(crate) enum ExpressionClassIssueV1 {
     NullableOperandNotString,
 }
 
+/// Whether the operator's I64 result exists on the Normal path alone: its value is
+/// produced without a Fault exit. Divide/Modulo Fault on a zero divisor and the
+/// shifts on an out-of-range count, so a class of I64 for them is not a Normal-only
+/// result. Only the operators the checked-result lane emits are listed.
+pub(crate) fn binary_operator_cannot_fault_v1(operator: ResolvedBinaryOperatorV1) -> bool {
+    use ResolvedBinaryOperatorV1 as Op;
+    matches!(operator, Op::Add | Op::Subtract | Op::Multiply)
+}
+
 /// Preserve the source-result issuer's original transfer laws. In particular,
 /// String Add's source class alone does not satisfy the stricter checked String
 /// envelope; Divide/Modulo's class is not a proof of a normal/non-Fault result.
