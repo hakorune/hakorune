@@ -479,15 +479,21 @@ fn grounded_with_fields_v1(
                 // `return field + child.recurse()` use the class of a separate
                 // `return field` branch without allowing a pure recursive cycle
                 // to manufacture its own result type.
+                // An expression that never calls its own owner reads only grounded
+                // owners, so the class it has here is the class the later pass
+                // reads (the seed adds nothing to its inputs): solve it once.
+                let mut solved: Vec<Option<Option<BorrowedResultClassV1>>> = vec![None; proof.expressions.len()];
                 let recursive_seed = if proof.fixed_class != BorrowedResultClassV1::UnresolvedScalar {
                     Some(proof.fixed_class)
                 } else {
                     let mut seed = None;
-                    for expression in &proof.expressions {
+                    for (index, expression) in proof.expressions.iter().enumerate() {
                         if expression.calls().any(|call| call.callee_owner == *owner)
                             || source.is_some_and(|source| !expression.calls_ready(source))
                         { continue; }
-                        let Some(candidate) = expression.class(&fields, &grounded) else { continue; };
+                        let class = expression.class(&fields, &grounded);
+                        solved[index] = Some(class);
+                        let Some(candidate) = class else { continue; };
                         if seed.is_some_and(|previous| previous != candidate) { return None; }
                         seed = Some(candidate);
                     }
@@ -498,7 +504,7 @@ fn grounded_with_fields_v1(
                     expression_results.insert(*owner, seed);
                 }
                 let mut class = (proof.fixed_class != BorrowedResultClassV1::UnresolvedScalar).then_some(proof.fixed_class);
-                for expression in &proof.expressions {
+                for (index, expression) in proof.expressions.iter().enumerate() {
                     if expression.plan().owner() != *owner
                         || !matches!(expression.plan().root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                             role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, value, ..
@@ -506,7 +512,10 @@ fn grounded_with_fields_v1(
                         || proof.field_candidates.as_ref().is_some_and(|own| context.as_ref().is_none_or(|shared| !Rc::ptr_eq(own, shared)))
                         || context.as_ref().is_some_and(|context| !expression.fields_match_with_ingress(&context.sources, &context.object_sources, source)) { return None; }
                     if source.is_some_and(|source| !expression.calls_ready(source)) { return None; }
-                    let next = expression.class(&fields, &expression_results)?;
+                    let next = match solved[index] {
+                        Some(class) => class?,
+                        None => expression.class(&fields, &expression_results)?,
+                    };
                     if class.is_some_and(|class| class != next) { return None; }
                     class = Some(next);
                 }
