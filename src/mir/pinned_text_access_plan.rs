@@ -7,7 +7,7 @@
 use super::ValueId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub(crate) struct PinnedTextRootIdV1(u32);
+pub struct PinnedTextRootIdV1(u32);
 
 impl PinnedTextRootIdV1 {
     pub(crate) const fn from_frame_row(row: u32) -> Self {
@@ -20,7 +20,7 @@ impl PinnedTextRootIdV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub(crate) struct PinnedTextAccessPlanIdV1 {
+pub struct PinnedTextAccessPlanIdV1 {
     stamp: u64,
     index: u32,
 }
@@ -36,7 +36,7 @@ impl PinnedTextAccessPlanIdV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate) enum PinnedTextAccessKindV1 {
+pub enum PinnedTextAccessKindV1 {
     ByteLen {
         root: PinnedTextRootIdV1,
     },

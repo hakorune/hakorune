@@ -40,7 +40,7 @@ enum DirectCallEmissionV1 {
     Static(static_execution::StaticExecutionEmissionV1),
 }
 /// One materialization facade; each source keeps its own original authority.
-pub(in crate::mir) struct LifecycleCallEmissionRefV1<'a>(&'a DirectCallEmissionV1);
+pub(crate) struct LifecycleCallEmissionRefV1<'a>(&'a DirectCallEmissionV1);
 impl LifecycleCallEmissionRefV1<'_> {
     pub(in crate::mir) fn materialize_call(&self, dst: Option<crate::mir::ValueId>, args: Vec<crate::mir::ValueId>)
         -> Result<crate::mir::definitions::MirCall, String> {

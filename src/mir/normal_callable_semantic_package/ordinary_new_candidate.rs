@@ -23,7 +23,7 @@ pub(super) struct OrdinaryNewSiteResolutionV1 {
     pub(super) birth_handoff: Option<BirthAbiHandoffV1>,
 }
 
-pub(super) struct OrdinaryNewCandidate {
+pub(in crate::mir::normal_callable_semantic_package) struct OrdinaryNewCandidate {
     pub(super) site: OwnedExprSiteV1,
     pub(super) box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
     pub(super) class: Box<str>,

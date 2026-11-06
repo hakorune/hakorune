@@ -11,7 +11,7 @@ use std::rc::Rc;
 /// Original expression proved Integer by the same complete Home census.
 /// No ValueId or physical representation enters this source product.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) struct VerifiedNoExitIntegerExpressionV1 {
+pub(crate) struct VerifiedNoExitIntegerExpressionV1 {
     site: SourceExprSiteV1,
     kind: NoExitIntegerExpressionKindV1,
 }
@@ -46,7 +46,7 @@ impl VerifiedNoExitArrayAppendV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedNoExitArrayHomeAfterV1 {
+pub(crate) struct VerifiedNoExitArrayHomeAfterV1 {
     source: Rc<RetainedCallableLoopSourceV1>,
     updated: Box<[BindingRefV1]>,
     arrays: Box<[(BindingRefV1, Rc<NamedArrayFieldResidenceRequirementV1>)]>,

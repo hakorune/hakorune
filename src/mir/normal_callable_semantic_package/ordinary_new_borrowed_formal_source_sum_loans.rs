@@ -6,7 +6,7 @@ use super::*;
 /// original SUM. The retained flow identity prevents these facts from being
 /// reused by another callable; they grant no payload conversion or execution.
 #[derive(Debug, Clone)]
-pub(in crate::mir) struct SourceValueClassFactsV1 {
+pub(crate) struct SourceValueClassFactsV1 {
     owner: FunctionOwnerIdV1,
     flow: std::sync::Arc<
         crate::mir::resolved_semantics::source_value_flow::VerifiedSourceValueFlowV1,

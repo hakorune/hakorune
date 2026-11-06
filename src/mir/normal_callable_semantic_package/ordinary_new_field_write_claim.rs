@@ -106,7 +106,7 @@ pub(crate) struct OrdinaryNewFieldWriteClaimsV1 {
 
 /// One immutable original inventory shared by all of its derived field loans.
 #[derive(Debug, Default)]
-pub(in crate::mir::normal_callable_semantic_package) struct OriginalFieldWriterInventoryV1 {
+pub(crate) struct OriginalFieldWriterInventoryV1 {
     writes: Box<[ObservedFieldWriteV1]>,
     unattributed_fields: BTreeSet<Box<str>>,
     opaque: bool,

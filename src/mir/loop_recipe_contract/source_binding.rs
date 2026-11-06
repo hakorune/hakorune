@@ -17,7 +17,7 @@ use super::schema_v2::LoopRecipeV2;
 /// DTO remains `Clone`; only this validation capability is intentionally
 /// non-`Clone`.
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct StructurallyVerifiedLoopRecipeSourceClaimV1(LoopRecipeSourceBindingV1);
+pub(crate) struct StructurallyVerifiedLoopRecipeSourceClaimV1(LoopRecipeSourceBindingV1);
 
 impl StructurallyVerifiedLoopRecipeSourceClaimV1 {
     pub(super) fn as_source_binding(&self) -> &LoopRecipeSourceBindingV1 {

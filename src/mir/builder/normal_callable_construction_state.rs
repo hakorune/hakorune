@@ -54,7 +54,7 @@ pub(super) enum ConstructionState {
 /// The existing request-local state moved with its draft, not a new source
 /// receipt. Only the selected constructor capture can take this payload.
 #[derive(Debug)]
-pub(in crate::mir) struct RetainedConstructionValidation {
+pub(crate) struct RetainedConstructionValidation {
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     construction: ConstructionState,
     fault_frame: crate::mir::builder::function_fault_frame::FunctionFaultFrameV1,

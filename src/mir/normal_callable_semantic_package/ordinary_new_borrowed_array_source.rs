@@ -251,7 +251,7 @@ impl ArrayElementSourceRequirementV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct ArraySourceRequirementRowV1 {
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) struct ArraySourceRequirementRowV1 {
     pub(super) construction: NamedArrayConstructionSourceV1,
     /// Keep already-issued structural candidate membership even if class or
     /// producer qualification fails. It is not execution or slot permission.

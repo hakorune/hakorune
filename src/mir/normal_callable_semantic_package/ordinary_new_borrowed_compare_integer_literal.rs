@@ -21,7 +21,7 @@ impl BorrowedCompareIntegerLiteralLoanV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct BorrowedCompareIntegerLiteralMaterializationV1 {
+pub(crate) struct BorrowedCompareIntegerLiteralMaterializationV1 {
     source: BorrowedCompareIntegerLiteralLoanV1,
     original: (BasicBlockId, MirInstruction),
 }

@@ -395,7 +395,7 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir) struct StoredChildFieldSourceV1 {
+pub(crate) struct StoredChildFieldSourceV1 {
     field: hakorune_mir_defs::CanonicalFieldRefV1,
     child: hakorune_mir_defs::CanonicalObjectIdV1,
     child_class: Box<str>,

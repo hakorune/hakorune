@@ -38,7 +38,7 @@ enum Step {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct LocalSsaPhysicalRelationV1 {
+pub(crate) struct LocalSsaPhysicalRelationV1 {
     from: ValueId,
     to: ValueId,
     source: Definition,

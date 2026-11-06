@@ -11,7 +11,7 @@ use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate) struct PinnedTextResidencePlanIdV1 {
+pub struct PinnedTextResidencePlanIdV1 {
     owner: FunctionOwnerIdV1,
     invocation_ordinal: u64,
     plan_stamp: u64,
@@ -32,7 +32,7 @@ impl PinnedTextResidencePlanIdV1 {
 /// Function-local identity for the one Residence obligation created by Enter.
 /// It is deliberately not a runtime lease/token identity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate) struct TextFormalResidenceIdV1 {
+pub struct TextFormalResidenceIdV1 {
     owner: FunctionOwnerIdV1,
     invocation_ordinal: u64,
     plan_stamp: u64,

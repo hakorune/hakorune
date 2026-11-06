@@ -103,7 +103,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
 }
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct FinishedBindings {
+pub(in crate::mir) struct FinishedBindings {
     entry: BasicBlockId,
     captured: Vec<(BasicBlockId, MirInstruction)>,
     validated_sequence_omissions: Vec<(BasicBlockId, MirInstruction)>,

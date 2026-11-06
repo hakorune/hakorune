@@ -96,7 +96,7 @@ impl VerifiedObjectReturnLeafV1 {
 /// An immutable source dependency, not an ownership or field-storage receipt.
 /// The original relation and witness remain shared through every call hop.
 #[derive(Debug, Clone)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct ObjectReturnFieldSupportV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct ObjectReturnFieldSupportV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) relation: Rc<result_class_claim::SourceConstructionChildRelationV1>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) witness: Rc<ResultOriginWitnessV1>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) formal: BindingRefV1,

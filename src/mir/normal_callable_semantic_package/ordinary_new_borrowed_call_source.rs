@@ -6,7 +6,7 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
 #[derive(Debug, Clone, Copy)]
-pub(in crate::mir) enum BorrowedCallSourceLoanV1<'a> {
+pub(crate) enum BorrowedCallSourceLoanV1<'a> {
     Instance(&'a super::super::LexicalInstanceCallSourceTargetV1),
     Static(&'a StaticIncomingSourceV1),
 }

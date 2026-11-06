@@ -28,7 +28,7 @@ enum CallPacketSourceKindV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct CallPacketSourceV1 {
+pub(crate) struct CallPacketSourceV1 {
     kind: CallPacketSourceKindV1,
 }
 
@@ -45,7 +45,7 @@ pub(crate) struct PreparedStaticTerminalPacketV1 {
 /// nested call is not a separate ledger-local statement, so its original
 /// observation must remain tied to this exact frame through packet validation.
 #[derive(Debug, Clone)]
-pub(in crate::mir) struct ExpressionStaticObservationV1 {
+pub(crate) struct ExpressionStaticObservationV1 {
     frame: Box<CheckedExpressionEvaluationV1>,
     call_index: usize,
 }
@@ -127,7 +127,7 @@ impl PreparedStaticTerminalPacketV1 {
 }
 
 #[derive(Clone, Copy)]
-pub(in crate::mir) enum CallPacketSourceLoanV1<'a> {
+pub(crate) enum CallPacketSourceLoanV1<'a> {
     Instance(&'a LexicalInstanceCallDispositionRowV1),
     Static {
         original: &'a Rc<StaticIncomingSourceV1>,

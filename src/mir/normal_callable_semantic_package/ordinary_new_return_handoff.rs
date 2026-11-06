@@ -17,7 +17,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
 #[derive(Debug)]
-pub(super) struct VerifiedObjectReturnHandoffV1 {
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct VerifiedObjectReturnHandoffV1 {
     acquisition: VerifiedObjectReturnSourceAcquisitionV1,
     alternatives: Box<[VerifiedObjectReturnAlternativeV1]>,
     teardown: ObjectReturnTeardownAvailabilityV1,
@@ -50,7 +50,7 @@ impl VerifiedObjectReturnHandoffV1 {
     }
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum ObjectReturnHandoffUnavailableV1 {
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) enum ObjectReturnHandoffUnavailableV1 {
     Acquisition,
     FieldSupport,
     BorrowedOrigin,

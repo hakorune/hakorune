@@ -54,7 +54,7 @@ enum FinalizedReturnReadV1 {
     Direct(Box<crate::mir::normal_callable_semantic_package::BorrowedCallSourceLoanV1>),
 }
 #[derive(Debug, Clone, PartialEq)]
-pub(in crate::mir) struct FinalizedObjectReturnOutcomeV1 {
+pub(crate) struct FinalizedObjectReturnOutcomeV1 {
     // Original OUTER support is independent of the inner Call's support.
     // The retained Invoke establishes actual substitution without inventing
     // a logical argument for the receiver.

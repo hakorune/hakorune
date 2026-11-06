@@ -14,7 +14,7 @@ use super::census::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct CheckedCallOutSiteIdV1(u32);
+pub struct CheckedCallOutSiteIdV1(u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct CheckedCallOutEntryIdV1(u32);
@@ -23,7 +23,7 @@ pub(crate) struct CheckedCallOutEntryIdV1(u32);
 pub(crate) struct CheckedCallOutOutcomeSlotIdV1(u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct CheckedCallOutLeaseSlotIdV1(u32);
+pub struct CheckedCallOutLeaseSlotIdV1(u32);
 
 macro_rules! checked_callout_id_api {
     ($id:ident) => {

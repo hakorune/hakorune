@@ -40,7 +40,7 @@ pub(in crate::mir) struct PreissuedCallableLoopSourcePlanV1 {
 /// Original Loop source identity shared by Home and the affine planner consumer.
 /// Keeping it alive grants no value class, Home continuation or physical role.
 #[derive(Debug)]
-pub(in crate::mir) struct RetainedCallableLoopSourceV1 {
+pub(crate) struct RetainedCallableLoopSourceV1 {
     owner: FunctionOwnerIdV1,
     source: VerifiedResolvedLoopSourceV1,
     frame: LoopExecutionFrameKeyV1,

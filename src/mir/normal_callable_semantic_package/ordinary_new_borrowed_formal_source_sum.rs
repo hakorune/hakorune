@@ -42,7 +42,7 @@ pub(in crate::mir) enum SourceValueAlternativeV1 {
     Object(Box<str>),
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir) struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
+pub(crate) struct SourceValueSumV1(BTreeSet<SourceValueAlternativeV1>);
 impl SourceValueSumV1 {
     /// A closed nominal source may include null but must contain one class.
     /// This is a value-class fact, not a live or non-null read permission.

@@ -43,7 +43,7 @@ impl VerifiedLoopCondAfterPhysicalRoleV1 {
 /// One stack-scoped completion of the SAME selected plan. Nested plans cannot
 /// satisfy it, and a destination census alone cannot seal incoming values.
 #[derive(Debug)]
-pub(super) struct LoopCondPhysicalCompletionV1<'phi> {
+pub(in crate::mir::builder) struct LoopCondPhysicalCompletionV1<'phi> {
     owner: FunctionOwnerIdV1,
     site: SourceStmtSiteV1,
     header: BasicBlockId,

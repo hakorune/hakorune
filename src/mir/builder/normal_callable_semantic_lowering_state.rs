@@ -64,7 +64,7 @@ pub(in crate::mir::builder) use materialized_values::MaterializedValuesV1;
 pub(in crate::mir) use materialized_values::LocalProvenanceV1;
 
 #[derive(Debug)]
-pub(super) struct CallableSemanticLoweringState {
+pub(in crate::mir) struct CallableSemanticLoweringState {
     fault_frame: Option<crate::mir::builder::function_fault_frame::FunctionFaultFrameV1>,
     construction: construction::ConstructionState,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,

@@ -71,7 +71,7 @@ impl PendingStaticCallProjectionV1 {
 /// Physical observations of the original ordered argument tree. These rows
 /// cannot classify a source argument or choose a call target.
 #[derive(Debug)]
-pub(in crate::mir) enum LexicalCallArgumentProjectionV1 {
+pub(crate) enum LexicalCallArgumentProjectionV1 {
     Integer(Binding),
     Expression(Box<argument_projection::EmittedArgumentExpressionProjectionV1>),
     Scalar(ExactLexicalReadV1),
@@ -113,7 +113,7 @@ enum LexicalReceiverProjectionV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct PreparedLexicalCallProjectionV1 {
+pub(crate) struct PreparedLexicalCallProjectionV1 {
     receiver: LexicalReceiverProjectionV1,
     arguments: Vec<LexicalCallArgumentProjectionV1>,
 }

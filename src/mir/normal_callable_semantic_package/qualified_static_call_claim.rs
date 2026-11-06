@@ -36,7 +36,7 @@ use crate::mir::source_call_target::{
 };
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) enum QualifiedStaticCallClaimIndexIssueV1 {
+pub(in crate::mir) enum QualifiedStaticCallClaimIndexIssueV1 {
     ImportAlias(StaticImportAliasViewErrorV1),
     TargetInventory(WholeSourceStaticCallTargetInventoryErrorV1),
     ResultCatalog(CallableResultCatalogErrorV1),

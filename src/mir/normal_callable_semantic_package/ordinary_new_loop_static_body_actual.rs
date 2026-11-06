@@ -53,7 +53,7 @@ pub(in crate::mir) struct VerifiedLoopStaticBodyPrepacketV1 {
 /// One selected body call on DraftSeal's verified detached function. It is
 /// not a collector row or a published executable carrier.
 #[derive(Debug)]
-pub(in crate::mir) struct PreparedLoopStaticBodyDetachedPacketV1 {
+pub(crate) struct PreparedLoopStaticBodyDetachedPacketV1 {
     prepacket: VerifiedLoopStaticBodyPrepacketV1,
     actual: PreparedBorrowedFormalActualV1,
     coordinate: (crate::mir::BasicBlockId, usize),

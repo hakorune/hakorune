@@ -38,7 +38,7 @@ mod returned;
 pub(in crate::mir::normal_callable_semantic_package) use received::{ReceivedFieldReadSourceV1, ReceivedFieldContextV1};
 
 #[derive(Debug)]
-pub(super) struct FieldRead {
+pub(in crate::mir::normal_callable_semantic_package) struct FieldRead {
     pub(super) receiver_site: SourceExprSiteV1,
     pub(super) receiver: BindingRefV1,
     pub(super) home: BindingRefV1,
@@ -65,7 +65,7 @@ pub(crate) use descriptor::LocalFieldReadSourceV1;
 /// One original local/expression read. The source descriptor stays on the same
 /// row; affine progress retains the exact descriptor received by each consumer.
 #[derive(Debug)]
-pub(super) struct LocalFieldRead {
+pub(in crate::mir::normal_callable_semantic_package) struct LocalFieldRead {
     pub(super) local: Option<field_alias::FieldAliasLocalV1>,
     pub(super) receiver_site: SourceExprSiteV1,
     pub(super) receiver: BindingRefV1,

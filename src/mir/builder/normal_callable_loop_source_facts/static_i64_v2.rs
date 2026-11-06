@@ -73,7 +73,7 @@ pub(in crate::mir) struct VerifiedStaticI64LoopSemanticV2 {
 /// Source-only view lent to Home from the sole verified V2 product. No
 /// Recipe key, physical ID, or executable call permission crosses this API.
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedStaticI64LoopHomeSourceV2 {
+pub(crate) struct VerifiedStaticI64LoopHomeSourceV2 {
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     loop_site: SourceStmtSiteV1,
     bin_binding: BindingRefV1,

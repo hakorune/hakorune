@@ -18,7 +18,7 @@ fn emit_exact_const_at(
 
 /// Immutable observation of the same canonical append; not source authority.
 #[derive(Debug)]
-pub(in crate::mir) struct CompletedConstV1 {
+pub(crate) struct CompletedConstV1 {
     value: ValueId,
     original: (BasicBlockId, MirInstruction),
 }

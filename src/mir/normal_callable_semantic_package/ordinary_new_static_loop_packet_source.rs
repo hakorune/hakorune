@@ -35,7 +35,7 @@ use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
+pub(crate) struct VerifiedStaticLoopPacketSourceV1 {
     loop_site: SourceStmtSiteV1,
     declaration: SourceBindingSiteV1,
     original: Rc<StaticIncomingSourceV1>,

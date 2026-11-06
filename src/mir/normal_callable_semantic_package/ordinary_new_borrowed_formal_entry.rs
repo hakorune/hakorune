@@ -21,7 +21,7 @@ pub(super) mod array_set_source;
 /// Complete canonical alternatives for one original borrowed formal. Equality
 /// includes source identity; equal reissued alternatives are not the same loan.
 #[derive(Debug, Clone)]
-pub(in crate::mir) struct BorrowedFormalDomainV1 {
+pub(crate) struct BorrowedFormalDomainV1 {
     ordinal: u32,
     binding: BindingRefV1,
     sum: Rc<super::borrowed_formal_source::SourceValueSumV1>,

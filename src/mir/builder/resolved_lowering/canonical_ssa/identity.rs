@@ -16,7 +16,7 @@ use super::super::semantic_stack::ResolvedScopeRetirementV1;
 /// Canonical result of a source-bound binding read. The receipt is issued by
 /// the identity/SSA owner; leaf emitters may only transport its value.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) struct CanonicalBindingReadReceiptV1 {
+pub(crate) struct CanonicalBindingReadReceiptV1 {
     owner: FunctionOwnerIdV1,
     binding: BindingRefV1,
     physical_block: BasicBlockId,

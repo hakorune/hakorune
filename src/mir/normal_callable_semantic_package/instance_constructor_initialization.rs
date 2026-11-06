@@ -52,7 +52,7 @@ impl NullableInitializationReasonV1 {
         }
     }
 }
-pub(super) struct NullableInitializationIssueV1 {
+pub(in crate::mir) struct NullableInitializationIssueV1 {
     field: Box<str>, reason: NullableInitializationReasonV1, site: SourceNodeSiteV1,
 }
 impl std::fmt::Debug for NullableInitializationIssueV1 {

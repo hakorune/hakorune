@@ -10,7 +10,7 @@ pub(crate) enum FunctionBodyOriginV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum ReceiverPolicyV1 {
+pub(crate) enum ReceiverPolicyV1 {
     DeclaredInstance,
     /// Observation-only current owner for one catalog-verified static-box
     /// method. This never declares a lexical `me` binding.

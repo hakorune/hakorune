@@ -68,7 +68,7 @@ impl Default for IncomingInventoryRevisionV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
+pub(in crate::mir::normal_callable_semantic_package)
 struct BorrowedIncomingInventoryV1
 {
     pub(super) owners: std::collections::BTreeSet<FunctionOwnerIdV1>,

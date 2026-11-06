@@ -61,7 +61,7 @@ pub(crate) use array_source::NamedArrayHolderSourceLoanV1;
 /// fail-closed. `object` is the canonical definition the physical param
 /// row corroborates, resolved through the same ordinary-box coverage.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFormalObjectViewV1 {
+pub(crate) struct BorrowedFormalObjectViewV1 {
     class: Box<str>,
     object: hakorune_mir_defs::CanonicalObjectIdV1,
     /// Passive declaration loans from this same canonical definition before

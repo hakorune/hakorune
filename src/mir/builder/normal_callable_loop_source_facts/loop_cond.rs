@@ -39,7 +39,7 @@ pub(in crate::mir) use phi_session::{CompletedSourceLoopPhiPointsV2, PreparedSou
 /// are transferred together.  No field is reconstructed from AST shape or a
 /// source line after this product is issued.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledger> {
+pub(in crate::mir) struct SourceLoopCondPhysicalInputV1<'source, 'ledger> {
     owner: FunctionOwnerIdV1,
     parent_site: SourceNodeSiteV1,
     parent_source: &'source RawInvocationSourceContextV1,

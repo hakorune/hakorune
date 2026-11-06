@@ -42,7 +42,7 @@ impl StaticIncomingRouteV1 {
 /// Owned source identity retained once per original call. No physical values,
 /// receiver lease, executable actuals or finished-coordinate claim live here.
 #[derive(Debug)]
-pub(in crate::mir) struct StaticIncomingSourceV1 {
+pub(crate) struct StaticIncomingSourceV1 {
     catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     caller: CanonicalSameModuleCallableKeyV1,
     call: OwnedExprSiteV1,

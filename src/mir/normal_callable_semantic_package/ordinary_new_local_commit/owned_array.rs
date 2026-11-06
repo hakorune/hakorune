@@ -8,7 +8,7 @@ use crate::mir::normal_callable_semantic_package::{
 use std::collections::BTreeMap;
 
 #[derive(Debug)]
-pub(super) struct OwnedArrayLocalProgress {
+pub(in crate::mir::normal_callable_semantic_package) struct OwnedArrayLocalProgress {
     source: PreparedOwnedArrayConstructionV1,
     progress: Progress,
     reads: BTreeMap<OwnedExprSiteV1, Rc<super::owned_array_read::EmittedOwnedArrayReadV1>>,

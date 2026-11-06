@@ -55,7 +55,7 @@ use operands::{
 };
 
 #[derive(Debug, PartialEq, Eq)]
-pub(super) enum BorrowedFormalUseDraftErrorV1 {
+pub(in crate::mir::normal_callable_semantic_package) enum BorrowedFormalUseDraftErrorV1 {
     SourceIdentity,
     Rebound(BindingRefV1),
     AliasDeclaration(BindingRefV1),
@@ -68,7 +68,7 @@ pub(super) enum BorrowedFormalUseDraftErrorV1 {
 /// Immutable original operands lent by the existing checked-compare classifier.
 /// No ValueId, physical coordinate, or transport authority is issued here.
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct BorrowedCompareSourceV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedCompareSourceV1 {
     operator: crate::mir::resolved_semantics::ResolvedBinaryOperatorV1,
     left: OwnedExprSiteV1,
     right: OwnedExprSiteV1,
@@ -215,7 +215,7 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct BorrowedFormalUseDraftRowV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFormalUseDraftRowV1 {
     pub(super) site: OwnedExprSiteV1,
     pub(super) binding: BindingRefV1,
     pub(super) formal: BindingRefV1,
@@ -223,7 +223,7 @@ pub(super) struct BorrowedFormalUseDraftRowV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct BorrowedFormalUsesDraftV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFormalUsesDraftV1 {
     /// Includes ignored formals and each direct Copy's actual binding.
     pub(super) origins: BTreeMap<BindingRefV1, BindingRefV1>,
     pub(super) uses: Box<[BorrowedFormalUseDraftRowV1]>,
@@ -292,7 +292,7 @@ pub(super) enum BorrowedIncomingDraftErrorV1 {
 }
 
 #[derive(Debug, Clone)]
-pub(super) struct BorrowedIncomingCallDraftV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedIncomingCallDraftV1 {
     pub(super) source: BorrowedIncomingSourceV1,
     pub(super) call: OwnedExprSiteV1,
     pub(super) callee: FunctionOwnerIdV1,

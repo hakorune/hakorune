@@ -8,7 +8,7 @@ use super::*;
 /// the callee's `object` identity — one object, one owner at a time — but
 /// this is a call-site acquisition, never a local `new` home.
 #[derive(Debug)]
-pub(super) struct CallReceivedCommitV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct CallReceivedCommitV1 {
     pub(super) owner: FunctionOwnerIdV1,
     pub(super) binding: BindingRefV1,
     pub(super) declaration: SourceBindingSiteV1,

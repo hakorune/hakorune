@@ -36,7 +36,7 @@ pub(in crate::mir) enum ExactReceiverValueErrorV1 {
 /// The original exact lexical read, retained for physical corroboration.
 /// Only this state module can construct it; it issues no source meaning.
 #[derive(Debug, PartialEq)]
-pub(in crate::mir) struct ExactLexicalReadV1 {
+pub(crate) struct ExactLexicalReadV1 {
     site: crate::mir::resolved_semantics::SourceNodeSiteV1,
     binding_value: BindingValueObservationV2,
 }

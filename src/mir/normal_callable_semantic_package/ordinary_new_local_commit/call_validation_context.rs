@@ -4,7 +4,7 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1;
 
 #[derive(Clone, Copy)]
-pub(in crate::mir) enum CallValidationContextV1<'a> {
+pub(crate) enum CallValidationContextV1<'a> {
     Lowering(&'a OrdinaryNewClaimLedgerV1),
     Finalized(&'a FinalizedRootSourceHandoffV1),
 }

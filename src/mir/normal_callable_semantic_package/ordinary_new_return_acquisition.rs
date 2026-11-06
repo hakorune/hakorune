@@ -13,7 +13,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct VerifiedObjectReturnSourceAcquisitionV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct VerifiedObjectReturnSourceAcquisitionV1 {
     original: TerminalObjectReturnObligationV1,
     arguments: Box<[LocalCallArgumentV1]>,
 }

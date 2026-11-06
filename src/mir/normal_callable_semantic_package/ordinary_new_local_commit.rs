@@ -152,7 +152,7 @@ pub(super) struct ProviderBirthRecordV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct NewLocalCommitV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct NewLocalCommitV1 {
     box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
     construction: super::ConstructionEligibilityV1,
     construction_source: super::ConstructionSourceEligibilityV1,
@@ -181,7 +181,7 @@ pub(super) struct NewLocalCommitV1 {
 /// `NewEmissionProgress` state machine applies; `Checked` marks the emitted
 /// result value itself.
 #[derive(Debug)]
-pub(super) struct NewResultCommitV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct NewResultCommitV1 {
     site: OwnedExprSiteV1,
     arity: usize,
     box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,

@@ -7,7 +7,7 @@ use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
-pub(in crate::mir) struct ObservedSourceValueV1 {
+pub(crate) struct ObservedSourceValueV1 {
     projection: SourceValueProjectionV1,
     relations: Vec<Rc<LocalSsaPhysicalRelationV1>>,
     bindings: Vec<Binding>,

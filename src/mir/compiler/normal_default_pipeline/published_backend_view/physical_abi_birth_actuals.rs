@@ -11,7 +11,7 @@ impl BorrowedBirthActualTransportV1 {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub(in crate::mir) enum ObjectBirthActualTransportV1 { Null, Handle, NullableHandle, MixedHandle }
+pub(crate) enum ObjectBirthActualTransportV1 { Null, Handle, NullableHandle, MixedHandle }
 impl ObjectBirthActualTransportV1 {
     pub(in crate::mir) fn wire_kind(self) -> serde_json::Value {
         match self {

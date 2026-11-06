@@ -8,7 +8,7 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::{MirBuilder, MirInstruction};
 
 #[derive(Debug)]
-pub(super) struct ConstructionCallEmissionV1 {
+pub(in crate::mir::builder::normal_callable_semantic_lowering_state) struct ConstructionCallEmissionV1 {
     packet: EmittedLexicalCallProjectionV1,
     bindings: Vec<(BasicBlockId, MirInstruction)>,
     base: ValueId,

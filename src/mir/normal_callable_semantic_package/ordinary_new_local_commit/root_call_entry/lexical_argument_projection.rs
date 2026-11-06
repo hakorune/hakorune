@@ -169,7 +169,7 @@ enum ArgumentCompletionV1 {
 
 /// Observations remain within the enclosing Call packet, never a second pool.
 #[derive(Debug)]
-pub(in crate::mir) struct EmittedArgumentExpressionProjectionV1 {
+pub(crate) struct EmittedArgumentExpressionProjectionV1 {
     frame: std::rc::Rc<
         crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
     >,

@@ -157,7 +157,7 @@ impl ArrayElementSourceLoanV1 {
 /// Package-owned source obligations, shared with the physical coordinator.
 /// Neither the original requirement nor Completion may point back to this row.
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) struct ArrayHolderLifecycleRecipeV1 {
+pub(crate) struct ArrayHolderLifecycleRecipeV1 {
     holder: NamedArrayHolderSourceLoanV1,
     completion: Rc<VerifiedFunctionCompletionV1>,
     caller: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
