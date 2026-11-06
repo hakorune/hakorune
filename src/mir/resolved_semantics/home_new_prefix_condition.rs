@@ -38,17 +38,7 @@ fn requests_condition(
         .expression_source()
         .binary(condition)
         .is_some_and(|binary| {
-            matches!(
-                binary.operator(),
-                Op::And
-                    | Op::Or
-                    | Op::Equal
-                    | Op::NotEqual
-                    | Op::Less
-                    | Op::LessEqual
-                    | Op::Greater
-                    | Op::GreaterEqual
-            )
+            { let operator = binary.operator(); super::scalar_expression::is_logical_operator_v1(operator) || super::scalar_expression::is_comparison_operator_v1(operator) }
         })
 }
 pub(crate) fn requires_condition_expression_walk_v1(
@@ -156,19 +146,7 @@ fn selects(
     fn supported(source: &ExpressionSourcePlanV1, index: usize) -> bool {
         let node = &source.nodes()[index];
         if let Some(binary) = node.binary() {
-            if !matches!(
-                binary.operator(),
-                Op::And
-                    | Op::Or
-                    | Op::Equal
-                    | Op::NotEqual
-                    | Op::Less
-                    | Op::Greater
-                    | Op::LessEqual
-                    | Op::GreaterEqual
-                    | Op::Add
-                    | Op::Subtract
-            ) {
+            if !{ let operator = binary.operator(); super::scalar_expression::is_logical_operator_v1(operator) || super::scalar_expression::is_comparison_operator_v1(operator) || matches!(operator, Op::Add | Op::Subtract) } {
                 return false;
             }
             return [binary.lhs(), binary.rhs()].into_iter().all(|site| {
@@ -297,42 +275,20 @@ fn selects(
             });
     let selected = nullable_null
         || locals.in_source_loop_v1()
-            && matches!(
-                binary.operator(),
-                Op::Equal
-                    | Op::NotEqual
-                    | Op::Less
-                    | Op::Greater
-                    | Op::LessEqual
-                    | Op::GreaterEqual
-            )
+            && super::scalar_expression::is_comparison_operator_v1(binary.operator())
         || (plain_scalar
-            && matches!(
-                binary.operator(),
-                Op::Equal
-                    | Op::NotEqual
-                    | Op::Less
-                    | Op::Greater
-                    | Op::LessEqual
-                    | Op::GreaterEqual
-            ))
-        || matches!(binary.operator(), Op::And | Op::Or)
+            && super::scalar_expression::is_comparison_operator_v1(binary.operator()))
+        || super::scalar_expression::is_logical_operator_v1(binary.operator())
         || source.nodes_outside_calls().any(|(_, node)| {
             matches!(node.source(), Node::Literal(Literal::String(_)))
                 || matches!(node.source(), Node::Reference(_))
                     && (locals.static_text_reference(node.site()).is_some()
                         || locals.text_reference(node.site()).is_some())
         })
-        || (matches!(
-            binary.operator(),
-            Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
-        ) && instance_calls(input, source, 0).is_some_and(|count| count > 0))
+        || (super::scalar_expression::is_comparison_operator_v1(binary.operator()) && instance_calls(input, source, 0).is_some_and(|count| count > 0))
         // `<field array>.length()` compared with a scalar: the Count is read by
         // the checked field-array writer, not by a Call lane.
-        || (matches!(
-            binary.operator(),
-            Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
-        ) && source.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
+        || (super::scalar_expression::is_comparison_operator_v1(binary.operator()) && source.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
             && input.function().method_call(node.site()).is_some_and(|call| {
                 call.selector() == "length" && call.arguments().is_empty()
                     && input.body_shape().is_some_and(|shape| matches!(
@@ -341,10 +297,7 @@ fn selects(
             })))
         // `me.<field> <op> <scalar>`: the field is read by the checked field
         // reader, so the comparison borrows its exact read, not a legacy FieldGet.
-        || (matches!(
-            binary.operator(),
-            Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
-        ) && source.nodes().iter().all(|node| matches!(node.source(),
+        || (super::scalar_expression::is_comparison_operator_v1(binary.operator()) && source.nodes().iter().all(|node| matches!(node.source(),
             Node::Binary(_) | Node::Literal(Literal::Integer(_) | Literal::Bool(_))
                 | Node::Reference(ResolvedLexicalRefV1::Local(_))
                 | Node::Shape(BodyExpressionShapeV1::FieldAccess { .. } | BodyExpressionShapeV1::Me { .. })))

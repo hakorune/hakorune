@@ -75,10 +75,7 @@ pub(super) fn observe<E>(
         ExpressionNodeSourceV1::Reference(_)
     );
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-    let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
-        super::super::ResolvedBinaryOperatorV1::Add | super::super::ResolvedBinaryOperatorV1::Multiply
-            | super::super::ResolvedBinaryOperatorV1::Subtract | super::super::ResolvedBinaryOperatorV1::Divide
-            | super::super::ResolvedBinaryOperatorV1::Modulo))
+    let arithmetic_requested = source.nodes()[0].binary().is_some_and(|binary| super::scalar_expression::is_arithmetic_operator_v1(binary.operator()))
         // A selected source Loop consumes a complete evaluation frame, too.
         // This purpose does not classify leaves or grant executable input.
         && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);

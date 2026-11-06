@@ -14,6 +14,7 @@ mod scalar_preflight;
 mod static_eq_condition;
 use crate::mir::resolved_value_profile::expression_children::binary_children_v1;
 use scalar_preflight::preflight;
+pub(super) use scalar_preflight::{is_arithmetic_operator_v1, is_comparison_operator_v1, is_logical_operator_v1};
 pub(in crate::mir) use static_eq_condition::contains_exact_lhs as contains_static_eq_lhs_source_v1;
 
 pub(super) fn observe_local_initializer<E>(

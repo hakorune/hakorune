@@ -69,10 +69,14 @@ pub(super) fn preflight<E>(
             return Ok(Some(Kind::Bool));
         }
     }
-    let (operand, result) = match row.operator() {
-        Op::Add | Op::Subtract => (Kind::Integer, Kind::Integer),
-        Op::Multiply
-            if local_initializer_profile
+    // The operator table decides the operand and result kinds; the restriction
+    // below is only where the operator may be used (a use-site limit, not a kind).
+    let Some((operand, result)) = scalar_operator_kinds_v1(row.operator()) else {
+        return Ok(None);
+    };
+    let used_here = match row.operator() {
+        Op::Multiply => {
+            ((local_initializer_profile
                 && is_root
                 && expression_source_v1(ledger, input.body_shape(), row.lhs())
                     .and_then(ResolvedExpressionSourceV1::binary)
@@ -91,41 +95,29 @@ pub(super) fn preflight<E>(
                 && matches!(
                     locals.observe(row.rhs()),
                     Some(OrdinaryObservation::TrivialLocal(_, Some(Kind::Integer)))
-                )
-                && normal_integer_mul_available() =>
-        {
-            (Kind::Integer, Kind::Integer)
+                ))
+                || (allow_mul_here
+                    && matches!(
+                        locals.observe(row.lhs()),
+                        Some(OrdinaryObservation::TrivialLocal(_, Some(Kind::Integer)))
+                    )
+                    && matches!(
+                        input.function().expression_source().literal(row.rhs()),
+                        Some(ResolvedLiteralSourceV1::Integer(_))
+                    )))
+                && normal_integer_mul_available()
         }
-        Op::Multiply
-            if allow_mul_here
-                && matches!(
-                    locals.observe(row.lhs()),
-                    Some(OrdinaryObservation::TrivialLocal(_, Some(Kind::Integer)))
-                )
-                && matches!(
-                    input.function().expression_source().literal(row.rhs()),
-                    Some(ResolvedLiteralSourceV1::Integer(_))
-                )
-                && normal_integer_mul_available() =>
-        {
-            (Kind::Integer, Kind::Integer)
-        }
-        Op::Divide | Op::Modulo
-            if local_initializer_profile
+        Op::Divide | Op::Modulo => {
+            local_initializer_profile
                 && is_root
                 && matches!(input.function().expression_source().literal(row.rhs()),
-                    Some(ResolvedLiteralSourceV1::Integer(divisor)) if *divisor > 0) =>
-        {
-            (Kind::Integer, Kind::Integer)
+                    Some(ResolvedLiteralSourceV1::Integer(divisor)) if *divisor > 0)
         }
-        Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual => {
-            (Kind::Integer, Kind::Bool)
-        }
-        // Calls beneath short-circuit operators need path-specific Homes.
-        // Keep this pure profile closed until that observation is established.
-        Op::And | Op::Or => (Kind::Bool, Kind::Bool),
-        _ => return Ok(None),
+        _ => true,
     };
+    if !used_here {
+        return Ok(None);
+    }
     let mark = requests.len();
     let call_mark = calls.len();
     let checked_children = matches!(
@@ -247,4 +239,41 @@ pub(super) fn preflight<E>(
         *operation = Some(plan);
     }
     Ok(Some(result))
+}
+
+/// The one operator table of the scalar preflight: operand kind and result kind of
+/// each binary operator, independent of where it is used. Where an operator may be
+/// used (a root, a condition, an argument) is a separate limit at the use site.
+pub(crate) fn scalar_operator_kinds_v1(
+    operator: ResolvedBinaryOperatorV1,
+) -> Option<(SourceScalarKind, SourceScalarKind)> {
+    use ResolvedBinaryOperatorV1 as Op;
+    use SourceScalarKind as Kind;
+    match operator {
+        Op::Add | Op::Subtract | Op::Multiply | Op::Divide | Op::Modulo => {
+            Some((Kind::Integer, Kind::Integer))
+        }
+        Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual => {
+            Some((Kind::Integer, Kind::Bool))
+        }
+        // Calls beneath short-circuit operators need path-specific Homes.
+        // Keep this pure profile closed until that observation is established.
+        Op::And | Op::Or => Some((Kind::Bool, Kind::Bool)),
+        _ => None,
+    }
+}
+
+/// Integer operands, Bool result.
+pub(crate) fn is_comparison_operator_v1(operator: ResolvedBinaryOperatorV1) -> bool {
+    scalar_operator_kinds_v1(operator) == Some((SourceScalarKind::Integer, SourceScalarKind::Bool))
+}
+
+/// Bool operands, Bool result.
+pub(crate) fn is_logical_operator_v1(operator: ResolvedBinaryOperatorV1) -> bool {
+    scalar_operator_kinds_v1(operator) == Some((SourceScalarKind::Bool, SourceScalarKind::Bool))
+}
+
+/// Integer operands, Integer result.
+pub(crate) fn is_arithmetic_operator_v1(operator: ResolvedBinaryOperatorV1) -> bool {
+    scalar_operator_kinds_v1(operator) == Some((SourceScalarKind::Integer, SourceScalarKind::Integer))
 }
