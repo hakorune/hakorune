@@ -349,6 +349,29 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | print(t.get()) with unannotated get | reject [rule5] | against-frozen | `exit 0` |
 
 
+### exact-i64 static call composition (S2): 8 connected of 14 measured forms
+
+Every row was built to an EXE with the S2 binary and, when connected, run; `base` is the binary of the commit before S2. The callee is `a(x: i64): i64 { return x }` unless noted; "with Home" means the caller holds a live `new P()` object.
+
+| Form (spelling) | base | S2 | Tag or exit |
+|---|---|---|---|
+| `local r = Main.a(Main.b(1))`, no Home | refused-named `borrowed-static/source-unobserved` | connected | `exit 0`, output 1 |
+| same, with Home | refused-named `borrowed-static/source-unobserved` | connected | `exit 0`; a Fault inside the callee ends the Home once |
+| `local x = Main.b(1)` then `Main.a(x)`, with Home | refused-named `static-execution/live-home` | connected | `exit 0` |
+| `print(Main.a(1))`, with and without Home | refused-named `qualified-preflight` | connected | `exit 0` |
+| `local r = Main.a(1) + Main.b(2)`, with Home | refused-named `qualified-preflight` | connected | `exit 0`, output 3 |
+| `local r = Main.a(1) + 1`, no Home | refused-named `qualified-preflight` | connected | `exit 0`, output 2 |
+| `return Main.a(x) + 1`, with Home | refused-named `qualified-preflight` | connected | `exit 5` |
+| `Main.b(x + 1)` argument, with Home | refused-named `static-execution/live-home` | connected | `exit 0`, output 6 |
+| `local r = Main.a(1) * 2`, with Home | refused-named `qualified-preflight` | refused-named | `object-return/normal-projection-exit` |
+| `Main.b(x - 1)` argument | refused-named | refused-named | `print-expression/unowned-scope-instruction` |
+| `Main.a(Main.b(1) + 1)` argument | refused-named | refused-named | `borrowed-static/source-unobserved` |
+| `if Main.a(1) < 3 { ... }`, with Home | refused-named `qualified-preflight` | refused-named | `physical-boundary/threading-branch-unvalidated` |
+| `if Main.a(1) < 3 { ... }`, no Home | refused-named `qualified-preflight` | refused-named | `published-lifecycle-program/instruction-unsupported` |
+| instance method `add(x: i64): i64 { local y = x return y }` result | refused-named | refused-named | `local-commit/artifact-source-unavailable` |
+
+A call's `I64` result is also checked against the callee's declared return type by the independent verifier (`mir/invoke/call-result-type-drift`). Map Homes alive across such a call stay refused (`local-call-prior-homes-unsupported`). The canonical qualified-preflight route is retired (`qualified-route-retired`); none of the 229 measured inputs reached it.
+
 ### Remaining before 3b
 
 The order follows ADR-002 (3a continuation, then 3b). Status is only `done`, `partial` or `not started`; evidence is a row above or a commit. No effort estimate is given.
