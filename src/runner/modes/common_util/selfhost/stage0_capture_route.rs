@@ -10,6 +10,7 @@ use std::path::Path;
 use std::process::Command;
 
 /// Build a bootstrap capture command for the requested backend.
+// ASTCLEAN-017: retained for VM-backed capture reactivation; current mode-A compatibility routes use the non-VM builder.
 pub(crate) fn build_stage0_capture_command(
     backend: &str,
     exe: &Path,
@@ -61,6 +62,7 @@ pub(crate) fn build_stage0_non_vm_capture_command(
 }
 
 /// Convenience builder for the current VM-backed bootstrap capture route.
+// ASTCLEAN-017: retained as the explicit VM route wrapper while mode-A compatibility capture remains non-VM by default.
 pub(crate) fn build_stage0_vm_capture_command(
     exe: &Path,
     program: &Path,
