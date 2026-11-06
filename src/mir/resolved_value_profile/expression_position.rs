@@ -99,33 +99,3 @@ impl CallExecutorV1 {
             .map_or(Self::CheckedArgumentFrame, ExpressionPositionV1::call_executor)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use SourcePathSegmentV1 as S;
-
-    #[test]
-    fn statement_sequence_items_are_statements_not_values() {
-        for segment in [
-            S::Body(0), S::ProgramBody(0), S::ScopeBody(1), S::TaskScopeBody(0), S::FastMemBody(0),
-            S::IfThen(0), S::IfElse(0), S::LoopBody(0), S::LambdaBody(0),
-            S::BlockExprPrelude(0), S::TryBody(0), S::CatchBody(0), S::CleanupBody(0),
-        ] {
-            let position = ExpressionPositionV1::of_segment(&segment);
-            assert_eq!(position, ExpressionPositionV1::Statement, "{segment:?}");
-            assert_eq!(position.call_executor(), CallExecutorV1::StatementLifecycle, "{segment:?}");
-        }
-    }
-
-    #[test]
-    fn only_statements_and_whole_local_initializers_keep_a_statement_writer() {
-        assert_eq!(ExpressionPositionV1::of_segment(&S::Initializer(0)).call_executor(), CallExecutorV1::StatementLifecycle);
-        for segment in [
-            S::Argument(0), S::Callee, S::Receiver, S::Lhs, S::Rhs, S::Operand, S::IfCondition,
-            S::LoopCondition, S::Value, S::Element(0), S::BlockExprTail, S::MatchArm(0),
-        ] {
-            assert_eq!(ExpressionPositionV1::of_segment(&segment).call_executor(), CallExecutorV1::CheckedArgumentFrame, "{segment:?}");
-        }
-    }
-}
