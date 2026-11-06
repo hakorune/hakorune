@@ -128,11 +128,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                         if let Some(scalar) = scalar {
                             let original = context.ledger().scalar_operation_original_v1(scalar)?;
                             for relation in original.operand_relations() {
-                                if let Some(target) = relation.target_binding() {
-                                    if !ordered.contains(target) {
-                                        ordered.push(target.clone());
-                                    }
-                                }
+                                relation.append_materialization_chain_v1(&mut ordered);
                             }
                         }
                         ordered.push(

@@ -351,6 +351,13 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
     }
 
+    /// A Call, direct scalar Call or Print group retains its argument frames'
+    /// exact auxiliary producers after a LocalSSA adapter supplied the operand.
+    pub(in crate::mir) fn retains_argument_frames_v1(&self) -> bool {
+        matches!(self.proof, PrefixPhysicalProofV1::Call(_) | PrefixPhysicalProofV1::DirectScalar(_)
+            | PrefixPhysicalProofV1::PrintExpression(_))
+    }
+
     pub(in crate::mir) fn lexical_rc_v1(&self) -> Option<Rc<EmittedLexicalCallProjectionV1>> {
         match &self.proof {
             PrefixPhysicalProofV1::Call(Some(packet)) => Some(Rc::clone(packet)),

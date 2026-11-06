@@ -94,6 +94,17 @@ impl LocalSsaPhysicalRelationV1 {
         self.target.as_ref()
     }
 
+    /// Exact writer output in emission order: a nested materialization precedes
+    /// the instruction that consumes it. Grants no operand class.
+    pub(in crate::mir) fn append_materialization_chain_v1(&self, bindings: &mut Vec<PhysicalBinding>) {
+        if let Step::Append(children) = &self.step {
+            for child in children { child.append_materialization_chain_v1(bindings); }
+        }
+        if let Some(target) = &self.target {
+            if !bindings.contains(target) { bindings.push(target.clone()); }
+        }
+    }
+
     /// Complete observations for an enclosing source-owned instruction census.
     /// This grants no operand class and changes no removable-binding policy.
     pub(in crate::mir) fn append_observed_bindings_v1(&self, bindings: &mut Vec<PhysicalBinding>) {

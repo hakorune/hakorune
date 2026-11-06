@@ -590,7 +590,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                             };
                             let (completed, relations) = builder.build_source_scalar_from_values_recorded(operator, lhs, rhs)?;
                             for relation in &relations {
-                                if let Some(target) = relation.target_binding() { if !bindings.contains(target) { bindings.push(target.clone()); } }
+                                relation.append_materialization_chain_v1(&mut bindings);
                             }
                             let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
                             let record = ledger.record_scalar_operation_append_v1(Rc::clone(scalar), (lhs, rhs), relations,
