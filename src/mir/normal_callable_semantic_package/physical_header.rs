@@ -31,6 +31,11 @@ pub(in crate::mir) enum CallablePhysicalHeaderIssueV1 {
         _batch_slot: u32,
         _name: Box<str>,
     },
+    /// R2: a declared scalar result whose exit proves the other scalar class.
+    DeclaredResultDisagrees {
+        _batch_slot: u32,
+        _name: Box<str>,
+    },
     Completion {
         _batch_slot: u32,
         _issue: FunctionCompletionVerificationErrorV1,
@@ -147,6 +152,21 @@ pub(super) fn declared_bool_source_agrees_v1(
         (None, DeclaredFunctionResultContractV1::Unannotated) => true,
         _ => false,
     }
+}
+
+/// R2: no exit may prove a scalar class other than the declared one. An exit that proves no scalar
+/// (Unit, a Text or Map value, an opaque call) is left to the later stages that own it.
+pub(super) fn declared_result_disagrees_with_exits_v1(
+    result: Option<ExactTrivialScalarAbiV1>,
+    terminals: &std::collections::BTreeMap<crate::mir::resolved_semantics::SourceStmtSiteV1, crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1>,
+) -> bool {
+    use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind as Kind;
+    let declared = match result {
+        Some(ExactTrivialScalarAbiV1::I64) => Kind::Integer,
+        Some(ExactTrivialScalarAbiV1::Bool) => Kind::Bool,
+        None => return false,
+    };
+    terminals.values().any(|terminal| terminal.scalar_class().is_some_and(|class| class != declared))
 }
 
 pub(super) fn validate_result(

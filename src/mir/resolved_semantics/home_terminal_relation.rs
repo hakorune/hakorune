@@ -712,6 +712,19 @@ impl TerminalRelationV1 {
         }
     }
 
+    /// The scalar class this exit's relation proves, or `None` when it proves no scalar (Unit, a Text
+    /// or Map value, an opaque call, or a call with no scalar source loan). The one table both the
+    /// declaration check (R2) and the finalized-participant check read.
+    pub(crate) fn scalar_class(&self) -> Option<super::local_flow::SourceScalarKind> {
+        use super::local_flow::SourceScalarKind as Kind;
+        match self {
+            Self::IntegerLiteral(_) | Self::I64Add(_) | Self::I64Field(_) | Self::I64Scalar(_) | Self::MapGet(_) => Some(Kind::Integer),
+            Self::BoolLiteral(_) => Some(Kind::Bool),
+            Self::Call(call) => call.source_scalar().map(|_| call.scalar_kind()),
+            Self::Unit(_) | Self::Value(_) | Self::OpaqueCall(_) => None,
+        }
+    }
+
     /// The exact source exit statement this relation terminates. Every row
     /// kind carries the same field; keying consumers by this site is how
     /// sibling exits stay independent.

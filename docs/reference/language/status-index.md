@@ -390,6 +390,23 @@ Every row was built to an EXE with the S2 binary and, when connected, run; `base
 
 A call's `I64`, `Bool` or `Unit` result is also checked against the callee's declared return type by the independent verifier (`mir/invoke/call-result-type-drift`). Object Homes are checked from the published MIR alone (`ownership_ssa/published_homes.rs`): every Normal and Fault exit must End each Home exactly once; functions that use handle results, text, a Home with several copies, edge arguments or a call with a managed operand are not modeled and make no claim. Map Homes alive across such a call stay refused (`local-call-prior-homes-unsupported`). The canonical qualified-preflight route is retired (`qualified-route-retired`); none of the 229 measured inputs reached it.
 
+### declared `Bool` result (series bool-result)
+
+A function result declared `: Bool` is a result-contract row and takes the route the same function takes with no declaration; the declaration is proved against the body (rule document `mirbuilder-result-contract-bool-2026-11-07.md`). Measured by EXE with the series binary; `undeclared` is the same function without `: Bool`.
+
+| Form | undeclared | declared `: Bool` | Tag or output |
+|---|---|---|---|
+| `json-stream-aggregator` with `boolField(line, key): Bool` and `ingestLine(line): Bool` | connected | connected | the same 9 output lines and `Result: 0` |
+| static `t(s): Bool { if s == "a" { return true } return false }`, `local b = P.t(line) if b {...}` from an instance method (Text input) | connected | connected | `11` |
+| the same with `P.t(line + "!")` or `local x = line + "!"` as the argument | connected | connected | `11`, same End count |
+| `if P.t(line)` as the condition, `return s == "a"`, `local c = s == "a" return c` | refused-named | refused-named | `source-use-completion-pending`, `forbidden-operand`, `cohort-unfinished` |
+| a forwarding callee `u(s) { return P.t(s) }`, an instance `c.t(line)` or `me.t(line)`, a mutual recursion | refused-named | refused-named | `cohort-unfinished`, `original-input-not-ready`, `source-use-completion-pending` |
+| i64 input `t(x: i64): Bool`, called from `main` or from a method (`local b = Main.t(4)`, `if Main.t(4)`, `print(Main.t(4))`) | refused-named | refused-named | `borrowed-static/source-unobserved` (no Bool route exists for an exact-i64 static call) |
+| `t(s): Bool` whose exits return `1`/`2`, or `true` and `2` | refused-named | refused-named | `PhysicalHeader DeclaredResultDisagrees` (declared) |
+| `: bool`, `: Boolean`, `: BoolBox` | refused-named | refused-named | `UnsupportedResultAnnotation` |
+| a `Bool` parameter `t(b: Bool)` | refused-named | refused-named | `ParameterContract UnsupportedDeclaredType` (unchanged) |
+| `print(4 > 1)` | refused-named | n/a | `print-expression/source-unavailable` (unchanged) |
+
 ### Remaining before 3b
 
 The order follows ADR-002 (3a continuation, then 3b). Status is only `done`, `partial` or `not started`; evidence is a row above or a commit. No effort estimate is given.

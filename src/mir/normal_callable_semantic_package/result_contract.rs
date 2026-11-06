@@ -435,6 +435,12 @@ impl VerifiedCallableResultContractBuilderV1 {
         let batch_slot = declaration.batch_slot();
         let result = super::physical_header::validate_declared_result(completion.as_ref(), declaration.owner(),
             batch_slot, declaration.borrowed_result().map(|row| row.as_ref()))?;
+        if super::physical_header::declared_result_disagrees_with_exits_v1(result, &terminal_relations) {
+            return Err(CallablePhysicalHeaderIssueV1::DeclaredResultDisagrees {
+                _batch_slot: batch_slot,
+                _name: result.map_or("", |abi| abi.source_type_name()).into(),
+            });
+        }
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;

@@ -267,17 +267,9 @@ impl FinalizedRootSourceHandoffV1 {
                     crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool =>
                         (InvokeCallResultKind::Bool, contract.declared_result_agrees_with_bool_source()),
                 };
+                let expected = scalar.kind();
                 if scalar.owner() != owner || !std::ptr::eq(scalar.completion(), completion) || !agrees
-                    || terminals.values().any(|terminal| match (kind, terminal) {
-                        (InvokeCallResultKind::Bool, TerminalRelationV1::BoolLiteral(_)) => false,
-                        (_, TerminalRelationV1::Call(call)) => call.source_scalar().is_none()
-                            || !matches!((kind, call.scalar_kind()),
-                                (InvokeCallResultKind::I64, crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer)
-                                | (InvokeCallResultKind::Bool, crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool)),
-                        (InvokeCallResultKind::I64, TerminalRelationV1::I64Add(_) | TerminalRelationV1::IntegerLiteral(_)
-                            | TerminalRelationV1::I64Field(_) | TerminalRelationV1::I64Scalar(_) | TerminalRelationV1::MapGet(_)) => false,
-                        _ => true,
-                    })
+                    || terminals.values().any(|terminal| terminal.scalar_class() != Some(expected))
                 { return Err(freeze("callable-participant/scalar-result-agreement")); }
                 kind
             } else {

@@ -47,12 +47,13 @@ fn declared_bool_result_takes_the_route_of_the_undeclared_one() {
 /// the type stay refused by the header.
 #[test]
 fn declared_bool_result_refuses_returns_that_are_not_bool() {
-    for body in [
-        "if s == \"a\" { return 1 } return 2",
-        "if s == \"a\" { return true } return 2",
-        "if s == \"a\" { return \"x\" } return \"y\"",
-        "return 1",
-    ] {
+    // An exit that proves the other scalar class is refused by name at the contract row.
+    for body in ["if s == \"a\" { return 1 } return 2", "if s == \"a\" { return true } return 2"] {
+        let error = compile(": Bool", body).unwrap_err();
+        assert!(error.contains("DeclaredResultDisagrees"), "{body}: {error}");
+    }
+    // Any other body that does not prove Bool is not lowered either.
+    for body in ["if s == \"a\" { return \"x\" } return \"y\"", "return 1"] {
         compile(": Bool", body).expect_err(body);
     }
     for annotation in [": bool", ": Boolean", ": BoolBox"] {
