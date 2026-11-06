@@ -355,10 +355,15 @@ impl ResultExpressionSourceV1 {
         }
         // Only the source-issued field receiver is structural. This does not
         // erase a key/argument subtree or reclassify a Map as a scalar field.
+        // A Core call's result class is its table row's; a declared field read that is the
+        // call's own receiver operand is closed by the Core source, not classified as a value.
         for index in 0..leaves.len() {
             let field = match &leaves[index] {
                 LeafV1::Core(core) => core.field_map().map(|field| field.field_site().clone())
-                    .or_else(|| core.field_array_access_v1().map(|count| count.receiver().site().clone())),
+                    .or_else(|| core.field_array_access_v1().map(|count| count.receiver().site().clone()))
+                    .or_else(|| plan.nodes().iter().position(|node| node.site() == core.source().source().receiver_site())
+                        .filter(|receiver| matches!(leaves[*receiver], LeafV1::Field { .. }))
+                        .map(|_| core.source().source().receiver_site().clone())),
                 _ => None,
             };
             if let Some(field) = field {
@@ -513,7 +518,7 @@ impl ResultExpressionSourceV1 {
                     && matches!(node.source(), ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding))
                         if *binding == read.binding())),
             LeafV1::CoreReceiver(index) => matches!(self.leaves.get(*index), Some(LeafV1::Core(core))
-                if (core.field_map().is_some() || core.field_array_access_v1().is_some()) && core.matches_plan(&self.plan, *index)),
+                if core.matches_plan(&self.plan, *index)),
             LeafV1::Local(inner) => inner.core_sources_match(),
             _ => true,
         })
