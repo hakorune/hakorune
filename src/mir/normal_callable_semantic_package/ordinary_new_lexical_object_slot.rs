@@ -176,11 +176,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         drop(slots);
         for site in routes {
-            self.record_lifecycle_local_call_site_after(
-                site,
-                LocalRouteWriterV1::ObjectSlot,
-                LocalRouteWriterV1::LexicalInstance,
-            )?;
+            self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::ObjectSlot)?;
         }
         Ok(())
     }

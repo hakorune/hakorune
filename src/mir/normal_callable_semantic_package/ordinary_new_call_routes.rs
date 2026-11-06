@@ -1,9 +1,9 @@
 //! Which executor owns a statement-level Call, and which writer routed it.
 //!
 //! A site is routed to the lifecycle lane by exactly one writer; a second
-//! write is a contract error. A later stage of the same lane names the stage it
-//! continues (`route_local_after`) instead of writing again: the origin stays
-//! the single writer. A root terminal packet may take the Invoke over from the
+//! write is a contract error. A later stage of the same lane (`continues`)
+//! may name its site again without becoming a writer: the origin stays the
+//! single writer. A root terminal packet may take the Invoke over from the
 //! lane once; the site then stays claimed.
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, OwnedExprSiteV1};
 use std::collections::BTreeMap;
@@ -17,6 +17,17 @@ pub(crate) enum LocalRouteWriterV1 {
     DirectLifecycle,
     ObjectSlot,
     StaticPacket,
+}
+
+impl LocalRouteWriterV1 {
+    /// The stage whose lane this stage completes, if any.
+    const fn continues(self) -> Option<Self> {
+        match self {
+            Self::ObjectSlot => Some(Self::LexicalInstance),
+            Self::StaticPacket => Some(Self::DirectStatic),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -41,23 +52,14 @@ impl CallRouteTableV1 {
                 slot.insert(CallRouteV1::LocalLifecycle(writer));
                 Ok(())
             }
+            std::collections::btree_map::Entry::Occupied(row)
+                if matches!(row.get(), CallRouteV1::LocalLifecycle(origin) if Some(*origin) == writer.continues()) =>
+            {
+                Ok(())
+            }
             std::collections::btree_map::Entry::Occupied(_) => {
                 Err("[freeze:contract][call-route/routed-twice]".into())
             }
-        }
-    }
-
-    /// A later stage of the same lane: the site is either not routed yet (this
-    /// stage is its writer) or was routed by exactly the stage it continues.
-    pub(crate) fn route_local_after(
-        &mut self,
-        site: OwnedExprSiteV1,
-        writer: LocalRouteWriterV1,
-        after: LocalRouteWriterV1,
-    ) -> Result<(), String> {
-        match self.routes.get(&site) {
-            Some(CallRouteV1::LocalLifecycle(origin)) if *origin == after => Ok(()),
-            _ => self.route_local(site, writer),
         }
     }
 

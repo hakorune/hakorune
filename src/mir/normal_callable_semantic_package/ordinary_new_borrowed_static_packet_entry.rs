@@ -365,7 +365,7 @@ impl OrdinaryNewClaimLedgerV1 {
             )?.ok_or_else(|| freeze("borrowed-static/source-unavailable"))?;
             Ok(true)
         };
-        let mut routed = Vec::new();
+        let mut routed = std::collections::BTreeSet::new(); // a call can sit in several rows: route it once
         for row in &source.incoming {
             let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
                 &row.source
@@ -383,7 +383,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             self.selected_static_local_source_v1(&row.call)?
                 .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
-            routed.push(row.call.clone());
+            routed.insert(row.call.clone());
         }
         for cohort in source.target_static.values() {
             for row in &cohort.incoming {
@@ -392,7 +392,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 self.selected_static_local_source_v1(&row.call)?
                     .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
-                routed.push(row.call.clone());
+                routed.insert(row.call.clone());
             }
         }
         // Source-only CurrentOwner packets are not co-sealed. Their canonical
@@ -428,7 +428,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 false
             };
             if selected {
-                routed.push(row.call.clone());
+                routed.insert(row.call.clone());
             }
         }
         // The selected arity-one CurrentOwner loop owns a separate checked
@@ -437,17 +437,11 @@ impl OrdinaryNewClaimLedgerV1 {
         // closed for opaque actuals.
         for packet in self.loop_static_packet_sources.borrow().values() {
             if let Ok(packet) = packet {
-                routed.push(packet.local_call_site().clone());
+                routed.insert(packet.local_call_site().clone());
             }
         }
-        // One call can sit in several incoming rows or a loop packet: route it once.
-        let routed: std::collections::BTreeSet<_> = routed.into_iter().collect();
         for site in routed {
-            self.record_lifecycle_local_call_site_after(
-                site,
-                LocalRouteWriterV1::StaticPacket,
-                LocalRouteWriterV1::DirectStatic,
-            )?;
+            self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::StaticPacket)?;
         }
         Ok(())
     }

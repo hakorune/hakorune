@@ -102,3 +102,49 @@ either way, with the same `install_i64_call_result`. Under R1 the site is
 Lexical and R2 gives I64 from the callee's cohort: the same outcome, decided
 once. The `terminal_call` closure itself stays for the Return/print consumers
 that own that clause.
+
+## Landing (stages 1 to 4)
+
+Stage 1. `LocalCallRouteV1` (`home_local_call_route.rs`) is the one answer; the
+package builds it in `ordinary_new_coseal_issue_local_route.rs` (R1) and asks
+the callee's class source per kind (R2: `DirectCallDispositionLoanV1::
+local_result_class_v1`, `lexical_local_route`, the `me` receiver observation,
+the static claim). The Local statement asks it once and installs through
+`install_routed_local_call` (R3). Six of the seven membership closures left
+every plumbing signature (map, handle, lexical i64, lexical nullable, `me`
+nullable, static); `terminal_call` stays because the Return consumer owns an
+app-main zero-argument lexical clause that has no class source.
+
+Two class sources stay outside the route and are named here:
+- the borrowed-formal selection for a lexical call: the package lends the
+  call's own source result or argument list through the borrowed port. It
+  cannot be asked inside the route question because the port records pending
+  actuals when it answers. `issue_lexical_i64_local_call` asks it first; the
+  Local statement runs it when the route has no lexical I64 answer;
+- the port arms (mixed, borrowed nullable, static Bool, received producer),
+  which answer argument-evidence requests, run before the route question.
+
+Stage 2. `CallRouteTableV1` keeps one writer per site and a second write is
+`call-route/routed-twice`. Measured writer pairs: a site was written by two
+stages only as `LexicalInstance` then `ObjectSlot`, and `DirectStatic` then
+`StaticPacket`; `LocalRouteWriterV1::continues` names those two. `StaticPacket`
+also wrote the same site more than once (91 times in the cohort); it now
+collects the sites in a set. The three `has_routed_static_local_for_owner_v1`
+callers still ask "classification predicate + route table"; they are statement
+level static calls, not Local initializers.
+
+Stage 3. Of the 43 production lines naming `LocalCallResultClassV1::I64`,
+none re-decides the class from an expression: the decisions are the issuers'
+minted constant (now keyed by the route), the borrowed loan kind mapping and the
+co-seal `expected_class`. The co-seal `expected_class` and the route's direct
+class disagree on one edge: the route asks Map-owned before construction (the
+order the old chain used), co-seal asks construction before Map. A callee that
+has a map literal and returns one `new C` is classified Map at issue and
+expected Handle at co-seal, so co-seal refuses it. Left as is.
+
+Stage 4. `grounded_with_fields_v1` solved an expression twice per owner (once
+for the recursion seed, once for the result). An expression that never calls
+its own owner reads the same inputs in both, so it is solved once. gdb hits of
+`project_expression_class_v1`: `x * 2` 42 -> 21, `local y = x return y` 60 -> 30.
+The remaining repeats are seven separate solves of the same cohort state from
+seven callers.
