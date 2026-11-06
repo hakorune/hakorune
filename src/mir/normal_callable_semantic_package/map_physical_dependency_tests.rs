@@ -544,41 +544,14 @@ fn empty_array_entry_emits_install_empty_array() {
 
 #[test]
 fn map_literal_in_call_argument_position_stays_rejected() {
-    // No map-argument lane is admitted in this slice: a `%{...}` call
-    // argument reaches the builder boundary and is refused by its own named
-    // destination class, never silently placed.
+    // No map-argument lane is admitted: a `%{...}` call argument is refused
+    // by its own named destination class (the Array append source) while the
+    // package is issued, never silently placed.
     let source = "static box Main {
         main() { local a = new ArrayBox() a.push(%{\"a\" => 1}) return 30 }
     }";
-    let package = issue(source).unwrap();
-    let main = package
-        .declaration_catalog()
-        .source_backed_app_main()
-        .unwrap();
-    let declaration = package
-        .batch()
-        .declarations()
-        .find(|row| row.identity().same_as(main.parser_identity()))
-        .unwrap();
-    let mut builder = MirBuilder::new();
-    let error = package
-        .batch()
-        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
-            builder.lower_map_dependency_for_test(
-                input,
-                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
-                main.parser_identity(),
-                identity.method_source_observation().cloned(),
-                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
-                None,
-            )
-        })
-        .unwrap()
-        .expect_err("call-argument map is not an admitted destination");
-    assert!(
-        error.contains("map-destination-unsupported") || error.contains("map-source-unavailable"),
-        "{error}"
-    );
+    let error = issue(source).expect_err("call-argument map is not an admitted destination");
+    assert!(format!("{error:?}").contains("array-holder/append-source"), "{error:?}");
 }
 
 #[test]
