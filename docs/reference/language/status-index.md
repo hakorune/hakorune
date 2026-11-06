@@ -378,7 +378,7 @@ Every row was built to an EXE with the S2 binary and, when connected, run; `base
 | `loop(Main.a(i) < 3)` | refused-named | refused-named | `object-return/normal-projection-exit` |
 | callee body `return x - y` over two parameters, `print(Main.b(5, 2))` (`return y` connects) | refused-named | refused-named | `published-lifecycle-program/scalar-source-coverage` |
 | terminating recursion `down(n: i64): i64 { if n < 1 { return 7 } return Main.down(n - 1) }` | refused-named | refused-named | `local-commit/root-exit-source-missing` |
-| instance method `add(x: i64): i64 { local y = x return y }` result | refused-named | refused-named | `local-commit/artifact-source-unavailable` |
+| instance method `add(x: i64): i64 { local y = x return y }` result (S3a: a local's class is its initializer's class; also `local y = x + 1 return y * 2`, `local y = me.base return y + x`) | refused-named | connected | `exit 3` (was `local-commit/artifact-source-unavailable`; the group totals above are not recomputed) |
 
 A call's `I64`, `Bool` or `Unit` result is also checked against the callee's declared return type by the independent verifier (`mir/invoke/call-result-type-drift`). Object Homes are checked from the published MIR alone (`ownership_ssa/published_homes.rs`): every Normal and Fault exit must End each Home exactly once; functions that use handle results, text, a Home with several copies, edge arguments or a call with a managed operand are not modeled and make no claim. Map Homes alive across such a call stay refused (`local-call-prior-homes-unsupported`). The canonical qualified-preflight route is retired (`qualified-route-retired`); none of the 229 measured inputs reached it.
 

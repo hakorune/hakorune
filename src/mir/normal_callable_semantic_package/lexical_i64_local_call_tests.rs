@@ -5,7 +5,8 @@
 //! receiver in the method-call inventory → claim-local `new` receiver
 //! binding → unique `InstanceBoxMethod` target → every callee formal
 //! `ExactTrivial(I64)` → no `Object`/`NullableObject` result-class claim →
-//! every verified value-return a literal or an exact-i64 formal, plus
+//! every verified value-return a raw Normal-only i64 (literal, exact-i64
+//! formal, declared-i64 `me` field, a local of such, `+ - *` of such), plus
 //! argument sealing to Integer literals or Integer-class scalar bindings.
 //! A selected borrowed-I64 inner call retains its original opaque actual row.
 //! Every unselected rejected row keeps the ordinary `PrefixNotCovered`
@@ -557,4 +558,41 @@ fn lexical_i64_call_rejects_rebound_receiver() {
         "a rebound receiver has no sole-initializer claim"
     );
     assert!(!new_claim_prefix_covered(&package));
+}
+
+#[test]
+fn lexical_i64_call_follows_locals_to_their_initializer_class() {
+    // Rule: a local's class is its sole initializer's class.
+    for body in [
+        "local y = x return y",
+        "local y = x local z = y return z",
+        "local y = x + 1 return y * 2",
+        "local y = me.base return y + x",
+    ] {
+        let source = format!(
+            "box Calc {{ base: i64
+                birth(base) {{ me.base = base }}
+                f(x: i64): i64 {{ {body} }} }}
+            static box Main {{ main() {{
+                local c = new Calc(7)
+                local r = c.f(3)
+                return r
+            }} }}"
+        );
+        let package = issue(&source).unwrap_or_else(|issue| panic!("{body} package: {issue:?}"));
+        assert!(
+            local_calls(&package).iter().any(|call| call.result() == LocalCallResultClassV1::I64),
+            "{body}: claims an i64 local-call row"
+        );
+    }
+    // A local of a Fault-capable operation is an I64 class but not a Normal-only result.
+    let source = "box Calc { birth() {} f(x: i64): i64 { local y = x / 2 return y } }
+        static box Main { main() {
+            local c = new Calc()
+            local r = c.f(4)
+            return 0
+        } }";
+    if let Ok(package) = issue(source) {
+        assert!(local_calls(&package).iter().all(|call| call.result() != LocalCallResultClassV1::I64));
+    }
 }

@@ -73,6 +73,14 @@ pub(super) struct ResultExpressionSourceV1 {
     leaves: Box<[LeafV1]>,
 }
 impl ResultExpressionSourceV1 {
+    /// No leaf of this expression (nor of the locals it reads) lacks a source.
+    fn all_leaves_grounded_v1(&self) -> bool {
+        self.leaves.iter().all(|leaf| match leaf {
+            LeafV1::Unresolved => false,
+            LeafV1::Local(inner) => inner.all_leaves_grounded_v1(),
+            _ => true,
+        })
+    }
     /// Every leaf this expression's class depends on, including the leaves of the
     /// initializer expressions of the locals it reads.
     fn leaves_deep(&self) -> Vec<&LeafV1> {
@@ -186,24 +194,30 @@ impl ResultExpressionSourceV1 {
                     match results.declared_read_source_at_v1(batch, selected, claims, contracts, input, node.site(), None, None) {
                         Ok(Some(read)) => LeafV1::DeclaredRead(read),
                         Err(_) => LeafV1::Unresolved,
-                        Ok(None) => original
-                    .and_then(|original| {
-                        original.integer_origin_at_v1(
-                            input,
-                            node.site(),
-                            constructors,
-                            definitions,
-                            contracts,
-                        )
-                    })
-                    .filter(|basis| basis.binding() == *binding)
-                    .map(LeafV1::Integer)
-                    .or_else(|| map_local_source_v1(input, *binding, class, receiver,
-                        batch, selected, constructors, claims))
-                    .or_else(|| local_initializer_plan_v1(input, *binding).map(|initializer| LeafV1::Local(Rc::new(Self::prepare(
-                        input, initializer, class, receiver, fields, objects, original, constructors, definitions,
-                        contracts, needs, batch, selected, claims, results)))))
-                    .unwrap_or(LeafV1::Unresolved),
+                        Ok(None) => {
+                            let integer = original
+                                .and_then(|original| {
+                                    original.integer_origin_at_v1(input, node.site(), constructors, definitions, contracts)
+                                })
+                                .filter(|basis| basis.binding() == *binding)
+                                .map(LeafV1::Integer);
+                            let map_local = || map_local_source_v1(input, *binding, class, receiver,
+                                batch, selected, constructors, claims);
+                            // A local's class is its initializer's class: the initializer's own
+                            // expression decides, ahead of a source-sum reading of the binding.
+                            let local = || {
+                                input.function().binding(*binding)
+                                    .is_some_and(|row| matches!(row.kind(), BindingKindV1::Local { .. }))
+                                    .then(|| local_initializer_plan_v1(input, *binding))
+                                    .flatten()
+                                    .map(|initializer| Self::prepare(
+                                        input, initializer, class, receiver, fields, objects, original, constructors,
+                                        definitions, contracts, needs, batch, selected, claims, results))
+                                    .filter(|inner| inner.all_leaves_grounded_v1())
+                                    .map(|inner| LeafV1::Local(Rc::new(inner)))
+                            };
+                            map_local().or_else(local).or(integer).unwrap_or(LeafV1::Unresolved)
+                        }
                     }
                 },
                 ExpressionNodeSourceV1::ReceiverQualification {
