@@ -119,6 +119,10 @@ impl ProcessExitCodeV1 {
             .map_err(|_| ProcessFaultV1::ExitCodeOutOfRange { value })
     }
 
+    pub(in crate::mir) const fn value(self) -> u8 {
+        self.0
+    }
+
     pub(in crate::mir) fn normalized_i64(self) -> i64 {
         i64::from(self.0)
     }

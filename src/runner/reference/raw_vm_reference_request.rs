@@ -4,8 +4,9 @@
 //! profile is consumed exactly once by the explicit reference runner; normal
 //! and default routes remain disconnected by the accepted cutover decision.
 
+use crate::ast::ASTNode;
 use crate::cli::CliConfig;
-use crate::mir::RawVmReferenceSupportProfileV1;
+use crate::mir::{RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1};
 
 use super::cli_profile::seal_reference_cli_profile;
 
@@ -57,6 +58,15 @@ impl RawVmReferenceProductionRequestV1 {
 
     pub(crate) const fn optimize(&self) -> bool {
         self.optimize
+    }
+
+    pub(crate) fn into_invocation(self, ast: ASTNode) -> RawVmReferenceInvocationV1 {
+        let Self {
+            source_file,
+            support_profile,
+            ..
+        } = self;
+        support_profile.into_invocation(ast, Some(source_file))
     }
 }
 

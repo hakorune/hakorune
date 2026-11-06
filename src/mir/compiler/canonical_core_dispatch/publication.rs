@@ -164,6 +164,9 @@ impl PreparedCanonicalSourceEntryPublicationV1 {
 }
 
 impl PublishedCanonicalSourceEntryOwnerV1 {
+    pub(in crate::mir) fn module(&self) -> &MirModule {
+        &self.module
+    }
 
     pub(in crate::mir) const fn family_kind(&self) -> CanonicalPublishedFamilyKindV1 {
         self.verification.family
@@ -206,6 +209,20 @@ pub(crate) struct CanonicalPublicationSummaryForTestV1 {
     pub(crate) target_arity: usize,
     pub(crate) result_kind: &'static str,
     pub(crate) family: &'static str,
+}
+
+impl RejectedCanonicalSourceEntryPublicationV1 {
+    pub(in crate::mir) const fn stage(&self) -> CanonicalSourceEntryPublicationStageV1 {
+        self.stage
+    }
+
+    pub(in crate::mir) fn cause(&self) -> &CanonicalSourceEntryPublicationErrorV1 {
+        &self.cause
+    }
+
+    pub(in crate::mir) fn discard(self) {
+        drop(self);
+    }
 }
 
 fn prepare(

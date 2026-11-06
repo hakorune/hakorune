@@ -151,6 +151,10 @@ impl<O> PublishedSourceEntryInvocationV1<O> {
         &self.target
     }
 
+    pub(super) fn owner(&self) -> &O {
+        &self.owner
+    }
+
     pub(in crate::mir) const fn result(&self) -> PublishedSourceEntryResultContractV1 {
         self.result
     }

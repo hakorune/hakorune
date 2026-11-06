@@ -56,6 +56,17 @@ impl SelectedSourceEntryContinuationV1 {
     pub(in crate::mir) const fn arity(&self) -> usize {
         self.target.arity()
     }
+
+    pub(in crate::mir) fn is_main_target(&self) -> bool {
+        self.target.is_main()
+    }
+
+    pub(in crate::mir) fn target_matches(
+        &self,
+        target: &crate::mir::builder::RawMainEntryTargetV1,
+    ) -> bool {
+        &self.target == target
+    }
 }
 
 #[derive(Debug)]

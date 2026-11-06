@@ -86,6 +86,10 @@ impl RawMainEntryTargetV1 {
     pub(in crate::mir) const fn arity(&self) -> usize {
         self.arity
     }
+
+    pub(in crate::mir) fn is_main(&self) -> bool {
+        self.key == FunctionDraftKeyV1::Main
+    }
 }
 
 pub(in crate::mir) fn raw_main_entry_target() -> RawMainEntryTargetV1 {
