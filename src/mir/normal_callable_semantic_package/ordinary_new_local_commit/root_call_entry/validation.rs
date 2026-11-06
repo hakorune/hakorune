@@ -696,7 +696,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .root_flow()
             .ok_or_else(|| freeze("local-call-source-missing"))?;
         let routed = self.lifecycle_local_call_sites.borrow();
-        let mut prefixes = flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
+        let mut prefixes = flow.lifecycle_prefixes(&routed.local_sites_for(owner))
             .map_err(freeze)?;
         // Expression packets own their nested Calls and complete Normal/Fault
         // graph. Retain their source identity instead of claiming another

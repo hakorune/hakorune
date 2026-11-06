@@ -19,6 +19,7 @@
 //! It never resolves a name from MIR or C input, never consumes Dynamic
 //! products, and never guesses a receiver class from declared-type spellings.
 
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::OrdinaryNewClaimLedgerV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
@@ -375,7 +376,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     || (!source.is_self_receiver()
                         && (self.handle_call_source(&call_site).is_some()
                             || self.nullable_call_source(&call_site).is_some())) {
-                    self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
+                    self.record_lifecycle_local_call_site(call_site.clone(), LocalRouteWriterV1::LexicalInstance)?;
                 }
                 if self
                     .lexical_instance_calls
@@ -507,7 +508,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         )?;
                     }
                     if !source.is_self_receiver() || self_scalar {
-                        self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
+                        self.record_lifecycle_local_call_site(call_site.clone(), LocalRouteWriterV1::LexicalInstance)?;
                     }
                     Some(kind)
                 }
@@ -537,9 +538,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     // its own `CallReceived` bookkeeping.
                     if !source.is_self_receiver() {
                         self.record_lifecycle_local_call_site(
-                            call_site.owner(),
                             call_site.clone(),
-                        );
+                            LocalRouteWriterV1::LexicalInstance,
+                        )?;
                     }
                     Some(InvokeCallResultKind::NullableHandle)
                 }

@@ -435,12 +435,7 @@ impl OrdinaryNewClaimLedgerV1 {
         packet: &VerifiedStaticLoopPacketSourceV1,
     ) -> Result<(), String> {
         let site = packet.local_call_site();
-        if !self
-            .lifecycle_local_call_sites
-            .borrow()
-            .get(&site.owner())
-            .is_some_and(|sites| sites.contains(site))
-        {
+        if !self.lifecycle_local_call_sites.borrow().is_local(site) {
             return Err("[freeze:contract][callable-loop/static-packet-route-missing]".into());
         }
         Ok(())
@@ -453,8 +448,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> usize {
         let routed = self.lifecycle_local_call_sites.borrow();
         routed
-            .values()
-            .flatten()
+            .local_sites()
             .filter(|site| {
                 self.selected_static_local_source_v1(site)
                     .ok()
@@ -477,11 +471,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .expect("selected packet")
             .local_call_site()
             .clone();
-        self.lifecycle_local_call_sites
-            .borrow_mut()
-            .get_mut(&site.owner())
-            .expect("selected route")
-            .retain(|row| row != &site);
+        self.lifecycle_local_call_sites.borrow_mut().remove_for_test(&site);
     }
 }
 

@@ -1,4 +1,5 @@
 //! Construction, affine takes and root identity access for the New ledger.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::CallRouteTableV1;
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -321,7 +322,7 @@ impl OrdinaryNewClaimLedgerV1 {
             loop_call_text_ends: RefCell::new(BTreeMap::new()),
             root_local_call_bindings: RefCell::new(BTreeMap::new()),
             loop_cond_after_roles: RefCell::new(BTreeMap::new()),
-            lifecycle_local_call_sites: RefCell::new(BTreeMap::new()),
+            lifecycle_local_call_sites: RefCell::new(CallRouteTableV1::default()),
             map_read_bindings: RefCell::new(BTreeMap::new()),
             root_instance_calls: RefCell::new(BTreeMap::new()),
             lexical_source_targets: None,

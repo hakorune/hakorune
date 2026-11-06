@@ -52,22 +52,17 @@ impl PreparedStaticTerminalRootRouteV1<'_> {
     }
 
     pub(crate) fn commit_prechecked(self) {
-        let mut routes = self.ledger.lifecycle_local_call_sites.borrow_mut();
-        let sites = routes
-            .get_mut(&self.site.owner())
-            .expect("preflighted terminal route owner remains installed");
-        let index = sites
-            .iter()
-            .position(|site| site == &self.site)
+        self.ledger
+            .lifecycle_local_call_sites
+            .borrow_mut()
+            .hand_to_root_packet(&self.site)
             .expect("preflighted terminal route remains installed");
-        let removed = sites.remove(index);
-        assert_eq!(
-            removed, self.site,
-            "preflighted terminal route remains exact"
-        );
     }
 }
 
+#[path = "ordinary_new_call_routes.rs"]
+mod call_routes;
+pub(crate) use call_routes::{CallRouteTableV1, LocalRouteWriterV1};
 #[path = "ordinary_new_claim_access.rs"]
 mod claim_access;
 #[path = "ordinary_new_arguments.rs"]
@@ -406,7 +401,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // candidate set only: a callee with no sealed lifecycle product keeps
     // the scalar Call route and owes no binding group, so this marked subset
     // — not the whole sealed prefix — is the binding-group expectation.
-    lifecycle_local_call_sites: RefCell<BTreeMap<FunctionOwnerIdV1, Vec<OwnedExprSiteV1>>>,
+    lifecycle_local_call_sites: RefCell<CallRouteTableV1>,
     // Physical bindings for the source-issued typed Map read chain. The
     // selected caller records these only after the typed Invoke and its
     // Normal/Fault projections are emitted.

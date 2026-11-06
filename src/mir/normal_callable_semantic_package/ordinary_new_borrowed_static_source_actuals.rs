@@ -300,7 +300,7 @@ pub(super) fn prepare_static_source_actuals_v1(
     let original_source = original
         .is_some_and(|source| {
             source.is_zeroarg_i64_v1()
-                || (source.is_qualified_i64_source_v1() && crate::mir::resolved_value_profile::expression_position::site_stands_as_expression_value_v1(call.site()))
+                || (source.is_qualified_i64_source_v1() && crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(call.site()).is_argument_frame())
                 || source.is_current_owner_i64_source_v1()
                 || source.is_current_owner_bool_source_v1()
                 || prepared.is_static_terminal_source_v1(source)

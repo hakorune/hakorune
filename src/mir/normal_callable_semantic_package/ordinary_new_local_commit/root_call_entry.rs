@@ -1,5 +1,6 @@
 //! Existing root exit progress retains the same affine Call source row.
 //! Physical observations do not issue a target, result or cleanup obligation.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1;
@@ -238,14 +239,10 @@ impl OrdinaryNewClaimLedgerV1 {
     /// instruction and owes no lifecycle bindings.
     pub(crate) fn record_lifecycle_local_call_site(
         &self,
-        owner: FunctionOwnerIdV1,
         site: OwnedExprSiteV1,
-    ) {
-        let mut routed = self.lifecycle_local_call_sites.borrow_mut();
-        let sites = routed.entry(owner).or_default();
-        if !sites.contains(&site) {
-            sites.push(site);
-        }
+        writer: LocalRouteWriterV1,
+    ) -> Result<(), String> {
+        self.lifecycle_local_call_sites.borrow_mut().route_local(site, writer)
     }
 
     /// Select the local emitter without stealing receiver-owned Object rows.
@@ -253,12 +250,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         site: &OwnedExprSiteV1,
     ) -> Result<bool, String> {
-        if !self
-            .lifecycle_local_call_sites
-            .borrow()
-            .get(&site.owner())
-            .is_some_and(|sites| sites.contains(site))
-        {
+        if !self.lifecycle_local_call_sites.borrow().is_local(site) {
             return Ok(false);
         }
         use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1;

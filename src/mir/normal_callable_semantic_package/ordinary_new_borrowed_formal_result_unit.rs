@@ -1,5 +1,6 @@
 //! Original Unit statement source through the existing Home argument callback.
 //! This does not stage executable actuals, issue Completion or select a receiver.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1;
 
@@ -224,8 +225,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.lexical_instance_calls.borrow_mut().insert(site.clone(), LexicalInstanceCallDispositionSlotV1::Ready(row)).is_some() {
             return Err(freeze("unit-call/duplicate"));
         }
-        self.record_lifecycle_local_call_site(site.owner(), site);
-        Ok(())
+        self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::UnitResult)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn constructor_unit_step_ready_v1(

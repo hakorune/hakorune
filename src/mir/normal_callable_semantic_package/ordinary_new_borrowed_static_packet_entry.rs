@@ -1,5 +1,6 @@
 //! Static packet actuals borrow the same complete checked incoming owner.
 //! Publication proves the result; it does not replace entry or actual proof.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
@@ -440,7 +441,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         for site in routed {
-            self.record_lifecycle_local_call_site(site.owner(), site);
+            self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::StaticPacket)?;
         }
         Ok(())
     }
@@ -479,10 +480,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             self.selected_static_local_source_v1(&row.call)?
                 .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
-            if !routed
-                .get(&owner)
-                .is_some_and(|sites| sites.contains(&row.call))
-            {
+            if !routed.is_local(&row.call) {
                 return Err(freeze("borrowed-static/local-route-not-sealed"));
             }
             found = true;
@@ -495,10 +493,7 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 self.selected_static_local_source_v1(&row.call)?
                     .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
-                if !routed
-                    .get(&owner)
-                    .is_some_and(|sites| sites.contains(&row.call))
-                {
+                if !routed.is_local(&row.call) {
                     return Err(freeze("borrowed-static/local-route-not-sealed"));
                 }
                 found = true;
@@ -511,7 +506,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for row in source.source_incoming.source_rows_v1().filter(|row| row.call.owner() == owner) {
             if let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source {
                 if original.is_qualified_i64_source_v1()
-                    && crate::mir::resolved_value_profile::expression_position::site_stands_as_expression_value_v1(row.call.site())
+                    && crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(row.call.site()).is_argument_frame()
                     && original.parameters().iter().all(|formal| formal.kind
                         == CallableParameterContractKindV1::ExactTrivial(
                             crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
@@ -544,9 +539,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || self
                     .checked_static_tagged_packet_actuals_v1(original)?
                     .is_some())
-                && routed
-                    .get(&owner)
-                    .is_some_and(|sites| sites.contains(&row.call))
+                && routed.is_local(&row.call)
             {
                 self.selected_static_local_source_v1(&row.call)?
                     .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
@@ -578,11 +571,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !Rc::ptr_eq(&selected, original) {
             return Err(freeze("static-terminal/route-drift"));
         }
-        let routed = self.lifecycle_local_call_sites.borrow();
-        let sites = routed
-            .get(&original.call_site().owner())
-            .ok_or_else(|| freeze("static-terminal/local-route-missing"))?;
-        if !sites.iter().any(|site| site == original.call_site()) {
+        if !self.lifecycle_local_call_sites.borrow().is_local(original.call_site()) {
             return Err(freeze("static-terminal/local-route-missing"));
         }
         Ok(PreparedStaticTerminalRootRouteV1 {

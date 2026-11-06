@@ -58,23 +58,46 @@ impl ExpressionPositionV1 {
         }
     }
 
-    /// A Call here is an expression value (argument, operand, condition, printed,
-    /// returned or assigned value, ...), except as the whole initializer of a
-    /// Local or as a statement of its own, which keep their statement-level
-    /// writers.
-    pub(crate) fn stands_as_expression_value(self) -> bool {
+    /// Who realizes a Call standing at this position. The whole initializer of a
+    /// Local and a statement of its own keep their statement-level lifecycle
+    /// writer; a Call anywhere else (argument, operand, condition, printed,
+    /// returned or assigned value, ...) is an expression value realized by its
+    /// checked argument frame.
+    pub(crate) fn call_executor(self) -> CallExecutorV1 {
         match self {
-            Self::Statement | Self::LocalInitializer => false,
+            Self::Statement | Self::LocalInitializer => CallExecutorV1::StatementLifecycle,
             Self::Argument | Self::Receiver | Self::Operand | Self::Condition
-            | Self::StatementValue | Self::Component | Self::Container => true,
+            | Self::StatementValue | Self::Component | Self::Container => {
+                CallExecutorV1::CheckedArgumentFrame
+            }
         }
     }
 }
 
-/// Whether a Call at `site` is an expression value. An empty path is the
-/// function root, which is not a statement and is not a Local initializer.
-pub(crate) fn site_stands_as_expression_value_v1(site: &SourceExprSiteV1) -> bool {
-    ExpressionPositionV1::of(site).map_or(true, ExpressionPositionV1::stands_as_expression_value)
+/// The position-level choice of who realizes a Call, made once here so no
+/// consumer re-derives it from the path.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CallExecutorV1 {
+    /// The statement-level writer of a Local initializer or a statement call.
+    StatementLifecycle,
+    /// The checked argument/operand frame of the enclosing expression.
+    CheckedArgumentFrame,
+}
+
+impl CallExecutorV1 {
+    pub(crate) fn is_argument_frame(self) -> bool {
+        match self {
+            Self::CheckedArgumentFrame => true,
+            Self::StatementLifecycle => false,
+        }
+    }
+
+    /// An empty path is the function root, which is neither a statement nor a
+    /// Local initializer.
+    pub(crate) fn at(site: &SourceExprSiteV1) -> Self {
+        ExpressionPositionV1::of(site)
+            .map_or(Self::CheckedArgumentFrame, ExpressionPositionV1::call_executor)
+    }
 }
 
 #[cfg(test)]
@@ -91,18 +114,18 @@ mod tests {
         ] {
             let position = ExpressionPositionV1::of_segment(&segment);
             assert_eq!(position, ExpressionPositionV1::Statement, "{segment:?}");
-            assert!(!position.stands_as_expression_value(), "{segment:?}");
+            assert_eq!(position.call_executor(), CallExecutorV1::StatementLifecycle, "{segment:?}");
         }
     }
 
     #[test]
     fn only_statements_and_whole_local_initializers_keep_a_statement_writer() {
-        assert!(!ExpressionPositionV1::of_segment(&S::Initializer(0)).stands_as_expression_value());
+        assert_eq!(ExpressionPositionV1::of_segment(&S::Initializer(0)).call_executor(), CallExecutorV1::StatementLifecycle);
         for segment in [
             S::Argument(0), S::Callee, S::Receiver, S::Lhs, S::Rhs, S::Operand, S::IfCondition,
             S::LoopCondition, S::Value, S::Element(0), S::BlockExprTail, S::MatchArm(0),
         ] {
-            assert!(ExpressionPositionV1::of_segment(&segment).stands_as_expression_value(), "{segment:?}");
+            assert_eq!(ExpressionPositionV1::of_segment(&segment).call_executor(), CallExecutorV1::CheckedArgumentFrame, "{segment:?}");
         }
     }
 }

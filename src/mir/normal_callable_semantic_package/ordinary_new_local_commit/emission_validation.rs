@@ -261,11 +261,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("mixed-call/record-packet-missing"));
             }
             if self.receiver_call_observation(site).is_some()
-                && self
-                    .lifecycle_local_call_sites
-                    .borrow()
-                    .get(&site.owner())
-                    .is_some_and(|sites| sites.contains(site))
+                && self.lifecycle_local_call_sites.borrow().is_local(site)
             {
                 return Err(freeze("receiver-object/record-packet-missing"));
             }

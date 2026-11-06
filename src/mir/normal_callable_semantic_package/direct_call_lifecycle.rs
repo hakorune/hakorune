@@ -1,5 +1,6 @@
 //! Co-seal existing source products in the affine direct-call inventory.
 //! No target lookup by name, second Completion, or physical continuation is issued.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::super::model::OwnedCallableParameterContractDeclarationV1;
 use super::super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1;
 use super::super::result_contract::VerifiedCallableResultContractCohortV1;
@@ -612,7 +613,7 @@ impl DirectCallDispositionLoanV1 {
                 // The original caller relation owns local placement, not Map
                 // membership. Its existing Invoke consumer records the binding.
                 row.execution = DirectCallExecutionV1::Lifecycle;
-                root.record_lifecycle_local_call_site(self.owner, site.clone());
+                root.record_lifecycle_local_call_site(site.clone(), LocalRouteWriterV1::DirectLifecycle).map_err(|_| reject)?;
                 continue;
             }
             if !exact_formals(batch, parameters, row) {
@@ -762,7 +763,7 @@ impl DirectCallDispositionLoanV1 {
             row.result = uniform_call_result_kind(callee_relations.values()).ok_or(reject)?;
             row.execution = DirectCallExecutionV1::Lifecycle;
             if let Some(site) = local_binding_site {
-                root.record_lifecycle_local_call_site(self.owner, site);
+                root.record_lifecycle_local_call_site(site, LocalRouteWriterV1::DirectLifecycle).map_err(|_| reject)?;
             }
         }
         Ok(())

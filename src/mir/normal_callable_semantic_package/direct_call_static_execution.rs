@@ -1,6 +1,7 @@
 //! Join selected Static source edges into the existing affine execution inventory.
 //! The finite context closure chooses an ABI; it never admits module roots or
 //! infers result types. Pure components retain their original scalar protocol.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
 use crate::mir::builder::{AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
 use crate::mir::callable_semantic_batch::{ResolvedCallableDeclarationModeV1, VerifiedResolvedCallableSemanticBatchV1};
@@ -97,7 +98,7 @@ fn seal_local(
         if !lifecycle::completion_ready(completion) { return Err(reject("completion-not-ready")); }
     }
     row.execution = DirectCallExecutionV1::Lifecycle;
-    ledger.record_lifecycle_local_call_site(site.owner(), site.clone());
+    ledger.record_lifecycle_local_call_site(site.clone(), LocalRouteWriterV1::DirectStatic)?;
     Ok(())
 }
 

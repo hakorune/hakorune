@@ -1,4 +1,5 @@
 //! Source-pending lexical Object slots close atomically over original evidence.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::super::completion_index::ObjectReturnTeardownAvailabilityV1;
 use super::*;
 use crate::mir::callable_parameter_contract::{
@@ -175,7 +176,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         drop(slots);
         for site in routes {
-            self.record_lifecycle_local_call_site(site.owner(), site);
+            self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::ObjectSlot)?;
         }
         Ok(())
     }
