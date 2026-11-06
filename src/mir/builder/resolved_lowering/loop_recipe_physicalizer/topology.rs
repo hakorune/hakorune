@@ -74,10 +74,6 @@ impl ReadyLoopEntryV1 {
     pub(super) const fn preheader(&self) -> BasicBlockId {
         self.preheader
     }
-
-    pub(super) fn contains_binding(&self, binding: BindingRefV1) -> bool {
-        self.rows.iter().any(|row| row.binding == binding)
-    }
 }
 
 /// Mechanical bridge from canonical identity receipts to segment allocation.

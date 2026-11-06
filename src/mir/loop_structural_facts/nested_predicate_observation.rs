@@ -139,16 +139,4 @@ impl VerifiedNestedPredicateSourceAttemptV1 {
     ) {
         (self.outcome, self.identity, self.mode, self.coverage)
     }
-
-    pub(crate) fn identity(&self) -> &NestedPredicateSourceIdentityV1 {
-        &self.identity
-    }
-
-    pub(crate) const fn mode(&self) -> Option<NestedPredicateObservationModeV1> {
-        self.mode
-    }
-
-    pub(crate) const fn coverage(&self) -> NestedPredicateObservationCoverageV1 {
-        self.coverage
-    }
 }

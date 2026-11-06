@@ -80,25 +80,6 @@ pub(in crate::mir::builder::resolved_lowering) struct PreparedAfterBlockViewV1<'
 }
 
 impl PreparedAfterBlockViewV1<'_> {
-    pub(in crate::mir::builder::resolved_lowering) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) const fn loop_key(
-        &self,
-    ) -> crate::mir::loop_recipe_contract::LoopNodeKeyV1 {
-        self.loop_key
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) const fn source_site(
-        &self,
-    ) -> &crate::mir::resolved_semantics::SourceStmtSiteV1 {
-        &self.source_site
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn frame(&self) -> LoopExecutionFrameKeyV1 {
-        self.frame.clone()
-    }
 
     pub(in crate::mir::builder::resolved_lowering) const fn physical_block(&self) -> BasicBlockId {
         self.physical_block

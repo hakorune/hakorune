@@ -194,16 +194,8 @@ impl WholeUnitLoopCoverageProofV1 {
         self.origin
     }
 
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
     pub(crate) const fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
-    }
-
-    pub(crate) const fn frame_key(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame_key
     }
 
     pub(crate) const fn observation_set(&self) -> &VerifiedLoopAllRouteObservationSetV1 {

@@ -109,18 +109,6 @@ impl EmittedOwnedArrayAppendV1 {
         }
         Ok(())
     }
-    pub(super) fn validate_paths(
-        &self,
-        ledger: &OrdinaryNewClaimLedgerV1,
-        function: &MirFunction,
-        projection: Option<&FinishedBindings>,
-    ) -> Result<(), String> {
-        self.validate_paths_in_context(
-            CallValidationContextV1::Lowering(ledger),
-            function,
-            projection,
-        )
-    }
 
     pub(super) fn validate_paths_in_context(
         &self,

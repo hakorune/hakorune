@@ -49,10 +49,6 @@ impl VerifiedGenericG0TailCapabilityV1 {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
-
-    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame
-    }
 }
 
 impl VerifiedGenericAfterEffectG0 {

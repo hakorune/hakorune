@@ -129,29 +129,10 @@ impl<'plan> VerifiedCallableResultLoopClaimScheduleV1<'plan> {
         })
     }
 
-    pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        self.caller
-    }
-
-    pub(crate) const fn loop_root(&self) -> &SourceStmtSiteV1 {
-        &self.loop_root
-    }
-
-    pub(crate) fn len(&self) -> usize {
-        self.rows.len()
-    }
-
     pub(crate) fn sites_in_source_order(
         &self,
     ) -> impl ExactSizeIterator<Item = &SourceExprSiteV1> + '_ {
         self.rows.iter().map(|row| row.site())
-    }
-
-    pub(crate) fn is_branded_by(
-        &self,
-        activation_plan: &VerifiedCallableResultActivationPlanV1,
-    ) -> bool {
-        std::ptr::eq(self.activation_plan, activation_plan)
     }
 
     pub(super) fn into_claim_parts(self) -> CallableResultLoopClaimSchedulePartsV1<'plan> {

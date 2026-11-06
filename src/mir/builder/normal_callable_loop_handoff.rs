@@ -51,17 +51,6 @@ pub(super) struct CallableLoopOutsideReasonV1 {
 }
 
 impl CallableLoopOutsideReasonV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
-        &self.loop_site
-    }
-
-    pub(super) fn rows(&self) -> &[CallableLoopOutsideRowV1] {
-        &self.rows
-    }
 
     pub(super) fn into_terminal_error(self) -> String {
         let receipt_count = self
@@ -389,7 +378,6 @@ impl CallableLoopReadyBodyOnlyProductV1 {
 }
 
 impl VerifiedCallableSemanticLoopBindingScheduleV1 {
-    pub(super) fn owner(&self) -> FunctionOwnerIdV1 { self.source.owner() }
 
     pub(super) fn seal(
         owner: FunctionOwnerIdV1,

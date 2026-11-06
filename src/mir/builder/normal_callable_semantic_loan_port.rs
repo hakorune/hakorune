@@ -128,51 +128,6 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         }
         self.package.complete().map_err(package_issue)
     }
-
-    fn with_callable_source_scope<R>(
-        &mut self,
-        key: SelectedNormalCallableKeyV1,
-        execute: impl FnOnce(
-            &mut RawInvocationChildPortV1<'_, 'collector>,
-            super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
-        ) -> Result<R, String>,
-    ) -> Result<R, String> {
-        let lineage = match &key {
-            SelectedNormalCallableKeyV1::TopLevel(key) => {
-                super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
-                    key.clone(),
-                )
-            }
-            SelectedNormalCallableKeyV1::Cataloged(key) => {
-                super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
-                    key.clone(),
-                )
-            }
-        };
-        let inner = &mut *self.inner;
-        let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
-        let owned_array_source = self.package.owned_array_lifecycle_source_v1();
-        let named_array_emissions = self.package.named_array_emission_collector();
-        Ok(self
-            .package
-            .with_selected_lowering_input_and_core_methods(
-                &key,
-                |input, core_method_calls, loop_break_take| {
-                    with_selected_source_scope(
-                        inner,
-                        lineage,
-                        input,
-                        core_method_calls,
-                        Rc::clone(&named_array_emissions),
-                        Rc::clone(&ordinary_new_claim_ledger),
-                        Some(owned_array_source),
-                        Some(loop_break_take),
-                        execute,
-                    )
-                },
-            )
-            .map_err(package_issue)?)
-    }
 }
 
 fn package_issue(error: NormalCallableSemanticPackageInstallIssueV1) -> String {

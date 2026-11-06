@@ -1,12 +1,10 @@
 use std::rc::Rc;
 
 use crate::ast::ASTNode;
-use crate::mir::builder::callable_declaration_catalog::CanonicalSameModuleCallableKeyV1;
 use crate::mir::builder::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
-use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1;
 use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
@@ -15,8 +13,6 @@ use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::raw_invocation_source_transport::RawInvocationRootLineageV1;
-use super::super::raw_invocation_source_transport::RawInvocationSourceContextV1;
-use super::super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::super::recursive_child_lowering::{
     DirectCallDispositionPortV1, RecursiveChildLoweringPortV1,
 };

@@ -65,12 +65,4 @@ impl LoopFactsPolicyFrameV1 {
     pub(in crate::mir) const fn planner_required(self) -> bool {
         self.planner_required
     }
-
-    pub(in crate::mir) const fn strict_planner_required(self) -> bool {
-        self.strict_planner_required
-    }
-
-    pub(in crate::mir) const fn allow_var_step(self) -> bool {
-        self.allow_var_step
-    }
 }

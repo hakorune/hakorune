@@ -540,17 +540,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         self.runtime_box_fate.take_retire()
     }
 
-    pub(in crate::mir::builder) fn with_script_deferred_observation<R>(
-        &mut self,
-        observation: ScriptResolverDeferredV1,
-        execute: impl FnOnce(&mut Self) -> R,
-    ) -> R {
-        let parent = self.script_deferred_observation.replace(observation);
-        let result = execute(self);
-        self.script_deferred_observation = parent;
-        result
-    }
-
     /// Lend the exact collector-backed header view for one observation only.
     pub(in crate::mir::builder) fn with_headers<R>(
         &self,

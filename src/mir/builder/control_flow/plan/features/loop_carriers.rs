@@ -1,9 +1,7 @@
 //! Loop carrier helpers (phi info + bindings + EdgeArgs).
 
-use crate::mir::builder::control_flow::plan::normalizer::helpers::create_phi_bindings;
 use crate::mir::builder::control_flow::plan::CorePhiInfo;
 use crate::mir::{BasicBlockId, ValueId};
-use std::collections::BTreeMap;
 
 pub(in crate::mir::builder) fn build_phi_info(
     block: BasicBlockId,
@@ -34,12 +32,6 @@ pub(in crate::mir::builder) fn build_loop_phi_info(
         vec![(preheader_bb, init), (step_bb, next)],
         tag,
     )
-}
-
-pub(in crate::mir::builder) fn build_loop_bindings(
-    bindings: &[(&str, ValueId)],
-) -> BTreeMap<String, ValueId> {
-    create_phi_bindings(bindings)
 }
 
 /// Build empty-input step join PHI.

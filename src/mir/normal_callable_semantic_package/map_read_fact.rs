@@ -69,24 +69,12 @@ impl MapReadFactV1 {
         &self.call_site
     }
 
-    pub(crate) fn argument_ordinal(&self) -> u32 {
-        self.argument_ordinal
-    }
-
-    pub(crate) fn receiver_binding(&self) -> BindingRefV1 {
-        self.receiver_binding
-    }
-
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }
 
     pub(crate) fn receiver_site(&self) -> &OwnedExprSiteV1 {
         &self.receiver_site
-    }
-
-    pub(crate) fn operand_site(&self) -> &OwnedExprSiteV1 {
-        &self.operand_site
     }
 
     pub(crate) fn operation(&self) -> MapReadOperationV1 {
@@ -103,10 +91,6 @@ impl MapReadFactV1 {
 
     pub(crate) fn containment(&self) -> &[OwnedExprSiteV1] {
         &self.containment
-    }
-
-    pub(crate) fn borrow_roots(&self) -> &[BindingRefV1] {
-        &self.borrow_roots
     }
 }
 

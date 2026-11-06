@@ -51,60 +51,13 @@ pub(in crate::mir::builder) struct SourceLoopTruePhysicalInputV1<'source, 'ledge
 }
 
 impl SourceLoopTruePhysicalInputV1<'_, '_> {
-    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(in crate::mir::builder) fn parent_site(&self) -> &SourceNodeSiteV1 {
-        &self.parent_site
-    }
-
-    pub(in crate::mir::builder) fn parent_source(&self) -> &RawInvocationSourceContextV1 {
-        self.parent_source
-    }
-
-    pub(in crate::mir::builder) fn condition_source(&self) -> &RawInvocationSourceContextV1 {
-        &self.condition_source
-    }
 
     pub(in crate::mir::builder) fn body_source(&self) -> &RawInvocationSourceContextV1 {
         &self.body_source
     }
 
-    pub(in crate::mir::builder) fn condition(&self) -> &ASTNode {
-        &self.condition
-    }
-
     pub(in crate::mir::builder) fn body(&self) -> &[ASTNode] {
         &self.body
-    }
-
-    pub(in crate::mir::builder) fn pre_effect(
-        &self,
-    ) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
-        &self.pre_effect
-    }
-
-    pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
-        &self.outcome
-    }
-
-    pub(in crate::mir::builder) fn selection(&self) -> &CallableLoopRouteMatchV1 {
-        &self.selection
-    }
-
-    pub(in crate::mir::builder) fn projection(
-        &self,
-    ) -> &VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
-        &self.projection
-    }
-
-    pub(in crate::mir::builder) fn source_items(&self) -> &[CallableLoopSourceItemBindingV1] {
-        &self.source_items
-    }
-
-    pub(in crate::mir::builder) fn source_target(&self) -> &CallableLoopSourceTargetRelationV1 {
-        &self.source_target
     }
 
     pub(in crate::mir::builder) const fn source_port(

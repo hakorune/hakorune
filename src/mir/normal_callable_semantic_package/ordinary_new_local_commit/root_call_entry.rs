@@ -567,39 +567,10 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl RootHomeExitEntry {
-    pub(crate) fn call_row(
-        &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::RootCallDispositionV1> {
-        match self {
-            Self::Call { row, .. } => Some(row),
-            Self::Plain { .. } | Self::MapGet { .. } | Self::FieldGet { .. } => None,
-        }
-    }
-
-    pub(crate) fn call_arguments(&self) -> Option<&[(BasicBlockId, MirInstruction)]> {
-        match self {
-            Self::Call { arguments, .. } => Some(arguments),
-            Self::Plain { .. } | Self::MapGet { .. } | Self::FieldGet { .. } => None,
-        }
-    }
 
     pub(crate) fn call_invoke(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { invoke, .. } => Some(invoke),
-            Self::Plain { .. } | Self::MapGet { .. } | Self::FieldGet { .. } => None,
-        }
-    }
-
-    pub(crate) fn call_projection(&self) -> Option<&(BasicBlockId, MirInstruction)> {
-        match self {
-            Self::Call { projection, .. } => Some(projection),
-            Self::Plain { .. } | Self::MapGet { .. } | Self::FieldGet { .. } => None,
-        }
-    }
-
-    pub(crate) fn call_frame(&self) -> Option<&(BasicBlockId, MirInstruction)> {
-        match self {
-            Self::Call { frame, .. } => Some(frame),
             Self::Plain { .. } | Self::MapGet { .. } | Self::FieldGet { .. } => None,
         }
     }

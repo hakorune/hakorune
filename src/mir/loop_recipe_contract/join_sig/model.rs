@@ -41,7 +41,6 @@ pub(crate) struct LoopJoinPortBinding<C> {
     pub(crate) class: C,
 }
 
-pub(crate) type LoopJoinPortBindingV1 = LoopJoinPortBinding<super::super::schema::LoopValueClassV1>;
 pub(crate) type LoopJoinPortBindingV2 =
     LoopJoinPortBinding<super::super::schema_v2::LoopValueClassV2>;
 
@@ -94,7 +93,6 @@ pub(crate) struct LoopJoinLoop<C> {
 }
 
 pub(crate) type LoopJoinLoopV1 = LoopJoinLoop<super::super::schema::LoopValueClassV1>;
-pub(crate) type LoopJoinLoopV2 = LoopJoinLoop<super::super::schema_v2::LoopValueClassV2>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopJoinSig<C, T = LoopNodeKeyV1> {
@@ -104,8 +102,6 @@ pub(crate) struct LoopJoinSig<C, T = LoopNodeKeyV1> {
 }
 
 pub(crate) type LoopJoinSigV1 = LoopJoinSig<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
-pub(crate) type LoopJoinSigV2 =
-    LoopJoinSig<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
 /// Caller-zero logical evidence for a verified conditional branch.
 ///
@@ -120,11 +116,6 @@ pub(crate) struct LoopJoinBranch<C, T = LoopNodeKeyV1> {
     pub(crate) then_arm: LoopJoinBranchArm<C, T>,
     pub(crate) else_arm: LoopJoinBranchArm<C, T>,
 }
-
-pub(crate) type LoopJoinBranchV1 =
-    LoopJoinBranch<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
-pub(crate) type LoopJoinBranchV2 =
-    LoopJoinBranch<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
 /// The one-sided logical continuation of a fallthrough branch.
 ///
@@ -200,11 +191,6 @@ pub(crate) struct LoopJoinBranchExit<C, T = LoopNodeKeyV1> {
     pub(crate) target: T,
     pub(crate) payload: Vec<LoopJoinPayload<C>>,
 }
-
-pub(crate) type LoopJoinBranchExitV1 =
-    LoopJoinBranchExit<super::super::schema::LoopValueClassV1, LoopNodeKeyV1>;
-pub(crate) type LoopJoinBranchExitV2 =
-    LoopJoinBranchExit<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopJoinSig<C, T = LoopNodeKeyV1>(LoopJoinSig<C, T>);

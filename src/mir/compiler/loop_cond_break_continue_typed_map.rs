@@ -110,40 +110,8 @@ impl VerifiedLoopCondBreakContinueTypedSourceMapV1 {
         }
     }
 
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) const fn function_origin(&self) -> FunctionOriginV1 {
-        self.function_origin
-    }
-
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
     pub(crate) const fn root_frame_key(&self) -> &LoopExecutionFrameKeyV1 {
         &self.root_frame_key
-    }
-
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-
-    pub(crate) fn projection(&self) -> &VerifiedLoopCondBreakContinueSourceProjectionV1 {
-        &self.projection
-    }
-
-    pub(crate) fn carrier(&self) -> &LoopCondCarrierDeclarationV1 {
-        &self.carrier
-    }
-
-    pub(crate) fn loop_condition(&self) -> &LoopCondTypedCompareV1 {
-        &self.loop_condition
-    }
-
-    pub(crate) fn branch_condition(&self) -> &LoopCondTypedCompareV1 {
-        &self.branch_condition
     }
 
     pub(crate) fn into_parts(

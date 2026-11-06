@@ -19,9 +19,6 @@ impl BorrowedMulSourceLoanV1 {
     pub(in crate::mir) fn site(&self) -> &OwnedExprSiteV1 {
         self.original.binary()
     }
-    pub(in crate::mir) fn operand_sites(&self) -> (&OwnedExprSiteV1, &OwnedExprSiteV1) {
-        self.original.operand_sites()
-    }
     pub(super) fn original(&self) -> &Rc<BorrowedMulSourceV1> {
         &self.original
     }

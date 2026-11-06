@@ -145,36 +145,6 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
         &self.body
     }
 
-    pub(in crate::mir::builder) fn pre_effect(
-        &self,
-    ) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
-        &self.pre_effect
-    }
-
-    pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
-        &self.outcome
-    }
-
-    pub(in crate::mir::builder) fn selection(&self) -> &CallableLoopRouteMatchV1 {
-        &self.selection
-    }
-
-    pub(in crate::mir::builder) fn projection(
-        &self,
-    ) -> &VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
-        &self.projection
-    }
-
-    pub(in crate::mir::builder) fn source_items(&self) -> &[CallableLoopSourceItemBindingV1] {
-        &self.source_items
-    }
-
-    pub(in crate::mir::builder) const fn source_coverage(
-        &self,
-    ) -> &CallableLoopSourceCallCoverageV1 {
-        &self.source_coverage
-    }
-
     pub(in crate::mir::builder) const fn source_port(
         &self,
     ) -> &CallableLoopSourceExpressionPortV1<'_> {

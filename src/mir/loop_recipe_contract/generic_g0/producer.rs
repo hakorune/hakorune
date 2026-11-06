@@ -91,26 +91,6 @@ impl VerifiedGenericRecipeProductG0 {
             .replace_outer_condition_with_computed_left_for_test()
     }
 
-    /// Consume the complete Generic operation product into the neutral
-    /// Builder-free program.  This is the production ownership transition;
-    /// the old demand-part split remains test-only below.
-    pub(crate) fn into_prepared_operation_program(
-        self,
-    ) -> Result<PreparedLoopOperationProgramV1, LoopOperationPhysicalDemandRejectV1> {
-        let Self {
-            operation_effect,
-            after,
-            context,
-            target: _,
-        } = self;
-        let continuation = VerifiedLoopContinuationContractV1::from_after(
-            operation_effect.core().owner(),
-            after.into_after_binding(),
-        );
-        VerifiedLoopOperationPhysicalDemandV1::issue(context, operation_effect, continuation)?
-            .prepare_all()
-    }
-
     /// Production physical ingress that preserves the Generic tail beside
     /// the neutral operation program.  The common physicalizer consumes only
     /// the neutral continuation; the Generic lowerer consumes the tail later.

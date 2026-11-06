@@ -50,10 +50,6 @@ impl LoopOperationValueReceiptV1 {
         self.class
     }
 
-    pub(super) const fn producer_item(self) -> LoopItemKeyV1 {
-        self.producer_item
-    }
-
     pub(super) const fn physical_block(self) -> BasicBlockId {
         self.physical_block
     }

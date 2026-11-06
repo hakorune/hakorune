@@ -416,7 +416,7 @@ pub(in crate::mir) use emission::constant::CompletedConstV1;
 pub(in crate::mir) use control_flow::plan::lowerer::{VerifiedLoopCondAfterPhysicalRoleV1, EmittedSourceLoopGraphV2, capture_exact_loop_phis_v2};
 pub(in crate::mir) use normal_callable_loop_source_facts::{CompletedSourceLoopPhiPointsV2, PreparedSourceLoopPhiCompletionV2};
 pub(in crate::mir) use ordinary_new_admission::selected::{EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1};
-pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::{EmittedSourceLoopCleanupV2, CleanupOperationLoanV2};
+pub(in crate::mir) use ordinary_new_admission::selected::source_loop_cleanup::EmittedSourceLoopCleanupV2;
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();
@@ -660,8 +660,6 @@ pub(in crate::mir) use lexical_call_projection_test_fixture::borrowed_fixture as
 #[cfg(test)]
 pub(in crate::mir) use lexical_call_projection_test_fixture::forwarded_fixture as lexical_call_projection_forwarded_fixture;
 
-pub(in crate::mir) use normal_callable_semantic_lowering_state::construction::{
-    RetainedConstructionDrafts, RetainedConstructionValidation, ProviderCallArgEmission,
-};
+pub(in crate::mir) use normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
 
 pub(in crate::mir) use control_flow::plan::ObservedSourceValueV1;

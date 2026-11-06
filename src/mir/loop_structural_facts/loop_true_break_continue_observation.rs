@@ -142,14 +142,6 @@ impl VerifiedLoopTrueSourceAttemptV1 {
     pub(crate) fn identity(&self) -> &LoopTrueSourceIdentityV1 {
         &self.identity
     }
-
-    pub(crate) const fn mode(&self) -> Option<LoopTrueObservationModeV1> {
-        self.mode
-    }
-
-    pub(crate) const fn coverage(&self) -> LoopTrueObservationCoverageV1 {
-        self.coverage
-    }
 }
 
 pub(crate) fn map_loop_true_source_binding_reject(

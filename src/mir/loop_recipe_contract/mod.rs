@@ -84,8 +84,8 @@ pub(crate) use bool_region::{LoopBoolCompareV1, LoopBoolCompareDomainV1, LoopBoo
 mod source_loop_v2;
 mod source_loop_execution;
 mod source_loop_schedule;
-pub(crate) use source_loop_schedule::{SourceLoopBranchPhiV2, SourceLoopTextBranchPhiV2, SourceLoopScheduledFrameV2,
-    SourceLoopScheduledStepV2, VerifiedSourceLoopScheduleV2};
+pub(crate) use source_loop_schedule::{SourceLoopBranchPhiV2, SourceLoopTextBranchPhiV2,
+    SourceLoopScheduledStepV2};
 pub(crate) use source_loop_v2::{produce_source_loop_recipe_v2, VerifiedSourceLoopRecipeProductV2};
 mod source_loop_bool;
 pub(crate) use source_loop_bool::{CheckedLoopBoolExpressionV1, project_source_loop_bool_v1};
@@ -302,13 +302,11 @@ pub(crate) use internal_declaration::{
 pub(crate) use join_sig::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinBoundaryTransferRefV1,
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV1, LoopJoinBranchArmV2,
-    LoopJoinBranchExitRefV2, LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1,
-    LoopJoinBranchExitV2, LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinClosureRejectV2,
+    LoopJoinBranchExitRefV2, LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2,
     LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2, LoopJoinLogicalTransferRejectV1,
     LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV1, LoopJoinLogicalTransferViewV2,
-    LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinNextItemV1, LoopJoinPayloadV1, LoopJoinPayloadV2,
-    LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
-    LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1,
+    LoopJoinLoopV1, LoopJoinNextItemV1, LoopJoinPayloadV1, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1,
     VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
 };
 #[allow(unused_imports)]

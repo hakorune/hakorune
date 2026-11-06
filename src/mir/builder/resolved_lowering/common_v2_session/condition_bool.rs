@@ -79,26 +79,10 @@ impl<'bool_result, 'source, 'envelope>
         self.owner
     }
 
-    pub(in crate::mir::builder) const fn condition_block(
-        &self,
-    ) -> crate::mir::loop_recipe_contract::LoopBlockKeyV1 {
-        self.condition_block
-    }
-
-    pub(in crate::mir::builder) const fn producer_item(
-        &self,
-    ) -> crate::mir::loop_recipe_contract::LoopItemKeyV1 {
-        self.producer_item
-    }
-
     pub(in crate::mir::builder) const fn logical_result(
         &self,
     ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
         self.logical_result
-    }
-
-    pub(in crate::mir::builder) const fn physical_block(&self) -> crate::mir::BasicBlockId {
-        self.physical_block
     }
 
     pub(in crate::mir::builder) const fn left(&self) -> ValueId {

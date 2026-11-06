@@ -76,17 +76,6 @@ pub(super) struct DynamicV2PhysicalOperationCensusV1 {
 }
 
 impl DynamicV2PhysicalOperationCensusV1 {
-    pub(super) const fn operation_count(&self) -> usize {
-        self.expected_operation_count
-    }
-
-    pub(super) const fn if_count(&self) -> usize {
-        self.expected_if_count
-    }
-
-    pub(super) const fn exit_count(&self) -> usize {
-        self.expected_exit_count
-    }
 
     pub(super) fn claim_operation(
         &mut self,

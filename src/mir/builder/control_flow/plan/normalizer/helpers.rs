@@ -1,8 +1,6 @@
-pub(in crate::mir::builder) use super::helpers_layout::{create_phi_bindings, LoopBlocksStandard5};
+pub(in crate::mir::builder) use super::helpers_layout::{ LoopBlocksStandard5};
 use super::CoreEffectPlan;
-use crate::mir::builder::control_flow::plan::{
-    LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
-};
+use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
@@ -13,15 +11,6 @@ use std::collections::BTreeMap;
 // ============================================================================
 
 impl super::PlanNormalizer {
-    /// Helper: Lower Compare AST to (lhs ValueId, op, rhs ValueId, const_effects)
-    pub(in crate::mir::builder) fn lower_compare_ast(
-        ast: &crate::ast::ASTNode,
-        builder: &mut MirBuilder,
-        phi_bindings: &BTreeMap<String, ValueId>,
-    ) -> Result<(ValueId, CompareOp, ValueId, Vec<CoreEffectPlan>), String> {
-        let port = RawLoopPlanExpressionPortV1::new();
-        Self::lower_compare_input(&port, port.expr(ast), builder, phi_bindings)
-    }
 
     /// Associated-input compare owner. Operator selection and child roles live
     /// here once; raw and located callers differ only in their source port.
@@ -78,31 +67,6 @@ impl super::PlanNormalizer {
                 ast
             )),
         }
-    }
-
-    /// Helper: Lower BinOp AST to (lhs ValueId, op, rhs ValueId, const_effects)
-    #[track_caller]
-    pub(in crate::mir::builder) fn lower_binop_ast(
-        ast: &crate::ast::ASTNode,
-        builder: &mut MirBuilder,
-        phi_bindings: &BTreeMap<String, ValueId>,
-    ) -> Result<(ValueId, BinaryOp, ValueId, Vec<CoreEffectPlan>), String> {
-        let port = RawLoopPlanExpressionPortV1::new();
-        Self::lower_binop_input(&port, port.expr(ast), builder, phi_bindings)
-    }
-
-    #[track_caller]
-    pub(in crate::mir::builder) fn lower_binop_input<'input, P>(
-        port: &P,
-        input: P::ExprInput<'input>,
-        builder: &mut MirBuilder,
-        phi_bindings: &BTreeMap<String, ValueId>,
-    ) -> Result<(ValueId, BinaryOp, ValueId, Vec<CoreEffectPlan>), String>
-    where
-        P: LoopPlanExpressionPortV1 + 'input,
-    {
-        Self::lower_binop_input_with_source_outputs(port, input, builder, phi_bindings)
-            .map(|(lhs, op, rhs, effects, _)| (lhs, op, rhs, effects))
     }
 
     #[track_caller]

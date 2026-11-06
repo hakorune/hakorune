@@ -9,8 +9,7 @@
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::ReadyLoopEntryV1;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    allocate_for_layout, emit_loop_segment_operation_dispatch_v1,
-    preflight_loop_segment_operation_dispatch_v1, ready_loop_entry_from_canonical_rows,
+    allocate_for_layout, emit_loop_segment_operation_dispatch_v1, ready_loop_entry_from_canonical_rows,
     LoopOperationDispatchServicesV1, LoopPhysicalSegmentBlockReceiptV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
@@ -32,10 +31,6 @@ struct GenericG0SegmentDispatchInputV1<'scope> {
 }
 
 impl GenericG0SegmentDispatchInputV1<'_> {
-    fn preflight(self) -> Result<(), String> {
-        preflight_loop_segment_operation_dispatch_v1(self.layout, self.entry, self.segment_receipt)
-    }
-
     fn emit(self, services: &mut LoopOperationDispatchServicesV1<'_, '_>) -> Result<usize, String> {
         emit_loop_segment_operation_dispatch_v1(
             self.layout,

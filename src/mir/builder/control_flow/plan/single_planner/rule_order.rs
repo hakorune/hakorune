@@ -151,10 +151,6 @@ pub(in crate::mir::builder) const fn planner_rule_tag_name(id: PlanRuleId) -> &'
     planner_rule_labels(id).tag_rule
 }
 
-pub(in crate::mir::builder) const fn planner_rule_route_label(id: PlanRuleId) -> &'static str {
-    planner_rule_labels(id).route_label
-}
-
 /// Preferred rule label used in planner entry logs.
 ///
 /// D1 policy: human-facing labels are semantic (Pattern-number free) by default.

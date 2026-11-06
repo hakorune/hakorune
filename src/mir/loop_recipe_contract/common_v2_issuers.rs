@@ -183,10 +183,6 @@ impl VerifiedLoopV2EnvelopeCoverageV1 {
         self.operation_count
     }
 
-    pub(crate) const fn control_count(self) -> usize {
-        self.control_count
-    }
-
     pub(crate) const fn placement_count(self) -> usize {
         self.placement_count
     }

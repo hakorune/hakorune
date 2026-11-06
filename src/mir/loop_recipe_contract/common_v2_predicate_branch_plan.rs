@@ -46,13 +46,6 @@ pub(crate) struct PreparedLoopV2ConditionCarrierRequirementV1 {
 }
 
 impl PreparedLoopV2ConditionCarrierRequirementV1 {
-    pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) const fn loop_key(self) -> LoopNodeKeyV1 {
-        self.loop_key
-    }
 
     pub(crate) const fn block(self) -> LoopBlockKeyV1 {
         self.block

@@ -35,11 +35,6 @@ pub(crate) mod test_probe {
     }
 }
 
-pub(in crate::mir::builder) type LoopBodyContractKind =
-    crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
-
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use body_block::lower_loop_with_body_block;
-pub(in crate::mir::builder) use final_values::apply_loop_final_values_to_bindings;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use loop_v0::{lower_loop_v0, lower_loop_v0_core};

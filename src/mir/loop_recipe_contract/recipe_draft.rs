@@ -82,9 +82,6 @@ pub(crate) struct LoopRecipeDraftProductV1 {
 }
 
 impl LoopRecipeDraftProductV1 {
-    pub(crate) fn recipe(&self) -> &LoopRecipeV1 {
-        &self.recipe
-    }
 
     pub(crate) fn into_parts(
         self,
@@ -207,20 +204,6 @@ impl LoopRecipeDraftV1 {
         Ok(key)
     }
 
-    /// Emit one nested-loop item and open its child loop atomically.  Fusing
-    /// the two allocations keeps the loop key equal to its canonical
-    /// preorder visit position.
-    pub(crate) fn push_loop_item(
-        &mut self,
-        block: LoopBlockKeyV1,
-        source: SourceStmtSiteV1,
-    ) -> Result<LoopNodeKeyV1, LoopRecipeDraftRejectV1> {
-        let owner_loop = self.block_owner(block)?;
-        let loop_key = self.open_loop(Some(owner_loop), source)?;
-        self.push_item(block, LoopRecipeItemV1::Loop { loop_key })?;
-        Ok(loop_key)
-    }
-
     /// Open the predicate block of a loop condition.  `seal_condition` fixes
     /// the resulting predicate value once it is emitted.  A loop has exactly
     /// one condition block; reopening rejects instead of silently replacing
@@ -254,18 +237,6 @@ impl LoopRecipeDraftV1 {
         }
         self.loops[loop_key.raw() as usize].condition =
             Some(LoopConditionV1::Predicate { block, value });
-        Ok(())
-    }
-
-    pub(crate) fn seal_condition_always(
-        &mut self,
-        loop_key: LoopNodeKeyV1,
-    ) -> Result<(), LoopRecipeDraftRejectV1> {
-        let row = self.loop_row(loop_key)?;
-        if row.condition.is_some() {
-            return Err(LoopRecipeDraftRejectV1::ConditionReopened { loop_key });
-        }
-        self.loops[loop_key.raw() as usize].condition = Some(LoopConditionV1::Always);
         Ok(())
     }
 
@@ -364,44 +335,6 @@ impl LoopRecipeDraftV1 {
             },
         )?;
         Ok((item, then_block))
-    }
-
-    /// Open the else block of an already pushed `if` item.  Call this only
-    /// after the then subtree is fully emitted; canonical preorder visits the
-    /// else block after every nested block of the then arm.
-    pub(crate) fn open_else_block(
-        &mut self,
-        if_item: LoopItemKeyV1,
-    ) -> Result<LoopBlockKeyV1, LoopRecipeDraftRejectV1> {
-        let parent_block = self
-            .item_blocks
-            .get(if_item.raw() as usize)
-            .copied()
-            .ok_or(LoopRecipeDraftRejectV1::UnknownItem { item: if_item })?;
-        let owner_loop = self.block_owner(parent_block)?;
-        match self
-            .items
-            .get(if_item.raw() as usize)
-            .filter(|row| row.key == if_item)
-            .map(|row| &row.item)
-        {
-            Some(LoopRecipeItemV1::If {
-                else_block: None, ..
-            }) => {}
-            Some(LoopRecipeItemV1::If { .. }) => {
-                return Err(LoopRecipeDraftRejectV1::ElseBlockReopened { item: if_item })
-            }
-            Some(_) => return Err(LoopRecipeDraftRejectV1::NotAnIfItem { item: if_item }),
-            None => return Err(LoopRecipeDraftRejectV1::UnknownItem { item: if_item }),
-        }
-        let block = self.open_block(owner_loop);
-        let LoopRecipeItemV1::If { else_block, .. } =
-            &mut self.items[if_item.raw() as usize].item
-        else {
-            unreachable!("if item shape checked above");
-        };
-        *else_block = Some(block);
-        Ok(block)
     }
 
     /// Push an exit item (`break`/`continue`/`return`) into a block.

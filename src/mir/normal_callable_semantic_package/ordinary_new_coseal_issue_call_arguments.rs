@@ -1,8 +1,7 @@
 //! Source argument request dispatch, shared by every admitted Call context.
 use super::*;
-use super::super::lexical_instance_call::{PreparedBorrowedFormalIngressV1, PreparedLexicalInstanceCallSourceTargetsV1, BorrowedResultCohortV1};
+use super::super::lexical_instance_call::{PreparedLexicalInstanceCallSourceTargetsV1, BorrowedResultCohortV1};
 use crate::mir::resolved_semantics::home_new_prefix::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
-use crate::mir::resolved_semantics::BindingKindV1;
 
 #[path = "ordinary_new_received_handle_arguments.rs"]
 mod received_handle;

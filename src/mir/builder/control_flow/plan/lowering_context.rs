@@ -10,7 +10,6 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 pub(in crate::mir::builder) trait PlanLoweringContext {
     fn function_name(&self) -> &str;
     fn debug_enabled(&self) -> bool;
-    fn in_static_box(&self) -> bool;
 }
 
 impl<'a> PlanLoweringContext for LoopRouteContext<'a> {
@@ -20,10 +19,6 @@ impl<'a> PlanLoweringContext for LoopRouteContext<'a> {
 
     fn debug_enabled(&self) -> bool {
         self.debug
-    }
-
-    fn in_static_box(&self) -> bool {
-        self.in_static_box
     }
 }
 
@@ -59,9 +54,5 @@ impl PlanLoweringContext for CallableLoopPlanLoweringContextV1 {
 
     fn debug_enabled(&self) -> bool {
         self.debug_enabled
-    }
-
-    fn in_static_box(&self) -> bool {
-        self.in_static_box
     }
 }

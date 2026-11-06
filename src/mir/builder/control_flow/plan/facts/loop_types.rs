@@ -85,10 +85,6 @@ impl LoopFacts {
         self.loop_array_join.as_ref()
     }
 
-    pub fn string_is_integer(&self) -> Option<&StringIsIntegerFacts> {
-        self.string_is_integer.as_ref()
-    }
-
     pub fn if_phi_join(&self) -> Option<&IfPhiJoinFacts> {
         self.if_phi_join.as_ref()
     }

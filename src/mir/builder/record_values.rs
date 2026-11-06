@@ -86,15 +86,6 @@ impl MirBuilder {
         )
     }
 
-    pub(in crate::mir::builder) fn build_record_literal_value(
-        &mut self,
-        record_type_name: String,
-        fields: Vec<(String, ASTNode)>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_record_literal_value_with_port_v1(&mut port, record_type_name, fields)
-    }
-
     /// Lower a record literal while retaining the recursive raw child port.
     pub(in crate::mir::builder) fn build_record_literal_value_with_port_v1<Port>(
         &mut self,
@@ -215,15 +206,6 @@ impl MirBuilder {
             None,
             field_values,
         )
-    }
-
-    pub(in crate::mir::builder) fn build_record_update_value(
-        &mut self,
-        base: ASTNode,
-        updates: Vec<(String, ASTNode)>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_record_update_value_with_port_v1(&mut port, base, updates)
     }
 
     /// Lower a record update while retaining the recursive raw child port.

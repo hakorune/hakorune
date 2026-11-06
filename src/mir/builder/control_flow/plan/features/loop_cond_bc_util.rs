@@ -5,21 +5,18 @@ use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering_asso
     lower_assignment_inputs, lower_function_call_statement_input, lower_local_statement_input,
     lower_method_call_statement_input,
 };
-use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
+use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CorePlan, LoopPlanExpressionPortV1, LoweredRecipe, RawLoopPlanExpressionPortV1,
+    CoreEffectPlan, LoopPlanExpressionPortV1, LoweredRecipe,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{Effect, EffectMask, ValueId};
 use std::collections::BTreeMap;
 
-use super::loop_cond_bc::LOOP_COND_ERR;
-use super::loop_cond_bc_item_stmt::lower_loop_cond_stmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum DirectExitRejectReason {
@@ -59,77 +56,6 @@ pub(in crate::mir::builder) fn is_direct_exit_reject(err: &str) -> bool {
         || err.contains(": exit must be inside if")
         || err.contains(": break must be last")
         || err.contains(": return must be last")
-}
-
-pub(super) fn get_stmt<'a>(body: &'a RecipeBody, stmt_ref: StmtRef) -> Result<&'a ASTNode, String> {
-    body.get_ref(stmt_ref)
-        .ok_or_else(|| format!("{LOOP_COND_ERR}: missing stmt idx={}", stmt_ref.index()))
-}
-
-pub(super) fn lower_simple_effect_stmt(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
-    stmt: &ASTNode,
-    error_prefix: &str,
-) -> Result<Option<Vec<LoweredRecipe>>, String> {
-    if let ASTNode::Assignment { target, value, .. } = stmt {
-        if let ASTNode::Variable { name, .. } = target.as_ref() {
-            if value_has_blockexpr_prelude_loop(value) {
-                let (value_id, plans) = lower_value_stmt_with_blockexpr_loop_prelude(
-                    builder,
-                    current_bindings,
-                    carrier_phis,
-                    carrier_step_phis,
-                    break_phi_dsts,
-                    carrier_updates,
-                    value,
-                    error_prefix,
-                )?;
-                if carrier_phis.contains_key(name) {
-                    carrier_updates.insert(name.clone(), value_id);
-                }
-                if carrier_phis.contains_key(name) || current_bindings.contains_key(name) {
-                    current_bindings.insert(name.clone(), value_id);
-                }
-                publish_emission_cache(builder, name.clone(), value_id);
-                return Ok(Some(plans));
-            }
-        }
-    }
-
-    if let ASTNode::Local { initial_values, .. } = stmt {
-        if initial_values
-            .iter()
-            .flatten()
-            .any(|value| value_has_blockexpr_prelude_loop(value))
-        {
-            return lower_simple_effect_stmt_with_blockexpr_local_prelude(
-                builder,
-                current_bindings,
-                carrier_phis,
-                carrier_step_phis,
-                break_phi_dsts,
-                carrier_updates,
-                stmt,
-                error_prefix,
-            );
-        }
-    }
-
-    let port = RawLoopPlanExpressionPortV1::new();
-    lower_simple_effect_stmt_input(
-        &port,
-        stmt,
-        builder,
-        current_bindings,
-        carrier_phis,
-        carrier_updates,
-        error_prefix,
-    )
 }
 
 /// Lower the simple statement subset through a located expression port.
@@ -285,210 +211,6 @@ where
         carrier_updates,
         error_prefix,
     )
-}
-
-fn lower_simple_effect_stmt_with_blockexpr_local_prelude(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, ValueId>,
-    carrier_phis: &BTreeMap<String, ValueId>,
-    carrier_step_phis: &BTreeMap<String, ValueId>,
-    break_phi_dsts: &BTreeMap<String, ValueId>,
-    carrier_updates: &mut BTreeMap<String, ValueId>,
-    stmt: &ASTNode,
-    error_prefix: &str,
-) -> Result<Option<Vec<LoweredRecipe>>, String> {
-    let ASTNode::Local {
-        variables,
-        initial_values,
-        ..
-    } = stmt
-    else {
-        return Ok(None);
-    };
-    if variables.len() != initial_values.len() {
-        return Err(format!("{error_prefix}: local init arity mismatch"));
-    }
-    let mut plans = Vec::new();
-    for (name, init) in variables.iter().zip(initial_values.iter()) {
-        let init_node = loop_body_lowering::local_init_node_or_null(init.as_ref());
-        let (value_id, mut init_plans) = lower_value_stmt_with_blockexpr_loop_prelude(
-            builder,
-            current_bindings,
-            carrier_phis,
-            carrier_step_phis,
-            break_phi_dsts,
-            carrier_updates,
-            init_node.as_ref(),
-            error_prefix,
-        )?;
-        plans.append(&mut init_plans);
-        current_bindings.insert(name.clone(), value_id);
-        publish_emission_cache(builder, name.clone(), value_id);
-    }
-    Ok(Some(plans))
-}
-
-fn lower_value_stmt_with_blockexpr_loop_prelude(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
-    value: &ASTNode,
-    error_prefix: &str,
-) -> Result<(crate::mir::ValueId, Vec<LoweredRecipe>), String> {
-    let ASTNode::BlockExpr {
-        prelude_stmts,
-        tail_expr,
-        ..
-    } = value
-    else {
-        let (value_id, effects) =
-            PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
-        return Ok((value_id, effects_to_plans(effects)));
-    };
-
-    if !prelude_stmts
-        .iter()
-        .any(|stmt| stmt_has_loop_stmt_recursive(stmt))
-    {
-        let (value_id, effects) =
-            PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
-        return Ok((value_id, effects_to_plans(effects)));
-    }
-
-    for stmt in prelude_stmts {
-        if stmt.contains_non_local_exit_outside_loops() {
-            return Err(format!(
-                "[freeze:contract][blockexpr] {error_prefix}: exit stmt is forbidden in BlockExpr prelude"
-            ));
-        }
-    }
-
-    let outer_binding_names: Vec<String> = current_bindings.keys().cloned().collect();
-    let mut block_bindings = current_bindings.clone();
-    let mut plans = Vec::new();
-    for stmt in prelude_stmts {
-        let mut stmt_plans = lower_loop_cond_stmt(
-            builder,
-            &mut block_bindings,
-            carrier_phis,
-            carrier_step_phis,
-            break_phi_dsts,
-            carrier_updates,
-            false,
-            stmt,
-        )?;
-        plans.append(&mut stmt_plans);
-    }
-
-    let (tail_id, tail_effects) =
-        PlanNormalizer::lower_value_ast(tail_expr.as_ref(), builder, &block_bindings)?;
-    plans.extend(effects_to_plans(tail_effects));
-    for name in outer_binding_names {
-        if let Some(value_id) = block_bindings.get(&name).copied() {
-            current_bindings.insert(name.clone(), value_id);
-            publish_emission_cache(builder, name, value_id);
-        }
-    }
-    Ok((tail_id, plans))
-}
-
-fn value_has_blockexpr_prelude_loop(value: &ASTNode) -> bool {
-    let ASTNode::BlockExpr { prelude_stmts, .. } = value else {
-        return false;
-    };
-    prelude_stmts.iter().any(stmt_has_loop_stmt_recursive)
-}
-
-fn stmt_has_loop_stmt_recursive(stmt: &ASTNode) -> bool {
-    match stmt {
-        ASTNode::Loop { .. } => true,
-        ASTNode::If {
-            then_body,
-            else_body,
-            ..
-        } => {
-            then_body.iter().any(stmt_has_loop_stmt_recursive)
-                || else_body
-                    .as_ref()
-                    .is_some_and(|body| body.iter().any(stmt_has_loop_stmt_recursive))
-        }
-        ASTNode::Program { statements, .. } => statements.iter().any(stmt_has_loop_stmt_recursive),
-        ASTNode::ScopeBox { body, .. } => body.iter().any(stmt_has_loop_stmt_recursive),
-        _ => false,
-    }
-}
-
-pub(super) fn lower_stmt_list_no_exit(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
-    stmts: &[ASTNode],
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    use crate::mir::builder::control_flow::plan::CoreEffectPlan;
-
-    let mut block_plans = Vec::new();
-    for (idx, stmt) in stmts.iter().enumerate() {
-        let is_last = idx + 1 == stmts.len();
-        let mut plans = lower_loop_cond_stmt(
-            builder,
-            current_bindings,
-            carrier_phis,
-            carrier_step_phis,
-            break_phi_dsts,
-            carrier_updates,
-            is_last,
-            stmt,
-        )?;
-        if plans.iter().any(|plan| {
-            matches!(plan, CorePlan::Exit(_))
-                || matches!(plan, CorePlan::Effect(CoreEffectPlan::ExitIf { .. }))
-        }) {
-            return Err(format!("{error_prefix}: block contains exit"));
-        }
-        block_plans.append(&mut plans);
-    }
-    Ok(block_plans)
-}
-
-pub(super) fn lower_stmt_list_no_direct_exit(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
-    stmts: &[ASTNode],
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let mut block_plans = Vec::new();
-    for (idx, stmt) in stmts.iter().enumerate() {
-        let is_last = idx + 1 == stmts.len();
-        let mut plans = lower_loop_cond_stmt(
-            builder,
-            current_bindings,
-            carrier_phis,
-            carrier_step_phis,
-            break_phi_dsts,
-            carrier_updates,
-            is_last,
-            stmt,
-        )?;
-        if plans.iter().any(|plan| matches!(plan, CorePlan::Exit(_))) {
-            return Err(direct_exit_reject(
-                error_prefix,
-                DirectExitRejectReason::BlockContainsDirectExit,
-            ));
-        }
-        block_plans.append(&mut plans);
-    }
-    Ok(block_plans)
 }
 
 #[cfg(test)]

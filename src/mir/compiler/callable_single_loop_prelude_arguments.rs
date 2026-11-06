@@ -139,8 +139,4 @@ impl VerifiedCallablePreludeArgumentListV1 {
     pub(crate) fn rows(&self) -> &[VerifiedCallablePreludeArgumentV1] {
         &self.rows
     }
-
-    pub(crate) fn into_rows(self) -> Box<[VerifiedCallablePreludeArgumentV1]> {
-        self.rows
-    }
 }

@@ -50,10 +50,6 @@ impl GenericG0PhysicalOperationRowV1<'_> {
         self.owner_loop
     }
 
-    pub(crate) const fn operation(&self) -> LoopOperationV1 {
-        self.operation
-    }
-
     pub(crate) fn evidence(&self) -> &VerifiedLoopOperationSourceEvidenceV1 {
         self.evidence
     }

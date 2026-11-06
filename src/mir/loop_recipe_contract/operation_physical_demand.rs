@@ -12,7 +12,6 @@ use super::ids::LoopItemKeyV1;
 use super::internal_declaration::{
     LoopInternalDeclarationRejectV1, VerifiedLoopInternalDeclarationSetV1,
 };
-use super::operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 use super::operation_effect::VerifiedLoopOperationEffectProductV1;
 use super::semantic_context::VerifiedLoopSemanticContextV1;
 
@@ -227,20 +226,6 @@ impl PreparedLoopOperationProgramV1 {
         &self,
     ) -> Result<Box<[PreparedLoopReadBindingRowV1]>, LoopOperationPhysicalDemandRejectV1> {
         Ok(self.ledger.read_binding_rows().to_vec().into_boxed_slice())
-    }
-
-    /// Project every `DerivedCarrierEntry` ReadBinding row from the complete
-    /// program. The source statement anchor is retained as provenance; no
-    /// expression site is fabricated and no source claim is issued here.
-    pub(crate) fn derived_carrier_seed_rows(
-        &self,
-    ) -> Result<Box<[PreparedLoopDerivedCarrierSeedRowV1]>, LoopOperationPhysicalDemandRejectV1>
-    {
-        Ok(self
-            .ledger
-            .derived_carrier_seed_rows()
-            .to_vec()
-            .into_boxed_slice())
     }
 
     /// Project every WriteBinding row from the complete prepared program.

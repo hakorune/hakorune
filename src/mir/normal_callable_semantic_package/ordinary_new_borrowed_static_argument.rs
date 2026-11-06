@@ -2,7 +2,6 @@
 //! This product proves source identity only, never integer view or transport.
 use super::borrowed_formal_uses::{BorrowedFormalUseDraftKindV1, BorrowedFormalUsesDraftV1};
 use super::*;
-use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::{
     caller_key_for_function, incoming_source::StaticIncomingSourceV1,

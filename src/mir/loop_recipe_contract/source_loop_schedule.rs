@@ -18,8 +18,6 @@ pub(crate) struct SourceLoopScheduledFrameV2 {
 }
 impl SourceLoopScheduledFrameV2 {
     pub(crate) fn prefix(&self) -> &Prefix { &self.prefix }
-    pub(crate) fn block(&self) -> LoopBlockKeyV1 { self.block }
-    pub(crate) fn items(&self) -> Range<usize> { self.items.clone() }
     pub(crate) fn result(&self) -> LoopValueKeyV1 { self.result }
     fn references(&self) -> &BTreeMap<usize, super::source_loop_v2::Reference> {
         match &self.prefix {

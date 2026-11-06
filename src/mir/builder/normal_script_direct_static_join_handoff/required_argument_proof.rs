@@ -9,18 +9,16 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, ResolvedExpressionSourceInventoryV1, SourceExprSiteV1,
-    VerifiedSemanticOwnerProductV1,
 };
 
 use super::scalar_operand_recipe::{
-    issue_node, validate_argument_shape, ScalarOperandRecipeNodeV1,
+    issue_node, ScalarOperandRecipeNodeV1,
     VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
 };
 use super::{
     ScriptDirectStaticRecipeKeyV1, VerifiedScriptDirectStaticJoinHandoffV1,
     VerifiedScriptDirectStaticJoinRowV1,
 };
-use crate::mir::builder::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum ScriptDirectStaticRequiredArgumentProofIssueV1 {
@@ -110,59 +108,6 @@ pub(in crate::mir) struct VerifiedScriptDirectStaticRequiredArgumentProofV1 {
 }
 
 impl VerifiedScriptDirectStaticRequiredArgumentProofV1 {
-    pub(in crate::mir) fn issue(
-        source: &VerifiedScriptSemanticSourceV1<'_>,
-        join: &VerifiedScriptDirectStaticJoinHandoffV1,
-    ) -> Result<Self, ScriptDirectStaticRequiredArgumentProofIssueV1> {
-        if source.source() as *const _ as usize != join.source_identity() {
-            return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::SourceIdentityMismatch);
-        }
-        let [root] = source.forest().roots() else {
-            return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::ScriptRootMissing);
-        };
-        let Some(product) = source
-            .forest()
-            .semantic_owner(*root)
-            .and_then(VerifiedSemanticOwnerProductV1::as_script)
-        else {
-            return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::ScriptRootNotScript);
-        };
-        let source_owner = product.core().data().owner;
-        if source_owner != join.source_owner() {
-            return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::SourceOwnerMismatch);
-        }
-        let inventory = product.expression_source();
-        let mut rows = BTreeMap::new();
-        for (key, row) in join.rows() {
-            if row.source_owner() != source_owner {
-                return Err(
-                    ScriptDirectStaticRequiredArgumentProofIssueV1::JoinOwnerMismatch(
-                        row.call_site().clone(),
-                    ),
-                );
-            }
-            validate_argument_shape(row, product)
-                .map_err(ScriptDirectStaticRequiredArgumentProofIssueV1::MethodShape)?;
-            let disposition = issue_row(row, inventory)?;
-            if rows
-                .insert(
-                    *key,
-                    ScriptDirectStaticRequiredArgumentProofRowV1 {
-                        call_site: row.call_site().clone(),
-                        disposition,
-                    },
-                )
-                .is_some()
-            {
-                return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::DuplicateJoinKey(*key));
-            }
-        }
-        Ok(Self {
-            source_owner,
-            source_identity: source.source() as *const _ as usize,
-            rows,
-        })
-    }
 
     /// Move key-free source facts issued by A onto the Recipe-owned keys.
     /// No resolver expression inventory is consulted here.

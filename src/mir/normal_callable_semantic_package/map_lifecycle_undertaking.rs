@@ -81,9 +81,6 @@ pub(crate) struct MapEntryBorrowV1 {
 }
 
 impl MapEntryBorrowV1 {
-    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
-        &self.site
-    }
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.binding
     }
@@ -129,9 +126,6 @@ impl MapOwnerObligationsV1 {
     }
     pub(crate) fn sites(&self) -> &[MapSiteObligationV1] {
         &self.sites
-    }
-    pub(crate) fn operations(&self) -> impl Iterator<Item = MapLifecycleOperationV1> + '_ {
-        self.sites.iter().flat_map(|site| site.operations())
     }
 }
 
@@ -242,9 +236,6 @@ struct MapLifecycleUndertakingSealV1;
 impl MapLifecycleUndertakingV1 {
     pub(crate) fn owners(&self) -> &[FunctionOwnerIdV1] {
         &self.owners
-    }
-    pub(crate) fn capability(&self) -> &MapLifecycleConsumerCapabilityV1 {
-        &self.capability
     }
     pub(crate) fn call_edges(&self) -> &[MapCallEdgeContractV1] {
         &self.call_edges

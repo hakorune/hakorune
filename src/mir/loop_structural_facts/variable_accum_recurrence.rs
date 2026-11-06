@@ -404,10 +404,6 @@ impl VariableAccumRecurrenceSourceIdentityV1 {
     pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
     }
-
-    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame
-    }
 }
 
 /// One complete source meaning.  It is intentionally non-`Clone` because it
@@ -457,30 +453,6 @@ impl VerifiedVariableAccumRecurrenceFactsV1 {
         )
     }
 
-    pub(crate) fn source(&self) -> &VerifiedResolvedLoopSourceV1 {
-        &self.source
-    }
-
-    pub(crate) const fn function_origin(&self) -> FunctionOriginV1 {
-        self.source.function_origin()
-    }
-
-    pub(crate) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source.source_kind()
-    }
-
-    pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
-        self.source.site()
-    }
-
-    pub(crate) fn frame(&self) -> LoopExecutionFrameKeyV1 {
-        self.source.frame_key()
-    }
-
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
     pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
         self.scope_region
     }
@@ -495,10 +467,6 @@ impl VerifiedVariableAccumRecurrenceFactsV1 {
 
     pub(crate) fn condition(&self) -> &VariableAccumRecurrenceConditionObservationV1 {
         &self.condition
-    }
-
-    pub(crate) fn accumulator_update(&self) -> &VariableAccumRecurrenceAccumulatorUpdateV1 {
-        &self.accumulator_update
     }
 
     pub(crate) fn induction_step(&self) -> &VariableAccumRecurrenceInductionStepV1 {
@@ -591,14 +559,6 @@ impl VerifiedVariableAccumRecurrenceSourceAttemptV1 {
 
     pub(crate) fn outcome(&self) -> &VariableAccumRecurrenceSourceAttemptOutcomeV1 {
         &self.outcome
-    }
-
-    pub(crate) fn identity(&self) -> &VariableAccumRecurrenceSourceIdentityV1 {
-        &self.identity
-    }
-
-    pub(crate) const fn coverage(&self) -> VariableAccumRecurrenceObservationCoverageV1 {
-        self.coverage
     }
 }
 

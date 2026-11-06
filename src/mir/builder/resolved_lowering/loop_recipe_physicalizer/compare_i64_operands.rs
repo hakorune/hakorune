@@ -6,12 +6,7 @@
 //! `ValueId` and never emits MIR.
 
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
-use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedCanonicalOpenInstructionTargetV1;
-use crate::mir::builder::resolved_lowering::canonical_ssa::{
-    CanonicalSameBlockIntegerRejectV1, CanonicalSameBlockIntegerRequestV1,
-    CanonicalSsaFunctionSessionV2, VerifiedCanonicalSameBlockIntegerOperandV1,
-};
-use crate::mir::builder::MirBuilder;
+use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSameBlockIntegerRejectV1;
 use crate::mir::loop_recipe_contract::{LoopValueClassV1, LoopValueKeyV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,50 +17,6 @@ pub(super) enum CanonicalLoopCompareI64OperandRejectV1 {
     ReceiptClassMismatch,
     ReceiptTargetMismatch,
     Canonical(CanonicalSameBlockIntegerRejectV1),
-}
-
-#[derive(Debug)]
-pub(super) struct VerifiedCanonicalLoopCompareI64OperandV1 {
-    receipt: LoopOperationValueReceiptV1,
-    definition: VerifiedCanonicalSameBlockIntegerOperandV1,
-    _seal: CanonicalLoopCompareI64OperandSealV1,
-}
-
-#[derive(Debug)]
-struct CanonicalLoopCompareI64OperandSealV1;
-
-pub(super) fn issue(
-    ledger: &LoopOperationValueLedgerV1,
-    key: LoopValueKeyV1,
-    target: VerifiedCanonicalOpenInstructionTargetV1,
-    session: &CanonicalSsaFunctionSessionV2<'_>,
-    builder: &MirBuilder,
-) -> Result<VerifiedCanonicalLoopCompareI64OperandV1, CanonicalLoopCompareI64OperandRejectV1> {
-    let receipt =
-        ledger
-            .receipt(key)
-            .ok_or(CanonicalLoopCompareI64OperandRejectV1::ReceiptUnavailable(
-                key,
-            ))?;
-    let owner = session.owner();
-    if target.owner() != owner {
-        return Err(CanonicalLoopCompareI64OperandRejectV1::TargetOwnerMismatch);
-    }
-    validate_published_receipt(&receipt, key, owner, target.block())?;
-
-    let request = CanonicalSameBlockIntegerRequestV1::from_parts(
-        owner,
-        target.block(),
-        receipt.physical_value(),
-    );
-    let definition = session
-        .prepare_existing_same_block_integer(builder, request)
-        .map_err(CanonicalLoopCompareI64OperandRejectV1::Canonical)?;
-    Ok(VerifiedCanonicalLoopCompareI64OperandV1 {
-        receipt,
-        definition,
-        _seal: CanonicalLoopCompareI64OperandSealV1,
-    })
 }
 
 fn validate_published_receipt(

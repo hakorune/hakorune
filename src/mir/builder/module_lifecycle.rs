@@ -157,24 +157,6 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         Err("[freeze:contract][mir/top-level-function-admission/raw-port]".to_owned())
     }
 
-    /// Selected normal instance constructors carry a parser-map-keyed source
-    /// occurrence. Raw/reference ports must never consume that receipt.
-    #[allow(clippy::too_many_arguments)]
-    fn lower_normal_instance_constructor(
-        &mut self,
-        _builder: &mut super::MirBuilder,
-        _source_key: &super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1,
-        _params: Vec<String>,
-        _param_decls: Vec<ParamDecl>,
-        _return_type_name: Option<String>,
-        _body: Vec<ASTNode>,
-        _uses: Vec<String>,
-        _attrs: DeclarationAttrs,
-        _declaration: Option<ASTNode>,
-    ) -> Result<(), String> {
-        Err("[freeze:contract][mir/instance-constructor-admission/raw-port]".to_owned())
-    }
-
     /// Selected-normal constructors must carry the work-plan-issued linear
     /// demand ticket into the installed semantic-package adapter. Raw and
     /// compatibility ports intentionally reject this typed surface.
@@ -302,32 +284,6 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
         self.lower_normal_top_level_function_v1(
             builder,
             admission,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-            declaration,
-        )
-        .map_err(|error| error.to_string())
-    }
-
-    fn lower_normal_instance_constructor(
-        &mut self,
-        builder: &mut super::MirBuilder,
-        source_key: &super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-        declaration: Option<ASTNode>,
-    ) -> Result<(), String> {
-        self.lower_normal_instance_constructor_v1(
-            builder,
-            source_key,
             params,
             param_decls,
             return_type_name,

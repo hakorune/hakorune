@@ -83,7 +83,6 @@ pub(super) use segment_allocator::allocate_for_layout;
 #[cfg(test)]
 pub(super) use segment_dispatcher::emit_loop_segment_operation_dispatch_v1;
 #[cfg(test)]
-pub(super) use segment_dispatcher::preflight_loop_segment_operation_dispatch_v1;
 #[cfg(test)]
 pub(super) use segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 #[cfg(test)]

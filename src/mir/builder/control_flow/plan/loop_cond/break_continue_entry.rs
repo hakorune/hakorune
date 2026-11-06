@@ -86,22 +86,3 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_with_l
         require_nested_loops,
     )
 }
-
-/// Extract loop_cond_break_continue facts for nested loop contexts.
-///
-/// This variant disables further nested loop detection to prevent infinite recursion.
-pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_for_nested(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<LoopCondBreakContinueFacts>, Freeze> {
-    let debug = crate::config::env::is_joinir_debug();
-    try_extract_loop_cond_break_continue_facts_inner(
-        condition,
-        body,
-        false,
-        true,
-        debug,
-        MAX_NESTED_LOOPS,
-        None,
-    )
-}

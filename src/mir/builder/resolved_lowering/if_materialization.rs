@@ -86,10 +86,6 @@ impl PendingDeferredReturnDispositionV1 {
         self.branch
     }
 
-    pub(super) fn site(&self) -> &SourceStmtSiteV1 {
-        &self.site
-    }
-
     pub(super) fn block(&self) -> BasicBlockId {
         self.block
     }
@@ -196,26 +192,6 @@ impl IfCfgSessionV1 {
         self.then_deferred_return = Some(block);
         Ok(PendingDeferredReturnDispositionV1 {
             branch: DeferredReturnBranchV1::Then,
-            site,
-            block,
-        })
-    }
-
-    pub(super) fn close_else_with_deferred_return(
-        &mut self,
-        builder: &mut MirBuilder,
-        site: SourceStmtSiteV1,
-    ) -> Result<PendingDeferredReturnDispositionV1, String> {
-        if self.else_exit.is_some() || self.else_deferred_return.is_some() {
-            return Err("[freeze:contract][canonical_if/else_closed_twice]".to_string());
-        }
-        if matches!(self.else_route, ElseRouteV1::ImplicitFalse) {
-            return Err("[freeze:contract][canonical_if/implicit_else_close]".to_string());
-        }
-        let block = current_unterminated_block(builder, "else")?;
-        self.else_deferred_return = Some(block);
-        Ok(PendingDeferredReturnDispositionV1 {
-            branch: DeferredReturnBranchV1::Else,
             site,
             block,
         })

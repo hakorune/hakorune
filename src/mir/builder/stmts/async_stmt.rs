@@ -14,30 +14,8 @@
 use super::super::{MirBuilder, MirInstruction, MirType, ValueId};
 use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
 };
-
-/// Nowait: Phase‑0 semantics (sequential evaluation + FutureNew)
-///
-/// # Arguments
-/// * `builder` - The MIR builder instance
-/// * `variable` - Variable name to bind the Future to
-/// * `expression` - Expression to spawn asynchronously
-///
-/// # Returns
-/// ValueId of the created Future
-///
-/// # Phase Notes
-/// - Phase‑0: evaluate `expression` now, then wrap as a resolved Future via `FutureNew`
-/// - Registers Future<T> type and updates variable_map
-pub(in crate::mir::builder) fn build_nowait_statement(
-    builder: &mut MirBuilder,
-    variable: String,
-    expression: ASTNode,
-) -> Result<ValueId, String> {
-    let mut port = RawLegacyChildLoweringPortV1;
-    build_nowait_statement_with_port_v1(builder, &mut port, variable, expression)
-}
 
 /// Lower `nowait` while retaining the caller's raw child-descent port.
 pub(in crate::mir::builder) fn build_nowait_statement_with_port_v1<Port>(
@@ -76,26 +54,6 @@ where
         reg.ensure_slot(&variable, None);
     }
     Ok(future_id)
-}
-
-/// Await: insert Safepoint before/after and emit Await
-///
-/// # Arguments
-/// * `builder` - The MIR builder instance
-/// * `expression` - Expression that evaluates to a Future
-///
-/// # Returns
-/// ValueId of the awaited result (inner type of Future<T>)
-///
-/// # Phase Notes
-/// - Phase 84: Type propagation from Future<T> to result T
-/// - Safepoints inserted before/after await for GC safety
-pub(in crate::mir::builder) fn build_await_expression(
-    builder: &mut MirBuilder,
-    expression: ASTNode,
-) -> Result<ValueId, String> {
-    let mut port = RawLegacyChildLoweringPortV1;
-    build_await_expression_with_port_v1(builder, &mut port, expression)
 }
 
 /// Lower `await` while retaining the caller's raw child-descent port.

@@ -8,7 +8,6 @@
 use std::ptr;
 
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
-use crate::mir::loop_recipe_contract::VerifiedLoopPhysicalBoundaryV1;
 use crate::mir::resolved_control_flow::{
     DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
 };
@@ -145,14 +144,6 @@ impl VerifiedLoopPhysicalDemandV1 {
     pub(crate) fn co_seal(&self) -> &VerifiedLoopRecipeCoSealV1 {
         &self.co_seal
     }
-
-    pub(crate) fn into_co_seal(self) -> VerifiedLoopRecipeCoSealV1 {
-        self.co_seal
-    }
-
-    pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
-        self.co_seal.into_physical_boundary()
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -231,14 +222,6 @@ impl VerifiedCallablePreludeCapabilityV1 {
 
     pub(crate) const fn target(&self) -> ResolvedCallableRefV1 {
         self.target
-    }
-
-    pub(crate) const fn receiver(&self) -> SourceReceiverShapeV1 {
-        self.receiver
-    }
-
-    pub(crate) const fn arity(&self) -> u32 {
-        self.arity
     }
 
     pub(crate) const fn result_abi(&self) -> ExactTrivialReturnAbiV1 {
@@ -336,10 +319,6 @@ impl VerifiedCallableTerminalCompatibilityV1 {
         self.target_function
     }
 
-    pub(crate) const fn callable_target(&self) -> ResolvedCallableRefV1 {
-        self.callable_target
-    }
-
     pub(crate) const fn binding(&self) -> crate::mir::resolved_semantics::BindingRefV1 {
         self.binding
     }
@@ -399,24 +378,8 @@ impl<'a> PreparedCallableLoopPhysicalizationV1<'a> {
         })
     }
 
-    pub(crate) const fn input(&self) -> &VerifiedCallableFunctionLoweringInputV1<'a> {
-        &self.input
-    }
-
-    pub(crate) fn demand(&self) -> &VerifiedLoopPhysicalDemandV1 {
-        &self.demand
-    }
-
-    pub(crate) fn into_demand(self) -> VerifiedLoopPhysicalDemandV1 {
-        self.demand
-    }
-
     pub(crate) const fn prelude(&self) -> &VerifiedCallablePreludeCapabilityV1 {
         &self.prelude
-    }
-
-    pub(crate) fn tail(&self) -> &VerifiedCallableTailV1 {
-        &self.tail
     }
 
     pub(crate) const fn terminal(&self) -> &VerifiedCallableTerminalCompatibilityV1 {

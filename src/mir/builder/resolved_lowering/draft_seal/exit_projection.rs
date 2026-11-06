@@ -69,16 +69,6 @@ impl ReadyFunctionDraftSealV1 {
 }
 
 impl FunctionDraftSealProjectionV1 {
-    /// Construct a detached projection from a borrowed Builder and one
-    /// already-resolved exit. The caller keeps its outer owner intact when a
-    /// projection-stage error occurs.
-    pub(super) fn project_from_builder(
-        builder: &MirBuilder,
-        exit: PreparedFunctionExitV1,
-    ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
-        Self::project_from_builder_exit_set(builder, PreparedFunctionExitSetV1::single(exit))
-            .map_err(|(_, error)| error)
-    }
 
     pub(in crate::mir::builder::resolved_lowering) fn project_from_builder_exit_set(
         builder: &MirBuilder,

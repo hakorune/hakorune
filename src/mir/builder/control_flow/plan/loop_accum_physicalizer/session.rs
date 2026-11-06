@@ -524,22 +524,6 @@ where
             .ok_or(LoopPhysicalizeErrorV1::MissingFunction)
     }
 
-    fn function_ref(&self) -> Result<&crate::mir::MirFunction, LoopPhysicalizeErrorV1> {
-        self.builder_ref()
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or(LoopPhysicalizeErrorV1::MissingFunction)
-    }
-
-    fn function_mut(&mut self) -> Result<&mut crate::mir::MirFunction, LoopPhysicalizeErrorV1> {
-        self.builder_mut()
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or(LoopPhysicalizeErrorV1::MissingFunction)
-    }
-
     fn builder_ref(&self) -> &MirBuilder {
         self.builder
     }

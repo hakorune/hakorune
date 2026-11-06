@@ -12,7 +12,6 @@ use crate::mir::builder::control_flow::facts::loop_cond_break_continue::Continue
 use crate::mir::builder::control_flow::facts::stmt_walk::{flatten_stmt_list, walk_stmt_list};
 use std::collections::BTreeSet;
 
-use super::MAX_NESTED_LOOPS;
 
 /// Collect variable names referenced in an expression.
 ///

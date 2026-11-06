@@ -84,12 +84,6 @@ impl RejectedRootCollectorBatchV1 {
     pub(in crate::mir::builder) fn error(&self) -> &RootCollectorBatchPrepareErrorV1 {
         &self.error
     }
-
-    pub(in crate::mir::builder) fn into_parts(
-        self,
-    ) -> (ModuleDraftCollectorV1, RootCollectorBatchPrepareErrorV1) {
-        (self.collector, self.error)
-    }
 }
 
 /// Non-Clone, single-use commit owner. All fallible work is complete.
@@ -128,19 +122,6 @@ pub(in crate::mir::builder) struct BrandedRootCollectorBatchReceiptV1 {
 struct BrandedRootCollectorBatchReceiptSealV1;
 
 impl BrandedRootCollectorBatchReceiptV1 {
-    pub(in crate::mir::builder) fn admissions(
-        &self,
-    ) -> &[InvocationBranded<CollectedDraftAdmissionReceiptV1>] {
-        &self.admissions
-    }
-
-    pub(in crate::mir::builder) fn root_body(&self) -> &CompletedRootBodyV1 {
-        &self.root_body
-    }
-
-    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.brand
-    }
 
     pub(in crate::mir::builder) fn into_parts(
         self,
@@ -159,10 +140,6 @@ struct RootCollectorBatchReceiptSealV1;
 impl RootCollectorBatchReceiptV1 {
     pub(in crate::mir::builder) fn admissions(&self) -> &[CollectedDraftAdmissionReceiptV1] {
         &self.admissions
-    }
-
-    pub(in crate::mir::builder) fn root_body(&self) -> &CompletedRootBodyV1 {
-        &self.root_body
     }
 }
 

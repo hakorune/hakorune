@@ -78,10 +78,6 @@ impl VerifiedScriptDirectStaticJoinRowV1 {
         self.key
     }
 
-    pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {
-        self.source_owner
-    }
-
     pub(super) const fn call_site(&self) -> &SourceExprSiteV1 {
         &self.call_site
     }
@@ -92,14 +88,6 @@ impl VerifiedScriptDirectStaticJoinRowV1 {
 
     pub(super) fn argument_sites(&self) -> &[SourceExprSiteV1] {
         &self.argument_sites
-    }
-
-    pub(super) const fn result_site(&self) -> &SourceExprSiteV1 {
-        &self.result_site
-    }
-
-    pub(super) fn parent_relations(&self) -> &[BodyShapeRelationV1] {
-        &self.parent_relations
     }
 
     pub(super) const fn destination(&self) -> &ScriptDirectStaticRecipeDestinationV1 {
@@ -216,13 +204,6 @@ impl VerifiedScriptDirectStaticJoinHandoffV1 {
         self.source_identity
     }
 
-    pub(super) fn row(
-        &self,
-        key: ScriptDirectStaticRecipeKeyV1,
-    ) -> Option<&VerifiedScriptDirectStaticJoinRowV1> {
-        self.rows.get(&key)
-    }
-
     pub(super) fn rows(
         &self,
     ) -> impl Iterator<
@@ -232,12 +213,6 @@ impl VerifiedScriptDirectStaticJoinHandoffV1 {
         ),
     > {
         self.rows.iter()
-    }
-
-    pub(super) fn into_site_rows(
-        self,
-    ) -> impl Iterator<Item = VerifiedScriptDirectStaticJoinRowV1> {
-        self.rows.into_values()
     }
 
     pub(super) fn len(&self) -> usize {

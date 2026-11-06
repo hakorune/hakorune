@@ -2,7 +2,6 @@
 use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::super::lexical_instance_call::PreparedBorrowedFormalActualV1;
 use super::*;
-use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1;
 
 type Binding = (BasicBlockId, MirInstruction);
 
@@ -250,13 +249,6 @@ impl FinalizedRootSourceHandoffV1 {
             return Ok(Some(std::slice::from_ref(actual)));
         }
         original.borrowed_actuals_in_context(CallValidationContextV1::Finalized(self))
-    }
-
-    pub(in crate::mir) fn borrowed_call_actuals_v1(
-        &self,
-        row: &LexicalInstanceCallDispositionRowV1,
-    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
-        self.ledger.borrowed_call_actuals_using_v1(row, CallValidationContextV1::Finalized(self))
     }
 
     pub(in crate::mir) fn borrowed_ordinary_entry_source_v1(

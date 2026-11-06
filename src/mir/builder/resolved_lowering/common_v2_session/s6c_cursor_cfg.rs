@@ -65,30 +65,9 @@ pub(in crate::mir::builder) struct CommonV2S6CCursorCfgReceiptV1<'session, 'sour
 }
 
 impl CommonV2S6CCursorCfgReceiptV1<'_, '_, '_> {
-    pub(in crate::mir::builder) const fn owner(
-        &self,
-    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(in crate::mir::builder) const fn condition_block(&self) -> BasicBlockId {
-        self.condition_block
-    }
-
-    pub(in crate::mir::builder) const fn body_block(&self) -> BasicBlockId {
-        self.body_block
-    }
 
     pub(in crate::mir::builder) const fn after_block(&self) -> BasicBlockId {
         self.after_block
-    }
-
-    pub(in crate::mir::builder) const fn byte_offset_phi(&self) -> ValueId {
-        self.byte_offset_phi
-    }
-
-    pub(in crate::mir::builder) const fn subject_byte_len(&self) -> ValueId {
-        self.subject_byte_len
     }
 
     pub(in crate::mir::builder) const fn loop_condition(&self) -> ValueId {
@@ -101,18 +80,6 @@ impl CommonV2S6CCursorCfgReceiptV1<'_, '_, '_> {
 
     pub(in crate::mir::builder) const fn text_equal_value(&self) -> ValueId {
         self.text_equal_value
-    }
-
-    pub(in crate::mir::builder) const fn byte_next(&self) -> ValueId {
-        self.byte_next
-    }
-
-    pub(in crate::mir::builder) const fn return_block(&self) -> BasicBlockId {
-        self.return_block
-    }
-
-    pub(in crate::mir::builder) const fn continuation_block(&self) -> BasicBlockId {
-        self.continuation_block
     }
 }
 

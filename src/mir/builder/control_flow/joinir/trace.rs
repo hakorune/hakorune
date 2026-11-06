@@ -41,8 +41,6 @@
 //! NYASH_TRACE_VARMAP=1 NYASH_JOINIR_DEBUG=1 ./target/release/hakorune test.hako
 //! ```
 
-use crate::mir::ValueId;
-use std::collections::BTreeMap;
 
 /// Unified tracer for JoinIR loop operations.
 ///
@@ -114,24 +112,6 @@ impl JoinLoopTrace {
         self.loopform_enabled
     }
 
-    /// Trace variable_map state
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "if_phi_join_before_merge", "after_phi")
-    /// - `vars`: The variable_map to display (variable name → ValueId)
-    pub fn varmap(&self, tag: &str, vars: &BTreeMap<String, ValueId>) {
-        if self.varmap_enabled {
-            let entries: Vec<String> = vars
-                .iter()
-                .map(|(k, v)| format!("{}→r{}", k, v.0))
-                .collect();
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:varmap] {}: {}", tag, entries.join(", ")));
-        }
-    }
-
     /// Generic debug message (only if any tracing enabled)
     ///
     /// # Arguments
@@ -192,18 +172,6 @@ impl JoinLoopTrace {
                 "[trace:routing] {}: function '{}' - {}",
                 tag, func_name, msg
             ));
-        }
-    }
-
-    /// Trace block allocation and remapping
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "allocator", "remap")
-    /// - `msg`: Human-readable message about block operations
-    pub fn blocks(&self, tag: &str, msg: &str) {
-        if self.joinir_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[trace:blocks] {}: {}", tag, msg));
         }
     }
 }

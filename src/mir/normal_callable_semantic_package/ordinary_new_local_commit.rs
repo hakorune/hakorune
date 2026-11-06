@@ -327,20 +327,6 @@ impl FinalizedRootSourceHandoffV1 {
             .flatten()
     }
 
-    pub(crate) fn call_entries(
-        &self,
-    ) -> impl Iterator<
-        Item = (
-            &SourceStmtSiteV1,
-            &RootHomeExitEntry,
-            &[(BasicBlockId, MirInstruction)],
-        ),
-    > {
-        self.call_entries
-            .iter()
-            .map(|(site, (entry, cleanup))| (site, entry, cleanup.as_slice()))
-    }
-
     /// Cleanup bindings of the sole Call payload. `None` for zero or
     /// several Call exits — never a silently picked row.
     pub(crate) fn call_cleanup(&self) -> Option<&[(BasicBlockId, MirInstruction)]> {
@@ -433,12 +419,6 @@ impl NewLocalCommitV1 {
         self.binding == binding
             && self.emission.local().is_some()
             && matches!(&self.home_prefix, Ok(prefix) if prefix.destination() == binding)
-    }
-
-    fn at_statement(&self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1) -> bool {
-        self.binding.owner() == owner
-            && matches!(&self.declaration,
-            SourceBindingSiteV1::Local { statement, .. } if statement.node() == site)
     }
 }
 

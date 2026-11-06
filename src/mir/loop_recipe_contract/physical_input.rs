@@ -37,10 +37,6 @@ impl VerifiedLoopPhysicalInputV1 {
     pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV1 {
         &self.join_sig
     }
-
-    pub(crate) fn into_parts(self) -> (VerifiedLoopRecipeV1, VerifiedLoopJoinSigV1) {
-        (self.recipe, self.join_sig)
-    }
 }
 
 /// Neutral move-only handoff for the common topology physicalizer.
@@ -60,25 +56,5 @@ impl VerifiedLoopPhysicalBoundaryV1 {
         after: VerifiedLoopAfterBindingV1,
     ) -> Self {
         Self { core, after }
-    }
-
-    pub(crate) fn core(&self) -> &VerifiedLoopCoreProductV1 {
-        &self.core
-    }
-
-    pub(crate) fn recipe(&self) -> &VerifiedLoopRecipeV1 {
-        self.core.recipe()
-    }
-
-    pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV1 {
-        self.core.join_sig()
-    }
-
-    pub(crate) fn after(&self) -> &VerifiedLoopAfterBindingV1 {
-        &self.after
-    }
-
-    pub(crate) fn into_parts(self) -> (VerifiedLoopCoreProductV1, VerifiedLoopAfterBindingV1) {
-        (self.core, self.after)
     }
 }

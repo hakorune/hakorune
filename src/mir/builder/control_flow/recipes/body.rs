@@ -24,20 +24,12 @@ impl RecipeBody {
         Self { body }
     }
 
-    pub fn get(&self, idx: StmtIdx) -> Option<&ASTNode> {
-        self.body.get(idx.0)
-    }
-
     pub fn get_ref(&self, stmt: refs::StmtRef) -> Option<&ASTNode> {
         self.body.get(stmt.index())
     }
 
     pub fn len(&self) -> usize {
         self.body.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.body.is_empty()
     }
 }
 
@@ -76,14 +68,6 @@ impl StmtRange {
             start: StmtIdx(start),
             end: StmtIdx(end),
         }
-    }
-
-    pub(in crate::mir::builder) fn start_index(self) -> usize {
-        self.start.index()
-    }
-
-    pub(in crate::mir::builder) fn end_index(self) -> usize {
-        self.end.index()
     }
 
     pub(in crate::mir::builder) fn indices(self) -> (usize, usize) {

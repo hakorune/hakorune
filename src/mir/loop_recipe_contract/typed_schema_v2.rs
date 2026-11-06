@@ -151,10 +151,6 @@ impl VerifiedLoopRecipeV2 {
         &self.0
     }
 
-    pub(crate) fn into_recipe(self) -> LoopRecipeV2 {
-        self.0
-    }
-
     pub(crate) fn root_loop(&self) -> LoopNodeKeyV1 {
         self.0.root_loop
     }

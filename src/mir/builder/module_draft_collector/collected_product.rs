@@ -61,10 +61,6 @@ impl RejectedCollectedDraftAdmissionV1 {
         &self.collector
     }
 
-    pub(in crate::mir) fn error(&self) -> &CollectedDraftAdmissionProductErrorV1 {
-        &self.error
-    }
-
     pub(in crate::mir) fn into_parts(
         self,
     ) -> (

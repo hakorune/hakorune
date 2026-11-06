@@ -40,9 +40,6 @@ pub(crate) struct RootInstanceCallDispositionRowV1 {
 }
 
 impl RootInstanceCallDispositionRowV1 {
-    pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
-        &self.call_site
-    }
 
     pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
         &self.receiver_site
@@ -66,10 +63,6 @@ impl RootInstanceCallDispositionRowV1 {
 
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.target
-    }
-
-    pub(crate) const fn target_batch_slot(&self) -> u32 {
-        self.target_batch_slot
     }
 
     pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {

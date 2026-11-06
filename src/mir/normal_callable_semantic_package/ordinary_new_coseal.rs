@@ -87,10 +87,10 @@ mod field_reads;
 pub(in crate::mir) use field_reads::LocalFieldReadSourceV1;
 #[path = "ordinary_new_field_write_claim.rs"]
 mod field_write_claim;
-pub(super) use field_write_claim::{NullFieldInitializationSourceV1, DeclaredFieldValueSourceV1, OrdinaryNewFieldWriteClaimsV1, FieldValueSourcesV1};
+pub(super) use field_write_claim::{DeclaredFieldValueSourceV1, OrdinaryNewFieldWriteClaimsV1, FieldValueSourcesV1};
 pub(crate) use field_write_claim::TextFieldValueSourceV1;
 pub(super) use terminal_home::ExpressionFieldRootSourceV1;
-pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1, ObjectFieldClassSourceV1};
+pub(crate) use field_write_claim::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1};
 pub(super) use field_write_claim::{OrdinaryNewFieldWriteClaimDraftV1, OriginalFieldWriterInventoryV1};
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
 use coseal_helpers::no_birth_constructor_disposition;
@@ -165,7 +165,6 @@ pub(in crate::mir) use loop_static_body_actual::{
 pub(in crate::mir) use loop_static_source_loan::{
     LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1,
 };
-pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_packet_source::VerifiedStaticLoopPacketSourceV1;
 pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
@@ -732,11 +731,11 @@ pub(in crate::mir) use local_commit::{
 #[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::source_result_facts_for_test;
 
-pub(crate) use local_commit::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
+pub(crate) use local_commit::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1};
 
 pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
+pub(in crate::mir) use local_commit::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
 
 pub(in crate::mir) use local_commit::CallValidationContextV1;
 

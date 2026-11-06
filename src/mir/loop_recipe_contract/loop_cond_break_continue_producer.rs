@@ -78,10 +78,6 @@ impl VerifiedLoopCondBreakContinueRecipeProductV1 {
         &self.operations
     }
 
-    pub(crate) fn inputs(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
-        &self.inputs
-    }
-
     pub(crate) fn policy_receipt(
         &self,
     ) -> &crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyReceiptV1 {

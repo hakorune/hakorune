@@ -131,34 +131,6 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn lower_normal_instance_constructor(
-        &mut self,
-        builder: &mut MirBuilder,
-        source_key: &super::super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-        declaration: Option<ASTNode>,
-    ) -> Result<(), String> {
-        self.inner
-            .lower_normal_instance_constructor_v1(
-                builder,
-                source_key,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-                declaration,
-            )
-            .map_err(|error| error.to_string())
-    }
-
-    #[allow(clippy::too_many_arguments)]
     fn lower_normal_instance_constructor_with_demand(
         &mut self,
         builder: &mut MirBuilder,

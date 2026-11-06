@@ -128,34 +128,3 @@ pub fn build_join_payload(
 
     Ok(joins)
 }
-
-/// Build join payload filtered to specific variables.
-///
-/// Only creates joins for variables in `filter_vars`.
-/// Does NOT update variable_map (caller's responsibility).
-pub fn build_join_payload_filtered<'a, I>(
-    builder: &mut MirBuilder,
-    pre_if_map: &BTreeMap<String, ValueId>,
-    then_map: &BTreeMap<String, ValueId>,
-    else_map: &BTreeMap<String, ValueId>,
-    filter_vars: I,
-) -> Vec<CoreIfJoin>
-where
-    I: IntoIterator<Item = &'a String>,
-{
-    let mut joins = Vec::new();
-
-    for name in filter_vars {
-        let Some(&pre_val) = pre_if_map.get(name) else {
-            continue; // Variable not in pre-map, skip
-        };
-
-        let then_val = then_map.get(name).copied().unwrap_or(pre_val);
-        let else_val = else_map.get(name).copied().unwrap_or(pre_val);
-        if let Some(join) = build_join_for_name(builder, name, pre_val, then_val, else_val) {
-            joins.push(join);
-        }
-    }
-
-    joins
-}

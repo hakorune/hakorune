@@ -34,13 +34,11 @@ pub(in crate::mir::builder) use raw_drain::{
 pub(in crate::mir::builder) use callable_batch::{
     CallableCollectorBatchPrepareErrorV1, CallableCollectorBatchReceiptV1,
     CallableCollectorDraftEntryV1, CollectedCallableCollectorBatchV1,
-    PreparedCallableCollectorBatchV1, RejectedCallableCollectorBatchV1,
 };
 
 pub(in crate::mir) use callable_batch::CallableCollectorBatchReceiptV1 as CommitCallableCollectorBatchReceiptV1;
 pub(in crate::mir::builder) use collected_product::{
     CollectedDraftAdmissionProductErrorV1, CollectedDraftAdmissionProductV1,
-    RejectedCollectedDraftAdmissionV1,
 };
 pub(in crate::mir) use receipt::CollectedDraftAdmissionReceiptV1 as CommitCollectedDraftAdmissionReceiptV1;
 pub(in crate::mir) use receipt::{

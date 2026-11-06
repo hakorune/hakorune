@@ -86,24 +86,9 @@ pub(super) struct LoopOperationEmissionReceiptV1 {
 }
 
 impl LoopOperationEmissionReceiptV1 {
-    pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(super) const fn item(self) -> LoopItemKeyV1 {
-        self.item
-    }
 
     pub(super) const fn result(self) -> LoopValueKeyV1 {
         self.result
-    }
-
-    pub(super) const fn physical_block(self) -> BasicBlockId {
-        self.physical_block
-    }
-
-    pub(super) const fn physical_value(self) -> ValueId {
-        self.physical_value
     }
 }
 

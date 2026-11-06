@@ -16,6 +16,3 @@
 //! - `NYASH_JOINIR_MAINLINE_DEBUG=1` - Enable mainline routing debug
 //! - `NYASH_LOOPFORM_DEBUG=1` - Enable LoopForm debug
 
-use super::super::MirBuilder;
-
-impl MirBuilder {}

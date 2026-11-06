@@ -55,9 +55,6 @@ impl CheckedCallOutSiteCensusV1 {
     pub(crate) const fn normal_result_dst(&self) -> ValueId {
         self.normal_result_dst
     }
-    pub(crate) const fn effects(&self) -> EffectMask {
-        self.effects
-    }
 }
 
 /// A physical End position observed in the completed function.  The selected
@@ -400,14 +397,6 @@ impl CheckedCallOutNormalResultProjectionV1 {
             normal_landing,
             dst,
         }
-    }
-
-    pub(crate) const fn site_id(self) -> CheckedCallOutSiteIdV1 {
-        self.site_id
-    }
-
-    pub(crate) const fn normal_landing(self) -> BasicBlockId {
-        self.normal_landing
     }
 
     pub(crate) const fn dst(self) -> ValueId {

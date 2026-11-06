@@ -5,15 +5,11 @@
 //! - lower_if_join_with_branch_lowerers
 //! - lower_value_cond_if_with_filtered_joins
 
-use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::{
-    lower_cond_branch, lower_cond_value,
-};
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::recipe_tree::collect_branch_local_vars_from_block_recursive;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBlock;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBodies;
 use crate::mir::builder::control_flow::plan::steps::build_join_payload;
-use crate::mir::builder::control_flow::plan::steps::build_join_payload_filtered;
-use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ConstValue;
@@ -466,65 +462,4 @@ where
         &mut lower_condition,
         should_update_binding,
     )
-}
-
-/// Lower an if with a value condition (`lower_cond_value`) and a filtered join payload.
-///
-/// SSOT for:
-/// - `build_join_payload_filtered(...)`
-/// - `lower_cond_value(...)` (effects + condition value)
-/// - Applying join results to `variable_map` and `current_bindings`
-/// - Constructing `CorePlan::If(CoreIfPlan { .. })`
-///
-/// Contract:
-/// - Caller provides `pre_if_map`/`then_map`/`else_map` snapshots and the already-lowered branch plans.
-/// - Join application happens *after* condition lowering (so the condition sees pre-if bindings).
-pub(in crate::mir::builder) fn lower_value_cond_if_with_filtered_joins<
-    'a,
-    I,
-    ShouldUpdateBinding,
-    OnJoinApplied,
->(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    cond_view: &crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView,
-    pre_if_map: &BTreeMap<String, crate::mir::ValueId>,
-    then_map: &BTreeMap<String, crate::mir::ValueId>,
-    else_map: &BTreeMap<String, crate::mir::ValueId>,
-    filter_vars: I,
-    then_plans: Vec<LoweredRecipe>,
-    else_plans: Vec<LoweredRecipe>,
-    error_prefix: &str,
-    should_update_binding: &ShouldUpdateBinding,
-    mut on_join_applied: OnJoinApplied,
-) -> Result<Vec<LoweredRecipe>, String>
-where
-    I: IntoIterator<Item = &'a String>,
-    ShouldUpdateBinding: Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool,
-    OnJoinApplied: FnMut(&str, crate::mir::ValueId),
-{
-    let joins = build_join_payload_filtered(builder, pre_if_map, then_map, else_map, filter_vars);
-
-    let (cond_id, cond_effects) =
-        lower_cond_value(builder, current_bindings, cond_view, error_prefix)?;
-
-    for join in &joins {
-        publish_emission_cache(builder, join.name.clone(), join.dst);
-        if should_update_binding(&join.name, current_bindings) {
-            current_bindings.insert(join.name.clone(), join.dst);
-            on_join_applied(&join.name, join.dst);
-        }
-    }
-
-    let mut plans = effects_to_plans(cond_effects);
-    plans.push(crate::mir::builder::control_flow::plan::CorePlan::If(
-        crate::mir::builder::control_flow::plan::CoreIfPlan {
-            condition: cond_id,
-            then_plans,
-            else_plans: Some(else_plans),
-            joins,
-        },
-    ));
-
-    Ok(plans)
 }

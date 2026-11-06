@@ -8,21 +8,16 @@
 //! - This module is intended to become the only place that creates `VerifiedRecipeBlock`.
 
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    verify_block_contract_with_pre, verify_port_sig_obligations_if_enabled, BlockContractKind,
-    ExitKind, RecipeBlock, RecipeBodies, VerifiedRecipeBlock,
+    verify_block_contract_with_pre, verify_port_sig_obligations_if_enabled, BlockContractKind, RecipeBlock, RecipeBodies, VerifiedRecipeBlock,
 };
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
-use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ConstValue;
 use std::collections::BTreeMap;
 
 use super::dispatch;
 pub(in crate::mir::builder) use super::dispatch::{
-    lower_if_join_with_branch_lowerers, lower_value_cond_if_with_filtered_joins,
-};
-pub(in crate::mir::builder) use super::loop_::{
-    apply_loop_final_values_to_bindings, lower_loop_v0, lower_loop_with_body_block,
+    lower_if_join_with_branch_lowerers,
 };
 
 pub(in crate::mir::builder) fn lower_cond_prelude_stmt_as_plan(
@@ -240,128 +235,6 @@ pub(in crate::mir::builder) fn lower_no_exit_block(
     )
 }
 
-pub(in crate::mir::builder) fn lower_return_with_effects(
-    builder: &mut MirBuilder,
-    value: Option<&crate::ast::ASTNode>,
-    current_bindings: &BTreeMap<String, crate::mir::ValueId>,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    super::exit::lower_return_stmt_with_effects(builder, value, current_bindings, error_prefix)
-}
-
-pub(in crate::mir::builder) fn lower_loop_cond_exit_leaf(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    body: &RecipeBody,
-    kind: ExitKind,
-    stmt_ref: StmtRef,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    super::exit::lower_loop_cond_exit_leaf(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        body,
-        kind,
-        stmt_ref,
-        error_prefix,
-    )
-}
-
-pub(in crate::mir::builder) fn lower_conditional_update_if(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
-    condition: &crate::ast::ASTNode,
-    then_body: &[crate::ast::ASTNode],
-    else_body: Option<&Vec<crate::ast::ASTNode>>,
-    error_prefix: &str,
-) -> Result<Option<Vec<LoweredRecipe>>, String> {
-    super::conditional_update::try_lower_conditional_update_if(
-        builder,
-        current_bindings,
-        carrier_phis,
-        carrier_step_phis,
-        carrier_updates,
-        condition,
-        then_body,
-        else_body,
-        error_prefix,
-    )
-}
-
-pub(in crate::mir::builder) fn lower_conditional_update_if_with_break_phi_args(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    condition: &crate::ast::ASTNode,
-    then_body: &[crate::ast::ASTNode],
-    else_body: Option<&Vec<crate::ast::ASTNode>>,
-    error_prefix: &str,
-) -> Result<Option<Vec<LoweredRecipe>>, String> {
-    super::conditional_update::try_lower_conditional_update_if_with_break_phi_args(
-        builder,
-        current_bindings,
-        carrier_phis,
-        carrier_step_phis,
-        carrier_updates,
-        break_phi_dsts,
-        condition,
-        then_body,
-        else_body,
-        error_prefix,
-    )
-}
-
-pub(in crate::mir::builder) fn lower_no_exit_block_with_stmt_lowerer_verified<
-    MakeLowerStmt,
-    LowerStmt,
-    ShouldUpdateBinding,
->(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: Option<&BTreeMap<String, crate::mir::ValueId>>,
-    verified: VerifiedRecipeBlock<'_>,
-    error_prefix: &str,
-    make_lower_stmt: MakeLowerStmt,
-    should_update_binding: ShouldUpdateBinding,
-) -> Result<Vec<LoweredRecipe>, String>
-where
-    MakeLowerStmt: FnMut() -> LowerStmt,
-    LowerStmt: FnMut(
-        &mut MirBuilder,
-        &mut BTreeMap<String, crate::mir::ValueId>,
-        &BTreeMap<String, crate::mir::ValueId>,
-        Option<&BTreeMap<String, crate::mir::ValueId>>,
-        &crate::ast::ASTNode,
-        &str,
-    ) -> Result<Vec<LoweredRecipe>, String>,
-    ShouldUpdateBinding: Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool,
-{
-    verify_port_sig_obligations_if_enabled(&verified, error_prefix)?;
-    let plans = dispatch::lower_no_exit_block_with_stmt_lowerer_verified(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        verified,
-        error_prefix,
-        make_lower_stmt,
-        should_update_binding,
-    )?;
-    debug_log_entry_plans_lit3_origin(builder, &plans, "no_exit_stmt_lowerer");
-    Ok(plans)
-}
-
 fn debug_log_entry_plans_lit3_origin(
     builder: &MirBuilder,
     plans: &[LoweredRecipe],
@@ -410,45 +283,4 @@ fn debug_log_entry_plans_lit3_origin(
         const_int3_dsts,
         origin_spans
     ));
-}
-
-pub(in crate::mir::builder) fn lower_no_exit_block_with_stmt_lowerer<
-    MakeLowerStmt,
-    LowerStmt,
-    ShouldUpdateBinding,
->(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: Option<&BTreeMap<String, crate::mir::ValueId>>,
-    arena: &RecipeBodies,
-    block: &RecipeBlock,
-    error_prefix: &str,
-    make_lower_stmt: MakeLowerStmt,
-    should_update_binding: ShouldUpdateBinding,
-) -> Result<Vec<LoweredRecipe>, String>
-where
-    MakeLowerStmt: FnMut() -> LowerStmt,
-    LowerStmt: FnMut(
-        &mut MirBuilder,
-        &mut BTreeMap<String, crate::mir::ValueId>,
-        &BTreeMap<String, crate::mir::ValueId>,
-        Option<&BTreeMap<String, crate::mir::ValueId>>,
-        &crate::ast::ASTNode,
-        &str,
-    ) -> Result<Vec<LoweredRecipe>, String>,
-    ShouldUpdateBinding: Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool,
-{
-    let verified =
-        verify_no_exit_block_with_pre(arena, block, error_prefix, Some(current_bindings))?;
-    lower_no_exit_block_with_stmt_lowerer_verified(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        verified,
-        error_prefix,
-        make_lower_stmt,
-        should_update_binding,
-    )
 }

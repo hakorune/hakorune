@@ -61,22 +61,9 @@ pub(in crate::mir::builder) struct CommonV2SubstringV9MaterializationV1 {
 }
 
 impl CommonV2SubstringV9MaterializationV1 {
-    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(in crate::mir::builder) const fn site(
-        &self,
-    ) -> crate::mir::checked_callout::CheckedCallOutSiteIdV1 {
-        self.site
-    }
 
     pub(in crate::mir::builder) const fn result(&self) -> LoopValueKeyV1 {
         self.result
-    }
-
-    pub(in crate::mir::builder) const fn physical_block(&self) -> crate::mir::BasicBlockId {
-        self.physical_block
     }
 
     pub(in crate::mir::builder) fn with_text<R>(

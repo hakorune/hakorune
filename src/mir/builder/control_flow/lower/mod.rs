@@ -8,8 +8,7 @@ mod planner_compat;
 pub(in crate::mir::builder) mod normalize;
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use self::planner_compat::{
-    planner_rule_route_label, tags,
+pub(in crate::mir::builder) use self::planner_compat::{ tags,
     CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan,
     CorePlan, Freeze, LoopStepMode, LoweredRecipe, PlanBuildOutcome, PlanLowerer, PlanRuleId,
 };

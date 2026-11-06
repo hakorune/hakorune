@@ -1,7 +1,6 @@
 //! Match every new occurrence to an existing child or a source control writer.
 use super::*;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::physical_boundary::{self, FinishedBindings};
-use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
 use crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1 as Producer;
 use crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1 as LoopProducer;
 use crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1 as DynamicProducer;

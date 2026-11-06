@@ -8,7 +8,7 @@ use super::s6c_prephysical_ingress::S6CPrephysicalIngressRefV2;
 use crate::mir::callable_semantic_batch::S6CTypedInputRoleV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, ResolvedInitializerRelationV1, ResolvedLiteralSourceV1,
-    SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    SourceBindingSiteV1, SourceStmtSiteV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -37,20 +37,12 @@ impl PreparedLoopV2InitialIndexSeedRelationV1<'_> {
         self.owner
     }
 
-    pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
-        &self.loop_site
-    }
-
     pub(crate) fn declaration_site(&self) -> &SourceBindingSiteV1 {
         self.initializer.declaration_site()
     }
 
     pub(crate) const fn binding(&self) -> BindingRefV1 {
         self.initializer.binding()
-    }
-
-    pub(crate) fn initializer_site(&self) -> Option<&SourceExprSiteV1> {
-        self.initializer.initializer_site()
     }
 
     pub(crate) fn declared_type_name(&self) -> Option<&str> {

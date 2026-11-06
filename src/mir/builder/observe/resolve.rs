@@ -35,19 +35,6 @@ where
     });
 }
 
-/// Dev‑only: emit a resolve.choose event（decision）。
-pub(crate) fn emit_choose(builder: &MirBuilder, meta: serde_json::Value) {
-    let fn_name = builder
-        .function_state
-        .current_function
-        .as_ref()
-        .map(|f| f.signature.name.as_str());
-    let region = builder.debug_current_region_id();
-    // KPI (dev-only)
-    record_kpi(&meta);
-    crate::debug::hub::emit("resolve", "choose", fn_name, region.as_deref(), meta);
-}
-
 /// Dev-only lazy resolve.choose relay with a direct KPI input. Keeping the
 /// certainty value typed avoids parsing observer JSON to recover its meaning.
 pub(crate) fn emit_choose_lazy<F>(builder: &mut MirBuilder, certainty: TypeCertainty, build: F)
@@ -64,19 +51,6 @@ where
         let region = builder.debug_current_region_id();
         (fn_name, region, build(builder))
     });
-}
-
-/// Internal: Call from emit_choose wrapper to record KPI if enabled.
-fn record_kpi(meta: &serde_json::Value) {
-    if !kpi_enabled() {
-        return;
-    }
-    let total = TOTAL_CHOOSE.fetch_add(1, Ordering::Relaxed) + 1;
-    let certainty = meta.get("certainty").and_then(|v| v.as_str()).unwrap_or("");
-    if certainty == "Known" {
-        KNOWN_CHOOSE.fetch_add(1, Ordering::Relaxed);
-    }
-    finish_kpi(total);
 }
 
 fn record_kpi_certainty(certainty: TypeCertainty) {

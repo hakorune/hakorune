@@ -191,19 +191,6 @@ pub(crate) struct DirectCallDispositionLoanV1 {
 }
 
 impl DirectCallDispositionLoanV1 {
-    /// Take only the exact Call attached to this ledger's original Completion.
-    pub(crate) fn take_terminal_lifecycle(
-        &mut self,
-        ledger: &super::OrdinaryNewClaimLedgerV1,
-        owner: FunctionOwnerIdV1,
-        return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-    ) -> Result<Option<DirectCallDispositionRowV1>, DirectCallLoanErrorV1> {
-        let Some(row) = self.take_terminal(ledger, owner, return_site)? else {
-            return Ok(None);
-        };
-        row.lifecycle_emission()?;
-        Ok(Some(row))
-    }
 
     pub(crate) fn take_terminal(
         &mut self,

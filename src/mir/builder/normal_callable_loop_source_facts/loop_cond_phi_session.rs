@@ -112,7 +112,6 @@ pub(in crate::mir) struct CompletedSourceLoopPhiPointsV2 {
     phis: BTreeMap<BasicBlockId, Box<[crate::mir::MirInstruction]>>,
 }
 impl CompletedSourceLoopPhiPointsV2 {
-    pub(in crate::mir) fn product(&self) -> &Rc<Product> { &self.points.product }
     pub(in crate::mir) fn phis(&self) -> &BTreeMap<BasicBlockId, Box<[crate::mir::MirInstruction]>> { &self.phis }
     pub(in crate::mir) fn text_phi_v2(&self, binding: BindingRefV1, block: BasicBlockId)
         -> Result<&(BasicBlockId, crate::mir::MirInstruction), String> {

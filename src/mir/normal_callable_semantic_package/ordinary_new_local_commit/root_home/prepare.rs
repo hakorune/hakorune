@@ -39,16 +39,6 @@ pub(crate) struct PreparedRootHomeOrderV1 {
     pub(super) order: RootHomeCleanupOrderV1,
 }
 
-impl PreparedRootHomeOrderV1 {
-    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
-        &self.site
-    }
-}
-
 pub(crate) struct PreparedRootHomeGraphPlanV1 {
     pub(crate) operations: Vec<RootHomeReleaseOriginV1>,
     pub(crate) faults: RootHomeFaultSequencesV1,

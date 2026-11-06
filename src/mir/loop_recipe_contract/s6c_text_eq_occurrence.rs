@@ -49,16 +49,8 @@ impl S6CTextEqOccurrenceSourceViewV1 {
         self.needle_binding
     }
 
-    pub(crate) const fn needle_input(&self) -> LoopValueKeyV1 {
-        self.needle_input
-    }
-
     pub(crate) const fn needle_ordinal(&self) -> u32 {
         1
-    }
-
-    pub(crate) const fn text_eq_item(&self) -> LoopItemKeyV1 {
-        self.text_eq_item
     }
 
     pub(crate) const fn text_eq_block(&self) -> LoopBlockKeyV1 {
@@ -77,20 +69,8 @@ impl S6CTextEqOccurrenceSourceViewV1 {
         self.text_eq_result
     }
 
-    pub(crate) const fn if_item(&self) -> LoopItemKeyV1 {
-        self.if_item
-    }
-
-    pub(crate) const fn if_block(&self) -> LoopBlockKeyV1 {
-        self.if_block
-    }
-
     pub(crate) const fn if_condition(&self) -> LoopValueKeyV1 {
         self.if_condition
-    }
-
-    pub(crate) const fn if_then_block(&self) -> LoopBlockKeyV1 {
-        self.if_then_block
     }
 }
 

@@ -53,24 +53,12 @@ impl PreparedLoopDerivedCarrierSeedRowV1 {
         self.schedule.owner_loop()
     }
 
-    pub(crate) const fn binding(&self) -> super::ids::LoopBindingKeyV1 {
-        self.binding
-    }
-
     pub(crate) const fn result(&self) -> super::ids::LoopValueKeyV1 {
         self.result
     }
 
     pub(crate) const fn source_binding(&self) -> BindingRefV1 {
         self.source_binding
-    }
-
-    pub(crate) fn source_loop(&self) -> &SourceStmtSiteV1 {
-        &self.source_loop
-    }
-
-    pub(crate) const fn carrier(&self) -> LoopCarrierKeyV1 {
-        self.carrier
     }
 
     pub(crate) const fn class(&self) -> LoopValueClassV1 {

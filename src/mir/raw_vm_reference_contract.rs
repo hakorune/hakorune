@@ -98,9 +98,6 @@ pub(crate) enum RawVmReferenceExecutionProfileV1 {
     CanonicalV1,
 }
 
-impl RawVmReferenceExecutionProfileV1 {
-}
-
 /// The closed downstream profile shared by supported Raw consumers.
 ///
 /// This owner keeps compile and execution policy paired until a source owner
@@ -139,12 +136,6 @@ pub(crate) struct RawVmReferenceInvocationV1 {
 }
 
 impl RawVmReferenceInvocationV1 {
-    pub(crate) fn narrow_v1(ast: ASTNode, source_file: Option<&str>) -> Self {
-        RawVmReferenceSupportProfileV1::canonical_v1().into_invocation(
-            ast,
-            source_file.map(str::to_owned).map(String::into_boxed_str),
-        )
-    }
 
     pub(crate) fn new(
         compile: RawPublishedCompileRequestV1,

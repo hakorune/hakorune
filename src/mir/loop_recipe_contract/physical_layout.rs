@@ -40,10 +40,6 @@ impl LoopPhysicalSegmentKeyV1 {
     pub(crate) const fn block(self) -> LoopBlockKeyV1 {
         self.block
     }
-
-    pub(crate) const fn ordinal(self) -> u32 {
-        self.ordinal
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

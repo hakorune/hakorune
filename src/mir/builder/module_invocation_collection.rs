@@ -7,8 +7,7 @@
 //! caller until the later all-route cutover.
 
 use super::module_draft_collector::{
-    CollectedDraftAdmissionReceiptV1, CompletedDraftSignatureViewV1, DraftPublicationPolicyV1,
-    FunctionDraftKeyV1, ModuleDraftCollectorV1,
+    CollectedDraftAdmissionReceiptV1, CompletedDraftSignatureViewV1, ModuleDraftCollectorV1,
 };
 use super::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,

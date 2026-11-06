@@ -26,38 +26,6 @@ pub(in crate::mir::builder) struct LoopContinueOnlySourceTopologyV1 {
     schedule: Box<[LoopContinueOnlyObservedStmtV1]>,
 }
 
-impl LoopContinueOnlySourceTopologyV1 {
-    pub(in crate::mir::builder) fn has_scope_box_lineage(&self) -> bool {
-        self.schedule
-            .iter()
-            .any(|observed| !observed.site.scope_box_children().is_empty())
-    }
-
-    /// Certifies only the complete direct whole-statement schedule.
-    pub(in crate::mir::builder) fn is_direct_complete_schedule(
-        &self,
-        raw_body_statement_count: Option<usize>,
-    ) -> bool {
-        if raw_body_statement_count != Some(self.schedule.len()) || self.schedule.len() < 3 {
-            return false;
-        }
-        let mut carriers = std::collections::BTreeSet::new();
-        self.schedule.iter().enumerate().all(|(index, observed)| {
-            let final_index = self.schedule.len() - 1;
-            let direct_site = observed.site.raw_body_index() == index as u32
-                && observed.site.scope_box_children().is_empty();
-            direct_site
-                && match &observed.role {
-                    LoopContinueOnlyObservedStmtRoleV1::ContinueIf => index == 0,
-                    LoopContinueOnlyObservedStmtRoleV1::CarrierUpdate { carrier } => {
-                        index > 0 && index < final_index && carriers.insert(carrier)
-                    }
-                    LoopContinueOnlyObservedStmtRoleV1::Step => index == final_index,
-                }
-        })
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct LoopContinueOnlyObservedStmtV1 {
     site: LoopSourceBodySiteV1,

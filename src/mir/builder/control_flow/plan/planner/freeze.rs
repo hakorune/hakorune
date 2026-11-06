@@ -21,14 +21,6 @@ impl Freeze {
         }
     }
 
-    pub(in crate::mir::builder) fn ambiguous(message: impl Into<String>) -> Self {
-        Self {
-            tag: "ambiguous",
-            message: message.into(),
-            hint: None,
-        }
-    }
-
     pub(in crate::mir::builder) fn unsupported(message: impl Into<String>) -> Self {
         Self {
             tag: "unsupported",

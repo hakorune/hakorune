@@ -387,17 +387,6 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    /// The root owner's I64Add relation at this exact exit site.
-    pub(crate) fn terminal_i64_add_return_at(
-        &self,
-        site: &SourceStmtSiteV1,
-    ) -> Option<&TerminalI64AddReturnV1> {
-        match self.terminal_relation.get(site) {
-            Some(TerminalRelationV1::I64Add(row)) => Some(row),
-            _ => None,
-        }
-    }
-
     pub(crate) fn terminal_i64_add_return_for_owner_at(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
@@ -407,19 +396,6 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(TerminalRelationV1::I64Add(row)) => Some(row),
             _ => None,
         }
-    }
-
-    /// Every Unit relation in the root map — `validate_terminal_unit_return`
-    /// iterates them because a multi-exit function can bare-return from
-    /// more than one site.
-    pub(super) fn terminal_unit_returns(&self) -> Vec<&TerminalUnitReturnV1> {
-        self.terminal_relation
-            .values()
-            .filter_map(|relation| match relation {
-                TerminalRelationV1::Unit(row) => Some(row),
-                _ => None,
-            })
-            .collect()
     }
 
     pub(crate) fn terminal_map_get_return_for_owner_at(

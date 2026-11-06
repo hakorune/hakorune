@@ -109,39 +109,6 @@ pub(in crate::mir::builder) struct CommonV2S6CTextScalarEqualityLeafReceiptV1<
 impl<'session, 'source, 'envelope>
     CommonV2S6CTextScalarEqualityLeafReceiptV1<'session, 'source, 'envelope>
 {
-    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.capability.owner()
-    }
-
-    pub(in crate::mir::builder) const fn entry(&self) -> crate::mir::BasicBlockId {
-        self.capability.entry()
-    }
-
-    pub(in crate::mir::builder) const fn root_plan_stamp(&self) -> u64 {
-        self.capability.root_plan_stamp()
-    }
-
-    pub(in crate::mir::builder) const fn subject_root_index(&self) -> u32 {
-        self.capability.subject_root_index()
-    }
-
-    pub(in crate::mir::builder) const fn needle_root_index(&self) -> u32 {
-        self.capability.needle_root_index()
-    }
-
-    pub(in crate::mir::builder) const fn initial(&self) -> CommonV2S6CTextCursorInitialStateV1 {
-        self.capability.initial()
-    }
-
-    pub(in crate::mir::builder) const fn relation(&self) -> CommonV2S6CTextCursorSourceRelationV1 {
-        self.capability.relation()
-    }
-
-    pub(in crate::mir::builder) const fn shapes(
-        &self,
-    ) -> &[CommonV2S6CTextScalarEqualityLeafShapeV1; 3] {
-        self.capability.shapes()
-    }
 
     /// Consume the callback-scoped leaf together with its canonical session.
     /// The capability is borrowed only for the materializer callback; no

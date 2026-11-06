@@ -259,14 +259,14 @@ pub(in crate::mir) use ordinary_new_coseal::{EvaluatedExpressionValueV1, BranchS
 #[cfg(test)]
 pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;
 pub(in crate::mir) use ordinary_new_coseal::EmittedDynamicInvocationCallProjectionV1;
-pub(crate) use ordinary_new_coseal::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
+pub(crate) use ordinary_new_coseal::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1};
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayReadV1;
 pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayHolderV1;
 
-pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
+pub(in crate::mir) use ordinary_new_coseal::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
 
 pub(in crate::mir) use ordinary_new_coseal::CallValidationContextV1;
 
@@ -280,7 +280,6 @@ pub(crate) use ordinary_new_coseal::{ArgumentExpressionSourceLoanV1, DynamicEntr
 pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
 pub(crate) use ordinary_new_coseal::BorrowedFormalEntryReadRequirementV1;
 
-pub(crate) use ordinary_new_coseal::ObjectFieldClassSourceV1;
 
 pub(crate) use ordinary_new_coseal::{displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2};
 

@@ -169,18 +169,6 @@ impl CallableLoopDynamicInvocationSourceV1 {
         &self.item
     }
 
-    pub(in crate::mir::builder) fn loan(
-        &self,
-    ) -> &crate::mir::dynamic_invocation_contract::DynamicInvocationSourceLoanV1 {
-        &self.loan
-    }
-
-    pub(in crate::mir::builder) fn observation(
-        &self,
-    ) -> Option<&crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
-        self.observation.as_ref()
-    }
-
     pub(in crate::mir::builder) fn matches_checked_observation(
         &self,
         observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
@@ -384,12 +372,6 @@ impl CallableLoopSourceTargetRelationV1 {
             instance_methods: Box::new([]),
             dynamic_invocations: Box::new([]),
         }
-    }
-
-    pub(in crate::mir::builder) fn core_methods(
-        methods: Box<[CallableLoopSourceItemBindingV1]>,
-    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        Self::covered_call_items(methods, Box::new([]), Box::new([]))
     }
 
     /// One relation for a loop whose call items are covered entirely by

@@ -313,23 +313,6 @@ impl CheckedCallOutSitePlanV1 {
 }
 
 impl CheckedCallOutSitePlanPairV1 {
-    /// Borrow the canonical site identity for an already-admitted entry.
-    ///
-    /// The pair is the only owner of the entry -> site projection.  AOT
-    /// transport consumers must borrow this mapping; they must not infer a
-    /// site from a block, instruction index, selector, or role spelling.
-    pub(crate) fn site_id_for_entry(
-        &self,
-        entry: CheckedCallOutEntryIdV1,
-    ) -> Option<CheckedCallOutSiteIdV1> {
-        if self.i6.admitted_entry == entry {
-            Some(self.i6.site_id)
-        } else if self.i7.admitted_entry == entry {
-            Some(self.i7.site_id)
-        } else {
-            None
-        }
-    }
 
     pub(crate) fn from_admitted(
         i6: CheckedCallOutAdmittedSiteInputV1,
@@ -435,18 +418,6 @@ impl CheckedCallOutPlanTableV1 {
 
     pub(crate) fn get(&self, site: CheckedCallOutSiteIdV1) -> Option<&CheckedCallOutSitePlanV1> {
         self.plans.get(&site)
-    }
-
-    /// Borrow the canonical entry -> site mapping after the session has
-    /// installed the exact function-local plan table.  Consumers may not
-    /// reconstruct a second site-plan pair from entry names or coordinates.
-    pub(crate) fn site_id_for_entry(
-        &self,
-        entry: CheckedCallOutEntryIdV1,
-    ) -> Option<CheckedCallOutSiteIdV1> {
-        self.plans
-            .values()
-            .find_map(|plan| (plan.admitted_entry() == entry).then_some(plan.site_id()))
     }
 
     pub(crate) fn plan_for_entry(

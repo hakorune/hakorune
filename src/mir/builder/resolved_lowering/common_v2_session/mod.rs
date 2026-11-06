@@ -301,13 +301,6 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .issue_physical_entry_execution_boundary(builder)
     }
 
-    pub(in crate::mir) fn physical_execution_entry(
-        &self,
-        builder: &crate::mir::builder::MirBuilder,
-    ) -> Result<BasicBlockId, String> {
-        self.session.physical_execution_entry(builder)
-    }
-
     pub(in crate::mir) fn defer_physical_entry_seal(&mut self) -> Result<(), String> {
         self.session.defer_physical_entry_seal()
     }

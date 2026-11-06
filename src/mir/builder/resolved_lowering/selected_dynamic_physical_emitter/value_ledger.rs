@@ -91,10 +91,6 @@ impl DynamicV2PhysicalValueViewV1 {
     pub(super) const fn value(self) -> ValueId {
         self.value
     }
-
-    pub(super) const fn representation(self) -> DynamicV2PhysicalRepresentationV1 {
-        self.representation
-    }
 }
 
 impl DynamicV2PhysicalValueEntryV1 {

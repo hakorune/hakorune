@@ -10,38 +10,8 @@ use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::recipe_tree::ExitKind;
 use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
-use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
-
-pub(in crate::mir::builder) fn lower_loop_cond_exit_leaf(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    body: &RecipeBody,
-    kind: ExitKind,
-    stmt_ref: StmtRef,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let stmt = if matches!(kind, ExitKind::Return) {
-        Some(
-            body.get_ref(stmt_ref)
-                .ok_or_else(|| format!("{error_prefix}: missing stmt idx={}", stmt_ref.index()))?,
-        )
-    } else {
-        None
-    };
-    lower_loop_cond_exit_input(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        stmt,
-        kind,
-        error_prefix,
-    )
-}
 
 /// Lower an exit leaf whose exact source statement has already been paired by
 /// the associated-source provider.
@@ -192,16 +162,6 @@ pub(in crate::mir::builder) fn build_return_exit_plan(
 /// Build a return-only exit plan (no prelude).
 pub(in crate::mir::builder) fn build_return_only(value_id: crate::mir::ValueId) -> LoweredRecipe {
     CorePlan::Exit(build_return_exit_plan(value_id))
-}
-
-/// Build a CoreExitPlan::Break (for ExitIf / low-level usage).
-pub(in crate::mir::builder) fn build_break_exit_plan(depth: usize) -> CoreExitPlan {
-    CoreExitPlan::Break(depth)
-}
-
-/// Build a CoreExitPlan::Continue (for ExitIf / low-level usage).
-pub(in crate::mir::builder) fn build_continue_exit_plan(depth: usize) -> CoreExitPlan {
-    CoreExitPlan::Continue(depth)
 }
 
 #[track_caller]

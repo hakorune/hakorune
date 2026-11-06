@@ -99,11 +99,6 @@ pub(crate) use joinir::detect_parse_string_shape;
 pub(crate) use joinir::detect_escape_skip_shape;
 
 impl super::MirBuilder {
-    /// Control-flow: block
-    pub(super) fn cf_block(&mut self, statements: Vec<ASTNode>) -> Result<ValueId, String> {
-        // identical to build_block; kept here for future policy hooks
-        self.build_block(statements)
-    }
 
     /// Lower an If while retaining the caller's raw child-descent port.
     pub(in crate::mir::builder) fn cf_if_with_port_v1<Port>(

@@ -142,12 +142,4 @@ impl VerifiedLoopCondSourceAttemptV1 {
     pub(crate) fn identity(&self) -> &LoopCondSourceIdentityV1 {
         &self.identity
     }
-
-    pub(crate) const fn mode(&self) -> Option<LoopCondObservationModeV1> {
-        self.mode
-    }
-
-    pub(crate) const fn coverage(&self) -> LoopCondObservationCoverageV1 {
-        self.coverage
-    }
 }

@@ -46,10 +46,6 @@ impl CompositeLoopEvidenceV1 {
         self.member_index
     }
 
-    pub(in crate::mir) const fn parent_index(&self) -> Option<u32> {
-        self.parent_index
-    }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -29,7 +29,6 @@ impl OwningObjectLocalInputSourceLoanV1 {
     pub(crate) fn callee_owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 { self.source.callee_owner }
     pub(crate) fn receiver(&self) -> Option<&SourceExprSiteV1> { self.source.receiver.as_ref() }
     pub(crate) fn destination(&self) -> BindingRefV1 { self.destination }
-    pub(crate) fn declaration(&self) -> &crate::mir::resolved_semantics::SourceBindingSiteV1 { &self.source.declaration }
     pub(crate) fn matches_arguments_v1(&self, sites: &[SourceExprSiteV1]) -> bool {
         self.source.actuals.len() == sites.len() && self.source.actuals.iter().zip(sites)
             .all(|(a, b)| a.site.owner() == self.call().owner() && a.site.site() == b)

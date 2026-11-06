@@ -152,16 +152,3 @@ pub(crate) fn has_if_else_statement(body: &[ASTNode]) -> bool {
         _ => false,
     })
 }
-
-/// Phase 286: Find first if-else statement in loop body (non-recursive)
-pub(crate) fn find_if_else_statement(body: &[ASTNode]) -> Option<&ASTNode> {
-    body.iter().find(|stmt| {
-        matches!(
-            stmt,
-            ASTNode::If {
-                else_body: Some(_),
-                ..
-            }
-        )
-    })
-}

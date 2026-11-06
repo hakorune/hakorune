@@ -20,7 +20,7 @@ use super::{
 };
 use super::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimCoreV1, OrdinaryNewClaimLedgerV1,
-    OrdinaryNewCoSealIssueV1, OrdinaryNewResultClaimV1, OwnedFieldChildKindV1, OwnedFieldChildV1,
+    OrdinaryNewCoSealIssueV1, OrdinaryNewResultClaimV1, OwnedFieldChildV1,
     VerifiedOrdinaryNewBirthRecipeV1,
 };
 use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
@@ -35,7 +35,6 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
-use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
 #[path = "ordinary_new_coseal_issue_completion_seed.rs"]
 mod completion_seed;

@@ -16,7 +16,6 @@ use crate::mir::builder::resolved_lowering::ReadyFunctionDraftSealV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::loop_recipe_contract::LoopValueKeyV1;
 
-const V0: LoopValueKeyV1 = LoopValueKeyV1::new(0);
 const V1: LoopValueKeyV1 = LoopValueKeyV1::new(1);
 const V2: LoopValueKeyV1 = LoopValueKeyV1::new(2);
 

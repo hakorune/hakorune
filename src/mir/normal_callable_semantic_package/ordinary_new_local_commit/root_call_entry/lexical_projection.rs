@@ -139,10 +139,6 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
         self.packet.call_site()
     }
 
-    pub(in crate::mir) fn original_invoke_binding(&self) -> &(BasicBlockId, MirInstruction) {
-        &self.packet.invoke
-    }
-
     pub(in crate::mir) fn into_local_group_parts(
         self,
     ) -> Result<

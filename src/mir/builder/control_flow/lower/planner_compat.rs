@@ -10,8 +10,7 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::planner
     tags, Freeze, PlanBuildOutcome,
 };
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::single_planner::{
-    planner_rule_route_label, PlanRuleId,
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::single_planner::{ PlanRuleId,
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{

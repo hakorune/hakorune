@@ -451,41 +451,6 @@ mod located {
             LocatedLoopPlanExprInputV1::Located(input)
         }
 
-        pub(in crate::mir::builder) fn located_stmt(
-            &self,
-            input: LegacyStmtInputV1<'plan>,
-        ) -> LocatedLoopPlanStmtInputV1<'plan, 'plan> {
-            LocatedLoopPlanStmtInputV1::Located(input)
-        }
-
-        pub(in crate::mir::builder) fn located_body(
-            &self,
-            input: LegacyBodyInputV1<'plan>,
-        ) -> LocatedLoopPlanBodyInputV1<'plan, 'plan> {
-            LocatedLoopPlanBodyInputV1::Located(input)
-        }
-
-        pub(in crate::mir::builder) fn borrowed_expr<'input>(
-            &self,
-            input: &'input LegacyExprInputV1<'plan>,
-        ) -> LocatedLoopPlanExprInputV1<'plan, 'input> {
-            LocatedLoopPlanExprInputV1::BorrowedLocated(input)
-        }
-
-        pub(in crate::mir::builder) fn borrowed_stmt<'input>(
-            &self,
-            input: &'input LegacyStmtInputV1<'plan>,
-        ) -> LocatedLoopPlanStmtInputV1<'plan, 'input> {
-            LocatedLoopPlanStmtInputV1::BorrowedLocated(input)
-        }
-
-        pub(in crate::mir::builder) fn borrowed_body<'input>(
-            &self,
-            input: &'input LegacyBodyInputV1<'plan>,
-        ) -> LocatedLoopPlanBodyInputV1<'plan, 'input> {
-            LocatedLoopPlanBodyInputV1::BorrowedLocated(input)
-        }
-
         pub(in crate::mir::builder) fn require_exact_stmt(
             &self,
             input: &LegacyStmtInputV1<'plan>,
@@ -512,17 +477,6 @@ mod located {
             self.require_exact_stmt(parent)?;
             self.view
                 .child_expr_from_stmt(parent, role)
-                .map_err(LoopPlanExpressionPortErrorV1::Located)
-        }
-
-        pub(in crate::mir::builder) fn exact_child_body_from_stmt(
-            &self,
-            parent: &LegacyStmtInputV1<'plan>,
-            role: BodyChildRoleV1,
-        ) -> Result<LegacyBodyInputV1<'plan>, LoopPlanExpressionPortErrorV1> {
-            self.require_exact_stmt(parent)?;
-            self.view
-                .child_body_from_stmt(parent, role)
                 .map_err(LoopPlanExpressionPortErrorV1::Located)
         }
 
@@ -773,7 +727,4 @@ mod located {
     }
 }
 
-pub(in crate::mir::builder) use located::{
-    LocatedLoopPlanBodyInputV1, LocatedLoopPlanExprInputV1, LocatedLoopPlanExpressionPortV1,
-    LocatedLoopPlanStmtInputV1,
-};
+pub(in crate::mir::builder) use located::LocatedLoopPlanExpressionPortV1;

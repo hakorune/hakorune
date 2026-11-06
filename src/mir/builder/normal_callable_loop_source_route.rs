@@ -420,10 +420,6 @@ impl CallableLoopSourceRouteTokenV1 {
         &self.projection
     }
 
-    pub(in crate::mir::builder) fn source_items(&self) -> &[CallableLoopSourceItemBindingV1] {
-        &self.source_items
-    }
-
     pub(in crate::mir::builder) fn source_coverage(
         &self,
     ) -> Option<&CallableLoopSourceCallCoverageV1> {

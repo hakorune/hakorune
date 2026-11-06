@@ -41,10 +41,6 @@ impl GenericG0DeclarationAttrV1 {
     pub(crate) fn name(&self) -> &str {
         &self.name
     }
-
-    pub(crate) fn args(&self) -> &[Box<str>] {
-        &self.args
-    }
 }
 
 impl GenericG0DeclarationParameterV1 {

@@ -8,14 +8,13 @@ mod increment;
 
 #[allow(unused_imports)]
 pub(crate) use super::super::stmt_walk::{
-    flatten_stmt_list, strip_trailing_continue_view, walk_stmt_list,
+    flatten_stmt_list, walk_stmt_list,
 };
 #[allow(unused_imports)]
 pub(crate) use condition::is_true_literal;
 #[allow(unused_imports)]
 pub(crate) use control_flow::{
-    branch_tail_is_continue, branch_tail_is_continue_flattened, count_control_flow,
-    find_if_else_statement, has_break_statement, has_continue_statement, has_if_else_statement,
+    branch_tail_is_continue, branch_tail_is_continue_flattened, count_control_flow, has_break_statement, has_continue_statement, has_if_else_statement,
     has_return_statement, ControlFlowCounts, ControlFlowDetector,
 };
 #[allow(unused_imports)]

@@ -115,10 +115,6 @@ impl VerifiedGenericG0FamilyCandidateV1 {
         &self.observation
     }
 
-    pub(crate) const fn context(&self) -> &GenericG0ObservationContextV1 {
-        self.evidence.expected()
-    }
-
     pub(crate) const fn evidence(&self) -> &GenericG0ObservationEvidenceV1 {
         &self.evidence
     }

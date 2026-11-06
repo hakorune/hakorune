@@ -53,13 +53,6 @@ impl BorrowedMulSourceV1 {
         &self.binary
     }
 
-    /// Immutable source coordinates; consumers still owe physical producers.
-    pub(in crate::mir::normal_callable_semantic_package) fn operand_sites(
-        &self,
-    ) -> (&OwnedExprSiteV1, &OwnedExprSiteV1) {
-        (self.operands[0].site(), self.operands[1].site())
-    }
-
     pub(in crate::mir::normal_callable_semantic_package) fn view_binding(
         &self,
         side: BorrowedMulSideV1,

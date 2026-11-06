@@ -5,13 +5,6 @@ use crate::mir::a_prime_i64_physical_receipt::{
 };
 
 impl FunctionMetadata {
-    /// Borrow the candidate-only Dynamic AOT projection for JSON observation.
-    pub(crate) fn dynamic_v2_aot_metadata(
-        &self,
-    ) -> Option<&crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1>
-    {
-        self.dynamic_v2_aot_metadata.borrow()
-    }
 
     pub(in crate::mir) fn install_dynamic_v2_aot_metadata(
         &mut self,
@@ -32,12 +25,6 @@ impl FunctionMetadata {
         receipt: APrimeI64PhysicalReceiptV1,
     ) -> Result<(), APrimeI64PhysicalReceiptSlotRejectV1> {
         self.a_prime_i64_physical_receipt.install(receipt)
-    }
-
-    pub(in crate::mir) fn take_a_prime_i64_physical_receipt(
-        &mut self,
-    ) -> Result<APrimeI64PhysicalReceiptV1, APrimeI64PhysicalReceiptSlotRejectV1> {
-        self.a_prime_i64_physical_receipt.take_once()
     }
 
     #[cfg(test)]

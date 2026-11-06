@@ -20,11 +20,6 @@ impl super::super::MirBuilder {
         super::super::ssa::local::field_base(self, v)
     }
 
-    #[inline]
-    pub(crate) fn local_cond(&mut self, v: super::super::ValueId) -> super::super::ValueId {
-        super::super::ssa::local::cond(self, v)
-    }
-
     /// Local SSA: ensure a value has a definition in the current block and cache it per-block.
     /// kind: 0 = recv (reserved for args in future)
     pub(crate) fn local_ssa_ensure(

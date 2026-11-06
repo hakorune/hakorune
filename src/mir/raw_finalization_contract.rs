@@ -25,13 +25,6 @@ impl RawFinalizationRouteEvidenceV1<'_> {
         }
     }
 
-    pub(crate) const fn route(self) -> RawFinalizationRouteKindV1 {
-        match self {
-            Self::Script { .. } => RawFinalizationRouteKindV1::Script,
-            Self::App { .. } => RawFinalizationRouteKindV1::App,
-        }
-    }
-
     pub(crate) const fn callable_main(self) -> RawPhysicalCallableMainDispositionV1 {
         match self {
             Self::Script { .. } => RawPhysicalCallableMainDispositionV1::NotSelected,
@@ -44,10 +37,4 @@ impl RawFinalizationRouteEvidenceV1<'_> {
             Self::Script { module_name, .. } | Self::App { module_name, .. } => module_name,
         }
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RawFinalizationRouteKindV1 {
-    Script,
-    App,
 }

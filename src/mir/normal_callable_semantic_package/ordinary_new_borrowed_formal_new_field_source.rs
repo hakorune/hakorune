@@ -256,7 +256,7 @@ pub(super) fn observe_local_uses_v1(
     counts: &BTreeMap<BindingRefV1, usize>,
     rebindings: &BTreeSet<BindingRefV1>, captures: &BTreeSet<BindingRefV1>,
 ) -> Option<OriginalNewLocalUsesV1> {
-    use crate::mir::resolved_semantics::{BindingKindV1, ResolvedUnaryOperatorV1};
+    use crate::mir::resolved_semantics::BindingKindV1;
     let function = input.function();
     let mut result = OriginalNewLocalUsesV1 { initializer: initial.clone(), reads: BTreeSet::new(),
         bindings: BTreeSet::new(), moves: BTreeSet::new() };

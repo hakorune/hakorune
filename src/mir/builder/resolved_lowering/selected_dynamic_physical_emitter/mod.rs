@@ -524,15 +524,6 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         )
     }
 
-    /// Explicit terminal for an unpublished selected-Dynamic candidate.
-    pub(super) fn discard_unpublished(mut self) {
-        self.canonical.take();
-        self.outer
-            .take()
-            .expect("unpublished emitter must retain outer session")
-            .discard_unpublished();
-    }
-
     #[cfg(test)]
     fn with_physical_value_for_test<R>(
         &self,

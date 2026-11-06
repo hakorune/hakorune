@@ -165,9 +165,6 @@ impl LexicalInstanceCallDispositionRowV1 {
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
         self.source_target().target()
     }
-    pub(crate) const fn target_batch_slot(&self) -> u32 {
-        self.source_target().target_batch_slot()
-    }
     pub(crate) const fn callee_owner(&self) -> FunctionOwnerIdV1 {
         self.source_target().callee_owner()
     }
@@ -256,7 +253,7 @@ pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_actuals
 mod borrowed_formal_result;
 pub(crate) use borrowed_formal_result::ResultPathFieldSourceLoanV1;
 pub(super) use borrowed_formal_result::{
-    required_scalar_source_walk_v1, source_scalar_result_arguments_v1, BorrowedI64ResultSourceV1,
+    required_scalar_source_walk_v1, source_scalar_result_arguments_v1,
 };
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::BorrowedResultCohortV1;
 pub(crate) use borrowed_formal_result::{

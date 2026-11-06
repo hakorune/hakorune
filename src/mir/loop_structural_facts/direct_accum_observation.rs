@@ -139,16 +139,4 @@ impl VerifiedDirectAccumSourceAttemptV1 {
     ) {
         (self.outcome, self.identity, self.mode, self.coverage)
     }
-
-    pub(crate) fn identity(&self) -> &DirectAccumSourceIdentityV1 {
-        &self.identity
-    }
-
-    pub(crate) const fn mode(&self) -> Option<DirectAccumObservationModeV1> {
-        self.mode
-    }
-
-    pub(crate) const fn coverage(&self) -> DirectAccumObservationCoverageV1 {
-        self.coverage
-    }
 }

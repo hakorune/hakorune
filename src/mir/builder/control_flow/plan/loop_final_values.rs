@@ -18,18 +18,6 @@ impl CoreLoopFinalValuesV1 {
             Self::Raw(rows) => Ok(rows),
         }
     }
-    pub(in crate::mir::builder) fn raw_rows_mut(
-        &mut self,
-    ) -> Result<&mut Vec<(String, ValueId)>, String> {
-        match self {
-            Self::Raw(rows) => Ok(rows),
-        }
-    }
-    pub(in crate::mir::builder) fn len(&self) -> usize {
-        match self {
-            Self::Raw(rows) => rows.len(),
-        }
-    }
     pub(in crate::mir::builder) fn diagnostic_values(
         &self,
     ) -> Box<dyn Iterator<Item = (&str, ValueId)> + '_> {

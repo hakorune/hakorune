@@ -82,12 +82,6 @@ impl VerifiedVariableBoundMulRecipeProductV1 {
     pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
     }
-    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame
-    }
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
     pub(crate) const fn bindings(&self) -> [BindingRefV1; 3] {
         self.bindings
     }

@@ -81,18 +81,6 @@ impl PreparedLoopReadBindingEmissionV1 {
     pub(super) const fn item(&self) -> LoopItemKeyV1 {
         self.item
     }
-
-    pub(super) const fn logical_block(&self) -> LoopBlockKeyV1 {
-        self.logical_block
-    }
-
-    pub(super) const fn expected_loop(&self) -> LoopNodeKeyV1 {
-        self.expected_loop
-    }
-
-    pub(super) const fn expected_role(&self) -> LoopPhysicalBlockRoleV1 {
-        self.expected_role
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -119,14 +107,8 @@ impl ReadBindingEmissionReceiptV1 {
     pub(super) const fn item(self) -> LoopItemKeyV1 {
         self.item
     }
-    pub(super) const fn binding(self) -> BindingRefV1 {
-        self.canonical.binding()
-    }
     pub(super) const fn result(self) -> LoopValueKeyV1 {
         self.result
-    }
-    pub(super) const fn logical_block(self) -> LoopBlockKeyV1 {
-        self.logical_block
     }
     pub(super) const fn physical_block(self) -> BasicBlockId {
         self.canonical.physical_block()
@@ -252,18 +234,6 @@ impl PreparedLoopWriteBindingEmissionV1 {
     pub(super) const fn item(&self) -> LoopItemKeyV1 {
         self.item
     }
-
-    pub(super) const fn logical_block(&self) -> LoopBlockKeyV1 {
-        self.logical_block
-    }
-
-    pub(super) const fn expected_loop(&self) -> LoopNodeKeyV1 {
-        self.expected_loop
-    }
-
-    pub(super) const fn expected_role(&self) -> LoopPhysicalBlockRoleV1 {
-        self.expected_role
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -283,27 +253,6 @@ pub(super) struct WriteBindingEmissionReceiptV1 {
     value: LoopValueKeyV1,
     physical_block: BasicBlockId,
     physical_value: ValueId,
-}
-
-impl WriteBindingEmissionReceiptV1 {
-    pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(super) const fn item(self) -> LoopItemKeyV1 {
-        self.item
-    }
-    pub(super) const fn binding(self) -> BindingRefV1 {
-        self.binding
-    }
-    pub(super) const fn value(self) -> LoopValueKeyV1 {
-        self.value
-    }
-    pub(super) const fn physical_block(self) -> BasicBlockId {
-        self.physical_block
-    }
-    pub(super) const fn physical_value(self) -> ValueId {
-        self.physical_value
-    }
 }
 
 pub(super) fn emit_prepared_write_binding_at_target_v1(

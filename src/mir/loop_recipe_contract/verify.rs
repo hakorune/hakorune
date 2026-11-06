@@ -33,10 +33,6 @@ impl VerifiedLoopRecipeV1 {
         self.0.root_loop
     }
 
-    pub(crate) fn into_recipe(self) -> LoopRecipeV1 {
-        self.0
-    }
-
     /// Test-only producer mutation used to exercise the real dispatch/After
     /// path with a computed CompareI64 operand. The production verifier has
     /// already sealed this recipe; the seam models a malformed handoff after

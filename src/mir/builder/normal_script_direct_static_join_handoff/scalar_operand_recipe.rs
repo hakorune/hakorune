@@ -6,16 +6,12 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::builder::normal_script_direct_static_join_handoff::{
-    VerifiedScriptDirectStaticJoinHandoffV1, VerifiedScriptDirectStaticJoinRowV1,
-};
 use crate::mir::builder::normal_script_direct_static_recipe::ScriptDirectStaticRecipeKeyV1;
-use crate::mir::builder::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 #[cfg(test)]
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::{
     ResolvedBinaryOperatorV1, ResolvedExpressionSourceInventoryV1, ResolvedLiteralSourceV1,
-    ResolvedUnaryOperatorV1, SourceExprSiteV1, VerifiedSemanticOwnerProductV1,
+    ResolvedUnaryOperatorV1, SourceExprSiteV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -164,48 +160,6 @@ impl VerifiedScriptDirectStaticScalarOperandRecipeV1 {
         self
     }
 
-    pub(in crate::mir) fn issue(
-        source: &VerifiedScriptSemanticSourceV1<'_>,
-        join: &VerifiedScriptDirectStaticJoinHandoffV1,
-    ) -> Result<Self, VerifiedScriptDirectStaticScalarOperandRecipeIssueV1> {
-        if source.source() as *const _ as usize != join.source_identity() {
-            return Err(
-                VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::SourceIdentityMismatch,
-            );
-        }
-        let [root] = source.forest().roots() else {
-            return Err(VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::ScriptRootMissing);
-        };
-        let Some(product) = source
-            .forest()
-            .semantic_owner(*root)
-            .and_then(VerifiedSemanticOwnerProductV1::as_script)
-        else {
-            return Err(VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::ScriptRootNotScript);
-        };
-        let source_owner = product.core().data().owner;
-        if source_owner != join.source_owner() {
-            return Err(VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::SourceOwnerMismatch);
-        }
-        let inventory = product.expression_source();
-        let mut rows = BTreeMap::new();
-        for (key, row) in join.rows() {
-            let arguments = issue_arguments(row, product, inventory)?;
-            if rows.insert(*key, arguments).is_some() {
-                return Err(
-                    VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::DuplicateArgumentSite(
-                        row.call_site().clone(),
-                    ),
-                );
-            }
-        }
-        Ok(Self {
-            source_owner,
-            source_identity: join.source_identity(),
-            rows,
-        })
-    }
-
     pub(in crate::mir) const fn source_owner(
         &self,
     ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
@@ -223,107 +177,9 @@ impl VerifiedScriptDirectStaticScalarOperandRecipeV1 {
         self.rows.get(&key).map(Box::as_ref)
     }
 
-    pub(in crate::mir) fn rows(
-        &self,
-    ) -> impl Iterator<
-        Item = (
-            &ScriptDirectStaticRecipeKeyV1,
-            &[ScalarOperandRecipeArgumentV1],
-        ),
-    > {
-        self.rows.iter().map(|(key, rows)| (key, rows.as_ref()))
-    }
-
     pub(in crate::mir) fn len(&self) -> usize {
         self.rows.len()
     }
-}
-
-fn issue_arguments(
-    row: &VerifiedScriptDirectStaticJoinRowV1,
-    product: &crate::mir::resolved_semantics::VerifiedResolvedScriptV1,
-    inventory: &ResolvedExpressionSourceInventoryV1,
-) -> Result<
-    Box<[ScalarOperandRecipeArgumentV1]>,
-    VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
-> {
-    validate_argument_shape(row, product)?;
-
-    let mut seen = BTreeSet::new();
-    let mut arguments = Vec::with_capacity(row.argument_sites().len());
-    for (ordinal, expected_site) in row.argument_sites().iter().enumerate() {
-        let ordinal = ordinal as u32;
-        let tree = issue_node(inventory, expected_site, &mut seen)?;
-        arguments.push(ScalarOperandRecipeArgumentV1 {
-            ordinal,
-            site: expected_site.clone(),
-            tree,
-        });
-    }
-    Ok(arguments.into_boxed_slice())
-}
-
-pub(in crate::mir) fn validate_argument_shape(
-    row: &VerifiedScriptDirectStaticJoinRowV1,
-    product: &crate::mir::resolved_semantics::VerifiedResolvedScriptV1,
-) -> Result<(), VerifiedScriptDirectStaticScalarOperandRecipeIssueV1> {
-    let Some((_, method)) = product
-        .method_calls()
-        .find(|(site, _)| *site == row.call_site())
-    else {
-        return Err(
-            VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::MethodCallMissing(
-                row.call_site().clone(),
-            ),
-        );
-    };
-    if method.owner() != row.source_owner() {
-        return Err(
-            VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::MethodOwnerMismatch(
-                row.call_site().clone(),
-            ),
-        );
-    }
-    if method.receiver_site() != row.receiver_site() {
-        return Err(
-            VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::ReceiverSiteMismatch(
-                row.call_site().clone(),
-            ),
-        );
-    }
-    if method.arguments().len() != row.argument_sites().len() {
-        return Err(
-            VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::ArgumentCardinalityMismatch(
-                row.call_site().clone(),
-            ),
-        );
-    }
-
-    for (ordinal, (argument, expected_site)) in method
-        .arguments()
-        .iter()
-        .zip(row.argument_sites())
-        .enumerate()
-    {
-        let ordinal = ordinal as u32;
-        if argument.ordinal() != ordinal {
-            return Err(
-                VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::ArgumentOrdinalMismatch {
-                    site: row.call_site().clone(),
-                    ordinal: argument.ordinal(),
-                },
-            );
-        }
-        if argument.site() != expected_site {
-            return Err(
-                VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::ArgumentSiteMismatch {
-                    site: row.call_site().clone(),
-                    ordinal,
-                },
-            );
-        }
-    }
-    Ok(())
 }
 
 pub(in crate::mir) fn issue_node(

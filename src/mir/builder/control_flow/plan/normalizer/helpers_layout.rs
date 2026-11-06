@@ -1,6 +1,5 @@
 use crate::mir::builder::MirBuilder;
-use crate::mir::{BasicBlockId, ValueId};
-use std::collections::BTreeMap;
+use crate::mir::BasicBlockId;
 
 /// Standard 5-block layout for simple/control/scan loops
 ///
@@ -35,17 +34,4 @@ impl LoopBlocksStandard5 {
             after_bb,
         })
     }
-}
-
-/// Create phi_bindings map from variable name-ValueId pairs
-///
-/// phi_bindings are used to override variable_map lookups during AST lowering,
-/// ensuring loop variables reference PHI destinations instead of initial values.
-pub(in crate::mir::builder) fn create_phi_bindings(
-    bindings: &[(&str, ValueId)],
-) -> BTreeMap<String, ValueId> {
-    bindings
-        .iter()
-        .map(|(name, id)| (name.to_string(), *id))
-        .collect()
 }

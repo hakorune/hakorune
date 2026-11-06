@@ -44,14 +44,6 @@ impl BuilderCoreCursorV1 {
             self.debug_join,
         );
     }
-
-    pub(in crate::mir::builder) fn next_value(&self) -> u32 {
-        self.next_value
-    }
-
-    pub(in crate::mir::builder) fn next_block(&self) -> u32 {
-        self.next_block
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

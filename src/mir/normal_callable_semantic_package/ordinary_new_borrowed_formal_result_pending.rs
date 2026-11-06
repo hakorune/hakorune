@@ -20,7 +20,7 @@ pub(super) mod mul_result;
 
 #[path = "ordinary_new_borrowed_field_array_read_source.rs"]
 pub(super) mod field_array_read;
-use field_array_read::{capture_field_array_read, CheckedFieldArrayReadSourceV1};
+use field_array_read::capture_field_array_read;
 
 #[derive(Debug)]
 pub(super) enum BorrowedResultSourcePhaseV1 {

@@ -43,10 +43,6 @@ impl VerifiedInitialCallableSourceRowV1 {
     pub(super) fn final_slot(&self) -> InitialCallableFinalSlotV1 {
         self.final_slot
     }
-
-    pub(super) fn callable_contract_source(&self) -> &CallableContractSourceDispositionV1 {
-        &self.callable_contract_source
-    }
 }
 
 /// Non-splittable initial parser Program plus its complete callable source set.

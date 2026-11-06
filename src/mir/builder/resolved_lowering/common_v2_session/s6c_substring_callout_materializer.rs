@@ -58,10 +58,6 @@ impl CommonV2SubstringCallOutNormalResultRefV1 {
         self.source_result
     }
 
-    pub(in crate::mir::builder) const fn normal_block(self) -> crate::mir::BasicBlockId {
-        self.normal_block
-    }
-
     pub(in crate::mir::builder) const fn value(self) -> ValueId {
         self.value
     }

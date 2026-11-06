@@ -50,14 +50,6 @@ impl StmtSpan {
         }
     }
 
-    pub(in crate::mir::builder) fn start_index(self) -> usize {
-        self.range.start_index()
-    }
-
-    pub(in crate::mir::builder) fn end_index(self) -> usize {
-        self.range.end_index()
-    }
-
     pub(in crate::mir::builder) fn indices(self) -> (usize, usize) {
         self.range.indices()
     }

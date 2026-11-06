@@ -100,14 +100,6 @@ impl DynamicV2I8EvidenceV1 {
         self.literal
     }
 
-    pub(super) const fn owner_loop(&self) -> LoopNodeKeyV1 {
-        self.owner_loop
-    }
-
-    pub(super) const fn block(&self) -> LoopBlockKeyV1 {
-        self.block
-    }
-
     pub(super) const fn segment(&self) -> DynamicV2PhysicalScheduleSegmentV1 {
         self.segment
     }

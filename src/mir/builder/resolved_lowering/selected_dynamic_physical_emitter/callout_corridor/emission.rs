@@ -187,24 +187,6 @@ fn normal_result_type(
         .ok_or_else(|| reject(format!("missing canonical MIR type for {return_shape}")))
 }
 
-fn emit_jump(
-    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
-    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
-    source: crate::mir::BasicBlockId,
-    target: crate::mir::BasicBlockId,
-) -> Result<(), DynamicV2I8EmitterRejectV1> {
-    let function = outer
-        .builder_view_mut_for_lowering()
-        .function_state
-        .current_function
-        .as_mut()
-        .ok_or_else(|| reject("missing function while emitting corridor jump"))?;
-    canonical
-        .cfg
-        .emit_jump(function, source, target)
-        .map_err(|error| reject(error.to_string()))
-}
-
 fn emit_header_branch(
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,

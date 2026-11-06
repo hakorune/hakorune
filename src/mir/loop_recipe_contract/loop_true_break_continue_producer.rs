@@ -79,10 +79,6 @@ impl VerifiedLoopTrueBreakContinueRecipeProductV1 {
         &self.operations
     }
 
-    pub(crate) fn inputs(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
-        &self.inputs
-    }
-
     pub(crate) fn policy_receipt(&self) -> &VerifiedLoopTrueBreakContinuePolicyReceiptV1 {
         &self.policy_receipt
     }

@@ -49,11 +49,3 @@ pub(crate) fn flatten_stmt_list<'a>(body: &'a [ASTNode]) -> Vec<&'a ASTNode> {
     });
     out
 }
-
-/// View-only helper: drop a trailing top-level `continue` (no AST rewrite).
-pub(crate) fn strip_trailing_continue_view<'a>(body: &'a [ASTNode]) -> (&'a [ASTNode], bool) {
-    match body.last() {
-        Some(ASTNode::Continue { .. }) => (&body[..body.len().saturating_sub(1)], true),
-        _ => (body, false),
-    }
-}

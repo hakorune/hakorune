@@ -38,10 +38,4 @@ impl CanonicalSsaS6cStateV1 {
     pub(super) fn set_pinned_text_residence(&mut self, state: PinnedTextResidenceLifecycleStateV1) {
         self.pinned_text_residence = Some(state);
     }
-
-    pub(super) fn pinned_text_residence_mut(
-        &mut self,
-    ) -> Option<&mut PinnedTextResidenceLifecycleStateV1> {
-        self.pinned_text_residence.as_mut()
-    }
 }

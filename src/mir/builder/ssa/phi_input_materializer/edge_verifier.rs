@@ -99,41 +99,6 @@ impl std::fmt::Display for PhiEdgeVerificationErrorV1 {
 
 impl std::error::Error for PhiEdgeVerificationErrorV1 {}
 
-/// Read-only CFG facts derived only from terminators.
-///
-/// Cache equality is deliberately not a property of this view. Strict
-/// verification checks it separately; a disconnected candidate may rebuild
-/// its owned caches from the same terminator truth before strict verification.
-#[derive(Debug)]
-pub(in crate::mir::builder) struct TerminatorCfgViewV1 {
-    predecessors: BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>>,
-    reachable: BTreeSet<BasicBlockId>,
-    dominators: BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>>,
-}
-
-impl TerminatorCfgViewV1 {
-    pub(in crate::mir::builder) fn predecessors(
-        &self,
-        block: BasicBlockId,
-    ) -> BTreeSet<BasicBlockId> {
-        self.predecessors.get(&block).cloned().unwrap_or_default()
-    }
-
-    pub(in crate::mir::builder) fn is_reachable(&self, block: BasicBlockId) -> bool {
-        self.reachable.contains(&block)
-    }
-
-    pub(in crate::mir::builder) fn dominates(
-        &self,
-        definition: BasicBlockId,
-        use_block: BasicBlockId,
-    ) -> bool {
-        self.dominators
-            .get(&use_block)
-            .is_some_and(|set| set.contains(&definition))
-    }
-}
-
 /// Read-only candidate for an unused Phi deletion.
 ///
 /// It intentionally exposes no commit. A later side-artifact closure owner

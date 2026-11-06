@@ -70,44 +70,4 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             });
         Ok(capability)
     }
-
-    /// Install one success-only marker at an explicit exit selected by the
-    /// sole DraftSeal exit inventory.  A per-block set prevents duplicate
-    /// Finish placement without creating a second exit authority.
-    pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish(
-        &mut self,
-        builder: &mut MirBuilder,
-        residence: TextFormalResidenceIdV1,
-    ) -> Result<(), String> {
-        let current = builder
-            .function_state
-            .current_block
-            .ok_or_else(|| "Residence Finish requires a selected canonical block".to_owned())?;
-        let state = self
-            .s6c_state
-            .pinned_text_residence()
-            .ok_or_else(|| "Residence Finish has no admitted Enter".to_owned())?;
-        if state.residence != residence {
-            return Err("Residence Finish provenance differs from Enter".to_owned());
-        }
-        if state.finish_blocks.contains(&current) {
-            return Err(
-                "pinned-Text Residence Finish was already emitted for this exit".to_owned(),
-            );
-        }
-        let function = builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| "Residence Finish requires a current function".to_owned())?;
-        self.cfg
-            .emit_pinned_text_residence_finish(function, current, residence)
-            .map_err(|error| error.to_string())?;
-        let state = self
-            .s6c_state
-            .pinned_text_residence_mut()
-            .expect("Residence state was checked above");
-        state.finish_blocks.insert(current);
-        Ok(())
-    }
 }

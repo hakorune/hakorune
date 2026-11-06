@@ -145,12 +145,4 @@ impl VerifiedGenericG0SourceAttemptV1 {
     pub(crate) fn identity(&self) -> &GenericG0SourceIdentityV1 {
         &self.identity
     }
-
-    pub(crate) const fn mode(&self) -> Option<GenericG0ObservationModeV1> {
-        self.mode
-    }
-
-    pub(crate) const fn coverage(&self) -> GenericG0ObservationCoverageV1 {
-        self.coverage
-    }
 }

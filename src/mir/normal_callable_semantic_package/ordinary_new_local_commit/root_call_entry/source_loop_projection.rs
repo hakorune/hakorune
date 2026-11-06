@@ -66,9 +66,6 @@ impl EmittedSourceLoopProjectionV2 {
     ) -> &Rc<Product> {
         &self.product
     }
-    pub(super) fn expected(&self) -> &[LifecyclePrefixSourceV1] {
-        &self.expected
-    }
     pub(super) fn snapshot(&self) -> Vec<RootLifecyclePrefixBindingGroupV1> {
         self.children.borrow().clone()
     }

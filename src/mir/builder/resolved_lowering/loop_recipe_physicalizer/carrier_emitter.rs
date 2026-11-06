@@ -47,20 +47,8 @@ impl PreparedLoopDerivedCarrierSeedEmissionV1 {
     pub(super) const fn item(self) -> crate::mir::loop_recipe_contract::LoopItemKeyV1 {
         self.item
     }
-    pub(super) const fn binding(self) -> BindingRefV1 {
-        self.binding
-    }
     pub(super) const fn result(self) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
         self.result
-    }
-    pub(super) const fn logical_block(self) -> crate::mir::loop_recipe_contract::LoopBlockKeyV1 {
-        self.logical_block
-    }
-    pub(super) const fn expected_loop(self) -> crate::mir::loop_recipe_contract::LoopNodeKeyV1 {
-        self.expected_loop
-    }
-    pub(super) const fn expected_role(self) -> super::topology::LoopPhysicalBlockRoleV1 {
-        self.expected_role
     }
     pub(super) const fn class(self) -> crate::mir::loop_recipe_contract::LoopValueClassV1 {
         self.class
@@ -91,9 +79,6 @@ impl DerivedCarrierSeedEmissionReceiptV1 {
     }
     pub(super) const fn item(self) -> crate::mir::loop_recipe_contract::LoopItemKeyV1 {
         self.item
-    }
-    pub(super) const fn binding(self) -> BindingRefV1 {
-        self.binding
     }
     pub(super) const fn result(self) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
         self.result

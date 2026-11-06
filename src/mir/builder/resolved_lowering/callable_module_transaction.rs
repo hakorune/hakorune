@@ -11,13 +11,10 @@ use crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1;
 use crate::mir::compiler::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
-use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, CanonicalCallableSymbolV1};
+use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
 
 use super::{CanonicalResolvedBuildErrorV1, MirBuilder};
-use crate::mir::builder::module_draft_collector::{
-    CallableCollectorDraftEntryV1, ModuleDraftCollectorV1, PreparedCallableCollectorBatchV1,
-    RejectedCallableCollectorBatchV1,
-};
+use crate::mir::builder::module_draft_collector::CallableCollectorDraftEntryV1;
 
 #[derive(Debug)]
 pub(in crate::mir) enum CallableModuleTransactionErrorV1 {
@@ -63,44 +60,6 @@ pub(in crate::mir) enum CallableModuleTransactionErrorV1 {
 pub(in crate::mir) struct VerifiedUnpublishedCallableDraftSetV1<'a> {
     source: &'a VerifiedResolvedCallableModuleV1,
     drafts_by_key: BTreeMap<CanonicalCallableKeyV1, MirFunction>,
-}
-
-#[derive(Debug)]
-pub(super) struct PreparedCallableCollectorInvocationV1<'a> {
-    source: &'a VerifiedResolvedCallableModuleV1,
-    batch: PreparedCallableCollectorBatchV1,
-}
-
-#[derive(Debug)]
-pub(super) struct RejectedCallableCollectorInvocationV1<'a> {
-    _source: &'a VerifiedResolvedCallableModuleV1,
-    rejected: RejectedCallableCollectorBatchV1,
-}
-
-impl<'a> PreparedCallableCollectorInvocationV1<'a> {
-    pub(super) fn collect_all(
-        self,
-    ) -> (
-        &'a VerifiedResolvedCallableModuleV1,
-        ModuleDraftCollectorV1,
-        crate::mir::builder::module_draft_collector::CallableCollectorBatchReceiptV1,
-    ) {
-        let source = self.source;
-        let (collector, receipt) = self.batch.collect_all();
-        (source, collector, receipt)
-    }
-}
-
-impl<'a> RejectedCallableCollectorInvocationV1<'a> {
-    pub(super) fn collector(&self) -> &ModuleDraftCollectorV1 {
-        self.rejected.collector()
-    }
-
-    pub(super) fn error(
-        &self,
-    ) -> &crate::mir::builder::module_draft_collector::CallableCollectorBatchPrepareErrorV1 {
-        self.rejected.error()
-    }
 }
 
 impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
@@ -219,45 +178,6 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
             source,
             drafts_by_key,
         })
-    }
-
-    /// Re-project the already verified unpublished set into one canonical
-    /// collector batch. The source owner has completed all fallible lowering
-    /// checks before this terminal; the collector performs its own whole-batch
-    /// collision preflight and never receives a partial prefix.
-    pub(super) fn prepare_collector_batch(
-        self,
-        collector: ModuleDraftCollectorV1,
-    ) -> Result<PreparedCallableCollectorInvocationV1<'a>, RejectedCallableCollectorInvocationV1<'a>>
-    {
-        let Self {
-            source,
-            drafts_by_key,
-        } = self;
-        let entries = drafts_by_key
-            .into_iter()
-            .map(|(key, draft)| {
-                let canonical_symbol = CanonicalCallableSymbolV1::from_name_arity(
-                    key.name(),
-                    key.arity() as usize,
-                );
-                CallableCollectorDraftEntryV1::new(
-                    crate::mir::builder::module_draft_collector::FunctionDraftKeyV1::CanonicalCallable(
-                        key,
-                    ),
-                    canonical_symbol.as_mir_name().to_owned(),
-                    draft.signature.params.len(),
-                    draft,
-                )
-            })
-            .collect();
-        collector
-            .prepare_callable_batch(entries)
-            .map(|batch| PreparedCallableCollectorInvocationV1 { source, batch })
-            .map_err(|rejected| RejectedCallableCollectorInvocationV1 {
-                _source: source,
-                rejected,
-            })
     }
 
     pub(super) fn publish_into(

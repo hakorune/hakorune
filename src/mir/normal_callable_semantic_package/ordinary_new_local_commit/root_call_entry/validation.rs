@@ -445,30 +445,6 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(())
     }
-    /// The routed lifecycle calls this exact exit covers, in `local_calls()`
-    /// source order. Sibling exits sharing a prefix each name the same
-    /// call sites; entry construction claims the recorded groups through
-    /// `select_local_call_binding_groups` instead of draining the pool.
-    fn expected_local_call_binding_sources_for_exit(
-        &self,
-        owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
-    ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
-        self.expected_local_call_binding_sources_for_exit_with_pending(owner, exit, &[])
-    }
-
-    fn expected_local_call_binding_sources_for_exit_with_pending(
-        &self,
-        owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
-        pending_routes: &[OwnedExprSiteV1],
-    ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
-        self.expected_local_call_binding_sources_for_key_v1(
-            owner,
-            &exit.clone().into(),
-            pending_routes,
-        )
-    }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expected_local_call_binding_sources_for_key_v1(
         &self,
@@ -618,27 +594,6 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("local-call-binding-sequence"));
         }
         Ok(())
-    }
-
-    /// Match one exit's claimed lifecycle local-call binding groups against
-    /// the finished function: the source-ordered site sequence first, then
-    /// every recorded instruction at its projected block.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn check_local_call_binding_groups(
-        &self,
-        owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
-        function: &MirFunction,
-        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        groups: &[RootLifecyclePrefixBindingGroupV1],
-    ) -> Result<(), String> {
-        self.check_local_call_binding_groups_with_pending(
-            owner,
-            exit,
-            function,
-            finishing,
-            groups,
-            &[],
-        )
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn check_local_call_binding_groups_with_pending(

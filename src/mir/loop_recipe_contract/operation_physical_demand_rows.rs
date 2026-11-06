@@ -13,20 +13,6 @@ pub(crate) struct PreparedLoopOperationScheduleRowV1 {
     pub(super) owner_loop: LoopNodeKeyV1,
 }
 
-impl PreparedLoopOperationScheduleRowV1 {
-    pub(crate) const fn new(
-        item: LoopItemKeyV1,
-        block: LoopBlockKeyV1,
-        owner_loop: LoopNodeKeyV1,
-    ) -> Self {
-        Self {
-            item,
-            block,
-            owner_loop,
-        }
-    }
-}
-
 /// Full Recipe-order operation view derived from a prepared program.
 ///
 /// This is intentionally a complete projection: callers cannot ask for one
@@ -58,10 +44,6 @@ impl PreparedLoopOperationRowV1 {
 
     pub(crate) const fn block(self) -> LoopBlockKeyV1 {
         self.schedule.block
-    }
-
-    pub(crate) const fn owner_loop(self) -> LoopNodeKeyV1 {
-        self.schedule.owner_loop
     }
 
     pub(crate) const fn operation(self) -> LoopOperationV1 {

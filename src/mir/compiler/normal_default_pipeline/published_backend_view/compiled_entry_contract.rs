@@ -189,21 +189,6 @@ pub(crate) struct CompiledEntryCleanupCoordinateV1 {
     kind: CompiledEntryCleanupKindV1,
 }
 
-impl CompiledEntryCleanupCoordinateV1 {
-    pub(crate) const fn function_index(self) -> u32 {
-        self.function_index
-    }
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
-    pub(crate) const fn kind(self) -> CompiledEntryCleanupKindV1 {
-        self.kind
-    }
-}
-
 impl CompiledEntryBirthV1 {
     pub(crate) const fn function_index(&self) -> u32 {
         self.function_index

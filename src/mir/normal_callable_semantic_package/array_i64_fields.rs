@@ -28,11 +28,10 @@
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::*;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
-use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1,
+    BindingKindV1, BindingRefV1, BodyExpressionShapeV1,
     CallableSemanticSourceLedgerView, ResolvedAssignmentTargetV1, ResolvedBinaryOperatorV1,
-    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
+    ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
     ResolvedUnaryOperatorV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 use std::collections::{BTreeMap, BTreeSet};

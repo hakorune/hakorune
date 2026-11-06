@@ -130,32 +130,8 @@ impl<'source> GenericG0PhysicalOperationCohortV1<'source> {
         self.input.owner()
     }
 
-    pub(crate) const fn target(&self) -> NumericTarget {
-        self.target
-    }
-
     pub(crate) fn entries(&self) -> &[VerifiedGenericG0EntryBindingV1] {
         &self.entries
-    }
-
-    pub(crate) fn declaration_header(&self) -> &VerifiedGenericG0TopLevelDeclarationHeaderV1 {
-        &self.declaration_header
-    }
-
-    pub(crate) fn function_effect(&self) -> &VerifiedGenericG0NoExternalEffectV1 {
-        &self.function_effect
-    }
-
-    pub(crate) fn result_abi(&self) -> &VerifiedGenericG0ResultAbiV1 {
-        &self.result_abi
-    }
-
-    pub(crate) fn storage_lane(&self) -> &VerifiedGenericG0StorageLaneSourceProjectionV1 {
-        &self.storage_lane
-    }
-
-    pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
-        &self.completion
     }
 
     /// Consume the cohort once and lend its program plus one complete

@@ -154,10 +154,6 @@ impl VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
         &self.exits
     }
 
-    pub(crate) const fn root_frame_key(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.root_frame_key
-    }
-
     pub(crate) fn matches_source_identity(
         &self,
         function_origin: FunctionOriginV1,

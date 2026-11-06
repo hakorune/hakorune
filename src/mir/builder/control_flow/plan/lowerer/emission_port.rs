@@ -37,12 +37,6 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
         Self::Raw
     }
 
-    pub(in crate::mir::builder) fn claimed<'claims>(
-        claims: ClaimedCallableResultLoopBatchV1<'claims>,
-    ) -> CorePlanEffectEmissionPortV1<'claims> {
-        CorePlanEffectEmissionPortV1::Claimed(claims)
-    }
-
     pub(in crate::mir::builder) fn source_publication(
         ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
     ) -> Self {

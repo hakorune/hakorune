@@ -177,10 +177,6 @@ impl<'a> CallableResultContractRefV1<'a> {
         self.identity
     }
 
-    pub(crate) const fn role(&self) -> SelectedCallableConsumptionRoleV1 {
-        self.role
-    }
-
     pub(crate) const fn result(&self) -> Option<ExactTrivialScalarAbiV1> {
         self.result
     }

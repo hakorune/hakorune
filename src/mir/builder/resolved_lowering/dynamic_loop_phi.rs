@@ -90,16 +90,6 @@ impl OpenSourceBackedDynamicLoopCarrierPhiV1 {
     pub(in crate::mir::builder) const fn placement(&self) -> DynamicLoopPhysicalPlacementV1 {
         self.placement
     }
-
-    pub(super) fn into_parts(
-        self,
-    ) -> (
-        PreparedSourceBackedDynamicLoopIngressV1,
-        DynamicLoopPhysicalPlacementV1,
-        CanonicalBindingReadReceiptV1,
-    ) {
-        (self.ingress, self.placement, self.header_current)
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

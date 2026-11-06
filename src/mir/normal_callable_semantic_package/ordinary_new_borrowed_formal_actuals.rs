@@ -17,7 +17,7 @@ mod model;
 mod argument_source;
 pub(in crate::mir::normal_callable_semantic_package) use argument_source::source_take_homes_v1;
 pub(super) use instance_source::{
-    original_core_argument_input_request_v1, revalidate_passive_instance_incoming_v1,
+    original_core_argument_input_request_v1,
     revalidate_passive_instance_incoming_with_array_context_v1,
 };
 pub(in crate::mir::normal_callable_semantic_package) use instance_source::{

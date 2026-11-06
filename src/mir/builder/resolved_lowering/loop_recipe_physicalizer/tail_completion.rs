@@ -169,20 +169,9 @@ pub(super) struct ReadyCallableTailCompletionV1 {
 }
 
 impl ReadyCallableTailCompletionV1 {
-    pub(super) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.owner
-    }
 
     pub(super) const fn block(&self) -> BasicBlockId {
         self.block
-    }
-
-    pub(super) const fn value(&self) -> ValueId {
-        self.value
-    }
-
-    pub(super) const fn abi(&self) -> ExactTrivialReturnAbiV1 {
-        self.abi
     }
 
     pub(super) fn into_profile_close(self) -> ReadyCallableLoopProfileCloseV1 {

@@ -68,12 +68,6 @@ impl S6CTextEqOccurrencePhysicalViewV1<'_> {
         self.carrier
     }
 
-    pub(in crate::mir::builder) const fn text_eq_item(
-        &self,
-    ) -> crate::mir::loop_recipe_contract::LoopItemKeyV1 {
-        self.source.text_eq_item()
-    }
-
     pub(in crate::mir::builder) const fn text_eq_block(
         &self,
     ) -> crate::mir::loop_recipe_contract::LoopBlockKeyV1 {

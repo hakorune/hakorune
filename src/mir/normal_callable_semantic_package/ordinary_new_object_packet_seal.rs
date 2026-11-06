@@ -6,7 +6,7 @@ use super::super::super::completion_index::{
 use super::super::borrowed_formal_actuals::{
     PreparedBorrowedCallActualsV1, PreparedBorrowedFormalActualV1,
 };
-use super::super::borrowed_formal_uses::{BorrowedIncomingCallDraftV1, BorrowedIncomingSourceV1};
+use super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1;
 use super::*;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use std::collections::BTreeMap;

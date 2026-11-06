@@ -630,30 +630,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         }
     }
 
-    /// Move the exact prepared Loop into the sole source-aware Facts issuer.
-    pub(in crate::mir::builder) fn into_callable_generic_loop_source_facts_payload(
-        self,
-        owner: FunctionOwnerIdV1,
-        function_name: &str,
-        debug: bool,
-        in_static_box: bool,
-        policy: LoopFactsPolicyFrameV1,
-    ) -> Result<PreparedCallableGenericLoopSourceFactsPayloadV1<'source>, String> {
-        self.into_callable_generic_loop_source_facts_payload_with_source_relations(
-            owner,
-            function_name,
-            debug,
-            in_static_box,
-            policy,
-            None,
-            None,
-            None,
-            Box::default(),
-            CallableLoopSourceTargetProbeV1::empty(),
-            None,
-        )
-    }
-
     /// Extended source payload used by the selected LoopCond bridge. The
     /// compatibility wrapper above keeps existing GenericLoop tests and
     /// callers on the same preparation contract.

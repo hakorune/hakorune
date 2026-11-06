@@ -10,10 +10,10 @@ mod verify;
 mod tests;
 
 pub(crate) use error::OwnershipSsaErrorV1;
-pub(crate) use published_homes::{verify_published_object_homes_v1, PublishedHomeVerdictV1};
+pub(crate) use published_homes::verify_published_object_homes_v1;
 pub(crate) use model::{
-    FunctionResultOwnershipV1, MirOwnershipKindV1, OwnershipDispositionV1, OwnershipFunctionAbiV1,
-    OwnershipFunctionOwnerV1, OwnershipOperationKindV1, OwnershipOperationV1,
+    FunctionResultOwnershipV1, MirOwnershipKindV1, OwnershipFunctionAbiV1,
+    OwnershipFunctionOwnerV1, OwnershipOperationKindV1,
     VerifiedOwnershipSsaV1,
 };
 

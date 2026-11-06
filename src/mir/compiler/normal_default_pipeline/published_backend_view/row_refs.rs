@@ -25,20 +25,9 @@ pub(crate) struct PublishedFreeFunctionCallRef<'module> {
 }
 
 impl<'module> PublishedFreeFunctionCallRef<'module> {
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
 
     pub(crate) fn key(self) -> &'module CanonicalSameModuleCallableKeyV1 {
         self.key
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
     }
 
     pub(crate) fn args(self) -> &'module [ValueId] {
@@ -47,24 +36,9 @@ impl<'module> PublishedFreeFunctionCallRef<'module> {
 }
 
 impl<'module> PublishedStaticMethodCallRef<'module> {
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
 
     pub(crate) fn key(self) -> &'module CanonicalSameModuleCallableKeyV1 {
         self.key
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
-
-    pub(crate) fn args(self) -> &'module [ValueId] {
-        self.args
     }
 }
 
@@ -80,17 +54,6 @@ pub(crate) struct PublishedBuiltinPrintCallRef<'module> {
 }
 
 impl<'module> PublishedBuiltinPrintCallRef<'module> {
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
 
     pub(crate) fn args(self) -> &'module [ValueId] {
         self.args

@@ -258,7 +258,7 @@ pub(super) fn validate_take_declarations_v1(
     class: &str,
     row: &VerifiedInstanceConstructorSemanticRowV1,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalDeclarationClassV1 as Declaration;
+    
     match row.formal_contracts().iter().find(|formal| formal.is_take() && !formal.declares_exact_object()) {
         Some(formal) => Err(OrdinaryNewCoSealIssueV1::TakeFormalDeclarationUnavailable {
             site: site.clone(),
@@ -277,7 +277,7 @@ pub(super) fn validate_take_actuals_v1(
     row: &VerifiedInstanceConstructorSemanticRowV1,
     arguments: &[OrdinaryNewTrivialArgumentV1],
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    use crate::mir::normal_callable_semantic_package::instance_constructor_semantic::BirthFormalDeclarationClassV1 as Declaration;
+    
     use crate::mir::normal_callable_semantic_package::instance_construction::ConstructionUnavailableV1 as Unavailable;
     // A birth with a `take` formal has no legacy route (it cannot lower `move`), so every
     // reason its source or plan is unavailable is a refusal, not only the two spelling errors.

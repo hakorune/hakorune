@@ -39,36 +39,6 @@ pub(crate) struct VerifiedVariableBoundMulFactsV1 {
 struct VariableBoundMulFactsSealV1;
 
 impl VerifiedVariableBoundMulFactsV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) fn source(&self) -> &VerifiedResolvedLoopSourceV1 {
-        &self.source
-    }
-    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        &self.frame
-    }
-    pub(crate) const fn scope_region(&self) -> ResolvedScopeRegionPairV1 {
-        self.scope_region
-    }
-    pub(crate) fn condition(&self) -> &SourceExprSiteV1 {
-        &self.condition
-    }
-    pub(crate) fn operations(&self) -> &[(SourceStmtSiteV1, SourceExprSiteV1); 2] {
-        &self.operations
-    }
-    pub(crate) fn condition_operands(&self) -> &[SourceExprSiteV1; 2] {
-        &self.condition_operands
-    }
-    pub(crate) fn operation_operands(&self) -> &[[SourceExprSiteV1; 3]; 2] {
-        &self.operation_operands
-    }
-    pub(crate) fn inputs(&self) -> &[(SourceBindingSiteV1, SourceExprSiteV1); 3] {
-        &self.inputs
-    }
-    pub(crate) const fn bindings(&self) -> [BindingRefV1; 3] {
-        self.bindings
-    }
 
     pub(crate) fn into_parts(
         self,

@@ -95,30 +95,6 @@ impl VerifiedLoopOperationTargetBlockV1 {
         Ok(())
     }
 
-    pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(super) const fn item(self) -> LoopItemKeyV1 {
-        self.item
-    }
-
-    pub(super) const fn loop_key(self) -> LoopNodeKeyV1 {
-        self.loop_key
-    }
-
-    pub(super) const fn logical_block(self) -> LoopBlockKeyV1 {
-        self.logical_block
-    }
-
-    pub(super) const fn role(self) -> LoopPhysicalBlockRoleV1 {
-        self.role
-    }
-
-    pub(super) const fn preheader(self) -> BasicBlockId {
-        self.preheader
-    }
-
     pub(super) const fn physical_block(self) -> BasicBlockId {
         self.physical_block
     }

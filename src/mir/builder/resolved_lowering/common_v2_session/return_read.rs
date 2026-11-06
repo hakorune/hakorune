@@ -87,10 +87,6 @@ impl CommonV2ReturnReadPhysicalReceiptV1<'_, '_, '_> {
         self.owner
     }
 
-    pub(in crate::mir::builder) const fn binding(&self) -> BindingRefV1 {
-        self.binding
-    }
-
     pub(in crate::mir::builder) const fn return_item(
         &self,
     ) -> crate::mir::loop_recipe_contract::LoopItemKeyV1 {
@@ -107,10 +103,6 @@ impl CommonV2ReturnReadPhysicalReceiptV1<'_, '_, '_> {
         &self,
     ) -> crate::mir::loop_recipe_contract::LoopBlockKeyV1 {
         self.then_block
-    }
-
-    pub(in crate::mir::builder) const fn then_split_ordinal(&self) -> u32 {
-        self.then_split_ordinal
     }
 
     pub(in crate::mir::builder) const fn then_physical_block(&self) -> BasicBlockId {
@@ -135,10 +127,6 @@ impl CommonV2ReturnReadPhysicalReceiptV1<'_, '_, '_> {
         self.if_condition
     }
 
-    pub(in crate::mir::builder) const fn if_split_ordinal(&self) -> u32 {
-        self.if_split_ordinal
-    }
-
     pub(in crate::mir::builder) const fn if_physical_block(&self) -> BasicBlockId {
         self.if_physical_block
     }
@@ -161,22 +149,8 @@ impl CommonV2ReturnReadPhysicalReceiptV1<'_, '_, '_> {
         self.terminal_block
     }
 
-    pub(in crate::mir::builder) const fn target_function(&self) -> RegionId {
-        self.target_function
-    }
-
     pub(in crate::mir::builder) const fn join_target(&self) -> LoopJoinBranchExitTargetV2 {
         self.join_target
-    }
-
-    pub(in crate::mir::builder) const fn physical_value(&self) -> ValueId {
-        self.physical_value
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn segment_brand(
-        &self,
-    ) -> super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1 {
-        self.segment_brand.clone()
     }
 }
 

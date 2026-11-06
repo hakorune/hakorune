@@ -18,17 +18,6 @@ impl SplitScanSourceTopologyV1 {
     }
 }
 
-pub(super) fn try_extract_split_scan_facts(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<SplitScanFacts>, Freeze> {
-    try_extract_split_scan_facts_with_projection(
-        condition,
-        body,
-        &LoopSourceProjectionV1::default(),
-    )
-}
-
 pub(super) fn try_extract_split_scan_facts_with_projection(
     condition: &ASTNode,
     body: &[ASTNode],

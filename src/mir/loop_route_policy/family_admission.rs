@@ -201,16 +201,6 @@ impl LoopFamilyAdmissionFailureEvidenceV1 {
     pub(crate) fn issues(&self) -> &[LoopFamilyAdmissionIssueV1] {
         &self.issues
     }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedLoopFamilyWindowLeaseV1,
-        Box<[LoopFamilyObservationRowV1]>,
-        Box<[LoopFamilyAdmissionIssueV1]>,
-    ) {
-        (self.lease, self.rows, self.issues)
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

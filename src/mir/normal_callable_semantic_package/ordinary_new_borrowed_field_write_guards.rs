@@ -2,7 +2,7 @@
 //! Source selection stays with the retained Completion and original use draft.
 use super::*;
 use crate::mir::builder::{IfConditionMaterializationV1, LocalSsaPhysicalRelationV1};
-use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathV1, SourcePathSegmentV1, SourceStmtSiteV1};
+use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathV1, SourcePathSegmentV1};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, CompareOp};
 type Binding = (BasicBlockId, MirInstruction);
 

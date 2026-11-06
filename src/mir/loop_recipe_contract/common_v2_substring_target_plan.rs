@@ -75,42 +75,6 @@ impl PreparedLoopV2SubstringCallTargetPlanV1 {
         self.result
     }
 
-    pub(crate) const fn target_brand(
-        &self,
-    ) -> crate::mir::resolved_semantics::CoreMethodTargetBrandV1 {
-        self.target_brand
-    }
-
-    pub(crate) const fn manifest_brand(
-        &self,
-    ) -> crate::mir::core_method_result_kind::CoreMethodManifestBrandV2 {
-        self.manifest_brand
-    }
-
-    pub(crate) const fn abi_profile(&self) -> CoreMethodHomeAbiProfileV1 {
-        self.abi_profile
-    }
-
-    pub(crate) const fn receiver(&self) -> CoreMethodHomeReceiverRelationV1 {
-        self.receiver
-    }
-
-    pub(crate) const fn result_relation(&self) -> CoreMethodHomeResultRelationV1 {
-        self.result_relation
-    }
-
-    pub(crate) const fn effect(&self) -> CoreMethodEffectV1 {
-        self.effect
-    }
-
-    pub(crate) const fn execution_policy(&self) -> CoreMethodHomeExecutionPolicyV1 {
-        self.execution_policy
-    }
-
-    pub(crate) const fn box_name(&self) -> &'static str {
-        self.box_name
-    }
-
     pub(crate) const fn method_name(&self) -> &'static str {
         self.method_name
     }

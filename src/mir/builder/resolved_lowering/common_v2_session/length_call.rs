@@ -49,40 +49,12 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
         self.owner
     }
 
-    pub(in crate::mir::builder) const fn condition_block(
-        &self,
-    ) -> crate::mir::loop_recipe_contract::LoopBlockKeyV1 {
-        self.condition_block
-    }
-
-    pub(in crate::mir::builder) const fn call_item(
-        &self,
-    ) -> crate::mir::loop_recipe_contract::LoopItemKeyV1 {
-        self.call_item
-    }
-
-    pub(in crate::mir::builder) const fn result(
-        &self,
-    ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
-        self.result
-    }
-
-    pub(in crate::mir::builder) const fn physical_block(&self) -> crate::mir::BasicBlockId {
-        self.physical_block
-    }
-
     pub(in crate::mir::builder) const fn receiver(&self) -> crate::mir::ValueId {
         self.receiver
     }
 
     pub(in crate::mir::builder) const fn destination(&self) -> crate::mir::ValueId {
         self.destination
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn segment_brand(
-        &self,
-    ) -> super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1 {
-        self.segment_brand.clone()
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn into_condition_bool_parts(

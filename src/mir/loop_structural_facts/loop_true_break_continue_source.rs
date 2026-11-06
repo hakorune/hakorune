@@ -50,10 +50,6 @@ impl VerifiedLoopTrueBreakContinueSourceProjectionV1 {
         }
     }
 
-    pub(crate) fn source_binding(&self) -> &VerifiedLoopRootSourceV1 {
-        &self.source_binding
-    }
-
     pub(crate) fn shape(&self) -> &VerifiedLoopTrueBreakContinueSourceShapeV1 {
         &self.shape
     }

@@ -198,10 +198,6 @@ impl ExactLexicalReadV1 {
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
         self.binding_value.loan_local_initializer_v1(root)
     }
-    pub(in crate::mir) fn source_declared_read_rebind_v1(&self)
-        -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>>, String> {
-        self.binding_value.source_declared_read_rebind_v1()
-    }
     pub(in crate::mir) fn loan_checked_rebind_v1(&self,
         frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1>,
     ) -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
@@ -210,10 +206,6 @@ impl ExactLexicalReadV1 {
     pub(in crate::mir) fn original_copy_dependencies_v1(&self)
         -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         self.binding_value.original_copy_dependencies_v1()
-    }
-    /// Retain the existing verified initializer chain through an alias read.
-    pub(in crate::mir) fn loan_forwarded_initializer_v1(&self, expected: Option<ValueId>) -> Result<ValueId, String> {
-        self.binding_value.loan_forwarded_initializer_v1(expected)
     }
     pub(in crate::mir) fn source_value(&self) -> (crate::mir::resolved_semantics::OwnedExprSiteV1, BindingRefV1, ValueId) {
         (crate::mir::resolved_semantics::OwnedExprSiteV1::new(self.binding_value.owner,

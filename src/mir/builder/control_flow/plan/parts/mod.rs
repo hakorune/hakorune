@@ -55,9 +55,7 @@ pub(in crate::mir::builder) use associated_source::callable_loop_source_items::{
     lower_loop_cond_source_exit_allowed_body, lower_loop_cond_source_item,
 };
 pub(in crate::mir::builder) use associated_source::callable_loop_source_lowering::lower_callable_loop_source_parts_block;
-pub(in crate::mir::builder) use associated_source::direct_if::lower_if_join_input as lower_direct_if_join_input;
 pub(in crate::mir::builder) use associated_source::dispatch::PartsAssociatedBlockModeV1;
-pub(in crate::mir::builder) use loop_::LoopBodyContractKind;
 
 #[cfg(test)]
 mod wiring_tests;

@@ -235,9 +235,7 @@ impl FieldKeysCountRecipeV1 {
         caller: CanonicalSameModuleCallableKeyV1,
     ) -> Self { Self { count, keys, caller } }
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 { self.count.source().source().owner() }
-    pub(crate) fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 { &self.caller }
     pub(crate) fn call_site(&self) -> &SourceExprSiteV1 { self.count.source().source().site() }
-    pub(crate) fn keys_site(&self) -> &SourceExprSiteV1 { self.keys.source().source().site() }
     pub(crate) fn map(&self) -> &crate::mir::normal_callable_semantic_package::FieldMapReceiverSourceV1 {
         self.keys.field_map().expect("recipe is issued only with a field Map receiver")
     }

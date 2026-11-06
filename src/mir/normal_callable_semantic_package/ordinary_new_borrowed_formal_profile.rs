@@ -1,6 +1,5 @@
 //! One source/result preparation: Pending eligibility precedes stored receiver issuance.
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
-use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_result::BorrowedResultClassV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::source::PreparedSourceNeedsV1;
 use super::super::OrdinaryNewCoSealIssueV1;
 use super::borrowed_formal_result::{

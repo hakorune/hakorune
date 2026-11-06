@@ -33,10 +33,6 @@ impl<'layout, 'source> PreparedLoopV2SegmentAllocationPlanV1<'layout, 'source> {
     pub(crate) fn segments(&self) -> &'layout [PreparedLoopV2LayoutSegmentRefV1<'source>] {
         self.layout.segments()
     }
-
-    pub(crate) fn segment_count(&self) -> usize {
-        self.layout.segment_count()
-    }
 }
 
 pub(crate) fn issue_v2_segment_allocation_plan<'layout, 'source, 'join>(

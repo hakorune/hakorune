@@ -95,13 +95,6 @@ pub(in crate::mir::builder) struct RejectedCallableCollectorBatchV1 {
 struct RejectedCallableCollectorBatchSealV1;
 
 impl RejectedCallableCollectorBatchV1 {
-    pub(in crate::mir::builder) fn collector(&self) -> &ModuleDraftCollectorV1 {
-        &self.collector
-    }
-
-    pub(in crate::mir::builder) fn error(&self) -> &CallableCollectorBatchPrepareErrorV1 {
-        &self.error
-    }
 
     pub(in crate::mir::builder) fn into_parts(
         self,
@@ -251,28 +244,6 @@ impl ModuleDraftCollectorV1 {
 }
 
 impl PreparedCallableCollectorBatchV1 {
-    /// All fallible work is complete; every row is collected in one terminal.
-    pub(in crate::mir::builder) fn collect_all(
-        mut self,
-    ) -> (ModuleDraftCollectorV1, CallableCollectorBatchReceiptV1) {
-        let mut admissions = Vec::with_capacity(self.entries.len());
-        for entry in self.entries.into_vec() {
-            admissions.push(self.collector.collect_sealed(
-                entry.key,
-                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
-                entry.replacement,
-                entry.draft,
-                None,
-            ));
-        }
-        (
-            self.collector,
-            CallableCollectorBatchReceiptV1 {
-                admissions: admissions.into_boxed_slice(),
-                _seal: CallableCollectorBatchReceiptSealV1,
-            },
-        )
-    }
 
     /// The physical collector issues the whole-batch receipt with its own
     /// brand; no post-hoc receipt relabeling is a production terminal.

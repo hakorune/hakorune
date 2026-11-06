@@ -8,12 +8,12 @@
 use std::cell::Cell;
 
 use crate::mir::normal_callable_semantic_package::{
-    BuilderInstallTokenV1, DeclaredInstanceCallLocatorViewV1, DirectCallDispositionLoansV1,
+    BuilderInstallTokenV1, DirectCallDispositionLoansV1,
     InstalledNormalCallableSemanticPackageV1, MapLifecycleConsumerCapabilityV1,
     MapLifecycleOperationV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1,
 };
-use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
+use crate::parser::ParserNormalProgramSourceLoanV1;
 
 use super::CompilationContext;
 
@@ -138,21 +138,6 @@ impl BuilderPrivateCallableLoweringScopeV1 {
         NormalCallableSemanticPackageInstallIssueV1,
     > {
         self.installed.finish_lowering()
-    }
-
-    pub(in crate::mir::builder) fn with_declared_instance_call_locators<R>(
-        &self,
-        callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
-    ) -> R {
-        self.installed
-            .with_declared_instance_call_locators(callback)
-    }
-
-    pub(in crate::mir::builder) fn with_normal_program_source_loan<R>(
-        &self,
-        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
-    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
-        self.installed.with_normal_program_source_loan(callback)
     }
 
     pub(in crate::mir::builder) fn open_lowering_once(

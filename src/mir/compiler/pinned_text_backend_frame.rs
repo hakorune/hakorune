@@ -119,14 +119,6 @@ impl PinnedTextBackendFrameContractV1 {
         PinnedTextBackendFrameBorrowV1 { contract: self }
     }
 
-    pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) const fn exact_text_root_count(self) -> u32 {
-        self.exact_text_root_count
-    }
-
     pub(crate) const fn plan_stamp(self) -> u64 {
         self.plan_stamp
     }

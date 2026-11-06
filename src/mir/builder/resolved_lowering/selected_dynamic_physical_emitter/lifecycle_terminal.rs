@@ -11,7 +11,6 @@ use crate::mir::checked_callout::{
     CheckedCallOutSitePlanPairV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupRowKindV1;
-use crate::mir::MirInstruction;
 
 const I6: u32 = 6;
 const I7: u32 = 7;
@@ -162,23 +161,6 @@ impl DynamicV2PhysicalLifecycleTerminalPlanV1 {
 
     pub(super) const fn end_cutpoints(&self) -> [DynamicV2PhysicalEndCutPointV1; 3] {
         self.end_cutpoints
-    }
-
-    pub(super) fn end_instruction(&self) -> MirInstruction {
-        MirInstruction::CheckedCallOutEnd {
-            site_id: self.i6_site,
-            lease_slot: self.lease_slot,
-        }
-    }
-
-    pub(super) fn fault_instruction(
-        &self,
-        site_id: CheckedCallOutSiteIdV1,
-    ) -> Result<MirInstruction, DynamicV2PhysicalLifecycleTerminalRejectV1> {
-        if site_id != self.i6_site && site_id != self.i7_site {
-            return Err(DynamicV2PhysicalLifecycleTerminalRejectV1::SiteShape);
-        }
-        Ok(MirInstruction::CheckedCallOutFault { site_id })
     }
 }
 

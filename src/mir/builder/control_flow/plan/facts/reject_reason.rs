@@ -278,28 +278,6 @@ pub mod handoff_tables {
         }
     }
 
-    /// Handoff table for generic_loop
-    ///
-    /// NOTE: generic_loop rejects are currently all OutOfScope
-    /// (no specialized receiver yet).
-    pub fn for_generic_loop(reason: RejectReason) -> HandoffTarget {
-        match reason {
-            RejectReason::InBodyStepWithContinue => HandoffTarget::OutOfScope,
-            RejectReason::NoValidLoopVarCandidates => HandoffTarget::OutOfScope,
-            RejectReason::AmbiguousLoopVarCandidates => HandoffTarget::OutOfScope,
-            RejectReason::ControlFlowAfterInBodyStep => HandoffTarget::OutOfScope,
-            RejectReason::ExitAfterInBodyStep => HandoffTarget::OutOfScope,
-            RejectReason::LoopVarUsedAfterInBodyStep => HandoffTarget::OutOfScope,
-            RejectReason::UnsupportedStmtAfterInBodyStep => HandoffTarget::OutOfScope,
-            RejectReason::ContinueIfStepRequiresTrailingExit => HandoffTarget::OutOfScope,
-            RejectReason::BreakElseStepMustBeFinalStmt => HandoffTarget::OutOfScope,
-            RejectReason::MultipleConditionalStepAssignments => HandoffTarget::OutOfScope,
-            RejectReason::MultipleStepAssignments => HandoffTarget::OutOfScope,
-            // Future: add more generic_loop reasons here
-            _ => HandoffTarget::OutOfScope,
-        }
-    }
-
     /// Handoff table for match_return_facts
     ///
     /// NOTE: match_return_facts rejects are currently all OutOfScope

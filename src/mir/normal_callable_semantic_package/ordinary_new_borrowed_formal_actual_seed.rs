@@ -6,7 +6,6 @@ mod entry;
 use entry::sum_checked;
 pub(super) use entry::{
     alias_source_binding, exact_entry_i64_field_seed_v1, exact_entry_object_field_seed_v1,
-    exact_local_i64_field_initializer_seed_v1,
     source_entry_seed_v1, stable_source_binding_v1, uncaptured_source_binding_v1,
 };
 #[path = "ordinary_new_borrowed_actual_method_result.rs"]

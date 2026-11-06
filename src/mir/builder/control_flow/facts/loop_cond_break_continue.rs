@@ -37,14 +37,6 @@ pub(in crate::mir::builder) struct LoopCondBreakContinueFacts {
 }
 
 impl LoopCondBreakContinueFacts {
-    pub(in crate::mir::builder) fn release_allowed(&self) -> bool {
-        !matches!(
-            self.accept_kind,
-            LoopCondBreakAcceptKind::NestedLoopOnly
-                | LoopCondBreakAcceptKind::ProgramBlockNoExit
-                | LoopCondBreakAcceptKind::NoExitBody
-        )
-    }
 
     pub(in crate::mir::builder) fn is_return_only_body(&self) -> bool {
         matches!(self.accept_kind, LoopCondBreakAcceptKind::ReturnOnlyBody)

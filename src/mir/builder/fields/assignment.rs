@@ -3,7 +3,7 @@
 use super::store_post_success::PreparedOrdinaryFieldStoreAccessSiteV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
 use crate::mir::builder::weak_field_write_route::{
     prepare_field_write_route_v1, PreparedFieldWriteRouteV1,
@@ -60,15 +60,6 @@ where
 }
 
 impl MirBuilder {
-    pub(in crate::mir::builder) fn build_field_assignment_from_value(
-        &mut self,
-        object_value: ValueId,
-        field: String,
-        value: ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_field_assignment_from_value_with_port_v1(&mut port, object_value, field, value)
-    }
 
     pub(super) fn build_field_assignment_from_value_with_port_v1<Port>(
         &mut self,

@@ -11,8 +11,7 @@ mod rules;
 
 pub(in crate::mir::builder) use input::CallableLoopFactsPlannerInputV1;
 
-pub(in crate::mir::builder) use rule_order::{
-    planner_rule_route_label, planner_rule_semantic_label, planner_rule_tag_name, PlanRuleId,
+pub(in crate::mir::builder) use rule_order::{ planner_rule_semantic_label, planner_rule_tag_name, PlanRuleId,
 };
 
 /// Source-aware Facts/Recipe entry with no structural route context.

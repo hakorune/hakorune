@@ -92,21 +92,6 @@ pub(in crate::mir::builder) enum LoopCondBreakContinueItem {
     },
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(in crate::mir::builder) struct ExitIfRef<'a> {
-    pub if_stmt: StmtRef,
-    pub exit_allowed_block: Option<&'a ExitAllowedBlockRecipe>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub(in crate::mir::builder) struct ElseGuardBreakIfRef<'a> {
-    pub if_stmt: StmtRef,
-    pub then_no_exit: Option<&'a NoExitBlockRecipe>,
-    pub then_recipe: &'a LoopCondBreakContinueRecipe,
-    pub else_recipe: &'a LoopCondBreakContinueRecipe,
-    pub else_exit_allowed: Option<&'a ExitAllowedBlockRecipe>,
-}
-
 impl LoopCondBreakContinueItem {
     pub fn exit_if_with_optional_block(
         if_stmt: StmtRef,
@@ -126,27 +111,6 @@ impl LoopCondBreakContinueItem {
         }
     }
 
-    pub fn as_exit_if(&self) -> Option<ExitIfRef<'_>> {
-        match self {
-            Self::ExitIf { if_stmt, block } => Some(ExitIfRef {
-                if_stmt: *if_stmt,
-                exit_allowed_block: block.as_ref(),
-            }),
-            _ => None,
-        }
-    }
-
-    pub fn tail_break_exit_allowed_block(&self) -> Option<&ExitAllowedBlockRecipe> {
-        match self {
-            Self::TailBreak { block } => block.as_ref(),
-            _ => None,
-        }
-    }
-
-    pub fn is_tail_break(&self) -> bool {
-        matches!(self, Self::TailBreak { .. })
-    }
-
     pub fn else_guard_break_if_with_optional_else_exit_allowed(
         if_stmt: StmtRef,
         then_no_exit: Option<NoExitBlockRecipe>,
@@ -160,25 +124,6 @@ impl LoopCondBreakContinueItem {
             else_exit_allowed,
             then_body: then_recipe,
             else_body: else_recipe,
-        }
-    }
-
-    pub fn as_else_guard_break_if(&self) -> Option<ElseGuardBreakIfRef<'_>> {
-        match self {
-            Self::ElseGuardBreakIf {
-                if_stmt,
-                then_no_exit,
-                else_exit_allowed,
-                then_body,
-                else_body,
-            } => Some(ElseGuardBreakIfRef {
-                if_stmt: *if_stmt,
-                then_no_exit: then_no_exit.as_ref(),
-                then_recipe: then_body,
-                else_recipe: else_body,
-                else_exit_allowed: else_exit_allowed.as_ref(),
-            }),
-            _ => None,
         }
     }
 }
