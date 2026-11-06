@@ -747,11 +747,12 @@ fn unresolved_call_result_type_reaches_the_owning_rejection_without_a_panic() {
     // Arithmetic over exact i64 values (literals, formals, declared-i64 `me` fields) is a
     // proved scalar result since `2a4ca90e93` / `724f63882d`: these used to be refused
     // here and now compile. Neither path may panic.
-    for body in ["return me.base + x", "return x + 1"] {
+    // A local's class is its initializer's class (S3a), so `local y = x + 1  return y` compiles too.
+    for body in ["return me.base + x", "return x + 1", "local y = x + 1\n    return y"] {
         compile(body).unwrap_or_else(|error| panic!("{body}: {error}"));
     }
     // An unproved result still reaches its owning rejection, never a panic.
-    for body in ["return x / 2", "local y = x + 1\n    return y"] {
+    for body in ["return x / 2"] {
         let error = compile(body).unwrap_err();
         assert!(error.contains("artifact-source-unavailable"), "{body}: {error}");
     }
