@@ -1,5 +1,6 @@
 //! One symbol census for checked Map and the advertised optional field ABI.
-use std::{path::Path, process::Command};
+use super::defined_symbol_rows;
+use std::path::Path;
 const SYMBOLS: &[&str] = &[
     "nyash.map.storage_init_v1",
     "nyash.map.checked_new_v1",
@@ -40,25 +41,12 @@ const FIELD_SYMBOLS: &[&str] = &[
     "nyash.object.checked_map_field_install_indexed_v1",
     "nyash.object.checked_map_field_delete_indexed_v1",
 ];
+pub(super) fn required_symbols(fields: bool) -> impl Iterator<Item = &'static str> {
+    SYMBOLS.iter().chain(if fields { FIELD_SYMBOLS } else { &[] }).copied()
+}
 pub(super) fn require_checked_map_symbols(archive: &Path, fields: bool) -> Result<(), String> {
-    let output = Command::new("nm")
-        .args([
-            "--extern-only",
-            "--defined-only",
-            "--format=posix",
-            "--no-demangle",
-            // Rows are counted by name; sorting a ~480MB archive costs seconds.
-            "--no-sort",
-        ])
-        .arg(archive)
-        .output()
-        .map_err(|e| format!("checked Map symbol inventory: {e}"))?;
-    if !output.status.success() {
-        return Err("checked Map symbol inventory failed".into());
-    }
-    let text =
-        std::str::from_utf8(&output.stdout).map_err(|_| "checked Map symbols are not UTF-8")?;
-    validate(text, fields)
+    let wanted: Vec<_> = required_symbols(fields).collect();
+    validate(&defined_symbol_rows(archive, &wanted)?, fields)
 }
 fn validate(text: &str, fields: bool) -> Result<(), String> {
     // Read each nm row once. Keep original required-symbol order for diagnostics;

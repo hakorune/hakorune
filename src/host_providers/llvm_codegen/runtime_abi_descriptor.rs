@@ -5,8 +5,6 @@
 
 use crate::mir::PublishedLifecycleRuntimeRequirementsV1;
 use std::path::{Path, PathBuf};
-use std::io::{Read, Seek, SeekFrom};
-use std::process::Command;
 
 const MAGIC: &[u8; 8] = b"NYRTABI2";
 const RECORD_SIZE: usize = 236;
@@ -81,8 +79,9 @@ pub(crate) struct LifecycleRuntimeSessionV1 {
 
 impl LifecycleRuntimeSessionV1 {
     pub(crate) fn select(runtime_archive: PathBuf) -> Result<Self, String> {
-        let (descriptor, field_descriptor) = read_runtime_abi_descriptors(&runtime_archive)?;
-        require_lifecycle_entry_abi(&runtime_archive)?;
+        let records = ArchiveRecords::read(&runtime_archive)?;
+        let (descriptor, field_descriptor) = records.runtime_abi(&runtime_archive)?;
+        records.entry_abi()?;
         require_checked_map_symbols(&runtime_archive, field_descriptor.is_some())?;
         if descriptor.target_triple != "x86_64-unknown-linux-gnu" {
             return Err(format!(
@@ -146,6 +145,9 @@ impl LifecycleRuntimeSessionV1 {
     }
 }
 
+#[path = "runtime_archive_reader.rs"]
+mod archive_reader;
+use archive_reader::{defined_symbol_rows, visit_archive_members};
 #[path = "runtime_map_symbols.rs"]
 mod map_symbols;
 use map_symbols::require_checked_map_symbols;
@@ -160,27 +162,7 @@ const NATIVE_ARRAY_SYMBOLS: [&str; 6] = [
 ];
 
 fn require_native_array_symbols(archive: &Path) -> Result<(), String> {
-    let output = Command::new("nm")
-        .args([
-            "--extern-only",
-            "--defined-only",
-            "--format=posix",
-            "--no-demangle",
-            // Rows are counted by name; sorting a ~480MB archive costs seconds.
-            "--no-sort",
-        ])
-        .arg(archive)
-        .output()
-        .map_err(|error| format!("cannot inspect native Array runtime symbols: {error}"))?;
-    if !output.status.success() {
-        return Err(format!(
-            "native Array runtime symbol inventory failed: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
-    }
-    let text = std::str::from_utf8(&output.stdout)
-        .map_err(|_| "native Array runtime symbol inventory is not UTF-8")?;
-    require_native_array_symbol_inventory(text)
+    require_native_array_symbol_inventory(&defined_symbol_rows(archive, &NATIVE_ARRAY_SYMBOLS)?)
 }
 
 fn require_native_array_symbol_inventory(text: &str) -> Result<(), String> {
@@ -219,122 +201,80 @@ fn require_native_array_symbol_inventory(text: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// Read the one retained descriptor from every selected archive member. The
-/// descriptor is selected by ELF section name, never by a byte-pattern scan.
+/// What one traversal of the selected archive finds. Each record is selected by
+/// ELF section name, never by a byte-pattern scan. A decode failure is kept with
+/// its member so each consumer rejects exactly as its own check did before the
+/// two censuses shared a traversal.
+struct ArchiveRecords {
+    /// Per member that has a descriptor or field record, in archive order.
+    descriptors: Vec<Result<(Option<RuntimeAbiDescriptorV2>, Option<ObjectFieldAbiDescriptorV1>), String>>,
+    /// Per entry ABI record: whether it equals the supported one.
+    entries: Vec<bool>,
+}
+
+impl ArchiveRecords {
+    fn read(archive: &Path) -> Result<Self, String> {
+        const ENTRY_SECTION: &str = ".nyash.entry_abi.v1";
+        let mut records = Self { descriptors: Vec::new(), entries: Vec::new() };
+        visit_archive_members(archive, |bytes| {
+            let member = elf_section(bytes, SECTION_NAME)?.map(decode_descriptor).transpose().and_then(|descriptor| {
+                Ok((descriptor, elf_section(bytes, ".nyash.object_field_abi.v1")?
+                    .map(ObjectFieldAbiDescriptorV1::decode).transpose()?))
+            });
+            if !matches!(member, Ok((None, None))) { records.descriptors.push(member); }
+            if let Some(record) = elf_section(bytes, ENTRY_SECTION)? {
+                records.entries.push(record == b"NYENTRY1\x01\x00\x00\x00\x01\x00\x00\x00");
+            }
+            Ok(())
+        })?;
+        Ok(records)
+    }
+
+    /// The one retained descriptor and the optional object field ABI.
+    fn runtime_abi(&self, archive: &Path)
+        -> Result<(RuntimeAbiDescriptorV2, Option<ObjectFieldAbiDescriptorV1>), String> {
+        let (mut found, mut fields) = (Vec::new(), Vec::new());
+        for member in &self.descriptors {
+            let (descriptor, field) = member.clone()?;
+            found.extend(descriptor);
+            fields.extend(field);
+        }
+        if fields.len() > 1 { return Err("duplicate object field ABI sections".into()); }
+        match found.len() {
+            1 => Ok((found.remove(0), fields.pop())),
+            0 => Err(format!(
+                "runtime archive {} has no {SECTION_NAME} section",
+                archive.display()
+            )),
+            _ => Err(format!(
+                "runtime archive {} has duplicate {SECTION_NAME} sections",
+                archive.display()
+            )),
+        }
+    }
+
+    /// The entry owner emits this contract independently of Fault layout.
+    fn entry_abi(&self) -> Result<(), String> {
+        if self.entries.contains(&false) {
+            return Err("unsupported lifecycle entry ABI record".to_owned());
+        }
+        if self.entries.len() != 1 {
+            return Err(format!(
+                "lifecycle archive requires exactly one entry ABI record; found {}",
+                self.entries.len()
+            ));
+        }
+        Ok(())
+    }
+}
+
 fn read_runtime_abi_descriptors(archive: &Path)
     -> Result<(RuntimeAbiDescriptorV2, Option<ObjectFieldAbiDescriptorV1>), String> {
-    let mut found = Vec::new();
-    let mut fields = Vec::new();
-    visit_archive_members(archive, |bytes| {
-        if let Some(section) = elf_section(bytes, SECTION_NAME)? {
-            found.push(decode_descriptor(section)?);
-        }
-        if let Some(section) = elf_section(bytes, ".nyash.object_field_abi.v1")? {
-            fields.push(ObjectFieldAbiDescriptorV1::decode(section)?);
-        }
-        Ok(())
-    })?;
-    if fields.len() > 1 { return Err("duplicate object field ABI sections".into()); }
-    match found.len() {
-        1 => Ok((found.remove(0), fields.pop())),
-        0 => Err(format!(
-            "runtime archive {} has no {SECTION_NAME} section",
-            archive.display()
-        )),
-        _ => Err(format!(
-            "runtime archive {} has duplicate {SECTION_NAME} sections",
-            archive.display()
-        )),
-    }
+    ArchiveRecords::read(archive)?.runtime_abi(archive)
 }
 
-/// The entry owner emits this contract independently of Fault layout.
 fn require_lifecycle_entry_abi(archive: &Path) -> Result<(), String> {
-    const SECTION: &str = ".nyash.entry_abi.v1";
-    const EXPECTED: &[u8; 16] = b"NYENTRY1\x01\x00\x00\x00\x01\x00\x00\x00";
-    let mut count = 0;
-    visit_archive_members(archive, |bytes| {
-        if let Some(record) = elf_section(bytes, SECTION)? {
-            if record != EXPECTED {
-                return Err("unsupported lifecycle entry ABI record".to_owned());
-            }
-            count += 1;
-        }
-        Ok(())
-    })?;
-    if count != 1 {
-        return Err(format!(
-            "lifecycle archive requires exactly one entry ABI record; found {count}"
-        ));
-    }
-    Ok(())
-}
-
-/// Sequential structural ar traversal. Reopening the entire archive with `ar p`
-/// for every object made ABI selection quadratic in archive size. Keep one file
-/// and one member buffer; every ELF member still participates in both censuses.
-fn visit_archive_members(archive: &Path, mut visit: impl FnMut(&[u8]) -> Result<(), String>)
-    -> Result<(), String> {
-    let mut file = std::fs::File::open(archive)
-        .map_err(|error| format!("cannot open runtime archive {}: {error}", archive.display()))?;
-    let length = file.metadata().map_err(|error| format!("cannot inspect runtime archive: {error}"))?.len();
-    let mut magic = [0u8; 8];
-    file.read_exact(&mut magic).map_err(|error| format!("runtime archive header is truncated: {error}"))?;
-    if &magic != b"!<arch>\n" {
-        return Err("runtime descriptor requires a regular ar archive (thin archives are unsupported)".into());
-    }
-    let decimal = |bytes: &[u8]| -> Result<u64, String> {
-        std::str::from_utf8(bytes).ok().and_then(|text| {
-            let text = text.trim();
-            (!text.is_empty() && text.bytes().all(|byte| byte.is_ascii_digit()))
-                .then(|| text.parse::<u64>().ok()).flatten()
-        }).ok_or_else(|| "runtime archive member has invalid size".into())
-    };
-    let mut position = 8u64;
-    let mut bytes = Vec::new();
-    while position < length {
-        let mut header = [0u8; 60];
-        file.read_exact(&mut header).map_err(|error| format!("runtime archive member header is truncated: {error}"))?;
-        if &header[58..] != b"`\n" { return Err("runtime archive member header is invalid".into()); }
-        let size = decimal(&header[48..58])?;
-        let start = position.checked_add(60).ok_or("runtime archive member offset overflows")?;
-        let end = start.checked_add(size).ok_or("runtime archive member size overflows")?;
-        let next = end.checked_add(size % 2).ok_or("runtime archive member padding overflows")?;
-        if next > length { return Err("runtime archive member is truncated".into()); }
-        let name = std::str::from_utf8(&header[..16]).map_err(|_| "runtime archive member name is not UTF-8")?.trim_end();
-        if !matches!(name, "/" | "//" | "/SYM64/") {
-            let size = usize::try_from(size).map_err(|_| "runtime archive member is too large")?;
-            if size > bytes.len() {
-                bytes.try_reserve_exact(size - bytes.len())
-                    .map_err(|error| format!("cannot allocate runtime archive member buffer: {error}"))?;
-            }
-            bytes.resize(size, 0);
-            file.read_exact(&mut bytes).map_err(|error| format!("cannot read runtime archive member: {error}"))?;
-            // BSD extended names occupy a prefix of the member payload. GNU
-            // long names use the separate // table and do not alter the payload.
-            let name_size = match name.strip_prefix("#1/") {
-                Some(size) => usize::try_from(decimal(size.as_bytes())?).map_err(|_| "runtime archive member name is too large")?,
-                None => 0,
-            };
-            let object = bytes.get(name_size..).ok_or("runtime archive member name is truncated")?;
-            let member_name = if name_size == 0 { name } else {
-                std::str::from_utf8(&bytes[..name_size])
-                    .map_err(|_| "runtime archive member name is not UTF-8")?.trim_end_matches('\0')
-            };
-            if !matches!(member_name.trim_end_matches('/'),
-                "__.SYMDEF" | "__.SYMDEF SORTED" | "__.SYMDEF_64" | "__.SYMDEF_64 SORTED") {
-                visit(object)?;
-            }
-        }
-        file.seek(SeekFrom::Start(end)).map_err(|error| format!("cannot seek runtime archive member: {error}"))?;
-        if size % 2 != 0 {
-            let mut padding = [0u8; 1];
-            file.read_exact(&mut padding).map_err(|error| format!("runtime archive padding is truncated: {error}"))?;
-            if padding[0] != b'\n' { return Err("runtime archive padding is invalid".into()); }
-        }
-        position = next;
-    }
-    Ok(())
+    ArchiveRecords::read(archive)?.entry_abi()
 }
 
 fn elf_section<'a>(bytes: &'a [u8], wanted: &str) -> Result<Option<&'a [u8]>, String> {

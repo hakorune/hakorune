@@ -1,4 +1,5 @@
 use super::*;
+use std::process::Command;
 
 fn descriptor_bytes() -> Vec<u8> {
     let mut bytes = vec![0; RECORD_SIZE];
