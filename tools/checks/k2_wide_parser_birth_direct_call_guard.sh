@@ -13,7 +13,7 @@ SSOT="docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.
 LIFECYCLE_REF="docs/reference/language/lifecycle.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
-PARSER_POLICY="src/parser/lifecycle.rs"
+PARSER_POLICY="crates/hakorune_frontend_parser/src/parser/lifecycle.rs"
 PARSER_CALL="src/parser/expr/call.rs"
 FROM_CALL_A="src/parser/expressions.rs"
 FROM_CALL_B="src/parser/expr/primary.rs"
@@ -56,7 +56,7 @@ guard_expect_in_file "$TAG" 'TokenType::BIRTH' "$PARSER_CALL" "legacy expression
 
 guard_expect_in_file "$TAG" 'parser_birth_rejects_direct_receiver_birth_call_legacy_expr_parser' "$TEST_FILE" "legacy parser negative fixture missing"
 guard_expect_in_file "$TAG" 'parser_birth_accepts_constructor_declaration' "$TEST_FILE" "constructor declaration fixture missing"
-guard_expect_in_file "$TAG" 'parser_birth_keeps_parent_constructor_delegation' "$TEST_FILE" "parent constructor delegation fixture missing"
+guard_expect_in_file "$TAG" 'parser_birth_rejects_parent_delegation_with_arguments' "$TEST_FILE" "parent delegation rejection fixture missing"
 guard_expect_in_file "$TAG" 'parser_direct_birth_call' "$TEST_MOD" "parser test module must include direct birth fixture"
 
 guard_expect_in_file "$TAG" 'TokenType::BIRTH' "$FROM_CALL_A" "from-call parser must keep parent birth delegation support"

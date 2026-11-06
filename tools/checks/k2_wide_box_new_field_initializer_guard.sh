@@ -46,7 +46,7 @@ require_file src/tests/mir_box_new_field_initializer.rs
 require_grep "field_initializers" crates/hakorune_frontend_ast/src/ast_node.rs
 require_grep "parse_box_field_initializers" src/parser/expr/primary.rs
 require_grep "PreparedRawNewExpressionV1" src/mir/builder/builder_build.rs
-require_grep "lower_prepared_raw_new_expression_with_port_v1" src/mir/builder/builder_build.rs
+require_grep "lower_prepared_raw_new_expression_with_port_v1" src/mir/builder/new_expression.rs
 require_grep "build_box_field_initializers" src/mir/builder/fields.rs
 require_grep "\\[box-init/duplicate-field\\]" src/mir/builder/fields.rs
 require_grep "\\[box-init/unknown-field\\]" src/mir/builder/fields.rs
