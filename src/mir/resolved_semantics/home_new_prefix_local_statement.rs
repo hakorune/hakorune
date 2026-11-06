@@ -2,6 +2,7 @@
 //! The running scanner owns ordering; this owner retains the same initializer,
 //! Call, field, map and Home installation algorithms without a second evaluator.
 use super::*;
+use super::local_call_route as route_flow;
 use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1, SharedPayloadSourceV1};
 
 #[allow(clippy::too_many_arguments)]
@@ -22,13 +23,7 @@ pub(super) fn observe<'a, E>(
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
-    terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -357,21 +352,6 @@ pub(super) fn observe<'a, E>(
             }
             continue;
         }
-        if let Some(local_call) = local_call_flow::issue_local_call(
-            input,
-            statement.site(),
-            &owned,
-            declaration.clone(),
-            binding,
-            &homes,
-            local_call_flow::LocalCallResultClassV1::I64,
-            terminal_call,
-        )? {
-            path_calls.insert(local_call.site().clone());
-            local_calls.push(local_call);
-            locals.install_i64_call_result(binding);
-            continue;
-        }
         if unavailable.is_none() {
             if let Some(local_call) = local_call_flow::issue_static_bool_local_call_v1(
                 input,
@@ -387,25 +367,6 @@ pub(super) fn observe<'a, E>(
                 locals.install_scalar_call_result(binding, SourceScalarKind::Bool);
                 continue;
             }
-        }
-        // Qualified `Alias.m(..)` static calls live in the method-call
-        // inventory — the package membership index admits only sealed
-        // `ExactI64` targets and the flow seals each argument's class.
-        if let Some(local_call) = local_call_flow::issue_static_i64_local_call(
-            input,
-            statement.site(),
-            &owned,
-            declaration.clone(),
-            binding,
-            &homes,
-            locals,
-            local_static_call,
-            borrowed_actuals,
-        )? {
-            path_calls.insert(local_call.site().clone());
-            local_calls.push(local_call);
-            locals.install_i64_call_result(binding);
-            continue;
         }
         let receiver_alias = input
             .function()
@@ -453,122 +414,51 @@ pub(super) fn observe<'a, E>(
             }
             continue;
         }
-        // Lexical-receiver `recv.m(..)` calls whose selected callee
-        // carries the sealed `NullableObject` claim join the
-        // checked-release lane before the i64 lane — the same sealed
-        // argument evidence, but the received binding is an owned
-        // nullable Home the caller releases only when live.
-        if let Some(local_call) = local_call_flow::issue_lexical_nullable_local_call(
-            input,
-            statement.site(),
-            &owned,
-            declaration.clone(),
-            binding,
-            &homes,
-            locals,
-            local_lexical_nullable_call,
-            local_lexical_i64_call,
-            borrowed_actuals,
-        )? {
-            path_calls.insert(local_call.site().clone());
-            local_calls.push(local_call);
-            homes.push(LiveHomeV1::Stable(binding));
-            locals.install_received_nullable(binding, &owned);
-            continue;
-        }
-        // Lexical-receiver `recv.m(..)` calls whose selected callee
-        // returns only literals join the same I64 lane — the package
-        // predicate names the membership, the flow seals the arguments.
-        if let Some(local_call) = local_call_flow::issue_lexical_i64_local_call(
-            input,
-            statement.site(),
-            &owned,
-            declaration.clone(),
-            binding,
-            &homes,
-            locals,
-            local_lexical_i64_call,
-            borrowed_actuals,
-        )? {
-            path_calls.insert(local_call.site().clone());
-            local_calls.push(local_call);
-            locals.install_i64_call_result(binding);
-            continue;
-        }
-        if let Some(local_call) = local_call_flow::issue_local_call(
-            input,
-            statement.site(),
-            &owned,
-            declaration.clone(),
-            binding,
-            &homes,
-            local_call_flow::LocalCallResultClassV1::Map,
-            local_map_call,
-        )? {
-            // A received map installs as a live map binding and joins
-            // the caller's terminal Homes accounting so the owner's
-            // exit can release it.
-            path_calls.insert(local_call.site().clone());
-            local_calls.push(local_call);
-            homes.push(LiveHomeV1::Stable(binding));
-            locals.install_map(binding);
-            continue;
-        }
-        let local_call = match local_call_flow::issue_local_call(
-            input,
-            statement.site(),
-            &owned,
-            declaration.clone(),
-            binding,
-            &homes,
-            local_call_flow::LocalCallResultClassV1::Handle,
-            &mut *local_handle_call,
-        )? {
-            Some(local_call) => Some(local_call),
-            // Qualified receivers (`recv.make(...)`) sit in the
-            // method-call inventory, never in direct-call
-            // observations — try the lexical membership source.
-            None => local_call_flow::issue_lexical_local_call(
+        // One question per site: the package names the call kind from name
+        // resolution and the result class from the callee's own class source.
+        // The issuer seals structure and arguments; the install table is keyed
+        // by the class. No route is a named rejection below, never a retry.
+        let mut tried_lexical_i64 = false;
+        if let Some(route) = local_call_route(&owned)? {
+            tried_lexical_i64 = route.is_lexical_i64();
+            if let Some(local_call) = route_flow::issue_routed_local_call(
                 input,
                 statement.site(),
                 &owned,
                 declaration.clone(),
                 binding,
                 &homes,
-                local_call_flow::LocalCallResultClassV1::Handle,
-                &mut *local_handle_call,
+                locals,
+                route,
+                &mut route_flow::lexical_i64_of(&mut *local_call_route),
                 borrowed_actuals,
-            )?,
-        };
-        if let Some(local_call) = local_call {
-            // A received object handle installs as an owned caller
-            // Home: the callee transferred ownership at the Return
-            // edge, so this owner owes exactly one release at exit.
-            // Its acquisition is the call site, never a `new` site.
-            path_calls.insert(local_call.site().clone());
-            local_calls.push(local_call);
-            homes.push(LiveHomeV1::Stable(binding));
-            locals.install_received_handle(binding, &owned);
-            continue;
+            )? {
+                route_flow::install_routed_local_call(
+                    local_call, binding, &owned, locals, homes, path_calls, local_calls,
+                );
+                continue;
+            }
         }
-        if let Some(local_call) = local_call_flow::issue_receiver_local_call(
-            input,
-            statement.site(),
-            &owned,
-            declaration.clone(),
-            binding,
-            &homes,
-            local_call_flow::LocalCallResultClassV1::Nullable,
-            local_nullable_call,
-        )? {
-            // A nullable `me.m(..)` result joins the owned-Home ledger:
-            // the caller owes a checked release at every exit and the
-            // acquisition is this call site, never a `new` site.
-            path_calls.insert(local_call.site().clone());
-            local_calls.push(local_call);
-            homes.push(LiveHomeV1::Stable(binding));
-            locals.install_received_nullable(binding, &owned);
-            continue;
+        // The package's borrowed-formal selection is a second class source for
+        // a lexical call: it lends the call's own source result or arguments.
+        // A cohort-routed lexical I64 call has already asked it.
+        if !tried_lexical_i64 {
+            if let Some(local_call) = local_call_flow::issue_lexical_i64_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                locals,
+                &mut route_flow::lexical_i64_of(&mut *local_call_route),
+                borrowed_actuals,
+            )? {
+                route_flow::install_routed_local_call(
+                    local_call, binding, &owned, locals, homes, path_calls, local_calls,
+                );
+                continue;
+            }
         }
         if let Some(destination) = selected.get(&owned) {
             super::new_local::observe_selected_new_local(
@@ -696,7 +586,7 @@ pub(super) fn observe<'a, E>(
                 statement.site(),
                 homes,
                 unavailable.is_none(),
-                local_static_call,
+                &mut super::local_call_route::static_claim_of(&mut *local_call_route),
                 view_use,
                 borrowed_actuals,
             )?;

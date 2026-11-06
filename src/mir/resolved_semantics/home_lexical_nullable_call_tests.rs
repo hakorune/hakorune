@@ -21,7 +21,6 @@ fn source(arguments: &str) -> VerifiedResolvedSourceUnitV1 {
 
 fn call(
     input: ResolvedFunctionLoweringInputV1<'_>,
-    selected: bool,
     nested: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, String>,
     borrowed: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -46,7 +45,6 @@ fn call(
         original.binding(),
         &[],
         &PrefixLocalFlow::new(input),
-        &mut |candidate| Ok(selected && candidate == &site),
         nested,
         borrowed,
     )
@@ -59,7 +57,6 @@ fn nullable_outer_literal_and_zero_inputs_do_not_demand_i64_result() {
         let input = source.root_function_input().unwrap();
         let row = call(
             input,
-            true,
             &mut |_| panic!("the outer Nullable result cannot require I64"),
             &mut |_, request| {
                 assert!(matches!(
@@ -95,7 +92,6 @@ fn nullable_outer_preserves_exact_nested_i64_result_membership() {
         let mut consulted = Vec::new();
         let row = call(
             input,
-            true,
             &mut |candidate| {
                 consulted.push(candidate.clone());
                 Ok(admitted && candidate == &nested_site)
@@ -129,25 +125,11 @@ fn nullable_outer_preserves_exact_nested_i64_result_membership() {
 }
 
 #[test]
-fn nullable_outer_nonmember_does_not_request_arguments() {
-    let source = source("7");
-    assert!(call(
-        source.root_function_input().unwrap(),
-        false,
-        &mut |_| panic!("nonmember must not consult nested calls"),
-        &mut |_, _| panic!("nonmember must not demand borrowed arguments"),
-    )
-    .unwrap()
-    .is_none());
-}
-
-#[test]
 fn nullable_outer_borrowed_error_propagates_before_strict_sealing() {
     let source = source("token.number(11)");
     assert_eq!(
         call(
             source.root_function_input().unwrap(),
-            true,
             &mut |_| panic!("a borrowed error cannot retry strict sealing"),
             &mut |_, _| Err("original borrowed refusal".into()),
         )
@@ -162,7 +144,6 @@ fn nullable_outer_noninteger_literals_remain_unavailable() {
         let source = source(arguments);
         assert!(call(
             source.root_function_input().unwrap(),
-            true,
             &mut |_| panic!("a literal is not an argument call"),
             &mut |_, _| Ok(None),
         )

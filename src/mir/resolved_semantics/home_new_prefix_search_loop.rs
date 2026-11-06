@@ -32,12 +32,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
     field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -107,7 +102,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
             statement.site(),
             homes,
             unavailable.is_none(),
-            local_static_call,
+            &mut super::local_call_route::static_claim_of(&mut *local_call_route),
             &mut |operand, binary| {
                 view_use(
                     operand,
@@ -149,7 +144,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
         homes,
         locals,
         unavailable.is_none(),
-        local_static_call,
+        &mut super::local_call_route::static_claim_of(&mut *local_call_route),
         borrowed_actuals,
     )?
     else {
@@ -180,12 +175,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
         field_is_integer,
         map_compatible,
         terminal_call,
-        local_map_call,
-        local_handle_call,
-        local_lexical_i64_call,
-        local_lexical_nullable_call,
-        local_nullable_call,
-        local_static_call,
+        local_call_route,
         argument_i64_field,
         scalar_field,
         container_field,

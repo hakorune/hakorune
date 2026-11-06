@@ -229,8 +229,8 @@ fn seal_argument_call<E>(
 
 /// Issue a source-proved static I64 continuation, preserving its original route.
 ///
-/// The package-injected predicate is the sole membership authority — it
-/// returns a sealed Qualified or bounded CurrentOwner claim. Both require the
+/// The route's claim is the sole membership authority — the package returns a
+/// sealed Qualified or bounded CurrentOwner claim. Both require the
 /// original `StaticBoxMethod` target and `ExactI64` disposition. Arity-bearing
 /// CurrentOwner arguments must project from the same original Static source;
 /// qualified scalar fallback keeps its existing separate boundary.
@@ -242,17 +242,12 @@ pub(crate) fn issue_static_i64_local_call<E>(
     destination: BindingRefV1,
     prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
-    qualified_static_call: &mut impl FnMut(
-        &OwnedExprSiteV1,
-    ) -> Result<Option<super::super::StaticI64CallClaimV1>, E>,
+    claim: super::super::StaticI64CallClaimV1,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
-    let Some(claim) = qualified_static_call(site)? else {
-        return Ok(None);
-    };
     let Some((observed_site, call)) = input
         .function()
         .method_calls()

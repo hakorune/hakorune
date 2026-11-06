@@ -39,11 +39,6 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         field_is_integer,
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
         &mut |_| Ok(None),
         &std::collections::BTreeSet::new(),
         &mut |_, _, _, _, _| Ok(false),
@@ -100,23 +95,10 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         crate::mir::resolved_semantics::BindingRefV1,
     ) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
-    local_map_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
-    local_handle_call: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-    ) -> Result<bool, E>,
-    local_lexical_i64_call: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-    ) -> Result<bool, E>,
-    local_lexical_nullable_call: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-    ) -> Result<bool, E>,
-    local_nullable_call: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-    ) -> Result<bool, E>,
-    local_static_call: &mut impl FnMut(
+    local_call_route: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
     ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallRouteV1>,
         E,
     >,
     result_sites: &std::collections::BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>,
@@ -238,12 +220,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             field_is_integer,
             map_compatible,
             terminal_call,
-            local_map_call,
-            local_handle_call,
-            local_lexical_i64_call,
-            local_lexical_nullable_call,
-            local_nullable_call,
-            local_static_call,
+            local_call_route,
             argument_i64_field,
             scalar_field,
             container_field,

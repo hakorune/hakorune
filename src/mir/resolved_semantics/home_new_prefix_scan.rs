@@ -35,22 +35,17 @@ pub(super) fn scan_statement_flow<'a, E>(
     field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's lexical instance-call membership for the exact-i64
     // result lane — `local x = recv.m(..)` sites whose uniquely selected
     // callee returns only literals carry an `I64` local-call claim.
-    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
     // The issuer's lexical instance-call membership for the nullable-result
     // lane — `local x = recv.m(..)` sites whose uniquely selected callee
     // carries the sealed `NullableObject` claim join the checked-release
     // lane instead of the scalar lane.
-    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's qualified static-box call membership — `local x =
     // Alias.m(..)` sites sealed `ExactI64` join the I64 lane as ordinary
     // non-lifecycle local-call claims.
-    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     // The issuer's argument-position i64-field proof: the scanner supplies
     // the exact read site, receiver site, receiver binding, and observed
     // handle root; the predicate alone decides the field class.
@@ -195,12 +190,11 @@ pub(super) fn scan_statement_flow<'a, E>(
                 map_compatible,
                 terminal_call,
                 argument_i64_field,
-                local_lexical_i64_call,
+                local_call_route,
                 borrowed_actuals,
                 view_use,
                 object_return,
                 local_calls,
-                local_static_call,
                 local_field_read,
             )?;
             locals.record_source_loop_return_v1(
@@ -236,12 +230,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 field_is_integer,
                 map_compatible,
                 terminal_call,
-                local_map_call,
-                local_handle_call,
-                local_lexical_i64_call,
-                local_lexical_nullable_call,
-                local_nullable_call,
-                local_static_call,
+                local_call_route,
                 argument_i64_field,
                 scalar_field,
                 container_field,
@@ -323,7 +312,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     &statement,
                     homes,
                     locals,
-                    local_lexical_i64_call,
+                    &mut super::local_call_route::lexical_i64_of(&mut *local_call_route),
                     borrowed_actuals,
                 )? {
                     locals.record_source_loop_call_v1(statement.site(), &call);
@@ -471,12 +460,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                                         field_is_integer,
                                         map_compatible,
                                         terminal_call,
-                                        local_map_call,
-                                        local_handle_call,
-                                        local_lexical_i64_call,
-                                        local_lexical_nullable_call,
-                                        local_nullable_call,
-                                        local_static_call,
+                                        local_call_route,
                                         argument_i64_field,
                                         scalar_field,
                                         container_field,
@@ -525,12 +509,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 field_is_integer,
                                 map_compatible,
                                 terminal_call,
-                                local_map_call,
-                                local_handle_call,
-                                local_lexical_i64_call,
-                                local_lexical_nullable_call,
-                                local_nullable_call,
-                                local_static_call,
+                                local_call_route,
                                 argument_i64_field,
                                 scalar_field,
                                 container_field,
@@ -618,13 +597,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             selected_seen,
             unavailable,
             map_compatible,
-            terminal_call,
-            local_map_call,
-            local_handle_call,
-            local_lexical_i64_call,
-            local_lexical_nullable_call,
-            local_nullable_call,
-            local_static_call,
+            local_call_route,
             argument_i64_field,
             scalar_field,
             container_field,

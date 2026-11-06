@@ -15,7 +15,6 @@ pub(crate) fn issue_lexical_local_call<E>(
     destination: BindingRefV1,
     prior_homes: &[LiveHomeV1],
     result: LocalCallResultClassV1,
-    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -27,7 +26,7 @@ pub(crate) fn issue_lexical_local_call<E>(
                 matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Receiver)))
     });
     if self_receiver {
-        return issue_receiver_local_call(
+        return Ok(issue_receiver_local_call(
             input,
             statement,
             site,
@@ -35,8 +34,7 @@ pub(crate) fn issue_lexical_local_call<E>(
             destination,
             prior_homes,
             result,
-            is_selected_call,
-        );
+        ));
     }
     let claim_local = input.function().method_call(site.site()).is_some_and(|call| {
         matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
@@ -76,9 +74,6 @@ pub(crate) fn issue_lexical_local_call<E>(
             Some(_) => return Ok(None),
             None => {}
         }
-    }
-    if !is_selected_call(site)? {
-        return Ok(None);
     }
     let Some((observed_site, call)) = input
         .function()

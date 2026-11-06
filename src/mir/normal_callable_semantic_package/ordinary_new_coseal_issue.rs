@@ -44,10 +44,9 @@ mod completion_seed;
 mod lexical;
 #[path = "ordinary_new_coseal_issue_call_arguments.rs"]
 mod call_arguments;
-use lexical::{
-    borrowed_call_arguments_callback_v1, lexical_handle_result_call, lexical_i64_result_call,
-    lexical_nullable_result_call,
-};
+use lexical::borrowed_call_arguments_callback_v1;
+#[path = "ordinary_new_coseal_issue_local_route.rs"]
+mod local_route;
 // The borrowed-formal object view resolves received-nullable classes with
 // the same sealed `NullableObject` claim lookup as the field issuer.
 pub(in crate::mir::normal_callable_semantic_package) use lexical::nullable_received_result_class;
@@ -526,6 +525,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             }
                         }
                     }
+                    let local_route_sources = local_route::LocalRouteSourcesV1 {
+                        owner_loan, selected, batch, parameter_contracts,
+                        callable_result_classes: &callable_result_classes,
+                        borrowed_i64_results: &borrowed_i64_results,
+                        candidates: &candidates,
+                        receiver_call_observations: &receiver_call_observations,
+                        input,
+                    };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, Some(base_completion), &new_sites,
                         batch_params()
@@ -552,64 +559,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 });
                             Ok(direct || instance)
                         }, &mut |site| {
-                            Ok(owner_loan.is_some_and(|loan| {
-                                loan.is_map_result_call(batch, parameter_contracts, input, site)
-                            }))
-                        }, &mut |site| {
-                            Ok(owner_loan.is_some_and(|loan| {
-                                loan.is_handle_result_call(batch, parameter_contracts, input, site)
-                            }) || lexical_handle_result_call(
-                                selected,
-                                batch,
-                                parameter_contracts,
-                                &candidates,
-                                input,
-                                site,
-                            ) || lexical::has_object_receiver_call_at_v1(&receiver_call_observations, site))
-                        }, &mut |site| {
-                            // Lexical `recv.m(..)` i64-result membership —
-                            // the claim-local receiver, exact-i64 formals,
-                            // and the literal-only callee exits are all
-                            // proved from sealed facts before the claim.
-                            Ok(lexical_i64_result_call(
-                                selected,
-                                batch,
-                                parameter_contracts,
-                                &callable_result_classes,
-                                &borrowed_i64_results,
-                                &candidates,
-                                input,
-                                site,
-                            ))
-                        }, &mut |site| {
-                            // Lexical `recv.m(..)` nullable-result
-                            // membership — claim-local receiver plus the
-                            // callee's sealed `NullableObject` claim and
-                            // its null/construction return sites. The
-                            // `me.m(..)` receiver observation stays a
-                            // separate lane below.
-                            Ok(lexical_nullable_result_call(
-                                selected,
-                                batch,
-                                &callable_result_classes,
-                                &candidates,
-                                input,
-                                site,
-                            ))
-                        }, &mut |site| {
-                            // Nullable `me.m(..)` membership is the sealed
-                            // package observation map restricted to the
-                            // `NullableObject` class — an `Object` claim
-                            // stays on the Handle lane, and the flow row
-                            // never re-reads the expression or a callee claim.
-                            Ok(matches!(
-                                receiver_call_observations
-                                    .get(site)
-                                    .filter(|row| row.map_stored_source().is_some())
-                                    .map(|row| row.class()),
-                                Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))
-                            ))
-                        }, &mut local_static_call, &result_sites, &mut argument_field_is_integer, &mut source_claims::scalar_fields_with_original_writes(static_caller_key.as_ref(), parameter_contracts, instance_constructors, receiver_proof, entry_home, &borrowed_i64_results, &borrowed_formal_source, &candidates, &result_resolutions, &field_write_claims, |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            // One question per Local call initializer: kind from name
+                            // resolution, result class from the callee's own class source.
+                            local_route_sources.route(site, &mut local_static_call)
+                        }, &result_sites, &mut argument_field_is_integer, &mut source_claims::scalar_fields_with_original_writes(static_caller_key.as_ref(), parameter_contracts, instance_constructors, receiver_proof, entry_home, &borrowed_i64_results, &borrowed_formal_source, &candidates, &result_resolutions, &field_write_claims, |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
                             // RHS `me.<field>` reads inside a field write
                             // share the entry-receiver proof; the contract
                             // is the numeric integer-scalar set, not `i64`.

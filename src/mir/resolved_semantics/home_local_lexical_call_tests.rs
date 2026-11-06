@@ -50,8 +50,7 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
         .clone();
     for mutation in 0..10 {
         let mut demands = 0;
-        let mut old_predicate = 0;
-        let result = issue_lexical_local_call(
+        let result = issue_lexical_local_call::<String>(
             input,
             statement,
             &site,
@@ -67,10 +66,6 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
             },
             &[super::super::LiveHomeV1::Stable(receiver)],
             LocalCallResultClassV1::Handle,
-            &mut |_| {
-                old_predicate += 1;
-                Ok::<_, String>(true)
-            },
             &mut |owned, request| {
                 demands += 1;
                 assert_eq!(owned, &site);
@@ -104,10 +99,6 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
                     arguments.into_boxed_slice(),
                 )))
             },
-        );
-        assert_eq!(
-            old_predicate, 0,
-            "selected demand/refusal never retries the old predicate"
         );
         assert_eq!(demands, usize::from(!matches!(mutation, 1 | 2)));
         match mutation {

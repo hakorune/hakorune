@@ -378,7 +378,6 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
     destination: BindingRefV1,
     prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
-    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -388,9 +387,6 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
         E,
     >,
 ) -> Result<Option<LocalCallObservationV1>, E> {
-    if !local_lexical_nullable_call(site)? {
-        return Ok(None);
-    }
     let Some(arguments) = seal_lexical_i64_arguments_at(
         input,
         site,
@@ -676,10 +672,11 @@ mod receiver;
 pub(crate) use receiver::issue_receiver_local_call;
 
 /// Issue one exact literal-argument local Call from already-resolved source.
-/// The caller supplies the existing selected-call predicate and the result
-/// class that predicate proved; this helper never resolves a target or turns
-/// a missing observation into a default call.
-pub(crate) fn issue_local_call<E>(
+/// The route (package, once per site) already named the call and its result
+/// class; this helper checks the direct-call structure and seals the literal
+/// arguments. It never resolves a target or turns a missing observation into a
+/// default call.
+pub(crate) fn issue_local_call(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
@@ -687,22 +684,12 @@ pub(crate) fn issue_local_call<E>(
     destination: BindingRefV1,
     prior_homes: &[LiveHomeV1],
     result: LocalCallResultClassV1,
-    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-) -> Result<Option<LocalCallObservationV1>, E> {
-    if !is_selected_call(site)? {
-        return Ok(None);
-    }
-    let Some((observed_site, observation)) = input
+) -> Option<LocalCallObservationV1> {
+    let (_, observation) = input
         .function()
         .direct_call_observations()
-        .find(|(observed_site, _)| *observed_site == site.site())
-    else {
-        return Ok(None);
-    };
-    if observed_site != site.site() {
-        return Ok(None);
-    }
-    let Some(arguments) = observation
+        .find(|(observed_site, _)| *observed_site == site.site())?;
+    let arguments = observation
         .argument_sites()
         .iter()
         .map(
@@ -713,11 +700,8 @@ pub(crate) fn issue_local_call<E>(
                 _ => None,
             },
         )
-        .collect::<Option<Vec<_>>>()
-    else {
-        return Ok(None);
-    };
-    Ok(Some(LocalCallObservationV1::issue(
+        .collect::<Option<Vec<_>>>()?;
+    Some(LocalCallObservationV1::issue(
         input.owner(),
         statement.clone(),
         site.clone(),
@@ -726,7 +710,7 @@ pub(crate) fn issue_local_call<E>(
         prior_homes.iter().cloned().collect(),
         arguments.into_boxed_slice(),
         result,
-    )))
+    ))
 }
 
 #[path = "home_local_call_borrowed_actuals.rs"]
@@ -767,7 +751,7 @@ pub(crate) fn issue_static_source_local_for_test(
         destination,
         original.prior_homes(),
         &PrefixLocalFlow::new(input),
-        &mut |_| Ok(Some(super::StaticI64CallClaimV1::qualified(claim.clone()))),
+        super::StaticI64CallClaimV1::qualified(claim.clone()),
         callback,
     )
 }

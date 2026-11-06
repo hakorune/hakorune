@@ -400,31 +400,73 @@ pub(super) fn exact_formals(
         .unwrap_or(false)
 }
 
+/// The result class of a local direct call, decided once from the callee.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::normal_callable_semantic_package) enum DirectLocalResultV1 {
+    I64,
+    Map,
+    Handle,
+}
+
 impl DirectCallDispositionLoanV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn is_i64_call(
+    /// The ready row and emission of a direct call whose resolved target and
+    /// argument sites agree with the source inventory: the shared structure of
+    /// every direct-call result class.
+    fn ready_direct_call(
         &self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &OwnedExprSiteV1,
-    ) -> bool {
+    ) -> Option<(&DirectCallDispositionRowV1, &crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1)> {
         if site.owner() != self.owner || input.owner() != self.owner {
-            return false;
+            return None;
         }
         let Some(DirectCallDispositionSlotV1::Ready(row)) = self.rows.get(site) else {
-            return false;
+            return None;
         };
-        let Some(emission) = row.resolver_emission() else { return false };
-        emission.target().signature().result() == Some(ExactTrivialScalarAbiV1::I64)
-            && input
-                .function()
-                .direct_call_target(site.site())
-                .is_some_and(|target| target.callable() == emission.target().callable())
+        let emission = row.resolver_emission()?;
+        (input
+            .function()
+            .direct_call_target(site.site())
+            .is_some_and(|target| target.callable() == emission.target().callable())
             && input
                 .function()
                 .direct_call_observations()
                 .any(|(observed_site, observation)| {
                     observed_site == site.site()
                         && observation.argument_sites() == row.argument_sites()
-                })
+                }))
+        .then_some((row, emission))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn is_i64_call(
+        &self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        site: &OwnedExprSiteV1,
+    ) -> bool {
+        self.ready_direct_call(input, site).is_some_and(|(_, emission)| {
+            emission.target().signature().result() == Some(ExactTrivialScalarAbiV1::I64)
+        })
+    }
+
+    /// The local result class of a direct call. A scalar `i64` signature is
+    /// I64; an unannotated header proves nothing, and the callee's sealed body
+    /// decides between a Map-owned result and a one-class construction result
+    /// (the header's `None` result is syntax only).
+    pub(in crate::mir::normal_callable_semantic_package) fn local_result_class_v1(
+        &self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        site: &OwnedExprSiteV1,
+    ) -> Option<DirectLocalResultV1> {
+        let (row, emission) = self.ready_direct_call(input, site)?;
+        match emission.target().signature().result() {
+            Some(ExactTrivialScalarAbiV1::I64) => Some(DirectLocalResultV1::I64),
+            None if !exact_formals(batch, parameters, row) => None,
+            None if map_owned(batch, row) => Some(DirectLocalResultV1::Map),
+            None => construction_result_callee(batch, emission.target().callable().owner())
+                .then_some(DirectLocalResultV1::Handle),
+        }
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn map_target_owners(
@@ -447,75 +489,6 @@ impl DirectCallDispositionLoanV1 {
         self.rows
             .values()
             .any(|slot| matches!(slot, DirectCallDispositionSlotV1::Taken))
-    }
-
-    /// A local call into an unannotated Map-owned callee: the header's
-    /// `None` result is syntax only — the callee's sealed terminal relation
-    /// proves the Map result class at co-seal.
-    pub(in crate::mir::normal_callable_semantic_package) fn is_map_result_call(
-        &self,
-        batch: &VerifiedResolvedCallableSemanticBatchV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
-        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-        site: &OwnedExprSiteV1,
-    ) -> bool {
-        if site.owner() != self.owner || input.owner() != self.owner {
-            return false;
-        }
-        match self.rows.get(site) {
-            Some(DirectCallDispositionSlotV1::Ready(row)) => {
-                let Some(emission) = row.resolver_emission() else { return false };
-                emission.target().signature().result().is_none()
-                    && map_owned(batch, row)
-                    && exact_formals(batch, parameters, row)
-                    && input
-                        .function()
-                        .direct_call_target(site.site())
-                        .is_some_and(|target| target.callable() == emission.target().callable())
-                    && input.function().direct_call_observations().any(
-                        |(observed_site, observation)| {
-                            observed_site == site.site()
-                                && observation.argument_sites() == row.argument_sites()
-                        },
-                    )
-            }
-            _ => false,
-        }
-    }
-
-    /// A local call into an unannotated callee whose body returns one
-    /// `new` class: the header's `None` result is syntax only — the
-    /// callee's sealed terminal relation proves the Handle result class
-    /// at co-seal, and its `callable_result_classes` claim names it.
-    pub(in crate::mir::normal_callable_semantic_package) fn is_handle_result_call(
-        &self,
-        batch: &VerifiedResolvedCallableSemanticBatchV1,
-        parameters: &[OwnedCallableParameterContractDeclarationV1],
-        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-        site: &OwnedExprSiteV1,
-    ) -> bool {
-        if site.owner() != self.owner || input.owner() != self.owner {
-            return false;
-        }
-        match self.rows.get(site) {
-            Some(DirectCallDispositionSlotV1::Ready(row)) => {
-                let Some(emission) = row.resolver_emission() else { return false };
-                emission.target().signature().result().is_none()
-                    && construction_result_callee(batch, emission.target().callable().owner())
-                    && exact_formals(batch, parameters, row)
-                    && input
-                        .function()
-                        .direct_call_target(site.site())
-                        .is_some_and(|target| target.callable() == emission.target().callable())
-                    && input.function().direct_call_observations().any(
-                        |(observed_site, observation)| {
-                            observed_site == site.site()
-                                && observation.argument_sites() == row.argument_sites()
-                        },
-                    )
-            }
-            _ => false,
-        }
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn co_seal_lifecycle(

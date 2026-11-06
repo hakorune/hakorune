@@ -226,6 +226,9 @@ pub(crate) use local_call_flow::{
 #[path = "home_static_i64_call_claim.rs"]
 mod static_i64_call_claim;
 pub(crate) use static_i64_call_claim::StaticI64CallClaimV1;
+#[path = "home_local_call_route.rs"]
+mod local_call_route;
+pub(crate) use local_call_route::LocalCallRouteV1;
 #[path = "home_map_descendant_flow.rs"]
 mod map_descendant_flow;
 #[path = "home_map_flow.rs"]
@@ -270,11 +273,6 @@ pub(crate) fn issue_new_home_prefixes_v1(
               _,
               _: &str| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(None),
         &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -396,20 +394,15 @@ pub(crate) fn scan_new_home_flow<E>(
     field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's lexical instance-call membership for the exact-i64
     // result lane — `local x = recv.m(..)` on a claim-local `new` binding.
-    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
     // The issuer's lexical instance-call membership for the
     // nullable-handle result lane — `local x = recv.m(..)` on a
     // claim-local receiver whose callee's claim is `NullableObject`.
-    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's qualified static-box call membership: `local x =
     // Alias.m(..)` sites whose sealed target is a `StaticBoxMethod` with an
     // `ExactI64` result disposition carry the callee-required i64 ordinals.
-    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -599,12 +592,7 @@ pub(crate) fn scan_new_home_flow<E>(
         field_is_integer,
         map_compatible,
         terminal_call,
-        local_map_call,
-        local_handle_call,
-        local_lexical_i64_call,
-        local_lexical_nullable_call,
-        local_nullable_call,
-        local_static_call,
+        local_call_route,
         argument_i64_field,
         scalar_field,
         container_field,

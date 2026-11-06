@@ -34,7 +34,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -45,7 +45,6 @@ pub(super) fn observe_terminal_statement<'a, E>(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
     local_calls: &mut Vec<LocalCallObservationV1>,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
         LocalFieldReadDemandV1,
@@ -158,7 +157,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 statement.site(),
                 homes,
                 view_use,
-                static_call,
+                &mut super::local_call_route::static_claim_of(&mut *local_call_route),
                 borrowed_actuals,
             )?;
             use scalar_expression::GuardedMulReturnV1;
@@ -170,7 +169,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                         statement.site(),
                         locals,
                         homes,
-                        static_call,
+                        &mut super::local_call_route::static_claim_of(&mut *local_call_route),
                         borrowed_actuals,
                     )? {
                         GuardedMulReturnV1::Unselected => GuardedMulReturnV1::Unavailable,
@@ -201,7 +200,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     statement.site(),
                     homes,
                     unavailable.is_none(),
-                    static_call,
+                    &mut super::local_call_route::static_claim_of(&mut *local_call_route),
                     &mut |_, _| Ok(false),
                     borrowed_actuals,
                 )?,
@@ -245,7 +244,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
             statement,
             homes,
             locals,
-            local_lexical_i64_call,
+            &mut super::local_call_route::lexical_i64_of(&mut *local_call_route),
             borrowed_actuals,
         )?
     } else {

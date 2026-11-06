@@ -2,7 +2,7 @@
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
-pub(crate) fn issue_receiver_local_call<E>(
+pub(crate) fn issue_receiver_local_call(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
@@ -10,24 +10,23 @@ pub(crate) fn issue_receiver_local_call<E>(
     destination: BindingRefV1,
     prior_homes: &[LiveHomeV1],
     result: LocalCallResultClassV1,
-    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-) -> Result<Option<LocalCallObservationV1>, E> {
+) -> Option<LocalCallObservationV1> {
     if site.owner() != input.owner()
         || !matches!(
             result,
             LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable
         )
     {
-        return Ok(None);
+        return None;
     }
     let Some((observed_site, call)) = input
         .function()
         .method_calls()
         .find(|(observed_site, _)| *observed_site == site.site())
     else {
-        return Ok(None);
+        return None;
     };
-    // The sealed observation is sole membership — the predicate already
+    // The sealed observation is sole membership — the route already
     // proved this site is the entry-loan `me` receiver. The inventory
     // check only retains that `me` in an instance method resolves to a
     // lexical `Local` binding; `CurrentOwner`/`Other`/`QualifiedUnbound`
@@ -42,12 +41,9 @@ pub(crate) fn issue_receiver_local_call<E>(
                     matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Receiver))
         )
     {
-        return Ok(None);
+        return None;
     }
-    if !is_selected_call(site)? {
-        return Ok(None);
-    }
-    Ok(Some(LocalCallObservationV1::issue(
+    Some(LocalCallObservationV1::issue(
         input.owner(),
         statement.clone(),
         site.clone(),
@@ -56,14 +52,14 @@ pub(crate) fn issue_receiver_local_call<E>(
         prior_homes.iter().cloned().collect(),
         Box::new([]),
         result,
-    )))
+    ))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn non_receiver_local_and_unsupported_result_do_not_ask_membership() {
+    fn non_receiver_local_and_unsupported_result_issue_nothing() {
         let ast = crate::parser::NyashParser::parse_from_string(
             "function probe(other) { local item = other.make(7) return item }",
         )
@@ -101,11 +97,8 @@ mod tests {
                 row.binding(),
                 &[],
                 role,
-                &mut |_| -> Result<bool, std::convert::Infallible> {
-                    panic!("non-receiver must not demand membership")
-                },
             );
-            assert!(result.unwrap().is_none());
+            assert!(result.is_none());
         }
     }
 }

@@ -68,6 +68,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
             )
         },
     );
+    let route_sources = super::super::local_route::LocalRouteSourcesV1 {
+        owner_loan: None, selected, batch, parameter_contracts, callable_result_classes,
+        borrowed_i64_results, candidates, receiver_call_observations: receiver_rows, input,
+    };
     crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
         input,
         &new_sites,
@@ -78,29 +82,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
             .filter(|row| row.batch_slot == batch_slot)
             .flat_map(|row| row.parameters.iter())
             .map(|row| (row.ordinal, row.binding, row.kind.clone(), row.demand)),
+        // The probe asks the same route question as the verified lane,
+        // narrowed to the static and lexical routes it has always covered.
         &mut |site| {
-            Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
-                selected,
-                batch,
-                parameter_contracts,
-                &callable_result_classes,
-                &borrowed_i64_results,
-                &candidates,
-                input,
-                site,
-            ))
+            Ok(route_sources
+                .route(site, local_static_call)?
+                .filter(|route| route.in_readiness_probe()))
         },
-        &mut |site| {
-            Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_nullable_result_call(
-                selected,
-                batch,
-                &callable_result_classes,
-                &candidates,
-                input,
-                site,
-            ))
-        },
-        local_static_call,
         &mut terminal_fields,
         &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
             terminal_home::argument_integer_field(

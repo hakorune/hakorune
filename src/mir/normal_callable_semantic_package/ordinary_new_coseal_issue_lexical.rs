@@ -142,49 +142,24 @@ fn all_formals_exact_i64<'a>(
         .unwrap_or(None)
 }
 
-/// A `recv.m(...)` local-call site whose receiver is a claim-local `new`
-/// binding and whose uniquely selected callee returns `new` of one class.
+/// The route of a `recv.m(...)` local-call site whose receiver is a
+/// claim-local `new` binding: the callee's result class, decided once from the
+/// callee's own class source.
 ///
-/// This is the scan-side mirror of `issue_lexical_instance_call_dispositions`
-/// bounded to claim-local receivers: `candidates` stands in for this
-/// declaration's not-yet-committed claims, the callee's parameter contract
-/// proves every formal is an exact i64, and the callee's body shape proves
-/// the uniform construction result. Parameter receivers, nested
-/// handle-result receivers, and rebound bindings prove nothing here — the
-/// site simply stays on its existing path.
-pub(super) fn lexical_handle_result_call(
-    selected: &VerifiedSelectedCallableBatchMapV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-    candidates: &[OrdinaryNewCandidate],
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    site: &OwnedExprSiteV1,
-) -> bool {
-    let Some((_key, _slot, callee_owner, arity)) =
-        lexical_claim_local_target(selected, batch, candidates, input, site)
-    else {
-        return false;
-    };
-    all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity).is_some()
-        && crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::construction_result_callee(
-            batch,
-            callee_owner,
-        )
-}
-
-/// A `recv.m(...)` local-call site whose receiver is a claim-local `new`
-/// binding, whose uniquely selected callee takes only exact-`i64` formals and
-/// whose every verified value-return is an exact `i64` computed on the Normal
-/// path alone — the sole scan-side proof that the callee's co-sealed
-/// disposition mints `InvokeCallResultKind::I64`.
+/// * a sealed `NullableObject` claim whose every verified value-return is
+///   `return null` or a construction -> `LexicalNullable` (the received binding
+///   joins the owned-Home ledger for a checked release);
+/// * exact-`i64` formals and a one-class construction result -> `LexicalHandle`
+///   (the callee's co-sealed disposition mints a Handle result);
+/// * exact-`i64` formals, no result claim and a normal exact-`i64` result in the
+///   callee's result cohort -> `LexicalI64`. A return annotation alone does not
+///   verify the literal type: Float, Bool, String and Null must not enter this
+///   lane. The emitter separately corroborates the minted row's
+///   `result == Some(I64)`; disagreement freezes without fallback.
 ///
-/// The result class is the callee's result-cohort class (the type rules over
-/// its return expressions, including the locals they read); this function only
-/// asks it. A return annotation alone does not verify the literal type: Float,
-/// Bool, String and Null must not enter this lane. The emitter separately
-/// corroborates the minted row's `result == Some(I64)`; disagreement freezes
-/// without fallback.
-pub(super) fn lexical_i64_result_call(
+/// Parameter receivers, nested handle-result receivers and rebound bindings
+/// prove nothing here — the site simply has no route.
+pub(super) fn lexical_local_route(
     selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
@@ -193,49 +168,33 @@ pub(super) fn lexical_i64_result_call(
     candidates: &[OrdinaryNewCandidate],
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
-) -> bool {
-    let Some((key, _target_batch_slot, callee_owner, arity)) =
-        lexical_claim_local_target(selected, batch, candidates, input, site)
-    else {
-        return false;
-    };
-    all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity).is_some()
-        && !callable_result_classes.contains_key(&key)
-        && borrowed_i64_results.is_normal_i64_result_v1(&callee_owner)
+) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallRouteV1> {
+    use crate::mir::resolved_semantics::home_new_prefix::LocalCallRouteV1;
+    let (key, target_batch_slot, callee_owner, arity) =
+        lexical_claim_local_target(selected, batch, candidates, input, site)?;
+    let claim = callable_result_classes.get(&key);
+    if matches!(
+        claim,
+        Some(crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_))
+    ) {
+        return nullable_exits_hold(batch, target_batch_slot).then_some(LocalCallRouteV1::LexicalNullable);
+    }
+    all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
+    if crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::construction_result_callee(
+        batch,
+        callee_owner,
+    ) {
+        return Some(LocalCallRouteV1::LexicalHandle);
+    }
+    (claim.is_none() && borrowed_i64_results.is_normal_i64_result_v1(&callee_owner))
+        .then_some(LocalCallRouteV1::LexicalI64)
 }
 
-/// A `recv.m(...)` local-call site whose receiver is a claim-local `new`
-/// binding and whose uniquely selected callee carries the sealed
-/// `NullableObject` claim — every verified value-return is `return null`
-/// or a `return new ..` construction. This is the sole scan-side proof
-/// that the callee's co-sealed disposition mints
-/// `InvokeCallResultKind::NullableHandle`: the claim names the result
-/// class and the same sealed return sites re-prove its shape, so the
-/// lane never infers nullability from MIR types or a backend role. The
-/// received binding joins the owned-Home ledger for a checked release.
-pub(super) fn lexical_nullable_result_call(
-    selected: &VerifiedSelectedCallableBatchMapV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-    candidates: &[OrdinaryNewCandidate],
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    site: &OwnedExprSiteV1,
-) -> bool {
-    let Some((key, target_batch_slot, _callee_owner, _arity)) =
-        lexical_claim_local_target(selected, batch, candidates, input, site)
-    else {
-        return false;
-    };
-    if !matches!(
-        callable_result_classes.get(&key),
-        Some(
-            crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(
-                _
-            ),
-        )
-    ) {
-        return false;
-    }
+/// Every verified value-return of the callee is `return null` or a
+/// construction; the claim names the class and the same sealed return sites
+/// re-prove its shape, so the lane never infers nullability from MIR types or a
+/// backend role.
+fn nullable_exits_hold(batch: &VerifiedResolvedCallableSemanticBatchV1, target_batch_slot: u32) -> bool {
     batch
         .with_lowering_input(target_batch_slot, |callee_input| {
             let Some(shape) = callee_input.body_shape() else {

@@ -6,7 +6,7 @@
 //! bindings — nothing is invented.
 
 use super::{
-    scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+    scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, LocalCallRouteV1,
     BorrowedViewUseRequestV1, CallerNewHomePrefixV1, HomeFieldSourceConsultV1,
     HomePrefixUnavailableV1, LocalFieldReadDemandV1, LocalFieldReadRequestV1,
     LocalFieldReadResultV1, ObjectReturnCallQualificationV1, ResultNewHomePrefixV1,
@@ -53,19 +53,8 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
               _: &str| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        // This bounded sibling mints no lexical instance-call rows: the
-        // i64 lane membership lives on the verified-completion lane alone.
-        &mut |_| Ok(false),
-        // The nullable-handle lexical lane likewise lives only on the
-        // verified-completion lane — the bounded sibling mints none.
-        &mut |_| Ok(false),
-        // This bounded sibling mints no receiver-call rows: nullable flow
-        // membership lives on the verified-completion lane alone.
-        &mut |_| Ok(false),
-        // Qualified static-call claims are likewise issued only by the
-        // verified-completion lane; the bounded sibling admits none.
+        // The bounded sibling mints no call routes: lexical, receiver and
+        // static membership live on the verified-completion lane alone.
         &mut |_| Ok(None),
         // This bounded sibling issues no field-read evidence: argument
         // `me.f` reads stay truthfully unavailable here. Only the
@@ -134,23 +123,11 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
             crate::mir::resolved_semantics::HomeDemandV1,
         ),
     >,
-    // The probe must see the same lexical instance-call membership the
-    // verified lane sees: an admitted `local x = recv.m(..)` keeps this
-    // walk covered, so the readiness gate never under- or over-predicts.
-    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    // The nullable lexical membership must be visible to the probe for
-    // the same reason — a `NullableObject` callee's `local x = recv.m(..)`
-    // keeps this walk covered exactly as the verified lane admits it.
-    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    // The probe must see the same qualified static-call membership the
-    // verified lane sees: an admitted `local x = Alias.m(..)` keeps this
-    // walk covered, so the readiness gate never under- or over-predicts.
-    local_static_call: &mut impl FnMut(
-        &OwnedExprSiteV1,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1>,
-        E,
-    >,
+    // The probe asks the same route question as the verified lane, narrowed
+    // by the package to the static and lexical routes: an admitted
+    // `local x = Alias.m(..)` or `local x = recv.m(..)` keeps this walk
+    // covered, so the readiness gate never under- or over-predicts.
+    local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
     field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -221,12 +198,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         field_is_integer,
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        &mut |_| Ok(false),
-        local_lexical_i64_call,
-        local_lexical_nullable_call,
-        &mut |_| Ok(false),
-        local_static_call,
+        local_call_route,
         argument_i64_field,
         scalar_field,
         container_field,
