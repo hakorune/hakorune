@@ -57,6 +57,11 @@ Related:
 将来の主経路を「`.hako` が MIR から WASM を出力する」形へ寄せる。  
 Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM codegen/runtime 契約の正本は `.hako` 側へ移す。
 
+## 2026-11-06 ユーザー決定（下の Retire の条件より優先）
+- WASM の出力は selfhost の後に `.hako` で作る。
+- Rust の WASM backend（`src/backend/wasm*`、cargo feature `wasm-backend`、依存の `wasmtime`と`wabt`）は、`.hako` 版を待たずに、承認済みの順番の④（3bと旧経路の撤退）で撤退する。
+- このため、④から`.hako`版ができるまで、WASM の出力は無い。下の「Retire Done Criteria」（`.hako`のデモが緑になってから撤去）は、この決定で置き換える。
+
 ## Current Boundary (as-is)
 1. 現在の WASM codegen/runtime の主実装は Rust (`src/backend/wasm/*`)。
 2. `.hako` 側は段階移行中で、契約固定（fixture/smoke/SSOT）が主役。

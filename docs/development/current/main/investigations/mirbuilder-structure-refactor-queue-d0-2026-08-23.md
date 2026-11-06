@@ -193,7 +193,7 @@ JSON着地後のレビュー（2026-10-28、読取りworker3人。未実行）�
 | S3 | 順番の②。`: bool`と`: String`の入口、演算の表、基本の式、container | 広がる | 各形のEXEとEnd。公開MIRの追加が要れば止めて聞く |
 | S4 | 形×段階の整理。compareとmul、static finishの共通の2句、loopの位置別loan | 変えない | 消えた型と関数の名前、production純減 |
 
-3bで撤退: `legacy_port.rs`、`raw_ordinary_new_claim`のlegacyのimpl、`birth-global-legacy-stopped`、`FromCall`。撤退しない: `MirFinishScheduleV1::Legacy`（今の既定の経路）、`resolved_semantics/shadow/`、`resolved_lowering/`（canonicalのCFGとSSAを多くの所が使う）。micro seedのplan群は公開JSONの契約に関わるのでユーザー判断。
+3bで撤退: `legacy_port.rs`、`raw_ordinary_new_claim`のlegacyのimpl、`birth-global-legacy-stopped`、`FromCall`、RustのWASM backend（2026-11-06ユーザー決定、[WASM roadmap](../design/wasm-hako-only-output-roadmap-ssot.md)）。撤退しない: `MirFinishScheduleV1::Legacy`（今の既定の経路）、`resolved_semantics/shadow/`、`resolved_lowering/`（canonicalのCFGとSSAを多くの所が使う）。micro seedのplan群は公開JSONの契約に関わるのでユーザー判断。
 
 やらない: 行数の目標、行数だけのfile分割、置き場所だけの移動、`finished-sequence`を緩めること（`x - 定数`の直し先は下書きを作る側）、形ごとのfileやproducerの追加、「選ばれた後の欠け」を黙って`None`に落とすこと、`Static*InputFinishV1`を一つにすること、`freeze`と`reject`の一括のmacro化。
 
