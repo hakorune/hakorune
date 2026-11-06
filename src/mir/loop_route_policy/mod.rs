@@ -48,8 +48,7 @@ pub(crate) use all_route_observation::{
 };
 pub(crate) use direct_accum_observation::{
     issue_direct_accum_family_observation_v1, DirectAccumFamilyObservationV1,
-    DirectAccumObservationContextV1, DirectAccumObservationDeclineV1,
-    DirectAccumObservationEvidenceV1, DirectAccumObservationRejectV1,
+    DirectAccumObservationContextV1, DirectAccumObservationDeclineV1, DirectAccumObservationRejectV1,
     DirectAccumObservationUnresolvedV1, VerifiedDirectAccumFamilyCandidateV1,
 };
 pub(crate) use loop_cond_break_continue::{
@@ -96,9 +95,8 @@ pub(crate) use loop_true_break_continue_observation::{
 };
 pub(crate) use nested_predicate_observation::{
     issue_nested_predicate_family_observation_v1, NestedPredicateFamilyObservationV1,
-    NestedPredicateObservationContextV1, NestedPredicateObservationDeclineV1,
-    NestedPredicateObservationEvidenceV1, NestedPredicateObservationRejectV1,
-    NestedPredicateObservationUnresolvedV1, VerifiedNestedPredicateFamilyCandidateV1,
+    NestedPredicateObservationContextV1, NestedPredicateObservationDeclineV1, NestedPredicateObservationRejectV1,
+    NestedPredicateObservationUnresolvedV1,
 };
 #[cfg(test)]
 pub(crate) use policy::direct_accum_route_admission_for_test;

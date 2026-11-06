@@ -33,9 +33,7 @@ pub(crate) use core_method::{
     VerifiedSourceBoundS6CCallRelationV1,
 };
 pub(in crate::mir) use dynamic_member::{
-    issue_source_bound_dynamic_member_calls_v1, DynamicMemberArgumentSourceV1,
-    DynamicMemberDispatchKeyV1, DynamicMemberSourceIssueV1, DynamicMemberSourceRejectV1,
-    DynamicMemberSourceUnresolvedV1, VerifiedSourceBoundDynamicMemberCallV1,
+    issue_source_bound_dynamic_member_calls_v1, DynamicMemberSourceIssueV1, DynamicMemberSourceRejectV1, VerifiedSourceBoundDynamicMemberCallV1,
 };
 pub(crate) use error::{
     CurrentOwnerStaticCallTargetErrorV1, QualifiedCallRouteFactsErrorV1,
@@ -56,8 +54,6 @@ pub(crate) use qualified_route_facts::{
     QualifiedReceiverAdmissionV1, VerifiedQualifiedCallRouteFactsV1,
 };
 pub(crate) use raw_callable_source_view::{
-    RawLocatedBodyInputV1, RawLocatedExprInputV1,
-    RawLocatedMethodCallInputV1, RawLocatedStmtInputV1,
     VerifiedRawCallableSourceViewV1,
 };
 pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;

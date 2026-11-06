@@ -34,7 +34,7 @@ mod test_support;
 
 pub(crate) use callable_catalog_source::{
     NormalCallableCatalogSourceErrorV1, NormalCallableCatalogSourceStageV1,
-    RejectedNormalCallableCatalogSourceV1, VerifiedNormalCallableCatalogSourceUnitV1,
+    RejectedNormalCallableCatalogSourceV1,
 };
 pub(crate) use callable_source::RejectedNormalCallableSourceV1;
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
@@ -42,20 +42,17 @@ pub(crate) use compatibility_origin::{
     NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
 };
 pub(in crate::mir::compiler) use instance_function_plan::{
-    GeneralFunctionPlanErrorV1, GeneralFunctionPlanStageV1, GeneralFunctionSignatureStopV1,
-    RejectedGeneralFunctionPlanSetV1, VerifiedNormalInstanceFunctionFactsV1,
-    VerifiedNormalInstanceFunctionPlanSetV1, VerifiedNormalInstanceFunctionPlanV1,
+    GeneralFunctionPlanErrorV1, GeneralFunctionPlanStageV1,
+    VerifiedNormalInstanceFunctionPlanSetV1,
 };
 pub(crate) use main0_bridge::{
-    NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1, RejectedNormalMain0BridgeV1,
-    VerifiedNormalMain0BridgePlanV1, VerifiedNormalModuleFunctionPlanSetV1,
+    NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1,
 };
 pub(crate) use main_direct_call_plan::{
     NormalMainDirectCallPreflightV1,
     RejectedNormalMainDirectCallPlanV1,
 };
 pub(crate) use main_direct_call_source::{
-    NormalMainDirectCallSourceErrorV1, NormalMainDirectCallSourceStageV1,
     RejectedNormalMainDirectCallSourceV1, VerifiedNormalMainDirectCallSourceUnitV1,
 };
 pub(crate) use main_function_plan::{
@@ -66,7 +63,7 @@ pub(crate) use main_resolved_source::{
     VerifiedNormalMainResolvedSourceUnitV1, VerifiedNormalMainRoleV1,
 };
 pub(crate) use main_source::{
-    NormalMainFunctionSourceErrorV1, RejectedNormalMainFunctionSourceV1,
+    NormalMainFunctionSourceErrorV1,
     VerifiedNormalMainFunctionSourceUnitV1,
 };
 pub(crate) use main_thunk_plan::{
@@ -74,15 +71,14 @@ pub(crate) use main_thunk_plan::{
     VerifiedNormalMainPhysicalRelationV1, VerifiedNormalMainThunkPlanV1,
     VerifiedNormalMainThunkResultV1,
 };
-pub(crate) use module_source::{
-    NormalInstanceBoxSiteV1, NormalModuleBoxSourceErrorV1, NormalModuleSourceErrorV1,
-    NormalModuleSourceStageV1, NormalModuleUnsupportedTopLevelKindV1, RejectedNormalModuleSourceV1,
+pub(crate) use module_source::{ NormalModuleBoxSourceErrorV1, NormalModuleSourceErrorV1,
+    NormalModuleSourceStageV1, RejectedNormalModuleSourceV1,
     VerifiedNormalModuleSourceV1,
 };
 pub(crate) use normal_acyclic_module_plan::{
     CompletedNormalMainHelperResolutionV1, NormalAcyclicCallableModuleErrorV1,
-    NormalMainHelperResolutionStageV1, PreparedNormalMainHelperResolutionV1,
-    RejectedNormalMainHelperResolutionV1, VerifiedNormalAcyclicCallableModulePlanV1,
+    NormalMainHelperResolutionStageV1,
+    RejectedNormalMainHelperResolutionV1,
     VerifiedNormalHelperTopologyPlanV1, VerifiedNormalRecursiveCallableModulePlanV1,
 };
 pub(crate) use normal_callable_transaction_handoff::{

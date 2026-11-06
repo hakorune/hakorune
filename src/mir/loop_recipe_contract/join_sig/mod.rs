@@ -21,7 +21,7 @@ pub(crate) use model::{
     LoopJoinEdgeV2, LoopJoinLoopV1, LoopJoinNextItemV1, LoopJoinPayloadV1,
     LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1,
     LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1,
-    VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
+    VerifiedLoopJoinSigV1,
 };
 pub(crate) use transfer_view_v1::{
     LoopJoinBoundaryTransferRefV1, LoopJoinBranchArmTransferRefV1, LoopJoinBranchExitRefV1,

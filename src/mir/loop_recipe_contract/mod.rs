@@ -215,8 +215,6 @@ pub(crate) use common_v2_issuers::{
     issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2, PreparedLoopV2PreSessionEnvelopeV1,
 };
 pub(crate) use common_v2_predicate_branch_plan::{
-    issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
-    PreparedLoopV2ConditionCarrierRequirementV1, PreparedLoopV2PredicateBranchPlanV1,
     PreparedLoopV2PredicateFalseTargetV1,
 };
 pub(crate) use common_v2_return_read_co_seal::{
@@ -253,14 +251,14 @@ pub(crate) use input_source::{
 };
 pub(crate) use internal_declaration::LoopInternalDeclarationModeV1;
 pub(crate) use join_sig::{
-    issue_sole_root_carrier_join_closure_v2, LoopJoinBoundaryTransferRefV1,
-    LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV1, LoopJoinBranchArmV2,
+    issue_sole_root_carrier_join_closure_v2,
+    LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV2,
     LoopJoinBranchExitRefV2, LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2,
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2, LoopJoinLogicalTransferRejectV1,
-    LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV1, LoopJoinLogicalTransferViewV2,
-    LoopJoinLoopV1, LoopJoinNextItemV1, LoopJoinPayloadV1, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
-    LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1,
-    VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
+    LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2,
+    LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2,
+    LoopJoinLoopV1, LoopJoinNextItemV1, LoopJoinPayloadV2, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigRejectReasonV1, LoopJoinSigV1,
+    VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,
 };
 pub(crate) use loop_cond_break_continue_producer::{
     produce_loop_cond_break_continue_recipe_v1, LoopCondBreakContinueRecipeProducerRejectV1,
@@ -270,8 +268,7 @@ pub(crate) use loop_true_break_continue_producer::{
     produce_loop_true_break_continue_recipe_v1, LoopTrueBreakContinueRecipeProducerRejectV1,
     VerifiedLoopTrueBreakContinueRecipeProductV1,
 };
-pub(crate) use normalize::{
-    LoopRecipeDecodeErrorV1, LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV1,
+pub(crate) use normalize::{ LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV1,
     LoopRecipeNormalizerV2,
 };
 pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
@@ -314,13 +311,12 @@ pub(crate) use s6c_scan_with_init_joinir_output_rows::{
     S6CLogicalCallArgsV1, S6CLogicalCallSlotV1, S6CLogicalItemV1,
 };
 pub(crate) use s6c_scan_with_init_logical_consumer::{
-    consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
+    consume_s6c_scan_with_init_logical_output_v1,
     S6CLogicalConsumerResultV1,
 };
 pub(crate) use s6c_text_eq_occurrence::S6CTextEqOccurrenceSourceViewV1;
 pub(crate) use s6c_text_eq_site_contract::{
-    issue_s6c_text_eq_source_binding_v1, LoopTextEqSiteRefV1, TextEqualityLawV1,
-    VerifiedS6CTextEqSourceBindingV1,
+    issue_s6c_text_eq_source_binding_v1, TextEqualityLawV1,
 };
 pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,
@@ -332,8 +328,7 @@ pub(crate) use schema::{
 };
 pub(crate) use schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
-    LoopOperationExecutionClassV2, LoopOperationFaultFamilyV2, LoopOperationV2,
-    LoopRecipeArtifactV2, LoopRecipeBindingV2, LoopRecipeBlockV2, LoopRecipeCarrierV2,
+    LoopOperationExecutionClassV2, LoopOperationFaultFamilyV2, LoopOperationV2, LoopRecipeBindingV2, LoopRecipeBlockV2, LoopRecipeCarrierV2,
     LoopRecipeExitV2, LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2,
     LoopValueClassV2, LOOP_RECIPE_SCHEMA_VERSION_V2,
 };

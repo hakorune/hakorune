@@ -102,9 +102,9 @@ pub(crate) use block_expr_expectation::{
 };
 pub(crate) use body_shape::{
     BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
-    BodyShapeRelationV1, BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,
+    BodyShapeRelationV1, BodyStatementShapeV1,
     ResolvedMethodCallArgumentSourceV1, ResolvedMethodCallReceiverSourceV1,
-    ResolvedMethodCallSourceIssueV1, ResolvedQualifiedReceiverIdentityV1,
+    ResolvedMethodCallSourceIssueV1,
     VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedMethodCallSourceV1,
 };
 pub(crate) use brand_source_relation::{
@@ -159,9 +159,8 @@ pub(crate) use declared_instance_contract::{
     DeclaredInstanceMethodContractRefV1, DeclaredInstanceMethodIdentityV1,
     VerifiedDeclaredInstanceMethodContractCatalogV1,
 };
-pub(crate) use declared_query_body_source::{
-    DeclaredQueryBodySourceIssueV1, DeclaredQueryBodySourceIssuerV1,
-    VerifiedDeclaredQueryBodySourceCatalogV1, VerifiedDeclaredQueryBodySourceRowRefV1,
+pub(crate) use declared_query_body_source::{ DeclaredQueryBodySourceIssuerV1,
+    VerifiedDeclaredQueryBodySourceCatalogV1,
 };
 pub(crate) use direct_call::{
     ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1,
@@ -183,7 +182,7 @@ pub(crate) use function_root::ResolvedFunctionLoweringRootsV1;
 pub(crate) use function_view::FunctionSyntaxViewV1;
 pub(in crate::mir) use function_view::ReceiverPolicyV1;
 pub(crate) use home_abi::{
-    CallableHomeAbiIssuerV1, HomeAbiIssueV1, ResolverHomeCapabilityEnvironmentV1,
+    CallableHomeAbiIssuerV1, ResolverHomeCapabilityEnvironmentV1,
     VerifiedDeclaredInstanceMethodHomeCatalogV1, VerifiedHomeAbiV1,
     VerifiedInstanceEntryHomeCatalogV1, VerifiedInstanceEntryHomeLoanV1,
     VerifiedInstanceEntryHomeParameterV1,
@@ -199,23 +198,20 @@ pub(crate) use if_region::{
 };
 pub(in crate::mir) use instance_method_body_owner::{
     InstanceMethodBodyOwnerBindingIssueV1, InstanceMethodBodyOwnerBindingIssuerV1,
-    VerifiedInstanceMethodBodyOwnerCatalogV1, VerifiedInstanceMethodBodyOwnerRowV1,
+    VerifiedInstanceMethodBodyOwnerCatalogV1,
 };
-pub(crate) use instance_method_body_source::{
-    InstanceMethodBodySourceIssueV1, InstanceMethodBodySourceIssuerV1,
+pub(crate) use instance_method_body_source::{ InstanceMethodBodySourceIssuerV1,
     VerifiedInstanceMethodBodySourceCatalogV1, VerifiedInstanceMethodBodySourceRowV1,
 };
-pub(crate) use instance_method_declaration::{
-    InstanceMethodDeclarationIssueV1, ResolverCatalogBrandV1, ResolverNominalBoxDeclarationInputV1,
+pub(crate) use instance_method_declaration::{ ResolverCatalogBrandV1, ResolverNominalBoxDeclarationInputV1,
     ResolverNominalBoxTypeIdV1, ResolverNominalTypeEnvironmentIssueV1,
     ResolverNominalTypeEnvironmentV1, ResolverSemanticValueTypeV1,
     SemanticInstanceDeclarationIssuerV1, VerifiedInstanceMethodDeclarationCatalogV1,
-    VerifiedInstanceMethodDeclarationV1, VerifiedSemanticCallableSignatureV1,
+    VerifiedInstanceMethodDeclarationV1,
 };
 pub(in crate::mir) use instance_method_function_carrier::{
     InstanceMethodFunctionCarrierIssueV1, InstanceMethodFunctionCarrierIssuerV1,
     VerifiedInstanceMethodFunctionCarrierCatalogV1, VerifiedInstanceMethodFunctionCarrierRowV1,
-    VerifiedMethodBodyCoverageV1,
 };
 pub(crate) use loop_family_window::{
     LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,
@@ -228,14 +224,10 @@ pub(crate) use loop_region::{
     VerifiedResolvedLoopSourceV1,
 };
 pub use normalized::NormalizedResolvedFunctionGraphV1;
-pub(crate) use normalized_callable_catalog::{
-    NormalizedCallableCatalogRowV1, NormalizedCallableCatalogV1,
+pub(crate) use normalized_callable_catalog::{ NormalizedCallableCatalogV1,
 };
 pub(crate) use owner_forest::SemanticOwnerForestDraftV1;
-pub use owner_forest::{
-    NormalizedOwnerKeyV1, NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1,
-    NormalizedUpvarEdgeV1, NormalizedUpvarObservationV1, OwnerParentEdgeV1,
-    SemanticOwnerForestVerificationErrorV1, UpvarAccessKindV1, UpvarObservationV1,
+pub use owner_forest::{ UpvarAccessKindV1,
     VerifiedSemanticOwnerForestV1,
 };
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
@@ -250,23 +242,18 @@ pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{
-    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, VerifiedResolvedOwnerCoreV1,
+    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1,
     VerifiedResolvedScriptV1,
 };
 pub(crate) use query_behavior::{
     DeclaredQueryBehaviorIssuerV1, DeclaredQueryBehaviorV1, QueryBehaviorIssueV1,
     VerifiedDeclaredQueryBehaviorCatalogV1, VerifiedDeclaredQueryBehaviorV1,
 };
-pub(in crate::mir) use query_body_conformance::{
-    QueryBodyConformanceIssueV1, QueryBodyConformanceIssuerV1,
-    VerifiedCallableBodyConformanceCatalogV1, VerifiedCallableBodyConformanceV1,
+pub(in crate::mir) use query_body_conformance::{ QueryBodyConformanceIssuerV1,
 };
 pub(in crate::mir) use query_body_conformance_evidence::{
-    QueryBodyConformanceEvidenceDeclineV1, QueryBodyConformanceEvidenceIssueV1,
-    QueryBodyConformanceEvidenceIssuerV1, QueryBodyConformanceEvidenceNoSafeSliceV1,
-    QueryBodyConformanceEvidenceRejectV1, QueryBodyHomeTransferV1,
+    QueryBodyConformanceEvidenceIssuerV1, QueryBodyHomeTransferV1,
     VerifiedQueryBodyConformanceEvidenceCatalogV1, VerifiedQueryBodyConformanceEvidenceV1,
-    VerifiedQueryBodyHomeFlowEvidenceV1,
 };
 pub(crate) use record_schema_demand::{
     FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1,

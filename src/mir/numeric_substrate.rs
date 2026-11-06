@@ -28,7 +28,7 @@ pub(crate) use exact_values::{
     exact_numeric_type_requires_dynamic_integer_range_check,
     exact_numeric_value_from_dynamic_integer,
     exact_numeric_value_from_dynamic_integer_for_declared_name, ExactNumericConstValue,
-    ExactNumericConversionError, ExactNumericMirSignature, ExactNumericMirType,
+    ExactNumericConversionError, ExactNumericMirType,
 };
 // staged target/type vocabulary; later cross-target rows consume the facade.
 pub(crate) use target::{

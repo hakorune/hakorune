@@ -14,8 +14,8 @@ mod model;
 
 pub(crate) use crate::mir::thin_entry::ThinEntrySurface;
 pub(crate) use crate::mir::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
-    MirInstruction, MirModule, MirType, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction,
+    MirInstruction, MirModule, ValueId,
 };
 
 pub use self::model::{
