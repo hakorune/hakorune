@@ -183,6 +183,10 @@ fn published_homes_derive_their_inputs_and_refuse_a_missing_or_doubled_end() {
     let mut float_parameter = function.clone();
     float_parameter.signature.params.push(MirType::Float);
     assert_eq!(check(&float_parameter, owner, &births, &calls), Ok(Verdict::OutsideModel));
+    // A Home with a second copy (a read temporary) cannot be derived uniquely.
+    let mut second_copy = function.clone();
+    second_copy.get_block_mut(bb(3)).unwrap().add_instruction(MirInstruction::Copy { dst: value(12), src: value(10) });
+    assert_eq!(check(&second_copy, owner, &births, &calls), Ok(Verdict::OutsideModel));
     let (without_home, _) = self::function(&[], 2);
     assert_eq!(check(&without_home, owner, &births, &calls), Ok(Verdict::NoHomes));
 }

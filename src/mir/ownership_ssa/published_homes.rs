@@ -68,7 +68,13 @@ pub(crate) fn verify_published_object_homes_v1(
     for home in &homes {
         let mut copies = function.blocks.values().flat_map(|block| &block.instructions)
             .filter_map(|row| match row { MirInstruction::Copy { dst, src } if src == home => Some(*dst), _ => None });
-        if let (Some(dst), None) = (copies.next(), copies.next()) { aliases.insert(dst, *home); }
+        match (copies.next(), copies.next()) {
+            (Some(dst), None) => { aliases.insert(dst, *home); }
+            // Several copies (a Home plus LocalSSA read temporaries) cannot be
+            // told apart from the MIR alone: make no claim.
+            (Some(_), Some(_)) => return Ok(PublishedHomeVerdictV1::OutsideModel),
+            _ => {}
+        }
     }
     let initially_published = homes.iter().copied().filter(|home| !birth_receivers.contains(home)).collect();
     let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), parameters, FunctionResultOwnershipV1::None)

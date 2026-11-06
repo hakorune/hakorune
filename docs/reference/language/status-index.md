@@ -349,7 +349,7 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | print(t.get()) with unannotated get | reject [rule5] | against-frozen | `exit 0` |
 
 
-### exact-i64 static call composition (S2): 8 connected of 14 measured forms
+### exact-i64 static call composition (S2, S2b): 12 connected of 17 measured forms
 
 Every row was built to an EXE with the S2 binary and, when connected, run; `base` is the binary of the commit before S2. The callee is `a(x: i64): i64 { return x }` unless noted; "with Home" means the caller holds a live `new P()` object.
 
@@ -364,13 +364,16 @@ Every row was built to an EXE with the S2 binary and, when connected, run; `base
 | `return Main.a(x) + 1`, with Home | refused-named `qualified-preflight` | connected | `exit 5` |
 | `Main.b(x + 1)` argument, with Home | refused-named `static-execution/live-home` | connected | `exit 0`, output 6 |
 | `local r = Main.a(1) * 2`, with Home | refused-named `qualified-preflight` | refused-named | `object-return/normal-projection-exit` |
-| `Main.b(x - 1)` argument | refused-named | refused-named | `print-expression/unowned-scope-instruction` |
-| `Main.a(Main.b(1) + 1)` argument | refused-named | refused-named | `borrowed-static/source-unobserved` |
+| `Main.b(x - 1)` argument (`local r`, `print(...)`, `Main.b(x-1) + Main.b(x-2)`; `x - y` too) | refused-named | connected (S2b) | `exit 0`, output 4 |
+| `Main.a(Main.b(1) + 1)` argument, with and without Home | refused-named | connected (S2b) | `exit 0`, output 2 |
+| `r = Main.a(4)` Assignment, with and without Home | refused-named `object-return/normal-projection-exit` | connected (S2b) | `exit 0`, output 4 |
+| `r = Main.a(4) + r` Assignment | refused-named | connected (S2b) | `exit 0`, output 6 |
+| `return Main.a(x) + 1` inside a callee | refused-named | refused-named | `published-lifecycle-program/instruction-unsupported` (the callee emits a plain Call) |
 | `if Main.a(1) < 3 { ... }`, with Home | refused-named `qualified-preflight` | refused-named | `physical-boundary/threading-branch-unvalidated` |
 | `if Main.a(1) < 3 { ... }`, no Home | refused-named `qualified-preflight` | refused-named | `published-lifecycle-program/instruction-unsupported` |
 | instance method `add(x: i64): i64 { local y = x return y }` result | refused-named | refused-named | `local-commit/artifact-source-unavailable` |
 
-A call's `I64` result is also checked against the callee's declared return type by the independent verifier (`mir/invoke/call-result-type-drift`). Map Homes alive across such a call stay refused (`local-call-prior-homes-unsupported`). The canonical qualified-preflight route is retired (`qualified-route-retired`); none of the 229 measured inputs reached it.
+A call's `I64`, `Bool` or `Unit` result is also checked against the callee's declared return type by the independent verifier (`mir/invoke/call-result-type-drift`). Object Homes are checked from the published MIR alone (`ownership_ssa/published_homes.rs`): every Normal and Fault exit must End each Home exactly once; functions that use handle results, text, a Home with several copies, edge arguments or a call with a managed operand are not modeled and make no claim. Map Homes alive across such a call stay refused (`local-call-prior-homes-unsupported`). The canonical qualified-preflight route is retired (`qualified-route-retired`); none of the 229 measured inputs reached it.
 
 ### Remaining before 3b
 
