@@ -205,6 +205,8 @@ S2着地（2026-11-06、Sonnet実装・Opus監査、`5b82d1db73`、docs `662b84f
 
 S2b着地（2026-11-06、Sonnet実装・Opus監査、`da20665f36`）: 撤退で残った層と位置の判定2つを消した（production +34/−517）。公開MIRだけからHomeのEndを検証する入口`ownership_ssa/published_homes.rs`を足し、Fault側のEndの欠落・二重、Normal側の欠落を拒否する（導出が一意にできない形は主張しない）。`check_call_result`はUnitとBoolも見る。引数の`x - 定数`、演算の下の呼び出し、Assignmentの値の呼び出しが通る（新しく18入力）。比較229入力・apps 100本は前後同じ、cohortとpublished_backend_viewの失敗名は前の部分集合。Opusが指示書に無い8形で試し、6形が正しい出力で通った（`print(a(1)+b(2)-a(3))`と`r += a(2)`は拒否のまま）。監査の指摘: 新しい位置の規則`site_stands_as_expression_value_v1`はpathの末尾のsegmentの一覧によるbooleanで、Proの勧め（位置を一つに確定し、担当は別に一度だけ決める）に届いていない。S2cで位置のenumと担当の一元化を行う。method の結果は構文の判定と結果cohortがどちらも相手より広く、すげ替えると受理が変わる（4 test）ので、S3aで値の種類の持ち主を一つにしてから両方を消す。
 
+S2c着地（2026-11-06、Sonnet実装・Opus監査、`44eae090aa`）: 式の位置を、`SourcePathSegmentV1`の全variantを`_`なしで分ける`ExpressionPositionV1`（9種）にし、呼び出しの担当`CallExecutorV1`（文の書き手か、囲む式の検査済みの引数frameか）を位置から一度だけ決める。前の規則が値と見なしていた`BlockExprPrelude`・`TryBody`・`CatchBody`・`CleanupBody`の文は、文の位置になった。route記録はsiteごとの状態の表（`CallRouteTableV1`）になり、root packetへ渡した後の書き込みは拒否する。if条件の中のqualifiedなi64の静的呼び出しが通る（新しく13入力。前に通っていた物の変化は0。比較229入力・apps 100本は前後同じ、cohort 84とpublished_backend_view 12は同じ名前）。Opusが指示書に無い12形で試し、6形が正しい出力で通り、6形は名前つきの拒否で、誤った出力は0だった。未完: Local初期値の連鎖（約12の腕）は消えていない。腕は「呼び出しの種類×結果の値の種類」で分かれ、membershipの問いが`issue_*`の中にあって8層を通るので、S3aで値の種類の持ち主を一つにした後に、別のletterで担当を一度に決める形にして消す。同じsiteを複数の段階が書く（単一の書き手にすると既存test 23本が落ちる）ので、route記録の冪等な書き込みも残る。Opusは位置の対応を写しただけのunit test 2本を外した（RULES §6）。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。

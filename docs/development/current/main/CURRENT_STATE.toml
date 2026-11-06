@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "S2b and the EXE-build archive speedup landed; S2c (one executor per call) next, then S3a (one owner for value classes)"
+current_blocker_token = "S2c landed (calls in if conditions, one position enum); sorting the red tests on main next, then S3a (one owner for value classes)"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -21,7 +21,7 @@ APP-boxtorrent-mini fixed8/8 on main at b71d33b1a4. Integrated the Sonnet stack 
 String field reads connected: print(t.f), t.f + "x", local n = t.f.length(), unannotated get() { return me.f }. Each read materializes one copy; a Fault ends field and copy once each (measured with a scratch probe, repo test owed).
 Refused for now: local s = t.f, return x.length() (Text locals too), comparing a field, String?, a : String result, String next to a typed object field, non-storing take. Ownership forms measured: 34 of the 129 forms the grammar accepts reach an EXE (status-index.md).
 Existing reds on main (a9aea1065e, measured): cohort 84 names, published_backend_view 12, Python v4 PASS 17 / FAIL 0 / unrunnable 4 (Bool and object actuals to untyped formals are refused), vm-reference debug build. cargo-deny waits on branch security-step1.
-Next (user order 2026-11-06, investigations/selfhost-call-order-consult-2026-11-06.md and the cleanup and proof sections of the MirBuilder structure queue): S1 landed at 1de52b773a; Python v4 tests link with mold like AOT (21 tests 35m33s to 2m04s, 2f9c6cb8a6); S2 landed at 662b84ffa0 (nested, live-Home, print, add and return calls; qualified-preflight retired), S2b landed at da20665f36 (x - const arguments, calls below operations and in Assignment values, Home End checked from published MIR); the runtime archive is read once per EXE build from its symbol index (print(1) 2.40 s to 0.87 s, 79a40c3cb1); S2c and S3a next (S2b to S4 also carry the pipeline restructure decided 2026-11-06: one executor per call, ownership analysed on an intent-keeping CFG, loops on the shared CFG and PhiTxn; queue section 流れの作り直し), results and basic expressions S3 with non-storing take, S4, edit (after 2026-11-08) and remaining ADR stages, 3b and retirement, builder survey, .hako parser parity, selfhost.
+Next (user order 2026-11-06, investigations/selfhost-call-order-consult-2026-11-06.md and the MirBuilder structure queue): S1 1de52b773a; Python v4 tests link with mold (35m33s to 2m04s); S2 662b84ffa0 and S2b da20665f36 (nested, live-Home, print, add, return and Assignment calls, x - const arguments, Home End checked from published MIR); EXE builds read the runtime archive index once (2.40 s to 0.87 s); S2c 44eae090aa (qualified i64 calls in if conditions; the Local-initializer call chain goes after S3a); red-test sort and S3a next (S2b to S4 carry the 2026-11-06 restructure: one executor per call, ownership on an intent-keeping CFG, loops on the shared CFG and PhiTxn), S3 results and basic expressions with non-storing take, S4, edit (after 2026-11-08), 3b and retirement, builder survey, .hako parser parity, selfhost.
 """
 next_design_card = "none"
 next_design_card_path = "none"

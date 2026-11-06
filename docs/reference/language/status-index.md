@@ -372,6 +372,12 @@ Every row was built to an EXE with the S2 binary and, when connected, run; `base
 | `if Main.a(1) < 3 { ... }`, with Home | refused-named | connected (S2c) | `exit 0`, output 7 |
 | `if Main.a(1) < 3 { ... }`, no Home | refused-named | connected (S2c) | `exit 0`, output 7 |
 | `if Main.a(Main.b(1)) < 3`, `if 3 > Main.a(1)`, `if Main.a(1) < Main.b(2)`, `if Main.a(k) + 1 < 3`, `if Main.a(1) < 3 and Main.a(2) < 3` | refused-named | connected (S2c) | `exit 0`, output 1 / 1 / 1 / 2 / 1 |
+| `if Main.a(2) == 2`, `if Main.a(5) < 3 or Main.a(1) < 3`, the same `if` inside an `else` branch, `if Main.a(x) < 3` inside a callee | refused-named | connected (S2c) | `exit 0`, output 1 / 1 / 4 / 1 |
+| `if Main.a(0 - 5) < 0` (an expression argument inside a condition; `print(Main.a(0 - 5))` connects) | refused-named | refused-named | `local-commit/bool-condition/unowned-call-binding` |
+| `if me.a(1) < 3` in a static `main` (current-owner call in a condition) | refused-named | refused-named | `published-lifecycle-program/instruction-unsupported` |
+| `loop(Main.a(i) < 3)` | refused-named | refused-named | `object-return/normal-projection-exit` |
+| callee body `return x - y` over two parameters, `print(Main.b(5, 2))` (`return y` connects) | refused-named | refused-named | `published-lifecycle-program/scalar-source-coverage` |
+| terminating recursion `down(n: i64): i64 { if n < 1 { return 7 } return Main.down(n - 1) }` | refused-named | refused-named | `local-commit/root-exit-source-missing` |
 | instance method `add(x: i64): i64 { local y = x return y }` result | refused-named | refused-named | `local-commit/artifact-source-unavailable` |
 
 A call's `I64`, `Bool` or `Unit` result is also checked against the callee's declared return type by the independent verifier (`mir/invoke/call-result-type-drift`). Object Homes are checked from the published MIR alone (`ownership_ssa/published_homes.rs`): every Normal and Fault exit must End each Home exactly once; functions that use handle results, text, a Home with several copies, edge arguments or a call with a managed operand are not modeled and make no claim. Map Homes alive across such a call stay refused (`local-call-prior-homes-unsupported`). The canonical qualified-preflight route is retired (`qualified-route-retired`); none of the 229 measured inputs reached it.
