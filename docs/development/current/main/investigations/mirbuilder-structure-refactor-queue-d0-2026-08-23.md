@@ -211,6 +211,8 @@ S2c着地（2026-11-06、Sonnet実装・Opus監査、`44eae090aa`）: 式の位�
 
 S3a着地（2026-11-06、Sonnet実装・Opus監査、`54d389986e`）: 型の規則を先に文で書き（[地図と規則](mirbuilder-value-class-owner-s3a-2026-11-06.md)）、「localの種類は初期値の種類」「`: i64`のformalは宣言の型」を結果cohortの式の木に入れた。構文で決めていた`lexical_i64_result_call`と`exact_i64_return_expression_v1`は消してcohortに聞くだけにし、S2bで落ちた4本の原因（exactな値同士のMulに借用のproductを要求していた）を直した。演算子の種類は`scalar_operator_kinds_v1`の1表にし、位置ごとのMultiply・Divideの特例は意味が決められず`used_here`に残した。methodの結果がi64かを独立に決める場所は4→3。229入力・apps 100本・固定suiteは同じ、cohortは新しい赤0。production +260/−211。Opusが指示書に無い16形を流し、間違った出力0（新しく通った2、前から通っていた5、名前つきの拒否9。[status-index](../../../../reference/language/status-index.md)に記録）。追加のtest 1本（localの連鎖がi64の行を持つこと）は、この規則の自動の証拠が他に無いので残した（RULES §6）。未完: 段階3の`: bool`・`: String`の結果は、callable headerの結果の種類が`i64`だけで、足すとdescriptorが変わるので止めた（ユーザー判断待ち）。段階4は連鎖を消すletterの後。`project_expression_class_v1`の同じ計画への射影は1回にならず増えた（34→42、32→60）。結果クラスのjoinごとにcohortを作り直すのが原因で、未着手。
 
+結果の契約の順（2026-11-06ユーザー決定、[相談の記録](result-contract-consult-2026-11-06.md)）: 連鎖を消す → 警告の整理 → 結果の契約の土台と明示のBool → S3b → 所有のString・object・nullable → S4 → `edit`以降。土台は、既存の`VerifiedCallableResultContractRowV1`を型・返し方（値か読み借用か）・出所（宣言か移行用の証明か）の一つの契約に育て、header・呼ぶ側の受け取り・公開MIRをその投影にする。Boolは既存の`Bool`/`ordinary_bool`を使い、変えるのは内部のheaderの型だけ。S3bは確定した契約を入力にして、結果の型を推論し直さない。借用のString（`String from me`）は公開の結果契約が要るのでユーザー判断、それまで名前つきの拒否。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
