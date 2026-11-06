@@ -382,10 +382,10 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
     Ok(Some(observation))
 }
 
-/// Borrow an original static Bool result into the same whole-If expression
-/// frame. The static result and its original arguments remain owned by the
+/// Borrow an original static Bool result, or a qualified exact-i64 result at an
+/// argument-frame position, into the same whole-If expression frame. The static result and its original arguments remain owned by the
 /// sealed source-result loan; this creates no alternate Bool inference path.
-pub(crate) fn issue_source_static_bool_frame_call_v1<E>(
+pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: &std::rc::Rc<
         crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
@@ -410,7 +410,6 @@ pub(crate) fn issue_source_static_bool_frame_call_v1<E>(
     };
     if source.owner() != input.owner()
         || site.owner() != source.owner()
-        || site.site() != condition
         || source.nodes().first().is_none_or(|node| node.site() != condition)
         || input
             .function()
@@ -427,17 +426,21 @@ pub(crate) fn issue_source_static_bool_frame_call_v1<E>(
     }
     let Some(BorrowedCallArgumentsV1::SourceResult { loan, arguments }) = port(
         site,
-        BorrowedCallActualRequestV1::SourceResultArguments { expression: None },
+        BorrowedCallActualRequestV1::SourceResultArguments { expression: Some(source) },
     )?
     else {
         return Ok(None);
     };
-    if !matches!(
-        &loan,
-        LocalCallResultSourceV1::Ordinary(result)
-            if result.static_source().is_some()
-                && result.result() == LocalCallResultClassV1::Bool
-    ) || !result_matches_source_v1(input, site, &loan, &arguments)
+    // A Bool result is the whole condition. A qualified exact-i64 result stands
+    // where its position executes it in an argument frame (an operand of the
+    // condition); a current-owner call keeps its own source.
+    let admitted = matches!(&loan, LocalCallResultSourceV1::Ordinary(result) if match result.result() {
+        LocalCallResultClassV1::Bool => result.static_source().is_some() && site.site() == condition,
+        LocalCallResultClassV1::I64 => result.static_source().is_some_and(|original| original.is_qualified_i64_source_v1())
+            && crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(site.site()).is_argument_frame(),
+        _ => false,
+    });
+    if !admitted || !result_matches_source_v1(input, site, &loan, &arguments)
         || !super::lexical_local_call::corroborate_received_arguments_v1(
             input,
             site,

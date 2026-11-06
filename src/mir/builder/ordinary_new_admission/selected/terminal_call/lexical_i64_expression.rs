@@ -75,17 +75,23 @@ pub(in crate::mir::builder) fn emit_bool(
     ledger: &OrdinaryNewClaimLedgerV1, frame: &CheckedBoolConditionFrameV1,
     call: &LocalCallObservationV1, bindings: &mut Vec<Binding>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<EmittedCall, String> {
     if !frame.calls().iter().any(|original| std::ptr::eq(original, call))
         || call.prior_homes() != frame.prior_homes()
         || ledger.lexical_i64_call_source(call.site()) != Some(call)
         || state.owner() != frame.source().owner()
     { return Err(freeze("bool-condition-call/source-drift")); }
-    let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Bool { frame, call }, consume_receiver, static_source: None };
-    let row = ledger.take_lexical_instance_call(call.owner(), call.site().site())?
-        .ok_or_else(|| freeze("bool-condition-call/disposition-missing"))?;
+    let prefix = ExpressionCallPrefixV1 { kind: ExpressionCallPrefixKindV1::Bool { frame, call }, consume_receiver, static_source };
+    let source = match call.result_source() {
+        Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(loan)) if loan.static_source().is_some() =>
+            static_source.ok_or_else(|| freeze("bool-condition-call/static-issuer-missing"))?(
+                builder, loan.static_source().expect("checked Static source"), frame.evaluation(), call)?,
+        _ => CallSource::instance(ledger.take_lexical_instance_call(call.owner(), call.site().site())?
+            .ok_or_else(|| freeze("bool-condition-call/disposition-missing"))?),
+    };
     emit_lexical_i64_call(builder, state, ledger, call.owner(), ArgumentSource::from_local(call),
-        CallSource::instance(row), bindings, Some(&prefix), Some(consume_receiver), None)
+        source, bindings, Some(&prefix), Some(consume_receiver), static_source)
 }
 
 /// This is the same real Call writer, returning its packet to the enclosing

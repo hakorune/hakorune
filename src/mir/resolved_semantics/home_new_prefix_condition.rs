@@ -243,7 +243,10 @@ fn selects(
             receiver.source(),
             Node::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(
                 _
-            )) | Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
+            )) | Node::ReceiverQualification {
+                receiver: crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::QualifiedUnbound,
+                ..
+            } | Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
                 receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(_),
                 ..
             })
@@ -563,7 +566,7 @@ fn install_source<E>(
                 Some(_) => return Ok(None),
                 None => {}
             }
-            if let Some(call) = local_call_flow::issue_source_static_bool_frame_call_v1(
+            if let Some(call) = local_call_flow::issue_source_static_scalar_frame_call_v1(
                 input,
                 &source,
                 site,

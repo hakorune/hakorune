@@ -158,9 +158,17 @@ impl RawInvocationChildPortV1<'_, '_> {
                 } else {
                     let mut bindings = Vec::new();
                     let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
+                    let port = std::cell::RefCell::new(&mut *self);
+                    let issue_static = |builder: &mut MirBuilder,
+                        original: &Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+                        evaluation: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+                        call: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+                        crate::mir::builder::static_result_publication_ingress::take_expression_static_packet_v1(
+                            &mut port.borrow_mut(), builder, original, evaluation, call, &ledger)
+                    };
                     let packet = Rc::new(terminal_call::emit_bool_condition_call(builder, &mut state.borrow_mut(), &ledger,
                         &frame, observation, &mut bindings,
-                        &consume_receiver)?);
+                        &consume_receiver, Some(&issue_static))?);
                     let value = packet.value_with_ledger(source.owner(), observation.arguments(), &ledger)?;
                     (value, Proof::Call { packet, bindings: bindings.into_boxed_slice() })
                 }
