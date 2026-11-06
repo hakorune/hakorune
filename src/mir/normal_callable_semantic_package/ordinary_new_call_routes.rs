@@ -1,9 +1,10 @@
 //! Which executor owns a statement-level Call, and which writer routed it.
 //!
-//! A site is routed to the lifecycle lane; the table keeps every stage that
-//! routed it (measured: several stages route the same site, so a single-writer
-//! rule was refused by 23 existing tests). A root terminal packet may take the
-//! Invoke over from the lane once; the site then stays claimed.
+//! A site is routed to the lifecycle lane by exactly one writer; a second
+//! write is a contract error. A later stage of the same lane names the stage it
+//! continues (`route_local_after`) instead of writing again: the origin stays
+//! the single writer. A root terminal packet may take the Invoke over from the
+//! lane once; the site then stays claimed.
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, OwnedExprSiteV1};
 use std::collections::BTreeMap;
 
@@ -20,8 +21,8 @@ pub(crate) enum LocalRouteWriterV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum CallRouteV1 {
-    LocalLifecycle(Vec<LocalRouteWriterV1>),
-    RootPacket(Vec<LocalRouteWriterV1>),
+    LocalLifecycle(LocalRouteWriterV1),
+    RootPacket(LocalRouteWriterV1),
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -35,16 +36,28 @@ impl CallRouteTableV1 {
         site: OwnedExprSiteV1,
         writer: LocalRouteWriterV1,
     ) -> Result<(), String> {
-        match self.routes.entry(site).or_insert_with(|| CallRouteV1::LocalLifecycle(Vec::new())) {
-            CallRouteV1::LocalLifecycle(writers) => {
-                if !writers.contains(&writer) {
-                    writers.push(writer);
-                }
+        match self.routes.entry(site) {
+            std::collections::btree_map::Entry::Vacant(slot) => {
+                slot.insert(CallRouteV1::LocalLifecycle(writer));
                 Ok(())
             }
-            CallRouteV1::RootPacket(_) => {
-                Err("[freeze:contract][call-route/routed-after-root-handoff]".into())
+            std::collections::btree_map::Entry::Occupied(_) => {
+                Err("[freeze:contract][call-route/routed-twice]".into())
             }
+        }
+    }
+
+    /// A later stage of the same lane: the site is either not routed yet (this
+    /// stage is its writer) or was routed by exactly the stage it continues.
+    pub(crate) fn route_local_after(
+        &mut self,
+        site: OwnedExprSiteV1,
+        writer: LocalRouteWriterV1,
+        after: LocalRouteWriterV1,
+    ) -> Result<(), String> {
+        match self.routes.get(&site) {
+            Some(CallRouteV1::LocalLifecycle(origin)) if *origin == after => Ok(()),
+            _ => self.route_local(site, writer),
         }
     }
 
@@ -67,10 +80,10 @@ impl CallRouteTableV1 {
     pub(crate) fn hand_to_root_packet(&mut self, site: &OwnedExprSiteV1) -> Result<(), String> {
         match self.routes.get_mut(site) {
             Some(route @ CallRouteV1::LocalLifecycle(_)) => {
-                let CallRouteV1::LocalLifecycle(writers) = std::mem::replace(route, CallRouteV1::RootPacket(Vec::new())) else {
+                let CallRouteV1::LocalLifecycle(writer) = *route else {
                     unreachable!()
                 };
-                *route = CallRouteV1::RootPacket(writers);
+                *route = CallRouteV1::RootPacket(writer);
                 Ok(())
             }
             _ => Err("[freeze:contract][call-route/root-handoff-without-local-route]".into()),

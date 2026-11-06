@@ -245,6 +245,16 @@ impl OrdinaryNewClaimLedgerV1 {
         self.lifecycle_local_call_sites.borrow_mut().route_local(site, writer)
     }
 
+    /// A later stage of an already routed lane (see `route_local_after`).
+    pub(crate) fn record_lifecycle_local_call_site_after(
+        &self,
+        site: OwnedExprSiteV1,
+        writer: LocalRouteWriterV1,
+        after: LocalRouteWriterV1,
+    ) -> Result<(), String> {
+        self.lifecycle_local_call_sites.borrow_mut().route_local_after(site, writer, after)
+    }
+
     /// Select the local emitter without stealing receiver-owned Object rows.
     pub(crate) fn is_lifecycle_local_call_site_v1(
         &self,

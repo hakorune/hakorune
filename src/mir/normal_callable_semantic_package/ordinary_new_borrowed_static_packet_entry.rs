@@ -440,8 +440,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 routed.push(packet.local_call_site().clone());
             }
         }
+        // One call can sit in several incoming rows or a loop packet: route it once.
+        let routed: std::collections::BTreeSet<_> = routed.into_iter().collect();
         for site in routed {
-            self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::StaticPacket)?;
+            self.record_lifecycle_local_call_site_after(
+                site,
+                LocalRouteWriterV1::StaticPacket,
+                LocalRouteWriterV1::DirectStatic,
+            )?;
         }
         Ok(())
     }
