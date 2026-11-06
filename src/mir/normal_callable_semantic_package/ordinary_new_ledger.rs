@@ -154,13 +154,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|(_, (_, handoff))| handoff.source_id().same_as(row.source_id()))
             .map(|(site, (_, handoff))| Ok((site.clone(), handoff.with_late_construction_plan_v1(row, plan)?)))
             .collect::<Result<Vec<_>, String>>()?;
-        let mut updated_local = 0usize;
-        let mut updated_result = 0usize;
         for claim in self.claims.get_mut().values_mut() {
-            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); updated_local += 1; }
+            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
         }
         for claim in self.result_claims.get_mut().values_mut() {
-            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); updated_result += 1; }
+            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
         }
         for (site, handoff) in handoffs {
             *self.birth_abi_handoffs.get_mut().get_mut(&site).expect("preflight retained ABI site") = handoff;

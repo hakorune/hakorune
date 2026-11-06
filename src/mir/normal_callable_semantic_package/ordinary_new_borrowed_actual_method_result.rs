@@ -300,7 +300,6 @@ impl<'a> OriginalActualSourceContextV1<'a> {
                         }
                         CallableParameterDeclarationModeV1::InstanceBoxMethod => key.namespace()
                             == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod,
-                        _ => false,
                     }
                 })
             }

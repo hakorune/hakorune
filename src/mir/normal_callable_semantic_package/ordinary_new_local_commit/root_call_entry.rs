@@ -759,5 +759,5 @@ pub(crate) use binding_rebind_projection::EmittedBindingRebindProjectionV1;
 #[path = "root_call_entry/source_loop_projection.rs"]
 mod source_loop_projection;
 pub(in crate::mir) use source_loop_projection::{
-    PreparedSourceLoopPhysicalCompletionV2, SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
+    SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2,
 };

@@ -328,7 +328,7 @@ impl ConstructionState {
                         object:
                             Some(
                                 crate::mir::normal_callable_semantic_package
-                                    ::ProviderConstructionChildV1::BirthIndexed(child),
+                                    ::ProviderConstructionChildV1::BirthIndexed(_),
                             ),
                         ..
                     },
@@ -344,7 +344,7 @@ impl ConstructionState {
                         object:
                             Some(
                                 crate::mir::normal_callable_semantic_package
-                                    ::ProviderConstructionChildV1::NoBirthZero(child),
+                                    ::ProviderConstructionChildV1::NoBirthZero(_),
                             ),
                         ..
                     },
@@ -464,7 +464,7 @@ impl ConstructionState {
                     },
                     Some(super::ProviderChildEmissionV1::Birth(birth)),
                 ) => {
-                    let Some((_, frame_landing)) = *frame else {
+                    let Some(_) = *frame else {
                         return Err(fault("emission-state"));
                     };
                     if !matches!(function.blocks.get(provider_origin).and_then(|b| b.terminator.as_ref()),

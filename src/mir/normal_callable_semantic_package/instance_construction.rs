@@ -421,7 +421,7 @@ pub(super) fn issue_construction_source_v1(
         if matches!(statement.node(), ASTNode::MethodCall { .. }) {
             let call = body::capture_child_call_source_v1(
                 input, shape, *receiver, object_id, fields, field_decls,
-                objects, &stores, statement.site(),
+                &stores, statement.site(),
             )?;
             // Retain the complete original call subtree as a source request.
             // No expression in it is executable merely from this coverage.

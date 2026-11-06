@@ -339,7 +339,7 @@ pub(super) fn validate_scalar_binding_observation_v1(
             if matches!(frame.evaluation().references().get(&0), Some(Reference::FiniteEntry { .. })));
     if let (Producer::Initializer(frame), ReferenceProducerV1::Entry(entry)) = (source, producer) {
         if finite_initializer_entry {
-            validate_initializer_finite_entry_v1(binding, frame, read, *entry, context, function)?;
+            validate_initializer_finite_entry_v1(frame, read, *entry, context, function)?;
         }
     }
     if matches!(source, Producer::BranchNormal(_)) {

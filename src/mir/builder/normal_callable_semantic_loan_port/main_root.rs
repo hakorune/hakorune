@@ -131,7 +131,7 @@ pub(super) fn lower_app_main_root_body_v1(
                             Some(state.borrow().fault_frame_binding(builder.function_state.current_function.as_ref()
                                 .ok_or_else(|| "[freeze:contract][main-arguments/function-missing]".to_owned())?)?)
                         } else { None };
-                        let mut main_arguments = crate::mir::builder::MainArgumentsEmissionV1::emit(
+                        let main_arguments = crate::mir::builder::MainArgumentsEmissionV1::emit(
                             builder, input, expected_identity, argument_source, runtime, frame,
                         )?;
                         let arity0 = declared_parameter_names.is_empty();

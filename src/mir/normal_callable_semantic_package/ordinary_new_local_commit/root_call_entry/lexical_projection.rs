@@ -429,7 +429,7 @@ impl PreparedLexicalCallProjectionV1 {
                     }
                     (
                         LexicalReceiverProjectionV1::StoredChild { parent, read },
-                        Some((binding, site, field, _)),
+                        Some((binding, site, _, _)),
                     ) => {
                         let base =
                             parent

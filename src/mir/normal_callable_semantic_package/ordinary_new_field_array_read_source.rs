@@ -261,7 +261,7 @@ fn exact_array_field_candidate(
         return Err(freeze("array-read/caller-source-drift"));
     }
     let Some(box_source) = batch.ordinary_box_coverage().row_for(caller.owner()).ok().flatten() else { return Ok(None) };
-    let Some((canonical, declared)) = super::terminal_home::source_declared_field(constructors, box_source,
+    let Some((canonical, _)) = super::terminal_home::source_declared_field(constructors, box_source,
         &OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()), field)
         .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-result/field-authority")))? else { return Ok(None) };
     Ok(constructors.is_array_field(canonical).map_err(|_| freeze("array-read/field-source"))?

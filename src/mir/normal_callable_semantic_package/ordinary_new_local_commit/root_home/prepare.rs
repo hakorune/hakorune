@@ -66,7 +66,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(completion) = self.completion_for_owner(owner) else {
             return root_home_not_selected(owner, "no completion for the owner");
         };
-        let Some(flow) = completion.cleanup().root_flow() else {
+        let Some(_) = completion.cleanup().root_flow() else {
             return root_home_not_selected(owner, "no root flow in the completion cleanup");
         };
         if !self.root_home_flow_ready_v1(completion)? {

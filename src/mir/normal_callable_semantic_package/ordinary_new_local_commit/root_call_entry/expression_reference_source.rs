@@ -148,7 +148,6 @@ pub(super) fn initializer_signed_entry_v1(
 }
 
 pub(super) fn validate_initializer_finite_entry_v1(
-    binding: crate::mir::resolved_semantics::BindingRefV1,
     frame: &std::rc::Rc<
         crate::mir::resolved_semantics::home_new_prefix::CheckedInitializerExpressionFrameV1,
     >,

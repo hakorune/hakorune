@@ -101,7 +101,7 @@ impl BirthAbiHandoffV1 {
     ) -> Result<Option<&std::rc::Rc<super::super::SourceValueSumV1>>, String> {
         use super::super::instance_construction::ConstructionStoreRhsV1;
         use crate::mir::instruction::FieldSetModeV1;
-        let (lane, formal) = self.checked_lane_and_formal_v1(ordinal)?;
+        let (_, formal) = self.checked_lane_and_formal_v1(ordinal)?;
         let Some(sites) = formal.unqualified_store_sites_v1(true) else { return Ok(None) };
         let Some(plan) = self.checked_construction_plan_v1()? else { return Ok(None) };
         let mut covered = std::collections::BTreeSet::new();
@@ -131,7 +131,7 @@ impl BirthAbiHandoffV1 {
     ) -> Result<Option<(CanonicalObjectIdV1, bool)>, String> {
         use super::super::instance_construction::ConstructionStoreRhsV1;
         use crate::mir::instruction::FieldSetModeV1;
-        let (lane, formal) = self.checked_lane_and_formal_v1(ordinal)?;
+        let (_, formal) = self.checked_lane_and_formal_v1(ordinal)?;
         let Some(sites) = formal.unqualified_store_sites_v1(false) else { return Ok(None) };
         let Some(plan) = self.checked_construction_plan_v1()? else { return Ok(None) };
         let mut covered = std::collections::BTreeSet::new();
@@ -168,7 +168,7 @@ impl BirthAbiHandoffV1 {
     ) -> Result<bool, String> {
         use super::super::instance_construction::ConstructionStoreRhsV1;
         use crate::mir::instruction::FieldSetModeV1;
-        let (lane, formal) = self.checked_lane_and_formal_v1(ordinal)?;
+        let (_, formal) = self.checked_lane_and_formal_v1(ordinal)?;
         let Some(sites) = formal.unqualified_store_sites_v1(false) else { return Ok(false) };
         let Some(plan) = self.checked_construction_plan_v1()? else { return Ok(false) };
         let mut covered = std::collections::BTreeSet::new();

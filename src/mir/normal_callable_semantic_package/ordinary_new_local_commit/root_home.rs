@@ -197,7 +197,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let exits = self.root_exits.borrow();
         let pending =
             |completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1| {
-                completion.cleanup().root_flow().is_some_and(|flow| {
+                completion.cleanup().root_flow().is_some_and(|_| {
                     self.root_home_flow_ready_v1(completion).unwrap_or(false)
                         && !completion.explicit_sites().iter().all(|site| {
                             matches!(
@@ -906,9 +906,9 @@ pub(crate) use call_entry::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use call_entry::{checked_expression_core_operation_v1, checked_scalar_invoke_operation_v1};
 pub(in crate::mir) use call_entry::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 pub(in crate::mir) use call_entry::ExpressionPhysicalProjectionRefV1;
-pub(crate) use call_entry::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
+pub(crate) use call_entry::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1};
 
-pub(in crate::mir) use call_entry::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, PreparedSourceLoopPhysicalCompletionV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
+pub(in crate::mir) use call_entry::{SourceLoopCleanupPlanV2, SourceLoopPhysicalProofV2, EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1, borrowed_source_loop_phi_relations_v2};
 
 pub(crate) use call_entry::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use call_entry::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};

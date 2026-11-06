@@ -463,7 +463,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                                     ))
                                 })
                         }
-                        _ => return Err(BorrowedIncomingDraftErrorV1::SourceIdentity),
                     }};
                     let Some(exact) = exact else {
                         let refusal_scope = if legacy && source_static_observation.as_ref()

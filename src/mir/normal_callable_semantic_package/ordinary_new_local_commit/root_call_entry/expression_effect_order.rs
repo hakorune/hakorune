@@ -240,7 +240,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 },
             )?;
         }
-        for (index, node) in self
+        for (_, node) in self
             .frame
             .source()
             .nodes()

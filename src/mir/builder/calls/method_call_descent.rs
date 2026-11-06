@@ -174,7 +174,7 @@ where
         &mut self, builder: &mut MirBuilder, owner: &str, method: &str, arity: usize,
     ) -> Result<Option<ValueId>, String>
     where Port: DirectCallDispositionPortV1 + super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1 {
-        use super::super::static_result_publication_ingress::{StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1 as Ingress};
+        use super::super::static_result_publication_ingress::StaticResultPublicationIngressV1 as Ingress;
         use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1 as Publication;
         let Some(mut row) = self.port.take_optional_static_execution_row_v1()? else { return Ok(None) };
         let original = row.static_source_v1().ok_or("[freeze:contract][static-execution/origin-missing]")?;

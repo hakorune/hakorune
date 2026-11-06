@@ -101,11 +101,9 @@ pub fn finalize_loop_variables(
     let debug = ctx.debug_enabled();
 
     // Step 6: Update variable_map for final values
-    if let crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1::Raw(rows) = final_values
-    {
-        for (name, value_id) in rows {
-            publish_emission_cache(builder, name.clone(), *value_id);
-        }
+    let crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1::Raw(rows) = final_values;
+    for (name, value_id) in rows {
+        publish_emission_cache(builder, name.clone(), *value_id);
     }
     // Source rows publish through the context only after the caller's final verification.
 

@@ -80,7 +80,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 }
                 None
             }
-            _ => continue,
         };
         let draft = batch
             .with_lowering_input(contract.batch_slot, |input| {
