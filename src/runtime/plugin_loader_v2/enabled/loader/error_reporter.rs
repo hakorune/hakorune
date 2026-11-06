@@ -9,7 +9,6 @@ use std::path::PathBuf;
 #[derive(Debug, Clone)]
 pub struct PluginErrorContext {
     pub kind: PluginErrorKind,
-    #[allow(dead_code)]
     // ASTCLEAN-017: retained for structured plugin diagnostics and tests even when log messages already embed the name.
     pub plugin_name: String,
     pub message: String,
@@ -25,11 +24,9 @@ pub enum PluginErrorKind {
     /// dlopen() failed
     LoadFailed,
     /// Plugin initialization failed
-    #[allow(dead_code)]
     // ASTCLEAN-017: reserved structured error kind for plugin init routes not currently exercised by default loader tests.
     InitFailed,
     /// Version mismatch
-    #[allow(dead_code)]
     // ASTCLEAN-017: reserved structured error kind for ABI/version gate propagation.
     VersionMismatch,
 }
@@ -75,7 +72,6 @@ impl PluginErrorContext {
     }
 
     /// Create error context for init failure
-    #[allow(dead_code)] // ASTCLEAN-017: constructor kept with InitFailed structured error surface for future init-route diagnostics.
     pub fn init_failed(plugin_name: &str, error_msg: &str) -> Self {
         Self {
             kind: PluginErrorKind::InitFailed,

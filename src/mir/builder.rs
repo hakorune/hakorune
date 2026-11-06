@@ -60,13 +60,10 @@ mod normal_callable_package_bridge; // Builder-private package install boundary
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
 // Caller-zero until the Main0 canonical-root handoff wires the installed App
 // Main caller; recheck at the production-switch slice.
-#[allow(dead_code)]
 mod normal_main0_continue_prepared_operation; // Builder-free Main0 full-demand ingress
 // Caller-zero second bounded Main0 profile; same canonical-root handoff.
-#[allow(dead_code)]
 mod normal_main0_in_body_step_prepared_operation; // Builder-free Main0 full-demand ingress
 // Caller-zero third bounded Main0 profile; same canonical-root handoff.
-#[allow(dead_code)]
 mod normal_main0_derived_predicate_prepared_operation; // Builder-free Main0 full-demand ingress
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
@@ -102,7 +99,6 @@ pub(in crate::mir) use normal_callable_dynamic_source::{
 pub(in crate::mir) use normal_callable_semantic_source::NormalCallableSemanticAdmissionV1;
 pub(in crate::mir) use normal_callable_semantic_source::VerifiedNormalCallableSemanticSourceV1;
 mod calls; // Call system modules (refactored from builder_calls)
-#[allow(dead_code)]
 mod canonical_physical_drain;
 #[cfg(test)]
 mod canonical_root_completion_receipt0_p0; // CUT0-I0-ROOT0-CANON0-RECEIPT0 fixtures
@@ -126,7 +122,6 @@ mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sug
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
 mod function_lowering_state;
-#[allow(dead_code)]
 mod function_signature_lookup; // HEADERPORT0-S0 neutral header lookup surface
 mod function_state_transaction;
 mod generic_loop_admission_observation;
@@ -134,7 +129,6 @@ mod instance_box_constructor_batch;
 mod instance_box_declaration_lifecycle;
 mod instance_box_declaration_metadata;
 mod instance_box_method_batch;
-#[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 mod nested_box_method_source;
 mod normal_instance_constructor_admission;
@@ -155,7 +149,6 @@ pub(in crate::mir) use raw_root_body_exit::{RawVmSourceEntryDecodeKindV1, RawVmU
 mod raw_root_body_lowering; // RAW-SOURCE0-LOWER0-ROOT0-BODY0 recipe-only value lowerer
 #[cfg(test)]
 mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
-#[allow(dead_code)]
 mod raw_root_environment_install;
 mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
 mod raw_static_main_compat_batch; // explicit raw static-Main source partition
@@ -172,7 +165,6 @@ pub(in crate::mir) use script_physical_exit::{
     CompletedScriptPhysicalFunctionV1, OpenScriptPhysicalEntrySessionV1,
     ScriptPhysicalEntrySessionErrorV1,
 };
-#[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_root_environment_install::{
     CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1, RawRootBodyLoweringErrorV1,
@@ -211,17 +203,14 @@ pub(in crate::mir) use raw_source_projection::{
     OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1, RawSourceOriginV1,
     RawSourceProjectionErrorV1,
 };
-#[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
 #[cfg(test)]
 mod main_pending_draft_p0; // HEADERPORT0-I0-MAINPENDING0-P0 fixtures
-#[allow(dead_code)]
 mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
 #[cfg(test)]
 mod module_declaration_fact_shell_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0c proof
-#[allow(dead_code)]
 mod module_declaration_facts; // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
 #[cfg(test)]
 mod module_declaration_facts_p0; // HEADERPORT0-I0-SHELLFACT0-P0 fixtures
@@ -232,21 +221,15 @@ mod module_draft_collector_receipt_p0; // ROUTEINV-P0a-RECEIPT-P0 matrix
 mod module_draft_collector_receipt_tests; // ROUTEINV-P0a-RECEIPT-S0 fixtures
 #[cfg(test)]
 mod module_finalization_candidate_p0; // HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 matrix
-#[allow(dead_code)]
 mod module_invocation_brand0; // CUT0-I0-ROOT0-BRAND0 real owner
 #[cfg(test)]
 mod module_invocation_brand_p0; // CUT0-I0-ID0-P0 fixtures
-#[allow(dead_code)]
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
-#[allow(dead_code)]
 mod module_invocation_identity; // CUT0-I0-ID0-S0 disconnected identity/token
 #[cfg(test)]
 mod module_invocation_identity_p0; // CUT0-I0-ID0-S0 fixtures
-#[allow(dead_code)]
 mod module_invocation_owner_chain; // CUT0-I0-ID0-P0 disconnected brand chain
-#[allow(dead_code)]
 mod module_invocation_route_matrix;
-#[allow(dead_code)]
 mod normal_module_transaction; // NORMAL-MODULE-TX0-L0 disconnected schema
 pub(in crate::mir) use canonical_physical_drain::{
     CanonicalDrainedCallablePhysicalV1, CanonicalDrainedSinglePhysicalV1,
@@ -296,7 +279,6 @@ pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
 };
 #[cfg(test)]
 mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
-#[allow(dead_code)]
 mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 mod module_invocation_session; // Shared isolated Builder transaction
 mod pinned_text_invocation_binding; // Session-owned pinned-Text target/brand ingress
@@ -340,23 +322,18 @@ pub(in crate::mir) use normal_default_program_root::PreparedNormalDefaultProgram
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::CompletedNormalDefaultRootCatalogLifecycleV1;
 #[cfg(test)]
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleStageV1;
-#[allow(dead_code)]
 mod cataloged_box_method_collector_handoff;
 mod module_lowering_invocation;
-#[allow(dead_code)]
 mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
 #[cfg(test)]
 mod module_lowering_invocation_access_tests;
-#[allow(dead_code)]
 mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
 mod module_lowering_invocation_reentrant_tests;
-#[allow(dead_code)]
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
 #[cfg(test)]
 mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure
 mod nonmain_static_box_method_batch;
-#[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
 #[cfg(test)]
 mod runtime_box_fate_tests;
@@ -371,11 +348,8 @@ mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 pub(in crate::mir) use raw_loop_child_entry::take_at_function_entry_v2;
 pub(in crate::mir) use raw_loop_child_entry::StaticI64LoopFunctionEntryV2;
 mod raw_loop_child_port; // single located-source Loop child-entry boundary
-#[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
-#[allow(dead_code)]
 mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks
-#[allow(dead_code)]
 mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
 pub(in crate::mir) use root_batch_slot::raw_main_entry_target;
 mod enum_match_source_demand;
@@ -398,11 +372,9 @@ mod recursive_child_lowering_rawport_header_tests;
 mod recursive_child_lowering_rawport_tests;
 #[cfg(test)]
 mod recursive_child_lowering_tests;
-#[allow(dead_code)]
 mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 #[cfg(test)]
 mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
-#[allow(dead_code)]
 mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch // CUT0-I0-POST0-RAW-S0 physical retention
 #[cfg(test)]
 mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
@@ -503,12 +475,9 @@ mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-sem
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 pub(in crate::mir) mod ops;
 mod phi;
-#[allow(dead_code)]
 mod phi_completion; // PHI0-S0: disconnected semantic completion vocabulary
 mod phi_merge;
-#[allow(dead_code)]
 mod phi_type_publication;
-#[allow(dead_code)]
 mod port_aware_function_draft_impl;
 mod program_declaration_facts; // Normal Program source-only declaration facts
 mod program_root_work_plan; // Normal Program source-only work partition

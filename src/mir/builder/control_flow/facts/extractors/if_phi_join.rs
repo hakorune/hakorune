@@ -9,7 +9,6 @@ pub(crate) struct IfPhiJoinParts {
     pub merged_var: String, // Primary PHI carrier (e.g., "sum")
     pub if_else_index: usize,
     pub step_index: usize,
-    #[allow(dead_code)]
     // Phase 291x-126: validation evidence, currently asserted by focused tests.
     pub carrier_count: usize, // Validation: 1-2 accumulators
                               // Note: has_else (always true), phi_like_merge (implicit) omitted

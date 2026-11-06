@@ -18,7 +18,6 @@ pub(in crate::mir::builder) struct LexicalScopeFrame {
 }
 
 impl LexicalScopeFrame {
-    #[allow(dead_code)]
     fn new() -> Self {
         Self::default()
     }

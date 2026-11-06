@@ -58,7 +58,6 @@ impl super::super::MirBuilder {
     }
 
     /// Insert a Copy immediately after PHI nodes in the current block (position-stable).
-    #[allow(dead_code)] // ASTCLEAN-015: retained for staged scheduler copy insertion routes.
     pub(crate) fn insert_copy_after_phis(
         &mut self,
         dst: super::super::ValueId,

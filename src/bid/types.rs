@@ -22,11 +22,8 @@ pub enum BidType {
     Void, // No return value
 
     // === Phase 2 reserved (TLV tags reserved) ===
-    #[allow(dead_code)]
     Option(Box<BidType>), // TLV tag=21
-    #[allow(dead_code)]
     Result(Box<BidType>, Box<BidType>), // TLV tag=20
-    #[allow(dead_code)]
     Array(Box<BidType>), // TLV tag=22
 }
 

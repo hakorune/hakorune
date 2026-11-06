@@ -5,14 +5,11 @@
 
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::planner::{
     tags, Freeze, PlanBuildOutcome,
 };
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::single_planner::{ PlanRuleId,
 };
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{
     CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan, CorePlan,
     LoopStepMode, LoweredRecipe,

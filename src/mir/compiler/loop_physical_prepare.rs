@@ -232,7 +232,6 @@ impl VerifiedCallablePreludeCapabilityV1 {
         &self.arguments
     }
 
-    #[allow(dead_code)]
     pub(crate) fn site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 {
         &self.site
     }
@@ -327,7 +326,6 @@ impl VerifiedCallableTerminalCompatibilityV1 {
         self.abi
     }
 
-    #[allow(dead_code)]
     pub(crate) fn statement(&self) -> &crate::mir::resolved_semantics::SourceStmtSiteV1 {
         &self.statement
     }

@@ -486,7 +486,6 @@ impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
 
     // The source-bound S6C producer is intentionally caller-zero until its
     // Facts/Recipe row lands; keep the scoped transport warning-free.
-    #[allow(dead_code)]
     pub(crate) fn with_source_ledger<R>(
         &self,
         callback: impl for<'source> FnOnce(

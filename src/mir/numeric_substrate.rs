@@ -15,14 +15,12 @@ mod target;
 #[cfg(test)]
 mod tests;
 
-#[allow(unused_imports)]
 // staged exact-op API; later verifier/backend rows consume the facade.
 pub(crate) use checked_ops::{
     exact_numeric_checked_arithmetic, exact_numeric_compare, exact_numeric_logical_shr,
     ExactNumericArithmeticError, ExactNumericArithmeticOp, ExactNumericCompareError,
     ExactNumericCompareOp, ExactNumericShiftError,
 };
-#[allow(unused_imports)]
 // staged exact-value API; later MIR fact/lowering rows consume the facade.
 pub(crate) use exact_values::{
     exact_numeric_const_from_i128, exact_numeric_mir_signature_from_declared_names,
@@ -32,12 +30,10 @@ pub(crate) use exact_values::{
     exact_numeric_value_from_dynamic_integer_for_declared_name, ExactNumericConstValue,
     ExactNumericConversionError, ExactNumericMirSignature, ExactNumericMirType,
 };
-#[allow(unused_imports)]
 // staged target/type vocabulary; later cross-target rows consume the facade.
 pub(crate) use target::{
     classify_numeric_kind_for_target, classify_numeric_type_name, ExactNumericRange,
 };
-#[allow(unused_imports)] // staged target/type vocabulary; keep the pre-split facade stable.
 pub use target::{
     NumericKind, NumericResolvedWidth, NumericSignedness, NumericTarget, NumericTypeName,
     NumericWidth,

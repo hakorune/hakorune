@@ -47,21 +47,16 @@ impl Opts {
 mod capi_transport;
 mod defaults;
 mod lifecycle_invocation;
-#[allow(dead_code)] // Phase 291x-126: hako-ll compare bridge kept behind explicit recipe routing.
 mod ll_emit_compare_driver;
-#[allow(dead_code)] // Phase 291x-126: hako-ll compare bridge kept behind explicit recipe routing.
 mod ll_emit_compare_source;
 mod ll_tool_driver;
 pub mod mir_json_text_object;
 mod normalize;
 mod provider_keep;
 mod published_mir_object;
-#[allow(dead_code)] // Phase 291x-126: hako-ll recipe route is staged, not default-owned.
 mod route;
 mod runtime_abi_descriptor;
-#[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge temp-file helpers.
 mod transport_io;
-#[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge path helpers.
 mod transport_paths;
 pub use defaults::boundary_default_object_opts;
 

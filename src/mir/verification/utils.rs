@@ -189,7 +189,6 @@ pub fn compute_dominators(function: &MirFunction) -> DominatorTree {
     }
 }
 
-#[allow(dead_code)]
 pub fn compute_reachable_blocks(function: &MirFunction) -> HashSet<BasicBlockId> {
     let mut reachable = HashSet::new();
     let mut worklist = vec![function.entry_block];

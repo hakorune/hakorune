@@ -76,15 +76,12 @@ mod raw_root_callable_main_p0;
 mod raw_root_decl_access_p0;
 #[cfg(test)]
 mod raw_root_eligibility_p0;
-#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_environment_manifest;
 #[cfg(test)]
 mod raw_root_external_commit_p0;
 #[cfg(test)]
 mod raw_root_finalization_p0;
-#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_manifest_package;
-#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_plan0;
 #[cfg(test)]
 mod raw_root_postprocess_p0;
@@ -92,7 +89,6 @@ mod raw_root_postprocess_p0;
 mod raw_root_publication_adapter_p0;
 #[cfg(test)]
 mod raw_root_publication_p0;
-#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_source_facts;
 #[cfg(test)]
 mod raw_source_binding_p0;

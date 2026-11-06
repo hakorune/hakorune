@@ -1,6 +1,5 @@
 use super::*;
 
-#[allow(dead_code)]
 impl CompilationContext {
     /// Register a user-defined box (backward compatibility - no fields)
     pub fn register_user_box(&mut self, name: String) {

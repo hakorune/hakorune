@@ -8,7 +8,6 @@ use super::MirCompileResult;
 use crate::ast::ASTNode;
 use crate::mir::RawPublishedCompileRequestV1;
 
-#[allow(dead_code)]
 pub(in crate::mir) enum RawPublicIngressPolicyV1 {
     NarrowV1,
 }

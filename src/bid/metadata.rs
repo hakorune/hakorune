@@ -155,9 +155,7 @@ pub struct PluginMetadata {
     pub state: PluginState,
 
     // Keep CStrings alive for C interop
-    #[allow(dead_code)]
     type_name_holder: Option<CString>,
-    #[allow(dead_code)]
     method_holders: Vec<(NyashMethodInfo, CString)>,
 }
 

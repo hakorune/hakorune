@@ -13,7 +13,6 @@ use crate::mir::{MirFunction, MirInstruction, MirType, TypeOpKind, ValueId};
 use std::collections::BTreeMap;
 
 /// Classify a resolver miss for the existing optional debug observation.
-#[allow(dead_code)]
 pub(super) fn classify_return_type_strategy_miss(
     hint: Option<&MirType>,
     function_name: &str,

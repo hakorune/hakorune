@@ -349,7 +349,6 @@ impl ModuleLoweringPortV1<'_> {
     /// Commit one already-captured resolved child after all body/header loans
     /// have ended.  S0 exposes the commit-only terminal but keeps it
     /// disconnected from production callers until the re-entrant cutover.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn commit_resolved_pending(
         &mut self,
         pending: PendingFunctionSessionCloseV1<'_>,
@@ -375,7 +374,6 @@ impl ModuleLoweringPortV1<'_> {
 
     /// Capture-only seam used by P0 to prove that collector mutation starts
     /// only after the child body and header loans have ended.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn capture_resolved_pending<'builder>(
         &self,
         builder: &'builder mut MirBuilder,
@@ -389,7 +387,6 @@ impl ModuleLoweringPortV1<'_> {
 
     /// Legacy counterpart to `capture_resolved_pending`; it owns no identity
     /// and cannot prepare or collect a draft.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn capture_legacy_pending<'builder>(
         &self,
         builder: &'builder mut MirBuilder,
@@ -476,7 +473,6 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
 
     /// Lend one short-lived shell/header bundle for wiring-only construction.
     /// Production roots remain disconnected until the all-route I0 cutover.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn with_access_port<R>(
         &mut self,
         lower: impl for<'shell, 'collector> FnOnce(

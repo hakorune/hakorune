@@ -6,7 +6,6 @@
 mod catalog;
 mod model;
 
-#[allow(unused_imports)]
 pub(crate) use model::{
     dynamic_invocation_execution_envelope_v1, DynamicInvocationControlV1,
     DynamicInvocationEffectV1, DynamicInvocationInputHomeV1, DynamicInvocationOrderingV1,

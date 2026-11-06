@@ -20,7 +20,6 @@ impl LocalSsaMaterializationErrorV1 {
 }
 
 #[derive(Clone, Copy)]
-#[allow(dead_code)] // Checked is reserved for COPY0's first selected consumer.
 pub(super) enum LocalSsaFailurePolicyV1 {
     LegacyFacade,
     Checked,

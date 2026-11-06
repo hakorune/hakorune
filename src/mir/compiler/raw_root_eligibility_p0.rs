@@ -318,7 +318,6 @@ fn rejection_keeps_identity_and_no_physical_owner_is_opened() {
     rejected.discard();
 }
 
-#[allow(dead_code)]
 fn _literal_fixture() -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(1),

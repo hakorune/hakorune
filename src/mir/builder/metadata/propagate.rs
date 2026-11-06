@@ -93,7 +93,6 @@ pub fn propagate(builder: &mut MirBuilder, src: ValueId, dst: ValueId) {
 /// dst に型注釈を明示的に設定し、必要ならば起源情報を消去/維持する。
 /// 🎯 TypeRegistry 経由モード対応（NYASH_USE_TYPE_REGISTRY=1）
 #[inline]
-#[allow(dead_code)]
 pub fn propagate_with_override(builder: &mut MirBuilder, dst: ValueId, ty: MirType) {
     let use_registry = crate::config::env::builder_use_type_registry();
 

@@ -14,7 +14,6 @@ use std::fmt::Write;
 /// MIR printer for debug output and visualization
 pub struct MirPrinter {
     /// Indentation level
-    #[allow(dead_code)]
     indent_level: usize,
 
     /// Whether to show detailed information

@@ -2,7 +2,6 @@ use super::exact_values::ExactNumericConstValue;
 use super::target::NumericSignedness;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)] // 294x-07 policy; consumed by later VM/backend exact-op rows.
 pub(crate) enum ExactNumericArithmeticOp {
     Add,
     Sub,
@@ -10,7 +9,6 @@ pub(crate) enum ExactNumericArithmeticOp {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(dead_code)] // 294x-07 policy; consumed by later VM/backend exact-op rows.
 pub(crate) enum ExactNumericArithmeticError {
     TypeMismatch {
         left_source_name: String,
@@ -28,7 +26,6 @@ pub(crate) enum ExactNumericArithmeticError {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
 pub(crate) enum ExactNumericCompareOp {
     Eq,
     Ne,
@@ -39,7 +36,6 @@ pub(crate) enum ExactNumericCompareOp {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
 pub(crate) enum ExactNumericCompareError {
     TypeMismatch {
         left_source_name: String,
@@ -48,7 +44,6 @@ pub(crate) enum ExactNumericCompareError {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
 pub(crate) enum ExactNumericShiftError {
     SignedLogicalShift {
         source_name: String,
@@ -60,7 +55,6 @@ pub(crate) enum ExactNumericShiftError {
     },
 }
 
-#[allow(dead_code)] // 294x-07 policy; consumed by later VM/backend exact-op rows.
 pub(crate) fn exact_numeric_checked_arithmetic(
     lhs: &ExactNumericConstValue,
     rhs: &ExactNumericConstValue,
@@ -108,7 +102,6 @@ pub(crate) fn exact_numeric_checked_arithmetic(
     })
 }
 
-#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
 pub(crate) fn exact_numeric_compare(
     lhs: &ExactNumericConstValue,
     rhs: &ExactNumericConstValue,
@@ -131,7 +124,6 @@ pub(crate) fn exact_numeric_compare(
     })
 }
 
-#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
 pub(crate) fn exact_numeric_logical_shr(
     value: &ExactNumericConstValue,
     shift: u32,

@@ -23,23 +23,19 @@ mod generic_production_canary_tests;
 mod initialized_local_input_materializer;
 // Caller-zero until the R0 route switch wires the node-level admission
 // edge; recheck at the production-switch slice.
-#[allow(dead_code)]
 mod loop_node_lowerer;
 // Caller-zero until the Main0 canonical-root handoff wires the installed App
 // Main caller; recheck at the production-switch slice.
-#[allow(dead_code)]
 mod main0_continue_lowerer;
 #[cfg(test)]
 mod main0_continue_lowerer_tests;
 // Caller-zero until the same Main0 canonical-root handoff wires the second
 // profile; recheck at the production-switch slice.
-#[allow(dead_code)]
 mod main0_in_body_step_lowerer;
 #[cfg(test)]
 mod main0_in_body_step_lowerer_tests;
 // Caller-zero until the same Main0 canonical-root handoff wires the third
 // profile; recheck at the production-switch slice.
-#[allow(dead_code)]
 mod main0_derived_predicate_lowerer;
 #[cfg(test)]
 mod main0_derived_predicate_lowerer_tests;
@@ -61,17 +57,13 @@ pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
 // Caller-zero re-export until the Main0 canonical-root handoff wires the
 // installed App Main caller; recheck at the production-switch slice.
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use main0_continue_lowerer::lower_main0_continue_function_draft_v1;
 // Caller-zero re-export for the second bounded Main0 profile; same handoff.
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use main0_in_body_step_lowerer::lower_main0_in_body_step_function_draft_v1;
 // Caller-zero re-export for the third bounded Main0 profile; same handoff.
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use main0_derived_predicate_lowerer::lower_main0_derived_predicate_function_draft_v1;
 // Caller-zero re-export until the R0 route switch wires the node-level
 // admission edge; same recheck applies.
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use loop_node_lowerer::{
     lower_loop_node_physical_admission_v1,
     lower_loop_node_physical_admission_with_callable_entry_values_v1,

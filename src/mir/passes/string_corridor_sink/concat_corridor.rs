@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 use super::*;
 
 #[path = "concat_corridor_apply.rs"]

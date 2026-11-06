@@ -3,7 +3,6 @@
 //! Q0 is intentionally disconnected. See `README.md` before adding a producer
 //! or consumer.
 
-#![allow(dead_code)]
 
 mod callable_receiver_policy;
 mod core_method;
@@ -24,9 +23,7 @@ mod source_method_call_site;
 mod whole_source_inventory;
 mod whole_source_inventory_error;
 
-#[allow(unused_imports)]
 pub(crate) use callable_receiver_policy::SameModuleCallableSourceReceiverPolicyV1;
-#[allow(unused_imports)]
 pub(crate) use core_method::{
     issue_source_bound_core_method_calls_v1,
     issue_source_bound_core_method_calls_with_dynamic_sources_v1,
@@ -35,19 +32,16 @@ pub(crate) use core_method::{
     SourceBoundCoreMethodTargetIssueV1, VerifiedSourceBoundCoreMethodCallV1,
     VerifiedSourceBoundS6CCallRelationV1,
 };
-#[allow(unused_imports)]
 pub(in crate::mir) use dynamic_member::{
     issue_source_bound_dynamic_member_calls_v1, DynamicMemberArgumentSourceV1,
     DynamicMemberDispatchKeyV1, DynamicMemberSourceIssueV1, DynamicMemberSourceRejectV1,
     DynamicMemberSourceUnresolvedV1, VerifiedSourceBoundDynamicMemberCallV1,
 };
-#[allow(unused_imports)]
 pub(crate) use error::{
     CurrentOwnerStaticCallTargetErrorV1, QualifiedCallRouteFactsErrorV1,
     QualifiedReceiverLexicalDispositionErrorV1, QualifiedStaticCallTargetErrorV1,
     SourceMethodCallSiteErrorV1, StaticImportAliasViewErrorV1,
 };
-#[allow(unused_imports)]
 pub(crate) use model::{
     CurrentOwnerStaticReceiverV1, QualifiedStaticReceiverV1,
     VerifiedCurrentOwnerStaticCallTargetV1, VerifiedQualifiedStaticCallTargetV1,
@@ -55,29 +49,23 @@ pub(crate) use model::{
     VerifiedSourceStaticCallTargetCatalogV1, VerifiedSourceStaticCallTargetV1,
     VerifiedStaticImportAliasViewV1,
 };
-#[allow(unused_imports)]
 pub(crate) use qualified_receiver_lexical::{
     QualifiedReceiverLexicalDispositionV1, VerifiedQualifiedReceiverLexicalDispositionsV1,
 };
-#[allow(unused_imports)]
 pub(crate) use qualified_route_facts::{
     QualifiedReceiverAdmissionV1, VerifiedQualifiedCallRouteFactsV1,
 };
-#[allow(unused_imports)]
 pub(crate) use raw_callable_source_view::{
     RawLocatedBodyInputV1, RawLocatedCallArgumentStageV1, RawLocatedExprInputV1,
     RawLocatedMethodCallInputV1, RawLocatedStmtInputV1, RejectedRawLocatedCallArgumentV1,
     VerifiedRawCallableSourceViewV1, VerifiedRawLocatedCallArgumentV1,
 };
-#[allow(unused_imports)]
 pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;
-#[allow(unused_imports)]
 pub(crate) use script_call_coverage::{
     ScriptDirectStaticCallCoverageIssueV1, VerifiedScriptCallCoverageDispositionV1,
     VerifiedScriptCallCoverageRowV1, VerifiedScriptCallCoverageV1,
     VerifiedScriptNonDirectCallReasonV1,
 };
-#[allow(unused_imports)]
 pub(crate) use script_direct_static::{
     ScriptDirectStaticCallLookupErrorV1, VerifiedScriptDirectStaticCallLookupRowV1,
     VerifiedScriptDirectStaticCallLookupV1,
@@ -86,13 +74,10 @@ pub(crate) use script_direct_static::{
 pub(crate) use script_direct_static::{
     ScriptDirectStaticCallTargetErrorV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
 };
-#[allow(unused_imports)]
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
-#[allow(unused_imports)]
 pub(crate) use whole_source_inventory::{
     VerifiedWholeSourceMethodCallSiteV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
-#[allow(unused_imports)]
 pub(crate) use whole_source_inventory_error::WholeSourceStaticCallTargetInventoryErrorV1;
 
 #[cfg(test)]

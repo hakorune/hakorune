@@ -226,7 +226,6 @@ impl NyashRunner {
         }
 
         // Inject method_id for BoxCall where resolvable (by-id path)
-        #[allow(unused_mut)]
         let _injected = if !selected_dynamic && pipeline_plan.method_id_injector_enabled {
             method_id_injector::MethodIdInjectorBox::inject(&mut module)
         } else {

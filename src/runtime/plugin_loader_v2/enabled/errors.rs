@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use crate::bid::{BidError, BidResult};
 use std::sync::{PoisonError, RwLockReadGuard, RwLockWriteGuard};
 

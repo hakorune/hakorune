@@ -46,7 +46,6 @@ use crate::mir::BasicBlockId;
 ///
 /// Rationale: scan_with_init / split_scan routes require flexible exit wiring for Normal/Return exits.
 /// cleanup_frag must be "exit-only" to prevent terminator confusion.
-#[allow(dead_code)] // Phase 281 P3: Normal+Return wiring; awaiting non-test callers
 pub(crate) fn cleanup(
     main: Frag,
     cleanup_frag: Frag,

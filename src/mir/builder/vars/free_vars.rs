@@ -1,7 +1,6 @@
 use crate::ast::ASTNode;
 use std::collections::HashSet;
 
-#[allow(dead_code)]
 pub(in crate::mir::builder) fn collect_free_vars(
     node: &ASTNode,
     used: &mut HashSet<String>,

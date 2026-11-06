@@ -246,7 +246,6 @@ impl MirOptimizer {
     }
 
     /// Convert instruction to string key for CSE
-    #[allow(dead_code)] // ASTCLEAN-009: retained for optimizer unit tests and CSE diagnostic probes.
     pub(crate) fn instruction_to_key(&self, instruction: &MirInstruction) -> String {
         match instruction {
             MirInstruction::Const { value, .. } => format!("const_{:?}", value),

@@ -301,7 +301,6 @@ pub struct TypeRegistry {
     inheritance_chains: HashMap<String, Vec<String>>,
 
     /// メソッドキャッシュ（将来の最適化用）
-    #[allow(dead_code)]
     method_cache: HashMap<(String, String), MethodSignature>,
 }
 

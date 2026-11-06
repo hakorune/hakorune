@@ -97,7 +97,6 @@ fn verify_no_exit_block_contract(
     }
 
     for item in &block.items {
-        #[allow(unreachable_patterns)]
         match item {
             RecipeItem::Stmt(stmt_ref) => {
                 if body.get_ref(*stmt_ref).is_none() {

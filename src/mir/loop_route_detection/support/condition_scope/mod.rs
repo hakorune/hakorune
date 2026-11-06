@@ -143,7 +143,6 @@ impl LoopConditionScopeBox {
     ///    - If matches loop_param_name → LoopParam
     ///    - Else if in outer scope (via the local variable analyzer) → OuterLocal
     ///    - Else → `LoopBodyLocal` (conservative body-local default)
-    #[allow(dead_code)]
     pub(crate) fn analyze(
         loop_param_name: &str,
         condition_nodes: &[&ASTNode],

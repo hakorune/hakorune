@@ -199,7 +199,6 @@ pub(crate) struct CompilationContext {
     pub quiet_internal_logs: bool,
 }
 
-#[allow(dead_code)]
 impl CompilationContext {
     /// Create a new CompilationContext with default-initialized state
     pub fn new() -> Self {

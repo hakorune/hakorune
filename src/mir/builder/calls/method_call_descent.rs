@@ -242,7 +242,6 @@ where
     }
 }
 
-#[allow(dead_code)]
 pub(in crate::mir::builder) struct RawLegacyMethodCallInputV1 {
     receiver: ASTNode,
     method: String,
@@ -250,7 +249,6 @@ pub(in crate::mir::builder) struct RawLegacyMethodCallInputV1 {
     receiver_source: Option<PreparedRawChildSourceV1>,
 }
 
-#[allow(dead_code)]
 impl RawLegacyMethodCallInputV1 {
     pub(in crate::mir::builder) fn new(
         receiver: ASTNode,

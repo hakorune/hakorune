@@ -1,6 +1,5 @@
 //! Bounded source-only receiver representation proof for Core calls.
 
-#![allow(dead_code)]
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 

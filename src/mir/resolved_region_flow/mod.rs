@@ -2,7 +2,6 @@
 //!
 //! See `README.md` before adding a producer or consumer connection.
 
-#![allow(dead_code, unused_imports)]
 
 mod analyzer;
 mod coverage;

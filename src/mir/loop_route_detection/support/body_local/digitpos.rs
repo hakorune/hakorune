@@ -42,14 +42,12 @@ use crate::mir::ValueId;
 /// Promotion request for A-4 digit position pattern
 pub struct DigitPosPromotionRequest<'a> {
     /// Loop parameter name (e.g., "p")
-    #[allow(dead_code)]
     pub loop_param_name: &'a str,
 
     /// Condition scope analysis result
     pub cond_scope: &'a LoopConditionScope,
 
     /// Loop structure metadata (for future use)
-    #[allow(dead_code)]
     pub(crate) scope_shape: Option<&'a LoopScopeShape>,
 
     /// Break condition AST (`loop_break`: Some, `loop_continue_only`: None)

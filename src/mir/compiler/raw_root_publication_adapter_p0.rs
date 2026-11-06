@@ -113,7 +113,6 @@ fn raw_adapter_is_the_only_consuming_result_boundary() {
     assert_eq!(result.module.name, "final0");
 }
 
-#[allow(dead_code)]
 fn _assert_published_route_is_typed(value: RawPublishedInvocationV1) {
     match value {
         RawPublishedInvocationV1::Script(_) | RawPublishedInvocationV1::App(_) => {}

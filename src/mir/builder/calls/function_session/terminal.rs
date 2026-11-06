@@ -258,7 +258,6 @@ impl PendingFunctionSessionCloseV1<'_> {
     }
 
     /// Discard the pending draft and restore after a later pre-collect error.
-    #[allow(dead_code)] // RAWPORT0-S0 exposes the later error path without a production caller.
     pub(in crate::mir::builder) fn abort_and_restore(self) {
         self.pending.abort_and_restore();
     }
@@ -276,7 +275,6 @@ impl LegacyFunctionPendingSessionV1<'_> {
         self.pending.complete_before_restore(complete)
     }
 
-    #[allow(dead_code)] // The disconnected S0 vocabulary exposes explicit abort semantics.
     pub(in crate::mir::builder) fn abort_and_restore(self) {
         self.pending.abort_and_restore();
     }

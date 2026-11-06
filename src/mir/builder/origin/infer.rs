@@ -4,7 +4,6 @@ use super::super::{MirBuilder, MirType, ValueId};
 /// - 優先: current_static_box（静的ボックスの文脈）
 /// - 次点: 現在の関数名のプレフィックス（"Class.method/Arity"）
 /// - それ以外: 付与せず（挙動不変）
-#[allow(dead_code)]
 pub(crate) fn annotate_me_origin(builder: &mut MirBuilder, me_id: ValueId) {
     let mut cls: Option<String> = None;
     if let Some(c) = builder.comp_ctx.current_static_box.clone() {

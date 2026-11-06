@@ -4,13 +4,11 @@
 use super::provider::{FileCaps, FileIo, FileResult};
 use std::sync::Arc;
 
-#[allow(dead_code)]
 pub struct FileBoxShim {
     provider: Arc<dyn FileIo>,
     caps: FileCaps,
 }
 
-#[allow(dead_code)]
 impl FileBoxShim {
     pub fn new(provider: Arc<dyn FileIo>) -> Self {
         let caps = provider.caps();

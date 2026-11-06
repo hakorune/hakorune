@@ -21,7 +21,6 @@
 
 /// File capabilities (minimal flag set)
 #[derive(Debug, Clone, Copy)]
-#[allow(dead_code)]
 pub struct FileCaps {
     pub read: bool,
     pub write: bool,
@@ -127,7 +126,6 @@ pub trait FileIo: Send + Sync {
 }
 
 /// Normalize newlines to LF (optional helper)
-#[allow(dead_code)]
 pub fn normalize_newlines(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for b in s.as_bytes() {

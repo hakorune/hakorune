@@ -21,7 +21,6 @@ pub struct EscapeSkipShapeInfo {
     pub normal_delta: i64,
     pub escape_delta: i64,
     /// Index of the break-guard `if ... { break }` within the loop body.
-    #[allow(dead_code)] // Phase 291x-126: kept for route-shape diagnostics / handoff context.
     pub break_idx: usize,
     /// Phase 92 P0-3: The condition expression for conditional increment
     /// e.g., `ch == '\\'` for escape sequence handling

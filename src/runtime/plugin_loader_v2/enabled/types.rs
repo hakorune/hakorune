@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use super::host_bridge::{BoxInvokeFn, InvokeFn};
 use super::lifecycle_route_plan::{
     invoke_plugin_lifecycle, PluginDropBoxExecutionPlan, PluginInvokeExecutionPlan,

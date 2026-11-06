@@ -37,7 +37,6 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 /// `me`, the callee's canonical key resolves uniquely, and it carries a
 /// claim; never a Handle authorization by itself.
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub(crate) struct ReceiverCallClassObservationV1 {
     callee: CanonicalSameModuleCallableKeyV1,
     class: super::OrdinaryNewResultClassV1,

@@ -124,7 +124,6 @@ pub fn extract_all_variables(node: &ASTNode) -> HashSet<String> {
 /// Future versions may include:
 /// - Dominance tree analysis
 /// - More sophisticated scope inference
-#[allow(dead_code)]
 pub(crate) fn is_outer_scope_variable(var_name: &str, scope: Option<&LoopScopeShape>) -> bool {
     match scope {
         // No scope information: be conservative but *not* over‑strict.

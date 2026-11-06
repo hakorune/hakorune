@@ -68,7 +68,6 @@ impl TypeRegistry {
     }
 
     /// パラメータ型を記録
-    #[allow(dead_code)] // ASTCLEAN-005: staged entry for param metadata producers.
     pub fn record_param(&mut self, vid: ValueId, param_name: &str, param_type: Option<MirType>) {
         if let Some(ty) = param_type.clone() {
             self.types.insert(vid, ty.clone());
@@ -178,7 +177,6 @@ impl TypeRegistry {
     // ============================================================
 
     /// 起源クラス名を取得
-    #[allow(dead_code)] // ASTCLEAN-005: retained for trace/debug inspection callers.
     pub fn get_origin(&self, vid: ValueId) -> Option<&String> {
         self.origins.get(&vid)
     }

@@ -243,7 +243,6 @@ impl MirInterpreter {
     }
 
     // moved: try_handle_map_box → handlers/boxes_map.rs
-    #[allow(dead_code)]
     fn try_handle_map_box(
         &mut self,
         dst: Option<ValueId>,
@@ -255,7 +254,6 @@ impl MirInterpreter {
     }
 
     // moved: try_handle_string_box → handlers/boxes_string.rs
-    #[allow(dead_code)]
     fn try_handle_string_box(
         &mut self,
         dst: Option<ValueId>,
@@ -267,7 +265,6 @@ impl MirInterpreter {
     }
 
     // moved: try_handle_array_box → handlers/boxes_array.rs
-    #[allow(dead_code)]
     fn try_handle_array_box(
         &mut self,
         dst: Option<ValueId>,

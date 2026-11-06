@@ -10,7 +10,6 @@ pub(crate) use super::generated::core_method_contract_rows::{
     CoreMethodManifestBrandV2, CORE_METHOD_CONTRACT_ROWS_V2, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodResultKindV1 {
     I64Value,
@@ -23,7 +22,6 @@ pub(crate) enum CoreMethodResultKindV1 {
 /// Typed effect projection from the `.hako` CoreMethodContractBox row.
 /// This remains separate from the Dynamic invocation envelope's runtime
 /// observation and suspension semantics.
-#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodEffectV1 {
     PureRead,
@@ -31,7 +29,6 @@ pub(crate) enum CoreMethodEffectV1 {
     MutatesShape,
 }
 
-#[allow(dead_code)]
 impl CoreMethodEffectV1 {
     pub(crate) fn as_manifest_name(self) -> &'static str {
         match self {
@@ -42,7 +39,6 @@ impl CoreMethodEffectV1 {
     }
 }
 
-#[allow(dead_code)]
 impl CoreMethodResultKindV1 {
     pub(crate) fn as_manifest_name(self) -> &'static str {
         match self {
@@ -55,7 +51,6 @@ impl CoreMethodResultKindV1 {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodSemanticLawV2 {
     Unprojected,
@@ -67,7 +62,6 @@ pub(crate) enum CoreMethodSemanticLawV2 {
     CodePointSearchFromZero,
 }
 
-#[allow(dead_code)]
 impl CoreMethodSemanticLawV2 {
     pub(crate) fn as_manifest_name(self) -> &'static str {
         match self {
@@ -82,7 +76,6 @@ impl CoreMethodSemanticLawV2 {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub(crate) struct CoreMethodContractRowV2 {
     pub(crate) receiver_box: &'static str,
@@ -184,7 +177,6 @@ pub(crate) fn issue_core_method_manifest_test_row_ref(
     }
 }
 
-#[allow(dead_code)]
 impl CoreMethodContractRowV2 {
     fn matches(&self, receiver_box: &str, spelling: &str, arity: u32) -> bool {
         self.receiver_box == receiver_box
@@ -193,7 +185,6 @@ impl CoreMethodContractRowV2 {
     }
 }
 
-#[allow(dead_code)]
 pub(crate) fn lookup_core_method_result_row_v2(
     receiver_box: &str,
     spelling: &str,
@@ -209,7 +200,6 @@ pub(crate) fn lookup_core_method_result_row_v2(
 /// This is intentionally not a selector lookup. The semantic caller owns the
 /// source dispatch cross-check; this helper only projects the generated
 /// CoreMethodContractBox row that was selected by operation identity.
-#[allow(dead_code)]
 pub(crate) fn lookup_core_method_result_row_by_op_v2(
     receiver_box: &str,
     op: CoreMethodOp,

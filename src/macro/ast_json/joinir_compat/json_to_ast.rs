@@ -4,7 +4,6 @@ use serde_json::Value;
 use super::constructors;
 use super::helpers::{json_to_lit, str_to_bin, str_to_un};
 
-#[allow(dead_code)]
 pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
     let k = v.get("kind")?.as_str()?;
     Some(match k {

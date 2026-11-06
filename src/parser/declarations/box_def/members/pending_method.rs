@@ -101,7 +101,6 @@ impl CommittedDirectExplicitMethodV1 {
 }
 
 pub(crate) struct CommittedExplicitMethodV1 {
-    #[allow(dead_code)]
     inventory_ordinal: BoxMethodInventoryOrdinalV1,
     diagnostic_name: String,
     parameter_source: Option<ParsedCallableParameterListV1>,

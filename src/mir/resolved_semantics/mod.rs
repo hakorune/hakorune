@@ -4,7 +4,6 @@
 
 // SA0 is intentionally disconnected. Remove these scoped allowances as SA1
 // gives the schema its first shadow-only producer/consumer.
-#![allow(dead_code, unused_imports)]
 
 mod assignment_source;
 mod block_expr_expectation;

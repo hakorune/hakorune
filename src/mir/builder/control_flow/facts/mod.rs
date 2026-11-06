@@ -21,7 +21,6 @@ pub(in crate::mir::builder) mod route_shape_recognizers;
 pub(in crate::mir::builder) mod stmt_view;
 pub(in crate::mir::builder) mod stmt_walk;
 
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use if_phi_join_facts::{
     try_extract_if_phi_join_facts, try_extract_if_phi_join_facts_with_projection, IfPhiJoinFacts,
     IfPhiJoinSourceTopologyV1,

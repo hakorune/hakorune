@@ -12,7 +12,6 @@ use super::module_lowering_invocation::{
 };
 
 impl ModuleLoweringPortV1<'_> {
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn commit_legacy_pending(
         &mut self,
         pending: LegacyFunctionPendingSessionV1<'_>,

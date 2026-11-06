@@ -281,7 +281,6 @@ pub fn parse_extern_name(name: &str) -> (String, String) {
 }
 
 /// Check if a name refers to an environment interface
-#[allow(dead_code)]
 pub fn is_env_interface(name: &str) -> bool {
     matches!(
         name,

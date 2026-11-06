@@ -4,7 +4,6 @@
 //! addresses, and numeric path components are diagnostics or placement only;
 //! none can recreate anchor identity.
 
-#![allow(dead_code)]
 
 use std::sync::Arc;
 

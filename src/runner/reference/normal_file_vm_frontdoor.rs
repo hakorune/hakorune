@@ -18,7 +18,6 @@ mod script_source_input;
 mod source_plan_input;
 
 pub(crate) use parser_source_handoff::CanonicalParserSourceHandoffV1;
-#[allow(unused_imports)]
 pub(crate) use source_plan_input::{
     CanonicalCoreSourcePlanHandoffErrorV1, ClassifiedNormalFileSourcePlanV1,
     NormalFileSourcePlanRouteErrorV1, PreparedNormalFileSourcePlanRequestV1,

@@ -5,7 +5,6 @@
 //! use ledgers in responsibility-specific children. No child introduces a
 //! second If-control authority.
 
-#![allow(unused_imports)]
 
 mod analyzer;
 mod product;

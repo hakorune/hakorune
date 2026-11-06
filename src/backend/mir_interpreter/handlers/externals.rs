@@ -3,7 +3,6 @@ use serde_json::Value as JsonValue;
 
 impl MirInterpreter {
     #[inline]
-    #[allow(dead_code)]
     fn ensure_mir_json_version_field(s: &str) -> String {
         match serde_json::from_str::<JsonValue>(s) {
             Ok(mut v) => {
@@ -20,7 +19,6 @@ impl MirInterpreter {
             Err(_) => s.to_string(),
         }
     }
-    #[allow(dead_code)]
     pub(super) fn handle_extern_call(
         &mut self,
         dst: Option<ValueId>,

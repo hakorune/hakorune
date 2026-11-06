@@ -27,7 +27,6 @@ use super::scalar_known_typed_direct_closeout_contract::{
 };
 use super::{GenericMethodRouteDecision, GenericMethodRouteKind, GenericMethodRouteProof};
 
-#[allow(dead_code)]
 pub(super) fn mapload_scalar_i64_shadow_consumed_decision(
     route_proof: GenericMethodRouteProof,
 ) -> GenericMethodRouteDecision {
@@ -87,7 +86,6 @@ pub(super) fn mapload_scalar_i64_hako_route_authority_pilot_decision(
     hako_decision
 }
 
-#[allow(dead_code)]
 pub(super) fn string_scalar_i64_shadow_consumed_decision(
     route_kind: GenericMethodRouteKind,
     route_proof: GenericMethodRouteProof,
@@ -152,7 +150,6 @@ pub(super) fn string_scalar_i64_hako_route_authority_pilot_decision(
     hako_decision
 }
 
-#[allow(dead_code)]
 pub(super) fn collection_scalar_i64_shadow_consumed_decision(
     route_kind: GenericMethodRouteKind,
     core_op: CoreMethodOp,
@@ -228,7 +225,6 @@ pub(super) fn collection_scalar_i64_hako_route_authority_pilot_decision(
     hako_decision
 }
 
-#[allow(dead_code)]
 pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecision {
     mapstore_i64_hako_route_authority_pilot_decision()
 }
@@ -288,7 +284,6 @@ fn assert_write_contract_contains(route_kind: GenericMethodRouteKind, label: &st
     );
 }
 
-#[allow(dead_code)]
 pub(super) fn write_push_shadow_consumed_decision() -> GenericMethodRouteDecision {
     write_push_hako_route_authority_pilot_decision()
 }
@@ -328,7 +323,6 @@ pub(super) fn write_push_hako_route_authority_pilot_decision() -> GenericMethodR
     hako_decision
 }
 
-#[allow(dead_code)]
 pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecision {
     mapstore_any_hako_route_authority_pilot_decision()
 }

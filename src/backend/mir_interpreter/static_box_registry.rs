@@ -183,7 +183,6 @@ impl StaticBoxRegistry {
     }
 
     /// シングルトンインスタンスが既に作成済みか確認
-    #[allow(dead_code)]
     pub fn has_instance(&self, name: &str) -> bool {
         self.instances.contains_key(name)
     }
@@ -199,7 +198,6 @@ impl StaticBoxRegistry {
     }
 
     /// detected_boxes への直接アクセス
-    #[allow(dead_code)]
     pub fn detected_boxes(&self) -> &HashSet<String> {
         &self.detected_boxes
     }

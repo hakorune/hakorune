@@ -20,7 +20,6 @@ impl ArrayBox {
         }
     }
 
-    #[allow(dead_code)] // C209 private pilot seam; C210 is the first planned consumer.
     pub(crate) fn inline_record_load_i64_column_raw(
         &self,
         layout_id: u32,

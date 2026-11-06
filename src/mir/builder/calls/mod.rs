@@ -42,7 +42,6 @@ mod function_session; // Closure-scoped function transaction and cleanup owner
 pub(in crate::mir::builder) mod instance_method_draft_preparation;
 pub(in crate::mir::builder) use function_session::CanonicalFunctionLoweringSessionV1;
 pub(in crate::mir) use function_session::CanonicalFunctionSessionErrorV1;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use function_session::{
     CanonicalFunctionSessionRestorationReceiptV1, LegacyFunctionPayloadPendingSessionV1,
     LegacyFunctionPayloadSessionErrorV1, LegacyFunctionPendingSessionV1,
@@ -115,13 +114,8 @@ pub mod unified_emitter; // Phase 3-A: Unified call emitter (統一Call発行専
 pub mod utils; // Phase 3-C: Call materializer (Call前処理・準備専用箱)
 
 // Re-export public interfaces
-#[allow(unused_imports)]
 pub use build::*;
-#[allow(unused_imports)]
 pub use call_target::CallTarget;
-#[allow(unused_imports)]
 pub use emit::*;
-#[allow(unused_imports)]
 pub use lowering::*;
-#[allow(unused_imports)]
 pub use utils::*;

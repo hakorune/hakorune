@@ -8,7 +8,6 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
 };
 
 pub(super) fn is_block_exit_only_item(item: &RecipeItem) -> bool {
-    #[allow(unreachable_patterns)]
     match item {
         RecipeItem::Exit { .. } => true,
         RecipeItem::Stmt(_) => false,

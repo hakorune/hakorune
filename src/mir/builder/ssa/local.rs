@@ -156,7 +156,6 @@ fn ensure_inner_with_policy(
     }
 }
 
-#[allow(dead_code)] // COPY0 is the first checked consumer.
 fn try_materialize_local_v1(
     builder: &mut MirBuilder,
     v: ValueId,

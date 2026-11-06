@@ -24,7 +24,6 @@ pub(super) enum ArrayInlineRecordColumn {
     F64(Vec<f64>),
 }
 
-#[allow(dead_code)] // C209 private pilot seam; C210 consumes it from metadata-store migration.
 impl ArrayInlineRecordStorage {
     pub(super) fn new(layout_id: u32, columns: Vec<ArrayInlineRecordColumn>) -> Option<Self> {
         let len = columns.first().map_or(0, ArrayInlineRecordColumn::len);
@@ -115,7 +114,6 @@ impl ArrayInlineRecordStorage {
     }
 }
 
-#[allow(dead_code)] // C209 private pilot seam; C210 consumes it from metadata-store migration.
 impl ArrayInlineRecordColumn {
     pub(super) fn i64(values: Vec<i64>) -> Self {
         Self::I64(values)

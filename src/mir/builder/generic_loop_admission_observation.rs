@@ -3,7 +3,6 @@
 //! ValueId/type repair; it only retains the already-issued source relations
 //! long enough for one opt-in audit row.
 
-#![allow(dead_code)]
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;

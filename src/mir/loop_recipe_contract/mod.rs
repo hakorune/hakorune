@@ -48,34 +48,24 @@ mod physical_layout;
 mod physical_transfer;
 mod producer_id;
 pub(crate) mod route_id;
-#[allow(dead_code)]
 mod s6c_scan_with_init;
 // Caller-zero source-to-Recipe/Join Return binding; no physical effect.
-#[allow(dead_code)]
 mod s6c_return_source_binding;
 // Caller-zero product-first JOINIR input façade; no physical consumer.
-#[allow(dead_code)]
 mod s6c_scan_with_init_joinir;
 // Caller-zero logical output product and typed consumer; no JoinIR/MIR materialization.
-#[allow(dead_code)]
 mod s6c_scan_with_init_joinir_output;
 // Caller-zero Builder-free prephysical ingress; no physical IDs or session state.
-#[allow(dead_code)]
 mod s6c_prephysical_ingress;
-#[allow(dead_code)]
 mod s6c_scan_with_init_joinir_output_rows;
-#[allow(dead_code)]
 mod s6c_scan_with_init_logical_consumer;
 // Caller-zero parent-retaining TextEq site contract; no physical target.
-#[allow(dead_code)]
 mod s6c_text_eq_site_contract;
 // Source-bound TextEq occurrence view; no physical IDs/runtime wire.
 mod s6c_text_eq_occurrence;
 // Caller-zero source-backed scalar-scan corridor view; no physical effect.
-#[allow(dead_code)]
 mod s6c_scalar_scan_corridor;
 // Typed row façade is currently exercised by focused tests only.
-#[allow(dead_code)]
 mod s6c_scan_with_init_rows;
 mod schema;
 mod schema_v2;
@@ -177,7 +167,6 @@ pub(crate) use generic_g0_demand::{
     GenericG0RecipeDemandIssueV1,
 };
 
-#[allow(unused_imports)]
 pub(crate) use generic_g0::{
     produce_generic_g0_recipe_v1, GenericG0RecipeProducerRejectV1,
     VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,
@@ -219,86 +208,68 @@ mod typed_schema_v2_structure_tests;
 
 // Keep one stable facade for the caller-zero common-V2 parent; the products
 // remain source-only and do not open the physical session.
-#[allow(unused_imports)]
 pub(crate) use common_v2_after_boundary::{
     AfterBoundaryIssueRejectV1, LoopV2AfterBoundaryRelationV1,
     VerifiedLoopV2AfterBoundarySourceRelationV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_condition_operand_inventory::{
     ConditionOperandInventoryRejectV1, PreparedLoopV2ConditionOperandInventoryV1,
     PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2ConditionOperandRowV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_initial_index_seed::{
     InitialIndexSeedRelationRejectV1, PreparedLoopV2InitialIndexSeedRelationV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_issuers::{
     issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,
     PreparedLoopControlTransferProgramV2, PreparedLoopOperationProgramV2,
     PreparedLoopOperationRowV2, PreparedLoopV2PreSessionEnvelopeV1,
     VerifiedLoopV2EnvelopeCoverageV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_layout_input::{
     LayoutInputRejectV1, PreparedLoopV2LayoutLoopV1, PreparedLoopV2LayoutSegmentRefV1,
     PreparedLoopV2PhysicalLayoutInputV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_predicate_branch_plan::{
     issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
     PreparedLoopV2ConditionCarrierRequirementV1, PreparedLoopV2PredicateBranchPlanV1,
     PreparedLoopV2PredicateFalseTargetV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_return_read_co_seal::{
     issue_s6c_v2_return_read_co_seal_v1, CommonV2ReturnReadCoSealRefV1, ReturnReadCoSealRejectV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_segment_allocation::{
     issue_v2_segment_allocation_plan, PreparedLoopV2SegmentAllocationPlanV1,
     SegmentAllocationPlanRejectV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_string_len_target_plan::{
     issue_s6c_v2_string_len_call_target_plan_v1, PreparedLoopV2StringLenCallTargetPlanV1,
     StringLenCallTargetPlanRejectV1,
 };
-#[allow(unused_imports)]
 pub(crate) use common_v2_substring_target_plan::{
     issue_s6c_v2_substring_call_target_plan_v1, PreparedLoopV2SubstringCallTargetPlanV1,
     SubstringCallTargetPlanRejectV1,
 };
-#[allow(unused_imports)]
 pub(crate) use binding_declaration::{
     resolve_loop_binding_declaration_v1, ResolvedLoopBindingDeclarationV1,
 };
-#[allow(unused_imports)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;
-#[allow(unused_imports)]
 pub(crate) use direct_accum_producer::{
     produce_direct_accum_recipe_v1, DirectAccumRecipeProducerRejectV1,
     VerifiedDirectAccumRecipeProductV1,
 };
-#[allow(unused_imports)]
 pub(crate) use error::LoopRecipeRejectReasonV1;
-#[allow(unused_imports)]
 pub(crate) use ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
 };
-#[allow(unused_imports)]
 pub(crate) use input_source::{
     issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
     LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
 };
-#[allow(unused_imports)]
 pub(crate) use internal_declaration::{
     LoopInternalDeclarationModeV1, LoopInternalDeclarationRejectV1,
     VerifiedLoopInternalDeclarationSetV1, VerifiedLoopInternalDeclarationV1,
 };
-#[allow(unused_imports)]
 pub(crate) use join_sig::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinBoundaryTransferRefV1,
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV1, LoopJoinBranchArmV2,
@@ -309,96 +280,76 @@ pub(crate) use join_sig::{
     LoopJoinSigRejectReasonV1, LoopJoinSigV1, VerifiedLoopAfterBindingV1,
     VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
 };
-#[allow(unused_imports)]
 pub(crate) use loop_cond_break_continue_producer::{
     produce_loop_cond_break_continue_recipe_v1, LoopCondBreakContinueRecipeProducerRejectV1,
     VerifiedLoopCondBreakContinueRecipeProductV1,
 };
-#[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{
     produce_loop_true_break_continue_recipe_v1, LoopTrueBreakContinueRecipeProducerRejectV1,
     VerifiedLoopTrueBreakContinueRecipeProductV1,
 };
-#[allow(unused_imports)]
 pub(crate) use normalize::{
     LoopRecipeDecodeErrorV1, LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV1,
     LoopRecipeNormalizerV2,
 };
-#[allow(unused_imports)]
 pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
-#[allow(unused_imports)]
 pub(crate) use operation_effect::{
     LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1,
     VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationSourceEvidenceV1,
 };
-#[allow(unused_imports)]
 pub(crate) use operation_physical_demand::{
     LoopOperationCoverageReceiptV1, LoopOperationPhysicalDemandRejectV1,
     PreparedLoopOperationProgramV1, PreparedLoopOperationRowV1, PreparedLoopOperationScheduleRowV1,
     PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
     VerifiedLoopOperationPhysicalDemandV1,
 };
-#[allow(unused_imports)]
 pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhysicalInputV1};
-#[allow(unused_imports)]
 pub(crate) use physical_layout::{
     LoopPhysicalLayoutCoverageReceiptV1, LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1,
     LoopPhysicalSegmentRoleV1, LoopPhysicalTargetV1, LoopPhysicalTransferV1,
     PreparedLoopControlSegmentV1, PreparedLoopPhysicalLayoutV1,
 };
-#[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 pub(crate) use variable_bound_mul_producer::{
     produce_variable_bound_mul_recipe_v1, VariableBoundMulRecipeRejectV1,
     VerifiedLoopHomeAfterLoanV1, VerifiedVariableBoundMulRecipeProductV1,
 };
-#[allow(unused_imports)]
 pub(crate) use recipe_draft::{
     LoopRecipeDraftProductV1, LoopRecipeDraftRejectV1, LoopRecipeDraftV1,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_prephysical_ingress::{
     issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
     S6CPrephysicalCompletionRefV2, S6CPrephysicalIngressRejectV2, S6CPrephysicalOperationRoleV2,
     VerifiedS6CPrephysicalIngressV2,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
-#[allow(unused_imports)]
 pub(crate) use s6c_scalar_scan_corridor::{S6CScalarScanSourceRefV1, S6CScalarScanSourceRejectV1};
-#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init::{
     produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
     S6CScanWithInitRecipeProductRefV2, S6CScanWithInitRecipeRolesRefV2,
     S6CVerifiedRecipeReadViewV2, VerifiedS6CJoinRoleSealV2, VerifiedS6CScanWithInitRecipeProductV2,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init_joinir::{
     with_s6c_scan_with_init_logical_join_input, S6CLogicalCallInputRefV1, S6CLogicalCallRoleV1,
     S6CLogicalJoinInputRejectV1, S6CScanWithInitLogicalJoinInputRefV1,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init_joinir_output::{
     issue_s6c_scan_with_init_logical_output_v1, S6CLogicalCallPairsRefV1,
     S6CLogicalCallWithSourceRefV1, S6CScanWithInitLogicalOutputRefV1,
     VerifiedS6CScanWithInitLogicalOutputV1,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init_joinir_output_rows::{
     S6CLogicalCallArgsV1, S6CLogicalCallSlotV1, S6CLogicalItemV1,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init_logical_consumer::{
     consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
     S6CLogicalConsumerResultV1,
 };
 pub(crate) use s6c_text_eq_occurrence::S6CTextEqOccurrenceSourceViewV1;
-#[allow(unused_imports)]
 pub(crate) use s6c_text_eq_site_contract::{
     issue_s6c_text_eq_source_binding_v1, LoopTextEqSiteRefV1, TextEqualityLawV1,
     VerifiedS6CTextEqSourceBindingV1,
 };
-#[allow(unused_imports)]
 pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,
     LoopNodeSourceBindingV1, LoopNodeV1, LoopOperationV1, LoopRecipeArtifactV1,
@@ -407,7 +358,6 @@ pub(crate) use schema::{
     LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
     LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
-#[allow(unused_imports)]
 pub(crate) use schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
     LoopOperationExecutionClassV2, LoopOperationFaultFamilyV2, LoopOperationV2,
@@ -415,26 +365,21 @@ pub(crate) use schema_v2::{
     LoopRecipeExitV2, LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2,
     LoopValueClassV2, LOOP_RECIPE_SCHEMA_VERSION_V2,
 };
-#[allow(unused_imports)]
 pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;
-#[allow(unused_imports)]
 pub(crate) use source_bound_core::{
     issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
     LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopRecipeBindingRelationV1,
     VerifiedLoopBindingEffectRelationV1, VerifiedLoopCoreProductV1,
     VerifiedLoopRecipeBindingRelationV1,
 };
-#[allow(unused_imports)]
 pub(crate) use typed_schema_v2::{
     LoopRecipeV2RejectReason, LoopRecipeVerifierV2, VerifiedLoopRecipeArtifactV2,
     VerifiedLoopRecipeV2,
 };
-#[allow(unused_imports)]
 pub(crate) use variable_accum_recurrence_producer::{
     produce_variable_accum_recurrence_recipe_v1, VariableAccumRecurrenceRecipeProducerRejectV1,
     VerifiedVariableAccumRecurrenceRecipeProductV1,
 };
-#[allow(unused_imports)]
 pub(crate) use verify::{
     verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1,
 };

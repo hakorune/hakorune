@@ -5,7 +5,6 @@ use crate::mir::{MirType, ValueId};
 
 /// 直接的に MirType を設定する（仕様不変）。
 #[inline]
-#[allow(dead_code)]
 pub fn set_type(builder: &mut MirBuilder, dst: ValueId, ty: MirType) {
     builder.function_state.type_ctx.value_types.insert(dst, ty);
 }

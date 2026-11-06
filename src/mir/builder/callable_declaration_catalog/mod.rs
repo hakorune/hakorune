@@ -15,16 +15,13 @@ mod source_backed;
 // These are intentionally disconnected S0 exports. CUT0 supplies their first
 // production producer/consumer, so keep the public module surface stable now.
 pub(crate) use brand::SameModuleCallableCatalogBrandV1;
-#[allow(unused_imports)]
 pub(crate) use catalog::{
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
 pub(crate) use error::{
     SameModuleCallableDeclarationCatalogErrorV1, SameModuleCallableDeclarationCatalogSessionErrorV1,
 };
-#[allow(unused_imports)]
 pub(crate) use key::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
-#[allow(unused_imports)]
 pub(crate) use recovery::{
     BareStaticRecoveryDecisionErrorV1, BareStaticRecoveryDecisionV1,
     BareStaticRecoveryNoRecoveryReasonV1,

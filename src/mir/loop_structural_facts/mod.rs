@@ -5,7 +5,6 @@
 mod direct_accum_effect_plan;
 mod direct_accum_exclusivity;
 mod direct_accum_observation;
-#[allow(dead_code)]
 pub(crate) mod generic_g0;
 mod generic_g0_observation;
 #[cfg(test)]
@@ -18,9 +17,7 @@ mod nested_predicate_observation;
 mod nested_predicate_source;
 mod resolved_source_adapter;
 // Caller-zero until the immediately following complete S6C Facts row.
-#[allow(dead_code)]
 mod s6c_exit_tail;
-#[allow(dead_code)]
 mod s6c_scan_with_init;
 mod selected_demand;
 mod types;
@@ -28,7 +25,6 @@ mod variable_accum_recurrence;
 mod variable_accum_recurrence_validation;
 mod variable_bound_mul;
 
-#[allow(unused_imports)]
 pub(crate) use resolved_source_adapter::{
     bind_resolved_loop_root_v1, bind_resolved_loop_source_forest_v1, LoopRootSourceBindingRejectV1,
     LoopSourceForestBindingRejectV1, VerifiedLoopRootSourceV1,
@@ -88,17 +84,14 @@ pub(crate) use nested_predicate_source::{
     NestedRootInitializerEvidenceV1, VerifiedNestedLoopSourceProjectionV1,
     VerifiedNestedLoopSourceShapeV1,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_exit_tail::{
     issue_s6c_exit_tail_source_coseal_v1, S6CExitRoleV1, S6CExitTailSourceCoSealRefV1,
     S6CExitTailSourceCoSealRejectV1, VerifiedS6CExitTailSourceCoSealV1,
 };
-#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init::{
     issue_s6c_scan_with_init_facts_v1, S6CScanWithInitFactsRefV1, S6CScanWithInitFactsRejectV1,
     VerifiedS6CScanWithInitFactsV1,
 };
-#[allow(unused_imports)]
 pub(crate) use selected_demand::{
     issue_direct_accum_structural_facts_v1, issue_selected_loop_recipe_demand_v1,
     DirectAccumFactsPayloadRejectV1, DirectAccumSingletonObservationRejectV1,
@@ -108,7 +101,6 @@ pub(crate) use selected_demand::{
 pub(crate) use types::{
     DirectAccumObservedShapeV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
 };
-#[allow(unused_imports)]
 pub(crate) use variable_accum_recurrence::{
     issue_variable_accum_recurrence_facts_v1, VariableAccumRecurrenceAccumulatorUpdateV1,
     VariableAccumRecurrenceBindingObservationV1, VariableAccumRecurrenceBindingRoleV1,
@@ -123,7 +115,6 @@ pub(crate) use variable_accum_recurrence::{
     VerifiedVariableAccumRecurrenceSourceAttemptV1,
 };
 pub(crate) use variable_accum_recurrence_validation::source_coherence_is_exact;
-#[allow(unused_imports)]
 pub(crate) use variable_bound_mul::{
     issue_variable_bound_mul_facts_v1, VariableBoundMulFactsIssueV1,
     VerifiedVariableBoundMulFactsV1,

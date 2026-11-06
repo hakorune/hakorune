@@ -47,7 +47,6 @@ pub(in crate::mir) use receipt::{
 pub(in crate::mir::builder) use root_batch::RootCollectorBatchPrepareErrorV1;
 
 /// Semantic identity for one draft admission, distinct from fact generation.
-#[allow(dead_code)] // S0 exposes every future physical identity before I0 connects callers.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::mir) enum FunctionDraftKeyV1 {
     Main,

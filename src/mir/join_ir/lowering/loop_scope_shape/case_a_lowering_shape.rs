@@ -29,7 +29,6 @@ pub enum CaseALoweringShape {
     /// - Return value: final progress carrier
     ///
     /// Signature: (StringBox, ...) -> Integer
-    #[allow(dead_code)]
     // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
     StringExamination,
 
@@ -46,7 +45,6 @@ pub enum CaseALoweringShape {
     /// - Pinned: 2+ (array, initial value, etc.)
     ///
     /// Signature: (CollectionBox, InitialValueBox, ...) -> ResultBox
-    #[allow(dead_code)]
     // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
     IterationWithAccumulation,
 

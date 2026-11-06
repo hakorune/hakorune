@@ -6,7 +6,6 @@
  * semantic `box` fields or backend-local layout guesses.
  */
 
-#![allow(dead_code)] // M1 is staged vocabulary until parser/backend consumers land.
 
 use crate::mir::numeric_substrate::{
     classify_numeric_type_name, NumericKind, NumericResolvedWidth, NumericSignedness, NumericTarget,

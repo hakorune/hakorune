@@ -21,7 +21,6 @@ mod traits;
 
 macro_rules! ny_wrap_void {
     ($name:ident, $inner:ident, $display_name:expr, $($arg_name:ident: $arg_ty:ty),*) => {
-        #[allow(unused_mut)]
         pub fn $name(&mut self, $($arg_name: $arg_ty),*) {
             self.$inner($($arg_name),*).unwrap_or_else(|e| panic!("FileHandleBox.{}() failed: {}", $display_name, e));
         }

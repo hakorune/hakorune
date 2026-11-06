@@ -96,7 +96,6 @@ mod parts;
 pub(in crate::mir::builder) use parts::exit_branch::validate_return_exit_branch_input;
 // Consumption seam for the source LoopCond sibling entry (item 6); the item
 // dispatcher stays the single physical owner while the caller slice lands.
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use parts::lower_loop_cond_source_item;
 
 #[cfg(test)]
@@ -135,13 +134,9 @@ mod plan_build_session;
 // - planner::build_plan_with_facts_ctx (Facts + recipe contract)
 // - PlanVerifier::verify (CorePlan invariants)
 // - PlanLowerer::lower (CorePlan → MIR)
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::verify::PlanVerifier;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use lowerer::PlanLowerer;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use normalizer::PlanNormalizer;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use planner::{build_plan_with_facts_ctx, PlanBuildOutcome};
 
 pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
@@ -152,7 +147,6 @@ pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
 // ============================================================================
 
 // Core types
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use self::call_source::{visit_core_call_sources_v1, CoreCallSourceV1};
 pub(in crate::mir::builder) use self::core::{
     CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoopStepMode, LoweredRecipe,

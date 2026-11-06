@@ -5,7 +5,6 @@ use crate::mir::{MirFunction, MirInstruction, ValueId};
 /// Contract: PHI group → materialize group (Copy/Id) → body (Call etc.)
 pub struct BlockScheduleBox;
 
-#[allow(dead_code)] // ASTCLEAN-015: scheduler shelf is consumed by selective emit_guard routes, not default parser guard builds.
 impl BlockScheduleBox {
     #[inline]
     fn strict_planner_required() -> bool {

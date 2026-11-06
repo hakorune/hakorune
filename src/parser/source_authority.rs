@@ -4,7 +4,6 @@
 //! prepared payload to the bounded rich parse product; the final non-Clone
 //! seal is still issued only by `source_seal` after all supported postpasses.
 
-#![allow(dead_code)]
 
 pub(super) mod constructor_source;
 mod declaration_syntax;

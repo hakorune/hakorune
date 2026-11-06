@@ -12,16 +12,12 @@ mod main_facts;
 mod matchers;
 mod model;
 
-#[allow(unused_imports)]
 pub(crate) use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-#[allow(unused_imports)]
 pub(crate) use crate::mir::thin_entry::{
     ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySurface,
     ThinEntryValueClass,
 };
-#[allow(unused_imports)]
 pub(crate) use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
-#[allow(unused_imports)]
 pub(crate) use crate::mir::{
     BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
     MirInstruction, MirModule, MirType, ValueId,

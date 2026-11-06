@@ -15,7 +15,6 @@ use std::path::Path;
 /// Main AOT backend
 pub struct AotBackend {
     compiler: AotCompiler,
-    #[allow(dead_code)]
     config: AotConfig,
 }
 

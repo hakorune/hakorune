@@ -60,12 +60,10 @@ pub mod scheduler_route;
 pub mod semantics;
 // The source-bound producer is an intentional caller-zero canary until the
 // common-V2 production edge is opened; keep its parked surface warning-free.
-#[allow(dead_code)]
 pub(crate) mod source_bound_v9_runtime;
 pub mod sync_box;
 // The source-bound scope is a caller-zero lifecycle canary until TextEq V10
 // opens; keep its parked API warning-free without making it a production arm.
-#[allow(dead_code)]
 pub(crate) mod text_eq_residence_scope;
 pub mod text_formal_abi;
 pub(crate) mod text_formal_call_lease;

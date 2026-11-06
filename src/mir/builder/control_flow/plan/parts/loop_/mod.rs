@@ -35,6 +35,4 @@ pub(crate) mod test_probe {
     }
 }
 
-#[allow(unused_imports)]
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use loop_v0::{lower_loop_v0, lower_loop_v0_core};

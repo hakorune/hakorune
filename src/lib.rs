@@ -113,7 +113,6 @@ pub mod abi {
     pub mod nyrt_shim;
     pub mod return_proof;
     pub mod runtime_decl_return_proof;
-    #[allow(dead_code)]
     pub mod text_scan_aot_export_facts;
 }
 

@@ -12,7 +12,6 @@ pub(super) fn verify_item_refs_in_range(
     item: &RecipeItem,
     context: &str,
 ) -> Result<(), String> {
-    #[allow(unreachable_patterns)]
     match item {
         RecipeItem::Stmt(r) => {
             if body.get_ref(*r).is_none() {

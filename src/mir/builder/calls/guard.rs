@@ -179,7 +179,6 @@ impl<'a> CalleeGuardBox<'a> {
     /// receiver型の検証（ヘルパー）
     ///
     /// 指定されたreceiverがBox型を持っているか確認
-    #[allow(dead_code)]
     pub fn has_box_type(&self, receiver: ValueId) -> bool {
         matches!(self.value_types.get(&receiver), Some(MirType::Box(_)))
     }
@@ -187,7 +186,6 @@ impl<'a> CalleeGuardBox<'a> {
     /// receiver型の取得（ヘルパー）
     ///
     /// 指定されたreceiverのBox型名を返す（存在しない場合はNone）
-    #[allow(dead_code)]
     pub fn get_box_type(&self, receiver: ValueId) -> Option<&String> {
         match self.value_types.get(&receiver) {
             Some(MirType::Box(box_name)) => Some(box_name),
@@ -199,7 +197,6 @@ impl<'a> CalleeGuardBox<'a> {
     ///
     /// box_name と receiver型が一致するか判定
     /// （静的メソッド呼び出しの検出用）
-    #[allow(dead_code)]
     pub fn is_me_call(&self, box_name: &str, receiver: ValueId) -> bool {
         match self.get_box_type(receiver) {
             Some(recv_box) => recv_box == box_name,

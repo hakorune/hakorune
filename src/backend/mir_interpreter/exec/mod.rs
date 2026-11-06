@@ -41,7 +41,6 @@ impl MirInterpreter {
     }
 
     // SSA-RC-A1b is a disconnected semantic-oracle entry until SSA-I1.
-    #[allow(dead_code)]
     pub(crate) fn exec_function_inner_with_verified_ownership(
         &mut self,
         function: &MirFunction,

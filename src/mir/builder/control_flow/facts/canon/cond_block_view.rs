@@ -7,7 +7,6 @@ use crate::ast::{ASTNode, Span};
 pub(crate) struct CondBlockView {
     pub(crate) prelude_stmts: Vec<ASTNode>,
     pub(crate) tail_expr: ASTNode,
-    #[allow(dead_code)]
     pub(crate) span: Span,
 }
 

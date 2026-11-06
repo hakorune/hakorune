@@ -216,7 +216,6 @@ impl VerifiedInstanceEntryHomeParameterV1 {
         self.kind.clone()
     }
 
-    #[allow(dead_code)]
     pub(crate) const fn demand(&self) -> HomeDemandV1 {
         self.demand
     }
@@ -256,12 +255,10 @@ impl VerifiedInstanceEntryHomeLoanV1 {
         }
     }
 
-    #[allow(dead_code)]
     pub(crate) const fn batch_slot(&self) -> u32 {
         self.batch_slot
     }
 
-    #[allow(dead_code)]
     pub(crate) const fn identity(&self) -> &crate::parser::CallableDeclarationIdentityV1 {
         &self.identity
     }

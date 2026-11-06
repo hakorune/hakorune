@@ -76,7 +76,6 @@ pub(super) fn with_function_frame(
 }
 
 // SSA-RC-A1b is intentionally disconnected from production until SSA-I1.
-#[allow(dead_code)]
 pub(super) fn with_verified_ownership_function_frame(
     interpreter: &mut MirInterpreter,
     function: &MirFunction,
@@ -137,7 +136,6 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
         self.finish(outcome)
     }
 
-    #[allow(dead_code)]
     fn run_verified(
         mut self,
         function: &MirFunction,
@@ -187,7 +185,6 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
         operation(self.interpreter)
     }
 
-    #[allow(dead_code)]
     fn execute_verified(
         &mut self,
         function: &MirFunction,
@@ -250,7 +247,6 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
         }
     }
 
-    #[allow(dead_code)]
     fn seed_parameters_owned(
         &mut self,
         function: &MirFunction,

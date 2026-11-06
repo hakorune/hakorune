@@ -32,11 +32,9 @@ mod home_after;
 pub(in crate::mir) use home_after::{VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use super::loop_cond::SourceLoopCondPhysicalInputV1;
 use super::loop_true;
 use super::loop_true::CallableLoopTrueSourceFactsV1;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use super::loop_true::SourceLoopTruePhysicalInputV1;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -88,7 +86,6 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'so
 #[path = "generic/issuer.rs"]
 mod issuer;
 pub(in crate::mir::builder) use issuer::issue_callable_variable_accum_recurrence;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use issuer::CallableGenericLoopSourceFactsIssuerV1;
 
 fn validate_source_input(

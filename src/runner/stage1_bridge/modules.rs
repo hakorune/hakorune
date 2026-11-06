@@ -74,7 +74,6 @@ struct Stage1ModuleEnvCacheSnapshot {
 
 #[derive(Deserialize)]
 struct EmbeddedStage1ModuleEnvSnapshot {
-    #[allow(dead_code)]
     // ASTCLEAN-017: embedded snapshot schema is accepted for cache compatibility but not inspected by runtime env projection.
     schema: Option<String>,
     modules_list: Option<String>,

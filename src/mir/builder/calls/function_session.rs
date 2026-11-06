@@ -19,7 +19,6 @@ mod terminal;
 pub(in crate::mir::builder) use payload_terminal::{
     LegacyFunctionPayloadPendingSessionV1, LegacyFunctionPayloadSessionErrorV1,
 };
-#[allow(unused_imports)] // RAWPORT0-S0 exposes the later invocation terminal without a caller.
 pub(in crate::mir::builder) use terminal::{
     CanonicalFunctionSessionRestorationReceiptV1, LegacyFunctionPendingSessionV1,
     PendingFunctionSessionCloseV1, PreparedFunctionSessionCloseV1,

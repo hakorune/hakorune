@@ -10,7 +10,6 @@ use super::{
 };
 
 #[derive(Debug)]
-#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct VerifiedSameModuleCallableDeclarationV1 {
     pub(super) key: CanonicalSameModuleCallableKeyV1,
     pub(super) params: Box<[String]>,
@@ -21,7 +20,6 @@ pub(crate) struct VerifiedSameModuleCallableDeclarationV1 {
     pub(super) attrs: DeclarationAttrs,
 }
 
-#[cfg_attr(not(test), allow(dead_code))]
 impl VerifiedSameModuleCallableDeclarationV1 {
     pub(crate) const fn key(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.key
@@ -63,7 +61,6 @@ pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1 {
     pub(super) source_backed_app_main: Option<super::source_backed::AppMainCatalogCoSealV1>,
 }
 
-#[cfg_attr(not(test), allow(dead_code))]
 impl VerifiedSameModuleCallableDeclarationCatalogV1 {
     pub(crate) fn seal_program(
         root: &ASTNode,

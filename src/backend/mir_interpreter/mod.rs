@@ -336,7 +336,6 @@ impl MirInterpreter {
     /// Check if a function name represents a static box method
     /// Format: "BoxName.method/Arity"
     /// Now uses StaticBoxRegistry naming utilities
-    #[allow(dead_code)]
     fn is_static_box_method(&self, func_name: &str) -> Option<String> {
         static_box_registry::naming::extract_box_name(func_name)
             .filter(|name| self.static_box_registry.exists(name))

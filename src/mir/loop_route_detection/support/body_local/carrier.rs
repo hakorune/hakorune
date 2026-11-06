@@ -27,7 +27,6 @@ use crate::mir::loop_route_detection::support::condition_scope::LoopConditionSco
 /// 昇格リクエスト
 pub struct PromotionRequest<'a> {
     /// ループのスコープ情報
-    #[allow(dead_code)]
     pub(crate) scope: &'a LoopScopeShape,
     /// 条件変数のスコープ分類
     pub cond_scope: &'a LoopConditionScope,

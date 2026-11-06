@@ -9,7 +9,6 @@ mod coseal;
 mod mapping;
 mod physical_demand;
 
-#[allow(unused_imports)]
 pub(in crate::mir) use coseal::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_full_loop_source_recipe_envelope_v2,
@@ -35,7 +34,6 @@ pub(in crate::mir) use coseal::{
     VerifiedDynamicInvocationCleanupProjectionV1, DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2,
     DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };
-#[allow(unused_imports)]
 pub(in crate::mir) use physical_demand::{
     issue_dynamic_full_loop_operation_physical_demand_v2, DynamicFullLoopPhysicalDemandCoverageV2,
     DynamicFullLoopPhysicalDemandRejectV2, PreparedDynamicLoopOperationProgramV2,
