@@ -51,6 +51,10 @@ box Counter {
     return flag
   }
 }
+
+static box Main {
+  main() { return 0 }
+}
 "#,
     );
 }

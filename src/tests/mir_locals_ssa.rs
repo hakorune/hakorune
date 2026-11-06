@@ -11,6 +11,7 @@ use crate::mir::MirCompiler;
 use crate::parser::NyashParser;
 
 fn with_parser_config<R>(f: impl FnOnce() -> R) -> R {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_vars(
         &[
             ("NYASH_FEATURES", Some("stage3")),
@@ -24,7 +25,7 @@ fn with_parser_config<R>(f: impl FnOnce() -> R) -> R {
 fn mir_locals_copy_instructions_emitted() {
     with_parser_config(|| {
         let src = r#"
-static box TestLocals {
+static box Main {
   main() {
     local a = 1
     local b = 2
@@ -113,7 +114,7 @@ static box TestLocals {
 fn mir_locals_uninitialized() {
     with_parser_config(|| {
         let src = r#"
-static box TestUninit {
+static box Main {
   main() {
     local x
     local y
@@ -132,9 +133,10 @@ static box TestUninit {
         eprintln!("=== MIR for uninitialized locals ===");
         eprintln!("{}", mir_output);
 
-        // Uninitialized locals should have void constants, not copy
+        // Uninitialized locals are Void-typed null constants (ConstValue::Null
+        // prints as `null`), each followed by the local's own copy.
         assert!(
-            mir_output.contains("const void"),
+            mir_output.contains("Void = const null"),
             "Uninitialized locals should have void constants"
         );
     });

@@ -231,7 +231,7 @@ fn body_position_length_with_text_evidence_arms() {
     // `TextToCaller`-minting `substring` call, so `piece.length()` at body
     // position arms beside the substring row.
     let (_, _, placements) = real_core_method_ledger_with_placements(
-        "function t(text) { local i = 0 loop(i < 2) { local piece = text.substring(0, 1) local n = piece.length() } }",
+        "function t() { local text = \"abcd\" local i = 0 loop(i < 2) { local piece = text.substring(0, 1) local n = piece.length() } }",
         2,
     );
     assert_eq!(placements.len(), 2);
