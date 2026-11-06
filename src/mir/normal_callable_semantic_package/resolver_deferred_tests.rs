@@ -297,7 +297,7 @@ fn app_main_direct_call_observation_issues_one_affine_loan() {
 fn app_main_qualified_receiver_relation_retains_exact_catalog_row() {
     let source = final_source(
         "static box Helpers { run(value: i64): i64 { return value } }\n\
-         static box Main { main() { return Helpers.run(2) } }",
+         static box Main { main() { Helpers.run(2) return 0 } }",
     );
     let mut resolver = FunctionSemanticResolverSessionV1::new(108).unwrap();
     let mut package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
@@ -410,7 +410,7 @@ fn app_main_qualified_receiver_relation_resolves_imported_alias_in_shared_view()
 fn app_main_qualified_receiver_relation_takes_exact_row_and_argument_sites_once() {
     let source = final_source(
         "static box Helpers { run(first: i64, second: i64): i64 { return first } }\n\
-         static box Main { main() { return Helpers.run(2, 3) } }",
+         static box Main { main() { Helpers.run(2, 3) return 0 } }",
     );
     let mut resolver = FunctionSemanticResolverSessionV1::new(114).unwrap();
     let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
@@ -488,7 +488,7 @@ fn app_main_qualified_receiver_relation_rejects_foreign_import_view() {
 fn app_main_qualified_receiver_package_port_is_one_shot() {
     let source = final_source(
         "static box Helpers { run(value: i64): i64 { return value } }\n\
-         static box Main { main() { return Helpers.run(2) } }",
+         static box Main { main() { Helpers.run(2) return 0 } }",
     );
     let mut resolver = FunctionSemanticResolverSessionV1::new(112).unwrap();
     let mut package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
