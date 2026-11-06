@@ -379,6 +379,14 @@ Every row was built to an EXE with the S2 binary and, when connected, run; `base
 | callee body `return x - y` over two parameters, `print(Main.b(5, 2))` (`return y` connects) | refused-named | refused-named | `published-lifecycle-program/scalar-source-coverage` |
 | terminating recursion `down(n: i64): i64 { if n < 1 { return 7 } return Main.down(n - 1) }` | refused-named | refused-named | `local-commit/root-exit-source-missing` |
 | instance method `add(x: i64): i64 { local y = x return y }` result (S3a: a local's class is its initializer's class; also `local y = x + 1 return y * 2`, `local y = me.base return y + x`) | refused-named | connected | `exit 3` (was `local-commit/artifact-source-unavailable`; the group totals above are not recomputed) |
+| static callee `local y = x return y`, `return y + y`, `local y = 0 if x > 2 { y = x } return y`, an inner-block `local y = 100` shadowing, `print(Main.a(Main.a(3)))` | connected | connected | output 4 / 8 / 4 and 0 / 100 then 4 / 3 |
+| static callee `local y = x y = y + 1 return y`, `print(Main.a(4))` | refused-named | connected (S3a) | `exit 0`, output 5 |
+| instance `f(x: i64): i64 { local y = x + 1 return y * 2 }`, `local q = c.f(1) local r = c.f(q)` | refused-named | connected (S3a) | `exit 10`, output 10 |
+| static callee `local y = Main.b(x) return y`; `local y` then `y = x` | refused-named | refused-named | `published-lifecycle-program/instruction-unsupported` |
+| static callee `local y = x * 2 local z = y - 1 return z + y` | refused-named | refused-named | `published-lifecycle-program/scalar-source-coverage` |
+| callee local updated in a `loop` and returned | refused-named | refused-named | `callable-semantic-lowering/incomplete-consumption` |
+| instance `local y = me.v return y + x` over an untyped field, or `local z = y * x` printed directly as `print(c.f(5))` | refused-named | refused-named | `local-commit/print-expression/source-unavailable` |
+| `t(x: i64): bool { return x > 1 }` | refused-named | refused-named | `UnsupportedResultAnnotation` (a `bool` result kind is not in the callable header) |
 
 A call's `I64`, `Bool` or `Unit` result is also checked against the callee's declared return type by the independent verifier (`mir/invoke/call-result-type-drift`). Object Homes are checked from the published MIR alone (`ownership_ssa/published_homes.rs`): every Normal and Fault exit must End each Home exactly once; functions that use handle results, text, a Home with several copies, edge arguments or a call with a managed operand are not modeled and make no claim. Map Homes alive across such a call stay refused (`local-call-prior-homes-unsupported`). The canonical qualified-preflight route is retired (`qualified-route-retired`); none of the 229 measured inputs reached it.
 

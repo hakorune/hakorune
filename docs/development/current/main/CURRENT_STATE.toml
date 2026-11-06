@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "APP-boxtorrent-mini"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Red tests sorted without product changes (full lib 294 to 275, 0 new, 5 product issues listed); S3a next (one owner for value classes)"
+current_blocker_token = "S3a landed (a local takes its initializer's class, one operator table); bool and String results wait for a user decision on the callable header; chain removal next"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -21,7 +21,7 @@ APP-boxtorrent-mini fixed8/8 on main at b71d33b1a4. Integrated the Sonnet stack 
 String field reads connected: print(t.f), t.f + "x", local n = t.f.length(), unannotated get() { return me.f }. Each read materializes one copy; a Fault ends field and copy once each (measured with a scratch probe, repo test owed).
 Refused for now: local s = t.f, return x.length() (Text locals too), comparing a field, String?, a : String result, String next to a typed object field, non-storing take. Ownership forms measured: 34 of the 129 forms the grammar accepts reach an EXE (status-index.md).
 Existing reds on main (a9aea1065e, measured): cohort 84 names, published_backend_view 12, Python v4 PASS 17 / FAIL 0 / unrunnable 4 (Bool and object actuals to untyped formals are refused), vm-reference debug build. cargo-deny waits on branch security-step1.
-Next (user order 2026-11-06, investigations/selfhost-call-order-consult-2026-11-06.md and the MirBuilder structure queue): S1 1de52b773a; Python v4 tests link with mold (35m33s to 2m04s); S2 662b84ffa0 and S2b da20665f36 (nested, live-Home, print, add, return and Assignment calls, x - const arguments, Home End checked from published MIR); EXE builds read the runtime archive index once (2.40 s to 0.87 s); S2c 44eae090aa (qualified i64 calls in if conditions; the Local-initializer call chain goes after S3a); red-test sort 4e3bc7318d (full lib reds 294 to 275, list in investigations/red-test-sort-2026-11-06.md); S3a next (S2b to S4 carry the 2026-11-06 restructure: one executor per call, ownership on an intent-keeping CFG, loops on the shared CFG and PhiTxn), S3 results and basic expressions with non-storing take, S4, edit (after 2026-11-08), 3b and retirement, builder survey, .hako parser parity, selfhost.
+Next (user order 2026-11-06, investigations/selfhost-call-order-consult-2026-11-06.md and the MirBuilder structure queue): S1 1de52b773a; Python v4 tests link with mold; S2 662b84ffa0 and S2b da20665f36; EXE builds read the runtime archive index once; S2c 44eae090aa (qualified i64 calls in if conditions; the Local-initializer call chain goes after S3a); red-test sort 4e3bc7318d (full lib reds 294 to 275, list in investigations/red-test-sort-2026-11-06.md); S3a 54d389986e (a local takes its initializer's class, one operator table; bool and String results wait on the callable header); removing the Local-initializer call chain next (S2b to S4 carry the 2026-11-06 restructure: one executor per call, ownership on an intent-keeping CFG, loops on the shared CFG and PhiTxn), S3 results and basic expressions with non-storing take, S4, edit (after 2026-11-08), 3b and retirement, builder survey, .hako parser parity, selfhost.
 """
 next_design_card = "none"
 next_design_card_path = "none"
