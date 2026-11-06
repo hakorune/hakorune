@@ -237,6 +237,8 @@ Removal order decision (accepted, docs-only):
 
 ## Loop owner split (current compiler cleanliness direction)
 
+> Superseded 2026-11-06 (user decision): the whole-pipeline direction, including loops, is now the section「流れの作り直し」of [the MirBuilder structure queue](../investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md), with the survey and review in [the route-selection record](../investigations/mirbuilder-route-selection-survey-2026-11-06.md). The flow below is kept as history; `PhiMaterializer` grew per family instead of as one owner.
+
 loop 系の current cleanup target は、semantic lowering から PHI/dominance repair を剥がして owner を分離すること。
 
 ### Intended flow

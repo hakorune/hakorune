@@ -190,8 +190,8 @@ JSON着地後のレビュー（2026-10-28、読取りworker3人。未実行）�
 | --- | --- | --- | --- |
 | S1 | 述語、封印、結果の写し、`precedes`の統合。token cursorのparser経路の撤退（ユーザー決定）。caller 0の関数の削除 | 変えない（拒否の名前だけ） | 固定suite、比較入力の受理と拒否の入れ替わり0、cohortの新しい赤0、production純減 |
 | S2 | 順番の①。位置の制限、生きたHome、methodの結果、`x - 定数`、loopの中の呼び出し。`qualified-preflight`の旧経路を、今通る形を測って移してから撤退。`DeclaredInstanceLocatorNotConsumed`の検査へbuilderの経路から届かせる | 広がる | Normal、後の引数のFault、呼ばれた後のFaultのEnd、MIR改変の拒否。`ordinary_new_*`のfileを増やさない |
-| S3 | 順番の②。`: bool`と`: String`の入口、演算の表、基本の式、container | 広がる | 各形のEXEとEnd。公開MIRの追加が要れば止めて聞く |
-| S4 | 形×段階の整理。compareとmul、static finishの共通の2句、loopの位置別loan | 変えない | 消えた型と関数の名前、production純減 |
+| S3 | 順番の②。`: bool`と`: String`の入口、演算の表、基本の式、container。中身は下の「流れの作り直し」のS3も含む | 広がる | 各形のEXEとEnd。公開MIRの追加が要れば止めて聞く |
+| S4 | 形×段階の整理。compareとmul、static finishの共通の2句、loopの位置別loan。中身は下の「流れの作り直し」のS4（loopの統合）を含む | 変えない | 消えた型と関数の名前、production純減 |
 
 3bで撤退: `legacy_port.rs`、`raw_ordinary_new_claim`のlegacyのimpl、`birth-global-legacy-stopped`、`FromCall`、RustのWASM backend（2026-11-06ユーザー決定、[WASM roadmap](../design/wasm-hako-only-output-roadmap-ssot.md)）。撤退しない: `MirFinishScheduleV1::Legacy`（今の既定の経路）、`resolved_semantics/shadow/`、`resolved_lowering/`（canonicalのCFGとSSAを多くの所が使う）。micro seedのplan群は公開JSONの契約に関わるのでユーザー判断。
 
@@ -220,6 +220,21 @@ S2着地（2026-11-06、Sonnet実装・Opus監査、`5b82d1db73`、docs `662b84f
 - 直す順: Cの必須検査を保つ → S2でRustに呼び出しの結果型の独立検査を足す → objectの資源の検証を全関数へ一般化する（結果の所有の契約、`initially_published`を公開の構築契約と実commitから照合する形へ）→ 対応検査との依存を整理する。
 - Rustへ寄せること自体は独立性を生まない。Cの意味の検査を外すのは、新しい検証が同じ違反を実MIRから拒否し、公開の入力経路すべてで迂回できず、検証後の変換とJSON化の不整合も検出できると確かめた規則だけ。
 - S2の最初の完了単位: 生きたobjectのHomeを持つcallerで、型付き呼び出しの結果を別の呼び出しの引数に使う。正規EXE、Normal・後の引数のFault・callee入場後のFaultのEnd、MIR改変の拒否（結果型、Fault側のEnd欠落、二重End。呼び出しの欠落は対応検査）、対象のsource判断の出し手をn個から1個へ、置き換えた旧edgeのcaller 0。削除した責務と追加した責務は分けて報告する。
+
+## 流れの作り直し（2026-11-06、ユーザー承認、ChatGPT Proの検討）
+
+調査とProの意見は[経路の選び方の調査](mirbuilder-route-selection-survey-2026-11-06.md)。構文の種類で分ける所は既に一か所ずつで、問題はその下で「誰が受け持つか」を先着の連鎖や形ごとの観測で選び、状態の更新と混ぜていること。承認済みの順番は変えず、S2bからS4を作り直しの段階として使う。
+
+目標の流れ: 型と宣言の契約を確定し、sourceの意図（明示のmove/share/take/copy、Binding・Place・source site、スコープ、cleanupの登録順、評価順、commitの契約）を保持した未公開の関数CFGを作る → そのCFGの上のdataflow（loopは不動点）で、使えるbinding、生きた所有の責任・移転待ち・移転済み、借用、各Normal/Fault辺のEndを求め、既存のcleanupの部品でEndを具体化する → cleanupのFault辺まで含めて既存のCFG・PHIの持ち主（`CanonicalCfgSessionV1`、`PhiTxn`）で確定する → source対応検査と公開MIRの独立検証。sealを先に閉じない。独立のverifierをEndの生成器と兼ねない。
+
+| 段階 | 中身 | 完了の条件 |
+| --- | --- | --- |
+| S2b | 一つの呼び出しに実行の担当を一つ。構造上の位置を`ExpressionPlanRootV1`で一度決め、誰が処理するかを別に一度だけ決めて呼び出しの観測が持つ。冪等なroute記録をその選択へ統合する。対象範囲の先着のemitの連鎖を消す | Assignmentや条件への呼び出しが位置ごとの新しいproducerなしで動き、選択と実行が一回、旧判定が同じseriesで消える。表で旧い連鎖を包んだだけなら未完了 |
+| S3 | 型と演算の契約を共通にする（値の種類の再判定をなくす、演算子の表を一つ）。呼び出しと分岐の所有の状態とFaultのcleanupを、意図を保持したCFGの解析へ移す最初の責務を一つ | 新しい使い先をつないだ時に、新しい分類器とcleanupの持ち主が増えない |
+| S4 | loopを既存の`operations + inputs`、CFG、JoinSig、`PhiTxn`へまとめ、call・Fault・Text/Dynamicの値・借用・cleanupを共通の操作契約に移して、family別のincomingの計算と入口を消す。`route_loop`にはresolverのsiteを入口から渡す | 移した範囲のfamily別の計算とlowering（`PlanLowerer`と`loop_recipe_physicalizer`の重なり）が消える |
+| `edit`とADRの残り | 同じPlace・所有の状態・commit・cleanupの仕組みに足す。形ごとの観測に埋め込まない | |
+
+移行中の決まり: 同じpipelineの中で効果を発行する前に担当を一意に決める、新旧の範囲を重ねない、選択後の失敗はエラーで再選択しない、移した範囲の旧判定と専有adapterを同じseriesで消す（[in-place policy](../design/mirbuilder-inplace-replacement-policy-ssot.md)の「bounded branch」）。先着の連鎖を「全部に聞いて2つなら拒否」に単純に変えない（優先順で通っていた入力を落としうる。優先が要るならまず明示の選択規則にする）。builderの調査は3bの後まで待たず、触る所ごとに調べる・置き換える・消すを一組で行う。規模は、呼び出しとloopをまとめた時に実際に減った量を測ってから見積もる。
 
 ## Remaining parked responsibilities
 
