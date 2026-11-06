@@ -243,8 +243,10 @@ allocation Fault tests generated control, not recoverable native OOM.
 
 NativeArray requires exact definitions of the five checked exports plus
 `nyrt_handle_release_h` in the selected archive. The existing descriptor/session
-owner reads one checked `nm` inventory; absent, undefined-only, ambiguous/local/
-data/prefix matches reject. Pair has no Array-symbol requirement. Frame/entry
+owner reads the archive's GNU symbol index and the defining member's ELF symbol
+table (no `nm` since 2026-11-06; an archive without a GNU index is rejected, and
+the census agreed with `nm` on the real archives when it was introduced); absent,
+undefined-only, ambiguous/local/data/prefix matches reject. Pair has no Array-symbol requirement. Frame/entry
 layout compatibility alone cannot imply these symbol capabilities.
 
 ## Final input and native C execution
