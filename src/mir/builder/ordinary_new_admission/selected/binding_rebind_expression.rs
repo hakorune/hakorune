@@ -13,6 +13,7 @@ pub(in crate::mir::builder) fn emit(
     frame: Rc<CheckedBindingRebindFrameV1>,
     source_loop: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     consume_receiver: &dyn Fn(&LexicalInstanceCallDispositionRowV1) -> Result<(), String>,
+    static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
     let destination = CheckedRebindDestinationV1::prepare(builder, state, ledger, Rc::clone(&frame))?;
     let name = destination.name().to_owned();
@@ -40,7 +41,7 @@ pub(in crate::mir::builder) fn emit(
         call: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1,
         acquired: &[(usize, ValueId)], values: &[Option<EvaluatedExpressionValueV1>], bindings: &mut Vec<(BasicBlockId, MirInstruction)>|
         terminal_call::emit_expression_call(builder, state, ledger, frame.evaluation(), call,
-            acquired, values, bindings, consume_receiver, None);
+            acquired, values, bindings, consume_receiver, static_source);
     let mut expression = match &unwind {
         Some(unwind) => expression_value::emit_with_prior_home_unwind(builder, state, ledger, frame.evaluation(), unwind, &mut emit_call)?,
         None => expression_value::emit(builder, state, ledger, frame.evaluation(), &mut emit_call)?,

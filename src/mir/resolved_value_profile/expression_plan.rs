@@ -163,6 +163,14 @@ impl ExpressionSourcePlanV1 {
         let mut unique = BTreeSet::new();
         homes.iter().all(|home| home.owner() == self.owner && unique.insert(home.binding()))
     }
+    /// A Call sits below an operation node (Binary), so a direct-argument
+    /// walk from the root Call cannot reach it.
+    pub(crate) fn has_call_below_operation_v1(&self) -> bool {
+        self.nodes.iter().filter(|node| node.binary().is_some()).any(|operation| {
+            self.nodes.iter().any(|call| matches!(call.source(), ExpressionNodeSourceV1::MethodCall)
+                && call.site().node().segments().starts_with(operation.site().node().segments()))
+        })
+    }
     /// Exact original containment, including inputs delegated to another Call.
     /// This locates a source container; it grants no execution or packet loan.
     pub(crate) fn contains_call_site_v1(&self, site: &crate::mir::resolved_semantics::OwnedExprSiteV1) -> bool {

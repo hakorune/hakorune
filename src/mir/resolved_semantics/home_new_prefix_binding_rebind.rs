@@ -54,9 +54,17 @@ pub(super) fn observe<E>(
         return Ok(false);
     };
     let owned = OwnedExprSiteV1::new(input.owner(), assignment.value_site().clone());
-    local_call_flow::stage_argument_expressions(
-        input, statement, &owned, locals, known, homes, calls, path_calls, fields, actuals,
-    )?;
+    // A Call below an operation of the right-hand side is not a direct argument
+    // of the root Call; stage every Call in source order.
+    let staged_whole = source.has_call_below_operation_v1()
+        && local_call_flow::stage_expression_actuals_v1(
+            input, statement, &source, locals, known, homes, calls, path_calls, fields, actuals,
+        )?;
+    if !staged_whole {
+        local_call_flow::stage_argument_expressions(
+            input, statement, &owned, locals, known, homes, calls, path_calls, fields, actuals,
+        )?;
+    }
     let Some(prepared) = expression_plan::prepare_expression_calls_v1(
         &source,
         expression_plan::ExpressionLeafProfileV1::BindingRebind,

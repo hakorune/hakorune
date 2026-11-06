@@ -758,12 +758,11 @@ fn nested_failed_actuals_remain_terminal_for_real_consumers() {
 }
 
 #[test]
-fn nested_observer_does_not_claim_calls_inside_binary_argument_subtrees() {
+fn whole_expression_staging_observes_calls_inside_binary_argument_subtrees() {
+    // A Call below an operation is not a direct argument of the root Call; the
+    // Local initializer stages every Call of its plan, so the inner Call is observed.
     let package = nested_package("p", "local out = recv.wrap(recv.probe(true) + 1) return 0");
-    assert_nested_consumers(
-        package,
-        Some("borrowed-actual/selected-incoming-unobserved"),
-    );
+    assert_nested_consumers(package, None);
 }
 
 fn assert_package_rejected(source: &str, terminal: &str) {

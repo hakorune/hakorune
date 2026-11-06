@@ -288,18 +288,33 @@ pub(super) fn observe<'a, E>(
             }
             continue;
         }
-        local_call_flow::stage_argument_expressions(
-            input,
-            &statement,
-            &owned,
-            locals,
-            unavailable.is_none(),
-            homes,
-            local_calls,
-            path_calls,
-            local_field_read,
-            borrowed_actuals,
-        )?;
+        // A Call below an operation of the initializer is not a direct argument
+        // of the root Call; stage every Call in source order, as the other
+        // whole-expression consumers do.
+        let whole = input.forest().callable_source_ledger(input.owner()).ok()
+            .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
+            .filter(|plan| plan.has_call_below_operation_v1());
+        let staged_whole = match &whole {
+            Some(plan) => local_call_flow::stage_expression_actuals_v1(
+                input, &statement, plan, locals, unavailable.is_none(), homes,
+                local_calls, path_calls, local_field_read, borrowed_actuals,
+            )?,
+            None => false,
+        };
+        if !staged_whole {
+            local_call_flow::stage_argument_expressions(
+                input,
+                &statement,
+                &owned,
+                locals,
+                unavailable.is_none(),
+                homes,
+                local_calls,
+                path_calls,
+                local_field_read,
+                borrowed_actuals,
+            )?;
+        }
         if mixed_call::observe(
             input,
             statement.site(),

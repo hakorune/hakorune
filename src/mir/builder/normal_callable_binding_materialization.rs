@@ -119,13 +119,22 @@ impl RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         input: ASTNode,
     ) -> Result<ValueId, String> {
-        if let (Some(claims), Some(state)) = (&self.ordinary_new_claim_ledger, &self.callable_ledger) {
+        if let (Some(claims), Some(state)) = (self.ordinary_new_claim_ledger.clone(), self.callable_ledger.clone()) {
             let site = self.current_callable_site_v1("rebind-expression/statement-site")?;
             let frame = claims.rebind_expression_frame_v1(state.borrow().owner(), &site)?;
             if let Some(frame) = frame {
                 let consume = self.lexical_self_receiver_locator_consumer_v1()?;
+                let source_loop = self.active_source_loop_product.clone();
+                let port = std::cell::RefCell::new(&mut *self);
+                let issue_static = |builder: &mut MirBuilder,
+                    original: &std::rc::Rc<crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1>,
+                    frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+                    observation: &crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1| {
+                    super::static_result_publication_ingress::take_expression_static_packet_v1(
+                        &mut port.borrow_mut(), builder, original, frame, observation, &claims)
+                };
                 return super::ordinary_new_admission::selected::binding_rebind_expression::emit(
-                    builder, &mut state.borrow_mut(), claims, frame, self.active_source_loop_product.clone(), &consume);
+                    builder, &mut state.borrow_mut(), &claims, frame, source_loop, &consume, Some(&issue_static));
             }
         }
         let role = match &input {
