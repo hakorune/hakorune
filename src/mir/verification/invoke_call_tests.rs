@@ -467,3 +467,49 @@ fn cataloged_call_rejects_i64_result_when_callee_declares_another_type() {
         .verify_module(&call_module(cataloged_callee(crate::mir::MirType::Integer)))
         .unwrap();
 }
+
+#[test]
+fn cataloged_call_checks_bool_and_unit_results_against_the_callee_declaration() {
+    use crate::mir::MirType;
+    // (named kind, the return type the callee must declare, a wrong one)
+    for (kind, declared, wrong) in [
+        (ResultKind::Bool, MirType::Bool, MirType::Integer),
+        (ResultKind::Unit, MirType::Void, MirType::Integer),
+    ] {
+        let unit = kind == ResultKind::Unit;
+        let module_for = |callee_return: MirType| {
+            let mut callee = cataloged_callee(MirType::Integer);
+            if unit {
+                // Unit is published on the instance edge: the callee takes the receiver first.
+                callee.0 = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Worker", "run", 1);
+                callee.1.signature.name = callee.0.mir_symbol_projection();
+                callee.1.signature.params = vec![MirType::Box("Worker".into()), MirType::Integer];
+            }
+            callee.1.signature.return_type = callee_return;
+            let key = callee.0.clone();
+            let mut module = call_module(callee);
+            let caller = module.functions.get_mut("invoke_control_test").unwrap();
+            let MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. } =
+                caller.blocks.get_mut(&BasicBlockId::new(1)).unwrap().terminator.as_mut().unwrap()
+            else { unreachable!() };
+            *result = kind.clone();
+            if unit {
+                call.callee = Callee::SameModuleInstance { key, receiver: ValueId::new(1) };
+                // Unit has a real Normal edge but owns no value projection.
+                let normal = caller.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+                normal.instructions.clear();
+                normal.instruction_spans.clear();
+                normal.terminator = Some(MirInstruction::Return { value: None });
+            }
+            module
+        };
+        MirVerifier::new().verify_module(&module_for(declared.clone())).unwrap_or_else(|errors| {
+            panic!("{kind:?} with a matching callee must pass: {errors:?}")
+        });
+        let errors = MirVerifier::new().verify_module(&module_for(wrong.clone())).unwrap_err();
+        assert!(
+            format!("{errors:?}").contains("call-result-type-drift"),
+            "{kind:?} against {wrong:?}: {errors:?}"
+        );
+    }
+}

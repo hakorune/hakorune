@@ -1,14 +1,13 @@
 //! Source lifecycle contracts over the shared ownership test fixtures.
 use super::*;
 
-#[test]
-fn new_home_alias_ends_once_across_normal_and_fault_edges() {
+/// One Home: NewBox, Birth, a published alias, one End on Normal and the
+/// matching Reclaim on the Birth Fault edge. Block 4 is the Fault End.
+fn new_home_fixture() -> (MirFunction, hakorune_mir_defs::CanonicalObjectIdV1) {
     use crate::mir::instruction::{BirthInvokeV1, InvokeOperation};
     let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();
     let (mut function, _) = function(&[], 9);
-    let owner = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
-    let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), vec![], FunctionResultOwnershipV1::None)
-        .with_source_aliases([(value(11), value(10))].into_iter().collect());
+    function.signature.return_type = MirType::Void;
     function.get_block_mut(bb(0)).unwrap().add_instruction(MirInstruction::FaultFrameEnter {
         dst: value(9), mode: crate::mir::instruction::FaultFrameMode::RootOwned,
     });
@@ -29,6 +28,16 @@ fn new_home_alias_ends_once_across_normal_and_fault_edges() {
     for id in [2, 5, 6, 7, 8] {
         function.get_block_mut(bb(id)).unwrap().set_terminator(MirInstruction::Return { value: None });
     }
+    (function, object)
+}
+
+#[test]
+fn new_home_alias_ends_once_across_normal_and_fault_edges() {
+    use crate::mir::instruction::InvokeOperation;
+    let (mut function, object) = new_home_fixture();
+    let owner = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
+    let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), vec![], FunctionResultOwnershipV1::None)
+        .with_source_aliases([(value(11), value(10))].into_iter().collect());
     assert!(verify_ownership_ssa_v1(&function, &abi).is_ok());
     let mut same_edge = function.clone();
     if let Some(MirInstruction::Invoke { fault_landing, .. }) = &mut same_edge.get_block_mut(bb(1)).unwrap().terminator {
@@ -141,4 +150,39 @@ fn hand_assembled_birth_take_permission_is_the_declared_ordinal_only() {
     }
     let both = base_abi.with_source_birth_takes([(key, [0u32, 1].into_iter().collect())].into_iter().collect());
     assert!(matches!(verify_ownership_ssa_v1(&twice, &both), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })), "one value cannot be taken twice");
+}
+
+/// The published-MIR check derives its own aliases and publication from the
+/// NewBox, Birth and Copy instructions: no generator type feeds it. A Fault
+/// End that is missing or doubled, or a Normal End that is missing, is refused
+/// on the hand-assembled MIR; the unmodified MIR passes.
+#[test]
+fn published_homes_derive_their_inputs_and_refuse_a_missing_or_doubled_end() {
+    use crate::mir::instruction::InvokeOperation;
+    use super::published_homes::{verify_published_object_homes_v1 as check, PublishedHomeVerdictV1 as Verdict};
+    let owner = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
+    let (births, calls) = (Default::default(), Default::default());
+    let (function, object) = new_home_fixture();
+    assert_eq!(check(&function, owner, &births, &calls), Ok(Verdict::Verified));
+
+    let mut missing_fault_end = function.clone();
+    missing_fault_end.get_block_mut(bb(4)).unwrap().set_terminator(MirInstruction::Return { value: None });
+    missing_fault_end.blocks.retain(|id, _| *id != bb(7) && *id != bb(8));
+    assert!(matches!(check(&missing_fault_end, owner, &births, &calls), Err(OwnershipSsaErrorV1::MissingDispositionAtExit { .. })));
+
+    let mut doubled_fault_end = function.clone();
+    invoke(&mut doubled_fault_end, 7, InvokeOperation::ReclaimUnpublished { object, value: value(10) }, 8, 8);
+    assert!(matches!(check(&doubled_fault_end, owner, &births, &calls), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
+
+    let mut missing_normal_end = function.clone();
+    missing_normal_end.get_block_mut(bb(3)).unwrap().set_terminator(MirInstruction::Return { value: None });
+    missing_normal_end.blocks.retain(|id, _| *id != bb(5) && *id != bb(6));
+    assert!(matches!(check(&missing_normal_end, owner, &births, &calls), Err(OwnershipSsaErrorV1::MissingDispositionAtExit { .. })));
+
+    // No claim is made about a function the verifier cannot model.
+    let mut float_parameter = function.clone();
+    float_parameter.signature.params.push(MirType::Float);
+    assert_eq!(check(&float_parameter, owner, &births, &calls), Ok(Verdict::OutsideModel));
+    let (without_home, _) = self::function(&[], 2);
+    assert_eq!(check(&without_home, owner, &births, &calls), Ok(Verdict::NoHomes));
 }

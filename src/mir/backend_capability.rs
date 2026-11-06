@@ -104,6 +104,10 @@ fn verify_source_moves_on_published_mir(
         if take_call { remaining.insert(owner); }
         let Some((aliases, initially_published)) = source.move_ownership_aliases_v1(owner, physical.function(), take_call || take_entries.contains(&owner))? else {
             if has_shared(physical.function()) { return Err("[ownership/shared-owner-missing]".into()); }
+            if matches!(physical.role(), Role::Root { .. } | Role::OrdinaryI64 { .. } | Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. }) {
+                crate::mir::ownership_ssa::verify_published_object_homes_v1(physical.function(), owner, &birth_takes, &take_calls)
+                    .map_err(|error| format!("[ownership/published-homes] {error:?}"))?;
+            }
             continue;
         };
         if !matches!(physical.role(), Role::Root { .. } | Role::OrdinaryI64 { .. } | Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. }) {

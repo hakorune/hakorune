@@ -83,6 +83,15 @@ pub(super) fn verify(
                 return Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { block: block.id });
             }
             process_instruction(block_id, instruction, &kinds, abi, &mut live)?;
+            if let (true, MirInstruction::ObjectFieldGet { base, field, .. }) = (abi.owner().is_source(), instruction) {
+                let value = *abi.aliases().get(base).unwrap_or(base);
+                let valid = match kinds.get(&value) {
+                    Some(MirOwnershipKindV1::Owned) => objects.get(&value) == Some(&(field.object(), ObjectStage::Published)),
+                    Some(MirOwnershipKindV1::Borrowed) => true,
+                    _ => false,
+                };
+                if !valid { return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value }); }
+            }
             if abi.owner().is_source() {
                 if let MirInstruction::InvokeNormalResult { invoke_block, dst } = instruction {
                     if let Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::NewBox { object }, .. }) =
@@ -398,6 +407,12 @@ fn process_instruction(
         }
         MirInstruction::Copy { dst, src } if abi.aliases().get(dst) == Some(src) => {
             require_live_if_owned(block, *src, kinds, live)?;
+            return Ok(());
+        }
+        // A scalar read keeps its base; the exact object stage is checked
+        // by the block walk, which owns the per-path object states.
+        MirInstruction::ObjectFieldGet { base, .. } => {
+            require_live_if_owned(block, *abi.aliases().get(base).unwrap_or(base), kinds, live)?;
             return Ok(());
         }
         MirInstruction::CopyOwned { dst, src } => {

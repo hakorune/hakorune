@@ -157,7 +157,7 @@ pub(super) fn check_call_edge(
     }
 }
 
-/// An `I64` Call result must be what the cataloged callee's published signature
+/// A scalar (`I64`, `Bool` or `Unit`) Call result must be what the cataloged callee's published signature
 /// declares. The caller's Invoke only names the kind; the callee definition is
 /// the independent authority, so a result kind that disagrees with the callee's
 /// declared return type is drift (the same edge the C shim corroborates).
@@ -170,19 +170,26 @@ pub(super) fn check_call_result(
     edge_policy: CatalogedCallEdgePolicyV1,
     errors: &mut Vec<VerificationError>,
 ) {
-    if matches!(edge_policy, CatalogedCallEdgePolicyV1::Document)
-        || result != crate::mir::instruction::InvokeCallResultKind::I64
-    {
+    use crate::mir::instruction::InvokeCallResultKind as Kind;
+    // Only the scalar kinds name a return type the callee must declare; owned
+    // string, carrier and Map results carry their own lifecycle contracts.
+    let declared = match result {
+        Kind::I64 => crate::mir::MirType::Integer,
+        Kind::Bool => crate::mir::MirType::Bool,
+        Kind::Unit => crate::mir::MirType::Void,
+        _ => return,
+    };
+    if matches!(edge_policy, CatalogedCallEdgePolicyV1::Document) {
         return;
     }
     let Some((callee, _)) = cataloged_call_target(module, call) else {
         return;
     };
-    if callee.signature.return_type != crate::mir::MirType::Integer {
+    if callee.signature.return_type != declared {
         errors.push(VerificationError::ControlFlowError {
             block,
             reason: format!(
-                "[freeze:contract][mir/invoke/call-result-type-drift] caller={} callee={} result=I64 declared={:?}",
+                "[freeze:contract][mir/invoke/call-result-type-drift] caller={} callee={} result={result:?} declared={:?}",
                 function.signature.name, callee.signature.name, callee.signature.return_type
             ),
         });

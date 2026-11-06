@@ -67,7 +67,7 @@ pub(super) fn classify(
                             MirInstruction::Const { value: crate::mir::ConstValue::Integer(_) | crate::mir::ConstValue::Bool(_) | crate::mir::ConstValue::Void | crate::mir::ConstValue::Null, .. }
                             | MirInstruction::BinOp { .. } | MirInstruction::UnaryOp { .. }
                             | MirInstruction::Compare { .. } | MirInstruction::Copy { .. }
-                            | MirInstruction::FaultFrameEnter { .. }) {
+                            | MirInstruction::FaultFrameEnter { .. } | MirInstruction::ObjectFieldGet { .. }) {
                             return Err(OwnershipSsaErrorV1::UnsupportedManagedInstruction { block: block.id });
                         }
                         insert_kind(&mut kinds, dst, MirOwnershipKindV1::None)?;
