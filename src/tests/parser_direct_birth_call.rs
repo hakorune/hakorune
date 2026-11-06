@@ -48,8 +48,10 @@ box Page {
 }
 
 #[test]
-fn parser_birth_keeps_parent_constructor_delegation() {
-    NyashParser::parse_from_string(
+fn parser_birth_rejects_parent_delegation_with_arguments() {
+    // `from Parent.birth(name)` is outside the closed `from IDENT . IDENT ( )`
+    // transport form (phase-296x/archive/3466), so it is a named rejection.
+    let error = NyashParser::parse_from_string(
         r#"
 box Parent {
   birth(name) {
@@ -63,5 +65,9 @@ box Child {
 }
 "#,
     )
-    .expect("parent constructor delegation remains valid");
+    .expect_err("parent delegation with arguments is not a closed transport form");
+    assert!(
+        format!("{error:?}").contains("parser/from_transport_not_closed_form"),
+        "unexpected rejection: {error:?}"
+    );
 }
