@@ -66,6 +66,23 @@ pub(super) enum BorrowedResultClassV1 {
     Nullable,
 }
 
+impl BorrowedResultClassV1 {
+    /// R2: the declaration agrees with this retained scalar class. The one table for I64 and Bool;
+    /// every other class has no scalar declaration to agree with.
+    pub(super) fn declaration_agrees_v1(
+        self,
+        result: Option<crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1>,
+        completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    ) -> bool {
+        use crate::mir::normal_callable_semantic_package::result_contract::{declared_bool_source_agrees_v1, declared_i64_source_agrees_v1};
+        match self {
+            Self::I64 => declared_i64_source_agrees_v1(result, completion),
+            Self::Bool => declared_bool_source_agrees_v1(result, completion),
+            Self::UnresolvedScalar | Self::Nullable => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedResultSourceFactsV1 {
     pub(super) returns: Box<[OwnedExprSiteV1]>,
@@ -210,8 +227,7 @@ fn source_result_contract_agrees_v1(
         // The declaration must agree with the retained source class. Unannotated
         // is not Void, and class agreement never grants executable permission.
         let result_agrees = match proof.class {
-            BorrowedResultClassV1::I64 => borrowed.declared_result_agrees_with_i64_source(),
-            BorrowedResultClassV1::Bool => borrowed.declared_result_agrees_with_bool_source(),
+            BorrowedResultClassV1::I64 | BorrowedResultClassV1::Bool => proof.class.declaration_agrees_v1(row.result(), completion),
             BorrowedResultClassV1::UnresolvedScalar => false,
             BorrowedResultClassV1::Nullable => {
                 row.result().is_none()

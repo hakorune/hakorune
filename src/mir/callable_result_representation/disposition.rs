@@ -4,6 +4,8 @@ use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CallableResultUnavailableReasonV1 {
     DeclaredNonI64Result,
+    /// A declared result type that the body's own return proof does not produce.
+    DeclaredResultDisagrees,
     NoValueReturn,
     MissingReturn,
     KnownNonI64Return,

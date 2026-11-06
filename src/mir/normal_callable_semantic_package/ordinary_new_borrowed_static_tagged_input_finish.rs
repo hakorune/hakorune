@@ -378,7 +378,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .borrow();
             if result.owner() != formal.owner()
                 || !result.identity().same_as(identity)
-                || !result.declared_result_agrees_with_i64_source()
+                || !result.declared_result_agrees_with_scalar_source()
                 || !std::ptr::eq(result.completion(), completion.as_ref())
             {
                 return Err(freeze("static-tagged/result-completion-drift"));

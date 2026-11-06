@@ -429,3 +429,37 @@ fn actual_parser_wrapper_waits_for_canonical_call_target_projection() {
         );
     }
 }
+
+/// R1/R2: a declared `Bool` is proved against its body and must come out `ExactBool`; a declared
+/// `i64` keeps its early answer. The declaration is never read back from the body.
+#[test]
+fn declared_bool_result_must_be_proved_exact_bool_by_its_body() {
+    let source = r#"static box DeclaredBoolV1 {
+        literal(): Bool { return true }
+        equals(x): Bool { return x == " " }
+        arithmetic(x): Bool { return x + 1 }
+        integer(): Bool { return 1 }
+        text(): Bool { return "x" }
+        mixed(x): Bool { if x == 0 { return true } return 1 }
+        declared_i64(): i64 { return 1 }
+    }"#;
+    for (method, arity) in [("literal", 0), ("equals", 1)] {
+        assert_eq!(disposition(source, "DeclaredBoolV1", method, arity), VerifiedCallableResultDispositionV1::ExactBool, "{method}");
+    }
+    for (method, arity) in [("arithmetic", 1), ("integer", 0), ("text", 0)] {
+        assert_eq!(
+            disposition(source, "DeclaredBoolV1", method, arity),
+            VerifiedCallableResultDispositionV1::Unavailable(CallableResultUnavailableReasonV1::DeclaredResultDisagrees),
+            "{method}"
+        );
+    }
+    // A body that already conflicts with itself keeps its own named reason.
+    assert_eq!(
+        disposition(source, "DeclaredBoolV1", "mixed", 1),
+        VerifiedCallableResultDispositionV1::Unavailable(CallableResultUnavailableReasonV1::ConflictingReturnRepresentations)
+    );
+    assert!(matches!(
+        disposition(source, "DeclaredBoolV1", "declared_i64", 0),
+        VerifiedCallableResultDispositionV1::ExactI64 { .. }
+    ));
+}

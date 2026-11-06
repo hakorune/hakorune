@@ -453,8 +453,8 @@ fn cataloged_call_accepts_i64_argument_contract() {
 #[test]
 fn cataloged_call_rejects_i64_result_when_callee_declares_another_type() {
     // The Invoke names the result kind; the callee's published return type is
-    // the independent authority. Any non-Integer declaration is drift.
-    for declared in [crate::mir::MirType::Void, crate::mir::MirType::Box("Worker".into())] {
+    // the independent authority. Any non-Integer declaration is drift, a declared `Bool` included.
+    for declared in [crate::mir::MirType::Void, crate::mir::MirType::Bool, crate::mir::MirType::Box("Worker".into())] {
         let mut callee = cataloged_callee(crate::mir::MirType::Integer);
         callee.1.signature.return_type = declared.clone();
         let errors = MirVerifier::new().verify_module(&call_module(callee)).unwrap_err();

@@ -414,7 +414,7 @@ fn validate_exact_i64_header(
     }
     let result = match view.return_type_name() {
         Some(name) => Some(
-            ExactTrivialScalarAbiV1::classify(name)
+            ExactTrivialScalarAbiV1::classify_result(name)
                 .ok_or(CallableIndexSealErrorV1::ReturnTypeOutsideProfile)?,
         ),
         None => None,

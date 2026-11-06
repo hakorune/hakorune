@@ -512,3 +512,6 @@ mod tests;
 #[cfg(test)]
 #[path = "physical_program_json_text_read_tests.rs"]
 mod text_read_tests;
+#[cfg(test)]
+#[path = "physical_program_json_bool_result_tests.rs"]
+mod bool_result_tests;

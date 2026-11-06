@@ -628,11 +628,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let result = crate::mir::normal_callable_semantic_package::result_contract::validate_result(
                 completion, current, contract.batch_slot,
             ).map_err(|issue| format!("{}: {issue:?}", freeze("callable-scalar/declaration")))?;
-            let agrees = match current_proof.class {
-                BorrowedResultClassV1::I64 => crate::mir::normal_callable_semantic_package::result_contract::declared_i64_source_agrees_v1(result, completion),
-                BorrowedResultClassV1::Bool => crate::mir::normal_callable_semantic_package::result_contract::declared_bool_source_agrees_v1(result, completion),
-                _ => false,
-            };
+            let agrees = current_proof.class.declaration_agrees_v1(result, completion);
             pending::mul_result::verify_mul_returns(current, current_proof, ingress)?;
             for read in &current_proof.field_array_reads {
                 read.recheck_census(current, &current_proof.returns, &self.array_i64_fields)?;

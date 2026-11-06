@@ -290,6 +290,14 @@ impl<'a> CallableResultContractRefV1<'a> {
             && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
     }
 
+    /// The declaration, when present, is a scalar result (`i64` or `Bool`) that the retained
+    /// completion supports (R9: an absent declaration agrees with any proven scalar source). Which
+    /// scalar the body returns is the solver's body proof (R2) and the per-kind finishing check.
+    pub(super) fn declared_result_agrees_with_scalar_source(&self) -> bool {
+        declared_i64_source_agrees_v1(self.result, self.completion)
+            || declared_bool_source_agrees_v1(self.result, self.completion)
+    }
+
     /// Agreement with the independent ExactBool source result. An absent
     /// annotation alone never proves Bool or activates its physical ABI.
     pub(super) fn declared_result_agrees_with_bool_source(&self) -> bool {

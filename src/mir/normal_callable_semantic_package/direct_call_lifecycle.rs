@@ -462,6 +462,8 @@ impl DirectCallDispositionLoanV1 {
         let (row, emission) = self.ready_direct_call(input, site)?;
         match emission.target().signature().result() {
             Some(ExactTrivialScalarAbiV1::I64) => Some(DirectLocalResultV1::I64),
+            // A declared Bool result is not a direct local route: its receiver reads the contract row.
+            Some(ExactTrivialScalarAbiV1::Bool) => None,
             None if !exact_formals(batch, parameters, row) => None,
             None if map_owned(batch, row) => Some(DirectLocalResultV1::Map),
             None => construction_result_callee(batch, emission.target().callable().owner())
@@ -607,6 +609,7 @@ impl DirectCallDispositionLoanV1 {
             // class, and other unannotated map-owned callees carry Map.
             let expected_class = match emission.target().signature().result() {
                 Some(ExactTrivialScalarAbiV1::I64) => LocalCallResultClassV1::I64,
+                Some(ExactTrivialScalarAbiV1::Bool) => return Err(reject),
                 None if construction_result => LocalCallResultClassV1::Handle,
                 None => LocalCallResultClassV1::Map,
             };

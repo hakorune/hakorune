@@ -56,18 +56,26 @@ pub(super) fn prove_function<'targets, 'catalog>(
     result_rows: &BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
 ) -> Result<FunctionProofProductV1<'targets>, CallableResultCatalogErrorV1> {
     let key = declaration.key();
-    if let Some(result) = declaration.return_type_name() {
-        return Ok(FunctionProofProductV1 {
-            outcome: if ExactTrivialScalarAbiV1::classify(result).is_some() {
-                FunctionProofOutcomeV1::Exact(BTreeSet::new())
-            } else {
-                FunctionProofOutcomeV1::Unavailable(
+    // R1/R2: the declaration fixes the signature first. A declared `i64` keeps its early exit; a
+    // declared `Bool` is proved against its body below and must come out `ExactBool`.
+    let declared_bool = match declaration.return_type_name().map(ExactTrivialScalarAbiV1::classify_result) {
+        Some(Some(ExactTrivialScalarAbiV1::I64)) => {
+            return Ok(FunctionProofProductV1 {
+                outcome: FunctionProofOutcomeV1::Exact(BTreeSet::new()),
+                call_rows: BTreeMap::new(),
+            });
+        }
+        Some(Some(ExactTrivialScalarAbiV1::Bool)) => true,
+        Some(None) => {
+            return Ok(FunctionProofProductV1 {
+                outcome: FunctionProofOutcomeV1::Unavailable(
                     CallableResultUnavailableReasonV1::DeclaredNonI64Result,
-                )
-            },
-            call_rows: BTreeMap::new(),
-        });
-    }
+                ),
+                call_rows: BTreeMap::new(),
+            });
+        }
+        None => false,
+    };
     if declaration.body().iter().any(contains_grouped_assignment) {
         return Ok(FunctionProofProductV1 {
             outcome: FunctionProofOutcomeV1::Unavailable(
@@ -96,6 +104,11 @@ pub(super) fn prove_function<'targets, 'catalog>(
         FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::MissingReturn)
     } else {
         summarize_returns(returns)
+    };
+    let outcome = match outcome {
+        FunctionProofOutcomeV1::ExactBool | FunctionProofOutcomeV1::Unavailable(_) | FunctionProofOutcomeV1::PendingDependency => outcome,
+        _ if declared_bool => FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::DeclaredResultDisagrees),
+        _ => outcome,
     };
     Ok(FunctionProofProductV1 {
         outcome,

@@ -141,8 +141,12 @@ pub(super) fn declared_bool_source_agrees_v1(
     result: Option<ExactTrivialScalarAbiV1>,
     completion: &VerifiedFunctionCompletionV1,
 ) -> bool {
-    result.is_none() && matches!(completion.function_exit_contract().declared_result(),
-        DeclaredFunctionResultContractV1::Unannotated)
+    match (result, completion.function_exit_contract().declared_result()) {
+        (Some(ExactTrivialScalarAbiV1::Bool), DeclaredFunctionResultContractV1::Annotated(name)) =>
+            ExactTrivialScalarAbiV1::classify_result(name) == Some(ExactTrivialScalarAbiV1::Bool),
+        (None, DeclaredFunctionResultContractV1::Unannotated) => true,
+        _ => false,
+    }
 }
 
 pub(super) fn validate_result(
@@ -152,7 +156,7 @@ pub(super) fn validate_result(
 ) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
     let result = match completion.function_exit_contract().declared_result() {
         DeclaredFunctionResultContractV1::Annotated(name) => {
-            Some(ExactTrivialScalarAbiV1::classify(name).ok_or_else(|| {
+            Some(ExactTrivialScalarAbiV1::classify_result(name).ok_or_else(|| {
                 CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
                     _batch_slot: batch_slot,
                     _name: name.clone(),
