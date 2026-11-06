@@ -17,14 +17,12 @@ use super::product::{
     VerifiedTrivialIfMergeProfileV1, VerifiedTrivialParameterEntryV1,
     VerifiedTrivialProfileCoverageV1,
 };
-use super::qualified_method::VerifiedTrivialQualifiedMethodCallV1;
 
 pub(super) struct TrivialProfileDraftV1 {
     owner: FunctionOwnerIdV1,
     parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
     values: Vec<VerifiedLocatedTrivialValueV1>,
     direct_calls: Vec<VerifiedTrivialDirectCallV1>,
-    qualified_method_calls: Vec<VerifiedTrivialQualifiedMethodCallV1>,
     definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
     merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
     ordered_subjects: Vec<TrivialProfileCoverageSubjectV1>,
@@ -34,7 +32,6 @@ pub(super) struct TrivialProfilePartsV1 {
     pub(super) parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
     pub(super) values: Vec<VerifiedLocatedTrivialValueV1>,
     pub(super) direct_calls: Vec<VerifiedTrivialDirectCallV1>,
-    pub(super) qualified_method_calls: Vec<VerifiedTrivialQualifiedMethodCallV1>,
     pub(super) definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
     pub(super) merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
     pub(super) coverage: VerifiedTrivialProfileCoverageV1,
@@ -165,7 +162,6 @@ impl TrivialProfileDraftV1 {
             parameter_entries: Vec::new(),
             values: Vec::new(),
             direct_calls: Vec::new(),
-            qualified_method_calls: Vec::new(),
             definitions: Vec::new(),
             merge_profiles: Vec::new(),
             ordered_subjects: Vec::new(),
@@ -231,17 +227,6 @@ impl TrivialProfileDraftV1 {
         Ok(())
     }
 
-    pub(super) fn record_qualified_method_call(
-        &mut self,
-        row: VerifiedTrivialQualifiedMethodCallV1,
-    ) -> Result<(), TrivialProfileContractErrorV1> {
-        self.record_subject(TrivialProfileCoverageSubjectV1::QualifiedMethodCall(
-            row.site().clone(),
-        ))?;
-        self.qualified_method_calls.push(row);
-        Ok(())
-    }
-
     pub(super) fn record_definition(
         &mut self,
         binding: BindingRefV1,
@@ -298,7 +283,6 @@ impl TrivialProfileDraftV1 {
             parameter_entries: self.parameter_entries,
             values: self.values,
             direct_calls: self.direct_calls,
-            qualified_method_calls: self.qualified_method_calls,
             definitions: self.definitions,
             merge_profiles: self.merge_profiles,
             coverage: VerifiedTrivialProfileCoverageV1::from_verified_order(self.ordered_subjects),

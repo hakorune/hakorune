@@ -153,13 +153,6 @@ impl ExpressionSourcePlanV1 {
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
     }
-    /// The node at `site` is the entire value of a Local initializer or an
-    /// Assignment; the statement-level writers own that position. Any other
-    /// place a call can stand is an expression value.
-    pub(crate) fn site_is_whole_binding_value_v1(&self, site: &SourceExprSiteV1) -> bool {
-        matches!(self.root, ExpressionPlanRootV1::LocalInitializer { .. } | ExpressionPlanRootV1::Assignment { .. })
-            && self.nodes.first().is_some_and(|node| node.site() == site)
-    }
     /// Every node's children are known and always evaluated (no conditional reach).
     pub(crate) fn children_always_known_v1(&self) -> bool {
         self.nodes.iter().all(|node| matches!(node.children(), ExpressionChildrenV1::Known(children)
@@ -525,4 +518,17 @@ fn build_plan(
         root,
         nodes: nodes.into_boxed_slice(),
     }))
+}
+
+/// The one position rule for a Call standing in an expression: it is an
+/// expression value (argument, operand, condition, printed, returned or
+/// assigned value) unless it is the whole initializer of a Local or a
+/// statement of its own; those two positions keep their statement-level
+/// writers. Decided from the exact source path, so every consumer agrees.
+pub(crate) fn site_stands_as_expression_value_v1(site: &SourceExprSiteV1) -> bool {
+    !matches!(site.node().segments().last(),
+        Some(SourcePathSegmentV1::Initializer(_) | SourcePathSegmentV1::Body(_) | SourcePathSegmentV1::ProgramBody(_)
+            | SourcePathSegmentV1::ScopeBody(_) | SourcePathSegmentV1::TaskScopeBody(_) | SourcePathSegmentV1::FastMemBody(_)
+            | SourcePathSegmentV1::IfThen(_) | SourcePathSegmentV1::IfElse(_) | SourcePathSegmentV1::LoopBody(_)
+            | SourcePathSegmentV1::LambdaBody(_)))
 }

@@ -88,42 +88,6 @@ where
     Ok(destination)
 }
 
-/// Consume one selected publication handoff after the caller has already
-/// lowered its ordered arguments.  The handoff remains the sole source of
-/// result representation; this sibling only supplies the existing physical
-/// argument values and commits the generic Call receipt.
-pub(in crate::mir::builder) fn lower_selected_static_result_publication_with_arguments_v1(
-    builder: &mut MirBuilder,
-    handoff: VerifiedStaticCallResultPublicationHandoffV1,
-    argument_values: Vec<ValueId>,
-) -> Result<ValueId, String> {
-    let expected_arity = handoff.target().arity() as usize;
-    if argument_values.len() != expected_arity {
-        return Err(format!(
-            "[freeze:contract][static-result-bridge/physical-arity] expected {}, got {}",
-            expected_arity,
-            argument_values.len()
-        ));
-    }
-    let (demand, _required_callee_i64_arguments) = handoff.consume();
-    let target = demand
-        .target()
-        .canonical_global_target_v1()
-        .map_err(|error| {
-            format!("[freeze:contract][static-result-bridge/target-projection] {error}")
-        })?;
-    let emission = super::method_call_terminal::emit_static_global_value_terminal_with_receipt_v1(
-        builder,
-        target,
-        argument_values,
-    )
-    .map_err(|error| format!("[freeze:contract][static-result-bridge/call-receipt] {error:?}"))?;
-    let publication = PreparedStaticCallResultPublicationV1::prepare(demand, emission);
-    let destination = publication.destination();
-    publication.commit(builder)?;
-    Ok(destination)
-}
-
 /// Consume one selected publication handoff for a normalizer-preallocated
 /// destination. The normalizer owns the result ValueId; this bridge only
 /// emits the existing generic Call receipt and commits the sealed result

@@ -273,11 +273,9 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             return Ok(None);
         };
         let caller = app_main.catalog_key().clone();
-        // The canonical qualified-methods route is arity-0-only
-        // (NormalMainQualifiedMethods requires params.is_empty()); its
-        // recipe port is the sole row consumer. An arity-bearing app
-        // main can never take a row here, so qualified static calls in
-        // it belong to the static result publication owner instead.
+        // An arity-bearing app main never takes a relation row here;
+        // qualified static calls in it belong to the static result
+        // publication owner instead.
         if caller.arity() != 0 {
             return Ok(None);
         }

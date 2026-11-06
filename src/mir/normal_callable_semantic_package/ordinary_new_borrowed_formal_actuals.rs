@@ -412,7 +412,7 @@ pub(in crate::mir::normal_callable_semantic_package) use static_source::{
     lend_dynamic_entry_read_v1, lend_expression_core_source_v1,
     lend_field_array_text_entry_read_v1, lend_finite_entry_read_v1, lend_text_entry_read_v1,
     observed_argument_source_v1, observed_carrier_array_append_argument_source_v1,
-    is_expression_value_call_v1, original_static_source_v1, project_current_owner_loop_scalar_source_v1,
+    original_static_source_v1, project_current_owner_loop_scalar_source_v1,
     stage_observed_call_actuals_v1,
 };
 #[path = "ordinary_new_borrowed_call_result_source.rs"]

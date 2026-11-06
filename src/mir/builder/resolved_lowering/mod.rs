@@ -188,7 +188,6 @@ use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use if_recipe_adapter::{admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1};
 use lowerer::CanonicalFunctionLowererV1;
-pub(in crate::mir::builder) use trivial_ssa::QualifiedMethodRecipePortV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 
 #[derive(Debug, PartialEq, Eq)]

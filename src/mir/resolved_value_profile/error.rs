@@ -124,9 +124,6 @@ pub(crate) enum TrivialProfileContractErrorV1 {
     DirectCallCardinalityOverflow {
         site: SourceExprSiteV1,
     },
-    QualifiedMethodCardinality {
-        actual: u32,
-    },
     DirectCallHeaderMismatch {
         site: SourceExprSiteV1,
     },

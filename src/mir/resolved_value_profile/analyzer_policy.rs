@@ -9,7 +9,6 @@ pub(super) enum ReturnPolicyV1 {
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum DirectCallPolicyV1 {
     Forbidden,
-    FiniteZeroOrMore,
     FiniteOneOrMore,
 }
 
