@@ -484,7 +484,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "ordinary_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
-        lv4_emit_call_operand_preparation(f, in, fi, call, args, b, fault_label);
+        lv4_emit_call_operand_preparation(f, in, fi, call, args, b, site, fault_label);
         if (lv4_is(op, "result", "unit"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame",
               b, lv4_u(call, "target"));

@@ -186,3 +186,11 @@ proof remains mandatory; these physical checks cannot issue source permission.
 This is the implemented consumer contract, not an execution acceptance claim.
 The unchanged app's canonical direct EXE/run/output/exit and independent source,
 wire-correspondence and Fault evidence must establish the complete connection.
+
+Checked ordinary Calls also admit an owned nullable result as receiver when
+its original callee establishes the same object class and the result's
+conditional obligation remains live. The emitter checks zero before dispatch;
+Null records existing TypeError reason 302 on this Call's Fault edge, without
+entering the callee. A nullable receiver with `take` parameters stays refused:
+pre-entry argument cleanup cannot be delegated to a callee that was not entered.
+No schema key, descriptor or opcode is added by this receiver check.

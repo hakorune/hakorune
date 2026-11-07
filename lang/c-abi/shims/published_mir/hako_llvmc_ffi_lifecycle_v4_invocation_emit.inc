@@ -147,7 +147,18 @@ static int lv4_invocation_emit(FILE* f, yyjson_val* op, size_t function,
 
 /* Ordinary Call actual preparation; preserves the exact source operand order. */
 static void lv4_emit_call_operand_preparation(FILE* f, const hako_lv4_input* in,
-    size_t fi, yyjson_val* call, yyjson_val* args, uint32_t b, const char* fault_label) {
+    size_t fi, yyjson_val* call, yyjson_val* args, uint32_t b, unsigned long long site, const char* fault_label) {
+  /* Checked Call never dispatches a null receiver. It records one source
+     TypeError and uses the operation's existing caller-owned Fault cleanup. */
+  if (yyjson_is_uint(yyjson_obj_get(call, "receiver"))) {
+    fprintf(f,
+        "  %%receiver_live%u = icmp ne i64 %%v%u, 0\n"
+        "  br i1 %%receiver_live%u, label %%receiver_call%u, label %%receiver_null%u\nreceiver_null%u:\n"
+        "  %%receiver_status%u = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 0, i64 0)\n"
+        "  switch i32 %%receiver_status%u, label %%invalid [ i32 1, label %%%s ]\nreceiver_call%u:\n",
+        b, lv4_u(call, "receiver"), b, b, b, b, b,
+        NYRT_FAULT_REASON_STRING_TYPE_ERROR_V1, site, b, fault_label, b);
+  }
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
           if (!lv4_is(arg, "kind", "borrowed_text")) continue;

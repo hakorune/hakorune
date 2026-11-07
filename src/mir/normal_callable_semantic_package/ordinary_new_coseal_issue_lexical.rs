@@ -1,4 +1,5 @@
 //! Claim-local `recv.m(...)` lexical call probes for the co-seal walk.
+use crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::nullable_exits_hold;
 use super::super::lexical_instance_call::{
     PreparedBorrowedFormalIngressV1, PreparedLexicalInstanceCallSourceTargetsV1,
 };
@@ -197,26 +198,6 @@ pub(super) fn lexical_local_route(
 /// construction; the claim names the class and the same sealed return sites
 /// re-prove its shape, so the lane never infers nullability from MIR types or a
 /// backend role.
-fn nullable_exits_hold(batch: &VerifiedResolvedCallableSemanticBatchV1, target_batch_slot: u32) -> bool {
-    batch
-        .with_lowering_input(target_batch_slot, |callee_input| {
-            let Some(shape) = callee_input.body_shape() else {
-                return false;
-            };
-            let Some(sites) = super::super::verified_value_return_sites(callee_input, shape) else {
-                return false;
-            };
-            !sites.is_empty()
-                && sites.iter().all(|site| {
-                    let function = callee_input.function();
-                    matches!(
-                        function.expression_source().literal(site),
-                        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)
-                    ) || function.expression_source().construction(site).is_some()
-                })
-        })
-        .unwrap_or(false)
-}
 
 #[path = "ordinary_new_nullable_received_class.rs"]
 mod nullable_received_class;

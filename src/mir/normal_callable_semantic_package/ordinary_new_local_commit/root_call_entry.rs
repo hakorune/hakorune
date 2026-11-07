@@ -389,11 +389,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|group| {
                 Ok::<_, String>(
                     group.with_bindings(
-                        group
-                            .bindings()
-                            .iter()
-                            .map(map)
-                            .collect::<Result<Vec<_>, _>>()?,
+                        projection.bindings(group.bindings())?,
                     ),
                 )
             })

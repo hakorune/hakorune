@@ -500,6 +500,22 @@ static int lv4_borrowed_receiver_readable(const hako_lv4_input* in,
       yyjson_obj_get(lv4_borrowed_result_operation(fn, original), "result_read"))
     return lv4_readonly_call(fn, consumer, 1) &&
         lv4_declared_read_payload(in, fn, original, state, use, position, object);
+  /* Owned nullable Call results retain their original object and lease;
+     Call's checked dispatch excludes Null before entering the callee. This
+     grants no permission to field loans, literal null, or ended receivers. */
+  if (original && lv4_is(original->instruction, "op", "invoke_normal_result")) {
+    hako_lv4_block* producer = lv4_index_block(fn, lv4_u(original->instruction, "invoke_block"));
+    yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+    if (lv4_is(op, "kind", "ordinary_call") && lv4_is(op, "result", "nullable_handle")) {
+      yyjson_val* params = yyjson_obj_get(yyjson_arr_get(in->functions,
+          lv4_u(yyjson_obj_get(consumer, "call"), "target")), "params");
+      for (size_t i = 0; i < yyjson_arr_size(params); i++)
+        if (lv4_is(yyjson_arr_get(params, i), "ownership", "take")) return 0;
+      return lv4_owned_value_object(in, fn, value, 1) && value->object_id_set && value->object_id == object &&
+          lv4_indexed_live(fn, value->id, LV4_HANDLE, state, object, 1) &&
+          lv4_object_field_dependencies_live(in, fn, value, state, use);
+    }
+  }
   return lv4_nonnull_object_formal(fn, value, object) ||
       (value && lv4_readable_object(in, fn, value->id, state, use, object, 1));
 }

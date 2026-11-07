@@ -4,6 +4,7 @@
 //! joins those facts with an already selected instance declaration and its
 //! result/signature products. It never resolves a name from MIR or C input.
 
+use crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::nullable_exits_hold;
 use super::OrdinaryNewClaimLedgerV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -91,6 +92,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &mut self,
         input: ResolvedFunctionLoweringInputV1<'_>,
         selected: &VerifiedSelectedCallableBatchMapV1,
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
         results: &VerifiedCallableResultContractCohortV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
     ) -> Result<(), String> {
@@ -204,12 +206,36 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("root-instance-call-initializer-absent"))?;
             let owned_initializer = OwnedExprSiteV1::new(owner, initializer_site.clone());
             let claims = self.claims.borrow();
-            let claim = claims
-                .get(&owned_initializer)
-                .ok_or_else(|| freeze("root-instance-call-new-missing"))?;
-            if claim.destination != origin {
-                return Err(freeze("root-instance-call-new-binding"));
-            }
+            let (receiver_class, receiver_object) = if let Some(claim) = claims.get(&owned_initializer) {
+                if claim.destination != origin {
+                    return Err(freeze("root-instance-call-new-binding"));
+                }
+                (claim.class().to_owned(), claim.object())
+            } else {
+                let targets = self.lexical_source_targets.as_ref()
+                    .ok_or_else(|| freeze("root-instance-call-new-missing"))?;
+                let source = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::original_lexical_target_at_v1(targets, &owned_initializer)?
+                    .ok_or_else(|| freeze("root-instance-call-new-missing"))?;
+                let class = match self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(source.target())) {
+                    Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Handle(class)
+                        | crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(class)) => class,
+                    _ => return Err(freeze("root-instance-call-result-kind-unavailable")),
+                };
+                if matches!(self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(source.target())),
+                    Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(_)))
+                    && !nullable_exits_hold(batch, source.target_batch_slot()) {
+                    return Err(freeze("root-instance-call-result-kind-unavailable"));
+                }
+                let acquisition = flow.local_calls().iter().find(|call| call.site() == &owned_initializer
+                    && call.owner() == owner && call.local_binding().is_some_and(|(_, binding)| binding == origin))
+                    .ok_or_else(|| freeze("root-instance-call-initializer-missing"))?;
+                if !matches!(acquisition.result(), crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+                    | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable) {
+                    return Err(freeze("root-instance-call-result-kind-unavailable"));
+                }
+                let object = self.canonical_received_object_v1(&class)?;
+                (class.into(), object)
+            };
             let target_matches = selected
                 .keys()
                 .filter_map(|selected_key| {
@@ -217,7 +243,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         return None;
                     };
                     if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
-                        && key.owner() == claim.class()
+                        && key.owner() == receiver_class
                         && key.name() == call.selector()
                         && key.arity() == call.arity()
                     {
@@ -286,7 +312,6 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("root-instance-call-arguments-unsupported"));
             }
-            let receiver_object = claim.object();
             // An opaque-call terminal callee proves no result class; it cannot
             // be an instance-call target until its return is decomposed.
             let call_result = self.result_kind_catalog_v1().ok_or_else(|| freeze("root-instance-call-result-catalog"))?

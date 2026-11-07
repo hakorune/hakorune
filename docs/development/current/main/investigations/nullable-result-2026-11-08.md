@@ -42,3 +42,9 @@ pathの省略部分はsrc/mir/normal_callable_semantic_package配下。
 null cleanupの実装根拠はlang/c-abi/shims/published_mir/hako_llvmc_ffi_lifecycle_v4_emit.inc:534–565（Nullではreleaseを呼ばない）であり、kernelのcrates/nyash_kernel/src/exports/fault_checked_object.rs:243–281は有効handleだけをreclaimする。
 null receiverの既存C ordinary_callは同emit.inc:485以降がcalleeを直接呼び、indexed_flow.inc:161–166がnonnull receiverを要求するため、既存opのchecked受理と独立検証の両方を接続する必要がある。
 N5/N6を既存公開契約で表せないと判明した時はその門を明記して保留し、他の段は続ける。
+
+## 段1の結果
+
+n01/n02/n03/n04/n05/n08は正規EXEで期待どおり（0/3/1/3/70/3、n01出力3、n05理由302）。非nullのt02/t02dもexit3。n15を含む指定範囲外とArray借用4形は名前付き拒否を保持した。
+新規証拠は既存の所有Call-result familyに、fieldを読まないメソッドへのnullable receiver・途中のscalar条件/早期Return・Normal/TypeError/End Faultの解放数・別classへの改変拒否を統合し、既存の構築/cleanup Faultの証拠も保持した。
+C emitterの実引数準備は意味不変で分割し、3 EXEと33 dumpの一致を確認してからchecked dispatchを追加した。

@@ -379,13 +379,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("call-binding-drift"));
             }
         }
-        self.check_local_call_binding_groups_with_pending(
-            owner,
-            exit,
-            function,
-            finishing,
-            local_bindings,
-            pending_routes,
+        self.check_local_call_binding_groups_with_projections_v1(
+            CallValidationContextV1::Lowering(self), owner, exit, function,
+            finishing, packet_finishing.or(finishing), local_bindings, pending_routes,
         )?;
         let mapped = |binding: &(BasicBlockId, MirInstruction)| match finishing {
             Some(p) => p
@@ -422,9 +418,10 @@ impl OrdinaryNewClaimLedgerV1 {
         if !local.installs(row.receiver_origin()) {
             return Err(freeze("instance-call-new-local-binding"));
         }
-        let object = local
-            .ordinary_object()
-            .ok_or_else(|| freeze("instance-call-new-local-kind"))?;
+        let object = match local {
+            LocalCommitV1::CallReceived(received) if received.owner == owner => received.object,
+            _ => local.ordinary_object().ok_or_else(|| freeze("instance-call-new-local-kind"))?,
+        };
         if object != row.receiver_object() {
             return Err(freeze("instance-call-receiver-object"));
         }
@@ -626,13 +623,25 @@ impl OrdinaryNewClaimLedgerV1 {
         groups: &[RootLifecyclePrefixBindingGroupV1],
         pending_routes: &[OwnedExprSiteV1],
     ) -> Result<(), String> {
+        self.check_local_call_binding_groups_with_projections_v1(
+            context, owner, exit, function, finishing, finishing, groups, pending_routes,
+        )
+    }
+
+    fn check_local_call_binding_groups_with_projections_v1(
+        &self, context: CallValidationContextV1<'_>, owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1, function: &MirFunction,
+        storage_projection: Option<&super::super::physical_boundary::FinishedBindings>,
+        proof_projection: Option<&super::super::physical_boundary::FinishedBindings>,
+        groups: &[RootLifecyclePrefixBindingGroupV1], pending_routes: &[OwnedExprSiteV1],
+    ) -> Result<(), String> {
         if !std::ptr::eq(context.ledger(), self) {
             return Err(freeze("local-call-binding-sequence"));
         }
         self.validate_local_call_binding_groups_with_pending(owner, exit, groups, pending_routes)?;
         for group in groups {
-            group.validate_recorded_in_context(context, function, finishing)?;
-            group.check_physical_bindings_v1(function, finishing)?;
+            group.validate_recorded_in_context(context, function, proof_projection)?;
+            group.check_physical_bindings_v1(function, storage_projection)?;
         }
         Ok(())
     }

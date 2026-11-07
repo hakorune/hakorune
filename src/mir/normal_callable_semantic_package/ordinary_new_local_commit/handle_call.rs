@@ -179,6 +179,31 @@ impl OrdinaryNewClaimLedgerV1 {
         Some(operations)
     }
 
+    /// One canonical identity across pending result claims and transferred commits.
+    pub(in crate::mir::normal_callable_semantic_package) fn canonical_received_object_v1(
+        &self, class: &str,
+    ) -> Result<CanonicalObjectIdV1, String> {
+        let claims = self.result_claims.borrow();
+        let commits = self.local_commits.borrow();
+        let mut objects = claims
+            .values()
+            .filter(|claim| claim.class() == class)
+            .map(|claim| claim.object())
+            .chain(commits.values().filter_map(|row| match row {
+                LocalCommitV1::Result(result) if result.box_source.name() == class => {
+                    Some(result.object())
+                }
+                _ => None,
+            }));
+        let object = objects
+            .next()
+            .ok_or_else(|| freeze("nullable-result-object-missing"))?;
+        if objects.any(|other| other != object) {
+            return Err(freeze("nullable-result-object-drift"));
+        }
+        Ok(object)
+    }
+
     /// The sealed nullable-result receiver call at this expression site:
     /// the callee's claim is `NullableObject` — the caller owns the result
     /// only when it is not the `Void` sentinel.
@@ -239,27 +264,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // from `result_claims` to the `Result` commit, so the lookup covers
         // both stores. No claims or a drifted set freezes rather than
         // borrowing an arbitrary site's identity.
-        let object = {
-            let claims = self.result_claims.borrow();
-            let commits = self.local_commits.borrow();
-            let mut objects = claims
-                .values()
-                .filter(|claim| claim.class() == class.as_ref())
-                .map(|claim| claim.object())
-                .chain(commits.values().filter_map(|row| match row {
-                    LocalCommitV1::Result(result) if result.box_source.name() == class.as_ref() => {
-                        Some(result.object())
-                    }
-                    _ => None,
-                }));
-            let object = objects
-                .next()
-                .ok_or_else(|| freeze("nullable-result-object-missing"))?;
-            if objects.any(|other| other != object) {
-                return Err(freeze("nullable-result-object-drift"));
-            }
-            object
-        };
+        let object = self.canonical_received_object_v1(&class)?;
         let mut rows = self.local_commits.borrow_mut();
         if rows.contains_key(site) {
             return Err(freeze("nullable-duplicate-emission"));

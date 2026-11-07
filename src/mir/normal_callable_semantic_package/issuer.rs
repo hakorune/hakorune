@@ -630,6 +630,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                 ordinary_new_claim_ledger.issue_root_instance_call_dispositions(
                     input,
                     &selected,
+                    &batch,
                     &result_contracts,
                     &physical_signature,
                 )

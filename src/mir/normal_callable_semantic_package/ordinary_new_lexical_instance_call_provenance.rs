@@ -1,4 +1,5 @@
 //! Existing lexical receiver class provenance; no call issuance or consumption.
+use crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::nullable_exits_hold;
 use super::*;
 
 /// Provenance chains through caller edges could loop on mutually
@@ -41,11 +42,12 @@ impl<'a> LexicalReceiverClassSourceV1<'a> {
             .map(|class| class.as_ref())
     }
 
-    fn callable_result_class(&self, key: &CanonicalSameModuleCallableKeyV1) -> Option<&str> {
+    fn callable_result_class(&self, batch: &VerifiedResolvedCallableSemanticBatchV1,
+        slot: u32, key: &CanonicalSameModuleCallableKeyV1) -> Option<&str> {
         match self.callable_result_classes.get(key) {
-            Some(super::super::result_class_claim::OrdinaryNewResultClassV1::Object(class)) => {
-                Some(class.as_ref())
-            }
+            Some(super::super::result_class_claim::OrdinaryNewResultClassV1::Object(class)) => Some(class),
+            Some(super::super::result_class_claim::OrdinaryNewResultClassV1::NullableObject(class))
+                if nullable_exits_hold(batch, slot) => Some(class),
             _ => None,
         }
     }
@@ -520,7 +522,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                     if call.receiver() != crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::QualifiedUnbound {
                         return Ok(None);
                     }
-                    let Some((key, _)) = unique_static_target_v1(
+                    let Some((key, slot)) = unique_static_target_v1(
                         selected,
                         identity.source_name(),
                         method.as_ref(),
@@ -528,7 +530,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                     ) else {
                         return Ok(None);
                     };
-                    return Ok(self.callable_result_class(&key).map(|class| class.into()));
+                    return Ok(self.callable_result_class(batch, slot, &key).map(|class| class.into()));
                 };
                 if receiver_binding.owner() != owner {
                     return Ok(None);
@@ -545,7 +547,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                 else {
                     return Ok(None);
                 };
-                let Some((key, _)) = unique_instance_target(
+                let Some((key, slot)) = unique_instance_target(
                     selected,
                     receiver_class.as_ref(),
                     method.as_ref(),
@@ -553,7 +555,7 @@ impl LexicalReceiverClassSourceV1<'_> {
                 ) else {
                     return Ok(None);
                 };
-                Ok(self.callable_result_class(&key).map(|class| class.into()))
+                Ok(self.callable_result_class(batch, slot, &key).map(|class| class.into()))
             }
             _ => Ok(None),
         }

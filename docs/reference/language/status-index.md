@@ -466,6 +466,28 @@ A `: P` declaration, where name resolution finds `P` as a box of the source, rea
 | `return m.mk()` forwarding; `local a = me.mk()` then `a.get()`; a call that can fault after the receive | refused-named | refused-named | refused-named | `admission-function-not-birth`; `borrowed-result/source-not-i64`; `local-commit/root-call-binding-contracted` (the same undeclared) |
 | `m.mk(5)` with an argument, `a.get() + 1`, `a = m.mk()`, `next(): Maker`, `return me.f`, returning a `take` formal | refused-named | refused-named | refused-named | `borrowed-result/source-not-i64`, `borrowed-nullable/local-initializer`, `borrowed-entry/finite-domain-unclosed` (the same undeclared) |
 
+### Nullable object results received from an instance
+
+An unannotated instance factory may return `new P(..)` or `null`; a local can
+receive that result, compare it with `null`, and call its methods. A method
+call on the null outcome raises TypeError before entering the method. Its
+Fault path releases the caller's previously acquired objects, while the null
+outcome owns no payload to release. Early returns preserve the same cleanup
+law for nullable and non-null object results.
+
+| Form | Measured EXE result |
+|---|---|
+| `local a = s.find(3); if a != null { print(a.get()) }` | prints `3`, exit 0 |
+| `if a == null { return 1 }; return a.get()` after a receive | non-null exit 3; null exit 1 |
+| `return a.get()` without a guard | non-null exit 3; null TypeError (Fault exit 70) |
+| two received nullable locals checked separately | exit 3 |
+| non-null receive followed by an early return guarded by a scalar condition | exit 3, with or without the result annotation |
+
+Assignment to the received local, aliases, a receive inside `if`, discarded
+object calls, forwarding nullable results, Array storage, nullable String
+results and Array element borrows remain outside this measured boundary.
+Static factories and `: P?` declarations are the next part of this series.
+
 ### static call result bound in a plain function (series static-call-context)
 
 An owner that binds, in a `local`, the result of a static call with only i64 formals (or none) joins the typed static execution, whether it is `main` or not (rule document `static-call-context-rule-2026-11-07.md`, C1 to C8). Measured by EXE with the series binary against the previous main.

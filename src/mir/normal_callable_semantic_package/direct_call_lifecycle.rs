@@ -57,7 +57,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_owned_owner(
 
 #[path = "direct_call_result_validation.rs"]
 mod result_validation;
-pub(in crate::mir::normal_callable_semantic_package) use result_validation::{construction_result_callee, map_result_callee, map_result_owner};
+pub(in crate::mir::normal_callable_semantic_package) use result_validation::{construction_result_callee, map_result_callee, map_result_owner, nullable_exits_hold};
 
 #[path = "direct_call_result.rs"]
 mod result;

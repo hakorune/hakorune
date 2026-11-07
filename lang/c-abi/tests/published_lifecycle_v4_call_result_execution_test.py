@@ -129,6 +129,42 @@ def owned_results(driver, obj, exe, work):
     base = json.loads(next(p for p in paths if 'receivedfalse-nullablefalse-optfalse.json' in p.name).read_text())
     nullable = json.loads(next(p for p in paths if 'receivedfalse-nullabletrue-optfalse.json' in p.name).read_text())
 
+    def wrong_nullable_receiver(graph):
+        root = graph['functions'][0]
+        find = next(t['operation']['call'] for t in terminators(root)
+                    if t.get('operation', {}).get('kind') == 'ordinary_call'
+                    and graph['functions'][t['operation']['call']['target']]['name'] == 'Shop.find/1')
+        ping = next(t['operation']['call'] for t in terminators(root)
+                    if t.get('operation', {}).get('kind') == 'ordinary_call'
+                    and graph['functions'][t['operation']['call']['target']]['name'] == 'Token.ping/0')
+        ping['receiver'] = find['receiver']
+
+    # The method has no field read: Null must fault before dispatch, rather
+    # than depending on a later field access to catch an invalid receiver.
+    received = sorted(INPUTS.glob('hako-issued-nullable-owned-receiver-*-opt*.json'))
+    assert len(received) == 4, 'owned result family must capture both receiver outcomes'
+    for path in received:
+        nonnull = '-3-opt' in path.name
+        homes = 3 if nonnull else 2
+        link_owned_probe(driver, path, obj, exe)
+        for home_fault in [0, 1]:
+            env = dict(ENV, V4_PROBE_MODE='normal')
+            if home_fault:
+                env['V4_PROBE_HOME_FAULT_AT'] = str(home_fault)
+            run = subprocess.run([exe], env=env, capture_output=True, text=True)
+            faulted = not nonnull or bool(home_fault)
+            assert run.returncode == (70 if faulted else 0), (path, run.stdout, run.stderr)
+            assert f'OWNED {homes} {homes} {homes}\n' in run.stdout, (path, run.stdout)
+            assert f'COUNTS 1 0 {homes} 0 {int(faulted)} 1\n' in run.stdout, run.stdout
+            if faulted:
+                reason = 102 if nonnull else 302
+                assert f'FAULT {reason} ' in run.stdout, (path, run.stdout)
+            else:
+                assert 'FAULT ' not in run.stdout, run.stdout
+        changed('wrong-nullable-receiver-' + path.stem, json.loads(path.read_text()),
+                wrong_nullable_receiver, reason='receiver-object-mismatch')
+        print(path.name, 'checked receiver TypeError/cleanup/class mismatch PASS')
+
     def handle_phi(graph, *, after_end=False, different=False):
         fn = graph['functions'][0]
         result = next(r['instruction']['dst'] for b in fn['blocks'] for r in b['instructions']

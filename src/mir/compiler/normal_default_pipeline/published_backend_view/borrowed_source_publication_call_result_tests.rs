@@ -319,6 +319,7 @@ fn borrowed_static_guard_original_cohort_publishes_all_calls_with_prior_home_cle
 
 #[test]
 fn owned_call_results_publish_original_child_handle_contracts() {
+    publish_nullable_owned_receiver_cases();
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for typed in [true, false] {
@@ -790,6 +791,50 @@ fn current_static_zero_original_source_publishes_invoke_without_generic_call() {
                 std::fs::write(std::env::temp_dir().join(format!("hako-issued-current-static-zero-opt{optimize}.json")), wire).unwrap();
                 Ok(())
             }).unwrap_or_else(|error| panic!("Current zero/opt{optimize}: {error}"));
+        }
+    });
+}
+
+
+fn publish_nullable_owned_receiver_cases() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for argument in [0, 3] {
+            let text = format!(
+                "box Token {{
+                    birth() {{}}
+                    ping(): i64 {{ return 0 }}
+                }}
+                box Spare {{}}
+                box Shop {{
+                    birth() {{}}
+                    find(k: i64) {{
+                        if k > 0 {{ return new Token() }}
+                        return null
+                    }}
+                }}
+                static box Main {{ main() {{
+                    local shop = new Shop()
+                    local spare = new Spare()
+                    local token = shop.find({argument})
+                    local k = 1
+                    if k == 0 {{ return 1 }}
+                    return token.ping()
+                }} }}"
+            );
+            for optimize in [false, true] {
+                MirCompiler::with_options(optimize).compile_normal_with_published(
+                    request(&text), |view, verification| -> Result<(), String> {
+                        require_artifact_verification(verification);
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                        std::fs::write(std::env::temp_dir().join(format!(
+                            "hako-issued-nullable-owned-receiver-{argument}-opt{optimize}.json"
+                        )), wire).unwrap();
+                        Ok(())
+                    },
+                ).unwrap_or_else(|error| panic!("argument{argument}/opt{optimize}: {error}"));
+            }
         }
     });
 }

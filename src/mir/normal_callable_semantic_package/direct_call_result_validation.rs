@@ -91,3 +91,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn construction_result_call
         .unwrap_or(false)
 }
 
+
+pub(in crate::mir::normal_callable_semantic_package) fn nullable_exits_hold(batch: &VerifiedResolvedCallableSemanticBatchV1, target_batch_slot: u32) -> bool {
+    batch
+        .with_lowering_input(target_batch_slot, |callee_input| {
+            let Some(shape) = callee_input.body_shape() else {
+                return false;
+            };
+            let Some(sites) = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::verified_value_return_sites(callee_input, shape) else {
+                return false;
+            };
+            !sites.is_empty()
+                && sites.iter().all(|site| {
+                    let function = callee_input.function();
+                    matches!(
+                        function.expression_source().literal(site),
+                        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)
+                    ) || function.expression_source().construction(site).is_some()
+                })
+        })
+        .unwrap_or(false)
+}
