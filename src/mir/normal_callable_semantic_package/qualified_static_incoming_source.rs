@@ -106,6 +106,13 @@ impl StaticIncomingSourceV1 {
         self.target.arity() == 0 && self.argument_sites.is_empty() && self.parameters.is_empty()
             && matches!(self.source_result(), VerifiedCallableResultDispositionV1::ExactString)
     }
+    /// K21: a String result whose formals are all i64 takes the qualified input protocol with
+    /// its i64 actuals; no formal needs a borrowed domain.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_i64_input_text_v1(&self) -> bool {
+        self.parameters.len() == self.argument_sites.len()
+            && self.parameters.iter().all(|formal| formal.kind == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
+            && matches!(self.source_result(), VerifiedCallableResultDispositionV1::ExactString)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn source_result(
         &self,
     ) -> &VerifiedCallableResultDispositionV1 {

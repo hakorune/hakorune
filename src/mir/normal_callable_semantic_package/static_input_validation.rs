@@ -324,7 +324,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(|error| format!("{}: {error:?}", freeze("static-input/callee-completion")))?;
         let uses = self
-            .checked_input_use_source_v1(contract)?
+            .checked_static_input_uses_v1(contract)?
             .ok_or_else(|| freeze("static-input/source-uses-unfinished"))?;
         let domains = self
             .static_input_domains_v1(source, contract)
@@ -371,7 +371,7 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             if !Rc::ptr_eq(&proof.source, original)
                 || !Rc::ptr_eq(&proof.completion, completion)
-                || !Rc::ptr_eq(retained, &uses)
+                || retained.as_ref().map(Rc::as_ptr) != uses.as_ref().map(Rc::as_ptr)
                 || retained_domains != &domains
                 || !matches!(
                     snapshot.phase,

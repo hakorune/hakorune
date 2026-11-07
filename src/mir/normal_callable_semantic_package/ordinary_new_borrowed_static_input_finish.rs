@@ -24,7 +24,8 @@ pub(super) enum StaticInputEvidenceV1 {
     Zero,
     Qualified {
         snapshot: Box<PreparedBorrowedCallActualsV1>,
-        uses: Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
+        /// `None` when the callee has no borrowed formal: every formal is an i64 actual (K21).
+        uses: Option<Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>>,
         domains: Box<[super::super::borrowed_formal_entry::BorrowedFormalDomainV1]>,
     },
 }
@@ -43,7 +44,7 @@ impl PartialEq for StaticInputEvidenceV1 {
                     uses: bu,
                     domains: bd,
                 },
-            ) => a == b && Rc::ptr_eq(au, bu) && ad == bd,
+            ) => a == b && au.as_ref().map(Rc::as_ptr) == bu.as_ref().map(Rc::as_ptr) && ad == bd,
             _ => false,
         }
     }
@@ -266,7 +267,7 @@ impl OrdinaryNewClaimLedgerV1 {
             debug_pending("header");
             return Ok(TypedInputClosureV1::Pending);
         }
-        let Some(uses) = self.checked_input_use_source_v1(contract)? else {
+        let Some(uses) = self.checked_static_input_uses_v1(contract)? else {
             debug_pending("uses");
             return Ok(TypedInputClosureV1::Pending);
         };
@@ -334,7 +335,7 @@ impl OrdinaryNewClaimLedgerV1 {
                                     text_result,
                                     evidence: StaticInputEvidenceV1::Qualified {
                                         snapshot: Box::new(snapshot.clone()),
-                                        uses: Rc::clone(&uses),
+                                        uses: uses.clone(),
                                         domains: domains.clone(),
                                     },
                                 },
@@ -356,7 +357,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     };
                     if !Rc::ptr_eq(&proof.source, original)
                         || !Rc::ptr_eq(&proof.completion, completion)
-                        || !Rc::ptr_eq(retained, &uses)
+                        || retained.as_ref().map(Rc::as_ptr) != uses.as_ref().map(Rc::as_ptr)
                         || retained_domains != &domains
                         || rows.opaque_actuals.as_ref() != actuals.as_slice()
                         || rows.ordered_arguments != snapshot.ordered_arguments
