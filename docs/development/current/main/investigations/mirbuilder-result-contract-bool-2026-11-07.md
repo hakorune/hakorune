@@ -56,3 +56,29 @@ ParentCurrentCard: `docs/development/current/main/investigations/app-boxtorrent-
 - 宣言の `: Bool` は、宣言の無い同じ関数と同じ道を通り、同じ名前つきの結果になる(R9)。通る形は Text 入力の static / instance の Bool(`json-stream-aggregator` の `boolField(line, key): Bool` と `ingestLine(line): Bool`、`local b = P.t(line)  if b`)。
 - 宣言の無い Bool の結果が今も繋がっていない形は、宣言があっても同じ名前で拒否される。比較を返す本体(`return x > 1`、`return s == "a"`)、`if f()` の条件に直接置く形、Bool を返す関数を返す形(`return P.t(s)`)、instance の `c.t(..)`、再帰、`print(f())`、exact-i64 入力の static の Bool(`local b = Main.t(4)`)。最後の形に Bool の経路が無いのは、静的な scalar の呼び出しの claim が `ExactI64` の結果だけを前提にしているためで、結果の契約の行(R7)ではなく、使い先の経路の側(§4)にある。
 - 本体が宣言と違う scalar を返す形は `PhysicalHeader DeclaredResultDisagrees` で拒否される(R2)。
+
+## 6. 種類つきの claim の着地と実測(2026-11-07、series bool-claim)
+
+規則 R12〜R18 を先に足し(`ff6a05ad2a`)、実装はその文を写した。最終 commit の binary で EXE まで測った。`宣言なし` は同じ関数から `: Bool` を取った版。
+
+| 形 | 決まる行 | 結果 |
+|---|---|---|
+| T1 `t(x: i64): Bool { return x > 1 }`、`local b = Main.t(4)` と `if b` | R12 R13 R14 R16 | 出力 `1` `0`(宣言なしも同じ) |
+| 比較の種類(`==` `!=` `<` `<=` `>` `>=`)、2 つの formal(`x < y`)、算術の operand(`x + 1 > 3`)、変数と式の実引数(`Main.t(k - 5)`) | R13 R14 R16(比較の表は 1 つ) | 出力が期待どおり |
+| T3 本体 `local b = x > 1` と `return b` | R6 R16 | 出力 `1` `0` |
+| T4 本体 `if x > 1 { return true }` と `return false` | R5 R12 | 出力 `1` `0` |
+| 再帰(`even`/`odd`、自己再帰)。`local k = Main.odd(n - 1)` と `return k` を介する形 | R1 R17 | `Main.even(10)` は `1`、`Main.even(7)` は `0` |
+| 再帰を `return Main.odd(n - 1)` と直接返す形(T7)、`u(x): Bool { return Main.t(x) }`(T5) | R7 | 拒否 `root-exit-source-missing`。基準の binary は I64 の `u(x: i64): i64 { return Main.f(x) }` も同じ名前で拒否する。結果の種類ではなく、static の呼び出しを直接返す出口の経路が無いことが根(§7) |
+| T6 `return x > 1 && y < 3`、T2 `if Main.t(4)`、T9 instance と `me` | R15 R18 | 拒否のまま(§7) |
+| N1 `t(x: i64): Bool { return x + 1 }` | R2 | 拒否。名前は `callable-main/qualified-route-retired`(claim が出ない)。`DeclaredResultDisagrees` は callee を lower する経路で出る名前で、この形では callee が選ばれない |
+| N2 `Main.t(4) + 1` | R15 | 拒否(`object-return/normal-projection-exit`) |
+| N3 `Main.t("a")` | R14 | 拒否(`borrowed-static/source-actual-unavailable`) |
+| N4 `if Main.f(4)`(`f` は i64) | R8 | 拒否(`published-lifecycle-program/instruction-unsupported`、基準と同じ) |
+
+## 7. 止めた物
+
+- 公開 MIR、opcode、ABI、descriptor、C shim は足していない。値としての比較は、既存の公開 MIR の `Compare` を既存の発行点から出す。
+- static の呼び出しを直接返す出口(`return Main.t(x)`、T5 と T7)は、I64 でも基準で拒否される。引数の封印と呼び出しの発行を新しく足す変更で、結果の種類の問題ではないので止めた。
+- 論理(`&&` `||`)を値として返す出口(T6)は、短絡の値を書く CFG の writer が評価器に無い。条件の枠は分岐を前提にしている。分岐と Phi で書くか、非短絡の `BinOp` にするかは評価の意味を決めるので、ユーザーの判断に残す。
+- `if` の条件に static の Bool 呼び出しを直接置く形(T2)は、条件の枠が呼び出しを根に持つ経路の終端検証が未整備で、物理境界の検証(`threading-branch-unvalidated`、単独では `admission-candidate-unavailable`)で止まる。
+- instance と `me`(T9、R18)は、lexical の route が `is_normal_i64_result_v1` で I64 だけを route にしている。Bool には借用 scalar の loan と artifact の行が要る。

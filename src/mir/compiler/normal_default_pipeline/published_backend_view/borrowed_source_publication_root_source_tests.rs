@@ -120,7 +120,7 @@ fn unproven_bound_returns_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for (label, tail, stop) in [
-            ("bound-bool", "local b = true return b", "IncompleteOrdinaryNewCoverage"),
+            ("bound-bool", "local b = true return b", "artifact-root-bool-result-unsupported"),
             (
                 "bound-object",
                 "local g = new Store() return g",

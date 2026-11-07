@@ -91,6 +91,10 @@ impl OrdinaryNewClaimLedgerV1 {
                     if relation.owner() != owner {
                         return Err(freeze("artifact-root-scalar-unavailable"));
                     }
+                    // R2: the root's own contract is i64; a Bool exit is refused as a Bool literal is.
+                    if relation.scalar_kind() != crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer {
+                        return Err(freeze("artifact-root-bool-result-unsupported"));
+                    }
                 }
                 TerminalRelationV1::Value(relation) => {
                     if relation.owner() != owner {

@@ -500,7 +500,11 @@ fn issue_lexical_i64_call<E>(
 ) -> Result<Option<LocalCallObservationV1>, E> {
     match source_scalar_call::demand_v1(input, site, borrowed_arguments)? {
         source_scalar_call::SourceScalarDemandV1::Ready { loan, arguments } => {
-            // R15: a Local takes either scalar kind (S3a); the install table reads the class.
+            if !matches!(destination, LocalCallDestinationV1::Discard)
+                && loan.kind() != SourceScalarKind::Integer
+            {
+                return Ok(None);
+            }
             return Ok(Some(source_scalar_call::observation_v1(
                 input.owner(),
                 statement,
