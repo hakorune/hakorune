@@ -148,14 +148,16 @@ impl OrdinaryNewClaimLedgerV1 {
         if !std::ptr::eq(contract.terminal_relations(), relations.as_ref()) {
             return Err(freeze("cohort-terminal-identity"));
         }
+        let declared = completion.function_exit_contract().declared_result();
         let result_class = self.callable_result_classes.get(source.target());
-        if row.result().is_some()
-            || !completion.function_exit_contract().declared_result().agrees_with_object_result(
-                result_class.and_then(OrdinaryNewResultClassV1::class).unwrap_or_default(),
-                matches!(result_class, Some(OrdinaryNewResultClassV1::NullableObject(_))))
-            || (result_class.is_none()
-                && completion.function_exit_contract().declared_result() != &DeclaredFunctionResultContractV1::Unannotated)
-        {
+        let agrees = match result_class.and_then(|claim| claim.class().map(|class| (class, claim))) {
+            // A claim that names a class: the declaration is absent or names that class.
+            Some((class, claim)) => declared.agrees_with_object_result(
+                class, matches!(claim, OrdinaryNewResultClassV1::NullableObject(_))),
+            // No class to name: only an absent declaration agrees.
+            None => declared == &DeclaredFunctionResultContractV1::Unannotated,
+        };
+        if row.result().is_some() || !agrees {
             return Err(freeze("cohort-result-contract"));
         }
         let Some(kind) = self
