@@ -13,6 +13,9 @@ N10. 各段は元source証拠から最終consumerまで接続し、既存成功�
 N11. nullableの根拠を読む時はcatalog発行後であることを確認し、KnownValueClassの受理投影はadmission_factを使う。
 N12. 受理不変の責務分割は別commitでMIR一致を確認し、新しい契約の証拠だけを既存test familyへ統合する。
 
+N13. receiverの名義classは元Call取得とcatalogへ結び、nullableのclassが既知であることをnonnullや所有権の証明へ読み替えず、既存の元Call commitを物理readの検証でも使う。
+N14. 元結果classからcanonical objectを照合する処理は共通queryへ寄せ、同classの全claimと移管済みResult commitが同じobjectであることを保持する。
+
 ## 段0: ownerと門
 
 | 入力 | 現在の門 | 次の責務 |
