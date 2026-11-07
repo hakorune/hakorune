@@ -115,7 +115,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref().map_err(Clone::clone)?;
         self.verify_original_static_packet_source_v1(original)?;
         if original.caller() != caller || original.target() != target
-            || original.call_site() != &site || !original.qualified_scalar_result_v1().is_some()
+            || original.call_site() != &site || original.qualified_scalar_result_v1().is_none()
             || original.argument_sites().len() != literals.len() {
             return Err(freeze("provider-static/packet-source-drift"));
         }
@@ -322,7 +322,7 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Ok(None);
         };
-        if !original.qualified_scalar_result_v1().is_some() {
+        if original.qualified_scalar_result_v1().is_none() {
             self.checked_completed_static_one_actuals_v1(original)?
                 .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
         }
@@ -353,7 +353,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // its selected reservation, but leave physical route registration to
         // executable phases. Any eventual demand still validates the cohort.
         let passive_arguments = |original: &Rc<StaticIncomingSourceV1>| -> Result<bool, String> {
-            if !original.qualified_scalar_result_v1().is_some() || original.is_zero_input_source_v1() {
+            if original.qualified_scalar_result_v1().is_none() || original.is_zero_input_source_v1() {
                 return Ok(false);
             }
             if !self.borrowed_formal_actuals.get(original.call_site())
@@ -374,7 +374,7 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             if passive_arguments(original)? { continue; }
             if self.is_static_zero_packet_cohort_v1(original)
-                || (!original.qualified_scalar_result_v1().is_some()
+                || (original.qualified_scalar_result_v1().is_none()
                     && self
                         .checked_completed_static_one_actuals_v1(original)?
                         .is_none())
@@ -471,7 +471,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             if self.is_static_zero_packet_cohort_v1(original)
-                || (!original.qualified_scalar_result_v1().is_some()
+                || (original.qualified_scalar_result_v1().is_none()
                     && self
                         .checked_completed_static_one_actuals_v1(original)?
                         .is_none())
@@ -610,7 +610,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return self.verify_original_static_source_v1(original);
         }
         if !original.is_zeroarg_i64_v1()
-            && !original.qualified_scalar_result_v1().is_some()
+            && original.qualified_scalar_result_v1().is_none()
             && self
                 .checked_static_scalar_packet_actuals_v1(original)?
                 .is_none()

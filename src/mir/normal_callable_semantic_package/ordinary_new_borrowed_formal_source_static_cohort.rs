@@ -126,7 +126,7 @@ impl PreparedBorrowedFormalIngressV1 {
             return Ok(None);
         };
         let compare_only = self.is_compare_only_static_input_v1(row.callee);
-        if !original.qualified_scalar_result_v1().is_some()
+        if original.qualified_scalar_result_v1().is_none()
             || self.definitions.contains_key(&row.callee)
             || self.target_static.contains_key(&row.callee)
             || (!compare_only && !self

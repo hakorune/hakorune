@@ -171,7 +171,7 @@ impl StaticIncomingSourceV1 {
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
         self.is_current_owner_i64_source_v1()
-            && !self.qualified_scalar_result_v1().is_some()
+            && self.qualified_scalar_result_v1().is_none()
             && self.argument_sites.len() == 1
             && self.matches_publication_handoff_identity(handoff)
     }

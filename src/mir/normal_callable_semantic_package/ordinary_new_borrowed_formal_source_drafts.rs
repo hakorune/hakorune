@@ -213,7 +213,7 @@ pub(super) fn seed_static_transport_owners_v1(
                 .filter_map(|row| row.as_ref().ok())
                 .any(|incoming| {
                     incoming.callee_owner() == source.callee_owner()
-                        && !incoming.qualified_scalar_result_v1().is_some()
+                        && incoming.qualified_scalar_result_v1().is_none()
                         && !std::rc::Rc::ptr_eq(incoming, source)
                 })
             || !definitions.contains_key(&source.callee_owner())

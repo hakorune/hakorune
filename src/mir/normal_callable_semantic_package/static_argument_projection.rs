@@ -200,7 +200,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         if current_owner {
             !row.is_current_owner_i64_source_v1()
         } else {
-            !row.qualified_scalar_result_v1().is_some()
+            row.qualified_scalar_result_v1().is_none()
         }
     }) {
         return Err(freeze("borrowed-static/source-route-identity"));

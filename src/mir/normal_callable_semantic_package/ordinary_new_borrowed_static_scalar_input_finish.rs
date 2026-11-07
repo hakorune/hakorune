@@ -113,7 +113,7 @@ fn qualified_scalar_actual_v1(
     original: &Rc<StaticIncomingSourceV1>,
     completion: &Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
 ) -> Result<bool, String> {
-    if !original.qualified_scalar_result_v1().is_some() {
+    if original.qualified_scalar_result_v1().is_none() {
         return Ok(false);
     }
     let Some(actual) = pending.get(original.call_site()) else {

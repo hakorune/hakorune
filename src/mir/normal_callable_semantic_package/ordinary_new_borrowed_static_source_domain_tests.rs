@@ -683,7 +683,7 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
     let mut callers = BTreeSet::new();
     for (site, row) in source.source_incoming.static_observations() {
         let row = row.as_ref().expect("original current-owner observation");
-        assert!(!row.qualified_scalar_result_v1().is_some());
+        assert!(row.qualified_scalar_result_v1().is_none());
         assert!(row.require_qualified_scalar_source_v1().is_err());
         assert!(row.current_owner_source().is_some());
         assert_eq!(row.call_site(), site);
@@ -747,7 +747,7 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
                     ResolvedMethodCallReceiverSourceV1::CurrentOwner => {
                         let row = observed.unwrap().unwrap();
                         assert_eq!(row.caller().owner(), "Layout");
-                        assert!(!row.qualified_scalar_result_v1().is_some());
+                        assert!(row.qualified_scalar_result_v1().is_none());
                     }
                     other => panic!("unexpected original receiver {other:?}"),
                 }

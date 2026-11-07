@@ -498,7 +498,7 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert_eq!(fact.target(), &bin_target);
                 assert_eq!(fact.target_formal(), bin_contract.parameters[0].binding);
                 assert_eq!(observed.current_owner_source(), claims.current_owner_source(&good_size, site));
-                assert!(!observed.qualified_scalar_result_v1().is_some());
+                assert!(observed.qualified_scalar_result_v1().is_none());
                 assert!(observed.require_qualified_scalar_source_v1().is_err());
                 let cohort = source.static_incoming_cohort_v1(observed).unwrap();
                 assert!(!cohort.is_empty());

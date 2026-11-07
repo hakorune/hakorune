@@ -179,7 +179,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if original.caller() != caller
                 || original.call_site() != &site
                 || original.target() != target
-                || !original.qualified_scalar_result_v1().is_some()
+                || original.qualified_scalar_result_v1().is_none()
                 || !original.catalog_brand().is_same(claims.catalog_brand())
                 || original.argument_sites().len() != literals.len()
                 || literals.len() != target.arity() as usize
