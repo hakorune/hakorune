@@ -24,6 +24,13 @@ ParentCurrentCard: `docs/development/current/main/investigations/app-boxtorrent-
 | R9 | 宣言の無い関数 | 今の移行用の入口(ExactBool の証明など)のまま。ただし出口は R1 と同じ契約の行で、後段は契約の行だけを読む。宣言の有無で別の道を選ばない。 |
 | R10 | 結果の契約の行 | 完成した行に Unknown、`UnresolvedScalar`、未対応を入れない。 |
 | R11 | 物理の形 | header は契約の行を参照し、物理の形は契約からの投影とする。`ExactTrivialScalarAbiV1` の Bool は結果の投影であり、引数の型には使わない。 |
+| R12 | claim | 静的な scalar の呼び出しの claim は、callee の契約の行から結果の種類（I64 か Bool）を持つ。claim、route、flow、install は 1 つで、種類を引数に持つ。Bool 専用の family、型、述語を足さない。 |
+| R13 | 引数の要求 | 本体の証明が、ある formal を exact-i64 の operand として使うなら、その formal は「要求」になる。要求は scalar の証明が持つ物で、I64 という種類が持つ物ではない。比較と論理の演算子は、operand の要求を合わせて残し、種類だけを Bool にする。 |
+| R14 | 呼ぶ側の引数 | 呼ぶ側は、要求された位置の実引数が exact-i64 であることを、今と同じ道で示す。結果の種類で、この確認を変えない。 |
+| R15 | 使い先 | 呼び出しの結果は、種類の 1 つの表で使い先に入る。算術と i64 の lane は I64 だけ、`if` の条件は Bool だけ（R8）、`local` はどちらも（S3a）、`return` は呼ぶ側の関数自身の契約（R2）に照らす。どの使い先も callee の本体を読み直さない。 |
+| R16 | 終端 | 比較か論理の式を返す出口は、その式の種類を決める表と同じ表で、Bool の scalar の relation になる。出口の種類の表は `TerminalRelationV1::scalar_class()` の 1 つのまま。 |
+| R17 | 再帰 | header と import view は、契約の行から結果の種類を読む。I64 であることを前提にしない。 |
+| R18 | instance と `me` | instance と `me` の呼び出しも、R12 と同じ「種類を持つ claim」を使う（R7）。lexical の route に別の変更が要る時も、同じ種類の欄を使う。 |
 
 ## 3. 完了の条件の各形が決まる行
 
