@@ -21,6 +21,8 @@ N15. 既存Invoke CallのC投影はreceiverが0なら既存TypeError理由302を
 N16. 早期Return後のCall群の投影は既存FinishedBindings::bindingsと同じ透明Jump縮約規則を使い、外側Invoke/結果/Frameと全effectの存続を別に要求する。
 N17. C emitterの800行境界では既存Callの実引数準備をinvocation emitterへ責務移管し、意味不変の別commitと比較後にreceiver検査を同じ準備へ接続する。
 
+N18. null receiverのFaultはcallee入場前なので、移転引数をcalleeがFaultでも消費する既存契約だけでは表せない呼び出しは拒否し、今回のnullable receiverの追加受理はその移転を持たないCallに限る。
+
 ## 段0: ownerと門
 
 | 入力 | 現在の門 | 次の責務 |
