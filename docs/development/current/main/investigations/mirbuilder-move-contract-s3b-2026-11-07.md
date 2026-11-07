@@ -56,3 +56,10 @@ Status: 規則の文書です。authority ではありません。branch `s3b-mo
 
 - M2、M2a、M3、M4 の関数は `home_call_entry_transfer.rs` の `impl PrefixLocalFlow`(move の状態の file)に置く。
 - 消す物: local_statement の 2 か所の binding を解く `match`、2 か所の `was_moved_out`、2 か所の同じ scope の `if`。call_entry の binding を解く `let ... else`、2 か所の `was_moved_out`。scan.rs の掃き出しの `UseAfterMove` の構築。
+
+## Opus の確認(2026-11-07)
+
+- 規則と確認の一覧の commit `3e7beb4d0b` は実装より前。段階 1〜3 は 1 つの commit になった(報告に書いてある)。
+- 足した 4 つの関数は、前の確認と同じ拒否を同じ site で返す(`MoveUnsupported` は `move` の site、`UseAfterMove` は operand の site)。`home_local_call_borrowed_actuals.rs` の `moved` は、後の行(`:169`)でまだ使われている。
+- 最後の binary と test binary は `e1ce026a83` の木から build されていて、その後に変わった source は無い。329 入力と 1,459 本の MIR、全 lib の赤の名前を、Opus も log から読み直した。
+- 指示書に無い 9 形でも前と後が同じだった。`new Node(move a, a.get())` は前から `argument-source-unavailable` で拒否され、`UseAfterMove` の名前にならない(この series の前からの挙動)。

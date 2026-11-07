@@ -227,6 +227,10 @@ S3bの歩Bと歩Aの着地（2026-11-07、Sonnet実装・Opus監査、`421b82d74
 
 S3bの担当の決定の着地（2026-11-07、Sonnet実装・Opus監査、`f862402e71`、[規則](mirbuilder-ownership-route-s3b-2026-11-07.md)）: 関数ごとの切り替えの1段目。受理を変えない置き換え。関数の所有の担当（走査を通らない発行`seed`と`app_main_integer`、走査の道`VerifiedWalk`と`PrefixOnly`）を`OwnershipRouteV1::decide`の1か所で決める。今まで5つの式（`seed_completion`、`verified_walk`など）と18個の`has_*`の変数で決めていた物を、操作と契約の名前の要求19行（`ScanRequestV1`）に置き換えた。`seed`と走査が両方真になるのはapp mainの2つの場合だけで、今と同じく`seed`を出してから走査する。走査の前に旧走査を回すreadinessのprobeは1つのまま（失敗が受理に効くので、新しい解析が答えるまで残す）。他の関数の`borrowed_formal_actuals`を埋めるprobeは担当の外に置いた。演算子の写しの4つ目も1つの表を読むようにした。`ordinary_new_coseal_issue.rs`は820→796行。production +211/−86。監査: 329入力のMIRは同じ、229入力・apps 100本・固定suite 8/8も同じ、全libは赤232で名前の差は前からの並列の競合1組だけ。Opusが前の監査の入力1,459本（通る835、拒否624）で、歩B/Aの前、歩B/Aの後、今回の3つのbinaryの`--dump-mir`を比べ、全部同じだった。途中のcommitも単独でbuildできる。残り: 要求の行は「走査の何が要るか」をまだ持たない（2つの性質だけ）。走査の入口は4つのまま。
 
+S3bの2段目の作り方（2026-11-07、Sonnet比較・Opus確認、[記録](s3b-analysis-options-2026-11-07.md)）: 案1（Proの案。if・loopの無い関数だけを新しい解析に通す）は、通る関数がappsの18〜35%で、同じseriesで消せる旧い判定がほぼ0。案2（文を辿る走査をCFGを辿る形に替える）は、点が文1つだと再帰の書き直しにしかならず、Faultの辺は観測の中に埋まったまま、loopも同じ走査を使う。**ユーザー決定: 案3（観測の中の確認を契約ごとに1か所へ）を1回やり、その後は所有のString・object・nullableの結果へ進む。CFGの作り方（案1か案2）はS4で決める。**
+
+moveの確認の着地（2026-11-07、Sonnet実装・Opus監査、`e1ce026a83`、[規則](mirbuilder-move-contract-s3b-2026-11-07.md)）: 案3の1回目。`move`かどうかの問い（`moved`）とoperandを読む所（`stored_value_operand`）は元から1つだった。重なっていたのは問いの後の確認で、`move`のoperandをlocalのbindingに解く所3→1、`UseAfterMove`を決める所5→1、同じscopeの確認2→1、`stored_value_operand`と同じ式1→0。package側の6か所はclaimの事実を作る別の問いなので残した。production +80/−35。監査: 329入力と1,459本のMIR、229入力、apps 100本、suite 8/8、全libの赤の名前（232）が全部同じ。Opusの指示書に無い9形（同じ呼び出しの中でmoveの後に読む、2回move、i64のmove、share moveを2回、ifの中のmove、moveの後のprint）も前と後で同じ。前からの拒否: `new Node(move a, a.get())`は`UseAfterMove`でなく`argument-source-unavailable`。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
