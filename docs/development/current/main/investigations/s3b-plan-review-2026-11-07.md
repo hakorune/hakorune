@@ -202,3 +202,9 @@ Pro の案(以下「P」)に対し、2 つの案を出します。作るため�
 - 229 入力の内訳、`canonical_app_exe_cases.sh` の埋め込み heredoc は数えていません。
 - 独立 verifier `ownership_ssa/` の対象範囲、loop の所有(`home_prefix_source_loop*.rs`)は読んでいません。
 - build、test、実行はしていません。
+
+## 7. Opus の確認(2026-11-07、読んだだけ)
+
+- `ordinary_new_coseal_issue.rs:372-455` の道の選択に出てくる `has_*` の名前は 26 個あった(本文の「約 20 個」より多い)。`seed_completion`(`:401`)は、本文のとおり走査を通らない道。
+- `emit_root_invoke` が受ける操作は、本文のとおり、後片付け 6 種と入口 4 種だけ(`canonical_cfg/session/invoke.rs:26-48`)。
+- `finish` は、関数の全 block が seal 済みでなければ `UnsealedBlockAtFinish` を返す(`canonical_cfg/session.rs:378-379`)。
