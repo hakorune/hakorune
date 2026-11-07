@@ -274,7 +274,7 @@ static の呼び出しには receiver が無いので、(1) の対象の決定�
 | `p1` | `f(v: i64): i64` を `local a = Main.f(5); return a` で受ける | `qualified-route-retired` | main は `plain_main_integer_result_v1`(`ordinary_new_coseal_issue_walk_triggers.rs:177`)が `has_static_source_local_v1` で偽になり、plain の道を外れる。R1 の `join_static_execution_v1` の `context`(`direct_call_static_execution.rs:124-141`)に main の owner が入らない(呼び出し関係が無く、`new` も `print` も無い)ので、`has_static_execution_for_owner_v1`(`direct_call_loan.rs:346`)も `has_routed_static_local_for_owner_v1`(`packet_entry.rs:451`)も偽。最後に `main_root.rs:161-177` が、arity 0 の main で `static_local_route` が偽かつ qualified の呼び出しがあると、**廃止された qualified の経路の代わりに名前つきで拒否**する |
 | `p1u` | 同 `f(v: i64)`(宣言なし) | `selected-header-missing` | 同じく `context` に入らない。さらに宣言が無い `f(v)` は結果 `None` で、物理 header の行が作られない(`physical_header.rs`: header は `result: Some(abi)` の callee だけ)。`issue_app_main_qualified_receiver_catalog_relation`(`model.rs:260-372`)が、`static_local_route`/`typed_static_route` が偽の時に callee の header を探して無く、`model.rs:357-367` で拒否。main_root に着く前に落ちる |
 | `p2` | `p1` に `local z = new Ctx()` | 通る(`6`) | `requires_new_context_v1`(`ordinary_new_ledger.rs:9-11`)が真になり、`context` に main が入る(`direct_call_static_execution.rs:135`)。R1 が `additions.push`(`:180`)で `Main.f` の呼び出しを加え、`typed_static_route` が真になる |
-| `p3` | `return Main.f(5)` | `main-arguments/root-completion` | terminal が `Call`。`retain_main_arguments_v1`(`ordinary_new_main_arguments.rs:35-41`)が `root_completion` を要るが、**main の root completion が verified にならない**(`root_completion` が `Err`)ので `fault("root-completion")`。R1 の対象は `local_binding().is_some()` の呼び出し(`direct_call_static_execution.rs:149-151`)なので、`return` の直接の転送は R1 に入らない |
+| `p3` | `return Main.f(5)` | `main-arguments/root-completion` | terminal が `Call`。`retain_main_arguments_v1`(`ordinary_new_main_arguments.rs:35-41`)は `root_completion` が `Ok` で無いと `fault("root-completion")` を返す。**なぜ `return Main.f(5)` の main で `root_completion` が `Ok` にならないかは、確かめていない**(未確認。`ordinary_new_coseal_issue.rs` の walk の `Err` 腕で `root_completion = Some(Err(..))` になる経路と読んだ)。R1 の対象は `local_binding().is_some()` の呼び出し(`direct_call_static_execution.rs:149-151`)なので、`return` の直接の転送は R1 に入らない |
 | `p4` | `local a = Main.f(5); print(a); return 0` | 通る | `print` が `flow.lifecycle_prefixes` に `Call` 以外の prefix を作る(`direct_call_static_execution.rs:136-141`)ので `context` に入る |
 | `p5` | 別の static `g` の中の `local a = Main.f(v); return a + 1` を `print(Main.g(5))` で呼ぶ | `instruction-unsupported`(function=`Main.g/1` role=`ordinary_i64`) | `g` は呼び出し関係も `new` も無く `context` に入らないので、R1 の対象にならず、`Main.f(v)` が**生の `MirInstruction::Call`(`Callee::Global`)**のまま MIR に残る。物理側 `validate_instruction_with_context`(`physical_program.rs:600-696`)は、`ordinary` な呼び出しを `Invoke { Call }` の形(`ordinary_call_site_v1`)でだけ受けるので、生の `Call` を `instruction-unsupported`(`:696`)で拒否する |
 
@@ -296,7 +296,7 @@ static の呼び出しには receiver が無いので、(1) の対象の決定�
 
 §5 は案 B の限定版を勧めた。2 回目の読みで、次が変わった。
 
-1. 案 B の限定版は **R1 の `context` の条件に縛られる**(§10)。object の結果を R1 に載せても、文脈なしの `main()` からの qualified の呼び出しは通らない。実アプリは `print` や `new` を持つので多くは `context` に入るが、「local の呼び出しだけを持つ小さな main」は通らない。
+1. 案 B の限定版は **R1 の `context` の条件に縛られる**(§10)。object の結果を R1 に載せても、文脈なしの `main()` からの qualified の呼び出しは通らない。実アプリの多くは `print` や `new` を持つので `context` に入る、と推測するが、数えていない。「local の呼び出しだけを持つ小さな main」は通らない。
 2. 未確認 1 は、**物理側には拒む検査が見つからない**(§9)。案 B の最大の不安は小さくなった。
 3. 未確認 2 は、`a.get()` を通す変更の場所が分かった(`initializer_class` の枝、約 15 行)。案 B でも案 E でも、**この枝は必要**。
 4. 案 E は、道を減らさないが、結果の class の判定 3 か所(instance の `lexical_local_route`、direct の `local_result_class_v1`、R1〜R5 の 39 か所)を表 1 つにし、**相談の 7「static と instance を共通にする」に合う**。
@@ -315,11 +315,12 @@ static の呼び出しには receiver が無いので、(1) の対象の決定�
 
 **未確認の所**(§5 の未確認のうち残る物と、この節で増えた物):
 1. C shim の返却起源の検査(`null / fresh / owned_call`)が static の callee の `return new` でも同じに働くか。
-2. R1 の `materialize_call` の `MirCall` に `Invoke` の包みを付ける writer が、Handle/Text の結果でも同じ形を作るか。
+2. R1 の `materialize_call` の `MirCall` に `Invoke` の包みを付ける writer(`LocalRouteWriterV1::DirectStatic`。`direct_call_static_execution.rs:101`)が、Handle/Text の結果でも同じ形を作るか。
 3. `source-not-i64` が、`q04`/`q07`/`q11`/`q14` の各入力で、どの target の proof の `Err` を demand して出るか(各 proof の grounding の失敗の理由)。
 4. `qualified_scalar_result_v1()` の 39 か所のうち、Handle を通してよい所の数。
 5. R5(式の値の引数枠)を String/object の結果に広げられるか。
 6. 別の static box が複数ある時の `Other.f`。
+7. p3(`return Main.f(5)`)で `root_completion` が `Ok` にならない理由。
 
 ## 12. 記録: `ordinary_new_borrowed_static_packet_entry.rs`(844 行)
 
