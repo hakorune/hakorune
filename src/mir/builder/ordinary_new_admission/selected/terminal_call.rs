@@ -408,8 +408,7 @@ pub(in crate::mir::builder) fn emit_local(
     match result_kind {
         InvokeCallResultKind::Map => ledger.record_map_emission(&owned_site, result, bindings)?,
         InvokeCallResultKind::Handle => {
-            ledger.record_handle_call_emission(&owned_site, result, bindings.clone())?;
-            ledger.record_root_local_call_bindings(owner, owned_site, bindings)?
+            ledger.record_handle_call_emission(&owned_site, result, bindings)?
         }
         InvokeCallResultKind::I64 => ledger.record_root_direct_scalar_call_bindings_v1(
             row, relation.clone(), arguments, invoke, projection, bindings,

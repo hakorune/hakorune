@@ -103,6 +103,10 @@ pub(crate) fn project_static_exact_i64_requirement_v1<'result, 'target, 'catalog
         }
         | VerifiedCallableResultDispositionV1::ExactBool {
             required_i64_arguments,
+        }
+        // K7: a box handle keeps the i64 requirements of its constructor arguments.
+        | VerifiedCallableResultDispositionV1::ExactNominalBox {
+            required_i64_arguments, ..
         }),
     ) = results.disposition(target)
     else {

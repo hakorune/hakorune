@@ -119,7 +119,11 @@ fn seal_local(
         if !lifecycle::completion_ready(completion) { return Err(reject("completion-not-ready")); }
     }
     row.execution = DirectCallExecutionV1::Lifecycle;
-    ledger.record_lifecycle_local_call_site(site.clone(), LocalRouteWriterV1::DirectStatic)?;
+    // A received Handle is owned by its own commit row (`CallReceived`), which holds the
+    // emitted bindings; only a scalar result owes a call-prefix binding group.
+    if local.result() != LocalCallResultClassV1::Handle {
+        ledger.record_lifecycle_local_call_site(site.clone(), LocalRouteWriterV1::DirectStatic)?;
+    }
     Ok(())
 }
 
