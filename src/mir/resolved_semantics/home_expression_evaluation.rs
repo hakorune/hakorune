@@ -336,6 +336,29 @@ impl CheckedExpressionEvaluationV1 {
         }
         Some((carrier, integer, carrier_left))
     }
+    /// R16: a comparison of two exact i64 operands is one `Compare` over the operand
+    /// values; no Invoke or extraction takes part. The returned nodes are (left, right).
+    /// The checked loan's envelope names the domain and the Bool result; no MIR fact participates.
+    pub(crate) fn exact_integer_comparison_nodes_v1(&self, root: usize) -> Option<(usize, usize)> {
+        use crate::mir::dynamic_operator_contract::{DynamicOperatorNormalResultV1 as Normal,
+            DynamicOperatorValueClassV1 as Class};
+        let binary = self.source.nodes().get(root)?.binary()?;
+        let loan = self.operations.iter().find(|loan| loan.node() == root)?;
+        let envelope = loan.single_envelope()?;
+        if !Rc::ptr_eq(loan.source(), &self.source)
+            || envelope.normal_result() != Normal::TrivialBool
+            || envelope.domain().left() != Class::NormalInteger
+            || envelope.domain().right() != Class::NormalInteger
+            || super::operations::comparison_family_v1(binary.operator()) != Some(envelope.domain().family())
+        {
+            return None;
+        }
+        let left = self.source.nodes().iter().position(|node| node.site() == binary.lhs())?;
+        let right = self.source.nodes().iter().position(|node| node.site() == binary.rhs())?;
+        let i64_class = Some(ExpressionLeafClassV1::Value(crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64));
+        (self.class(left) == i64_class && self.class(right) == i64_class
+            && !self.transfers_node(left) && !self.transfers_node(right)).then_some((left, right))
+    }
     pub(crate) fn transfers_node(&self, node: usize) -> bool {
         self.transferred_inputs.contains(&node)
     }

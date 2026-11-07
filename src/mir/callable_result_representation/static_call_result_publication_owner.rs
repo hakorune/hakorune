@@ -287,12 +287,15 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                 insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
                 continue;
             }
+            // An unconditional normal-result proof carries no i64 requirement (R13): a Bool
+            // result with requirements is published only through its general call row.
             if matches!(
                 results.disposition(&expected),
-                Some(
-                    VerifiedCallableResultDispositionV1::ExactString
-                        | VerifiedCallableResultDispositionV1::ExactBool { .. }
-                )
+                Some(VerifiedCallableResultDispositionV1::ExactString)
+            ) || matches!(
+                results.disposition(&expected),
+                Some(VerifiedCallableResultDispositionV1::ExactBool { required_i64_arguments })
+                    if required_i64_arguments.is_empty()
             ) {
                 let handoff =
                     VerifiedStaticCallResultPublicationHandoffV1::project_unconditional_result(

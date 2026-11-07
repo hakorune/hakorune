@@ -673,7 +673,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     materialize,
                 })
             }
-            Leaf::Value(Class::I64) if installs.is_empty() && materialize.is_none() && after_residency.is_none() => None,
+            Leaf::Value(Class::I64 | Class::Bool) if installs.is_empty() && materialize.is_none() && after_residency.is_none() => None,
             _ => return Err(freeze("expression/residence-original-pair")),
         };
         let packet = ReturnExpressionEmissionV1 {

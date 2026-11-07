@@ -45,11 +45,18 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
         expression_value::materialize_text_root(builder, &mut expression, source.owned_text_root_node_v1().is_none(), &source)?;
         expression_value::finish_residence_with_displaced_continuation(builder, &mut expression, displaced)?
     } else { expression_value::finish_scalar_continuation(builder, &mut expression)? };
-    let value = match expression.value.as_operand()? {
-        crate::mir::instruction::StringInvokeOperand::OwnedString(value) if text => *value,
-        crate::mir::instruction::StringInvokeOperand::NormalInteger(value) if !text && !bool_root => *value,
-        crate::mir::instruction::StringInvokeOperand::NormalBool(value) if bool_root => *value,
-        _ => return Err(freeze("expression/residence-root")),
+    let value = if bool_root {
+        // A Bool root is evaluated as its own value class, never as an operand.
+        match &expression.value {
+            crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1::Bool(value) => *value,
+            _ => return Err(freeze("expression/residence-root")),
+        }
+    } else {
+        match expression.value.as_operand()? {
+            crate::mir::instruction::StringInvokeOperand::OwnedString(value) if text => *value,
+            crate::mir::instruction::StringInvokeOperand::NormalInteger(value) if !text => *value,
+            _ => return Err(freeze("expression/residence-root")),
+        }
     };
     let body = expression.body;
     ledger.retain_return_expression_v1(source, value, body.values, body.calls,

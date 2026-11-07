@@ -32,6 +32,8 @@ pub(crate) struct VerifiedStaticExactI64RequirementV1<'result, 'catalog> {
     site: SourceExprSiteV1,
     target: CanonicalSameModuleCallableKeyV1,
     required_i64_arguments: &'result [u32],
+    /// R12: the result kind of the callee's contract row (I64 or Bool).
+    representation: super::VerifiedCallableResultRepresentationV1,
     _seal: VerifiedStaticExactI64RequirementSealV1,
 }
 
@@ -59,6 +61,10 @@ impl<'result, 'catalog> VerifiedStaticExactI64RequirementV1<'result, 'catalog> {
 
     pub(crate) const fn required_i64_arguments(&self) -> &'result [u32] {
         self.required_i64_arguments
+    }
+
+    pub(crate) const fn representation(&self) -> &super::VerifiedCallableResultRepresentationV1 {
+        &self.representation
     }
 
     pub(crate) fn catalog_identity(&self) -> usize {
@@ -91,12 +97,20 @@ pub(crate) fn project_static_exact_i64_requirement_v1<'result, 'target, 'catalog
     if target.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
         return Err(StaticExactI64RequirementErrorV1::TargetMustBeStatic);
     }
-    let Some(VerifiedCallableResultDispositionV1::ExactI64 {
-        required_i64_arguments,
-    }) = results.disposition(target)
+    let Some(
+        disposition @ (VerifiedCallableResultDispositionV1::ExactI64 {
+            required_i64_arguments,
+        }
+        | VerifiedCallableResultDispositionV1::ExactBool {
+            required_i64_arguments,
+        }),
+    ) = results.disposition(target)
     else {
         return Err(StaticExactI64RequirementErrorV1::TargetResultUnavailable);
     };
+    let representation = disposition
+        .representation()
+        .expect("a scalar disposition has a representation");
     if results.call_result(canonical_caller, site).is_some() {
         return Err(StaticExactI64RequirementErrorV1::GeneralCallResultAlreadyAvailable);
     }
@@ -107,6 +121,7 @@ pub(crate) fn project_static_exact_i64_requirement_v1<'result, 'target, 'catalog
         site: site.clone(),
         target: target.clone(),
         required_i64_arguments,
+        representation,
         _seal: VerifiedStaticExactI64RequirementSealV1::new(),
     })
 }

@@ -714,8 +714,16 @@ pub(super) fn emit_checked_scalar_condition_v1(
     fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<ValueId, String> {
     let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(frame, node, values, receiver)?;
-    let (normal, kind, _) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
-        plan.operation().clone(), fault_frame, pending, bindings)?;
+    let (normal, kind) = match (plan.operation(), plan.direct_integer()) {
+        (Some(operation), _) => {
+            let (normal, kind, _) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
+                operation.clone(), fault_frame, pending, bindings)?;
+            (normal, kind)
+        }
+        // Two exact i64 operand values compare directly; nothing is invoked.
+        (None, Some(integer)) => (integer, crate::mir::instruction::InvokeNormalResultKind::I64),
+        (None, None) => return Err(freeze("bool-condition/text-result")),
+    };
     if plan.is_integer_comparison() {
         if kind != crate::mir::instruction::InvokeNormalResultKind::I64 { return Err(freeze("bool-condition/text-result")); }
         let result = builder.next_value_id();

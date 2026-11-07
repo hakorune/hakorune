@@ -33,7 +33,7 @@ impl VerifiedStaticCallResultPublicationDemandV1 {
             caller: requirement.caller().clone(),
             site: requirement.site().clone(),
             target: requirement.target().clone(),
-            representation: VerifiedCallableResultRepresentationV1::ExactI64,
+            representation: requirement.representation().clone(),
             _seal: VerifiedStaticCallResultPublicationDemandSealV1,
         }
     }
@@ -117,7 +117,9 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
             Some(super::VerifiedCallableResultDispositionV1::ExactString) => {
                 VerifiedCallableResultRepresentationV1::ExactString
             }
-            Some(super::VerifiedCallableResultDispositionV1::ExactBool { .. }) => {
+            Some(super::VerifiedCallableResultDispositionV1::ExactBool { required_i64_arguments })
+                if required_i64_arguments.is_empty() =>
+            {
                 VerifiedCallableResultRepresentationV1::ExactBool
             }
             _ => return Err(Error::TargetResultUnavailable),

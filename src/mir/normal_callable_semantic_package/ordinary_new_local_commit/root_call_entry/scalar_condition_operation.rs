@@ -113,11 +113,16 @@ fn checked_scalar_base_operation_v1(
 }
 
 pub(crate) struct CheckedScalarConditionOperationV1 {
-    operation: InvokeOperation,
+    /// `None` for a comparison of two exact i64 operand values: that is one `Compare`
+    /// with no Invoke, and `direct_integer` is its left operand.
+    operation: Option<InvokeOperation>,
+    direct_integer: Option<ValueId>,
     comparison: Option<(crate::mir::CompareOp, ValueId, bool)>,
 }
 impl CheckedScalarConditionOperationV1 {
-    pub(crate) fn operation(&self) -> &InvokeOperation { &self.operation }
+    pub(crate) fn operation(&self) -> Option<&InvokeOperation> { self.operation.as_ref() }
+    /// The left operand a direct integer comparison compares; absent when an Invoke supplies it.
+    pub(crate) fn direct_integer(&self) -> Option<ValueId> { self.direct_integer }
     pub(crate) fn is_integer_comparison(&self) -> bool { self.comparison.is_some() }
     pub(crate) fn comparison_instruction(&self, integer: ValueId, result: ValueId) -> Option<MirInstruction> {
         self.comparison.map(|(op, other, carrier_left)| MirInstruction::Compare {
@@ -151,12 +156,39 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
             _ => return Err(freeze("bool-condition/text-operator")),
         };
         return Ok(CheckedScalarConditionOperationV1 {
-            operation: InvokeOperation::DynamicCarrierInteger { carrier: *carrier },
+            operation: Some(InvokeOperation::DynamicCarrierInteger { carrier: *carrier }),
+            direct_integer: None,
             comparison: Some((op, *other, carrier_left)),
         });
     }
+    if let Some((left, right)) = frame.exact_integer_comparison_nodes_v1(node) {
+        use crate::mir::instruction::StringInvokeOperand as Operand;
+        if receiver.is_some() || values.len() != frame.source().nodes().len() {
+            return Err(freeze("bool-condition/text-comparison-source"));
+        }
+        let operand = |node: usize| match values.get(node).and_then(Option::as_ref).and_then(|value| value.as_operand().ok()) {
+            Some(Operand::NormalInteger(value)) => Ok(*value),
+            _ => Err(freeze("bool-condition/text-operand-order")),
+        };
+        let op = match frame.source().nodes()[node].binary().map(|binary| binary.operator()) {
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal) => crate::mir::CompareOp::Eq,
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual) => crate::mir::CompareOp::Ne,
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less) => crate::mir::CompareOp::Lt,
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::LessEqual) => crate::mir::CompareOp::Le,
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Greater) => crate::mir::CompareOp::Gt,
+            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::GreaterEqual) => crate::mir::CompareOp::Ge,
+            _ => return Err(freeze("bool-condition/text-operator")),
+        };
+        return Ok(CheckedScalarConditionOperationV1 {
+            operation: None,
+            direct_integer: Some(operand(left)?),
+            comparison: Some((op, operand(right)?, true)),
+        });
+    }
     Ok(CheckedScalarConditionOperationV1 {
-        operation: checked_scalar_base_operation_v1(frame, node, values, receiver)?, comparison: None,
+        operation: Some(checked_scalar_base_operation_v1(frame, node, values, receiver)?),
+        direct_integer: None,
+        comparison: None,
     })
 }
 
@@ -175,7 +207,13 @@ pub(crate) fn scalar_condition_bindings_v1(
         if matching.next().is_some() { return Err(freeze("bool-condition/text-compare-duplicate")); }
         Ok(row)
     };
-    let invoke = unique(&|(_, row)| matches!(row, MirInstruction::Invoke { operation, .. } if operation == plan.operation()))?;
+    if let Some(integer) = plan.direct_integer() {
+        // A direct integer comparison is the single original `Compare`; no Invoke or projection exists.
+        let expected = plan.comparison_instruction(integer, result).ok_or_else(|| freeze("bool-condition/text-compare-projection"))?;
+        return Ok(vec![unique(&|(_, row)| row == &expected)?.clone()]);
+    }
+    let operation = plan.operation().ok_or_else(|| freeze("bool-condition/text-compare-invoke"))?;
+    let invoke = unique(&|(_, row)| matches!(row, MirInstruction::Invoke { operation: actual, .. } if actual == operation))?;
     let MirInstruction::Invoke { normal_landing, .. } = invoke.1 else { unreachable!() };
     let normal = unique(&|(_, row)| matches!(row, MirInstruction::InvokeNormalResult { invoke_block, .. } if *invoke_block == invoke.0))?;
     let MirInstruction::InvokeNormalResult { dst, .. } = normal.1 else { unreachable!() };
