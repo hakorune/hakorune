@@ -44,6 +44,8 @@ U32. Map literalとその束縛/分岐による返却は同じexpression環境�
 
 U33. 既存のdisconnected static verifierの宣言scopeとBool再帰の証明budgetは保持し、packageだけが同じproof engineへFreeFunctionを含むscopeを指定し、値class列の収束budgetと旧受理のbudgetを混ぜない。
 
+U34. Unit discardのsource要求とCompletion照合は独立検証として残し、発行するUnitの結果種類も同じcatalogと唯一のInvoke結果表から読む。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
