@@ -23,6 +23,8 @@ N17. C emitterの800行境界では既存Callの実引数準備をinvocation emi
 
 N18. null receiverのFaultはcallee入場前なので、移転引数をcalleeがFaultでも消費する既存契約だけでは表せない呼び出しは拒否し、今回のnullable receiverの追加受理はその移転を持たないCallに限る。
 
+N19. 新しい所有nullable receiverの取得は既存nullable_exits_holdの構築/Null出口の受理検証も共有し、種類/classが既知でもforwardするcalleeを今回の受理へ加えない。
+
 ## 段0: ownerと門
 
 | 入力 | 現在の門 | 次の責務 |
