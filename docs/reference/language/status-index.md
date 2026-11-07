@@ -417,9 +417,9 @@ A static scalar call claim carries the callee's result kind (I64 or Bool) from i
 |---|---|---|---|---|
 | `t(x: i64): Bool { return x > 1 }`, `local b = Main.t(4)` then `if b`, also `local c = Main.t(0)` | refused-named | connected | connected | `1` `0` |
 | the same with `==`, `<` over two formals, `x + 1 > 3`, an argument expression `k - 5` | refused-named | connected | connected | the expected `1` `0` |
-| a body `local b = x > 1 return b`, or `if x > 1 { return true } return false` | refused-named | connected | connected | `1` `0` |
+| a body `local b = x > 1; return b`, or `if x > 1 { return true }; return false` | refused-named | connected | connected | `1` `0` |
 | a body `if ... { return true } else { return false }`, `t(): Bool { return 1 > 0 }`, `local c = b` after the call | refused-named | connected | connected | `1` |
-| mutual or self recursion of `: Bool` callables through `local k = Main.odd(n - 1) return k` | refused-named | refused-named | connected | `even(10)` is `1`, `even(7)` is `0`; undeclared recursion stays `selected-header-missing` |
+| mutual or self recursion of `: Bool` callables through `local k = Main.odd(n - 1); return k` | refused-named | refused-named | connected | `even(10)` is `1`, `even(7)` is `0`; undeclared recursion stays `selected-header-missing` |
 | a Bool callee over an unannotated formal given an integer, `class_id(p) { return true }` | refused-named | connected | connected | `1` (same as the I64 callee) |
 | `u(x: i64): Bool { return Main.t(x) }`, or `return Main.odd(n - 1)` | refused-named | refused-named | refused-named | `root-exit-source-missing` (the i64 callee `u(x: i64): i64 { return Main.f(x) }` is refused by name on the previous main too) |
 | `return x > 1 && y < 3` | refused-named | refused-named | refused-named | `static-execution/completion-not-ready` (no value writer for a short-circuit) |
@@ -427,7 +427,7 @@ A static scalar call claim carries the callee's result kind (I64 or Bool) from i
 | instance `c.t(4)` and `me.t(4)` over exact-i64 input | refused-named | refused-named | refused-named | `local-commit/artifact-source-unavailable`, `object-return/normal-projection-exit` |
 | `t(x: i64): Bool { return x + 1 }` called from `main` | refused-named | n/a | refused-named | `callable-main/qualified-route-retired`; with one exit `return true` it is `PhysicalHeader DeclaredResultDisagrees` |
 | `Main.t(4) + 1`, `Main.t("a")`, `Main.t(true)` | refused-named | refused-named | refused-named | `object-return/normal-projection-exit`, `borrowed-static/source-actual-unavailable`, `callable-main/qualified-route-retired` |
-| `main()` that has a `new` and returns a Bool local, `local s = new Store() local b = true return b` | refused-named | refused-named | n/a | `artifact-root-bool-result-unsupported` (was `IncompleteOrdinaryNewCoverage`; a Bool literal return in `main` already had this name). Without a `new` it is `main-arguments/root-completion`, as before |
+| `main()` that has a `new` and returns a Bool local, `local s = new Store(); local b = true; return b` | refused-named | refused-named | n/a | `artifact-root-bool-result-unsupported` (was `IncompleteOrdinaryNewCoverage`; a Bool literal return in `main` already had this name). Without a `new` it is `main-arguments/root-completion`, as before |
 
 ### Remaining before 3b
 

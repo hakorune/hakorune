@@ -74,7 +74,7 @@ fn exact_i64_bool_call_takes_the_i64_callee_route() {
     let program = |callee: &str, call: &str| format!(
         "static box Main {{\n  {callee}\n  main() {{\n    local b = {call}\n    \
          if b {{ print(1) }} else {{ print(0) }}\n    return 0\n  }}\n}}\n");
-    for body in ["return x > 1", "local c = x > 1 return c", "if x > 1 { return true } return false"] {
+    for body in ["return x > 1", "local c = x > 1\n    return c", "if x > 1 { return true }\n    return false"] {
         for annotation in [": Bool", ""] {
             compile_source(&program(&format!("t(x: i64){annotation} {{ {body} }}"), "Main.t(4)"))
                 .unwrap_or_else(|error| panic!("{annotation} {body}: {error}"));
@@ -85,6 +85,6 @@ fn exact_i64_bool_call_takes_the_i64_callee_route() {
     compile_source(&program(callee, "Main.t(4) + 1")).expect_err("a Bool is not an i64 operand");
     compile_source(&program(callee, "Main.t(\"a\")")).expect_err("a Text actual at an i64 position");
     // R2: an exit that proves the other scalar kind is refused by name once the callee is lowered.
-    let error = compile_source(&program("t(x: i64): Bool { if x > 1 { return true } return x + 1 }", "Main.t(4)")).unwrap_err();
+    let error = compile_source(&program("t(x: i64): Bool { if x > 1 { return true }\n    return x + 1 }", "Main.t(4)")).unwrap_err();
     assert!(error.contains("DeclaredResultDisagrees"), "{error}");
 }
