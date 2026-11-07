@@ -56,3 +56,11 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 | `u(): String { return Main.t() }` | S5(Return の成功で責任が移る)。**I64 でも基準で拒否される形**(Bool の規則 §7)なので、通らない時は止めて理由を書く |
 | `t(): String { return 1 }`、`t(): i64 { return "a" }` | S3、S4 |
 | `t(x: String): String { return x + "d" }` | S9(今の名前のまま) |
+
+## Opus の確認(2026-11-07)
+
+- 規則と一覧の commit `343d545240` は実装より前。
+- 最後の `hakorune` は `61be0127f8` の木から build されていて、`9a625e687a` は test の file 1 つだけの変更だった。全 lib は `9a625e687a` の test binary で、赤 232 の名前が基準と同じ。
+- 指示書に無い 24 形を流した(`/mnt/workdisk/claude-scratch/owned-string-audit/in/`)。`: String` で object、`null`、i64 の local、比較を返す形は全部拒否された(名前は `qualified-route-retired`)。instance の `get(): String { return me.v }`(i64 の field)は `DeclaredResultDisagrees`。`local s = "ab"; return s + "cd"` の本体、受け取った String の `length()`、local を経た転送は、宣言あり・なしで同じ正しい出力だった。`String?` と `StringBox` の宣言は前と同じ拒否。
+- 前からの穴: 使わない box が method を持つと、宣言の有無にかかわらず `published-lifecycle-physical-abi/check-uncovered-function` で拒否される(基準の binary でも同じ)。
+- 足した test 1 本(宣言の表)は、表の行を写す部分もあるが、`String?` を所有の String と読まない事の証拠は他に無いので残した。

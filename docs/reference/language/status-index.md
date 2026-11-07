@@ -429,6 +429,24 @@ A static scalar call claim carries the callee's result kind (I64 or Bool) from i
 | `Main.t(4) + 1`, `Main.t("a")`, `Main.t(true)` | refused-named | refused-named | refused-named | `object-return/normal-projection-exit`, `borrowed-static/source-actual-unavailable`, `callable-main/qualified-route-retired` |
 | `main()` that has a `new` and returns a Bool local, `local s = new Store(); local b = true; return b` | refused-named | refused-named | n/a | `artifact-root-bool-result-unsupported` (was `IncompleteOrdinaryNewCoverage`; a Bool literal return in `main` already had this name). Without a `new` it is `main-arguments/root-completion`, as before |
 
+### declared `String` result (series owned-string)
+
+A `: String` declaration reads the one declared-result table (`DeclaredResultKindV1`) and takes the same Text result contract as an undeclared function, so both reach the existing `OwnedString` call result (rule document `mirbuilder-result-contract-string-2026-11-07.md`, S1 to S9). Measured by EXE with the series binary against the previous main; `undeclared` is the same function without `: String`.
+
+| Form | previous main | undeclared | declared `: String` | Tag or output |
+|---|---|---|---|---|
+| `t(): String { return "abc" }`, `local s = Main.t()` then `print(s)`, or `print(Main.t())` | refused-named | connected | connected | `abc` (was `PhysicalHeader UnsupportedResultAnnotation`) |
+| `u(): String { return Main.t() }`, or `local a = Main.t(); return a` in `u` | refused-named | connected | connected | `abc`, `x` |
+| `local s = Main.t(); local u = Main.t(); print(s + u)` | refused-named | connected | connected | `abcabc` |
+| a body `local s = "ab"; return s + "cd"`, and `s.length()` on the received String | refused-named | connected | connected | `abcd`, exit `1` |
+| instance `g.t()` and `me.t()` | refused-named | connected | connected | `hi` |
+| `: String` that returns `new Leaf(1)`, `null`, an i64 local or `1 < 2` | refused-named | n/a | refused-named | `callable-main/qualified-route-retired` (the name hides the disagreement, as for `: Bool`) |
+| instance `get(): String { return me.v }` over an i64 field | refused-named | n/a | refused-named | `PhysicalHeader DeclaredResultDisagrees` |
+| `t(x: String): String { return x + "d" }` | refused-named | refused-named | refused-named | `borrowed-static/source-actual-unavailable` for both (was `UnsupportedResultAnnotation` when declared) |
+| `: String?`, `: StringBox` | refused-named | n/a | refused-named | `ParameterContract UnsupportedResultType`, `UnsupportedResultAnnotation` |
+| `local t = move s` or `s = Main.t()` on a received String | refused-named | refused-named | refused-named | `MoveUnsupported`, `borrowed-static/local-source-missing` (the same undeclared) |
+| any of the connected forms in a file that also declares an unused box with methods | refused-named | refused-named | refused-named | `published-lifecycle-physical-abi/check-uncovered-function`, declared or not, also on the previous main |
+
 ### Remaining before 3b
 
 The order follows ADR-002 (3a continuation, then 3b). Status is only `done`, `partial` or `not started`; evidence is a row above or a commit. No effort estimate is given.
