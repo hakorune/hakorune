@@ -1,6 +1,7 @@
 //! Join selected Static source edges into the existing affine execution inventory.
 //! The finite context closure chooses an ABI; it never admits module roots or
-//! infers result types. Pure components retain their original scalar protocol.
+//! infers result types. Pure components (no owner binds a carried static call's result) retain
+//! their original scalar protocol; an owner that binds one is in the context (C1-C5).
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
 use crate::mir::builder::{AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
@@ -182,6 +183,10 @@ impl DirectCallDispositionLoansV1 {
                 Ok(())
             }).map_err(|_| reject("source-input"))??;
         }
+        // C3/C4: an owner that receives, in a binding, the result of a static call this family
+        // carries has left the plain route, so it is in the context. The reason does not depend
+        // on whether the owner is `main`.
+        context.extend(additions.iter().map(|(site, _)| site.owner()));
         let mut edges: Vec<_> = additions.iter().map(|(site, row)| (site.owner(), row.callee_owner_v1())).collect();
         let mut direct_sites = BTreeSet::new();
         if let Some(loans) = loans.as_ref() {
@@ -237,7 +242,9 @@ mod tests {
     #[test]
     fn original_static_execution_rows_follow_context_without_admitting_pure_components() {
         for (parameters, methods, body, expected) in [
-            ("", "find(): i64 { return 1 }", "local out = Values.find()", false),
+            // C1/C3: no bound static result is a pure component; binding one enters the context.
+            ("", "find(): i64 { return 1 }", "", false),
+            ("", "find(): i64 { return 1 }", "local out = Values.find()", true),
             ("args", "find(): i64 { return 1 }", "local out = Values.find()", true),
             ("args", "read(count: i64, other: i64): i64 { local n = count + \"d\".length() return 0 }", "local out = Values.read(1, 2)", true),
         ] {
