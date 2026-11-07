@@ -19,12 +19,14 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 | K11 | 段 1(表を 1 つにして instance と direct を替える)は受理を変えない。329 入力と 1,459 本の `--dump-mir` が基準と全部同じである。 |
 | K13 | 受け取った Handle は、自分の commit 行(`CallReceived`)が発行した binding を持つ。static の実行は、call-prefix の binding group を I64、Bool の結果にだけ課し、Handle の site は routed の表に入れない。(実装中に足した行。group を足すと、2 回受ける形で fault-unwind の release を 2 回数えて `handle-release-missing` になった。) |
 | K14 | 他の関数から呼ぶ static の公開の要求(`project_static_exact_i64_requirement_v1`)は、箱の Handle の結果も、constructor の引数の i64 の要求を持つ行として読む。(実装中に足した行。受ける側が main でない形 `g(v) { local a = Main.mk(v) ... }` で `TargetOnlyDispositionMustBeUnavailable` になった。) |
-| K15 | R1 が Text を運ぶ時、Text の観測は、R3 と R4 が今使う source loan の issuer(`LocalCallResultSourceV1::Ordinary(loan)`)から得る。`home_local_call_flow.rs:158` の `assert!` は消さない。観測を手で作らない(K9)。 |
-| K16 | header の行は、callee の契約の行から作る(K1 の表)。「結果が scalar の callee だけ」という条件を「R1 が運ぶ種類」に替える。 |
-| K17 | 受け取った Text の所有と release は S5 のとおり。call-prefix の group を課すかは K13 と同じ問い(release を 2 回数えないか)で決め、課す時も課さない時も理由を書く。 |
-| K18 | R3 が受けていた site は、R1 が同じ出力で受ける。1 つの site はちょうど 1 つの道に入る(K8 は、R3 を消した後は「R1 が受ける」と読む)。 |
+| K15 | (書き直し)案 B を選ぶ。static の String の結果は、R1 ではなく、static の入力の finish(`StaticInputFinishV1`)が運び、受けた String は instance、R4 と同じ Text residence(initializer の expression frame)が持つ。R1 に Text の install は足さない。(旧 K15「R1 が Text の観測を issuer から得る」は消した。) |
+| K16 | (書き直し)header の行を課すのは、R1 の経路だけ。finish の経路(K15)で受ける呼び出しは、main の import view が `static_local_route` で外す(`model.rs:286-300`)ので、header の行を要らない。(旧 K16「header の行を契約の行から作る」は消した。) |
+| K17 | (書き直し)受けた String の所有と release は S5 のとおり、Text residence が持つ。R1 の call-prefix の group は課さない(group を持つのは scalar と Handle の R1 の site だけ)。 |
+| K18 | (書き直し)引数なしの呼び出しは、引数のある呼び出しと同じ finish の「実引数 0 個」の場合として扱う。引数なし専用の判定(`is_zeroarg_text_v1`、`Zero` の evidence、zero packet の枝)は、この規則の実装の後に残さない。1 つの site は、ちょうど 1 つの道に入る。 |
 | K19 | 使い先は R15 の表のまま。Text は算術に入らず、`s + 1` は拒否のまま。 |
 | K20 | 引数が i64 でない static(`t(x: String)`)は R4 のまま。R1 は formal が全部 i64 か無しの呼び出しだけ運ぶ(K7)。 |
+| K21 | 全部の formal が i64 の static が String を返す呼び出しは、static の入力の finish の qualified の evidence(`StaticInputEvidenceV1::Qualified`)で受ける。borrowed の formal が 1 つも無い callee の証拠 `uses` は無し(`None`)で、`domains` は空である。i64 の実引数の証拠は、今ある `snapshot.ordered_arguments`(claim の `required_i64_arguments` から作る)を使い、新しい証拠を手で組まない。 |
+| K22 | 宣言した `x: String` の formal に literal や String の local を渡す形は、宣言の無い `f(x)` と同じ証拠で受ける(段 3)。 |
 | K12 | 段 2 と段 3 が規則の範囲で通らない時は、止まった門の file:line と、その門が何を要るかを書いて止める。公開の追加(MIR、opcode、ABI、descriptor、C shim)が要る時は、その部分を止める。 |
 
 ## 2. 結果の種類を決める所の一覧(`03a36ac2d9`)
@@ -108,3 +110,17 @@ K15〜K20 の範囲で、`t(x: i64): String` を受ける形(k3n、k3un、t1、t
 必要な物: R1 の Text 用の install と emit(S5 の residence)、引数つきの Text の入力の finish。`ordinary_new_borrowed_static_*` の zero packet(R3)は、この 2 つが R1 に入るまで消せない。公開の追加は要らない見込みだが、未確認。
 
 読むだけの報告: Handle の結果で引数が式の形(`Main.mk(n + 1)`、h1)は `static_argument_projection.rs:204-206`(`project_pending_static_source_arguments_for_route_v1`)で `borrowed-static/source-route-identity` になる。この関数は qualified の route に `qualified_scalar_result_v1().is_some()` を要るため、Handle の結果(scalar でない)の行は通らない。`qualified_carried_result_v1()`(K5 を守る別の accessor)に替えれば先へ進むが、その先の gate(式の引数の frame が Handle の結果を運ぶか)は未確認。直していない。
+
+## 6. 段 0: 設計の比較(`40267ba5d9`、`static-text-entry`)
+
+門 1〜3(§5)をどう越えるかで比べた。
+
+| | 案 A: R1 が Text を運ぶ | 案 B: static の入力の finish が運ぶ(選んだ) |
+|---|---|---|
+| 門 1(Text の install) | R1 の `install_routed_local_call`(`home_local_call_route.rs:141`)と `emit_local`(`terminal_call.rs`)に Text residence の入口を足す。Text の local は route でなく initializer の expression frame が持つ(`home_new_prefix_local_statement.rs:~497`)ので、第 2 の所有の入口になる | 足さない。受けた String は今の Text residence のまま(instance、R3、R4 と同じ) |
+| 門 2(`static-zero` の arity 0 と実引数なし。`ordinary_new_borrowed_static_input_finish.rs:402-406`) | 迂回する(R1 は finish を通らない) | evidence の `Qualified` を、borrowed の formal が無い callee にも使う。`uses` を `Option` にして、i64 の formal だけの callee は `None`、`domains` は空 |
+| 門 3(header、`physical_header.rs:91-110`) | header の行を Text の結果にも作る(公開の header の ABI に近い) | 要らない。finish の経路は main の import view が外す(`model.rs:286-300`) |
+| R3 を消せるか | 消せない(R3 は別の経路のまま) | 消せる。`Zero` を「実引数 0 個」の `Qualified` に畳める |
+| nullable(`{Text, null}`) | R1 に Dynamic の入口がまた要る | 同じ finish と Text residence の入口を使える(`completed_instance_nullable_text_source_v1` と同じ residence) |
+
+選ぶ: 案 B。理由は、受けた String の所有を 1 つ(Text residence)に保ち、足す行が `uses` の `Option` 化と 1 つの判定(`is_i64_input_text_v1`)で済み、R3 の判定を消せるから。
