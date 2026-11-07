@@ -1,0 +1,95 @@
+//! Independent sealed-return coverage for direct and lexical lifecycle calls.
+use super::*;
+
+/// Whether the callable's sealed body proves a Map result: its own Map
+/// coverage exists and every verified explicit `return` exit yields a
+/// Map literal. The header annotation alone never decides this.
+/// `return <map-local>` stays outside this source-level proof and fails
+/// closed.
+pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    callable: crate::mir::resolved_semantics::ResolvedCallableRefV1,
+) -> bool {
+    let mut declarations = batch
+        .declarations()
+        .filter(|declaration| declaration.owner() == callable.owner());
+    let Some(declaration) = declarations.next() else {
+        return false;
+    };
+    if declarations.next().is_some() {
+        return false;
+    }
+    let body = declaration.body_shape();
+    if !body
+        .expressions()
+        .iter()
+        .any(|expression| matches!(expression, BodyExpressionShapeV1::MapLiteral { .. }))
+    {
+        return false;
+    }
+    batch
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            let Some(shape) = input.body_shape() else {
+                return false;
+            };
+            let Some(value_sites) =
+                crate::mir::normal_callable_semantic_package::ordinary_new_coseal::verified_value_return_sites(input, shape)
+            else {
+                return false;
+            };
+            !value_sites.is_empty()
+                && value_sites.iter().all(|site| {
+                    matches!(
+                        body.expression_shape(site),
+                        Some(BodyExpressionShapeV1::MapLiteral { .. })
+                    )
+                })
+        })
+        .unwrap_or(false)
+}
+
+/// Whether the callable's sealed body proves an owned-object result:
+/// every verified explicit `return` exit constructs `new` of one agreed
+/// class — the same verified-Completion exit evidence the
+/// `callable_result_classes` claim seals. The header annotation alone
+/// never decides this, and the sealed terminal relation is re-checked
+/// against this class at co-seal.
+pub(in crate::mir::normal_callable_semantic_package) fn construction_result_callee(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+) -> bool {
+    let mut declarations = batch
+        .declarations()
+        .filter(|declaration| declaration.owner() == owner);
+    let Some(declaration) = declarations.next() else {
+        return false;
+    };
+    if declarations.next().is_some() {
+        return false;
+    }
+    batch
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            let Some(shape) = input.body_shape() else {
+                return false;
+            };
+            let Some(value_sites) =
+                crate::mir::normal_callable_semantic_package::ordinary_new_coseal::verified_value_return_sites(input, shape)
+            else {
+                return false;
+            };
+            let mut class: Option<Box<str>> = None;
+            for site in value_sites {
+                let Some(construction_class) = declaration.construction_class(&site) else {
+                    return false;
+                };
+                match &class {
+                    None => class = Some(construction_class),
+                    Some(existing) if existing.as_ref() == construction_class.as_ref() => {}
+                    Some(_) => return false,
+                }
+            }
+            class.is_some()
+        })
+        .unwrap_or(false)
+}
+
