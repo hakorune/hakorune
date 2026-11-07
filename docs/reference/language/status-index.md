@@ -401,12 +401,33 @@ A function result declared `: Bool` is a result-contract row and takes the route
 | the same with `P.t(line + "!")` or `local x = line + "!"` as the argument | connected | connected | `11`, same End count |
 | `if P.t(line)` as the condition, `return s == "a"`, `local c = s == "a" return c` | refused-named | refused-named | `source-use-completion-pending`, `forbidden-operand`, `cohort-unfinished` |
 | a forwarding callee `u(s) { return P.t(s) }`, an instance `c.t(line)` or `me.t(line)`, a mutual recursion | refused-named | refused-named | `cohort-unfinished`, `original-input-not-ready`, `source-use-completion-pending` |
-| i64 input `t(x: i64): Bool`, called from `main` or from a method (`local b = Main.t(4)`, `if Main.t(4)`, `print(Main.t(4))`) | refused-named | refused-named | `borrowed-static/source-unobserved` (no Bool route exists for an exact-i64 static call) |
+| i64 input `t(x: i64): Bool`, called from `main` as `local b = Main.t(4)` | refused-named | connected (see the next section) | `1` / `0` |
+| i64 input `t(x: i64): Bool`, called as `if Main.t(4)` or `print(Main.t(4))` | refused-named | refused-named | `borrowed-static/source-unobserved` before; now `physical-boundary/threading-branch-unvalidated` and `print-expression/source-unavailable` |
 | `t(s): Bool` whose exits return `1`/`2`, or `true` and `2` | refused-named | refused-named | `PhysicalHeader DeclaredResultDisagrees` (declared) |
 | `: bool`, `: Boolean`, `: BoolBox` | refused-named | refused-named | `UnsupportedResultAnnotation` |
 | `bad(x: i64): i64 { return true }` (a declared `i64` whose exit proves a Bool) | refused-named | refused-named | `PhysicalHeader DeclaredResultDisagrees` (was `terminal-scalar-source-missing`) |
 | a `Bool` parameter `t(b: Bool)` | refused-named | refused-named | `ParameterContract UnsupportedDeclaredType` (unchanged) |
 | `print(4 > 1)` | refused-named | n/a | `print-expression/source-unavailable` (unchanged) |
+
+### Bool result of a static call over exact-i64 input (series bool-claim)
+
+A static scalar call claim carries the callee's result kind (I64 or Bool) from its contract row, so a `: Bool` or undeclared Bool callee over exact-i64 input takes the I64 callee's route (rule document `mirbuilder-result-contract-bool-2026-11-07.md`, R12 to R18, section 6). Measured by EXE with the series binary against the previous main; `undeclared` is the same function without `: Bool`.
+
+| Form | previous main | undeclared | declared `: Bool` | Tag or output |
+|---|---|---|---|---|
+| `t(x: i64): Bool { return x > 1 }`, `local b = Main.t(4)` then `if b`, also `local c = Main.t(0)` | refused-named | connected | connected | `1` `0` |
+| the same with `==`, `<` over two formals, `x + 1 > 3`, an argument expression `k - 5` | refused-named | connected | connected | the expected `1` `0` |
+| a body `local b = x > 1 return b`, or `if x > 1 { return true } return false` | refused-named | connected | connected | `1` `0` |
+| a body `if ... { return true } else { return false }`, `t(): Bool { return 1 > 0 }`, `local c = b` after the call | refused-named | connected | connected | `1` |
+| mutual or self recursion of `: Bool` callables through `local k = Main.odd(n - 1) return k` | refused-named | refused-named | connected | `even(10)` is `1`, `even(7)` is `0`; undeclared recursion stays `selected-header-missing` |
+| a Bool callee over an unannotated formal given an integer, `class_id(p) { return true }` | refused-named | connected | connected | `1` (same as the I64 callee) |
+| `u(x: i64): Bool { return Main.t(x) }`, or `return Main.odd(n - 1)` | refused-named | refused-named | refused-named | `root-exit-source-missing` (the i64 callee `u(x: i64): i64 { return Main.f(x) }` is refused by name on the previous main too) |
+| `return x > 1 && y < 3` | refused-named | refused-named | refused-named | `static-execution/completion-not-ready` (no value writer for a short-circuit) |
+| `if Main.t(4)`, `print(Main.t(4))` | refused-named | refused-named | refused-named | `physical-boundary/threading-branch-unvalidated`, `print-expression/source-unavailable` |
+| instance `c.t(4)` and `me.t(4)` over exact-i64 input | refused-named | refused-named | refused-named | `local-commit/artifact-source-unavailable`, `object-return/normal-projection-exit` |
+| `t(x: i64): Bool { return x + 1 }` called from `main` | refused-named | n/a | refused-named | `callable-main/qualified-route-retired`; with one exit `return true` it is `PhysicalHeader DeclaredResultDisagrees` |
+| `Main.t(4) + 1`, `Main.t("a")`, `Main.t(true)` | refused-named | refused-named | refused-named | `object-return/normal-projection-exit`, `borrowed-static/source-actual-unavailable`, `callable-main/qualified-route-retired` |
+| `main()` returning a Bool local, `local b = true return b` | refused-named | refused-named | n/a | `artifact-root-bool-result-unsupported` (was `IncompleteOrdinaryNewCoverage`; a Bool literal return in `main` already had this name) |
 
 ### Remaining before 3b
 

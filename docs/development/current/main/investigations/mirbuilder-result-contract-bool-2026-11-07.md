@@ -70,8 +70,8 @@ ParentCurrentCard: `docs/development/current/main/investigations/app-boxtorrent-
 | 再帰(`even`/`odd`、自己再帰)。`local k = Main.odd(n - 1)` と `return k` を介する形 | R1 R17 | `Main.even(10)` は `1`、`Main.even(7)` は `0` |
 | 再帰を `return Main.odd(n - 1)` と直接返す形(T7)、`u(x): Bool { return Main.t(x) }`(T5) | R7 | 拒否 `root-exit-source-missing`。基準の binary は I64 の `u(x: i64): i64 { return Main.f(x) }` も同じ名前で拒否する。結果の種類ではなく、static の呼び出しを直接返す出口の経路が無いことが根(§7) |
 | T6 `return x > 1 && y < 3`、T2 `if Main.t(4)`、T9 instance と `me` | R15 R18 | 拒否のまま(§7) |
-| N1 `t(x: i64): Bool { return x + 1 }` | R2 | 拒否。名前は `callable-main/qualified-route-retired`(claim が出ない)。`DeclaredResultDisagrees` は callee を lower する経路で出る名前で、この形では callee が選ばれない |
-| N2 `Main.t(4) + 1` | R15 | 拒否(`object-return/normal-projection-exit`) |
+| N1 `t(x: i64): Bool { return x + 1 }` | R2 | 拒否。名前は `callable-main/qualified-route-retired`(claim が出ない)。`DeclaredResultDisagrees` は callee が選ばれる経路で出る名前で、出口の 1 つが `return true` の形（`if x > 1 { return true } return x + 1`）では `PhysicalHeader DeclaredResultDisagrees` になる。全出口が `x + 1` の形では callee が選ばれず、この名前は出ない |
+| N2 `Main.t(4) + 1` | R15 | 拒否(`object-return/normal-projection-exit`、基準は `borrowed-static/source-unobserved`) |
 | N3 `Main.t("a")` | R14 | 拒否(`borrowed-static/source-actual-unavailable`) |
 | N4 `if Main.f(4)`(`f` は i64) | R8 | 拒否(`published-lifecycle-program/instruction-unsupported`、基準と同じ) |
 
