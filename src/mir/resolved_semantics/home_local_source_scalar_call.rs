@@ -31,12 +31,28 @@ pub(crate) enum LocalCallResultClassV1 {
 }
 
 impl LocalCallResultClassV1 {
-    /// R15: the one table from a scalar result kind to its published call result.
-    /// Only I64 and Bool are scalar; every other class answers `None`.
+    /// K1/K2: the one table from a call's result kind to its published call result. Classes that
+    /// need more than a kind to publish (a borrowed or mixed result) answer `None`.
+    pub(crate) const fn invoke_result(self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
+        use crate::mir::instruction::InvokeCallResultKind as Kind;
+        match self {
+            Self::I64 => Some(Kind::I64),
+            Self::Bool => Some(Kind::Bool),
+            Self::Text => Some(Kind::OwnedString),
+            Self::Handle => Some(Kind::Handle),
+            Self::Nullable => Some(Kind::NullableHandle),
+            Self::Map => Some(Kind::Map),
+            Self::Unit => Some(Kind::Unit),
+            Self::Dynamic => Some(Kind::DynamicCarrier),
+            Self::BorrowedNullable | Self::MixedObject => None,
+        }
+    }
+
+    /// R15 (K5): the scalar rows of the table. Only I64 and Bool are scalar; every other class
+    /// answers `None`, so a Text or Handle result never passes a scalar gate.
     pub(crate) const fn scalar_invoke_result(self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
         match self {
-            Self::I64 => Some(crate::mir::instruction::InvokeCallResultKind::I64),
-            Self::Bool => Some(crate::mir::instruction::InvokeCallResultKind::Bool),
+            Self::I64 | Self::Bool => self.invoke_result(),
             _ => None,
         }
     }

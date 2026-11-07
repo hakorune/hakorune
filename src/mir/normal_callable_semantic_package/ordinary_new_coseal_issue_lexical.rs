@@ -173,21 +173,27 @@ pub(super) fn lexical_local_route(
     let (key, target_batch_slot, callee_owner, arity) =
         lexical_claim_local_target(selected, batch, candidates, input, site)?;
     let claim = callable_result_classes.get(&key);
-    if matches!(
+    // K3: the lexical lane decides the callee's result class here, and the one route table turns
+    // the class into the lane's route.
+    use crate::mir::resolved_semantics::home_new_prefix::{CallLaneV1, LocalCallResultClassV1 as Class};
+    let class = if matches!(
         claim,
         Some(crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_))
     ) {
-        return nullable_exits_hold(batch, target_batch_slot).then_some(LocalCallRouteV1::LexicalNullable);
-    }
-    all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
-    if crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::construction_result_callee(
-        batch,
-        callee_owner,
-    ) {
-        return Some(LocalCallRouteV1::LexicalHandle);
-    }
-    (claim.is_none() && borrowed_i64_results.is_normal_i64_result_v1(&callee_owner))
-        .then_some(LocalCallRouteV1::LexicalI64)
+        nullable_exits_hold(batch, target_batch_slot).then_some(Class::Nullable)?
+    } else {
+        all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
+        if crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::construction_result_callee(
+            batch,
+            callee_owner,
+        ) {
+            Class::Handle
+        } else {
+            (claim.is_none() && borrowed_i64_results.is_normal_i64_result_v1(&callee_owner))
+                .then_some(Class::I64)?
+        }
+    };
+    LocalCallRouteV1::for_result(CallLaneV1::Lexical, class)
 }
 
 /// Every verified value-return of the callee is `return null` or a

@@ -260,7 +260,7 @@ mod static_scalar_call_claim;
 pub(crate) use static_scalar_call_claim::StaticScalarCallClaimV1;
 #[path = "home_local_call_route.rs"]
 mod local_call_route;
-pub(crate) use local_call_route::LocalCallRouteV1;
+pub(crate) use local_call_route::{CallLaneV1, LocalCallRouteV1};
 #[path = "home_map_descendant_flow.rs"]
 mod map_descendant_flow;
 #[path = "home_map_flow.rs"]

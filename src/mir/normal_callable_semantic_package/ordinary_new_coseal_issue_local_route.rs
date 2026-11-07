@@ -5,7 +5,7 @@
 //! source for that kind. A kind never asks another kind's class source, and no
 //! answer for one kind falls through to another.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::{LocalCallRouteV1, StaticScalarCallClaimV1};
+use crate::mir::resolved_semantics::home_new_prefix::{CallLaneV1, LocalCallRouteV1, StaticScalarCallClaimV1};
 use crate::mir::resolved_semantics::{
     BindingKindV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1,
 };
@@ -39,11 +39,7 @@ impl LocalRouteSourcesV1<'_> {
                 .and_then(|loan| {
                     loan.local_result_class_v1(self.batch, self.parameter_contracts, self.input, site)
                 })
-                .map(|class| match class {
-                    DirectLocalResultV1::I64 => LocalCallRouteV1::DirectI64,
-                    DirectLocalResultV1::Map => LocalCallRouteV1::DirectMap,
-                    DirectLocalResultV1::Handle => LocalCallRouteV1::DirectHandle,
-                }));
+                .and_then(|class| LocalCallRouteV1::for_result(CallLaneV1::Direct, class.class())));
         }
         let Some(call) = function.method_call(site.site()) else {
             return Ok(None);

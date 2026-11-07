@@ -408,6 +408,17 @@ pub(in crate::mir::normal_callable_semantic_package) enum DirectLocalResultV1 {
     Handle,
 }
 
+impl DirectLocalResultV1 {
+    /// K2: the direct lane's result class in the one table's vocabulary.
+    pub(in crate::mir::normal_callable_semantic_package) const fn class(self) -> LocalCallResultClassV1 {
+        match self {
+            Self::I64 => LocalCallResultClassV1::I64,
+            Self::Map => LocalCallResultClassV1::Map,
+            Self::Handle => LocalCallResultClassV1::Handle,
+        }
+    }
+}
+
 impl DirectCallDispositionLoanV1 {
     /// The ready row and emission of a direct call whose resolved target and
     /// argument sites agree with the source inventory: the shared structure of

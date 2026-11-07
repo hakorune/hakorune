@@ -24,7 +24,28 @@ pub(crate) enum LocalCallRouteV1 {
     ReceiverHandle,
 }
 
+/// K2: which call lane asks the route table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CallLaneV1 {
+    Lexical,
+    Direct,
+}
+
 impl LocalCallRouteV1 {
+    /// K2/K3: the one table from a result class to the route of each lane. The instance
+    /// (lexical) and bare (direct) lanes read this table; a class a lane cannot carry is `None`.
+    pub(crate) const fn for_result(lane: CallLaneV1, class: LocalCallResultClassV1) -> Option<Self> {
+        match (lane, class) {
+            (CallLaneV1::Lexical, LocalCallResultClassV1::I64) => Some(Self::LexicalI64),
+            (CallLaneV1::Lexical, LocalCallResultClassV1::Handle) => Some(Self::LexicalHandle),
+            (CallLaneV1::Lexical, LocalCallResultClassV1::Nullable) => Some(Self::LexicalNullable),
+            (CallLaneV1::Direct, LocalCallResultClassV1::I64) => Some(Self::DirectI64),
+            (CallLaneV1::Direct, LocalCallResultClassV1::Map) => Some(Self::DirectMap),
+            (CallLaneV1::Direct, LocalCallResultClassV1::Handle) => Some(Self::DirectHandle),
+            _ => None,
+        }
+    }
+
     pub(crate) const fn result(&self) -> LocalCallResultClassV1 {
         match self {
             Self::DirectI64 | Self::LexicalI64 => LocalCallResultClassV1::I64,
