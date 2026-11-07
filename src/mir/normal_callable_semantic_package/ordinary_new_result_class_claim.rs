@@ -104,12 +104,7 @@ impl OrdinaryNewResultClassV1 {
     }
     /// The Invoke result kind of a class-bearing result; forwarded results have none.
     pub(crate) fn invoke_result_kind(&self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
-        use crate::mir::instruction::InvokeCallResultKind as Kind;
-        match self {
-            Self::Object(_) => Some(Kind::Handle),
-            Self::NullableObject(_) => Some(Kind::NullableHandle),
-            Self::NullableForwarded { .. } => None,
-        }
+        self.local_call_result()?.invoke_result()
     }
     /// The local-call result class of a class-bearing result; forwarded results have none.
     pub(crate) fn local_call_result(&self) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {

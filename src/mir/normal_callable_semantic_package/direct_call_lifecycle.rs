@@ -342,7 +342,8 @@ impl DirectCallDispositionLoanV1 {
         .then_some((row, emission))
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn is_i64_call(
+    /// Independent declared call-ABI check, never a semantic result-kind decision.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_i64_call_abi(
         &self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &OwnedExprSiteV1,

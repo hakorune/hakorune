@@ -520,7 +520,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             source_claims::ordinary_candidate_compatible_v1(&candidates, site, binding)
                         }, &mut |site| {
                             let direct = owner_loan
-                                .is_some_and(|loan| loan.is_i64_call(input, site));
+                                .is_some_and(|loan| loan.has_i64_call_abi(input, site));
                             let instance = is_app_main
                                 && input.function().method_calls().any(|(call_site, call)| {
                                     call_site == site.site()
