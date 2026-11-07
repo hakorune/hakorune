@@ -51,3 +51,12 @@ Status: 規則の文書です。authority ではありません。branch `s3b-ow
 - `HomesV1` の外から `push`、`retain`、`remove`、代入で `homes` を直接書き換える所は 0 にする(`commit` は遷移操作が計算した並びを採用する操作)。
 - 歩 A の型は `FaultCleanupPlanV1`(`selected/fault_cleanup_plan.rs`)で、builder の `ordinary_new_admission` に置く。
 - builder 側の一時値と Home の列を作る関数は、package 側の同名の関数(`root_cleanup_order_paths.rs`)と別の物なので、計画の method `owed_operations` に移して名前を変えた。
+
+## Opus の確認(2026-11-07)
+
+- 規則の commit `4c8e1e2704` は実装より前。実装の後の `421b82d74c` は型の名前を合わせただけで、規則の中身は弱めていない。ただし「1 つの型」は、`HomesV1` と `PrefixLocalFlow` の操作の組になった。
+- 最後の binary と test binary は `421b82d74c` の木から build されていて、その後に変わった source は無い。途中の `886ba2ca89` も単独で `cargo check --lib` が通る。
+- 生成される MIR の比較(329 入力)を Opus も読み直し、全部が同じだった。指示書に無い 32 形(move の連鎖、`new` の実引数の中の呼び出し、`take` の 2 つの実引数、文字列の一時値と print、分岐の中の move、使用後 move)でも、前と後で MIR、出力、拒否の名前が全部同じだった。
+- 独立検証と package 側の照合は計画の型を読まない(`FaultCleanupPlanV1` は `crate::mir::builder` の中だけで見える)。S3b-R7 を満たす。
+- 全 lib の新しい赤 `published_array_element_writes_compile_object_without_void_result_leak` は、手で組んだ MIR を LLVM の入口に通す test。変えたコードを通らず、入口は環境変数を読むので、並列の競合と判断した。
+- 残り: S3b-R1 の責任の ID は `LiveHomeV1` の origin で持ち、新しい型にしていない。S3b-R5a の 3 つの登録先は、型でなく計画の constructor で分けている。`HomesV1::entry` と `commit` は crate の中から使えるので、書き換えが 0 なのは `push`、`retain`、`remove` の形についてである。関数ごとの切り替えでは、この 2 つの入口も解析の型の中に入れる。
