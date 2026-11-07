@@ -488,14 +488,11 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn checked_local_scalar_call_result_v1(
         &self, row: &LexicalInstanceCallDispositionRowV1,
     ) -> Result<InvokeCallResultKind, String> {
-        use crate::mir::resolved_semantics::home_new_prefix::{LocalCallResultClassV1, SourceScalarKind};
+        use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
         let observation = self.lexical_i64_call_source(row.call_site())
             .ok_or_else(|| freeze("lexical-scalar/observation-missing"))?;
-        let expected = match observation.result() {
-            LocalCallResultClassV1::I64 => InvokeCallResultKind::I64,
-            LocalCallResultClassV1::Bool => InvokeCallResultKind::Bool,
-            _ => return Err(freeze("lexical-scalar/observation-kind")),
-        };
+        let expected = observation.result().scalar_invoke_result()
+            .ok_or_else(|| freeze("lexical-scalar/observation-kind"))?;
         if observation.owner() != row.call_site().owner() || row.result() != Some(expected) {
             return Err(freeze("lexical-scalar/result-drift"));
         }

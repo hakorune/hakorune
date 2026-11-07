@@ -95,16 +95,7 @@ fn checked_scalar_base_operation_v1(
             _ => Err(freeze("bool-condition/text-operand-order")),
         }
     };
-    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
-    let op = match binary.operator() {
-        Op::Equal => crate::mir::CompareOp::Eq,
-        Op::NotEqual => crate::mir::CompareOp::Ne,
-        Op::Less => crate::mir::CompareOp::Lt,
-        Op::LessEqual => crate::mir::CompareOp::Le,
-        Op::Greater => crate::mir::CompareOp::Gt,
-        Op::GreaterEqual => crate::mir::CompareOp::Ge,
-        _ => return Err(freeze("bool-condition/text-operator")),
-    };
+    let op = binary.operator().compare_op().ok_or_else(|| freeze("bool-condition/text-operator"))?;
     Ok(InvokeOperation::String(Operation::Compare {
         op,
         left: operand(binary.lhs())?,
@@ -150,11 +141,9 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
         let Operand::NormalInteger(other) = operand(integer_node)? else {
             return Err(freeze("bool-condition/text-operand-order"));
         };
-        let op = match frame.source().nodes()[node].binary().map(|binary| binary.operator()) {
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Greater) => crate::mir::CompareOp::Gt,
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less) => crate::mir::CompareOp::Lt,
-            _ => return Err(freeze("bool-condition/text-operator")),
-        };
+        let op = frame.source().nodes()[node].binary().and_then(|binary| binary.operator().compare_op())
+            .filter(|op| matches!(op, crate::mir::CompareOp::Gt | crate::mir::CompareOp::Lt))
+            .ok_or_else(|| freeze("bool-condition/text-operator"))?;
         return Ok(CheckedScalarConditionOperationV1 {
             operation: Some(InvokeOperation::DynamicCarrierInteger { carrier: *carrier }),
             direct_integer: None,
@@ -170,15 +159,8 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
             Some(Operand::NormalInteger(value)) => Ok(*value),
             _ => Err(freeze("bool-condition/text-operand-order")),
         };
-        let op = match frame.source().nodes()[node].binary().map(|binary| binary.operator()) {
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal) => crate::mir::CompareOp::Eq,
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual) => crate::mir::CompareOp::Ne,
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less) => crate::mir::CompareOp::Lt,
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::LessEqual) => crate::mir::CompareOp::Le,
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Greater) => crate::mir::CompareOp::Gt,
-            Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::GreaterEqual) => crate::mir::CompareOp::Ge,
-            _ => return Err(freeze("bool-condition/text-operator")),
-        };
+        let op = frame.source().nodes()[node].binary().and_then(|binary| binary.operator().compare_op())
+            .ok_or_else(|| freeze("bool-condition/text-operator"))?;
         return Ok(CheckedScalarConditionOperationV1 {
             operation: None,
             direct_integer: Some(operand(left)?),

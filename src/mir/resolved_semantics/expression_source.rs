@@ -38,6 +38,22 @@ pub(crate) enum ResolvedBinaryOperatorV1 {
     Or,
 }
 
+impl ResolvedBinaryOperatorV1 {
+    /// The one table from a comparison operator to its published compare; every
+    /// other operator answers `None`.
+    pub(crate) const fn compare_op(self) -> Option<crate::mir::CompareOp> {
+        match self {
+            Self::Equal => Some(crate::mir::CompareOp::Eq),
+            Self::NotEqual => Some(crate::mir::CompareOp::Ne),
+            Self::Less => Some(crate::mir::CompareOp::Lt),
+            Self::LessEqual => Some(crate::mir::CompareOp::Le),
+            Self::Greater => Some(crate::mir::CompareOp::Gt),
+            Self::GreaterEqual => Some(crate::mir::CompareOp::Ge),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedUnaryOperatorV1 {
     Copy,

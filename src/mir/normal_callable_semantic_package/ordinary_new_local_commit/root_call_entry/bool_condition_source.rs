@@ -362,15 +362,9 @@ impl EmittedBoolConditionProjectionV1 {
                     let lhs = self.value_at(binary.lhs())?;
                     let rhs = self.value_at(binary.rhs())?;
                     let expected = match binary.operator() {
-                        ResolvedBinaryOperatorV1::Equal => Some(crate::mir::CompareOp::Eq),
-                        ResolvedBinaryOperatorV1::NotEqual => Some(crate::mir::CompareOp::Ne),
-                        ResolvedBinaryOperatorV1::Less => Some(crate::mir::CompareOp::Lt),
-                        ResolvedBinaryOperatorV1::LessEqual => Some(crate::mir::CompareOp::Le),
-                        ResolvedBinaryOperatorV1::Greater => Some(crate::mir::CompareOp::Gt),
-                        ResolvedBinaryOperatorV1::GreaterEqual => Some(crate::mir::CompareOp::Ge),
                         ResolvedBinaryOperatorV1::Add | ResolvedBinaryOperatorV1::Subtract
                         | ResolvedBinaryOperatorV1::Multiply => None,
-                        _ => return Err(freeze("bool-condition/operator-kind")),
+                        operator => Some(operator.compare_op().ok_or_else(|| freeze("bool-condition/operator-kind"))?),
                     };
                     let (a, b) = match &append.1 {
                         MirInstruction::Compare { dst, op, lhs, rhs }

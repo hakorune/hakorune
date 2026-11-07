@@ -213,12 +213,11 @@ impl EmittedLexicalCallProjectionV1 {
         check_coordinates: bool,
     ) -> Result<(), String> {
         use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
-        let expected = match source.result() {
-            Class::I64 => InvokeCallResultKind::I64,
-            Class::Bool => InvokeCallResultKind::Bool,
-            Class::Unit => InvokeCallResultKind::Unit,
-            Class::Handle => InvokeCallResultKind::Handle,
-            Class::Nullable => InvokeCallResultKind::NullableHandle,
+        let expected = match (source.result().scalar_invoke_result(), source.result()) {
+            (Some(scalar), _) => scalar,
+            (None, Class::Unit) => InvokeCallResultKind::Unit,
+            (None, Class::Handle) => InvokeCallResultKind::Handle,
+            (None, Class::Nullable) => InvokeCallResultKind::NullableHandle,
             _ => return Err(freeze("source-loop/call-source")),
         };
         if self.call_site() != source.site()
