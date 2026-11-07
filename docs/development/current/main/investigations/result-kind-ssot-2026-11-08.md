@@ -30,6 +30,9 @@ U23. resolved証拠はsource factsの不動点・receiver正規化とborrowed pr
 
 U24. 遅いText/nullable-Text転送の検証済み証拠も同じ結果rowへ照合し、独立したterminal検証はcatalogの種類との一致を確かめるだけとし、空のterminal集合からI64を補わない。
 
+U25. K13は単なるHandleの差ではなく実際の記録ownerの差を保持し、staticのCallReceived単独記録に別prefixを足さず、lexicalの同じInvokeを指すgroupとCallReceivedの共有は元packet照合を残す。
+U26. direct callの宣言済みi64 ABI検査は結果種類の推測ではないため名前もABI検査とし、ordinary objectの物理結果は既存LocalCallResultClassV1の一つの表へ委譲する。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
@@ -57,3 +60,9 @@ object claimと直接構築検証の範囲差、nullable claimとNull/直接構�
 staticの元契約を所有する同じcatalogへresolved object/nullable、instance scalar、Map/Unitと遅いText証拠を結び、lexical/direct/root/R1/staticの結果選択を同catalogへ接続した。
 全return構築検査はcatalogのclassを引数に取る独立検証とし、terminalの種類はcatalogとの独立した一致検証に限定した。
 段1のbinaryで329入力と1459入力のexit・MIR・拒否は差0、timeout 0で、focusedは12 PASSと既知のFAIL 1件だった。
+
+## K13の独立した記録責務
+
+staticのHandle emitterはterminal_call.rsのrecord_handle_call_emissionでCallReceivedへ記録し、その分岐ではroot prefix groupを作らない。
+lexicalのlifecycle Object emitterはterminal_call/lexical_nullable.rsでrecord_root_lexical_call_bindingsへ記録した同じInvokeをCallReceivedにも持たせ、local_commit/handle_call.rsのshared_received_call_sites_v1とpacket照合が二重発行を拒否する。
+呼び方の名前や結果kindだけで両者へ一律にgroupを足すのではなく、この物理ownerの差を保持して結果kindと記録責務を分離する。
