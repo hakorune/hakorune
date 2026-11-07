@@ -33,7 +33,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
     local_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::StaticScalarCallClaimV1>,
         OrdinaryNewCoSealIssueV1,
     >,
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::super::ReceiverCallClassObservationV1>,

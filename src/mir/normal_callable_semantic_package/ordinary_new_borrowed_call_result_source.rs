@@ -228,8 +228,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         // The scalar expression loan belongs to a CallArgument frame. Other
         // scalar consumers keep their existing input protocol, selected from
         // the source purpose before any protocol validation is attempted.
-        if matches!(original.source_result(),
-            crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactI64 { .. })
+        if original.source_result().scalar_result_class().is_some()
             && !expression.is_some_and(|plan| plan.owner() == site.owner()
                 && (matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. })
                     // Any other use site takes this result only while its
@@ -309,12 +308,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
 /// Once selected, missing/refused actuals remain terminal refusals.
 fn static_primitive_result_v1(source: &StaticIncomingSourceV1)
     -> Result<Option<LocalCallResultClassV1>, String> {
-    use crate::mir::callable_result_representation::{VerifiedCallableResultDispositionV1 as D,
-        VerifiedCallableResultRepresentationV1 as R};
-    let (class, representation) = match source.source_result() {
-        D::ExactI64 { .. } => (LocalCallResultClassV1::I64, R::ExactI64),
-        D::ExactBool { .. } => (LocalCallResultClassV1::Bool, R::ExactBool),
-        _ => return Ok(None),
+    use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1 as R;
+    let Some(class) = source.source_result().scalar_result_class() else {
+        return Ok(None);
+    };
+    let representation = match class {
+        LocalCallResultClassV1::Bool => R::ExactBool,
+        _ => R::ExactI64,
     };
     if source.call_result_evidence().is_some_and(|row| row.static_target_key() != Some(source.target())
         || row.result_representation() != representation) {

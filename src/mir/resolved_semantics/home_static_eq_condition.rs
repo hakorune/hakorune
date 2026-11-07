@@ -49,7 +49,7 @@ fn source_pair(
 fn checked_pair<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root: &SourceExprSiteV1,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
 ) -> Result<Option<StaticEqPairV1>, E> {
     let Some(pair) = source_pair(input, root) else {
         return Ok(None);
@@ -79,7 +79,7 @@ fn checked_pair<E>(
 pub(in crate::mir) fn contains_exact_lhs<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     lhs: &OwnedExprSiteV1,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
 ) -> Result<bool, E> {
     if lhs.owner() != input.owner() {
         return Ok(false);
@@ -98,7 +98,7 @@ pub(in crate::mir) fn contains_exact_lhs<E>(
 pub(super) fn contains_source_request<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root: &SourceExprSiteV1,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
 ) -> Result<bool, E> {
     Ok(checked_pair(input, root, static_call)?.is_some())
 }
@@ -108,7 +108,7 @@ pub(super) fn observe<E>(
     root: &SourceExprSiteV1,
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,

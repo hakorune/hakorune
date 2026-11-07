@@ -59,7 +59,7 @@ fn selected_static_cohort_forwarded_actuals_reject_staged_candidate_drift() {
     }
 
     let mut changed = ledger.borrowed_formal_actuals.clone();
-    let sibling = cohort.iter().find(|row| row.is_qualified_i64_source_v1()).unwrap();
+    let sibling = cohort.iter().find(|row| row.qualified_scalar_result_v1().is_some()).unwrap();
     let staged = changed
         .get_mut(sibling.call_site())
         .unwrap()

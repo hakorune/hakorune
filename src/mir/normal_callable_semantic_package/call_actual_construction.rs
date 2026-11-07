@@ -45,7 +45,7 @@ pub(super) fn construct_borrowed_call_actuals_v1(
                 return Err(freeze("static-zero/input-finish-source-drift"));
             }
         } else {
-            original.require_qualified_i64_source_v1()?;
+            original.require_qualified_scalar_source_v1()?;
         }
         let retained = if static_zero.is_some() {
             static_input_finish::original_zero_input_source_v1(prepared, original)?

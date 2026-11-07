@@ -436,7 +436,7 @@ pub(crate) fn issue_source_static_scalar_frame_call_v1<E>(
     // condition); a current-owner call keeps its own source.
     let admitted = matches!(&loan, LocalCallResultSourceV1::Ordinary(result) if match result.result() {
         LocalCallResultClassV1::Bool => result.static_source().is_some() && site.site() == condition,
-        LocalCallResultClassV1::I64 => result.static_source().is_some_and(|original| original.is_qualified_i64_source_v1())
+        LocalCallResultClassV1::I64 => result.static_source().is_some_and(|original| original.qualified_scalar_result_v1().is_some())
             && crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(site.site()).is_argument_frame(),
         _ => false,
     });
@@ -578,55 +578,6 @@ fn expression_call_declined<T, E>(site: &OwnedExprSiteV1, gate: u32) -> Result<O
         eprintln!("[expression-call] {site:?} declined gate={gate}");
     }
     Ok(None)
-}
-
-/// Direct Static Bool Local uses the same result source and ordered Call proof.
-/// It never enters the I64/String initializer expression carrier.
-pub(crate) fn issue_static_bool_local_call_v1<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    statement: &SourceStmtSiteV1,
-    site: &OwnedExprSiteV1,
-    declaration: SourceBindingSiteV1,
-    destination: BindingRefV1,
-    prior_homes: &[LiveHomeV1],
-    port: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        BorrowedCallActualRequestV1<'_>,
-    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-) -> Result<Option<LocalCallObservationV1>, E> {
-    let Some(BorrowedCallArgumentsV1::SourceResult { loan, arguments }) = port(
-        site,
-        BorrowedCallActualRequestV1::SourceResultArguments { expression: None },
-    )?
-    else {
-        return Ok(None);
-    };
-    if !matches!(&loan, LocalCallResultSourceV1::Ordinary(source) if source.static_source().is_some() && source.result() == LocalCallResultClassV1::Bool)
-        || !result_matches_source_v1(input, site, &loan, &arguments)
-        || !lexical_local_call::corroborate_local_initializer_v1(
-            input,
-            statement,
-            site,
-            &declaration,
-            destination,
-            prior_homes,
-        )
-        || !lexical_local_call::corroborate_received_arguments_v1(input, site, &arguments)
-    {
-        return Ok(None);
-    }
-    Ok(Some(result_observation_v1(
-        input.owner(),
-        statement,
-        site,
-        LocalCallDestinationV1::LocalBinding {
-            declaration,
-            binding: destination,
-        },
-        prior_homes,
-        loan,
-        arguments,
-    )))
 }
 
 impl LocalCallObservationV1 {

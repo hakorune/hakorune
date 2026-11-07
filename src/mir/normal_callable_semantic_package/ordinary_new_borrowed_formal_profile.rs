@@ -344,7 +344,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     }
     let mut static_source_sites: Result<BTreeSet<OwnedExprSiteV1>, String> = Ok(static_arguments
         .iter()
-        .filter(|(_, fact)| fact.call_source().is_qualified_i64_source_v1())
+        .filter(|(_, fact)| fact.call_source().qualified_scalar_result_v1().is_some())
         .map(|((site, _), _)| site.clone())
         .collect());
     // The source scan sees exact original Stored dispatch without pretending
@@ -635,7 +635,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                     matches!(
                         row.source,
                         super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original)
-                            if original.is_qualified_i64_source_v1() || original.is_current_owner_i64_source_v1()
+                            if original.qualified_scalar_result_v1().is_some() || original.is_current_owner_i64_source_v1()
                     )
                 })
                 .map(|row| row.call.clone()),

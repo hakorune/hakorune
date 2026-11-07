@@ -351,9 +351,11 @@ impl<'a> CallPacketSourceLoanV1<'a> {
                 };
                 match observation.result() {
                     Class::I64 => Some(InvokeCallResultKind::I64),
+                    // R12: a claim-lane Bool has no result loan, like the claim-lane I64; a
+                    // Bool that carries a loan must retain this exact original.
                     Class::Bool if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactBool
-                        && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Ordinary(source))
-                            if source.result() == Class::Bool && source.static_source().is_some_and(|retained| Rc::ptr_eq(retained, original))) => Some(InvokeCallResultKind::Bool),
+                        && observation.result_source().is_none_or(|loan| matches!(loan, LocalCallResultSourceV1::Ordinary(source)
+                            if source.result() == Class::Bool && source.static_source().is_some_and(|retained| Rc::ptr_eq(retained, original)))) => Some(InvokeCallResultKind::Bool),
                     Class::Text if *publication.representation() == crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactString
                         && matches!(observation.result_source(), Some(LocalCallResultSourceV1::Ordinary(source)) if source.result() == Class::Text && source.static_source().is_some_and(|retained| Rc::ptr_eq(retained, original))) => Some(InvokeCallResultKind::OwnedString),
                     _ => None,

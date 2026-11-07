@@ -238,7 +238,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                     &row.source
                 {
                     if !matches!(&self.evidence, EntryStructureEvidenceV1::FiniteInput { .. })
-                        && !original.is_qualified_i64_source_v1()
+                        && !original.qualified_scalar_result_v1().is_some()
                         && !matches!(self.incoming, BorrowedEntryActualsV1::SelectedTagged)
                         && !((original.is_current_owner_i64_source_v1()
                             || (original.is_current_owner_bool_source_v1()
@@ -251,7 +251,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                                     .any(|(site, actuals)| *site == &row.call && actuals.len() == 1)
                             }))
                     {
-                        original.require_qualified_i64_source_v1()?;
+                        original.require_qualified_scalar_source_v1()?;
                     }
                     let retained = match &self.evidence {
                         EntryStructureEvidenceV1::FiniteInput { .. } =>

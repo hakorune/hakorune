@@ -13608,7 +13608,7 @@
       "candidate_kind": "boolean_classifier",
       "function": "is_qualified_terminal",
       "line": 44,
-      "path": "src/mir/resolved_semantics/home_static_i64_call_claim.rs",
+      "path": "src/mir/resolved_semantics/home_static_scalar_call_claim.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -13616,7 +13616,7 @@
       "candidate_kind": "boolean_classifier",
       "function": "is_current_owner_zeroarg",
       "line": 56,
-      "path": "src/mir/resolved_semantics/home_static_i64_call_claim.rs",
+      "path": "src/mir/resolved_semantics/home_static_scalar_call_claim.rs",
       "reject_reasons": [],
       "status": "candidate"
     },

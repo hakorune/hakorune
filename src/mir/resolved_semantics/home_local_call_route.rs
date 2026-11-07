@@ -3,11 +3,11 @@
 //! package once per site. The flow installs by the class and never asks a
 //! second membership question; a site without a route stays a named rejection.
 use super::local_call_flow as flow;
-use super::local_flow::PrefixLocalFlow;
+use super::local_flow::{PrefixLocalFlow, SourceScalarKind};
 use super::{
     BindingRefV1, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, LiveHomeV1,
     LocalCallObservationV1, LocalCallResultClassV1, OwnedExprSiteV1, SourceBindingSiteV1,
-    SourceStmtSiteV1, StaticI64CallClaimV1,
+    SourceStmtSiteV1, StaticScalarCallClaimV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
@@ -16,7 +16,7 @@ pub(crate) enum LocalCallRouteV1 {
     DirectI64,
     DirectMap,
     DirectHandle,
-    Static(StaticI64CallClaimV1),
+    Static(StaticScalarCallClaimV1),
     LexicalI64,
     LexicalNullable,
     LexicalHandle,
@@ -27,7 +27,9 @@ pub(crate) enum LocalCallRouteV1 {
 impl LocalCallRouteV1 {
     pub(crate) const fn result(&self) -> LocalCallResultClassV1 {
         match self {
-            Self::DirectI64 | Self::Static(_) | Self::LexicalI64 => LocalCallResultClassV1::I64,
+            Self::DirectI64 | Self::LexicalI64 => LocalCallResultClassV1::I64,
+            // R12: a static call's kind is its claim's, read from the callee's contract row.
+            Self::Static(claim) => claim.result(),
             Self::DirectMap => LocalCallResultClassV1::Map,
             Self::DirectHandle | Self::LexicalHandle | Self::ReceiverHandle => {
                 LocalCallResultClassV1::Handle
@@ -36,7 +38,7 @@ impl LocalCallRouteV1 {
         }
     }
 
-    pub(crate) fn into_static_claim(self) -> Option<StaticI64CallClaimV1> {
+    pub(crate) fn into_static_claim(self) -> Option<StaticScalarCallClaimV1> {
         match self {
             Self::Static(claim) => Some(claim),
             _ => None,
@@ -76,7 +78,7 @@ pub(super) fn issue_routed_local_call<E>(
         LocalCallRouteV1::DirectI64 | LocalCallRouteV1::DirectMap | LocalCallRouteV1::DirectHandle => {
             Ok(flow::issue_local_call(input, statement, site, declaration, destination, prior_homes, result))
         }
-        LocalCallRouteV1::Static(claim) => flow::issue_static_i64_local_call(
+        LocalCallRouteV1::Static(claim) => flow::issue_static_scalar_local_call(
             input, statement, site, declaration, destination, prior_homes, locals, claim, borrowed_arguments,
         ),
         LocalCallRouteV1::LexicalI64 => flow::issue_lexical_i64_local_call(
@@ -94,7 +96,7 @@ pub(super) fn issue_routed_local_call<E>(
     }
 }
 
-/// The one install table, keyed by the routed result class: I64 installs a
+/// The one install table, keyed by the routed result class: I64 and Bool install a
 /// trivial scalar; Map, Handle and Nullable results are owned by the caller
 /// from the call site, so each joins the live Homes before it is installed.
 pub(super) fn install_routed_local_call(
@@ -109,22 +111,23 @@ pub(super) fn install_routed_local_call(
     let result = call.result();
     path_calls.insert(call.site().clone());
     local_calls.push(call);
-    if result != LocalCallResultClassV1::I64 {
+    if !matches!(result, LocalCallResultClassV1::I64 | LocalCallResultClassV1::Bool) {
         homes.push(LiveHomeV1::Stable(binding));
     }
     match result {
-        LocalCallResultClassV1::I64 => locals.install_i64_call_result(binding),
+        LocalCallResultClassV1::I64 => locals.install_scalar_call_result(binding, SourceScalarKind::Integer),
+        LocalCallResultClassV1::Bool => locals.install_scalar_call_result(binding, SourceScalarKind::Bool),
         LocalCallResultClassV1::Map => locals.install_map(binding),
         LocalCallResultClassV1::Handle => locals.install_received_handle(binding, site),
         LocalCallResultClassV1::Nullable => locals.install_received_nullable(binding, site),
-        _ => unreachable!("a route names only I64, Map, Handle and Nullable results"),
+        _ => unreachable!("a route names only I64, Bool, Map, Handle and Nullable results"),
     }
 }
 
 /// The static-claim question, asked of the route.
 pub(super) fn static_claim_of<'a, E>(
     route: &'a mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
-) -> impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E> + 'a {
+) -> impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E> + 'a {
     move |site| Ok(route(site)?.and_then(LocalCallRouteV1::into_static_claim))
 }
 

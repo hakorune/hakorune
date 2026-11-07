@@ -1,5 +1,5 @@
 //! CurrentOwner Static source-only expression-value observations.
-use super::super::StaticI64CallClaimV1;
+use super::super::StaticScalarCallClaimV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
@@ -10,7 +10,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_static_i64_valu
     statement: &SourceStmtSiteV1,
     site: &SourceExprSiteV1,
     prior_homes: &[LiveHomeV1],
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
     if !site
         .node()
@@ -67,7 +67,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
     prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -134,7 +134,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
     statement: &SourceStmtSiteV1,
     site: &SourceExprSiteV1,
     prior_homes: &[LiveHomeV1],
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,

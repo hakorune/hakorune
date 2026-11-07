@@ -157,8 +157,8 @@ fn qualified_static_input_source_keeps_unselected_main_and_opaque_full_formal() 
             1 => assert_eq!(source.source_result(), &ResultKind::ExactBool),
             _ => assert!(matches!(source.source_result(), ResultKind::Unavailable(_))),
         }
-        assert!(!source.is_qualified_i64_source_v1());
-        assert!(source.require_qualified_i64_source_v1().is_err());
+        assert!(!source.qualified_scalar_result_v1().is_some());
+        assert!(source.require_qualified_scalar_source_v1().is_err());
         assert!(!source.is_zeroarg_i64_v1(), "zero arguments cannot change the result class");
         assert!(!source.is_current_owner_i64_source_v1());
         assert_eq!(source.argument_sites().len(), arity);

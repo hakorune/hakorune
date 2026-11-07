@@ -227,14 +227,14 @@ fn seal_argument_call<E>(
     )))
 }
 
-/// Issue a source-proved static I64 continuation, preserving its original route.
+/// Issue a source-proved static scalar (I64 or Bool) continuation, preserving its original route.
 ///
 /// The route's claim is the sole membership authority — the package returns a
 /// sealed Qualified or bounded CurrentOwner claim. Both require the
 /// original `StaticBoxMethod` target and `ExactI64` disposition. Arity-bearing
 /// CurrentOwner arguments must project from the same original Static source;
 /// qualified scalar fallback keeps its existing separate boundary.
-pub(crate) fn issue_static_i64_local_call<E>(
+pub(crate) fn issue_static_scalar_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
@@ -242,7 +242,7 @@ pub(crate) fn issue_static_i64_local_call<E>(
     destination: BindingRefV1,
     prior_homes: &[LiveHomeV1],
     locals: &PrefixLocalFlow<'_>,
-    claim: super::super::StaticI64CallClaimV1,
+    claim: super::super::StaticScalarCallClaimV1,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -362,6 +362,6 @@ pub(crate) fn issue_static_i64_local_call<E>(
         destination,
         prior_homes.iter().cloned().collect(),
         arguments.into_boxed_slice(),
-        LocalCallResultClassV1::I64,
+        claim.result(),
     )))
 }

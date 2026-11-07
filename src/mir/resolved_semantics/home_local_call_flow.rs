@@ -25,13 +25,19 @@ use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct QualifiedStaticCallClaimV1 {
     required_i64_arguments: Box<[u32]>,
+    result: LocalCallResultClassV1,
 }
 
 impl QualifiedStaticCallClaimV1 {
-    pub(crate) fn new(required_i64_arguments: Box<[u32]>) -> Self {
+    pub(crate) fn new(required_i64_arguments: Box<[u32]>, result: LocalCallResultClassV1) -> Self {
         Self {
             required_i64_arguments,
+            result,
         }
+    }
+
+    pub(crate) const fn result(&self) -> LocalCallResultClassV1 {
+        self.result
     }
 
     pub(crate) fn required_i64_arguments(&self) -> &[u32] {
@@ -153,7 +159,6 @@ impl LocalCallObservationV1 {
             !matches!(
                 result,
                 LocalCallResultClassV1::BorrowedNullable
-                    | LocalCallResultClassV1::Bool
                     | LocalCallResultClassV1::Unit
                     | LocalCallResultClassV1::MixedObject
                     | LocalCallResultClassV1::Text
@@ -293,7 +298,7 @@ impl LocalCallObservationV1 {
 pub(crate) use source_scalar_call::{
     issue_source_expression_call_v1, issue_source_scalar_expression_call,
     issue_source_scalar_frame_call_v1, issue_source_static_scalar_frame_call_v1,
-    issue_static_bool_local_call_v1, LocalCallResultClassV1, LocalCallResultSourceV1,
+    LocalCallResultClassV1, LocalCallResultSourceV1,
 };
 pub(super) use source_scalar_call::{
     issue_source_scalar_condition_call_v1, SourceScalarConditionCallV1,
@@ -726,7 +731,7 @@ pub(super) use borrowed_actuals::{
 #[path = "home_local_call_arguments.rs"]
 mod arguments;
 use arguments::seal_lexical_i64_arguments_at;
-pub(crate) use arguments::issue_static_i64_local_call;
+pub(crate) use arguments::issue_static_scalar_local_call;
 
 #[cfg(test)]
 #[path = "home_lexical_nullable_call_tests.rs"]
@@ -743,7 +748,7 @@ pub(crate) fn issue_static_source_local_for_test(
     ) -> Result<Option<BorrowedCallArgumentsV1>, String>,
 ) -> Result<Option<LocalCallObservationV1>, String> {
     let (declaration, destination) = original.local_binding().unwrap();
-    issue_static_i64_local_call(
+    issue_static_scalar_local_call(
         input,
         original.statement(),
         original.site(),
@@ -751,7 +756,7 @@ pub(crate) fn issue_static_source_local_for_test(
         destination,
         original.prior_homes(),
         &PrefixLocalFlow::new(input),
-        super::StaticI64CallClaimV1::qualified(claim.clone()),
+        super::StaticScalarCallClaimV1::qualified(claim.clone()),
         callback,
     )
 }

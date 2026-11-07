@@ -35,7 +35,7 @@ call-site result evidence shares the original index allocation; instance/Main
 callers never fabricate a static-solver row. `retain(input)` corroborates the
 canonical method pointer; repeated loans reject equal-content reissues.
 Qualified source identity may retain String/Bool/Unavailable dispositions.
-Executable consumers use explicit `is_qualified_i64_source_v1` and zeroarg-I64
+Executable consumers use explicit `qualified_scalar_result_v1` and zeroarg-I64
 checks, so source membership does not issue an Integer view or entry. Context,
 spelling, unknown receiver and whole-incoming vetoes remain. The source SUM and
 Text physical entry/cleanup/publication are still separate required connections.

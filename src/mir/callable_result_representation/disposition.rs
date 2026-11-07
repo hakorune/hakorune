@@ -78,6 +78,18 @@ impl VerifiedCallableResultDispositionV1 {
         }
     }
 
+    /// R12: the one place a scalar contract row names the call's result kind.
+    pub(crate) fn scalar_result_class(
+        &self,
+    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        match self {
+            Self::ExactI64 { .. } => Some(Class::I64),
+            Self::ExactBool { .. } => Some(Class::Bool),
+            Self::ExactString | Self::ExactNominalBox { .. } | Self::Unavailable(_) => None,
+        }
+    }
+
     pub(crate) fn representation(&self) -> Option<VerifiedCallableResultRepresentationV1> {
         match self {
             Self::ExactI64 { .. } => Some(VerifiedCallableResultRepresentationV1::ExactI64),

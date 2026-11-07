@@ -29,7 +29,7 @@ pub(super) fn observe_local_initializer<E>(
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
     prefix_known: bool,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -71,7 +71,7 @@ pub(super) fn observe_scalar_expression<E>(
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
     prefix_known: bool,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -109,7 +109,7 @@ fn observe_scalar_expression_with_operation<E>(
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
     prefix_known: bool,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -290,7 +290,7 @@ pub(super) fn observe_local_mul_return<E>(
     statement: &SourceStmtSiteV1,
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -342,7 +342,7 @@ pub(super) fn observe_guarded_mul_return<E>(
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -402,7 +402,7 @@ pub(super) fn contains_source_request<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
 ) -> Result<bool, E> {
     if static_eq_condition::contains_source_request(input, root, static_call)? {
         return Ok(true);
@@ -464,7 +464,7 @@ fn profile_scope<E>(
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     order_compare: bool,
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
 ) -> Result<Option<bool>, E> {
     if let Some(row) = input.function().expression_source().binary(site) {
         use ResolvedBinaryOperatorV1 as Op;

@@ -244,7 +244,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         original: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
     ) -> bool {
-        original.is_qualified_i64_source_v1()
+        original.qualified_scalar_result_v1().is_some()
             && self.static_terminal_sites.contains(original.call_site())
             && original.argument_sites().len() == 1
             && original.parameters().len() == 1

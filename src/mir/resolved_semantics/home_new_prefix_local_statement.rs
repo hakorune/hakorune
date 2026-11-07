@@ -352,22 +352,6 @@ pub(super) fn observe<'a, E>(
             }
             continue;
         }
-        if unavailable.is_none() {
-            if let Some(local_call) = local_call_flow::issue_static_bool_local_call_v1(
-                input,
-                statement.site(),
-                &owned,
-                declaration.clone(),
-                binding,
-                homes,
-                borrowed_actuals,
-            )? {
-                path_calls.insert(local_call.site().clone());
-                local_calls.push(local_call);
-                locals.install_scalar_call_result(binding, SourceScalarKind::Bool);
-                continue;
-            }
-        }
         let receiver_alias = input
             .function()
             .method_call(owned.site())
@@ -555,7 +539,7 @@ pub(super) fn observe<'a, E>(
             use crate::mir::core_method_result_kind::CoreMethodResultKindV1;
             match result_kind {
                 CoreMethodResultKindV1::I64Value => {
-                    locals.install_i64_call_result(binding);
+                    locals.install_scalar_call_result(binding, SourceScalarKind::Integer);
                 }
                 CoreMethodResultKindV1::BoolValue => {
                     locals.install_scalar_call_result(binding, local_flow::SourceScalarKind::Bool);

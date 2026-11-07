@@ -5,7 +5,7 @@
 //! source for that kind. A kind never asks another kind's class source, and no
 //! answer for one kind falls through to another.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::{LocalCallRouteV1, StaticI64CallClaimV1};
+use crate::mir::resolved_semantics::home_new_prefix::{LocalCallRouteV1, StaticScalarCallClaimV1};
 use crate::mir::resolved_semantics::{
     BindingKindV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1,
 };
@@ -26,7 +26,7 @@ impl LocalRouteSourcesV1<'_> {
     pub(super) fn route<E>(
         &self,
         site: &OwnedExprSiteV1,
-        static_claim: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+        static_claim: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     ) -> Result<Option<LocalCallRouteV1>, E> {
         use crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::DirectLocalResultV1;
         let function = self.input.function();

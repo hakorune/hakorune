@@ -253,7 +253,7 @@ pub(super) fn observe<E>(
     if frame.is_bool() {
         locals.install_scalar_call_result(frame.binding(), SourceScalarKind::Bool);
     } else if frame.is_i64() {
-        locals.install_i64_call_result(frame.binding());
+        locals.install_scalar_call_result(frame.binding(), SourceScalarKind::Integer);
     } else if frame.is_dynamic_invocation_result() {
         locals.install_dynamic_invocation_result(frame.binding(), std::rc::Rc::clone(&frame));
         homes.push(LiveHomeV1::Stable(frame.binding()));

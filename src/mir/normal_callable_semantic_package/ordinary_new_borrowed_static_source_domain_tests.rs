@@ -683,8 +683,8 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
     let mut callers = BTreeSet::new();
     for (site, row) in source.source_incoming.static_observations() {
         let row = row.as_ref().expect("original current-owner observation");
-        assert!(!row.is_qualified_i64_source_v1());
-        assert!(row.require_qualified_i64_source_v1().is_err());
+        assert!(!row.qualified_scalar_result_v1().is_some());
+        assert!(row.require_qualified_scalar_source_v1().is_err());
         assert!(row.current_owner_source().is_some());
         assert_eq!(row.call_site(), site);
         assert_eq!(row.caller().owner(), row.target().owner());
@@ -721,7 +721,7 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
     let observations: Vec<_> = mixed_source.source_incoming.static_observations().values()
         .map(|row| row.as_ref().unwrap()).collect();
     assert_eq!(observations.len(), 2);
-    assert_eq!(observations.iter().filter(|row| row.is_qualified_i64_source_v1()).count(), 1);
+    assert_eq!(observations.iter().filter(|row| row.qualified_scalar_result_v1().is_some()).count(), 1);
     assert!(!mixed_source.contains_definition_for_test(pick.owner()));
     assert!(mixed_source.incoming.iter().all(|row| row.callee != pick.owner()));
     let both = package_fn("box Node {
@@ -747,7 +747,7 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
                     ResolvedMethodCallReceiverSourceV1::CurrentOwner => {
                         let row = observed.unwrap().unwrap();
                         assert_eq!(row.caller().owner(), "Layout");
-                        assert!(!row.is_qualified_i64_source_v1());
+                        assert!(!row.qualified_scalar_result_v1().is_some());
                     }
                     other => panic!("unexpected original receiver {other:?}"),
                 }

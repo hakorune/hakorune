@@ -2,7 +2,7 @@
 use super::*;
 use super::static_source::{original_static_source_v1, validate_static_source_actuals_v1, validate_qualified_argument_sources_v1};
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
-use crate::mir::resolved_semantics::home_new_prefix::{QualifiedStaticCallClaimV1, StaticI64CallClaimV1};
+use crate::mir::resolved_semantics::home_new_prefix::{QualifiedStaticCallClaimV1, StaticScalarCallClaimV1};
 use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 use std::rc::Rc;
 
@@ -25,7 +25,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_current_
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
-    claim: &StaticI64CallClaimV1,
+    claim: &StaticScalarCallClaimV1,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
     let required = claim
         .current_owner_source_required_i64_arguments()
@@ -57,7 +57,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_current_owner_lo
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
-    claim: &StaticI64CallClaimV1,
+    claim: &StaticScalarCallClaimV1,
 ) -> Result<Option<(Rc<StaticIncomingSourceV1>, BindingRefV1, SourceExprSiteV1)>, String> {
     let reject = || freeze("borrowed-static/loop-scalar-source-drift");
     let Some(arguments) =
@@ -110,7 +110,7 @@ pub(super) fn checked_executable_qualified_arguments_v1<'a>(
     else {
         return Err(freeze("borrowed-static/executable-source-kind"));
     };
-    original.require_qualified_i64_source_v1()?;
+    original.require_qualified_scalar_source_v1()?;
     let retained = prepared
         .source_incoming
         .static_observations()
@@ -173,7 +173,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         &row.call == site
             && matches!(
                 row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified_i64_source_v1()
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.qualified_scalar_result_v1().is_some()
             )
     });
     let has_expression_source = pending.get(site).is_some_and(|rows| matches!(rows,
@@ -200,7 +200,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         if current_owner {
             !row.is_current_owner_i64_source_v1()
         } else {
-            !row.is_qualified_i64_source_v1()
+            !row.qualified_scalar_result_v1().is_some()
         }
     }) {
         return Err(freeze("borrowed-static/source-route-identity"));

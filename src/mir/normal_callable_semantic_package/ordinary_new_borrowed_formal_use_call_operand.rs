@@ -95,7 +95,7 @@ pub(super) fn integer_call_operand_source_v1(
     let original = loan.retain(input).map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
     if !loan.corroborates_retained(&original)
         || original.call_site() != &owned
-        || original.is_qualified_i64_source_v1()
+        || original.qualified_scalar_result_v1().is_some()
     {
         return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
     }

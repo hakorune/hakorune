@@ -26,7 +26,7 @@ use crate::mir::callable_result_representation::{
     VerifiedSameModuleCallableResultCatalogV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
-    QualifiedStaticCallClaimV1, StaticI64CallClaimV1,
+    LocalCallResultClassV1, QualifiedStaticCallClaimV1, StaticScalarCallClaimV1,
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::{
@@ -156,16 +156,18 @@ impl QualifiedStaticCallClaimIndexV1 {
             ) {
                 continue;
             }
-            let Some(VerifiedCallableResultDispositionV1::ExactI64 {
-                required_i64_arguments,
-            }) = results.disposition(source_target.target())
+            // R12: the claim takes its result kind from the callee's contract row.
+            let Some((required_i64_arguments, result)) =
+                results.disposition(source_target.target()).and_then(|row| {
+                    Some((row.required_i64_arguments()?, row.scalar_result_class()?))
+                })
             else {
                 continue;
             };
             rows.insert(
                 (caller.clone(), site.clone()),
                 (
-                    QualifiedStaticCallClaimV1::new(required_i64_arguments.clone()),
+                    QualifiedStaticCallClaimV1::new(required_i64_arguments.into(), result),
                     source_target.target().clone(),
                 ),
             );
@@ -337,7 +339,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
     impl FnMut(
             &crate::mir::resolved_semantics::OwnedExprSiteV1,
         ) -> Result<
-            Option<StaticI64CallClaimV1>,
+            Option<StaticScalarCallClaimV1>,
             super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1,
         > + 'index,
     bool,
@@ -384,7 +386,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
     selected: &super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
     app_main: Option<&super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
-) -> Result<Option<StaticI64CallClaimV1>, super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1> {
+) -> Result<Option<StaticScalarCallClaimV1>, super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1> {
     let Some(key) = caller_key else {
         return Ok(None);
     };
@@ -400,14 +402,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
                         && row.contract().parameters[0].kind
                             == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle
                 }) {
-                    return Ok(Some(StaticI64CallClaimV1::qualified_terminal(
+                    return Ok(Some(StaticScalarCallClaimV1::qualified_terminal(
                         site.clone(),
                         claim,
                     )));
                 }
             }
         }
-        return Ok(Some(StaticI64CallClaimV1::qualified(claim)));
+        return Ok(Some(StaticScalarCallClaimV1::qualified(claim)));
     }
     let Some(source_row) = claims.current_owner_i64_source(key, site.site()) else {
         return Ok(None);
@@ -450,8 +452,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
         if !required_i64_arguments.is_empty() {
             return Err(reject());
         }
-        return Ok(Some(StaticI64CallClaimV1::current_owner_zeroarg(
+        return Ok(Some(StaticScalarCallClaimV1::current_owner_zeroarg(
             site.clone(),
+            LocalCallResultClassV1::I64,
         )));
     }
     if required_i64_arguments
@@ -460,10 +463,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
     {
         return Err(reject());
     }
-    Ok(Some(StaticI64CallClaimV1::current_owner_source(
+    Ok(Some(StaticScalarCallClaimV1::current_owner_source(
         site.clone(),
         call.arity(),
         required_i64_arguments.clone(),
+        LocalCallResultClassV1::I64,
     )))
 }
 

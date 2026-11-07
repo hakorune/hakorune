@@ -67,13 +67,16 @@ impl StaticIncomingSourceV1 {
         &self.catalog_brand
     }
 
-    /// The original qualified I64 lane, not general route membership.
-    pub(in crate::mir) fn is_qualified_i64_source_v1(&self) -> bool {
-        matches!(self.route, StaticIncomingRouteV1::Qualified { .. })
-            && matches!(
-                self.route.result(),
-                VerifiedCallableResultDispositionV1::ExactI64 { .. }
-            )
+    /// The original qualified scalar lane (R12), not general route membership.
+    /// The answer is the callee's result kind from its contract row; a caller
+    /// that accepts one kind only says so beside its use (R15).
+    pub(in crate::mir) fn qualified_scalar_result_v1(
+        &self,
+    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+        match self.route {
+            StaticIncomingRouteV1::Qualified { .. } => self.route.result().scalar_result_class(),
+            StaticIncomingRouteV1::CurrentOwner(_) => None,
+        }
     }
     /// Exact source-only zero-input I64 law; no entry or packet permission.
     pub(in crate::mir::normal_callable_semantic_package) fn is_zeroarg_i64_v1(&self) -> bool {
@@ -130,8 +133,8 @@ impl StaticIncomingSourceV1 {
         ) && self.argument_sites.len() == self.parameters.len()
     }
 
-    pub(in crate::mir) fn require_qualified_i64_source_v1(&self) -> Result<(), String> {
-        if self.is_qualified_i64_source_v1() {
+    pub(in crate::mir) fn require_qualified_scalar_source_v1(&self) -> Result<(), String> {
+        if self.qualified_scalar_result_v1().is_some() {
             Ok(())
         } else {
             Err("[freeze:contract][borrowed-static/qualified-source-required]".into())
@@ -155,7 +158,7 @@ impl StaticIncomingSourceV1 {
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
-        (self.is_qualified_i64_source_v1() || self.is_zeroarg_i64_v1()
+        (self.qualified_scalar_result_v1().is_some() || self.is_zeroarg_i64_v1()
             || matches!(self.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString
                 | crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool { .. }))
             && self.matches_publication_handoff_identity(handoff)
@@ -168,7 +171,7 @@ impl StaticIncomingSourceV1 {
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
         self.is_current_owner_i64_source_v1()
-            && !self.is_qualified_i64_source_v1()
+            && !self.qualified_scalar_result_v1().is_some()
             && self.argument_sites.len() == 1
             && self.matches_publication_handoff_identity(handoff)
     }

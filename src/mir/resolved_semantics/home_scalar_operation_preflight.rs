@@ -15,7 +15,7 @@ pub(super) fn preflight<E>(
     calls: &mut Vec<LocalCallObservationV1>,
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     checked_binary: Option<&SourceExprSiteV1>,
     local_initializer_profile: bool,
     is_root: bool,

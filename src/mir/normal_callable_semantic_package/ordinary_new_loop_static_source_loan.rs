@@ -11,7 +11,7 @@ use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1;
+use crate::mir::resolved_semantics::home_new_prefix::StaticScalarCallClaimV1;
 use crate::mir::resolved_semantics::{
     OwnedExprSiteV1, ResolvedLoopPlacementV1, ResolvedMethodCallReceiverSourceV1,
     SourceBindingSiteV1, SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
@@ -33,7 +33,7 @@ pub(in crate::mir) struct LoopStaticSourceCallLoanV1 {
     loop_site: SourceStmtSiteV1,
     placement: ResolvedLoopPlacementV1,
     original: Rc<StaticIncomingSourceV1>,
-    claim: StaticI64CallClaimV1,
+    claim: StaticScalarCallClaimV1,
 }
 
 /// A pre-loop local's I64 initializer, issued by the same Static claim owner.
@@ -43,7 +43,7 @@ pub(in crate::mir) struct LoopEntryStaticI64SourceLoanV1 {
     loop_site: SourceStmtSiteV1,
     declaration: SourceBindingSiteV1,
     original: Rc<StaticIncomingSourceV1>,
-    claim: StaticI64CallClaimV1,
+    claim: StaticScalarCallClaimV1,
 }
 
 /// Original post-Loop return call. Its I64 result is source-only; no live
@@ -53,7 +53,7 @@ pub(in crate::mir) struct LoopTailStaticI64SourceLoanV1 {
     loop_site: SourceStmtSiteV1,
     return_site: SourceStmtSiteV1,
     original: Rc<StaticIncomingSourceV1>,
-    claim: StaticI64CallClaimV1,
+    claim: StaticScalarCallClaimV1,
 }
 
 impl LoopTailStaticI64SourceLoanV1 {
@@ -75,7 +75,7 @@ impl LoopTailStaticI64SourceLoanV1 {
     pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
         self.original.call_site()
     }
-    pub(in crate::mir) fn claim(&self) -> &StaticI64CallClaimV1 {
+    pub(in crate::mir) fn claim(&self) -> &StaticScalarCallClaimV1 {
         &self.claim
     }
 }
@@ -95,7 +95,7 @@ impl LoopEntryStaticI64SourceLoanV1 {
     pub(in crate::mir) fn original(&self) -> &Rc<StaticIncomingSourceV1> {
         &self.original
     }
-    pub(in crate::mir) fn claim(&self) -> &StaticI64CallClaimV1 {
+    pub(in crate::mir) fn claim(&self) -> &StaticScalarCallClaimV1 {
         &self.claim
     }
     pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
@@ -105,7 +105,7 @@ impl LoopEntryStaticI64SourceLoanV1 {
 
 pub(super) struct StaticSourceSealV1 {
     original: Rc<StaticIncomingSourceV1>,
-    claim: StaticI64CallClaimV1,
+    claim: StaticScalarCallClaimV1,
 }
 
 impl StaticSourceSealV1 {
@@ -138,7 +138,7 @@ impl LoopStaticSourceCallLoanV1 {
         &self.original
     }
 
-    pub(in crate::mir) fn claim(&self) -> &StaticI64CallClaimV1 {
+    pub(in crate::mir) fn claim(&self) -> &StaticScalarCallClaimV1 {
         &self.claim
     }
     pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {

@@ -1110,13 +1110,6 @@ impl<'source> PrefixLocalFlow<'source> {
         self.store(binding, StoredLocal::Map);
     }
 
-    pub(super) fn install_i64_call_result(&mut self, binding: BindingRefV1) {
-        self.store(
-            binding,
-            StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
-        );
-    }
-
     pub(super) fn install_dynamic_invocation_result(
         &mut self,
         binding: BindingRefV1,

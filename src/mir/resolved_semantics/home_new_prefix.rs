@@ -222,9 +222,9 @@ pub(crate) use local_call_flow::{
     LocalCallObservationV1, LocalCallResultClassV1, LocalCallResultSourceV1,
     QualifiedStaticCallClaimV1,
 };
-#[path = "home_static_i64_call_claim.rs"]
-mod static_i64_call_claim;
-pub(crate) use static_i64_call_claim::StaticI64CallClaimV1;
+#[path = "home_static_scalar_call_claim.rs"]
+mod static_scalar_call_claim;
+pub(crate) use static_scalar_call_claim::StaticScalarCallClaimV1;
 #[path = "home_local_call_route.rs"]
 mod local_call_route;
 pub(crate) use local_call_route::LocalCallRouteV1;

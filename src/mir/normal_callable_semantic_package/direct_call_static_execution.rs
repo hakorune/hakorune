@@ -53,7 +53,7 @@ impl StaticExecutionEmissionV1 {
             || signature.physical_formal_lane_count() != source.target().arity()
             || signature.physical_callable_lane_count() != source.target().arity()
             || signature.lanes().len() != source.parameters().len()
-            || (!source.is_qualified_i64_source_v1() && !source.is_current_owner_i64_source_v1())
+            || (!source.qualified_scalar_result_v1().is_some() && !source.is_current_owner_i64_source_v1())
             || source.parameters().iter().zip(signature.lanes()).enumerate().any(|(ordinal, (formal, lane))|
                 formal.ordinal as usize != ordinal || formal.binding.owner() != source.callee_owner()
                     || formal.kind != Kind::ExactTrivial(ExactTrivialParameterAbiV1::I64)
@@ -148,7 +148,7 @@ impl DirectCallDispositionLoansV1 {
                     let site = OwnedExprSiteV1::new(owner, site.clone());
                     if !ledger.local_call_for_owner(owner, site.site()).is_some_and(|local| local.result() == LocalCallResultClassV1::I64 && local.local_binding().is_some()) { continue; }
                     let Some(original) = ledger.borrow_original_static_source_v1(&site)? else { continue };
-                    if !original.is_qualified_i64_source_v1() && !original.is_current_owner_i64_source_v1() { continue; }
+                    if !original.qualified_scalar_result_v1().is_some() && !original.is_current_owner_i64_source_v1() { continue; }
                     if !owners.contains_key(&original.callee_owner()) { continue; }
                     if original.caller() != caller || !original.catalog_brand().is_same(selected.catalog_brand()) {
                         return Err(reject("source-catalog"));
