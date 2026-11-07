@@ -96,3 +96,15 @@ Opus が branch `static-result-kind`(`d54780a8aa`)を監査し、main へ fast-f
 | `static_input_validation.rs:92,108,138` | zero input の検証 |
 | `ordinary_new_borrowed_static_input_finish.rs:65,82,124,409,461` | zero Text の finish |
 | 使い手 | `issuer_object_input_finish.rs:85`、`ordinary_new_root_instance_call.rs:123`、`ordinary_new_static_loop_packet_source.rs:453`、`direct_call_disposition_port.rs:226,296`、`raw_ordinary_new_claim/terminal_call.rs:81`、`source_loop_frames.rs:285`、`lexical_terminal.rs:131,188` |
+
+## 5. 段 4 の段 1 で止めた門(Text を R1 が運ぶ)
+
+K15〜K20 の範囲で、`t(x: i64): String` を受ける形(k3n、k3un、t1、t2)を R1 に載せる事を 3 回試した。source は戻して、実装の commit は無い。分かった門:
+
+1. **R1 の local-call route に Text は載らない**(`resolved_semantics/home_local_call_route.rs:141`、`install_routed_local_call` の `unreachable!`)。claim の索引に `ExactString`(arity 1 以上)の行を足し、`home_local_call_arguments.rs`(`issue_static_scalar_local_call`)で `SourceResultArguments` の loan から観測を作ると(`home_local_call_flow.rs:158` の `assert!` は越える)ここで panic する。Text の local は route ではなく、`home_new_prefix_local_statement.rs:~497` の `initializer_expression::observe`(Normal Text residence、`TextResidencePacketV1`)が受ける。R1 の route に Text の install の arm を足すには、その residence の所有(S5)を R1 の emit(`terminal_call.rs` の `emit_local`、Text は既定の `record_root_local_call_bindings` の枝)に通す入口が要る。
+2. **zero-input の protocol は arity 0 と実引数なしを課す**(`ordinary_new_borrowed_static_input_finish.rs:402-406`、`:455-468`、`:497`)。`is_zeroarg_text_v1`(`qualified_static_incoming_source.rs:105`)を「Text で formal が全部 i64」に替えると、header の門(`selected-header-missing`)は越えるが、ここで `static-zero/contract-identity` になる。引数つきの Text には、zero ではない入力の証拠(`StaticInputEvidenceV1::Qualified` の系)を Text の結果と組む新しい finish が要る。
+3. **header の行**(`physical_header.rs:91-110`、`model.rs:357-367`)は、main の routed な local があれば越える(`model.rs:286-300`)。それだけでは足りない。
+
+必要な物: R1 の Text 用の install と emit(S5 の residence)、引数つきの Text の入力の finish。`ordinary_new_borrowed_static_*` の zero packet(R3)は、この 2 つが R1 に入るまで消せない。公開の追加は要らない見込みだが、未確認。
+
+読むだけの報告: Handle の結果で引数が式の形(`Main.mk(n + 1)`、h1)は `static_argument_projection.rs:204-206`(`project_pending_static_source_arguments_for_route_v1`)で `borrowed-static/source-route-identity` になる。この関数は qualified の route に `qualified_scalar_result_v1().is_some()` を要るため、Handle の結果(scalar でない)の行は通らない。`qualified_carried_result_v1()`(K5 を守る別の accessor)に替えれば先へ進むが、その先の gate(式の引数の frame が Handle の結果を運ぶか)は未確認。直していない。
