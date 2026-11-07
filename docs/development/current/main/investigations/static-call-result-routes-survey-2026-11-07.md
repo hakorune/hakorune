@@ -329,3 +329,11 @@ static の呼び出しには receiver が無いので、(1) の対象の決定�
 ## 13. 入れた計器と時間
 
 この節では計器を入れていない(`NYASH_BUILDER_DEBUG=1` の既存の出力だけ)。`git status` は文書だけの変更。読みきれなかった所は §11 の未確認に列挙した。
+
+## Opus の確認(2026-11-07)
+
+- 1 回目の読みは 12 分、2 回目は 8 分だった。1 回目では案 E と未確認 1〜3 が残ったので、Opus が 2 回目を頼んだ。2 回目は file:line つきで答えていて、残る未確認は §11 に並んでいる。
+- §10 の `p1`〜`p5` は Opus の入力で、Opus が `2bc4dfb372` の binary で流した結果と同じだった。
+- `p1` は、qualified の main の経路を消した `cf8ff8a7bf` の親(`fc0045c93d`)で build した binary でも拒否される(名前は `callable-semantic-lowering/incomplete-consumption`)。`p1u`〜`p5` は同じ名前・同じ出力。経路を消した時に壊れたのではなく、前からある穴。
+- §10 は「`context` の条件を変えるのはユーザーの決定が要る」と書いている。これは言語の意味の決定ではない。仕様は `local a = Main.f(5); return a` を普通のプログラムとして受ける。決めるのは、builder の「pure な component は元の scalar の protocol を保つ」という設計を変える順番。Opus はこれをユーザーに聞く。
+- Opus はこの確認のために、worktree を一度 `fc0045c93d` に detach して build した。`target/quick/` の中身は基準の木の物になっている(次の series は build し直してから始める)。
