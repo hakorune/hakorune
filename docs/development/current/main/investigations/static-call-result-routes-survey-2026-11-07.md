@@ -182,3 +182,149 @@ qualified(3 つの文脈、320 組)の内訳:
 ## 7. 時間と範囲
 
 3 時間の範囲内で、道の一覧(6 本)、受理の表(384 組 + 追加 14 本 + nullable 6 本)、instance の止まる所、案 4 つの比べを書いた。読み切れていない所は §5 の未確認と §6 に書いた。
+
+---
+
+# 続き(2 回目の読み。2026-11-07 23:09〜)
+
+この節は、§5 の未確認 1〜3 と §6 の案 E を読んで答え、勧めを書き直す。**source は変えていない。計器も入れていない**(既存の `NYASH_BUILDER_DEBUG=1` の出力だけを使った)。行番号は `2bc4dfb372` のもの。
+
+## 8. 案 E の評価(static の呼び出しを、receiver の無い instance の呼び出しとして扱う案)
+
+### 8.1 lexical の経路が receiver に何を要るか
+
+instance の `local x = recv.m(..)` は、次の 3 つの層で receiver を使う。
+
+1. **対象の決定**: `lexical_claim_local_target`(`ordinary_new_coseal_issue_lexical.rs:21-100`)が、(a) 呼び出しの receiver が `ResolvedMethodCallReceiverSourceV1::Lexical(Local(binding))`(`:49-53`)、(b) その binding が `Local` で入れ直しが無い(`:54-67`)、(c) 初期化がちょうど 1 つ(`:68-75`)、(d) その binding が **`new` の claim の destination**(`candidates.iter().filter(|c| c.destination == binding)`。`:76-80`)、を全部満たす時だけ、`(key, batch_slot, callee_owner, arity)` を返す。つまり**receiver は `new` で作った Home でなければならない**。
+2. **結果の class の決定**: 対象が決まった後の半分(`lexical_local_route`、`:162-191`)は receiver を使わない。`callable_result_classes.get(&key)` の claim が `NullableObject` なら `LexicalNullable`(`nullable_exits_hold`)、そうでなければ `all_formals_exact_i64`(`:107`)を満たし `construction_result_callee`(`direct_call_lifecycle.rs:111`)が真なら `LexicalHandle`、claim が無く `borrowed_i64_results.is_normal_i64_result_v1` なら `LexicalI64`。
+3. **対象の表と物理の発行**: `LexicalInstanceCallSourceTargetV1`(`ordinary_new_lexical_instance_call_source.rs:13-27`)が `receiver_site` と `receiver: LexicalInstanceCallReceiverV1` を持つ。`ordinary_new_lexical_instance_call.rs`(683 行)が、receiver の値を引数に Invoke の Call を作り、`LocalRouteWriterV1::LexicalInstance`(`ordinary_new_call_routes.rs:13`)で local の呼び出しを登録する。
+
+また、受けた object を `a.get()` で読む側の class は、`initializer_class`(`ordinary_new_lexical_instance_call_provenance.rs:391-538`)が決める。`local a = <初期化>` の初期化が (i) `new C`、(ii) `move`、(iii) `me.f`、(iv) **`recv.m(..)` で `recv` が lexical な local**(`:508-533`: `variable_ref(object)` が `Local` でなければ `Ok(None)` を返す)、のどれかなら class が決まる。**static の `Main.mk(5)` は (iv) の `object`(`Main`)が local ではないので `None`**。これが §3 の `a.get()` の止まる原因の 1 つ(未確認 2)。
+
+### 8.2 receiver の代わりに置く物
+
+static の呼び出しには receiver が無いので、(1) の対象の決定は流用できない。置く物は次の 2 つで足りる。
+- **対象の決定**: qualified の名前から選ばれる static の key。claim の索引に既にある(`StaticIncomingSourceV1`、`qualified_static_incoming_source.rs`。`target`、`target_batch_slot`、`callee_owner`、`argument_sites`、`parameters`)。
+- **receiver の無い呼び出し**の物理: R1 の `StaticExecutionEmissionV1::materialize_call`(`direct_call_static_execution.rs:66`)が `Callee::Global` の `MirCall` を作る。**instance の `Callee` に receiver を持たせる部分を除けば同じ**。
+
+つまり案 E の実質は、「**結果の class の決定(2)を、instance と static で共有する**」。対象の決定(1)と物理の発行(3)は、receiver の有無で別のまま。
+
+### 8.3 運べる結果の種類と、今どこで決まるか
+
+| 結果 | 決める所(file:line) | instance | static(R1〜R6) |
+|---|---|---|---|
+| Handle | `lexical_local_route` の `construction_result_callee`(`..._lexical.rs:183`)、direct は `local_result_class_v1`(`direct_call_lifecycle.rs:455-472`) | 通る | R6(bare)だけ |
+| NullableHandle | 同 `nullable_exits_hold`(`:180`) | 通る(宣言なし) | 無い(§3) |
+| Text | callee の `ExactString`(`callable_result_representation`)。instance は `corroborates_instance_text_source_v1`(`result_contract.rs`)、static は `corroborates_static_text_source_v1`(`:277`) | 通る | R3(引数なし)、R4(String 引数) |
+| I64 | `scalar_result_class`(`disposition.rs`)の claim、direct は `Some(I64)` | 通る(`LexicalI64`) | R1、R2、R4、R5 |
+| Bool | 同 `ExactBool` | 無い(instance は `is_normal_i64_result_v1` で I64 だけ。Bool の規則 §7) | R1、R2、R4 |
+
+### 8.4 消せる道と、足す物
+
+- **消せる道**: 案 E 単体では**消えない**。R1〜R5 は、formal の種類(i64/borrowed handle/String)と結果の種類の組で選ばれていて、案 E は結果の class の決定を共有するだけなので、道は減らない。結果の class の決定は、instance の `lexical_local_route`(約 30 行)、direct の `local_result_class_v1`(約 20 行)、R1〜R5 の `qualified_scalar_result_v1()` の 39 か所、に散っているので、**3 か所の判定が 1 つの表になる**のが得(約 90 行の判定が表 1 つ)。
+- **足す物**: (a) 結果の class の表(結果の種類 → route の種類と物理の Invoke の結果の種類。R12 の「結果の種類は契約の行から」の延長)、(b) 初期化が static の呼び出しの時の `initializer_class` の枝(§8.1 の (iv) に、static の key を選んで `callable_result_class(&key)` を返す枝を足す。約 15 行)、(c) R1 の gate の拡張(§9 の未確認 1)。
+- **公開 MIR、opcode、ABI、descriptor、C shim の追加**: 要らない見込み(§9 の未確認 1)。
+
+### 8.5 危険と防ぎ方、段階と証拠
+
+- **広げすぎる危険**: 結果の class の表を共有すると、`Handle` が scalar の判定(`qualified_scalar_result_v1().is_some()` の 39 か所)に漏れる危険がある。防ぐのは、scalar の判定を変えず、Handle を別の accessor(`local_call_result_class`)で出すこと(前の series の試行で、これで 39 か所を触らずに済むと確かめた)。そのうえで、**Handle を通してよい使い先**(local、method の呼び出し)を R15 の表の列にする。`Main.mk(5) + 1` が通らないことは、拒否のままにする入力として置く。
+- **段階**: (1) 結果の class の表を作り、instance の `lexical_local_route` と direct の `local_result_class_v1` をその表に替える(MIR の同一)。(2) R1 の gate(`direct_call_static_execution.rs:45-64,87-104,151`)を結果の種類の表で広げ、formal が無いまたは全部 i64 の static の Text/Handle を通す(`oi`、`si`、`sn` の組。§2)。(3) 初期化が static の呼び出しの時の `initializer_class` の枝で、`a.get()` を通す(§9 の未確認 2)。(4) R3 を R1 へ寄せて消す。各段階で、329 + 1,459 本の MIR の同一と、§2 の 384 組の前後比較(通った組が減らないこと)を取る。
+
+### 8.6 案 B の表(§4.2)に足す列
+
+| 観点 | 案 E |
+|---|---|
+| 内容 | 結果の class の決定を instance と static で共有する。対象の決定と物理の発行は receiver の有無で別 |
+| 消せる物 | 道は減らない。結果の class の判定 3 か所(約 90 行)が表 1 つになる。R3 は段階 4 で消せる |
+| 足す物 | 結果の class の表、`initializer_class` の static の枝(約 15 行)、R1 の gate の拡張 |
+| 公開の追加 | 要らない見込み |
+| 危険 | Handle の漏れ(防ぎ方は §8.5) |
+| 相談の 7 との関係 | **「static と instance を共通にする」に合う**(結果の契約の行から決める部分を共有する)。案 B の限定版は static の道どうしだけ |
+| 段階 | 4 |
+
+## 9. 未確認 1〜3 の答え
+
+### 未確認 1: `Callee::Global` の呼び出しの結果が `Handle`/`OwnedString` の時、物理 ABI と published-lifecycle の検査が受けるか
+
+**読んだ範囲では、受ける。拒む検査は見つからなかった**(実行では確かめていない。静的な Handle の MIR を作る入力が今は通らないため)。
+- 呼び出しは `MirInstruction::Invoke { operation: InvokeOperation::Call { call, result } }` の形で、`ordinary_call_site_v1`(`physical_program.rs:307-315`)が `call` と `result`(`InvokeCallResultKind`)を取り出す。callee の種類(Global か instance か)で弾かない(`BirthConstructor` だけを除く)。
+- 物理 JSON の `ordinary_call`(`physical_program_json_call_transport.rs:288-330`)は、receiver があれば入れ、無ければ `{target, args, dst: null}` にし、`result` を `OwnedString => "text"`、`Handle => "handle"`、`NullableHandle => "nullable_handle"`、`I64`、`Bool`、`Map`、`Unit` に符号化する(`:305-316`)。static の Text(R3)が既に同じ符号化で通っている(`ordinary_text`)。
+- callee 側の物理 function の role は、`OrdinaryHandle`/`OrdinaryText`/`OrdinaryNullableHandle` ほか(`physical_program_role.rs:6-70`)が `receiver_object: Option<CanonicalObjectIdV1>` を持つ。`ordinary_receiver_object`(`physical_program_object_identity.rs:7-21`)は、**instance の key でなければ `Ok(None)`** を返す。role の割り当て(`physical_program_projection.rs:218-265`)は、結果の種類だけで role を選ぶ。`compiled_entry_contract.rs:327-345,425-445` の検査も、role の列挙に `OrdinaryHandle` を含む。
+- 残る未確認: (a) C shim の返却起源の検査(`null / fresh / owned_call`)が、static の callee の `return new` でも同じに働くか(callee 側の Return だけを見るので、変わらないと読んだが、C のコードは読んでいない)。(b) `ordinary_calls`(`physical_program.rs:561` ほか)の期待の列が、R1 の `MirCall`(`Callee::Global`、`Invoke` の包み無し)をどう受けるか。p5(§10)の `instruction-unsupported` は、**`Invoke` で包まれていない生の `MirInstruction::Call`** を `ordinary_i64` の function が持っている場合に出る(`physical_program.rs:663-696`)。R1 の `materialize_call` が作るのは `MirCall` で、`Invoke` の包みは別の writer(`LocalRouteWriterV1::DirectStatic`)が付けると読んだが、確かめていない。
+
+### 未確認 2: 受けた Home を `a.get()` で読む判定(`ordinary_new_root_instance_call.rs:112-118,209`)が何を手がかりにしているか
+
+- `issue_root_instance_call_dispositions`(`:91-`)は、terminal の `Call` 関係ごとに、(i) **`borrowed_terminal_arguments_v1(owner, return_site)` が `Some` なら `continue`**(`:112-119`。「lexical の発行が後で裏づける。root の行を 2 つ作らない」)、(ii) `selected_static_local_source_v1` が `Some` なら `continue`(`:122-129`)、(iii) それ以外は receiver の Home を探し、その初期化の **`new` の claim が無ければ `root-instance-call-new-missing`**(`:200-210`)。
+- instance の `return a.get()` が通るのは、(i) の `borrowed_terminal_arguments_v1` が `Some` を返すから。その条件は `terminal.source_scalar()`(`ordinary_new_borrowed_formal_result.rs:338-344`)。`source_scalar` は、`issue_borrowed_i64_terminal_call`(`resolved_semantics/home_local_call_flow.rs:591-640`)が `source_scalar_call::demand_v1`(`home_local_source_scalar_call.rs:113-138`)で package から**貸してもらう** `BorrowedScalarResultSourceLoanV1`。貸す側は `source_scalar_result_arguments_v1`(`ordinary_new_borrowed_formal_result_scalar_loan.rs:326-376`)で、`targets`(lexical の対象の表。site が `a.get()` の行があるか)を探す。
+- つまり**手がかりは「`a.get()` の site が lexical の対象の表に載っているか」**で、載る条件が §8.1 の (iv): `a` の初期化が `recv.m(..)` で `recv` が lexical な local か、`new`/`move`/`me.f` であること(class が決まること)。static の `Main.mk(5)` を初期化にする `a` は class が決まらず、表に載らない。載らなければ (i) は `None`、(iii) で `new` の claim が無く止まる。
+- R1 や案 E の結果でも働くには、**`initializer_class` に static の呼び出しの枝を足す**こと(§8.5 の段階 3)。静的な callee の結果の class は `callable_result_classes`(`OrdinaryNewResultClassV1::Object`)に既にある(前の series の測定で、static の `mk` にも `Object(Leaf)` の claim が出ている)。
+
+### 未確認 3: `source-not-i64` の `Err` を読んで拒否する消費者
+
+- **作る所**: `ordinary_new_borrowed_formal_result_composition.rs:607`(proof の phase が `IngressVerified` でない、または `grounded` に owner が無い時に `*proof = Err(freeze("borrowed-result/source-not-i64"))`)と、`ordinary_new_borrowed_formal_result_pending.rs:572,581,635`(field/call の row が source を持たない時)。
+- **読んで拒否する所**: `ScalarSourceValidationV1::demand`(`ordinary_new_borrowed_formal_result_scalar_loan.rs:72-80`: `results.get(&target.callee_owner())...as_ref().map_err(Clone::clone)?`)。これを `issue_source_scalar_result_loan_v1`(`:111-121`)が呼び、`source_scalar_result_arguments_v1`(`:326-376`、`:372`)から `ordinary_new_coseal_issue_call_arguments.rs:345-358` が `OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue }` に包む。`NYASH_BUILDER_DEBUG=1` で確かめた拒否の site は、`q11` が `a.get()`(`[Body(2), Initializer(0), Lhs]`)、`q14` が `return a.get()`(`[Body(2), Value]`)、`q04` が `local a = m.mk()`(`[Body(1), Initializer(0)]`)。
+- **instance の道の狭さ(§3)を広げる時に変える所**: (1) `grounded_source_results_with_ingress_v1`(`..._scalar_loan.rs`)の grounding の条件、(2) `source_scalar_seed_target_v1`/`selected_source_scalar_target_v1`(`:249-`)の seed の条件。**どの callee の proof が grounded にならないか、が proof ごとに違い、この読みでは特定できていない**(未確認)。`composition.rs:607` は、通る入力でも実行される(§1 の計器)ので、拒否の原因はこの `Err` を**どの target が demand するか**で決まる。
+
+## 10. main の文脈で道が変わる理由(p1〜p5)
+
+入力は `/mnt/workdisk/claude-scratch/static-route-audit/in/`(`hakorune.main` で流した。結果は Opus の記録と同じ)。
+
+| 入力 | 形 | 結果 | 理由(file:line) |
+|---|---|---|---|
+| `p1` | `f(v: i64): i64` を `local a = Main.f(5); return a` で受ける | `qualified-route-retired` | main は `plain_main_integer_result_v1`(`ordinary_new_coseal_issue_walk_triggers.rs:177`)が `has_static_source_local_v1` で偽になり、plain の道を外れる。R1 の `join_static_execution_v1` の `context`(`direct_call_static_execution.rs:124-141`)に main の owner が入らない(呼び出し関係が無く、`new` も `print` も無い)ので、`has_static_execution_for_owner_v1`(`direct_call_loan.rs:346`)も `has_routed_static_local_for_owner_v1`(`packet_entry.rs:451`)も偽。最後に `main_root.rs:161-177` が、arity 0 の main で `static_local_route` が偽かつ qualified の呼び出しがあると、**廃止された qualified の経路の代わりに名前つきで拒否**する |
+| `p1u` | 同 `f(v: i64)`(宣言なし) | `selected-header-missing` | 同じく `context` に入らない。さらに宣言が無い `f(v)` は結果 `None` で、物理 header の行が作られない(`physical_header.rs`: header は `result: Some(abi)` の callee だけ)。`issue_app_main_qualified_receiver_catalog_relation`(`model.rs:260-372`)が、`static_local_route`/`typed_static_route` が偽の時に callee の header を探して無く、`model.rs:357-367` で拒否。main_root に着く前に落ちる |
+| `p2` | `p1` に `local z = new Ctx()` | 通る(`6`) | `requires_new_context_v1`(`ordinary_new_ledger.rs:9-11`)が真になり、`context` に main が入る(`direct_call_static_execution.rs:135`)。R1 が `additions.push`(`:180`)で `Main.f` の呼び出しを加え、`typed_static_route` が真になる |
+| `p3` | `return Main.f(5)` | `main-arguments/root-completion` | terminal が `Call`。`retain_main_arguments_v1`(`ordinary_new_main_arguments.rs:35-41`)が `root_completion` を要るが、**main の root completion が verified にならない**(`root_completion` が `Err`)ので `fault("root-completion")`。R1 の対象は `local_binding().is_some()` の呼び出し(`direct_call_static_execution.rs:149-151`)なので、`return` の直接の転送は R1 に入らない |
+| `p4` | `local a = Main.f(5); print(a); return 0` | 通る | `print` が `flow.lifecycle_prefixes` に `Call` 以外の prefix を作る(`direct_call_static_execution.rs:136-141`)ので `context` に入る |
+| `p5` | 別の static `g` の中の `local a = Main.f(v); return a + 1` を `print(Main.g(5))` で呼ぶ | `instruction-unsupported`(function=`Main.g/1` role=`ordinary_i64`) | `g` は呼び出し関係も `new` も無く `context` に入らないので、R1 の対象にならず、`Main.f(v)` が**生の `MirInstruction::Call`(`Callee::Global`)**のまま MIR に残る。物理側 `validate_instruction_with_context`(`physical_program.rs:600-696`)は、`ordinary` な呼び出しを `Invoke { Call }` の形(`ordinary_call_site_v1`)でだけ受けるので、生の `Call` を `instruction-unsupported`(`:696`)で拒否する |
+
+**何も無い `main()` の通る pipeline**: `plain_main_integer_result_v1`(`ordinary_new_coseal_issue_walk_triggers.rs:177-195`)が真になる main(`is_main` かつ site が無く、map も owner loan も無く、`has_static_source_local_v1` が偽で、receiver も capture も無い)は、`app_main_integer`(`OwnershipRouteV1::decide` の `PlainIssuanceV1.app_main_integer`。`ordinary_new_coseal_issue_route.rs`)で、整数の結果の completion を root に置くだけの道を通る。static の source local を持つ main はこの道を外れ、walk に入る。walk に入っても、R1 の `context` に入らなければ、qualified の呼び出しを受ける道が無い。
+
+**案 B と案 E での見込み**:
+
+| 入力 | 案 B(R1 に結果の種類) | 案 E(結果の class を共有) |
+|---|---|---|
+| `p1` | 変わらない。`context` の条件が残るので、文脈なしの main の qualified 呼び出しは `qualified-route-retired` のまま | 同じ |
+| `p1u` | 変わらない(header の行が無い) | 同じ |
+| `p2`、`p4` | 通ったまま | 通ったまま |
+| `p3` | 変わらない(root completion の問題) | 同じ |
+| `p5` | 変わらない。`g` を `context` に入れる条件(§10 の p5)を変えない限り、生の `Call` が残る | 同じ |
+
+つまり **p1〜p5 の拒否は、案 B にも案 E にも直らない**。直すには `context` の条件(`direct_call_static_execution.rs:124-141`)を、「qualified の static 呼び出しを持つ owner は常に入れる」に変える別の判断が要る。それは `pure scalar component retains its original scalar protocol`(同 file の先頭の comment)という設計の変更で、**ユーザーの決定が要る**。
+
+## 11. 勧めの書き直し
+
+§5 は案 B の限定版を勧めた。2 回目の読みで、次が変わった。
+
+1. 案 B の限定版は **R1 の `context` の条件に縛られる**(§10)。object の結果を R1 に載せても、文脈なしの `main()` からの qualified の呼び出しは通らない。実アプリは `print` や `new` を持つので多くは `context` に入るが、「local の呼び出しだけを持つ小さな main」は通らない。
+2. 未確認 1 は、**物理側には拒む検査が見つからない**(§9)。案 B の最大の不安は小さくなった。
+3. 未確認 2 は、`a.get()` を通す変更の場所が分かった(`initializer_class` の枝、約 15 行)。案 B でも案 E でも、**この枝は必要**。
+4. 案 E は、道を減らさないが、結果の class の判定 3 か所(instance の `lexical_local_route`、direct の `local_result_class_v1`、R1〜R5 の 39 か所)を表 1 つにし、**相談の 7「static と instance を共通にする」に合う**。
+
+**勧め: 案 E と案 B の限定版を、順に 1 本の流れで進める。** 案 E の段階 1(結果の class の表。instance と direct を表に替える。MIR の同一)から始める。これは受理を変えず、判定を 1 つにするだけで、後のどの案でも要る。続いて案 B の限定版の R1 の gate の拡張(段階 2)と `initializer_class` の枝(段階 3)。R3 を消すのは最後(段階 4)。
+
+理由:
+- 案 E の段階 1 は**受理を変えない置き換え**で、証拠(329 + 1,459 本の MIR の同一)を取りやすく、危険が最も小さい。
+- 残りは、案 B の限定版が必要とする変更と同じ物を、結果の class の表の上に載せる形になる。表が先にあれば、39 か所の `is_some()` を触らずに済む。
+- 案 A(direct に載せる)は、通る形が 1 組(§4.3)なので、勧めない。案 C は形ごとの finish を足すので勧めない。
+
+**勧めが変わる条件**:
+- 結果の class の表を作る段階 1 で、instance の `lexical_local_route` と direct の `local_result_class_v1` の判定が**同じ表に収まらない**(条件が食い違う)と分かった時は、案 E を止めて案 B の限定版だけにする。
+- C 側の返却起源の検査が、static の callee の `return new` を拒むと分かった時(§9 の未確認 1 の (a))は、公開の追加が要るので止めてユーザーに聞く。
+- ユーザーが「文脈なしの `main()` の qualified 呼び出し(p1)も通す」と決めた時は、`context` の条件の変更が先に要り、その後で上の流れ。
+
+**未確認の所**(§5 の未確認のうち残る物と、この節で増えた物):
+1. C shim の返却起源の検査(`null / fresh / owned_call`)が static の callee の `return new` でも同じに働くか。
+2. R1 の `materialize_call` の `MirCall` に `Invoke` の包みを付ける writer が、Handle/Text の結果でも同じ形を作るか。
+3. `source-not-i64` が、`q04`/`q07`/`q11`/`q14` の各入力で、どの target の proof の `Err` を demand して出るか(各 proof の grounding の失敗の理由)。
+4. `qualified_scalar_result_v1()` の 39 か所のうち、Handle を通してよい所の数。
+5. R5(式の値の引数枠)を String/object の結果に広げられるか。
+6. 別の static box が複数ある時の `Other.f`。
+
+## 12. 記録: `ordinary_new_borrowed_static_packet_entry.rs`(844 行)
+
+前から 800 行を超えている。責任で分けるなら、(a) **route の選択と co-seal**: `is_static_zero_packet_cohort_v1`(`:175`)、`select_static_zero_local_routes_v1`(`:188`)、`select_static_scalar_local_routes_v1`(`:212`)、`selected_static_local_source_v1`(`:235`)、`co_seal_static_local_routes_v1`(`:343`)、`has_routed_static_local_for_owner_v1`(`:451`)の約 380 行を `ordinary_new_borrowed_static_route_selection.rs` へ。残り(入力の source と scalar の packet、provider の packet、`verify_original_static_*`、`borrowed_static_packet_actuals*`、`with_qualified_static_packet_actuals_v1`)の約 460 行は今の file に残る。直さない(記録だけ)。
+
+## 13. 入れた計器と時間
+
+この節では計器を入れていない(`NYASH_BUILDER_DEBUG=1` の既存の出力だけ)。`git status` は文書だけの変更。読みきれなかった所は §11 の未確認に列挙した。
