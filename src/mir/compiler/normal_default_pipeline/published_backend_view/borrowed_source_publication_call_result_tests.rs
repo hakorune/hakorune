@@ -477,8 +477,10 @@ fn owned_call_results_publish_original_child_handle_contracts() {
                 }
                 // The independent whole-program consumer must also accept the
                 // original operands; source-local positives cannot waive it.
-                let compiled = view.issue_lifecycle_compiled_entry_contract()?;
+                // The ABI input embeds its own freshly issued compiled-entry
+                // contract; read that one instead of issuing it a second time.
                 let input = view.issue_lifecycle_physical_abi_input()?;
+                let compiled = input.entry();
                 crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(view, &input)?;
                 let generic = PublishedMirBackendView::try_new_selected_normal(view.module())
                     .map_err(|error| error.to_string())?;
