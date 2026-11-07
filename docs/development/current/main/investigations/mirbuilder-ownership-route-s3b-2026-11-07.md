@@ -87,3 +87,11 @@ Status: 規則の文書です。authority ではありません。branch `s3b-ro
 ## 診断
 
 - **S3b-R7 診断**: 拒否の名前と、拒否が出る順番を変えない。
+
+## Opus の確認(2026-11-07)
+
+- 規則の commit `17eba45ac4` は実装より前。
+- `decide` の式を、前の `seed_completion`、`app_main_integer_result`、`verified_walk` と項ごとに比べた。`candidates.is_empty()` は `new_sites` が空かと同じ(`new_sites` は `candidates` から作る)。`?` で返る判定の順番も前と同じ。
+- 最後の binary と test binary は `f862402e71` の木から build されていて、その後に変わった source は無い。途中の `f21a33e949` も単独で `cargo check --lib` が通る。
+- 前の監査で使った入力 1,459 本(内容の重複と 329 入力を除いた物。通る 835、拒否 624)で、歩 B/A の前(`57a26283b6` の木)、歩 B/A の後(`421b82d74c`)、この series(`f862402e71`)の 3 つの binary の `--dump-mir` を比べ、全部同じだった。
+- 残り: 要求の行は「走査を要るか」と「seed を止めるか」の 2 つの性質だけを持ち、走査の何(出口の関係、prefix、局所の呼び出しの行など)が要るかは、まだ持たない。新しい解析が対応できる操作の集合と比べるには、この欄が要る。
