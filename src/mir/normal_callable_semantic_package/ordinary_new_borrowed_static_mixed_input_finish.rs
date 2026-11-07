@@ -457,7 +457,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .borrow();
             if result.owner() != owner
                 || !result.identity().same_as(identity)
-                || !result.declared_result_agrees_with_scalar_source()
+                || !result.declared_result_agrees_with_source()
                 || !completion.returns_value()
                 || completion.owner() != owner
                 || !std::ptr::eq(result.completion(), completion.as_ref())

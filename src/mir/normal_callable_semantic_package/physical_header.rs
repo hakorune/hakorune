@@ -159,9 +159,19 @@ pub(super) fn declared_bool_source_agrees_v1(
 pub(super) fn require_declared_result_agrees_with_exits_v1(
     result: Option<ExactTrivialScalarAbiV1>,
     terminals: &std::collections::BTreeMap<crate::mir::resolved_semantics::SourceStmtSiteV1, crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1>,
+    completion: &VerifiedFunctionCompletionV1,
     batch_slot: u32,
 ) -> Result<(), CallablePhysicalHeaderIssueV1> {
     use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind as Kind;
+    // S3: an owned `String` declaration admits no exit that proves a scalar.
+    if let DeclaredFunctionResultContractV1::Annotated(name) = completion.function_exit_contract().declared_result() {
+        if crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify(name)
+            == Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedText)
+            && terminals.values().any(|terminal| terminal.scalar_class().is_some())
+        {
+            return Err(CallablePhysicalHeaderIssueV1::DeclaredResultDisagrees { _batch_slot: batch_slot, _name: name.clone() });
+        }
+    }
     let Some(abi) = result else { return Ok(()) };
     let declared = match abi {
         ExactTrivialScalarAbiV1::I64 => Kind::Integer,
@@ -190,12 +200,14 @@ pub(super) fn validate_result(
 ) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
     let result = match completion.function_exit_contract().declared_result() {
         DeclaredFunctionResultContractV1::Annotated(name) => {
-            Some(ExactTrivialScalarAbiV1::classify_result(name).ok_or_else(|| {
-                CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+            match crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify(name) {
+                Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::Scalar(abi)) => Some(abi),
+                Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedText) => None,
+                None => return Err(CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
                     _batch_slot: batch_slot,
                     _name: name.clone(),
-                }
-            })?)
+                }),
+            }
         }
         DeclaredFunctionResultContractV1::Unannotated | DeclaredFunctionResultContractV1::Void => {
             None

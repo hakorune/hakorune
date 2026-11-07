@@ -169,7 +169,7 @@ impl DirectCallDispositionLoansV1 {
                     let result = results.row(original.target_batch_slot()).ok_or_else(|| reject("result-contract"))?.borrow();
                     let completion = ledger.completion_for_owner(original.callee_owner()).ok_or_else(|| reject("result-completion"))?;
                     if result.owner() != original.callee_owner() || !result.identity().same_as(declaration.identity())
-                        || !result.declared_result_agrees_with_scalar_source() || !std::ptr::eq(result.completion(), completion) {
+                        || !result.declared_result_agrees_with_source() || !std::ptr::eq(result.completion(), completion) {
                         return Err(reject("result-source"));
                     }
                     let row = DirectCallDispositionRowV1 {

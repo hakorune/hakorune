@@ -22,11 +22,12 @@ impl ExactTrivialScalarAbiV1 {
         }
     }
 
-    /// The spellings a declared function result may project to: `i64`, and `Bool` (R1, R11).
+    /// The scalar spellings a declared function result may project to (R1, R11). The one table
+    /// of declared result spellings is `DeclaredResultKindV1::classify`.
     pub(crate) const fn classify_result(source_type_name: &str) -> Option<Self> {
-        match source_type_name.as_bytes() {
-            b"Bool" => Some(Self::Bool),
-            _ => Self::classify(source_type_name),
+        match DeclaredResultKindV1::classify(source_type_name) {
+            Some(DeclaredResultKindV1::Scalar(abi)) => Some(abi),
+            _ => None,
         }
     }
 
@@ -45,6 +46,27 @@ impl ExactTrivialScalarAbiV1 {
     }
 }
 
+/// The one table of declared function-result spellings (R1, S1): a scalar projection, or an
+/// owned `String` that has no scalar projection.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DeclaredResultKindV1 {
+    Scalar(ExactTrivialScalarAbiV1),
+    OwnedText,
+}
+
+impl DeclaredResultKindV1 {
+    pub(crate) const fn classify(source_type_name: &str) -> Option<Self> {
+        match source_type_name.as_bytes() {
+            b"Bool" => Some(Self::Scalar(ExactTrivialScalarAbiV1::Bool)),
+            b"String" => Some(Self::OwnedText),
+            _ => match ExactTrivialScalarAbiV1::classify(source_type_name) {
+                Some(abi) => Some(Self::Scalar(abi)),
+                None => None,
+            },
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::ExactTrivialScalarAbiV1;
@@ -58,6 +80,19 @@ mod tests {
         );
         for rejected in ["int", "Integer", "IntegerBox", "I64", " i64", "i64 "] {
             assert_eq!(ExactTrivialScalarAbiV1::classify(rejected), None);
+        }
+    }
+
+    #[test]
+    fn declared_result_table_reads_scalar_and_owned_text_spellings_only() {
+        use super::DeclaredResultKindV1 as Kind;
+        assert_eq!(Kind::classify("String"), Some(Kind::OwnedText));
+        assert_eq!(Kind::classify("Bool"), Some(Kind::Scalar(ExactTrivialScalarAbiV1::Bool)));
+        assert_eq!(Kind::classify("i64"), Some(Kind::Scalar(ExactTrivialScalarAbiV1::I64)));
+        // Owned text has no scalar projection, and no other spelling is a text result.
+        assert_eq!(ExactTrivialScalarAbiV1::classify_result("String"), None);
+        for rejected in ["StringBox", "string", "Text", "String?", " String"] {
+            assert_eq!(Kind::classify(rejected), None);
         }
     }
 

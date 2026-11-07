@@ -188,6 +188,16 @@ impl<'a> CallableResultContractRefV1<'a> {
         declared_i64_source_agrees_v1(self.result, self.completion)
     }
 
+    /// S2: the declaration is absent or names an owned `String`; both reach the same Text result.
+    fn declares_text_or_nothing_v1(&self) -> bool {
+        use crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1;
+        match self.completion.function_exit_contract().declared_result() {
+            DeclaredFunctionResultContractV1::Unannotated => true,
+            DeclaredFunctionResultContractV1::Annotated(name) => DeclaredResultKindV1::classify(name) == Some(DeclaredResultKindV1::OwnedText),
+            DeclaredFunctionResultContractV1::Void => false,
+        }
+    }
+
     /// Complete original Text-residence exits; this grants no physical Call ABI.
     /// Entry finishing and final publication replay the same source correspondence.
     pub(super) fn has_complete_text_result_v1(&self) -> bool {
@@ -195,7 +205,7 @@ impl<'a> CallableResultContractRefV1<'a> {
         let exits = self.completion.explicit_sites();
         let unique: std::collections::BTreeSet<_> = exits.iter().collect();
         self.result.is_none()
-            && matches!(self.completion.function_exit_contract().declared_result(), DeclaredFunctionResultContractV1::Unannotated)
+            && self.declares_text_or_nothing_v1()
             && self.completion.owner() == self.owner && self.completion.returns_value()
             && self.completion.implicit_body_end().is_none() && !exits.is_empty()
             && unique.len() == exits.len() && self.terminal_relations.len() == exits.len()
@@ -290,9 +300,11 @@ impl<'a> CallableResultContractRefV1<'a> {
             && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
     }
 
-    /// R9: the declaration agrees with a proven scalar source (see `declared_scalar_source_agrees_v1`).
-    pub(super) fn declared_result_agrees_with_scalar_source(&self) -> bool {
+    /// R9, S2: the declaration agrees with the proven source: a scalar (see
+    /// `declared_scalar_source_agrees_v1`) or complete Text exits (a `String` declaration or none).
+    pub(super) fn declared_result_agrees_with_source(&self) -> bool {
         super::physical_header::declared_scalar_source_agrees_v1(self.result, self.completion)
+            || self.has_complete_text_result_v1()
     }
 
     /// Agreement with the independent ExactBool source result. An absent
@@ -432,7 +444,7 @@ impl VerifiedCallableResultContractBuilderV1 {
         let batch_slot = declaration.batch_slot();
         let result = super::physical_header::validate_declared_result(completion.as_ref(), declaration.owner(),
             batch_slot, declaration.borrowed_result().map(|row| row.as_ref()))?;
-        super::physical_header::require_declared_result_agrees_with_exits_v1(result, &terminal_relations, batch_slot)?;
+        super::physical_header::require_declared_result_agrees_with_exits_v1(result, &terminal_relations, completion.as_ref(), batch_slot)?;
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;

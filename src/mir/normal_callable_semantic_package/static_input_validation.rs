@@ -73,7 +73,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let result = result.borrow();
         if result.owner() != contract.owner
             || !result.identity().same_as(identity)
-            || !result.declared_result_agrees_with_scalar_source()
+            || !result.declared_result_agrees_with_source()
             || !completion.returns_value()
             || completion.owner() != contract.owner
             || !std::ptr::eq(result.completion(), completion.as_ref())
