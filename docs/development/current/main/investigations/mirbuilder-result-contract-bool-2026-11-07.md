@@ -79,6 +79,6 @@ ParentCurrentCard: `docs/development/current/main/investigations/app-boxtorrent-
 
 - 公開 MIR、opcode、ABI、descriptor、C shim は足していない。値としての比較は、既存の公開 MIR の `Compare` を既存の発行点から出す。
 - static の呼び出しを直接返す出口(`return Main.t(x)`、T5 と T7)は、I64 でも基準で拒否される。引数の封印と呼び出しの発行を新しく足す変更で、結果の種類の問題ではないので止めた。
-- 論理(`&&` `||`)を値として返す出口(T6)は、短絡の値を書く CFG の writer が評価器に無い。条件の枠は分岐を前提にしている。分岐と Phi で書くか、非短絡の `BinOp` にするかは評価の意味を決めるので、ユーザーの判断に残す。
+- 論理(`&&` `||`)を値として返す出口(T6)は、短絡の値を書く CFG の writer が評価器に無いので拒否のまま。意味は仕様で決まっている(`docs/reference/language/EBNF.md` の「Short-circuit: '&&' and '||' must not evaluate the RHS when not needed.」と C197。条件でも式でも、右辺は要る時だけ評価する)。非短絡の `BinOp` にはしない。値は、分岐と合流(Phi)で書く。
 - `if` の条件に static の Bool 呼び出しを直接置く形(T2)は、条件の枠が呼び出しを根に持つ経路の終端検証が未整備で、物理境界の検証(`threading-branch-unvalidated`、単独では `admission-candidate-unavailable`)で止まる。
 - instance と `me`(T9、R18)は、lexical の route が `is_normal_i64_result_v1` で I64 だけを route にしている。Bool には借用 scalar の loan と artifact の行が要る。
