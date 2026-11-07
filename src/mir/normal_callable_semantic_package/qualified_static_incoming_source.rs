@@ -29,7 +29,8 @@ impl StaticIncomingRouteV1 {
         }
     }
     fn required_i64_arguments(&self) -> &[u32] {
-        self.result().required_i64_arguments().unwrap_or(&[])
+        self.result().required_i64_arguments()
+            .or_else(|| self.result().non_scalar_required_i64_arguments()).unwrap_or(&[])
     }
     fn receiver(&self) -> ResolvedMethodCallReceiverSourceV1 {
         match self {
@@ -75,6 +76,16 @@ impl StaticIncomingSourceV1 {
     ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
         match self.route {
             StaticIncomingRouteV1::Qualified { .. } => self.route.result().scalar_result_class(),
+            StaticIncomingRouteV1::CurrentOwner(_) => None,
+        }
+    }
+    /// K1/K7: the result class of a qualified static call the typed static execution carries: a
+    /// scalar row or a box handle. `qualified_scalar_result_v1` stays scalar-only (K5).
+    pub(in crate::mir) fn qualified_carried_result_v1(
+        &self,
+    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+        match self.route {
+            StaticIncomingRouteV1::Qualified { .. } => self.route.result().claim_row().map(|(_, class)| class),
             StaticIncomingRouteV1::CurrentOwner(_) => None,
         }
     }
@@ -185,6 +196,7 @@ impl StaticIncomingSourceV1 {
             Source::ExactI64 { .. } => Representation::ExactI64,
             Source::ExactString => Representation::ExactString,
             Source::ExactBool { .. } => Representation::ExactBool,
+            Source::ExactNominalBox { box_name, .. } => Representation::ExactNominalBox { box_name: box_name.clone() },
             _ => return false,
         };
         handoff.catalog_identity() == self.catalog_brand.identity()

@@ -26,7 +26,7 @@ pub(super) fn substitute_required_arguments(
             I64ExpressionFactV1::PendingDependency => pending = true,
             I64ExpressionFactV1::ExactBool(_)
             | I64ExpressionFactV1::ExactString
-            | I64ExpressionFactV1::ExactNominalBox(_)
+            | I64ExpressionFactV1::ExactNominalBox(..)
             | I64ExpressionFactV1::KnownNonI64
             | I64ExpressionFactV1::Unknown(_)
             | I64ExpressionFactV1::Conflict => return unavailable(),
@@ -46,7 +46,7 @@ pub(super) fn scalar_requirements(fact: &I64ExpressionFactV1) -> Option<&Require
             Some(requirements)
         }
         I64ExpressionFactV1::ExactString
-        | I64ExpressionFactV1::ExactNominalBox(_)
+        | I64ExpressionFactV1::ExactNominalBox(..)
         | I64ExpressionFactV1::KnownNonI64
         | I64ExpressionFactV1::Unknown(_)
         | I64ExpressionFactV1::PendingDependency

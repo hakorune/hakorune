@@ -509,7 +509,26 @@ impl LexicalReceiverClassSourceV1<'_> {
                 let Some(ResolvedLexicalRefV1::Local(receiver_binding)) =
                     input.function().variable_ref(object)
                 else {
-                    return Ok(None);
+                    // K10: a qualified static call carries the callee's result
+                    // class the same way an instance call does.
+                    let Some(call) = input.function().method_call(initializer_site) else {
+                        return Ok(None);
+                    };
+                    let Some(identity) = call.qualified_receiver_identity() else {
+                        return Ok(None);
+                    };
+                    if call.receiver() != crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::QualifiedUnbound {
+                        return Ok(None);
+                    }
+                    let Some((key, _)) = unique_static_target_v1(
+                        selected,
+                        identity.source_name(),
+                        method.as_ref(),
+                        *arity,
+                    ) else {
+                        return Ok(None);
+                    };
+                    return Ok(self.callable_result_class(&key).map(|class| class.into()));
                 };
                 if receiver_binding.owner() != owner {
                     return Ok(None);

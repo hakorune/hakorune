@@ -17,7 +17,8 @@ use super::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum I64ExpressionFactV1 {
     Exact(RequirementSetV1),
-    ExactNominalBox(String),
+    /// A box value; its constructor arguments keep the exact-i64 operand requirements of their proofs.
+    ExactNominalBox(String, RequirementSetV1),
     ExactString,
     /// A Bool result keeps the exact-i64 operand requirements of its proof (R13).
     ExactBool(RequirementSetV1),
@@ -36,8 +37,10 @@ impl I64ExpressionFactV1 {
         match (left, right) {
             (Self::PendingDependency, _) | (_, Self::PendingDependency) => Self::PendingDependency,
             (Self::Exact(left), Self::Exact(right)) => Self::Exact(union_requirements(left, right)),
-            (Self::ExactNominalBox(left), Self::ExactNominalBox(right)) if left == right => {
-                Self::ExactNominalBox(left.clone())
+            (Self::ExactNominalBox(left, left_requirements), Self::ExactNominalBox(right, right_requirements))
+                if left == right =>
+            {
+                Self::ExactNominalBox(left.clone(), union_requirements(left_requirements, right_requirements))
             }
             (Self::ExactString, Self::ExactString) => Self::ExactString,
             (Self::ExactBool(left), Self::ExactBool(right)) => {
@@ -371,8 +374,13 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
             ASTNode::New {
                 class, arguments, ..
             } => {
-                let _ = self.prove_arguments(expression, arguments, path)?;
-                Ok(I64ExpressionFactV1::ExactNominalBox(class.clone()))
+                let mut requirements = BTreeSet::new();
+                for fact in self.prove_arguments(expression, arguments, path)? {
+                    if let I64ExpressionFactV1::Exact(current) | I64ExpressionFactV1::ExactBool(current) = &fact {
+                        requirements = union_requirements(&requirements, current);
+                    }
+                }
+                Ok(I64ExpressionFactV1::ExactNominalBox(class.clone(), requirements))
             }
             ASTNode::ArrayLiteral { .. }
             | ASTNode::MapLiteral { .. }

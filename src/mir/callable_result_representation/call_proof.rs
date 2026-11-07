@@ -100,17 +100,20 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                         Box::new([]),
                     )),
                 },
-                VerifiedCallableResultDispositionV1::ExactNominalBox { box_name } => {
-                    CallProofOutcomeV1 {
-                        fact: I64ExpressionFactV1::ExactNominalBox(box_name.clone()),
-                        row: Some(VerifiedCallableResultCallSiteV1::same_module_static(
-                            source_target,
-                            VerifiedCallableResultRepresentationV1::ExactNominalBox {
-                                box_name: box_name.clone(),
-                            },
-                            Box::new([]),
-                            Box::new([]),
-                        )),
+                VerifiedCallableResultDispositionV1::ExactNominalBox { box_name, required_i64_arguments } => {
+                    match substitute_required_arguments(required_i64_arguments, arguments) {
+                        I64ExpressionFactV1::Exact(requirements) => CallProofOutcomeV1 {
+                            row: Some(VerifiedCallableResultCallSiteV1::same_module_static(
+                                source_target,
+                                VerifiedCallableResultRepresentationV1::ExactNominalBox {
+                                    box_name: box_name.clone(),
+                                },
+                                required_i64_arguments.clone(),
+                                requirements.iter().copied().collect::<Vec<_>>().into_boxed_slice(),
+                            )),
+                            fact: I64ExpressionFactV1::ExactNominalBox(box_name.clone(), requirements),
+                        },
+                        fact => CallProofOutcomeV1 { fact, row: None },
                     }
                 }
                 VerifiedCallableResultDispositionV1::Unavailable(reason) => {

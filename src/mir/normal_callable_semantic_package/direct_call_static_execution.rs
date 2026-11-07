@@ -54,7 +54,7 @@ impl StaticExecutionEmissionV1 {
             || signature.physical_formal_lane_count() != source.target().arity()
             || signature.physical_callable_lane_count() != source.target().arity()
             || signature.lanes().len() != source.parameters().len()
-            || (source.qualified_scalar_result_v1().is_none() && !source.is_current_owner_i64_source_v1())
+            || (source.qualified_carried_result_v1().is_none() && !source.is_current_owner_i64_source_v1())
             || source.parameters().iter().zip(signature.lanes()).enumerate().any(|(ordinal, (formal, lane))|
                 formal.ordinal as usize != ordinal || formal.binding.owner() != source.callee_owner()
                     || formal.kind != Kind::ExactTrivial(ExactTrivialParameterAbiV1::I64)
@@ -78,6 +78,26 @@ impl StaticExecutionEmissionV1 {
 }
 
 fn reject(reason: &str) -> String { format!("[freeze:contract][static-execution/{reason}]") }
+/// K1/K7: the callee's declaration agrees with the result it is carried as: a scalar or Text
+/// source by the contract row, a box handle by the class every exit returns (O2).
+fn result_agrees_v1(
+    ledger: &OrdinaryNewClaimLedgerV1,
+    original: &crate::mir::normal_callable_semantic_package::StaticIncomingSourceV1,
+    result: &crate::mir::normal_callable_semantic_package::result_contract::CallableResultContractRefV1<'_>,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+) -> Result<bool, String> {
+    if result.declared_result_agrees_with_source() {
+        return Ok(true);
+    }
+    if original.qualified_carried_result_v1() != Some(LocalCallResultClassV1::Handle) {
+        return Ok(false);
+    }
+    let Some(object) = ledger.checked_callable_object_result_v1(original.target(), original.callee_owner())? else {
+        return Ok(false);
+    };
+    Ok(object.kind == crate::mir::instruction::InvokeCallResultKind::Handle
+        && completion.function_exit_contract().declared_result().agrees_with_object_result(object.class, false))
+}
 fn exact_i64(row: &DirectCallDispositionRowV1) -> bool {
     match &row.emission {
         DirectCallEmissionV1::Static(emission) => emission.validate().is_ok(),
@@ -149,9 +169,9 @@ impl DirectCallDispositionLoansV1 {
                     let site = OwnedExprSiteV1::new(owner, site.clone());
                     let Some(call_result) = ledger.local_call_for_owner(owner, site.site())
                         .filter(|local| local.local_binding().is_some())
-                        .and_then(|local| local.result().scalar_invoke_result()) else { continue };
+                        .and_then(|local| local.result().invoke_result()) else { continue };
                     let Some(original) = ledger.borrow_original_static_source_v1(&site)? else { continue };
-                    if original.qualified_scalar_result_v1().is_none() && !original.is_current_owner_i64_source_v1() { continue; }
+                    if original.qualified_carried_result_v1().is_none() && !original.is_current_owner_i64_source_v1() { continue; }
                     if !owners.contains_key(&original.callee_owner()) { continue; }
                     if original.caller() != caller || !original.catalog_brand().is_same(selected.catalog_brand()) {
                         return Err(reject("source-catalog"));
@@ -170,7 +190,7 @@ impl DirectCallDispositionLoansV1 {
                     let result = results.row(original.target_batch_slot()).ok_or_else(|| reject("result-contract"))?.borrow();
                     let completion = ledger.completion_for_owner(original.callee_owner()).ok_or_else(|| reject("result-completion"))?;
                     if result.owner() != original.callee_owner() || !result.identity().same_as(declaration.identity())
-                        || !result.declared_result_agrees_with_source() || !std::ptr::eq(result.completion(), completion) {
+                        || !result_agrees_v1(ledger, original, &result, completion)? || !std::ptr::eq(result.completion(), completion) {
                         return Err(reject("result-source"));
                     }
                     let row = DirectCallDispositionRowV1 {

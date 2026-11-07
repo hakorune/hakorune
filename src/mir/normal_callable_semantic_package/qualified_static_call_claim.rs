@@ -158,9 +158,7 @@ impl QualifiedStaticCallClaimIndexV1 {
             }
             // R12: the claim takes its result kind from the callee's contract row.
             let Some((required_i64_arguments, result)) =
-                results.disposition(source_target.target()).and_then(|row| {
-                    Some((row.required_i64_arguments()?, row.scalar_result_class()?))
-                })
+                results.disposition(source_target.target()).and_then(|row| row.claim_row())
             else {
                 continue;
             };

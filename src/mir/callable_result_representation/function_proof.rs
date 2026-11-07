@@ -21,7 +21,7 @@ use super::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum FunctionProofOutcomeV1 {
     Exact(RequirementSetV1),
-    ExactNominalBox(String),
+    ExactNominalBox(String, RequirementSetV1),
     ExactString,
     ExactBool(RequirementSetV1),
     Unavailable(CallableResultUnavailableReasonV1),
@@ -114,7 +114,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
         (FunctionProofOutcomeV1::Unavailable(_) | FunctionProofOutcomeV1::PendingDependency, _) | (_, None) => outcome,
         (FunctionProofOutcomeV1::ExactBool(_), Some(Declared::Scalar(ExactTrivialScalarAbiV1::Bool)))
         | (FunctionProofOutcomeV1::ExactString, Some(Declared::OwnedText)) => outcome,
-        (FunctionProofOutcomeV1::ExactNominalBox(box_name), Some(Declared::OwnedObject))
+        (FunctionProofOutcomeV1::ExactNominalBox(box_name, _), Some(Declared::OwnedObject))
             if Some(box_name.as_str()) == declared_name => outcome,
         _ => FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::DeclaredResultDisagrees),
     };
@@ -400,7 +400,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
                 saw_exact = true;
                 requirements = union_requirements(&requirements, &current);
             }
-            I64ExpressionFactV1::ExactNominalBox(box_name) => {
+            I64ExpressionFactV1::ExactNominalBox(box_name, current) => {
                 if saw_exact
                     || saw_bool
                     || saw_string
@@ -412,6 +412,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
                         CallableResultUnavailableReasonV1::ConflictingReturnRepresentations,
                     );
                 }
+                requirements = union_requirements(&requirements, &current);
                 exact_box = Some(box_name);
             }
             I64ExpressionFactV1::ExactString => {
@@ -459,7 +460,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
         return FunctionProofOutcomeV1::ExactString;
     }
     if let Some(box_name) = exact_box {
-        return FunctionProofOutcomeV1::ExactNominalBox(box_name);
+        return FunctionProofOutcomeV1::ExactNominalBox(box_name, requirements);
     }
     FunctionProofOutcomeV1::Exact(requirements)
 }

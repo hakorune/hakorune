@@ -636,13 +636,34 @@ pub(in crate::mir::normal_callable_semantic_package) fn unique_instance_target(
     selector: &str,
     arity: u32,
 ) -> Option<(CanonicalSameModuleCallableKeyV1, u32)> {
+    unique_target_v1(selected, SameModuleCallableNamespaceV1::InstanceBoxMethod, owner, selector, arity)
+}
+
+/// The one selected declaration a qualified static call names, by the owner
+/// name resolution already put on the call (`K10`); several or none prove nothing.
+pub(in crate::mir::normal_callable_semantic_package) fn unique_static_target_v1(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    owner: &str,
+    selector: &str,
+    arity: u32,
+) -> Option<(CanonicalSameModuleCallableKeyV1, u32)> {
+    unique_target_v1(selected, SameModuleCallableNamespaceV1::StaticBoxMethod, owner, selector, arity)
+}
+
+fn unique_target_v1(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    namespace: SameModuleCallableNamespaceV1,
+    owner: &str,
+    selector: &str,
+    arity: u32,
+) -> Option<(CanonicalSameModuleCallableKeyV1, u32)> {
     let matches = selected
         .keys()
         .filter_map(|selected_key| {
             let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
                 return None;
             };
-            (key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+            (key.namespace() == namespace
                 && key.owner() == owner
                 && key.name() == selector
                 && key.arity() == arity)

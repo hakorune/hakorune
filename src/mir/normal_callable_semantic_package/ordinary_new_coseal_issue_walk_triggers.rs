@@ -279,7 +279,7 @@ pub(super) fn typed_static_walk_owners_v1(
     };
     for original in source.original_static_sources_v1() {
         let Ok(original) = original else { continue };
-        if (original.qualified_scalar_result_v1().is_none() && !original.is_current_owner_i64_source_v1())
+        if (original.qualified_carried_result_v1().is_none() && !original.is_current_owner_i64_source_v1())
             || original.parameters().iter().any(|formal| formal.kind != crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(
                 crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)) { continue; }
         // This consumer owns real Local initializers in checked Static/Main
