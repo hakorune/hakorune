@@ -11,9 +11,14 @@ fn compile(annotation: &str, body: &str) -> Result<(), String> {
          if b {{ me.n = me.n + 1 }} else {{ me.n = me.n + 10 }}\n    return true\n  }}\n}}\n\
          static box Main {{\n  main() {{\n    local r = new R()\n    r.run(\"a\")\n    print(r.n)\n    return 0\n  }}\n}}\n"
     );
+    compile_source(&source)
+}
+
+fn compile_source(source: &str) -> Result<(), String> {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         MirCompiler::with_options(false)
-            .compile_normal_with_published(request(&source), |view, _| {
+            .compile_normal_with_published(request(source), |view, _| {
                 view.issue_lifecycle_physical_abi_input().map(|_| ())
             })
             .map(|_| ())
@@ -60,4 +65,26 @@ fn declared_bool_result_refuses_returns_that_are_not_bool() {
         let error = compile(annotation, LITERALS).unwrap_err();
         assert!(error.contains("UnsupportedResultAnnotation"), "{annotation}: {error}");
     }
+}
+
+/// R12/R14/R16: a static Bool callee over exact-i64 input takes the route the i64 callee takes,
+/// declared or not, and refuses what the i64 callee refuses.
+#[test]
+fn exact_i64_bool_call_takes_the_i64_callee_route() {
+    let program = |callee: &str, call: &str| format!(
+        "static box Main {{\n  {callee}\n  main() {{\n    local b = {call}\n    \
+         if b {{ print(1) }} else {{ print(0) }}\n    return 0\n  }}\n}}\n");
+    for body in ["return x > 1", "local c = x > 1 return c", "if x > 1 { return true } return false"] {
+        for annotation in [": Bool", ""] {
+            compile_source(&program(&format!("t(x: i64){annotation} {{ {body} }}"), "Main.t(4)"))
+                .unwrap_or_else(|error| panic!("{annotation} {body}: {error}"));
+        }
+    }
+    // The Bool result never stands where an i64 does, and the required position stays exact-i64.
+    let callee = "t(x: i64): Bool { return x > 1 }";
+    compile_source(&program(callee, "Main.t(4) + 1")).expect_err("a Bool is not an i64 operand");
+    compile_source(&program(callee, "Main.t(\"a\")")).expect_err("a Text actual at an i64 position");
+    // R2: an exit that proves the other scalar kind is refused by name once the callee is lowered.
+    let error = compile_source(&program("t(x: i64): Bool { if x > 1 { return true } return x + 1 }", "Main.t(4)")).unwrap_err();
+    assert!(error.contains("DeclaredResultDisagrees"), "{error}");
 }
