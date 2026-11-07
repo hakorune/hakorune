@@ -17,6 +17,8 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 | K9 | 受け取った Text と Handle の責任は String の S5 と object の O7 のとおり。受け取った側の所有は、歩 B の遷移の操作と歩 A の計画の型を使い、新しい遷移や計画を手で作る所を足さない。 |
 | K10 | static の呼び出しで初期化した local の class は、instance の lexical の呼び出しと同じに、callee の結果の class(`callable_result_classes` の `Object(C)`)で決める(`initializer_class`)。 |
 | K11 | 段 1(表を 1 つにして instance と direct を替える)は受理を変えない。329 入力と 1,459 本の `--dump-mir` が基準と全部同じである。 |
+| K13 | 受け取った Handle は、自分の commit 行(`CallReceived`)が発行した binding を持つ。static の実行は、call-prefix の binding group を I64、Bool の結果にだけ課し、Handle の site は routed の表に入れない。(実装中に足した行。group を足すと、2 回受ける形で fault-unwind の release を 2 回数えて `handle-release-missing` になった。) |
+| K14 | 他の関数から呼ぶ static の公開の要求(`project_static_exact_i64_requirement_v1`)は、箱の Handle の結果も、constructor の引数の i64 の要求を持つ行として読む。(実装中に足した行。受ける側が main でない形 `g(v) { local a = Main.mk(v) ... }` で `TargetOnlyDispositionMustBeUnavailable` になった。) |
 | K12 | 段 2 と段 3 が規則の範囲で通らない時は、止まった門の file:line と、その門が何を要るかを書いて止める。公開の追加(MIR、opcode、ABI、descriptor、C shim)が要る時は、その部分を止める。 |
 
 ## 2. 結果の種類を決める所の一覧(`03a36ac2d9`)
@@ -41,3 +43,11 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 | D14 | `home_local_source_scalar_call.rs:553-559`、`ordinary_new_borrowed_call_result_source.rs:277,422`、`result_contract.rs:277` | Text の静的な local は `LocalCallResultSourceV1::Ordinary(loan)` の別の道(R3、R4) | Text の道 |
 
 数: 前の結果の種類を決める所は、**route/class を作る 7(D1〜D4、D6〜D8)、物理に写す 3(D5、D10〜D12)、class を決める 1(D13)**。実装後の数は報告に書く。
+
+## 3. 止めた門(段 2 の Text)
+
+引数つきの static が返す Text(`t(x: i64): String`、k3n、k3un)は、段 2 で止めた。型つきの静的な実行(R1)は、claim の索引に `ExactString` の行(arity が 1 以上)を足すと次の門に届く。
+
+- 門 1: `resolved_semantics/home_local_call_flow.rs:158`(`LocalCallObservationV1::issue`)は `LocalCallResultClassV1::Text` を `assert!` で拒否し、Text の観測は「専用の source loan の issuer」(`LocalCallResultSourceV1::Ordinary(loan)`、D14)だけが作る。R1 にはその issuer を呼ぶ入口が無く、足すと panic になる(基準は `selected-header-missing` の名前つきの拒否)。
+- 門 2: `normal_callable_semantic_package/physical_header.rs:91-110` は、結果が scalar の callee にしか header の行を作らない。`model.rs:357-367` の `selected-header-missing` がそこで出る。
+- 必要な物: R4(Text の引数の式の入力)の loan と、受け取った Text の所有(S5)を R1 に通す入口。これは Text の series が要る。この series では K12 に従って足さず、claim の索引に Text の行を入れていない。基準と同じ拒否の名前のまま。
