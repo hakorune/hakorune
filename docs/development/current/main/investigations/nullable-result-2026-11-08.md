@@ -25,6 +25,8 @@ N18. null receiverのFaultはcallee入場前なので、移転引数をcalleeが
 
 N19. 新しい所有nullable receiverの取得は既存nullable_exits_holdの構築/Null出口の受理検証も共有し、種類/classが既知でもforwardするcalleeを今回の受理へ加えない。
 
+N20. 最終handoffでは投影済みflat storageの座標と不変な元packetの座標を分けて検証し、Root Callへ付くBool等のprefixにも元projectionを渡し、未投影時の検証契約は変えない。
+
 ## 段0: ownerと門
 
 | 入力 | 現在の門 | 次の責務 |
