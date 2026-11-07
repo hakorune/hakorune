@@ -228,7 +228,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
         // The scalar expression loan belongs to a CallArgument frame. Other
         // scalar consumers keep their existing input protocol, selected from
         // the source purpose before any protocol validation is attempted.
-        if original.source_result().scalar_result_class().is_some()
+        if original.source_scalar_result_v1().is_some()
             && !expression.is_some_and(|plan| plan.owner() == site.owner()
                 && (matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { .. })
                     // Any other use site takes this result only while its
@@ -309,7 +309,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
 fn static_primitive_result_v1(source: &StaticIncomingSourceV1)
     -> Result<Option<LocalCallResultClassV1>, String> {
     use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1 as R;
-    let Some(class) = source.source_result().scalar_result_class() else {
+    let Some(class) = source.source_scalar_result_v1() else {
         return Ok(None);
     };
     let representation = match class {

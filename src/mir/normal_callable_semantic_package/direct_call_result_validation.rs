@@ -10,9 +10,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     callable: crate::mir::resolved_semantics::ResolvedCallableRefV1,
 ) -> bool {
+    map_result_owner(batch, callable.owner())
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn map_result_owner(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+) -> bool {
     let mut declarations = batch
         .declarations()
-        .filter(|declaration| declaration.owner() == callable.owner());
+        .filter(|declaration| declaration.owner() == owner);
     let Some(declaration) = declarations.next() else {
         return false;
     };
@@ -57,6 +64,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
 pub(in crate::mir::normal_callable_semantic_package) fn construction_result_callee(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    expected_class: &str,
 ) -> bool {
     let mut declarations = batch
         .declarations()
@@ -77,18 +85,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn construction_result_call
             else {
                 return false;
             };
-            let mut class: Option<Box<str>> = None;
-            for site in value_sites {
-                let Some(construction_class) = declaration.construction_class(&site) else {
-                    return false;
-                };
-                match &class {
-                    None => class = Some(construction_class),
-                    Some(existing) if existing.as_ref() == construction_class.as_ref() => {}
-                    Some(_) => return false,
-                }
-            }
-            class.is_some()
+            !value_sites.is_empty() && value_sites.iter().all(|site|
+                declaration.construction_class(site).is_some_and(|class| class.as_ref() == expected_class))
         })
         .unwrap_or(false)
 }

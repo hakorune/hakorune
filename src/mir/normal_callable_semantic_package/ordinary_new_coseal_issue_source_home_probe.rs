@@ -70,7 +70,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
     );
     let route_sources = super::super::local_route::LocalRouteSourcesV1 {
         owner_loan: None, selected, batch, parameter_contracts, callable_result_classes,
-        borrowed_i64_results, candidates, receiver_call_observations: receiver_rows, input,
+        candidates, receiver_call_observations: receiver_rows, input,
     };
     crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
         input,

@@ -63,6 +63,7 @@ pub(crate) use ordinary_new_coseal::OrdinaryResultSourceLoanV1;
 pub(crate) use ordinary_new_coseal::{OriginalFieldWriteSourceLoanV1, OwnedLocalFieldWriteSourceV1, EntryFieldWriteSourceV1};
 mod physical_header;
 mod physical_signature;
+mod callee_result_kind;
 mod qualified_static_call_claim;
 pub(in crate::mir) use qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 mod result_contract;

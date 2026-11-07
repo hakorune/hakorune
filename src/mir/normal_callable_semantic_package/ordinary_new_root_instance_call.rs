@@ -289,10 +289,10 @@ impl OrdinaryNewClaimLedgerV1 {
             let receiver_object = claim.object();
             // An opaque-call terminal callee proves no result class; it cannot
             // be an instance-call target until its return is decomposed.
-            let call_result = super::super::direct_call_loan::lifecycle::uniform_call_result_kind(
-                result.borrow().terminal_relations().values(),
-            )
-            .ok_or_else(|| freeze("root-instance-call-result-kind-unavailable"))?;
+            let call_result = self.result_kind_catalog_v1().ok_or_else(|| freeze("root-instance-call-result-catalog"))?
+                .corroborated_invoke_result(target, false, false, false, false,
+                    result.borrow().terminal_relations().values())?
+                .ok_or_else(|| freeze("root-instance-call-result-kind-unavailable"))?;
             drop(claims);
             let mut rows = self.root_instance_calls.borrow_mut();
             let call_site = OwnedExprSiteV1::new(owner, site.clone());

@@ -459,7 +459,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let original = self
             .borrow_original_static_source_v1(site)?
             .ok_or_else(|| freeze("static-scalar/original-call-missing"))?;
-        if original.source_result().scalar_result_class().is_none() {
+        if original.source_scalar_result_v1().is_none() {
             return Err(freeze("static-scalar/original-result-not-i64"));
         }
         self.verify_original_static_packet_source_v1(original)?;

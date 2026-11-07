@@ -47,6 +47,7 @@ pub(super) struct SourceResultRowV1 {
 #[derive(Debug, Default)]
 pub(crate) struct VerifiedSourceCallableResultFactsV1 {
     rows: BTreeMap<CanonicalSameModuleCallableKeyV1, SourceResultRowV1>,
+    result_catalog: std::cell::OnceCell<std::rc::Rc<crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindCatalogV1>>,
     field_writers: Option<std::rc::Rc<super::super::field_write_claim::OriginalFieldWriterInventoryV1>>,
     child_relations: BTreeMap<
         (OwnedExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1),
@@ -60,6 +61,14 @@ pub(crate) struct VerifiedSourceCallableResultFactsV1 {
     map_installs: BTreeMap<OwnedExprSiteV1, std::rc::Rc<super::witness::MapStoredResultSourceV1>>,
 }
 impl VerifiedSourceCallableResultFactsV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn bind_result_catalog_v1(
+        &self, catalog: std::rc::Rc<crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindCatalogV1>,
+    ) -> Result<(), String> {
+        self.result_catalog.set(catalog).map_err(|_| "[freeze:contract][callee-result-kind/facts-already-bound]".to_owned())
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn result_catalog_v1(&self) -> Option<&crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindCatalogV1> {
+        self.result_catalog.get().map(std::rc::Rc::as_ref)
+    }
     pub(super) fn attach_field_inventory_v1(&mut self, fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1) {
         self.field_writers = Some(std::rc::Rc::clone(fields.original_inventory_v1()));
     }
@@ -92,7 +101,10 @@ impl VerifiedSourceCallableResultFactsV1 {
         &self,
         key: &CanonicalSameModuleCallableKeyV1,
     ) -> Option<&OrdinaryNewResultClassV1> {
-        self.rows.get(key)?.projection.as_ref()
+        match self.result_catalog.get() {
+            Some(catalog) => catalog.object(key),
+            None => self.rows.get(key)?.projection.as_ref(),
+        }
     }
     pub(crate) fn contains_key(&self, key: &CanonicalSameModuleCallableKeyV1) -> bool {
         self.get(key).is_some()
@@ -102,7 +114,7 @@ impl VerifiedSourceCallableResultFactsV1 {
     ) -> impl Iterator<Item = (&CanonicalSameModuleCallableKeyV1, &OrdinaryNewResultClassV1)> {
         self.rows
             .iter()
-            .filter_map(|(key, row)| row.projection.as_ref().map(|value| (key, value)))
+            .filter_map(|(key, _)| self.get(key).map(|value| (key, value)))
     }
     pub(crate) fn keys(&self) -> impl Iterator<Item = &CanonicalSameModuleCallableKeyV1> {
         self.iter().map(|(key, _)| key)

@@ -45,6 +45,7 @@ impl StaticIncomingRouteV1 {
 #[derive(Debug)]
 pub(crate) struct StaticIncomingSourceV1 {
     catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
+    result_catalog: Rc<super::super::callee_result_kind::CalleeResultKindCatalogV1>,
     caller: CanonicalSameModuleCallableKeyV1,
     call: OwnedExprSiteV1,
     target: CanonicalSameModuleCallableKeyV1,
@@ -68,6 +69,14 @@ impl StaticIncomingSourceV1 {
         &self.catalog_brand
     }
 
+    /// Kind comes from the shared catalog; the original row still limits this
+    /// source protocol to the previously admitted scalar evidence.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_v1(&self)
+        -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+        self.route.result().required_i64_arguments()?;
+        self.result_catalog.kind(&self.target).map(|kind| kind.local_class())
+    }
+
     /// The original qualified scalar lane (R12), not general route membership.
     /// The answer is the callee's result kind from its contract row; a caller
     /// that accepts one kind only says so beside its use (R15).
@@ -75,7 +84,7 @@ impl StaticIncomingSourceV1 {
         &self,
     ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
         match self.route {
-            StaticIncomingRouteV1::Qualified { .. } => self.route.result().scalar_result_class(),
+            StaticIncomingRouteV1::Qualified { .. } => self.source_scalar_result_v1(),
             StaticIncomingRouteV1::CurrentOwner(_) => None,
         }
     }
@@ -85,7 +94,7 @@ impl StaticIncomingSourceV1 {
         &self,
     ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
         match self.route {
-            StaticIncomingRouteV1::Qualified { .. } => self.route.result().claim_row().map(|(_, class)| class),
+            StaticIncomingRouteV1::Qualified { .. } => self.result_catalog.claim_row(&self.target).map(|(_, class)| class),
             StaticIncomingRouteV1::CurrentOwner(_) => None,
         }
     }
@@ -254,6 +263,7 @@ impl StaticIncomingSourceV1 {
 
 pub(in crate::mir::normal_callable_semantic_package) struct StaticIncomingSourceLoanV1<'a> {
     catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
+    result_catalog: Rc<super::super::callee_result_kind::CalleeResultKindCatalogV1>,
     caller: CanonicalSameModuleCallableKeyV1,
     contract: &'a OwnedCallableParameterContractDeclarationV1,
     call: &'a OwnedExprSiteV1,
@@ -319,6 +329,7 @@ impl<'a> StaticIncomingSourceLoanV1<'a> {
         }
         Ok(Rc::new(StaticIncomingSourceV1 {
             catalog_brand: self.catalog_brand.clone(),
+            result_catalog: Rc::clone(&self.result_catalog),
             caller: self.caller.clone(),
             call: self.call.clone(),
             target: self.target.clone(),
@@ -524,6 +535,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         }
         Ok(Some(StaticIncomingSourceLoanV1 {
             catalog_brand: self.catalog_brand.clone(),
+            result_catalog: Rc::clone(&self.result_catalog),
             caller: caller.clone(),
             contract,
             call: site,

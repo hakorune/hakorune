@@ -53,7 +53,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallC
     catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     // These are the SAME solver-issued function rows used for call-site
     // claims. Selected unannotated Static entries may borrow one exact row.
-    result_rows: BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
+    result_catalog: std::rc::Rc<super::callee_result_kind::CalleeResultKindCatalogV1>,
     // Full original static routes include instance callers, which the static
     // result solver does not analyze for call-site dependency evidence.
     source_targets: BTreeMap<
@@ -128,11 +128,13 @@ impl QualifiedStaticCallClaimIndexV1 {
         let targets = inventory.into_targets();
         let results = VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
             .map_err(QualifiedStaticCallClaimIndexIssueV1::ResultCatalog)?;
+        let (result_rows, call_result_rows) = results.into_source_rows();
+        let result_catalog = std::rc::Rc::new(super::callee_result_kind::CalleeResultKindCatalogV1::new(result_rows));
         let mut rows = BTreeMap::new();
         let mut current_owner_rows = BTreeMap::new();
         for ((caller, site), source_target) in targets.rows() {
             if let VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(route) = source_target {
-                let result = results.disposition(route.target()).ok_or_else(|| {
+                let result = result_catalog.static_evidence(route.target()).ok_or_else(|| {
                     QualifiedStaticCallClaimIndexIssueV1::ResultCatalog(
                         CallableResultCatalogErrorV1::StableResultDrift {
                             key: route.target().clone(),
@@ -158,7 +160,7 @@ impl QualifiedStaticCallClaimIndexV1 {
             }
             // R12: the claim takes its result kind from the callee's contract row.
             let Some((required_i64_arguments, result)) =
-                results.disposition(source_target.target()).and_then(|row| row.claim_row())
+                result_catalog.claim_row(source_target.target())
             else {
                 continue;
             };
@@ -170,7 +172,6 @@ impl QualifiedStaticCallClaimIndexV1 {
                 ),
             );
         }
-        let (result_rows, call_result_rows) = results.into_source_rows();
         let call_result_rows = call_result_rows.into_iter()
             .map(|(site, row)| (site, std::sync::Arc::new(row))).collect();
         let source_targets = targets
@@ -180,7 +181,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         Ok((
             Self {
                 catalog_brand: declarations.brand().clone(),
-                result_rows,
+                result_catalog,
                 call_result_rows,
                 source_targets,
                 rows,
@@ -188,6 +189,10 @@ impl QualifiedStaticCallClaimIndexV1 {
             },
             closed_app_zero_incoming,
         ))
+    }
+
+    pub(super) fn result_catalog(&self) -> &std::rc::Rc<super::callee_result_kind::CalleeResultKindCatalogV1> {
+        &self.result_catalog
     }
 
     /// Full sealed target membership, including non-I64 and instance callers.
@@ -220,7 +225,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         &self,
         key: &CanonicalSameModuleCallableKeyV1,
     ) -> Option<&VerifiedCallableResultDispositionV1> {
-        self.result_rows.get(key)
+        self.result_catalog.static_evidence(key)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn current_owner_i64_source(

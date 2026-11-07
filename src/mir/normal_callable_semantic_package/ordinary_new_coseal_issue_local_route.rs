@@ -16,7 +16,6 @@ pub(super) struct LocalRouteSourcesV1<'a> {
     pub(super) batch: &'a VerifiedResolvedCallableSemanticBatchV1,
     pub(super) parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     pub(super) callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-    pub(super) borrowed_i64_results: &'a super::super::lexical_instance_call::BorrowedResultCohortV1,
     pub(super) candidates: &'a [OrdinaryNewCandidate],
     pub(super) receiver_call_observations: &'a BTreeMap<OwnedExprSiteV1, crate::mir::normal_callable_semantic_package::ReceiverCallClassObservationV1>,
     pub(super) input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
@@ -28,7 +27,6 @@ impl LocalRouteSourcesV1<'_> {
         site: &OwnedExprSiteV1,
         static_claim: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticScalarCallClaimV1>, E>,
     ) -> Result<Option<LocalCallRouteV1>, E> {
-        use crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::DirectLocalResultV1;
         let function = self.input.function();
         if site.owner() != self.input.owner() {
             return Ok(None);
@@ -37,9 +35,9 @@ impl LocalRouteSourcesV1<'_> {
             return Ok(self
                 .owner_loan
                 .and_then(|loan| {
-                    loan.local_result_class_v1(self.batch, self.parameter_contracts, self.input, site)
+                    loan.local_result_class_v1(self.batch, self.parameter_contracts, self.callable_result_classes, self.input, site)
                 })
-                .and_then(|class| LocalCallRouteV1::for_result(CallLaneV1::Direct, class.class())));
+                .and_then(|class| LocalCallRouteV1::for_result(CallLaneV1::Direct, class)));
         }
         let Some(call) = function.method_call(site.site()) else {
             return Ok(None);
@@ -53,7 +51,6 @@ impl LocalRouteSourcesV1<'_> {
                         self.batch,
                         self.parameter_contracts,
                         self.callable_result_classes,
-                        self.borrowed_i64_results,
                         self.candidates,
                         self.input,
                         site,

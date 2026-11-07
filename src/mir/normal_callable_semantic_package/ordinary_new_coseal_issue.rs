@@ -504,7 +504,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     let local_route_sources = local_route::LocalRouteSourcesV1 {
                         owner_loan, selected, batch, parameter_contracts,
                         callable_result_classes: &callable_result_classes,
-                        borrowed_i64_results: &borrowed_i64_results,
                         candidates: &candidates,
                         receiver_call_observations: &receiver_call_observations,
                         input,

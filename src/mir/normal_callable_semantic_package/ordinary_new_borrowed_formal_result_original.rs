@@ -280,7 +280,7 @@ impl OriginalReturnSourceLoanV1 {
                 plan.root().expression_site().is_some_and(|site|
                     plan.owner() == returned.owner() && site == returned.site())).count() == 1)
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_unit_candidate_v1(&self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn is_unit_candidate_v1(&self) -> bool {
         matches!(self.0.body, OriginalReturnBodySourceV1::UnitCandidate { .. })
     }
     /// Corroboration against the existing canonical Completion, never issuance.
@@ -465,6 +465,16 @@ impl BorrowedResultCohortV1 {
             BorrowedResultClassV1::I64 => Some(SourceValue::SignedI64),
             BorrowedResultClassV1::Bool => Some(SourceValue::Bool),
             BorrowedResultClassV1::UnresolvedScalar | BorrowedResultClassV1::Nullable => None,
+        }
+    }
+    /// Retained source kind only; no executable or Normal-only permission.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_result_class_v1(&self, owner: &FunctionOwnerIdV1)
+        -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
+        match self.get(owner)?.as_ref().ok()?.class {
+            BorrowedResultClassV1::I64 => Some(Class::I64),
+            BorrowedResultClassV1::Bool => Some(Class::Bool),
+            BorrowedResultClassV1::Nullable | BorrowedResultClassV1::UnresolvedScalar => None,
         }
     }
     /// The callee's explicit value returns are a Normal-only exact i64 (see

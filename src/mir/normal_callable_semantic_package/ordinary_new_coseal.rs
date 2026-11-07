@@ -114,7 +114,7 @@ mod birth_abi_handoff;
 mod candidate;
 pub(in crate::mir::normal_callable_semantic_package) use candidate::LocalNewRootSourceV1;
 #[path = "ordinary_new_lexical_instance_call.rs"]
-mod lexical_instance_call;
+pub(super) mod lexical_instance_call;
 pub(super) use lexical_instance_call::ClosedOriginalCoreSourceV1;
 pub(in crate::mir) use lexical_instance_call::{MainArgumentsSourceV1, MainArgumentKindV1};
 pub(in crate::mir) use lexical_instance_call::SourceValueClassFactsV1;
@@ -187,7 +187,7 @@ pub(in crate::mir) use lexical_instance_call::{
 mod receiver_call_observation;
 pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 #[path = "ordinary_new_result_class_claim.rs"]
-mod result_class_claim;
+pub(super) mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
 pub(crate) use result_class_claim::{
     BorrowedNullableLocalSourceLoanV1, BorrowedCallResultSourceLoanV1, BorrowedCallSourceLoanV1, BorrowedLifetimeAnchorV1, MixedLocalCallSourceLoanV1, ObjectReturnCallQualificationV1, OrdinaryNewResultClassV1,
@@ -600,6 +600,7 @@ mod ledger;
 
 #[derive(Debug)]
 pub(crate) enum OrdinaryNewCoSealIssueV1 {
+    ResultKindConflict { issue: String },
     CompletionSeed(super::physical_header::CallablePhysicalHeaderIssueV1),
     CompletionIndexRetention {
         reason: &'static str,
@@ -766,3 +767,9 @@ impl OrdinaryNewClaimLedgerV1 {
 pub(in crate::mir) use local_commit::{EmittedNewExpressionV1, NewArgumentCleanupV1, EmittedNewArgumentV1};
 
 pub(in crate::mir) use local_commit::FinalizedBorrowedCallPacketV1;
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn result_kind_catalog_v1(&self) -> Option<&super::callee_result_kind::CalleeResultKindCatalogV1> {
+        self.callable_result_classes.result_catalog_v1()
+    }
+}

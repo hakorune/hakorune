@@ -98,38 +98,14 @@ impl VerifiedCallableResultDispositionV1 {
         }
     }
 
-    /// K1/K7: the rows the qualified static claim index carries: a scalar row, or a box handle.
-    /// A String row stays with its own routes (K8).
-    pub(crate) fn claim_row(
-        &self,
-    ) -> Option<(&[u32], crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1)> {
+    /// Original static claim admission and its input obligations, independent
+    /// of the package catalog's result-kind decision. Text keeps its own ABI.
+    pub(crate) fn claim_required_i64_arguments(&self) -> Option<&[u32]> {
         match self {
-            Self::ExactNominalBox { .. } => Some((self.non_scalar_required_i64_arguments()?, self.local_call_result_class()?)),
-            _ => Some((self.required_i64_arguments()?, self.scalar_result_class()?)),
-        }
-    }
-
-    /// K1: the result class of a call, scalar or not, read from the contract row.
-    pub(crate) fn local_call_result_class(
-        &self,
-    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
-        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
-        match self {
-            Self::ExactNominalBox { .. } => Some(Class::Handle),
-            Self::ExactString => Some(Class::Text),
-            _ => self.scalar_result_class(),
-        }
-    }
-
-    /// R12: the one place a scalar contract row names the call's result kind.
-    pub(crate) fn scalar_result_class(
-        &self,
-    ) -> Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1> {
-        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1 as Class;
-        match self {
-            Self::ExactI64 { .. } => Some(Class::I64),
-            Self::ExactBool { .. } => Some(Class::Bool),
-            Self::ExactString | Self::ExactNominalBox { .. } | Self::Unavailable(_) => None,
+            Self::ExactNominalBox { required_i64_arguments, .. }
+            | Self::ExactI64 { required_i64_arguments }
+            | Self::ExactBool { required_i64_arguments } => Some(required_i64_arguments),
+            Self::ExactString | Self::Unavailable(_) => None,
         }
     }
 

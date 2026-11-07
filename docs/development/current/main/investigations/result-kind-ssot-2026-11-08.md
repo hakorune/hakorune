@@ -51,3 +51,9 @@ U24. 遅いText/nullable-Text転送の検証済み証拠も同じ結果rowへ照
 観測した入力/calleeは7497組で、1と2が正の異なるclassを示す例、Normal-i64が正で別の正のkindを示す例は無かった。
 object claimと直接構築検証の範囲差、nullable claimとNull/直接構築検証の範囲差、ordinary外nominalの範囲差は合計35行あり、入力とcalleeの全件は実測報告へ添付する。
 追加の決定/投影としてdirect_call_result.rs:13のterminal-result分類と同:61の全exit分類があり、Map/Unitと所有ABIの証拠を調べる必要がある。
+
+## 段1
+
+staticの元契約を所有する同じcatalogへresolved object/nullable、instance scalar、Map/Unitと遅いText証拠を結び、lexical/direct/root/R1/staticの結果選択を同catalogへ接続した。
+全return構築検査はcatalogのclassを引数に取る独立検証とし、terminalの種類はcatalogとの独立した一致検証に限定した。
+段1のbinaryで329入力と1459入力のexit・MIR・拒否は差0、timeout 0で、focusedは12 PASSと既知のFAIL 1件だった。

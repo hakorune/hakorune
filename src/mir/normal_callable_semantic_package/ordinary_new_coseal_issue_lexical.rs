@@ -164,7 +164,6 @@ pub(super) fn lexical_local_route(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-    borrowed_i64_results: &super::super::lexical_instance_call::BorrowedResultCohortV1,
     candidates: &[OrdinaryNewCandidate],
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
@@ -172,27 +171,25 @@ pub(super) fn lexical_local_route(
     use crate::mir::resolved_semantics::home_new_prefix::LocalCallRouteV1;
     let (key, target_batch_slot, callee_owner, arity) =
         lexical_claim_local_target(selected, batch, candidates, input, site)?;
-    let claim = callable_result_classes.get(&key);
-    // K3: the lexical lane decides the callee's result class here, and the one route table turns
-    // the class into the lane's route.
-    use crate::mir::resolved_semantics::home_new_prefix::{CallLaneV1, LocalCallResultClassV1 as Class};
-    let class = if matches!(
-        claim,
-        Some(crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_))
-    ) {
-        nullable_exits_hold(batch, target_batch_slot).then_some(Class::Nullable)?
-    } else {
-        all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
-        if crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::construction_result_callee(
-            batch,
-            callee_owner,
-        ) {
-            Class::Handle
-        } else {
-            (claim.is_none() && borrowed_i64_results.is_normal_i64_result_v1(&callee_owner))
-                .then_some(Class::I64)?
+    let catalog = callable_result_classes.result_catalog_v1()?;
+    let kind = catalog.kind(&key)?;
+    use crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1 as Kind;
+    use crate::mir::resolved_semantics::home_new_prefix::CallLaneV1;
+    match &kind {
+        Kind::Nullable(_) => { nullable_exits_hold(batch, target_batch_slot).then_some(())?; }
+        Kind::Handle(class) => {
+            all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
+            crate::mir::normal_callable_semantic_package::direct_call_loan::lifecycle::construction_result_callee(
+                batch, callee_owner, class,
+            ).then_some(())?;
         }
-    };
+        Kind::I64 => {
+            all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)?;
+            (callable_result_classes.get(&key).is_none() && catalog.normal_i64(&key)).then_some(())?;
+        }
+        _ => return None,
+    }
+    let class = kind.local_class();
     LocalCallRouteV1::for_result(CallLaneV1::Lexical, class)
 }
 
@@ -337,6 +334,8 @@ pub(super) fn prepare_source_preflight_v1(
                 )
             },
         )?;
+    static_call_claims.bind_result_kinds_v1(batch, selected, callable_result_classes, &borrowed_i64_results, &borrowed_formal_source)
+        .map_err(|issue| OrdinaryNewCoSealIssueV1::ResultKindConflict { issue })?;
     Ok((
         names,
         local_candidates,

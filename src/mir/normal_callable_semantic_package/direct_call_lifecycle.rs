@@ -57,7 +57,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_owned_owner(
 
 #[path = "direct_call_result_validation.rs"]
 mod result_validation;
-pub(in crate::mir::normal_callable_semantic_package) use result_validation::{construction_result_callee, map_result_callee};
+pub(in crate::mir::normal_callable_semantic_package) use result_validation::{construction_result_callee, map_result_callee, map_result_owner};
 
 #[path = "direct_call_result.rs"]
 mod result;
@@ -312,25 +312,6 @@ pub(super) fn exact_formals(
         .unwrap_or(false)
 }
 
-/// The result class of a local direct call, decided once from the callee.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::normal_callable_semantic_package) enum DirectLocalResultV1 {
-    I64,
-    Map,
-    Handle,
-}
-
-impl DirectLocalResultV1 {
-    /// K2: the direct lane's result class in the one table's vocabulary.
-    pub(in crate::mir::normal_callable_semantic_package) const fn class(self) -> LocalCallResultClassV1 {
-        match self {
-            Self::I64 => LocalCallResultClassV1::I64,
-            Self::Map => LocalCallResultClassV1::Map,
-            Self::Handle => LocalCallResultClassV1::Handle,
-        }
-    }
-}
-
 impl DirectCallDispositionLoanV1 {
     /// The ready row and emission of a direct call whose resolved target and
     /// argument sites agree with the source inventory: the shared structure of
@@ -379,18 +360,23 @@ impl DirectCallDispositionLoanV1 {
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         parameters: &[OwnedCallableParameterContractDeclarationV1],
+        facts: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::OrdinaryNewResultClassClaimsV1,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         site: &OwnedExprSiteV1,
-    ) -> Option<DirectLocalResultV1> {
+    ) -> Option<LocalCallResultClassV1> {
+        use crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1 as Kind;
         let (row, emission) = self.ready_direct_call(input, site)?;
+        let kind = facts.result_catalog_v1()?.kind(row.published_key_v1()?)?;
         match emission.target().signature().result() {
-            Some(ExactTrivialScalarAbiV1::I64) => Some(DirectLocalResultV1::I64),
-            // A declared Bool result is not a direct local route: its receiver reads the contract row.
+            Some(ExactTrivialScalarAbiV1::I64) => (kind == Kind::I64).then(|| kind.local_class()),
             Some(ExactTrivialScalarAbiV1::Bool) => None,
             None if !exact_formals(batch, parameters, row) => None,
-            None if map_owned(batch, row) => Some(DirectLocalResultV1::Map),
-            None => construction_result_callee(batch, emission.target().callable().owner())
-                .then_some(DirectLocalResultV1::Handle),
+            None if map_owned(batch, row) => (kind == Kind::Map).then(|| kind.local_class()),
+            None => match &kind {
+                Kind::Handle(class) => construction_result_callee(batch, emission.target().callable().owner(), class)
+                    .then(|| kind.local_class()),
+                _ => None,
+            },
         }
     }
 
@@ -433,8 +419,10 @@ impl DirectCallDispositionLoanV1 {
             // A construction-result callee leaves through the same
             // lifecycle gates as a map-owned one: its unannotated header
             // proves nothing, and the sealed terminal relation decides.
-            let construction_result =
-                construction_result_callee(batch, emission.target().callable().owner());
+            let result_kind = row.published_key_v1().and_then(|key| root.result_kind_catalog_v1()?.kind(key));
+            let construction_result = matches!(&result_kind,
+                Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Handle(class))
+                    if construction_result_callee(batch, emission.target().callable().owner(), class));
             // Unavailable Map coverage is still Map-owned, never Scalar evidence.
             if !map_owned(batch, row) && !construction_result {
                 // An unannotated target is callable only through the
@@ -530,12 +518,10 @@ impl DirectCallDispositionLoanV1 {
             // carry the I64 class, an unannotated callee whose every
             // `return` constructs one `new` class carries the Handle
             // class, and other unannotated map-owned callees carry Map.
-            let expected_class = match emission.target().signature().result() {
-                Some(ExactTrivialScalarAbiV1::I64) => LocalCallResultClassV1::I64,
-                Some(ExactTrivialScalarAbiV1::Bool) => return Err(reject),
-                None if construction_result => LocalCallResultClassV1::Handle,
-                None => LocalCallResultClassV1::Map,
-            };
+            let expected_class = result_kind.as_ref().map(|kind| kind.local_class()).ok_or(reject)?;
+            if emission.target().signature().result() == Some(ExactTrivialScalarAbiV1::Bool) {
+                return Err(reject);
+            }
             let call_completion = root.completion_for_owner(self.owner);
             let has_call_terminal = !root.call_relations_for_owner(self.owner).is_empty();
             let terminal = root
@@ -659,7 +645,9 @@ impl DirectCallDispositionLoanV1 {
                     _ => return Err(reject),
                 }
             }
-            row.result = uniform_call_result_kind(callee_relations.values()).ok_or(reject)?;
+            row.result = root.result_kind_catalog_v1().ok_or(reject)?
+                .corroborated_invoke_result(row.published_key_v1().ok_or(reject)?, false, false, false, false,
+                    callee_relations.values()).map_err(|_| reject)?.ok_or(reject)?;
             row.execution = DirectCallExecutionV1::Lifecycle;
             if let Some(site) = local_binding_site {
                 root.record_lifecycle_local_call_site(site, LocalRouteWriterV1::DirectLifecycle).map_err(|_| reject)?;

@@ -307,7 +307,7 @@ pub(super) use {borrowed_formal_source::prepare_borrowed_formal_ingress_v1,
     borrowed_formal_actuals::{lend_argument_expression_source_v1, stage_borrowed_call_actuals_v1}};
 pub(crate) use borrowed_formal_source::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
-pub(super) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::source_unit_discard_v1;
 
@@ -433,28 +433,15 @@ impl OrdinaryNewClaimLedgerV1 {
             if self.completion_for_owner(callee_owner).is_some_and(|completion| !completion.returns_value()) {
                 return Err(freeze("lexical-instance-call/unit-value-use"));
             }
-            let source_bool = self
-                .borrowed_i64_results
-                .get(&callee_owner)
-                .and_then(|row| row.as_ref().ok())
-                .is_some_and(|row| {
-                    row.class == borrowed_formal_result::BorrowedResultClassV1::Bool
-                });
+            let source_bool = self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(&target))
+                == Some(super::super::callee_result_kind::CalleeResultKindV1::Bool);
             let retained_scalar = self.retained_terminal_scalar_result_v1(&source)?;
             let source_text = self.checked_local_instance_text_result_source_v1(&source)?;
             let source_nullable_text = self.checked_local_instance_nullable_text_result_source_v1(&source)?;
-            let callee_result = if source_text {
-                Some(InvokeCallResultKind::OwnedString)
-            } else if source_nullable_text {
-                Some(InvokeCallResultKind::DynamicCarrier)
-            } else if source_bool {
-                retained_scalar.as_ref().filter(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool)
-                    .map(|_| InvokeCallResultKind::Bool)
-            } else {
-                super::super::direct_call_loan::lifecycle::uniform_call_result_kind(
-                    self.terminal_relations_for_owner(callee_owner).into_iter(),
-                )
-            };
+            let callee_result = self.result_kind_catalog_v1().ok_or_else(|| freeze("lexical-instance-call/result-catalog"))?
+                .corroborated_invoke_result(&target, source_text, source_nullable_text, source_bool,
+                    retained_scalar.as_ref().is_some_and(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool),
+                    self.terminal_relations_for_owner(callee_owner).into_iter())?;
             if callee_result == Some(InvokeCallResultKind::Bool) {
                 let loan = retained_scalar.as_ref()
                     .filter(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool)
