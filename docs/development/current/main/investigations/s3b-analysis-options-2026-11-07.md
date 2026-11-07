@@ -223,3 +223,11 @@ Status: 読解の記録です。authority ではありません。branch `s3b-an
 - 腕 27 のうち、契約の遷移にできる数が分かっていない(5 節)。
 
 最初の候補(読んだ範囲): D5(`move` の解釈。resolved_semantics に `home_new_prefix_local_statement.rs:177`、`home_call_entry_transfer.rs:79`、`home_new_prefix_new_local.rs:171`、`home_local_call_borrowed_actuals.rs:99`、`home_prefix_observe.rs:90` の 5 か所、package に `ordinary_new_borrowed_formal_actual_seed.rs:359` ほか 5 か所)と、D6(使用後 move: `scan.rs:128`、`home_call_entry_transfer.rs:108-114`、`local_statement.rs:187`、`:229`、`home_new_prefix_new_local.rs:234`)。この 2 つは「`move` の意味」という 1 つの契約にまとまる、と読んだが、package 側の 5 か所は読んでいない。
+
+## 8. Opus の確認(2026-11-07、読んだだけ)
+
+- `scan_statement_flow` を呼ぶ所は、本文のとおり 3 か所だった(`home_new_prefix.rs:605`、`home_new_prefix_branch.rs:100`、`home_new_prefix_source_loop.rs:126`)。loop の本体も同じ進み方を再帰で使うので、loop を外した案 2 では、旧い進み方が残る。
+- `scan.rs:117` は、本文のとおり文の列を前から順に辿る `for` だった。
+- `mirbuilder-inplace-replacement-policy-ssot.md:369-373` は、compatibility owner を「一つの selected pipeline の中で、移した owner と重ならずに 1 回だけ選ぶ分岐」としてだけ許し、第二の入口と双方向の retry/fallback を禁じている。本文の 5 節が「拒否の入口に新しい解析を足す」読みを未確認としたのは妥当で、この文に照らすと、その読みは第二の入口になりやすい。
+- 固定 suite のうち `mimalloc-lite`、`ownership-child-typed-min`、`ownership-shared-min`、`typed-object-untyped-field-min` の `main` に loop が無い事を確かめた。点検(`s3b-plan-review-2026-11-07.md` 2.2 節)の「`main` は全部 loop を持つ」は誤りで、本文の訂正が正しい。
+- 本文が自分で書いているとおり、27 の腕のうち中を読んだのは数個で、案 3 がどこまで効くかは 1 series やってみないと分からない。
