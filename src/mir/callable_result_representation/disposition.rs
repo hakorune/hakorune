@@ -25,6 +25,15 @@ pub(crate) enum CallableResultUnavailableReasonV1 {
     NestedLoopUnsupported,
 }
 
+/// Value-class evidence independent of the legacy call-admission projection.
+/// Scalar/Text proofs already retain their kind; these classes need a separate
+/// source fact when input substitution or the scalar-only ABI is unavailable.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum CallableSourceValueClassV1 {
+    NominalBox(String),
+    Map,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum VerifiedCallableResultRepresentationV1 {
     ExactI64,
@@ -88,25 +97,10 @@ impl VerifiedCallableResultDispositionV1 {
         }
     }
 
-    /// K1/K5: the exact-i64 requirements of a call whose result is a box handle or a String. The
-    /// scalar accessors (`required_i64_arguments`, `scalar_result_class`) stay scalar-only.
-    pub(crate) fn non_scalar_required_i64_arguments(&self) -> Option<&[u32]> {
-        match self {
-            Self::ExactNominalBox { required_i64_arguments, .. } => Some(required_i64_arguments),
-            Self::ExactString => Some(&[]),
-            _ => None,
-        }
-    }
-
     /// Original static claim admission and its input obligations, independent
     /// of the package catalog's result-kind decision. Text keeps its own ABI.
-    pub(crate) fn claim_required_i64_arguments(&self) -> Option<&[u32]> {
-        match self {
-            Self::ExactNominalBox { required_i64_arguments, .. }
-            | Self::ExactI64 { required_i64_arguments }
-            | Self::ExactBool { required_i64_arguments } => Some(required_i64_arguments),
-            Self::ExactString | Self::Unavailable(_) => None,
-        }
+    pub(crate) fn admits_static_claim(&self) -> bool {
+        self.required_i64_arguments().is_some() || matches!(self, Self::ExactNominalBox { .. })
     }
 
     pub(crate) fn representation(&self) -> Option<VerifiedCallableResultRepresentationV1> {

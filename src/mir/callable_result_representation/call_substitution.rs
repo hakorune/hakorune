@@ -19,13 +19,14 @@ pub(super) fn substitute_required_arguments(
         let Some(argument) = arguments.get(*ordinal as usize) else {
             return unavailable();
         };
-        match argument {
+        match argument.admission_fact() {
             I64ExpressionFactV1::Exact(requirements) => {
                 substituted = union_requirements(&substituted, requirements);
             }
             I64ExpressionFactV1::PendingDependency => pending = true,
             I64ExpressionFactV1::ExactBool(_)
             | I64ExpressionFactV1::ExactString
+            | I64ExpressionFactV1::KnownValueClass { .. }
             | I64ExpressionFactV1::ExactNominalBox(..)
             | I64ExpressionFactV1::KnownNonI64
             | I64ExpressionFactV1::Unknown(_)
@@ -41,11 +42,12 @@ pub(super) fn substitute_required_arguments(
 
 /// The one requirement accessor of a scalar proof (R13): an I64 or a Bool proof.
 pub(super) fn scalar_requirements(fact: &I64ExpressionFactV1) -> Option<&RequirementSetV1> {
-    match fact {
+    match fact.admission_fact() {
         I64ExpressionFactV1::Exact(requirements) | I64ExpressionFactV1::ExactBool(requirements) => {
             Some(requirements)
         }
         I64ExpressionFactV1::ExactString
+        | I64ExpressionFactV1::KnownValueClass { .. }
         | I64ExpressionFactV1::ExactNominalBox(..)
         | I64ExpressionFactV1::KnownNonI64
         | I64ExpressionFactV1::Unknown(_)

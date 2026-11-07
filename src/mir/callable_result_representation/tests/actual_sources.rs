@@ -111,7 +111,7 @@ fn actual_string_helpers_and_parser_wrapper_share_one_complete_result_catalog() 
             panic!("expected Core String result evidence")
         }
     };
-    let (function_rows, call_rows) = results.into_source_rows();
+    let (function_rows, call_rows, _) = results.into_source_rows();
     drop(targets);
     assert_eq!(function_rows.get(&to_i64), Some(&exact(&[])));
     let wrapper_row = &call_rows[&(wrapper.clone(), wrapper_site)];

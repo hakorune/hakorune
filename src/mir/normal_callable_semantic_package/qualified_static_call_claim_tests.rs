@@ -502,3 +502,37 @@ fn current_owner_known_bool_actual_rejects_i64_formal() {
     };
     assert!(format!("{issue:?}").contains("nonopaque-integer-unproved"));
 }
+
+
+#[test]
+fn box_class_survives_unproved_constructor_input_without_admitting_the_call() {
+    use super::callee_result_kind::{CalleeResultKindV1, StaticInputRequirementsV1};
+    use crate::mir::builder::SelectedNormalCallableKeyV1;
+    use crate::mir::callable_result_representation::CallableResultUnavailableReasonV1;
+    let package = issue(
+        r#"box Page { birth(size: i64) { } }
+        static box Any {
+            make(size) { return new Page(size) }
+            wrap() { return me.make(true) }
+        }
+        static box Main { main() {
+            local rejected = Any.wrap()
+            local page = new Page(0)
+            return 0
+        } }"#,
+    ).expect("source package retains the class and the refused input separately");
+    let key = |name| package.selected.keys().find_map(|selected| match selected {
+        SelectedNormalCallableKeyV1::Cataloged(key) if key.owner() == "Any" && key.name() == name => Some(key),
+        _ => None,
+    }).expect("selected source callable");
+    let catalog = package.source_static_claims_for_test.result_catalog();
+    assert_eq!(catalog.kind(key("wrap")), Some(CalleeResultKindV1::Handle("Page".into())));
+    assert!(matches!(catalog.static_input_requirements(key("wrap")),
+        StaticInputRequirementsV1::Unavailable));
+    assert!(matches!(catalog.static_evidence(key("wrap")),
+        Some(crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::Unavailable(
+            CallableResultUnavailableReasonV1::RequiredArgumentRepresentationUnavailable))));
+    assert!(matches!(catalog.static_input_requirements(key("make")), StaticInputRequirementsV1::Verified([0])));
+    assert!(local_calls(&package).is_empty(), "class knowledge grants no call admission");
+    assert!(!new_claim_prefix_covered(&package));
+}

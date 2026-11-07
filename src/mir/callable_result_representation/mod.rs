@@ -27,7 +27,7 @@ pub(crate) use call_row::{
     VerifiedCallableResultEvidenceV1,
 };
 pub(crate) use disposition::{
-    CallableResultUnavailableReasonV1, VerifiedCallableResultDispositionV1,
+    CallableResultUnavailableReasonV1, CallableSourceValueClassV1, VerifiedCallableResultDispositionV1,
     VerifiedCallableResultRepresentationV1,
 };
 pub(crate) use error::CallableResultCatalogErrorV1;

@@ -18,6 +18,7 @@ pub(crate) struct VerifiedSameModuleCallableResultCatalogV1<'targets, 'catalog> 
     declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
     targets: &'targets VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
     rows_by_key: BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
+    source_value_classes: BTreeMap<CanonicalSameModuleCallableKeyV1, super::CallableSourceValueClassV1>,
     call_rows_by_site: CallableResultCallRowsV1<'targets>,
 }
 
@@ -26,13 +27,34 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
         declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
         targets: &'targets VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
     ) -> Result<Self, CallableResultCatalogErrorV1> {
+        Self::verify_scope(declarations, targets, false)
+    }
+
+    pub(crate) fn verify_for_package(
+        declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
+        targets: &'targets VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
+    ) -> Result<Self, CallableResultCatalogErrorV1> {
+        Self::verify_scope(declarations, targets, true)
+    }
+
+    fn verify_scope(
+        declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
+        targets: &'targets VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
+        include_free_functions: bool,
+    ) -> Result<Self, CallableResultCatalogErrorV1> {
         if !targets.is_branded_by(declarations) {
             return Err(CallableResultCatalogErrorV1::SourceTargetCatalogBrandMismatch);
         }
 
         let static_declarations = declarations.static_declarations().collect::<Vec<_>>();
         let all_declarations = declarations.declarations().collect::<Vec<_>>();
-        let static_count = static_declarations.len();
+        // Bare and static methods use the SAME result proof. Static target
+        // membership below remains restricted to its original namespace.
+        let proof_declarations = all_declarations.iter().copied().filter(|(key, _)| {
+            key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+                || (include_free_functions && key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::FreeFunction)
+        }).collect::<Vec<_>>();
+        let static_count = proof_declarations.len();
         let static_keys = static_declarations
             .iter()
             .map(|(key, _)| ((*key).clone(), ()))
@@ -46,21 +68,28 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
         // Absence from this construction-only map means Pending. Public result
         // vocabulary is created only once a proof closes permanently.
         let mut rows_by_key = BTreeMap::new();
-        let budget = static_count.saturating_add(1);
+        let mut source_value_classes = BTreeMap::new();
+        let budget = static_declarations.len().saturating_add(1);
+        let source_budget = static_count.saturating_mul(2).saturating_add(1);
         let mut construction_stopped = false;
-        for _ in 0..budget {
+        for _ in 0..source_budget {
             let mut progress = false;
-            for (key, declaration) in &static_declarations {
-                if rows_by_key.contains_key(*key) {
-                    continue;
+            for (key, declaration) in &proof_declarations {
+                let closed = rows_by_key.contains_key(*key);
+                if closed { continue; }
+                let product = prove_function(declaration, targets, &rows_by_key, &source_value_classes)?;
+                if let Some(class) = product.source_value_class {
+                    if source_value_classes.get(*key).is_some_and(|stored| stored != &class) {
+                        return Err(CallableResultCatalogErrorV1::StableResultDrift { key: (*key).clone() });
+                    }
+                    if source_value_classes.insert((*key).clone(), class).is_none() { progress = true; }
                 }
-                let product = prove_function(declaration, targets, &rows_by_key)?;
                 if let Some(disposition) = disposition(key, product.outcome)? {
                     rows_by_key.insert((*key).clone(), disposition);
                     progress = true;
                 }
             }
-            if rows_by_key.len() == static_count || !progress {
+            if !progress {
                 construction_stopped = true;
                 break;
             }
@@ -96,7 +125,7 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
                     if !seeds.contains_key(*key) {
                         continue;
                     }
-                    let product = prove_function(declaration, targets, &view)?;
+                    let product = prove_function(declaration, targets, &view, &source_value_classes)?;
                     match disposition(key, product.outcome)? {
                         Some(row @ VerifiedCallableResultDispositionV1::ExactBool { .. }) => {
                             if seeds.get(*key) != Some(&row) {
@@ -120,7 +149,7 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
             }
         }
 
-        let stalled_keys = static_declarations
+        let stalled_keys = proof_declarations
             .iter()
             .filter_map(|(key, _)| (!rows_by_key.contains_key(*key)).then_some((*key).clone()))
             .collect::<std::collections::BTreeSet<_>>();
@@ -139,8 +168,8 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
         }
 
         let mut call_rows_by_site = CallableResultCallRowsV1::new();
-        for (key, declaration) in static_declarations {
-            let product = prove_function(declaration, targets, &rows_by_key)?;
+        for (key, declaration) in proof_declarations {
+            let product = prove_function(declaration, targets, &rows_by_key, &source_value_classes)?;
             let stable = disposition(key, product.outcome)?;
             let Some(stored) = rows_by_key.get(key) else {
                 return Err(CallableResultCatalogErrorV1::StableResultDrift { key: key.clone() });
@@ -166,6 +195,7 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
             declarations,
             targets,
             rows_by_key,
+            source_value_classes,
             call_rows_by_site,
         })
     }
@@ -195,6 +225,7 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
             (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
             super::call_row::OwnedCallableResultCallSiteV1,
         >,
+        BTreeMap<CanonicalSameModuleCallableKeyV1, super::CallableSourceValueClassV1>,
     ) {
         (
             self.rows_by_key,
@@ -202,6 +233,7 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
                 .into_iter()
                 .map(|(site, row)| (site, row.into_owned()))
                 .collect(),
+            self.source_value_classes,
         )
     }
 

@@ -45,11 +45,35 @@ impl CalleeResultKindV1 {
             StaticEvidence::Unavailable(_) => None,
         }
     }
+    fn from_source_value_class(class: &crate::mir::callable_result_representation::CallableSourceValueClassV1) -> Self {
+        use crate::mir::callable_result_representation::CallableSourceValueClassV1 as Source;
+        match class {
+            Source::NominalBox(class) => Self::Handle(class.clone().into()),
+            Source::Map => Self::Map,
+        }
+    }
     fn from_object(row: &OrdinaryNewResultClassV1) -> Option<Self> {
         match row {
             OrdinaryNewResultClassV1::Object(class) => Some(Self::Handle(class.clone())),
             OrdinaryNewResultClassV1::NullableObject(class) => Some(Self::Nullable(class.clone())),
             OrdinaryNewResultClassV1::NullableForwarded { .. } => None,
+        }
+    }
+}
+
+/// Input proof availability is independent of the callee's result class.
+/// In particular, Unavailable is not a negative object-class fact.
+#[derive(Debug, Clone, Copy)]
+pub(super) enum StaticInputRequirementsV1<'a> {
+    Verified(&'a [u32]),
+    Unavailable,
+    NoStaticEvidence,
+}
+impl<'a> StaticInputRequirementsV1<'a> {
+    pub(super) fn verified(self) -> Option<&'a [u32]> {
+        match self {
+            Self::Verified(requirements) => Some(requirements),
+            Self::Unavailable | Self::NoStaticEvidence => None,
         }
     }
 }
@@ -78,19 +102,32 @@ impl ResultRowV1 {
 pub(super) struct CalleeResultKindCatalogV1 {
     // Own the original rows rather than maintaining a second static index.
     static_rows: BTreeMap<Key, StaticEvidence>,
+    static_value_classes: BTreeMap<Key, crate::mir::callable_result_representation::CallableSourceValueClassV1>,
     resolved: OnceCell<BTreeMap<Key, ResultRowV1>>,
 }
 impl CalleeResultKindCatalogV1 {
-    pub(super) fn new(static_rows: BTreeMap<Key, StaticEvidence>) -> Self {
-        Self { static_rows, resolved: OnceCell::new() }
+    pub(super) fn new(static_rows: BTreeMap<Key, StaticEvidence>, static_value_classes: BTreeMap<Key, crate::mir::callable_result_representation::CallableSourceValueClassV1>) -> Self {
+        Self { static_rows, static_value_classes, resolved: OnceCell::new() }
     }
     pub(super) fn static_evidence(&self, key: &Key) -> Option<&StaticEvidence> {
         self.static_rows.get(key)
     }
+    pub(super) fn static_input_requirements(&self, key: &Key) -> StaticInputRequirementsV1<'_> {
+        match self.static_evidence(key) {
+            Some(StaticEvidence::ExactI64 { required_i64_arguments }
+                | StaticEvidence::ExactBool { required_i64_arguments }
+                | StaticEvidence::ExactNominalBox { required_i64_arguments, .. }) =>
+                StaticInputRequirementsV1::Verified(required_i64_arguments),
+            Some(StaticEvidence::ExactString) => StaticInputRequirementsV1::Verified(&[]),
+            Some(StaticEvidence::Unavailable(_)) => StaticInputRequirementsV1::Unavailable,
+            None => StaticInputRequirementsV1::NoStaticEvidence,
+        }
+    }
     pub(super) fn kind(&self, key: &Key) -> Option<CalleeResultKindV1> {
         match self.resolved.get() {
             Some(rows) => rows.get(key)?.kind.borrow().clone(),
-            None => self.static_evidence(key).and_then(CalleeResultKindV1::from_static),
+            None => self.static_evidence(key).and_then(CalleeResultKindV1::from_static)
+                .or_else(|| self.static_value_classes.get(key).map(CalleeResultKindV1::from_source_value_class)),
         }
     }
     pub(super) fn object(&self, key: &Key) -> Option<&OrdinaryNewResultClassV1> {
@@ -101,7 +138,8 @@ impl CalleeResultKindCatalogV1 {
     }
     pub(super) fn claim_row(&self, key: &Key) -> Option<(&[u32], Class)> {
         // Existing claim membership is an independent input/ABI restriction.
-        let requirements = self.static_evidence(key)?.claim_required_i64_arguments()?;
+        self.static_evidence(key)?.admits_static_claim().then_some(())?;
+        let requirements = self.static_input_requirements(key).verified()?;
         Some((requirements, self.kind(key)?.local_class()))
     }
     /// Source-kind evidence may become available after Completion. The
@@ -131,6 +169,10 @@ impl CalleeResultKindCatalogV1 {
         let mut rows: BTreeMap<_, _> = self.static_rows.iter().map(|(key, proof)| (key.clone(), ResultRowV1 {
             kind: RefCell::new(CalleeResultKindV1::from_static(proof)), object: None, normal_i64: false,
         })).collect();
+        for (key, class) in &self.static_value_classes {
+            let row = rows.entry(key.clone()).or_insert(ResultRowV1 { kind: RefCell::new(None), object: None, normal_i64: false });
+            row.corroborate(key, Some(CalleeResultKindV1::from_source_value_class(class)))?;
+        }
         for (key, object) in facts.iter() {
             let row = rows.entry(key.clone()).or_insert(ResultRowV1 { kind: RefCell::new(None), object: None, normal_i64: false });
             row.corroborate(key, CalleeResultKindV1::from_object(object))?;

@@ -610,39 +610,41 @@ fn non_map_local_call_with_plain_return_preserves_scalar() {
 
 #[test]
 fn map_result_local_call_installs_map_class_and_map_row() {
-    let mut package = issue(
-        "static box Main {
-            main() { local m = make_map() return 0 }
-            make_map() { return %{\"a\" => 1} }
-        }",
-    )
-    .unwrap();
-    let ledger = &package.ordinary_new_claim_ledger;
-    let completion = ledger.root_completion_for_test();
-    let owner = completion.owner();
-    let locals = completion.cleanup().root_flow().unwrap().local_calls();
-    assert_eq!(locals.len(), 1);
-    assert_eq!(
-        locals[0].result(),
-        crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
-    );
-    let row = package
-        .direct_call_loans
-        .as_mut()
-        .unwrap()
-        .get_mut(owner)
-        .unwrap()
-        .take_once(owner, locals[0].site().site().clone())
-        .unwrap();
-    assert_eq!(
-        row.result(),
-        crate::mir::instruction::InvokeCallResultKind::Map
-    );
-    assert!(row.lifecycle_emission().is_ok());
-    assert_eq!(
-        row.scalar_emission().err(),
-        Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
-    );
+    for returned in [r#"return %{"a" => 1}"#, r#"local value = %{"a" => 1}
+return value"#] {
+        let source = format!("static box Main {{
+    main() {{ local m = make_map()
+    return 0 }}
+    make_map() {{ {returned} }}
+    }}");
+        let mut package = issue(&source).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let completion = ledger.root_completion_for_test();
+        let owner = completion.owner();
+        let locals = completion.cleanup().root_flow().unwrap().local_calls();
+        assert_eq!(locals.len(), 1);
+        assert_eq!(
+            locals[0].result(),
+            crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
+        );
+        let row = package
+            .direct_call_loans
+            .as_mut()
+            .unwrap()
+            .get_mut(owner)
+            .unwrap()
+            .take_once(owner, locals[0].site().site().clone())
+            .unwrap();
+        assert_eq!(
+            row.result(),
+            crate::mir::instruction::InvokeCallResultKind::Map
+        );
+        assert!(row.lifecycle_emission().is_ok());
+        assert_eq!(
+            row.scalar_emission().err(),
+            Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
+        );
+    }
 }
 
 #[test]

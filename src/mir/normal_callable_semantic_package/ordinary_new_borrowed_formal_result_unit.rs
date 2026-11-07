@@ -218,8 +218,12 @@ impl OrdinaryNewClaimLedgerV1 {
             || !std::ptr::eq(contract.borrow().completion(), completion.as_ref()) {
             return Err(freeze("unit-call/result-completion-drift"));
         }
+        let result = self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(source.target()))
+            .and_then(|kind| kind.local_class().invoke_result())
+            .filter(|kind| *kind == InvokeCallResultKind::Unit)
+            .ok_or_else(|| freeze("unit-call/result-completion-drift"))?;
         let site = source.call_site().clone();
-        let row = LexicalInstanceCallDispositionRowV1 { source, result: Some(InvokeCallResultKind::Unit),
+        let row = LexicalInstanceCallDispositionRowV1 { source, result: Some(result),
             scalar_result: None, unit_completion: Some(completion), borrowed_completion: None, object_packet: None, mixed_result: None };
         self.corroborate_unit_discard_v1(&row)?;
         if self.lexical_instance_calls.borrow_mut().insert(site.clone(), LexicalInstanceCallDispositionSlotV1::Ready(row)).is_some() {

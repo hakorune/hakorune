@@ -30,6 +30,7 @@ pub(super) enum FunctionProofOutcomeV1 {
 
 pub(super) struct FunctionProofProductV1<'targets> {
     pub(super) outcome: FunctionProofOutcomeV1,
+    pub(super) source_value_class: Option<super::CallableSourceValueClassV1>,
     pub(super) call_rows: CallableResultCallRowsV1<'targets>,
 }
 
@@ -62,6 +63,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
     declaration: &'catalog VerifiedSameModuleCallableDeclarationV1,
     targets: &'targets VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
     result_rows: &BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
+    source_value_classes: &BTreeMap<CanonicalSameModuleCallableKeyV1, super::CallableSourceValueClassV1>,
 ) -> Result<FunctionProofProductV1<'targets>, CallableResultCatalogErrorV1> {
     let key = declaration.key();
     // R1/R2: the declaration fixes the signature first. A declared `i64` keeps its early exit; a
@@ -71,6 +73,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
         Some(Some(Declared::Scalar(ExactTrivialScalarAbiV1::I64))) => {
             return Ok(FunctionProofProductV1 {
                 outcome: FunctionProofOutcomeV1::Exact(BTreeSet::new()),
+                source_value_class: None,
                 call_rows: BTreeMap::new(),
             });
         }
@@ -86,12 +89,13 @@ pub(super) fn prove_function<'targets, 'catalog>(
             outcome: FunctionProofOutcomeV1::Unavailable(
                 CallableResultUnavailableReasonV1::UnsupportedExpressionKind,
             ),
+            source_value_class: None,
             call_rows: BTreeMap::new(),
         });
     }
 
     let mut context =
-        ExpressionProofContextV1::new(key, declaration.params(), targets, result_rows)?;
+        ExpressionProofContextV1::new(key, declaration.params(), targets, result_rows, source_value_classes)?;
     let mut returns = Vec::new();
     let mut fatal = None;
     let paths = root_body_paths(declaration.body().len());
@@ -103,6 +107,12 @@ pub(super) fn prove_function<'targets, 'catalog>(
         &mut returns,
         &mut fatal,
     )?;
+    // One return proof contributes two independent facts. No second AST walk.
+    let source_value_class = if fatal.is_none() && flow.fallthrough.is_none() {
+        returns.first().and_then(I64ExpressionFactV1::source_value_class)
+            .filter(|class| returns.iter().all(|fact| fact.source_value_class().as_ref() == Some(class)))
+    } else { None };
+    let returns = returns.into_iter().map(|fact| fact.admission_fact().clone()).collect();
     let outcome = if let Some(reason) = fatal {
         FunctionProofOutcomeV1::Unavailable(reason)
     } else if flow.fallthrough.is_some() {
@@ -120,6 +130,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
     };
     Ok(FunctionProofProductV1 {
         outcome,
+        source_value_class,
         call_rows: context.into_call_rows(),
     })
 }
@@ -432,6 +443,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
                 saw_bool = true;
                 requirements = union_requirements(&requirements, &current);
             }
+            I64ExpressionFactV1::KnownValueClass { .. } => unreachable!("return admission facts are normalized"),
             I64ExpressionFactV1::KnownNonI64 => saw_non_i64 = true,
             I64ExpressionFactV1::Unknown(reason) => {
                 return FunctionProofOutcomeV1::Unavailable(reason);

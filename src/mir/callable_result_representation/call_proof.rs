@@ -24,6 +24,7 @@ pub(super) struct CallProofContextV1<'target, 'catalog, 'rows> {
     targets: &'target VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
     result_rows:
         &'rows BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
+    source_value_classes: &'rows BTreeMap<CanonicalSameModuleCallableKeyV1, super::CallableSourceValueClassV1>,
 }
 
 impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
@@ -34,11 +35,13 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
             CanonicalSameModuleCallableKeyV1,
             VerifiedCallableResultDispositionV1,
         >,
+        source_value_classes: &'rows BTreeMap<CanonicalSameModuleCallableKeyV1, super::CallableSourceValueClassV1>,
     ) -> Self {
         Self {
             caller,
             targets,
             result_rows,
+            source_value_classes,
         }
     }
 
@@ -54,7 +57,10 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
             let target = source_target.target();
             let Some(disposition) = self.result_rows.get(target) else {
                 return Ok(CallProofOutcomeV1 {
-                    fact: I64ExpressionFactV1::PendingDependency,
+                    fact: match self.source_value_classes.get(target) {
+                        Some(class) => I64ExpressionFactV1::PendingDependency.with_source_value_class(class.clone()),
+                        None => I64ExpressionFactV1::PendingDependency,
+                    },
                     row: None,
                 });
             };
@@ -113,7 +119,7 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                             )),
                             fact: I64ExpressionFactV1::ExactNominalBox(box_name.clone(), requirements),
                         },
-                        fact => CallProofOutcomeV1 { fact, row: None },
+                        fact => CallProofOutcomeV1 { fact: fact.with_source_value_class(super::CallableSourceValueClassV1::NominalBox(box_name.clone())), row: None },
                     }
                 }
                 VerifiedCallableResultDispositionV1::Unavailable(reason) => {
@@ -126,6 +132,10 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                         I64ExpressionFactV1::Unknown(
                             CallableResultUnavailableReasonV1::StaticCallResultUnavailable,
                         )
+                    };
+                    let fact = match self.source_value_classes.get(target) {
+                        Some(class) => fact.with_source_value_class(class.clone()),
+                        None => fact,
                     };
                     CallProofOutcomeV1 { fact, row: None }
                 }

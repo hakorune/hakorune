@@ -28,10 +28,6 @@ impl StaticIncomingRouteV1 {
             Self::CurrentOwner(row) => row.result(),
         }
     }
-    fn required_i64_arguments(&self) -> &[u32] {
-        self.result().required_i64_arguments()
-            .or_else(|| self.result().non_scalar_required_i64_arguments()).unwrap_or(&[])
-    }
     fn receiver(&self) -> ResolvedMethodCallReceiverSourceV1 {
         match self {
             Self::Qualified { .. } => ResolvedMethodCallReceiverSourceV1::QualifiedUnbound,
@@ -203,14 +199,7 @@ impl StaticIncomingSourceV1 {
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
-        use crate::mir::callable_result_representation::{VerifiedCallableResultDispositionV1 as Source, VerifiedCallableResultRepresentationV1 as Representation};
-        let representation = match self.source_result() {
-            Source::ExactI64 { .. } => Representation::ExactI64,
-            Source::ExactString => Representation::ExactString,
-            Source::ExactBool { .. } => Representation::ExactBool,
-            Source::ExactNominalBox { box_name, .. } => Representation::ExactNominalBox { box_name: box_name.clone() },
-            _ => return false,
-        };
+        let Some(representation) = self.source_result().representation() else { return false; };
         handoff.catalog_identity() == self.catalog_brand.identity()
             && handoff.caller() == &self.caller
             && handoff.site() == self.call.site()
@@ -257,7 +246,7 @@ impl StaticIncomingSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn required_i64_arguments(
         &self,
     ) -> &[u32] {
-        self.route.required_i64_arguments()
+        self.result_catalog.static_input_requirements(&self.target).verified().unwrap_or(&[])
     }
 }
 
@@ -529,7 +518,8 @@ impl QualifiedStaticCallClaimIndexV1 {
                     && formal.ordinal as usize == ordinal
                     && formal.binding.owner() == contract.owner,
             )
-            || route.required_i64_arguments().iter().any(|ordinal| *ordinal >= target.arity())
+            || self.result_catalog.static_input_requirements(target).verified().unwrap_or(&[])
+                .iter().any(|ordinal| *ordinal >= target.arity())
         {
             return Err(reject());
         }

@@ -126,10 +126,10 @@ impl QualifiedStaticCallClaimIndexV1 {
             .map(|main| inventory.closed_app_zero_incoming_static_keys(main))
             .unwrap_or_default();
         let targets = inventory.into_targets();
-        let results = VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
+        let results = VerifiedSameModuleCallableResultCatalogV1::verify_for_package(declarations, &targets)
             .map_err(QualifiedStaticCallClaimIndexIssueV1::ResultCatalog)?;
-        let (result_rows, call_result_rows) = results.into_source_rows();
-        let result_catalog = std::rc::Rc::new(super::callee_result_kind::CalleeResultKindCatalogV1::new(result_rows));
+        let (result_rows, call_result_rows, source_value_classes) = results.into_source_rows();
+        let result_catalog = std::rc::Rc::new(super::callee_result_kind::CalleeResultKindCatalogV1::new(result_rows, source_value_classes));
         let mut rows = BTreeMap::new();
         let mut current_owner_rows = BTreeMap::new();
         for ((caller, site), source_target) in targets.rows() {

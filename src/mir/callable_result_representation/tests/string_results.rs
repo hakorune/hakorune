@@ -286,8 +286,9 @@ fn string_result_cannot_swallow_incompatible_call_row() {
         panic!("return expression")
     };
     let path = crate::mir::resolved_semantics::SourcePathV1::root_body(0).child(Path::Value);
+    let source_value_classes = std::collections::BTreeMap::new();
     let mut context =
-        ExpressionProofContextV1::new(&caller, declaration.params(), &targets, &result_rows)
+        ExpressionProofContextV1::new(&caller, declaration.params(), &targets, &result_rows, &source_value_classes)
             .unwrap();
     assert_eq!(
         context.prove_expression(expression, &path).unwrap(),

@@ -84,3 +84,10 @@ lexicalのlifecycle Object emitterはterminal_call/lexical_nullable.rsでrecord_
 
 ordinary objectのInvoke結果はLocalCallResultClassV1::invoke_resultへ委譲し、K13は上記の物理ownerの理由で既存の記録責務を保持した。
 段2のbinaryでも329入力と1459入力は差0・timeout 0で、focusedは5 PASSと既知のFAIL 2件だった。
+
+## 段3
+
+元の式/return解析と同じworklistでNominalBox/Mapの値classを保持し、入力が未証明でもclassを消さず、元のUnavailable・呼び出し行の欠落・入力ABI検証を維持した。
+packageのFreeFunctionは同じproof engineへ含め、既存static verifierのscopeとBool再帰budgetを保持し、Unitの発行もcatalogのkindを読む。
+最終sourceのbinaryで329入力と1459入力、追加6入力のdumpは基準との差0で、focused 101件と既存projection 4件がPASSした。
+新規証拠は既存familyのclass既知/入力未証明/呼び出し拒否1件と、既存Map返却testのliteral/localパラメータ化であり、旧source-row testは追加された値class列へのAPI追従だけで既存の検証を保持した。

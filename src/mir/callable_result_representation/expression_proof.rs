@@ -19,6 +19,9 @@ pub(super) enum I64ExpressionFactV1 {
     Exact(RequirementSetV1),
     /// A box value; its constructor arguments keep the exact-i64 operand requirements of their proofs.
     ExactNominalBox(String, RequirementSetV1),
+    /// Source class and the original admission fact are independent. Retaining
+    /// a class grants no call, input ABI, ownership or transfer permission.
+    KnownValueClass { class: super::CallableSourceValueClassV1, admission: Box<I64ExpressionFactV1> },
     ExactString,
     /// A Bool result keeps the exact-i64 operand requirements of its proof (R13).
     ExactBool(RequirementSetV1),
@@ -29,11 +32,34 @@ pub(super) enum I64ExpressionFactV1 {
 }
 
 impl I64ExpressionFactV1 {
+    pub(super) fn admission_fact(&self) -> &Self {
+        let mut fact = self;
+        while let Self::KnownValueClass { admission, .. } = fact { fact = admission; }
+        fact
+    }
+    pub(super) fn source_value_class(&self) -> Option<super::CallableSourceValueClassV1> {
+        match self {
+            Self::ExactNominalBox(class, _) => Some(super::CallableSourceValueClassV1::NominalBox(class.clone())),
+            Self::KnownValueClass { class, .. } => Some(class.clone()),
+            _ => None,
+        }
+    }
+    pub(super) fn with_source_value_class(self, class: super::CallableSourceValueClassV1) -> Self {
+        Self::KnownValueClass { class, admission: Box::new(self) }
+    }
     pub(super) fn exact_empty() -> Self {
         Self::Exact(BTreeSet::new())
     }
 
     pub(super) fn merge_paths(left: &Self, right: &Self) -> Self {
+        let merged = Self::merge_admission_paths(left.admission_fact(), right.admission_fact());
+        match (left.source_value_class(), right.source_value_class()) {
+            (Some(class), Some(other)) if class == other
+                && merged.source_value_class().as_ref() != Some(&class) => merged.with_source_value_class(class),
+            _ => merged,
+        }
+    }
+    fn merge_admission_paths(left: &Self, right: &Self) -> Self {
         match (left, right) {
             (Self::PendingDependency, _) | (_, Self::PendingDependency) => Self::PendingDependency,
             (Self::Exact(left), Self::Exact(right)) => Self::Exact(union_requirements(left, right)),
@@ -129,6 +155,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
             CanonicalSameModuleCallableKeyV1,
             VerifiedCallableResultDispositionV1,
         >,
+        source_value_classes: &'rows BTreeMap<CanonicalSameModuleCallableKeyV1, super::CallableSourceValueClassV1>,
     ) -> Result<Self, CallableResultCatalogErrorV1> {
         let mut i64_bindings = BTreeMap::new();
         for (ordinal, name) in params.iter().enumerate() {
@@ -146,7 +173,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 i64_bindings,
                 core_receiver_bindings: BTreeMap::new(),
             },
-            call_proof: CallProofContextV1::new(current_key, targets, result_rows),
+            call_proof: CallProofContextV1::new(current_key, targets, result_rows, source_value_classes),
             call_rows: BTreeMap::new(),
             call_row_conflicts: BTreeSet::new(),
         })
@@ -259,6 +286,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                     operand,
                     &Self::child_path(expression, path, ExprChildRoleV1::UnaryOperand),
                 )?;
+                let fact = fact.admission_fact().clone();
                 Ok(match fact {
                     I64ExpressionFactV1::Exact(_) | I64ExpressionFactV1::PendingDependency => fact,
                     _ => I64ExpressionFactV1::Unknown(
@@ -344,7 +372,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 let receiver_fact = if matches!(receiver_result, I64ExpressionFactV1::ExactString) {
                     Some(SourceCoreReceiverFactV1::ExactStringOnSuccess)
                 } else { self.core_receiver_fact(object) };
-                let receiver_pending = matches!(receiver_result, I64ExpressionFactV1::PendingDependency);
+                let receiver_pending = matches!(receiver_result.admission_fact(), I64ExpressionFactV1::PendingDependency);
                 let arguments = self.prove_arguments(expression, arguments, path)?;
                 let outcome = self.call_proof.prove_method_call(
                     path.expr(),
@@ -382,8 +410,9 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 }
                 Ok(I64ExpressionFactV1::ExactNominalBox(class.clone(), requirements))
             }
+            ASTNode::MapLiteral { .. } => Ok(I64ExpressionFactV1::KnownNonI64
+                .with_source_value_class(super::CallableSourceValueClassV1::Map)),
             ASTNode::ArrayLiteral { .. }
-            | ASTNode::MapLiteral { .. }
             | ASTNode::RecordLiteral { .. }
             | ASTNode::RecordUpdate { .. } => Ok(I64ExpressionFactV1::KnownNonI64),
             _ => Ok(I64ExpressionFactV1::Unknown(
@@ -439,7 +468,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
 /// (a String, an unknown) means the operands are not compared as exact i64, so
 /// no requirement is kept. A pending operand keeps the result pending.
 fn bool_result(operands: &[I64ExpressionFactV1]) -> I64ExpressionFactV1 {
-    if operands.iter().any(|fact| matches!(fact, I64ExpressionFactV1::PendingDependency)) {
+    if operands.iter().any(|fact| matches!(fact.admission_fact(), I64ExpressionFactV1::PendingDependency)) {
         return I64ExpressionFactV1::PendingDependency;
     }
     let requirements = operands
@@ -457,7 +486,7 @@ fn combine_arithmetic(
     left: I64ExpressionFactV1,
     right: I64ExpressionFactV1,
 ) -> I64ExpressionFactV1 {
-    match (left, right) {
+    match (left.admission_fact().clone(), right.admission_fact().clone()) {
         (I64ExpressionFactV1::PendingDependency, _)
         | (_, I64ExpressionFactV1::PendingDependency) => I64ExpressionFactV1::PendingDependency,
         (I64ExpressionFactV1::Exact(left), I64ExpressionFactV1::Exact(right)) => {
