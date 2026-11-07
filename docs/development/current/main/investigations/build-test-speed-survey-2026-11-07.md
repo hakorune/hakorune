@@ -22,6 +22,7 @@ ParentCurrentCard: `docs/development/current/main/investigations/app-boxtorrent-
 
 - 8 thread で 1 回だけ流すと 488 秒で、ほぼ縮みませんでした。赤は 260 本で、新しい赤 30 本の大半は `mir::compiler::raw_root_*` でした（同時に流すと競合すると見られます。原因は調べていません）。OOM はありませんでした。thread 数を変えるかはユーザーが決めます。この測定からの提案は、4 のままです。
 - 意味の変わる 1 行の編集の後の build は、`cargo quick-build --bin hakorune` が 51 秒、`quick-build-fast` が 30 秒、`quick-test-fast --no-run` が 47 秒でした。以前に見た 3〜4.5 分は再現しませんでした。編集した file の違いか、ほかの cargo や test と同時に流していたためと見られますが、測っていません。
+- test の binary を `cargo quick-test`（本体も opt-level 1）で build すると、全 lib は 78 秒で終わります（2026-11-07 の Bool の claim の監査で測定。opt-level 0 の `quick-test-fast` では 492 秒）。その代わり、test file を 1 つ直した後の build は 125 秒かかります（opt-level 0 は 1 行の編集の後で 47 秒）。赤の名前は、並列の競合を除いて同じでした。
 - 何もない状態から test を build すると 204 秒かかります。内訳は、型の検査 40 秒、borrow の検査 45 秒、コード生成 65 秒（うち LLVM 28 秒）、link 2 秒です。link が短いので、`mold` に替えても縮みません。
 
 ## 3. 残っている物（未着手）

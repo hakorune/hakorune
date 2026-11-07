@@ -221,6 +221,8 @@ S3a着地（2026-11-06、Sonnet実装・Opus監査、`54d389986e`）: 型の規�
 
 速さの調査（2026-11-07、Sonnet調査・Opus監査、`9c3999f384`、[記録](build-test-speed-survey-2026-11-07.md)）: 全libの遅さは、環境変数のlockを握る1本の待ちだった。その1本は41秒の契約の発行を2回していたので、testの3行で1回にした（caseとassertは減らしていない）。全lib 575→492秒、赤231は名前まで同じ。8 threadは488秒でほぼ縮まず、赤が30本増えたので4のままを提案（決めるのはユーザー）。残る大半はopt-level 0での`apps/mimalloc-lite`のcompile（1回60秒）と発行（41秒）で、再検証に時間が散らばり原因は1か所に絞れていない。
 
+種類つきのclaimの着地（2026-11-07、Sonnet実装・Opus監査、`22a5713013`、[規則](mirbuilder-result-contract-bool-2026-11-07.md) R12〜R18）: 静的なscalarの呼び出しのclaimは、calleeの契約の行から結果の種類（I64かBool）を持つ。`StaticI64CallClaimV1`は種類つきの`StaticScalarCall…`になり、`is_qualified_i64_source_v1`の38か所は種類を返す1つの問いに置き換えて消した。Bool専用のstatement hookも消した。`ExactBool`は引数の要求を持ち、比較はoperandの要求を残す（R13）。exact-i64入力のstaticのBoolがEXEまで通る（`local b = Main.t(4)`と`if b`、比較・`local`経由・`if`と`return true`の本体、宣言あり・なし、`local k = Main.odd(n - 1); return k`の再帰）。拒否のまま: `if Main.t(4)`、`return Main.t(x)`（I64でも基準で拒否）、`&&`を値で返す形（短絡の値の書き方はユーザーが決める）、instanceと`me`、`print(Bool)`。公開MIR・ABI・descriptor・C shimの追加なし。production +716/−430（約70か所の機械的な改名を含む）。監査: 最後のcommitで全lib 233赤、新しい名前2件は単独で2回ずつ通る（並列の競合）。229入力・apps 100本は基準と同じ、固定suite 8/8。指示書に無い17形で誤り0（`b == c`、Boolを受けるi64の関数、2つのformalの再帰、`0 - 3`の実引数など10形が正しい出力。`local s = x * y`の後の比較などはI64でも基準で拒否）。Opusが、新しいtestと文書の例の空白だけの区切りを改行と`;`に直した。残り: 演算子から`CompareOp`への写しが3か所、R1が2つの道（宣言のi64は本体の証明を飛ばし、宣言のBoolは種類のseedで再帰を閉じる）。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
