@@ -597,11 +597,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.checked_completed_static_expression_input_v1(original)?.is_some() {
             return self.verify_original_static_source_v1(original);
         }
-        // R12/R14: a qualified scalar source follows the scalar protocol below whatever its result
-        // kind; only String, a completed Text result and a CurrentOwner Bool use the Text protocol.
         if matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactString)
-            || (matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool { .. })
-                && original.qualified_scalar_result_v1().is_none())
+            || (original.qualified_scalar_result_v1().is_none() && matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool { .. }))
             || self.checked_completed_static_text_result_v1(original)? {
             if original.is_zero_input_source_v1() {
                 self.checked_completed_static_zero_arguments_v1(original)?

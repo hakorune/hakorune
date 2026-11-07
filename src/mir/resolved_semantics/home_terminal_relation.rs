@@ -309,6 +309,11 @@ pub(super) enum ReturnScalar {
 }
 
 impl ReturnScalar {
+    /// R16: the kind a returned local stores (`Bool` only for a Bool local).
+    pub(super) fn stored_kind(&self) -> super::local_flow::SourceScalarKind {
+        use super::local_flow::SourceScalarKind as Kind;
+        if matches!(self, Self::Bool) { Kind::Bool } else { Kind::Integer }
+    }
     fn proves_integer(&self) -> bool {
         match self {
             Self::Integer | Self::IntegerField(_) | Self::I64Add { .. } => true,

@@ -510,12 +510,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                     ));
                                     true
                                 }
-                                // A top-level proven-i64 scalar — a bound
-                                // local or trivial integer expression — is
-                                // its own source relation. Literal and Call
-                                // exits were classified above; this row only
-                                // records the exact return/value sites.
-                                Some(ReturnScalar::Integer) => {
+                                // A top-level proven scalar — a bound local (i64 or Bool)
+                                // or trivial integer expression — is its own source
+                                // relation (R16: its kind is the local's stored kind).
+                                // Literal and Call exits were classified above; this row
+                                // only records the exact return/value sites.
+                                Some(returned @ (ReturnScalar::Integer | ReturnScalar::Bool)) => {
                                     relation =
                                         Some(TerminalRelationV1::Scalar(
                                             finite_entry_return(
@@ -526,25 +526,14 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                 borrowed_actuals,
                                             )?
                                             .unwrap_or_else(|| {
-                                                TerminalScalarReturnV1::issue(
+                                                TerminalScalarReturnV1::issue_with_kind(
                                                     input.owner(),
                                                     statement.site().clone(),
                                                     value.site().clone(),
+                                                    returned.stored_kind(),
                                                 )
                                             }),
                                         ));
-                                    true
-                                }
-                                // R16: a returned local that holds a Bool is the same relation.
-                                Some(ReturnScalar::Bool) => {
-                                    relation = Some(TerminalRelationV1::Scalar(
-                                        TerminalScalarReturnV1::issue_with_kind(
-                                            input.owner(),
-                                            statement.site().clone(),
-                                            value.site().clone(),
-                                            SourceScalarKind::Bool,
-                                        ),
-                                    ));
                                     true
                                 }
                                 Some(_) => true,
