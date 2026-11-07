@@ -25,6 +25,9 @@ U19. NullableForwardedは引数のidentityという条件付き証拠であり�
 U20. 独立した構築return検証にはcatalogが決めたclassを渡し、型注釈・direct ABIの形・Map式の存在だけでcatalogに無い種類を補わない。
 U21. UnitとTextの遅い元source/Completion証拠が必要なら同じcatalogへ追加し、先行するcall routeを未検証の結果で開かない。
 
+U22. static claimとR1は元のstatic契約による受理範囲・引数要求を検証として残し、結果の種類だけを同じcatalogから読む。
+U23. resolved証拠はsource factsの不動点・receiver正規化とborrowed preflightが終わってから一度だけcatalogへ結び、その後のclass lookupは同catalogの元証拠投影を借りる。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
@@ -39,7 +42,7 @@ U21. UnitとTextの遅い元source/Completion証拠が必要なら同じcatalog�
 
 段0の一時比較では上の1〜4とNormal-i64を同じ元callee identityで記録し、未到達入力とUnavailable・異なるkind/class・検証による拒否を分けて数える。
 
-## 段0実測（比較専用codeは撤去済み、再build中）
+## 段0実測（比較専用codeは撤去・再build済み）
 
 329入力と1459入力のunion1788件を基準と一時観測binaryへ通し、両集合でexitとdump本文の差は0、timeoutも0だった。
 比較点に達した入力は329中320、1459中1341であり、それより前に拒否する入力を判定一致の証拠に数えない。
