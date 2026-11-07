@@ -179,6 +179,8 @@ struct PendingResultExitV1 {
 
 struct ResultClassDraftRowV1 {
     borrowed_result: Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>,
+    /// O3: the box the declaration resolved to; it fixes the class every exit must return.
+    declared_box: Option<Box<str>>,
     key: CanonicalSameModuleCallableKeyV1,
     batch_slot: u32,
     exits: Vec<(
@@ -649,6 +651,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         }
         self.rows.push(ResultClassDraftRowV1 {
             borrowed_result: borrowed_result.cloned(),
+            declared_box: declaration.declared_result_box().map(Into::into),
             key: key.clone(),
             batch_slot,
             exits,

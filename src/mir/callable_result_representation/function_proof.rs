@@ -74,17 +74,13 @@ pub(super) fn prove_function<'targets, 'catalog>(
                 call_rows: BTreeMap::new(),
             });
         }
-        Some(None) => {
-            return Ok(FunctionProofProductV1 {
-                outcome: FunctionProofOutcomeV1::Unavailable(
-                    CallableResultUnavailableReasonV1::DeclaredNonI64Result,
-                ),
-                call_rows: BTreeMap::new(),
-            });
-        }
+        // A name outside the scalar and text table can only be a box: the body proof must then
+        // return exactly that box (O3); the header resolves whether the name is a declared box.
+        Some(None) => Some(Declared::OwnedObject),
         Some(Some(kind)) => Some(kind),
         None => None,
     };
+    let declared_name = declaration.return_type_name();
     if declaration.body().iter().any(contains_grouped_assignment) {
         return Ok(FunctionProofProductV1 {
             outcome: FunctionProofOutcomeV1::Unavailable(
@@ -118,6 +114,8 @@ pub(super) fn prove_function<'targets, 'catalog>(
         (FunctionProofOutcomeV1::Unavailable(_) | FunctionProofOutcomeV1::PendingDependency, _) | (_, None) => outcome,
         (FunctionProofOutcomeV1::ExactBool(_), Some(Declared::Scalar(ExactTrivialScalarAbiV1::Bool)))
         | (FunctionProofOutcomeV1::ExactString, Some(Declared::OwnedText)) => outcome,
+        (FunctionProofOutcomeV1::ExactNominalBox(box_name), Some(Declared::OwnedObject))
+            if Some(box_name.as_str()) == declared_name => outcome,
         _ => FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::DeclaredResultDisagrees),
     };
     Ok(FunctionProofProductV1 {

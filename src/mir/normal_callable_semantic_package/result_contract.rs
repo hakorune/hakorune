@@ -443,7 +443,7 @@ impl VerifiedCallableResultContractBuilderV1 {
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
         let result = super::physical_header::validate_declared_result(completion.as_ref(), declaration.owner(),
-            batch_slot, declaration.borrowed_result().map(|row| row.as_ref()))?;
+            batch_slot, declaration.borrowed_result().map(|row| row.as_ref()), declaration.declared_result_box())?;
         super::physical_header::require_declared_result_agrees_with_exits_v1(result, &terminal_relations, completion.as_ref(), batch_slot)?;
         let role = selected
             .role_for_batch_slot(batch_slot)

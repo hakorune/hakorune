@@ -52,6 +52,8 @@ impl ExactTrivialScalarAbiV1 {
 pub(crate) enum DeclaredResultKindV1 {
     Scalar(ExactTrivialScalarAbiV1),
     OwnedText,
+    /// A box of the source that name resolution found (O1); it has no scalar projection.
+    OwnedObject,
 }
 
 impl DeclaredResultKindV1 {
@@ -64,6 +66,12 @@ impl DeclaredResultKindV1 {
                 None => None,
             },
         }
+    }
+
+    /// O1: the table above, then a declared box the source resolved (never a spelling).
+    pub(crate) fn classify_resolved(source_type_name: &str, declared_box: Option<&str>) -> Option<Self> {
+        Self::classify(source_type_name)
+            .or_else(|| (declared_box == Some(source_type_name)).then_some(Self::OwnedObject))
     }
 }
 

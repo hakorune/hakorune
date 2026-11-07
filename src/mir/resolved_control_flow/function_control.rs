@@ -238,6 +238,19 @@ pub(crate) enum DeclaredFunctionResultContractV1 {
     Annotated(Box<str>),
 }
 
+impl DeclaredFunctionResultContractV1 {
+    /// O2: the declaration is absent, or names the box `class` that every exit returns as a
+    /// definite (non-null) object. The name is compared with the class the body returns;
+    /// whether that name is a declared box is the header's answer (`declared_result_box`).
+    pub(crate) fn agrees_with_object_result(&self, class: &str, nullable: bool) -> bool {
+        match self {
+            Self::Unannotated => true,
+            Self::Annotated(name) => !nullable && name.as_ref() == class,
+            Self::Void => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FunctionUnitOriginV1 {
     EmptyBody,

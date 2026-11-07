@@ -626,7 +626,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 { return Err(freeze("callable-scalar/parameterless-source-drift")); }
             }
             let result = crate::mir::normal_callable_semantic_package::result_contract::validate_result(
-                completion, current, contract.batch_slot,
+                completion, current, contract.batch_slot, None,
             ).map_err(|issue| format!("{}: {issue:?}", freeze("callable-scalar/declaration")))?;
             let agrees = current_proof.class.declaration_agrees_v1(result, completion);
             pending::mul_result::verify_mul_returns(current, current_proof, ingress)?;

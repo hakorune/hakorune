@@ -242,6 +242,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             super::super::physical_header::validate_declared_result(
                                 authority.completion(), owner, batch_slot,
                                 declaration.borrowed_result().map(|row| row.as_ref()),
+                                declaration.declared_result_box(),
                             )
                         })
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;

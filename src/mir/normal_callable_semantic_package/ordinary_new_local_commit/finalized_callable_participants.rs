@@ -233,10 +233,8 @@ impl FinalizedRootSourceHandoffV1 {
             {
                 if descriptor.owner != owner
                     || descriptor.terminals.len() != exits.len()
-                    || !matches!(
-                        completion.function_exit_contract().declared_result(),
-                        DeclaredFunctionResultContractV1::Unannotated
-                    )
+                    || !completion.function_exit_contract().declared_result().agrees_with_object_result(
+                        descriptor.class, descriptor.kind == InvokeCallResultKind::NullableHandle)
                     || contract.result().is_some()
                 {
                     return Err(freeze("callable-participant/object-result-agreement"));

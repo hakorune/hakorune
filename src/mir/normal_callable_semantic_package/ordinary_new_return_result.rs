@@ -148,9 +148,13 @@ impl OrdinaryNewClaimLedgerV1 {
         if !std::ptr::eq(contract.terminal_relations(), relations.as_ref()) {
             return Err(freeze("cohort-terminal-identity"));
         }
+        let result_class = self.callable_result_classes.get(source.target());
         if row.result().is_some()
-            || completion.function_exit_contract().declared_result()
-                != &DeclaredFunctionResultContractV1::Unannotated
+            || !completion.function_exit_contract().declared_result().agrees_with_object_result(
+                result_class.and_then(OrdinaryNewResultClassV1::class).unwrap_or_default(),
+                matches!(result_class, Some(OrdinaryNewResultClassV1::NullableObject(_))))
+            || (result_class.is_none()
+                && completion.function_exit_contract().declared_result() != &DeclaredFunctionResultContractV1::Unannotated)
         {
             return Err(freeze("cohort-result-contract"));
         }

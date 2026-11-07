@@ -197,12 +197,14 @@ pub(super) fn validate_result(
     completion: &VerifiedFunctionCompletionV1,
     owner: FunctionOwnerIdV1,
     batch_slot: u32,
+    declared_box: Option<&str>,
 ) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
     let result = match completion.function_exit_contract().declared_result() {
         DeclaredFunctionResultContractV1::Annotated(name) => {
-            match crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify(name) {
+            match crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify_resolved(name, declared_box) {
                 Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::Scalar(abi)) => Some(abi),
-                Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedText) => None,
+                Some(crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedText
+                    | crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::OwnedObject) => None,
                 None => return Err(CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
                     _batch_slot: batch_slot,
                     _name: name.clone(),
@@ -224,8 +226,9 @@ pub(super) fn validate_result(
 pub(super) fn validate_declared_result(
     completion: &VerifiedFunctionCompletionV1, owner: FunctionOwnerIdV1, batch_slot: u32,
     borrowed: Option<&crate::mir::callable_semantic_batch::ResolvedCallableBorrowedResultDeclarationV1>,
+    declared_box: Option<&str>,
 ) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
-    let Some(read) = borrowed else { return validate_result(completion, owner, batch_slot); };
+    let Some(read) = borrowed else { return validate_result(completion, owner, batch_slot, declared_box); };
     if completion.owner() == owner && read.owner() == owner
         && matches!(completion.function_exit_contract().declared_result(),
             DeclaredFunctionResultContractV1::Annotated(name) if name.as_ref() == read.declared_type()) {

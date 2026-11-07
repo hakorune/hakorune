@@ -235,7 +235,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
         let mut pending: BTreeMap<
             CanonicalSameModuleCallableKeyV1,
-            (u32, Vec<PendingResultExitV1>, Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>),
+            (u32, Vec<PendingResultExitV1>, Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>, Option<Box<str>>),
         > = BTreeMap::new();
         for row in self.rows {
             let main = app_main.filter(|main| main.batch_slot() == row.batch_slot);
@@ -331,7 +331,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     .collect::<Option<Vec<_>>>()
             });
             if let Ok(Some(exits)) = resolved {
-                pending.insert(row.key, (row.batch_slot, exits, row.borrowed_result));
+                pending.insert(row.key, (row.batch_slot, exits, row.borrowed_result, row.declared_box));
             }
         }
         let mut claims = OrdinaryNewResultClassClaimsV1::new();
@@ -340,7 +340,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                 pending.keys().cloned().collect();
             let mut inserts = Vec::new();
             let mut deads = Vec::new();
-            for (key, (batch_slot, exits, borrowed_result)) in &pending {
+            for (key, (batch_slot, exits, borrowed_result, declared_box)) in &pending {
                 let context = super::witness::SourceCompositionContextV1 {
                     batch, selected, fields: field_write_claims, claims: &claims, pending: &pending_keys,
                     parameters: parameter_contracts, caller: key, batch_slot: *batch_slot,
@@ -355,6 +355,13 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     borrowed_result.as_deref(),
                     borrowed_result.as_ref().map(|_| &context),
                 ) {
+                    // O3: a declared box fixes the class; the body must return exactly that box.
+                    ExitVerdictV1::Resolvable(claim)
+                        if declared_box.as_deref().is_some_and(|declared| !matches!(&claim.projection,
+                            Some(OrdinaryNewResultClassV1::Object(class)) if class.as_ref() == declared)) =>
+                    {
+                        deads.push(key.clone());
+                    }
                     ExitVerdictV1::Resolvable(mut claim) => {
                         claim.borrowed_result = borrowed_result.clone();
                         inserts.push((key.clone(), claim));

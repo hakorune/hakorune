@@ -63,6 +63,8 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) borrowed_result: Option<Arc<ResolvedCallableBorrowedResultDeclarationV1>>,
     pub(super) receiver_transfer: crate::parser::callable_parameter_source::ParserTransferKindV1,
     pub(super) declared_result_type: Option<crate::ast::TypeReferenceV1>,
+    /// The declared result names exactly one box of the source (name resolution, never spelling).
+    pub(super) declared_result_box: Option<Box<str>>,
 }
 
 #[derive(Debug)]
@@ -524,6 +526,11 @@ impl<'batch> VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 }
 
 impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
+    /// O1: the box a declared result `: P` resolves to, when `P` names one declared box.
+    pub(crate) fn declared_result_box(&self) -> Option<&str> {
+        self.row.declared_result_box.as_deref()
+    }
+
     pub(crate) fn borrowed_result(&self) -> Option<&Arc<ResolvedCallableBorrowedResultDeclarationV1>> {
         self.row.borrowed_result.as_ref()
     }
