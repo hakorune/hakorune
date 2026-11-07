@@ -28,6 +28,8 @@ U21. UnitとTextの遅い元source/Completion証拠が必要なら同じcatalog�
 U22. static claimとR1は元のstatic契約による受理範囲・引数要求を検証として残し、結果の種類だけを同じcatalogから読む。
 U23. resolved証拠はsource factsの不動点・receiver正規化とborrowed preflightが終わってから一度だけcatalogへ結び、その後のclass lookupは同catalogの元証拠投影を借りる。
 
+U24. 遅いText/nullable-Text転送の検証済み証拠も同じ結果rowへ照合し、独立したterminal検証はcatalogの種類との一致を確かめるだけとし、空のterminal集合からI64を補わない。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
