@@ -50,6 +50,14 @@ impl FlowV1 {
     }
 }
 
+/// R1: a declaration names its result kind before any body is proved.
+pub(super) fn declares_bool_result(declaration: &VerifiedSameModuleCallableDeclarationV1) -> bool {
+    matches!(
+        declaration.return_type_name().map(ExactTrivialScalarAbiV1::classify_result),
+        Some(Some(ExactTrivialScalarAbiV1::Bool))
+    )
+}
+
 pub(super) fn prove_function<'targets, 'catalog>(
     declaration: &'catalog VerifiedSameModuleCallableDeclarationV1,
     targets: &'targets VerifiedSourceStaticCallTargetCatalogV1<'catalog>,

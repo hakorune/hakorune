@@ -7,7 +7,7 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
 use super::call_row::{CallableResultCallRowsV1, VerifiedCallableResultCallSiteV1};
-use super::function_proof::{prove_function, FunctionProofOutcomeV1};
+use super::function_proof::{declares_bool_result, prove_function, FunctionProofOutcomeV1};
 use super::{
     CallableResultCatalogErrorV1, CallableResultUnavailableReasonV1,
     VerifiedCallableResultDispositionV1,
@@ -69,6 +69,55 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
             return Err(CallableResultCatalogErrorV1::ResultWorklistDidNotConverge {
                 static_declarations: static_count,
             });
+        }
+
+        // R1: a stalled group of declared `Bool` callables (a recursion) is closed from its
+        // declarations: callers read the declared kind first, and each body must then prove
+        // exactly that kind. The requirement sets start empty and only grow, so the
+        // iteration converges; any body that does not come out `ExactBool` drops every seed
+        // and the group stays recursive-unavailable as before.
+        let mut seeds = BTreeMap::new();
+        for (key, declaration) in &static_declarations {
+            if !rows_by_key.contains_key(*key) && declares_bool_result(declaration) {
+                seeds.insert(
+                    (*key).clone(),
+                    VerifiedCallableResultDispositionV1::exact_bool(key, std::iter::empty())?,
+                );
+            }
+        }
+        if !seeds.is_empty() {
+            let mut closed = false;
+            for _ in 0..budget.saturating_add(seeds.len()) {
+                let mut view = rows_by_key.clone();
+                view.extend(seeds.iter().map(|(key, row)| (key.clone(), row.clone())));
+                let mut changed = false;
+                let mut agrees = true;
+                for (key, declaration) in &static_declarations {
+                    if !seeds.contains_key(*key) {
+                        continue;
+                    }
+                    let product = prove_function(declaration, targets, &view)?;
+                    match disposition(key, product.outcome)? {
+                        Some(row @ VerifiedCallableResultDispositionV1::ExactBool { .. }) => {
+                            if seeds.get(*key) != Some(&row) {
+                                seeds.insert((*key).clone(), row);
+                                changed = true;
+                            }
+                        }
+                        _ => agrees = false,
+                    }
+                }
+                if !agrees {
+                    break;
+                }
+                if !changed {
+                    closed = true;
+                    break;
+                }
+            }
+            if closed {
+                rows_by_key.extend(seeds);
+            }
         }
 
         let stalled_keys = static_declarations
