@@ -48,3 +48,7 @@ N5/N6を既存公開契約で表せないと判明した時はその門を明記
 n01/n02/n03/n04/n05/n08は正規EXEで期待どおり（0/3/1/3/70/3、n01出力3、n05理由302）。非nullのt02/t02dもexit3。n15を含む指定範囲外とArray借用4形は名前付き拒否を保持した。
 新規証拠は既存の所有Call-result familyに、fieldを読まないメソッドへのnullable receiver・途中のscalar条件/早期Return・Normal/TypeError/End Faultの解放数・別classへの改変拒否を統合し、既存の構築/cleanup Faultの証拠も保持した。
 C emitterの実引数準備は意味不変で分割し、3 EXEと33 dumpの一致を確認してからchecked dispatchを追加した。
+
+- N21: Static の元 source proof は同じ nominal class と literal Null の出口を合流し、nullable bit と元の引数要件を保持するが、Null だけから class を作らず、未知・競合する admission を成功へ変えない。
+- N22: Null は source value-class の不在値の証拠に限り、Unit の Void と区別し、catalog は Null 単独に object kind を発行せず、nominal nullable の証拠と既存の独立した return 検証を照合する。
+- N23: Static の Nullable 結果は既存の received Home と conditional End に接続し、元 call の source target・canonical object・引数証明・packet 投影を Handle と同じ共通経路で保持する。
