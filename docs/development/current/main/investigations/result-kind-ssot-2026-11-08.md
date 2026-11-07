@@ -36,6 +36,9 @@ U26. direct callの宣言済みi64 ABI検査は結果種類の推測ではない
 U27. K14のstatic入力要求をVerified・Unavailable・static証拠無しとして結果kindとは別に読むAPIへまとめ、元static契約のUnavailableを箱classの不在とは扱わず同じsource class証拠を保持する。
 U28. K14の証拠は既存static claim test familyで「classは既知・要求は未証明・call受理は無し」を一例にまとめ、既存のHandle正例と併せて守り、新しいfixture/checker/test fileを作らない。
 
+U29. static呼び出しの入力置換が未証明でも同じ元expression factに既知のnominal classと元の受理結果を別に保持し、同じreturn解析・worklistからclass証拠を運び、元のUnavailable/呼び出し行の欠落は受理検証としてそのまま保持する。
+U30. 分岐・演算・引数置換の受理判定は元のfact投影で同じ結果を保ち、nominal classは全returnが同じ元classを示す時だけ同じcatalogへ渡し、追加のAST走査や引数・headerからのclass推測を作らない。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
