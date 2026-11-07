@@ -2,7 +2,6 @@
 //! Source topology and the I64 step were verified by the existing V2
 //! product; this walk observes calls and site-specific exits, not Recipe IDs.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::BodyChildRoleV1;
 
 #[allow(clippy::too_many_arguments)]
@@ -25,7 +24,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
         Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     >,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,

@@ -45,17 +45,17 @@ fn home_transfer_rejects_foreign_owner_and_duplicate_source_without_consuming() 
     flow.install_selected_normal_home(rows[0].0, rows[0].1.clone(), None);
     let foreign = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
     let foreign_destination = BindingRefV1::new(foreign, rows[1].0.binding());
-    let mut homes = vec![LiveHomeV1::Stable(rows[0].0)];
-    assert!(!flow.transfer_home_v1(rows[0].0, foreign_destination, &mut homes));
-    let mut duplicate = vec![LiveHomeV1::Stable(rows[0].0), LiveHomeV1::Stable(rows[0].0)];
-    assert!(!flow.transfer_home_v1(rows[0].0, rows[1].0, &mut duplicate));
+    let mut homes = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(vec![LiveHomeV1::Stable(rows[0].0)]);
+    assert!(!flow.move_alias(rows[0].0, foreign_destination, &mut homes));
+    let mut duplicate = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(vec![LiveHomeV1::Stable(rows[0].0), LiveHomeV1::Stable(rows[0].0)]);
+    assert!(!flow.move_alias(rows[0].0, rows[1].0, &mut duplicate));
     let mut duplicate_flow = flow.clone();
     duplicate_flow.install_selected_normal_home(rows[1].0, rows[0].1.clone(), None);
-    let mut duplicate_token = vec![LiveHomeV1::Stable(rows[0].0), LiveHomeV1::Stable(rows[1].0)];
-    assert!(!duplicate_flow.transfer_home_v1(rows[0].0, rows[2].0, &mut duplicate_token));
+    let mut duplicate_token = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(vec![LiveHomeV1::Stable(rows[0].0), LiveHomeV1::Stable(rows[1].0)]);
+    assert!(!duplicate_flow.move_alias(rows[0].0, rows[2].0, &mut duplicate_token));
     assert_eq!(duplicate_flow.home_acquisition(rows[0].0), Some(&rows[0].1));
     assert_eq!(flow.home_acquisition(rows[0].0), Some(&rows[0].1));
-    assert!(flow.transfer_home_v1(rows[0].0, rows[1].0, &mut homes));
+    assert!(flow.move_alias(rows[0].0, rows[1].0, &mut homes));
     assert_eq!(homes[0].stable_origin(), Some(rows[0].0));
 }
 
@@ -293,7 +293,7 @@ fn take_pending_move_invalidates_direct_and_aliased_uses_before_entry() {
         let call = LocalCallObservationV1::issue(input.owner(), statement.clone(), rows[2].1.clone(),
             result.declaration_site().clone(), rows[2].0, vec![LiveHomeV1::Stable(*p)].into_boxed_slice(),
             Box::new([]), LocalCallResultClassV1::I64);
-        let mut homes = vec![LiveHomeV1::Stable(*p)];
+        let mut homes = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(vec![LiveHomeV1::Stable(*p)]);
         let mut unavailable = None;
         flow.commit_statement_takes_v1(statement, &[call], &mut homes, &mut unavailable,
             &mut |site, request| -> Result<_, ()> {
@@ -321,7 +321,7 @@ fn take_pending_move_invalidates_direct_and_aliased_uses_before_entry() {
             let Some(Unavailable::UseAfterMove(site)) = unavailable else { panic!("expected pending use refusal: {unavailable:?}") };
             assert!(matches!(input.function().variable_ref(&site), Some(ResolvedLexicalRefV1::Local(binding))
                 if binding == *p || binding == rows[1].0));
-            assert_eq!(homes, vec![LiveHomeV1::Stable(*p)], "argument Fault retains caller responsibility");
+            assert_eq!(&*homes, &[LiveHomeV1::Stable(*p)][..], "argument Fault retains caller responsibility");
             assert!(!flow.was_moved_out(*p), "failed admission does not commit call entry");
         }
     }

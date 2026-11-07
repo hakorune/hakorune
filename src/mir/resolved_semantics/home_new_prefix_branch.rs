@@ -21,7 +21,7 @@ use null_exclusion::null_guarded_local;
 /// (one that reached an explicit Return) does not join the continuation.
 struct BranchPath<'a> {
     locals: PrefixLocalFlow<'a>,
-    homes: Vec<LiveHomeV1>,
+    homes: HomesV1,
     covered: Vec<SourceStmtSiteV1>,
     selected_seen: Vec<OwnedExprSiteV1>,
     calls: BTreeSet<OwnedExprSiteV1>,
@@ -250,7 +250,7 @@ pub(super) fn observe_if_statement<'a, E>(
         Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     >,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -532,7 +532,7 @@ pub(super) fn observe_if_statement<'a, E>(
     let base_selected = selected_seen.len();
     let nullable_guard = null_guarded_local(input.function(), condition.site());
     let fork = |locals: &PrefixLocalFlow<'a>,
-                homes: &Vec<LiveHomeV1>,
+                homes: &HomesV1,
                 covered: &Vec<SourceStmtSiteV1>,
                 seen: &Vec<OwnedExprSiteV1>,
                 calls: &BTreeSet<OwnedExprSiteV1>,
@@ -683,14 +683,9 @@ pub(super) fn observe_if_statement<'a, E>(
                 then_path.unavailable,
             )
         } else {
-            // Ordered intersection: a Home survives the join only when both
+            // Ordered intersection (S3b-R3): a Home survives the join only when both
             // fall-through paths still hold it, in the shared order.
-            let joined: Vec<LiveHomeV1> = then_path
-                .homes
-                .iter()
-                .filter(|home| else_path.homes.contains(home))
-                .cloned()
-                .collect();
+            let joined = HomesV1::join(&then_path.homes, &else_path.homes);
             let mut join_locals = then_path.locals.clone();
             let divergent = then_path.homes != joined
                 || else_path.homes != joined
@@ -766,7 +761,7 @@ pub(super) fn observe_if_statement<'a, E>(
         }
     }
     *locals = join_locals;
-    *homes = join_homes;
+    homes.commit(join_homes);
     *covered_statements = join_covered;
     *selected_seen = join_selected;
     *path_calls = join_calls;

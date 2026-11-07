@@ -4,7 +4,7 @@ use super::*;
 impl PrefixLocalFlow<'_> {
     /// Retain the source call that installed the received value. This is not
     /// a direct New acquisition or proof that the callee transferred a Home.
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_received_handle(
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_received_handle(
         &mut self,
         binding: BindingRefV1,
         acquisition: &OwnedExprSiteV1,
@@ -19,7 +19,7 @@ impl PrefixLocalFlow<'_> {
 
     /// Nullable received values keep their exact call source too. Null still
     /// carries no Home; the existing checked-release obligation is unchanged.
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_received_nullable(
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_received_nullable(
         &mut self,
         binding: BindingRefV1,
         acquisition: &OwnedExprSiteV1,

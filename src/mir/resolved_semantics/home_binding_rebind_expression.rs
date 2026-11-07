@@ -380,11 +380,11 @@ mod tests {
                 5 => locals.install_observed(binding, Observation::Handle(binding)),
                 _ => unreachable!(),
             }
-            let mut homes = if case == 1 {
+            let mut homes = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(if case == 1 {
                 vec![super::super::super::LiveHomeV1::Stable(binding)]
             } else {
                 vec![]
-            };
+            });
             let body = input.source().root_body().unwrap();
             let statement = input.source().body_stmt(&body, 1).unwrap();
             let mut calls = Vec::new();
@@ -420,12 +420,11 @@ mod tests {
             let input = unit.root_function_input().unwrap();
             let initializers = input.function().expression_source().initializers().take(2).collect::<Vec<_>>();
             let mut locals = PrefixLocalFlow::new(input);
-            let mut homes = Vec::new();
+            let mut homes = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(Vec::new());
             let mut acquisitions = Vec::new();
             for initializer in initializers {
                 let acquisition = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
-                locals.install_selected_normal_home(initializer.binding(), acquisition.clone(), None);
-                homes.push(super::super::super::LiveHomeV1::Stable(initializer.binding()));
+                locals.acquire_selected_home(&mut homes, initializer.binding(), acquisition.clone(), None);
                 acquisitions.push((initializer.binding(), acquisition));
             }
             let before = homes.clone();

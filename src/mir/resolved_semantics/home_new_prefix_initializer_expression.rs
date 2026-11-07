@@ -1,6 +1,5 @@
 //! Real Local initializer qualification and Normal-only Text installation.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::expression_plan::{
     local_expression_source_plan_v1, ExpressionNodeSourceV1,
 };
@@ -10,7 +9,7 @@ pub(super) fn observe<E>(
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     initializer: &super::super::ResolvedInitializerRelationV1,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
@@ -243,9 +242,6 @@ pub(super) fn observe<E>(
         .commit();
     path_calls.extend(calls.iter().map(|call| call.site().clone()));
     local_calls.extend_from_slice(calls);
-    if frame.is_text_residence() {
-        homes.push(LiveHomeV1::Text(frame.text_acquisition_v1()));
-    }
     if debug {
         eprintln!("[initializer-expression] statement={:?} installed i64={} dynamic_result={} dynamic_alias={} text={}",
             statement.site(), frame.is_i64(), frame.is_dynamic_invocation_result(), frame.is_dynamic_alias(), frame.is_text_residence());
@@ -255,12 +251,11 @@ pub(super) fn observe<E>(
     } else if frame.is_i64() {
         locals.install_scalar_call_result(frame.binding(), SourceScalarKind::Integer);
     } else if frame.is_dynamic_invocation_result() {
-        locals.install_dynamic_invocation_result(frame.binding(), std::rc::Rc::clone(&frame));
-        homes.push(LiveHomeV1::Stable(frame.binding()));
+        locals.acquire_dynamic_result(homes, frame.binding(), std::rc::Rc::clone(&frame));
     } else if frame.is_dynamic_alias() {
         locals.install_dynamic_invocation_result(frame.binding(), std::rc::Rc::clone(&frame));
     } else if frame.is_text_residence() {
-        locals.install_text_initializer(frame);
+        locals.acquire_text_initializer(homes, frame);
     } else {
         return declined(statement.site(), 9);
     }
@@ -299,7 +294,7 @@ pub(crate) fn observe_for_test<E>(
     if let Some(binding) = invalid {
         locals.install_uninitialized(binding);
     }
-    let mut homes = Vec::new();
+    let mut homes = HomesV1::entry(Vec::new());
     let mut calls = Vec::new();
     let mut path = BTreeSet::new();
     let mut known = prefix_known;
@@ -342,5 +337,5 @@ pub(crate) fn observe_for_test<E>(
             }
         }
     }
-    Ok((locals.expression_plans(), homes))
+    Ok((locals.expression_plans(), homes.to_vec()))
 }

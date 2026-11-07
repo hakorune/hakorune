@@ -242,7 +242,7 @@ impl PrefixLocalFlow<'_> {
             _ => None,
         }
     }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_rebind(
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_text_rebind(
         &mut self,
         frame: Rc<CheckedBindingRebindFrameV1>,
     ) {
@@ -350,7 +350,7 @@ impl PrefixLocalFlow<'_> {
         (*live == *root && *root == acquisition.binding() && acquisition.same_source(current))
             .then(|| (binding, *root, acquisition.clone()))
     }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_initializer(
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_text_initializer(
         &mut self,
         frame: Rc<CheckedInitializerExpressionFrameV1>,
     ) {

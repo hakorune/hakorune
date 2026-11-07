@@ -122,26 +122,6 @@ pub(super) fn map_value_leaf(
     }
 }
 
-/// Shared Normal-only Home removal for literal entries and procedural installs.
-/// Callers retain the precommit snapshot; this issues no physical commit.
-pub(super) fn transfer_home_v1(
-    locals: &mut PrefixLocalFlow<'_>,
-    remaining: &mut Vec<LiveHomeV1>,
-    binding: BindingRefV1,
-) -> Result<(), HomePrefixUnavailableV1> {
-    if remaining
-        .iter()
-        .filter(|home| home.binding() == binding)
-        .count()
-        != 1
-    {
-        return Err(HomePrefixUnavailableV1::SourceMismatch);
-    }
-    remaining.retain(|home| home.binding() != binding);
-    locals.consume_home(binding);
-    Ok(())
-}
-
 /// Original field set and its Normal successor; candidate remains caller-owned
 /// before commit, including key/receiver checks. Slot support is not a new Home.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -191,7 +171,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     prefix_known: bool,
     calls: &[LocalCallObservationV1],
     maps: &mut Vec<MapHomeObservation>,
@@ -279,7 +259,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
     let prior = homes.clone().into_boxed_slice();
     let mut normal = homes.clone();
     if let Some((binding, _)) = &install {
-        if transfer_home_v1(locals, &mut normal, *binding).is_err() {
+        if locals.transfer_out_exactly_one(&mut normal, *binding).is_err() {
             return install_declined(input, statement, 11);
         }
     }
@@ -293,7 +273,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_field_install
         prior,
         normal: normal.clone().into_boxed_slice(),
     });
-    *homes = normal;
+    homes.commit(normal);
     maps.push(MapHomeObservation::FieldInstall(row));
     Ok(true)
 }

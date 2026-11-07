@@ -5,7 +5,6 @@
 //! writer/receiver/value consults, a numeric field declaration and checked RHS.
 //! Neither path acquires a Home or issues physical FieldSet permission.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use std::rc::Rc;
 #[path = "home_new_prefix_owned_field_write.rs"]
 mod owned_local;
@@ -21,7 +20,7 @@ pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,

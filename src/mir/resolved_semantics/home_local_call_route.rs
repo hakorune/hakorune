@@ -3,7 +3,7 @@
 //! package once per site. The flow installs by the class and never asks a
 //! second membership question; a site without a route stays a named rejection.
 use super::local_call_flow as flow;
-use super::local_flow::{PrefixLocalFlow, SourceScalarKind};
+use super::local_flow::{HomesV1, PrefixLocalFlow, SourceScalarKind};
 use super::{
     BindingRefV1, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, LiveHomeV1,
     LocalCallObservationV1, LocalCallResultClassV1, OwnedExprSiteV1, SourceBindingSiteV1,
@@ -104,22 +104,19 @@ pub(super) fn install_routed_local_call(
     binding: BindingRefV1,
     site: &OwnedExprSiteV1,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
     local_calls: &mut Vec<LocalCallObservationV1>,
 ) {
     let result = call.result();
     path_calls.insert(call.site().clone());
     local_calls.push(call);
-    if !matches!(result, LocalCallResultClassV1::I64 | LocalCallResultClassV1::Bool) {
-        homes.push(LiveHomeV1::Stable(binding));
-    }
     match result {
         LocalCallResultClassV1::I64 => locals.install_scalar_call_result(binding, SourceScalarKind::Integer),
         LocalCallResultClassV1::Bool => locals.install_scalar_call_result(binding, SourceScalarKind::Bool),
-        LocalCallResultClassV1::Map => locals.install_map(binding),
-        LocalCallResultClassV1::Handle => locals.install_received_handle(binding, site),
-        LocalCallResultClassV1::Nullable => locals.install_received_nullable(binding, site),
+        LocalCallResultClassV1::Map => locals.acquire_map(homes, binding),
+        LocalCallResultClassV1::Handle => locals.acquire_received_handle(homes, binding, site),
+        LocalCallResultClassV1::Nullable => locals.acquire_received_nullable(homes, binding, site),
         _ => unreachable!("a route names only I64, Bool, Map, Handle and Nullable results"),
     }
 }

@@ -1,14 +1,12 @@
 //! Plain checked rebind; RHS reads the old state before the destination transition.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1;
-use std::rc::Rc;
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     known: bool,
     calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
@@ -128,11 +126,7 @@ pub(super) fn observe<E>(
     if let Some(read) = frame.declared_read_v1() {
         if !locals.install_declared_read_alias_v1(*target, read.read().site()) { return Ok(false); }
     } else if frame.is_text_residence() {
-        homes.retain(|home| home.binding() != *target);
-        if frame.text_loop_carrier_v1().is_none() {
-            homes.push(LiveHomeV1::Text(frame.text_acquisition_v1()));
-        }
-        locals.install_text_rebind(Rc::clone(frame));
+        locals.rebind_text(homes, *target, frame);
     } else if !frame.is_dynamic_loop_carrier_v1() {
         let kind = if frame.evaluation().root_class() == crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
             crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool) {

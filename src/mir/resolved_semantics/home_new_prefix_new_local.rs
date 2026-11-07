@@ -13,7 +13,7 @@ pub(super) fn observe_selected_new_local<E>(
     results: &mut BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     argument_observations: &mut BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     covered_statements: &[SourceStmtSiteV1],
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -76,17 +76,8 @@ pub(super) fn observe_selected_new_local<E>(
         Some(issue) => Err(issue.clone()),
         None => issue_new_fault_continuation_v1(input, &owned)
             .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
-            .map(|outward_fault| CallerNewHomePrefixV1 {
-                destination: binding,
-                prior_homes: homes.iter().rev().cloned().collect(),
-                normal_homes: homes
-                    .iter()
-                    .rev()
-                    .filter(|home| !moved_arguments.contains(&home.binding()))
-                    .cloned()
-                    .collect(),
-                outward_fault,
-                covered_statements: covered_statements.to_vec().into_boxed_slice(),
+            .map(|outward_fault| {
+                CallerNewHomePrefixV1::from_transition(binding, homes, &moved_arguments, outward_fault, covered_statements)
             }),
     };
     results.insert(owned.clone(), result);
@@ -97,14 +88,10 @@ pub(super) fn observe_selected_new_local<E>(
     if crate::config::env::builder_debug_enabled() {
         eprintln!("[new-local] site={:?} moved={:?} homes_before={:?}", owned, moved_arguments, homes);
     }
-    for moved in moved_arguments {
-        homes.retain(|home| home.binding() != moved);
-        locals.consume_argument_home(moved);
-    }
+    locals.release_to_callee(homes, &moved_arguments);
     // This is the Normal successor only, after exact local commit.
-    homes.push(LiveHomeV1::Stable(binding));
     let construction_source = scalar_field.construction_source(owned, binding)?;
-    locals.install_selected_normal_home(binding, owned.clone(), construction_source);
+    locals.acquire_selected_home(homes, binding, owned.clone(), construction_source);
     Ok(())
 }
 

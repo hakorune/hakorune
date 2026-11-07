@@ -34,27 +34,27 @@ impl<'source> PrefixLocalFlow<'source> {
         from: BindingRefV1,
         to: BindingRefV1,
         acquisition: super::OwnedExprSiteV1,
-        homes: &mut Vec<LiveHomeV1>,
+        homes: &mut HomesV1,
     ) -> bool {
         let Some((index, payload)) = self.shared_move_preflight_v1(from, to, &acquisition, homes) else { return false };
         let Some(StoredLocal::Home { construction_source: Some(construction_source), ready, .. }) = self.locals.get(&from).cloned() else { return false };
-        homes.remove(index);
-        self.store(from, StoredLocal::MovedOut);
+        homes.remove_at(index);
+        self.consume_argument_home(from);
         self.store(to, StoredLocal::Shared { acquisition, payload_acquisition: payload, construction_source, ready });
-        homes.push(LiveHomeV1::Stable(to));
+        homes.install(LiveHomeV1::Stable(to));
         true
     }
     pub(in super::super) fn install_shared_fresh_v1(
         &mut self, to: BindingRefV1, acquisition: super::OwnedExprSiteV1,
         payload_acquisition: super::OwnedExprSiteV1,
         construction_source: std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>,
-        homes: &mut Vec<LiveHomeV1>,
+        homes: &mut HomesV1,
     ) -> bool {
         if to.owner() != self.input.owner() || acquisition.owner() != self.input.owner()
             || payload_acquisition.owner() != self.input.owner() || homes.iter().any(|home| home.binding() == to)
             || !construction_source.shared_trivial_payload_v1() { return false; }
         self.store(to, StoredLocal::Shared { acquisition, payload_acquisition, construction_source, ready: BTreeMap::new() });
-        homes.push(LiveHomeV1::Stable(to));
+        homes.install(LiveHomeV1::Stable(to));
         true
     }
 
@@ -71,7 +71,7 @@ impl<'source> PrefixLocalFlow<'source> {
 
     pub(in super::super) fn install_shared_clone_v1(
         &mut self, from: BindingRefV1, to: BindingRefV1,
-        acquisition: super::OwnedExprSiteV1, homes: &mut Vec<LiveHomeV1>,
+        acquisition: super::OwnedExprSiteV1, homes: &mut HomesV1,
     ) -> bool {
         if from.owner() != self.input.owner() || to.owner() != self.input.owner()
             || acquisition.owner() != self.input.owner() || from == to
@@ -79,7 +79,7 @@ impl<'source> PrefixLocalFlow<'source> {
             || homes.iter().any(|home| home.binding() == to) { return false; }
         let Some(StoredLocal::Shared { payload_acquisition, construction_source, ready, .. }) = self.locals.get(&from).cloned() else { return false };
         self.store(to, StoredLocal::Shared { acquisition, payload_acquisition, construction_source, ready });
-        homes.push(LiveHomeV1::Stable(to));
+        homes.install(LiveHomeV1::Stable(to));
         true
     }
 }
@@ -89,7 +89,7 @@ impl<'source> PrefixLocalFlow<'source> {
         &mut self, relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
         from: BindingRefV1,
         shared: crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
-        homes: &mut Vec<LiveHomeV1>,
+        homes: &mut HomesV1,
     ) -> bool {
         let input = self.input;
         let function = input.function();
@@ -98,9 +98,7 @@ impl<'source> PrefixLocalFlow<'source> {
         let acquisition = super::OwnedExprSiteV1::new(input.owner(), site.clone());
         let crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, .. } = relation.declaration_site()
             else { return false; };
-        let scope = function.binding(to).map(|row| row.owner_scope());
-        if scope.is_none() || function.binding(from).map(|row| row.owner_scope()) != scope
-            || function.exact_scope_containing(statement.node()) != scope
+        if !self.same_scope_v1(to, from, statement)
             || from == to || homes.iter().filter(|home| home.binding() == from).count() != 1
             || homes.iter().any(|home| home.binding() == to) { return false; }
         let Some(original) = self.shared_acquisition_v1(from).cloned() else { return false; };

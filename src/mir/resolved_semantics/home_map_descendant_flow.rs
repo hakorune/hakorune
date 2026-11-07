@@ -10,7 +10,6 @@
 use super::local_flow::PrefixLocalFlow;
 use super::map_flow::{self, MapDestinationV1, MapHomeObservation};
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };
@@ -24,7 +23,7 @@ pub(super) fn observe_descendant_maps<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     maps: &mut Vec<MapHomeObservation>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
 ) -> Result<(), E> {
@@ -94,7 +93,7 @@ pub(super) fn observe_descendant_maps<E>(
             map_compatible,
         )? {
             Ok((map, remaining)) => {
-                *homes = remaining;
+                homes.commit(remaining);
                 maps.push(MapHomeObservation::Complete(map));
             }
             Err(_) => maps.push(MapHomeObservation::Unavailable { site: owned }),

@@ -3,7 +3,7 @@
 //! Call, field, map and Home installation algorithms without a second evaluator.
 use super::*;
 use super::local_call_route as route_flow;
-use crate::mir::resolved_semantics::home_new_prefix::{LiveHomeV1, SharedPayloadSourceV1};
+use crate::mir::resolved_semantics::home_new_prefix::SharedPayloadSourceV1;
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn observe<'a, E>(
@@ -18,7 +18,7 @@ pub(super) fn observe<'a, E>(
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     argument_observations: &mut BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -160,12 +160,9 @@ pub(super) fn observe<'a, E>(
                     let shared_site = owned.clone();
                     let prefix = issue_shared_new_fault_continuation_v1(input, &payload, &shared_site, binding)
                         .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
-                        .map(|outward_fault| ResultNewHomePrefixV1 {
-                            purpose: ResultNewPurposeV1::SharedPayload { shared_site: shared_site.clone(), binding },
-                            prior_homes: homes.iter().rev().cloned().collect(),
-                            normal_homes: homes.iter().rev().cloned().collect(), outward_fault,
-                            covered_statements: covered_statements.clone().into_boxed_slice(),
-                        });
+                        .map(|outward_fault| ResultNewHomePrefixV1::from_transition(
+                            ResultNewPurposeV1::SharedPayload { shared_site: shared_site.clone(), binding },
+                            homes, &[], outward_fault, covered_statements));
                     if prefix.is_err() { unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue; }
                     let plan = input.forest().callable_source_ledger(input.owner()).ok()
                         .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
@@ -197,9 +194,7 @@ pub(super) fn observe<'a, E>(
                     });
                     continue;
                 }
-                let scope = function.binding(binding).map(|row| row.owner_scope());
-                if scope.is_none() || function.binding(source).map(|row| row.owner_scope()) != scope
-                    || function.exact_scope_containing(statement.site().node()) != scope {
+                if !locals.same_scope_v1(binding, source, statement.site()) {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone()));
                     continue;
                 }
@@ -235,11 +230,7 @@ pub(super) fn observe<'a, E>(
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::UseAfterMove(unary.operand().clone()));
                     continue;
                 }
-                let scope = function.binding(binding).map(|row| row.owner_scope());
-                if scope.is_none()
-                    || function.binding(source).map(|row| row.owner_scope()) != scope
-                    || function.exact_scope_containing(statement.site().node()) != scope
-                {
+                if !locals.same_scope_v1(binding, source, statement.site()) {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(site.clone()));
                     continue;
                 }
@@ -259,7 +250,7 @@ pub(super) fn observe<'a, E>(
                     .and_then(|ledger| crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(&ledger, input.body_shape(), relation).ok())
                     .and_then(|source_plan| super::expression_plan::HomeExpressionPlanV1::move_initializer(source_plan, unary, source, acquisition));
                 if !plan.is_some_and(|plan| locals.retain_expression_plan(plan))
-                    || !locals.transfer_home_v1(source, binding, homes)
+                    || !locals.move_alias(source, binding, homes)
                 {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(site.clone()));
                 }
@@ -381,16 +372,15 @@ pub(super) fn observe<'a, E>(
                 Ok(local_call) => {
                     match local_call.result() {
                         local_call_flow::LocalCallResultClassV1::Handle => {
-                            locals.install_received_handle(binding, &owned)
+                            locals.acquire_received_handle(homes, binding, &owned)
                         }
                         local_call_flow::LocalCallResultClassV1::Nullable => {
-                            locals.install_received_nullable(binding, &owned)
+                            locals.acquire_received_nullable(homes, binding, &owned)
                         }
                         _ => unreachable!("producer result corroborated before observation"),
                     }
                     path_calls.insert(local_call.site().clone());
                     local_calls.push(local_call);
-                    homes.push(LiveHomeV1::Stable(binding));
                 }
                 Err(issue) => {
                     unavailable.get_or_insert(issue);
@@ -479,9 +469,8 @@ pub(super) fn observe<'a, E>(
                     map_compatible,
                 )? {
                     Ok((map, remaining)) => {
-                        *homes = remaining;
-                        homes.push(LiveHomeV1::Stable(binding));
-                        locals.install_map(binding);
+                        homes.commit(remaining);
+                        locals.acquire_map(homes, binding);
                         maps.push(map_flow::MapHomeObservation::Complete(map));
                     }
                     Err(issue) => {

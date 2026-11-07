@@ -117,6 +117,23 @@ pub(crate) struct CallerNewHomePrefixV1 {
 }
 
 impl CallerNewHomePrefixV1 {
+    /// S3b-R3a: both edge lists come from the one transition type, with the arguments
+    /// that leave the frame on the Normal edge named.
+    fn from_transition(
+        destination: BindingRefV1,
+        homes: &HomesV1,
+        moved: &[BindingRefV1],
+        outward_fault: NewFaultContinuationV1,
+        covered: &[SourceStmtSiteV1],
+    ) -> Self {
+        Self {
+            destination,
+            prior_homes: homes.fault_order(),
+            normal_homes: homes.normal_order_after(moved),
+            outward_fault,
+            covered_statements: covered.to_vec().into_boxed_slice(),
+        }
+    }
     pub(crate) fn normal_homes(&self) -> &[LiveHomeV1] {
         &self.normal_homes
     }
@@ -166,6 +183,22 @@ pub(crate) enum SharedPayloadSourceV1 {
 }
 
 impl ResultNewHomePrefixV1 {
+    /// S3b-R3a: see `CallerNewHomePrefixV1::from_transition`.
+    fn from_transition(
+        purpose: ResultNewPurposeV1,
+        homes: &HomesV1,
+        moved: &[BindingRefV1],
+        outward_fault: NewFaultContinuationV1,
+        covered: &[SourceStmtSiteV1],
+    ) -> Self {
+        Self {
+            purpose,
+            prior_homes: homes.fault_order(),
+            normal_homes: homes.normal_order_after(moved),
+            outward_fault,
+            covered_statements: covered.to_vec().into_boxed_slice(),
+        }
+    }
     pub(crate) fn purpose(&self) -> &ResultNewPurposeV1 { &self.purpose }
     pub(crate) fn normal_homes(&self) -> &[LiveHomeV1] {
         &self.normal_homes
@@ -207,7 +240,7 @@ pub(crate) use local_flow::source_loop::{
     SourceLoopTextProducerV1, SourceLoopValueProducerV1,
 };
 pub(crate) use local_flow::{
-    BranchNormalScalarSourceV1, CurrentScalarProducerV1, CurrentScalarReadV1, FieldAliasPathV1,
+    HomesV1, BranchNormalScalarSourceV1, CurrentScalarProducerV1, CurrentScalarReadV1, FieldAliasPathV1,
     FieldAliasRootSourceV1,
     LiveHomeV1, LoopHeaderValueBasisV1, LoopI64PreStateRequestV1, LoopTextReadV1, SourceScalarKind,
     StaticTextReadV1, TextResidenceAcquisitionV1,
@@ -565,7 +598,7 @@ pub(crate) fn scan_new_home_flow<E>(
         unavailable = Some(HomePrefixUnavailableV1::EntryDemandMissing);
     }
     for home in &entry_homes { locals.mark_nonnull(home.binding()); }
-    let mut homes = entry_homes;
+    let mut homes = HomesV1::entry(entry_homes);
     let mut covered_statements = Vec::new();
     let mut selected_seen = Vec::new();
     let exit_set: BTreeSet<SourceStmtSiteV1> = exit_sites.iter().cloned().collect();

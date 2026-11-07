@@ -51,7 +51,7 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
     let statement = input.source().body_stmt(&body, 3).unwrap();
     let mut calls = Vec::new();
     let mut path_calls = BTreeSet::new();
-    let mut homes = Vec::new();
+    let mut homes = crate::mir::resolved_semantics::home_new_prefix::HomesV1::entry(Vec::new());
     let mut covered = (0..=3)
         .map(|index| SourcePathV1::root_body(index).stmt())
         .collect();

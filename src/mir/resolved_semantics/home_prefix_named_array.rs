@@ -109,7 +109,7 @@ impl PrefixLocalFlow<'_> {
             Some(StoredLocal::NamedArrayHolder(_))
         )
     }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_named_array_holder(
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_named_array_holder(
         &mut self,
         source: NamedArrayHolderSourceLoanV1,
     ) {

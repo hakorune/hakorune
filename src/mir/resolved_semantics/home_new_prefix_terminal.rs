@@ -2,7 +2,6 @@
 //! explicit exit site owns its own relation, result co-seal, and Home
 //! snapshot — every row lands in the site-keyed caller maps.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn observe_terminal_statement<'a, E>(
@@ -20,7 +19,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     >,
     locals: &mut PrefixLocalFlow<'a>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
@@ -317,7 +316,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                         map_compatible,
                     )? {
                         Ok((map, remaining)) => {
-                            *homes = remaining;
+                            homes.commit(remaining);
                             relation =
                                 Some(TerminalRelationV1::Value(TerminalValueReturnV1::issue(
                                     input.owner(),
@@ -376,7 +375,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 map_compatible,
                             )? {
                                 Ok((map, remaining)) => {
-                                    *homes = remaining;
+                                    homes.commit(remaining);
                                     maps.push(map_flow::MapHomeObservation::Complete(map));
                                 }
                                 Err(issue) => {
@@ -600,43 +599,16 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                     {
                                                                         unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::OverridesNotCovered(owned.site().clone()));
                                                                     }
-                                                                    let prior_homes = homes
-                                                                        .iter()
-                                                                        .rev()
-                                                                        .cloned()
-                                                                        .collect();
-                                                                    // The arg
-                                                                    // move
-                                                                    // completes
-                                                                    // on the
-                                                                    // invoke's
-                                                                    // Normal
-                                                                    // edge —
-                                                                    // `prior_homes`
-                                                                    // above kept
-                                                                    // the binding
-                                                                    // so a Fault
-                                                                    // unwind still
-                                                                    // discharges
-                                                                    // it.
-                                                                    for moved in moved_arguments {
-                                                                        homes.retain(|home| {
-                                                                            home.binding() != moved
-                                                                        });
-                                                                        locals.consume_argument_home(moved);
-                                                                    }
+                                                                    // The argument move completes on the invoke's Normal edge;
+                                                                    // the Fault list is taken before the move (S3b-R2d).
                                                                     let result_prefix = match &*unavailable {
-                                                            Some(issue) => Err(issue.clone()),
-                                                            None => issue_result_new_fault_continuation_v1(input, owned)
-                                                                .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
-                                                                .map(|outward_fault| ResultNewHomePrefixV1 {
-                                                                    purpose: ResultNewPurposeV1::Return,
-                                                                    prior_homes,
-                                                                    normal_homes: homes.iter().rev().cloned().collect(),
-                                                                    outward_fault,
-                                                                    covered_statements: covered_statements.clone().into_boxed_slice(),
-                                                                }),
-                                                        };
+                                                                        Some(issue) => Err(issue.clone()),
+                                                                        None => issue_result_new_fault_continuation_v1(input, owned)
+                                                                            .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
+                                                                            .map(|outward_fault| ResultNewHomePrefixV1::from_transition(
+                                                                                ResultNewPurposeV1::Return, homes, &moved_arguments, outward_fault, covered_statements)),
+                                                                    };
+                                                                    locals.release_to_callee(homes, &moved_arguments);
                                                                     result_prefixes.insert(
                                                                         owned.clone(),
                                                                         result_prefix,
@@ -665,8 +637,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                     _ => None,
                                                 };
                                                 if let Some(binding) = binding {
-                                                    homes.retain(|home| home.binding() != binding);
-                                                    locals.consume_home(binding);
+                                                    locals.transfer_out(homes, binding);
                                                 }
                                                 relation = Some(TerminalRelationV1::Value(
                                                     TerminalValueReturnV1::issue(

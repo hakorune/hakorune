@@ -59,7 +59,7 @@ pub(super) fn observe_initializer<E>(
     site: &OwnedExprSiteV1,
     binding: BindingRefV1,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     covered: &[SourceStmtSiteV1],
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     borrow: &mut impl FnMut(
@@ -97,24 +97,16 @@ pub(super) fn observe_initializer<E>(
         Some(issue) => Err(issue.clone()),
         None => issue_new_fault_continuation_v1(input, site)
             .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
-            .map(|outward_fault| CallerNewHomePrefixV1 {
-                destination: binding,
-                prior_homes: homes.iter().rev().cloned().collect(),
-                normal_homes: homes.iter().rev().cloned().collect(),
-                outward_fault,
-                covered_statements: covered.to_vec().into_boxed_slice(),
-            }),
+            .map(|outward_fault| CallerNewHomePrefixV1::from_transition(binding, homes, &[], outward_fault, covered)),
     };
     if let Err(issue) = &prefix {
         unavailable.get_or_insert(issue.clone());
     }
-    locals.install_named_array_holder(source.clone());
+    locals.acquire_named_array_holder(homes, source.clone());
     locals.retain_named_array_observation(NamedArrayHomeObservationV1::Initializer {
         source,
         prefix,
     });
-    // Conditional source obligation on the construction's Normal successor.
-    homes.push(LiveHomeV1::Stable(binding));
     Ok(true)
 }
 

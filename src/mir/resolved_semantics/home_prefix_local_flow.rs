@@ -35,6 +35,9 @@ pub(crate) use source_loop::{
 };
 #[path = "home_prefix_text.rs"]
 mod text;
+#[path = "home_ownership_transition.rs"]
+mod transition;
+pub(crate) use transition::HomesV1;
 #[path = "home_prefix_tagged_dynamic.rs"]
 mod tagged_dynamic;
 pub(crate) use tagged_dynamic::{TaggedDynamicReadV1, TaggedDynamicValueV1};
@@ -472,7 +475,7 @@ impl<'source> PrefixLocalFlow<'source> {
 
 
 
-    pub(super) fn install_map(&mut self, binding: BindingRefV1) {
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_map(&mut self, binding: BindingRefV1) {
         self.store(binding, StoredLocal::Map);
     }
 
@@ -527,7 +530,7 @@ impl<'source> PrefixLocalFlow<'source> {
         }
     }
 
-    pub(super) fn install_selected_normal_home(
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_selected_normal_home(
         &mut self,
         binding: BindingRefV1,
         acquisition: super::OwnedExprSiteV1,

@@ -12,7 +12,7 @@ pub(crate) use lifecycle_prefix::LifecyclePrefixSourceV1;
 
 #[path = "home_map_value_flow.rs"]
 mod value_flow;
-use value_flow::{map_value_leaf, observe_array_elements, transfer_home_v1};
+use value_flow::{map_value_leaf, observe_array_elements};
 pub(super) use value_flow::{observe_field_get_local_v1, observe_field_install_v1};
 pub(crate) use value_flow::{MapFieldGetLocalV1, MapFieldInstallV1};
 
@@ -612,7 +612,7 @@ pub(super) fn observe_map<E>(
     used: &mut std::collections::BTreeSet<BindingRefV1>,
     nested_out: &mut Vec<MapHomeObservation>,
     compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
-) -> Result<Result<(MapHomeFlow, Vec<LiveHomeV1>), HomePrefixUnavailableV1>, E> {
+) -> Result<Result<(MapHomeFlow, HomesV1), HomePrefixUnavailableV1>, E> {
     let Some(shape) = input.body_shape() else {
         return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
     };
@@ -639,7 +639,7 @@ pub(super) fn observe_map<E>(
     let Ok((source_scope, target_function)) = outward else {
         return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
     };
-    let mut remaining = homes.to_vec();
+    let mut remaining = HomesV1::snapshot(homes);
     let mut entries: Vec<MapHomeEntry> = Vec::new();
     let mut outer: Vec<_> = homes
         .iter()
@@ -678,7 +678,7 @@ pub(super) fn observe_map<E>(
             let Some(home) = outer.iter_mut().find(|home| home.home.binding() == binding) else {
                 return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
             };
-            if let Err(issue) = transfer_home_v1(locals, &mut remaining, binding) {
+            if let Err(issue) = locals.transfer_out_exactly_one(&mut remaining, binding) {
                 return Ok(Err(issue));
             }
             home.transferred_at = Some(entries.len());

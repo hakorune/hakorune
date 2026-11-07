@@ -4,13 +4,13 @@ use super::*;
 use super::super::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, HomePrefixUnavailableV1, LocalCallObservationV1};
 
 impl PrefixLocalFlow<'_> {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn consume_home(&mut self, binding: BindingRefV1) {
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn consume_home(&mut self, binding: BindingRefV1) {
         self.store(binding, StoredLocal::Consumed);
     }
 
     /// An argument Home leaves the frame at the invoke's Normal edge, so later
     /// uses are `UseAfterMove` exactly as after a method-call entry transfer.
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn consume_argument_home(&mut self, binding: BindingRefV1) {
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn consume_argument_home(&mut self, binding: BindingRefV1) {
         self.store(binding, StoredLocal::MovedOut);
     }
 
@@ -22,13 +22,13 @@ impl PrefixLocalFlow<'_> {
         self.locals.values().any(|local| matches!(local, StoredLocal::MovedOut))
     }
 
-    /// Transfer the existing Home at its original cleanup position. The
-    /// caller has already checked the source site and lexical scope.
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn transfer_home_v1(
+    /// S3b-R2b: move the existing Home to another name at its original cleanup
+    /// position. The caller has already checked the source site and lexical scope.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn move_alias(
         &mut self,
         from: BindingRefV1,
         to: BindingRefV1,
-        homes: &mut [LiveHomeV1],
+        homes: &mut HomesV1,
     ) -> bool {
         if from.owner() != self.input.owner() || to.owner() != self.input.owner() {
             return false;
@@ -54,8 +54,8 @@ impl PrefixLocalFlow<'_> {
             LiveHomeV1::Moved { origin, .. } => *origin,
             LiveHomeV1::Text(_) => return false,
         };
-        homes[index] = LiveHomeV1::Moved { origin, binding: to };
-        self.store(from, StoredLocal::MovedOut);
+        homes.move_at(index, LiveHomeV1::Moved { origin, binding: to });
+        self.consume_argument_home(from);
         self.store(to, local);
         true
     }
@@ -84,12 +84,12 @@ impl PrefixLocalFlow<'_> {
                     if simulated.home_acquisition(binding).is_none() {
                         return Err(HomePrefixUnavailableV1::MoveUnsupported(site));
                     }
-                    simulated.store(binding, StoredLocal::MovedOut);
+                    simulated.consume_argument_home(binding);
                 } else if transfer_sites.contains(&site) {
                     // A plain `new` argument whose Home leaves the frame transfers
                     // without a `move` operator; the caller already proved the Home.
                     if let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(&site) {
-                        simulated.store(binding, StoredLocal::MovedOut);
+                        simulated.consume_argument_home(binding);
                     }
                 }
                 continue;
@@ -138,7 +138,7 @@ impl PrefixLocalFlow<'_> {
         &mut self,
         statement: &SourceStmtSiteV1,
         calls: &[LocalCallObservationV1],
-        homes: &mut Vec<LiveHomeV1>,
+        homes: &mut HomesV1,
         unavailable: &mut Option<HomePrefixUnavailableV1>,
         port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
             -> Result<Option<BorrowedCallArgumentsV1>, E>,
@@ -174,8 +174,8 @@ impl PrefixLocalFlow<'_> {
                 continue;
             }
             // The observation retains its pre-entry prefix for argument Fault.
-            for (binding, _, _) in taken.iter() { self.store(*binding, StoredLocal::MovedOut); }
-            homes.retain(|home| !bindings.contains(&home.binding()));
+            let taken: Vec<BindingRefV1> = taken.iter().map(|(binding, _, _)| *binding).collect();
+            self.release_to_callee(homes, &taken);
         }
         Ok(())
     }

@@ -46,7 +46,7 @@ pub(super) fn meet_read_state_v1(own: &mut StoredLocal, other: &StoredLocal) -> 
 }
 
 impl PrefixLocalFlow<'_> {
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_received_mixed(
+    pub(in crate::mir::resolved_semantics::home_new_prefix::local_flow) fn install_received_mixed(
         &mut self,
         loan: crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1,
         calls: &[super::super::LocalCallObservationV1],

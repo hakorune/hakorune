@@ -1,14 +1,13 @@
 //! Owned LOCAL assignment qualification, separate from formal-borrow permission.
 //! Preserve the exact source frame and update readiness only after complete staging.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use std::rc::Rc;
 
 pub(super) fn observe<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &mut PrefixLocalFlow<'_>,
-    homes: &mut Vec<LiveHomeV1>,
+    homes: &mut HomesV1,
     prefix_known: bool,
     local_calls: &[LocalCallObservationV1],
     source_consult: &mut impl HomeFieldSourceConsultV1<E>,
@@ -72,8 +71,7 @@ pub(super) fn observe<E>(
         }
         // This is the source Normal successor. The exact frame retains the
         // precommit Fault Homes; physical commit/End correspondence is still owed.
-        locals.consume_home(binding);
-        homes.retain(|home| home.binding() != binding);
+        locals.transfer_out(homes, binding);
         return Ok(Some(true));
     }
     let source = Rc::clone(frame.source());
