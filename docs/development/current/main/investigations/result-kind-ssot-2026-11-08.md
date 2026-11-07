@@ -20,6 +20,11 @@ U16. kindの一致だけでは実行を認めず各経路の元の入力・owner
 
 U17. 758行のdirect lifecycleへkind集約を接続する前にMap/構築returnの元検証を責務moduleへ意味不変で移し、独立commitのbinaryで両集合のMIR一致を確認する。
 
+U18. 単一productをCalleeResultKindCatalogV1とし、static claim indexが元static契約行と共に所有し、同じcatalogへresolved classと元instance結果の証拠を結び、lexical/direct/R1はそのcatalogを読む。
+U19. NullableForwardedは引数のidentityという条件付き証拠であり、それだけでNullableやHandleを決めず、staticの条件付きI64証拠と元の引数要求も失わない。
+U20. 独立した構築return検証にはcatalogが決めたclassを渡し、型注釈・direct ABIの形・Map式の存在だけでcatalogに無い種類を補わない。
+U21. UnitとTextの遅い元source/Completion証拠が必要なら同じcatalogへ追加し、先行するcall routeを未検証の結果で開かない。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
