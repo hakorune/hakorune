@@ -33,6 +33,9 @@ U24. 遅いText/nullable-Text転送の検証済み証拠も同じ結果rowへ照
 U25. K13は単なるHandleの差ではなく実際の記録ownerの差を保持し、staticのCallReceived単独記録に別prefixを足さず、lexicalの同じInvokeを指すgroupとCallReceivedの共有は元packet照合を残す。
 U26. direct callの宣言済みi64 ABI検査は結果種類の推測ではないため名前もABI検査とし、ordinary objectの物理結果は既存LocalCallResultClassV1の一つの表へ委譲する。
 
+U27. K14のstatic入力要求をVerified・Unavailable・static証拠無しとして結果kindとは別に読むAPIへまとめ、元static契約のUnavailableを箱classの不在とは扱わず同じsource class証拠を保持する。
+U28. K14の証拠は既存static claim test familyで「classは既知・要求は未証明・call受理は無し」を一例にまとめ、既存のHandle正例と併せて守り、新しいfixture/checker/test fileを作らない。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
