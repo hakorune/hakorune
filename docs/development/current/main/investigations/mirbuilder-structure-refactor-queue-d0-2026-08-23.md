@@ -243,6 +243,8 @@ staticの呼び出しの結果の種類（2026-11-07ユーザー決定「穴を�
 
 段4（Sonnet、`7ab29d1121`、文書だけ）: 引数つきのstaticが返すStringを型つきの静的な実行に載せる事を3回試して止めた。Stringのlocalはrouteではなくinitializerのexpression frameのText residenceが持つ。引数なしの入力のprotocolはarity 0を課す。headerの行はscalarの結果だけに作られる（[規則](static-call-result-kind-2026-11-08.md) §5）。productionは変えていない。2026-11-08ユーザー決定「Stringを先に掘る」: 次は、i64とStringの引数のstaticのStringを受ける入口を作り、引数なし専用の道（R3）をその道の「実引数0個」の場合に畳む。
 
+staticのStringの入口（Sonnet実装・Opus監査、`54181cfffd`、[規則](static-call-result-kind-2026-11-08.md) K15〜K22）: formalが全部i64のstaticが返すStringを、staticの入力のfinishのqualifiedのevidenceで受ける（案B。`uses`は無し）。受けたStringはinstanceや引数なしと同じText residenceが持つ。引数なし専用の道（R3）は「実引数0個」の場合に畳んで消した（staticの結果の道は6→5）。844行のfileはrouteの選択（388行）を分けて465行になった。移動を除くproductionは+45/−53。Opusの監査で、formalの使い方の証明を飛ばす条件がK21より広い（`Map`や`ExactText`のformalも含む）事を見つけ、直させた。329入力のMIRは差0。1,459本は前は拒否で今は通る2本だけ。384組は前の142組が同じで12組（`si`）が新しく通る。229入力・apps 100本・suite 8/8・Python v4は前と同じ。Opusが19形を流し、誤り0。止めた物: 宣言した`x: String`のformal（2本のlaneのABIで、呼び出し側のemitが無い）、受けた後のi64のstaticの呼び出し（Text residenceのfaultのunwind）。2026-11-08ユーザー決定「Stringの後、nullableの前」: 次は結果の種類を決める所を1つにするseries（Codexに渡す）。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。

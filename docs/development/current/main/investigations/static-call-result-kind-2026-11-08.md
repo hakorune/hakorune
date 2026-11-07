@@ -136,3 +136,25 @@ K22 を試した。宣言した `x: String` の formal は、`CallableParameterC
 3. 次の門: `static_input_validation.rs:37-40`(`verify_static_input_header_v1`)の `contract-identity` が、formal を `OpaqueHandle`、i64、`DeclaredObject` に限る。これを広げても、次の `:49-56` の lane の数(`physical_formal_lane_count == arity`)が合わない。`ExactText` は `physical_signature.rs:288-298` で 2 つの lane(`ExactTextSlot` と `ExactTextGeneration`)を持つ。
 
 必要な物: 呼び出し側が、pinned Text residence の slot と generation の 2 つの値を作って渡す emit(`compiler/pinned_text_backend_frame.rs`、`pinned_text_residence_backend_carrier.rs`、`hako.pinned_text_backend_frame@2` の backend の frame 契約と、`runtime/text_formal_residence` の ABI)。instance の `b.t("abc")`(`x: String` 宣言)も、基準で同じ系の `pinned-text-backend-frame-mismatch` で拒否されるので、宣言した String の formal の呼び出し側は、どの経路にもまだ無い。これは「同じ証拠で受ける」問題ではなく、公開の backend の frame 契約に載る呼び出し側の emit を新しく作る事になるので、この series では止める。宣言の無い `f(x)` は、変わらず通る。
+
+## Opus の確認(static-text-entry、2026-11-08)
+
+Opus が branch `static-text-entry`(`64d6121e53` と直しの `54181cfffd`)を監査し、main へ fast-forward した。
+
+- binary:
+  - 報告の後で、Sonnet が `direct_scalar_call.rs` を試しに変えて build し、戻していた。そのため、`target/quick/hakorune` が最後の binary と違っていた。
+  - Opus が HEAD から build し直すと、最後の binary(`hakorune.final`)と byte で一致した。検証に使った binary は HEAD の source の物。
+  - 直しの binary も `target/quick/hakorune` と一致し、`find -newer` は空。
+- 移した file: `ordinary_new_borrowed_static_route_selection.rs`(388 行)は、`ordinary_new_borrowed_static_packet_entry.rs` から消した 380 行と同じ。違うのは、R3 の 5 か所の枝が消えた事だけ。
+- 直させた所: `checked_static_input_uses_v1` は、「borrowed handle の formal が無い」時に formal の使い方の証明を飛ばしていた。この条件は `Map`、`ExactText` などの formal も含む。`54181cfffd` で、K21 の文の「全部の formal が i64」に合わせた。直しの前後で、329 入力と 1,459 本の MIR は同じ。
+- MIR: 329 入力は差 0。1,459 本は差 2 本で、どちらも前は拒否で今は通る(`t(x: i64): String` を受けて print)。(c) は 0。
+- 384 組: 前に通る 142 組は、結果の行が全部同じ。新しく通る 12 組は全部 `si`。
+- 全 lib: 新しい赤 2 本は、どちらも前の series の赤の一覧にもある名前(`raw_invocation_port_...`、`ordinary_arithmetic_propagates_...`)。2 本目は単独で 2 回通った。
+- Opus が書いた 19 本: 間違った出力は 0。
+  - 通るようになった形: 引数が式や呼び出しの形(`Main.t(n + 1)`、`Main.t(Main.f(2))`)、callee の `return "n=" + x`、`g(v): String` が受けた String を返す形、転送 `u(x) { return Main.t(x) }`、`print(Main.t(1) + Main.t(2))`、`Main.t(1) + "z"`、受けた String を 2 回 print、受けた後に `if` の中で print。
+  - 2 つ受けて連結する形の MIR を見た。受けた String は、通常の出口でも、2 回目の呼び出し・連結・print の各 fault の出口でも、1 回ずつ `End` される。
+- 指示書の誤り: Opus は `print(Main.t(1) + 1)` を「拒否のままにする」に入れていた。けれど、quick-reference は `String + <non-void>` を文字列の連結として許している。`abc1` は仕様どおりで、Sonnet の判断が正しい。
+- 残り:
+  - 宣言した `x: String` の formal(2 本の lane の ABI。呼び出し側の emit が無い)
+  - 受けた後の i64 の static の呼び出し(Text residence の fault の unwind)
+  - `if` の中で受ける形、再代入、`local u = s`、受けた String の `length()`、`loop` の中

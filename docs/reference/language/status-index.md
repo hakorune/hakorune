@@ -436,7 +436,6 @@ A `: String` declaration reads the one declared-result table (`DeclaredResultKin
 | Form | previous main | undeclared | declared `: String` | Tag or output |
 |---|---|---|---|---|
 | `t(): String { return "abc" }`, `local s = Main.t()` then `print(s)`, or `print(Main.t())` | refused-named | connected | connected | `abc` (was `PhysicalHeader UnsupportedResultAnnotation`) |
-| `t(x: i64): String { return "abc" }`, `local s = Main.t(1)` then `print(s)`; also two receives joined (`s + u`), `print(Main.t(1))`, a receive inside `g(v: i64)`, a callee in another static box, a receive inside `if`, a receive that is not used (series static-text-entry; `static-call-result-kind-2026-11-08.md` K21) | refused-named (`selected-header-missing`) | connected | connected | `abc`, `abcabc`, `abc` |
 | `u(): String { return Main.t() }`, or `local a = Main.t(); return a` in `u` | refused-named | connected | connected | `abc`, `x` |
 | `local s = Main.t(); local u = Main.t(); print(s + u)` | refused-named | connected | connected | `abcabc` |
 | a body `local s = "ab"; return s + "cd"`, and `s.length()` on the received String | refused-named | connected | connected | `abcd`, exit `1` |
@@ -491,7 +490,7 @@ One table decides a call's result kind from the callee's contract row, for insta
 | two receives added, `a.get() + 1`, `a.set(9)` then `a.get()`, two classes, a callee in another static box, two `return`s under `if` in the callee, `mk(x, y): Pair` | refused-named | connected | `5`, `6`, `9`, `5`, `9`, `50`, `7` |
 | a receive inside a static `g(v: i64): i64` that returns `a.get()`; a call that can fault after the receive | refused-named | connected | `7`, `8` |
 | zero-argument `t(): String` received and printed or concatenated; instance `m.mk()` then `a.get()` | connected | connected | the same MIR |
-| `t(x: i64): String` received | refused-named | refused-named | `selected-header-missing` (stopped: the Text observation gate and the header row, rule document §3) |
+| `t(x: i64): String` received | refused-named | refused-named | `selected-header-missing` (stopped: the Text observation gate and the header row, rule document §3; connected since series static-text-entry, below) |
 | an expression argument, `Main.mk(n + 1)` or `Main.mk(Main.f(2))` | refused-named | refused-named | `borrowed-static/source-route-identity` (the i64 result `Main.f(n + 1)` is connected) |
 | `local b = a`; a receive inside `if` | refused-named | refused-named | `root-instance-call-new-missing`; `root-call-binding-contracted` (the instance forms have the same names) |
 | `a + 1`, `a = Main.mk(6)`, `print(a)`, `a.value` | refused-named | refused-named | `static-execution/completion-not-ready` |
@@ -500,6 +499,23 @@ One table decides a call's result kind from the callee's contract row, for insta
 | the received object passed to `show(x: Leaf)` | refused-named | refused-named | `borrowed-view/declared-object-class` (the same for a `new` object) |
 | a callee `local x = new Leaf(v); return x`; `g(v): Leaf` that returns the received object | refused-named | refused-named | `handle-result-terminal-mismatch`; `static-execution/result-source` |
 | a receive inside `loop` | refused-named | refused-named | `callable-loop/route-not-front-selected` |
+
+### String result of a static call with arguments (series static-text-entry)
+
+A static call whose formals are all i64 (or none) and whose result is a String takes the qualified static input finish, and the received String lives in the same Text residence as an instance or zero-argument receive; the zero-argument-only Text path is gone (rule document `static-call-result-kind-2026-11-08.md`, K15 to K22). Measured by EXE with the series binary against the previous main.
+
+| Form | previous main | this series | Tag or output |
+|---|---|---|---|
+| `t(x: i64): String { return "abc" }`, `local s = Main.t(1)` then `print(s)`, declared or without `: String`; `print(Main.t(1))` | refused-named | connected | `abc` (was `selected-header-missing`) |
+| two receives joined (`s + u`), `print(Main.t(1) + Main.t(2))`, `local s = Main.t(1) + "z"`, a callee that branches on its argument, a callee in another static box, two arguments | refused-named | connected | `abcabc`, `ab`, `abz`, `posneg`, `zz`, `ab` |
+| an argument that is an expression or a call, `Main.t(n + 1)`, `Main.t(Main.f(2))`; a callee `return "n=" + x` | refused-named | connected | `big`, `a`, `n=5` |
+| a receive inside `g(v: i64): i64` or `g(v: i64): String` that returns it; a forwarding `u(x) { return Main.t(x) }`; a receive that is not used | refused-named | connected | `abc` and `5`, `abc`, `ab` |
+| `print(Main.t(1) + 1)` | refused-named | connected | `abc1`: `String + <non-void>` joins as text (quick-reference) |
+| zero-argument `t(): String` forms | connected | connected | the same output and MIR |
+| `return s + 1` | refused-named | refused-named | `admission-retained-root-result-missing` |
+| declared `x: String` formal, `Main.t("abc")` or a String local | refused-named | refused-named | `borrowed-static/source-actual-unavailable` (stopped: a declared String formal has its own two-lane ABI and no caller emits it yet; the undeclared `t(x)` is connected) |
+| a receive inside `if`; `s = Main.t(2)`; `local u = s`; an i64 static call after the receive; a String and a Handle in one function | refused-named | refused-named | `IncompleteOrdinaryNewCoverage`; `IncompleteOrdinaryNewCoverage`; `forwarded-copy/root`; `local-commit/direct-scalar/source`; `root-call-binding-contracted` |
+| `s.length()` on the received String; a receive inside `loop` | refused-named | refused-named | `root-instance-call-new-missing`; `selected-header-missing` |
 
 ### Remaining before 3b
 
