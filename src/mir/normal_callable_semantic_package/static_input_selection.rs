@@ -83,13 +83,14 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    /// The original formal-use proof of a static input cohort: `Some(None)` when no formal is a
-    /// borrowed handle (every formal is an i64 actual, K21); `None` while the proof is pending.
+    /// The original formal-use proof of a static input cohort: `Some(None)` only when
+    /// every formal is an i64 actual (K21); any other formal needs the same proof as before;
+    /// `None` while the proof is pending.
     pub(super) fn checked_static_input_uses_v1(
         &self,
         contract: &OwnedCallableParameterContractDeclarationV1,
     ) -> Result<Option<Option<Rc<super::borrowed_formal_uses::OriginalFormalUseSourceV1>>>, String> {
-        if !contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle()) {
+        if contract.parameters.iter().all(|formal| formal.kind.is_i64_actual_v1()) {
             return Ok(Some(None));
         }
         Ok(self.checked_input_use_source_v1(contract)?.map(Some))

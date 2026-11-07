@@ -31,6 +31,11 @@ impl CallableParameterContractKindV1 {
         matches!(self, Self::OpaqueHandle | Self::DeclaredObject(_))
     }
 
+    /// K21: an exact i64 formal; its actual needs no borrowed-formal use proof.
+    pub(crate) fn is_i64_actual_v1(&self) -> bool {
+        matches!(self, Self::ExactTrivial(abi) if abi.is_i64())
+    }
+
     /// Declaration transfer selects demand here; callers retain error context.
     pub(super) fn home_demand_for_transfer_v1(&self,
         transfer: crate::parser::callable_parameter_source::ParserParameterTransferSyntaxV1,

@@ -25,7 +25,7 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 | K18 | (書き直し)引数なしの呼び出しは、引数のある呼び出しと同じ finish の「実引数 0 個」の場合として扱う。引数なし専用の判定(`is_zeroarg_text_v1`、`Zero` の evidence、zero packet の枝)は、この規則の実装の後に残さない。1 つの site は、ちょうど 1 つの道に入る。 |
 | K19 | 使い先は R15 の表のまま。Text は算術に入らず、`s + 1` は拒否のまま。 |
 | K20 | 引数が i64 でない static(`t(x: String)`)は R4 のまま。R1 は formal が全部 i64 か無しの呼び出しだけ運ぶ(K7)。 |
-| K21 | 全部の formal が i64 の static が String を返す呼び出しは、static の入力の finish の qualified の evidence(`StaticInputEvidenceV1::Qualified`)で受ける。borrowed の formal が 1 つも無い callee の証拠 `uses` は無し(`None`)で、`domains` は空である。i64 の実引数の証拠は、今ある `snapshot.ordered_arguments`(claim の `required_i64_arguments` から作る)を使い、新しい証拠を手で組まない。 |
+| K21 | 全部の formal が i64 の static が String を返す呼び出しは、static の入力の finish の qualified の evidence(`StaticInputEvidenceV1::Qualified`)で受ける。全部の formal が i64 の callee の証拠 `uses` は無し(`None`)で、`domains` は空である。i64 の実引数の証拠は、今ある `snapshot.ordered_arguments`(claim の `required_i64_arguments` から作る)を使い、新しい証拠を手で組まない。 `Map`、`ExactText` など i64 でない formal は、前と同じ証明(`checked_input_use_source_v1`)を要る。 |
 | K22 | 宣言した `x: String` の formal に literal や String の local を渡す形は、宣言の無い `f(x)` と同じ証拠で受ける(段 3)。 |
 | K12 | 段 2 と段 3 が規則の範囲で通らない時は、止まった門の file:line と、その門が何を要るかを書いて止める。公開の追加(MIR、opcode、ABI、descriptor、C shim)が要る時は、その部分を止める。 |
 

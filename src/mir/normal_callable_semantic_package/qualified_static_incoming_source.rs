@@ -106,7 +106,7 @@ impl StaticIncomingSourceV1 {
     /// its i64 actuals; no formal needs a borrowed domain.
     pub(in crate::mir::normal_callable_semantic_package) fn is_i64_input_text_v1(&self) -> bool {
         self.parameters.len() == self.argument_sites.len()
-            && self.parameters.iter().all(|formal| formal.kind == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
+            && self.parameters.iter().all(|formal| formal.kind.is_i64_actual_v1())
             && matches!(self.source_result(), VerifiedCallableResultDispositionV1::ExactString)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn source_result(
