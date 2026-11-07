@@ -11,7 +11,7 @@ use crate::mir::source_call_target::{
 use crate::mir::source_core_receiver::SourceCoreReceiverFactV1;
 
 use super::call_row::VerifiedCallableResultCallSiteV1;
-use super::call_substitution::{exact_requirements, substitute_required_arguments};
+use super::call_substitution::{scalar_requirements, substitute_required_arguments};
 use super::expression_proof::I64ExpressionFactV1;
 use super::{
     CallableResultCatalogErrorV1, CallableResultUnavailableReasonV1,
@@ -61,12 +61,26 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
             return Ok(match disposition {
                 VerifiedCallableResultDispositionV1::ExactI64 {
                     required_i64_arguments,
+                }
+                | VerifiedCallableResultDispositionV1::ExactBool {
+                    required_i64_arguments,
                 } => {
+                    // R12/R13: one scalar call composition; only the result kind differs.
+                    let representation = disposition
+                        .representation()
+                        .expect("a scalar disposition has a representation");
                     let fact = substitute_required_arguments(required_i64_arguments, arguments);
-                    let row = exact_requirements(&fact).map(|requirements| {
+                    let fact = match (&representation, fact) {
+                        (
+                            VerifiedCallableResultRepresentationV1::ExactBool,
+                            I64ExpressionFactV1::Exact(requirements),
+                        ) => I64ExpressionFactV1::ExactBool(requirements),
+                        (_, fact) => fact,
+                    };
+                    let row = scalar_requirements(&fact).map(|requirements| {
                         VerifiedCallableResultCallSiteV1::same_module_static(
                             source_target,
-                            VerifiedCallableResultRepresentationV1::ExactI64,
+                            representation,
                             required_i64_arguments.clone(),
                             requirements
                                 .iter()
@@ -77,15 +91,6 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                     });
                     CallProofOutcomeV1 { fact, row }
                 }
-                VerifiedCallableResultDispositionV1::ExactBool => CallProofOutcomeV1 {
-                    fact: I64ExpressionFactV1::ExactBool,
-                    row: Some(VerifiedCallableResultCallSiteV1::same_module_static(
-                        source_target,
-                        VerifiedCallableResultRepresentationV1::ExactBool,
-                        Box::new([]),
-                        Box::new([]),
-                    )),
-                },
                 VerifiedCallableResultDispositionV1::ExactString => CallProofOutcomeV1 {
                     fact: I64ExpressionFactV1::ExactString,
                     row: Some(VerifiedCallableResultCallSiteV1::same_module_static(

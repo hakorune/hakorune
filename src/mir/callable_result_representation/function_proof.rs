@@ -23,7 +23,7 @@ pub(super) enum FunctionProofOutcomeV1 {
     Exact(RequirementSetV1),
     ExactNominalBox(String),
     ExactString,
-    ExactBool,
+    ExactBool(RequirementSetV1),
     Unavailable(CallableResultUnavailableReasonV1),
     PendingDependency,
 }
@@ -106,7 +106,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
         summarize_returns(returns)
     };
     let outcome = match outcome {
-        FunctionProofOutcomeV1::ExactBool | FunctionProofOutcomeV1::Unavailable(_) | FunctionProofOutcomeV1::PendingDependency => outcome,
+        FunctionProofOutcomeV1::ExactBool(_) | FunctionProofOutcomeV1::Unavailable(_) | FunctionProofOutcomeV1::PendingDependency => outcome,
         _ if declared_bool => FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::DeclaredResultDisagrees),
         _ => outcome,
     };
@@ -414,13 +414,14 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
                 }
                 saw_string = true;
             }
-            I64ExpressionFactV1::ExactBool => {
+            I64ExpressionFactV1::ExactBool(current) => {
                 if saw_exact || saw_string || exact_box.is_some() {
                     return FunctionProofOutcomeV1::Unavailable(
                         CallableResultUnavailableReasonV1::ConflictingReturnRepresentations,
                     );
                 }
                 saw_bool = true;
+                requirements = union_requirements(&requirements, &current);
             }
             I64ExpressionFactV1::KnownNonI64 => saw_non_i64 = true,
             I64ExpressionFactV1::Unknown(reason) => {
@@ -444,7 +445,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
         );
     }
     if saw_bool {
-        return FunctionProofOutcomeV1::ExactBool;
+        return FunctionProofOutcomeV1::ExactBool(requirements);
     }
     if saw_string {
         return FunctionProofOutcomeV1::ExactString;

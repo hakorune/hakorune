@@ -291,7 +291,7 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                 results.disposition(&expected),
                 Some(
                     VerifiedCallableResultDispositionV1::ExactString
-                        | VerifiedCallableResultDispositionV1::ExactBool
+                        | VerifiedCallableResultDispositionV1::ExactBool { .. }
                 )
             ) {
                 let handoff =

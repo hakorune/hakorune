@@ -353,7 +353,7 @@ impl OriginalFormalUseSourceV1 {
             super::BorrowedIncomingSourceV1::Static(source) => source.call_site() == &call.call
                 && source.callee_owner() == owner && source.target_batch_slot() == batch_slot
                 && matches!(source.source_result(),
-                    crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool),
+                    crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactBool { .. }),
             _ => false,
         });
         if !exact_bool_static { return Ok(None); }

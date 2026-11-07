@@ -117,7 +117,7 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
             Some(super::VerifiedCallableResultDispositionV1::ExactString) => {
                 VerifiedCallableResultRepresentationV1::ExactString
             }
-            Some(super::VerifiedCallableResultDispositionV1::ExactBool) => {
+            Some(super::VerifiedCallableResultDispositionV1::ExactBool { .. }) => {
                 VerifiedCallableResultRepresentationV1::ExactBool
             }
             _ => return Err(Error::TargetResultUnavailable),

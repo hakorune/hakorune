@@ -313,7 +313,7 @@ fn static_primitive_result_v1(source: &StaticIncomingSourceV1)
         VerifiedCallableResultRepresentationV1 as R};
     let (class, representation) = match source.source_result() {
         D::ExactI64 { .. } => (LocalCallResultClassV1::I64, R::ExactI64),
-        D::ExactBool => (LocalCallResultClassV1::Bool, R::ExactBool),
+        D::ExactBool { .. } => (LocalCallResultClassV1::Bool, R::ExactBool),
         _ => return Ok(None),
     };
     if source.call_result_evidence().is_some_and(|row| row.static_target_key() != Some(source.target())

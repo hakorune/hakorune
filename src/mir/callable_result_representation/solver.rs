@@ -222,9 +222,9 @@ fn disposition(
         FunctionProofOutcomeV1::Exact(requirements) => Ok(Some(
             VerifiedCallableResultDispositionV1::exact_i64(key, requirements)?,
         )),
-        FunctionProofOutcomeV1::ExactBool => {
-            Ok(Some(VerifiedCallableResultDispositionV1::ExactBool))
-        }
+        FunctionProofOutcomeV1::ExactBool(requirements) => Ok(Some(
+            VerifiedCallableResultDispositionV1::exact_bool(key, requirements)?,
+        )),
         FunctionProofOutcomeV1::ExactString => {
             Ok(Some(VerifiedCallableResultDispositionV1::ExactString))
         }

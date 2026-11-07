@@ -19,7 +19,8 @@ pub(super) enum I64ExpressionFactV1 {
     Exact(RequirementSetV1),
     ExactNominalBox(String),
     ExactString,
-    ExactBool,
+    /// A Bool result keeps the exact-i64 operand requirements of its proof (R13).
+    ExactBool(RequirementSetV1),
     KnownNonI64,
     Unknown(CallableResultUnavailableReasonV1),
     PendingDependency,
@@ -39,7 +40,9 @@ impl I64ExpressionFactV1 {
                 Self::ExactNominalBox(left.clone())
             }
             (Self::ExactString, Self::ExactString) => Self::ExactString,
-            (Self::ExactBool, Self::ExactBool) => Self::ExactBool,
+            (Self::ExactBool(left), Self::ExactBool(right)) => {
+                Self::ExactBool(union_requirements(left, right))
+            }
             (Self::KnownNonI64, Self::KnownNonI64) => Self::KnownNonI64,
             (Self::Unknown(left), Self::Unknown(right)) if left == right => {
                 Self::Unknown(left.clone())
@@ -229,7 +232,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 {
                     I64ExpressionFactV1::exact_empty()
                 }
-                LiteralValue::Bool(_) => I64ExpressionFactV1::ExactBool,
+                LiteralValue::Bool(_) => I64ExpressionFactV1::ExactBool(BTreeSet::new()),
                 LiteralValue::String(_) => I64ExpressionFactV1::ExactString,
                 LiteralValue::TypedInteger { .. }
                 | LiteralValue::Float(_)
@@ -265,11 +268,11 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 operand,
                 ..
             } => {
-                self.prove_expression(
+                let fact = self.prove_expression(
                     operand,
                     &Self::child_path(expression, path, ExprChildRoleV1::UnaryOperand),
                 )?;
-                Ok(I64ExpressionFactV1::ExactBool)
+                Ok(bool_result(&[fact]))
             }
             ASTNode::UnaryOp { .. } => Ok(I64ExpressionFactV1::KnownNonI64),
             ASTNode::BinaryOp {
@@ -313,7 +316,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                         | BinaryOperator::And
                         | BinaryOperator::Or
                 ) {
-                    Ok(I64ExpressionFactV1::ExactBool)
+                    Ok(bool_result(&[left, right]))
                 } else {
                     Ok(I64ExpressionFactV1::KnownNonI64)
                 }
@@ -421,6 +424,25 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
             }
         }
     }
+}
+
+/// R4/R13: a comparison or logic result is Bool. It keeps the exact-i64 operand
+/// requirements when every operand is a scalar proof; an operand that is not
+/// (a String, an unknown) means the operands are not compared as exact i64, so
+/// no requirement is kept. A pending operand keeps the result pending.
+fn bool_result(operands: &[I64ExpressionFactV1]) -> I64ExpressionFactV1 {
+    if operands.iter().any(|fact| matches!(fact, I64ExpressionFactV1::PendingDependency)) {
+        return I64ExpressionFactV1::PendingDependency;
+    }
+    let requirements = operands
+        .iter()
+        .map(super::call_substitution::scalar_requirements)
+        .collect::<Option<Vec<_>>>()
+        .map(|all| {
+            all.into_iter()
+                .fold(BTreeSet::new(), |acc, next| union_requirements(&acc, next))
+        });
+    I64ExpressionFactV1::ExactBool(requirements.unwrap_or_default())
 }
 
 fn combine_arithmetic(
