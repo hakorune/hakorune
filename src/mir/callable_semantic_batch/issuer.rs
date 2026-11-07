@@ -381,13 +381,15 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
             for (syntax, row) in loan.rows().iter().zip(resolved.iter_mut()) {
                 row.receiver_transfer = syntax.receiver_transfer();
                 row.declared_result_type = syntax.declared_result_type().cloned();
-                row.declared_result_box = match &row.declared_result_type {
-                    Some(crate::ast::TypeReferenceV1::Name(name))
+                row.borrowed_result = resolve_declared_borrowed_result_v1(syntax, row)?;
+                // O1: a read-borrowed result (`P from x`) keeps its own declaration; only an
+                // owned result names the box it returns.
+                row.declared_result_box = match (&row.declared_result_type, &row.borrowed_result) {
+                    (Some(crate::ast::TypeReferenceV1::Name(name)), None)
                         if matches!(source.ordinary_box_coverage().row_for(name), Ok(Some(_))) =>
                         Some(name.as_str().into()),
                     _ => None,
                 };
-                row.borrowed_result = resolve_declared_borrowed_result_v1(syntax, row)?;
                 if let Some(observation) = syntax.method_source_observation() {
                     let ASTNode::FunctionDeclaration { name, params, .. } = syntax.declaration()
                     else {
