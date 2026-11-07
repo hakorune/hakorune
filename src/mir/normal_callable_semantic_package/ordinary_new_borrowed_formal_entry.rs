@@ -760,6 +760,9 @@ mod incoming_kind_tests;
 #[path = "ordinary_new_borrowed_static_packet_entry.rs"]
 mod static_packet_entry;
 
+#[path = "ordinary_new_borrowed_static_route_selection.rs"]
+mod static_route_selection;
+
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use owner_view::original_borrowed_instance_input_completion_needed_v1;
 
 #[path = "ordinary_new_borrowed_text_entry_read.rs"]

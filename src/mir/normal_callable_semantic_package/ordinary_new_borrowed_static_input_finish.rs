@@ -74,22 +74,17 @@ impl StaticInputFinishV1 {
     }
 }
 
-/// Text borrows the full original census; the existing I64 lane still requires
-/// its original executable observation. Neither branch reconstructs a source.
+/// The zero-input I64 lane requires its original executable observation; it never reconstructs a source.
 pub(super) fn original_zero_input_source_v1<'a>(
     prepared: &'a PreparedBorrowedFormalIngressV1,
     original: &StaticIncomingSourceV1,
 ) -> Result<Option<&'a Rc<StaticIncomingSourceV1>>, String> {
-    if original.is_zeroarg_text_v1() {
-        super::static_source::original_static_source_v1(prepared, original.call_site())
-    } else {
-        prepared
-            .source_incoming
-            .static_observations()
-            .get(original.call_site())
-            .map(|row| row.as_ref().map_err(Clone::clone))
-            .transpose()
-    }
+    prepared
+        .source_incoming
+        .static_observations()
+        .get(original.call_site())
+        .map(|row| row.as_ref().map_err(Clone::clone))
+        .transpose()
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -105,9 +100,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
             return Ok(());
         };
-        // Preserve the original I64 executable census; Text uses the complete
-        // original source census, including a still-passive sibling.
-        let zero_i64 = source
+        // Preserve the original I64 executable census (K18: a String result is a qualified input).
+        let zero = source
             .source_incoming
             .exact_rows()
             .filter_map(|call| match &call.source {
@@ -119,19 +113,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 _ => None,
             });
-        let zero = zero_i64.chain(source.source_incoming.source_rows_v1().filter_map(|call| {
-            match &call.source {
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                    if original.is_zeroarg_text_v1()
-                        && selected
-                            .key_for_batch_slot(original.target_batch_slot())
-                            .is_some() =>
-                {
-                    Some(call.callee)
-                }
-                _ => None,
-            }
-        }));
         let qualified = source
             .source_incoming
             .source_rows_v1()
@@ -405,14 +386,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("static-zero/contract-identity"));
         }
         let owners = [owner].into_iter().collect();
-        let text = source.source_incoming.source_rows_v1().any(|row| row.callee == owner
-            && matches!(&row.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
-                if original.is_zeroarg_text_v1()));
-        let calls = match if text {
-            source.source_incoming.project_source_v1(&owners)
-        } else {
-            source.source_incoming.project(&owners)
-        } {
+        let calls = match source.source_incoming.project(&owners) {
             Ok(rows) => rows,
             Err(issue) => {
                 return Ok(TypedInputClosureV1::Refused(format!(

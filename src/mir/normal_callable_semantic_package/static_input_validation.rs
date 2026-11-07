@@ -105,12 +105,10 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let owner = original.callee_owner();
         let owners = [owner].into_iter().collect();
-        let calls = if original.is_zeroarg_text_v1() {
-            source.source_incoming.project_source_v1(&owners)
-        } else {
-            source.source_incoming.project(&owners)
-        }
-        .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage")))?;
+        let calls = source
+            .source_incoming
+            .project(&owners)
+            .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage")))?;
         let Some(completion) = self.completion_index.get(&owner) else {
             return Ok(None);
         };
