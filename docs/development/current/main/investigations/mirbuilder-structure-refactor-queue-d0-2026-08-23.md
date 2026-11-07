@@ -245,6 +245,8 @@ staticの呼び出しの結果の種類（2026-11-07ユーザー決定「穴を�
 
 staticのStringの入口（Sonnet実装・Opus監査、`54181cfffd`、[規則](static-call-result-kind-2026-11-08.md) K15〜K22）: formalが全部i64のstaticが返すStringを、staticの入力のfinishのqualifiedのevidenceで受ける（案B。`uses`は無し）。受けたStringはinstanceや引数なしと同じText residenceが持つ。引数なし専用の道（R3）は「実引数0個」の場合に畳んで消した（staticの結果の道は6→5）。844行のfileはrouteの選択（388行）を分けて465行になった。移動を除くproductionは+45/−53。Opusの監査で、formalの使い方の証明を飛ばす条件がK21より広い（`Map`や`ExactText`のformalも含む）事を見つけ、直させた。329入力のMIRは差0。1,459本は前は拒否で今は通る2本だけ。384組は前の142組が同じで12組（`si`）が新しく通る。229入力・apps 100本・suite 8/8・Python v4は前と同じ。Opusが19形を流し、誤り0。止めた物: 宣言した`x: String`のformal（2本のlaneのABIで、呼び出し側のemitが無い）、受けた後のi64のstaticの呼び出し（Text residenceのfaultのunwind）。2026-11-08ユーザー決定「Stringの後、nullableの前」: 次は結果の種類を決める所を1つにするseries（Codexに渡す）。
 
+結果の種類を決める所を1つに（Codex実装・Opus監査、`f60b74e371`、[規則](result-kind-ssot-2026-11-08.md) U1〜U34）: calleeの結果の種類は`CalleeResultKindCatalogV1`が1つ答え、lexical・direct・root・R1・staticのclaim・Unitがそれを読む。staticの契約の行、objectのclaim、instanceのscalar、遅く揃うTextとUnitとMapの証拠をこのcatalogに集め、正の証拠が食い違えば名前つきで止める。`construction_result_callee`と`nullable_exits_hold`は種類を決めず、可否だけを返す独立した検証として残した。結果の種類から物理の種類への写しは1つ（`invoke_result`）。K13は記録するownerの違いとして保ち、K14は箱のclassとconstructorの引数の要求を別の事実にした。受理は変えない: 329入力と1,459本のMIRは各段で差0、384組・229入力・apps 100本・suite 8/8も前と同じ。Opusが78形を流し、結果とMIRは全部同じ。production +280、test +37。残る注意（[Opusの確認](result-kind-ssot-2026-11-08.md)）: 証拠を作る所は別々のまま、Textなどの証拠は発行の途中で書き足される、`KnownValueClass`は包む形。次はnullable。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。

@@ -91,3 +91,18 @@ ordinary objectのInvoke結果はLocalCallResultClassV1::invoke_resultへ委譲�
 packageのFreeFunctionは同じproof engineへ含め、既存static verifierのscopeとBool再帰budgetを保持し、Unitの発行もcatalogのkindを読む。
 最終sourceのbinaryで329入力と1459入力、追加6入力のdumpは基準との差0で、focused 101件と既存projection 4件がPASSした。
 新規証拠は既存familyのclass既知/入力未証明/呼び出し拒否1件と、既存Map返却testのliteral/localパラメータ化であり、旧source-row testは追加された値class列へのAPI追従だけで既存の検証を保持した。
+
+## Opus の確認（2026-11-08）
+
+- 規則の行（U1〜U34）は、どれも対応する実装の commit より前の commit にある。実装の commit に入っている文書の行は、段の記録だけ。
+- binary: `hakorune.final` は `f60b74e371` の `target/quick/hakorune` と同じ byte で、`find src lang crates -newer` は空。`hakorune.base` は `54181cfffd` の binary と同じ byte。
+- Opus が書いた 78 本（free function 18、static 12、instance 10、前に通った形を変えた物 38）を base と final で流した。EXE の結果と `--dump-mir` は全部同じ（通る物 10 本、拒否は同じ門の名前）。
+- 全 lib の赤は基準の 231 本が全部残り、増えたのは前から出る順序の flake 1 本（単独 2 回 PASS）。suite 8/8。Python v4 は流していない（C shim と物理 ABI を触らず、MIR が全部同じなので共通ルールの表のとおり）。
+- 決める所: `CalleeResultKindCatalogV1::kind`（`callee_result_kind.rs:126`）を lexical、direct、root、R1、static の claim、Unit が読む。`construction_result_callee` は期待の class を受けて可否だけを返す検証になった。物理の写しは `LocalCallResultClassV1::invoke_result` の 1 つ。
+- nullable の前に知っておく事:
+  1. 証拠を作る所（static の solver、object の claim、instance の scalar、Text の return、Unit、Map）は別々のまま。catalog は答えを 1 つにする所で、解析を 1 つにしたのではない。
+  2. `corroborated_invoke_result` は発行の途中で Text、NullableText、Bool の証拠を行に書き足す（`RefCell`）。先に読んだ所は None を見て、後で読んだ所は Text を見る事がある。nullable で読む所を足す時は、書き足しより後に読む事を確かめる。
+  3. `I64ExpressionFactV1::KnownValueClass { class, admission }` は包む形なので、match のたびに `admission_fact()` を通す必要がある（通し忘れは `summarize_returns` の `unreachable!` に落ちる）。
+  4. `corroborated_invoke_result` は bool を 4 つ並べて受ける。
+  5. production は +280 行で、減っていない。
+  6. package では free function も同じ solver を通る（U31、`verify_for_package`）。free function の bare の呼び出しは今ほとんど `LifecycleSourceMismatch` などで拒否されるので、Opus の 18 本は差が出る所まで届いていない。
