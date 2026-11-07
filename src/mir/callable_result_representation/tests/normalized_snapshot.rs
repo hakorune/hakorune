@@ -131,7 +131,7 @@ fn normalize_disposition(
         } => NormalizedResultDispositionV1::ExactI64 {
             required_arguments: required_i64_arguments.to_vec(),
         },
-        VerifiedCallableResultDispositionV1::ExactBool => NormalizedResultDispositionV1::ExactBool,
+        VerifiedCallableResultDispositionV1::ExactBool { .. } => NormalizedResultDispositionV1::ExactBool,
         VerifiedCallableResultDispositionV1::ExactString => {
             NormalizedResultDispositionV1::ExactString
         }

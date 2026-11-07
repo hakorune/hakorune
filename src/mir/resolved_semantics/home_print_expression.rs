@@ -206,15 +206,21 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_statement_eva
         return Ok(Err("scalar-references-unsupported"));
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
-    if !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) {
+    // R16: a root comparison is a Bool value; its operand subtrees keep their own law.
+    let bool_root = classes[0] == Leaf::Value(Class::Bool)
+        && super::operations::qualify_comparison_operation_v1(&source, 0, &classes).is_some();
+    if !bool_root && !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) {
         return Ok(Err("root-class-not-text-or-i64"));
     }
-    let Some((operations, mut owned_results)) = super::operations::qualify_arithmetic_operations_v1(
-        &source,
-        &order,
-        &classes,
-        &transferred,
-    ) else {
+    let Some((operations, mut owned_results)) = (if bool_root {
+        let root = super::operations::qualify_comparison_operation_v1(&source, 0, &classes);
+        let inner_order: Vec<usize> = order.iter().copied().filter(|node| *node != 0).collect();
+        root.and_then(|root| super::operations::qualify_arithmetic_operations_v1(
+            &source, &inner_order, &classes, &transferred,
+        ).map(|(mut operations, owned)| { operations.push(root); (operations, owned) }))
+    } else {
+        super::operations::qualify_arithmetic_operations_v1(&source, &order, &classes, &transferred)
+    }) else {
         return Ok(Err("arithmetic-operations-unproved"));
     };
     owned_results.extend(super::operations::owned_text_field_nodes_v1(&source, &order, &classes, &transferred));

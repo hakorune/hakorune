@@ -154,11 +154,15 @@ fn qualified_static_input_source_keeps_unselected_main_and_opaque_full_formal() 
         let source = input_source(&package, true).unwrap();
         match kind {
             0 => assert_eq!(source.source_result(), &ResultKind::ExactString),
-            1 => assert_eq!(source.source_result(), &ResultKind::ExactBool),
+            1 => assert_eq!(source.source_result(), &ResultKind::ExactBool { required_i64_arguments: Box::new([]) }),
             _ => assert!(matches!(source.source_result(), ResultKind::Unavailable(_))),
         }
-        assert!(!source.qualified_scalar_result_v1().is_some());
-        assert!(source.require_qualified_scalar_source_v1().is_err());
+        // R12: the qualified scalar lane names the callee's result kind; only the Bool row is scalar here.
+        assert_eq!(
+            source.qualified_scalar_result_v1(),
+            (kind == 1).then_some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Bool)
+        );
+        assert_eq!(source.require_qualified_scalar_source_v1().is_ok(), kind == 1);
         assert!(!source.is_zeroarg_i64_v1(), "zero arguments cannot change the result class");
         assert!(!source.is_current_owner_i64_source_v1());
         assert_eq!(source.argument_sites().len(), arity);

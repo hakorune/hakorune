@@ -296,15 +296,10 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             }));
             continue;
         }
-        let family = match binary.operator() {
-            Op::Equal => DynamicOperatorFamilyV1::Equal,
-            Op::NotEqual => DynamicOperatorFamilyV1::NotEqual,
-            Op::Less => DynamicOperatorFamilyV1::Less,
-            Op::Greater => DynamicOperatorFamilyV1::Greater,
-            Op::LessEqual => DynamicOperatorFamilyV1::LessEqual,
-            Op::GreaterEqual => DynamicOperatorFamilyV1::GreaterEqual,
-            Op::Add => DynamicOperatorFamilyV1::Add,
-            Op::Multiply => DynamicOperatorFamilyV1::Mul,
+        let family = match (super::operations::comparison_family_v1(binary.operator()), binary.operator()) {
+            (Some(family), _) => family,
+            (None, Op::Add) => DynamicOperatorFamilyV1::Add,
+            (None, Op::Multiply) => DynamicOperatorFamilyV1::Mul,
             _ => return Ok(None),
         };
         if binary.operator() == Op::Equal {

@@ -444,7 +444,7 @@ fn declared_bool_result_must_be_proved_exact_bool_by_its_body() {
         declared_i64(): i64 { return 1 }
     }"#;
     for (method, arity) in [("literal", 0), ("equals", 1)] {
-        assert_eq!(disposition(source, "DeclaredBoolV1", method, arity), VerifiedCallableResultDispositionV1::ExactBool, "{method}");
+        assert_eq!(disposition(source, "DeclaredBoolV1", method, arity), VerifiedCallableResultDispositionV1::ExactBool { required_i64_arguments: Box::new([]) }, "{method}");
     }
     for (method, arity) in [("arithmetic", 1), ("integer", 0), ("text", 0)] {
         assert_eq!(

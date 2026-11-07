@@ -1,6 +1,10 @@
 use super::super::VerifiedCallableResultDispositionV1 as Disposition;
 use super::support::disposition;
 
+fn exact_bool(required: &[u32]) -> Disposition {
+    Disposition::ExactBool { required_i64_arguments: required.into() }
+}
+
 #[test]
 fn bool_results_preserve_operator_and_merge_boundaries() {
     let source = r#"static box Predicates {
@@ -8,6 +12,8 @@ fn bool_results_preserve_operator_and_merge_boundaries() {
         equals(x) { return x == " " }
         logic(x) { return x == " " || x == "\t" }
         negated(x) { return !(x == " ") }
+        greater(x) { return x > 1 }
+        both(x, y) { return x > 1 && y < 3 }
         mixed_string(x) { if x == 0 { return true } return "x" }
         mixed_integer(x) { if x == 0 { return false } return 1 }
         arithmetic(x) { return x + 1 }
@@ -17,10 +23,13 @@ fn bool_results_preserve_operator_and_merge_boundaries() {
     for (method, arity) in [("literal", 0), ("equals", 1), ("logic", 1), ("negated", 1)] {
         assert_eq!(
             disposition(source, "Predicates", method, arity),
-            Disposition::ExactBool,
+            exact_bool(&[]),
             "{method}"
         );
     }
+    // R13: a comparison keeps the exact-i64 requirements of its scalar operands.
+    assert_eq!(disposition(source, "Predicates", "greater", 1), exact_bool(&[0]));
+    assert_eq!(disposition(source, "Predicates", "both", 2), exact_bool(&[0, 1]));
     for method in [
         "mixed_string",
         "mixed_integer",
@@ -28,9 +37,8 @@ fn bool_results_preserve_operator_and_merge_boundaries() {
         "bitwise",
         "shift",
     ] {
-        assert_ne!(
-            disposition(source, "Predicates", method, 1),
-            Disposition::ExactBool,
+        assert!(
+            !matches!(disposition(source, "Predicates", method, 1), Disposition::ExactBool { .. }),
             "{method}"
         );
     }
@@ -41,7 +49,7 @@ fn bool_results_preserve_operator_and_merge_boundaries() {
             "is_space",
             1
         ),
-        Disposition::ExactBool
+        exact_bool(&[])
     );
 }
 
@@ -75,7 +83,7 @@ fn bool_proof_preserves_logical_and_not_call_coverage() {
             .unwrap();
     let mut sites = 0;
     for ((caller, site), _) in targets.rows() {
-        assert_eq!(results.disposition(caller), Some(&Disposition::ExactBool));
+        assert_eq!(results.disposition(caller), Some(&exact_bool(&[])));
         assert!(results.call_result(caller, site).is_some());
         assert!(matches!(
             owner.take_for_source(&declarations, caller, site).unwrap(),
@@ -86,7 +94,7 @@ fn bool_proof_preserves_logical_and_not_call_coverage() {
     assert_eq!(sites, 2);
     assert_eq!(
         results.disposition(&key(&declarations, "Predicates", "value", 0)),
-        Some(&Disposition::ExactBool)
+        Some(&exact_bool(&[]))
     );
     owner.finish_empty().unwrap();
 }

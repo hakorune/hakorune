@@ -11,11 +11,12 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     static_source: Option<&terminal_call::StaticExpressionCallIssuerV1<'_>>,
 ) -> Result<ValueId, String> {
     let owner = source.source().owner(); let site = source.source().root().statement().clone();
-    let text = match source.root_class() {
-        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::String) => true,
-        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
-            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64) => false,
+    use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as Class;
+    // R16: a scalar root is an i64 or a Bool; only the operand spelling differs.
+    let (text, bool_root) = match source.root_class() {
+        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(Class::String) => (true, false),
+        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(Class::I64) => (false, false),
+        crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(Class::Bool) => (false, true),
         _ => return Err(freeze("expression/residence-root")),
     };
     let after_residency = if text {
@@ -46,7 +47,8 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     } else { expression_value::finish_scalar_continuation(builder, &mut expression)? };
     let value = match expression.value.as_operand()? {
         crate::mir::instruction::StringInvokeOperand::OwnedString(value) if text => *value,
-        crate::mir::instruction::StringInvokeOperand::NormalInteger(value) if !text => *value,
+        crate::mir::instruction::StringInvokeOperand::NormalInteger(value) if !text && !bool_root => *value,
+        crate::mir::instruction::StringInvokeOperand::NormalBool(value) if bool_root => *value,
         _ => return Err(freeze("expression/residence-root")),
     };
     let body = expression.body;
