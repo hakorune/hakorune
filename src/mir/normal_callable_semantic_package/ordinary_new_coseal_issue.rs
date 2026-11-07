@@ -53,6 +53,10 @@ pub(in crate::mir::normal_callable_semantic_package) use lexical::nullable_recei
 #[path = "ordinary_new_coseal_issue_walk_triggers.rs"]
 mod walk_triggers;
 
+#[path = "ordinary_new_coseal_issue_route.rs"]
+mod route;
+use route::{OwnershipRouteV1, RouteFactsV1, ScanRequestV1, ScanRequestsV1};
+
 #[path = "ordinary_new_coseal_issue_integer_field.rs"]
 mod integer_fields;
 
@@ -217,7 +221,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .keys()
             .find(|key| selected.batch_slot(key) == Some(batch_slot))
             .and_then(|key| source_core_method_calls.get(key));
-        let has_typed_static_walk = typed_static_walk_owners.contains(&owner);
         if !walk_triggers::needs_declaration_walk_v1(batch, selected, omitted_static_callers, app_main_batch_slot, batch_slot)? { continue; }
         let seed_eligible = super::super::result_contract::preflight_declaration(
             declaration,
@@ -278,10 +281,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         batch,
                         instance_constructors,
                     )?;
-                let has_map = walk_triggers::has_map_v1(input, || batch_params().any(|row| {
+                let mut requests = ScanRequestsV1::default();
+                requests.require(ScanRequestV1::TypedStaticCall, typed_static_walk_owners.contains(&owner));
+                requests.require(ScanRequestV1::MapLiteral, walk_triggers::has_map_v1(input, || batch_params().any(|row| {
                     row.kind
                         == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map
-                }));
+                })));
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 // The entry loan proves `me`-receiver reads: the sole Home
                 // ABI issuer bound `me` to this box — shared by the probe,
@@ -323,18 +328,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())
                 });
-                let has_integer_return = borrowed_formal_source.as_ref().is_ok_and(|rows|
-                    rows.integer_return_target(owner) || rows.integer_mul_return_target(input));
-                let has_formal_field_read = borrowed_formal_source.as_ref().is_ok_and(|rows| {
+                requests.require(ScanRequestV1::IntegerReturn, borrowed_formal_source.as_ref().is_ok_and(|rows|
+                    rows.integer_return_target(owner) || rows.integer_mul_return_target(input)));
+                requests.require(ScanRequestV1::FormalFieldRead, borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.formal_field_read_target(input.owner())
-                });
-                let has_dynamic_local_initializer = walk_triggers::has_dynamic_local_initializer_v1(
+                }));
+                requests.require(ScanRequestV1::DynamicLocalInitializer, walk_triggers::has_dynamic_local_initializer_v1(
                     input,
                     dynamic_source_calls,
-                );
-                let has_borrowed_walk = walk_triggers::has_original_borrowed_walk_v1(
+                ));
+                requests.require(ScanRequestV1::BorrowedFormalWalk, walk_triggers::has_original_borrowed_walk_v1(
                     &borrowed_formal_source, parameter_contracts, &lexical_source_targets, owner,
-                )?;
+                )?);
                 let mut probe = |explicit_sites: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
                                  pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1,
                                  completed: &super::super::result_contract::VerifiedCallableResultContractBuilderV1| {
@@ -362,99 +367,70 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         Err(_) => false,
                     }
                 } else { false };
-                let child_new_ready = seed_eligible && !new_sites.is_empty() && readiness;
                 // An owner whose `return` statement carries a `new`
                 // construction needs the homes-aware completion: the
                 // returned `Invoke{NewBox}` is a lifecycle instruction that
                 // consumes the attached homes flow, and the
                 // `Value(Construction)` terminal relation only comes from
                 // the verified walk — the plain seed path cannot issue it.
-                let child_result_ready = seed_eligible && !result_sites.is_empty();
                 // A sealed `Nullable` `me.m(..)` observation needs the
                 // homes-aware verify: the caller's local-call flow row,
                 // the conditional release at exit, and the prior-home
                 // unwind all come from the scanned root flow — the plain
                 // seed path cannot issue any of them. `Object` receiver
                 // observations outside the guarded profile keep the generic floor.
-                let has_receiver_home_call = source_claims::has_receiver_home_call_v1(
+                requests.require(ScanRequestV1::ReceiverHomeCall, source_claims::has_receiver_home_call_v1(
                     owner, &receiver_call_observations,
                     &borrowed_formal_source, parameter_contracts,
-                )?;
-                let has_me_object_field_read = walk_triggers::has_me_object_field_read_v1(
+                )?);
+                requests.require(ScanRequestV1::MeObjectFieldRead, walk_triggers::has_me_object_field_read_v1(
                     input, instance_constructors, &candidates,
                     batch.ordinary_box_coverage(), receiver_proof,
-                )?;
-                let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, input)?;
-                let has_field_scalar_walk = source_claims::requires_field_scalar_walk_v1(&field_write_claims, owner)?;
-                let has_required_scalar_source_walk = super::lexical_instance_call::required_scalar_source_walk_v1(
+                )?);
+                requests.require(ScanRequestV1::StoredTerminal, lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, input)?);
+                requests.require(ScanRequestV1::FieldScalarWrite, source_claims::requires_field_scalar_walk_v1(&field_write_claims, owner)?);
+                requests.require(ScanRequestV1::RequiredScalarSource, super::lexical_instance_call::required_scalar_source_walk_v1(
                     &borrowed_formal_source, &borrowed_i64_results, parameter_contracts, owner, &callable_result_classes,
-                ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: issue.0, issue: issue.1 })?;
-                let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites) || has_current_owner_i64_source;
+                ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: issue.0, issue: issue.1 })?);
+                requests.require(ScanRequestV1::StaticSourceLocal, walk_triggers::has_static_source_local_v1(input, &static_source_sites) || has_current_owner_i64_source);
                 // Print expressions need the same original Home scan even
                 // without constructions, borrowed calls or owned temporaries.
-                let has_print_expression = walk_triggers::has_print_expression_v1(input);
-                let has_condition_expression = walk_triggers::has_condition_expression_v1(input);
-                let has_value_expression_walk = walk_triggers::has_explicit_copy_source_v1(input) || borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_initializer_expression_walk_v1(input));
-                let has_text_return = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input, &borrowed_i64_results));
-                let has_array_residence = source_core_calls.is_some_and(|rows| rows.values()
-                    .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some()));
-                let seed_completion = (seed_eligible
-                    || (top_level_input.is_some() && new_sites.is_empty() && result_sites.is_empty()))
-                    && !has_map
-                    && !callable_result_classes.has_object_call_return(owner)
-                    && !has_receiver_home_call
-                    && !has_me_object_field_read
-                    && !has_stored_terminal
-                    && !has_required_scalar_source_walk
-                    && !has_field_scalar_walk
-                    && !has_static_source_local && !has_typed_static_walk
-                    && !has_print_expression
-                    && !has_condition_expression
-                    && !has_value_expression_walk && !has_text_return
-                    && !has_array_residence
-                    && !has_integer_return
-                    && !has_formal_field_read
-                    && !has_dynamic_local_initializer
-                    && !has_borrowed_walk
-                    && !child_new_ready
-                    && !child_result_ready
-                    && (is_app_main || owner_loan.is_none());
-                let app_main_integer_result = walk_triggers::plain_main_integer_result_v1(
-                    input,
-                    is_app_main,
-                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression && !has_condition_expression && !has_value_expression_walk && !has_text_return && !has_typed_static_walk,
-                    !has_map && owner_loan.is_none(),
-                    &static_source_sites,
+                requests.require(ScanRequestV1::PrintOperand, walk_triggers::has_print_expression_v1(input));
+                requests.require(ScanRequestV1::ConditionOperand, walk_triggers::has_condition_expression_v1(input));
+                requests.require(ScanRequestV1::ValueExpression, walk_triggers::has_explicit_copy_source_v1(input) || borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_initializer_expression_walk_v1(input)));
+                requests.require(ScanRequestV1::TextReturn, borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input, &borrowed_i64_results)));
+                requests.require(ScanRequestV1::NamedArrayResidence, source_core_calls.is_some_and(|rows| rows.values()
+                    .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some())));
+                requests.require(ScanRequestV1::DirectCallOwnerLoan, owner_loan.is_some());
+                requests.require(ScanRequestV1::ObjectCallReturn, callable_result_classes.has_object_call_return(owner));
+                // S3b-R2: the one decision of this function's ownership route.
+                let route = OwnershipRouteV1::decide(
+                    &requests,
+                    RouteFactsV1 {
+                        seed_eligible,
+                        is_app_main,
+                        has_new_sites: !new_sites.is_empty(),
+                        has_result_sites: !result_sites.is_empty(),
+                        has_top_level_input: top_level_input.is_some(),
+                        readiness,
+                    },
+                    |no_sites, no_map_or_owner_loan| walk_triggers::plain_main_integer_result_v1(
+                        input, is_app_main, no_sites, no_map_or_owner_loan, &static_source_sites,
+                    ),
                 );
                 completion_seed::issue_plain_completion(
                     input,
                     declaration,
                     selected,
-                    seed_completion,
-                    app_main_integer_result,
+                    route.plain.seed,
+                    route.plain.app_main_integer,
                     &mut seeds,
                     &mut root_completion,
                     &mut root_terminal_relation,
                     &mut top_level_input,
                 )?;
-                let verified_walk = has_print_expression || has_condition_expression || has_typed_static_walk
-                    || has_value_expression_walk || has_text_return
-                    || has_array_residence
-                    || owner_loan.is_some()
-                    || callable_result_classes.has_object_call_return(owner)
-                    || has_receiver_home_call
-                    || has_me_object_field_read
-                    || has_static_source_local
-                    || has_integer_return
-                    || has_formal_field_read
-                    || has_borrowed_walk
-                    || has_stored_terminal
-                    || has_required_scalar_source_walk
-                    || has_field_scalar_walk
-                    || has_dynamic_local_initializer
-                    || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty()))
-                    || (seed_eligible && (has_map || child_new_ready || child_result_ready));
-                if !verified_walk && has_borrowed_source_calls {
+                // The borrowed-actuals probe is an issuance for other functions, not a route (S3b-R6).
+                if !route.walks() && has_borrowed_source_calls {
                     // Borrow existing control authority without publishing Completion.
                     let observed = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
                         .map_err(|issue| format!("borrowed-actual/control-unavailable: {issue:?}"))
@@ -467,7 +443,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     }
                 }
                 drop(probe);
-                let (home_prefixes, argument_observations, result_prefixes) = if verified_walk {
+                let (home_prefixes, argument_observations, result_prefixes) = if route.walks() {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = integer_fields::terminal_field_consult_v1(instance_constructors,
                         &candidates, batch.ordinary_box_coverage(), &mut staged_reads,
@@ -672,7 +648,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     staged_reads,
                                 )?;
                                 let relation = retain_child_terminal_relations_v1(
-                                    terminal_relation, owner, has_map, |row| {
+                                    terminal_relation, owner, requests.has(ScanRequestV1::MapLiteral), |row| {
                                     let qualified = match row {
                                         TerminalRelationV1::Call(call) => local_static_call(&OwnedExprSiteV1::new(owner, call.call_site().clone()))?
                                             .is_some_and(|claim| claim.is_qualified_terminal()),
