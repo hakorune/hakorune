@@ -231,26 +231,6 @@ fn issue_destinationless_new_fault_v1(
     })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum DeclaredFunctionResultContractV1 {
-    Unannotated,
-    Void,
-    Annotated(Box<str>),
-}
-
-impl DeclaredFunctionResultContractV1 {
-    /// O2: the declaration is absent, or names the box `class` that every exit returns as a
-    /// definite (non-null) object. The name is compared with the class the body returns;
-    /// whether that name is a declared box is the header's answer (`declared_result_box`).
-    pub(crate) fn agrees_with_object_result(&self, class: &str, nullable: bool) -> bool {
-        match self {
-            Self::Unannotated => true,
-            Self::Annotated(name) => !nullable && name.as_ref() == class,
-            Self::Void => false,
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FunctionUnitOriginV1 {
     EmptyBody,
@@ -572,6 +552,10 @@ pub(super) fn is_loop_control_exit(exit: &ResolvedExitRecordV1) -> bool {
 mod new_homes;
 #[path = "function_control_terminal.rs"]
 mod terminal;
+#[path = "function_control_declared_result.rs"]
+mod declared_result;
+pub(crate) use declared_result::DeclaredFunctionResultContractV1;
+use declared_result::declared_result_contract;
 pub(crate) use new_homes::verify_function_completion_with_new_homes_and_argument_observations_v1;
 
 pub(crate) fn verify_function_completion_v1(
@@ -798,12 +782,4 @@ fn verify_declared_return_value(
         );
     }
     Ok(())
-}
-
-fn declared_result_contract(declared_type_name: Option<&str>) -> DeclaredFunctionResultContractV1 {
-    match declared_type_name {
-        None => DeclaredFunctionResultContractV1::Unannotated,
-        Some("void") => DeclaredFunctionResultContractV1::Void,
-        Some(name) => DeclaredFunctionResultContractV1::Annotated(name.into()),
-    }
 }
