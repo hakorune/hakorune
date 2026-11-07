@@ -18,6 +18,8 @@ U14. static契約catalogはstatic宣言だけを対象としておりinstanceの
 U15. 先に必要なstatic入力証拠と後で揃うresolved結果証拠は単一productの段階的な発行で扱い、既知のkind/classを書き換えず追加の証拠を照合する。
 U16. kindの一致だけでは実行を認めず各経路の元の入力・ownership・group・publication証拠と拒否のownerを保持する。
 
+U17. 758行のdirect lifecycleへkind集約を接続する前にMap/構築returnの元検証を責務moduleへ意味不変で移し、独立commitのbinaryで両集合のMIR一致を確認する。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
