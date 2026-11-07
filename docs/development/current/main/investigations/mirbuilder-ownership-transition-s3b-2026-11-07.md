@@ -16,7 +16,7 @@ Status: 規則の文書です。authority ではありません。branch `s3b-ow
 
 - **S3b-R1 責任の ID**: 所有の責任は、binding の名前とは別の ID(Home の origin)を持ち、binding が使えるかどうかと責任がどこにあるかは、別の欄に持つ。
 - **S3b-R1a 欄の対応**: binding が使えるかどうかは `StoredLocal` の欄(`MovedOut` と `Consumed` は使えない)、責任がどこにあるかは `LiveHomeV1` の欄(`Stable(origin)`、`Moved{origin,binding}`)に置く。
-- **S3b-R2 状態を変える操作**: 所有の状態を変えるのは、1 つの型 `HomeTransitionV1` の操作だけである。
+- **S3b-R2 状態を変える操作**: 所有の状態を変えるのは、1 つの型(責任の並び `HomesV1` と、それを `StoredLocal` の所有の欄と一緒に更新する `PrefixLocalFlow` の遷移操作)だけである。
 - **S3b-R2a 取得**: 取得は Normal の辺でだけ責任を生み、呼び出し自体が Fault した時は責任を生まない。
 - **S3b-R2b local の move**: local の move は責任をそのまま残し、元の名前を使えなくし、cleanup の順位を元のままにする。
 - **S3b-R2c call-entry の take**: `take` は入場の時点で caller から外れ、その後は Normal でも Fault でも caller は閉じない。
@@ -24,7 +24,7 @@ Status: 規則の文書です。authority ではありません。branch `s3b-ow
 - **S3b-R2e End**: 試した責任は、Normal でも Fault でも、もう一度は閉じない。
 - **S3b-R2f 返却と格納**: field への格納と返却は、移転先が決まった時点で caller から外れる。
 - **S3b-R2g 使えなくなる種類**: 使えなくなる種類は 2 つで、`MovedOut`(責任が caller に残るか、すでに外れた名前)と `Consumed`(移転先が決まって外れた名前)であり、後の読みで `UseAfterMove` になるかどうかは今のとおり `MovedOut` だけが決める。
-- **S3b-R3 残る責任**: 各辺(Normal、Fault)で残る責任の列は `HomeTransitionV1` が返し、書く所は `homes` と `StoredLocal` の所有の部分を直接触らない。
+- **S3b-R3 残る責任**: 各辺(Normal、Fault)で残る責任の列は `HomesV1` が返し、書く所は `homes` と `StoredLocal` の所有の部分を直接触らない。
 - **S3b-R3a 順序**: Fault の辺の列は、取得の新しい順(今の `prior_homes` の逆順)で、Normal の辺の列は同じ並びから移転した物を除いた列である。
 - **S3b-R8 診断**: 拒否の名前(`UseAfterMove`、`MoveUnsupported`、`HomeFlowBranchDivergent` など)は変えず、`MovedOut` と `Consumed` の違いが診断に出る点を守る。
 
@@ -39,9 +39,15 @@ Status: 規則の文書です。authority ではありません。branch `s3b-ow
 - **S3b-R6a 添字**: 各 Normal の後に残る Fault の添字は「試した Normal 操作を除く全ての責任」(`fault_indices_after_normal_step_v2`)の規則で決め、手で組み立てない。
 - **S3b-R7 検証の独立**: 独立検証と package 側の照合は、計画の型を読まず、emit された CFG と source から期待を作る形のままにする。
 
+## 小さい共通化
+
+- **S3b-R9 比較演算子の表**: 比較演算子から公開の `CompareOp` への写しは `ResolvedBinaryOperatorV1::compare_op` の 1 つの表で、比較でない演算子は `None` を返す。
+- **S3b-R10 スカラ結果の表**: 結果の種類から公開の呼び出し結果への写しは `LocalCallResultClassV1::scalar_invoke_result` の 1 つの表で、I64 と Bool 以外は `None` を返す。
+
 ## 実装の対応
 
-- 歩 B の型は `HomeTransitionV1` で、`homes` を持つ `HomesV1`(中身の Vec は private)と、`PrefixLocalFlow` の所有の欄を、同じ操作で更新する。
-- `HomesV1` の外から `push`、`retain`、`remove`、代入で `homes` を直接書き換える所は 0 にする。
-- 歩 A の型は `FaultCleanupPlanV1` で、builder の `ordinary_new_admission` に置く。
-- builder 側の `pending_operations` は、package 側の同名の関数(`root_cleanup_order_paths.rs`)と別の物なので、計画の method に移して名前を変える。
+- 歩 B の型は `HomesV1`(`home_ownership_transition.rs`)で、中身の Vec は private、変更する操作は `local_flow` の file だけから見える。
+- 歩 B の遷移操作は `PrefixLocalFlow` の `acquire_*`(取得)、`release_to_callee`(実引数と take)、`move_alias`(local の move)、`transfer_out`(返却と格納)、`rebind_text`(置き換え)で、`homes` と `StoredLocal` を同じ操作で更新する。
+- `HomesV1` の外から `push`、`retain`、`remove`、代入で `homes` を直接書き換える所は 0 にする(`commit` は遷移操作が計算した並びを採用する操作)。
+- 歩 A の型は `FaultCleanupPlanV1`(`selected/fault_cleanup_plan.rs`)で、builder の `ordinary_new_admission` に置く。
+- builder 側の一時値と Home の列を作る関数は、package 側の同名の関数(`root_cleanup_order_paths.rs`)と別の物なので、計画の method `owed_operations` に移して名前を変えた。
