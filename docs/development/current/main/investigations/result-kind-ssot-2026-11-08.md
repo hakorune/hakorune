@@ -42,6 +42,8 @@ U30. 分岐・演算・引数置換の受理判定は元のfact投影で同じ�
 U31. bareのFreeFunction宣言にも同じ既存function proofを適用して結果証拠をcatalogへ渡し、static targetのmembership検証集合・入力ABI・公開対象の選択は広げない。
 U32. Map literalとその束縛/分岐による返却は同じexpression環境の値class証拠として運び、元のKnownNonI64受理結果と分離し、Map式が関数のどこかに在ることではkindを決めない。
 
+U33. 既存のdisconnected static verifierの宣言scopeとBool再帰の証明budgetは保持し、packageだけが同じproof engineへFreeFunctionを含むscopeを指定し、値class列の収束budgetと旧受理のbudgetを混ぜない。
+
 ## 段0のownerと読む所（基点3f97209c9d）
 
 | 証拠/決定 | 元owner | 直接の読む所 |
