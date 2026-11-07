@@ -1,38 +1,6 @@
 //! Exact cleanup stack construction for expression-owned values and carriers.
 use super::*;
 
-pub(in crate::mir::builder::ordinary_new_admission::selected) fn pending_operations(
-    acquired: &[(usize, ValueId)],
-    dynamic_carriers: &[(usize, ValueId)],
-    temporary_order: &[usize],
-    homes: &[InvokeOperation],
-) -> Result<Vec<InvokeOperation>, String> {
-    let mut seen = std::collections::BTreeSet::new();
-    if acquired.len() + dynamic_carriers.len() != temporary_order.len()
-        || temporary_order.iter().any(|node| !seen.insert(*node))
-    {
-        return Err(freeze("expression/temporary-order"));
-    }
-    let mut pending = Vec::with_capacity(temporary_order.len() + homes.len());
-    for node in temporary_order.iter().rev() {
-        let string = acquired.iter().find(|(candidate, _)| candidate == node);
-        let carrier = dynamic_carriers
-            .iter()
-            .find(|(candidate, _)| candidate == node);
-        match (string, carrier) {
-            (Some((_, value)), None) => {
-                pending.push(InvokeOperation::String(Operation::End { value: *value }))
-            }
-            (None, Some((_, carrier))) => {
-                pending.push(InvokeOperation::DynamicCarrierEnd { carrier: *carrier })
-            }
-            _ => return Err(freeze("expression/temporary-coverage")),
-        }
-    }
-    pending.extend(homes.iter().cloned());
-    Ok(pending)
-}
-
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_temporary_operations_v1(
     frame: &CheckedExpressionEvaluationV1,
     comparison: usize,
@@ -307,7 +275,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_tex
     if !(operand.is_text() || snapshot) || expression.purpose_acquisition.is_some() {
         return Err(freeze("rebind-expression/materialize-domain"));
     }
-    let pending = pending_operations(&expression.body.acquired, &expression.body.dynamic_carriers,
+    let pending = FaultCleanupPlanV1::pending(&expression.body.acquired, &expression.body.dynamic_carriers,
         &expression.body.temporary_order, &expression.body.homes)?;
     let (value, _, pair) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
         InvokeOperation::String(Operation::Materialize { value: expression.value.as_operand()?.clone() }), expression.body.fault_frame,
@@ -383,10 +351,10 @@ fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressi
             }
         }
     }
-    let normal = pending_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &[])?;
+    let normal = FaultCleanupPlanV1::owed_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &[])?;
     let mut homes = body.homes.clone();
     if let Some(value) = residence { homes.insert(0, InvokeOperation::String(Operation::End { value })); }
-    let fault = pending_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &homes)?;
+    let fault = FaultCleanupPlanV1::owed_operations(&body.acquired, &body.dynamic_carriers, &body.temporary_order, &homes)?;
     finish_body_cleanup(builder, body, normal, fault, displaced)
 }
 
@@ -402,45 +370,10 @@ fn finish_body_cleanup(
     let clean = writer.reserve_block(builder)?;
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
-    let mut normal_indices: Vec<_> = (0..normal.len()).collect();
-    let mut fault = fault;
-    let mut displaced_after = None;
-    if let Some(old) = displaced {
-        let index = fault.iter().position(|operation| *operation == old)
-            .ok_or_else(|| freeze("rebind-expression/old-home-missing"))?;
-        if fault.iter().filter(|operation| **operation == old).count() != 1 || normal_indices.contains(&index) {
-            return Err(freeze("rebind-expression/old-home-duplicate"));
-        }
-        if normal.is_empty() {
-            normal_indices.push(index);
-            normal.push(old);
-        } else {
-            // The installed replacement owes the displaced End before any
-            // temporary's End, on Normal and on Fault alike.
-            let installed = normal.len();
-            fault.remove(index);
-            fault.insert(0, old.clone());
-            normal.insert(0, old);
-            normal_indices = (0..normal.len()).collect();
-            let position = (index + 1).checked_sub(installed + 2)
-                .ok_or_else(|| freeze("rebind-expression/old-home-order"))?;
-            displaced_after = Some(crate::mir::normal_callable_semantic_package::displaced_replacement_fault_sequences_v2(
-                &mut fault, normal.len(), position)?);
-        }
-    }
-    let after = match displaced_after {
-        Some(after) => after,
-        None => (0..normal.len()).map(|step|
-            crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &normal_indices, step))
-            .collect::<Result<Vec<_>, _>>()?,
-    };
-    // The Local terminal is an infallible Jump. Its child acquisitions already
-    // own their Fault paths; do not emit a detached terminal-acquisition suffix.
-    // Without child cleanup, there is no new fallible operation and no Fault
-    // suffix consumer. Do not retain a detached ReturnFault for finishing to drop.
-    let clean_entry = if normal.is_empty() { clean } else {
+    let plan = FaultCleanupPlanV1::body(normal, fault, displaced)?;
+    let clean_entry = if plan.normal().is_empty() { clean } else {
         root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, body.fault_frame, clean,
-            &normal, &fault, &after, &[], &mut body.bindings)?.clean
+            &plan, &mut body.bindings)?.clean
     };
     let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean_entry, edge_args: None })?;
     body.bindings.push(terminal.clone());

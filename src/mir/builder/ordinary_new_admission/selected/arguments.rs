@@ -594,19 +594,13 @@ pub(super) fn finish_new_arguments_v1(builder: &mut MirBuilder, ledger: &Ordinar
     use super::{RawRootGraphWriterV1, RootGraphWriterPortV1};
     let normal = temporary_ends_v1(arguments)?;
     if normal.is_empty() { return Ok(()); }
-    let (_, mut fault) = ledger.new_argument_object_cleanup_v1(site, result)?;
-    let first = fault.len();
-    fault.extend(normal.iter().cloned());
-    fault.extend(ledger.new_argument_home_unwind_v1(site, true)?);
-    let indices = (first..first+normal.len()).collect::<Vec<_>>();
-    let residuals = (0..normal.len()).map(|step|
-        crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &indices, step))
-        .collect::<Result<Vec<_>, _>>()?;
+    let (_, object_cleanup) = ledger.new_argument_object_cleanup_v1(site, result)?;
+    let plan = super::FaultCleanupPlanV1::new_arguments(object_cleanup, normal, ledger.new_argument_home_unwind_v1(site, true)?)?;
     let mut writer = RawRootGraphWriterV1;
     let clean = writer.reserve_block(builder)?;
     builder.ensure_block_exists(clean)?;
     let graph = super::root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, frame,
-        clean, &normal, &fault, &residuals, &[], bindings)?;
+        clean, &plan, bindings)?;
     bindings.push(writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?);
     builder.start_new_block(clean)
 }

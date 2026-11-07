@@ -252,7 +252,7 @@ pub(in crate::mir::builder) fn emit_with_dynamic_and_argument_frames(
     let mut writer = RawRootGraphWriterV1;
     let (value, result, pair) = super::super::super::expression_value::emit_scalar_operation_with_pending_v1(
         builder, &mut writer, InvokeOperation::DynamicInvocation(operation.clone()), fault_frame,
-        &unwind, bindings,
+        &FaultCleanupPlanV1::unwind(unwind), bindings,
     )?;
     if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
         return Err(freeze("dynamic-expression/result-kind"));

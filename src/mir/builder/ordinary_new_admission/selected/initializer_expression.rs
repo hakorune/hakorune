@@ -96,9 +96,7 @@ fn emit_shared_initializer_common_v1(
 ) -> Result<PendingInitializerExpressionV1, String> {
     let frame = state.borrow_fault_frame(builder)?;
     let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
-    let outward = builder.next_block_id();
-    append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, &mut bindings)?;
-    let fault = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
+    let fault = fault_landing_for(builder, frame, &FaultCleanupPlanV1::unwind(unwind), &mut bindings)?;
     let operation = if is_clone {
         crate::mir::instruction::SharedInvokeOperation::Clone { descriptor: descriptor.clone(), handle: payload }
     } else {

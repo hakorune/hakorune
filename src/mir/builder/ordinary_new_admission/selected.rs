@@ -10,6 +10,9 @@ pub(in crate::mir::builder) mod owned_array;
 pub(in crate::mir::builder) mod read_argument;
 #[path = "selected/map.rs"]
 pub(in crate::mir::builder) mod map;
+#[path = "selected/fault_cleanup_plan.rs"]
+mod fault_cleanup_plan;
+pub(in crate::mir::builder) use fault_cleanup_plan::FaultCleanupPlanV1;
 #[path = "selected/root_graph.rs"]
 pub(in crate::mir::builder) mod root_graph;
 #[path = "selected/bool_condition.rs"]
@@ -173,7 +176,7 @@ fn emit_selected_new(
         MirInstruction::ReturnFault { fault_frame: frame },
         &mut bindings,
     )?;
-    let allocation_fault = cleanup_chain(builder, frame, prior, outward, &mut bindings)?;
+    let allocation_fault = cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(prior), outward, &mut bindings)?;
     let mut reclaim = None;
     let birth_fault = if matches!(constructor, OrdinaryNewConstructorDispositionV1::Birth(_)) {
         let origin = reclaim_origin.ok_or_else(|| freeze("reclaim-origin-missing"))?;
@@ -637,19 +640,33 @@ pub(in crate::mir::builder) fn emit_terminal_map_get_return(
     )
 }
 
+/// The Fault-only chain of a plan in front of `tail`: no Normal End, so every step
+/// continues to the next one on Normal and on Fault alike.
 pub(in crate::mir::builder) fn cleanup_chain(
     builder: &mut MirBuilder,
     frame: ValueId,
-    operations: Vec<InvokeOperation>,
+    plan: &FaultCleanupPlanV1,
     tail: BasicBlockId,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<BasicBlockId, String> {
     let mut next = tail;
     // Build links backwards; execution preserves the source-issued order.
-    for operation in operations.into_iter().rev() {
+    for operation in plan.fault().iter().rev().cloned() {
         next = cleanup_step(builder, frame, operation, next, next, bindings)?;
     }
     Ok(next)
+}
+
+/// The shared Fault landing: a `ReturnFault` block and the plan's chain in front of it.
+pub(in crate::mir::builder) fn fault_landing_for(
+    builder: &mut MirBuilder,
+    frame: ValueId,
+    plan: &FaultCleanupPlanV1,
+    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<BasicBlockId, String> {
+    let outward = builder.next_block_id();
+    append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, bindings)?;
+    cleanup_chain(builder, frame, plan, outward, bindings)
 }
 
 fn cleanup_step(

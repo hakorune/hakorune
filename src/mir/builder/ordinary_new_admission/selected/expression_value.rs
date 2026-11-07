@@ -18,7 +18,6 @@ type Binding = (BasicBlockId, MirInstruction);
 mod cleanup;
 pub(super) use cleanup::{
     bool_condition_temporary_operations_v1, finish_dynamic_initializer_continuation,
-    pending_operations,
     finish_scalar_continuation, finish_residence_continuation, finish_residence_with_displaced_continuation, finish_deferred_argument_continuation, materialize_text_root, finish_rebind_continuation, finish_value_continuation_v1, finish_bool_condition_continuation_v1,
 };
 
@@ -363,9 +362,9 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             let path_text = matches!(descriptor.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_));
             let value = if descriptor.requires_checked_field_read_v1() {
                 let normal = writer.reserve_block(builder)?;
-                let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
+                let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                 let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
-                    normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
+                    normal, &pending, &mut bindings)?;
                 let (value, pair, prefix) = builder.append_checked_received_field_read_v1(base, &descriptor,
                     &site, ledger, fault_frame, normal, graph.acquisition_fault)?;
                 // A direct path uses the SAME committed root read. Nested
@@ -452,9 +451,9 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let text = matches!(source.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_));
                 let value = if source.requires_checked_field_read_v1() {
                     let normal = writer.reserve_block(builder)?;
-                    let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
+                    let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
-                        normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
+                        normal, &pending, &mut bindings)?;
                     let (value, pair, prefix) = builder.append_checked_received_field_read_v1(base, &source,
                         &site, ledger, fault_frame, normal, graph.acquisition_fault)?;
                     ledger.record_enclosed_checked_local_field_read_v1(&site, &source,
@@ -504,7 +503,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         index, fault_frame, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
                         &homes, &mut bindings)?,
                     operation @ InvokeOperation::DynamicArrayGet { .. } => {
-                        let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
+                        let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                         let (value, result, _) = emit_scalar_operation_with_pending_v1(
                             builder, &mut writer, operation, fault_frame, &pending, &mut bindings)?;
                         if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
@@ -562,7 +561,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             }
             Node::Binary(_) if frame.operations().iter().any(|operation|
                 operation.node() == index && operation.normal_result_v1() == Some(ResultKind::TrivialBool)) => {
-                let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
+                let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                 let value = emit_checked_scalar_condition_v1(builder, frame, index, &values, None,
                     fault_frame, &pending, &mut bindings)?;
                 values[index] = Some(EvaluatedExpressionValueV1::Bool(value));
@@ -636,7 +635,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                                 Operand::Dynamic(value)
                             }
                             OperatorFamily::Sub if frame.owned_result_nodes().contains(&index) => {
-                                let pending = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
+                                let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                                 let (value, result, _) = emit_scalar_operation_with_pending_v1(
                                     builder,
                                     &mut writer,
@@ -698,7 +697,7 @@ pub(super) fn emit_string_operation_v1(
     dynamic_carriers: &[(usize, ValueId)], temporary_order: &[usize],
     homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind), String> {
-    let pending = pending_operations(acquired, dynamic_carriers, temporary_order, homes)?;
+    let pending = FaultCleanupPlanV1::pending(acquired, dynamic_carriers, temporary_order, homes)?;
     let (value, result, _) = emit_scalar_operation_with_pending_v1(builder, writer, InvokeOperation::String(operation),
         fault_frame, &pending, bindings)?;
     if result == crate::mir::instruction::InvokeNormalResultKind::OwnedString { acquired.push((node, value)); }
@@ -711,7 +710,7 @@ pub(super) fn emit_string_operation_v1(
 pub(super) fn emit_checked_scalar_condition_v1(
     builder: &mut MirBuilder, frame: &CheckedExpressionEvaluationV1, node: usize,
     values: &[Option<EvaluatedExpressionValueV1>], receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
-    fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,
+    fault_frame: ValueId, pending: &FaultCleanupPlanV1, bindings: &mut Vec<Binding>,
 ) -> Result<ValueId, String> {
     let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(frame, node, values, receiver)?;
     let (normal, kind) = match (plan.operation(), plan.direct_integer()) {
@@ -739,12 +738,12 @@ pub(super) fn emit_checked_scalar_condition_v1(
 
 pub(super) fn emit_scalar_operation_with_pending_v1(
     builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: InvokeOperation,
-    fault_frame: ValueId, pending: &[InvokeOperation], bindings: &mut Vec<Binding>,
+    fault_frame: ValueId, pending: &FaultCleanupPlanV1, bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind, [Binding; 2]), String> {
     operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
     let normal = writer.reserve_block(builder)?;
     let graph = root_graph::emit_cleanup_suffixes_with_writer(writer, builder, fault_frame,
-        normal, &[], pending, &[], &(0..pending.len()).collect::<Vec<_>>(), bindings)?;
+        normal, pending, bindings)?;
     emit_scalar_operation_to_landing_v1(builder, writer, operation, fault_frame,
         normal, graph.acquisition_fault, bindings)
 }

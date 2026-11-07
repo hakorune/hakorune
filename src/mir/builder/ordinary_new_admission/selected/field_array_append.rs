@@ -51,9 +51,7 @@ fn emit_push(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState
     let frame_binding = fault_frame_binding(builder, state, frame)?;
     if !bindings.contains(&frame_binding) { bindings.push(frame_binding); }
     let mut fault_bindings = Vec::new();
-    let outward = builder.next_block_id();
-    append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, &mut fault_bindings)?;
-    let fault = cleanup_chain(builder, frame, operations, outward, &mut fault_bindings)?;
+    let fault = fault_landing_for(builder, frame, &FaultCleanupPlanV1::unwind(operations), &mut fault_bindings)?;
     bindings.extend(fault_bindings.iter().cloned());
     let site_id = builder.next_array_write_site_id();
     let mut invoke = Vec::new();

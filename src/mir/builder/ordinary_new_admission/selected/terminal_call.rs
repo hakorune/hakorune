@@ -371,7 +371,7 @@ pub(in crate::mir::builder) fn emit_local(
         MirInstruction::ReturnFault { fault_frame: frame },
         &mut bindings,
     )?;
-    let fault_landing = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
+    let fault_landing = cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(unwind), outward, &mut bindings)?;
     let invoke = MirInstruction::Invoke {
         operation: InvokeOperation::Call {
             call,
@@ -474,7 +474,7 @@ pub(in crate::mir::builder) fn emit_local_lexical(
     )?;
     // The call's fault path unwinds the prior Homes exactly like a `new`
     // emission does — the receiver Home can never leak past a fault.
-    let fault_landing = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
+    let fault_landing = cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(unwind), outward, &mut bindings)?;
     let arguments = relation
         .arguments()
         .iter()

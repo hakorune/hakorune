@@ -160,16 +160,13 @@ pub(super) fn emit_cleanup_suffixes_with_writer(
     builder: &mut MirBuilder,
     frame: ValueId,
     clean: BasicBlockId,
-    normal_operations: &[InvokeOperation],
-    fault_operations: &[InvokeOperation],
-    after_normal: &[Vec<usize>],
-    acquisition: &[usize],
+    plan: &FaultCleanupPlanV1,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<CleanupSuffixGraphV1, String> {
     emit_cleanup_actions_with_writer(writer, builder, frame, clean,
-        &normal_operations.iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
-        &fault_operations.iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
-        after_normal, acquisition, bindings)
+        &plan.normal().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
+        &plan.fault().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
+        plan.after_normal(), plan.acquisition(), bindings)
 }
 
 pub(super) fn emit_cleanup_actions_with_writer(
@@ -206,17 +203,14 @@ pub(super) fn emit_cleanup_suffixes_to_fault_with_writer(
     builder: &mut MirBuilder,
     frame: ValueId,
     clean: BasicBlockId,
-    normal_operations: &[InvokeOperation],
-    fault_operations: &[InvokeOperation],
-    after_normal: &[Vec<usize>],
-    acquisition: &[usize],
+    plan: &FaultCleanupPlanV1,
     fault_terminal: BasicBlockId,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<CleanupSuffixGraphV1, String> {
     emit_cleanup_actions_to_fault_with_writer(writer, builder, frame, clean,
-        &normal_operations.iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
-        &fault_operations.iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
-        after_normal, acquisition, fault_terminal, bindings)
+        &plan.normal().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
+        &plan.fault().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
+        plan.after_normal(), plan.acquisition(), fault_terminal, bindings)
 }
 
 pub(super) fn emit_cleanup_actions_to_fault_with_writer(
@@ -399,12 +393,14 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
     if !operations.is_empty() || ingress_operation.is_some() {
         let frame = frame_port.materialize(builder)?;
         frame_value = Some(frame);
+        let root_plan = FaultCleanupPlanV1::from_residuals(
+            operations.iter().map(|origin| origin.operation().clone()).collect(),
+            fault_operations,
+            fault_sequences.after_normal.clone(),
+            if ingress_operation.is_some() { fault_sequences.acquisition.clone() } else { Vec::new() },
+        );
         let cleanup = root_graph::emit_cleanup_suffixes_with_writer(
-            writer, builder, frame, clean,
-            &operations.iter().map(|origin| origin.operation().clone()).collect::<Vec<_>>(),
-            &fault_operations, &fault_sequences.after_normal,
-            if ingress_operation.is_some() { &fault_sequences.acquisition } else { &[] },
-            &mut bindings,
+            writer, builder, frame, clean, &root_plan, &mut bindings,
         )?;
         clean = cleanup.clean;
         origins.extend(operations.into_iter().zip(cleanup.normal_origins)
@@ -420,16 +416,12 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
             let mut prefix_receipt = None;
             if !argument_ends.is_empty() {
                 let cancellation = fault_sequences.result_cancellation_v1()?;
-                let mut pending = argument_ends.to_vec();
-                pending.extend(cancellation);
-                let after: Vec<_> = (0..argument_ends.len())
-                    .map(|i| ((i + 1)..pending.len()).collect()).collect();
-                let acquisition: Vec<_> = (0..argument_ends.len()).collect();
+                let argument_plan = FaultCleanupPlanV1::operation(argument_ends.to_vec(), &cancellation, Vec::new())?;
                 let continuation_block = writer.reserve_block(builder)?;
                 let continuation = (continuation_block, MirInstruction::Jump { target: clean, edge_args: None });
                 writer.append_terminated(builder, continuation.0, continuation.1.clone(), &mut bindings)?;
                 let prefix = emit_cleanup_suffixes_to_fault_with_writer(writer, builder, frame,
-                    continuation_block, argument_ends, &pending, &after, &acquisition, fault, &mut bindings)?;
+                    continuation_block, &argument_plan, fault, &mut bindings)?;
                 normal_landing = prefix.clean;
                 fault_landing = prefix.acquisition_fault;
                 prefix_receipt = Some((continuation, prefix.normal_origins));
@@ -485,31 +477,16 @@ pub(in crate::mir::builder) fn prepare_operation_cleanup_v1(
 ) -> Result<(BasicBlockId, Option<OperationCleanupV1>), String> {
     let result = if normal_ends.is_empty() {
         append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, bindings)?;
-        (cleanup_chain(builder, frame, unwind, outward, bindings)?, None)
+        (cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(unwind), outward, bindings)?, None)
     } else {
-        let mut fault_operations = normal_ends.clone();
-        fault_operations.extend_from_slice(normal_fault_cancellation);
-        fault_operations.extend(unwind);
-        let mut seen = std::collections::BTreeSet::new();
-        for operation in &fault_operations {
-            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
-                | InvokeOperation::DynamicCarrierEnd { carrier: value } = operation {
-                if !seen.insert(*value) { return Err(freeze("call-argument/duplicate-acquisition")); }
-            }
-        }
+        let plan = FaultCleanupPlanV1::operation(normal_ends, normal_fault_cancellation, unwind)?;
+        plan.reject_duplicate_acquisition()?;
         let clean = builder.next_block_id();
         let next = builder.next_block_id();
         let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
         append_block(builder, clean, continuation.1.clone(), bindings)?;
-        let after_normal: Vec<_> = (0..normal_ends.len())
-            .map(|index| ((index + 1)..fault_operations.len()).collect()).collect();
-        // A result exists only after operation Normal. Its cancellation belongs
-        // to Normal cleanup Fault suffixes, never the original operation Fault.
-        let call_fault: Vec<_> = (0..normal_ends.len())
-            .chain((normal_ends.len() + normal_fault_cancellation.len())..fault_operations.len()).collect();
         let graph = emit_cleanup_suffixes_with_writer(
-            &mut RawRootGraphWriterV1, builder, frame, clean, &normal_ends, &fault_operations,
-            &after_normal, &call_fault, bindings)?;
+            &mut RawRootGraphWriterV1, builder, frame, clean, &plan, bindings)?;
         (graph.acquisition_fault, Some((graph.clean, next, continuation, graph.normal_origins)))
     };
     Ok(result)

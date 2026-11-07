@@ -19,18 +19,10 @@ pub(in crate::mir::builder) fn emit_construction(
     ledger.begin_owned_array_construction(source)?;
     let frame = state.borrow_fault_frame(builder)?;
     let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
-    let outward = builder.next_block_id();
-    append_block(
-        builder,
-        outward,
-        MirInstruction::ReturnFault { fault_frame: frame },
-        &mut bindings,
-    )?;
-    let allocation_fault = cleanup_chain(
+    let allocation_fault = fault_landing_for(
         builder,
         frame,
-        ledger.owned_array_construction_unwind(&site)?,
-        outward,
+        &FaultCleanupPlanV1::unwind(ledger.owned_array_construction_unwind(&site)?),
         &mut bindings,
     )?;
     let array = super::invoke_operation::emit(
@@ -106,18 +98,10 @@ pub(in crate::mir::builder) fn emit_read(
         .map_err(|issue| format!("{}: {issue:?}", freeze("owned-array-read-receiver")))?;
     let frame = state.borrow_fault_frame(builder)?;
     let mut fault_bindings = vec![fault_frame_binding(builder, state, frame)?];
-    let outward = builder.next_block_id();
-    append_block(
-        builder,
-        outward,
-        MirInstruction::ReturnFault { fault_frame: frame },
-        &mut fault_bindings,
-    )?;
-    let fault = cleanup_chain(
+    let fault = fault_landing_for(
         builder,
         frame,
-        ledger.owned_array_read_fault_unwind_v1(call, &source)?,
-        outward,
+        &FaultCleanupPlanV1::unwind(ledger.owned_array_read_fault_unwind_v1(call, &source)?),
         &mut fault_bindings,
     )?;
     let block = builder
@@ -315,18 +299,11 @@ pub(in crate::mir::builder) fn emit_append(
     if !bindings.contains(&frame_binding) {
         bindings.push(frame_binding);
     }
-    let outward = builder.next_block_id();
-    append_block(
-        builder,
-        outward,
-        MirInstruction::ReturnFault { fault_frame: frame },
-        &mut bindings,
-    )?;
     let unwind = cancellation
         .into_iter()
         .chain(ledger.owned_array_append_unwind_v1(&source)?)
         .collect();
-    let fault = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
+    let fault = fault_landing_for(builder, frame, &FaultCleanupPlanV1::unwind(unwind), &mut bindings)?;
     let mut append = Vec::new();
     let operation = if dynamic_carrier_append {
         InvokeOperation::DynamicCarrierArray(CarrierArray::Append {

@@ -93,7 +93,7 @@ impl crate::mir::MirBuilder {
         source: &Rc<LocalFieldReadSourceV1>, read: Rc<crate::mir::builder::ExactLexicalReadV1>,
         state: &mut CallableSemanticLoweringState, destination: Option<ValueId>,
     ) -> Result<(ValueId, (BasicBlockId, MirInstruction)), String> {
-        use crate::mir::builder::ordinary_new_admission::selected::{append_block, cleanup_chain};
+        use crate::mir::builder::ordinary_new_admission::selected::{fault_landing_for, FaultCleanupPlanV1};
         let required = ledger.source_field_requirement_v1(site)?
             .ok_or("[freeze:contract][ordinary-field-read/checked-source-context-missing]")?;
         if state.owner() != site.owner() || source.field() != field
@@ -115,9 +115,7 @@ impl crate::mir::MirBuilder {
             return Err("[freeze:contract][ordinary-field-read/checked-frame-append]".into());
         }
         let mut fault = Vec::new();
-        let outward = self.next_block_id();
-        append_block(self, outward, MirInstruction::ReturnFault { fault_frame }, &mut fault)?;
-        let landing = cleanup_chain(self, fault_frame, operations, outward, &mut fault)?;
+        let landing = fault_landing_for(self, fault_frame, &FaultCleanupPlanV1::unwind(operations), &mut fault)?;
         let (base, shared_prefix) = self.append_checked_field_receiver_v1(base, source, site, ledger, fault_frame, landing)?;
         normal_prefix.extend(shared_prefix);
         let normal = self.next_block_id();

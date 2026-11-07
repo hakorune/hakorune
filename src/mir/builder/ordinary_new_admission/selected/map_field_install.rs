@@ -84,9 +84,9 @@ pub(in crate::mir::builder) fn emit(
         &mut outward_rows,
     )?;
     let mut prior_faults = outward_rows.clone();
-    let fault = cleanup_chain(builder, frame, prior, outward, &mut prior_faults)?;
+    let fault = cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(prior), outward, &mut prior_faults)?;
     let mut normal_faults = outward_rows;
-    let end_fault = cleanup_chain(builder, frame, normal_homes, outward, &mut normal_faults)?;
+    let end_fault = cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(normal_homes), outward, &mut normal_faults)?;
     let mut rows = Vec::new();
     let (outcome, normal) = invoke_operation::emit(builder, frame, operation, fault, &mut rows)?;
     let outcome = outcome.ok_or_else(|| freeze("map-get-shape"))?;

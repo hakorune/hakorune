@@ -40,9 +40,7 @@ pub(super) fn prepare(
             if !bindings.contains(&shared) { bindings.push(shared); }
             let mut fault = Vec::new();
             let landing = if let Some(landing) = prior_fault { landing } else {
-                let outward = builder.next_block_id();
-                append_block(builder, outward, MirInstruction::ReturnFault { fault_frame: frame }, &mut fault)?;
-                cleanup_chain(builder, frame, unwind, outward, &mut fault)?
+                fault_landing_for(builder, frame, &FaultCleanupPlanV1::unwind(unwind), &mut fault)?
             };
             bindings.extend_from_slice(&fault);
             let start = bindings.len();

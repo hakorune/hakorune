@@ -68,7 +68,7 @@ fn emit_flow(
     let allocation_fault = cleanup_chain(
         builder,
         frame,
-        ledger.map_outer_operations(site, 0)?,
+        &FaultCleanupPlanV1::unwind(ledger.map_outer_operations(site, 0)?),
         outward,
         &mut bindings,
     )?;
@@ -310,7 +310,7 @@ fn map_fault(
 ) -> Result<BasicBlockId, String> {
     let mut operations = vec![InvokeOperation::Map(Map::End { map })];
     operations.extend(ledger.map_outer_operations(site, installed)?);
-    cleanup_chain(builder, frame, operations, tail, bindings)
+    cleanup_chain(builder, frame, &FaultCleanupPlanV1::unwind(operations), tail, bindings)
 }
 
 fn invoke(

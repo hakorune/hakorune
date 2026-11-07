@@ -81,9 +81,7 @@ pub(in crate::mir::builder) fn emit_local(builder: &mut MirBuilder,
     let operation = read.operation(CallValidationContextV1::Lowering(ledger),
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     let mut faults = Vec::new();
-    let outward = builder.next_block_id();
-    append_block(builder, outward, MirInstruction::ReturnFault { fault_frame }, &mut faults)?;
-    let fault = cleanup_chain(builder, fault_frame, operations, outward, &mut faults)?;
+    let fault = fault_landing_for(builder, fault_frame, &FaultCleanupPlanV1::unwind(operations), &mut faults)?;
     let mut invoke_rows = Vec::new();
     let (value, normal) = invoke_operation::emit(builder, fault_frame, operation, fault, &mut invoke_rows)?;
     let value = value.ok_or_else(|| freeze("map-get-shape"))?;

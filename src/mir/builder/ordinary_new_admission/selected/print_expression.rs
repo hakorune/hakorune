@@ -2,7 +2,6 @@
 //! No AST interpretation, target selection or value-class inference lives here.
 use super::*;
 use crate::mir::instruction::StringInvokeOperation as Operation;
-use super::expression_value::pending_operations;
 use crate::mir::normal_callable_semantic_package::{
     EmittedPrintExpressionProjectionV1, LexicalInstanceCallDispositionRowV1,
 };
@@ -35,14 +34,11 @@ pub(in crate::mir::builder) fn emit(
     let clean = writer.reserve_block(builder)?;
     let continuation = (clean, MirInstruction::Jump { target: next, edge_args: None });
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut bindings)?;
-    let normal = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &[])?;
-    let fault = pending_operations(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
-    let after: Vec<_> = (0..normal.len()).map(|index| ((index + 1)..fault.len()).collect()).collect();
     // A discarded call's Jump cannot fault. Only actual cleanup steps need
     // residual Fault suffixes; a Print Invoke also needs its entry-Fault path.
-    let acquisition: Vec<_> = if frame.is_discard() { Vec::new() } else { (0..fault.len()).collect() };
+    let plan = FaultCleanupPlanV1::temporaries_then_homes(&acquired, &dynamic_carriers, &temporary_order, &homes, !frame.is_discard())?;
     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame, clean,
-        &normal, &fault, &after, &acquisition, &mut bindings)?;
+        &plan, &mut bindings)?;
     // A discarded statement call has no sink: control falls into the same
     // Normal cleanup that ends the call's owned result.
     let print = if frame.is_discard() {

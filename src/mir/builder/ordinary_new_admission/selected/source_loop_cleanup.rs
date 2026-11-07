@@ -37,8 +37,9 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     let continuation = builder.next_block_id();
     builder.ensure_block_exists(continuation)?;
     let mut writer = LocalizedCleanupWriterV2 { operations: Vec::new() };
+    let cleanup = FaultCleanupPlanV1::from_residuals(plan.normal_operations(), plan.fault_operations(), plan.residuals().to_vec(), Vec::new());
     let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, frame, continuation,
-        &plan.normal_operations(), &plan.fault_operations(), plan.residuals(), &[], &mut bindings)?;
+        &cleanup, &mut bindings)?;
     // graph.clean is an ENTRY; only continuation becomes the Loop predecessor.
     let jump = writer.emit_current(builder, MirInstruction::Jump { target: graph.clean, edge_args: None })?;
     bindings.push(jump);

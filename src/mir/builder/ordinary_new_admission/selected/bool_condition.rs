@@ -197,8 +197,8 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     let normal_temporaries = super::expression_value::bool_condition_temporary_operations_v1(
         frame.evaluation(), node, &body,
     )?;
-    let pending: Vec<_> = normal_temporaries.iter().cloned()
-        .chain(body.homes.iter().cloned()).collect();
+    let pending = super::FaultCleanupPlanV1::unwind(normal_temporaries.iter().cloned()
+        .chain(body.homes.iter().cloned()).collect());
     let value = super::expression_value::emit_checked_scalar_condition_v1(builder,
         frame.evaluation(), node, &body.values, receiver.as_ref(), body.fault_frame, &pending, &mut body.bindings)?;
     if let Some(receiver) = &receiver { body.bindings.extend(receiver.original_copy_dependencies_v1()?.iter().cloned()); }
