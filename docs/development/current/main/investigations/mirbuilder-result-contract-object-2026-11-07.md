@@ -61,3 +61,12 @@ Status: 規則の文書です。authority ではありません。branch `owned-
 - 基準(main `691bd3da89`)で、宣言の無い `static box Main { mk(v: i64) { return new Leaf(v) }  main() { local a = Main.mk(5)  return a.get() } }` は `[mir/main-import-view/selected-header-missing]` で拒否される。引数の無い `mk()` の形も同じ。
 - 原因は T11: qualified static call の callee に物理 header の行を要り、header の行は `result` が scalar の callee にしか作られない(`physical_header.rs:91-110`)。static の `local x = Main.m()` は T12 の `Static(StaticScalarCallClaimV1)`(scalar と Text の kind)が受け、Text は引数の無い形(`is_zeroarg_text_v1`)に限られる。**Text の `t(x: i64): String` も基準で同じ名前で拒否される**(String の series の監査)。
 - したがって「static の object の結果」は、結果の契約の問題ではなく、**引数つきの static call が scalar 以外の結果を受ける入口の欠如**で、Text の zero-arg 専用の gate 約 10 か所(`qualified_static_incoming_source.rs`、`static_input_validation.rs`、`ordinary_new_borrowed_static_*` ほか)を、Handle の結果に広げる別の series が要る。形ごとの file を増やさない決まりに反するので、この series では止める。
+
+## Opus の確認(2026-11-07)
+
+- 規則と一覧の commit `bc6790bbc7` は、最初の実装の commit `d2e3adc507` より後(指示は先)。差分を全部読み、型の名前を綴りで当てる分岐と形を当てる分岐が無い事を確かめた。宣言の名前と本体の box の名前を比べる所(`function_proof.rs`、`agrees_with_object_result`)は、名前解決の答え `declared_result_box` が header で先に box と決めた名前どうしの比較。
+- 最後の `hakorune`(`68dcd9a9a0`)は、Opus が同じ commit から build し直した binary と、worker の入力 62 本で `--dump-mir` が同じだった。直しの 2 commit(`86571ebb18`、`1ba243ec53`)は、329 入力と 1,459 本と Opus の入力 97 本で MIR が同じで、全 lib の赤は 231(基準 232 から競合で赤になる 1 本が通った。新しい赤 0)。
+- 指示書に無い 37 形を流した(`/mnt/workdisk/claude-scratch/owned-object-audit/in/`)。出力の誤りは 0。宣言あり・なしの答えは全部の組で揃い、違うのは null を返す形の拒否の名前だけ(宣言あり `artifact-source-unavailable`、なし `root-instance-call-new-missing`)。
+- 宣言が無くても前から拒否される形: 引数つきの `m.mk(5)`、受けた後の `a.get() + 1`、`a = m.mk()`、`next(): Maker`、`return me.f`、`take` の formal の返却、結果を使わない `m.mk()` の文。nullable の結果も同じ所で止まる見込み。
+- 指示書の完了の条件に、基準で宣言なしでも通らない形(static、転送、`me.mk()` の後の method、受け取った後の Fault)を入れたのは Opus の誤りで、goal の判定が 15 回続けて止めた。static は、ユーザーの決定で道の調査を先にする。
+- 足した test 2 本は、宣言の box と本体の box の一致と、名前解決が box と答えた時だけ object の行になる事の証拠で、既存の test では示せない。

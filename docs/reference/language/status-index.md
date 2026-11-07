@@ -447,6 +447,25 @@ A `: String` declaration reads the one declared-result table (`DeclaredResultKin
 | `local t = move s` or `s = Main.t()` on a received String | refused-named | refused-named | refused-named | `MoveUnsupported`, `borrowed-static/local-source-missing` (the same undeclared) |
 | any of the connected forms in a file that also declares an unused box with methods | refused-named | refused-named | refused-named | `published-lifecycle-physical-abi/check-uncovered-function`, declared or not, also on the previous main |
 
+### declared object result (series owned-object)
+
+A `: P` declaration, where name resolution finds `P` as a box of the source, reads the one declared-result table (`DeclaredResultKindV1`) and takes the same object result contract as an undeclared function, so both reach the existing `Handle` call result (rule document `mirbuilder-result-contract-object-2026-11-07.md`, O1 to O9). The series covers instance and `me` calls only. Measured by EXE with the series binary against the previous main; `undeclared` is the same function without `: P`.
+
+| Form | previous main | undeclared | declared `: P` | Tag or output |
+|---|---|---|---|---|
+| instance `mk(): Leaf { return new Leaf(me.k) }`, `local a = m.mk()` then `a.get()` | refused-named | connected | connected | exit/result `7` (was `PhysicalHeader UnsupportedResultAnnotation`) |
+| a body `local a = new Leaf(..); return a`, also with `a.get()` read before the return | refused-named | connected | connected | the same output declared or not |
+| both branches of an `if` return `new Leaf(..)` | refused-named | connected | connected | `7` |
+| two received objects added, another box built and added, a received value printed | refused-named | connected | connected | `14`, `9`, `7` |
+| `run() { local a = me.mk(); return 1 }` | refused-named | connected | connected | `1` |
+| `: Leaf` that returns `1`, `new Other()`, or `: Other` that returns `new Leaf(..)` | refused-named | n/a | refused-named | `borrowed-result/result-contract-mismatch`, `lexical-instance-call/handle-result-mismatch` |
+| `: Leaf` that returns `null` on one path | refused-named | refused-named | refused-named | `local-commit/artifact-source-unavailable` declared, `root-instance-call-new-missing` undeclared |
+| `: i64` that returns `new Leaf(..)`; `: Nope` with no such box | refused-named | n/a | refused-named | `object-return/result-cohort-result-contract`; `UnsupportedResultAnnotation` |
+| `: Leaf?` | refused-named | n/a | refused-named | `ParameterContract UnsupportedResultType` |
+| static `mk(v: i64): Leaf` received by `local a = Main.mk(5)` | refused-named | refused-named | refused-named | `main-import-view/selected-header-missing` undeclared, `callable-main/qualified-route-retired` declared: static calls have no route for an object result |
+| `return m.mk()` forwarding; `local a = me.mk()` then `a.get()`; a call that can fault after the receive | refused-named | refused-named | refused-named | `admission-function-not-birth`; `borrowed-result/source-not-i64`; `local-commit/root-call-binding-contracted` (the same undeclared) |
+| `m.mk(5)` with an argument, `a.get() + 1`, `a = m.mk()`, `next(): Maker`, `return me.f`, returning a `take` formal | refused-named | refused-named | refused-named | `borrowed-result/source-not-i64`, `borrowed-nullable/local-initializer`, `borrowed-entry/finite-domain-unclosed` (the same undeclared) |
+
 ### Remaining before 3b
 
 The order follows ADR-002 (3a continuation, then 3b). Status is only `done`, `partial` or `not started`; evidence is a row above or a commit. No effort estimate is given.
