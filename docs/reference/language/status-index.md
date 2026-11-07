@@ -436,6 +436,7 @@ A `: String` declaration reads the one declared-result table (`DeclaredResultKin
 | Form | previous main | undeclared | declared `: String` | Tag or output |
 |---|---|---|---|---|
 | `t(): String { return "abc" }`, `local s = Main.t()` then `print(s)`, or `print(Main.t())` | refused-named | connected | connected | `abc` (was `PhysicalHeader UnsupportedResultAnnotation`) |
+| `t(x: i64): String { return "abc" }`, `local s = Main.t(1)` then `print(s)`; also two receives joined (`s + u`), `print(Main.t(1))`, a receive inside `g(v: i64)`, a callee in another static box, a receive inside `if`, a receive that is not used (series static-text-entry; `static-call-result-kind-2026-11-08.md` K21) | refused-named (`selected-header-missing`) | connected | connected | `abc`, `abcabc`, `abc` |
 | `u(): String { return Main.t() }`, or `local a = Main.t(); return a` in `u` | refused-named | connected | connected | `abc`, `x` |
 | `local s = Main.t(); local u = Main.t(); print(s + u)` | refused-named | connected | connected | `abcabc` |
 | a body `local s = "ab"; return s + "cd"`, and `s.length()` on the received String | refused-named | connected | connected | `abcd`, exit `1` |

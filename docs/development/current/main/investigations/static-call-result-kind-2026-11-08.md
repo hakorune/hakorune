@@ -124,3 +124,15 @@ K15〜K20 の範囲で、`t(x: i64): String` を受ける形(k3n、k3un、t1、t
 | nullable(`{Text, null}`) | R1 に Dynamic の入口がまた要る | 同じ finish と Text residence の入口を使える(`completed_instance_nullable_text_source_v1` と同じ residence) |
 
 選ぶ: 案 B。理由は、受けた String の所有を 1 つ(Text residence)に保ち、足す行が `uses` の `Option` 化と 1 つの判定(`is_i64_input_text_v1`)で済み、R3 の判定を消せるから。
+
+## 7. 段 3 で止めた門(宣言した `x: String` の formal)
+
+K22 を試した。宣言した `x: String` の formal は、`CallableParameterContractKindV1::ExactText` で、宣言の無い `x`(`OpaqueHandle`)とは別の物理の lane を持つ。
+
+試した事(戻した):
+
+1. `callable_parameter_contract/model.rs` に `takes_borrowed_actual_v1`(`OpaqueHandle`、`DeclaredObject`、`ExactText`)を足し、`ordinary_new_borrowed_static_source_actuals.rs` と `ordinary_new_argument_expression_lifecycle.rs` の `is_ordinary_borrowed_handle()` の 3 か所をこれに替えた。`source-actual-unavailable` は越え、`source-projection-identity` も越えた。
+2. `static_input_selection.rs` の `text_source` が、`ExactText` を宣言から Text の入力として読むようにした。`qualified-route-retired` は越えた。
+3. 次の門: `static_input_validation.rs:37-40`(`verify_static_input_header_v1`)の `contract-identity` が、formal を `OpaqueHandle`、i64、`DeclaredObject` に限る。これを広げても、次の `:49-56` の lane の数(`physical_formal_lane_count == arity`)が合わない。`ExactText` は `physical_signature.rs:288-298` で 2 つの lane(`ExactTextSlot` と `ExactTextGeneration`)を持つ。
+
+必要な物: 呼び出し側が、pinned Text residence の slot と generation の 2 つの値を作って渡す emit(`compiler/pinned_text_backend_frame.rs`、`pinned_text_residence_backend_carrier.rs`、`hako.pinned_text_backend_frame@2` の backend の frame 契約と、`runtime/text_formal_residence` の ABI)。instance の `b.t("abc")`(`x: String` 宣言)も、基準で同じ系の `pinned-text-backend-frame-mismatch` で拒否されるので、宣言した String の formal の呼び出し側は、どの経路にもまだ無い。これは「同じ証拠で受ける」問題ではなく、公開の backend の frame 契約に載る呼び出し側の emit を新しく作る事になるので、この series では止める。宣言の無い `f(x)` は、変わらず通る。
