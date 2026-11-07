@@ -19,6 +19,12 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 | K11 | 段 1(表を 1 つにして instance と direct を替える)は受理を変えない。329 入力と 1,459 本の `--dump-mir` が基準と全部同じである。 |
 | K13 | 受け取った Handle は、自分の commit 行(`CallReceived`)が発行した binding を持つ。static の実行は、call-prefix の binding group を I64、Bool の結果にだけ課し、Handle の site は routed の表に入れない。(実装中に足した行。group を足すと、2 回受ける形で fault-unwind の release を 2 回数えて `handle-release-missing` になった。) |
 | K14 | 他の関数から呼ぶ static の公開の要求(`project_static_exact_i64_requirement_v1`)は、箱の Handle の結果も、constructor の引数の i64 の要求を持つ行として読む。(実装中に足した行。受ける側が main でない形 `g(v) { local a = Main.mk(v) ... }` で `TargetOnlyDispositionMustBeUnavailable` になった。) |
+| K15 | R1 が Text を運ぶ時、Text の観測は、R3 と R4 が今使う source loan の issuer(`LocalCallResultSourceV1::Ordinary(loan)`)から得る。`home_local_call_flow.rs:158` の `assert!` は消さない。観測を手で作らない(K9)。 |
+| K16 | header の行は、callee の契約の行から作る(K1 の表)。「結果が scalar の callee だけ」という条件を「R1 が運ぶ種類」に替える。 |
+| K17 | 受け取った Text の所有と release は S5 のとおり。call-prefix の group を課すかは K13 と同じ問い(release を 2 回数えないか)で決め、課す時も課さない時も理由を書く。 |
+| K18 | R3 が受けていた site は、R1 が同じ出力で受ける。1 つの site はちょうど 1 つの道に入る(K8 は、R3 を消した後は「R1 が受ける」と読む)。 |
+| K19 | 使い先は R15 の表のまま。Text は算術に入らず、`s + 1` は拒否のまま。 |
+| K20 | 引数が i64 でない static(`t(x: String)`)は R4 のまま。R1 は formal が全部 i64 か無しの呼び出しだけ運ぶ(K7)。 |
 | K12 | 段 2 と段 3 が規則の範囲で通らない時は、止まった門の file:line と、その門が何を要るかを書いて止める。公開の追加(MIR、opcode、ABI、descriptor、C shim)が要る時は、その部分を止める。 |
 
 ## 2. 結果の種類を決める所の一覧(`03a36ac2d9`)
@@ -75,3 +81,18 @@ Opus が branch `static-result-kind`(`d54780a8aa`)を監査し、main へ fast-f
   - K14 で、box の結果の契約の行が constructor の引数の i64 の要求を持つ。引数が i64 と示せない呼び出しでは、box の結果が `Unavailable` になる(前は引数に依らず box)。閉じる向きの変更で、corpora に退行は無い。ただし box の class が引数の証明に依る形になったので、nullable の series で class と引数の要求を分けるかを見る。
   - K13 で、static の Handle の site は call-prefix の group に入らない。instance の lexical の Handle は `record_lifecycle_local_call_site` を呼ぶので、2 つの道で記録の仕方が違う。段 4 で R1 に寄せる時に、そろえられるかを見る。
 - 残り: 引数つきの static が返す Text(§3 の門 1、門 2)、Handle の結果で引数が式の形、段 4(R3 を消す)。
+
+## 4. R3 の所の一覧(`5d90bec5af`、段 4 の前)
+
+調べ方: `is_zeroarg_text_v1`、`is_zero_input_source_v1`、`select_static_zero_local_routes_v1`、`is_static_zero_packet_cohort_v1`、`selected_static_local_source_v1` を grep した。読んだ範囲に限る。
+
+| file:line | 何か |
+|---|---|
+| `qualified_static_incoming_source.rs:102-108` | `is_zero_input_source_v1`、`is_zeroarg_text_v1`(arity 0、引数なし、結果 `ExactString`) |
+| `ordinary_new_borrowed_static_packet_entry.rs:175-186` | `is_static_zero_packet_cohort_v1`(12 行) |
+| 同 `:188-208` | `select_static_zero_local_routes_v1`(21 行)。zero Text の site を `borrowed_static_source_sites` に入れる |
+| 同 `:235-` | `selected_static_local_source_v1`。route 表に入った site の source を返す |
+| 同 `:302,356,376,409,422,473,530,532,603,734` | zero packet の枝(10 か所) |
+| `static_input_validation.rs:92,108,138` | zero input の検証 |
+| `ordinary_new_borrowed_static_input_finish.rs:65,82,124,409,461` | zero Text の finish |
+| 使い手 | `issuer_object_input_finish.rs:85`、`ordinary_new_root_instance_call.rs:123`、`ordinary_new_static_loop_packet_source.rs:453`、`direct_call_disposition_port.rs:226,296`、`raw_ordinary_new_claim/terminal_call.rs:81`、`source_loop_frames.rs:285`、`lexical_terminal.rs:131,188` |
