@@ -166,6 +166,32 @@ fn invalid_result_surfaces_close_to_explicit_unavailable_rows() {
 }
 
 #[test]
+fn declared_box_result_must_be_the_box_the_body_returns() {
+    let source = r#"
+        box Leaf { birth() { } }
+        box Other { birth() { } }
+        static box ObjectProofV1 {
+            same(): Leaf { return new Leaf() }
+            other(): Leaf { return new Other() }
+            scalar(): Leaf { return 1 }
+        }
+    "#;
+
+    assert_eq!(
+        disposition(source, "ObjectProofV1", "same", 0),
+        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name: "Leaf".into() }
+    );
+    for method in ["other", "scalar"] {
+        assert_eq!(
+            disposition(source, "ObjectProofV1", method, 0),
+            VerifiedCallableResultDispositionV1::Unavailable(
+                CallableResultUnavailableReasonV1::DeclaredResultDisagrees
+            )
+        );
+    }
+}
+
+#[test]
 fn heterogeneous_untyped_returns_do_not_select_an_arbitrary_representation() {
     let source = r#"
         static box HeterogeneousReturnV1 {

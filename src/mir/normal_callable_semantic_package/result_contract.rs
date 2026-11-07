@@ -22,7 +22,7 @@ use std::rc::Rc;
 use super::model::OwnedCallableParameterContractDeclarationV1;
 use super::physical_header::CallablePhysicalHeaderIssueV1;
 pub(super) use super::physical_header::{
-    declared_bool_source_agrees_v1, declared_i64_source_agrees_v1, validate_result,
+    declared_scalar_agrees_v1, validate_result,
 };
 use super::selected_mapping::{
     SelectedCallableBatchMapRowRefV1, VerifiedSelectedCallableBatchMapV1,
@@ -185,7 +185,7 @@ impl<'a> CallableResultContractRefV1<'a> {
     /// This is declaration agreement only; the caller must retain its original
     /// complete source/result proof. None alone never proves I64 or excludes Unit.
     pub(super) fn declared_result_agrees_with_i64_source(&self) -> bool {
-        declared_i64_source_agrees_v1(self.result, self.completion)
+        declared_scalar_agrees_v1(self.result, self.completion, ExactTrivialScalarAbiV1::I64)
     }
 
     /// S2: the declaration is absent or names an owned `String`; both reach the same Text result.
@@ -300,17 +300,18 @@ impl<'a> CallableResultContractRefV1<'a> {
             && self.owner == source.callee_owner() && self.has_complete_text_result_v1()
     }
 
-    /// R9, S2: the declaration agrees with the proven source: a scalar (see
-    /// `declared_scalar_source_agrees_v1`) or complete Text exits (a `String` declaration or none).
+    /// R9, S2, O2: the declaration agrees with the proven source: a scalar kind of the one table of
+    /// declared spellings, or complete Text exits (a `String` declaration or none).
     pub(super) fn declared_result_agrees_with_source(&self) -> bool {
-        super::physical_header::declared_scalar_source_agrees_v1(self.result, self.completion)
+        use ExactTrivialScalarAbiV1 as Scalar;
+        [Scalar::I64, Scalar::Bool].into_iter().any(|want| declared_scalar_agrees_v1(self.result, self.completion, want))
             || self.has_complete_text_result_v1()
     }
 
     /// Agreement with the independent ExactBool source result. An absent
     /// annotation alone never proves Bool or activates its physical ABI.
     pub(super) fn declared_result_agrees_with_bool_source(&self) -> bool {
-        declared_bool_source_agrees_v1(self.result, self.completion)
+        declared_scalar_agrees_v1(self.result, self.completion, ExactTrivialScalarAbiV1::Bool)
     }
 
     #[cfg(test)]

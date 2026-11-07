@@ -74,10 +74,11 @@ impl BorrowedResultClassV1 {
         result: Option<crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1>,
         completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
     ) -> bool {
-        use crate::mir::normal_callable_semantic_package::result_contract::{declared_bool_source_agrees_v1, declared_i64_source_agrees_v1};
+        use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 as Scalar;
+        use crate::mir::normal_callable_semantic_package::result_contract::declared_scalar_agrees_v1;
         match self {
-            Self::I64 => declared_i64_source_agrees_v1(result, completion),
-            Self::Bool => declared_bool_source_agrees_v1(result, completion),
+            Self::I64 => declared_scalar_agrees_v1(result, completion, Scalar::I64),
+            Self::Bool => declared_scalar_agrees_v1(result, completion, Scalar::Bool),
             Self::UnresolvedScalar | Self::Nullable => false,
         }
     }

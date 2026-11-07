@@ -130,25 +130,18 @@ pub(super) fn issue_callable_physical_header_from_result_contract_v1(
     }
 }
 
-pub(super) fn declared_i64_source_agrees_v1(
+/// O1a: the declaration agrees with a proven scalar source of the kind `want`: it names that kind
+/// in the one table of declared spellings, or it is absent. Which scalar the body returns is the
+/// solver's body proof (R2).
+pub(super) fn declared_scalar_agrees_v1(
     result: Option<ExactTrivialScalarAbiV1>,
     completion: &VerifiedFunctionCompletionV1,
+    want: ExactTrivialScalarAbiV1,
 ) -> bool {
+    use crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1 as Declared;
     match (result, completion.function_exit_contract().declared_result()) {
-        (Some(ExactTrivialScalarAbiV1::I64), DeclaredFunctionResultContractV1::Annotated(name)) =>
-            ExactTrivialScalarAbiV1::classify(name) == Some(ExactTrivialScalarAbiV1::I64),
-        (None, DeclaredFunctionResultContractV1::Unannotated) => true,
-        _ => false,
-    }
-}
-
-pub(super) fn declared_bool_source_agrees_v1(
-    result: Option<ExactTrivialScalarAbiV1>,
-    completion: &VerifiedFunctionCompletionV1,
-) -> bool {
-    match (result, completion.function_exit_contract().declared_result()) {
-        (Some(ExactTrivialScalarAbiV1::Bool), DeclaredFunctionResultContractV1::Annotated(name)) =>
-            ExactTrivialScalarAbiV1::classify_result(name) == Some(ExactTrivialScalarAbiV1::Bool),
+        (Some(abi), DeclaredFunctionResultContractV1::Annotated(name)) =>
+            abi == want && Declared::classify(name) == Some(Declared::Scalar(want)),
         (None, DeclaredFunctionResultContractV1::Unannotated) => true,
         _ => false,
     }
@@ -181,16 +174,6 @@ pub(super) fn require_declared_result_agrees_with_exits_v1(
         return Err(CallablePhysicalHeaderIssueV1::DeclaredResultDisagrees { _batch_slot: batch_slot, _name: abi.source_type_name().into() });
     }
     Ok(())
-}
-
-/// R9: the declaration, when present, is a scalar result (`i64` or `Bool`) that the retained
-/// completion supports; an absent declaration agrees with any proven scalar source. Which scalar the
-/// body returns is the solver's body proof (R2) and the per-class `declaration_agrees_v1`.
-pub(super) fn declared_scalar_source_agrees_v1(
-    result: Option<ExactTrivialScalarAbiV1>,
-    completion: &VerifiedFunctionCompletionV1,
-) -> bool {
-    declared_i64_source_agrees_v1(result, completion) || declared_bool_source_agrees_v1(result, completion)
 }
 
 pub(super) fn validate_result(

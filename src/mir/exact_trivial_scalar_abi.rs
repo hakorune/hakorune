@@ -105,6 +105,16 @@ mod tests {
     }
 
     #[test]
+    fn a_box_name_is_an_object_result_only_when_name_resolution_found_that_box() {
+        use super::DeclaredResultKindV1 as Kind;
+        assert_eq!(Kind::classify_resolved("Leaf", Some("Leaf")), Some(Kind::OwnedObject));
+        assert_eq!(Kind::classify_resolved("Leaf", None), None);
+        assert_eq!(Kind::classify_resolved("Leaf", Some("Other")), None);
+        // The table still decides the builtin spellings first.
+        assert_eq!(Kind::classify_resolved("String", Some("String")), Some(Kind::OwnedText));
+    }
+
+    #[test]
     fn exact_i64_projects_to_existing_integer_representation() {
         assert_eq!(ExactTrivialScalarAbiV1::I64.mir_type(), MirType::Integer);
         assert_eq!(ExactTrivialScalarAbiV1::I64.source_type_name(), "i64");
