@@ -39,3 +39,16 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 | G2 | `builder/normal_callable_semantic_loan_port/main_root.rs:161-177` | arity 0 の main に qualified の呼び出しがあり `static_local_route` が偽なら `qualified-route-retired` |
 
 数: plain/`context` の入口を決める判定は **plain 側 3(P1〜P3)、`context` 側 5(X1〜X3、X4、X5 の 3 か所の filter を 1 と数える)**。実装後の数は報告に書く。
+
+## Opus の確認(2026-11-08)
+
+- 規則の commit `cb6866f9a7`(23:43)は、実装の commit `9c15e3b59c`(23:47)より前。実装は `additions` の owner を `context` に足す 1 文で、規則 C3〜C5 の写し。形を当てる分岐は無い。test の期待 1 つの変更(pure な main が `Values.find()` を受けると `context` に入る)は、規則 C1 が変えた契約そのもの。
+- 最後の `hakorune` は `9c15e3b59c` の木の `target/quick/hakorune` と同じ物で、それより新しい source は無い。全 lib の赤 231 は、基準 `owned-object-fix` と名前が同じ。1,459 本の違い 7 本(終了コードが変わったのは 4 本)と、329 入力の差 0 は、log の数と合う。
+- 指示書に無い 15 形を流した(`/mnt/workdisk/claude-scratch/static-call-context-audit/in/`)。出力の誤りは 0。前は拒否で今は通る形:
+  - 2 回受けて足す(`13`)
+  - 引数なしの static を 2 回受ける(`82`)
+  - 別の static の中で受けて、その結果を main で受ける(`3`)
+  - 別の static box の 2 引数の呼び出し(`5`)
+  - 受けて使わない(`0`)
+- 前から通っていた 8 形は、`--dump-mir` が前と同じだった(再帰で受ける形、受けた Bool の `if`、入れ直し、`if` の中での代入、static の中で Bool を受ける形を含む)。
+- 拒否のまま: `loop` の中で受ける形(`direct-scalar/physical-binding`、前と同じ。S4 の範囲)。String の formal の static を受ける形(`qualified-route-retired`、C8 の残り)。

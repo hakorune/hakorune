@@ -237,6 +237,8 @@ moveの確認の着地（2026-11-07、Sonnet実装・Opus監査、`e1ce026a83`�
 
 staticの呼び出しの結果の道の調査（2026-11-07ユーザー決定「staticの道を先に調べる」、Sonnet調査・Opus確認、`df2d91cb61`、[記録](static-call-result-routes-survey-2026-11-07.md)）: staticの呼び出しの結果を受ける道は6本で、formalの種類と結果の種類の組で選ばれる。384組を流して106組が通り、qualifiedの`Main.mk(5)`がobjectを返す組は0。何も無い`main()`で`local a = Main.f(5); return a`だけを持つ形は、型つきの静的な実行の`context`（`direct_call_static_execution.rs:124-141`）に入らず拒否される。`new`か`print`を足すと通る。qualifiedのmainの経路を消す前（`fc0045c93d`）でも拒否されていた（前からの穴）。勧め: 結果のclassの表をinstanceとdirectで共有し（受理を変えない。相談の7「staticとinstanceを共通にする」に合う）、型つきの静的な実行に結果の種類を持たせ、受けたobjectの`a.get()`のため`initializer_class`にstaticの枝を足し、最後にTextの引数なしのpacketを消す。物理側にstaticのHandleの結果を拒む検査は見つからない（C shimの返却起源は未確認）。`ordinary_new_borrowed_static_packet_entry.rs`は前から844行で、routeの選択とco-sealで分けられる。
 
+staticの結果を受ける関数の道（2026-11-07ユーザー決定「穴を先に塞ぐ」、Sonnet実装・Opus監査、`9c15e3b59c`、[規則](static-call-context-rule-2026-11-07.md) C1〜C8）: i64のformalのstaticの呼び出しの結果をbindingに受けるownerは、mainかどうかに依らず、型つきの静的な実行の`context`に入る（`additions`のownerを足す1文。production +6/−1）。何も無い`main()`で`local a = Main.f(5); return a`、宣言の無い同じ形、`print(Main.g(5))`で呼ばれる`g`の中の`local a = Main.f(v)`が通る。testの期待1つを新しい規則へ直した。監査: 329入力のMIRは差0、1,459本の違い7本は、前は拒否で今は通る4本、拒否の名前だけが変わった2本（calleeの乗算は`completion-not-ready`）、EXEが拒否していた生の`call_global`が`invoke Call`になった1本。229入力・apps 100本・suite 8/8・全libの赤231の名前・Python v4は前と同じ。Opusが指示書に無い15形を流し、誤り0（前から通る8形は`--dump-mir`が同じ）。残り: `return Main.f(5)`（root completion）、Stringのformalのstaticを受ける形（`qualified-route-retired`）、`loop`の中で受ける形（S4）、calleeの乗算。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
