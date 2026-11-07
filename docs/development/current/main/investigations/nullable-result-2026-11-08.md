@@ -18,6 +18,9 @@ N14. 元結果classからcanonical objectを照合する処理は共通queryへ�
 
 N15. 既存Invoke CallのC投影はreceiverが0なら既存TypeError理由302をfault frameへ記録して同じFault landingへ進み、非0の時だけcalleeへdispatchし、生成後検証は元nullable Callのobject対応・生存とNormal取得を独立に確認する。
 
+N16. 早期Return後のCall群の投影は既存FinishedBindings::bindingsと同じ透明Jump縮約規則を使い、外側Invoke/結果/Frameと全effectの存続を別に要求する。
+N17. C emitterの800行境界では既存Callの実引数準備をinvocation emitterへ責務移管し、意味不変の別commitと比較後にreceiver検査を同じ準備へ接続する。
+
 ## 段0: ownerと門
 
 | 入力 | 現在の門 | 次の責務 |
