@@ -241,6 +241,8 @@ staticの結果を受ける関数の道（2026-11-07ユーザー決定「穴を�
 
 staticの呼び出しの結果の種類（2026-11-07ユーザー決定「穴を先に塞ぐ→4段」の段1〜3、Sonnet実装・Opus監査、`d54780a8aa`、[規則](static-call-result-kind-2026-11-08.md) K1〜K14）: 呼び出しの結果の種類を、calleeの契約の行から1つの表（`LocalCallRouteV1::for_result`、`LocalCallResultClassV1::invoke_result`）で決め、instanceとbareの道がそれを読む（段1。329入力と1,459本のMIRは差0）。型つきの静的な実行が箱のHandleを運び、`initializer_class`にstaticの枝を足したので、`local a = Main.mk(5)`と`a.get()`が通る。scalarの判定は変えず、`Main.mk(5) + 1`は名前つきで拒否のまま。実装中にK13（受けたHandleはcall-prefixのgroupを持たない）とK14（箱の結果の行はconstructorの引数のi64の要求を持つ）を足した。production +269/−67、testは1本足した。監査: 1,459本の違い5本と329入力の違い2本は全部拒否から別の門、(c)は0。384組は前の121組が同じで21組が新しく通る。229入力・apps 100本・suite 8/8・Python v4は前と同じ、全libの新しい赤1本は前のseriesにも出た順序のflake。Opusが30形を流し、誤り0。止めた物: 引数つきのstaticが返すString（`home_local_call_flow.rs:158`のTextの観測の`assert!`と`physical_header.rs:91-110`のheaderの行）。残り: Handleの結果で引数が式の形（`source-route-identity`、i64の結果では通る）、段4（Textの引数なしのpacketを消す）。
 
+段4（Sonnet、`7ab29d1121`、文書だけ）: 引数つきのstaticが返すStringを型つきの静的な実行に載せる事を3回試して止めた。Stringのlocalはrouteではなくinitializerのexpression frameのText residenceが持つ。引数なしの入力のprotocolはarity 0を課す。headerの行はscalarの結果だけに作られる（[規則](static-call-result-kind-2026-11-08.md) §5）。productionは変えていない。2026-11-08ユーザー決定「Stringを先に掘る」: 次は、i64とStringの引数のstaticのStringを受ける入口を作り、引数なし専用の道（R3）をその道の「実引数0個」の場合に畳む。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
