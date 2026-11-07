@@ -16,6 +16,8 @@ N12. 受理不変の責務分割は別commitでMIR一致を確認し、新しい
 N13. receiverの名義classは元Call取得とcatalogへ結び、nullableのclassが既知であることをnonnullや所有権の証明へ読み替えず、既存の元Call commitを物理readの検証でも使う。
 N14. 元結果classからcanonical objectを照合する処理は共通queryへ寄せ、同classの全claimと移管済みResult commitが同じobjectであることを保持する。
 
+N15. 既存Invoke CallのC投影はreceiverが0なら既存TypeError理由302をfault frameへ記録して同じFault landingへ進み、非0の時だけcalleeへdispatchし、生成後検証は元nullable Callのobject対応・生存とNormal取得を独立に確認する。
+
 ## 段0: ownerと門
 
 | 入力 | 現在の門 | 次の責務 |
