@@ -1,6 +1,7 @@
 //! Exact source loan and original completion, without final operand inference.
 use super::*;
 use crate::mir::builder::MirBuilder;
+use crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1 as Family;
 use std::rc::Rc;
 
 fn fixture(

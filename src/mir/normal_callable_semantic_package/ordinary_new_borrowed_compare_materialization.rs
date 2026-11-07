@@ -2,7 +2,7 @@
 use super::super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
 use super::*;
 use crate::mir::dynamic_operator_contract::{
-    DynamicOperatorFamilyV1 as Family, DynamicOperatorNormalResultV1 as Normal,
+    DynamicOperatorNormalResultV1 as Normal,
     DynamicOperatorValueClassV1 as Class, VerifiedDynamicOperatorExecutionEnvelopeV1,
 };
 use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Operator;
@@ -188,14 +188,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 && !source.candidate_integer_agreement(row.formal) {
                 return Err(freeze("borrowed-compare/integer-source-unproved"));
             }
-            let (expected, family) = match source_operator {
-                Operator::Equal => (CompareOp::Eq, Family::Equal),
-                Operator::NotEqual => (CompareOp::Ne, Family::NotEqual),
-                Operator::Less => (CompareOp::Lt, Family::Less),
-                Operator::GreaterEqual => (CompareOp::Ge, Family::GreaterEqual),
-                Operator::Greater => (CompareOp::Gt, Family::Greater),
-                Operator::LessEqual => (CompareOp::Le, Family::LessEqual),
-                _ => return Err(freeze("borrowed-compare/source-operator")),
+            let (Some(expected), Some(family)) = (
+                source_operator.compare_op(),
+                crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(source_operator),
+            ) else {
+                return Err(freeze("borrowed-compare/source-operator"));
             };
             let domain = envelope.domain();
             if operator != Some(expected)
