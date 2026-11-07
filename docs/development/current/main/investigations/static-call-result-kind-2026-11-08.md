@@ -51,3 +51,27 @@ Status: 実装より前に書く規則の文書です。authority ではあり�
 - 門 1: `resolved_semantics/home_local_call_flow.rs:158`(`LocalCallObservationV1::issue`)は `LocalCallResultClassV1::Text` を `assert!` で拒否し、Text の観測は「専用の source loan の issuer」(`LocalCallResultSourceV1::Ordinary(loan)`、D14)だけが作る。R1 にはその issuer を呼ぶ入口が無く、足すと panic になる(基準は `selected-header-missing` の名前つきの拒否)。
 - 門 2: `normal_callable_semantic_package/physical_header.rs:91-110` は、結果が scalar の callee にしか header の行を作らない。`model.rs:357-367` の `selected-header-missing` がそこで出る。
 - 必要な物: R4(Text の引数の式の入力)の loan と、受け取った Text の所有(S5)を R1 に通す入口。これは Text の series が要る。この series では K12 に従って足さず、claim の索引に Text の行を入れていない。基準と同じ拒否の名前のまま。
+
+## Opus の確認(2026-11-08)
+
+Opus が branch `static-result-kind`(`d54780a8aa`)を監査し、main へ fast-forward した。
+
+- binary: `final.commit` は `d54780a8aa`、`find src -newer hakorune.final` は空、`target/quick/hakorune` と `cmp` で一致。
+- 規則の順: K1〜K12 の初版(`b4f4a579dc`)は実装より前。K13、K14 は実装の後に足された(報告にも書かれている)。
+- 全 lib: 基準の赤 231 の名前に対し、新しい赤は `raw_invocation_port_preserves_async_qmark_check_collection_and_print_children` の 1 本。この名前は owned-object、owned-string、s3b-route の赤の一覧にもあり、順序で出る物。最後の test binary で単独で 2 回流し、2 回とも通った。
+- MIR: 1,459 本の違い 5 本と、329 入力の違い 2 本を数え直し、報告の分類と一致した。(c)(前も今も通って MIR が変わった)は 0。段 1 の binary は、329 入力と 1,459 本の MIR が基準と全部同じ。329 入力の 2 本は、使わない box を置いた入力で、物理の検査(`check-uncovered-function`)か `handle-result-terminal-mismatch` で拒否される。
+- 384 組: 前に通る 121 組は、結果の行が全部同じ。新しく通る 21 組のうち 2 組の出力を source の計算と比べ、合っていた。
+- Opus が書いた 30 本(指示書に無い形): 間違った出力は 0。
+  - 通るようになった形: callee の `if` の 2 つの `return`(`50`)、`a.set(9)` の後の `a.get()`(`9`)、`a.get() + a.get()`(`10`)、2 つの class を受ける(`5`)、受けて使わない 2 本目(`5`)、static で受けた object と `new` の object(`12`)、2 引数の `mk(x, y): Pair`(`7`)。
+  - 受けて使わない 2 本目の形の MIR は、2 つの Handle を通常の出口と各 fault の出口で 1 回ずつ release する。
+- 拒否のまま(全部名前つき):
+  - 引数が式の形 `Main.mk(n + 1)`、`Main.mk(Main.f(2))`、`Maker.mk(v + 1)`: `borrowed-static/source-route-identity`。i64 の結果の `Main.f(n + 1)` は通るので、Handle の結果だけが狭い。
+  - `local b = a`、`if` の中で受ける形: `root-instance-call-new-missing`、`root-call-binding-contracted`。instance の同じ形も同じ名前で拒否されるので、instance と static の振る舞いがそろった。
+  - `a = Main.mk(6)`、`print(a)`、`a.value`: `static-execution/completion-not-ready`。
+  - `return Main.mk(5).get()`、`print(Main.mk(5))`、引数に型の無い `mk(v)`: `qualified-route-retired`。
+  - callee の `local x = new Leaf(v); return x`: `handle-result-terminal-mismatch`。`g(v): Leaf` が受けた object を返す形: `static-execution/result-source`。
+  - `loop` の中で受ける形: `callable-loop/route-not-front-selected`(S4)。
+- 設計で見ておく事:
+  - K14 で、box の結果の契約の行が constructor の引数の i64 の要求を持つ。引数が i64 と示せない呼び出しでは、box の結果が `Unavailable` になる(前は引数に依らず box)。閉じる向きの変更で、corpora に退行は無い。ただし box の class が引数の証明に依る形になったので、nullable の series で class と引数の要求を分けるかを見る。
+  - K13 で、static の Handle の site は call-prefix の group に入らない。instance の lexical の Handle は `record_lifecycle_local_call_site` を呼ぶので、2 つの道で記録の仕方が違う。段 4 で R1 に寄せる時に、そろえられるかを見る。
+- 残り: 引数つきの static が返す Text(§3 の門 1、門 2)、Handle の結果で引数が式の形、段 4(R3 を消す)。

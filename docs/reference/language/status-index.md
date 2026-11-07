@@ -462,9 +462,43 @@ A `: P` declaration, where name resolution finds `P` as a box of the source, rea
 | `: Leaf` that returns `null` on one path | refused-named | refused-named | refused-named | `local-commit/artifact-source-unavailable` declared, `root-instance-call-new-missing` undeclared |
 | `: i64` that returns `new Leaf(..)`; `: Nope` with no such box | refused-named | n/a | refused-named | `object-return/result-cohort-result-contract`; `UnsupportedResultAnnotation` |
 | `: Leaf?` | refused-named | n/a | refused-named | `ParameterContract UnsupportedResultType` |
-| static `mk(v: i64): Leaf` received by `local a = Main.mk(5)` | refused-named | refused-named | refused-named | `main-import-view/selected-header-missing` undeclared, `callable-main/qualified-route-retired` declared: static calls have no route for an object result |
+| static `mk(v: i64): Leaf` received by `local a = Main.mk(5)` | refused-named | refused-named | refused-named | `main-import-view/selected-header-missing` undeclared, `callable-main/qualified-route-retired` declared: static calls have no route for an object result (connected since series static-result-kind, below) |
 | `return m.mk()` forwarding; `local a = me.mk()` then `a.get()`; a call that can fault after the receive | refused-named | refused-named | refused-named | `admission-function-not-birth`; `borrowed-result/source-not-i64`; `local-commit/root-call-binding-contracted` (the same undeclared) |
 | `m.mk(5)` with an argument, `a.get() + 1`, `a = m.mk()`, `next(): Maker`, `return me.f`, returning a `take` formal | refused-named | refused-named | refused-named | `borrowed-result/source-not-i64`, `borrowed-nullable/local-initializer`, `borrowed-entry/finite-domain-unclosed` (the same undeclared) |
+
+### static call result bound in a plain function (series static-call-context)
+
+An owner that binds, in a `local`, the result of a static call with only i64 formals (or none) joins the typed static execution, whether it is `main` or not (rule document `static-call-context-rule-2026-11-07.md`, C1 to C8). Measured by EXE with the series binary against the previous main.
+
+| Form | previous main | this series | Tag or output |
+|---|---|---|---|
+| a `main()` with nothing else, `local a = Main.f(5); return a`, with `f(v: i64): i64` declared or without the result declaration | refused-named | connected | `Result: 6` (was `qualified-route-retired`, `selected-header-missing`) |
+| `g(v: i64): i64 { local a = Main.f(v); return a + 1 }` called by `print(Main.g(5))`; a chain `h` to `g` to `f` | refused-named | connected | `7`, `8` (was `instruction-unsupported` for the raw `Call`) |
+| two received values added, a received value as the next call's argument, a receive inside `if`, `return a + 1`, a callee in another static box | refused-named | connected | `14`, `7`, `6`, `7`, `7` |
+| the same bodies with a `new` or a `print` in `main` | connected | connected | the same output |
+| `return Main.f(5)` | refused-named | refused-named | `main-arguments/root-completion` |
+| a callee whose body has `*` | refused-named | refused-named | `static-execution/completion-not-ready` (was `qualified-route-retired`) |
+| a function with `local a = Main.f(1)` that a bare call reaches | refused-named | refused-named | `DirectCall LifecycleSourceMismatch` |
+
+### object result of a static call (series static-result-kind)
+
+One table decides a call's result kind from the callee's contract row, for instance, bare and static calls; the typed static execution carries a box `Handle` result, and a local a static call initializes takes the callee's result class like an instance call (rule document `static-call-result-kind-2026-11-08.md`, K1 to K14). Measured by EXE with the series binary against the previous main.
+
+| Form | previous main | this series | Tag or output |
+|---|---|---|---|
+| `mk(v: i64): Leaf { return new Leaf(v) }`, `local a = Main.mk(5)` then `return 0` or `return a.get()`, declared or without `: Leaf`; a zero-argument `mk(): Leaf` | refused-named | connected | `0`, `5`, `4` (was `qualified-route-retired`, `selected-header-missing`) |
+| two receives added, `a.get() + 1`, `a.set(9)` then `a.get()`, two classes, a callee in another static box, two `return`s under `if` in the callee, `mk(x, y): Pair` | refused-named | connected | `5`, `6`, `9`, `5`, `9`, `50`, `7` |
+| a receive inside a static `g(v: i64): i64` that returns `a.get()`; a call that can fault after the receive | refused-named | connected | `7`, `8` |
+| zero-argument `t(): String` received and printed or concatenated; instance `m.mk()` then `a.get()` | connected | connected | the same MIR |
+| `t(x: i64): String` received | refused-named | refused-named | `selected-header-missing` (stopped: the Text observation gate and the header row, rule document §3) |
+| an expression argument, `Main.mk(n + 1)` or `Main.mk(Main.f(2))` | refused-named | refused-named | `borrowed-static/source-route-identity` (the i64 result `Main.f(n + 1)` is connected) |
+| `local b = a`; a receive inside `if` | refused-named | refused-named | `root-instance-call-new-missing`; `root-call-binding-contracted` (the instance forms have the same names) |
+| `a + 1`, `a = Main.mk(6)`, `print(a)`, `a.value` | refused-named | refused-named | `static-execution/completion-not-ready` |
+| `print(Main.mk(5) + 1)`, `return Main.mk(5).get()`, `print(Main.mk(5))`, an untyped formal `mk(v)`, `: Leaf` that returns `new Other()` | refused-named | refused-named | `qualified-route-retired` |
+| `: i64` that returns `new Leaf(v)`; `: Leaf?` | refused-named | refused-named | `ResultOwnershipMismatch`; `ParameterContract UnsupportedResultType` |
+| the received object passed to `show(x: Leaf)` | refused-named | refused-named | `borrowed-view/declared-object-class` (the same for a `new` object) |
+| a callee `local x = new Leaf(v); return x`; `g(v): Leaf` that returns the received object | refused-named | refused-named | `handle-result-terminal-mismatch`; `static-execution/result-source` |
+| a receive inside `loop` | refused-named | refused-named | `callable-loop/route-not-front-selected` |
 
 ### Remaining before 3b
 
