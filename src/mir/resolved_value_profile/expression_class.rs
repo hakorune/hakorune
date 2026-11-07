@@ -34,6 +34,23 @@ pub(crate) fn binary_operator_cannot_fault_v1(operator: ResolvedBinaryOperatorV1
     matches!(operator, Op::Add | Op::Subtract | Op::Multiply)
 }
 
+/// R16: the one table from a comparison operator to its operator family; `None` for a
+/// non-comparison operator. Every consumer that qualifies a comparison reads it.
+pub(crate) fn comparison_operator_family_v1(
+    operator: ResolvedBinaryOperatorV1,
+) -> Option<crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1> {
+    use crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1 as Family;
+    Some(match operator {
+        ResolvedBinaryOperatorV1::Equal => Family::Equal,
+        ResolvedBinaryOperatorV1::NotEqual => Family::NotEqual,
+        ResolvedBinaryOperatorV1::Less => Family::Less,
+        ResolvedBinaryOperatorV1::Greater => Family::Greater,
+        ResolvedBinaryOperatorV1::LessEqual => Family::LessEqual,
+        ResolvedBinaryOperatorV1::GreaterEqual => Family::GreaterEqual,
+        _ => return None,
+    })
+}
+
 /// R16: the operator-level half of the table below. A comparison or logic operator
 /// produces Bool whatever its operands; `binary_expression_class_v1` decides whether
 /// the operand classes are admitted. Consumers ask this to name the result kind of a

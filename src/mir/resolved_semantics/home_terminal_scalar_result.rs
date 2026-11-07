@@ -14,6 +14,8 @@ pub(crate) struct TerminalScalarReturnV1 {
     owner: FunctionOwnerIdV1,
     return_site: SourceStmtSiteV1,
     value_site: SourceExprSiteV1,
+    /// R16: the exit's scalar kind, from the stored local's kind or the evaluation's root class.
+    kind: SourceScalarKind,
     entry_read: Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
     evaluation: Option<
         std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
@@ -30,9 +32,19 @@ impl TerminalScalarReturnV1 {
             owner,
             return_site,
             value_site,
+            kind: SourceScalarKind::Integer,
             entry_read: None,
             evaluation: None,
         }
+    }
+    /// A returned local whose stored kind is Bool: the same relation, its kind taken from the local.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_with_kind(
+        owner: FunctionOwnerIdV1,
+        return_site: SourceStmtSiteV1,
+        value_site: SourceExprSiteV1,
+        kind: SourceScalarKind,
+    ) -> Self {
+        Self { kind, ..Self::issue(owner, return_site, value_site) }
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn with_entry_read_v1(
         mut self,
@@ -86,21 +98,15 @@ impl TerminalScalarReturnV1 {
         {
             return None;
         }
+        self.kind = match evaluation.root_class() {
+            ExpressionLeafClassV1::Value(ExpressionValueClassV1::Bool) => SourceScalarKind::Bool,
+            _ => SourceScalarKind::Integer,
+        };
         self.evaluation = Some(evaluation);
         Some(self)
     }
-    /// R16: the exit's scalar kind is its retained evaluation's root class; a direct
-    /// finite entry read is an integer.
-    pub(crate) fn scalar_kind(&self) -> SourceScalarKind {
-        use crate::mir::resolved_value_profile::{
-            expression_class::ExpressionValueClassV1, expression_projection::ExpressionLeafClassV1,
-        };
-        match self.evaluation.as_ref().map(|evaluation| evaluation.root_class()) {
-            Some(ExpressionLeafClassV1::Value(ExpressionValueClassV1::Bool)) => {
-                SourceScalarKind::Bool
-            }
-            _ => SourceScalarKind::Integer,
-        }
+    pub(crate) const fn scalar_kind(&self) -> SourceScalarKind {
+        self.kind
     }
     pub(crate) fn entry_read(
         &self,

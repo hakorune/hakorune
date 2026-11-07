@@ -298,6 +298,8 @@ pub(super) fn array_literal_element_count(
 #[derive(PartialEq, Eq)]
 pub(super) enum ReturnScalar {
     Integer,
+    /// A local whose stored kind is Bool (R16).
+    Bool,
     OtherTrivial,
     IntegerField(Box<LocalFieldReadRequestV1>),
     I64Add {
@@ -310,7 +312,7 @@ impl ReturnScalar {
     fn proves_integer(&self) -> bool {
         match self {
             Self::Integer | Self::IntegerField(_) | Self::I64Add { .. } => true,
-            Self::OtherTrivial => false,
+            Self::Bool | Self::OtherTrivial => false,
         }
     }
 }
@@ -339,6 +341,12 @@ pub(super) fn return_scalar<E>(
             Some(super::local_flow::SourceScalarKind::Integer),
         )) => {
             return Ok(Some(ReturnScalar::Integer));
+        }
+        Some(OrdinaryObservation::TrivialLocal(
+            _,
+            Some(super::local_flow::SourceScalarKind::Bool),
+        )) => {
+            return Ok(Some(ReturnScalar::Bool));
         }
         Some(value) if value.is_trivial() => {
             return Ok(Some(ReturnScalar::OtherTrivial));

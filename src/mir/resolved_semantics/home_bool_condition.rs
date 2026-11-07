@@ -296,7 +296,7 @@ pub(crate) fn qualify_condition_expression_v1<E>(
             }));
             continue;
         }
-        let family = match (super::operations::comparison_family_v1(binary.operator()), binary.operator()) {
+        let family = match (crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()), binary.operator()) {
             (Some(family), _) => family,
             (None, Op::Add) => DynamicOperatorFamilyV1::Add,
             (None, Op::Multiply) => DynamicOperatorFamilyV1::Mul,

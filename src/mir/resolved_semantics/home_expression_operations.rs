@@ -24,20 +24,6 @@ pub(super) fn qualify_copy_operation_v1(
     }))
 }
 
-/// R16: the one table from a comparison operator to its operator family. Every
-/// consumer that qualifies a comparison reads it; `None` for a non-comparison.
-pub(super) fn comparison_family_v1(operator: ResolvedBinaryOperatorV1) -> Option<DynamicOperatorFamilyV1> {
-    Some(match operator {
-        ResolvedBinaryOperatorV1::Equal => DynamicOperatorFamilyV1::Equal,
-        ResolvedBinaryOperatorV1::NotEqual => DynamicOperatorFamilyV1::NotEqual,
-        ResolvedBinaryOperatorV1::Less => DynamicOperatorFamilyV1::Less,
-        ResolvedBinaryOperatorV1::Greater => DynamicOperatorFamilyV1::Greater,
-        ResolvedBinaryOperatorV1::LessEqual => DynamicOperatorFamilyV1::LessEqual,
-        ResolvedBinaryOperatorV1::GreaterEqual => DynamicOperatorFamilyV1::GreaterEqual,
-        _ => return None,
-    })
-}
-
 /// One comparison of exact Text and/or opaque Dynamic operands, of two exact
 /// Bools, or of two exact i64 values, producing a trivial Bool. The shared
 /// operator contract owns the law.
@@ -47,7 +33,7 @@ pub(super) fn qualify_comparison_operation_v1(
     classes: &[Leaf],
 ) -> Option<Rc<CheckedExpressionOperationLoanV1>> {
     let binary = source.nodes()[index].binary()?;
-    let family = comparison_family_v1(binary.operator())?;
+    let family = crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator())?;
     let class = |site| {
         let position = source.nodes().iter().position(|node| node.site() == site)?;
         match classes[position] {

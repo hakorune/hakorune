@@ -535,6 +535,18 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                         ));
                                     true
                                 }
+                                // R16: a returned local that holds a Bool is the same relation.
+                                Some(ReturnScalar::Bool) => {
+                                    relation = Some(TerminalRelationV1::Scalar(
+                                        TerminalScalarReturnV1::issue_with_kind(
+                                            input.owner(),
+                                            statement.site().clone(),
+                                            value.site().clone(),
+                                            SourceScalarKind::Bool,
+                                        ),
+                                    ));
+                                    true
+                                }
                                 Some(_) => true,
                                 None => {
                                     // `return <map>.get("<key>")` — the

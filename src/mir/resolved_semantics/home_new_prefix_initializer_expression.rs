@@ -79,8 +79,8 @@ pub(super) fn observe<E>(
         // A selected source Loop consumes a complete evaluation frame, too.
         // This purpose does not classify leaves or grant executable input.
         && (locals.in_source_loop_v1() || scalar_source.requires_initializer_use_frame(&owned)?);
-    let root_compare = source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
-        super::super::ResolvedBinaryOperatorV1::Equal | super::super::ResolvedBinaryOperatorV1::NotEqual));
+    // R16: any comparison root (the comparison table, not a list of operators).
+    let root_compare = source.nodes()[0].binary().is_some_and(|binary| crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()).is_some());
     // Every Local of a selected source Loop body needs its complete
     // evaluation frame, including a scalar literal or a plain read.
     let loop_scalar_requested = locals.in_source_loop_v1() && (root_reference || matches!(source.nodes()[0].source(),
@@ -196,7 +196,7 @@ pub(super) fn observe<E>(
         && !prepared.has_static_i64_call()
         && !prepared.has_dynamic_invocation_call()
         && !(root_reference && locals.dynamic_invocation_result_reference_v1(site).is_some())
-        && !(root_compare && (has_parent_text || prepared.has_dynamic_invocation_call()))
+        && !root_compare
         && !(root_add && has_parent_text)
         && !signed_entry
         && signed_root_sum.is_none()

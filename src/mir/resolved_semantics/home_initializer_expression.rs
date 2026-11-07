@@ -334,10 +334,10 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
         && source.nodes().len() == 1
         && matches!(reference_proofs.get(&0), Some(CheckedExpressionReferenceV1::DynamicInvocationResult(frame))
             if frame.dynamic_home_binding_v1().is_some_and(|owner| prior_homes.contains(&LiveHomeV1::Stable(owner))));
-    // A root Equal/NotEqual over exact Text/Dynamic/Bool operands is a Bool Local.
+    // R16: a root comparison over exact operands is a Bool Local. The comparison table names
+    // the family; `qualify_comparison_operation_v1` below admits the operand classes.
     let bool_comparison = classes[0] == Leaf::Value(Class::Bool)
-        && source.nodes()[0].binary().is_some_and(|binary| matches!(binary.operator(),
-            crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Equal | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::NotEqual));
+        && source.nodes()[0].binary().is_some_and(|binary| crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()).is_some());
     let copy_root = source.copy_operand_node_v1(0).is_some();
     let bool_root = bool_comparison || (copy_root && classes[0] == Leaf::Value(Class::Bool));
     if !references.is_empty()
