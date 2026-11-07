@@ -13,6 +13,7 @@ fn exact(requirements: &[u32]) -> VerifiedCallableResultDispositionV1 {
 fn exact_box(name: &str) -> VerifiedCallableResultDispositionV1 {
     VerifiedCallableResultDispositionV1::ExactNominalBox {
         box_name: name.to_owned(),
+        required_i64_arguments: Box::new([]),
     }
 }
 
@@ -179,7 +180,7 @@ fn declared_box_result_must_be_the_box_the_body_returns() {
 
     assert_eq!(
         disposition(source, "ObjectProofV1", "same", 0),
-        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name: "Leaf".into() }
+        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name: "Leaf".into(), required_i64_arguments: Box::new([]) }
     );
     for method in ["other", "scalar"] {
         assert_eq!(

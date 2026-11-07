@@ -133,6 +133,7 @@ fn exact_nominal_box_result_propagates_through_the_exact_static_target_row() {
         results.disposition(&caller),
         Some(&VerifiedCallableResultDispositionV1::ExactNominalBox {
             box_name: "ProductV1".to_owned(),
+            required_i64_arguments: Box::new([]),
         })
     );
     let row = results
@@ -182,6 +183,7 @@ fn constructed_box_traverses_arguments_and_retains_nested_static_call_evidence()
         results.disposition(&caller),
         Some(&VerifiedCallableResultDispositionV1::ExactNominalBox {
             box_name: "WrapperV1".to_owned(),
+            required_i64_arguments: Box::new([]),
         })
     );
     assert_eq!(

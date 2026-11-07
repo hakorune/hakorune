@@ -135,7 +135,7 @@ fn normalize_disposition(
         VerifiedCallableResultDispositionV1::ExactString => {
             NormalizedResultDispositionV1::ExactString
         }
-        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name } => {
+        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name, .. } => {
             NormalizedResultDispositionV1::ExactNominalBox {
                 box_name: box_name.clone(),
             }

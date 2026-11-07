@@ -104,7 +104,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Err("[freeze:contract][static-execution/argument-owner]".into());
         }
         row.validate_static_source_v1(ledger)?;
-        let source = ledger.lexical_i64_call_source(original.call_site())
+        let source = ledger.static_carried_call_source(original.call_site())
             .ok_or("[freeze:contract][static-execution/argument-observation]")?;
         if source.local_binding().is_none() || source.arguments().len() != row.argument_sites().len() {
             return Err("[freeze:contract][static-execution/argument-observation-drift]".into());

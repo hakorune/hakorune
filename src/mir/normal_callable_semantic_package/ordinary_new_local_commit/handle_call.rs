@@ -108,13 +108,33 @@ impl OrdinaryNewClaimLedgerV1 {
                 flow.local_calls().iter().find(|call| {
                     call.site() == site
                         && call.owner() == site.owner()
-                        && (call.result() == LocalCallResultClassV1::I64
-                            || call.result() == LocalCallResultClassV1::Handle && call.result_source().is_none() ||
+                        && (call.result() == LocalCallResultClassV1::I64 ||
                             call.result() == LocalCallResultClassV1::Bool && (call.result_source().is_none() || call.borrowed_scalar().is_some()
                                 || matches!(call.result_source(), Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(source))
                                     if source.result() == LocalCallResultClassV1::Bool)))
                 })
             })
+    }
+
+    /// K7: the observation a typed static execution carries at this site: the
+    /// scalar sources of `lexical_i64_call_source`, or a received box handle that
+    /// has no result source of its own. The scalar accessor stays scalar-only (K5).
+    pub(crate) fn static_carried_call_source(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<&LocalCallObservationV1> {
+        self.lexical_i64_call_source(site).or_else(|| {
+            self.completion_for_owner(site.owner())
+                .and_then(|c| c.cleanup().root_flow())
+                .and_then(|flow| {
+                    flow.local_calls().iter().find(|call| {
+                        call.site() == site
+                            && call.owner() == site.owner()
+                            && call.result() == LocalCallResultClassV1::Handle
+                            && call.result_source().is_none()
+                    })
+                })
+        })
     }
 
     /// Newest-first live-Home unwind for one sealed prior-Home list —

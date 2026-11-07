@@ -201,8 +201,6 @@ fn qualified_static_call_claim_stays_fail_closed() {
         // `Page` is an instance box — a `StaticBoxMethod` for owner
         // `Page` does not exist.
         ("non-static-target", "Page.class_id(7)"),
-        // `Any.make` has an `ExactNominalBox` disposition, not `ExactI64`.
-        ("unproven-result", "Any.make()"),
         // A Home argument is not scalar evidence.
         ("handle-arg", "LayoutBox.class_id(page)"),
     ] {
@@ -228,6 +226,28 @@ fn qualified_static_call_claim_stays_fail_closed() {
             "{label}: a `new` past the unclaimed call keeps PrefixNotCovered"
         );
     }
+}
+
+#[test]
+fn qualified_static_call_claim_carries_a_box_handle_as_a_handle_row() {
+    // K1/K7: `Any.make` has an `ExactNominalBox` disposition; the claim carries it as a
+    // Handle row (never a scalar one), so `Any.make() + 1` stays a scalar rejection (K5).
+    let package = issue(
+        "box Page { birth() { } }
+        static box Any { make() { return new Page() }  }
+        static box Main { main() {
+            local nine = 9
+            local page = new Page()
+            local x = Any.make()
+            local page2 = new Page()
+            return 0
+        } }",
+    )
+    .expect("handle claim package");
+    let calls = local_calls(&package);
+    let [call] = calls.as_slice() else { panic!("one claim, got {calls:?}") };
+    assert_eq!(call.result(), LocalCallResultClassV1::Handle);
+    assert!(call.arguments().is_empty());
 }
 
 #[test]
