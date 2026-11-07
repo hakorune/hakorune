@@ -427,7 +427,7 @@ A static scalar call claim carries the callee's result kind (I64 or Bool) from i
 | instance `c.t(4)` and `me.t(4)` over exact-i64 input | refused-named | refused-named | refused-named | `local-commit/artifact-source-unavailable`, `object-return/normal-projection-exit` |
 | `t(x: i64): Bool { return x + 1 }` called from `main` | refused-named | n/a | refused-named | `callable-main/qualified-route-retired`; with one exit `return true` it is `PhysicalHeader DeclaredResultDisagrees` |
 | `Main.t(4) + 1`, `Main.t("a")`, `Main.t(true)` | refused-named | refused-named | refused-named | `object-return/normal-projection-exit`, `borrowed-static/source-actual-unavailable`, `callable-main/qualified-route-retired` |
-| `main()` returning a Bool local, `local b = true return b` | refused-named | refused-named | n/a | `artifact-root-bool-result-unsupported` (was `IncompleteOrdinaryNewCoverage`; a Bool literal return in `main` already had this name) |
+| `main()` that has a `new` and returns a Bool local, `local s = new Store() local b = true return b` | refused-named | refused-named | n/a | `artifact-root-bool-result-unsupported` (was `IncompleteOrdinaryNewCoverage`; a Bool literal return in `main` already had this name). Without a `new` it is `main-arguments/root-completion`, as before |
 
 ### Remaining before 3b
 
