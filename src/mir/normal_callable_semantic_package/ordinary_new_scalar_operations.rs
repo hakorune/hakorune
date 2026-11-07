@@ -127,7 +127,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for evaluation in flow.into_iter().flat_map(|flow| flow.expression_plans())
             .filter_map(|plan| plan.evaluation())
             .chain(self.terminal_relations_for_owner(owner).into_iter().filter_map(|row| match row {
-                TerminalRelationV1::I64Scalar(row) => row.evaluation().map(|frame| frame.as_ref()), _ => None,
+                TerminalRelationV1::Scalar(row) => row.evaluation().map(|frame| frame.as_ref()), _ => None,
             })) {
             for operation in evaluation.operations() {
                 if let Some(source) = operation.scalar_source_v1() {

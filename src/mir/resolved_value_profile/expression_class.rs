@@ -34,6 +34,19 @@ pub(crate) fn binary_operator_cannot_fault_v1(operator: ResolvedBinaryOperatorV1
     matches!(operator, Op::Add | Op::Subtract | Op::Multiply)
 }
 
+/// R16: the operator-level half of the table below. A comparison or logic operator
+/// produces Bool whatever its operands; `binary_expression_class_v1` decides whether
+/// the operand classes are admitted. Consumers ask this to name the result kind of a
+/// root operator and never list operators themselves.
+pub(crate) fn binary_operator_yields_bool_v1(operator: ResolvedBinaryOperatorV1) -> bool {
+    use ResolvedBinaryOperatorV1 as Op;
+    matches!(
+        operator,
+        Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
+            | Op::And | Op::Or
+    )
+}
+
 /// Preserve the source-result issuer's original transfer laws. In particular,
 /// String Add's source class alone does not satisfy the stricter checked String
 /// envelope; Divide/Modulo's class is not a proof of a normal/non-Fault result.

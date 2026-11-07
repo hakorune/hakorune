@@ -453,7 +453,7 @@ fn array_i64_return_position_mints_one_i64_scalar_relation() {
         .terminal_relations_for_owner(owner);
     assert!(
         matches!(relations.as_slice(),
-            [crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(_)]),
+            [crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(_)]),
         "a return-position get mints one I64 scalar relation: {relations:?}"
     );
 }

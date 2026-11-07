@@ -1,15 +1,16 @@
 //! Scalar Return source identity and its retained original evaluation.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 
 /// Exact source relation for a Completion-backed `return <expr>` whose
-/// scalar classifier proves an i64 value that is neither a literal nor a
+/// scalar classifier proves an i64 or Bool value (R16) that is neither a literal nor a
 /// field read: a local bound to a proven-i64 source (literal store, exact
 /// formal, field-read result, or classified call result) or a trivial
 /// integer expression. Ordinary scalar proof stays in the source inventory and
 /// current flow; a direct finite entry read retains its original source loan.
 /// Neither form grants a physical result ABI.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64ScalarReturnV1 {
+pub(crate) struct TerminalScalarReturnV1 {
     owner: FunctionOwnerIdV1,
     return_site: SourceStmtSiteV1,
     value_site: SourceExprSiteV1,
@@ -19,7 +20,7 @@ pub(crate) struct TerminalI64ScalarReturnV1 {
     >,
 }
 
-impl TerminalI64ScalarReturnV1 {
+impl TerminalScalarReturnV1 {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue(
         owner: FunctionOwnerIdV1,
         return_site: SourceStmtSiteV1,
@@ -75,13 +76,31 @@ impl TerminalI64ScalarReturnV1 {
             || !matches!(evaluation.source().root(), ExpressionPlanRootV1::Statement {
                 statement, role: StatementExpressionRoleV1::ReturnValue, value,
             } if statement == &self.return_site && value == &self.value_site)
-            || evaluation.root_class() != ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64)
+            || !matches!(
+                evaluation.root_class(),
+                ExpressionLeafClassV1::Value(
+                    ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool
+                )
+            )
             || !evaluation.reference_coverage_is_exact()
         {
             return None;
         }
         self.evaluation = Some(evaluation);
         Some(self)
+    }
+    /// R16: the exit's scalar kind is its retained evaluation's root class; a direct
+    /// finite entry read is an integer.
+    pub(crate) fn scalar_kind(&self) -> SourceScalarKind {
+        use crate::mir::resolved_value_profile::{
+            expression_class::ExpressionValueClassV1, expression_projection::ExpressionLeafClassV1,
+        };
+        match self.evaluation.as_ref().map(|evaluation| evaluation.root_class()) {
+            Some(ExpressionLeafClassV1::Value(ExpressionValueClassV1::Bool)) => {
+                SourceScalarKind::Bool
+            }
+            _ => SourceScalarKind::Integer,
+        }
     }
     pub(crate) fn entry_read(
         &self,

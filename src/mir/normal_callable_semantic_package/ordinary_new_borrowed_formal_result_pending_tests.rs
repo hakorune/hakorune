@@ -213,7 +213,7 @@ fn field_array_result_retains_one_read_and_all_original_returns() {
         assert_eq!(read.return_sites().len(), expected_returns);
         for returned in read.return_sites() {
             assert!(ledger.terminal_relations_for_owner(contract.owner).iter().any(|relation|
-                matches!(relation, TerminalRelationV1::I64Scalar(row) if row.value_site() == returned.site())),
+                matches!(relation, TerminalRelationV1::Scalar(row) if row.value_site() == returned.site())),
                 "required scalar walk must retain each original read Return relation");
         }
         assert_eq!(read.call().owner(), contract.owner);

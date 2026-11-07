@@ -216,7 +216,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 Box::new([]),
                             ))
                         } else {
-                            TerminalRelationV1::I64Scalar(TerminalI64ScalarReturnV1::issue(
+                            TerminalRelationV1::Scalar(TerminalScalarReturnV1::issue(
                                 input.owner(),
                                 statement.site().clone(),
                                 value.site().clone(),
@@ -265,7 +265,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
     } else if let Some(terminal) = scalar_terminal {
         match terminal {
             Ok(value) => {
-                relation = Some(TerminalRelationV1::I64Scalar(value));
+                relation = Some(TerminalRelationV1::Scalar(value));
                 true
             }
             Err(issue) => {
@@ -517,7 +517,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 // records the exact return/value sites.
                                 Some(ReturnScalar::Integer) => {
                                     relation =
-                                        Some(TerminalRelationV1::I64Scalar(
+                                        Some(TerminalRelationV1::Scalar(
                                             finite_entry_return(
                                                 input,
                                                 statement.site(),
@@ -526,7 +526,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                 borrowed_actuals,
                                             )?
                                             .unwrap_or_else(|| {
-                                                TerminalI64ScalarReturnV1::issue(
+                                                TerminalScalarReturnV1::issue(
                                                     input.owner(),
                                                     statement.site().clone(),
                                                     value.site().clone(),
@@ -549,7 +549,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                         locals,
                                         borrowed_actuals,
                                     )? {
-                                        relation = Some(TerminalRelationV1::I64Scalar(row));
+                                        relation = Some(TerminalRelationV1::Scalar(row));
                                         true
                                     } else if let Some(row) = terminal_map_get(
                                         input,

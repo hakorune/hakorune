@@ -563,8 +563,8 @@ impl OrdinaryNewClaimLedgerV1 {
             self.terminal_relation_for_owner_at(owner, &source.site),
         ) {
             (
-                TerminalRelationV1::I64Scalar(expected),
-                Some(TerminalRelationV1::I64Scalar(original)),
+                TerminalRelationV1::Scalar(expected),
+                Some(TerminalRelationV1::Scalar(original)),
             ) => expected == original,
             (
                 TerminalRelationV1::IntegerLiteral(expected),

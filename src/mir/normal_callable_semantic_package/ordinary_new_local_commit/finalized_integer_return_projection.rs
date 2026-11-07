@@ -96,7 +96,7 @@ impl FinalizedRootSourceHandoffV1 {
             return Ok(());
         };
         for relation in terminals.values() {
-            let TerminalRelationV1::I64Scalar(terminal) = relation else {
+            let TerminalRelationV1::Scalar(terminal) = relation else {
                 continue;
             };
             let Some(read) = terminal.entry_read() else {

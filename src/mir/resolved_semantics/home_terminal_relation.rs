@@ -20,7 +20,7 @@ pub(super) use returned_value::{
     terminal_returned_source, observe_borrowed_call_return_v1,
 };
 pub(crate) use returned_value::{
-    BorrowedNullableReturnV1, TerminalI64ScalarReturnV1, TerminalReturnedSourceV1, TerminalValueReturnV1,
+    BorrowedNullableReturnV1, TerminalScalarReturnV1, TerminalReturnedSourceV1, TerminalValueReturnV1,
 };
 
 /// Source-only terminal shape for the selected ordinary-`New` root.
@@ -690,7 +690,7 @@ pub(crate) enum TerminalRelationV1 {
     IntegerLiteral(TerminalIntegerLiteralReturnV1),
     BoolLiteral(TerminalBoolLiteralReturnV1),
     I64Field(TerminalI64FieldReturnV1),
-    I64Scalar(TerminalI64ScalarReturnV1),
+    Scalar(TerminalScalarReturnV1),
     Value(TerminalValueReturnV1),
     OpaqueCall(TerminalOpaqueCallReturnV1),
     MapGet(TerminalMapGetReturnV1),
@@ -705,7 +705,7 @@ impl TerminalRelationV1 {
             Self::IntegerLiteral(row) => row.owner,
             Self::BoolLiteral(row) => row.owner,
             Self::I64Field(row) => row.owner,
-            Self::I64Scalar(row) => row.owner(),
+            Self::Scalar(row) => row.owner(),
             Self::Value(row) => row.owner(),
             Self::OpaqueCall(row) => row.owner,
             Self::MapGet(row) => row.owner,
@@ -718,7 +718,8 @@ impl TerminalRelationV1 {
     pub(crate) fn scalar_class(&self) -> Option<super::local_flow::SourceScalarKind> {
         use super::local_flow::SourceScalarKind as Kind;
         match self {
-            Self::IntegerLiteral(_) | Self::I64Add(_) | Self::I64Field(_) | Self::I64Scalar(_) | Self::MapGet(_) => Some(Kind::Integer),
+            Self::IntegerLiteral(_) | Self::I64Add(_) | Self::I64Field(_) | Self::MapGet(_) => Some(Kind::Integer),
+            Self::Scalar(row) => Some(row.scalar_kind()),
             Self::BoolLiteral(_) => Some(Kind::Bool),
             Self::Call(call) => call.source_scalar().map(|_| call.scalar_kind()),
             Self::Unit(_) | Self::Value(_) | Self::OpaqueCall(_) => None,
@@ -736,7 +737,7 @@ impl TerminalRelationV1 {
             Self::IntegerLiteral(row) => row.return_site(),
             Self::BoolLiteral(row) => row.return_site(),
             Self::I64Field(row) => row.return_site(),
-            Self::I64Scalar(row) => row.return_site(),
+            Self::Scalar(row) => row.return_site(),
             Self::Value(row) => row.return_site(),
             Self::OpaqueCall(row) => row.return_site(),
             Self::MapGet(row) => row.return_site(),

@@ -80,7 +80,7 @@ impl OrdinaryNewClaimLedgerV1 {
         return_projection: Option<&FinishedBindings>,
         function: Option<&MirFunction>,
     ) -> Result<Option<Vec<(BasicBlockId, MirInstruction)>>, String> {
-        if let Some(TerminalRelationV1::I64Scalar(terminal)) =
+        if let Some(TerminalRelationV1::Scalar(terminal)) =
             self.terminal_relation_for_owner_at(owner, exit)
         {
             if let Some(source) = terminal.evaluation() {

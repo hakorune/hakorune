@@ -41,7 +41,7 @@ pub(super) struct DirectScalarCallProjectionV1 {
 impl DirectScalarCallProjectionV1 {
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
         if context.ledger().lexical_i64_call_source(self.source.site()) != Some(&self.source)
-            || self.source.result() != LocalCallResultClassV1::I64
+            || self.source.result().scalar_invoke_result().is_none()
             || !self.source.prior_homes().iter().all(|home|
                 home.stable_origin().is_some() && home.binding().owner() == self.source.owner())
             || self.source.local_binding().is_none()
@@ -52,7 +52,7 @@ impl DirectScalarCallProjectionV1 {
             ScalarCallSourceV1::Direct(row) => {
                 row.validate_static_source_v1(context.ledger())?;
                 if row.taken_site() != Some(self.source.site())
-                    || row.result() != InvokeCallResultKind::I64
+                    || Some(row.result()) != self.source.result().scalar_invoke_result()
                 {
                     return Err(freeze("direct-scalar/taken-source"));
                 }
@@ -219,7 +219,7 @@ impl DirectScalarCallProjectionV1 {
                     operation:
                         InvokeOperation::Call {
                             call: actual,
-                            result: InvokeCallResultKind::I64,
+                            result: invoke_result,
                         },
                     normal_landing,
                     fault_landing,
@@ -233,7 +233,8 @@ impl DirectScalarCallProjectionV1 {
                 };
                 // The callee-fault path ends every prior Home newest-first, then returns the Fault.
                 let unwind = context.ledger().prior_home_unwind_for(self.source.prior_homes())?;
-                if actual != &call || *normal_landing != normal.0 || invoke_block != invoke.0
+                if Some(*invoke_result) != self.source.result().scalar_invoke_result()
+                    || actual != &call || *normal_landing != normal.0 || invoke_block != invoke.0
                     || !self.original.contains(invoke) || !self.original.contains(normal)
                     || super::super::owned_array::check_fault_chain(&self.original, *fault_landing, *fault_frame, None, &unwind).is_err()
                     || !self.original.iter().any(|(_, row)| matches!(row, MirInstruction::FaultFrameEnter { dst, .. } if dst == fault_frame)) {
@@ -458,7 +459,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let original = self
             .borrow_original_static_source_v1(site)?
             .ok_or_else(|| freeze("static-scalar/original-call-missing"))?;
-        if !matches!(original.source_result(), crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1::ExactI64 { .. }) {
+        if original.source_result().scalar_result_class().is_none() {
             return Err(freeze("static-scalar/original-result-not-i64"));
         }
         self.verify_original_static_packet_source_v1(original)?;

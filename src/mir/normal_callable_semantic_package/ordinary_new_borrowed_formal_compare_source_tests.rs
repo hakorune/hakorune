@@ -323,7 +323,7 @@ fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
                 }).expect("original returned Mul exit");
                 assert!(ledger.normal_exit_projection_v1(input.owner(), exit).unwrap().is_some());
                 assert!(matches!(ledger.terminal_relation_for_owner_at(input.owner(), exit),
-                    Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(_))));
+                    Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(_))));
                 let calls: Vec<_> = completion.cleanup().root_flow().unwrap().local_calls().iter()
                     .filter(|call| call.site() == &owned).collect();
                 assert_eq!(calls.len(), 1, "original call child occurs once");

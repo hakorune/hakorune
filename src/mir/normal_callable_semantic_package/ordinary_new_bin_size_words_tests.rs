@@ -145,7 +145,7 @@ fn size_to_bin_search_loop_keeps_distinct_early_and_tail_home_calls() {
                 .unwrap();
             assert!(matches!(
                 ledger.terminal_relation_for_owner_at(input.owner(), &semantic.roles().return_site),
-                Some(TerminalRelationV1::I64Scalar(row))
+                Some(TerminalRelationV1::Scalar(row))
                     if row.value_site() == &crate::mir::resolved_semantics::SourcePathV1::from_node(
                         semantic.roles().return_site.node()
                     ).child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).expr()
@@ -339,7 +339,7 @@ fn bin_size_return_mul_requires_i64_local_and_exact_static_call() {
             if expected {
                 assert!(matches!(flow.exit_row(&exit), Some(Ok(_))), "{source}");
                 assert!(matches!(ledger.terminal_relation_for_owner_at(input.owner(), &exit),
-                    Some(TerminalRelationV1::I64Scalar(_))), "{source}");
+                    Some(TerminalRelationV1::Scalar(_))), "{source}");
             } else {
                 assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site)))
                     if site == &exit), "{source}");

@@ -335,7 +335,7 @@ pub(super) fn retain_static_i64_search_early_return_v1(
     use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1;
     use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
     use crate::mir::resolved_semantics::{ResolvedLexicalRefV1, SourcePathSegmentV1, SourcePathV1};
-    let TerminalRelationV1::I64Scalar(scalar) = relation else {
+    let TerminalRelationV1::Scalar(scalar) = relation else {
         return false;
     };
     let Some(caller) = caller else { return false };

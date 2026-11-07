@@ -643,7 +643,7 @@ fn bound_i64_scalar_issues_exact_terminal_relation() {
             .terminal_relation
             .values()
             .find_map(|relation| match relation {
-                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(row) => Some(row),
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(row) => Some(row),
                 _ => None,
             })
             .unwrap_or_else(|| panic!("{label}: scalar relation"));

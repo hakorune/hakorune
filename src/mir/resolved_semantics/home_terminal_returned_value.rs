@@ -9,7 +9,7 @@ use super::{
 
 #[path = "home_terminal_scalar_result.rs"]
 mod scalar_result;
-pub(crate) use scalar_result::TerminalI64ScalarReturnV1;
+pub(crate) use scalar_result::TerminalScalarReturnV1;
 
 /// Return provenance keeps legacy narrowing separate from explicit read access.
 /// A declared read retains its original loan and the current exact alias use.
@@ -266,7 +266,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn finite_entry_return<E
         Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
-) -> Result<Option<super::TerminalI64ScalarReturnV1>, E> {
+) -> Result<Option<super::TerminalScalarReturnV1>, E> {
     use crate::mir::resolved_semantics::home_new_prefix::{
         BorrowedCallActualRequestV1 as Request, BorrowedCallArgumentsV1 as Response,
     };
@@ -304,7 +304,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn finite_entry_return<E
     else {
         return Ok(None);
     };
-    Ok(super::TerminalI64ScalarReturnV1::issue(
+    Ok(super::TerminalScalarReturnV1::issue(
         input.owner(),
         return_site.clone(),
         value_site.clone(),
@@ -620,7 +620,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         &[super::super::LocalFieldReadRequestV1],
         super::super::LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<super::super::LocalFieldReadResultV1>>, E>,
-) -> Result<Option<Result<TerminalI64ScalarReturnV1, super::HomePrefixUnavailableV1>>, E> {
+) -> Result<Option<Result<TerminalScalarReturnV1, super::HomePrefixUnavailableV1>>, E> {
     let Ok(value) = input
         .source()
         .child_expr_from_stmt(statement, super::ExprChildRoleV1::ReturnValue)
@@ -638,7 +638,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     let binary = input.function().expression_source().binary(value.site()).map(|row| row.operator());
     let add = binary == Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add);
     let copy = input.function().expression_source().unary(value.site()).is_some_and(|unary| unary.is_explicit_copy_v1());
-    if !stored_field && !add && !copy && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract) {
+    // R16: a comparison or logic root names Bool by the expression-class table.
+    let bool_root = binary.is_some_and(crate::mir::resolved_value_profile::expression_class::binary_operator_yields_bool_v1)
+        || input.function().expression_source().unary(value.site()).is_some_and(|unary| unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Not);
+    if !stored_field && !add && !copy && !bool_root && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract) {
         return Ok(None);
     }
     let refused = || {
@@ -671,10 +674,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     // The complete Return evaluation borrows its Call and field leaves from
     // their existing source issuers and retains their ordered cleanup proof.
     let purpose = OwnedExprSiteV1::new(input.owner(), value.site().clone());
-    let Ok((evaluation, requests)) = prepare_value_evaluation_v1(
+    let prepared = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),
-        crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64,
+        if bool_root {
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::Bool
+        } else {
+            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64
+        },
         &purpose,
         locals,
         homes,
@@ -685,11 +692,18 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         &mut |site| {
             super::super::field_read::expression_field_read_request(input, &source, site, locals)
         },
-    )?
-    else {
-        // Add may return Text. This is a passive source classification, before
-        // field installation or terminal issuance; its existing owner decides.
-        return Ok(if add { None } else { refused() });
+    )?;
+    let (evaluation, requests) = match prepared {
+        Ok(prepared) => prepared,
+        Err(reason) => {
+            // Add may return Text, and a comparison may compare Text. This is a passive
+            // source classification, before field installation or terminal issuance;
+            // its existing owner decides.
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[scalar-return] owner={:?} declined: {reason}", input.owner());
+            }
+            return Ok(if add || bool_root { None } else { refused() });
+        }
     };
     if stored_field {
         // Only an integer field belongs to this scalar lane; Text and others keep theirs.
@@ -720,7 +734,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         installation.commit();
     }
     Ok(Some(
-        TerminalI64ScalarReturnV1::issue(
+        TerminalScalarReturnV1::issue(
             input.owner(),
             statement.site().clone(),
             value.site().clone(),

@@ -146,7 +146,9 @@ impl DirectCallDispositionLoansV1 {
             batch.with_lowering_input(*slot, |input| -> Result<(), String> {
                 for (site, _) in input.function().method_calls() {
                     let site = OwnedExprSiteV1::new(owner, site.clone());
-                    if !ledger.local_call_for_owner(owner, site.site()).is_some_and(|local| local.result() == LocalCallResultClassV1::I64 && local.local_binding().is_some()) { continue; }
+                    let Some(call_result) = ledger.local_call_for_owner(owner, site.site())
+                        .filter(|local| local.local_binding().is_some())
+                        .and_then(|local| local.result().scalar_invoke_result()) else { continue };
                     let Some(original) = ledger.borrow_original_static_source_v1(&site)? else { continue };
                     if !original.qualified_scalar_result_v1().is_some() && !original.is_current_owner_i64_source_v1() { continue; }
                     if !owners.contains_key(&original.callee_owner()) { continue; }
@@ -167,13 +169,13 @@ impl DirectCallDispositionLoansV1 {
                     let result = results.row(original.target_batch_slot()).ok_or_else(|| reject("result-contract"))?.borrow();
                     let completion = ledger.completion_for_owner(original.callee_owner()).ok_or_else(|| reject("result-completion"))?;
                     if result.owner() != original.callee_owner() || !result.identity().same_as(declaration.identity())
-                        || !result.declared_result_agrees_with_i64_source() || !std::ptr::eq(result.completion(), completion) {
+                        || !result.declared_result_agrees_with_scalar_source() || !std::ptr::eq(result.completion(), completion) {
                         return Err(reject("result-source"));
                     }
                     let row = DirectCallDispositionRowV1 {
                         argument_sites: original.argument_sites().to_vec().into_boxed_slice(), taken_site: None,
                         observed_arguments: None, argument_projections: None, emission: DirectCallEmissionV1::Static(emission),
-                        execution: DirectCallExecutionV1::Lifecycle, result: crate::mir::instruction::InvokeCallResultKind::I64,
+                        execution: DirectCallExecutionV1::Lifecycle, result: call_result,
                     };
                     additions.push((site, row));
                 }

@@ -30,6 +30,18 @@ pub(crate) enum LocalCallResultClassV1 {
     MixedObject,
 }
 
+impl LocalCallResultClassV1 {
+    /// R15: the one table from a scalar result kind to its published call result.
+    /// Only I64 and Bool are scalar; every other class answers `None`.
+    pub(crate) const fn scalar_invoke_result(self) -> Option<crate::mir::instruction::InvokeCallResultKind> {
+        match self {
+            Self::I64 => Some(crate::mir::instruction::InvokeCallResultKind::I64),
+            Self::Bool => Some(crate::mir::instruction::InvokeCallResultKind::Bool),
+            _ => None,
+        }
+    }
+}
+
 /// The original result source, shared by expression qualification and the
 /// existing Call packet. Retention alone grants no executable result or Home.
 #[derive(Debug, Clone)]

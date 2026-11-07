@@ -333,8 +333,8 @@ pub(super) fn local_call_gate(
 ) -> Result<(), &'static str> {
     if local.owner() != site.owner() || local.site() != site {
         Err("local-site-mismatch")
-    } else if local.result() != LocalCallResultClassV1::I64 {
-        Err("result-not-i64")
+    } else if local.result().scalar_invoke_result().is_none() {
+        Err("result-not-scalar")
     } else if local.local_binding().is_none() {
         Err("not-local-bound")
     } else if local.arguments().len() != argument_count {

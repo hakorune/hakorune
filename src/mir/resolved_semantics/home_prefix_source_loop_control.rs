@@ -117,7 +117,7 @@ impl SourceLoopReturnV1 {
             expression_root::StatementExpressionRoleV1,
         };
         let value_site = match &self.terminal {
-            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(terminal) => {
+            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal) => {
                 terminal.value_site()
             }
             crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::IntegerLiteral(terminal) => {
@@ -142,7 +142,7 @@ impl SourceLoopReturnV1 {
         let Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(value)) =
             self.source.nodes()[0].source() else { return None; };
         match &self.terminal {
-            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(_) => Some(*value),
+            crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(_) => Some(*value),
             crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::IntegerLiteral(terminal)
                 if terminal.value() == *value => Some(*value),
             _ => None,
@@ -159,7 +159,7 @@ impl SourceLoopReturnV1 {
         };
         let source_value = match (&self.terminal, &self.read) {
             (
-                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(terminal),
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal),
                 Some(read),
             ) => {
                 terminal.owner() == input.owner()
@@ -183,7 +183,7 @@ impl SourceLoopReturnV1 {
                     && self.integer_literal_value_v1() == Some(terminal.value())
             }
             (
-                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(terminal),
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Scalar(terminal),
                 None,
             ) => {
                 terminal.owner() == input.owner()
@@ -341,7 +341,7 @@ impl PrefixLocalFlow<'_> {
         let source = (|| {
             let terminal = terminal?;
             let read = match terminal {
-                super::super::super::TerminalRelationV1::I64Scalar(terminal) => {
+                super::super::super::TerminalRelationV1::Scalar(terminal) => {
                     self.current_scalar_read_v1(terminal.value_site(), calls)
                 }
                 super::super::super::TerminalRelationV1::IntegerLiteral(_) => None,

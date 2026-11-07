@@ -87,7 +87,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("artifact-root-field-unavailable"));
                     }
                 }
-                TerminalRelationV1::I64Scalar(relation) => {
+                TerminalRelationV1::Scalar(relation) => {
                     if relation.owner() != owner {
                         return Err(freeze("artifact-root-scalar-unavailable"));
                     }

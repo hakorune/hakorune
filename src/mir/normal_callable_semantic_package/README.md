@@ -2711,7 +2711,7 @@ Home Return analysis consults the same whole operation through
 coordinates select the existing verified walk across both draft partitions;
 selection does not validate away malformed evidence. The bounded scalar helper
 stages original Static children, then journals only a wholly admitted expression
-and issues the existing I64Scalar relation. Missing proof/child remains an
+and issues the existing Scalar relation. Missing proof/child remains an
 explicit uncovered exit; generic Multiply and executable entry stay ungranted.
 
 
@@ -2722,7 +2722,7 @@ not turn generic operand membership into a Return contract or activate entry.
 An exact source IntegerReturn selects the existing verified Completion walk
 instead of the plain seed. It verifies every exit and yields genuine Home flow,
 including empty Home sets; no Home is introduced and no unavailable exit is hidden.
-That owner retains every I64Scalar sibling from the SAME verified walk, including
+That owner retains every Scalar sibling from the SAME verified walk, including
 ordinary typed-formal returns; per-Return borrowed permission remains exact.
 Final entry lends the original formal/alias value independently of the original
 Plain exit's Return binding, then uses the SAME FinishedBindings and original
@@ -3971,7 +3971,7 @@ Before Completion, the existing typed Return consult borrows the presealed neste
 field expression from the same result cohort. It verifies exact Return/value/root,
 the canonical closed field component, and the entire pure Integer field/Add tree;
 Call/New/opaque residuals retain their own owners. The current Home state must
-prove the original receiver root live. The existing I64Scalar terminal retains
+prove the original receiver root live. The existing Scalar terminal retains
 that source exit's Home order and canonical Completion is issued once. The later
 physical loan adds that same Completion; earlier unavailable rows are never patched.
 
@@ -4966,7 +4966,7 @@ arguments still require their existing child/frame owners.
 The Home-aware body requirement is queried only for canonical Ready routes;
 DirectAccum, CallableSingleLoop and GenericG0 retain their own selection rules.
 The same typed Static source-walk demand also retains its already-issued
-I64Scalar terminal relation in the existing child completion filter. A checked
+Scalar terminal relation in the existing child completion filter. A checked
 root Home flow must not lose the return-parameter proof before final projection.
 
 A nonopaque `LocalCallArgumentV1::Expression` is an original ordinal/site

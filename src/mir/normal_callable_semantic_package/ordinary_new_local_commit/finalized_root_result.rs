@@ -108,7 +108,7 @@ impl FinalizedRootSourceHandoffV1 {
             let projected = match terminal {
                 TerminalRelationV1::Call(_) | TerminalRelationV1::I64Add(_)
                 | TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::I64Field(_)
-                | TerminalRelationV1::I64Scalar(_) | TerminalRelationV1::MapGet(_) =>
+                | TerminalRelationV1::Scalar(_) | TerminalRelationV1::MapGet(_) =>
                     FinalizedRootResultAbiV1::I64Return { owner },
                 TerminalRelationV1::Unit(_) => FinalizedRootResultAbiV1::UnitReturn { owner },
                 TerminalRelationV1::BoolLiteral(_) | TerminalRelationV1::Value(_)

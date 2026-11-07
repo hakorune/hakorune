@@ -53,7 +53,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if value.owner() != owner || value.return_site() != site { return Err("[freeze:contract][expression/residence-original-pair]".into()); }
                 (source, value.value_site())
             }
-            Some(TerminalRelationV1::I64Scalar(value)) => {
+            Some(TerminalRelationV1::Scalar(value)) => {
                 let Some(source) = value.evaluation() else { return Ok(None) };
                 if value.owner() != owner || value.return_site() != site { return Err("[freeze:contract][expression/residence-original-pair]".into()); }
                 (source, value.value_site())

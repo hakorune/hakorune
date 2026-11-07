@@ -677,7 +677,7 @@ fn checked_integer_return_walk_trigger_keeps_source_only_membership_passive() {
                         assert!(source.consult_view_use_v1(input, &site,
                             BorrowedViewUseRequestV1::IntegerMulReturn { exit }).unwrap());
                         assert!(matches!(ledger.terminal_relation_for_owner_at(owner, exit),
-                            Some(TerminalRelationV1::I64Scalar(_))), "{body}");
+                            Some(TerminalRelationV1::Scalar(_))), "{body}");
                         let wrong = exits.iter().find(|other| *other != exit).unwrap();
                         assert!(source.consult_view_use_v1(input, &site,
                             BorrowedViewUseRequestV1::IntegerMulReturn { exit: wrong })

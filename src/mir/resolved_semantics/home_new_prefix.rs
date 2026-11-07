@@ -246,7 +246,7 @@ use terminal_relation::{
 };
 pub(crate) use terminal_relation::{
     BorrowedNullableReturnV1, TerminalBoolLiteralReturnV1, TerminalCallArgumentV1, TerminalI64AddReturnV1,
-    TerminalI64CallReturnV1, TerminalI64FieldReturnV1, TerminalI64ScalarReturnV1,
+    TerminalI64CallReturnV1, TerminalI64FieldReturnV1, TerminalScalarReturnV1,
     TerminalIntegerLiteralReturnV1, TerminalMapGetReceiverClassV1, TerminalMapGetReturnV1,
     TerminalOpaqueCallReturnV1, TerminalRelationV1, TerminalReturnedSourceV1, TerminalUnitReturnV1,
     TerminalValueReturnV1,

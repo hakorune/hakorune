@@ -281,7 +281,7 @@ impl FinalizedRootSourceHandoffV1 {
                                 | TerminalRelationV1::I64Add(_)
                                 | TerminalRelationV1::IntegerLiteral(_)
                                 | TerminalRelationV1::I64Field(_)
-                                | TerminalRelationV1::I64Scalar(_)
+                                | TerminalRelationV1::Scalar(_)
                                 | TerminalRelationV1::MapGet(_)
                         )
                     })
