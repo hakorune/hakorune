@@ -18,6 +18,56 @@ impl PrefixLocalFlow<'_> {
         matches!(self.locals.get(&binding), Some(StoredLocal::MovedOut))
     }
 
+    /// S3b-M2: the Local binding an explicit `move` names, or the refusal.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn move_operand_binding_v1(
+        &self,
+        moved: &crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+    ) -> Result<BindingRefV1, HomePrefixUnavailableV1> {
+        match self.input.function().variable_ref(moved.operand()) {
+            Some(ResolvedLexicalRefV1::Local(binding)) => Ok(binding),
+            _ => Err(HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone())),
+        }
+    }
+
+    /// S3b-M3: reading a binding that is no longer usable is `UseAfterMove` at `site`.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn use_after_move_v1(
+        &self,
+        bindings: impl IntoIterator<Item = BindingRefV1>,
+        site: &SourceExprSiteV1,
+    ) -> Option<HomePrefixUnavailableV1> {
+        bindings
+            .into_iter()
+            .any(|binding| self.was_moved_out(binding))
+            .then(|| HomePrefixUnavailableV1::UseAfterMove(site.clone()))
+    }
+
+    /// S3b-M2a: the binding of a local `move`, which must still be usable.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn live_move_operand_v1(
+        &self,
+        moved: &crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+    ) -> Result<BindingRefV1, HomePrefixUnavailableV1> {
+        let binding = self.move_operand_binding_v1(moved)?;
+        match self.use_after_move_v1([binding], moved.operand()) {
+            Some(issue) => Err(issue),
+            None => Ok(binding),
+        }
+    }
+
+    /// S3b-M4: a local move or share move keeps its responsibility only inside one scope.
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn move_scope_v1(
+        &self,
+        destination: BindingRefV1,
+        source: BindingRefV1,
+        statement: &SourceStmtSiteV1,
+        moved: &crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
+    ) -> Result<(), HomePrefixUnavailableV1> {
+        if self.same_scope_v1(destination, source, statement) {
+            Ok(())
+        } else {
+            Err(HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone()))
+        }
+    }
+
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_moved_out(&self) -> bool {
         self.locals.values().any(|local| matches!(local, StoredLocal::MovedOut))
     }
@@ -79,8 +129,7 @@ impl PrefixLocalFlow<'_> {
             let moved = input.function().expression_source().moved(&site);
             if after {
                 if let Some(moved) = moved {
-                    let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(moved.operand())
-                        else { return Err(HomePrefixUnavailableV1::MoveUnsupported(site)); };
+                    let binding = simulated.move_operand_binding_v1(moved)?;
                     if simulated.home_acquisition(binding).is_none() {
                         return Err(HomePrefixUnavailableV1::MoveUnsupported(site));
                     }
@@ -105,13 +154,15 @@ impl PrefixLocalFlow<'_> {
             }).or_else(|| match self.observe(&site) {
                 Some(OrdinaryObservation::Handle(root)) => Some(root), _ => None,
             });
-            if reference.into_iter().chain(root).any(|binding| simulated.was_moved_out(binding)) {
-                return Err(HomePrefixUnavailableV1::UseAfterMove(site));
+            if let Some(issue) = simulated.use_after_move_v1(reference.into_iter().chain(root), &site) {
+                return Err(issue);
             }
             if let Some(method) = input.function().method_call_source_v1(&site) {
-                if matches!(method.receiver(), crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
-                    ResolvedLexicalRefV1::Local(binding)) if simulated.was_moved_out(binding)) {
-                    return Err(HomePrefixUnavailableV1::UseAfterMove(method.receiver_site().clone()));
+                if let crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
+                    ResolvedLexicalRefV1::Local(binding)) = method.receiver() {
+                    if let Some(issue) = simulated.use_after_move_v1([binding], method.receiver_site()) {
+                        return Err(issue);
+                    }
                 }
             }
             let children: Vec<SourceExprSiteV1> = if let Some(construction) = input.function().expression_source().construction(&site) {

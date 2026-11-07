@@ -180,22 +180,18 @@ pub(super) fn observe<'a, E>(
                     });
                     continue;
                 };
-                let Some(ResolvedLexicalRefV1::Local(source)) = function.variable_ref(moved.operand()) else {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone()));
-                    continue;
+                let source = match locals.live_move_operand_v1(moved) {
+                    Ok(source) => source,
+                    Err(issue) => { unavailable.get_or_insert(issue); continue; }
                 };
-                if locals.was_moved_out(source) {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::UseAfterMove(moved.operand().clone()));
-                    continue;
-                }
                 if locals.shared_acquisition_v1(source).is_some() {
                     unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::SharedOperandUnsupported {
                         site: site.clone(), guidance: "share move h cannot start sharing an existing Shared handle; use move h to transfer it, or share h to add one handle",
                     });
                     continue;
                 }
-                if !locals.same_scope_v1(binding, source, statement.site()) {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(moved.site().clone()));
+                if let Err(issue) = locals.move_scope_v1(binding, source, statement.site(), moved) {
+                    unavailable.get_or_insert(issue);
                     continue;
                 }
                 let acquisition = locals.home_acquisition(source).cloned();
@@ -219,19 +215,12 @@ pub(super) fn observe<'a, E>(
                 continue;
             }
             if unary.is_move() {
-                let source = match function.variable_ref(unary.operand()) {
-                    Some(ResolvedLexicalRefV1::Local(source)) => source,
-                    _ => {
-                        unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(site.clone()));
-                        continue;
-                    }
+                let source = match locals.live_move_operand_v1(unary) {
+                    Ok(source) => source,
+                    Err(issue) => { unavailable.get_or_insert(issue); continue; }
                 };
-                if locals.was_moved_out(source) {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::UseAfterMove(unary.operand().clone()));
-                    continue;
-                }
-                if !locals.same_scope_v1(binding, source, statement.site()) {
-                    unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::MoveUnsupported(site.clone()));
+                if let Err(issue) = locals.move_scope_v1(binding, source, statement.site(), unary) {
+                    unavailable.get_or_insert(issue);
                     continue;
                 }
                 let acquisition = locals.movable_acquisition_v1(source).cloned();

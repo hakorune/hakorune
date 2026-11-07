@@ -127,17 +127,22 @@ pub(super) fn scan_statement_flow<'a, E>(
         locals.visit_source_loop_statement_v1(body, statement.site(), index);
         if locals.has_moved_out() {
             let statement_path = statement.site().node().segments();
-            if let Some((site, _)) = function.variable_refs().find(|(site, reference)| {
-                let Some(suffix) = site.node().segments().strip_prefix(statement_path) else { return false };
+            if let Some(issue) = function.variable_refs().find_map(|(site, reference)| {
+                let suffix = site.node().segments().strip_prefix(statement_path)?;
                 // Branch/loop bodies are checked by their own path-sensitive
                 // walks after any earlier reinitialization in that body.
-                !suffix.iter().any(|segment| matches!(segment,
+                if suffix.iter().any(|segment| matches!(segment,
                     SourcePathSegmentV1::IfThenBody | SourcePathSegmentV1::IfThen(_)
                     | SourcePathSegmentV1::IfElseBody | SourcePathSegmentV1::IfElse(_)
-                    | SourcePathSegmentV1::LoopBodyRoot | SourcePathSegmentV1::LoopBody(_)))
-                    && matches!(reference, ResolvedLexicalRefV1::Local(binding) if locals.was_moved_out(*binding))
+                    | SourcePathSegmentV1::LoopBodyRoot | SourcePathSegmentV1::LoopBody(_))) {
+                    return None;
+                }
+                match reference {
+                    ResolvedLexicalRefV1::Local(binding) => locals.use_after_move_v1([*binding], site),
+                    _ => None,
+                }
             }) {
-                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::UseAfterMove(site.clone()));
+                unavailable.get_or_insert(issue);
             }
         }
         locals.invalidate_dynamic_field_sources(&statement);
