@@ -28,7 +28,7 @@ impl MirBuilder {
         self.function_state.current_function = Some(function);
         self.function_state.current_block = Some(entry_block);
         // Phase 29bq+: reset sealing session for new function
-        self.function_state.frag_emit_session.reset();
+        self.function_state.canonical_control = Default::default();
     }
 
     pub fn exit_function_for_test(&mut self) {

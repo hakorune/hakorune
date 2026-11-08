@@ -1,8 +1,6 @@
-use crate::mir::ssot::cf_common::append_instruction_core;
 use super::{observe, origin};
 use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
-use crate::mir::BasicBlock;
 
 #[path = "builder_emit_core.rs"]
 mod builder_emit_core;
@@ -403,52 +401,21 @@ impl MirBuilder {
                 }
                 // Phase 136 Step 6/7: Use metadata_ctx for span. Both legacy
                 // and strict front doors share this one physical append point.
-                if let Some(control) = &self.function_state.canonical_control {
-                    let mut control = control.borrow_mut();
-                    for target in [then_t, else_t, jump_t].into_iter().flatten() {
-                        if !function.blocks.contains_key(&target) {
-                            control
-                                .cfg
-                                .create_block(function, target)
-                                .map_err(|error| error.to_string())?;
-                        }
+                let mut control = self.function_state.canonical_control.borrow_mut();
+                for target in [then_t, else_t, jump_t].into_iter().flatten() {
+                    if !function.blocks.contains_key(&target) {
+                        control.cfg.create_block(function, target).map_err(|error| error.to_string())?;
                     }
-                    control
-                        .cfg
-                        .append_packet_instruction(
-                            function,
-                            block_id,
-                            instruction,
-                            self.metadata_ctx.current_span(),
-                        )
-                        .map_err(|error| error.to_string())?;
-                } else {
-                    append_instruction_core(
-                        function,
-                        block_id,
-                        instruction,
-                        Some(self.metadata_ctx.current_span()),
-                    )?;
                 }
+                control.cfg.append_body_instruction(
+                    function, block_id, instruction, self.metadata_ctx.current_span(),
+                ).map_err(|error| error.to_string())?;
             } else {
                 return Err(FreezeContract::new("builder/emit_missing_block")
                     .field("fn", current_fn_name)
                     .field("bb", format!("{:?}", block_id))
                     .field("inst", format!("{:?}", instruction))
                     .build());
-            }
-            // Update predecessor sets for branch/jump immediately so that
-            // debug_verify_phi_inputs can observe a consistent CFG without
-            // requiring a full function.update_cfg() pass.
-            if self.function_state.canonical_control.is_none() {
-                for target in [then_t, else_t, jump_t].into_iter().flatten() {
-                    if !function.blocks.contains_key(&target) {
-                        function.add_block(BasicBlock::new(target));
-                    }
-                    if let Some(successor) = function.get_block_mut(target) {
-                        successor.add_predecessor(block_id);
-                    }
-                }
             }
             Ok(())
         } else {

@@ -124,7 +124,6 @@ pub(in crate::mir::builder) mod single_planner;
 // 共通機能・ポリシー
 // Layer 9: Legacy/Scaffolding (残骸・足場)
 // 歴史的経緯で残存、将来的には整理予定
-mod plan_build_session;
 
 // ============================================================================
 // Entrypoints (SSOT)
@@ -138,7 +137,6 @@ pub(in crate::mir::builder) use normalizer::PlanNormalizer;
 pub(in crate::mir::builder) use planner::PlanBuildOutcome;
 
 pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
-pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
 
 // ============================================================================
 // Re-exports (New Modules)

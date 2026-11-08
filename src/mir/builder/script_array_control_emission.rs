@@ -6,7 +6,7 @@ use crate::mir::builder::recursive_child_lowering::{
 };
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::BindingRefV1;
-use crate::mir::{ArrayElementWriteKind, ArrayWriteProducerKind, BasicBlock, MirType};
+use crate::mir::{ArrayElementWriteKind, ArrayWriteProducerKind, MirType};
 use std::collections::BTreeMap;
 
 pub(in crate::mir::builder) struct ArrayLocalEmissionInput {
@@ -193,16 +193,14 @@ fn cleanup(
         })
         .collect::<Result<Vec<_>, String>>()?;
     let block = builder.next_block_id();
-    let mut body = BasicBlock::new(block);
-    for (_, value) in &releases {
-        body.add_instruction(MirInstruction::ArrayResidenceRelease { value: *value });
+    let mut packet: Vec<_> = releases
+        .iter()
+        .map(|(_, value)| MirInstruction::ArrayResidenceRelease { value: *value })
+        .collect();
+    packet.push(MirInstruction::ReturnFault { fault_frame: frame });
+    if builder.function_state.current_function.is_none() {
+        return Err(fault("function-missing"));
     }
-    body.set_terminator(MirInstruction::ReturnFault { fault_frame: frame });
-    builder
-        .function_state
-        .current_function
-        .as_mut()
-        .ok_or_else(|| fault("function-missing"))?
-        .add_block(body);
+    builder.append_packet_block_v1(block, &packet)?;
     Ok(ArrayCleanupEmission { block, releases })
 }

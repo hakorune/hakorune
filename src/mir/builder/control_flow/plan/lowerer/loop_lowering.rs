@@ -11,13 +11,13 @@
 //!
 //! - Frame setup with break/continue targets and PHI inputs
 //! - 8-step pipeline for comprehensive loop lowering
-//! - PlanBuildSession integration for structural lock
+//! - Function CFG owns fragment outgoing completion
 //! - Route-agnostic (all route knowledge is fixed in Normalizer)
 //!
 //! # Phase Comments
 //!
 //! - Phase 273 P3: Generalized fields (block_effects/phis/frag/final_values)
-//! - Phase 29bq+: PlanBuildSession structural lock
+//! - Fragment outgoing completion is shared with If/Root
 
 use super::LoopFrame;
 use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
@@ -84,7 +84,7 @@ impl super::PlanLowerer {
     /// Phase 273 P3: Generalized loop lowering (SSOT)
     ///
     /// # Phase 29bq+: Structural Lock
-    /// - Uses PlanBuildSession for sealing enforce
+    /// - Uses the function CFG for fragment outgoing completion
     /// - emit_frag → session.emit_and_seal (手順 SSOT)
     fn lower_loop_generalized(
         builder: &mut MirBuilder,
@@ -93,12 +93,7 @@ impl super::PlanLowerer {
         loop_stack: &mut Vec<LoopFrame>,
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
-        use super::super::PlanBuildSession;
         use crate::mir::builder::control_flow::joinir::trace;
-
-
-        // Phase 29bq+: Create session for structural lock
-        let mut session = PlanBuildSession::new();
 
         let trace_logger = trace::trace();
         let debug = ctx.debug_enabled();
@@ -210,7 +205,7 @@ impl super::PlanLowerer {
 
         // Step 5: Emit Frag (terminators)
         // SSOT: Delegated to loop_completion::emit_loop_frag()
-        loop_completion::emit_loop_frag(builder, &mut session, &frag, &loop_plan, ctx)?;
+        loop_completion::emit_loop_frag(builder, &frag, &loop_plan, ctx)?;
 
         port.completed_loop(&loop_plan, builder.function_state.current_function.as_ref()
             .ok_or("[freeze:contract][loop-cond-after-role/function-missing]")?)?;

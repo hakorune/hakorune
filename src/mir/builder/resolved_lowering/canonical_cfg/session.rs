@@ -62,10 +62,23 @@ impl VerifiedCanonicalCfgV1 {
 pub(in crate::mir::builder) struct CanonicalCfgSessionV1 {
     pub(super) sealed: BTreeMap<BasicBlockId, VerifiedPredecessorsV1>,
     creation: CanonicalCfgCreationStateV1,
+    pub(super) fragment_outgoing: std::collections::BTreeSet<BasicBlockId>,
     pub(super) forward_predecessors: RefCell<Option<TerminatorPredecessorsV1>>,
 }
 
 impl CanonicalCfgSessionV1 {
+    pub(in crate::mir::builder) fn is_empty_for_commit(&self) -> bool {
+        self.sealed.is_empty()
+            && self.fragment_outgoing.is_empty()
+            && self.creation.is_empty()
+            && self.forward_predecessors.borrow().is_none()
+    }
+    pub(in crate::mir::builder) fn bind_source_owner(
+        &mut self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<(), String> {
+        self.creation.bind_source_owner(owner)
+    }
     pub(in crate::mir::builder) fn new() -> Self {
         Self::default()
     }
@@ -76,6 +89,7 @@ impl CanonicalCfgSessionV1 {
         Self {
             sealed: BTreeMap::new(),
             creation: CanonicalCfgCreationStateV1::new_for_owner(owner),
+            fragment_outgoing: Default::default(),
             forward_predecessors: RefCell::default(),
         }
     }

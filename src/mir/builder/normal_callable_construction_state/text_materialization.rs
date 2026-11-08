@@ -2,7 +2,7 @@
 //! store Normal only. Source admission stays on the same construction plan.
 use super::*;
 use crate::mir::instruction::{FieldSetModeV1 as Mode, InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Op};
-use crate::mir::{BasicBlock, MirBuilder, MirInstruction, MirType};
+use crate::mir::{MirBuilder, MirInstruction, MirType};
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
 use std::rc::Rc;
 type Binding = (BasicBlockId, MirInstruction);
@@ -112,10 +112,12 @@ impl TextStoreAcquisitionV1 {
         let head = builder.next_block_id();
         let normal = super::fault_cleanup::jump_landing(builder, discharge)?;
         let fault_edge = super::fault_cleanup::jump_landing(builder, discharge)?;
-        let mut block = BasicBlock::new(head);
-        block.set_terminator(MirInstruction::Invoke { operation: InvokeOperation::String(Op::End { value: self.value() }),
-            fault_frame: frame, normal_landing: normal, fault_landing: fault_edge });
-        builder.function_state.current_function.as_mut().ok_or_else(|| fault("no-function"))?.add_block(block);
+        builder.append_packet_block_v1(head, &[MirInstruction::Invoke {
+            operation: InvokeOperation::String(Op::End { value: self.value() }),
+            fault_frame: frame,
+            normal_landing: normal,
+            fault_landing: fault_edge,
+        }])?;
         Ok(head)
     }
     fn validate_v1(&self, store: &SelectedConstructionStore, function: &MirFunction,

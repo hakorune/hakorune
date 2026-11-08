@@ -4,7 +4,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{
-    BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
+    BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
 };
 use crate::parser::CallableDeclarationIdentityV1;
 use std::{
@@ -74,10 +74,8 @@ impl MainArgumentsEmissionV1 {
                     .ok_or_else(|| fault("block-missing"))?;
                 let normal = builder.next_block_id();
                 let fault_block = builder.next_block_id();
-                let mut failure = BasicBlock::new(fault_block);
                 let failed = MirInstruction::ReturnFault { fault_frame: frame };
-                failure.set_terminator(failed.clone());
-                emission.physical.allocation_fault = Some((fault_block, failed));
+                emission.physical.allocation_fault = Some((fault_block, failed.clone()));
                 if builder
                     .function_state
                     .current_function
@@ -87,12 +85,10 @@ impl MainArgumentsEmissionV1 {
                 {
                     return Err(fault("allocation-entry"));
                 }
-                builder
-                    .function_state
-                    .current_function
-                    .as_mut()
-                    .ok_or_else(|| fault("function-missing"))?
-                    .add_block(failure);
+                if builder.function_state.current_function.is_none() {
+                    return Err(fault("function-missing"));
+                }
+                builder.append_packet_block_v1(fault_block, &[failed])?;
                 let operation = MirInstruction::Invoke {
                     operation: InvokeOperation::ScriptArgumentsNew {
                         values: emission.snapshot.as_ref().into(),

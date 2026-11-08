@@ -42,6 +42,30 @@ impl CanonicalCfgSessionV1 {
         instruction: MirInstruction,
         span: crate::ast::Span,
     ) -> Result<(), CanonicalCfgErrorV1> {
+        self.append_selected_instruction(function, source, instruction, span, true)
+    }
+
+    /// The source body cursor can continue after its incoming SSA edge set is
+    /// sealed. Its own terminator still closes the cursor; target seals remain
+    /// strict. Checked packets use their stronger open-source contract above.
+    pub(in crate::mir::builder) fn append_body_instruction(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        instruction: MirInstruction,
+        span: crate::ast::Span,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        self.append_selected_instruction(function, source, instruction, span, false)
+    }
+
+    fn append_selected_instruction(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        instruction: MirInstruction,
+        span: crate::ast::Span,
+        require_open_packet_source: bool,
+    ) -> Result<(), CanonicalCfgErrorV1> {
         let block = require_block(function, source, CanonicalCfgBlockRoleV1::Source)?;
         if block.is_terminated() {
             return Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { source });
@@ -50,7 +74,9 @@ impl CanonicalCfgSessionV1 {
         projection.add_instruction_with_span(instruction.clone(), span.clone());
         let targets = projection.successors_from_terminator();
         if projection.terminator.is_some() {
-            if block.is_sealed() || self.sealed.contains_key(&source) {
+            if require_open_packet_source
+                && (block.is_sealed() || self.sealed.contains_key(&source))
+            {
                 return Err(CanonicalCfgErrorV1::SourceAfterSeal { source });
             }
             for target in &targets {
@@ -72,18 +98,36 @@ impl CanonicalCfgSessionV1 {
 
     /// Private mechanical commit shared by all typed CFG writers after their
     /// existing preflight. A missing span retains BasicBlock's old fallback.
-    pub(super) fn commit_instruction(
+    pub(in crate::mir::builder) fn commit_instruction(
         &self,
         function: &mut MirFunction,
         source: BasicBlockId,
         instruction: MirInstruction,
         span: Option<crate::ast::Span>,
     ) {
-        // Adopt any pre-session forward edges once, before this write.
-        let mut pending = self.forward_predecessors(function);
+        drop(self.forward_predecessors(function));
+        let previous = function.blocks[&source].successors_from_terminator();
         crate::mir::ssot::cf_common::append_instruction_core(function, source, instruction, span)
             .expect("prepared CFG source");
+        self.record_instruction_edges(function, source, &previous);
+    }
+
+    pub(super) fn record_instruction_edges(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        previous: &std::collections::BTreeSet<BasicBlockId>,
+    ) {
+        let mut pending = self.forward_predecessors(function);
         let targets = function.blocks[&source].successors_from_terminator();
+        for target in previous.difference(&targets) {
+            if let Some(block) = function.get_block_mut(*target) {
+                block.remove_predecessor(source);
+            }
+            if let Some(incoming) = pending.get_mut(target) {
+                incoming.remove(&source);
+            }
+        }
         for target in targets {
             if let Some(block) = function.get_block_mut(target) {
                 block.add_predecessor(source);

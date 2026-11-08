@@ -447,7 +447,6 @@ mod raw_lambda_closure_emission; // source-neutral NewClosure/body publication t
 mod raw_lambda_lexical_observation; // source-only raw Lambda lexical observer
 mod weak_field_write;
 // Phase 29bq+: sealing 層中立化
-use control_flow::edgecfg::api::FragEmitSession;
 mod declaration_order; // Deterministic box-member traversal owner
 #[cfg(test)]
 pub mod joinir_id_remapper; // Reference-only JoinIR ID remapping (ValueId/BlockId translation)

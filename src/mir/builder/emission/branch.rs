@@ -10,24 +10,23 @@ pub fn emit_conditional(
     then_bb: BasicBlockId,
     else_bb: BasicBlockId,
 ) -> Result<(), String> {
-    if b.function_state.canonical_control.is_some() {
+    if let (Some(cur_bb), true) = (
+        b.function_state.current_block,
+        b.function_state.current_function.is_some(),
+    ) {
         b.ensure_block_exists(then_bb)?;
         b.ensure_block_exists(else_bb)?;
-    }
-    if let (Some(func), Some(cur_bb)) = (
-        b.function_state.current_function.as_mut(),
-        b.function_state.current_block,
-    ) {
-        if let Some(control) = &b.function_state.canonical_control {
-            control
-                .borrow()
-                .cfg
-                .emit_branch(func, cur_bb, cond, then_bb, else_bb)
-                .map_err(|error| error.to_string())?;
-        } else {
-            crate::mir::ssot::cf_common::set_branch(func, cur_bb, cond, then_bb, else_bb);
-        }
-        Ok(())
+        let function = b
+            .function_state
+            .current_function
+            .as_mut()
+            .expect("function checked");
+        b.function_state
+            .canonical_control
+            .borrow()
+            .cfg
+            .emit_branch(function, cur_bb, cond, then_bb, else_bb)
+            .map_err(|error| error.to_string())
     } else {
         b.emit_instruction(MirInstruction::Branch {
             condition: cond,
@@ -41,23 +40,22 @@ pub fn emit_conditional(
 
 #[inline]
 pub fn emit_jump(b: &mut MirBuilder, target: BasicBlockId) -> Result<(), String> {
-    if b.function_state.canonical_control.is_some() {
-        b.ensure_block_exists(target)?;
-    }
-    if let (Some(func), Some(cur_bb)) = (
-        b.function_state.current_function.as_mut(),
+    if let (Some(cur_bb), true) = (
         b.function_state.current_block,
+        b.function_state.current_function.is_some(),
     ) {
-        if let Some(control) = &b.function_state.canonical_control {
-            control
-                .borrow()
-                .cfg
-                .emit_jump(func, cur_bb, target)
-                .map_err(|error| error.to_string())?;
-        } else {
-            crate::mir::ssot::cf_common::set_jump(func, cur_bb, target);
-        }
-        Ok(())
+        b.ensure_block_exists(target)?;
+        let function = b
+            .function_state
+            .current_function
+            .as_mut()
+            .expect("function checked");
+        b.function_state
+            .canonical_control
+            .borrow()
+            .cfg
+            .emit_jump(function, cur_bb, target)
+            .map_err(|error| error.to_string())
     } else {
         b.emit_instruction(MirInstruction::Jump {
             target,
@@ -154,7 +152,9 @@ pub fn emit_conditional_edgecfg(
     // Emit to MIR (Phase 29bq+: session 経由で sealing enforce)
     if let Some(ref mut func) = b.function_state.current_function {
         b.function_state
-            .frag_emit_session
+            .canonical_control
+            .borrow_mut()
+            .cfg
             .emit_and_seal(func, &if_frag)?;
     } else {
         return Err("[emit_conditional_edgecfg] current_function is None".to_string());
@@ -180,11 +180,7 @@ pub(in crate::mir::builder) fn emit_carriers_only_conditional_v2(
     condition: crate::mir::ValueId,
     targets: (BasicBlockId, BasicBlockId),
 ) -> Result<(), String> {
-    let control = builder
-        .function_state
-        .canonical_control
-        .clone()
-        .ok_or("[freeze:contract][canonical-control/inactive]")?;
+    let control = builder.function_state.canonical_control.clone();
     let empty = || crate::mir::EdgeArgs {
         layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
         values: Vec::new(),

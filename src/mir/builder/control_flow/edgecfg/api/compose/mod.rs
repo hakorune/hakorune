@@ -10,7 +10,7 @@
  *
  * **Upstream (Extractor/Normalizer)**: Finish "shape recognition" and extract route-specific knowledge
  * **Downstream (Composition)**: Use Frag composition rules to build CFG converging to SSOT
- * **Terminator Generation**: `FragEmitSession`（手順SSOT）+ `emit_frag()`（低レベルSSOT）(Phase 29bq+)
+ * **Terminator Generation**: `FunctionControlV1` owns outgoing completion and the canonical CFG writer
  *
  * ## Entry Points (Composition Operations)
  *
@@ -31,7 +31,7 @@
  *
  * 1. **Normalizer** (Tier 1): Allocates blocks/values, route-specific knowledge
  * 2. **Composition** (Tier 2): Rearranges exits/wires/branches, route-agnostic
- * 3. **Lowerer** (Tier 3): Emits MIR terminators via `FragEmitSession::emit_and_seal()`
+ * 3. **Lowerer** (Tier 3): Emits MIR terminators via the function CFG `emit_and_seal()`
  *
  * ## Usage Example
  *

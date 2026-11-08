@@ -16,15 +16,12 @@ use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
 
-use crate::mir::builder::control_flow::plan::PlanBuildSession;
-
 /// Emit loop frag (Step 5) with session structural lock
 ///
-/// This function emits the CFG terminators using PlanBuildSession's
-/// emit_and_seal method, which enforces structural locking.
+/// The function CFG checks each outgoing fragment source and seals it after
+/// its existing fragment preflight and physical emission succeed.
 pub fn emit_loop_frag(
     builder: &mut MirBuilder,
-    session: &mut PlanBuildSession,
     frag: &Frag,
     loop_plan: &CoreLoopPlan,
     ctx: &dyn PlanLoweringContext,
@@ -39,7 +36,12 @@ pub fn emit_loop_frag(
     // - from blocks auto-collected from frag.wires/branches
     // - assert_open before emit, seal after success
     if let Some(ref mut func) = builder.function_state.current_function {
-        session.emit_and_seal(func, frag)?;
+        builder
+            .function_state
+            .canonical_control
+            .borrow_mut()
+            .cfg
+            .emit_and_seal(func, frag)?;
     } else {
         return Err("[lowerer] current_function is None".to_string());
     }

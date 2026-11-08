@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{OwnedFieldChildKindV1, OwnedFieldChildV1};
-use crate::mir::{BasicBlock, MirBuilder, MirInstruction};
+use crate::mir::{MirBuilder, MirInstruction};
 
 pub(super) fn emit_discharge(
     builder: &mut MirBuilder,
@@ -31,19 +31,15 @@ pub(super) fn emit_discharge(
                 child,
             },
         };
-        let mut block = BasicBlock::new(id);
-        block.set_terminator(MirInstruction::Invoke {
-            operation,
-            fault_frame,
-            normal_landing: normal,
-            fault_landing: fault_edge,
-        });
-        builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| fault("no-function"))?
-            .add_block(block);
+        builder.append_packet_block_v1(
+            id,
+            &[MirInstruction::Invoke {
+                operation,
+                fault_frame,
+                normal_landing: normal,
+                fault_landing: fault_edge,
+            }],
+        )?;
         head = id;
     }
     Ok(head)
@@ -63,11 +59,12 @@ pub(super) fn jump_landing(
     if function.blocks.contains_key(&id) {
         return Err(fault("duplicate-block"));
     }
-    let mut block = BasicBlock::new(id);
-    block.set_terminator(MirInstruction::Jump {
-        target,
-        edge_args: None,
-    });
-    function.add_block(block);
+    builder.append_packet_block_v1(
+        id,
+        &[MirInstruction::Jump {
+            target,
+            edge_args: None,
+        }],
+    )?;
     Ok(id)
 }

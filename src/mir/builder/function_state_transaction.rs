@@ -16,7 +16,6 @@ use crate::mir::builder::function_lowering_state::{
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::builder::variable_context::VariableContext;
 use crate::mir::builder::vars::resolved_binding_state::ResolvedBindingLoweringStateV1;
-use crate::mir::builder::FragEmitSession;
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
 
 /// Selects the exact pre-existing action for variable/type facts.
@@ -55,14 +54,12 @@ pub(super) struct CapturedFunctionOwnedStateV1 {
     pub(super) compilation: FunctionCompilationScratchV1,
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
-    pub(super) canonical_control:
-        Option<super::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
+    pub(super) canonical_control: super::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     pub(super) local_ssa_correspondence: super::ssa::local::correspondence::LocalSsaPhysicalIndexV1,
     pub(super) checked_compare_reuse: super::ssa::local::checked_compare::CheckedCompareReuseV1,
     pub(super) checked_mul_reuse: super::ssa::local::checked_mul::CheckedMulReuseV1,
     pub(super) schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
     pub(super) pin_slot_names: HashMap<ValueId, String>,
-    pub(super) frag_emit_session: FragEmitSession,
     pub(super) protected_region: ProtectedRegionTransientStateV1,
     pub(super) suppress_pin_entry_copy_next: bool,
     pub(super) in_unified_boxcall_fallback: bool,
@@ -103,13 +100,12 @@ impl FunctionOwnedStateTransactionV1 {
             compilation: std::mem::take(&mut state.compilation),
             pending_phis: std::mem::take(&mut state.pending_phis),
             local_ssa_map: std::mem::take(&mut state.local_ssa_map),
-            canonical_control: state.canonical_control.take(),
+            canonical_control: std::mem::take(&mut state.canonical_control),
             local_ssa_correspondence: std::mem::take(&mut state.local_ssa_correspondence),
             checked_compare_reuse: std::mem::take(&mut state.checked_compare_reuse),
             checked_mul_reuse: std::mem::take(&mut state.checked_mul_reuse),
             schedule_mat_map: std::mem::take(&mut state.schedule_mat_map),
             pin_slot_names: std::mem::take(&mut state.pin_slot_names),
-            frag_emit_session: std::mem::take(&mut state.frag_emit_session),
             protected_region: state.protected_region,
             suppress_pin_entry_copy_next: state.suppress_pin_entry_copy_next,
             in_unified_boxcall_fallback: state.in_unified_boxcall_fallback,
@@ -160,7 +156,6 @@ impl FunctionOwnedStateTransactionV1 {
         state.checked_mul_reuse = caller.checked_mul_reuse;
         state.schedule_mat_map = caller.schedule_mat_map;
         state.pin_slot_names = caller.pin_slot_names;
-        state.frag_emit_session = caller.frag_emit_session;
         state.protected_region = caller.protected_region;
         state.suppress_pin_entry_copy_next = caller.suppress_pin_entry_copy_next;
         state.in_unified_boxcall_fallback = caller.in_unified_boxcall_fallback;

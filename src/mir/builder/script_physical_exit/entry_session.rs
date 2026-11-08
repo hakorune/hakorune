@@ -77,7 +77,7 @@ impl OpenScriptPhysicalEntrySessionV1 {
         candidate.function_state.current_function =
             Some(candidate.new_function_with_metadata(signature, entry_block));
         candidate.function_state.current_block = Some(entry_block);
-        candidate.function_state.frag_emit_session.reset();
+        candidate.function_state.canonical_control = Default::default();
         candidate.comp_ctx.current_slot_registry =
             Some(crate::mir::region::function_slot_registry::FunctionSlotRegistry::new());
         Ok(Self {

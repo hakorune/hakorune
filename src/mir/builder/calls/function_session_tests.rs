@@ -69,7 +69,9 @@ fn seal_outer_frag(builder: &mut MirBuilder) {
     ));
     builder
         .function_state
-        .frag_emit_session
+        .canonical_control
+        .borrow_mut()
+        .cfg
         .emit_and_seal(
             builder.function_state.current_function.as_mut().unwrap(),
             &frag,
@@ -77,7 +79,9 @@ fn seal_outer_frag(builder: &mut MirBuilder) {
         .unwrap();
     assert!(builder
         .function_state
-        .frag_emit_session
+        .canonical_control
+        .borrow_mut()
+        .cfg
         .is_sealed_for_test(entry));
 }
 
@@ -365,7 +369,9 @@ fn assert_outer_state(builder: &MirBuilder) {
     assert!(builder.value_origin_caller(ValueId::new(728)).is_some());
     assert!(builder
         .function_state
-        .frag_emit_session
+        .canonical_control
+        .borrow_mut()
+        .cfg
         .is_sealed_for_test(BasicBlockId::new(0)));
 }
 
@@ -431,7 +437,9 @@ fn assert_child_entry_is_reset(builder: &MirBuilder) {
     );
     assert!(!builder
         .function_state
-        .frag_emit_session
+        .canonical_control
+        .borrow_mut()
+        .cfg
         .is_sealed_for_test(BasicBlockId::new(0)));
 }
 

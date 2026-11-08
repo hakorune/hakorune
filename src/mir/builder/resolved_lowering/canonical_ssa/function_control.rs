@@ -13,21 +13,27 @@ use std::{cell::RefCell, rc::Rc};
 
 pub(in crate::mir::builder) type SharedFunctionControlV1 = Rc<RefCell<FunctionControlV1>>;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(in crate::mir::builder) struct FunctionControlV1 {
-    owner: FunctionOwnerIdV1,
+    owner: Option<FunctionOwnerIdV1>,
     pub(in crate::mir::builder) cfg: CanonicalCfgSessionV1,
     bindings: Option<BindingSsaBuilderV1<PhiToken>>,
     transaction: Option<PhiTxn>,
 }
 impl FunctionControlV1 {
-    fn new(owner: FunctionOwnerIdV1) -> Self {
-        Self {
-            owner,
-            cfg: CanonicalCfgSessionV1::new_for_owner(owner),
-            bindings: Some(BindingSsaBuilderV1::new(owner)),
-            transaction: Some(PhiTxn::begin("source-loop-header-after")),
+    fn bind_owner(&mut self, owner: FunctionOwnerIdV1) -> Result<(), String> {
+        if self.owner.is_some_and(|original| original != owner) {
+            return Err("[freeze:contract][canonical-control/foreign-owner]".to_owned());
         }
+        self.owner = Some(owner);
+        self.cfg.bind_source_owner(owner)?;
+        Ok(())
+    }
+    pub(in crate::mir::builder) fn is_empty_for_commit(&self) -> bool {
+        self.owner.is_none()
+            && self.bindings.is_none()
+            && self.transaction.is_none()
+            && self.cfg.is_empty_for_commit()
     }
     pub(in crate::mir::builder) fn is_active(&self) -> bool {
         self.transaction.is_some()
@@ -36,7 +42,10 @@ impl FunctionControlV1 {
         &mut self,
         action: impl FnOnce(&mut PhiTxn) -> Result<T, String>,
     ) -> Result<T, String> {
-        action(self.transaction.as_mut().ok_or_else(inactive)?)
+        action(
+            self.transaction
+                .get_or_insert_with(|| PhiTxn::begin("source-loop-header-after")),
+        )
     }
     pub(in crate::mir::builder) fn reserve(
         &mut self,
@@ -45,11 +54,13 @@ impl FunctionControlV1 {
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
+        let owner = self.owner.ok_or_else(inactive)?;
         let token = self
             .transaction
-            .as_mut()
-            .ok_or_else(inactive)?
+            .get_or_insert_with(|| PhiTxn::begin("source-loop-header-after"))
             .define_provisional_phi(builder, block, value, "source-loop:before-expose")?;
+        self.bindings
+            .get_or_insert_with(|| BindingSsaBuilderV1::new(owner));
         self.bindings
             .as_mut()
             .ok_or_else(inactive)?
@@ -122,18 +133,22 @@ impl FunctionControlV1 {
                 .cfg
                 .close_function_blocks(function)
                 .map_err(|error| error.to_string())?;
-            let bindings = self.bindings.take().ok_or_else(inactive)?;
-            bindings
-                .close(
-                    &mut MirBindingSsaAdapterV1::new(
-                        builder,
-                        self.transaction.as_mut().ok_or_else(inactive)?,
-                    ),
-                    &witnesses,
+            if let Some(bindings) = self.bindings.take() {
+                bindings
+                    .close(
+                        &mut MirBindingSsaAdapterV1::new(
+                            builder,
+                            self.transaction.as_mut().ok_or_else(inactive)?,
+                        ),
+                        &witnesses,
+                    )
+                    .map_err(|error| error.to_string())?;
+                MirBindingSsaAdapterV1::new(
+                    builder,
+                    self.transaction.as_mut().ok_or_else(inactive)?,
                 )
-                .map_err(|error| error.to_string())?;
-            MirBindingSsaAdapterV1::new(builder, self.transaction.as_mut().ok_or_else(inactive)?)
                 .verify_function_phi_inputs()?;
+            }
             let function = builder
                 .function_state
                 .current_function
@@ -142,11 +157,12 @@ impl FunctionControlV1 {
             std::mem::take(&mut self.cfg)
                 .finish(function)
                 .map_err(|error| error.to_string())?;
-            self.transaction
-                .take()
-                .ok_or_else(inactive)?
-                .commit(builder)
-                .map_err(|error| error.to_string())
+            match self.transaction.take() {
+                Some(transaction) => transaction
+                    .commit(builder)
+                    .map_err(|error| error.to_string()),
+                None => Ok(()),
+            }
         })();
         result.map_err(|error| self.abort(builder, error))
     }
@@ -156,19 +172,12 @@ impl MirBuilder {
         &mut self,
         owner: FunctionOwnerIdV1,
     ) -> Result<SharedFunctionControlV1, String> {
-        let control = self
-            .function_state
-            .canonical_control
-            .get_or_insert_with(|| Rc::new(RefCell::new(FunctionControlV1::new(owner))));
-        if control.borrow().owner != owner {
-            return Err("[freeze:contract][canonical-control/foreign-owner]".to_owned());
-        }
-        Ok(Rc::clone(control))
+        let control = Rc::clone(&self.function_state.canonical_control);
+        control.borrow_mut().bind_owner(owner)?;
+        Ok(control)
     }
     pub(in crate::mir::builder) fn finish_function_control_v1(&mut self) -> Result<(), String> {
-        let Some(control) = self.function_state.canonical_control.take() else {
-            return Ok(());
-        };
+        let control = std::mem::take(&mut self.function_state.canonical_control);
         let result = control.borrow_mut().finish(self);
         result
     }
@@ -182,18 +191,7 @@ impl crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1<'_,
         &self,
         builder: &mut MirBuilder,
     ) -> Result<(), String> {
-        let (Some(input), Some(claims)) = (self.source_input, &self.ordinary_new_claim_ledger)
-        else {
-            return Ok(());
-        };
-        // This query only opens storage for an already positive selection.
-        // Rejections remain owned by the original issuer at the original site.
-        if input.function().loop_sites().any(|site| {
-            matches!(
-                claims.retained_source_loop_recipe_v2(input.owner(), site),
-                Ok(Some(_))
-            )
-        }) {
+        if let Some(input) = self.source_input {
             builder.function_control_for_owner_v1(input.owner())?;
         }
         Ok(())

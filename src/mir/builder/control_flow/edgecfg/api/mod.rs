@@ -22,7 +22,6 @@ pub mod edge_stub;
 pub mod emit; // Phase 266: 追加
 pub mod exit_kind;
 pub mod frag;
-pub mod frag_emit_session;
 pub mod verify; // Phase 29bq+: sealing 層中立化
 
 // 公開型（安定）
@@ -38,4 +37,3 @@ pub use frag::Frag; // Phase 267 P0: 追加
 // Phase 266: strict 版追加
 
 // Phase 29bq+: sealing 層中立化
-pub use frag_emit_session::FragEmitSession;

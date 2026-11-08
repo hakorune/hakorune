@@ -435,7 +435,7 @@ impl super::MirBuilder {
         self.function_state.current_block = Some(entry_block);
 
         // Phase 29bq+: reset sealing session for new function
-        self.function_state.frag_emit_session.reset();
+        self.function_state.canonical_control = Default::default();
 
         // 関数スコープの SlotRegistry を初期化するよ（観測専用）。
         // main 関数用のスロット登録箱として使う想定だよ。

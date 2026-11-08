@@ -137,11 +137,7 @@ impl EmittedSourceLoopGraphV2 {
             }
         }
         let mut entries = BTreeMap::new();
-        let shared = builder
-            .function_state
-            .canonical_control
-            .clone()
-            .ok_or_else(|| reject("function-control"))?;
+        let shared = builder.function_state.canonical_control.clone();
         for source in original.iter() {
             let binding = source.basis.binding();
             for (block, source_rows) in [

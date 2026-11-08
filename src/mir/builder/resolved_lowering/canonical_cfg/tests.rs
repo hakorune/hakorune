@@ -537,3 +537,55 @@ fn forward_edges_are_adopted_once_and_still_checked_at_finish() {
             if missing == block(2)
     ));
 }
+
+#[test]
+fn incoming_seal_keeps_source_body_open_but_packets_and_late_edges_closed() {
+    let mut function = function(3);
+    let mut session = CanonicalCfgSessionV1::new();
+    session
+        .emit_jump(&mut function, block(0), block(1))
+        .unwrap();
+    session.seal_block(&mut function, block(1)).unwrap();
+    let terminal = MirInstruction::Return { value: None };
+    assert_eq!(
+        session
+            .append_packet_instruction(
+                &mut function,
+                block(1),
+                terminal.clone(),
+                crate::ast::Span::unknown(),
+            )
+            .unwrap_err(),
+        CanonicalCfgErrorV1::SourceAfterSeal { source: block(1) },
+    );
+    assert_eq!(
+        session
+            .emit_jump(&mut function, block(2), block(1))
+            .unwrap_err(),
+        CanonicalCfgErrorV1::EdgeAfterSeal {
+            source: block(2),
+            target: block(1)
+        },
+    );
+    session
+        .append_body_instruction(
+            &mut function,
+            block(1),
+            terminal.clone(),
+            crate::ast::Span::unknown(),
+        )
+        .unwrap();
+    assert_eq!(
+        session
+            .append_body_instruction(
+                &mut function,
+                block(1),
+                terminal,
+                crate::ast::Span::unknown(),
+            )
+            .unwrap_err(),
+        CanonicalCfgErrorV1::SourceAlreadyTerminated { source: block(1) },
+    );
+    session.close_function_blocks(&mut function).unwrap();
+    session.finish(&function).unwrap();
+}

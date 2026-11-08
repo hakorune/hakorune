@@ -183,7 +183,7 @@ impl MirBuilder {
         self.function_state.current_function =
             Some(self.new_function_with_metadata(signature, entry_block));
         self.function_state.current_block = Some(entry_block);
-        self.function_state.frag_emit_session.reset();
+        self.function_state.canonical_control = Default::default();
         self.comp_ctx.current_slot_registry =
             Some(crate::mir::region::function_slot_registry::FunctionSlotRegistry::new());
         self.ensure_block_exists(entry_block)
@@ -407,13 +407,13 @@ fn close_raw_root_function_state_v1(builder: &mut MirBuilder) {
     builder.function_state.value_origins = Default::default();
     builder.function_state.pending_phis.clear();
     builder.function_state.local_ssa_map.clear();
-    builder.function_state.canonical_control = None;
+    builder.function_state.canonical_control = Default::default();
     builder.function_state.local_ssa_correspondence.clear();
     builder.function_state.checked_compare_reuse.clear();
     builder.function_state.checked_mul_reuse.clear();
     builder.function_state.schedule_mat_map.clear();
     builder.function_state.pin_slot_names.clear();
-    builder.function_state.frag_emit_session.reset();
+    builder.function_state.canonical_control = Default::default();
     builder.function_state.close_raw_root_transient_control_v1();
 }
 

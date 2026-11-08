@@ -116,7 +116,7 @@ impl MirBuilder {
         self.function_state.current_function = Some(function);
         self.function_state.current_block = Some(entry);
         // Phase 29bq+: reset sealing session for new function
-        self.function_state.frag_emit_session.reset();
+        self.function_state.canonical_control = Default::default();
         // 新しい関数スコープ用の SlotRegistry を準備するよ（観測専用）
         self.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
         self.ensure_block_exists(entry)?;

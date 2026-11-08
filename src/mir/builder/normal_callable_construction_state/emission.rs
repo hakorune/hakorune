@@ -6,7 +6,7 @@
 use super::fault_cleanup::{emit_discharge, jump_landing};
 use super::*;
 use crate::mir::instruction::InvokeOperation;
-use crate::mir::{BasicBlock, MirBuilder, MirInstruction, MirType};
+use crate::mir::{MirBuilder, MirInstruction, MirType};
 
 impl CallableSemanticLoweringState {
     pub(in crate::mir::builder) fn emit_construction_store(
@@ -119,16 +119,10 @@ impl CallableSemanticLoweringState {
             None => {
                 let id = shared_frame;
                 let landing = builder.next_block_id();
-                let function = builder
-                    .function_state
-                    .current_function
-                    .as_mut()
-                    .ok_or_else(|| fault("no-function"))?;
-                let mut block = BasicBlock::new(landing);
-                // Source-sealed per-operation discharge precedes this
-                // shared Fault tail; the caller reclaims outer storage.
-                block.set_terminator(MirInstruction::ReturnFault { fault_frame: id });
-                function.add_block(block);
+                // Source-sealed discharge precedes the shared Fault tail.
+                builder.append_packet_block_v1(landing, &[
+                    MirInstruction::ReturnFault { fault_frame: id },
+                ])?;
                 *frame = Some((id, landing));
                 (id, landing)
             }
@@ -265,8 +259,7 @@ impl CallableSemanticLoweringState {
                             let tail = builder.next_block_id();
                             let tail_normal = jump_landing(builder, fault_landing)?;
                             let tail_fault = jump_landing(builder, fault_landing)?;
-                            let mut tail_block = BasicBlock::new(tail);
-                            tail_block.set_terminator(MirInstruction::Invoke {
+                            builder.append_packet_block_v1(tail, &[MirInstruction::Invoke {
                                 operation: InvokeOperation::ReclaimUnpublished {
                                     object: child,
                                     value: allocation,
@@ -274,13 +267,7 @@ impl CallableSemanticLoweringState {
                                 fault_frame,
                                 normal_landing: tail_normal,
                                 fault_landing: tail_fault,
-                            });
-                            builder
-                                .function_state
-                                .current_function
-                                .as_mut()
-                                .ok_or_else(|| fault("no-function"))?
-                                .add_block(tail_block);
+                            }])?;
                             tail
                         };
                         let mut arg_values = Vec::with_capacity(arguments.len());
@@ -486,12 +473,12 @@ impl CallableSemanticLoweringState {
             let tail = builder.next_block_id();
             let normal = jump_landing(builder, fault_landing)?;
             let fault_edge = jump_landing(builder, fault_landing)?;
-            let mut block = BasicBlock::new(tail);
-            block.set_terminator(MirInstruction::Invoke {
+            builder.append_packet_block_v1(tail, &[MirInstruction::Invoke {
                 operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map: value }),
-                fault_frame, normal_landing: normal, fault_landing: fault_edge,
-            });
-            builder.function_state.current_function.as_mut().ok_or_else(|| fault("no-function"))?.add_block(block);
+                fault_frame,
+                normal_landing: normal,
+                fault_landing: fault_edge,
+            }])?;
             tail
         } else { fault_landing };
         let (operation, store_fault_landing) = match &object_child {
@@ -505,13 +492,7 @@ impl CallableSemanticLoweringState {
                 let tail = builder.next_block_id();
                 let tail_normal = jump_landing(builder, fault_landing)?;
                 let tail_fault = jump_landing(builder, fault_landing)?;
-                let function = builder
-                    .function_state
-                    .current_function
-                    .as_mut()
-                    .ok_or_else(|| fault("no-function"))?;
-                let mut tail_block = BasicBlock::new(tail);
-                tail_block.set_terminator(MirInstruction::Invoke {
+                builder.append_packet_block_v1(tail, &[MirInstruction::Invoke {
                     operation: InvokeOperation::HomeRelease {
                         object: *child,
                         value,
@@ -519,8 +500,7 @@ impl CallableSemanticLoweringState {
                     fault_frame,
                     normal_landing: tail_normal,
                     fault_landing: tail_fault,
-                });
-                function.add_block(tail_block);
+                }])?;
                 let head = emit_discharge(builder, teardown, value, fault_frame, tail)?;
                 use crate::mir::instruction::{FieldSetModeV1 as Mode,
                     DynamicFieldSetContractV1 as Contract, DynamicFieldWriteIntentV1 as Intent,

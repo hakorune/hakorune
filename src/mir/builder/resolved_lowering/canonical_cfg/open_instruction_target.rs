@@ -38,6 +38,16 @@ pub(in crate::mir::builder) enum CanonicalOpenInstructionTargetErrorV1 {
 struct CanonicalOpenInstructionTargetSealV1;
 
 impl CanonicalCfgCreationStateV1 {
+    pub(super) fn is_empty(&self) -> bool {
+        self.owner.is_none() && self.created.is_empty()
+    }
+    pub(super) fn bind_source_owner(&mut self, owner: FunctionOwnerIdV1) -> Result<(), String> {
+        if self.owner.is_some_and(|old| old != owner) {
+            return Err("[freeze:contract][canonical-control/foreign-owner]".to_owned());
+        }
+        self.owner = Some(owner);
+        Ok(())
+    }
     pub(super) fn new_for_owner(owner: FunctionOwnerIdV1) -> Self {
         Self {
             owner: Some(owner),

@@ -2,9 +2,7 @@
 mod tests {
     use std::collections::BTreeMap;
 
-    use crate::mir::builder::control_flow::edgecfg::api::{
-        BlockParams, ExitKind, Frag, FragEmitSession,
-    };
+    use crate::mir::builder::control_flow::edgecfg::api::{BlockParams, ExitKind, Frag};
     use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
     use crate::mir::edge_args::JumpArgsLayout;
     use crate::mir::function::{FunctionSignature, MirFunction};
@@ -116,7 +114,7 @@ mod tests {
         let _guard = strict_env_guard();
         let mut demo = build_demo_if2_valuejoin_frag();
 
-        FragEmitSession::new()
+        crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1::new()
             .emit_and_seal(&mut demo.function, &demo.frag)
             .expect("emit_and_seal should succeed");
 

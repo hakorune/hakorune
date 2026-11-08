@@ -10,7 +10,6 @@ use hakorune_mir_builder::BindingContext;
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::compilation_context::RecordLocalValue;
-use crate::mir::builder::control_flow::edgecfg::api::FragEmitSession;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::builder::variable_context::VariableContext;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeFrame;
@@ -193,14 +192,12 @@ pub(super) struct FunctionLoweringStateV1 {
     pub(super) value_origins: FunctionValueOriginFactsV1,
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
-    pub(super) canonical_control:
-        Option<super::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
+    pub(super) canonical_control: super::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     pub(super) local_ssa_correspondence: super::ssa::local::correspondence::LocalSsaPhysicalIndexV1,
     pub(super) checked_compare_reuse: super::ssa::local::checked_compare::CheckedCompareReuseV1,
     pub(super) checked_mul_reuse: super::ssa::local::checked_mul::CheckedMulReuseV1,
     pub(super) schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
     pub(super) pin_slot_names: HashMap<ValueId, String>,
-    pub(super) frag_emit_session: FragEmitSession,
     pub(super) protected_region: ProtectedRegionTransientStateV1,
     pub(super) suppress_pin_entry_copy_next: bool,
     pub(super) in_unified_boxcall_fallback: bool,
@@ -252,13 +249,12 @@ impl FunctionLoweringStateV1 {
             && self.value_origins.value_origin_callers.is_empty()
             && self.pending_phis.is_empty()
             && self.local_ssa_map.is_empty()
-            && self.canonical_control.is_none()
+            && self.canonical_control.borrow().is_empty_for_commit()
             && self.local_ssa_correspondence.is_empty()
             && self.checked_compare_reuse.is_empty()
             && self.checked_mul_reuse.is_empty()
             && self.schedule_mat_map.is_empty()
             && self.pin_slot_names.is_empty()
-            && self.frag_emit_session.is_empty_for_commit()
             && self.protected_region == ProtectedRegionTransientStateV1::default()
             && !self.suppress_pin_entry_copy_next
             && !self.in_unified_boxcall_fallback

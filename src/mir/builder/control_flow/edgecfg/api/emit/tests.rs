@@ -35,7 +35,7 @@ fn test_emit_wires_jump_basic() {
     );
 
     let wires = vec![stub];
-    let result = emit_wires(&mut function, &wires);
+    let result = emit_wires(&mut function, &wires, &CanonicalCfgSessionV1::new());
 
     assert!(result.is_ok(), "emit_wires failed: {:?}", result.err());
 
@@ -74,7 +74,7 @@ fn test_emit_wires_return_basic() {
     );
 
     let wires = vec![stub];
-    let result = emit_wires(&mut function, &wires);
+    let result = emit_wires(&mut function, &wires, &CanonicalCfgSessionV1::new());
 
     assert!(result.is_ok(), "emit_wires failed: {:?}", result.err());
 
@@ -102,7 +102,7 @@ fn test_emit_wires_unwired_stub_fails() {
     let stub = EdgeStub::without_args(bb0, ExitKind::Normal);
     let wires = vec![stub];
 
-    let result = emit_wires(&mut function, &wires);
+    let result = emit_wires(&mut function, &wires, &CanonicalCfgSessionV1::new());
 
     assert!(result.is_err(), "Expected error for unwired Normal stub");
     let err_msg = result.unwrap_err();
@@ -143,7 +143,7 @@ fn test_emit_wires_multiple_from_same_block_fails() {
     );
 
     let wires = vec![stub1, stub2];
-    let result = emit_wires(&mut function, &wires);
+    let result = emit_wires(&mut function, &wires, &CanonicalCfgSessionV1::new());
 
     assert!(
         result.is_err(),
@@ -193,7 +193,7 @@ fn test_emit_frag_branch_basic() {
         branches: vec![branch],
     };
 
-    let result = emit_frag(&mut function, &frag);
+    let result = emit_frag(&mut function, &frag, &CanonicalCfgSessionV1::new());
 
     assert!(result.is_ok(), "emit_frag failed: {:?}", result.err());
 
@@ -266,7 +266,8 @@ fn test_emit_frag_block_params_inserts_phi() {
         branches: vec![],
     };
 
-    emit_frag(&mut function, &frag).expect("emit_frag should succeed");
+    emit_frag(&mut function, &frag, &CanonicalCfgSessionV1::new())
+        .expect("emit_frag should succeed");
 
     let block = function.get_block(target).unwrap();
     match &block.instructions[0] {
@@ -331,7 +332,7 @@ fn test_emit_frag_branch_wire_conflict_fails() {
         branches: vec![branch],
     };
 
-    let result = emit_frag(&mut function, &frag);
+    let result = emit_frag(&mut function, &frag, &CanonicalCfgSessionV1::new());
 
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("both wire and branch"));

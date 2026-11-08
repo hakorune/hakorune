@@ -6,6 +6,7 @@
 
 mod branch;
 mod error;
+mod fragment;
 mod instruction;
 mod open_instruction_target;
 mod pinned_text_finish;

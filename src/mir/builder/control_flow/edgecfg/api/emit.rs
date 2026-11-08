@@ -15,6 +15,7 @@
 use super::edge_stub::EdgeStub;
 use super::exit_kind::ExitKind;
 use crate::mir::builder::control_flow::joinir::trace;
+use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::instruction::MirInstruction;
 use crate::mir::BasicBlockId;
 use std::collections::BTreeMap;
@@ -33,9 +34,10 @@ use std::collections::BTreeMap;
 /// # 戻り値
 /// - `Ok(())`: 全 wire を MIR terminator に変換成功
 /// - `Err(String)`: target=None の EdgeStub を検出、または不正な kind、または複数 wire
-pub fn emit_wires(
+pub(in crate::mir::builder) fn emit_wires(
     function: &mut crate::mir::MirFunction,
     wires: &[EdgeStub],
+    cfg: &CanonicalCfgSessionV1,
 ) -> Result<(), String> {
     let trace_logger = trace::trace();
     let func_name = function.signature.name.clone();
@@ -75,15 +77,23 @@ pub fn emit_wires(
         };
 
         // Block 取得
-        let block = function
-            .get_block_mut(stub.from)
+        function
+            .get_block(stub.from)
             .ok_or_else(|| format!("[emit_wires] Block {:?} not found", stub.from))?;
 
         // ExitKind 別に terminator 生成
         match stub.kind {
             ExitKind::Normal | ExitKind::Break(_) | ExitKind::Continue(_) | ExitKind::Unwind => {
                 // Jump terminator（Phase 260 ルール: set_jump_with_edge_args を使用）
-                block.set_jump_with_edge_args(target.unwrap(), Some(stub.args.clone()));
+                cfg.commit_instruction(
+                    function,
+                    stub.from,
+                    MirInstruction::Jump {
+                        target: target.unwrap(),
+                        edge_args: Some(stub.args.clone()),
+                    },
+                    None,
+                );
                 trace_logger.debug(
                     "lowerer/term_set",
                     &format!(
@@ -96,10 +106,18 @@ pub fn emit_wires(
             }
             ExitKind::Return => {
                 // Return terminator + metadata（Phase 260 例外ルール: set_terminator + set_return_env）
-                block.set_terminator(MirInstruction::Return {
-                    value: stub.args.values.first().copied(),
-                });
-                block.set_return_env(stub.args.clone());
+                cfg.commit_instruction(
+                    function,
+                    stub.from,
+                    MirInstruction::Return {
+                        value: stub.args.values.first().copied(),
+                    },
+                    None,
+                );
+                function
+                    .get_block_mut(stub.from)
+                    .expect("checked source")
+                    .set_return_env(stub.args.clone());
                 trace_logger.debug(
                     "lowerer/term_set",
                     &format!("func={} bb={:?} term=Return", func_name, stub.from),
@@ -224,9 +242,10 @@ fn emit_block_params_as_phis(
 /// # 戻り値
 /// - `Ok(())`: 成功
 /// - `Err(String)`: 同一 block に複数 terminator、または不正な配線
-pub fn emit_frag(
+pub(in crate::mir::builder) fn emit_frag(
     function: &mut crate::mir::MirFunction,
     frag: &super::frag::Frag,
+    cfg: &CanonicalCfgSessionV1,
 ) -> Result<(), String> {
     use super::branch_stub::BranchStub;
     let trace_logger = trace::trace();
@@ -270,21 +289,26 @@ pub fn emit_frag(
     }
 
     // Step 3: wires を emit（既存の emit_wires を呼ぶ）
-    emit_wires(function, &frag.wires)?;
+    emit_wires(function, &frag.wires, cfg)?;
 
     // Step 4: branches を emit
     for branch in &frag.branches {
-        let block = function
-            .get_block_mut(branch.from)
+        function
+            .get_block(branch.from)
             .ok_or_else(|| format!("[emit_frag] Block {:?} not found", branch.from))?;
 
         // Phase 260 API を使用（terminator + successors 同期）
-        block.set_branch_with_edge_args(
-            branch.cond,
-            branch.then_target,
-            Some(branch.then_args.clone()),
-            branch.else_target,
-            Some(branch.else_args.clone()),
+        cfg.commit_instruction(
+            function,
+            branch.from,
+            MirInstruction::Branch {
+                condition: branch.cond,
+                then_bb: branch.then_target,
+                else_bb: branch.else_target,
+                then_edge_args: Some(branch.then_args.clone()),
+                else_edge_args: Some(branch.else_args.clone()),
+            },
+            None,
         );
         trace_logger.debug(
             "lowerer/term_set",
