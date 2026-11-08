@@ -7,14 +7,21 @@
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::CorePhiInfo;
 use crate::mir::builder::MirBuilder;
+use crate::mir::resolved_semantics::BindingRefV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
+struct CarrierPhiV1 {
+    name: String,
+    binding: BindingRefV1,
+    entry: ValueId,
+    header: ValueId,
+    step: ValueId,
+    after: ValueId,
+}
+
 pub(in crate::mir::builder) struct LoopCondBreakContinuePhiMaterializer {
-    carrier_inits: BTreeMap<String, ValueId>,
-    carrier_phis: BTreeMap<String, ValueId>,
-    carrier_step_phis: BTreeMap<String, ValueId>,
-    break_phi_dsts: BTreeMap<String, ValueId>,
+    carriers: Vec<CarrierPhiV1>,
     continue_target: BasicBlockId,
     use_header_continue_target: bool,
     has_continue_edges: bool,
@@ -33,32 +40,6 @@ impl LoopCondBreakContinuePhiClosure {
         Self { phis, final_values }
     }
 
-    pub(in crate::mir::builder) fn bind_source_carriers(
-        &mut self,
-        bindings: &BTreeMap<String, crate::mir::resolved_semantics::BindingRefV1>,
-        headers: &BTreeMap<String, ValueId>,
-        steps: &BTreeMap<String, ValueId>,
-        afters: &BTreeMap<String, ValueId>,
-    ) -> Result<(), String> {
-        let mut original = BTreeMap::new();
-        for (name, binding) in bindings {
-            for destinations in [headers, steps, afters] {
-                let destination = destinations
-                    .get(name)
-                    .ok_or("[freeze:contract][source-loop-phi/preparation-destinations]")?;
-                original.insert(*destination, *binding);
-            }
-        }
-        for phi in &mut self.phis {
-            phi.binding = Some(
-                *original
-                    .get(&phi.dst)
-                    .ok_or("[freeze:contract][source-loop-phi/preparation-destinations]")?,
-            );
-        }
-        Ok(())
-    }
-
     pub(in crate::mir::builder) fn phis(&self) -> &[CorePhiInfo] {
         &self.phis
     }
@@ -71,18 +52,15 @@ impl LoopCondBreakContinuePhiClosure {
 impl LoopCondBreakContinuePhiMaterializer {
     pub(in crate::mir::builder) fn prepare(
         builder: &mut MirBuilder,
-        carrier_vars: &[String],
+        bindings: &BTreeMap<String, BindingRefV1>,
         use_header_continue_target: bool,
         has_continue_edges: bool,
         header_bb: BasicBlockId,
         step_bb: BasicBlockId,
         error_prefix: &str,
     ) -> Result<Self, String> {
-        let mut carrier_inits = BTreeMap::new();
-        let mut carrier_phis = BTreeMap::new();
-        let mut carrier_step_phis = BTreeMap::new();
-        let mut break_phi_dsts = BTreeMap::new();
-        for var in carrier_vars {
+        let mut carriers = Vec::with_capacity(bindings.len());
+        for (var, binding) in bindings {
             let Some(&init_val) = builder.function_state.variable_ctx.variable_map.get(var) else {
                 return Err(format!("{error_prefix}: carrier {} missing init", var));
             };
@@ -99,13 +77,16 @@ impl LoopCondBreakContinuePhiMaterializer {
                 builder.alloc_typed(ty.clone())
             };
             let after_phi_dst = builder.alloc_typed(ty);
-            carrier_inits.insert(var.clone(), init_val);
-            carrier_phis.insert(var.clone(), phi_dst);
-            carrier_step_phis.insert(var.clone(), step_phi_dst);
-            break_phi_dsts.insert(var.clone(), after_phi_dst);
+            carriers.push(CarrierPhiV1 {
+                name: var.clone(),
+                binding: *binding,
+                entry: init_val,
+                header: phi_dst,
+                step: step_phi_dst,
+                after: after_phi_dst,
+            });
         }
-
-        if carrier_phis.is_empty() {
+        if carriers.is_empty() {
             return Err(format!("{error_prefix}: no loop carriers"));
         }
 
@@ -116,30 +97,32 @@ impl LoopCondBreakContinuePhiMaterializer {
         };
 
         Ok(Self {
-            carrier_inits,
-            carrier_phis,
-            carrier_step_phis,
-            break_phi_dsts,
+            carriers,
             continue_target,
             use_header_continue_target,
             has_continue_edges,
         })
     }
 
-    pub(in crate::mir::builder) fn carrier_phis(&self) -> &BTreeMap<String, ValueId> {
-        &self.carrier_phis
+    pub(in crate::mir::builder) fn carrier_phis(&self) -> BTreeMap<String, ValueId> {
+        self.carriers
+            .iter()
+            .map(|row| (row.name.clone(), row.header))
+            .collect()
     }
 
-    pub(in crate::mir::builder) fn carrier_step_phis(&self) -> &BTreeMap<String, ValueId> {
-        &self.carrier_step_phis
+    pub(in crate::mir::builder) fn carrier_step_phis(&self) -> BTreeMap<String, ValueId> {
+        self.carriers
+            .iter()
+            .map(|row| (row.name.clone(), row.step))
+            .collect()
     }
 
-    pub(in crate::mir::builder) fn break_phi_dsts(&self) -> &BTreeMap<String, ValueId> {
-        &self.break_phi_dsts
-    }
-
-    pub(in crate::mir::builder) fn phi_bindings(&self) -> BTreeMap<String, ValueId> {
-        self.carrier_phis.clone()
+    pub(in crate::mir::builder) fn break_phi_dsts(&self) -> BTreeMap<String, ValueId> {
+        self.carriers
+            .iter()
+            .map(|row| (row.name.clone(), row.after))
+            .collect()
     }
 
     pub(in crate::mir::builder) fn continue_target(&self) -> BasicBlockId {
@@ -157,14 +140,9 @@ impl LoopCondBreakContinuePhiMaterializer {
     ) -> Result<LoopCondBreakContinuePhiClosure, String> {
         let mut phis = Vec::new();
         let mut final_values = Vec::new();
-        for (var, header_phi_dst) in &self.carrier_phis {
-            let Some(&init_val) = self.carrier_inits.get(var) else {
-                continue;
-            };
-            let Some(after_phi_dst) = self.break_phi_dsts.get(var).copied() else {
-                continue;
-            };
-
+        for carrier in &self.carriers {
+            let var = &carrier.name;
+            let first = phis.len();
             let needs_step_join = !self.use_header_continue_target
                 && (!body_exits_all_paths || self.has_continue_edges);
 
@@ -172,39 +150,38 @@ impl LoopCondBreakContinuePhiMaterializer {
                 phis.push(loop_carriers::build_preheader_only_phi_info(
                     header_bb,
                     preheader_bb,
-                    *header_phi_dst,
-                    init_val,
+                    carrier.header,
+                    carrier.entry,
                     format!("loop_cond_carrier_{}", var),
                 ));
             } else {
-                let Some(step_phi_dst) = self.carrier_step_phis.get(var).copied() else {
-                    continue;
-                };
-
                 phis.push(loop_carriers::build_step_join_phi_info(
                     step_bb,
-                    step_phi_dst,
+                    carrier.step,
                     format!("loop_cond_step_join_{}", var),
                 ));
                 phis.push(loop_carriers::build_loop_phi_info(
                     header_bb,
                     preheader_bb,
                     step_bb,
-                    *header_phi_dst,
-                    init_val,
-                    step_phi_dst,
+                    carrier.header,
+                    carrier.entry,
+                    carrier.step,
                     format!("loop_cond_carrier_{}", var),
                 ));
             }
 
             phis.push(loop_carriers::build_after_merge_phi_info(
                 after_bb,
-                after_phi_dst,
+                carrier.after,
                 after_cond_preds.iter().copied(),
-                *header_phi_dst,
+                carrier.header,
                 format!("loop_cond_after_{}", var),
             ));
-            final_values.push((var.clone(), after_phi_dst));
+            for phi in &mut phis[first..] {
+                phi.binding = Some(carrier.binding);
+            }
+            final_values.push((var.clone(), carrier.after));
         }
 
         Ok(LoopCondBreakContinuePhiClosure::new(phis, final_values))
@@ -217,11 +194,20 @@ mod tests {
 
     #[test]
     fn close_builds_step_header_and_after_phis_for_fallthrough_loop() {
+        let owner = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation()
+            .unwrap()
+            .issue()
+            .unwrap();
+        let binding = BindingRefV1::new(owner, crate::mir::BindingId::new(0));
         let materializer = LoopCondBreakContinuePhiMaterializer {
-            carrier_inits: BTreeMap::from([("i".to_string(), ValueId(1))]),
-            carrier_phis: BTreeMap::from([("i".to_string(), ValueId(2))]),
-            carrier_step_phis: BTreeMap::from([("i".to_string(), ValueId(3))]),
-            break_phi_dsts: BTreeMap::from([("i".to_string(), ValueId(4))]),
+            carriers: vec![CarrierPhiV1 {
+                name: "i".to_owned(),
+                binding,
+                entry: ValueId(1),
+                header: ValueId(2),
+                step: ValueId(3),
+                after: ValueId(4),
+            }],
             continue_target: BasicBlockId(12),
             use_header_continue_target: false,
             has_continue_edges: true,
@@ -239,6 +225,10 @@ mod tests {
             .expect("phi closure");
 
         assert_eq!(closure.phis().len(), 3);
+        assert!(closure
+            .phis()
+            .iter()
+            .all(|phi| phi.binding == Some(binding)));
         assert_eq!(closure.final_values(), [("i".to_string(), ValueId(4))]);
     }
 }

@@ -62,7 +62,6 @@ fn lower_loop_cond_source_inner(
     // Complete the source-to-emission crosswalk before allocating any blocks
     // or Phis. Readonly operands retain their original producer/provenance.
     let carrier_bindings = input.carrier_bindings(&builder.function_state.variable_ctx.variable_map)?;
-    let carrier_vars: Vec<_> = carrier_bindings.keys().cloned().collect();
 
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {
@@ -83,16 +82,16 @@ fn lower_loop_cond_source_inner(
         && !continue_branch_has_prelude_effect;
     let phi_materializer = LoopCondBreakContinuePhiMaterializer::prepare(
         builder,
-        &carrier_vars,
+        &carrier_bindings,
         use_header_continue_target,
         !facts.continue_branches.is_empty(),
         header_bb,
         step_bb,
         LOOP_COND_ERR,
     )?;
-    let carrier_phis = phi_materializer.carrier_phis().clone();
-    let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
-    let break_phi_dsts = phi_materializer.break_phi_dsts().clone();
+    let carrier_phis = phi_materializer.carrier_phis();
+    let carrier_step_phis = phi_materializer.carrier_step_phis();
+    let break_phi_dsts = phi_materializer.break_phi_dsts();
     let shared = builder.function_control_for_owner_v1(input.owner())?;
     input.phi_session_v1().open_scope(header_bb, after_bb, std::rc::Rc::clone(&shared))?;
     use crate::mir::builder::ssa::binding::FunctionSsaKeyV1 as Key;
@@ -102,9 +101,9 @@ fn lower_loop_cond_source_inner(
 
     let port = *input.source_port();
     let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
-    for (name, value_id) in phi_materializer.phi_bindings() {
+    for (name, &value_id) in &carrier_phis {
         current_bindings.insert(name.clone(), value_id);
-        port.publish_source_carrier(carrier_bindings[&name], value_id)
+        port.publish_source_carrier(carrier_bindings[name], value_id)
             .map_err(|error| format!("{LOOP_COND_ERR}/carrier-header-publish: {error}"))?;
     }
 
@@ -198,7 +197,7 @@ fn lower_loop_cond_source_inner(
         LOOP_COND_ERR,
     )?;
     let body_exits_all_paths = cleanup.body_exits_all_paths();
-    let mut phi_closure = phi_materializer.close(
+    let phi_closure = phi_materializer.close(
         preheader_bb,
         header_bb,
         step_bb,
@@ -206,8 +205,6 @@ fn lower_loop_cond_source_inner(
         &after_cond_preds,
         body_exits_all_paths,
     )?;
-    phi_closure.bind_source_carriers(&carrier_bindings, &carrier_phis,
-        &carrier_step_phis, &break_phi_dsts)?;
     verify_loop_cond_break_continue_phi_closure(
         &phi_closure,
         &body_plans,
