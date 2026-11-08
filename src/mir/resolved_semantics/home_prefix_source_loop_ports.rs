@@ -96,6 +96,10 @@ fn producer_is_covered(
         CurrentScalarProducerV1::Initializer(frame) => frame.evaluation(),
         CurrentScalarProducerV1::BindingRebind(frame) => frame.evaluation(),
         CurrentScalarProducerV1::Call(call) => return port.calls.contains(call.site()),
+        CurrentScalarProducerV1::Operation(source) => {
+            return port.covered.contains(source.statement())
+                && !source.plan().has_opaque_obligations();
+        }
         CurrentScalarProducerV1::FieldRead(source) => {
             return port.covered.contains(source.statement_v1())
         }

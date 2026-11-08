@@ -28,6 +28,16 @@ pub(in super::super) fn initializer_value(
                     .ok_or_else(|| freeze("expression/scalar-field-read-dst"))?,
             )
         }
+        Producer::Operation(source) => {
+            let original = context.ledger().scalar_operation_original_v1(source)?;
+            Some(
+                original
+                    .original()
+                    .1
+                    .dst_value()
+                    .ok_or_else(|| freeze("expression/scalar-producer-value"))?,
+            )
+        }
         Producer::Initializer(frame) => {
             Some(context.with_original_initializer_v1(frame, |packet| Ok(packet.value()))?)
         }

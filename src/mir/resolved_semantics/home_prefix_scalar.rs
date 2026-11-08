@@ -29,6 +29,7 @@ pub(crate) enum CurrentScalarProducerV1 {
     Call(LocalCallObservationV1),
     FieldRead(Rc<super::super::field_read::ScalarFieldReadSourceV1>),
     Initializer(Rc<CheckedInitializerExpressionFrameV1>),
+    Operation(Rc<super::super::ExpressionScalarOperationLoanV1>),
     BindingRebind(Rc<CheckedBindingRebindFrameV1>),
     BranchNormal(Rc<BranchNormalScalarSourceV1>),
     LoopHeader(Rc<super::source_loop::LoopHeaderValueBasisV1>),
@@ -102,6 +103,9 @@ impl PartialEq for CurrentScalarReadV1 {
             && self.origin == other.origin
             && Arc::ptr_eq(&self.flow, &other.flow)
             && match (&self.producer, &other.producer) {
+                (CurrentScalarProducerV1::Operation(a), CurrentScalarProducerV1::Operation(b)) => {
+                    Rc::ptr_eq(a, b)
+                }
                 (
                     CurrentScalarProducerV1::Initializer(a),
                     CurrentScalarProducerV1::Initializer(b),
@@ -110,10 +114,9 @@ impl PartialEq for CurrentScalarReadV1 {
                     CurrentScalarProducerV1::BindingRebind(a),
                     CurrentScalarProducerV1::BindingRebind(b),
                 ) => Rc::ptr_eq(a, b),
-                (
-                    CurrentScalarProducerV1::FieldRead(a),
-                    CurrentScalarProducerV1::FieldRead(b),
-                ) => Rc::ptr_eq(a, b),
+                (CurrentScalarProducerV1::FieldRead(a), CurrentScalarProducerV1::FieldRead(b)) => {
+                    Rc::ptr_eq(a, b)
+                }
                 (a, b) => a == b,
             }
     }
@@ -168,14 +171,21 @@ impl PrefixLocalFlow<'_> {
         };
         let function = self.input.function();
         let Some(flow) = function.expression_source().value_flow() else {
-            if crate::config::env::builder_debug_enabled() { eprintln!("[scalar-read] {site:?} no value flow"); }
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!("[scalar-read] {site:?} no value flow");
+            }
             return None;
         };
         let Some(value) = flow.read(site, binding) else {
-            if crate::config::env::builder_debug_enabled() { eprintln!("[scalar-read] {site:?} binding={binding:?} kind={kind:?} has no flow read"); }
+            if crate::config::env::builder_debug_enabled() {
+                eprintln!(
+                    "[scalar-read] {site:?} binding={binding:?} kind={kind:?} has no flow read"
+                );
+            }
             return None;
         };
-        let Some((origin, producer)) = self.scalar_producer_for_value_v1(binding, value, calls) else {
+        let Some((origin, producer)) = self.scalar_producer_for_value_v1(binding, value, calls)
+        else {
             if crate::config::env::builder_debug_enabled() {
                 eprintln!("[scalar-read] {site:?} binding={binding:?} kind={kind:?} has no current producer");
             }
@@ -344,8 +354,8 @@ impl PrefixLocalFlow<'_> {
                     {
                         return None;
                     }
-                    if let Some(source) = self
-                        .scalar_field_read_source_v1(initializer.binding(), original)
+                    if let Some(source) =
+                        self.scalar_field_read_source_v1(initializer.binding(), original)
                     {
                         CurrentScalarProducerV1::FieldRead(source)
                     } else if let Some(ResolvedLiteralSourceV1::Integer(value)) =
@@ -358,39 +368,55 @@ impl PrefixLocalFlow<'_> {
                         }
                     } else {
                         let plans = self.expression_plans.borrow();
-                        let mut frames = plans
+                        let mut operations = plans
                             .iter()
-                            .filter_map(|plan| plan.initializer_frame())
-                            .filter(|frame| {
-                                frame_class(frame)
-                                    && frame.binding() == initializer.binding()
-                                    && frame
-                                        .source()
-                                        .nodes()
-                                        .first()
-                                        .is_some_and(|node| node.site() == original)
+                            .flat_map(|plan| plan.scalar_operations())
+                            .filter(|operation| {
+                                operation.binary().site() == original
+                                    && operation
+                                        .initializer()
+                                        .is_some_and(|row| row.binding() == initializer.binding())
                             });
-                        if let Some(frame) = frames.next() {
-                            if frames.next().is_some() {
+                        if let Some(operation) = operations.next() {
+                            if operations.next().is_some() {
                                 return None;
                             }
-                            CurrentScalarProducerV1::Initializer(Rc::clone(frame))
+                            CurrentScalarProducerV1::Operation(Rc::clone(operation))
                         } else {
-                            let mut matching = calls.iter().filter(|call| {
-                                call.owner() == self.input.owner()
-                                    && call.site().site() == original
-                                    && call.result() == LocalCallResultClassV1::I64
-                                    && call.local_binding()
-                                        == Some((
-                                            initializer.declaration_site(),
-                                            initializer.binding(),
-                                        ))
-                            });
-                            let call = matching.next()?;
-                            if matching.next().is_some() {
-                                return None;
+                            let mut frames = plans
+                                .iter()
+                                .filter_map(|plan| plan.initializer_frame())
+                                .filter(|frame| {
+                                    frame_class(frame)
+                                        && frame.binding() == initializer.binding()
+                                        && frame
+                                            .source()
+                                            .nodes()
+                                            .first()
+                                            .is_some_and(|node| node.site() == original)
+                                });
+                            if let Some(frame) = frames.next() {
+                                if frames.next().is_some() {
+                                    return None;
+                                }
+                                CurrentScalarProducerV1::Initializer(Rc::clone(frame))
+                            } else {
+                                let mut matching = calls.iter().filter(|call| {
+                                    call.owner() == self.input.owner()
+                                        && call.site().site() == original
+                                        && call.result() == LocalCallResultClassV1::I64
+                                        && call.local_binding()
+                                            == Some((
+                                                initializer.declaration_site(),
+                                                initializer.binding(),
+                                            ))
+                                });
+                                let call = matching.next()?;
+                                if matching.next().is_some() {
+                                    return None;
+                                }
+                                CurrentScalarProducerV1::Call(call.clone())
                             }
-                            CurrentScalarProducerV1::Call(call.clone())
                         }
                     }
                 }
@@ -399,7 +425,9 @@ impl PrefixLocalFlow<'_> {
         };
         // A Bool read is produced by its Local initializer frame alone; rebinds
         // and joins have no Bool producer law.
-        if kind == SourceScalarKind::Bool && !matches!(producer, CurrentScalarProducerV1::Initializer(_)) {
+        if kind == SourceScalarKind::Bool
+            && !matches!(producer, CurrentScalarProducerV1::Initializer(_))
+        {
             return None;
         }
         Some((origin, producer))

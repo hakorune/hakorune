@@ -147,6 +147,9 @@ pub(super) fn initializer_core_i64_reads_require_original_producers_in_the_real_
                             assert_eq!(*root, contract.parameters[1].binding);
                             "entry"
                         }
+                        Producer::Operation(_) => {
+                            panic!("this fixture uses retained initializer frames, not an original scalar append")
+                        }
                         Producer::FieldRead(_) => {
                             panic!("this fixture reads a formal scalar, not a field")
                         }

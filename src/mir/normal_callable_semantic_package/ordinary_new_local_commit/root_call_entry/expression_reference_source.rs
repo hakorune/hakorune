@@ -34,6 +34,7 @@ pub(super) fn prepare_scalar_binding_producer(
                                             match read.producer() {
                                                 Producer::SignedEntry(formal) => format!("SignedEntry({formal:?})"),
                                                 Producer::Initializer(_) => "Initializer".to_owned(),
+                                                Producer::Operation(_) => "Operation".to_owned(),
                                                 Producer::Integer { value, .. } => format!("Integer({value})"),
                                                 Producer::Call(_) => "Call".to_owned(),
                                                 Producer::FieldRead(_) => "FieldRead".to_owned(),
