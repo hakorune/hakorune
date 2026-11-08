@@ -171,58 +171,43 @@ pub fn emit_conditional_edgecfg(
     Ok(())
 }
 
-/// Emit one source-owned branch through the existing EdgeCFG session. The
-/// caller supplies genuine targets; this helper adds no If/Loop semantics.
+/// Emit a checked source branch through its function-owned canonical CFG.
+/// The sole caller has already prepared checked Header/After PHIs in that
+/// same session; there is no legacy Frag writer for this protocol.
 pub(in crate::mir::builder) fn emit_carriers_only_conditional_v2(
     builder: &mut MirBuilder,
     from: BasicBlockId,
     condition: crate::mir::ValueId,
     targets: (BasicBlockId, BasicBlockId),
 ) -> Result<(), String> {
-    use crate::mir::builder::control_flow::edgecfg::api::{BranchStub, Frag};
+    let control = builder
+        .function_state
+        .canonical_control
+        .clone()
+        .ok_or("[freeze:contract][canonical-control/inactive]")?;
     let empty = || crate::mir::EdgeArgs {
         layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
         values: Vec::new(),
     };
-    if let Some(control) = builder.function_state.canonical_control.clone() {
-        builder.ensure_block_exists(targets.0)?;
-        builder.ensure_block_exists(targets.1)?;
-        let function = builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or("[freeze:contract][source-branch/function-missing]")?;
-        control
-            .borrow()
-            .cfg
-            .emit_branch_with_edge_args(
-                function,
-                from,
-                condition,
-                targets,
-                (Some(empty()), Some(empty())),
-            )
-            .map_err(|error| error.to_string())?;
-    } else {
-        let mut frag = Frag::new(from);
-        frag.branches.push(BranchStub::new(
+    builder.ensure_block_exists(targets.0)?;
+    builder.ensure_block_exists(targets.1)?;
+    let function = builder
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or("[freeze:contract][source-branch/function-missing]")?;
+    control
+        .borrow()
+        .cfg
+        .emit_branch_with_edge_args(
+            function,
             from,
             condition,
-            targets.0,
-            empty(),
-            targets.1,
-            empty(),
-        ));
-        let function = builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or("[freeze:contract][source-branch/function-missing]")?;
-        builder
-            .function_state
-            .frag_emit_session
-            .emit_and_seal(function, &frag)?;
-    }
+            targets,
+            (Some(empty()), Some(empty())),
+        )
+        .map_err(|error| error.to_string())?;
     crate::mir::builder::ssa::local::checked_compare::observe_branch(
-        builder, from, condition, targets.0, targets.1)
+        builder, from, condition, targets.0, targets.1,
+    )
 }
