@@ -74,6 +74,7 @@ pub(super) fn publish_parameter_entries_v1(
             ));
         }
         let binding = identity.publish_declaration(
+            builder,
             row.site(),
             BindingKindV1::Parameter {
                 index: formal_index,

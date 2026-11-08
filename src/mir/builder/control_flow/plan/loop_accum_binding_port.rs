@@ -57,6 +57,7 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
 
     fn write_update_accumulator(
         &mut self,
+        builder: &mut MirBuilder,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
@@ -64,6 +65,7 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
 
     fn write_step_induction(
         &mut self,
+        builder: &mut MirBuilder,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
@@ -144,6 +146,7 @@ impl DirectAccumBindingPortV1 for RawDirectAccumBindingPort<'_> {
 
     fn write_update_accumulator(
         &mut self,
+        _builder: &mut MirBuilder,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
@@ -155,11 +158,12 @@ impl DirectAccumBindingPortV1 for RawDirectAccumBindingPort<'_> {
 
     fn write_step_induction(
         &mut self,
+        builder: &mut MirBuilder,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        self.write_update_accumulator(binding, block, value)
+        self.write_update_accumulator(builder, binding, block, value)
     }
 
     fn seal(

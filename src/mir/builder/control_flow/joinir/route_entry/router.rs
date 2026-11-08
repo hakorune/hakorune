@@ -123,6 +123,7 @@ pub(crate) fn route_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     site: Option<&crate::mir::resolved_semantics::SourceStmtSiteV1>,
+    source_input: Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>>,
 ) -> Result<Option<ValueId>, String> {
     // Source authority: the FunctionDeclaration recorded at function entry.
     // A missing declaration means the walked loop has no canonical source
@@ -142,27 +143,32 @@ pub(crate) fn route_loop(
     let site =
         site.ok_or_else(|| "[freeze:contract][route-loop/missing-source-site]".to_owned())?;
 
-    // Resolve the function's source unit once; sibling loops share it.
-    let unit = if let Some(unit) = &builder
-        .function_state
-        .compilation
-        .resolved_loop_source_unit
-    {
-        Rc::clone(unit)
-    } else {
-        let unit = Rc::new(
-            VerifiedResolvedSourceUnitV1::resolve_function(declaration)
-                .map_err(|error| error.to_string())?,
-        );
-        builder
-            .function_state
-            .compilation
-            .resolved_loop_source_unit = Some(Rc::clone(&unit));
-        unit
+    // A located callable already carries the resolver's original owner.
+    // Resolve only source-less legacy ingress; never replace original bindings.
+    let unit;
+    let input = match source_input {
+        Some(input) => input,
+        None => {
+            unit = if let Some(unit) = &builder
+                .function_state
+                .compilation
+                .resolved_loop_source_unit
+            {
+                Rc::clone(unit)
+            } else {
+                let unit = Rc::new(
+                    VerifiedResolvedSourceUnitV1::resolve_function(declaration)
+                        .map_err(|error| error.to_string())?,
+                );
+                builder
+                    .function_state
+                    .compilation
+                    .resolved_loop_source_unit = Some(Rc::clone(&unit));
+                unit
+            };
+            unit.root_function_input().map_err(|error| error.to_string())?
+        }
     };
-    let input = unit
-        .root_function_input()
-        .map_err(|error| error.to_string())?;
 
     // The caller retains the resolver's original statement receipt. Identical
     // loops have distinct sites; no syntax scan may choose between them.

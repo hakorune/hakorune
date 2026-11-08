@@ -108,6 +108,7 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
 
     fn claim_write(
         &mut self,
+        builder: &mut MirBuilder,
         role: DirectAccumBindingEffectRoleV1,
         binding: BindingRefV1,
         block: BasicBlockId,
@@ -115,7 +116,7 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
     ) -> Result<(), String> {
         let site = self.check_entry(role, binding)?.site().clone();
         self.identity
-            .define_assignment_exact(&site, binding, block, value)?;
+            .define_assignment_exact(builder, &site, binding, block, value)?;
         self.claimed.insert(role);
         Ok(())
     }
@@ -214,11 +215,13 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
 
     fn write_update_accumulator(
         &mut self,
+        builder: &mut MirBuilder,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
         self.claim_write(
+            builder,
             DirectAccumBindingEffectRoleV1::UpdateAccumulatorWrite,
             binding,
             block,
@@ -228,11 +231,13 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
 
     fn write_step_induction(
         &mut self,
+        builder: &mut MirBuilder,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
         self.claim_write(
+            builder,
             DirectAccumBindingEffectRoleV1::StepInductionWrite,
             binding,
             block,

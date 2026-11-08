@@ -649,7 +649,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             )
         };
         self.identity
-            .publish_declaration_exact(site, binding, entry, value)?;
+            .publish_declaration_exact(builder, site, binding, entry, value)?;
         builder.register_value_kind(value, hakorune_mir_core::MirValueKind::Parameter(ordinal));
         if ty != MirType::Unknown {
             builder

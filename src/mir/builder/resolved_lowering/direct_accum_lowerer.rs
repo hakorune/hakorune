@@ -203,6 +203,7 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             let value = emit_integer(self.builder, local.initial())?;
             let binding_key = LoopBindingKeyV1::new(ordinal);
             let binding = self.session.identity.publish_declaration(
+                self.builder,
                 local.site(),
                 local.kind(),
                 local.name(),

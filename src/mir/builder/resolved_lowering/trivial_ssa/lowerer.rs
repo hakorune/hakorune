@@ -236,6 +236,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 ordinal: ordinal as u32,
             };
             let binding = self.session.identity.publish_declaration(
+                self.builder,
                 &site,
                 BindingKindV1::Local {
                     ordinal: ordinal as u32,
@@ -283,7 +284,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         let block = self.current_block()?;
         self.session
             .identity
-            .define_assignment(target.site(), binding, block, value)?;
+            .define_assignment(self.builder, target.site(), binding, block, value)?;
         let expected = self.profile.claim_assignment(binding, target.site())?;
         require_representation(actual, expected, "assignment")
     }

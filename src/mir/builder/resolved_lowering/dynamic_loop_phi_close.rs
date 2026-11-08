@@ -110,6 +110,7 @@ impl CanonicalSsaFunctionSessionV2<'_> {
 
         self.identity
             .define_assignment_exact(
+                builder,
                 carrier.assignment(),
                 carrier.binding(),
                 carrier.definition_block(),

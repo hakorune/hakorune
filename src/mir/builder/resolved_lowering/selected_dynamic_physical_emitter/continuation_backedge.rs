@@ -230,6 +230,7 @@ fn emit_program(
     canonical
         .identity
         .define_assignment_exact(
+            outer.builder_view_mut_for_lowering(),
             relation.step_target_i(),
             relation.induction_binding(),
             continuation.block(),

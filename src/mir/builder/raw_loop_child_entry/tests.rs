@@ -743,7 +743,7 @@ fn identical_loops_keep_distinct_resolver_receipts() {
             .unwrap()
             .blocks
             .len();
-        let missing = route_loop(&mut builder, &context, None).unwrap_err();
+        let missing = route_loop(&mut builder, &context, None, None).unwrap_err();
         assert!(
             missing.contains("[route-loop/missing-source-site]"),
             "{missing}"
@@ -758,7 +758,7 @@ fn identical_loops_keep_distinct_resolver_receipts() {
                 .len(),
             before
         );
-        let error = route_loop(&mut builder, &context, Some(site)).unwrap_err();
+        let error = route_loop(&mut builder, &context, Some(site), None).unwrap_err();
         assert!(error.contains("loop winner selection declined"), "{error}");
         assert!(error.contains(&format!("site={site:?}")), "{error}");
     }

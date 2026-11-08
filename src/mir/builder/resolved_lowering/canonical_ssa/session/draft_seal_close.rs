@@ -57,7 +57,7 @@ impl CanonicalSsaFunctionSessionV2<'_> {
             .finish()
             .map_err(|error| CanonicalFunctionFinishErrorV1::IfControl(format!("{error:?}")))?;
         identity
-            .finish()
+            .finish(builder)
             .map_err(CanonicalFunctionFinishErrorV1::Identity)?;
         phis.commit(builder)
             .map_err(|error| CanonicalFunctionFinishErrorV1::Phi(error.to_string()))?;

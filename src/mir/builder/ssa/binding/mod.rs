@@ -281,6 +281,10 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
     }
 
     pub(in crate::mir::builder) fn finish(self) -> Result<(), BindingSsaErrorV1> {
+        self.validate_finish()
+    }
+
+    pub(in crate::mir::builder) fn validate_finish(&self) -> Result<(), BindingSsaErrorV1> {
         if self.poisoned {
             return Err(BindingSsaErrorV1::Poisoned);
         }
@@ -291,8 +295,8 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         }
         let open = self
             .blocks
-            .into_iter()
-            .filter_map(|(block, state)| state.is_none().then_some(block))
+            .iter()
+            .filter_map(|(block, state)| state.is_none().then_some(*block))
             .collect::<Vec<_>>();
         if !open.is_empty() {
             return Err(BindingSsaErrorV1::UnsealedAtFinish {

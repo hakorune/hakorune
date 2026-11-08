@@ -496,6 +496,7 @@ fn materialize_inner<'session, 'source, 'envelope>(
         .session
         .identity
         .define_assignment_exact(
+            builder,
             source.index_update().target_site(),
             source.index_binding(),
             return_placement.continuation_block,

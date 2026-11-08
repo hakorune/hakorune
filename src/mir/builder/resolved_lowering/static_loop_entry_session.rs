@@ -525,6 +525,7 @@ fn emit_unpublished_static_invoke(
         .value_types
         .insert(result, MirType::Integer);
     let n = canonical.identity.publish_declaration_exact(
+        draft,
         semantic.source_calls().0.declaration(),
         semantic.roles().n_binding,
         normal,
@@ -538,6 +539,7 @@ fn emit_unpublished_static_invoke(
     }
     let bin_value = constant::emit_integer(draft, semantic.bin_initial_i64())?;
     let bin = canonical.identity.publish_declaration_exact(
+        draft,
         &semantic.roles().bin_declaration,
         semantic.roles().bin_binding,
         normal,

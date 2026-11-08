@@ -222,6 +222,7 @@ pub(super) fn materialize_callable_prelude_v1(
     session
         .identity
         .publish_declaration(
+            builder,
             &site,
             result_record.kind(),
             result_record.diagnostic_name(),
@@ -338,7 +339,7 @@ fn materialize_parameters(
             .set_type(value, MirType::Integer);
         session
             .identity
-            .publish_declaration(&source_site, record.kind(), name, preheader, value)
+            .publish_declaration(builder, &source_site, record.kind(), name, preheader, value)
             .map_err(CallablePreludeMaterializationRejectV1::ResultDeclaration)?;
     }
     Ok(())

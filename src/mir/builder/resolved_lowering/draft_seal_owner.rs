@@ -216,7 +216,7 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         let completion = ready.into_completion();
 
         let plan_result = {
-            let builder = self.session.builder_view();
+            let builder = self.session.builder_view_mut_for_lowering();
             prepare_detached_plan(builder, exit)
         };
         let plan = match plan_result {
@@ -313,7 +313,7 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
 
         let (completion, exit_set) = exit_plan.into_parts();
         let plan_result = {
-            let builder = self.session.builder_view();
+            let builder = self.session.builder_view_mut_for_lowering();
             let result: Result<_, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> = (|| {
                 let function = builder.function_state.current_function.as_ref().ok_or((
                     FunctionDraftSealStageV1::Exit,
@@ -493,7 +493,7 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
 
         let (completion, exit_set) = exit_plan.into_parts();
         let plan_result = {
-            let builder = self.session.builder_view();
+            let builder = self.session.builder_view_mut_for_lowering();
             prepare_detached_plan_with_exit_set(builder, exit_set, candidate)
         };
         let plan = match plan_result {
@@ -686,14 +686,14 @@ impl From<FunctionDraftSealPreparationErrorV1> for FunctionDraftSealErrorV1 {
 }
 
 fn prepare_detached_plan(
-    builder: &MirBuilder,
+    builder: &mut MirBuilder,
     exit: PreparedFunctionExitV1,
 ) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
     prepare_detached_plan_with_exit_set(builder, PreparedFunctionExitSetV1::single(exit), None)
 }
 
 fn prepare_detached_plan_with_exit_set(
-    builder: &MirBuilder,
+    builder: &mut MirBuilder,
     exit: PreparedFunctionExitSetV1,
     candidate: Option<SelectedDynamicCandidateMetadataV1>,
 ) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
@@ -708,7 +708,7 @@ fn prepare_detached_plan_with_exit_set(
 }
 
 fn prepare_plan_from_projection(
-    builder: &MirBuilder,
+    builder: &mut MirBuilder,
     projection: FunctionDraftSealProjectionV1,
     candidate: Option<SelectedDynamicCandidateMetadataV1>,
 ) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
@@ -759,5 +759,13 @@ fn prepare_plan_from_projection(
                 )
             })?;
     }
+    builder
+        .finish_projected_function_control_v1(plan.projected_function())
+        .map_err(|error| {
+            (
+                FunctionDraftSealStageV1::SessionClose,
+                FunctionDraftSealErrorV1::SessionClose { _detail: error },
+            )
+        })?;
     Ok(plan)
 }

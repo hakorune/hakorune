@@ -114,6 +114,7 @@ pub(super) fn materialize_initialized_local_inputs_v1(
         session
             .identity
             .publish_declaration(
+                builder,
                 input_relation.declaration(),
                 input_record.kind(),
                 input_record.diagnostic_name(),

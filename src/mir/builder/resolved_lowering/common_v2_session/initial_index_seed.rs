@@ -114,7 +114,13 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .map_err(InitialIndexSeedMaterializationRejectV1::Value)?;
         self.session
             .identity
-            .publish_declaration_exact(seed.declaration_site(), seed.binding(), entry, value)
+            .publish_declaration_exact(
+                builder,
+                seed.declaration_site(),
+                seed.binding(),
+                entry,
+                value,
+            )
             .map_err(InitialIndexSeedMaterializationRejectV1::Declaration)?;
 
         Ok(CanonicalInitialIndexSeedReceiptV1 {

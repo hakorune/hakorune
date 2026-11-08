@@ -529,6 +529,7 @@ fn emit_program(
     canonical
         .identity
         .publish_declaration_exact(
+            outer.builder_view_mut_for_lowering(),
             iteration_local.declaration(),
             iteration_local.binding(),
             i6_normal.block(),

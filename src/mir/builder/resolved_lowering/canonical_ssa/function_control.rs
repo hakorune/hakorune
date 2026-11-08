@@ -29,6 +29,18 @@ impl FunctionControlV1 {
         self.cfg.bind_source_owner(owner)?;
         Ok(())
     }
+    pub(in crate::mir::builder) fn with_source_bindings<T>(
+        &mut self,
+        action: impl FnOnce(&mut BindingSsaBuilderV1<PhiToken, FunctionSsaKeyV1>) -> Result<T, String>,
+    ) -> Result<T, String> {
+        self.owner.ok_or_else(inactive)?;
+        self.transaction
+            .get_or_insert_with(|| PhiTxn::begin("canonical_binding_ssa"));
+        action(
+            self.bindings
+                .get_or_insert_with(|| BindingSsaBuilderV1::with_keys(self.owner)),
+        )
+    }
     pub(in crate::mir::builder) fn is_empty_for_commit(&self) -> bool {
         self.owner.is_none()
             && self.bindings.is_none()
@@ -251,11 +263,10 @@ impl FunctionControlV1 {
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        self.bindings
-            .as_mut()
-            .ok_or_else(inactive)?
-            .define(FunctionSsaKeyV1::Source(binding), block, value)
-            .map_err(|error| error.to_string())
+        self.with_source_bindings(|ssa| {
+            ssa.define(FunctionSsaKeyV1::Source(binding), block, value)
+                .map_err(|error| error.to_string())
+        })
     }
     pub(in crate::mir::builder) fn complete_blocks(
         &mut self,
@@ -301,12 +312,22 @@ impl FunctionControlV1 {
         }
     }
     fn finish(&mut self, builder: &mut MirBuilder) -> Result<(), String> {
+        self.finish_against_graph(builder, None)
+    }
+    fn finish_against_graph(
+        &mut self,
+        builder: &mut MirBuilder,
+        mut projected: Option<crate::mir::MirFunction>,
+    ) -> Result<(), String> {
         let result = (|| {
-            let function = builder
-                .function_state
-                .current_function
-                .as_mut()
-                .ok_or_else(inactive)?;
+            let function = match projected.as_mut() {
+                Some(function) => function,
+                None => builder
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .ok_or_else(inactive)?,
+            };
             let witnesses = self
                 .cfg
                 .close_function_blocks(function)
@@ -327,11 +348,14 @@ impl FunctionControlV1 {
                 )
                 .verify_function_phi_inputs()?;
             }
-            let function = builder
-                .function_state
-                .current_function
-                .as_ref()
-                .ok_or_else(inactive)?;
+            let function = match projected.as_ref() {
+                Some(function) => function,
+                None => builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .ok_or_else(inactive)?,
+            };
             std::mem::take(&mut self.cfg)
                 .finish(function)
                 .map_err(|error| error.to_string())?;
@@ -353,6 +377,16 @@ impl MirBuilder {
         let control = Rc::clone(&self.function_state.canonical_control);
         control.borrow_mut().bind_owner(owner)?;
         Ok(control)
+    }
+    pub(in crate::mir::builder) fn finish_projected_function_control_v1(
+        &mut self,
+        projected: &crate::mir::MirFunction,
+    ) -> Result<(), String> {
+        let control = std::mem::take(&mut self.function_state.canonical_control);
+        let result = control
+            .borrow_mut()
+            .finish_against_graph(self, Some(projected.clone()));
+        result
     }
     pub(in crate::mir::builder) fn finish_function_control_v1(&mut self) -> Result<(), String> {
         let control = std::mem::take(&mut self.function_state.canonical_control);

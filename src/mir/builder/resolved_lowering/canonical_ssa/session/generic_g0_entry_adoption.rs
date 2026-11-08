@@ -37,6 +37,7 @@ pub(super) fn adopt(
             return Err("generic physical entry duplicate binding".to_owned());
         }
         session.identity.publish_declaration_exact(
+            builder,
             &site,
             descriptor.binding(),
             entry,

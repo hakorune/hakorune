@@ -148,7 +148,7 @@ impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
         value: ValueId,
     ) -> Result<(), String> {
         self.identity
-            .define_assignment_exact(site, binding, block, value)
+            .define_assignment_exact(self.builder, site, binding, block, value)
     }
 }
 

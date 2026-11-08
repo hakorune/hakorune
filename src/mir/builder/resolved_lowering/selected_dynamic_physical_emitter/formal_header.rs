@@ -176,6 +176,7 @@ pub(super) fn open(
         .identity
         .claim_variable_use_binding(relation.initializer(), relation.pos_binding())?;
     canonical.identity.publish_declaration_exact(
+        builder,
         relation.induction_declaration(),
         relation.induction_binding(),
         enter,

@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 
-use crate::mir::builder::emission::phi_lifecycle::{PhiToken, PhiTxn};
+use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;
-use crate::mir::builder::ssa::binding::{BindingSsaBuilderV1, MirBindingSsaAdapterV1};
+use crate::mir::builder::ssa::binding::{FunctionSsaKeyV1, MirBindingSsaAdapterV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ResolvedExitSiteV1, SourceBindingSiteV1,
@@ -45,7 +45,6 @@ impl CanonicalBindingReadReceiptV1 {
 /// function profiles.
 pub(in crate::mir::builder::resolved_lowering) struct ResolvedSsaIdentityStateV2<'source> {
     ledger: ResolvedIdentityLedgerV2<'source>,
-    ssa: BindingSsaBuilderV1<PhiToken>,
     active: BTreeSet<BindingRefV1>,
     initialized: BTreeSet<BindingRefV1>,
 }
@@ -56,7 +55,6 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     ) -> Self {
         Self {
             ledger: ResolvedIdentityLedgerV2::new(product),
-            ssa: BindingSsaBuilderV1::new(product.owner()),
             active: BTreeSet::new(),
             initialized: BTreeSet::new(),
         }
@@ -64,6 +62,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
 
     pub(in crate::mir::builder::resolved_lowering) fn publish_declaration(
         &mut self,
+        builder: &mut MirBuilder,
         site: &SourceBindingSiteV1,
         expected_kind: BindingKindV1,
         expected_name: &str,
@@ -73,9 +72,8 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         let binding = self
             .ledger
             .adopt_declaration(site, expected_kind, expected_name)?;
-        self.ssa
-            .define(binding, block, value)
-            .map_err(|error| error.to_string())?;
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
+        control.borrow_mut().define(binding, block, value)?;
         if !self.active.insert(binding) {
             return Err(format!(
                 "[freeze:contract][canonical_binding_ssa/duplicate_active] binding={binding:?}"
@@ -90,6 +88,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     /// declaration relation. No caller-supplied name or binding kind is used.
     pub(in crate::mir::builder::resolved_lowering) fn publish_declaration_exact(
         &mut self,
+        builder: &mut MirBuilder,
         site: &SourceBindingSiteV1,
         expected_binding: BindingRefV1,
         block: BasicBlockId,
@@ -98,9 +97,8 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         let binding = self
             .ledger
             .adopt_declaration_exact(site, expected_binding)?;
-        self.ssa
-            .define(binding, block, value)
-            .map_err(|error| error.to_string())?;
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
+        control.borrow_mut().define(binding, block, value)?;
         if !self.active.insert(binding) {
             return Err(format!(
                 "[freeze:contract][canonical_binding_ssa/duplicate_active] binding={binding:?}"
@@ -164,11 +162,12 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         self.require_active(binding)?;
         self.require_initialized(binding)?;
         self.ledger.claim_variable_use_binding(site, binding)?;
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
         let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
-        let value = self
-            .ssa
-            .read(&mut adapter, binding, block)
-            .map_err(|error| error.to_string())?;
+        let value = control.borrow_mut().with_source_bindings(|ssa| {
+            ssa.read(&mut adapter, FunctionSsaKeyV1::Source(binding), block)
+                .map_err(|error| error.to_string())
+        })?;
         Ok((binding, value))
     }
 
@@ -196,10 +195,13 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     ) -> Result<ValueId, String> {
         self.require_active(binding)?;
         self.require_initialized(binding)?;
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
         let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
-        self.ssa
-            .read(&mut adapter, binding, block)
-            .map_err(|error| error.to_string())
+        let result = control.borrow_mut().with_source_bindings(|ssa| {
+            ssa.read(&mut adapter, FunctionSsaKeyV1::Source(binding), block)
+                .map_err(|error| error.to_string())
+        });
+        result
     }
 
     /// Read an exact source-bound entry and issue the canonical immutable
@@ -230,12 +232,13 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     ) -> Result<CanonicalBindingReadReceiptV1, String> {
         self.require_active(binding)?;
         self.require_initialized(binding)?;
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
         let mut adapter =
             MirBindingSsaAdapterV1::new_with_deferred_reachable(builder, phis, deferred_entry);
-        let physical_value = self
-            .ssa
-            .read(&mut adapter, binding, block)
-            .map_err(|error| error.to_string())?;
+        let physical_value = control.borrow_mut().with_source_bindings(|ssa| {
+            ssa.read(&mut adapter, FunctionSsaKeyV1::Source(binding), block)
+                .map_err(|error| error.to_string())
+        })?;
         Ok(CanonicalBindingReadReceiptV1 {
             owner: binding.owner(),
             binding,
@@ -313,15 +316,15 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
 
     pub(in crate::mir::builder::resolved_lowering) fn define_assignment(
         &mut self,
+        builder: &mut MirBuilder,
         site: &SourceExprSiteV1,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
         self.ledger.claim_assignment_binding(site, binding)?;
-        self.ssa
-            .define(binding, block, value)
-            .map_err(|error| error.to_string())?;
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
+        control.borrow_mut().define(binding, block, value)?;
         self.initialized.insert(binding);
         Ok(())
     }
@@ -330,6 +333,7 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     /// adapters. The legacy lowerer keeps its existing two-step API.
     pub(in crate::mir::builder::resolved_lowering) fn define_assignment_exact(
         &mut self,
+        builder: &mut MirBuilder,
         site: &SourceExprSiteV1,
         binding: BindingRefV1,
         block: BasicBlockId,
@@ -337,9 +341,8 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     ) -> Result<(), String> {
         self.require_active(binding)?;
         self.ledger.claim_assignment_binding(site, binding)?;
-        self.ssa
-            .define(binding, block, value)
-            .map_err(|error| error.to_string())?;
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
+        control.borrow_mut().define(binding, block, value)?;
         self.initialized.insert(binding);
         Ok(())
     }
@@ -351,10 +354,13 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         block: BasicBlockId,
         witness: &VerifiedPredecessorsV1,
     ) -> Result<(), String> {
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
         let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
-        self.ssa
-            .seal(&mut adapter, block, witness)
-            .map_err(|error| error.to_string())
+        let result = control.borrow_mut().with_source_bindings(|ssa| {
+            ssa.seal(&mut adapter, block, witness)
+                .map_err(|error| error.to_string())
+        });
+        result
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn mark_return(
@@ -364,8 +370,14 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         self.ledger.mark_return(site)
     }
 
-    pub(in crate::mir::builder::resolved_lowering) fn finish(self) -> Result<(), String> {
-        self.ssa.finish().map_err(|error| error.to_string())?;
+    pub(in crate::mir::builder::resolved_lowering) fn finish(
+        self,
+        builder: &mut MirBuilder,
+    ) -> Result<(), String> {
+        let control = builder.function_control_for_owner_v1(self.ledger.owner())?;
+        control
+            .borrow_mut()
+            .with_source_bindings(|ssa| ssa.validate_finish().map_err(|error| error.to_string()))?;
         self.ledger.finish(self.active)
     }
 
@@ -549,11 +561,17 @@ mod tests {
         state
             .activate_declaration_without_value(&site, record.kind(), record.diagnostic_name())
             .expect("declaration-only activation");
+        let mut builder = MirBuilder::new();
         state
-            .define_assignment_exact(&assignment, binding, BasicBlockId::new(0), ValueId::new(7))
+            .define_assignment_exact(
+                &mut builder,
+                &assignment,
+                binding,
+                BasicBlockId::new(0),
+                ValueId::new(7),
+            )
             .expect("first assignment defines the reaching value");
         assert!(state.initialized.contains(&binding));
-        let mut builder = MirBuilder::new();
         let mut phis = PhiTxn::begin("canonical-identity-test");
         assert_eq!(
             state
@@ -562,7 +580,13 @@ mod tests {
             ValueId::new(7)
         );
         assert!(state
-            .define_assignment_exact(&assignment, binding, BasicBlockId::new(0), ValueId::new(8),)
+            .define_assignment_exact(
+                &mut builder,
+                &assignment,
+                binding,
+                BasicBlockId::new(0),
+                ValueId::new(8),
+            )
             .is_err());
 
         ResolvedScopeRetirementV1::retire_scope_success(&mut state, &[binding])

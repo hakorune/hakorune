@@ -106,6 +106,7 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
                 services
                     .identity
                     .publish_declaration_exact(
+                        services.builder,
                         declaration.site(),
                         declaration.binding(),
                         target.physical_block(),

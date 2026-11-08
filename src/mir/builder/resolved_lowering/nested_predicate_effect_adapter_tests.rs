@@ -140,11 +140,13 @@ impl<'plan, 'source> NestedEffectAdapter<'plan, 'source> {
 
     fn publish_initialized_prefix(
         &mut self,
+        builder: &mut MirBuilder,
         claims: &VerifiedNestedBindingExecutionClaimsV1,
     ) -> Result<(), String> {
         for (index, binding) in claims.prefix().initialized().iter().enumerate() {
             let value = ValueId::new(10 + index as u32);
             let published = self.identity.publish_declaration(
+                builder,
                 binding.declaration_site(),
                 binding.kind(),
                 binding.name(),
@@ -214,6 +216,7 @@ impl<'plan, 'source> NestedEffectAdapter<'plan, 'source> {
             }
             NestedBindingEffectEntryV1::FirstAssignment(claim) => {
                 self.identity.define_assignment_exact(
+                    builder,
                     claim.target_site(),
                     claim.binding(),
                     self.block,
@@ -224,6 +227,7 @@ impl<'plan, 'source> NestedEffectAdapter<'plan, 'source> {
                 )
             }
             NestedBindingEffectEntryV1::Assignment(claim) => self.identity.define_assignment_exact(
+                builder,
                 claim.target_site(),
                 claim.binding(),
                 self.block,
@@ -264,11 +268,11 @@ fn ordered_effect_adapter_consumes_all_claims_once() {
     let claims = claims_for(&unit);
     let input = unit.root_function_input().expect("root function input");
     let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
+    let mut builder = MirBuilder::new();
     let mut adapter = NestedEffectAdapter::new(&mut identity, claims.effect_plan());
     adapter
-        .publish_initialized_prefix(&claims)
+        .publish_initialized_prefix(&mut builder, &claims)
         .expect("initialized prefix");
-    let mut builder = MirBuilder::new();
     let mut phis = PhiTxn::begin("nested-effect-test");
     adapter
         .consume_role(
@@ -295,11 +299,11 @@ fn effect_adapter_rejects_out_of_order_and_duplicate_claims() {
     let claims = claims_for(&unit);
     let input = unit.root_function_input().expect("root function input");
     let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
+    let mut builder = MirBuilder::new();
     let mut adapter = NestedEffectAdapter::new(&mut identity, claims.effect_plan());
     adapter
-        .publish_initialized_prefix(&claims)
+        .publish_initialized_prefix(&mut builder, &claims)
         .expect("initialized prefix");
-    let mut builder = MirBuilder::new();
     let mut phis = PhiTxn::begin("nested-effect-order-test");
     assert!(adapter
         .consume_role(
@@ -351,14 +355,15 @@ fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
     let claims = claims_for(&unit);
     let input = unit.root_function_input().expect("root function input");
     let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
+    let mut builder = MirBuilder::new();
     let mut adapter = NestedEffectAdapter::new(&mut identity, claims.effect_plan());
     adapter
-        .publish_initialized_prefix(&claims)
+        .publish_initialized_prefix(&mut builder, &claims)
         .expect("initialized prefix");
     adapter
         .consume_role(
             NestedBindingEffectRoleV1::RootPredicateReadI,
-            &mut MirBuilder::new(),
+            &mut builder,
             &mut PhiTxn::begin("nested-scope-test"),
         )
         .expect("root predicate");
@@ -368,7 +373,7 @@ fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
     adapter
         .consume_role(
             NestedBindingEffectRoleV1::ChildInitializeWriteJ,
-            &mut MirBuilder::new(),
+            &mut builder,
             &mut PhiTxn::begin("nested-scope-test"),
         )
         .expect("first child assignment");
@@ -400,7 +405,6 @@ fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
         .close_scope_region_success(child, &mut identity)
         .expect("child pair closes without retiring outer j");
 
-    let mut builder = MirBuilder::new();
     let mut phis = PhiTxn::begin("nested-scope-read");
     identity
         .read_entry(

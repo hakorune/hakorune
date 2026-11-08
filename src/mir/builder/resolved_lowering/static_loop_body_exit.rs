@@ -177,6 +177,7 @@ pub(super) fn emit_unpublished_body_exit_v1(
     loop_operation::emit_add_i64_at_with_dst(draft, body_blocks.step_block, next, old_bin, one)?;
     canonical.publish_physical_value_type(draft, next, MirType::Integer)?;
     canonical.identity.define_assignment_exact(
+        draft,
         &roles.assignment_target,
         roles.bin_binding,
         body_blocks.step_block,

@@ -282,7 +282,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 return lower_outside_callable_loop_v1(reason)
             }
             None => {
-                return lower_non_callable_loop_route_v1(builder, condition, body, parent_source)
+                return lower_non_callable_loop_route_v1(builder, condition, body, parent_source, source_input)
             }
         };
         let owner = binding_product.owner();
@@ -621,7 +621,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         "[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned(),
                     );
                 };
-                lower_non_callable_loop_route_v1(builder, *condition, body, parent_source)
+                lower_non_callable_loop_route_v1(builder, *condition, body, parent_source, source_input)
             }
             CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
                 Err(format!(
@@ -719,6 +719,7 @@ fn lower_non_callable_loop_route_v1(
     condition: ASTNode,
     body: Vec<ASTNode>,
     source: &RawInvocationSourceContextV1,
+    source_input: Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>>,
 ) -> Result<ValueId, String> {
     #[cfg(test)]
     test_route_observation::record_non_callable_route();
@@ -731,6 +732,7 @@ fn lower_non_callable_loop_route_v1(
         condition,
         body,
         site.as_ref(),
+        source_input,
     )
 }
 

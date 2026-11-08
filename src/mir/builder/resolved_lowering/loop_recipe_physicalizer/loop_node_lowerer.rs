@@ -137,7 +137,7 @@ fn lower_loop_node_physical_admission_inner<'source>(
             }
         };
         let published = identity
-            .publish_declaration_exact(input_row.declaration(), binding, preheader, value)
+            .publish_declaration_exact(builder, input_row.declaration(), binding, preheader, value)
             .map_err(|error| {
                 format!("[freeze:contract][loop_node_physicalize/input_publish] {error}")
             })?;

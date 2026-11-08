@@ -175,6 +175,7 @@ impl CanonicalSsaFunctionSessionV2<'_> {
 
         self.identity
             .publish_declaration_exact(
+                builder,
                 enter_definition.declaration(),
                 enter_definition.binding(),
                 enter,

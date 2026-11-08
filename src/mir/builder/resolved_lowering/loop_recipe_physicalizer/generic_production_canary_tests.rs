@@ -174,6 +174,7 @@ fn materialize_parameters(
             return Err("G0 receiver identity mismatch".into());
         }
         session.identity.publish_declaration(
+            builder,
             &SourceBindingSiteV1::Receiver,
             receiver_record.kind(),
             receiver_record.diagnostic_name(),
@@ -226,6 +227,7 @@ fn materialize_parameters(
             .type_ctx
             .set_type(value, MirType::Integer);
         session.identity.publish_declaration(
+            builder,
             &source_site,
             record.kind(),
             name,

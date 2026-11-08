@@ -46,9 +46,13 @@ pub(super) fn adopt(
         if descriptor.binding().owner() != session.owner {
             return Err("physical entry binding owner drift".to_owned());
         }
-        session
-            .identity
-            .publish_declaration_exact(&site, descriptor.binding(), entry, value)?;
+        session.identity.publish_declaration_exact(
+            builder,
+            &site,
+            descriptor.binding(),
+            entry,
+            value,
+        )?;
         builder.register_value_kind(
             value,
             hakorune_mir_core::MirValueKind::Parameter(

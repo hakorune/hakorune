@@ -56,6 +56,7 @@ impl<'plan, 'source> CanonicalNestedBindingPort<'plan, 'source> {
         for binding in claims.prefix().initialized() {
             let value = loop_operation::emit_const_i64(builder, binding.initial())?;
             let published = self.identity.publish_declaration(
+                builder,
                 binding.declaration_site(),
                 binding.kind(),
                 binding.name(),
@@ -136,7 +137,7 @@ impl<'plan, 'source> CanonicalNestedBindingPort<'plan, 'source> {
         self.claim_once(role)?;
         let value = loop_operation::emit_const_i64(builder, value)?;
         self.identity
-            .define_assignment_exact(site, binding, block, value)
+            .define_assignment_exact(builder, site, binding, block, value)
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn write_delta(
@@ -160,7 +161,7 @@ impl<'plan, 'source> CanonicalNestedBindingPort<'plan, 'source> {
         let step = loop_operation::emit_const_i64(builder, delta)?;
         let next = loop_operation::emit_add_i64(builder, current, step)?;
         self.identity
-            .define_assignment_exact(site, binding, block, next)
+            .define_assignment_exact(builder, site, binding, block, next)
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn finish_effect_claims(

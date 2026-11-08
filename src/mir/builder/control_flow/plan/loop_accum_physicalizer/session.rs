@@ -443,8 +443,12 @@ where
             block == self.roles.block(LoopPhysicalRoleV1::Body),
             recipe_binding.raw(),
         ) {
-            (true, 1) => self.port.write_update_accumulator(binding, block, value),
-            (true, 0) => self.port.write_step_induction(binding, block, value),
+            (true, 1) => self
+                .port
+                .write_update_accumulator(self.builder, binding, block, value),
+            (true, 0) => self
+                .port
+                .write_step_induction(self.builder, binding, block, value),
             _ => {
                 return Err(LoopPhysicalizeErrorV1::RecipeShape(
                     "DirectAccum write role is not canonical",

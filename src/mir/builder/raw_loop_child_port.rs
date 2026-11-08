@@ -44,7 +44,7 @@ impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
             return Err("[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned());
         };
         crate::mir::builder::control_flow::joinir::routing::lower_loop_or_freeze_v1(
-            builder, *condition, body, None,
+            builder, *condition, body, None, None,
         )
     }
 }
