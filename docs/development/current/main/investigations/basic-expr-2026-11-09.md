@@ -45,3 +45,6 @@ B14. 元のi64演算は全operandのsource証拠と共通演算法則を保持�
 B15. 比較の入力scopeは同じchecked評価のfield読取も含み、そのreceiverのIdentityは値の取得として再評価せず、field copyの取得とNormal/Fault Endを同じ入力順序に保持する。
 
 B16. Core結果を新しい利用先へ渡す時は元Core loanで結果のclassを効果前に選び、同じloanを一度だけ葉の準備へ渡し、準備済みの葉を共通の値評価が消費して再分類・再発行しない。
+
+## G4 の境界（試作を戻して保持）
+Text field の共通 `role_admits_v1`（ordinary_new_field_value_source.rs:260）が条件を拒否していた。B6/B15 に沿い、条件のText seed・一度のcopy取得・比較入力scope・Normal/Fault Endへ接続した試作は、1,788本中の旧受理2本(tr/in4/c1.hako、tr/in9/e5.hako)を変更した。両方の基準MIRは `field.get : str` と直接CompareでcopyのEndを持たず、共通のchecked field取得/cleanupへの移行は既存MIRの維持と両立しない。さらに新経路のsource requirement引継ぎが未完で `ordinary-field-read/required-source-loan-missing` に達した。名前・形による旧writerへの逃げ分けはしない。指示書の既存MIR変更の停止条件でG4を止め、試作4ファイルはpatchに保護して本線には入れない。e17は拒否のまま。再開には旧2入力のchecked copy/cleanupへのMIR移行を許可する判断が要る。
