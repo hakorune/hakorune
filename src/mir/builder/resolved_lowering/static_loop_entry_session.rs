@@ -204,6 +204,7 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
         draft.install_prepared_physical_function_skeleton(shell)?;
         let mut canonical =
             CanonicalSsaFunctionSessionV2::new_generic(input, if_control, expectation, completion)?;
+        canonical.bind_control(draft)?;
         let value = canonical.adopt_exact_formal_parameter(
             draft,
             &SourceBindingSiteV1::Parameter { index: 0 },
