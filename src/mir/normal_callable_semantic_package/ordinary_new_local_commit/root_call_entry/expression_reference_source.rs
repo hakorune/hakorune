@@ -1,6 +1,10 @@
 //! Original source and entry correspondence for recorded expression reads.
 use super::*;
 
+#[path = "expression_scalar_origin.rs"]
+mod scalar_origin;
+pub(super) use scalar_origin::{initializer_value, validate_scalar_origin};
+
 pub(super) fn prepare_scalar_binding_producer(
     binding: crate::mir::resolved_semantics::BindingRefV1,
     source: &Producer,
@@ -214,10 +218,17 @@ pub(super) fn loop_text_reference_relation_v1(
         return Err(freeze("source-loop/text-point-binding"));
     }
     let producer = source.producer().clone();
-    if let crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::BranchNormal(branch) = &producer {
+    if let crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::BranchNormal(
+        branch,
+    ) = &producer
+    {
         context.ledger().require_branch_text_source_v1(branch)?;
-        let point = read.binding_observation_v2().loan_text_branch_v1(&producer)?;
-        if point.source().binding() != source.binding() || point.relation().values().0 != read.source_value().2 {
+        let point = read
+            .binding_observation_v2()
+            .loan_text_branch_v1(&producer)?;
+        if point.source().binding() != source.binding()
+            || point.relation().values().0 != read.source_value().2
+        {
             return Err(freeze("source-loop/text-point-binding"));
         }
         return Ok(std::rc::Rc::clone(point.relation()));
@@ -508,46 +519,6 @@ pub(super) fn signed_entry_layout(
         crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
 }
 
-pub(super) fn initializer_value(
-    source: &Producer,
-    read: &BindingValueObservationV2,
-    context: CallValidationContextV1<'_>,
-) -> Result<ValueId, String> {
-    let expected = match source {
-        Producer::Integer { .. } => None,
-        Producer::Call(call) => {
-            if context.ledger().lexical_i64_call_source(call.site()) != Some(call) {
-                return Err(freeze("expression/scalar-call-source"));
-            }
-            call.local_binding()
-                .ok_or_else(|| freeze("expression/scalar-call-local"))?;
-            let value = context.original_scalar_call_result_v1(call)?;
-            Some(value)
-        }
-        Producer::FieldRead(source) => {
-            let (_, instruction) = context
-                .ledger()
-                .local_scalar_field_read_emission_v1(source.site_v1())?
-                .ok_or_else(|| freeze("expression/scalar-field-read-source"))?;
-            Some(
-                instruction
-                    .dst_value()
-                    .ok_or_else(|| freeze("expression/scalar-field-read-dst"))?,
-            )
-        }
-        Producer::Initializer(frame) => {
-            Some(context.with_original_initializer_v1(frame, |packet| Ok(packet.value()))?)
-        }
-        Producer::SignedEntry(_) => return Err(freeze("expression/scalar-entry-not-initializer")),
-        Producer::BranchNormal(_) => return Err(freeze("expression/scalar-producer-kind")),
-        Producer::BindingRebind(_) => {
-            return Err(freeze("expression/scalar-rebind-not-initializer"))
-        }
-        Producer::LoopHeader(_) => return Err(freeze("expression/loop-header-physical-pending")),
-        Producer::LoopAfter { .. } => return Err(freeze("expression/loop-after-physical-pending")),
-    };
-    read.loan_forwarded_initializer_v1(expected)
-}
 pub(super) fn validate_source(
     plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     source: &CurrentScalarReadV1,
@@ -579,94 +550,6 @@ pub(super) fn validate_source(
         producer,
         context,
     )
-}
-pub(super) fn validate_scalar_origin(
-    binding: crate::mir::resolved_semantics::BindingRefV1,
-    source: &Producer,
-    read: &BindingValueObservationV2,
-    producer: &ReferenceProducerV1,
-    context: CallValidationContextV1<'_>,
-) -> Result<ValueId, String> {
-    let value = read
-        .value_for(binding.owner(), binding)
-        .map_err(|error| error.to_string())?;
-    if let Producer::BranchNormal(basis) = source {
-        context.ledger().require_branch_scalar_source_v1(basis)?;
-        let point = read.loan_scalar_join_v1(source)?;
-        let ReferenceProducerV1::Phi(relation) = producer else {
-            return Err(freeze("expression/scalar-producer-kind"));
-        };
-        if !std::rc::Rc::ptr_eq(point.relation(), relation) || point.branch().is_none() {
-            return Err(freeze("expression/scalar-producer-kind"));
-        }
-        relation.require_completed_v1()?;
-        return Ok(value);
-    }
-    if matches!(source, Producer::LoopHeader(_) | Producer::LoopAfter { .. }) {
-        let ReferenceProducerV1::Phi(point) = producer else {
-            return Err(freeze("expression/loop-point-producer-kind"));
-        };
-        if !std::rc::Rc::ptr_eq(read.loan_scalar_join_v1(source)?.relation(), point) {
-            return Err(freeze("expression/loop-point-original-purpose"));
-        }
-        context.source_loop_point_product_v2(source)?;
-        if matches!(source, Producer::LoopAfter { .. })
-            || matches!(context, CallValidationContextV1::Finalized(_))
-        {
-            point.require_completed_v1()?;
-        }
-        return Ok(value);
-    }
-    if let Producer::BindingRebind(frame) = source {
-        return context.with_original_rebind_v1(frame, |packet| {
-            let assigned = read.loan_checked_rebind_v1(frame)?.0;
-            if assigned != packet.value() || producer != packet.root_producer() {
-                return Err(freeze("expression/rebind-original-producer"));
-            }
-            Ok(value)
-        });
-    }
-    match (source, producer) {
-        (Producer::Initializer(frame), ReferenceProducerV1::Entry(entry)) => {
-            let formal = initializer_signed_entry_v1(frame)
-                .ok_or_else(|| freeze("expression/scalar-entry-ordinal-value"))?;
-            if !matches!(
-                frame.evaluation().references().get(&0),
-                Some(Reference::FiniteEntry { .. })
-            ) {
-                signed_entry_layout(binding, formal, context)?;
-            }
-            if initializer_value(source, read, context)? != *entry {
-                return Err(freeze("expression/scalar-entry-ordinal-value"));
-            }
-            read.loan_forwarded_copies(formal, *entry)?;
-        }
-        (Producer::SignedEntry(formal), ReferenceProducerV1::Entry(entry)) => {
-            signed_entry_layout(binding, *formal, context)?;
-            read.loan_forwarded_copies(*formal, *entry)?;
-        }
-        (Producer::SignedEntry(_), _) | (_, ReferenceProducerV1::Entry(_)) => {
-            return Err(freeze("expression/scalar-producer-kind"))
-        }
-        (_, ReferenceProducerV1::Phi(_)) => {
-            return Err(freeze("expression/loop-point-source-kind"))
-        }
-        (original, ReferenceProducerV1::Definition(binding)) => {
-            if binding.1.dst_value() != Some(initializer_value(source, read, context)?) {
-                return Err(freeze("expression/scalar-producer-value"));
-            }
-            if let Producer::Integer {
-                value: expected, ..
-            } = original
-            {
-                if !matches!(binding.1, MirInstruction::Const { value: ConstValue::Integer(actual), .. } if actual == *expected)
-                {
-                    return Err(freeze("expression/scalar-literal-producer"));
-                }
-            }
-        }
-    }
-    Ok(value)
 }
 pub(super) fn validate_dependencies(
     read: &BindingValueObservationV2,
