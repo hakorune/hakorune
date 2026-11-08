@@ -69,6 +69,12 @@ fn derived_coverage_rejects_missing_observation_without_losing_source_loan() {
 fn ordinary_arithmetic_propagates_selected_reentry_failure_before_consumer_append() {
     let (mut builder, left) = fixture();
     let original = OriginalScalarAppendV1::fixture_for_correspondence_test(&mut builder, left);
+    // Both flags expose the competing generic undefined-value diagnostic.
+    // Share the existing process-state lock with the sibling mutation test.
+    let _config = crate::test_support::ScopedTestConfig::apply(&[
+        ("HAKO_JOINIR_STRICT", Some("1")),
+        ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+    ]);
     let value = original.original().1.dst_value().unwrap();
     let function = builder.function_state.current_function.as_ref().unwrap();
     builder
