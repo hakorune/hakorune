@@ -236,17 +236,8 @@ fn plan_scope_keeps_the_primary_when_one_rollback_fails() {
         .unwrap()
         .blocks
         .remove(&block(1));
-    let error = txn
-        .finish_plan_scope(
-            &mut builder,
-            Err("[freeze:contract][test-primary]".into()),
-            &[
-                (block(1), ValueId::new(10), "first"),
-                (block(2), ValueId::new(11), "second"),
-            ],
-            true,
-        )
-        .unwrap_err();
+    let error = txn.abort_on_err(&mut builder, "[freeze:contract][test-primary]".into())
+        .to_string();
     assert!(error.contains("[test-primary]"));
     assert!(error.contains("rollback_missing_block"));
     assert!(!has_phi(&builder, block(2), ValueId::new(11)));
@@ -261,14 +252,7 @@ fn empty_inputs_do_not_complete_a_pending_phi() {
         .unwrap();
     txn.patch_phi_inputs(&mut builder, token, Vec::new(), "unpopulated")
         .unwrap();
-    let error = txn
-        .finish_plan_scope(
-            &mut builder,
-            Ok(()),
-            &[(block(1), ValueId::new(10), "empty")],
-            true,
-        )
-        .unwrap_err();
+    let error = txn.commit(&mut builder).unwrap_err().to_string();
     assert!(error.contains("provisional_left_unpatched"));
     assert!(!has_phi(&builder, block(1), ValueId::new(10)));
 }

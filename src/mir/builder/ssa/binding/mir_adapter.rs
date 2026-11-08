@@ -9,7 +9,8 @@ use crate::mir::builder::emission::phi_lifecycle::{PhiToken, PhiTxn};
 use crate::mir::builder::MirBuilder;
 use crate::mir::verification::utils::{compute_def_blocks, compute_dominators};
 use crate::mir::{BasicBlockId, MirType, ValueId};
-use std::collections::BTreeSet;
+use std::cell::OnceCell;
+use std::collections::{BTreeSet, HashMap};
 
 const ADAPTER_TAG: &str = "canonical_binding_ssa/mir_adapter";
 
@@ -18,6 +19,14 @@ pub(in crate::mir::builder) struct MirBindingSsaAdapterV1<'a> {
     builder: &'a mut MirBuilder,
     phis: &'a mut PhiTxn,
     deferred_reachable_block: Option<BasicBlockId>,
+    analysis: OnceCell<PhiInputAnalysisV1>,
+}
+
+struct PhiInputAnalysisV1 {
+    definitions: HashMap<ValueId, BasicBlockId>,
+    dominators: crate::mir::verification::utils::DominatorTree,
+    reachable: BTreeSet<BasicBlockId>,
+    deferred: BTreeSet<BasicBlockId>,
 }
 
 impl<'a> MirBindingSsaAdapterV1<'a> {
@@ -26,6 +35,7 @@ impl<'a> MirBindingSsaAdapterV1<'a> {
             builder,
             phis,
             deferred_reachable_block: None,
+            analysis: OnceCell::new(),
         }
     }
 
@@ -59,6 +69,7 @@ impl<'a> MirBindingSsaAdapterV1<'a> {
             builder,
             phis,
             deferred_reachable_block: Some(deferred_reachable_block),
+            analysis: OnceCell::new(),
         }
     }
 }
@@ -79,6 +90,9 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
             .type_ctx
             .value_types
             .insert(dst, MirType::Unknown);
+        if let Some(analysis) = self.analysis.get_mut() {
+            analysis.definitions.insert(dst, block);
+        }
         Ok((dst, token))
     }
 
@@ -104,17 +118,26 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
                 "{ADAPTER_TAG}: missing predecessor block {predecessor}"
             ));
         }
-        let reachable_from_deferred = self
-            .deferred_reachable_block
-            .is_some_and(|root| is_reachable_from(function, root, predecessor));
-        let reachable_from_entry = is_reachable_from_entry(function, predecessor);
+        // This adapter exclusively borrows the Builder while the SSA kernel
+        // can only define, patch or roll back PHIs; none changes CFG edges.
+        let analysis = self.analysis.get_or_init(|| PhiInputAnalysisV1 {
+            definitions: compute_def_blocks(function),
+            dominators: compute_dominators(function),
+            reachable: reachable_from(function, function.entry_block),
+            deferred: self
+                .deferred_reachable_block
+                .map(|root| reachable_from(function, root))
+                .unwrap_or_default(),
+        });
+        let reachable_from_deferred = analysis.deferred.contains(&predecessor);
+        let reachable_from_entry = analysis.reachable.contains(&predecessor);
         if !reachable_from_entry && !reachable_from_deferred {
             return Err(format!(
                 "{ADAPTER_TAG}: predecessor block {predecessor} is unreachable"
             ));
         }
-        let definitions = compute_def_blocks(function);
-        let definition = definitions
+        let definition = analysis
+            .definitions
             .get(&value)
             .copied()
             .ok_or_else(|| format!("{ADAPTER_TAG}: value {value} has no MIR definition"))?;
@@ -125,7 +148,7 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
             // below closes the final reachability/dominance witness.
             return Ok(());
         }
-        if !compute_dominators(function).dominates(definition, predecessor) {
+        if !analysis.dominators.dominates(definition, predecessor) {
             return Err(format!(
                 "{ADAPTER_TAG}: value {value} from {definition} does not dominate {predecessor}"
             ));
@@ -141,32 +164,27 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
             .type_ctx
             .value_types
             .remove(&token.dst());
+        if let Some(analysis) = self.analysis.get_mut() {
+            analysis.definitions.remove(&token.dst());
+        }
         Ok(())
     }
 }
 
-fn is_reachable_from_entry(function: &crate::mir::MirFunction, target: BasicBlockId) -> bool {
-    is_reachable_from(function, function.entry_block, target)
-}
-
-fn is_reachable_from(
+fn reachable_from(
     function: &crate::mir::MirFunction,
     root: BasicBlockId,
-    target: BasicBlockId,
-) -> bool {
+) -> BTreeSet<BasicBlockId> {
     let mut seen = BTreeSet::new();
     let mut pending = vec![root];
     while let Some(block) = pending.pop() {
         if !seen.insert(block) {
             continue;
         }
-        if block == target {
-            return true;
-        }
         let Some(block) = function.get_block(block) else {
             continue;
         };
         pending.extend(block.successors_from_terminator());
     }
-    false
+    seen
 }

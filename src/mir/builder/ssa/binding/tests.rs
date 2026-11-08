@@ -376,7 +376,7 @@ fn rollback_failures_are_retained_after_input_verification_failure() {
 
 #[test]
 fn reserved_destination_keeps_identity_and_checks_final_predecessors() {
-    for changed in [false, true] {
+    for (edge_overrides, changed) in [(false, false), (false, true), (true, false), (true, true)] {
         let owner = make_owner();
         let binding = binding_ref(owner, 0);
         let mut ir = FakeIrV1::new();
@@ -386,17 +386,34 @@ fn reserved_destination_keeps_identity_and_checks_final_predecessors() {
         let (reserved, token) = ir.define_provisional_phi(bb(2)).unwrap();
         ssa.adopt_provisional_phi(binding, bb(2), reserved, token)
             .unwrap();
+        if edge_overrides {
+            let (other, token) = ir.define_provisional_phi(bb(3)).unwrap();
+            ssa.adopt_provisional_phi(binding, bb(3), other, token)
+                .unwrap();
+            ssa.define_edge(binding, bb(0), bb(2), value(12)).unwrap();
+            ssa.define_edge(binding, bb(0), bb(3), value(13)).unwrap();
+            assert_eq!(ssa.read(&mut ir, binding, bb(0)).unwrap(), value(10));
+            ssa.seal(&mut ir, bb(3), &witness(3, &[0])).unwrap();
+            assert_eq!(ir.phi_at(bb(3)).unwrap().1.inputs, vec![(bb(0), value(13))]);
+        }
         assert_eq!(ssa.read(&mut ir, binding, bb(2)).unwrap(), reserved);
         ssa.seal(&mut ir, bb(2), &witness(2, &[0, 1])).unwrap();
         assert_eq!(
             ir.phi_at(bb(2)).unwrap().1.inputs,
-            vec![(bb(0), value(10)), (bb(1), value(11))]
+            vec![
+                (bb(0), value(if edge_overrides { 12 } else { 10 })),
+                (bb(1), value(11))
+            ]
         );
         let incoming: &[u32] = if changed { &[0] } else { &[0, 1] };
-        let result = ssa.close(
-            &mut ir,
-            &[witness(0, &[]), witness(1, &[]), witness(2, incoming)],
-        );
+        if edge_overrides {
+            assert!(ssa.define_edge(binding, bb(0), bb(2), value(99)).is_err());
+        }
+        let mut final_edges = vec![witness(0, &[]), witness(1, &[]), witness(2, incoming)];
+        if edge_overrides {
+            final_edges.push(witness(3, &[0]));
+        }
+        let result = ssa.close(&mut ir, &final_edges);
         assert_eq!(result.is_err(), changed);
     }
 }

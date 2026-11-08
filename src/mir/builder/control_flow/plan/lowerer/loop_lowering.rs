@@ -24,7 +24,6 @@ use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringConte
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
-use std::collections::BTreeMap;
 
 // Loop preparation module (Phase 29bq+: extracted for modularity)
 use super::loop_preparation;
@@ -32,8 +31,6 @@ use super::loop_preparation;
 use super::block_effect_emission;
 // Loop completion module (Phase 29bq+: extracted for modularity)
 use super::loop_completion;
-// PHI processing module (Phase 29bq+: extracted for modularity)
-use super::phi_processing;
 
 impl super::PlanLowerer {
     /// Loop: emit blocks, effects, PHI, and edge CFG
@@ -72,8 +69,6 @@ impl super::PlanLowerer {
         let frame = LoopFrame {
             break_target: loop_plan.after_bb,
             continue_target: loop_plan.continue_target,
-            step_phi_inputs: BTreeMap::new(),
-            break_phi_inputs: BTreeMap::new(),
         };
         loop_stack.push(frame);
         let result = Self::lower_loop_generalized(builder, loop_plan, ctx, loop_stack, port);
@@ -111,101 +106,24 @@ impl super::PlanLowerer {
         // Clone final_values to avoid borrow conflict with mutable loop_plan access in closure
         let final_values = loop_plan.final_values.clone();
 
-        // A source session lends its transaction; otherwise this scope owns one.
-        let source_transaction = port
-            .prepare_source_loop_phis(builder, &loop_plan)?
-            .is_some();
-        let mut transaction = (!source_transaction)
-            .then(|| crate::mir::builder::emission::phi_lifecycle::PhiTxn::begin("loop_lowerer"));
-        let res: Result<(), String> = (|| {
-            if let Some(txn) = transaction.as_mut() {
-                for phi in &loop_plan.phis {
-                    builder.ensure_block_exists(phi.block)?;
-                }
-                for phi in &loop_plan.phis {
-                    txn.define_provisional_phi(
-                        builder,
-                        phi.block,
-                        phi.dst,
-                        &format!("loop_lowerer:step1.5:{}", phi.tag),
-                    )?;
-                }
-            }
-            // Step 2: Emit block effects in SSOT order (preheader, header, body, step)
-            // SSOT: Delegated to block_effect_emission::emit_all_block_effects()
+        let source_scope = port.prepare_source_loop_phis(builder, &loop_plan)?.is_some();
+        let shared = std::rc::Rc::clone(&builder.function_state.canonical_control);
+        let result = (|| {
+            shared.borrow_mut().reserve_plan_phis(builder, &loop_plan, source_scope)?;
             block_effect_emission::emit_all_block_effects(
-                builder,
-                &loop_plan,
-                &block_effects,
-                body_effects,
-                ctx,
-                loop_stack,
-                port,
+                builder, &loop_plan, &block_effects, body_effects, ctx, loop_stack, port,
             )?;
-
-            // Step 3: Ensure non-effect blocks exist (after_bb, found_bb, etc.)
             builder.ensure_block_exists(loop_plan.after_bb)?;
             builder.ensure_block_exists(loop_plan.found_bb)?;
-
-            // Step 3.5: Merge deferred continue-phi inputs into continue_target PHIs (strict/dev helper).
-            // This supports multi-continue edges where the "next" carrier values differ per edge.
-            // SSOT: Delegated to phi_processing::merge_deferred_phi_inputs()
-            let debug_step_inputs =
-                crate::config::env::joinir_dev::strict_planner_required_debug_enabled();
-            let (debug_fn_name, debug_def_blocks) = if debug_step_inputs {
-                let func = builder.function_state.current_function.as_ref();
-                let fn_name = func
-                    .map(|f| f.signature.name.as_str())
-                    .unwrap_or("<none>")
-                    .to_string();
-                let def_blocks = func
-                    .map(crate::mir::verification::utils::compute_def_blocks)
-                    .unwrap_or_default();
-                (Some(fn_name), Some(def_blocks))
-            } else {
-                (None, None)
-            };
-            phi_processing::merge_deferred_phi_inputs(
-                &mut loop_plan,
-                loop_stack,
-                debug_step_inputs,
-                debug_fn_name.as_deref(),
-                debug_def_blocks.as_ref(),
-            )?;
-
-            // Step 4: Update PHI inputs (patch provisional PHIs)
-            // PHIs were inserted provisionally in Step 1.5 with empty inputs.
-            // Now update them with the actual inputs merged in Step 3.5.
-            // SSOT: Delegated to phi_processing::patch_all_phis()
-            port.patch_loop_phis(builder, &loop_plan, transaction.as_mut())?;
-
-            if debug {
-                trace_logger.debug(
-                    "lowerer/loop_generalized",
-                    &format!("PHI patched: {} PHIs", loop_plan.phis.len()),
-                );
-            }
-
+            // The common SSA consumes actual predecessor witnesses. All
+            // terminators are written before it closes the original PHIs.
+            loop_completion::emit_loop_frag(builder, &frag, &loop_plan, ctx)?;
+            shared.borrow_mut().complete_plan_phis(builder, &mut loop_plan)?;
+            loop_completion::verify_loop_phi_inputs_if_debug(builder, &loop_plan)?;
+            shared.borrow_mut().require_plan_patched(&loop_plan)?;
             Ok(())
         })();
-
-        if let Some(txn) = transaction {
-            let labels: Vec<_> = loop_plan
-                .phis
-                .iter()
-                .map(|phi| (phi.block, phi.dst, phi.tag.as_str()))
-                .collect();
-            let strict = crate::config::env::joinir_dev::strict_planner_required_enabled()
-                || (crate::config::env::joinir_dev_enabled()
-                    && crate::config::env::joinir_dev::planner_required_enabled());
-            txn.finish_plan_scope(builder, res, &labels, strict)?;
-        } else {
-            res?;
-        }
-
-        // Step 5: Emit Frag (terminators)
-        // SSOT: Delegated to loop_completion::emit_loop_frag()
-        loop_completion::emit_loop_frag(builder, &frag, &loop_plan, ctx)?;
+        result.map_err(|error| shared.borrow_mut().abort(builder, error))?;
 
         port.completed_loop(&loop_plan, builder.function_state.current_function.as_ref()
             .ok_or("[freeze:contract][loop-cond-after-role/function-missing]")?)?;

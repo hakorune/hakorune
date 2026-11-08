@@ -12,6 +12,7 @@ pub(in crate::mir::builder) fn build_phi_info(
     CorePhiInfo {
         block,
         dst,
+        binding: None,
         inputs,
         tag,
     }

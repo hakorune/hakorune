@@ -4,7 +4,7 @@
 use super::super::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::{
     emission::phi_lifecycle::{PhiToken, PhiTxn},
-    ssa::binding::{BindingSsaBuilderV1, MirBindingSsaAdapterV1},
+    ssa::binding::{BindingSsaBuilderV1, FunctionSsaKeyV1, MirBindingSsaAdapterV1},
     MirBuilder,
 };
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
@@ -17,7 +17,7 @@ pub(in crate::mir::builder) type SharedFunctionControlV1 = Rc<RefCell<FunctionCo
 pub(in crate::mir::builder) struct FunctionControlV1 {
     owner: Option<FunctionOwnerIdV1>,
     pub(in crate::mir::builder) cfg: CanonicalCfgSessionV1,
-    bindings: Option<BindingSsaBuilderV1<PhiToken>>,
+    bindings: Option<BindingSsaBuilderV1<PhiToken, FunctionSsaKeyV1>>,
     transaction: Option<PhiTxn>,
 }
 impl FunctionControlV1 {
@@ -54,18 +54,196 @@ impl FunctionControlV1 {
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        let owner = self.owner.ok_or_else(inactive)?;
+        self.owner.ok_or_else(inactive)?;
+        self.reserve_key(
+            builder,
+            FunctionSsaKeyV1::Source(binding),
+            block,
+            value,
+            "source-loop:before-expose",
+        )
+    }
+    fn reserve_key(
+        &mut self,
+        builder: &mut MirBuilder,
+        key: FunctionSsaKeyV1,
+        block: BasicBlockId,
+        value: ValueId,
+        tag: &str,
+    ) -> Result<(), String> {
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(inactive)?;
+        if function.get_block(block).is_none() {
+            self.cfg
+                .create_block(function, block)
+                .map_err(|error| error.to_string())?;
+        }
         let token = self
             .transaction
             .get_or_insert_with(|| PhiTxn::begin("source-loop-header-after"))
-            .define_provisional_phi(builder, block, value, "source-loop:before-expose")?;
+            .define_provisional_phi(builder, block, value, tag)?;
         self.bindings
-            .get_or_insert_with(|| BindingSsaBuilderV1::new(owner));
-        self.bindings
-            .as_mut()
-            .ok_or_else(inactive)?
-            .adopt_provisional_phi(binding, block, value, token)
+            .get_or_insert_with(|| BindingSsaBuilderV1::with_keys(self.owner))
+            .adopt_provisional_phi(key, block, value, token)
             .map_err(|error| error.to_string())
+    }
+    pub(in crate::mir::builder) fn reserve_loop_entries(
+        &mut self,
+        builder: &mut MirBuilder,
+        header: BasicBlockId,
+        after: BasicBlockId,
+        headers: Vec<(FunctionSsaKeyV1, ValueId)>,
+        afters: Vec<(FunctionSsaKeyV1, ValueId)>,
+    ) -> Result<(), String> {
+        use std::collections::BTreeSet;
+        if header == after
+            || headers.is_empty()
+            || headers.len() != afters.len()
+            || headers
+                .iter()
+                .chain(&afters)
+                .map(|(_, value)| *value)
+                .collect::<BTreeSet<_>>()
+                .len()
+                != headers.len() + afters.len()
+        {
+            return Err("[freeze:contract][source-loop-phi/preparation-destinations]".to_owned());
+        }
+        for (block, entries) in [(header, headers), (after, afters)] {
+            for (key, value) in entries {
+                self.reserve_key(builder, key, block, value, "source-loop:before-expose")?;
+            }
+        }
+        Ok(())
+    }
+    pub(in crate::mir::builder) fn reserve_plan_phis(
+        &mut self,
+        builder: &mut MirBuilder,
+        plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
+        adopt_early: bool,
+    ) -> Result<(), String> {
+        for phi in &plan.phis {
+            let key = phi.ssa_key();
+            let existing = self
+                .bindings
+                .as_ref()
+                .and_then(|ssa| ssa.key_for_definition(phi.block, phi.dst));
+            if adopt_early && existing == Some(key) {
+                continue;
+            }
+            let tag = if phi.binding.is_some() {
+                "source-loop:step-adoption".to_owned()
+            } else {
+                format!("loop_lowerer:step1.5:{}", phi.tag)
+            };
+            self.reserve_key(builder, key, phi.block, phi.dst, &tag)?;
+        }
+        Ok(())
+    }
+    pub(in crate::mir::builder) fn record_phi_edge(
+        &mut self,
+        source: BasicBlockId,
+        target: BasicBlockId,
+        destination: ValueId,
+        value: ValueId,
+    ) -> Result<(), String> {
+        let ssa = self
+            .bindings
+            .get_or_insert_with(|| BindingSsaBuilderV1::with_keys(self.owner));
+        let key =
+            ssa.key_for_definition(target, destination)
+                .unwrap_or(FunctionSsaKeyV1::PlannedPhi {
+                    block: target,
+                    destination,
+                });
+        ssa.define_edge(key, source, target, value)
+            .map_err(|error| error.to_string())
+    }
+    pub(in crate::mir::builder) fn complete_plan_phis(
+        &mut self,
+        builder: &mut MirBuilder,
+        plan: &mut crate::mir::builder::control_flow::plan::CoreLoopPlan,
+    ) -> Result<(), String> {
+        let witnesses = self
+            .cfg
+            .predecessor_witnesses(
+                builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .ok_or_else(inactive)?,
+            )
+            .map_err(|error| error.to_string())?;
+        if plan.phis.is_empty() {
+            return Ok(());
+        }
+        // Plan seeds and original exit arguments are definitions on actual edges.
+        // The original seed wins when both protocols name the same edge.
+        let ssa = self.bindings.as_mut().ok_or_else(inactive)?;
+        for phi in &plan.phis {
+            let witness = witnesses
+                .iter()
+                .find(|row| row.block() == phi.block)
+                .ok_or_else(inactive)?;
+            for &(source, value) in &phi.inputs {
+                if witness.predecessors().contains(&source) {
+                    ssa.define_edge(phi.ssa_key(), source, phi.block, value)
+                        .map_err(|error| error.to_string())?;
+                }
+            }
+        }
+        let unused: std::collections::BTreeSet<_> = plan
+            .phis
+            .iter()
+            .filter(|phi| {
+                phi.block == plan.step_bb
+                    && phi.inputs.is_empty()
+                    && !plan
+                        .phis
+                        .iter()
+                        .any(|other| other.inputs.iter().any(|(_, value)| *value == phi.dst))
+                    && witnesses
+                        .iter()
+                        .find(|row| row.block() == phi.block)
+                        .is_some_and(|row| row.predecessors().is_empty())
+            })
+            .map(|phi| (phi.block, phi.dst))
+            .collect();
+        let mut adapter =
+            MirBindingSsaAdapterV1::new(builder, self.transaction.as_mut().ok_or_else(inactive)?);
+        for phi in &mut plan.phis {
+            if unused.contains(&(phi.block, phi.dst)) {
+                ssa.discard_adopted(&mut adapter, phi.ssa_key(), phi.block)
+                    .map_err(|error| error.to_string())?;
+            } else {
+                let witness = witnesses
+                    .iter()
+                    .find(|row| row.block() == phi.block)
+                    .ok_or_else(inactive)?;
+                phi.inputs = ssa
+                    .complete_adopted(&mut adapter, phi.ssa_key(), phi.block, witness)
+                    .map_err(|error| error.to_string())?;
+            }
+        }
+        Ok(())
+    }
+    pub(in crate::mir::builder) fn require_plan_patched(
+        &mut self,
+        plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
+    ) -> Result<(), String> {
+        self.with_transaction(|txn| {
+            if txn.pending_tokens_v1().any(|(block, token)| {
+                plan.phis
+                    .iter()
+                    .any(|phi| phi.block == block && phi.dst == token.dst())
+            }) {
+                return Err("[freeze:contract][source-loop-phi/pending-after-patch]".to_owned());
+            }
+            Ok(())
+        })
     }
     pub(in crate::mir::builder) fn define(
         &mut self,
@@ -76,7 +254,7 @@ impl FunctionControlV1 {
         self.bindings
             .as_mut()
             .ok_or_else(inactive)?
-            .define(binding, block, value)
+            .define(FunctionSsaKeyV1::Source(binding), block, value)
             .map_err(|error| error.to_string())
     }
     pub(in crate::mir::builder) fn complete_blocks(

@@ -18,7 +18,6 @@ use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
 use std::cell::RefCell;
-use std::collections::BTreeMap;
 use std::rc::Rc;
 
 /// LoopFrame: Break/Continue target tracking with PHI input accumulation
@@ -26,8 +25,6 @@ use std::rc::Rc;
 pub(in super::super) struct LoopFrame {
     pub(super) break_target: BasicBlockId,
     pub(super) continue_target: BasicBlockId,
-    pub(super) step_phi_inputs: BTreeMap<ValueId, BTreeMap<BasicBlockId, ValueId>>,
-    pub(super) break_phi_inputs: BTreeMap<ValueId, BTreeMap<BasicBlockId, ValueId>>,
 }
 
 impl super::PlanLowerer {

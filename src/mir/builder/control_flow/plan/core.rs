@@ -42,10 +42,27 @@ pub(in crate::mir::builder) struct CorePhiInfo {
     pub block: BasicBlockId,
     /// Destination ValueId for PHI
     pub dst: ValueId,
+    /// Original source binding; raw physical plans supply no semantic identity.
+    pub binding: Option<crate::mir::resolved_semantics::BindingRefV1>,
     /// PHI inputs: (predecessor_block, value)
     pub inputs: Vec<(BasicBlockId, ValueId)>,
     /// Tag for debugging (e.g., "loop_carrier_i")
     pub tag: String,
+}
+
+impl CorePhiInfo {
+    pub(in crate::mir::builder) fn ssa_key(
+        &self,
+    ) -> crate::mir::builder::ssa::binding::FunctionSsaKeyV1 {
+        use crate::mir::builder::ssa::binding::FunctionSsaKeyV1 as Key;
+        match self.binding {
+            Some(binding) => Key::Source(binding),
+            None => Key::PlannedPhi {
+                block: self.block,
+                destination: self.dst,
+            },
+        }
+    }
 }
 
 /// Phase 29bq P2.5: Loop step placement (SSOT)

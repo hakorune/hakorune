@@ -131,7 +131,14 @@ fn real_loop_phi_is_defined_before_exposure_and_publishes_type_after_patch() {
     seal_ssa(&mut builder, &mut cfg, &mut ssa, &mut phis, bb(0)).unwrap();
     let header_value = {
         let mut adapter = MirBindingSsaAdapterV1::new(&mut builder, &mut phis);
-        ssa.read(&mut adapter, binding, bb(1)).unwrap()
+        adapter.verify_phi_input(bb(0), ValueId::new(0)).unwrap();
+        let (temporary, token) = adapter.define_provisional_phi(bb(1)).unwrap();
+        adapter.verify_phi_input(bb(1), temporary).unwrap();
+        adapter.rollback_phi(token).unwrap();
+        assert!(adapter.verify_phi_input(bb(1), temporary).is_err());
+        let header = ssa.read(&mut adapter, binding, bb(1)).unwrap();
+        adapter.verify_phi_input(bb(1), header).unwrap();
+        header
     };
     assert!(matches!(
         phi(&builder, bb(1), header_value),

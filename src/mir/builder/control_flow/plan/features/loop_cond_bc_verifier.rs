@@ -107,6 +107,7 @@ mod tests {
 
     fn dummy_phi(dst: u32) -> CorePhiInfo {
         CorePhiInfo {
+            binding: None,
             block: BasicBlockId(1),
             dst: ValueId(dst),
             inputs: vec![],

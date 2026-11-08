@@ -108,7 +108,7 @@ impl PlanLowerer {
             port.finish()?;
             if builder.function_state.current_block != Some(after) { return Err(freeze("after-block-drift")); }
             let role = completion.into_role()?;
-            source.phi_session_v1().commit(builder)?;
+            source.phi_session_v1().finish_scope()?;
             Ok((result, role))
         })();
         result.map_err(|error| source.phi_session_v1().abort_error(builder, error))

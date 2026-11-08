@@ -93,8 +93,12 @@ fn lower_loop_cond_source_inner(
     let carrier_phis = phi_materializer.carrier_phis().clone();
     let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
     let break_phi_dsts = phi_materializer.break_phi_dsts().clone();
-    input.phi_session_v1().prepare(builder, header_bb, after_bb,
-        carrier_phis.values().copied(), break_phi_dsts.values().copied())?;
+    let shared = builder.function_control_for_owner_v1(input.owner())?;
+    input.phi_session_v1().open_scope(header_bb, after_bb, std::rc::Rc::clone(&shared))?;
+    use crate::mir::builder::ssa::binding::FunctionSsaKeyV1 as Key;
+    shared.borrow_mut().reserve_loop_entries(builder, header_bb, after_bb,
+        carrier_phis.iter().map(|(name, value)| (Key::Source(carrier_bindings[name]), *value)).collect(),
+        break_phi_dsts.iter().map(|(name, value)| (Key::Source(carrier_bindings[name]), *value)).collect())?;
 
     let port = *input.source_port();
     let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
@@ -194,7 +198,7 @@ fn lower_loop_cond_source_inner(
         LOOP_COND_ERR,
     )?;
     let body_exits_all_paths = cleanup.body_exits_all_paths();
-    let phi_closure = phi_materializer.close(
+    let mut phi_closure = phi_materializer.close(
         preheader_bb,
         header_bb,
         step_bb,
@@ -202,6 +206,8 @@ fn lower_loop_cond_source_inner(
         &after_cond_preds,
         body_exits_all_paths,
     )?;
+    phi_closure.bind_source_carriers(&carrier_bindings, &carrier_phis,
+        &carrier_step_phis, &break_phi_dsts)?;
     verify_loop_cond_break_continue_phi_closure(
         &phi_closure,
         &body_plans,

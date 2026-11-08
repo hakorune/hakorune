@@ -55,7 +55,6 @@ pub(in crate::mir::builder) use loop_cond_phi_validation::LoopPhiInputRowsV2;
 mod loop_lowering;
 mod loop_preparation;
 mod loop_validation;
-mod phi_processing;
 mod plan_lowering;
 mod span_fmt;
 mod source_loop_frames;

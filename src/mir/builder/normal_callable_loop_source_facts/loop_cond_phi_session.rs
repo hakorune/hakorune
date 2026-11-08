@@ -1,5 +1,5 @@
-//! One physical input owns early Header/After definitions through final patch.
-//! The source session lends the SAME PhiTxn; it issues no semantic permission.
+//! Source associations retain early Header/After identities through completion.
+//! Definitions, patch and rollback borrow the function owner's single PhiTxn.
 use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::MirBuilder;
@@ -87,7 +87,7 @@ impl PreparedSourceLoopPhiCompletionV2<'_> {
             if crate::mir::builder::control_flow::plan::lowerer::capture_exact_loop_phis_v2(function, &self.rows)? != self.phis {
                 return Err(freeze("checked-finish-phi-drift"));
             }
-            self.session.commit(builder)?;
+            self.session.finish_scope()?;
             let points = self.session.state.borrow_mut().checked.take().ok_or_else(|| freeze("checked-points-missing"))?;
             Ok(CompletedSourceLoopPhiPointsV2 { points, scope: self.scope, phis: self.phis })
         })();
@@ -154,19 +154,16 @@ impl CompletedSourceLoopPhiPointsV2 {
 struct State {
     scope: Option<(BasicBlockId, BasicBlockId)>,
     adopted: bool,
+    step: Option<BasicBlockId>,
     finished: bool,
-    transaction: Option<PhiTxn>,
     shared: Option<crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
     checked: Option<CheckedPointsV2>,
 }
 impl State {
     fn is_active(&self) -> bool {
-        self.transaction.is_some()
-            || self
-                .shared
-                .as_ref()
-                .is_some_and(|control| control.borrow().is_active())
+        self.shared.as_ref().is_some_and(|control| control.borrow().is_active())
     }
+
 }
 #[derive(Debug, Default)]
 pub(in crate::mir::builder) struct SourceLoopPhiSessionV1 {
@@ -276,29 +273,16 @@ impl SourceLoopPhiSessionV1 {
             owner: PointOwnerV2::Session(self),
         })
     }
-    /// Definitions precede both source-carrier publication points. A failed
-    /// partial definition remains in this same txn for the enclosing abort.
-    pub(in crate::mir::builder) fn prepare(
-        &self, builder: &mut MirBuilder, header: BasicBlockId, after: BasicBlockId,
-        headers: impl Iterator<Item = ValueId>, afters: impl Iterator<Item = ValueId>,
+    /// Borrow the function owner before exposing any early source PHI.
+    /// The common owner defines destinations and retains partial rollback.
+    pub(in crate::mir::builder) fn open_scope(
+        &self, header: BasicBlockId, after: BasicBlockId,
+        shared: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     ) -> Result<(), String> {
-        let headers: Vec<_> = headers.collect();
-        let afters: Vec<_> = afters.collect();
-        let rows: Vec<_> = headers.iter().map(|value| (header, *value))
-            .chain(afters.iter().map(|value| (after, *value))).collect();
-        if header == after || headers.is_empty() || headers.len() != afters.len()
-            || rows.iter().map(|(_, value)| *value).collect::<BTreeSet<_>>().len() != rows.len() {
-            return Err(freeze("preparation-destinations"));
-        }
         let mut state = self.state.borrow_mut();
-        if state.scope.is_some() { return Err(freeze("preparation-repeat")); }
+        if header == after || state.scope.is_some() { return Err(freeze("preparation-repeat")); }
         state.scope = Some((header, after));
-        state.transaction = Some(PhiTxn::begin("source-loop-header-after"));
-        let txn = state.transaction.as_mut().expect("installed above");
-        for (block, value) in rows {
-            builder.ensure_block_exists(block)?;
-            txn.define_provisional_phi(builder, block, value, "source-loop:before-expose")?;
-        }
+        state.shared = Some(shared);
         Ok(())
     }
 
@@ -407,17 +391,19 @@ impl SourceLoopPhiSessionV1 {
         result.map_err(|error| self.abort_error(builder, error))
     }
 
-    /// Adopt every original Header/After token exactly once. Only remaining
-    /// Step destinations are defined here, through the same transaction.
-    pub(in crate::mir::builder) fn adopt_and_define(
+    /// Verify the original Header/After definitions before plan adoption.
+    /// The common owner defines Step destinations through the same transaction.
+    pub(in crate::mir::builder) fn verify_plan_adoption(
         &self, builder: &mut MirBuilder, plan: &CoreLoopPlan,
     ) -> Result<Vec<(ValueId, BasicBlockId, String)>, String> {
         let mut state = self.state.borrow_mut();
         if state.scope != Some((plan.header_bb, plan.after_bb)) || state.adopted || state.finished {
             return Err(freeze("adoption-scope-or-repeat"));
         }
-        let txn = state.transaction.as_mut().ok_or_else(|| freeze("transaction-missing"))?;
-        let pending: BTreeSet<_> = txn.pending_tokens_v1().map(|(block, token)| (block, token.dst())).collect();
+        let shared = state.shared.clone().ok_or_else(|| freeze("transaction-missing"))?;
+        let pending: BTreeSet<_> = shared.borrow_mut().with_transaction(|txn| Ok(
+            txn.pending_tokens_v1().filter(|(block, _)| *block == plan.header_bb || *block == plan.after_bb)
+                .map(|(block, token)| (block, token.dst())).collect()))?;
         let all: BTreeSet<_> = plan.phis.iter().map(|phi| (phi.block, phi.dst)).collect();
         let expected: BTreeSet<_> = all.iter().copied()
             .filter(|(block, _)| *block == plan.header_bb || *block == plan.after_bb).collect();
@@ -436,13 +422,8 @@ impl SourceLoopPhiSessionV1 {
                 return Err(freeze("adoption-definition-drift"));
             }
         }
-        for phi in &plan.phis {
-            if !pending.contains(&(phi.block, phi.dst)) {
-                builder.ensure_block_exists(phi.block)?;
-                txn.define_provisional_phi(builder, phi.block, phi.dst, "source-loop:step-adoption")?;
-            }
-        }
         state.adopted = true;
+        state.step = Some(plan.step_bb);
         Ok(plan.phis.iter().map(|phi| (phi.dst, phi.block, phi.tag.clone())).collect())
     }
 
@@ -451,49 +432,38 @@ impl SourceLoopPhiSessionV1 {
     pub(in crate::mir::builder) fn with_transaction<R>(
         &self, action: impl FnOnce(&mut PhiTxn) -> Result<R, String>,
     ) -> Result<R, String> {
-        let mut state = self.state.borrow_mut();
+        let state = self.state.borrow();
         if !state.adopted || state.finished { return Err(freeze("transaction-not-adopted")); }
-        if let Some(shared) = state.shared.clone() {
-            drop(state);
-            return shared.borrow_mut().with_transaction(action);
-        }
-        action(state.transaction.as_mut().ok_or_else(|| freeze("transaction-missing"))?)
+        let shared = state.shared.clone().ok_or_else(|| freeze("transaction-missing"))?;
+        drop(state);
+        let result = shared.borrow_mut().with_transaction(action);
+        result
     }
     pub(in crate::mir::builder) fn require_patched(&self) -> Result<(), String> {
-        let scope = {
-            let state = self.state.borrow();
-            state.shared.as_ref().and(state.scope)
-        };
+        let state = self.state.borrow();
+        let (header, after) = state.scope.ok_or_else(|| freeze("transaction-missing"))?;
+        let step = state.step;
+        drop(state);
         self.with_transaction(|txn| {
-            if txn.pending_tokens_v1().any(|(block, _)| {
-                scope.is_none_or(|(header, after)| block == header || block == after)
-            }) {
+            if txn.pending_tokens_v1().any(|(block, _)| block == header || block == after || Some(block) == step) {
                 return Err(freeze("pending-after-patch"));
             }
             Ok(())
         })
     }
-    pub(in crate::mir::builder) fn commit(&self, builder: &mut MirBuilder) -> Result<(), String> {
+    pub(in crate::mir::builder) fn finish_scope(&self) -> Result<(), String> {
         self.require_patched()?;
-        let mut state = self.state.borrow_mut();
-        if state.shared.is_some() {
-            state.finished = true;
-            return Ok(());
-        }
-        let txn = state.transaction.take().ok_or_else(|| freeze("transaction-missing"))?;
-        txn.commit(builder).map_err(|error| error.to_string())?;
-        state.finished = true;
+        self.state.borrow_mut().finished = true;
         Ok(())
     }
     /// All enclosing error boundaries call the same owner. Once a txn has
     /// aborted, preserve the returned primary+cleanup error without wrapping it.
     pub(in crate::mir::builder) fn abort_error(&self, builder: &mut MirBuilder, error: String) -> String {
         let shared = self.state.borrow().shared.clone();
-        if let Some(shared) = shared {
-            return shared.borrow_mut().abort(builder, error);
+        match shared {
+            Some(shared) => shared.borrow_mut().abort(builder, error),
+            None => error,
         }
-        let transaction = self.state.borrow_mut().transaction.take();
-        match transaction { Some(txn) => txn.abort_on_err(builder, error).to_string(), None => error }
     }
 }
 fn freeze(reason: &str) -> String { format!("[freeze:contract][source-loop-phi/{reason}]") }

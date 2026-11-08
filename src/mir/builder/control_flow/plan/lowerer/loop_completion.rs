@@ -46,6 +46,18 @@ pub fn emit_loop_frag(
         return Err("[lowerer] current_function is None".to_string());
     }
 
+    if debug {
+        trace_logger.debug("lowerer/loop_generalized", "Frag emitted");
+    }
+
+    Ok(())
+}
+
+/// Keep the existing source/debug input check after the common SSA patch.
+pub(super) fn verify_loop_phi_inputs_if_debug(
+    builder: &MirBuilder,
+    loop_plan: &CoreLoopPlan,
+) -> Result<(), String> {
     // Strict/dev+planner_required debug: Validate PHI inputs dominate predecessors
     if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         let func = builder
@@ -75,10 +87,6 @@ pub fn emit_loop_frag(
                 }
             }
         }
-    }
-
-    if debug {
-        trace_logger.debug("lowerer/loop_generalized", "Frag emitted");
     }
 
     Ok(())

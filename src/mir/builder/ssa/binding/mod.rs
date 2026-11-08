@@ -1,10 +1,12 @@
 //! Function-owned sealed-block SSA construction for canonical bindings.
 //!
-//! SSA-I1-T connects this box to exactly one admitted trivial whole-owner
-//! lowering route. Other canonical families remain outside this authority.
+//! Resolver bindings and explicitly issued physical PHI destinations share
+//! this algorithm; only resolver bindings carry source ownership authority.
 
 mod adapter;
 mod error;
+mod key;
+pub(in crate::mir::builder) use key::{FunctionSsaKeyV1, SsaKeyV1};
 mod mir_adapter;
 
 #[cfg(test)]
@@ -38,28 +40,35 @@ struct PhiCleanupV1<Token> {
 
 /// One reaching-definition owner for one canonical function.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct BindingSsaBuilderV1<Token> {
-    owner: FunctionOwnerIdV1,
-    definitions: BTreeMap<(BasicBlockId, BindingRefV1), ValueId>,
+pub(in crate::mir::builder) struct BindingSsaBuilderV1<Token, Key = BindingRefV1> {
+    owner: Option<FunctionOwnerIdV1>,
+    definitions: BTreeMap<(BasicBlockId, Key), ValueId>,
     blocks: BTreeMap<BasicBlockId, BlockStateV1>,
-    incomplete: BTreeMap<(BasicBlockId, BindingRefV1), IncompletePhiV1<Token>>,
+    incomplete: BTreeMap<(BasicBlockId, Key), IncompletePhiV1<Token>>,
+    edge_definitions: BTreeMap<(BasicBlockId, BasicBlockId, Key), ValueId>,
     poisoned: bool,
 }
 
 impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
     pub(in crate::mir::builder) fn new(owner: FunctionOwnerIdV1) -> Self {
+        Self::with_keys(Some(owner))
+    }
+}
+impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Token, Key> {
+    pub(in crate::mir::builder) fn with_keys(owner: Option<FunctionOwnerIdV1>) -> Self {
         Self {
             owner,
             definitions: BTreeMap::new(),
             blocks: BTreeMap::new(),
             incomplete: BTreeMap::new(),
+            edge_definitions: BTreeMap::new(),
             poisoned: false,
         }
     }
 
     pub(in crate::mir::builder) fn define(
         &mut self,
-        binding: BindingRefV1,
+        binding: Key,
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), BindingSsaErrorV1> {
@@ -70,11 +79,50 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
         Ok(())
     }
 
+    pub(in crate::mir::builder) fn define_edge(
+        &mut self,
+        binding: Key,
+        source: BasicBlockId,
+        target: BasicBlockId,
+        value: ValueId,
+    ) -> Result<(), BindingSsaErrorV1> {
+        self.require_usable()?;
+        self.require_binding(binding)?;
+        if self
+            .blocks
+            .get(&target)
+            .is_some_and(|row| row.predecessors.is_some())
+        {
+            return Err(BindingSsaErrorV1::BlockSealedTwice { block: target });
+        }
+        self.edge_definitions
+            .insert((source, target, binding), value);
+        Ok(())
+    }
+
+    fn read_edge<I: BindingSsaIrV1<PhiToken = Token>>(
+        &mut self,
+        ir: &mut I,
+        binding: Key,
+        source: BasicBlockId,
+        target: BasicBlockId,
+        created: &mut Vec<PhiCleanupV1<Token>>,
+    ) -> Result<ValueId, BindingSsaErrorV1> {
+        match self
+            .edge_definitions
+            .get(&(source, target, binding))
+            .copied()
+        {
+            Some(value) => Ok(value),
+            None => self.read_recursive(ir, binding, source, created),
+        }
+    }
+
     /// Adopt a typed destination issued by the same function's PHI writer.
     /// Its incoming values are still derived by the common sealed-block SSA.
     pub(in crate::mir::builder) fn adopt_provisional_phi(
         &mut self,
-        binding: BindingRefV1,
+        binding: Key,
         block: BasicBlockId,
         value: ValueId,
         token: Token,
@@ -126,7 +174,7 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
     pub(in crate::mir::builder) fn read<I: BindingSsaIrV1<PhiToken = Token>>(
         &mut self,
         ir: &mut I,
-        binding: BindingRefV1,
+        binding: Key,
         block: BasicBlockId,
     ) -> Result<ValueId, BindingSsaErrorV1> {
         self.require_usable()?;
@@ -146,17 +194,7 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
         witness: &VerifiedPredecessorsV1,
     ) -> Result<(), BindingSsaErrorV1> {
         self.require_usable()?;
-        if witness.block() != block {
-            return Err(BindingSsaErrorV1::WitnessBlockMismatch {
-                expected: block,
-                actual: witness.block(),
-            });
-        }
-        let state = self.blocks.entry(block).or_default();
-        if state.predecessors.is_some() {
-            return Err(BindingSsaErrorV1::BlockSealedTwice { block });
-        }
-        state.predecessors = Some(witness.predecessors().into());
+        self.record_predecessors(block, witness, false)?;
 
         let bindings = self
             .incomplete
@@ -176,6 +214,95 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
                 return Err(self.abort(ir, primary, affected));
             }
         }
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn key_for_definition(
+        &self,
+        block: BasicBlockId,
+        value: ValueId,
+    ) -> Option<Key> {
+        self.definitions
+            .iter()
+            .find_map(|(&(candidate, key), &definition)| {
+                (candidate == block && definition == value).then_some(key)
+            })
+    }
+
+    pub(in crate::mir::builder) fn complete_adopted<I: BindingSsaIrV1<PhiToken = Token>>(
+        &mut self,
+        ir: &mut I,
+        key: Key,
+        block: BasicBlockId,
+        witness: &VerifiedPredecessorsV1,
+    ) -> Result<Vec<(BasicBlockId, ValueId)>, BindingSsaErrorV1> {
+        self.require_usable()?;
+        self.require_binding(key)?;
+        self.record_predecessors(block, witness, true)?;
+        for &source in witness.predecessors() {
+            if !self.edge_definitions.contains_key(&(source, block, key)) {
+                return Err(self.missing_definition(source, key));
+            }
+        }
+        let token = self
+            .incomplete
+            .get(&(block, key))
+            .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
+                operation: "complete-adopted",
+                detail: "destination is not pending".to_owned(),
+            })?
+            .token;
+        let mut affected = vec![PhiCleanupV1 { token }];
+        self.complete_incomplete(ir, key, block, &mut affected)
+            .map_err(|error| self.abort(ir, error, affected))
+    }
+
+    pub(in crate::mir::builder) fn discard_adopted<I: BindingSsaIrV1<PhiToken = Token>>(
+        &mut self,
+        ir: &mut I,
+        key: Key,
+        block: BasicBlockId,
+    ) -> Result<(), BindingSsaErrorV1> {
+        self.require_usable()?;
+        self.require_binding(key)?;
+        let token = self
+            .incomplete
+            .get(&(block, key))
+            .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
+                operation: "discard-adopted",
+                detail: "destination is not pending".to_owned(),
+            })?
+            .token;
+        ir.rollback_phi(token)
+            .map_err(|detail| BindingSsaErrorV1::PhiOperation {
+                operation: "discard-adopted",
+                detail,
+            })?;
+        self.incomplete.remove(&(block, key));
+        self.definitions.remove(&(block, key));
+        Ok(())
+    }
+
+    fn record_predecessors(
+        &mut self,
+        block: BasicBlockId,
+        witness: &VerifiedPredecessorsV1,
+        allow_same: bool,
+    ) -> Result<(), BindingSsaErrorV1> {
+        if witness.block() != block {
+            return Err(BindingSsaErrorV1::WitnessBlockMismatch {
+                expected: block,
+                actual: witness.block(),
+            });
+        }
+        let state = self.blocks.entry(block).or_default();
+        if let Some(previous) = &state.predecessors {
+            if allow_same && previous.as_ref() == witness.predecessors() {
+                return Ok(());
+            }
+            return Err(BindingSsaErrorV1::BlockSealedTwice { block });
+        }
+        state.predecessors = Some(witness.predecessors().into());
         Ok(())
     }
 
@@ -204,7 +331,7 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
     fn read_recursive<I: BindingSsaIrV1<PhiToken = Token>>(
         &mut self,
         ir: &mut I,
-        binding: BindingRefV1,
+        binding: Key,
         block: BasicBlockId,
         created: &mut Vec<PhiCleanupV1<Token>>,
     ) -> Result<ValueId, BindingSsaErrorV1> {
@@ -227,9 +354,9 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
         };
 
         match predecessors.as_ref() {
-            [] => Err(BindingSsaErrorV1::MissingDefinition { block, binding }),
+            [] => Err(self.missing_definition(block, binding)),
             [predecessor] => {
-                let value = self.read_recursive(ir, binding, *predecessor, created)?;
+                let value = self.read_edge(ir, binding, *predecessor, block, created)?;
                 self.definitions.insert((block, binding), value);
                 Ok(value)
             }
@@ -245,7 +372,7 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
                 let inputs = predecessors
                     .iter()
                     .map(|predecessor| {
-                        self.read_recursive(ir, binding, *predecessor, created)
+                        self.read_edge(ir, binding, *predecessor, block, created)
                             .map(|input| (*predecessor, input))
                     })
                     .collect::<Result<Vec<_>, _>>()?;
@@ -265,10 +392,10 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
     fn complete_incomplete<I: BindingSsaIrV1<PhiToken = Token>>(
         &mut self,
         ir: &mut I,
-        binding: BindingRefV1,
+        binding: Key,
         block: BasicBlockId,
         affected: &mut Vec<PhiCleanupV1<Token>>,
-    ) -> Result<(), BindingSsaErrorV1> {
+    ) -> Result<Vec<(BasicBlockId, ValueId)>, BindingSsaErrorV1> {
         let token = self
             .incomplete
             .get(&(block, binding))
@@ -280,12 +407,12 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
             .expect("seal installed predecessors")
             .clone();
         if predecessors.is_empty() {
-            return Err(BindingSsaErrorV1::MissingDefinition { block, binding });
+            return Err(self.missing_definition(block, binding));
         }
         let inputs = predecessors
             .iter()
             .map(|predecessor| {
-                self.read_recursive(ir, binding, *predecessor, affected)
+                self.read_edge(ir, binding, *predecessor, block, affected)
                     .map(|value| (*predecessor, value))
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -297,7 +424,7 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
             })?;
         forget_cleanup(affected, token);
         self.incomplete.remove(&(block, binding));
-        Ok(())
+        Ok(inputs)
     }
 
     fn verify_inputs<I: BindingSsaIrV1<PhiToken = Token>>(
@@ -345,13 +472,29 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
             .ok_or(BindingSsaErrorV1::Poisoned)
     }
 
-    fn require_binding(&self, binding: BindingRefV1) -> Result<(), BindingSsaErrorV1> {
-        if binding.owner() == self.owner {
+    fn missing_definition(&self, block: BasicBlockId, binding: Key) -> BindingSsaErrorV1 {
+        match binding.source_binding() {
+            Some(binding) => BindingSsaErrorV1::MissingDefinition { block, binding },
+            None => BindingSsaErrorV1::PhiOperation {
+                operation: "missing-plan-definition",
+                detail: format!("{block}: {binding:?}"),
+            },
+        }
+    }
+    fn require_binding(&self, binding: Key) -> Result<(), BindingSsaErrorV1> {
+        let Some(source) = binding.source_binding() else {
+            return Ok(());
+        };
+        let expected = self.owner.ok_or_else(|| BindingSsaErrorV1::PhiOperation {
+            operation: "binding-owner",
+            detail: "source binding has no resolver owner".to_owned(),
+        })?;
+        if source.owner() == expected {
             Ok(())
         } else {
             Err(BindingSsaErrorV1::ForeignBinding {
-                expected: self.owner,
-                actual: binding.owner(),
+                expected,
+                actual: source.owner(),
             })
         }
     }

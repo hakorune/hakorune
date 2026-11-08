@@ -80,11 +80,11 @@ impl super::PlanLowerer {
                         src,
                         crate::mir::builder::ssa::local::LocalKind::Arg,
                     )?;
-                    frame
-                        .break_phi_inputs
-                        .entry(dst)
-                        .or_default()
-                        .insert(current_bb, incoming);
+                    builder
+                        .function_state
+                        .canonical_control
+                        .borrow_mut()
+                        .record_phi_edge(current_bb, frame.break_target, dst, incoming)?;
                 }
                 builder.emit_instruction(MirInstruction::Jump {
                     target: frame.break_target,
@@ -147,11 +147,11 @@ impl super::PlanLowerer {
                             incoming_def_bb
                         ));
                     }
-                    frame
-                        .step_phi_inputs
-                        .entry(dst)
-                        .or_default()
-                        .insert(current_bb, incoming);
+                    builder
+                        .function_state
+                        .canonical_control
+                        .borrow_mut()
+                        .record_phi_edge(current_bb, frame.continue_target, dst, incoming)?;
                 }
                 builder.emit_instruction(MirInstruction::Jump {
                     target: frame.continue_target,

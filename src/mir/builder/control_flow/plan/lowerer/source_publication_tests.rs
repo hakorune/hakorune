@@ -135,8 +135,8 @@ fn source_loop_completion_requires_final_incoming_and_unique_physical_definition
         step_bb: B(2), continue_target: B(1), after_bb: B(3), found_bb: B(3),
         body: vec![], cond_loop: V(9), cond_match: V(9), block_effects: vec![],
         phis: vec![
-            CorePhiInfo { block: B(1), dst: V(2), inputs: vec![(B(0), V(1)), (B(2), V(3))], tag: "header".into() },
-            CorePhiInfo { block: B(3), dst: V(4), inputs: vec![(B(1), V(2))], tag: "after".into() },
+            CorePhiInfo { binding: None, block: B(1), dst: V(2), inputs: vec![(B(0), V(1)), (B(2), V(3))], tag: "header".into() },
+            CorePhiInfo { binding: None, block: B(3), dst: V(4), inputs: vec![(B(1), V(2))], tag: "after".into() },
         ],
         frag: Frag { entry: B(1), block_params: BTreeMap::new(), exits: BTreeMap::new(), wires: vec![], branches: vec![] },
         final_values: vec![("value".into(), V(4))].into(),
@@ -178,17 +178,28 @@ fn source_loop_completion_requires_final_incoming_and_unique_physical_definition
                 }
             }
         }
+        draft.update_cfg();
         let mut builder = crate::mir::builder::MirBuilder::new();
         builder.function_state.current_function = Some(draft);
         builder
     };
     use crate::mir::builder::normal_callable_loop_source_facts::SourceLoopPhiSessionV1;
+    let prepare = |session: &SourceLoopPhiSessionV1, builder: &mut MirBuilder,
+        headers: Vec<V>, afters: Vec<V>| -> Result<(), String> {
+        use crate::mir::builder::ssa::binding::FunctionSsaKeyV1 as Key;
+        let shared = Rc::clone(&builder.function_state.canonical_control);
+        session.open_scope(B(1), B(3), Rc::clone(&shared))?;
+        let result = shared.borrow_mut().reserve_loop_entries(builder, B(1), B(3),
+            headers.into_iter().map(|value| (Key::PlannedPhi { block: B(1), destination: value }, value)).collect(),
+            afters.into_iter().map(|value| (Key::PlannedPhi { block: B(3), destination: value }, value)).collect());
+        result
+    };
     for mutation in ["none", "missing-header", "missing-after", "extra-pending", "definition-drift", "wrong-scope"] {
         let mut builder = draft_builder();
         let session = SourceLoopPhiSessionV1::default();
         let headers = if mutation == "extra-pending" { vec![V(2), V(10)] } else { vec![V(2)] };
         let afters = if mutation == "extra-pending" { vec![V(4), V(11)] } else { vec![V(4)] };
-        session.prepare(&mut builder, B(1), B(3), headers.into_iter(), afters.into_iter()).unwrap();
+        prepare(&session, &mut builder, headers, afters).unwrap();
         for (block, dst) in [(B(1), V(2)), (B(3), V(4))] {
             let definitions: Vec<_> = builder.function_state.current_function.as_ref().unwrap().blocks.iter()
                 .flat_map(|(id, body)| body.all_instructions().filter(move |row| row.dst_value() == Some(dst))
@@ -208,28 +219,30 @@ fn source_loop_completion_requires_final_incoming_and_unique_physical_definition
             }
             _ => {}
         }
-        let adoption = session.adopt_and_define(&mut builder, &selected);
+        let adoption = session.verify_plan_adoption(&mut builder, &selected);
         if mutation == "none" {
             adoption.unwrap();
+            assert!(session.require_patched().is_err(), "pending scope cannot finish");
             assert!(
-                session.adopt_and_define(&mut builder, &selected).is_err(),
+                session.verify_plan_adoption(&mut builder, &selected).is_err(),
                 "single adoption"
             );
-            session
-                .with_transaction(|txn| {
-                    super::super::phi_processing::patch_all_phis_with_transaction(
-                        &mut builder,
-                        &selected,
-                        txn,
-                    )
-                })
-                .unwrap();
+            let shared = Rc::clone(&builder.function_state.canonical_control);
+            shared.borrow_mut().reserve_plan_phis(&mut builder, &selected, true).unwrap();
+            shared.borrow_mut().complete_plan_phis(&mut builder, &mut selected).unwrap();
             session.require_patched().unwrap();
             let completed_function = builder.function_state.current_function.as_ref().unwrap();
             let completion = LoopCondPhysicalCompletionV1::new(owner, site.clone(), &plan).unwrap();
             completion.observe_completed_loop(&selected, completed_function).unwrap();
-            session.commit(&mut builder).unwrap();
-            assert!(session.commit(&mut builder).is_err(), "single transaction completion");
+            let outer = shared.borrow_mut().with_transaction(|txn|
+                txn.define_provisional_phi(&mut builder, B(0), V(20), "outer-scope")).unwrap();
+            session.finish_scope().unwrap();
+            assert!(session.finish_scope().is_err(), "single transaction completion");
+            shared.borrow_mut().with_transaction(|txn| {
+                assert!(txn.pending_tokens_v1().any(|(_, token)| token == outer),
+                    "finishing the loop never commits an outer pending Phi");
+                txn.rollback_pending_phi(&mut builder, outer, "outer test cleanup")
+            }).unwrap();
         } else {
             assert!(adoption.is_err(), "{mutation}");
             let error = session.abort_error(&mut builder, "adoption failure".into());
@@ -240,7 +253,7 @@ fn source_loop_completion_requires_final_incoming_and_unique_physical_definition
     // A source failure before adoption must roll back BOTH early definitions.
     let mut builder = draft_builder();
     let session = SourceLoopPhiSessionV1::default();
-    session.prepare(&mut builder, B(1), B(3), [V(2)].into_iter(), [V(4)].into_iter()).unwrap();
+    prepare(&session, &mut builder, vec![V(2)], vec![V(4)]).unwrap();
     let error = session.abort_error(&mut builder, "source condition/body failure".into());
     assert!(error.contains("source condition/body failure"));
     assert!(!builder.function_state.current_function.as_ref().unwrap().blocks.values()
@@ -248,7 +261,7 @@ fn source_loop_completion_requires_final_incoming_and_unique_physical_definition
     // Partial preparation is owned too: V8 already has its original Const.
     let mut builder = draft_builder();
     let session = SourceLoopPhiSessionV1::default();
-    let error = session.prepare(&mut builder, B(1), B(3), [V(2)].into_iter(), [V(8)].into_iter()).unwrap_err();
+    let error = prepare(&session, &mut builder, vec![V(2)], vec![V(8)]).unwrap_err();
     session.abort_error(&mut builder, error);
     assert!(!builder.function_state.current_function.as_ref().unwrap().blocks.values()
         .flat_map(|body| body.all_instructions()).any(|row| matches!(row, MirInstruction::Phi { .. })));

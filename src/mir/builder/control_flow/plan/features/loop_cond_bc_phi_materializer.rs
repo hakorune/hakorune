@@ -33,6 +33,32 @@ impl LoopCondBreakContinuePhiClosure {
         Self { phis, final_values }
     }
 
+    pub(in crate::mir::builder) fn bind_source_carriers(
+        &mut self,
+        bindings: &BTreeMap<String, crate::mir::resolved_semantics::BindingRefV1>,
+        headers: &BTreeMap<String, ValueId>,
+        steps: &BTreeMap<String, ValueId>,
+        afters: &BTreeMap<String, ValueId>,
+    ) -> Result<(), String> {
+        let mut original = BTreeMap::new();
+        for (name, binding) in bindings {
+            for destinations in [headers, steps, afters] {
+                let destination = destinations
+                    .get(name)
+                    .ok_or("[freeze:contract][source-loop-phi/preparation-destinations]")?;
+                original.insert(*destination, *binding);
+            }
+        }
+        for phi in &mut self.phis {
+            phi.binding = Some(
+                *original
+                    .get(&phi.dst)
+                    .ok_or("[freeze:contract][source-loop-phi/preparation-destinations]")?,
+            );
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn phis(&self) -> &[CorePhiInfo] {
         &self.phis
     }
