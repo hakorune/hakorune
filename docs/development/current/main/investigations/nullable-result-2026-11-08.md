@@ -52,3 +52,4 @@ C emitterの実引数準備は意味不変で分割し、3 EXEと33 dumpの一�
 - N21: Static の元 source proof は同じ nominal class と literal Null の出口を合流し、nullable bit と元の引数要件を保持するが、Null だけから class を作らず、未知・競合する admission を成功へ変えない。
 - N22: Null は source value-class の不在値の証拠に限り、Unit の Void と区別し、catalog は Null 単独に object kind を発行せず、nominal nullable の証拠と既存の独立した return 検証を照合する。
 - N23: Static の Nullable 結果は既存の received Home と conditional End に接続し、元 call の source target・canonical object・引数証明・packet 投影を Handle と同じ共通経路で保持する。
+- N24: 独立 MIR 検証は既存の StaticBoxMethod Call に NullableHandle を認め、canonical target・arity・callee result と公開 return/lease の照合をすべて保持し、free function や別の ABI を同時に開かない。
