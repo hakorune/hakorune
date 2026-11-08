@@ -49,20 +49,23 @@ n01/n02/n03/n04/n05/n08は正規EXEで期待どおり（0/3/1/3/70/3、n01出力
 新規証拠は既存の所有Call-result familyに、fieldを読まないメソッドへのnullable receiver・途中のscalar条件/早期Return・Normal/TypeError/End Faultの解放数・別classへの改変拒否を統合し、既存の構築/cleanup Faultの証拠も保持した。
 C emitterの実引数準備は意味不変で分割し、3 EXEと33 dumpの一致を確認してからchecked dispatchを追加した。
 
-- N21: Static の元 source proof は同じ nominal class と literal Null の出口を合流し、nullable bit と元の引数要件を保持するが、Null だけから class を作らず、未知・競合する admission を成功へ変えない。
-- N22: Null は source value-class の不在値の証拠に限り、Unit の Void と区別し、catalog は Null 単独に object kind を発行せず、nominal nullable の証拠と既存の独立した return 検証を照合する。
-- N23: Static の Nullable 結果は既存の received Home と conditional End に接続し、元 call の source target・canonical object・引数証明・packet 投影を Handle と同じ共通経路で保持する。
-- N24: 独立 MIR 検証は既存の StaticBoxMethod Call に NullableHandle を認め、canonical target・arity・callee result と公開 return/lease の照合をすべて保持し、free function や別の ABI を同時に開かない。
+N21. Static の元 source proof は同じ nominal class と literal Null の出口を合流し、nullable bit と元の引数要件を保持するが、Null だけから class を作らず、未知・競合する admission を成功へ変えない。
+N22. Null は source value-class の不在値の証拠に限り、Unit の Void と区別し、catalog は Null 単独に object kind を発行せず、nominal nullable の証拠と既存の独立した return 検証を照合する。
+N23. Static の Nullable 結果は既存の received Home と conditional End に接続し、元 call の source target・canonical object・引数証明・packet 投影を Handle と同じ共通経路で保持する。
+N24. 独立 MIR 検証は既存の StaticBoxMethod Call に NullableHandle を認め、canonical target・arity・callee result と公開 return/lease の照合をすべて保持し、free function や別の ABI を同時に開かない。
 
 Stage 2: n12 canonical EXE prints 3 / exit 0; instance n01 and early-return nonnullable t02 retain their results; forward n15 stays refused. Callable result family: 99 pass. One semantic test adds nullable class/input-obligation proof and conflicting-class/null-only/Void refusals to the existing source-proof family; legacy nonnullable expectations now state the nullable bit explicitly.
 
-- N25: 所有結果の `P?` は canonical TypeReference の Nullable(Name(P)) と ordinary box coverage から認め、本文の全 return が P または literal Null に合うことを検査し、P だけ・Null だけも同じ nullable 契約に含む。
-- N26: 宣言済み Null-only の nominal class は元の宣言からだけ供給し、元の constructor object registry の実在 ID を共有して conditional End を計画するが、架空 ID・New claim・非nullの証拠を作らない。
-- N27: Null-only の公開 return は C verifier が元の全 return の const_null を独立に証明し、null の条件付き解放だけを許し、通常の所有移転・無条件 End・非null借用の証拠として使わない。
-- N28: P? の本文と宣言の照合は source catalog と元の return witness、最終 MIR/ABI の既存検証を保持し、非nullable P の null、別 class、String? と scalar nullable を受けない。
-- N29: 検証済み元 return cohort が Null だけなら SUM は Null 単独の事実を保持でき、object class や nonnull/input ABI の証明には使わず、teardown の条件付き性は本文の枝数ではなく catalog の結果契約に合わせる。
-- N30: 独立検証の到達解析は公開 MIR の canonical Static Call も既存の callable-key owner で辿り、未解決辺は従来どおり保守的に扱い、到達する関数と物理関数の range 検証をすべて保持する。
-- N31: catalog が owned Nullable と決めた関数は New site が無くても共通 Home/terminal walk を選び、全 Null の検証済み teardown は既存の descriptor=None/nullable=true/unsupported=false で payload 不在を保持し、packet はそれを conditional End だけへ接続する。
-- N32: scalar-source 観測で construction のない Null cohort に遭遇しても、catalog が owned Nullable と証明していれば Nullable のまま保持し、I64 や別 class へ変換しない。
-- N33: C の元 return 解析は exact-object と Null-only を別の内部状態で共有し、Null-only は object_id を発行せず、callee の全 Normal return が const_null の時だけ checked receiver の Fault-before-dispatch に使える。
-- N34: 新しく接続する Root receiver の CallReceived 取得は canonical root-scope Local initializer に限り、分岐内取得の receiver protocol は今回追加せず、既存の direct-local 判定を共有して拒否する。
+N25. 所有結果の `P?` は canonical TypeReference の Nullable(Name(P)) と ordinary box coverage から認め、本文の全 return が P または literal Null に合うことを検査し、P だけ・Null だけも同じ nullable 契約に含む。
+N26. 宣言済み Null-only の nominal class は元の宣言からだけ供給し、元の constructor object registry の実在 ID を共有して conditional End を計画するが、架空 ID・New claim・非nullの証拠を作らない。
+N27. Null-only の公開 return は C verifier が元の全 return の const_null を独立に証明し、null の条件付き解放だけを許し、通常の所有移転・無条件 End・非null借用の証拠として使わない。
+N28. P? の本文と宣言の照合は source catalog と元の return witness、最終 MIR/ABI の既存検証を保持し、非nullable P の null、別 class、String? と scalar nullable を受けない。
+N29. 検証済み元 return cohort が Null だけなら SUM は Null 単独の事実を保持でき、object class や nonnull/input ABI の証明には使わず、teardown の条件付き性は本文の枝数ではなく catalog の結果契約に合わせる。
+N30. 独立検証の到達解析は公開 MIR の canonical Static Call も既存の callable-key owner で辿り、未解決辺は従来どおり保守的に扱い、到達する関数と物理関数の range 検証をすべて保持する。
+N31. catalog が owned Nullable と決めた関数は New site が無くても共通 Home/terminal walk を選び、全 Null の検証済み teardown は既存の descriptor=None/nullable=true/unsupported=false で payload 不在を保持し、packet はそれを conditional End だけへ接続する。
+N32. scalar-source 観測で construction のない Null cohort に遭遇しても、catalog が owned Nullable と証明していれば Nullable のまま保持し、I64 や別 class へ変換しない。
+N33. C の元 return 解析は exact-object と Null-only を別の内部状態で共有し、Null-only は object_id を発行せず、callee の全 Normal return が const_null の時だけ checked receiver の Fault-before-dispatch に使える。
+N34. 新しく接続する Root receiver の CallReceived 取得は canonical root-scope Local initializer に限り、分岐内取得の receiver protocol は今回追加せず、既存の direct-local 判定を共有して拒否する。
+
+Stage 3: n11/n14/n21 canonical EXE prints 3 / exit 3 / prints 0; all ten required forms and eleven excluded forms match their expected results. Fresh-only declaration, static Null-only, renamed class, three returns and Null-only literal method also run correctly. Always-null typed-field getter remains a named compiler coverage refusal.
+Evidence: callable result family 99 pass, root instance family 4 pass, owned result family 1 pass (new six captures plus unchanged original cases), C owned execution/cleanup/class mismatch and integer-zero-versus-Null mutations pass. Scope-negative is integrated into that existing family; no test or checker file is added. Full-series regression validation follows this commit.

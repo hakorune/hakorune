@@ -139,10 +139,17 @@ def owned_results(driver, obj, exe, work):
                     and graph['functions'][t['operation']['call']['target']]['name'] == 'Token.ping/0')
         ping['receiver'] = find['receiver']
 
+    def null_only_integer_return(graph):
+        for block in function(graph, 'Shop.find/1')['blocks']:
+            for row in block['instructions']:
+                instruction = row['instruction']
+                if instruction['op'] == 'const_null':
+                    instruction.update(op='const_i64', value=0)
+
     # The method has no field read: Null must fault before dispatch, rather
     # than depending on a later field access to catch an invalid receiver.
     received = sorted(INPUTS.glob('hako-issued-nullable-owned-receiver-*-opt*.json'))
-    assert len(received) == 4, 'owned result family must capture both receiver outcomes'
+    assert len(received) == 6, 'owned result family captures mixed and declared Null-only outcomes'
     for path in received:
         nonnull = '-3-opt' in path.name
         homes = 3 if nonnull else 2
@@ -163,6 +170,9 @@ def owned_results(driver, obj, exe, work):
                 assert 'FAULT ' not in run.stdout, run.stdout
         changed('wrong-nullable-receiver-' + path.stem, json.loads(path.read_text()),
                 wrong_nullable_receiver, reason='receiver-object-mismatch')
+        if '-nullonly-' in path.name:
+            changed('integer-is-not-null-' + path.stem, json.loads(path.read_text()),
+                    null_only_integer_return)
         print(path.name, 'checked receiver TypeError/cleanup/class mismatch PASS')
 
     def handle_phi(graph, *, after_end=False, different=False):

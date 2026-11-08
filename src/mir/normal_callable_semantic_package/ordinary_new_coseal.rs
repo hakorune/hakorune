@@ -352,6 +352,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // parallel issuer.
     result_claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewResultClaimV1>>,
     ordinary_box_names: Box<[Box<str>]>,
+    original_object_sources: Option<Rc<[(crate::parser::ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>>,
     // Borrow the package's single immutable catalog; never reissue parameters.
     original_parameter_contracts:
         Option<Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>>,

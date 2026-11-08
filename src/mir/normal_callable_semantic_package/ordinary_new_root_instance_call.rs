@@ -212,6 +212,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 (claim.class().to_owned(), claim.object())
             } else {
+                if !super::coseal_helpers::is_direct_local_initializer(initializer_site.node().segments()) {
+                    return Err(freeze("root-instance-call-new-missing"));
+                }
                 let lexical = self.lexical_source_targets.as_ref().map(|targets|
                     crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::original_lexical_target_at_v1(targets, &owned_initializer))
                     .transpose()?.flatten();

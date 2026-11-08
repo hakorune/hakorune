@@ -799,7 +799,29 @@ fn current_static_zero_original_source_publishes_invoke_without_generic_call() {
 fn publish_nullable_owned_receiver_cases() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for argument in [0, 3] {
+        let branch_source = r#"
+            box Token { birth() { } ping(): i64 { return 0 } }
+            box Shop {
+                birth() { }
+                find(k: i64) { if k > 0 { return new Token() } return null }
+            }
+            static box Main { main() {
+                local shop = new Shop()
+                if 1 == 1 {
+                    local token = shop.find(3)
+                    return token.ping()
+                }
+                return 0
+            } }
+        "#;
+        let error = MirCompiler::with_options(false).compile_normal_with_published(
+            request(branch_source), |_, _| -> Result<(), String> { Ok(()) },
+        ).err().expect("branch-scope received receiver is outside the root protocol");
+        assert!(error.to_string().contains("root-instance-call-new-missing"), "{error}");
+        for (argument, null_only) in [(0, false), (3, false), (0, true)] {
+            let annotation = if null_only { ": Token?" } else { "" };
+            let fresh = if null_only { "" } else { "if k > 0 { return new Token() }" };
+            let label = if null_only { "nullonly".to_owned() } else { argument.to_string() };
             let text = format!(
                 "box Token {{
                     birth() {{}}
@@ -808,8 +830,8 @@ fn publish_nullable_owned_receiver_cases() {
                 box Spare {{}}
                 box Shop {{
                     birth() {{}}
-                    find(k: i64) {{
-                        if k > 0 {{ return new Token() }}
+                    find(k: i64){annotation} {{
+                        {fresh}
                         return null
                     }}
                 }}
@@ -829,7 +851,7 @@ fn publish_nullable_owned_receiver_cases() {
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                         std::fs::write(std::env::temp_dir().join(format!(
-                            "hako-issued-nullable-owned-receiver-{argument}-opt{optimize}.json"
+                            "hako-issued-nullable-owned-receiver-{label}-opt{optimize}.json"
                         )), wire).unwrap();
                         Ok(())
                     },

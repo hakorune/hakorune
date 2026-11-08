@@ -4,6 +4,22 @@ use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// The new nullable receiver protocol borrows a root acquisition only.
+    /// Keep nominal evidence independent: this checks the installed Home's scope.
+    pub(in crate::mir::normal_callable_semantic_package) fn require_root_nullable_receiver_v1(
+        &self, binding: BindingRefV1,
+    ) -> Result<(), String> {
+        for (site, row) in self.local_commits.borrow().iter() {
+            if let LocalCommitV1::CallReceived(row) = row {
+                if row.binding == binding && row.release == CallReceivedReleaseV1::Nullable
+                    && !super::super::coseal_helpers::is_direct_local_initializer(site.site().node().segments()) {
+                    return Err(freeze("root-instance-call-new-missing"));
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Two references to the SAME physical packet supply one emitted unwind.
     /// After groups move into the final handoff, the commit retains that packet.
     pub(super) fn shared_received_call_sites_v1(
@@ -194,7 +210,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     Some(result.object())
                 }
                 _ => None,
-            }));
+            })).chain(self.original_object_sources.iter().flat_map(|rows| rows.iter())
+                .filter(|(source, _)| source.name() == class).map(|(_, object)| *object));
         let object = objects
             .next()
             .ok_or_else(|| freeze("nullable-result-object-missing"))?;
@@ -318,9 +335,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let packet = self.borrowed_object_call_packet_v1(row)?;
         let descriptor = packet.teardown();
-        let object = descriptor.object();
+        let object = packet.object();
         let end_children = descriptor
-            .owned_children()
+            .and_then(|descriptor| descriptor.owned_children())
             .map(|children| Some(children.into()));
         let field_support_parents = self.object_packet_field_support_parents_v1(row)?;
         let mut rows = self.local_commits.borrow_mut();

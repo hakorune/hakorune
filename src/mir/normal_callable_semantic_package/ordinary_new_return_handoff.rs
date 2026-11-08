@@ -261,7 +261,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let Some(supports) = self.object_return_handoff_supports_v1(&acquisition, &alternatives)? else {
                 return Ok(Unavailable(ObjectReturnHandoffUnavailableV1::FieldSupport));
             };
-            let teardown = teardown::reduce(&alternatives)?;
+            let teardown = teardown::reduce(&alternatives, false)?;
             Ok(Verified(Rc::new(VerifiedObjectReturnHandoffV1 {
                 teardown,
                 supports,

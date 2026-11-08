@@ -466,10 +466,10 @@ A `: P` declaration, where name resolution finds `P` as a box of the source, rea
 | `return m.mk()` forwarding; `local a = me.mk()` then `a.get()`; a call that can fault after the receive | refused-named | refused-named | refused-named | `admission-function-not-birth`; `borrowed-result/source-not-i64`; `local-commit/root-call-binding-contracted` (the same undeclared) |
 | `m.mk(5)` with an argument, `a.get() + 1`, `a = m.mk()`, `next(): Maker`, `return me.f`, returning a `take` formal | refused-named | refused-named | refused-named | `borrowed-result/source-not-i64`, `borrowed-nullable/local-initializer`, `borrowed-entry/finite-domain-unclosed` (the same undeclared) |
 
-### Nullable object results received from an instance
+### Nullable object results received from a call
 
-An unannotated instance factory may return `new P(..)` or `null`; a local can
-receive that result, compare it with `null`, and call its methods. A method
+An instance or qualified-static factory may return `new P(..)` or `null`; a
+root-scope local can receive that result, compare it with `null`, and call its methods. A method
 call on the null outcome raises TypeError before entering the method. Its
 Fault path releases the caller's previously acquired objects, while the null
 outcome owns no payload to release. Early returns preserve the same cleanup
@@ -481,12 +481,21 @@ law for nullable and non-null object results.
 | `if a == null { return 1 }; return a.get()` after a receive | non-null exit 3; null exit 1 |
 | `return a.get()` without a guard | non-null exit 3; null TypeError (Fault exit 70) |
 | two received nullable locals checked separately | exit 3 |
+| qualified-static `local a = Main.find(3)` | prints `3`, exit 0 |
+| `find(k: i64): P?`, instance / qualified static | prints `3` / exit 3 |
+| `empty(): P? { return null }`, received and compared with null | prints `0`, exit 0 |
+| `P?` declaration with only a fresh-object return | received method result exit 9 |
 | non-null receive followed by an early return guarded by a scalar condition | exit 3, with or without the result annotation |
 
 Assignment to the received local, aliases, a receive inside `if`, discarded
 object calls, forwarding nullable results, Array storage, nullable String
 results and Array element borrows remain outside this measured boundary.
-Static factories and `: P?` declarations are the next part of this series.
+`P?` accepts an object-only or null-only body as well as a mixed body; the
+unannotated null-only body does not infer an object type. A nonnullable `P`
+declaration returning null is refused. A nullable receiver call with a `take`
+argument is still unsupported. Calling a typed-field getter through an
+always-null result also remains unsupported by the current compiler; an
+always-null call to a literal-result method reaches TypeError correctly.
 
 ### static call result bound in a plain function (series static-call-context)
 
@@ -593,8 +602,3 @@ handler/backend combinations must reject before user-visible effects.
 snapshot. Its examples and status tables must not override this index or the
 current topic SSOTs. When a historical example is useful, cite it as migration
 evidence and link back here.
-
-The unannotated qualified-static form `local x = Factory.maybe(3)` also reaches
-the canonical EXE for an owned `P | Null` result. The same nullable receiver
-and conditional-End rules apply. Measured: nullable probe n12 prints `3` and
-exits 0. Nullable result annotations remain the next step of this series.

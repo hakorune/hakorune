@@ -68,10 +68,22 @@ impl DeclaredResultKindV1 {
         }
     }
 
+    /// Canonical type syntax, without granting declaration coverage or a runtime ABI.
+    pub(crate) fn nominal_reference(spelling: &str) -> Option<(String, bool)> {
+        use crate::ast::TypeReferenceV1 as Ref;
+        let (reference, nullable) = match Ref::parse(spelling).ok()? {
+            Ref::Nullable(inner) => (*inner, true), reference => (reference, false),
+        };
+        match reference { Ref::Name(name) if Self::classify(&name).is_none() => Some((name, nullable)), _ => None }
+    }
+
     /// O1: the table above, then a declared box the source resolved (never a spelling).
     pub(crate) fn classify_resolved(source_type_name: &str, declared_box: Option<&str>) -> Option<Self> {
-        Self::classify(source_type_name)
-            .or_else(|| (declared_box == Some(source_type_name)).then_some(Self::OwnedObject))
+        Self::classify(source_type_name).or_else(|| {
+            Self::nominal_reference(source_type_name)
+                .filter(|(name, _)| declared_box == Some(name.as_str()))
+                .map(|_| Self::OwnedObject)
+        })
     }
 }
 

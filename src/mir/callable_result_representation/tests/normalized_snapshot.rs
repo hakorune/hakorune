@@ -32,7 +32,7 @@ enum NormalizedResultDispositionV1 {
     ExactI64 { required_arguments: Vec<u32> },
     ExactString,
     ExactBool,
-    ExactNominalBox { box_name: String },
+    ExactNominalBox { box_name: String, nullable: bool },
     Unavailable(CallableResultUnavailableReasonV1),
 }
 
@@ -41,7 +41,7 @@ enum NormalizedResultRepresentationV1 {
     ExactI64,
     ExactString,
     ExactBool,
-    ExactNominalBox { box_name: String },
+    ExactNominalBox { box_name: String, nullable: bool },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -135,9 +135,10 @@ fn normalize_disposition(
         VerifiedCallableResultDispositionV1::ExactString => {
             NormalizedResultDispositionV1::ExactString
         }
-        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name, .. } => {
+        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name, nullable, .. } => {
             NormalizedResultDispositionV1::ExactNominalBox {
                 box_name: box_name.clone(),
+                nullable: *nullable,
             }
         }
         VerifiedCallableResultDispositionV1::Unavailable(reason) => {
@@ -159,9 +160,10 @@ fn normalize_representation(
         VerifiedCallableResultRepresentationV1::ExactString => {
             NormalizedResultRepresentationV1::ExactString
         }
-        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name, .. } => {
+        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name, nullable, .. } => {
             NormalizedResultRepresentationV1::ExactNominalBox {
                 box_name: box_name.clone(),
+                nullable: *nullable,
             }
         }
     }

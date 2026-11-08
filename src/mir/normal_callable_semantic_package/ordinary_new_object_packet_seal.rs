@@ -312,9 +312,11 @@ impl LexicalInstanceCallDispositionRowV1 {
 pub(crate) struct BorrowedObjectCallPacketV1<'ledger, 'packet> {
     arguments: &'ledger [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1],
     row: &'packet LexicalInstanceCallDispositionRowV1,
-    teardown: &'packet ObjectReturnTeardownDescriptorV1,
+    teardown: Option<&'packet ObjectReturnTeardownDescriptorV1>,
+    object: hakorune_mir_defs::CanonicalObjectIdV1,
 }
 impl BorrowedObjectCallPacketV1<'_, '_> {
+    pub(in crate::mir::normal_callable_semantic_package) fn object(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 { self.object }
     pub(crate) fn arguments(&self) -> &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1] {
         self.arguments
     }
@@ -326,11 +328,11 @@ impl BorrowedObjectCallPacketV1<'_, '_> {
     /// producer and own the pending transfer/Fault path; no LOCAL is created.
     pub(crate) fn cancellation_operations_v1(&self, value: crate::mir::ValueId) -> Vec<crate::mir::instruction::InvokeOperation> {
         super::super::super::object_end::operations_v1(
-            self.teardown.object(), self.result() == InvokeCallResultKind::NullableHandle,
-            self.teardown.owned_children().unwrap_or(&[]), value,
+            self.object, self.result() == InvokeCallResultKind::NullableHandle,
+            self.teardown.and_then(|descriptor| descriptor.owned_children()).unwrap_or(&[]), value,
         ).map(|(_, operation)| operation).collect()
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn teardown(&self) -> &ObjectReturnTeardownDescriptorV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn teardown(&self) -> Option<&ObjectReturnTeardownDescriptorV1> {
         self.teardown
     }
 }
@@ -377,18 +379,29 @@ impl OrdinaryNewClaimLedgerV1 {
         let seal = row.object_packet.as_ref()
             .ok_or_else(|| freeze("object-packet/seal-missing"))?;
         let (teardown, nullable) = match &seal.teardown {
-            ObjectReturnTeardownAvailabilityV1::Verified { descriptor, nullable } => (descriptor, *nullable),
+            ObjectReturnTeardownAvailabilityV1::Verified { descriptor, nullable } => (Some(descriptor), *nullable),
             ObjectReturnTeardownAvailabilityV1::AnchoredFields { descriptor, nullable } => {
                 self.object_packet_field_support_parents_v1(row)?
                     .ok_or_else(|| freeze("object-packet/field-support-missing"))?;
-                (descriptor, *nullable)
+                (Some(descriptor), *nullable)
             }
+            ObjectReturnTeardownAvailabilityV1::Unavailable { descriptor: None, nullable: true, unsupported: false } => (None, true),
             ObjectReturnTeardownAvailabilityV1::Unavailable { .. } => return Err(freeze("object-packet/teardown-unavailable")),
         };
         if nullable != (row.result() == Some(InvokeCallResultKind::NullableHandle)) {
             return Err(freeze("object-packet/teardown-kind-drift"));
         }
-        Ok(BorrowedObjectCallPacketV1 { arguments, row, teardown })
+        let object = match teardown {
+            Some(descriptor) => descriptor.object(),
+            None => {
+                let Some(super::super::super::super::callee_result_kind::CalleeResultKindV1::Nullable(class)) =
+                    self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(row.target())) else {
+                        return Err(freeze("object-packet/result-mismatch"));
+                    };
+                self.canonical_received_object_v1(&class)?
+            }
+        };
+        Ok(BorrowedObjectCallPacketV1 { arguments, row, teardown, object })
     }
 
     /// Entry-receiver flow rows intentionally carry no argument authority.

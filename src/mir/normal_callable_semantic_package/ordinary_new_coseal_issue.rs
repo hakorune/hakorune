@@ -403,7 +403,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 requests.require(ScanRequestV1::NamedArrayResidence, source_core_calls.is_some_and(|rows| rows.values()
                     .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some())));
                 requests.require(ScanRequestV1::DirectCallOwnerLoan, owner_loan.is_some());
-                requests.require(ScanRequestV1::ObjectCallReturn, callable_result_classes.has_object_call_return(owner));
+                requests.require(ScanRequestV1::ObjectCallReturn, callable_result_classes.has_object_call_return(owner) || walk_triggers::has_nullable_result_v1(&callable_result_classes, selected, batch_slot));
                 // S3b-R2: the one decision of this function's ownership route.
                 let route = OwnershipRouteV1::decide(
                     &requests,
@@ -763,6 +763,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         result_claims.into_boxed_slice(),
         names,
     );
+    ledger.original_object_sources = Some(Rc::clone(instance_constructors.original_object_sources_v1()));
     ledger
         .retain_source_dynamic_member_calls_v1(dynamic_source_calls)
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;

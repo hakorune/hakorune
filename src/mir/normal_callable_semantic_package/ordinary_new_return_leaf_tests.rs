@@ -85,7 +85,7 @@ fn exact_fresh_leaf_corroborates_without_consuming_claim_or_sibling_home() {
         }
         let end = super::super::return_handoff::reduce_object_return_teardown_v1(&[
             super::super::return_handoff::VerifiedObjectReturnAlternativeV1::Leaf(leaf),
-        ]).unwrap();
+        ], false).unwrap();
         assert_eq!(end.descriptor().is_none(), end_requires_residence,
             "source-supported child cannot activate owning-only teardown");
         assert_eq!(ledger.result_claims.borrow().len(), original_count);

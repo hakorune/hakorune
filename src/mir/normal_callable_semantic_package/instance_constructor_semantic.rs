@@ -118,7 +118,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
     field_values: std::cell::OnceCell<super::ordinary_new_coseal::FieldValueSourcesV1>,
     rows: Box<[VerifiedInstanceConstructorSemanticRowV1]>,
     box_sources: ParserOrdinaryBoxSourceCoverageV1,
-    object_sources: Box<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>,
+    object_sources: std::rc::Rc<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>,
     object_definitions: std::cell::RefCell<Option<Box<[CanonicalObjectDefinitionV1]>>>,
     no_birth_construction: Vec<(
         ParserOrdinaryBoxSourceRowV1,
@@ -138,6 +138,8 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    pub(super) fn original_object_sources_v1(&self) -> &std::rc::Rc<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]> { &self.object_sources }
+
     pub(super) fn original_field_writers_v1(&self) -> &std::rc::Rc<super::ordinary_new_coseal::OriginalFieldWriterInventoryV1> {
         &self.field_writers
     }
@@ -607,7 +609,7 @@ impl CapturedInstanceConstructorSourcesV1 {
             }
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {
                 field_writers: std::rc::Rc::clone(field_writers), field_values: std::cell::OnceCell::new(),
-                rows: rows.into_boxed_slice(), box_sources, object_sources,
+                rows: rows.into_boxed_slice(), box_sources, object_sources: object_sources.into(),
                 object_definitions: std::cell::RefCell::new(Some(object_definitions.into_boxed_slice())),
                 no_birth_construction,
             })

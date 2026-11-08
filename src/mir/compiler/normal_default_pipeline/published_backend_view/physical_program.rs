@@ -235,16 +235,16 @@ impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
                 for instruction in block.all_instructions() {
                     let key = match instruction {
                         MirInstruction::Call(call) => match &call.callee {
-                            Callee::SameModuleInstance { key, .. } | Callee::BirthConstructor { key, .. } => key,
+                            Callee::BirthConstructor { key, .. } => key.clone(),
                             Callee::Extern(_) => continue,
-                            _ => return None,
+                            _ => ordinary_callable_key(&call.callee).ok()?,
                         },
                         MirInstruction::Invoke { operation, .. } => match operation {
-                            InvokeOperation::Birth(birth) => &birth.key,
+                            InvokeOperation::Birth(birth) => birth.key.clone(),
                             InvokeOperation::Call { call, .. } => match &call.callee {
-                                Callee::SameModuleInstance { key, .. } | Callee::BirthConstructor { key, .. } => key,
+                                Callee::BirthConstructor { key, .. } => key.clone(),
                                 Callee::Extern(_) => continue,
-                                _ => return None,
+                                _ => ordinary_callable_key(&call.callee).ok()?,
                             },
                             // A selector-dispatched call has no static target.
                             InvokeOperation::DynamicInvocation(_) => return None,
@@ -284,7 +284,7 @@ impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
                         MirInstruction::Const { .. } | MirInstruction::BinOp { .. } | MirInstruction::UnaryOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Load { .. } | MirInstruction::StaticDataLoad { .. } | MirInstruction::Store { .. } | MirInstruction::MapLiteralEntryWrite { .. } | MirInstruction::ArrayElementWrite { .. } | MirInstruction::ArrayRead { .. } | MirInstruction::ArrayStateContractClaim { .. } | MirInstruction::MemOp { .. } | MirInstruction::PinnedTextOp { .. } | MirInstruction::PinnedTextResidenceFinish { .. } | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. } | MirInstruction::WeakFieldWrite { .. } | MirInstruction::VariantMake { .. } | MirInstruction::VariantTag { .. } | MirInstruction::VariantProject { .. } | MirInstruction::Branch { .. } | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::InvokeNormalResult { .. } | MirInstruction::ReturnFault { .. } | MirInstruction::FaultFrameEnter { .. } | MirInstruction::PinnedTextResidenceEnter { .. } | MirInstruction::PinnedTextResidenceTrap { .. } | MirInstruction::CheckedCallOutNormalResult { .. } | MirInstruction::CheckedCallOutEnd { .. } | MirInstruction::CheckedCallOutFault { .. } | MirInstruction::Phi { .. } | MirInstruction::TypeOp { .. } | MirInstruction::Copy { .. } | MirInstruction::CopyOwned { .. } | MirInstruction::DestroyOwned { .. } | MirInstruction::ArrayResidenceRelease { .. } | MirInstruction::StringResidenceInstall { .. } | MirInstruction::LocalContractWrite { .. } | MirInstruction::RecordFieldContractCheck { .. } | MirInstruction::RecordValuePublish { .. }
                         | MirInstruction::Debug { .. } | MirInstruction::KeepAlive { .. } | MirInstruction::ReleaseStrong { .. } | MirInstruction::Throw { .. } | MirInstruction::Catch { .. } | MirInstruction::Safepoint { .. } | MirInstruction::RefNew { .. } | MirInstruction::WeakRef { .. } | MirInstruction::Barrier { .. } | MirInstruction::FutureNew { .. } | MirInstruction::FutureSet { .. } | MirInstruction::Await { .. } | MirInstruction::Select { .. } => continue,
                     };
-                    let target = module.canonical_callable_definition_symbol(key)?;
+                    let target = module.canonical_callable_definition_symbol(&key)?;
                     let (target, _) = module.functions.get_key_value(target)?;
                     pending.push(target.as_str());
                 }

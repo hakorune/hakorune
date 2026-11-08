@@ -15,7 +15,8 @@ impl DeclaredFunctionResultContractV1 {
     pub(crate) fn agrees_with_object_result(&self, class: &str, nullable: bool) -> bool {
         match self {
             Self::Unannotated => true,
-            Self::Annotated(name) => !nullable && name.as_ref() == class,
+            Self::Annotated(name) => crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::nominal_reference(name)
+                .is_some_and(|(declared, allows_null)| declared == class && (allows_null || !nullable)),
             Self::Void => false,
         }
     }

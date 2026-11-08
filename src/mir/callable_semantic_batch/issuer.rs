@@ -385,9 +385,14 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                 // O1: a read-borrowed result (`P from x`) keeps its own declaration; only an
                 // owned result names the box it returns.
                 row.declared_result_box = match (&row.declared_result_type, &row.borrowed_result) {
-                    (Some(crate::ast::TypeReferenceV1::Name(name)), None)
-                        if matches!(source.ordinary_box_coverage().row_for(name), Ok(Some(_))) =>
-                        Some(name.as_str().into()),
+                    (Some(reference), None) => {
+                        let name = match reference {
+                            crate::ast::TypeReferenceV1::Nullable(inner) => inner.name(),
+                            reference => reference.name(),
+                        };
+                        name.filter(|name| matches!(source.ordinary_box_coverage().row_for(name), Ok(Some(_))))
+                            .map(Into::into)
+                    },
                     _ => None,
                 };
                 if let Some(observation) = syntax.method_source_observation() {

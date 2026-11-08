@@ -1,6 +1,8 @@
+/* Private return-domain cache: Null-only has no object ID. */
+enum { LV4_RETURN_NULL_ONLY = 3 };
 /* One invocation's original owned Handle result correspondence.
  * Kind unions and release metadata are never object identity authorities. */
-static int lv4_owned_return_object(const hako_lv4_input* in,
+static int lv4_owned_return_domain(const hako_lv4_input* in,
     hako_lv4_function_index* fn);
 
 static int lv4_owned_value_object(const hako_lv4_input* in,
@@ -40,7 +42,8 @@ static int lv4_owned_value_object(const hako_lv4_input* in,
     uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
     if ((nullable && !allow_nullable) || !target || target >= in->index_count ||
         !lv4_is(in->index[target].function, "role", nullable ? "ordinary_nullable_handle" : "ordinary_handle") ||
-        !lv4_owned_return_object(in, &in->index[target])) return 0;
+        !lv4_owned_return_domain(in, &in->index[target]) ||
+        in->index[target].return_object_state != 2) return 0;
     object = in->index[target].return_object;
     if (root->object_id_set && root->object_id != object) return 0;
     root->object_id = object; root->object_id_set = 1;
@@ -50,14 +53,14 @@ static int lv4_owned_value_object(const hako_lv4_input* in,
   return 1;
 }
 
-static int lv4_owned_return_object(const hako_lv4_input* in,
+static int lv4_owned_return_domain(const hako_lv4_input* in,
     hako_lv4_function_index* fn) {
   int nullable = lv4_is(fn->function, "role", "ordinary_nullable_handle");
   if (!nullable && !lv4_is(fn->function, "role", "ordinary_handle")) return 0;
-  if (fn->return_object_state == 2) return 1;
+  if (fn->return_object_state == 2 || fn->return_object_state == LV4_RETURN_NULL_ONLY) return 1;
   if (fn->return_object_state == 1) return 0;
   fn->return_object_state = 1;
-  int found = 0;
+  int found = 0, nulls = 0;
   uint32_t object = 0;
   for (size_t bi = 0; bi < fn->block_count; bi++) {
     yyjson_val* term = lv4_term(fn->blocks[bi].block);
@@ -67,12 +70,15 @@ static int lv4_owned_return_object(const hako_lv4_input* in,
     /* Null carries no object identity. Only this exact source constant may
        be excluded, and only the nullable result owner admits it. */
     if (nullable && root && root->kind == LV4_HANDLE &&
-        lv4_is(root->instruction, "op", "const_null")) continue;
+        lv4_is(root->instruction, "op", "const_null")) { nulls++; continue; }
     if (!lv4_owned_value_object(in, fn, result, nullable) ||
         (found && object != result->object_id)) return 0;
     object = result->object_id; found = 1;
   }
-  if (!found) return 0;
+  if (!found) {
+    if (!nullable || !nulls) return 0;
+    fn->return_object_state = LV4_RETURN_NULL_ONLY; return 1;
+  }
   fn->return_object = object; fn->return_object_state = 2;
   return 1;
 }
@@ -169,7 +175,7 @@ static int lv4_index_owned_results(const hako_lv4_input* in) {
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];
     if (lv4_is(fn->function, "role", "ordinary_handle") &&
-        !lv4_owned_return_object(in, fn)) return 0;
+        !lv4_owned_return_domain(in, fn)) return 0;
   }
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];

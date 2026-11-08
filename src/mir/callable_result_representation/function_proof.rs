@@ -83,7 +83,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
         Some(Some(kind)) => Some(kind),
         None => None,
     };
-    let declared_name = declaration.return_type_name();
+    let declared_nominal = declaration.return_type_name().and_then(Declared::nominal_reference);
     if declaration.body().iter().any(contains_grouped_assignment) {
         return Ok(FunctionProofProductV1 {
             outcome: FunctionProofOutcomeV1::Unavailable(
@@ -108,7 +108,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
         &mut fatal,
     )?;
     // One return proof contributes two independent facts. No second AST walk.
-    let source_value_class = if fatal.is_none() && flow.fallthrough.is_none() {
+    let mut source_value_class = if fatal.is_none() && flow.fallthrough.is_none() {
         returns.iter().try_fold(None, |current: Option<super::CallableSourceValueClassV1>, fact| {
             let next = fact.source_value_class()?;
             Some(Some(match current { Some(current) => current.join(&next)?, None => next }))
@@ -121,12 +121,23 @@ pub(super) fn prove_function<'targets, 'catalog>(
     } else {
         summarize_returns(returns)
     };
+    let outcome = match (outcome, declared_nominal.as_ref()) {
+        (FunctionProofOutcomeV1::ExactNominalBox(class, _, requirements), Some((name, true))) if &class == name =>
+            FunctionProofOutcomeV1::ExactNominalBox(class, true, requirements),
+        (FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::KnownNonI64Return), Some((name, true)))
+            if source_value_class == Some(super::CallableSourceValueClassV1::Null) =>
+                FunctionProofOutcomeV1::ExactNominalBox(name.clone(), true, BTreeSet::new()),
+        (outcome, _) => outcome,
+    };
+    if let (FunctionProofOutcomeV1::ExactNominalBox(class, true, _), Some((name, true))) = (&outcome, &declared_nominal) {
+        if class == name { source_value_class = Some(super::CallableSourceValueClassV1::NullableNominalBox(class.clone())); }
+    }
     let outcome = match (&outcome, declared) {
         (FunctionProofOutcomeV1::Unavailable(_) | FunctionProofOutcomeV1::PendingDependency, _) | (_, None) => outcome,
         (FunctionProofOutcomeV1::ExactBool(_), Some(Declared::Scalar(ExactTrivialScalarAbiV1::Bool)))
         | (FunctionProofOutcomeV1::ExactString, Some(Declared::OwnedText)) => outcome,
-        (FunctionProofOutcomeV1::ExactNominalBox(box_name, false, _), Some(Declared::OwnedObject))
-            if Some(box_name.as_str()) == declared_name => outcome,
+        (FunctionProofOutcomeV1::ExactNominalBox(box_name, nullable, _), Some(Declared::OwnedObject))
+            if declared_nominal.as_ref().is_some_and(|(name, allows_null)| name == box_name && (*allows_null || !nullable)) => outcome,
         _ => FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::DeclaredResultDisagrees),
     };
     Ok(FunctionProofProductV1 {

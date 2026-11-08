@@ -33,10 +33,11 @@ impl ObjectReturnTeardownAvailabilityV1 {
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::completion_index) fn reduce(
     alternatives: &[VerifiedObjectReturnAlternativeV1],
+    declared_nullable: bool,
 ) -> Result<ObjectReturnTeardownAvailabilityV1, String> {
     let mut descriptor = None;
-    let mut nullable = false;
-    let mut unavailable = false;
+    let mut nullable = declared_nullable;
+    let mut unavailable = alternatives.is_empty();
     let mut anchored = false;
     for alternative in alternatives {
         let candidate = match alternative {

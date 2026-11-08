@@ -114,7 +114,7 @@ fn completed_object_handoff_joins_typed_and_opaque_direct_received_original_leav
                 VerifiedObjectReturnAlternativeV1::Call(Rc::clone(&proof)),
                 VerifiedObjectReturnAlternativeV1::Leaf(VerifiedObjectReturnLeafV1::Null),
             ];
-            assert!(matches!(super::teardown::reduce(&nullable_anchor).unwrap(),
+            assert!(matches!(super::teardown::reduce(&nullable_anchor, false).unwrap(),
                 ObjectReturnTeardownAvailabilityV1::Unavailable {
                     descriptor: Some(_), nullable: true, unsupported: true,
                 }), "anchored support cannot admit an unsupported nullable-owned layout");
@@ -369,7 +369,7 @@ fn completed_object_teardown_rejects_foreign_fresh_and_all_null_without_new_clai
         panic!("proof");
     };
     let null = &proof.alternatives()[1];
-    assert!(super::teardown::reduce(std::slice::from_ref(null))
+    assert!(super::teardown::reduce(std::slice::from_ref(null), false)
         .unwrap()
         .descriptor()
         .is_none());
@@ -383,7 +383,7 @@ fn completed_object_teardown_rejects_foreign_fresh_and_all_null_without_new_clai
         VerifiedObjectReturnAlternativeV1::Call(Rc::clone(&proof)),
         VerifiedObjectReturnAlternativeV1::Call(other_proof),
     ];
-    assert!(super::teardown::reduce(&mixed)
+    assert!(super::teardown::reduce(&mixed, false)
         .unwrap_err()
         .contains("descriptor-disagreement"));
 }
@@ -431,7 +431,7 @@ fn completed_object_teardown_unavailable_child_retains_descriptor_and_null_ances
         &unsupported,
     ))];
     assert!(matches!(
-        super::teardown::reduce(&nested).unwrap(),
+        super::teardown::reduce(&nested, false).unwrap(),
         ObjectReturnTeardownAvailabilityV1::Unavailable {
             descriptor: Some(_),
             nullable: true,
@@ -451,7 +451,7 @@ fn completed_object_teardown_unavailable_child_retains_descriptor_and_null_ances
         if reversed {
             mixed.reverse();
         }
-        assert!(super::teardown::reduce(&mixed)
+        assert!(super::teardown::reduce(&mixed, false)
             .unwrap_err()
             .contains("descriptor-disagreement"));
     }

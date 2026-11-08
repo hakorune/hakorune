@@ -308,6 +308,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .collect(),
             ),
             ordinary_box_names,
+            original_object_sources: None,
             original_parameter_contracts: None,
             original_instance_input_issuance: None,
             array_holder_lifecycles: RefCell::new(BTreeMap::new()),

@@ -583,6 +583,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             let rows = self.lexical_instance_calls.borrow();
             if let Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) = rows.get(&key) {
+                if let Ok(binding) = row.receiver_binding() { self.require_root_nullable_receiver_v1(binding)?; }
                 if row.source_target().mixed_local_source().is_some() { self.corroborate_mixed_call_v1(row)?; }
             }
         }

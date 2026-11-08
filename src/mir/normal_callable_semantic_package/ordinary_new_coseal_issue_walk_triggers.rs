@@ -502,3 +502,14 @@ pub(super) fn text_completion_order_v1<'a>(
         })
         .collect()
 }
+
+/// A known nullable result needs the same terminal/cleanup evidence even without a New site.
+pub(super) fn has_nullable_result_v1(
+    facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    slot: u32,
+) -> bool {
+    let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) = selected.key_for_batch_slot(slot) else { return false; };
+    matches!(facts.result_catalog_v1().and_then(|catalog| catalog.kind(key)),
+        Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(_)))
+}

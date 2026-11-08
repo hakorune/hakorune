@@ -355,12 +355,23 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     borrowed_result.as_deref(),
                     borrowed_result.as_ref().map(|_| &context),
                 ) {
-                    // O3: a declared box fixes the class; the body must return exactly that box.
-                    ExitVerdictV1::Resolvable(claim)
-                        if declared_box.as_deref().is_some_and(|declared| !matches!(&claim.projection,
-                            Some(OrdinaryNewResultClassV1::Object(class)) if class.as_ref() == declared)) =>
-                    {
-                        deads.push(key.clone());
+                    ExitVerdictV1::Resolvable(mut claim) if declared_box.is_some() => {
+                        let declared = declared_box.as_deref().expect("checked declaration");
+                        let allows_null = batch.declarations().find(|row| row.batch_slot() == *batch_slot)
+                            .is_some_and(|row| row.declared_result_type()
+                                .is_some_and(|reference| matches!(reference, crate::ast::TypeReferenceV1::Nullable(_))));
+                        let matching = match &claim.projection {
+                            Some(OrdinaryNewResultClassV1::Object(class)) => class.as_ref() == declared,
+                            Some(OrdinaryNewResultClassV1::NullableObject(class)) => allows_null && class.as_ref() == declared,
+                            None => allows_null && !claim.exits.is_empty() && claim.exits.iter().all(|exit|
+                                !exit.witnesses().is_empty() && exit.witnesses().iter().all(|w| matches!(w.origin(), ResultValueOriginV1::Null))),
+                            _ => false,
+                        };
+                        if matching {
+                            if allows_null { claim.projection = Some(OrdinaryNewResultClassV1::NullableObject(declared.into())); }
+                            claim.borrowed_result = borrowed_result.clone();
+                            inserts.push((key.clone(), claim));
+                        } else { deads.push(key.clone()); }
                     }
                     ExitVerdictV1::Resolvable(mut claim) => {
                         claim.borrowed_result = borrowed_result.clone();

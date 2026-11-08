@@ -63,7 +63,7 @@ static int lv4_received_field_residence(const hako_lv4_input* in,
     hako_lv4_function_index* fn, uint32_t object, uint32_t field, uint32_t child,
     size_t remaining, int* nullable) {
   if (!remaining || !lv4_is(fn->function, "role", "ordinary_handle") ||
-      !lv4_owned_return_object(in, fn) || fn->return_object != object) return 0;
+      !lv4_owned_return_domain(in, fn) || fn->return_object_state != 2 || fn->return_object != object) return 0;
   size_t returns = 0;
   int maybe_null = 0;
   for (size_t bi = 0; bi < fn->block_count; bi++) {

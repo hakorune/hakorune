@@ -526,6 +526,8 @@ impl<'batch> VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 }
 
 impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
+    pub(crate) fn declared_result_type(&self) -> Option<&crate::ast::TypeReferenceV1> { self.row.declared_result_type.as_ref() }
+
     /// O1: the box a declared result `: P` resolves to, when `P` names one declared box.
     pub(crate) fn declared_result_box(&self) -> Option<&str> {
         self.row.declared_result_box.as_deref()

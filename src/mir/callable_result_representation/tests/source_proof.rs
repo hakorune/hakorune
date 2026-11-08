@@ -175,6 +175,11 @@ fn declared_box_result_must_be_the_box_the_body_returns() {
             same(): Leaf { return new Leaf() }
             other(): Leaf { return new Other() }
             scalar(): Leaf { return 1 }
+            fresh_nullable(): Leaf? { return new Leaf() }
+            empty_nullable(): Leaf? { return null }
+            wrong_nullable(): Leaf? { return new Other() }
+            scalar_nullable(): Leaf? { return 1 }
+            null_nonnullable(): Leaf { return null }
         }
     "#;
 
@@ -182,7 +187,14 @@ fn declared_box_result_must_be_the_box_the_body_returns() {
         disposition(source, "ObjectProofV1", "same", 0),
         VerifiedCallableResultDispositionV1::ExactNominalBox { nullable: false, box_name: "Leaf".into(), required_i64_arguments: Box::new([]) }
     );
-    for method in ["other", "scalar"] {
+    for method in ["fresh_nullable", "empty_nullable"] {
+        assert_eq!(disposition(source, "ObjectProofV1", method, 0),
+            VerifiedCallableResultDispositionV1::ExactNominalBox {
+                box_name: "Leaf".into(), nullable: true, required_i64_arguments: Box::new([]),
+            });
+    }
+    assert!(matches!(disposition(source, "ObjectProofV1", "null_nonnullable", 0), VerifiedCallableResultDispositionV1::Unavailable(_)));
+    for method in ["other", "scalar", "wrong_nullable", "scalar_nullable"] {
         assert_eq!(
             disposition(source, "ObjectProofV1", method, 0),
             VerifiedCallableResultDispositionV1::Unavailable(

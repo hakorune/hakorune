@@ -128,7 +128,7 @@ fn original_main_object_packet_matrix_borrows_same_executable_storage_and_affine
                 assert_eq!(packet.arguments().as_ptr(), original.ordered_arguments.as_ptr());
                 assert_eq!(Some(packet.result()), row.result());
                 for value in [crate::mir::ValueId(71), crate::mir::ValueId(93)] {
-                    let object = packet.teardown().object();
+                    let object = packet.teardown().unwrap().object();
                     let expected = if nullable {
                         crate::mir::instruction::InvokeOperation::HomeReleaseIfLive { object, value }
                     } else {
@@ -137,12 +137,12 @@ fn original_main_object_packet_matrix_borrows_same_executable_storage_and_affine
                     assert_eq!(packet.cancellation_operations_v1(value), [expected],
                         "pure End projection keeps original nullable kind and supplied result coordinate");
                 }
-                assert!(std::ptr::eq(packet.teardown(), row.object_packet.as_ref().unwrap()
+                assert!(std::ptr::eq(packet.teardown().unwrap(), row.object_packet.as_ref().unwrap()
                     .teardown.descriptor().unwrap().0));
                 assert!(ledger
                     .borrowed_object_call_packet_v1(&row)
                     .unwrap()
-                    .teardown()
+                    .teardown().unwrap()
                     .owned_children()
                     .is_none());
                 assert_eq!(actuals.as_ptr(), original.opaque_actuals.as_ptr());
@@ -241,7 +241,7 @@ fn object_packet_taken_lends_same_typed_opaque_zero_direct_received_storage() {
                     .contains("already-taken"));
                 if received {
                     let mut row = row;
-                    let descriptor = ledger.borrowed_object_call_packet_v1(&row).unwrap().teardown().clone();
+                    let descriptor = ledger.borrowed_object_call_packet_v1(&row).unwrap().teardown().unwrap().clone();
                     row.object_packet.as_mut().unwrap().teardown =
                         ObjectReturnTeardownAvailabilityV1::Verified {
                             descriptor: descriptor.clone(),
@@ -594,7 +594,7 @@ fn object_packet_unqualified_nested_producer_lends_completed_zero_inputs() {
         let packet = ledger.borrowed_object_call_packet_v1(&row).unwrap();
         assert_eq!(packet.arguments().len(), usize::from(array));
         assert_eq!(packet.result(), result);
-        assert!(packet.teardown().owned_children().is_none());
+        assert!(packet.teardown().unwrap().owned_children().is_none());
     }
 }
 

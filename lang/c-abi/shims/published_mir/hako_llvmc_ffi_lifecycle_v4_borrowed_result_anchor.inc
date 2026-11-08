@@ -511,9 +511,13 @@ static int lv4_borrowed_receiver_readable(const hako_lv4_input* in,
           lv4_u(yyjson_obj_get(consumer, "call"), "target")), "params");
       for (size_t i = 0; i < yyjson_arr_size(params); i++)
         if (lv4_is(yyjson_arr_get(params, i), "ownership", "take")) return 0;
-      return lv4_owned_value_object(in, fn, value, 1) && value->object_id_set && value->object_id == object &&
-          lv4_indexed_live(fn, value->id, LV4_HANDLE, state, object, 1) &&
-          lv4_object_field_dependencies_live(in, fn, value, state, use);
+      uint32_t target = lv4_u(yyjson_obj_get(op, "call"), "target");
+      if (!target || target >= in->index_count || !lv4_owned_return_domain(in, &in->index[target])) return 0;
+      int null_only = in->index[target].return_object_state == LV4_RETURN_NULL_ONLY;
+      int exact = lv4_owned_value_object(in, fn, value, 1) && value->object_id_set && value->object_id == object;
+      return (null_only || exact) &&
+          lv4_indexed_live(fn, value->id, LV4_HANDLE, state, object, !null_only) &&
+          (null_only || lv4_object_field_dependencies_live(in, fn, value, state, use));
     }
   }
   return lv4_nonnull_object_formal(fn, value, object) ||

@@ -200,7 +200,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if missing {
             return Ok(None);
         }
-        let teardown = reduce_object_return_teardown_v1(&alternatives)?;
+        let teardown = reduce_object_return_teardown_v1(&alternatives, kind == InvokeCallResultKind::NullableHandle)?;
         Ok(Some(CheckedObjectCalleeSourceV1 { kind, teardown, field_supports }))
     }
 

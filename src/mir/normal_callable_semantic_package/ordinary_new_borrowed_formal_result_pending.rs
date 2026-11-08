@@ -334,7 +334,11 @@ fn source_result_pending(
             }
         }
         let class = class.unwrap_or(BorrowedResultClassV1::UnresolvedScalar);
-        if class == BorrowedResultClassV1::Nullable && !has_construction { return Err(freeze("borrowed-result/source-not-i64")); }
+        if class == BorrowedResultClassV1::Nullable && !has_construction
+            && !matches!(callable_result_classes.result_catalog_v1().and_then(|catalog| catalog.kind(key)),
+                Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(_))) {
+            return Err(freeze("borrowed-result/source-not-i64"));
+        }
         Ok(BorrowedI64ResultSourceV1 {
             source_facts: Rc::new(BorrowedResultSourceFactsV1 {
                 returns: sites.into_iter().map(|site| OwnedExprSiteV1::new(owner, site)).collect(),

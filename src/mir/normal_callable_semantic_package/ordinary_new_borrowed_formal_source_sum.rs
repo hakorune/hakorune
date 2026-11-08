@@ -216,7 +216,8 @@ impl OriginalSourceSumsV1 {
             let primitive = class.len() == 1 && class.iter().all(|value| matches!(value,
                 SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Bool | SourceValueAlternativeV1::Text));
             let nominal = SourceValueSumV1::nullable_object_alternatives_v1(class).is_some();
-            if matches.next().is_some() || !(primitive || nominal) { return false; }
+            let null_only = class.len() == 1 && class.contains(&SourceValueAlternativeV1::Null);
+            if matches.next().is_some() || !(primitive || nominal || null_only) { return false; }
             // One complete original result cohort, including its Null exits.
             node.atoms.extend(class.iter().cloned());
             node.unconditional = true;

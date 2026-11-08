@@ -63,7 +63,12 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                 if row.receiver_transfer() != crate::parser::callable_parameter_source::ParserTransferKindV1::Ordinary {
                     return Err(CallableParameterContractIssueV1::UnsupportedReceiverTransfer { _declaration: row.batch_slot() });
                 }
-                if row.declared_result_type().is_some_and(|reference| matches!(reference, crate::ast::TypeReferenceV1::Nullable(_))) {
+                if row.declared_result_type().is_some_and(|reference| match reference {
+                    crate::ast::TypeReferenceV1::Nullable(inner) => inner.name().is_none_or(|name|
+                        !matches!(batch.ordinary_box_coverage().row_for(name), Ok(Some(_)))
+                        || crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify(name).is_some()),
+                    _ => false,
+                }) {
                     return Err(CallableParameterContractIssueV1::UnsupportedResultType { _declaration: row.batch_slot() });
                 }
                 let Some(source_parameters) = row.parameters() else {
