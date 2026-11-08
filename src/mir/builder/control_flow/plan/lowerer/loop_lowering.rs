@@ -88,10 +88,6 @@ impl super::PlanLowerer {
         loop_stack: &mut Vec<LoopFrame>,
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
-        use crate::mir::builder::control_flow::joinir::trace;
-
-        let trace_logger = trace::trace();
-        let debug = ctx.debug_enabled();
         let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
         // Phase 6: Prepare loop entry (preheader, body flattening, jump to entry)
@@ -117,7 +113,7 @@ impl super::PlanLowerer {
             builder.ensure_block_exists(loop_plan.found_bb)?;
             // The common SSA consumes actual predecessor witnesses. All
             // terminators are written before it closes the original PHIs.
-            loop_completion::emit_loop_frag(builder, &frag, &loop_plan, ctx)?;
+            loop_completion::emit_loop_frag(builder, &frag, ctx)?;
             shared.borrow_mut().complete_plan_phis(builder, &mut loop_plan)?;
             loop_completion::verify_loop_phi_inputs_if_debug(builder, &loop_plan)?;
             shared.borrow_mut().require_plan_patched(&loop_plan)?;

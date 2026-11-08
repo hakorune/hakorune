@@ -23,28 +23,13 @@ use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeMap;
 
-#[derive(Debug)]
-struct IncompletePhiV1<Token> {
-    token: Token,
-}
-
-#[derive(Debug, Default)]
-struct BlockStateV1 {
-    predecessors: Option<Box<[BasicBlockId]>>,
-}
-
-#[derive(Debug)]
-struct PhiCleanupV1<Token> {
-    token: Token,
-}
-
 /// One reaching-definition owner for one canonical function.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct BindingSsaBuilderV1<Token, Key = BindingRefV1> {
     owner: Option<FunctionOwnerIdV1>,
     definitions: BTreeMap<(BasicBlockId, Key), ValueId>,
-    blocks: BTreeMap<BasicBlockId, BlockStateV1>,
-    incomplete: BTreeMap<(BasicBlockId, Key), IncompletePhiV1<Token>>,
+    blocks: BTreeMap<BasicBlockId, Option<Box<[BasicBlockId]>>>,
+    incomplete: BTreeMap<(BasicBlockId, Key), Token>,
     edge_definitions: BTreeMap<(BasicBlockId, BasicBlockId, Key), ValueId>,
     poisoned: bool,
 }
@@ -88,11 +73,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
     ) -> Result<(), BindingSsaErrorV1> {
         self.require_usable()?;
         self.require_binding(binding)?;
-        if self
-            .blocks
-            .get(&target)
-            .is_some_and(|row| row.predecessors.is_some())
-        {
+        if self.blocks.get(&target).is_some_and(Option::is_some) {
             return Err(BindingSsaErrorV1::BlockSealedTwice { block: target });
         }
         self.edge_definitions
@@ -106,7 +87,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         binding: Key,
         source: BasicBlockId,
         target: BasicBlockId,
-        created: &mut Vec<PhiCleanupV1<Token>>,
+        created: &mut Vec<Token>,
     ) -> Result<ValueId, BindingSsaErrorV1> {
         match self
             .edge_definitions
@@ -130,7 +111,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         self.require_usable()?;
         self.require_binding(binding)?;
         let state = self.blocks.entry(block).or_default();
-        if state.predecessors.is_some() {
+        if state.is_some() {
             return Err(BindingSsaErrorV1::BlockSealedTwice { block });
         }
         if self.definitions.contains_key(&(block, binding)) {
@@ -140,8 +121,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
             });
         }
         self.definitions.insert((block, binding), value);
-        self.incomplete
-            .insert((block, binding), IncompletePhiV1 { token });
+        self.incomplete.insert((block, binding), token);
         Ok(())
     }
 
@@ -153,11 +133,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         witnesses: &[VerifiedPredecessorsV1],
     ) -> Result<(), BindingSsaErrorV1> {
         for witness in witnesses {
-            match self
-                .blocks
-                .get(&witness.block())
-                .and_then(|state| state.predecessors.as_ref())
-            {
+            match self.blocks.get(&witness.block()).and_then(Option::as_ref) {
                 Some(previous) if previous.as_ref() == witness.predecessors() => {}
                 Some(_) => {
                     return Err(BindingSsaErrorV1::PhiOperation {
@@ -207,9 +183,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
                 .incomplete
                 .get(&(block, binding))
                 .expect("binding came from incomplete index");
-            affected.push(PhiCleanupV1 {
-                token: incomplete.token,
-            });
+            affected.push(*incomplete);
             if let Err(primary) = self.complete_incomplete(ir, binding, block, &mut affected) {
                 return Err(self.abort(ir, primary, affected));
             }
@@ -244,15 +218,15 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
                 return Err(self.missing_definition(source, key));
             }
         }
-        let token = self
-            .incomplete
-            .get(&(block, key))
-            .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
-                operation: "complete-adopted",
-                detail: "destination is not pending".to_owned(),
-            })?
-            .token;
-        let mut affected = vec![PhiCleanupV1 { token }];
+        let token =
+            *self
+                .incomplete
+                .get(&(block, key))
+                .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
+                    operation: "complete-adopted",
+                    detail: "destination is not pending".to_owned(),
+                })?;
+        let mut affected = vec![token];
         self.complete_incomplete(ir, key, block, &mut affected)
             .map_err(|error| self.abort(ir, error, affected))
     }
@@ -265,14 +239,14 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
     ) -> Result<(), BindingSsaErrorV1> {
         self.require_usable()?;
         self.require_binding(key)?;
-        let token = self
-            .incomplete
-            .get(&(block, key))
-            .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
-                operation: "discard-adopted",
-                detail: "destination is not pending".to_owned(),
-            })?
-            .token;
+        let token =
+            *self
+                .incomplete
+                .get(&(block, key))
+                .ok_or_else(|| BindingSsaErrorV1::PhiOperation {
+                    operation: "discard-adopted",
+                    detail: "destination is not pending".to_owned(),
+                })?;
         ir.rollback_phi(token)
             .map_err(|detail| BindingSsaErrorV1::PhiOperation {
                 operation: "discard-adopted",
@@ -296,13 +270,13 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
             });
         }
         let state = self.blocks.entry(block).or_default();
-        if let Some(previous) = &state.predecessors {
+        if let Some(previous) = state.as_ref() {
             if allow_same && previous.as_ref() == witness.predecessors() {
                 return Ok(());
             }
             return Err(BindingSsaErrorV1::BlockSealedTwice { block });
         }
-        state.predecessors = Some(witness.predecessors().into());
+        *state = Some(witness.predecessors().into());
         Ok(())
     }
 
@@ -318,7 +292,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         let open = self
             .blocks
             .into_iter()
-            .filter_map(|(block, state)| state.predecessors.is_none().then_some(block))
+            .filter_map(|(block, state)| state.is_none().then_some(block))
             .collect::<Vec<_>>();
         if !open.is_empty() {
             return Err(BindingSsaErrorV1::UnsealedAtFinish {
@@ -333,12 +307,12 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         ir: &mut I,
         binding: Key,
         block: BasicBlockId,
-        created: &mut Vec<PhiCleanupV1<Token>>,
+        created: &mut Vec<Token>,
     ) -> Result<ValueId, BindingSsaErrorV1> {
         if let Some(value) = self.definitions.get(&(block, binding)).copied() {
             return Ok(value);
         }
-        let predecessors = self.blocks.entry(block).or_default().predecessors.clone();
+        let predecessors = self.blocks.entry(block).or_default().clone();
         let Some(predecessors) = predecessors else {
             let (value, token) = ir.define_provisional_phi(block).map_err(|detail| {
                 BindingSsaErrorV1::PhiOperation {
@@ -347,9 +321,8 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
                 }
             })?;
             self.definitions.insert((block, binding), value);
-            self.incomplete
-                .insert((block, binding), IncompletePhiV1 { token });
-            created.push(PhiCleanupV1 { token });
+            self.incomplete.insert((block, binding), token);
+            created.push(token);
             return Ok(value);
         };
 
@@ -368,7 +341,7 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
                     }
                 })?;
                 self.definitions.insert((block, binding), value);
-                created.push(PhiCleanupV1 { token });
+                created.push(token);
                 let inputs = predecessors
                     .iter()
                     .map(|predecessor| {
@@ -394,15 +367,13 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         ir: &mut I,
         binding: Key,
         block: BasicBlockId,
-        affected: &mut Vec<PhiCleanupV1<Token>>,
+        affected: &mut Vec<Token>,
     ) -> Result<Vec<(BasicBlockId, ValueId)>, BindingSsaErrorV1> {
-        let token = self
+        let token = *self
             .incomplete
             .get(&(block, binding))
-            .expect("completion requires an incomplete PHI")
-            .token;
+            .expect("completion requires an incomplete PHI");
         let predecessors = self.blocks[&block]
-            .predecessors
             .as_ref()
             .expect("seal installed predecessors")
             .clone();
@@ -447,12 +418,12 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
         &mut self,
         ir: &mut I,
         primary: BindingSsaErrorV1,
-        phis: Vec<PhiCleanupV1<Token>>,
+        phis: Vec<Token>,
     ) -> BindingSsaErrorV1 {
         self.poisoned = true;
         let mut cleanup_failures = Vec::new();
         for phi in phis.into_iter().rev() {
-            if let Err(error) = ir.rollback_phi(phi.token) {
+            if let Err(error) = ir.rollback_phi(phi) {
                 cleanup_failures.push(error);
             }
         }
@@ -500,8 +471,8 @@ impl<Token: Copy + Eq + std::fmt::Debug, Key: SsaKeyV1> BindingSsaBuilderV1<Toke
     }
 }
 
-fn forget_cleanup<Token: Copy + Eq>(pending: &mut Vec<PhiCleanupV1<Token>>, token: Token) {
-    if let Some(index) = pending.iter().rposition(|phi| phi.token == token) {
+fn forget_cleanup<Token: Copy + Eq>(pending: &mut Vec<Token>, token: Token) {
+    if let Some(index) = pending.iter().rposition(|phi| *phi == token) {
         pending.remove(index);
     }
 }

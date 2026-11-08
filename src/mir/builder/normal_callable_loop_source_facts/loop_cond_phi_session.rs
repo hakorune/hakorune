@@ -395,7 +395,7 @@ impl SourceLoopPhiSessionV1 {
     /// The common owner defines Step destinations through the same transaction.
     pub(in crate::mir::builder) fn verify_plan_adoption(
         &self, builder: &mut MirBuilder, plan: &CoreLoopPlan,
-    ) -> Result<Vec<(ValueId, BasicBlockId, String)>, String> {
+    ) -> Result<(), String> {
         let mut state = self.state.borrow_mut();
         if state.scope != Some((plan.header_bb, plan.after_bb)) || state.adopted || state.finished {
             return Err(freeze("adoption-scope-or-repeat"));
@@ -424,7 +424,7 @@ impl SourceLoopPhiSessionV1 {
         }
         state.adopted = true;
         state.step = Some(plan.step_bb);
-        Ok(plan.phis.iter().map(|phi| (phi.dst, phi.block, phi.tag.clone())).collect())
+        Ok(())
     }
 
     /// Only linear patch operations borrow the txn; recursive source lowering

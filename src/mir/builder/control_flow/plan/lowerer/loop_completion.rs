@@ -23,7 +23,6 @@ use crate::mir::{BasicBlockId, ValueId};
 pub fn emit_loop_frag(
     builder: &mut MirBuilder,
     frag: &Frag,
-    loop_plan: &CoreLoopPlan,
     ctx: &dyn PlanLoweringContext,
 ) -> Result<(), String> {
     use crate::mir::builder::control_flow::joinir::trace;

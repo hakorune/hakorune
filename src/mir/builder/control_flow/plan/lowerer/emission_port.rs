@@ -50,7 +50,7 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
 
     pub(super) fn prepare_source_loop_phis(&self, builder: &mut MirBuilder,
         plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
-    ) -> Result<Option<Vec<(ValueId, crate::mir::BasicBlockId, String)>>, String> {
+    ) -> Result<Option<()>, String> {
         if let Self::SourcePublication { loop_completion: Some(completion), .. } = self {
             if let Some(session) = completion.matching_phi_session(plan)? {
                 return session.verify_plan_adoption(builder, plan).map(Some);
