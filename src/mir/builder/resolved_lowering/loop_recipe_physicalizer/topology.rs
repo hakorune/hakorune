@@ -4,7 +4,6 @@
 //! is kept in `operation_emitter`; this module owns no placement, operation,
 //! or value publication authority.
 
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{BasicBlockId, ValueId};
@@ -117,13 +116,13 @@ pub(in crate::mir::builder::resolved_lowering) enum LoopPhysicalizerRejectV1 {
 /// physical/SSA owner; callers pass the existing session's CFG service.
 pub(in crate::mir::builder::resolved_lowering) struct LoopPhysicalServicesV1<'a> {
     pub(super) builder: &'a mut MirBuilder,
-    cfg: &'a mut CanonicalCfgSessionV1,
+    cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
 }
 
 impl<'a> LoopPhysicalServicesV1<'a> {
     pub(in crate::mir::builder::resolved_lowering) fn new(
         builder: &'a mut MirBuilder,
-        cfg: &'a mut CanonicalCfgSessionV1,
+        cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     ) -> Self {
         Self { builder, cfg }
     }
@@ -139,9 +138,10 @@ impl<'a> LoopPhysicalServicesV1<'a> {
             .as_mut()
             .ok_or(LoopPhysicalizerRejectV1::MissingFunction)?;
         self.cfg
+            .borrow_mut()
+            .cfg
             .create_block(function, block)
             .map_err(|error| LoopPhysicalizerRejectV1::BlockAllocation(error.to_string()))?;
         Ok(block)
     }
-
 }

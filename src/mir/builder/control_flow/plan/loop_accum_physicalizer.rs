@@ -18,9 +18,7 @@ use crate::mir::builder::emission::loop_operation;
 use crate::mir::builder::emission::phi_lifecycle::PhiToken;
 #[cfg(test)]
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
-use crate::mir::builder::resolved_lowering::canonical_cfg::{
-    CanonicalCfgErrorV1, CanonicalCfgSessionV1,
-};
+use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgErrorV1;
 #[cfg(test)]
 use crate::mir::builder::ssa::binding::BindingSsaBuilderV1;
 use crate::mir::builder::MirBuilder;
@@ -93,7 +91,9 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1(
     roles: VerifiedLoopPhysicalRolePlanV1,
 ) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
     let owner = bindings.owner();
-    let mut cfg = CanonicalCfgSessionV1::new();
+    let cfg = builder
+        .function_control_for_owner_v1(owner)
+        .map_err(LoopPhysicalizeErrorV1::Ssa)?;
     let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
     let mut phis = Some(PhiTxn::begin("loop_direct_accum_physicalizer"));
     let mut port = RawDirectAccumBindingPort {
@@ -101,7 +101,13 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1(
         phis: phis.as_mut().expect("caller-zero PHI transaction"),
     };
     let mut session = DirectAccumPhysicalizerV1::preflight(
-        builder, input, bindings, inputs, roles, &mut cfg, &mut port,
+        builder,
+        input,
+        bindings,
+        inputs,
+        roles,
+        cfg.clone(),
+        &mut port,
     )?;
     let result = session.emit();
     match result {
@@ -120,7 +126,9 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1_with_test_failure(
     failure: DirectAccumPhysicalizerTestFailurePointV1,
 ) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
     let owner = bindings.owner();
-    let mut cfg = CanonicalCfgSessionV1::new();
+    let cfg = builder
+        .function_control_for_owner_v1(owner)
+        .map_err(LoopPhysicalizeErrorV1::Ssa)?;
     let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
     let mut phis = Some(PhiTxn::begin("loop_direct_accum_physicalizer"));
     let mut port = RawDirectAccumBindingPort {
@@ -128,7 +136,13 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1_with_test_failure(
         phis: phis.as_mut().expect("caller-zero PHI transaction"),
     };
     let mut session = DirectAccumPhysicalizerV1::preflight(
-        builder, input, bindings, inputs, roles, &mut cfg, &mut port,
+        builder,
+        input,
+        bindings,
+        inputs,
+        roles,
+        cfg.clone(),
+        &mut port,
     )?;
     session.failure = Some(failure);
     let result = session.emit();
@@ -147,7 +161,7 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1_borrowing(
     bindings: VerifiedLoopBindingProjectionV1,
     inputs: VerifiedLoopInputProjectionV1,
     roles: VerifiedLoopPhysicalRolePlanV1,
-    cfg: &mut CanonicalCfgSessionV1,
+    cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     ssa: &mut BindingSsaBuilderV1<PhiToken>,
     phis: &mut Option<PhiTxn>,
 ) -> Result<LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1> {
@@ -174,7 +188,7 @@ pub(in crate::mir::builder) fn physicalize_direct_accum_v1_with_port<P>(
     bindings: VerifiedLoopBindingProjectionV1,
     inputs: VerifiedLoopInputProjectionV1,
     roles: VerifiedLoopPhysicalRolePlanV1,
-    cfg: &mut CanonicalCfgSessionV1,
+    cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     port: &mut P,
 ) -> Result<LoopPhysicalContinuationReceiptV1, LoopPhysicalizeErrorV1>
 where

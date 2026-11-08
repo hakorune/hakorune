@@ -23,7 +23,7 @@ use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfCon
 use crate::mir::resolved_semantics::BindingKindV1;
 use crate::mir::{BasicBlockId, MirBuilder, ValueId};
 
-use super::canonical_cfg::{CanonicalCfgSessionV1, VerifiedPredecessorsV1};
+use super::canonical_cfg::VerifiedPredecessorsV1;
 use super::canonical_ssa::{finish_profile_close, CanonicalSsaFunctionSessionV2};
 use super::direct_accum_adapter::CanonicalDirectAccumBindingPort;
 use super::draft_seal::ReadyFunctionDraftSealV1;
@@ -104,6 +104,7 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
         }
         let if_control = VerifiedResolvedFunctionIfControlV1::empty_for_loop_profile(input)?;
         let session = CanonicalSsaFunctionSessionV2::new(input, if_control, completion, 0)?;
+        session.bind_control(builder)?;
         Ok(Self {
             builder,
             input,
@@ -127,6 +128,7 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
         let (physical_input, binding_relations) =
             direct_accum_physical_input_with_relations(recipe);
         let final_carrier_keys = direct_accum_final_carrier_keys(&physical_input)?;
+        let control = self.session.control()?;
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut self.session.identity,
             &self.effect_plan,
@@ -140,13 +142,13 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             bindings,
             inputs,
             roles,
-            &mut self.session.cfg,
+            control.clone(),
             &mut port,
         )
         .map_err(|error| format!("[freeze:contract][direct_accum/physicalizer] {error:?}"))?;
         seal_after_with_port(
             self.builder,
-            &mut self.session.cfg,
+            &control,
             &mut port,
             continuation.continuation_block,
         )?;
@@ -279,7 +281,7 @@ fn direct_accum_final_carrier_keys(
 
 fn seal_after_with_port(
     builder: &mut MirBuilder,
-    cfg: &mut CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
 
     port: &mut CanonicalDirectAccumBindingPort<'_, '_>,
     after: BasicBlockId,
@@ -293,7 +295,9 @@ fn seal_after_with_port(
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][direct_accum/function_missing]".to_string())?;
-        cfg.seal_block(function, after)
+        cfg.borrow_mut()
+            .cfg
+            .seal_block(function, after)
             .map_err(|error| error.to_string())?
     };
     port.seal(builder, after, &witness)

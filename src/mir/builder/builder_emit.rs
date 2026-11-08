@@ -29,10 +29,8 @@ impl MirBuilder {
     ) -> Result<(), String> {
         let previous = self.function_state.current_block;
         self.function_state.current_block = Some(block_id);
-        let result = self.emit_instruction_with_placement(
-            instruction,
-            InstructionPlacementV1::Scheduled,
-        );
+        let result =
+            self.emit_instruction_with_placement(instruction, InstructionPlacementV1::Scheduled);
         self.function_state.current_block = previous;
         result
     }
@@ -64,7 +62,12 @@ impl MirBuilder {
         if emit_debug_policy.builder_debug_enabled() {
             if let MirInstruction::Call(call) = &instruction {
                 let callee: String = format!("{:?}", call.callee).chars().take(160).collect();
-                eprintln!("[emit-call] dst={:?} at {}:{} callee={callee}", call.dst, caller.file(), caller.line());
+                eprintln!(
+                    "[emit-call] dst={:?} at {}:{} callee={callee}",
+                    call.dst,
+                    caller.file(),
+                    caller.line()
+                );
             }
         }
 
@@ -414,19 +417,28 @@ impl MirBuilder {
                 }
                 // Phase 136 Step 6/7: Use metadata_ctx for span. Both legacy
                 // and strict front doors share this one physical append point.
-                let mut control = self.function_state.canonical_control.borrow_mut();
                 for target in [then_t, else_t, jump_t].into_iter().flatten() {
                     if !function.blocks.contains_key(&target) {
-                        control.cfg.create_block(function, target).map_err(|error| error.to_string())?;
+                        self.function_state
+                            .canonical_control
+                            .borrow_mut()
+                            .cfg
+                            .create_block(function, target)
+                            .map_err(|error| error.to_string())?;
                     }
                 }
-                control.cfg.append_selected_instruction(
-                    function,
-                    block_id,
-                    instruction,
-                    self.metadata_ctx.current_span(),
-                    placement,
-                ).map_err(|error| error.to_string())?;
+                self.function_state
+                    .canonical_control
+                    .borrow()
+                    .cfg
+                    .append_selected_instruction(
+                        function,
+                        block_id,
+                        instruction,
+                        self.metadata_ctx.current_span(),
+                        placement,
+                    )
+                    .map_err(|error| error.to_string())?;
             } else {
                 return Err(FreezeContract::new("builder/emit_missing_block")
                     .field("fn", current_fn_name)

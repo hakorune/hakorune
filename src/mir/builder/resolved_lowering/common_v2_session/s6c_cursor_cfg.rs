@@ -117,7 +117,8 @@ fn emit_branch(
         .ok_or_else(|| CommonV2S6CCursorCfgRejectV1::Edge("function missing".to_owned()))?;
     session
         .session
-        .cfg
+        .cfg()
+        .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
         .emit_branch(function, source, condition, then_block, else_block)
         .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))
 }
@@ -135,7 +136,8 @@ fn emit_jump(
         .ok_or_else(|| CommonV2S6CCursorCfgRejectV1::Edge("function missing".to_owned()))?;
     session
         .session
-        .cfg
+        .cfg()
+        .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
         .emit_jump(function, source, target)
         .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))
 }
@@ -565,32 +567,38 @@ fn materialize_inner<'session, 'source, 'envelope>(
                 .ok_or_else(|| CommonV2S6CCursorCfgRejectV1::Edge("function missing".to_owned()))?;
             let entry_witness = session
                 .session
-                .cfg
+                .cfg()
+                .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
                 .seal_block(function, execution_entry)
                 .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
             let body_witness = session
                 .session
-                .cfg
+                .cfg()
+                .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
                 .seal_block(function, body_row.physical_block())
                 .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
             let continuation_witness = session
                 .session
-                .cfg
+                .cfg()
+                .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
                 .seal_block(function, return_placement.continuation_block)
                 .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
             let condition_witness = session
                 .session
-                .cfg
+                .cfg()
+                .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
                 .seal_block(function, condition_row.physical_block())
                 .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
             let then_witness = session
                 .session
-                .cfg
+                .cfg()
+                .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
                 .seal_block(function, return_placement.then_block)
                 .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
             let after_witness = session
                 .session
-                .cfg
+                .cfg()
+                .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
                 .seal_block(function, after_block)
                 .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
             (
@@ -619,7 +627,8 @@ fn materialize_inner<'session, 'source, 'envelope>(
     }
     session
         .session
-        .cfg
+        .cfg()
+        .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?
         .select_block(builder, after_block)
         .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
 

@@ -168,7 +168,12 @@ impl<'source> super::CanonicalSsaFunctionSessionV2<'source> {
             ),
         )?;
         let target = self
-            .cfg
+            .cfg()
+            .map_err(|_| {
+                CanonicalSameBlockIntegerRejectV1::Cfg(
+                    CanonicalOpenInstructionTargetErrorV1::SessionOwnerUnavailable,
+                )
+            })?
             .prepare_created_open_instruction_target(
                 function,
                 request.owner(),

@@ -79,11 +79,17 @@ fn branch_updates_exact_then_and_else_predecessors() {
 #[test]
 fn prepared_branch_has_no_effect_until_commit() {
     let mut function = function(3);
-    let session = CanonicalCfgSessionV1::new();
+    let session = std::cell::RefCell::new(CanonicalCfgSessionV1::new());
 
-    let prepared = session
-        .prepare_branch(&function, block(0), ValueId::new(7), block(1), block(2))
-        .expect("prepare branch");
+    let prepared = CanonicalCfgSessionV1::prepare_branch(
+        session.borrow(),
+        &function,
+        block(0),
+        ValueId::new(7),
+        block(1),
+        block(2),
+    )
+    .expect("prepare branch");
     assert!(function.get_block(block(0)).unwrap().terminator.is_none());
     assert!(function
         .get_block(block(1))

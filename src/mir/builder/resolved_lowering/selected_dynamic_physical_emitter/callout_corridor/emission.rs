@@ -202,7 +202,8 @@ fn emit_header_branch(
         .as_mut()
         .ok_or_else(|| reject("missing function while emitting Header branch"))?;
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .emit_branch(function, source, condition, then_block, else_block)
         .map_err(|error| reject(error.to_string()))
 }
@@ -213,7 +214,8 @@ fn select_block(
     block: crate::mir::BasicBlockId,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .select_block(outer.builder_view_mut_for_lowering(), block)
         .map_err(|error| reject(error.to_string()))
 }
@@ -235,7 +237,8 @@ fn emit_checked_callout(
         .as_mut()
         .ok_or_else(|| reject("missing function while emitting CheckedCallOut"))?;
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .emit_checked_callout(function, source, site, receiver, arguments, normal, fault)
         .map_err(|error| reject(error.to_string()))
 }

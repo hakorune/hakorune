@@ -434,7 +434,7 @@ impl FunctionControlV1 {
 }
 impl MirBuilder {
     pub(in crate::mir::builder) fn function_control_for_owner_v1(
-        &mut self,
+        &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<SharedFunctionControlV1, String> {
         let control = Rc::clone(&self.function_state.canonical_control);

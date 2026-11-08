@@ -31,6 +31,7 @@ fn with_fixture<R>(
 
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("strict_compare_writer/0".to_owned());
+    canonical.bind_control(&builder).unwrap();
     let target_block = BasicBlockId::new(1);
     let lhs_value = ValueId::new(10);
     let rhs_value = ValueId::new(11);
@@ -41,7 +42,8 @@ fn with_fixture<R>(
             .as_mut()
             .expect("function");
         canonical
-            .cfg
+            .cfg()
+            .unwrap()
             .create_block(function, target_block)
             .expect("target creation");
         let target = function.get_block_mut(target_block).expect("target");
@@ -65,7 +67,8 @@ fn with_fixture<R>(
 
     let owner = input.owner();
     let target = canonical
-        .cfg
+        .cfg()
+        .unwrap()
         .prepare_created_open_instruction_target(
             builder
                 .function_state

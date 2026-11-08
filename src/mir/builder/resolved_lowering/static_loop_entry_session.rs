@@ -76,7 +76,7 @@ pub(super) fn emit_selected_root_graph_v1(
         faults,
         order,
     } = plan;
-    let mut writer = root_graph_writer::CanonicalRootGraphWriterV1::new(&mut canonical.cfg);
+    let mut writer = root_graph_writer::CanonicalRootGraphWriterV1::new(canonical.control()?);
     let graph = emit_root_graph_v1(
         draft,
         frame_owner,
@@ -494,24 +494,24 @@ fn emit_unpublished_static_invoke(
                 "[freeze:contract][callable-loop/static-invoke-function-missing]".to_owned()
             })?;
         canonical
-            .cfg
+            .cfg()?
             .create_block(function, normal)
             .map_err(|error| error.to_string())?;
         canonical
-            .cfg
+            .cfg()?
             .create_block(function, fault)
             .map_err(|error| error.to_string())?;
         canonical
-            .cfg
+            .cfg()?
             .emit_i64_invoke(function, entry, call, frame, normal, fault)
             .map_err(|error| error.to_string())?;
         canonical
-            .cfg
+            .cfg()?
             .emit_invoke_fault(function, fault, frame)
             .map_err(|error| error.to_string())?;
     }
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, normal)
         .map_err(|error| error.to_string())?;
     draft.emit_instruction(MirInstruction::InvokeNormalResult {

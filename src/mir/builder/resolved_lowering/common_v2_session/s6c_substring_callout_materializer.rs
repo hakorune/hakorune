@@ -172,7 +172,7 @@ pub(super) fn emit<R>(
                             .map_err(|error| format!("{error:?}"))?;
                         session
                             .session
-                            .cfg
+                            .cfg()?
                             .emit_checked_callout(
                                 builder
                                     .function_state
@@ -192,7 +192,7 @@ pub(super) fn emit<R>(
                             .map_err(|error| format!("{error:?}"))?;
                         session
                             .session
-                            .cfg
+                            .cfg()?
                             .emit_checked_callout_fault(
                                 builder
                                     .function_state
@@ -309,7 +309,8 @@ fn select_block(
 ) -> Result<(), CommonV2SubstringCallOutMirMaterializerRejectV1> {
     session
         .session
-        .cfg
+        .cfg()
+        .map_err(CommonV2SubstringCallOutMirMaterializerRejectV1::Block)?
         .select_block(builder, block)
         .map_err(|error| CommonV2SubstringCallOutMirMaterializerRejectV1::Block(error.to_string()))
 }

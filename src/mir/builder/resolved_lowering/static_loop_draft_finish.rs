@@ -73,7 +73,7 @@ pub(super) fn finish_unpublished_static_loop_v1(
                 .as_mut()
                 .ok_or_else(reject)?;
             canonical
-                .cfg
+                .cfg()?
                 .seal_block(function, block)
                 .map_err(|error| error.to_string())?
         };

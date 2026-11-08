@@ -129,7 +129,7 @@ pub(super) fn emit_unpublished_body_exit_v1(
         return Err(reject());
     }
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, body_blocks.then_block)
         .map_err(|error| error.to_string())?;
     let returned = read_i64(
@@ -161,7 +161,7 @@ pub(super) fn emit_unpublished_body_exit_v1(
         .mark_return(ResolvedExitSiteV1::Statement(roles.return_site.clone()))?;
 
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, body_blocks.step_block)
         .map_err(|error| error.to_string())?;
     let old_bin = read_i64(
@@ -192,11 +192,11 @@ pub(super) fn emit_unpublished_body_exit_v1(
                 "[freeze:contract][callable-loop/static-body-exit-function-missing]".to_owned()
             })?;
         canonical
-            .cfg
+            .cfg()?
             .emit_jump(function, body_blocks.step_block, header.header)
             .map_err(|error| error.to_string())?;
         canonical
-            .cfg
+            .cfg()?
             .seal_block(function, header.header)
             .map_err(|error| error.to_string())?
     };

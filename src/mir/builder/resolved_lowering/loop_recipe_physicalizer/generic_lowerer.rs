@@ -169,7 +169,7 @@ fn lower_generic_g0_function_ready_v1<'builder, 'source>(
         }
         let ready_entry = ready_loop_entry_from_canonical_rows(input.owner(), preheader, rows);
         let segment_receipt = {
-            let mut services = LoopPhysicalServicesV1::new(draft, &mut session.cfg);
+            let mut services = LoopPhysicalServicesV1::new(draft, session.control()?);
             allocate_for_layout(preflight.layout(), &ready_entry, &mut services)
                 .map_err(|error| format!("[freeze:contract][generic-g0/segments] {error:?}"))?
         };
@@ -188,7 +188,7 @@ fn lower_generic_g0_function_ready_v1<'builder, 'source>(
         let prepared_after = prepare_recursive_after_v1(completed, draft)
             .map_err(|error| format!("[freeze:contract][generic-g0/after-preflight] {error:?}"))?;
         let ready_after = prepared_after
-            .emit_and_seal(draft, &mut session.cfg, &mut session.identity)
+            .emit_and_seal(draft, &session.control()?, &mut session.identity)
             .map_err(|error| format!("[freeze:contract][generic-g0/after] {error:?}"))?;
         let predecessor_count = ready_after.predecessor_count();
         let terminal_block = consume_tail(ready_after, input, &tail, draft, &mut session)?;

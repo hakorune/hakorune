@@ -8,7 +8,7 @@ pub(super) struct DirectAccumPhysicalizerV1<'builder, 'owners, P> {
     bindings: VerifiedLoopBindingProjectionV1,
     inputs: VerifiedLoopInputProjectionV1,
     roles: VerifiedLoopPhysicalRolePlanV1,
-    cfg: &'owners mut CanonicalCfgSessionV1,
+    cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     port: &'owners mut P,
     values: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
     #[cfg(test)]
@@ -24,7 +24,7 @@ where
         bindings: VerifiedLoopBindingProjectionV1,
         inputs: VerifiedLoopInputProjectionV1,
         roles: VerifiedLoopPhysicalRolePlanV1,
-        cfg: &'owners mut CanonicalCfgSessionV1,
+        cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
         port: &'owners mut P,
     ) -> Result<Self, LoopPhysicalizeErrorV1> {
         let function = builder
@@ -127,7 +127,7 @@ where
             self.roles.block(LoopPhysicalRoleV1::Step),
             self.roles.block(LoopPhysicalRoleV1::After),
         ];
-        let cfg = &mut self.cfg;
+        let cfg = &mut self.cfg.borrow_mut().cfg;
         let builder = &mut *self.builder;
         let function = builder
             .function_state
@@ -380,6 +380,8 @@ where
             .ok_or(LoopPhysicalizeErrorV1::MissingFunction)?;
         let witness = self
             .cfg
+            .borrow_mut()
+            .cfg
             .seal_block(function, block)
             .map_err(LoopPhysicalizeErrorV1::Cfg)?;
 
@@ -461,7 +463,7 @@ where
     }
 
     fn select(&mut self, block: BasicBlockId) -> Result<(), LoopPhysicalizeErrorV1> {
-        let cfg = &self.cfg;
+        let cfg = &self.cfg.borrow_mut().cfg;
         let builder = &mut *self.builder;
         cfg.select_block(builder, block)
             .map_err(LoopPhysicalizeErrorV1::Cfg)
@@ -472,7 +474,7 @@ where
         from: BasicBlockId,
         to: BasicBlockId,
     ) -> Result<(), LoopPhysicalizeErrorV1> {
-        let cfg = &self.cfg;
+        let cfg = &self.cfg.borrow_mut().cfg;
         let function = self
             .builder
             .function_state
@@ -490,7 +492,7 @@ where
         then_block: BasicBlockId,
         else_block: BasicBlockId,
     ) -> Result<(), LoopPhysicalizeErrorV1> {
-        let cfg = &self.cfg;
+        let cfg = &self.cfg.borrow_mut().cfg;
         let function = self
             .builder
             .function_state
@@ -502,7 +504,7 @@ where
     }
 
     fn emit_return(&mut self, block: BasicBlockId) -> Result<(), LoopPhysicalizeErrorV1> {
-        let cfg = &self.cfg;
+        let cfg = &self.cfg.borrow_mut().cfg;
         let function = self
             .builder
             .function_state

@@ -74,6 +74,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         .map_err(str::to_string)?;
         let session =
             CanonicalSsaFunctionSessionV2::new(input, if_control, completion, block_expr_count)?;
+        session.bind_control(builder)?;
         Ok(Self {
             builder,
             input,
@@ -421,7 +422,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     }
 
     fn emit_jump(&mut self, source: BasicBlockId, target: BasicBlockId) -> Result<(), String> {
-        let cfg = &self.session.cfg;
+        let cfg = &self.session.cfg()?;
         let function = self
             .builder
             .function_state
@@ -454,7 +455,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             return Ok(());
         }
         let witness = {
-            let cfg = &mut self.session.cfg;
+            let cfg = self.session.control()?;
             let function = self
                 .builder
                 .function_state
@@ -463,8 +464,12 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 .ok_or_else(|| {
                     "[freeze:contract][canonical_binding_ssa/function_missing]".to_string()
                 })?;
-            cfg.seal_block(function, block)
-                .map_err(|error| error.to_string())?
+            let witness = cfg
+                .borrow_mut()
+                .cfg
+                .seal_block(function, block)
+                .map_err(|error| error.to_string())?;
+            witness
         };
         self.session
             .identity

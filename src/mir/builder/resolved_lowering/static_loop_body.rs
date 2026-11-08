@@ -181,7 +181,7 @@ pub(super) fn emit_unpublished_body_predicate_v1(
         return Err(reject());
     }
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, header.body)
         .map_err(|error| error.to_string())?;
     let n = read_i64(
@@ -220,16 +220,16 @@ pub(super) fn emit_unpublished_body_predicate_v1(
                 "[freeze:contract][callable-loop/static-body-function-missing]".to_owned()
             })?;
         canonical
-            .cfg
+            .cfg()?
             .emit_i64_invoke(function, header.body, call, frame, normal, fault)
             .map_err(|error| error.to_string())?;
         canonical
-            .cfg
+            .cfg()?
             .emit_invoke_fault(function, fault, frame)
             .map_err(|error| error.to_string())?;
     }
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, normal)
         .map_err(|error| error.to_string())?;
     let result = canonical.issue_physical_value_id(draft)?;
@@ -270,10 +270,9 @@ pub(super) fn emit_unpublished_body_predicate_v1(
                 "[freeze:contract][callable-loop/static-body-function-missing]".to_owned()
             })?;
         canonical
-            .cfg
-            .prepare_branch(function, normal, predicate, then_block, step_block)
-            .map_err(|error| error.to_string())?
-            .commit(function);
+            .cfg()?
+            .emit_branch(function, normal, predicate, then_block, step_block)
+            .map_err(|error| error.to_string())?;
         frame_owner.validate(function)?;
         if !matches!(
             function.blocks.get(&normal).and_then(|block| block.terminator.as_ref()),

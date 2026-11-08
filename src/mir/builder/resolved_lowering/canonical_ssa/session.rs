@@ -1,6 +1,8 @@
 //! One function-scoped owner bundle shared by canonical lowering profiles.
 
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
+#[path = "session/control_borrow.rs"]
+mod control_borrow;
+
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::{CheckedCallOutNormalResultProjectionV1, CheckedCallOutSiteIdV1};
 use crate::mir::compiler::common_v2_physical_function_skeleton::PhysicalFunctionEntryCohortStampV1;
@@ -98,7 +100,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     pub(in crate::mir::builder::resolved_lowering) if_control: CanonicalIfControlConsumptionV1,
     pub(in crate::mir::builder::resolved_lowering) completion:
         ResolvedFunctionCompletionConsumptionV1,
-    pub(in crate::mir::builder::resolved_lowering) cfg: CanonicalCfgSessionV1,
+    control: std::cell::OnceCell<super::SharedFunctionControlV1>,
 
     pub(in crate::mir::builder::resolved_lowering) implicit_completion: bool,
     physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
@@ -325,7 +327,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             semantics,
             if_control: CanonicalIfControlConsumptionV1::Resolved(if_control.into_use_ledger()),
             completion,
-            cfg: CanonicalCfgSessionV1::new_for_owner(input.owner()),
+            control: std::cell::OnceCell::new(),
 
             implicit_completion,
             physical_entry_sidecar: None,
@@ -382,7 +384,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             semantics,
             if_control: CanonicalIfControlConsumptionV1::DynamicProfileOwned,
             completion,
-            cfg: CanonicalCfgSessionV1::new_for_owner(input.owner()),
+            control: std::cell::OnceCell::new(),
 
             implicit_completion,
             physical_entry_sidecar: None,
@@ -426,13 +428,14 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         if builder.function_state.current_function.is_none() {
             return Err("canonical physical target requires current function".to_owned());
         }
+        self.bind_control(builder)?;
         let block = builder.next_block_id();
         let function = builder
             .function_state
             .current_function
             .as_mut()
             .expect("current function checked above");
-        self.cfg
+        self.cfg()?
             .create_block(function, block)
             .map_err(|error| error.to_string())?;
         Ok(block)
@@ -442,12 +445,14 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         &self,
         builder: &MirBuilder,
     ) -> Result<BasicBlockId, String> {
-        builder
+        let entry = builder
             .function_state
             .current_function
             .as_ref()
             .map(|function| function.entry_block)
-            .ok_or_else(|| "canonical physical target requires current function".to_owned())
+            .ok_or_else(|| "canonical physical target requires current function".to_owned())?;
+        self.bind_control(builder)?;
+        Ok(entry)
     }
 
     /// Issue one physical SSA value id for a selected unpublished operation.
@@ -457,6 +462,10 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         &mut self,
         builder: &mut MirBuilder,
     ) -> Result<ValueId, String> {
+        if builder.function_state.current_function.is_none() {
+            return Err("canonical physical value requires current function".to_owned());
+        }
+        self.bind_control(builder)?;
         builder
             .function_state
             .current_function
@@ -474,6 +483,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         value: ValueId,
         expected: MirType,
     ) -> Result<(), String> {
+        self.bind_control(builder)?;
         match builder.function_state.type_ctx.get_type(value) {
             None | Some(MirType::Unknown) => {
                 builder
@@ -666,7 +676,8 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         descriptors: &[crate::mir::compiler::common_v2_physical_function_entry_input::
             PhysicalCallableParameterDescriptorV1],
     ) -> Result<(), String> {
-        physical_entry_lane_adoption::adopt(self, builder, descriptors)
+        physical_entry_lane_adoption::adopt(self, builder, descriptors)?;
+        self.bind_control(builder)
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn with_exact_text_sidecar_row<R>(
@@ -701,7 +712,8 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         descriptors: &[crate::mir::compiler::generic_g0_physical_function_entry_input::
             GenericG0PhysicalParameterDescriptorV1],
     ) -> Result<(), String> {
-        generic_g0_entry_adoption::adopt(self, builder, descriptors)
+        generic_g0_entry_adoption::adopt(self, builder, descriptors)?;
+        self.bind_control(builder)
     }
 
     #[cfg(test)]

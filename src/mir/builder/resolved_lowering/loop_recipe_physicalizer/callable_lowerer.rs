@@ -152,6 +152,7 @@ fn lower_inside_session<'builder>(
         let mut session =
             CanonicalSsaFunctionSessionV2::new(input.input(), if_control, completion, 0)
                 .map_err(|error| format!("[freeze:contract][callable-loop/session] {error:?}"))?;
+        session.bind_control(builder)?;
         let preheader = builder
             .function_state
             .current_block
@@ -175,7 +176,7 @@ fn lower_inside_session<'builder>(
             .collect::<Vec<_>>();
         let make_entry = || ReadyLoopEntryV1::from_rows(owner, preheader, entry_rows.clone());
         let segment_receipt = {
-            let mut services = LoopPhysicalServicesV1::new(builder, &mut session.cfg);
+            let mut services = LoopPhysicalServicesV1::new(builder, session.control()?);
             allocate_for_layout(&physical_layout, &make_entry(), &mut services)
                 .map_err(|error| format!("[freeze:contract][callable-loop/segments] {error:?}"))?
         };
@@ -214,7 +215,7 @@ fn lower_inside_session<'builder>(
             format!("[freeze:contract][callable-loop/after-preflight] {error:?}")
         })?;
         let ready_after = prepared_after
-            .emit_and_seal(builder, &mut session.cfg, &mut session.identity)
+            .emit_and_seal(builder, &session.control()?, &mut session.identity)
             .map_err(|error| format!("[freeze:contract][callable-loop/after] {error:?}"))?;
         let terminal_receipt = consume_callable_tail_completion_v1(
             ready_after,

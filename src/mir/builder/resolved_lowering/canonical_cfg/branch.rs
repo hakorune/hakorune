@@ -5,13 +5,15 @@
 //! branch; selected Dynamic uses it after all fallible Compare preparation and
 //! before its last-fallible result reservation.
 
+use std::cell::Ref;
+
 use super::error::CanonicalCfgErrorV1;
 use super::session::CanonicalCfgSessionV1;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
 #[derive(Debug)]
 pub(in crate::mir::builder::resolved_lowering) struct PreparedCanonicalBranchV1<'session> {
-    session: &'session CanonicalCfgSessionV1,
+    session: Ref<'session, CanonicalCfgSessionV1>,
     source: BasicBlockId,
     condition: ValueId,
     then_block: BasicBlockId,
@@ -23,8 +25,8 @@ pub(in crate::mir::builder::resolved_lowering) struct PreparedCanonicalBranchV1<
 struct PreparedCanonicalBranchSealV1;
 
 impl<'session> PreparedCanonicalBranchV1<'session> {
-    pub(in crate::mir::builder::resolved_lowering::canonical_cfg) const fn from_session(
-        session: &'session CanonicalCfgSessionV1,
+    pub(in crate::mir::builder::resolved_lowering::canonical_cfg) fn from_session(
+        session: Ref<'session, CanonicalCfgSessionV1>,
         source: BasicBlockId,
         condition: ValueId,
         then_block: BasicBlockId,
@@ -90,21 +92,36 @@ impl CanonicalCfgSessionV1 {
         targets: (BasicBlockId, BasicBlockId),
         args: (Option<crate::mir::EdgeArgs>, Option<crate::mir::EdgeArgs>),
     ) -> Result<(), CanonicalCfgErrorV1> {
-        self.prepare_branch(function, source, condition, targets.0, targets.1)?
-            .commit_with_edge_args(function, args.0, args.1);
+        self.preflight_branch(function, source, targets.0, targets.1)?;
+        self.commit_prepared_branch(
+            function, source, condition, targets.0, targets.1, args.0, args.1,
+        );
         Ok(())
     }
 
     /// Prepare one branch without changing MIR. The CFG session is the sole
     /// owner of the open-target and predecessor proof used by the product.
-    pub(in crate::mir::builder::resolved_lowering) fn prepare_branch(
-        &self,
+    pub(in crate::mir::builder::resolved_lowering) fn prepare_branch<'session>(
+        session: Ref<'session, Self>,
         function: &MirFunction,
         source: BasicBlockId,
         condition: ValueId,
         then_block: BasicBlockId,
         else_block: BasicBlockId,
-    ) -> Result<PreparedCanonicalBranchV1<'_>, CanonicalCfgErrorV1> {
+    ) -> Result<PreparedCanonicalBranchV1<'session>, CanonicalCfgErrorV1> {
+        session.preflight_branch(function, source, then_block, else_block)?;
+        Ok(PreparedCanonicalBranchV1::from_session(
+            session, source, condition, then_block, else_block,
+        ))
+    }
+
+    fn preflight_branch(
+        &self,
+        function: &MirFunction,
+        source: BasicBlockId,
+        then_block: BasicBlockId,
+        else_block: BasicBlockId,
+    ) -> Result<(), CanonicalCfgErrorV1> {
         if then_block == else_block {
             return Err(CanonicalCfgErrorV1::DuplicateEdge {
                 source,
@@ -112,9 +129,7 @@ impl CanonicalCfgSessionV1 {
             });
         }
         self.preflight_edge(function, source, &[then_block, else_block])?;
-        Ok(PreparedCanonicalBranchV1::from_session(
-            self, source, condition, then_block, else_block,
-        ))
+        Ok(())
     }
 
     /// Commit the already-bound branch fields. The prepared product carries

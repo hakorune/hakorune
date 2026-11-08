@@ -120,8 +120,12 @@ fn setup_function<'a>(
         draft_builder.set_current_function_declared_capability_uses(uses);
         let if_control = VerifiedResolvedFunctionIfControlV1::empty_for_loop_profile(input.input())
             .expect("G0 loop-only If control");
-        CanonicalSsaFunctionSessionV2::new(input.input(), if_control, completion, 0)
-            .expect("canonical G0 session")
+        let session = CanonicalSsaFunctionSessionV2::new(input.input(), if_control, completion, 0)
+            .expect("canonical G0 session");
+        session
+            .bind_control(draft_builder)
+            .expect("G0 function control");
+        session
     };
     (outer, session)
 }
@@ -376,7 +380,7 @@ fn run_canary_with_options(
     let make_entry = || ReadyLoopEntryV1::new_for_test(owner, preheader, entry_rows.clone());
     let segment_receipt = {
         let mut services =
-            LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), &mut session.cfg);
+            LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), session.control()?);
         try_after_session!(
             allocate_for_layout(&physical_layout, &make_entry(), &mut services)
                 .map_err(|error| format!("G0 segment allocation: {error:?}"))
@@ -511,7 +515,7 @@ fn run_canary_with_options(
     let ready = try_after_session!(prepared_after
         .emit_and_seal(
             outer.builder_view_mut_for_lowering(),
-            &mut session.cfg,
+            &session.control()?,
             &mut session.identity,
         )
         .map_err(|error| format!("G0 After: {error:?}")));

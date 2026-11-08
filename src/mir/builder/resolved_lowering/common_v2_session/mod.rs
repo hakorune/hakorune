@@ -331,7 +331,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         block: BasicBlockId,
     ) -> Result<(), String> {
         self.session
-            .cfg
+            .cfg()?
             .select_block(builder, block)
             .map_err(|error| error.to_string())
     }

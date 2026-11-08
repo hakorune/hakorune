@@ -52,7 +52,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         }
         let residence = carrier.residence();
         let capability = self
-            .cfg
+            .cfg()?
             .emit_pinned_text_residence_enter(
                 builder
                     .function_state

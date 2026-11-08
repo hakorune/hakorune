@@ -31,7 +31,8 @@ fn emit_fault_terminal(
     }
     let block = target.block();
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .select_block(outer.builder_view_mut_for_lowering(), block)
         .map_err(|error| reject(error.to_string()))?;
     let function = outer
@@ -41,7 +42,8 @@ fn emit_fault_terminal(
         .as_mut()
         .ok_or_else(|| reject("missing function while emitting Fault terminal"))?;
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .emit_checked_callout_fault(function, block, site)
         .map_err(|error| reject(error.to_string()))
 }
@@ -83,7 +85,8 @@ pub(super) fn emit(
         }
         let block = i7_fault.block();
         canonical
-            .cfg
+            .cfg()
+            .map_err(reject)?
             .select_block(outer.builder_view_mut_for_lowering(), block)
             .map_err(|error| reject(error.to_string()))?;
         canonical
@@ -101,7 +104,8 @@ pub(super) fn emit(
             .as_mut()
             .ok_or_else(|| reject("missing function while emitting I7 Fault"))?;
         canonical
-            .cfg
+            .cfg()
+            .map_err(reject)?
             .emit_checked_callout_fault(function, block, lifecycle.i7_site())
             .map_err(|error| reject(error.to_string()))
     })?;

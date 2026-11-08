@@ -124,7 +124,8 @@ impl CanonicalSsaFunctionSessionV2<'_> {
                 .current_function
                 .as_mut()
                 .ok_or(DynamicLoopPhiCloseIssueV1::MissingCurrentFunction)?;
-            self.cfg
+            self.cfg()
+                .map_err(DynamicLoopPhiCloseIssueV1::CanonicalCfg)?
                 .emit_branch(
                     function,
                     placement.header(),
@@ -133,29 +134,35 @@ impl CanonicalSsaFunctionSessionV2<'_> {
                     placement.after(),
                 )
                 .map_err(|error| DynamicLoopPhiCloseIssueV1::CanonicalCfg(error.to_string()))?;
-            self.cfg
+            self.cfg()
+                .map_err(DynamicLoopPhiCloseIssueV1::CanonicalCfg)?
                 .emit_jump(
                     function,
                     placement.body_path(),
                     placement.terminal_backedge(),
                 )
                 .map_err(|error| DynamicLoopPhiCloseIssueV1::CanonicalCfg(error.to_string()))?;
-            self.cfg
+            self.cfg()
+                .map_err(DynamicLoopPhiCloseIssueV1::CanonicalCfg)?
                 .emit_jump(function, placement.terminal_backedge(), placement.header())
                 .map_err(|error| DynamicLoopPhiCloseIssueV1::CanonicalCfg(error.to_string()))?;
             let enter_witness = self
-                .cfg
+                .cfg()
+                .map_err(DynamicLoopPhiCloseIssueV1::CanonicalCfg)?
                 .seal_block(function, placement.enter())
                 .map_err(|error| DynamicLoopPhiCloseIssueV1::CanonicalCfg(error.to_string()))?;
-            self.cfg
+            self.cfg()
+                .map_err(DynamicLoopPhiCloseIssueV1::CanonicalCfg)?
                 .seal_block(function, placement.body_path())
                 .map_err(|error| DynamicLoopPhiCloseIssueV1::CanonicalCfg(error.to_string()))?;
             let terminal_witness = self
-                .cfg
+                .cfg()
+                .map_err(DynamicLoopPhiCloseIssueV1::CanonicalCfg)?
                 .seal_block(function, placement.terminal_backedge())
                 .map_err(|error| DynamicLoopPhiCloseIssueV1::CanonicalCfg(error.to_string()))?;
             let header_witness = self
-                .cfg
+                .cfg()
+                .map_err(DynamicLoopPhiCloseIssueV1::CanonicalCfg)?
                 .seal_block(function, placement.header())
                 .map_err(|error| DynamicLoopPhiCloseIssueV1::CanonicalCfg(error.to_string()))?;
             (enter_witness, terminal_witness, header_witness)

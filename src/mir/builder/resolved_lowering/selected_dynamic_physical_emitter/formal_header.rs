@@ -190,12 +190,12 @@ pub(super) fn open(
             .as_mut()
             .ok_or_else(|| "[freeze:contract][formal_header/function_missing]".to_owned())?;
         canonical
-            .cfg
+            .cfg()?
             .emit_jump(function, enter, header)
             .map_err(|error| error.to_string())?;
     }
     canonical
-        .cfg
+        .cfg()?
         .select_block(builder, header)
         .map_err(|error| error.to_string())?;
     let header_current =

@@ -122,7 +122,7 @@ fn direct_accum_borrowing_seam_leaves_owner_commit_to_caller() {
     let mut builder = MirBuilder::new();
     let (bindings, inputs) = seed_direct_accum(&mut builder, "direct_accum_physicalizer/borrow");
     let owner = bindings.owner();
-    let mut cfg = CanonicalCfgSessionV1::new();
+    let cfg = builder.function_control_for_owner_v1(owner).unwrap();
     let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
     let mut phis = Some(PhiTxn::begin("loop_direct_accum_borrowing_test"));
 
@@ -135,21 +135,22 @@ fn direct_accum_borrowing_seam_leaves_owner_commit_to_caller() {
         bindings,
         inputs,
         roles(),
-        &mut cfg,
+        cfg.clone(),
         &mut ssa,
         &mut phis,
     )
     .expect("borrowed physicalization");
 
     ssa.finish().expect("caller-owned SSA finish");
-    cfg.finish(
-        builder
-            .function_state
-            .current_function
-            .as_ref()
-            .expect("function"),
-    )
-    .expect("caller-owned CFG finish");
+    std::mem::take(&mut cfg.borrow_mut().cfg)
+        .finish(
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("function"),
+        )
+        .expect("caller-owned CFG finish");
     phis.take()
         .expect("caller-owned PHI transaction")
         .commit(&mut builder)
@@ -163,7 +164,7 @@ fn production_port_handoff_leaves_after_open_for_continuation() {
     let mut builder = MirBuilder::new();
     let (bindings, inputs) = seed_direct_accum(&mut builder, "direct_accum_physicalizer/inline");
     let owner = bindings.owner();
-    let mut cfg = CanonicalCfgSessionV1::new();
+    let cfg = builder.function_control_for_owner_v1(owner).unwrap();
     let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
     let mut phis = PhiTxn::begin("loop_direct_accum_inline_test");
     let mut port = RawDirectAccumBindingPort {
@@ -180,7 +181,7 @@ fn production_port_handoff_leaves_after_open_for_continuation() {
         bindings,
         inputs,
         roles(),
-        &mut cfg,
+        cfg.clone(),
         &mut port,
     )
     .expect("inline physicalization");

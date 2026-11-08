@@ -54,6 +54,7 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
         }
         let if_control = VerifiedResolvedFunctionIfControlV1::empty_for_loop_profile(input)?;
         let session = CanonicalSsaFunctionSessionV2::new(input, if_control, completion, 0)?;
+        session.bind_control(builder)?;
         Ok(Self {
             builder,
             input,
@@ -99,6 +100,7 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
         )?;
 
         let candidate = VerifiedNestedPhysicalCandidateInputV1::new(emission, blocks);
+        let control = self.session.control()?;
         let mut port = CanonicalNestedBindingPort::new(
             &mut self.session.identity,
             &self.claims,
@@ -107,12 +109,8 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
         )?;
         port.publish_prefix(self.builder, preheader, &self.claims)?;
         port.activate_child(&self.claims)?;
-        let continuation = physicalize_nested_predicate_v1(
-            self.builder,
-            candidate,
-            &mut self.session.cfg,
-            &mut port,
-        )?;
+        let continuation =
+            physicalize_nested_predicate_v1(self.builder, candidate, &control, &mut port)?;
         let profile_close =
             finish_profile_close(self.input.owner(), continuation.continuation_block, || {
                 port.finish_effect_claims()
@@ -152,7 +150,7 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
             .ok_or_else(|| "[freeze:contract][nested_lowerer/function_missing]".to_string())?;
         let witness = self
             .session
-            .cfg
+            .cfg()?
             .seal_block(function, after)
             .map_err(|error| format!("[freeze:contract][nested_cfg/after_seal] {error:?}"))?;
         self.session

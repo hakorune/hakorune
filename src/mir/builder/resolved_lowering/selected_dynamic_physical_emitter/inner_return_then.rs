@@ -138,7 +138,8 @@ fn emit_program(
         .map_err(|error| reject(format!("Exit physical claim: {error:?}")))?;
 
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .select_block(outer.builder_view_mut_for_lowering(), then_block)
         .map_err(|error| reject(error.to_string()))?;
 
@@ -204,7 +205,8 @@ fn emit_program(
             .as_mut()
             .ok_or_else(|| reject("missing function while sealing ThenTerminal"))?;
         canonical
-            .cfg
+            .cfg()
+            .map_err(reject)?
             .seal_block(function, then_block)
             .map_err(|error| reject(error.to_string()))?
     };

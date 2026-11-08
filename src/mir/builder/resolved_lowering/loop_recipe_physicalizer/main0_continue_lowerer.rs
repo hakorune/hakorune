@@ -366,6 +366,7 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
                 .map_err(|error| format!("[freeze:contract][main0-loop/if-control] {error}"))?;
         let mut session = CanonicalSsaFunctionSessionV2::new(input, if_control, completion, 0)
             .map_err(|error| format!("[freeze:contract][main0-loop/session] {error:?}"))?;
+        session.bind_control(builder)?;
         let preheader = builder
             .function_state
             .current_block
@@ -383,7 +384,7 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
         })?;
         let make_entry = || ReadyLoopEntryV1::from_rows(owner, preheader, entry.rows.to_vec());
         let segment_receipt = {
-            let mut services = LoopPhysicalServicesV1::new(builder, &mut session.cfg);
+            let mut services = LoopPhysicalServicesV1::new(builder, session.control()?);
             allocate_for_layout(&physical_layout, &make_entry(), &mut services)
                 .map_err(|error| format!("[freeze:contract][main0-loop/segments] {error:?}"))?
         };
@@ -433,7 +434,7 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
         let prepared_after = prepare_recursive_after_v1(completed, builder)
             .map_err(|error| format!("[freeze:contract][main0-loop/after-preflight] {error:?}"))?;
         let ready_after = prepared_after
-            .emit_and_seal(builder, &mut session.cfg, &mut session.identity)
+            .emit_and_seal(builder, &session.control()?, &mut session.identity)
             .map_err(|error| format!("[freeze:contract][main0-loop/after] {error:?}"))?;
         let terminal_receipt = consume_main0_continue_tail_completion_v1(
             ready_after,

@@ -8,7 +8,6 @@
 use super::segment_dispatcher::CompletedLoopSegmentProgramV1;
 use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
@@ -139,7 +138,7 @@ impl PreparedRecursiveAfterV1 {
     pub(super) fn emit_and_seal(
         self,
         builder: &mut MirBuilder,
-        cfg: &mut CanonicalCfgSessionV1,
+        cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
         identity: &mut ResolvedSsaIdentityStateV2<'_>,
     ) -> Result<ReadyLoopAfterContinuationV1, RecursiveAfterRejectV1> {
         let owner = self.program.layout.program().demand().context().owner();
@@ -156,7 +155,9 @@ impl PreparedRecursiveAfterV1 {
                 .current_function
                 .as_mut()
                 .ok_or(RecursiveAfterRejectV1::TargetFunctionMissing)?;
-            cfg.emit_jump(function, preheader, entry_block)
+            cfg.borrow_mut()
+                .cfg
+                .emit_jump(function, preheader, entry_block)
                 .map_err(|error| RecursiveAfterRejectV1::Edge(error.to_string()))?;
             for segment in self.program.layout.segments() {
                 let source = self
@@ -184,7 +185,9 @@ impl PreparedRecursiveAfterV1 {
             seal_block(builder, cfg, identity, block)?;
         }
         let after = seal_block(builder, cfg, identity, root_after)?;
-        cfg.select_block(builder, root_after)
+        cfg.borrow_mut()
+            .cfg
+            .select_block(builder, root_after)
             .map_err(|error| RecursiveAfterRejectV1::SelectAfter(error.to_string()))?;
         Ok(ReadyLoopAfterContinuationV1 {
             owner,
@@ -254,7 +257,7 @@ fn validate_transfer(
 
 fn emit_transfer(
     function: &mut crate::mir::MirFunction,
-    cfg: &CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     source: BasicBlockId,
     transfer: LoopPhysicalTransferV1,
     receipt: &LoopPhysicalSegmentBlockReceiptV1,
@@ -270,6 +273,8 @@ fn emit_transfer(
     };
     match transfer {
         LoopPhysicalTransferV1::Jump { target: next } => cfg
+            .borrow_mut()
+            .cfg
             .emit_jump(function, source, target(next)?)
             .map_err(|error| RecursiveAfterRejectV1::Edge(error.to_string())),
         LoopPhysicalTransferV1::Predicate {
@@ -277,6 +282,8 @@ fn emit_transfer(
             on_true,
             on_false,
         } => cfg
+            .borrow_mut()
+            .cfg
             .emit_branch(
                 function,
                 source,
@@ -290,6 +297,8 @@ fn emit_transfer(
             )
             .map_err(|error| RecursiveAfterRejectV1::Edge(error.to_string())),
         LoopPhysicalTransferV1::OpenNestedLoop { entry, .. } => cfg
+            .borrow_mut()
+            .cfg
             .emit_jump(
                 function,
                 source,
@@ -316,7 +325,7 @@ fn ensure_open_block(
 
 fn seal_block(
     builder: &mut MirBuilder,
-    cfg: &mut CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     identity: &mut ResolvedSsaIdentityStateV2<'_>,
 
     block: BasicBlockId,
@@ -330,7 +339,9 @@ fn seal_block(
             .current_function
             .as_mut()
             .ok_or(RecursiveAfterRejectV1::TargetFunctionMissing)?;
-        cfg.seal_block(function, block)
+        cfg.borrow_mut()
+            .cfg
+            .seal_block(function, block)
             .map_err(|error| RecursiveAfterRejectV1::CfgSeal(error.to_string()))?
     };
     identity

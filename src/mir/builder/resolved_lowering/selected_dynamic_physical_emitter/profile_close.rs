@@ -82,7 +82,8 @@ fn seal_block(
             .as_mut()
             .ok_or_else(|| reject("profile close function is missing"))?;
         canonical
-            .cfg
+            .cfg()
+            .map_err(reject)?
             .seal_block(function, block)
             .map_err(|error| reject(error.to_string()))?
     };
@@ -248,7 +249,8 @@ pub(super) fn emit(
     validate_corridor(outer, targets, corridor, lifecycle, brand)?;
     let after = role_block(targets, DynamicV2PhysicalTargetRoleV1::After);
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .select_block(outer.builder_view_mut_for_lowering(), after)
         .map_err(|error| reject(error.to_string()))?;
     let relation = demand.source_relation();

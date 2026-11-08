@@ -78,7 +78,7 @@ pub(super) fn emit_unpublished_tail_v1<'ledger>(
         Some(claims),
     )?;
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, header.after)
         .map_err(|error| error.to_string())?;
     let value = canonical.issue_physical_value_id(draft)?;
@@ -114,7 +114,7 @@ pub(super) fn emit_unpublished_tail_v1<'ledger>(
                 "[freeze:contract][callable-loop/static-tail-function-missing]".to_owned()
             })?;
         let witness = canonical
-            .cfg
+            .cfg()?
             .seal_block(function, header.after)
             .map_err(|error| error.to_string())?;
         if witness.predecessors() != [header.normal]
@@ -141,7 +141,7 @@ pub(super) fn emit_unpublished_tail_v1<'ledger>(
         .identity
         .mark_return(ResolvedExitSiteV1::Statement(tail.return_site().clone()))?;
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, root.graph.clean)
         .map_err(|error| error.to_string())?;
     let function = draft

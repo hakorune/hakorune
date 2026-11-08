@@ -153,7 +153,8 @@ fn emit_program(
     }
 
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .select_block(outer.builder_view_mut_for_lowering(), continuation.block())
         .map_err(|error| reject(error.to_string()))?;
 
@@ -253,7 +254,8 @@ fn emit_program(
         .as_mut()
         .ok_or_else(|| reject("missing function while emitting Backedge"))?;
     canonical
-        .cfg
+        .cfg()
+        .map_err(reject)?
         .emit_jump(function, continuation.block(), header)
         .map_err(|error| reject(error.to_string()))?;
 
@@ -265,15 +267,18 @@ fn emit_program(
             .as_mut()
             .ok_or_else(|| reject("missing function while sealing Backedge"))?;
         let continuation_witness = canonical
-            .cfg
+            .cfg()
+            .map_err(reject)?
             .seal_block(function, continuation.block())
             .map_err(|error| reject(error.to_string()))?;
         let enter_witness = canonical
-            .cfg
+            .cfg()
+            .map_err(reject)?
             .seal_block(function, enter)
             .map_err(|error| reject(error.to_string()))?;
         let header_witness = canonical
-            .cfg
+            .cfg()
+            .map_err(reject)?
             .seal_block(function, header)
             .map_err(|error| reject(error.to_string()))?;
         (continuation_witness, enter_witness, header_witness)

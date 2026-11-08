@@ -120,9 +120,8 @@ fn prepare_branch<'session>(
         targets.with_role(
             DynamicV2PhysicalTargetRoleV1::Continuation,
             |continuation_target| {
-                canonical
-                    .cfg
-                    .prepare_branch(
+                crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1::prepare_branch(
+                        canonical.cfg_ref().map_err(reject)?,
                         function,
                         source,
                         condition,

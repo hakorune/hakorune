@@ -194,15 +194,18 @@ impl CanonicalSsaFunctionSessionV2<'_> {
                 .as_mut()
                 .ok_or(DynamicLoopPhiOpenIssueV1::MissingCurrentFunction)?;
             for block in [header, body_path, terminal_backedge, after] {
-                self.cfg
+                self.cfg()
+                    .map_err(DynamicLoopPhiOpenIssueV1::CanonicalCfg)?
                     .create_block(function, block)
                     .map_err(|error| DynamicLoopPhiOpenIssueV1::CanonicalCfg(error.to_string()))?;
             }
-            self.cfg
+            self.cfg()
+                .map_err(DynamicLoopPhiOpenIssueV1::CanonicalCfg)?
                 .emit_jump(function, enter, header)
                 .map_err(|error| DynamicLoopPhiOpenIssueV1::CanonicalCfg(error.to_string()))?;
         }
-        self.cfg
+        self.cfg()
+            .map_err(DynamicLoopPhiOpenIssueV1::CanonicalCfg)?
             .select_block(builder, header)
             .map_err(|error| DynamicLoopPhiOpenIssueV1::CanonicalCfg(error.to_string()))?;
         let header_current = self

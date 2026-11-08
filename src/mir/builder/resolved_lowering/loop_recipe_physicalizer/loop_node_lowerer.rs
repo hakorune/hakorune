@@ -15,7 +15,6 @@ use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
 use super::topology::{ready_loop_entry_from_canonical_rows, LoopPhysicalServicesV1};
 
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -84,7 +83,7 @@ fn lower_loop_node_physical_admission_inner<'source>(
         .ok_or_else(|| "[freeze:contract][loop_node_physicalize/no_current_block]".to_owned())?;
 
     let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
-    let mut cfg = CanonicalCfgSessionV1::new_for_owner(owner);
+    let cfg = builder.function_control_for_owner_v1(owner)?;
 
     // Entry input publication: one `publish_declaration_exact` per resolver
     // input row at the preheader, with the walk's materialized value.
@@ -150,7 +149,7 @@ fn lower_loop_node_physical_admission_inner<'source>(
     let ready_entry = ready_loop_entry_from_canonical_rows(owner, preheader, rows);
 
     let segment_receipt = {
-        let mut services = LoopPhysicalServicesV1::new(builder, &mut cfg);
+        let mut services = LoopPhysicalServicesV1::new(builder, cfg.clone());
         allocate_for_layout(&layout, &ready_entry, &mut services).map_err(|error| {
             format!("[freeze:contract][loop_node_physicalize/segments] {error:?}")
         })?
@@ -171,7 +170,7 @@ fn lower_loop_node_physical_admission_inner<'source>(
         format!("[freeze:contract][loop_node_physicalize/after_preflight] {error:?}")
     })?;
     let ready_after = prepared_after
-        .emit_and_seal(builder, &mut cfg, &mut identity)
+        .emit_and_seal(builder, &cfg, &mut identity)
         .map_err(|error| {
             format!("[freeze:contract][loop_node_physicalize/after_seal] {error:?}")
         })?;

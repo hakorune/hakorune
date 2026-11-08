@@ -130,7 +130,7 @@ fn with_generic_g0_physical_emitter_session_preflight<R>(
         }
         let ready_entry =
             ready_loop_entry_from_canonical_rows(input.owner(), preheader, canonical_rows);
-        let mut services = LoopPhysicalServicesV1::new(draft, &mut session.cfg);
+        let mut services = LoopPhysicalServicesV1::new(draft, session.control()?);
         let segment_receipt = allocate_for_layout(preflight.layout(), &ready_entry, &mut services)
             .map_err(|error| format!("generic segment preflight: {error:?}"))?;
         let layout = preflight.take_layout();

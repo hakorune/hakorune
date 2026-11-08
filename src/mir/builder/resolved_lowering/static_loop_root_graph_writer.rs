@@ -2,18 +2,19 @@
 //! The selected Static caller will consume its deferred Returns after DraftSeal.
 
 use crate::mir::builder::ordinary_new_admission::selected::root_graph::RootGraphWriterPortV1;
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction};
 
-pub(super) struct CanonicalRootGraphWriterV1<'session> {
-    cfg: &'session mut CanonicalCfgSessionV1,
+pub(super) struct CanonicalRootGraphWriterV1 {
+    cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     created: Vec<BasicBlockId>,
     deferred_clean: Vec<(BasicBlockId, MirInstruction)>,
 }
 
-impl<'session> CanonicalRootGraphWriterV1<'session> {
-    pub(super) fn new(cfg: &'session mut CanonicalCfgSessionV1) -> Self {
+impl CanonicalRootGraphWriterV1 {
+    pub(super) fn new(
+        cfg: crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
+    ) -> Self {
         Self {
             cfg,
             created: Vec::new(),
@@ -58,12 +59,16 @@ impl<'session> CanonicalRootGraphWriterV1<'session> {
             }
             MirInstruction::ReturnFault { fault_frame } => self
                 .cfg
+                .borrow_mut()
+                .cfg
                 .emit_root_fault(function, block, *fault_frame)
                 .map_err(|error| error.to_string()),
             MirInstruction::Jump {
                 target,
                 edge_args: None,
             } => self
+                .cfg
+                .borrow_mut()
                 .cfg
                 .emit_jump(function, block, *target)
                 .map_err(|error| error.to_string()),
@@ -73,6 +78,8 @@ impl<'session> CanonicalRootGraphWriterV1<'session> {
                 normal_landing,
                 fault_landing,
             } => self
+                .cfg
+                .borrow_mut()
                 .cfg
                 .emit_root_invoke(
                     function,
@@ -99,7 +106,12 @@ mod tests {
         BasicBlock, Callee, EffectMask, FunctionSignature, MirFunction, MirType, ValueId,
     };
 
-    fn owner() -> (MirBuilder, CanonicalCfgSessionV1, BasicBlockId, ValueId) {
+    fn owner() -> (
+        MirBuilder,
+        crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
+        BasicBlockId,
+        ValueId,
+    ) {
         let mut builder = MirBuilder::new();
         let entry = builder.next_block_id();
         let frame = ValueId::new(17);
@@ -120,7 +132,10 @@ mod tests {
         function.add_block(block);
         builder.function_state.current_function = Some(function);
         builder.function_state.current_block = Some(entry);
-        (builder, CanonicalCfgSessionV1::new(), entry, frame)
+        {
+            let cfg = builder.function_state.canonical_control.clone();
+            (builder, cfg, entry, frame)
+        }
     }
 
     #[test]
@@ -128,7 +143,7 @@ mod tests {
         let (mut builder, mut cfg, entry, frame) = owner();
         let mut bindings = Vec::new();
         let (clean, fault_terminal, origin, normal, fault, array) = {
-            let mut writer = CanonicalRootGraphWriterV1::new(&mut cfg);
+            let mut writer = CanonicalRootGraphWriterV1::new(cfg.clone());
             let clean = writer.reserve_block(&mut builder).unwrap();
             writer
                 .append_terminated(
@@ -155,11 +170,13 @@ mod tests {
             let array = writer.reserve_block(&mut builder).unwrap();
             // Nonfallible Array End shares the Invoke cleanup writer, but has
             // only its Normal continuation and records the instruction itself.
-            assert!(writer.append_array_release(&mut builder, array,
-                ValueId::new(23), array, &mut bindings).is_err());
+            assert!(writer
+                .append_array_release(&mut builder, array, ValueId::new(23), array, &mut bindings)
+                .is_err());
             assert_eq!(bindings.len(), 2);
-            writer.append_array_release(&mut builder, array,
-                ValueId::new(23), clean, &mut bindings).unwrap();
+            writer
+                .append_array_release(&mut builder, array, ValueId::new(23), clean, &mut bindings)
+                .unwrap();
             for (landing, target) in [(normal, array), (fault, fault_terminal)] {
                 writer
                     .append_terminated(
@@ -206,16 +223,31 @@ mod tests {
             (clean, fault_terminal, origin, normal, fault, array)
         };
         let function = builder.function_state.current_function.as_mut().unwrap();
-        cfg.emit_return(function, clean, Some(ValueId::new(5)))
+        cfg.borrow_mut()
+            .cfg
+            .emit_return(function, clean, Some(ValueId::new(5)))
             .unwrap();
         assert_eq!(function.blocks[&origin].predecessors.len(), 1);
         assert_eq!(function.blocks[&normal].predecessors.len(), 1);
-        assert_eq!(function.blocks[&array].instructions,
-            vec![MirInstruction::ArrayResidenceRelease { value: ValueId::new(23) }]);
-        assert_eq!(bindings[2], (array,
-            MirInstruction::ArrayResidenceRelease { value: ValueId::new(23) }));
-        assert!(matches!(bindings[3], (id, MirInstruction::Jump { target, .. })
-            if id == array && target == clean));
+        assert_eq!(
+            function.blocks[&array].instructions,
+            vec![MirInstruction::ArrayResidenceRelease {
+                value: ValueId::new(23)
+            }]
+        );
+        assert_eq!(
+            bindings[2],
+            (
+                array,
+                MirInstruction::ArrayResidenceRelease {
+                    value: ValueId::new(23)
+                }
+            )
+        );
+        assert!(
+            matches!(bindings[3], (id, MirInstruction::Jump { target, .. })
+            if id == array && target == clean)
+        );
         assert_eq!(function.blocks[&fault].predecessors.len(), 1);
         assert_eq!(function.blocks[&fault_terminal].predecessors.len(), 1);
         assert!(matches!(bindings[0].1, MirInstruction::Return { .. }));
@@ -225,9 +257,16 @@ mod tests {
             MirInstruction::Jump { .. }
         ));
         for block in function.block_ids() {
-            cfg.seal_block(function, block).unwrap();
+            cfg.borrow_mut().cfg.seal_block(function, block).unwrap();
         }
-        assert_eq!(cfg.finish(function).unwrap().blocks().len(), 7);
+        assert_eq!(
+            std::mem::take(&mut cfg.borrow_mut().cfg)
+                .finish(function)
+                .unwrap()
+                .blocks()
+                .len(),
+            7
+        );
         assert_eq!(entry, function.entry_block);
     }
 
@@ -236,7 +275,7 @@ mod tests {
         let (mut builder, mut cfg, entry, frame) = owner();
         let mut bindings = Vec::new();
         let clean = {
-            let mut writer = CanonicalRootGraphWriterV1::new(&mut cfg);
+            let mut writer = CanonicalRootGraphWriterV1::new(cfg.clone());
             let clean = writer.reserve_block(&mut builder).unwrap();
             writer
                 .append_terminated(
@@ -310,18 +349,22 @@ mod tests {
             clean
         };
         let function = builder.function_state.current_function.as_mut().unwrap();
-        cfg.emit_return(function, clean, Some(ValueId::new(31)))
+        cfg.borrow_mut()
+            .cfg
+            .emit_return(function, clean, Some(ValueId::new(31)))
             .unwrap();
         for block in function.block_ids() {
-            cfg.seal_block(function, block).unwrap();
+            cfg.borrow_mut().cfg.seal_block(function, block).unwrap();
         }
-        cfg.finish(function).unwrap();
+        std::mem::take(&mut cfg.borrow_mut().cfg)
+            .finish(function)
+            .unwrap();
     }
 
     #[test]
     fn canonical_root_writer_rejects_foreign_shapes_before_mutation() {
         let (mut builder, mut cfg, entry, frame) = owner();
-        let mut writer = CanonicalRootGraphWriterV1::new(&mut cfg);
+        let mut writer = CanonicalRootGraphWriterV1::new(cfg.clone());
         let clean = writer.reserve_block(&mut builder).unwrap();
         let normal = writer.reserve_block(&mut builder).unwrap();
         let fault = writer.reserve_block(&mut builder).unwrap();
@@ -340,6 +383,8 @@ mod tests {
             .contains("terminator-unsupported"));
         assert!(bindings.is_empty());
         assert!(writer
+            .cfg
+            .borrow_mut()
             .cfg
             .create_block(
                 builder.function_state.current_function.as_mut().unwrap(),
@@ -403,6 +448,8 @@ mod tests {
             .is_none());
         writer
             .cfg
+            .borrow_mut()
+            .cfg
             .seal_block(
                 builder.function_state.current_function.as_mut().unwrap(),
                 entry,
@@ -415,22 +462,43 @@ mod tests {
     }
 }
 
-impl RootGraphWriterPortV1 for CanonicalRootGraphWriterV1<'_> {
+impl RootGraphWriterPortV1 for CanonicalRootGraphWriterV1 {
     fn append_array_release(
-        &mut self, builder: &mut MirBuilder, id: BasicBlockId, value: crate::mir::ValueId,
-        next: BasicBlockId, bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+        &mut self,
+        builder: &mut MirBuilder,
+        id: BasicBlockId,
+        value: crate::mir::ValueId,
+        next: BasicBlockId,
+        bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        if id == next || !self.created.contains(&id) || builder.function_state.current_function.as_ref()
-            .is_none_or(|function| function.get_block(id).is_none_or(|block|
-                block.is_sealed() || block.is_terminated() || !block.instructions.is_empty())
-                || function.get_block(next).is_none()) {
+        if id == next
+            || !self.created.contains(&id)
+            || builder
+                .function_state
+                .current_function
+                .as_ref()
+                .is_none_or(|function| {
+                    function.get_block(id).is_none_or(|block| {
+                        block.is_sealed() || block.is_terminated() || !block.instructions.is_empty()
+                    }) || function.get_block(next).is_none()
+                })
+        {
             return Err("[freeze:contract][root-graph/occupied-landing]".into());
         }
         let release = MirInstruction::ArrayResidenceRelease { value };
-        let jump = MirInstruction::Jump { target: next, edge_args: None };
+        let jump = MirInstruction::Jump {
+            target: next,
+            edge_args: None,
+        };
         self.write_terminator(builder, id, &jump)?;
-        builder.function_state.current_function.as_mut().unwrap()
-            .get_block_mut(id).unwrap().add_instruction(release.clone());
+        builder
+            .function_state
+            .current_function
+            .as_mut()
+            .unwrap()
+            .get_block_mut(id)
+            .unwrap()
+            .add_instruction(release.clone());
         bindings.extend([(id, release), (id, jump)]);
         Ok(())
     }
@@ -442,6 +510,8 @@ impl RootGraphWriterPortV1 for CanonicalRootGraphWriterV1<'_> {
             .as_mut()
             .ok_or_else(|| "[freeze:contract][root-graph/no-function]".to_owned())?;
         self.cfg
+            .borrow_mut()
+            .cfg
             .create_block(function, block)
             .map_err(|error| error.to_string())?;
         self.created.push(block);
@@ -491,6 +561,8 @@ impl RootGraphWriterPortV1 for CanonicalRootGraphWriterV1<'_> {
                 .as_mut()
                 .ok_or_else(|| "[freeze:contract][root-graph/no-function]".to_owned())?;
             self.cfg
+                .borrow_mut()
+                .cfg
                 .emit_jump(function, source, entry)
                 .map_err(|error| error.to_string())?;
             entry

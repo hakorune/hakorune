@@ -8,7 +8,6 @@ use std::collections::BTreeSet;
 
 use crate::mir::builder::emission::loop_operation;
 
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::resolved_lowering::nested_predicate_adapter::CanonicalNestedBindingPort;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::nested_predicate_effect_plan::NestedBindingEffectRoleV1;
@@ -28,7 +27,7 @@ pub(in crate::mir::builder::resolved_lowering) struct NestedPhysicalContinuation
 pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v1(
     builder: &mut MirBuilder,
     input: VerifiedNestedPhysicalCandidateInputV1,
-    cfg: &mut CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     port: &mut CanonicalNestedBindingPort<'_, '_>,
 ) -> Result<NestedPhysicalContinuationV1, String> {
     let (emission, blocks) = input.into_parts();
@@ -168,7 +167,7 @@ fn emit_predicate(
 
 fn create_blocks(
     builder: &mut MirBuilder,
-    cfg: &mut CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     blocks: &VerifiedNestedPhysicalBlockProjectionV1,
     topology: &crate::mir::compiler::nested_predicate_topology::VerifiedNestedPhysicalTopologyV1,
     root_preheader: BasicBlockId,
@@ -182,16 +181,21 @@ fn create_blocks(
     for port in topology.ports().iter().copied() {
         let block = blocks.block(NestedPhysicalNodeRefV1::Port(port));
         if block != root_preheader && seen.insert(block) {
-            cfg.create_block(function, block).map_err(|error| {
-                format!("[freeze:contract][nested_physicalizer/create] {error:?}")
-            })?;
+            cfg.borrow_mut()
+                .cfg
+                .create_block(function, block)
+                .map_err(|error| {
+                    format!("[freeze:contract][nested_physicalizer/create] {error:?}")
+                })?;
         }
     }
     let resume = blocks.block(NestedPhysicalNodeRefV1::ParentResume(
         topology.parent_resume(),
     ));
     if resume != root_preheader && seen.insert(resume) {
-        cfg.create_block(function, resume)
+        cfg.borrow_mut()
+            .cfg
+            .create_block(function, resume)
             .map_err(|error| format!("[freeze:contract][nested_physicalizer/create] {error:?}"))?;
     }
     Ok(())
@@ -214,16 +218,18 @@ fn block_at(
 
 fn select(
     builder: &mut MirBuilder,
-    cfg: &CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     block: BasicBlockId,
 ) -> Result<(), String> {
-    cfg.select_block(builder, block)
+    cfg.borrow_mut()
+        .cfg
+        .select_block(builder, block)
         .map_err(|error| format!("[freeze:contract][nested_physicalizer/select] {error:?}"))
 }
 
 fn emit_jump(
     builder: &mut MirBuilder,
-    cfg: &CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     source: BasicBlockId,
     target: BasicBlockId,
 ) -> Result<(), String> {
@@ -232,13 +238,15 @@ fn emit_jump(
         .current_function
         .as_mut()
         .ok_or_else(|| "[freeze:contract][nested_physicalizer/function_missing]".to_string())?;
-    cfg.emit_jump(function, source, target)
+    cfg.borrow_mut()
+        .cfg
+        .emit_jump(function, source, target)
         .map_err(|error| format!("[freeze:contract][nested_physicalizer/jump] {error:?}"))
 }
 
 fn emit_branch_and_select(
     builder: &mut MirBuilder,
-    cfg: &CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     source: BasicBlockId,
     condition: ValueId,
     then_block: BasicBlockId,
@@ -249,13 +257,15 @@ fn emit_branch_and_select(
         .current_function
         .as_mut()
         .ok_or_else(|| "[freeze:contract][nested_physicalizer/function_missing]".to_string())?;
-    cfg.emit_branch(function, source, condition, then_block, else_block)
+    cfg.borrow_mut()
+        .cfg
+        .emit_branch(function, source, condition, then_block, else_block)
         .map_err(|error| format!("[freeze:contract][nested_physicalizer/branch] {error:?}"))
 }
 
 fn seal(
     builder: &mut MirBuilder,
-    cfg: &mut CanonicalCfgSessionV1,
+    cfg: &crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1,
     port: &mut CanonicalNestedBindingPort<'_, '_>,
 
     block: BasicBlockId,
@@ -266,6 +276,8 @@ fn seal(
         .as_mut()
         .ok_or_else(|| "[freeze:contract][nested_physicalizer/function_missing]".to_string())?;
     let witness = cfg
+        .borrow_mut()
+        .cfg
         .seal_block(function, block)
         .map_err(|error| format!("[freeze:contract][nested_physicalizer/seal] {error:?}"))?;
     port.seal(builder, block, &witness)

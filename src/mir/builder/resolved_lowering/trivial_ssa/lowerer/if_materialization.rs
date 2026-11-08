@@ -155,7 +155,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         self.builder.ensure_block_exists(merge)?;
         let false_target = else_block.unwrap_or(merge);
         {
-            let cfg = &self.session.cfg;
+            let cfg = &self.session.cfg()?;
             let function = self
                 .builder
                 .function_state

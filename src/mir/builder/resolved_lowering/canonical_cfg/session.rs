@@ -79,10 +79,12 @@ impl CanonicalCfgSessionV1 {
     ) -> Result<(), String> {
         self.creation.bind_source_owner(owner)
     }
+    #[cfg(test)]
     pub(in crate::mir::builder) fn new() -> Self {
         Self::default()
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn new_for_owner(
         owner: FunctionOwnerIdV1,
     ) -> Self {
@@ -400,8 +402,7 @@ impl CanonicalCfgSessionV1 {
         self,
         function: &MirFunction,
     ) -> Result<VerifiedCanonicalCfgV1, CanonicalCfgErrorV1> {
-        let witnesses = self.predecessor_witnesses(function)?;
-        self.validate_recorded_seals(function, &witnesses, true)?;
+        self.validate_finish(function)?;
 
         Ok(VerifiedCanonicalCfgV1 {
             blocks: self
@@ -410,6 +411,14 @@ impl CanonicalCfgSessionV1 {
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
         })
+    }
+
+    pub(in crate::mir::builder) fn validate_finish(
+        &self,
+        function: &MirFunction,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        let witnesses = self.predecessor_witnesses(function)?;
+        self.validate_recorded_seals(function, &witnesses, true)
     }
 
     fn validate_recorded_seals(

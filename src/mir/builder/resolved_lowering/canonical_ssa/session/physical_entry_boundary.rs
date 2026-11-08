@@ -103,7 +103,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 .current_function
                 .as_mut()
                 .ok_or_else(|| "physical execution-entry seal requires a function".to_owned())?;
-            self.cfg
+            self.cfg()?
                 .seal_block(function, boundary.function_entry())
                 .map_err(|error| error.to_string())?
         };
@@ -116,7 +116,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 .current_function
                 .as_mut()
                 .ok_or_else(|| "physical execution-entry seal requires a function".to_owned())?;
-            self.cfg
+            self.cfg()?
                 .seal_block(function, boundary.execution_entry())
                 .map_err(|error| error.to_string())?
         };
@@ -163,7 +163,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 .as_mut()
                 .ok_or_else(|| "S6C cursor seal requires a function".to_owned())?;
             let witness = self
-                .cfg
+                .cfg()?
                 .seal_block(function, block)
                 .map_err(|error| error.to_string())?;
             self.identity

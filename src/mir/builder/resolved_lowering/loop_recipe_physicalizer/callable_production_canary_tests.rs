@@ -307,8 +307,12 @@ fn setup_function<'a>(
         .expect("direct-call capability");
         let if_control = VerifiedResolvedFunctionIfControlV1::empty_for_loop_profile(input.input())
             .expect("loop-only If control");
-        CanonicalSsaFunctionSessionV2::new(input.input(), if_control, completion, 0)
-            .expect("canonical session")
+        let session = CanonicalSsaFunctionSessionV2::new(input.input(), if_control, completion, 0)
+            .expect("canonical session");
+        session
+            .bind_control(draft_builder)
+            .expect("function control");
+        session
     };
     (outer, session)
 }
@@ -375,7 +379,7 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
         || super::topology::ReadyLoopEntryV1::new_for_test(owner, preheader, entry_rows.clone());
     let segment_receipt = {
         let mut services =
-            LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), &mut session.cfg);
+            LoopPhysicalServicesV1::new(outer.builder_view_mut_for_lowering(), session.control()?);
         allocate_for_layout(&physical_layout, &make_entry(), &mut services)
             .map_err(|error| format!("segment allocator: {error:?}"))?
     };
@@ -525,7 +529,7 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
     let ready = prepared_after
         .emit_and_seal(
             outer.builder_view_mut_for_lowering(),
-            &mut session.cfg,
+            &session.control()?,
             &mut session.identity,
         )
         .map_err(|error| format!("After: {error:?}"))?;

@@ -94,8 +94,8 @@ mod tests {
 
         let entry = ReadyLoopEntryV1::new_for_test(foreign_owner, BasicBlockId::new(0), Vec::new());
         let mut builder = MirBuilder::new();
-        let mut cfg = CanonicalCfgSessionV1::new();
-        let mut services = LoopPhysicalServicesV1::new(&mut builder, &mut cfg);
+        let cfg = builder.function_state.canonical_control.clone();
+        let mut services = LoopPhysicalServicesV1::new(&mut builder, cfg);
 
         assert_eq!(
             allocate_for_layout(&layout, &entry, &mut services),

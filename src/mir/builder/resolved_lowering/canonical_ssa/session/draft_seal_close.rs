@@ -33,7 +33,7 @@ impl CanonicalSsaFunctionSessionV2<'_> {
             semantics,
             if_control,
             completion,
-            cfg,
+            control,
             ..
         } = self;
         let function = builder
@@ -47,7 +47,15 @@ impl CanonicalSsaFunctionSessionV2<'_> {
             .map_err(|error| {
                 CanonicalFunctionFinishErrorV1::CheckedCallOut(format!("{error:?}"))
             })?;
-        cfg.finish(function)
+        let control = control.into_inner().ok_or_else(|| {
+            CanonicalFunctionFinishErrorV1::Cfg(
+                "[freeze:contract][canonical-control/inactive]".to_owned(),
+            )
+        })?;
+        control
+            .borrow()
+            .cfg
+            .validate_finish(function)
             .map_err(|error| CanonicalFunctionFinishErrorV1::Cfg(error.to_string()))?;
         semantics
             .finish()

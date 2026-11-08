@@ -134,12 +134,12 @@ pub(super) fn emit_unpublished_header_v1(
                 "[freeze:contract][callable-loop/static-header-function-missing]".to_owned()
             })?;
         canonical
-            .cfg
+            .cfg()?
             .emit_jump(function, preheader, header)
             .map_err(|error| error.to_string())?;
     }
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, header)
         .map_err(|error| error.to_string())?;
     canonical
@@ -187,16 +187,16 @@ pub(super) fn emit_unpublished_header_v1(
                 "[freeze:contract][callable-loop/static-header-function-missing]".to_owned()
             })?;
         canonical
-            .cfg
+            .cfg()?
             .emit_i64_invoke(function, header, call, frame, normal, fault)
             .map_err(|error| error.to_string())?;
         canonical
-            .cfg
+            .cfg()?
             .emit_invoke_fault(function, fault, frame)
             .map_err(|error| error.to_string())?;
     }
     canonical
-        .cfg
+        .cfg()?
         .select_block(draft, normal)
         .map_err(|error| error.to_string())?;
     let call_result = canonical.issue_physical_value_id(draft)?;
@@ -224,10 +224,9 @@ pub(super) fn emit_unpublished_header_v1(
                 "[freeze:contract][callable-loop/static-header-function-missing]".to_owned()
             })?;
         canonical
-            .cfg
-            .prepare_branch(function, normal, condition, body, after)
-            .map_err(|error| error.to_string())?
-            .commit(function);
+            .cfg()?
+            .emit_branch(function, normal, condition, body, after)
+            .map_err(|error| error.to_string())?;
         frame_owner.validate(function)?;
         if !matches!(
             function.blocks.get(&normal).and_then(|block| block.terminator.as_ref()),
