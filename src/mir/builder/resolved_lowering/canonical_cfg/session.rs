@@ -110,19 +110,13 @@ impl CanonicalCfgSessionV1 {
         builder: &mut MirBuilder,
         block: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
-        let function = builder.function_state.current_function.as_ref().ok_or(
-            CanonicalCfgErrorV1::MissingBlock {
-                block,
-                role: CanonicalCfgBlockRoleV1::Source,
-            },
-        )?;
+        let missing = || CanonicalCfgErrorV1::MissingBlock {
+            block,
+            role: CanonicalCfgBlockRoleV1::Source,
+        };
+        let function = builder.function_state.current_function.as_ref().ok_or_else(&missing)?;
         require_block(function, block, CanonicalCfgBlockRoleV1::Source)?;
-        builder
-            .start_new_block(block)
-            .map_err(|_| CanonicalCfgErrorV1::MissingBlock {
-                block,
-                role: CanonicalCfgBlockRoleV1::Source,
-            })
+        builder.start_new_block(block).map_err(|_| missing())
     }
 
     pub(in crate::mir::builder) fn emit_jump(

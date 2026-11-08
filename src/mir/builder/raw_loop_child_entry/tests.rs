@@ -725,7 +725,11 @@ fn identical_loops_keep_distinct_resolver_receipts() {
         builder.enter_function_for_test("main".to_owned());
         builder.function_state.compilation.fn_declaration_ast = Some(declaration.clone());
         let context = LoopRouteContext::new(condition, body, "main", false, true);
-        let error = route_loop(&mut builder, &context, &site).unwrap_err();
+        let before = builder.function_state.current_function.as_ref().unwrap().blocks.len();
+        let missing = route_loop(&mut builder, &context, None).unwrap_err();
+        assert!(missing.contains("[route-loop/missing-source-site]"), "{missing}");
+        assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks.len(), before);
+        let error = route_loop(&mut builder, &context, Some(site)).unwrap_err();
         assert!(error.contains("loop winner selection declined"), "{error}");
         assert!(error.contains(&format!("site={site:?}")), "{error}");
     }

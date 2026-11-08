@@ -552,8 +552,6 @@ impl MirBuilder {
             result?;
         }
 
-        let site = site.ok_or_else(||
-            "[freeze:contract][route-loop/missing-source-site]".to_owned())?;
         if let Some(result) = route_loop(self, &ctx, site)? {
             trace::trace().routing("router", func_name, "Loop router succeeded");
             return Ok(Some(result));

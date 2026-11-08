@@ -122,7 +122,7 @@ impl<'a> LoopRouteContext<'a> {
 pub(crate) fn route_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
-    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    site: Option<&crate::mir::resolved_semantics::SourceStmtSiteV1>,
 ) -> Result<Option<ValueId>, String> {
     // Source authority: the FunctionDeclaration recorded at function entry.
     // A missing declaration means the walked loop has no canonical source
@@ -138,6 +138,9 @@ pub(crate) fn route_loop(
         )
         .to_string());
     };
+
+    let site = site.ok_or_else(||
+        "[freeze:contract][route-loop/missing-source-site]".to_owned())?;
 
     // Resolve the function's source unit once; sibling loops share it.
     let unit = if let Some(unit) = &builder
