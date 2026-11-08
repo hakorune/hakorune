@@ -65,3 +65,4 @@ Stage 2: n12 canonical EXE prints 3 / exit 0; instance n01 and early-return nonn
 - N31: catalog が owned Nullable と決めた関数は New site が無くても共通 Home/terminal walk を選び、全 Null の検証済み teardown は既存の descriptor=None/nullable=true/unsupported=false で payload 不在を保持し、packet はそれを conditional End だけへ接続する。
 - N32: scalar-source 観測で construction のない Null cohort に遭遇しても、catalog が owned Nullable と証明していれば Nullable のまま保持し、I64 や別 class へ変換しない。
 - N33: C の元 return 解析は exact-object と Null-only を別の内部状態で共有し、Null-only は object_id を発行せず、callee の全 Normal return が const_null の時だけ checked receiver の Fault-before-dispatch に使える。
+- N34: 新しく接続する Root receiver の CallReceived 取得は canonical root-scope Local initializer に限り、分岐内取得の receiver protocol は今回追加せず、既存の direct-local 判定を共有して拒否する。
