@@ -268,3 +268,9 @@ B1の完了条件: 上記5関数の実callerが新共通入口へ切り替わっ
 5. 全plan fileや全legacy coverage rowの内部は読んでいない。表で引用した入口/型/該当箇所は読んだが、262 file全部の意味の重複を証明した調査ではない。個別profileの未精査箇所と未識別のfamily選択を、caller-zero/不要コードとは扱わない。
 
 測定scriptとlogは全てW。`measurement-metadata.json`（input hash/環境）、`sets.json`、`ast-results.json` / `ast-summary.json`、`lexical-fallback.json`、`trace-results.json` / `trace-extra-results.json`、`selected-family-results.json`、`line-counts.json`、`function-spans.json`。各入力のAST/trace/compiler logも`ast/`と`trace/`に残す。sourceを変えず、build・全lib・suite再実行・Python C検証はしない（文書/調査のみ）。
+
+## ユーザー決定（2026-11-08）と Opus の確認
+
+- **案 B（物理側から）で進める。** B1（PlanLowerer に残る provisional PHI の管理を既存 `PhiTxn` へ）と B2（checked V2 の incoming・CFG・操作契約を共通の持ち主へ）を 1 つの series にし、B1 だけでは閉じない。所有の解析の CFG の作り方（s3b の案 1・案 2）は今回も決めず、基本の式・`edit`・値の `&&` の前にもう一度扱う。
+- **`route_loop` へ resolver の site を入口から渡し、同じ形の loop が 2 つある時の「曖昧」の拒否は S4 の中で外す。** 形で照らし合わせる code ごと消す。結果が変わる入力は (a) として 1 本ずつ EXE で確かめる。
+- Opus の確認: B1 の 5 関数の定義と caller（`loop_lowering.rs:122-202`）、`route_loop` の形での照合（`router.rs:163-193`）は本文のとおり。B1 の古い経路は `CorePlanEffectEmissionPortV1` が `Raw`・`Claimed`・loop completion の無い `SourcePublication` の時に通る（`emission_port.rs:51-60`）。Opus の probe では、同じ関数に loop を 2 つ並べる形は今、手前の `callable-loop/variable-accum-recurrence` で止まるので、曖昧の拒否に当たる入力は測った範囲に無かった。
