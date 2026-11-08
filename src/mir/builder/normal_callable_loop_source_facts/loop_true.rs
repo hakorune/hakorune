@@ -52,6 +52,20 @@ pub(in crate::mir::builder) struct SourceLoopTruePhysicalInputV1<'source, 'ledge
 
 impl SourceLoopTruePhysicalInputV1<'_, '_> {
 
+    pub(in crate::mir::builder) fn carrier_bindings(
+        &self,
+        physical: &std::collections::BTreeMap<String, crate::mir::ValueId>,
+    ) -> Result<
+        std::collections::BTreeMap<String, crate::mir::resolved_semantics::BindingRefV1>,
+        String,
+    > {
+        self.source_port.source_carrier_bindings(
+            self.pre_effect.source(),
+            physical,
+            "[freeze:contract][callable-loop/loop-true",
+        )
+    }
+
     pub(in crate::mir::builder) fn body_source(&self) -> &RawInvocationSourceContextV1 {
         &self.body_source
     }

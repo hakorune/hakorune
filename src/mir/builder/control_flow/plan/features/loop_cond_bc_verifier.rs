@@ -4,13 +4,13 @@
 //! - verify route-specific PHI closure invariants after materialization
 //! - keep break/fallthrough contract checks out of the pipeline body
 
-use crate::mir::builder::control_flow::plan::features::loop_cond_bc_phi_materializer::LoopCondBreakContinuePhiClosure;
+use crate::mir::builder::control_flow::plan::features::loop_carriers::LoopPhiClosureV1;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeMap;
 
 pub(in crate::mir::builder) fn verify_loop_cond_break_continue_phi_closure(
-    phi_closure: &LoopCondBreakContinuePhiClosure,
+    phi_closure: &LoopPhiClosureV1,
     body_plans: &[LoweredRecipe],
     break_phi_dsts: &BTreeMap<String, ValueId>,
     continue_target: BasicBlockId,
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn verifier_accepts_fallthrough_step_target_shape() {
-        let closure = LoopCondBreakContinuePhiClosure::new(
+        let closure = LoopPhiClosureV1::new(
             vec![dummy_phi(2), dummy_phi(3), dummy_phi(4)],
             vec![("i".to_string(), ValueId(4))],
         );
@@ -145,7 +145,7 @@ mod tests {
 
     #[test]
     fn verifier_rejects_missing_fallthrough_continue() {
-        let closure = LoopCondBreakContinuePhiClosure::new(
+        let closure = LoopPhiClosureV1::new(
             vec![dummy_phi(2), dummy_phi(3), dummy_phi(4)],
             vec![("i".to_string(), ValueId(4))],
         );
@@ -170,7 +170,7 @@ mod tests {
 
     #[test]
     fn verifier_rejects_non_after_phi_final_value() {
-        let closure = LoopCondBreakContinuePhiClosure::new(
+        let closure = LoopPhiClosureV1::new(
             vec![dummy_phi(2), dummy_phi(3), dummy_phi(4)],
             vec![("i".to_string(), ValueId(2))],
         );

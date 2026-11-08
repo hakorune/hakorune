@@ -1,7 +1,6 @@
 //! Carrier variable collection helpers (analysis-only).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 mod continue_only;
@@ -19,75 +18,6 @@ pub(in crate::mir::builder) fn collect_from_body(body: &[ASTNode]) -> CarrierSet
     CarrierSets {
         vars: collect_carrier_vars(body),
     }
-}
-
-/// Collect outer carrier vars from AST body (SSOT entry).
-///
-/// "outer" = builder.function_state.variable_ctx.variable_map に既に存在する変数のみ収集。
-pub(in crate::mir::builder) fn collect_outer_from_body(
-    builder: &MirBuilder,
-    body: &[ASTNode],
-) -> CarrierSets {
-    CarrierSets {
-        vars: collect_outer_carrier_vars_impl(builder, body),
-    }
-}
-
-fn collect_outer_carrier_vars_impl(builder: &MirBuilder, body: &[ASTNode]) -> Vec<String> {
-    let mut carriers = BTreeMap::<String, ()>::new();
-
-    fn scan_stmt(builder: &MirBuilder, carriers: &mut BTreeMap<String, ()>, stmt: &ASTNode) {
-        match stmt {
-            ASTNode::Program { statements, .. } => {
-                for stmt in statements {
-                    scan_stmt(builder, carriers, stmt);
-                }
-            }
-            ASTNode::Assignment { target, .. } => {
-                let ASTNode::Variable { name, .. } = target.as_ref() else {
-                    return;
-                };
-                if builder
-                    .function_state
-                    .variable_ctx
-                    .variable_map
-                    .contains_key(name)
-                {
-                    carriers.insert(name.clone(), ());
-                }
-            }
-            ASTNode::If {
-                then_body,
-                else_body,
-                ..
-            } => {
-                for stmt in then_body {
-                    scan_stmt(builder, carriers, stmt);
-                }
-                if let Some(else_body) = else_body {
-                    for stmt in else_body {
-                        scan_stmt(builder, carriers, stmt);
-                    }
-                }
-            }
-            ASTNode::Loop { body, .. } | ASTNode::LoopRange { body, .. } => {
-                for stmt in body {
-                    scan_stmt(builder, carriers, stmt);
-                }
-            }
-            ASTNode::ScopeBox { body, .. } => {
-                for stmt in body {
-                    scan_stmt(builder, carriers, stmt);
-                }
-            }
-            _ => {}
-        }
-    }
-
-    for stmt in body {
-        scan_stmt(builder, &mut carriers, stmt);
-    }
-    carriers.keys().cloned().collect()
 }
 
 pub(in crate::mir::builder) fn collect_carrier_vars(body: &[ASTNode]) -> Vec<String> {

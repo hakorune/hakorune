@@ -46,27 +46,23 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
     let block_effects = skeleton.block_effects;
     let frag = skeleton.frag;
 
-    let carrier_vars =
-        crate::mir::builder::control_flow::plan::features::carriers::collect_outer_from_body(
-            builder,
-            &facts.recipe.body.body,
-        )
-        .vars;
+    let carrier_bindings =
+        input.carrier_bindings(&builder.function_state.variable_ctx.variable_map)?;
     let phi_materializer = LoopTrueBreakContinuePhiMaterializer::prepare(
         builder,
-        &carrier_vars,
+        &carrier_bindings,
         LOOP_TRUE_SOURCE_ERR,
     )?;
-    let carrier_phis = phi_materializer.carrier_phis().clone();
-    let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
-    let mut current_bindings = phi_materializer.phi_bindings();
+    let carrier_phis = phi_materializer.carrier_phis();
+    let carrier_step_phis = phi_materializer.carrier_step_phis();
+    let mut current_bindings = carrier_phis.clone();
 
     let has_break = facts.recipe.body.body.iter().any(body_has_break_stmt);
     let mut body_break_phi_dsts: Option<BTreeMap<String, crate::mir::ValueId>> = None;
     let mut body_after_phis: Vec<CorePhiInfo> = Vec::new();
     let break_phi_dsts = if has_break {
         let (out, after_phis) =
-            phi_materializer.plan_break_after_phis(builder, &carrier_vars, header_bb, after_bb);
+            phi_materializer.plan_break_after_phis(builder, header_bb, after_bb);
         body_after_phis = after_phis;
         if !out.is_empty() {
             body_break_phi_dsts = Some(out.clone());
@@ -84,7 +80,7 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
             name.clone(),
             *value_id,
         );
-        port.publish_loop_carrier_value(name, *value_id)
+        port.publish_source_carrier(carrier_bindings[name], *value_id)
             .map_err(|error| format!("{LOOP_TRUE_SOURCE_ERR}/carrier-header-publish: {error}"))?;
     }
 
@@ -138,7 +134,6 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
         step_bb,
         body_break_phi_dsts.as_ref(),
         body_after_phis,
-        LOOP_TRUE_SOURCE_ERR,
     )?;
     verify_loop_true_break_continue_phi_closure(
         &phi_closure,
@@ -151,7 +146,7 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
     )?;
 
     for (name, value_id) in phi_closure.final_values() {
-        port.publish_loop_carrier_value(name, *value_id)
+        port.publish_source_carrier(carrier_bindings[name], *value_id)
             .map_err(|error| format!("{LOOP_TRUE_SOURCE_ERR}/carrier-final-publish: {error}"))?;
     }
 

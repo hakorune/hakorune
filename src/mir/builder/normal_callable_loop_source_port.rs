@@ -73,6 +73,32 @@ impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
         session.prepare_checked(builder, product, &self.ledger.borrow(), header, after)
     }
 
+    pub(super) fn source_carrier_bindings(
+        &self,
+        source: &super::normal_callable_loop_handoff::CallableLoopBindingSourceV1,
+        physical: &BTreeMap<String, ValueId>,
+        error_prefix: &str,
+    ) -> Result<BTreeMap<String, crate::mir::resolved_semantics::BindingRefV1>, String> {
+        use crate::mir::builder::normal_callable_loop_handoff::CallableLoopSourceBindingClassV1;
+        let bindings = source.bindings().filter_map(|(binding, class)| {
+            (class == CallableLoopSourceBindingClassV1::Carrier).then_some(binding)
+        });
+        let mut carriers = std::collections::BTreeMap::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for binding in bindings {
+            if binding.owner() != source.owner() || !seen.insert(binding) {
+                return Err(format!(
+                    "{error_prefix}/carrier-binding-duplicate-or-owner]"
+                ));
+            }
+            let name = self.source_carrier_name(binding, physical)?;
+            if carriers.insert(name, binding).is_some() {
+                return Err(format!("{error_prefix}/carrier-name-collision]"));
+            }
+        }
+        Ok(carriers)
+    }
+
     pub(super) fn source_carrier_name(
         &self, binding: crate::mir::resolved_semantics::BindingRefV1,
         physical: &BTreeMap<String, ValueId>,

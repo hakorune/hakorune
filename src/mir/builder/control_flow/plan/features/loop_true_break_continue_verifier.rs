@@ -4,13 +4,13 @@
 //! - verify route-specific PHI closure invariants after materialization
 //! - keep break/fallthrough contract checks out of the pipeline body
 
-use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_phi_materializer::LoopTrueBreakContinuePhiClosure;
+use crate::mir::builder::control_flow::plan::features::loop_carriers::LoopPhiClosureV1;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
 pub(in crate::mir::builder) fn verify_loop_true_break_continue_phi_closure(
-    phi_closure: &LoopTrueBreakContinuePhiClosure,
+    phi_closure: &LoopPhiClosureV1,
     body_plans: &[LoweredRecipe],
     body_break_phi_dsts: Option<&BTreeMap<String, ValueId>>,
     body_after_phi_count: usize,
@@ -114,7 +114,7 @@ mod tests {
     #[test]
     fn verifier_accepts_break_lane_with_fallthrough_continue() {
         let break_phi_dsts = BTreeMap::from([("i".to_string(), ValueId(8))]);
-        let closure = LoopTrueBreakContinuePhiClosure::new(
+        let closure = LoopPhiClosureV1::new(
             vec![dummy_phi(2), dummy_phi(3), dummy_phi(8)],
             vec![("i".to_string(), ValueId(8))],
         );
@@ -137,7 +137,7 @@ mod tests {
 
     #[test]
     fn verifier_rejects_missing_fallthrough_continue() {
-        let closure = LoopTrueBreakContinuePhiClosure::new(
+        let closure = LoopPhiClosureV1::new(
             vec![dummy_phi(2), dummy_phi(3)],
             vec![("i".to_string(), ValueId(2))],
         );
@@ -159,7 +159,7 @@ mod tests {
     #[test]
     fn verifier_rejects_non_break_final_value_on_break_lane() {
         let break_phi_dsts = BTreeMap::from([("i".to_string(), ValueId(8))]);
-        let closure = LoopTrueBreakContinuePhiClosure::new(
+        let closure = LoopPhiClosureV1::new(
             vec![dummy_phi(2), dummy_phi(3), dummy_phi(8)],
             vec![("i".to_string(), ValueId(2))],
         );

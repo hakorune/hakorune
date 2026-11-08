@@ -3,6 +3,28 @@
 use crate::mir::builder::control_flow::plan::CorePhiInfo;
 use crate::mir::{BasicBlockId, ValueId};
 
+pub(in crate::mir::builder) struct LoopPhiClosureV1 {
+    phis: Vec<CorePhiInfo>,
+    final_values: Vec<(String, ValueId)>,
+}
+
+impl LoopPhiClosureV1 {
+    pub(in crate::mir::builder) fn new(
+        phis: Vec<CorePhiInfo>,
+        final_values: Vec<(String, ValueId)>,
+    ) -> Self {
+        Self { phis, final_values }
+    }
+
+    pub(in crate::mir::builder) fn phis(&self) -> &[CorePhiInfo] {
+        &self.phis
+    }
+
+    pub(in crate::mir::builder) fn final_values(&self) -> &[(String, ValueId)] {
+        &self.final_values
+    }
+}
+
 pub(in crate::mir::builder) fn build_phi_info(
     block: BasicBlockId,
     dst: ValueId,

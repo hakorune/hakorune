@@ -5,7 +5,6 @@
 //! - route-local `phis` / `final_values` closure
 
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
-use crate::mir::builder::control_flow::plan::CorePhiInfo;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::BindingRefV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
@@ -25,28 +24,6 @@ pub(in crate::mir::builder) struct LoopCondBreakContinuePhiMaterializer {
     continue_target: BasicBlockId,
     use_header_continue_target: bool,
     has_continue_edges: bool,
-}
-
-pub(in crate::mir::builder) struct LoopCondBreakContinuePhiClosure {
-    phis: Vec<CorePhiInfo>,
-    final_values: Vec<(String, ValueId)>,
-}
-
-impl LoopCondBreakContinuePhiClosure {
-    pub(in crate::mir::builder) fn new(
-        phis: Vec<CorePhiInfo>,
-        final_values: Vec<(String, ValueId)>,
-    ) -> Self {
-        Self { phis, final_values }
-    }
-
-    pub(in crate::mir::builder) fn phis(&self) -> &[CorePhiInfo] {
-        &self.phis
-    }
-
-    pub(in crate::mir::builder) fn final_values(&self) -> &[(String, ValueId)] {
-        &self.final_values
-    }
 }
 
 impl LoopCondBreakContinuePhiMaterializer {
@@ -137,7 +114,7 @@ impl LoopCondBreakContinuePhiMaterializer {
         after_bb: BasicBlockId,
         after_cond_preds: &BTreeSet<BasicBlockId>,
         body_exits_all_paths: bool,
-    ) -> Result<LoopCondBreakContinuePhiClosure, String> {
+    ) -> Result<loop_carriers::LoopPhiClosureV1, String> {
         let mut phis = Vec::new();
         let mut final_values = Vec::new();
         for carrier in &self.carriers {
@@ -184,7 +161,7 @@ impl LoopCondBreakContinuePhiMaterializer {
             final_values.push((var.clone(), carrier.after));
         }
 
-        Ok(LoopCondBreakContinuePhiClosure::new(phis, final_values))
+        Ok(loop_carriers::LoopPhiClosureV1::new(phis, final_values))
     }
 }
 
