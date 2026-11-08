@@ -93,7 +93,10 @@ fn ordinary_arithmetic_propagates_selected_reentry_failure_before_consumer_appen
     let error = builder
         .build_binary_op_from_values_recorded(crate::ast::BinaryOperator::Add, value, left)
         .unwrap_err();
-    assert!(error.contains("local-ssa-correspondence") || error.contains("scalar-original"));
+    assert!(
+        error.contains("local-ssa-correspondence") || error.contains("scalar-original"),
+        "unexpected refusal before the selected reentry check: {error}"
+    );
     assert!(!builder
         .current_function_instructions()
         .iter()

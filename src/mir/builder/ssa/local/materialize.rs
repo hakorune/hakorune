@@ -220,54 +220,6 @@ fn materialize_local_inner_v1(
             _ => true,
         };
 
-        if strict_planner_required() && def_inst.is_none() && def_kind == "NotFound" {
-            let mut varmap_hits: Vec<&str> = builder
-                .function_state
-                .variable_ctx
-                .variable_map
-                .iter()
-                .filter_map(|(name, &vid)| if vid == v { Some(name.as_str()) } else { None })
-                .collect();
-            varmap_hits.sort_unstable();
-            if varmap_hits.len() > 3 {
-                varmap_hits.truncate(3);
-            }
-            let varmap_hits_str = if varmap_hits.is_empty() {
-                "[]".to_string()
-            } else {
-                format!("[{}]", varmap_hits.join(","))
-            };
-            let pin = builder
-                .function_state
-                .pin_slot_names
-                .get(&v)
-                .map(|s| s.as_str())
-                .unwrap_or("none");
-            let has_type = builder.function_state.type_ctx.value_types.contains_key(&v);
-            let reserved = builder
-                .function_state
-                .compilation
-                .reserved_value_ids
-                .contains(&v);
-            let next_value_id_hint = builder
-                .function_state
-                .current_function
-                .as_ref()
-                .map(|f| f.next_value_id)
-                .unwrap_or(0);
-            return Err(LocalSsaMaterializationErrorV1::Contract(format!(
-                "[freeze:contract][local_ssa/undefined_source] fn={} bb={:?} kind={:?} v=%{} varmap_hits={} pin={} has_type={} reserved={} next_value_id_hint={}",
-                fn_name,
-                bb,
-                kind,
-                v.0,
-                varmap_hits_str,
-                pin,
-                has_type,
-                reserved,
-                next_value_id_hint
-            )));
-        }
 
         if def_block == Some(bb)
             && ((matches!(failure_policy, LocalSsaFailurePolicyV1::CheckedScalar)
@@ -327,6 +279,56 @@ fn materialize_local_inner_v1(
                 ));
             }
         }
+
+        if strict_planner_required() && def_inst.is_none() && def_kind == "NotFound" {
+            let mut varmap_hits: Vec<&str> = builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .iter()
+                .filter_map(|(name, &vid)| if vid == v { Some(name.as_str()) } else { None })
+                .collect();
+            varmap_hits.sort_unstable();
+            if varmap_hits.len() > 3 {
+                varmap_hits.truncate(3);
+            }
+            let varmap_hits_str = if varmap_hits.is_empty() {
+                "[]".to_string()
+            } else {
+                format!("[{}]", varmap_hits.join(","))
+            };
+            let pin = builder
+                .function_state
+                .pin_slot_names
+                .get(&v)
+                .map(|s| s.as_str())
+                .unwrap_or("none");
+            let has_type = builder.function_state.type_ctx.value_types.contains_key(&v);
+            let reserved = builder
+                .function_state
+                .compilation
+                .reserved_value_ids
+                .contains(&v);
+            let next_value_id_hint = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .map(|f| f.next_value_id)
+                .unwrap_or(0);
+            return Err(LocalSsaMaterializationErrorV1::Contract(format!(
+                "[freeze:contract][local_ssa/undefined_source] fn={} bb={:?} kind={:?} v=%{} varmap_hits={} pin={} has_type={} reserved={} next_value_id_hint={}",
+                fn_name,
+                bb,
+                kind,
+                v.0,
+                varmap_hits_str,
+                pin,
+                has_type,
+                reserved,
+                next_value_id_hint
+            )));
+        }
+
 
         if kind.can_forward_same_block_field_get_to_consumer()
             && def_block == Some(bb)
