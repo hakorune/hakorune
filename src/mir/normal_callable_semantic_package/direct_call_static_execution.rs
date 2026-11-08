@@ -89,14 +89,14 @@ fn result_agrees_v1(
     if result.declared_result_agrees_with_source() {
         return Ok(true);
     }
-    if original.qualified_carried_result_v1() != Some(LocalCallResultClassV1::Handle) {
+    if !matches!(original.qualified_carried_result_v1(), Some(LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable)) {
         return Ok(false);
     }
     let Some(object) = ledger.checked_callable_object_result_v1(original.target(), original.callee_owner())? else {
         return Ok(false);
     };
-    Ok(object.kind == crate::mir::instruction::InvokeCallResultKind::Handle
-        && completion.function_exit_contract().declared_result().agrees_with_object_result(object.class, false))
+    Ok(Some(object.kind) == original.qualified_carried_result_v1().and_then(|class| class.invoke_result())
+        && completion.function_exit_contract().declared_result().agrees_with_object_result(object.class, object.kind == crate::mir::instruction::InvokeCallResultKind::NullableHandle))
 }
 fn exact_i64(row: &DirectCallDispositionRowV1) -> bool {
     match &row.emission {
@@ -121,7 +121,7 @@ fn seal_local(
     row.execution = DirectCallExecutionV1::Lifecycle;
     // A received Handle is owned by its own commit row (`CallReceived`), which holds the
     // emitted bindings; only a scalar result owes a call-prefix binding group.
-    if local.result() != LocalCallResultClassV1::Handle {
+    if !matches!(local.result(), LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable) {
         ledger.record_lifecycle_local_call_site(site.clone(), LocalRouteWriterV1::DirectStatic)?;
     }
     Ok(())

@@ -127,7 +127,7 @@ mod tests {
                 )
                 .expect("generic receipt");
             let error = PreparedScriptDirectStaticResultPublicationV1::prepare(
-                &VerifiedCallableResultRepresentationV1::ExactNominalBox {
+                &VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
                     box_name: "Box".to_owned(),
                 },
                 emission,

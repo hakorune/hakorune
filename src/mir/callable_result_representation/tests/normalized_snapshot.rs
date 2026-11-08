@@ -159,7 +159,7 @@ fn normalize_representation(
         VerifiedCallableResultRepresentationV1::ExactString => {
             NormalizedResultRepresentationV1::ExactString
         }
-        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name } => {
+        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name, .. } => {
             NormalizedResultRepresentationV1::ExactNominalBox {
                 box_name: box_name.clone(),
             }

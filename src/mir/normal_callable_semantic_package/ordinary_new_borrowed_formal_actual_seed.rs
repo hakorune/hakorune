@@ -230,7 +230,7 @@ fn method_result_source_object_v1(
     >,
 ) -> FormalActualSeedV1 {
     match representation {
-        Some(crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name }) => {
+        Some(crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name, nullable: false }) => {
             FormalActualSeedV1::Class(box_name.into())
         }
         _ => FormalActualSeedV1::Conflict,
@@ -246,7 +246,7 @@ mod tests {
         use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1 as Representation;
 
         assert!(matches!(
-            method_result_source_object_v1(Some(Representation::ExactNominalBox {
+            method_result_source_object_v1(Some(Representation::ExactNominalBox { nullable: false,
                 box_name: "TreeNode".into(),
             })),
             FormalActualSeedV1::Class(class) if class.as_ref() == "TreeNode"

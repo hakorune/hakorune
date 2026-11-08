@@ -289,7 +289,7 @@ fn source_target_relation_accepts_exact_i64_without_ordinal_policy() {
         site.clone(),
         target.clone(),
         Some(CallableLoopSourceTargetRequirementV1 {
-            representation: VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            representation: VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
                 box_name: "Text".into(),
             },
             required_callee_i64_arguments: vec![1].into_boxed_slice(),

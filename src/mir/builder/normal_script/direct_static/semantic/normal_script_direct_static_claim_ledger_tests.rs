@@ -315,7 +315,7 @@ fn consume_required_argument_proof_reports_distinct_typed_failures() {
     let mut non_exact = claimed_for_consumption(
         vec![0].into_boxed_slice(),
         ScriptDirectStaticRequiredArgumentProofDispositionV1::NonExact(
-            VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
                 box_name: "Token".into(),
             },
         ),

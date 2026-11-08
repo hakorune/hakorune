@@ -30,7 +30,7 @@ fn composite_scalar_admission_keeps_direct_i64_and_rejects_string_box() {
             false,
         ),
         (
-            VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
                 box_name: "Page".into(),
             },
             false,

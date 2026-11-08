@@ -593,3 +593,8 @@ handler/backend combinations must reject before user-visible effects.
 snapshot. Its examples and status tables must not override this index or the
 current topic SSOTs. When a historical example is useful, cite it as migration
 evidence and link back here.
+
+The unannotated qualified-static form `local x = Factory.maybe(3)` also reaches
+the canonical EXE for an owned `P | Null` result. The same nullable receiver
+and conditional-End rules apply. Measured: nullable probe n12 prints `3` and
+exits 0. Nullable result annotations remain the next step of this series.

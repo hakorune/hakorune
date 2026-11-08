@@ -130,7 +130,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     flow.local_calls().iter().find(|call| {
                         call.site() == site
                             && call.owner() == site.owner()
-                            && call.result() == LocalCallResultClassV1::Handle
+                            && matches!(call.result(), LocalCallResultClassV1::Handle | LocalCallResultClassV1::Nullable)
                             && call.result_source().is_none()
                     })
                 })

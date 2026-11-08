@@ -374,7 +374,7 @@ mod tests {
         let (nominal, _) = row(
             vec![site].into_boxed_slice(),
             Box::new([]),
-            VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
                 box_name: "Token".into(),
             },
         );

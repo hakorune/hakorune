@@ -16,7 +16,7 @@ fn exact_physical_result_type(representation: &VerifiedCallableResultRepresentat
         VerifiedCallableResultRepresentationV1::ExactI64 => MirType::Integer,
         VerifiedCallableResultRepresentationV1::ExactBool => MirType::Bool,
         VerifiedCallableResultRepresentationV1::ExactString => MirType::String,
-        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name } => {
+        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name, .. } => {
             MirType::Box(box_name.clone())
         }
     }
@@ -283,7 +283,7 @@ mod tests {
     #[test]
     fn exact_nominal_box_representation_projects_to_the_matching_mir_type() {
         assert_eq!(
-            exact_physical_result_type(&VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            exact_physical_result_type(&VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
                 box_name: "ParserNodeProductV1".to_owned(),
             },),
             MirType::Box("ParserNodeProductV1".to_owned())

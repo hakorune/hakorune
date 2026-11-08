@@ -264,9 +264,9 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 }
                 LiteralValue::Bool(_) => I64ExpressionFactV1::ExactBool(BTreeSet::new()),
                 LiteralValue::String(_) => I64ExpressionFactV1::ExactString,
+                LiteralValue::Null => I64ExpressionFactV1::KnownNonI64.with_source_value_class(super::CallableSourceValueClassV1::Null),
                 LiteralValue::TypedInteger { .. }
                 | LiteralValue::Float(_)
-                | LiteralValue::Null
                 | LiteralValue::Void => I64ExpressionFactV1::KnownNonI64,
             }),
             ASTNode::Variable { name, .. } => {

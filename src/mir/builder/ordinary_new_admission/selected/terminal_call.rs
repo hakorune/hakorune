@@ -340,6 +340,7 @@ pub(in crate::mir::builder) fn emit_local(
         .map_err(|_| freeze("local-call-source-mismatch"))?;
     match result_kind {
         InvokeCallResultKind::Map => ledger.begin_map_call_emission(&owned_site)?,
+        InvokeCallResultKind::NullableHandle => ledger.begin_nullable_call_emission(&owned_site, row.published_key_v1().ok_or_else(|| freeze("nullable-result-key-missing"))?)?,
         // The callee's canonical object moves to this owner at the Return
         // edge; begin records it so terminal cleanup owes one HomeRelease.
         InvokeCallResultKind::Handle => {
@@ -389,6 +390,7 @@ pub(in crate::mir::builder) fn emit_local(
     };
     builder.emit_instruction(projection.clone())?;
     let result_class = match result_kind {
+        InvokeCallResultKind::NullableHandle => Some(row.published_key_v1().and_then(|key| ledger.nullable_result_class(key)).ok_or_else(|| freeze("nullable-result-class-missing"))?),
         InvokeCallResultKind::Handle => Some(
             row.published_key_v1()
                 .and_then(|key| ledger.callable_result_class(key))
@@ -407,7 +409,7 @@ pub(in crate::mir::builder) fn emit_local(
     bindings.push(projection.clone());
     match result_kind {
         InvokeCallResultKind::Map => ledger.record_map_emission(&owned_site, result, bindings)?,
-        InvokeCallResultKind::Handle => {
+        InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle => {
             ledger.record_handle_call_emission(&owned_site, result, bindings)?
         }
         InvokeCallResultKind::I64 => ledger.record_root_direct_scalar_call_bindings_v1(

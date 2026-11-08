@@ -11,7 +11,7 @@ fn exact(requirements: &[u32]) -> VerifiedCallableResultDispositionV1 {
 }
 
 fn exact_box(name: &str) -> VerifiedCallableResultDispositionV1 {
-    VerifiedCallableResultDispositionV1::ExactNominalBox {
+    VerifiedCallableResultDispositionV1::ExactNominalBox { nullable: false,
         box_name: name.to_owned(),
         required_i64_arguments: Box::new([]),
     }
@@ -180,7 +180,7 @@ fn declared_box_result_must_be_the_box_the_body_returns() {
 
     assert_eq!(
         disposition(source, "ObjectProofV1", "same", 0),
-        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name: "Leaf".into(), required_i64_arguments: Box::new([]) }
+        VerifiedCallableResultDispositionV1::ExactNominalBox { nullable: false, box_name: "Leaf".into(), required_i64_arguments: Box::new([]) }
     );
     for method in ["other", "scalar"] {
         assert_eq!(
@@ -494,4 +494,25 @@ fn declared_bool_result_must_be_proved_exact_bool_by_its_body() {
         disposition(source, "DeclaredBoolV1", "declared_i64", 0),
         VerifiedCallableResultDispositionV1::ExactI64 { .. }
     ));
+}
+
+#[test]
+fn nullable_nominal_results_retain_class_and_constructor_input_obligations() {
+    let source = r#"
+        box Payload { birth(value: i64) { } }
+        box Other { birth() { } }
+        static box Factory {
+            maybe(k) { if k > 0 { return new Payload(k) } return null }
+            wrong(k) { if k > 0 { return new Payload(k) } return new Other() }
+            untyped_null() { return null }
+            void_exit(k) { if k > 0 { return new Payload(k) } return void }
+        }
+    "#;
+    assert_eq!(disposition(source, "Factory", "maybe", 1),
+        VerifiedCallableResultDispositionV1::ExactNominalBox {
+            box_name: "Payload".into(), nullable: true, required_i64_arguments: Box::new([0]),
+        });
+    for (name, arity) in [("wrong", 1), ("untyped_null", 0), ("void_exit", 1)] {
+        assert!(matches!(disposition(source, "Factory", name, arity), VerifiedCallableResultDispositionV1::Unavailable(_)));
+    }
 }

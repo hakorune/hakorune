@@ -53,3 +53,5 @@ C emitterの実引数準備は意味不変で分割し、3 EXEと33 dumpの一�
 - N22: Null は source value-class の不在値の証拠に限り、Unit の Void と区別し、catalog は Null 単独に object kind を発行せず、nominal nullable の証拠と既存の独立した return 検証を照合する。
 - N23: Static の Nullable 結果は既存の received Home と conditional End に接続し、元 call の source target・canonical object・引数証明・packet 投影を Handle と同じ共通経路で保持する。
 - N24: 独立 MIR 検証は既存の StaticBoxMethod Call に NullableHandle を認め、canonical target・arity・callee result と公開 return/lease の照合をすべて保持し、free function や別の ABI を同時に開かない。
+
+Stage 2: n12 canonical EXE prints 3 / exit 0; instance n01 and early-return nonnullable t02 retain their results; forward n15 stays refused. Callable result family: 99 pass. One semantic test adds nullable class/input-obligation proof and conflicting-class/null-only/Void refusals to the existing source-proof family; legacy nonnullable expectations now state the nullable bit explicitly.

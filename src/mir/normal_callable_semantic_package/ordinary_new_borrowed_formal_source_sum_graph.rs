@@ -297,8 +297,9 @@ impl Graph<'_> {
                         Some(Rep::ExactBool) => {
                             row.atoms.insert(Value::Bool);
                         }
-                        Some(Rep::ExactNominalBox { box_name }) => {
+                        Some(Rep::ExactNominalBox { box_name, nullable }) => {
                             row.atoms.insert(Value::Object(box_name.into()));
+                            if nullable { row.atoms.insert(Value::Null); }
                         }
                         None if source.core_operand_request().is_some_and(|request|
                             request.manifest().row().op == crate::mir::core_method_op::CoreMethodOp::MapKeys) => {

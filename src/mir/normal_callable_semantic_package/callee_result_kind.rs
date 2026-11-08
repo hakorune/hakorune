@@ -41,15 +41,17 @@ impl CalleeResultKindV1 {
             StaticEvidence::ExactI64 { .. } => Some(Self::I64),
             StaticEvidence::ExactBool { .. } => Some(Self::Bool),
             StaticEvidence::ExactString => Some(Self::Text),
-            StaticEvidence::ExactNominalBox { box_name, .. } => Some(Self::Handle(box_name.clone().into())),
+            StaticEvidence::ExactNominalBox { box_name, nullable, .. } => Some(if *nullable { Self::Nullable(box_name.clone().into()) } else { Self::Handle(box_name.clone().into()) }),
             StaticEvidence::Unavailable(_) => None,
         }
     }
-    fn from_source_value_class(class: &crate::mir::callable_result_representation::CallableSourceValueClassV1) -> Self {
+    fn from_source_value_class(class: &crate::mir::callable_result_representation::CallableSourceValueClassV1) -> Option<Self> {
         use crate::mir::callable_result_representation::CallableSourceValueClassV1 as Source;
         match class {
-            Source::NominalBox(class) => Self::Handle(class.clone().into()),
-            Source::Map => Self::Map,
+            Source::NominalBox(class) => Some(Self::Handle(class.clone().into())),
+            Source::NullableNominalBox(class) => Some(Self::Nullable(class.clone().into())),
+            Source::Null => None,
+            Source::Map => Some(Self::Map),
         }
     }
     fn from_object(row: &OrdinaryNewResultClassV1) -> Option<Self> {
@@ -127,7 +129,7 @@ impl CalleeResultKindCatalogV1 {
         match self.resolved.get() {
             Some(rows) => rows.get(key)?.kind.borrow().clone(),
             None => self.static_evidence(key).and_then(CalleeResultKindV1::from_static)
-                .or_else(|| self.static_value_classes.get(key).map(CalleeResultKindV1::from_source_value_class)),
+                .or_else(|| self.static_value_classes.get(key).and_then(CalleeResultKindV1::from_source_value_class)),
         }
     }
     pub(super) fn object(&self, key: &Key) -> Option<&OrdinaryNewResultClassV1> {
@@ -171,7 +173,7 @@ impl CalleeResultKindCatalogV1 {
         })).collect();
         for (key, class) in &self.static_value_classes {
             let row = rows.entry(key.clone()).or_insert(ResultRowV1 { kind: RefCell::new(None), object: None, normal_i64: false });
-            row.corroborate(key, Some(CalleeResultKindV1::from_source_value_class(class)))?;
+            row.corroborate(key, CalleeResultKindV1::from_source_value_class(class))?;
         }
         for (key, object) in facts.iter() {
             let row = rows.entry(key.clone()).or_insert(ResultRowV1 { kind: RefCell::new(None), object: None, normal_i64: false });

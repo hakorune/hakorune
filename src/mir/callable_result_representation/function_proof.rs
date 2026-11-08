@@ -21,7 +21,7 @@ use super::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum FunctionProofOutcomeV1 {
     Exact(RequirementSetV1),
-    ExactNominalBox(String, RequirementSetV1),
+    ExactNominalBox(String, bool, RequirementSetV1),
     ExactString,
     ExactBool(RequirementSetV1),
     Unavailable(CallableResultUnavailableReasonV1),
@@ -109,10 +109,11 @@ pub(super) fn prove_function<'targets, 'catalog>(
     )?;
     // One return proof contributes two independent facts. No second AST walk.
     let source_value_class = if fatal.is_none() && flow.fallthrough.is_none() {
-        returns.first().and_then(I64ExpressionFactV1::source_value_class)
-            .filter(|class| returns.iter().all(|fact| fact.source_value_class().as_ref() == Some(class)))
+        returns.iter().try_fold(None, |current: Option<super::CallableSourceValueClassV1>, fact| {
+            let next = fact.source_value_class()?;
+            Some(Some(match current { Some(current) => current.join(&next)?, None => next }))
+        }).flatten()
     } else { None };
-    let returns = returns.into_iter().map(|fact| fact.admission_fact().clone()).collect();
     let outcome = if let Some(reason) = fatal {
         FunctionProofOutcomeV1::Unavailable(reason)
     } else if flow.fallthrough.is_some() {
@@ -124,7 +125,7 @@ pub(super) fn prove_function<'targets, 'catalog>(
         (FunctionProofOutcomeV1::Unavailable(_) | FunctionProofOutcomeV1::PendingDependency, _) | (_, None) => outcome,
         (FunctionProofOutcomeV1::ExactBool(_), Some(Declared::Scalar(ExactTrivialScalarAbiV1::Bool)))
         | (FunctionProofOutcomeV1::ExactString, Some(Declared::OwnedText)) => outcome,
-        (FunctionProofOutcomeV1::ExactNominalBox(box_name, _), Some(Declared::OwnedObject))
+        (FunctionProofOutcomeV1::ExactNominalBox(box_name, false, _), Some(Declared::OwnedObject))
             if Some(box_name.as_str()) == declared_name => outcome,
         _ => FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::DeclaredResultDisagrees),
     };
@@ -394,6 +395,12 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
         return FunctionProofOutcomeV1::PendingDependency;
     }
 
+    // Null only widens an otherwise proved nominal result; it supplies no class or input proof.
+    let nullable = returns.iter().any(|fact| matches!(fact.source_value_class(),
+        Some(super::CallableSourceValueClassV1::Null | super::CallableSourceValueClassV1::NullableNominalBox(_))));
+    let returns = returns.into_iter().filter(|fact| !matches!(fact.source_value_class(), Some(super::CallableSourceValueClassV1::Null)))
+        .map(|fact| fact.admission_fact().clone()).collect::<Vec<_>>();
+    if returns.is_empty() { return FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::KnownNonI64Return); }
     let mut requirements = BTreeSet::new();
     let mut saw_exact = false;
     let mut saw_string = false;
@@ -456,6 +463,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
             I64ExpressionFactV1::PendingDependency => unreachable!("handled before reduction"),
         }
     }
+    if nullable && exact_box.is_none() { return FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::ConflictingReturnRepresentations); }
     if saw_non_i64 {
         return FunctionProofOutcomeV1::Unavailable(
             if saw_exact || saw_string || saw_bool || exact_box.is_some() {
@@ -472,7 +480,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
         return FunctionProofOutcomeV1::ExactString;
     }
     if let Some(box_name) = exact_box {
-        return FunctionProofOutcomeV1::ExactNominalBox(box_name, requirements);
+        return FunctionProofOutcomeV1::ExactNominalBox(box_name, nullable, requirements);
     }
     FunctionProofOutcomeV1::Exact(requirements)
 }

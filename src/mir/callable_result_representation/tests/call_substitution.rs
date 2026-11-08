@@ -131,7 +131,7 @@ fn exact_nominal_box_result_propagates_through_the_exact_static_target_row() {
 
     assert_eq!(
         results.disposition(&caller),
-        Some(&VerifiedCallableResultDispositionV1::ExactNominalBox {
+        Some(&VerifiedCallableResultDispositionV1::ExactNominalBox { nullable: false,
             box_name: "ProductV1".to_owned(),
             required_i64_arguments: Box::new([]),
         })
@@ -141,7 +141,7 @@ fn exact_nominal_box_result_propagates_through_the_exact_static_target_row() {
         .expect("exact static Box call row");
     assert_eq!(
         row.result_representation(),
-        super::super::VerifiedCallableResultRepresentationV1::ExactNominalBox {
+        super::super::VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
             box_name: "ProductV1".to_owned(),
         }
     );
@@ -181,7 +181,7 @@ fn constructed_box_traverses_arguments_and_retains_nested_static_call_evidence()
 
     assert_eq!(
         results.disposition(&caller),
-        Some(&VerifiedCallableResultDispositionV1::ExactNominalBox {
+        Some(&VerifiedCallableResultDispositionV1::ExactNominalBox { nullable: false,
             box_name: "WrapperV1".to_owned(),
             required_i64_arguments: Box::new([]),
         })
@@ -191,7 +191,7 @@ fn constructed_box_traverses_arguments_and_retains_nested_static_call_evidence()
             .call_result(&caller, &inner)
             .expect("nested constructor argument call row")
             .result_representation(),
-        super::super::VerifiedCallableResultRepresentationV1::ExactNominalBox {
+        super::super::VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
             box_name: "ProductV1".to_owned(),
         }
     );

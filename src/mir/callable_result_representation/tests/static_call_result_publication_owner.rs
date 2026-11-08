@@ -364,7 +364,7 @@ fn exact_nominal_box_row_reaches_the_owned_publication_handoff() {
     let (demand, required_callee_i64_arguments) = handoff.consume();
     assert_eq!(
         demand.representation(),
-        &VerifiedCallableResultRepresentationV1::ExactNominalBox {
+        &VerifiedCallableResultRepresentationV1::ExactNominalBox { nullable: false,
             box_name: "ProductV1".to_owned(),
         }
     );

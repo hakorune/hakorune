@@ -31,7 +31,22 @@ pub(crate) enum CallableResultUnavailableReasonV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CallableSourceValueClassV1 {
     NominalBox(String),
+    NullableNominalBox(String),
+    Null,
     Map,
+}
+
+impl CallableSourceValueClassV1 {
+    pub(super) fn join(&self, other: &Self) -> Option<Self> {
+        use CallableSourceValueClassV1::*;
+        if self == other { return Some(self.clone()); }
+        match (self, other) {
+            (NominalBox(name) | NullableNominalBox(name), Null)
+            | (Null, NominalBox(name) | NullableNominalBox(name)) => Some(NullableNominalBox(name.clone())),
+            (NominalBox(a), NullableNominalBox(b)) | (NullableNominalBox(a), NominalBox(b)) if a == b => Some(NullableNominalBox(a.clone())),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,7 +54,7 @@ pub(crate) enum VerifiedCallableResultRepresentationV1 {
     ExactI64,
     ExactString,
     ExactBool,
-    ExactNominalBox { box_name: String },
+    ExactNominalBox { nullable: bool, box_name: String },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -47,7 +62,7 @@ pub(crate) enum VerifiedCallableResultDispositionV1 {
     ExactI64 { required_i64_arguments: Box<[u32]> },
     ExactString,
     ExactBool { required_i64_arguments: Box<[u32]> },
-    ExactNominalBox { box_name: String, required_i64_arguments: Box<[u32]> },
+    ExactNominalBox { nullable: bool, box_name: String, required_i64_arguments: Box<[u32]> },
     Unavailable(CallableResultUnavailableReasonV1),
 }
 
@@ -66,10 +81,11 @@ impl VerifiedCallableResultDispositionV1 {
     pub(crate) fn exact_nominal_box(
         key: &CanonicalSameModuleCallableKeyV1,
         box_name: String,
+        nullable: bool,
         requirements: impl IntoIterator<Item = u32>,
     ) -> Result<Self, CallableResultCatalogErrorV1> {
         let required_i64_arguments = super::requirements::seal_requirements(key, requirements)?;
-        Ok(Self::ExactNominalBox { box_name, required_i64_arguments })
+        Ok(Self::ExactNominalBox { box_name, nullable, required_i64_arguments })
     }
 
     pub(crate) fn exact_bool(
@@ -108,9 +124,10 @@ impl VerifiedCallableResultDispositionV1 {
             Self::ExactI64 { .. } => Some(VerifiedCallableResultRepresentationV1::ExactI64),
             Self::ExactBool { .. } => Some(VerifiedCallableResultRepresentationV1::ExactBool),
             Self::ExactString => Some(VerifiedCallableResultRepresentationV1::ExactString),
-            Self::ExactNominalBox { box_name, .. } => {
+            Self::ExactNominalBox { box_name, nullable, .. } => {
                 Some(VerifiedCallableResultRepresentationV1::ExactNominalBox {
                     box_name: box_name.clone(),
+                    nullable: *nullable,
                 })
             }
             Self::Unavailable(_) => None,

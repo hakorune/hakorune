@@ -212,18 +212,23 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 (claim.class().to_owned(), claim.object())
             } else {
-                let targets = self.lexical_source_targets.as_ref()
-                    .ok_or_else(|| freeze("root-instance-call-new-missing"))?;
-                let source = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::original_lexical_target_at_v1(targets, &owned_initializer)?
-                    .ok_or_else(|| freeze("root-instance-call-new-missing"))?;
-                let class = match self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(source.target())) {
+                let lexical = self.lexical_source_targets.as_ref().map(|targets|
+                    crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::original_lexical_target_at_v1(targets, &owned_initializer))
+                    .transpose()?.flatten();
+                let static_source = if lexical.is_none() { self.selected_static_local_source_v1(&owned_initializer)? } else { None };
+                let (target, slot) = match (lexical, static_source.as_ref()) {
+                    (Some(source), None) => (source.target(), source.target_batch_slot()),
+                    (None, Some(source)) => (source.target(), source.target_batch_slot()),
+                    _ => return Err(freeze("root-instance-call-new-missing")),
+                };
+                let kind = self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(target));
+                let class = match &kind {
                     Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Handle(class)
-                        | crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(class)) => class,
+                        | crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(class)) => class.clone(),
                     _ => return Err(freeze("root-instance-call-result-kind-unavailable")),
                 };
-                if matches!(self.result_kind_catalog_v1().and_then(|catalog| catalog.kind(source.target())),
-                    Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(_)))
-                    && !nullable_exits_hold(batch, source.target_batch_slot()) {
+                if matches!(kind, Some(crate::mir::normal_callable_semantic_package::callee_result_kind::CalleeResultKindV1::Nullable(_)))
+                    && !nullable_exits_hold(batch, slot) {
                     return Err(freeze("root-instance-call-result-kind-unavailable"));
                 }
                 let acquisition = flow.local_calls().iter().find(|call| call.site() == &owned_initializer
