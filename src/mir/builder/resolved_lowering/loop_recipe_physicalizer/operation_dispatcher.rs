@@ -21,7 +21,7 @@ use super::operation_emitter::{
 };
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperationTargetBlockV1};
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::LoopValueKeyV1;
@@ -93,7 +93,10 @@ pub(super) enum LoopOperationDispatchPhysicalFailureV1 {
         error: String,
     },
     ValueAlreadyPublished(LoopValueKeyV1),
-    ReceiptCountMismatch { expected: usize, found: usize },
+    ReceiptCountMismatch {
+        expected: usize,
+        found: usize,
+    },
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -128,20 +131,14 @@ impl CompletedLoopOperationDispatchV1 {
 pub(in crate::mir::builder::resolved_lowering) struct LoopOperationDispatchServicesV1<'a, 'source> {
     pub(super) builder: &'a mut MirBuilder,
     pub(super) identity: &'a mut ResolvedSsaIdentityStateV2<'source>,
-    pub(super) phis: &'a mut PhiTxn,
 }
 
 impl<'a, 'source> LoopOperationDispatchServicesV1<'a, 'source> {
     pub(in crate::mir::builder::resolved_lowering) fn new(
         builder: &'a mut MirBuilder,
         identity: &'a mut ResolvedSsaIdentityStateV2<'source>,
-        phis: &'a mut PhiTxn,
     ) -> Self {
-        Self {
-            builder,
-            identity,
-            phis,
-        }
+        Self { builder, identity }
     }
 }
 
@@ -167,7 +164,6 @@ pub(super) fn emit_prepared_operation_family_at_target_v1<'source>(
             let mut identity = CanonicalBindingReadServicesV1 {
                 builder: services.builder,
                 identity: services.identity,
-                phis: services.phis,
             };
             let receipt = emit_prepared_read_binding_at_target_v1(&prepared, target, &mut identity)
                 .map_err(LoopOperationDispatchRejectV1::Read)?;
@@ -195,7 +191,6 @@ pub(super) fn emit_prepared_operation_family_at_target_v1<'source>(
             let mut identity = CanonicalBindingReadServicesV1 {
                 builder: services.builder,
                 identity: services.identity,
-                phis: services.phis,
             };
             let receipt = emit_prepared_carrier_seed_at_target_v1(prepared, target, &mut identity)
                 .map_err(LoopOperationDispatchRejectV1::CarrierSeed)?;
@@ -217,7 +212,6 @@ pub(super) fn emit_prepared_operation_family_at_target_v1<'source>(
             let mut identity = CanonicalBindingReadServicesV1 {
                 builder: services.builder,
                 identity: services.identity,
-                phis: services.phis,
             };
             emit_prepared_write_binding_at_target_v1(&prepared, target, state, &mut identity)
                 .map(LoopOperationDispatchReceiptV1::Write)

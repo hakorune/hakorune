@@ -102,7 +102,7 @@ pub(super) fn emit_prepared_carrier_seed_at_target_v1(
     }
     let canonical = services
         .identity
-        .read_entry_receipt(services.builder, services.phis, block, prepared.binding)
+        .read_entry_receipt(services.builder, block, prepared.binding)
         .map_err(LoopDerivedCarrierSeedEmissionRejectV1::CanonicalRead)?;
     if canonical.owner() != prepared.owner
         || canonical.binding() != prepared.binding

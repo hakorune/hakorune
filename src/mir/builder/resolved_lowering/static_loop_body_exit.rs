@@ -7,15 +7,15 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionS
 use crate::mir::builder::resolved_lowering::static_loop_body::{
     read_i64, StaticLoopBodyContinuationV1,
 };
-use crate::mir::builder::resolved_lowering::static_loop_header::StaticLoopHeaderContinuationV1;
 use crate::mir::builder::resolved_lowering::static_loop_entry_session::{
     emit_selected_root_graph_v1, SelectedStaticRootGraphPhysicalV1,
 };
+use crate::mir::builder::resolved_lowering::static_loop_header::StaticLoopHeaderContinuationV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::loop_recipe_contract::{
     LoopBinaryI64OpV2, LoopExitKindV2, LoopOperationV2, LoopRecipeItemV2,
 };
+use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::resolved_semantics::ResolvedExitSiteV1;
 use crate::mir::MirType;
 
@@ -202,6 +202,6 @@ pub(super) fn emit_unpublished_body_exit_v1(
     };
     canonical
         .identity
-        .seal_block(draft, &mut canonical.phis, header.header, &witness)?;
+        .seal_block(draft, header.header, &witness)?;
     Ok(root)
 }

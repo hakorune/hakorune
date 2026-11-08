@@ -1,6 +1,5 @@
 //! One function-scoped owner bundle shared by canonical lowering profiles.
 
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::{CheckedCallOutNormalResultProjectionV1, CheckedCallOutSiteIdV1};
@@ -100,7 +99,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     pub(in crate::mir::builder::resolved_lowering) completion:
         ResolvedFunctionCompletionConsumptionV1,
     pub(in crate::mir::builder::resolved_lowering) cfg: CanonicalCfgSessionV1,
-    pub(in crate::mir::builder::resolved_lowering) phis: PhiTxn,
+
     pub(in crate::mir::builder::resolved_lowering) implicit_completion: bool,
     physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
     physical_entry_execution: Option<physical_entry_boundary::PhysicalEntryExecutionBoundaryV1>,
@@ -327,7 +326,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             if_control: CanonicalIfControlConsumptionV1::Resolved(if_control.into_use_ledger()),
             completion,
             cfg: CanonicalCfgSessionV1::new_for_owner(input.owner()),
-            phis: PhiTxn::begin("canonical_binding_ssa"),
+
             implicit_completion,
             physical_entry_sidecar: None,
             physical_entry_execution: None,
@@ -384,7 +383,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             if_control: CanonicalIfControlConsumptionV1::DynamicProfileOwned,
             completion,
             cfg: CanonicalCfgSessionV1::new_for_owner(input.owner()),
-            phis: PhiTxn::begin("canonical_binding_ssa"),
+
             implicit_completion,
             physical_entry_sidecar: None,
             physical_entry_execution: None,

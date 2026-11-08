@@ -65,7 +65,6 @@ pub(in crate::mir::builder) struct CommonV2S6CCursorCfgReceiptV1<'session, 'sour
 }
 
 impl CommonV2S6CCursorCfgReceiptV1<'_, '_, '_> {
-
     pub(in crate::mir::builder) const fn after_block(&self) -> BasicBlockId {
         self.after_block
     }
@@ -279,15 +278,19 @@ fn materialize_inner<'session, 'source, 'envelope>(
         .session
         .publish_physical_value_type(builder, byte_phi, MirType::Integer)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
-    let byte_token: PhiToken = session
-        .session
-        .phis
-        .define_provisional_phi(
-            builder,
-            condition_row.physical_block(),
-            byte_phi,
-            "s6c:byte",
-        )
+    let phi_control = builder
+        .function_control_for_owner_v1(session.session.owner())
+        .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
+    let byte_token: PhiToken = phi_control
+        .borrow_mut()
+        .with_transaction(|transaction| {
+            transaction.define_provisional_phi(
+                builder,
+                condition_row.physical_block(),
+                byte_phi,
+                "s6c:byte",
+            )
+        })
         .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
     let loop_condition = session
         .session
@@ -432,7 +435,6 @@ fn materialize_inner<'session, 'source, 'envelope>(
             .identity
             .read_entry_receipt_with_deferred_entry(
                 builder,
-                &mut session.session.phis,
                 return_placement.continuation_block,
                 source.index_binding(),
                 execution_entry,
@@ -440,7 +442,6 @@ fn materialize_inner<'session, 'source, 'envelope>(
     } else {
         session.session.identity.read_entry_receipt(
             builder,
-            &mut session.session.phis,
             return_placement.continuation_block,
             source.index_binding(),
         )
@@ -504,18 +505,19 @@ fn materialize_inner<'session, 'source, 'envelope>(
         )
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
 
-    session
-        .session
-        .phis
-        .patch_phi_inputs(
-            builder,
-            byte_token,
-            vec![
-                (execution_entry, entry_byte),
-                (return_placement.continuation_block, byte_next),
-            ],
-            "s6c:byte",
-        )
+    phi_control
+        .borrow_mut()
+        .with_transaction(|transaction| {
+            transaction.patch_phi_inputs(
+                builder,
+                byte_token,
+                vec![
+                    (execution_entry, entry_byte),
+                    (return_placement.continuation_block, byte_next),
+                ],
+                "s6c:byte",
+            )
+        })
         .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
     let tail_value = issue_i64(session, builder, after_block, -1)?;
     session
@@ -611,7 +613,7 @@ fn materialize_inner<'session, 'source, 'envelope>(
             session
                 .session
                 .identity
-                .seal_block(builder, &mut session.session.phis, block, &witness)
+                .seal_block(builder, block, &witness)
                 .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
         }
     }

@@ -218,7 +218,7 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
         let read = session
             .session
             .identity
-            .read_entry_receipt(builder, &mut session.session.phis, entry_block, binding)
+            .read_entry_receipt(builder, entry_block, binding)
             .map_err(ConditionBoolMaterializationRejectV1::LeftRead)?;
         if read.owner() != session_owner
             || read.binding() != binding

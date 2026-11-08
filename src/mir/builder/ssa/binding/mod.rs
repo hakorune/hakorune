@@ -34,6 +34,7 @@ pub(in crate::mir::builder) struct BindingSsaBuilderV1<Token, Key = BindingRefV1
     poisoned: bool,
 }
 
+#[cfg(test)]
 impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
     pub(in crate::mir::builder) fn new(owner: FunctionOwnerIdV1) -> Self {
         Self::with_keys(Some(owner))

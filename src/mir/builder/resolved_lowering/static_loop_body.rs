@@ -314,7 +314,6 @@ fn read_i64_receipt(
         .claim_variable_use_binding(site, binding)?;
     let read = canonical.identity.read_entry_receipt_with_deferred_entry(
         draft,
-        &mut canonical.phis,
         block,
         binding,
         deferred_entry,

@@ -170,18 +170,13 @@ impl CanonicalSsaFunctionSessionV2<'_> {
             return Err(DynamicLoopPhiCloseIssueV1::HeaderPredecessorMismatch);
         }
         self.identity
-            .seal_block(builder, &mut self.phis, placement.enter(), &enter_witness)
+            .seal_block(builder, placement.enter(), &enter_witness)
             .map_err(DynamicLoopPhiCloseIssueV1::CanonicalIdentitySeal)?;
         self.identity
-            .seal_block(
-                builder,
-                &mut self.phis,
-                placement.terminal_backedge(),
-                &terminal_witness,
-            )
+            .seal_block(builder, placement.terminal_backedge(), &terminal_witness)
             .map_err(DynamicLoopPhiCloseIssueV1::CanonicalIdentitySeal)?;
         self.identity
-            .seal_block(builder, &mut self.phis, placement.header(), &header_witness)
+            .seal_block(builder, placement.header(), &header_witness)
             .map_err(DynamicLoopPhiCloseIssueV1::CanonicalIdentitySeal)?;
 
         Ok(ClosedSourceBackedDynamicLoopCarrierPhiV1 { operations })

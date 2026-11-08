@@ -422,7 +422,6 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
         let mut services = LoopOperationDispatchServicesV1::new(
             outer.builder_view_mut_for_lowering(),
             &mut session.identity,
-            &mut session.phis,
         );
         plan.emit_all(values, &mut services)
     };
@@ -528,7 +527,6 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
             outer.builder_view_mut_for_lowering(),
             &mut session.cfg,
             &mut session.identity,
-            &mut session.phis,
         )
         .map_err(|error| format!("After: {error:?}"))?;
     if let Err(error) = assert_loop_add_backedge(outer.builder_view(), header_current) {

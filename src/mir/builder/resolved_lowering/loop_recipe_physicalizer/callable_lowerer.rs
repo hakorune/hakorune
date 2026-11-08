@@ -203,11 +203,7 @@ fn lower_inside_session<'builder>(
         })?;
         let values = LoopOperationValueLedgerV1::default();
         let completed = {
-            let mut services = LoopOperationDispatchServicesV1::new(
-                builder,
-                &mut session.identity,
-                &mut session.phis,
-            );
+            let mut services = LoopOperationDispatchServicesV1::new(builder, &mut session.identity);
             plan.emit_all(values, &mut services)
                 .map_err(|error| format!("[freeze:contract][callable-loop/dispatch] {error:?}"))?
         };
@@ -218,12 +214,7 @@ fn lower_inside_session<'builder>(
             format!("[freeze:contract][callable-loop/after-preflight] {error:?}")
         })?;
         let ready_after = prepared_after
-            .emit_and_seal(
-                builder,
-                &mut session.cfg,
-                &mut session.identity,
-                &mut session.phis,
-            )
+            .emit_and_seal(builder, &mut session.cfg, &mut session.identity)
             .map_err(|error| format!("[freeze:contract][callable-loop/after] {error:?}"))?;
         let terminal_receipt = consume_callable_tail_completion_v1(
             ready_after,

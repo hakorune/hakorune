@@ -2,9 +2,9 @@
 //! (M10b-I0-P2-E).
 //!
 //! This is the thin Builder bridge behind the same sole physical owner the
-//! Callable/Generic drafts already use: it constructs
-//! `ResolvedSsaIdentityStateV2` + `CanonicalCfgSessionV1` + `PhiTxn` once per
-//! node, publishes entry inputs at the walk's current block, and hands the
+//! Callable/Generic drafts already use: it retains source identity and a CFG
+//! scope, borrows SSA and PHI state from the function control, publishes entry
+//! inputs at the walk's current block, and hands the
 //! prepared layout to the segment allocator -> dispatcher -> recursive-after
 //! pipeline. It owns no Recipe, demand, layout, selector, or retry state.
 
@@ -14,7 +14,7 @@ use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
 use super::topology::{ready_loop_entry_from_canonical_rows, LoopPhysicalServicesV1};
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
@@ -85,7 +85,6 @@ fn lower_loop_node_physical_admission_inner<'source>(
 
     let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
     let mut cfg = CanonicalCfgSessionV1::new_for_owner(owner);
-    let mut phis = PhiTxn::begin("canonical_binding_ssa");
 
     // Entry input publication: one `publish_declaration_exact` per resolver
     // input row at the preheader, with the walk's materialized value.
@@ -161,7 +160,7 @@ fn lower_loop_node_physical_admission_inner<'source>(
             format!("[freeze:contract][loop_node_physicalize/dispatch_preflight] {error:?}")
         })?;
     let completed = {
-        let mut services = LoopOperationDispatchServicesV1::new(builder, &mut identity, &mut phis);
+        let mut services = LoopOperationDispatchServicesV1::new(builder, &mut identity);
         dispatch
             .emit_all(LoopOperationValueLedgerV1::default(), &mut services)
             .map_err(|error| {
@@ -172,7 +171,7 @@ fn lower_loop_node_physical_admission_inner<'source>(
         format!("[freeze:contract][loop_node_physicalize/after_preflight] {error:?}")
     })?;
     let ready_after = prepared_after
-        .emit_and_seal(builder, &mut cfg, &mut identity, &mut phis)
+        .emit_and_seal(builder, &mut cfg, &mut identity)
         .map_err(|error| {
             format!("[freeze:contract][loop_node_physicalize/after_seal] {error:?}")
         })?;
@@ -184,7 +183,7 @@ fn lower_loop_node_physical_admission_inner<'source>(
     for input_row in inputs.rows() {
         let binding = input_row.source_binding();
         let value = identity
-            .read_entry(builder, &mut phis, root_after, binding)
+            .read_entry(builder, root_after, binding)
             .map_err(|error| {
                 format!("[freeze:contract][loop_node_physicalize/writeback_read] {error}")
             })?;

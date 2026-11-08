@@ -280,18 +280,14 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
                 .identity
                 .read_entry_receipt_with_deferred_entry(
                     builder,
-                    &mut self.session.phis,
                     return_row.physical_block(),
                     binding,
                     deferred_entry,
                 )
         } else {
-            self.session.identity.read_entry_receipt(
-                builder,
-                &mut self.session.phis,
-                return_row.physical_block(),
-                binding,
-            )
+            self.session
+                .identity
+                .read_entry_receipt(builder, return_row.physical_block(), binding)
         }
         .map_err(ReturnReadPhysicalReceiptRejectV1::CanonicalRead)?;
         if read.owner() != owner

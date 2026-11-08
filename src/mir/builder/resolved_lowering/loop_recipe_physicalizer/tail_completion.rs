@@ -169,7 +169,6 @@ pub(super) struct ReadyCallableTailCompletionV1 {
 }
 
 impl ReadyCallableTailCompletionV1 {
-
     pub(super) const fn block(&self) -> BasicBlockId {
         self.block
     }
@@ -222,7 +221,7 @@ pub(super) fn consume_callable_tail_completion_v1(
         .map_err(CallableTailCompletionRejectV1::Identity)?;
     let receipt = session
         .identity
-        .read_entry_receipt(builder, &mut session.phis, after, tail.binding())
+        .read_entry_receipt(builder, after, tail.binding())
         .map_err(CallableTailCompletionRejectV1::TailRead)?;
     if receipt.owner() != owner || receipt.binding() != tail.binding() {
         return Err(CallableTailCompletionRejectV1::OwnerMismatch);
@@ -247,7 +246,7 @@ pub(super) fn consume_callable_tail_completion_v1(
 
     let after_current = session
         .identity
-        .read_entry_receipt(builder, &mut session.phis, after, header_current.binding())
+        .read_entry_receipt(builder, after, header_current.binding())
         .map_err(CallableTailCompletionRejectV1::Identity)?;
     session
         .identity

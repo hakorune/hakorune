@@ -10,8 +10,7 @@ use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::{
 };
 use crate::mir::builder::control_flow::plan::loop_physical_input::{
     direct_accum_physical_input_with_relations, LoopPhysicalRoleV1,
-    VerifiedLoopBindingProjectionV1,
-    VerifiedLoopInputProjectionV1, VerifiedLoopPhysicalRolePlanV1,
+    VerifiedLoopBindingProjectionV1, VerifiedLoopInputProjectionV1, VerifiedLoopPhysicalRolePlanV1,
 };
 use crate::mir::builder::emission::constant::emit_integer;
 use crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1;
@@ -143,13 +142,11 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             roles,
             &mut self.session.cfg,
             &mut port,
-            &mut self.session.phis,
         )
         .map_err(|error| format!("[freeze:contract][direct_accum/physicalizer] {error:?}"))?;
         seal_after_with_port(
             self.builder,
             &mut self.session.cfg,
-            &mut self.session.phis,
             &mut port,
             continuation.continuation_block,
         )?;
@@ -157,13 +154,8 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             .iter()
             .copied()
             .map(|key| {
-                port.read_entry_for_key(
-                    self.builder,
-                    &mut self.session.phis,
-                    continuation.continuation_block,
-                    key,
-                )
-                .map(|value| (key, value))
+                port.read_entry_for_key(self.builder, continuation.continuation_block, key)
+                    .map(|value| (key, value))
             })
             .collect::<Result<Vec<_>, _>>()?;
         let final_receipt = DirectAccumFinalBindingReceiptV1::new(
@@ -288,7 +280,7 @@ fn direct_accum_final_carrier_keys(
 fn seal_after_with_port(
     builder: &mut MirBuilder,
     cfg: &mut CanonicalCfgSessionV1,
-    phis: &mut crate::mir::builder::emission::phi_lifecycle::PhiTxn,
+
     port: &mut CanonicalDirectAccumBindingPort<'_, '_>,
     after: BasicBlockId,
 ) -> Result<(), String> {
@@ -304,7 +296,7 @@ fn seal_after_with_port(
         cfg.seal_block(function, after)
             .map_err(|error| error.to_string())?
     };
-    port.seal(builder, phis, after, &witness)
+    port.seal(builder, after, &witness)
 }
 
 #[cfg(test)]

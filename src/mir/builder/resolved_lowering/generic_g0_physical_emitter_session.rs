@@ -9,8 +9,9 @@
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::ReadyLoopEntryV1;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    allocate_for_layout, emit_loop_segment_operation_dispatch_v1, ready_loop_entry_from_canonical_rows,
-    LoopOperationDispatchServicesV1, LoopPhysicalSegmentBlockReceiptV1, LoopPhysicalServicesV1,
+    allocate_for_layout, emit_loop_segment_operation_dispatch_v1,
+    ready_loop_entry_from_canonical_rows, LoopOperationDispatchServicesV1,
+    LoopPhysicalSegmentBlockReceiptV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::generic_g0_physical_function_entry_input::GenericG0PhysicalLaneRoleV1;
@@ -116,12 +117,9 @@ fn with_generic_g0_physical_emitter_session_preflight<R>(
         let preheader = session.entry_block(draft)?;
         let mut canonical_rows = Vec::with_capacity(preflight.entries().len());
         for row in preflight.entries() {
-            let receipt = session.identity.read_entry_receipt(
-                draft,
-                &mut session.phis,
-                preheader,
-                row.binding(),
-            )?;
+            let receipt = session
+                .identity
+                .read_entry_receipt(draft, preheader, row.binding())?;
             if receipt.owner() != input.owner()
                 || receipt.binding() != row.binding()
                 || receipt.physical_block() != preheader
@@ -165,11 +163,8 @@ mod tests {
             |session, draft, dispatch_input| {
                 assert_eq!(session.owner(), input.owner());
                 assert!(draft.current_function_name().is_some());
-                let mut services = LoopOperationDispatchServicesV1::new(
-                    draft,
-                    &mut session.identity,
-                    &mut session.phis,
-                );
+                let mut services =
+                    LoopOperationDispatchServicesV1::new(draft, &mut session.identity);
                 let emitted = dispatch_input
                     .emit(&mut services)
                     .expect("dispatch emission");
@@ -222,11 +217,8 @@ mod tests {
             &mut builder,
             admission,
             |session, draft, dispatch_input| {
-                let mut services = LoopOperationDispatchServicesV1::new(
-                    draft,
-                    &mut session.identity,
-                    &mut session.phis,
-                );
+                let mut services =
+                    LoopOperationDispatchServicesV1::new(draft, &mut session.identity);
                 dispatch_input.emit(&mut services)?;
                 Err::<(), _>("late emission failure".to_owned())
             },

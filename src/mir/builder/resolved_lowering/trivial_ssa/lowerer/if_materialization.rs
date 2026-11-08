@@ -132,12 +132,11 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             (IfMaterializationTopologyV1::Selected(topology), Some(binding))
                 if !topology.is_explicit_else() =>
             {
-                Some(self.session.identity.read_entry(
-                    self.builder,
-                    &mut self.session.phis,
-                    header,
-                    binding,
-                )?)
+                Some(
+                    self.session
+                        .identity
+                        .read_entry(self.builder, header, binding)?,
+                )
             }
             _ => None,
         };
@@ -191,12 +190,9 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         let then_exit = self.current_block()?;
         let then_value = selected_binding
             .map(|binding| {
-                self.session.identity.read_entry(
-                    self.builder,
-                    &mut self.session.phis,
-                    then_exit,
-                    binding,
-                )
+                self.session
+                    .identity
+                    .read_entry(self.builder, then_exit, binding)
             })
             .transpose()?;
         self.emit_jump(then_exit, merge)?;
@@ -228,12 +224,9 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             let branch_exit = self.current_block()?;
             let branch_value = selected_binding
                 .map(|binding| {
-                    self.session.identity.read_entry(
-                        self.builder,
-                        &mut self.session.phis,
-                        branch_exit,
-                        binding,
-                    )
+                    self.session
+                        .identity
+                        .read_entry(self.builder, branch_exit, binding)
                 })
                 .transpose()?;
             self.emit_jump(branch_exit, merge)?;

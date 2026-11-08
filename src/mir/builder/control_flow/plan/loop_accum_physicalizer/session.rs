@@ -10,7 +10,6 @@ pub(super) struct DirectAccumPhysicalizerV1<'builder, 'owners, P> {
     roles: VerifiedLoopPhysicalRolePlanV1,
     cfg: &'owners mut CanonicalCfgSessionV1,
     port: &'owners mut P,
-    phis: &'owners mut PhiTxn,
     values: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
     #[cfg(test)]
     pub(super) failure: Option<DirectAccumPhysicalizerTestFailurePointV1>,
@@ -27,7 +26,6 @@ where
         roles: VerifiedLoopPhysicalRolePlanV1,
         cfg: &'owners mut CanonicalCfgSessionV1,
         port: &'owners mut P,
-        phis: &'owners mut PhiTxn,
     ) -> Result<Self, LoopPhysicalizeErrorV1> {
         let function = builder
             .function_state
@@ -91,7 +89,7 @@ where
         Ok(Self {
             builder,
             port,
-            phis,
+
             cfg,
             input,
             bindings,
@@ -384,10 +382,10 @@ where
             .cfg
             .seal_block(function, block)
             .map_err(LoopPhysicalizeErrorV1::Cfg)?;
-        let phis = &mut *self.phis;
+
         let builder = &mut *self.builder;
         self.port
-            .seal(builder, phis, block, &witness)
+            .seal(builder, block, &witness)
             .map_err(LoopPhysicalizeErrorV1::Ssa)
     }
 
@@ -396,10 +394,9 @@ where
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, LoopPhysicalizeErrorV1> {
-        let phis = &mut *self.phis;
         let builder = &mut *self.builder;
         self.port
-            .read_binding(builder, phis, binding, block)
+            .read_binding(builder, binding, block)
             .map_err(LoopPhysicalizeErrorV1::Ssa)
     }
 
@@ -409,20 +406,15 @@ where
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, LoopPhysicalizeErrorV1> {
-        let phis = &mut *self.phis;
         let builder = &mut *self.builder;
         let value = match (
             block == self.roles.block(LoopPhysicalRoleV1::Header),
             block == self.roles.block(LoopPhysicalRoleV1::Body),
             recipe_binding.raw(),
         ) {
-            (true, false, 0) => self
-                .port
-                .read_condition_induction(builder, phis, binding, block),
-            (false, true, 1) => self
-                .port
-                .read_update_accumulator(builder, phis, binding, block),
-            (false, true, 0) => self.port.read_step_induction(builder, phis, binding, block),
+            (true, false, 0) => self.port.read_condition_induction(builder, binding, block),
+            (false, true, 1) => self.port.read_update_accumulator(builder, binding, block),
+            (false, true, 0) => self.port.read_step_induction(builder, binding, block),
             _ => {
                 return Err(LoopPhysicalizeErrorV1::RecipeShape(
                     "DirectAccum read role is not canonical",

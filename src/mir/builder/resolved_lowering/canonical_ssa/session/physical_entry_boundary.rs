@@ -108,12 +108,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 .map_err(|error| error.to_string())?
         };
         self.identity
-            .seal_block(
-                builder,
-                &mut self.phis,
-                boundary.function_entry(),
-                &function_entry_witness,
-            )
+            .seal_block(builder, boundary.function_entry(), &function_entry_witness)
             .map_err(|error| error.to_string())?;
         let execution_entry_witness = {
             let function = builder
@@ -128,7 +123,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         self.identity
             .seal_block(
                 builder,
-                &mut self.phis,
                 boundary.execution_entry(),
                 &execution_entry_witness,
             )
@@ -173,7 +167,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 .seal_block(function, block)
                 .map_err(|error| error.to_string())?;
             self.identity
-                .seal_block(builder, &mut self.phis, block, &witness)
+                .seal_block(builder, block, &witness)
                 .map_err(|error| error.to_string())?;
         }
         Ok(())

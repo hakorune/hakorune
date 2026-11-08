@@ -60,11 +60,7 @@ impl VerifiedMain0InBodyStepTerminalV1 {
         if completion.owner() != input.owner() || tail.owner() != input.owner() {
             return Err("[freeze:contract][main0-loop/terminal-owner]".to_owned());
         }
-        let target_function = input
-            .function()
-            .lowering_roots()
-            .function_pair()
-            .region();
+        let target_function = input.function().lowering_roots().function_pair().region();
         if completion.target_function() != target_function {
             return Err("[freeze:contract][main0-loop/terminal-target]".to_owned());
         }
@@ -166,7 +162,7 @@ fn consume_main0_in_body_step_tail_completion_v1(
         .map_err(|error| format!("[freeze:contract][main0-loop/tail-identity] {error}"))?;
     let receipt = session
         .identity
-        .read_entry_receipt(builder, &mut session.phis, after, tail.binding())
+        .read_entry_receipt(builder, after, tail.binding())
         .map_err(|error| format!("[freeze:contract][main0-loop/tail-read] {error}"))?;
     if receipt.owner() != owner || receipt.binding() != tail.binding() {
         return Err("[freeze:contract][main0-loop/tail-binding]".to_owned());
@@ -188,7 +184,7 @@ fn consume_main0_in_body_step_tail_completion_v1(
 
     let after_current = session
         .identity
-        .read_entry_receipt(builder, &mut session.phis, after, condition_read.binding())
+        .read_entry_receipt(builder, after, condition_read.binding())
         .map_err(|error| format!("[freeze:contract][main0-loop/condition-after] {error}"))?;
     session
         .identity
@@ -293,9 +289,7 @@ pub(in crate::mir::builder) fn lower_main0_in_body_step_function_draft_v1(
             &mut function.metadata.canonical_direct_static_call_capabilities,
             false,
         )
-        .map_err(|error| {
-            format!("[freeze:contract][main0-loop/direct-call-capability] {error}")
-        })?;
+        .map_err(|error| format!("[freeze:contract][main0-loop/direct-call-capability] {error}"))?;
         let if_control =
             VerifiedResolvedFunctionIfControlV1::empty_for_owned_loop_profile(input, &loop_site)
                 .map_err(|error| format!("[freeze:contract][main0-loop/if-control] {error}"))?;
@@ -355,16 +349,10 @@ pub(in crate::mir::builder) fn lower_main0_in_body_step_function_draft_v1(
             make_entry(),
             segment_receipt,
         )
-        .map_err(|error| {
-            format!("[freeze:contract][main0-loop/dispatch-preflight] {error:?}")
-        })?;
+        .map_err(|error| format!("[freeze:contract][main0-loop/dispatch-preflight] {error:?}"))?;
         let values = LoopOperationValueLedgerV1::default();
         let completed = {
-            let mut services = LoopOperationDispatchServicesV1::new(
-                builder,
-                &mut session.identity,
-                &mut session.phis,
-            );
+            let mut services = LoopOperationDispatchServicesV1::new(builder, &mut session.identity);
             plan.emit_all(values, &mut services)
                 .map_err(|error| format!("[freeze:contract][main0-loop/dispatch] {error:?}"))?
         };
@@ -375,16 +363,10 @@ pub(in crate::mir::builder) fn lower_main0_in_body_step_function_draft_v1(
             )
             .map_err(|error| format!("{error}"))?;
         let profile_counts = profile_counts_from_dispatch(&completed.dispatch);
-        let prepared_after = prepare_recursive_after_v1(completed, builder).map_err(|error| {
-            format!("[freeze:contract][main0-loop/after-preflight] {error:?}")
-        })?;
+        let prepared_after = prepare_recursive_after_v1(completed, builder)
+            .map_err(|error| format!("[freeze:contract][main0-loop/after-preflight] {error:?}"))?;
         let ready_after = prepared_after
-            .emit_and_seal(
-                builder,
-                &mut session.cfg,
-                &mut session.identity,
-                &mut session.phis,
-            )
+            .emit_and_seal(builder, &mut session.cfg, &mut session.identity)
             .map_err(|error| format!("[freeze:contract][main0-loop/after] {error:?}"))?;
         let terminal_receipt = consume_main0_in_body_step_tail_completion_v1(
             ready_after,

@@ -284,12 +284,9 @@ fn consume_g0_tail(
     session
         .identity
         .claim_variable_use_binding(post_loop.value(), post_loop.binding())?;
-    let receipt = session.identity.read_entry_receipt(
-        builder,
-        &mut session.phis,
-        after,
-        post_loop.binding(),
-    )?;
+    let receipt = session
+        .identity
+        .read_entry_receipt(builder, after, post_loop.binding())?;
     if receipt.owner() != owner || receipt.binding() != post_loop.binding() {
         return Err("G0 tail canonical receipt mismatch".into());
     }
@@ -448,7 +445,6 @@ fn run_canary_with_options(
         let mut services = LoopOperationDispatchServicesV1::new(
             outer.builder_view_mut_for_lowering(),
             &mut session.identity,
-            &mut session.phis,
         );
         plan.emit_all(values, &mut services)
     };
@@ -517,7 +513,6 @@ fn run_canary_with_options(
             outer.builder_view_mut_for_lowering(),
             &mut session.cfg,
             &mut session.identity,
-            &mut session.phis,
         )
         .map_err(|error| format!("G0 After: {error:?}")));
     let predecessor_count = ready.predecessor_count();

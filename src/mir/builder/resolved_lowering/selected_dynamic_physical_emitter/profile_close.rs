@@ -88,12 +88,7 @@ fn seal_block(
     };
     canonical
         .identity
-        .seal_block(
-            outer.builder_view_mut_for_lowering(),
-            &mut canonical.phis,
-            block,
-            &witness,
-        )
+        .seal_block(outer.builder_view_mut_for_lowering(), block, &witness)
         .map_err(reject)
 }
 
@@ -270,7 +265,6 @@ pub(super) fn emit(
         .identity
         .read_entry_receipt(
             outer.builder_view_mut_for_lowering(),
-            &mut canonical.phis,
             after,
             relation.induction_binding(),
         )

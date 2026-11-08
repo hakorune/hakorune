@@ -187,12 +187,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         let read = self
             .session
             .identity
-            .read_entry_receipt(
-                builder,
-                &mut self.session.phis,
-                row.physical_block(),
-                binding,
-            )
+            .read_entry_receipt(builder, row.physical_block(), binding)
             .map_err(LengthReceiverPhysicalOperandRejectV1::Read)?;
         if read.owner() != owner
             || read.binding() != binding

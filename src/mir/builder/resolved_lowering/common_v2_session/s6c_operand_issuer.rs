@@ -257,7 +257,6 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
                 .identity
                 .read_entry_receipt_with_deferred_entry(
                     builder,
-                    &mut self.session.phis,
                     body_row.physical_block(),
                     seed_binding,
                     deferred_entry,
@@ -265,7 +264,6 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         } else {
             self.session.identity.read_entry_receipt(
                 builder,
-                &mut self.session.phis,
                 body_row.physical_block(),
                 seed_binding,
             )

@@ -7,7 +7,7 @@
 use std::collections::BTreeSet;
 
 use crate::mir::builder::emission::loop_operation;
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
@@ -94,7 +94,7 @@ impl<'plan, 'source> CanonicalNestedBindingPort<'plan, 'source> {
         &mut self,
         role: NestedBindingEffectRoleV1,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
         let (site, binding) = match self.plan.entry(role) {
@@ -107,7 +107,7 @@ impl<'plan, 'source> CanonicalNestedBindingPort<'plan, 'source> {
         };
         self.claim_once(role)?;
         self.identity.claim_variable_use_binding(site, binding)?;
-        let value = self.identity.read_entry(builder, phis, block, binding)?;
+        let value = self.identity.read_entry(builder, block, binding)?;
         // Binding SSA may return a provisional PHI before its inputs are
         // patched.  This effect plan is i64-only, so publish that semantic
         // type at the operation boundary before arithmetic consumes it.
@@ -179,11 +179,11 @@ impl<'plan, 'source> CanonicalNestedBindingPort<'plan, 'source> {
     pub(in crate::mir::builder::resolved_lowering) fn seal(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         block: BasicBlockId,
         witness: &VerifiedPredecessorsV1,
     ) -> Result<(), String> {
-        self.identity.seal_block(builder, phis, block, witness)
+        self.identity.seal_block(builder, block, witness)
     }
 
     fn claim_once(&mut self, role: NestedBindingEffectRoleV1) -> Result<(), String> {

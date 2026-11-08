@@ -7,7 +7,7 @@
 use std::collections::BTreeSet;
 
 use crate::mir::builder::emission::loop_operation;
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::resolved_lowering::nested_predicate_adapter::CanonicalNestedBindingPort;
 use crate::mir::builder::MirBuilder;
@@ -30,7 +30,6 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     input: VerifiedNestedPhysicalCandidateInputV1,
     cfg: &mut CanonicalCfgSessionV1,
     port: &mut CanonicalNestedBindingPort<'_, '_>,
-    phis: &mut PhiTxn,
 ) -> Result<NestedPhysicalContinuationV1, String> {
     let (emission, blocks) = input.into_parts();
     verify_placement(&emission)?;
@@ -54,13 +53,12 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     ));
 
     emit_jump(builder, cfg, root_preheader, root_header)?;
-    seal(builder, cfg, port, phis, root_preheader)?;
+    seal(builder, cfg, port, root_preheader)?;
 
     select(builder, cfg, root_header)?;
     let root_condition = emit_predicate(
         builder,
         port,
-        phis,
         NestedBindingEffectRoleV1::RootPredicateReadI,
         root_header,
     )?;
@@ -74,7 +72,7 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     )?;
 
     select(builder, cfg, root_body)?;
-    seal(builder, cfg, port, phis, root_body)?;
+    seal(builder, cfg, port, root_body)?;
     port.write_first(
         builder,
         NestedBindingEffectRoleV1::ChildInitializeWriteJ,
@@ -87,7 +85,6 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     let child_condition = emit_predicate(
         builder,
         port,
-        phis,
         NestedBindingEffectRoleV1::ChildPredicateReadJ,
         child_header,
     )?;
@@ -101,11 +98,10 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     )?;
 
     select(builder, cfg, child_body)?;
-    seal(builder, cfg, port, phis, child_body)?;
+    seal(builder, cfg, port, child_body)?;
     let sum = port.read(
         NestedBindingEffectRoleV1::ChildAncestorReadSum,
         builder,
-        phis,
         child_body,
     )?;
     port.write_delta(
@@ -119,13 +115,8 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     // The topology intentionally places the recurrence update in Child.Step,
     // after the ancestor update in Child.Body and before Step -> Header.
     select(builder, cfg, child_step)?;
-    seal(builder, cfg, port, phis, child_step)?;
-    let child_j = port.read(
-        NestedBindingEffectRoleV1::ChildReadJ,
-        builder,
-        phis,
-        child_step,
-    )?;
+    seal(builder, cfg, port, child_step)?;
+    let child_j = port.read(NestedBindingEffectRoleV1::ChildReadJ, builder, child_step)?;
     port.write_delta(
         builder,
         NestedBindingEffectRoleV1::ChildWriteJ,
@@ -135,23 +126,18 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     emit_jump(builder, cfg, child_step, child_header)?;
 
     select(builder, cfg, child_header)?;
-    seal(builder, cfg, port, phis, child_header)?;
+    seal(builder, cfg, port, child_header)?;
     select(builder, cfg, child_after)?;
-    seal(builder, cfg, port, phis, child_after)?;
+    seal(builder, cfg, port, child_after)?;
     emit_jump(builder, cfg, child_after, parent_resume)?;
 
     select(builder, cfg, parent_resume)?;
-    seal(builder, cfg, port, phis, parent_resume)?;
+    seal(builder, cfg, port, parent_resume)?;
     emit_jump(builder, cfg, parent_resume, root_step)?;
 
     select(builder, cfg, root_step)?;
-    seal(builder, cfg, port, phis, root_step)?;
-    let root_i = port.read(
-        NestedBindingEffectRoleV1::RootStepReadI,
-        builder,
-        phis,
-        root_step,
-    )?;
+    seal(builder, cfg, port, root_step)?;
+    let root_i = port.read(NestedBindingEffectRoleV1::RootStepReadI, builder, root_step)?;
     port.write_delta(
         builder,
         NestedBindingEffectRoleV1::RootStepWriteI,
@@ -161,7 +147,7 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
     emit_jump(builder, cfg, root_step, root_header)?;
 
     select(builder, cfg, root_header)?;
-    seal(builder, cfg, port, phis, root_header)?;
+    seal(builder, cfg, port, root_header)?;
     select(builder, cfg, root_after)?;
     Ok(NestedPhysicalContinuationV1 {
         continuation_block: root_after,
@@ -171,11 +157,11 @@ pub(in crate::mir::builder::resolved_lowering) fn physicalize_nested_predicate_v
 fn emit_predicate(
     builder: &mut MirBuilder,
     port: &mut CanonicalNestedBindingPort<'_, '_>,
-    phis: &mut PhiTxn,
+
     role: NestedBindingEffectRoleV1,
     block: BasicBlockId,
 ) -> Result<ValueId, String> {
-    let value = port.read(role, builder, phis, block)?;
+    let value = port.read(role, builder, block)?;
     let limit = loop_operation::emit_const_i64(builder, 3)?;
     loop_operation::emit_less_i64(builder, value, limit)
 }
@@ -271,7 +257,7 @@ fn seal(
     builder: &mut MirBuilder,
     cfg: &mut CanonicalCfgSessionV1,
     port: &mut CanonicalNestedBindingPort<'_, '_>,
-    phis: &mut PhiTxn,
+
     block: BasicBlockId,
 ) -> Result<(), String> {
     let function = builder
@@ -282,7 +268,7 @@ fn seal(
     let witness = cfg
         .seal_block(function, block)
         .map_err(|error| format!("[freeze:contract][nested_physicalizer/seal] {error:?}"))?;
-    port.seal(builder, phis, block, &witness)
+    port.seal(builder, block, &witness)
 }
 
 fn verify_placement(emission: &VerifiedNestedPhysicalEmissionInputV1) -> Result<(), String> {

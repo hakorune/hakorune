@@ -94,7 +94,10 @@ fn direct_accum_physicalizer_emits_through_existing_owners() {
     let (bindings, inputs) = seed_direct_accum(&mut builder, "direct_accum_physicalizer/0");
     let receipt = physicalize_direct_accum_v1(
         &mut builder,
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),
@@ -125,7 +128,10 @@ fn direct_accum_borrowing_seam_leaves_owner_commit_to_caller() {
 
     let receipt = physicalize_direct_accum_v1_borrowing(
         &mut builder,
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),
@@ -159,18 +165,23 @@ fn production_port_handoff_leaves_after_open_for_continuation() {
     let owner = bindings.owner();
     let mut cfg = CanonicalCfgSessionV1::new();
     let mut ssa = BindingSsaBuilderV1::<PhiToken>::new(owner);
-    let mut port = RawDirectAccumBindingPort { ssa: &mut ssa };
     let mut phis = PhiTxn::begin("loop_direct_accum_inline_test");
+    let mut port = RawDirectAccumBindingPort {
+        ssa: &mut ssa,
+        phis: &mut phis,
+    };
 
     let receipt = physicalize_direct_accum_v1_with_port(
         &mut builder,
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),
         &mut cfg,
         &mut port,
-        &mut phis,
     )
     .expect("inline physicalization");
     assert_eq!(receipt.continuation_block, BasicBlockId::new(4));
@@ -201,7 +212,10 @@ fn candidate_rejection_discards_physicalized_loop_before_fresh_reuse() {
     let (bindings, inputs) = seed_direct_accum(first.builder_mut(), "candidate/first");
     let first_receipt = physicalize_direct_accum_v1(
         first.builder_mut(),
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),
@@ -218,7 +232,10 @@ fn candidate_rejection_discards_physicalized_loop_before_fresh_reuse() {
     let (bindings, inputs) = seed_direct_accum(second.builder_mut(), "candidate/second");
     let second_receipt = physicalize_direct_accum_v1(
         second.builder_mut(),
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),
@@ -241,7 +258,10 @@ fn candidate_abort_after_late_physicalizer_failure_allows_fresh_reuse() {
     let (bindings, inputs) = seed_direct_accum(first.builder_mut(), "candidate/failure");
     let error = physicalize_direct_accum_v1_with_test_failure(
         first.builder_mut(),
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),
@@ -259,7 +279,10 @@ fn candidate_abort_after_late_physicalizer_failure_allows_fresh_reuse() {
     let (bindings, inputs) = seed_direct_accum(second.builder_mut(), "candidate/reuse");
     physicalize_direct_accum_v1(
         second.builder_mut(),
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),
@@ -292,7 +315,10 @@ fn missing_preheader_input_rejects_before_block_creation() {
     .expect("input projection");
     let error = physicalize_direct_accum_v1(
         &mut builder,
-        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(direct_accum_product_for_test()).0,
+        VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+            direct_accum_product_for_test(),
+        )
+        .0,
         bindings,
         inputs,
         roles(),

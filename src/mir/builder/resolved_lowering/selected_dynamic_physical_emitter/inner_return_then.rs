@@ -150,7 +150,6 @@ fn emit_program(
         .identity
         .read_entry_receipt(
             outer.builder_view_mut_for_lowering(),
-            &mut canonical.phis,
             then_block,
             relation.induction_binding(),
         )
@@ -211,12 +210,7 @@ fn emit_program(
     };
     canonical
         .identity
-        .seal_block(
-            outer.builder_view_mut_for_lowering(),
-            &mut canonical.phis,
-            then_block,
-            &witness,
-        )
+        .seal_block(outer.builder_view_mut_for_lowering(), then_block, &witness)
         .map_err(reject)
 }
 

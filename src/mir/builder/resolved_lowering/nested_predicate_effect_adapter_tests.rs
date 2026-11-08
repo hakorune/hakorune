@@ -9,7 +9,7 @@
 use std::collections::BTreeSet;
 
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::resolved_lowering::semantic_stack::{
     ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1,
@@ -187,7 +187,6 @@ impl<'plan, 'source> NestedEffectAdapter<'plan, 'source> {
         &mut self,
         role: NestedBindingEffectRoleV1,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
     ) -> Result<(), String> {
         let expected = NestedBindingEffectRoleV1::ALL
             .get(self.next_role)
@@ -211,7 +210,7 @@ impl<'plan, 'source> NestedEffectAdapter<'plan, 'source> {
                 self.identity
                     .claim_variable_use_binding(claim.site(), claim.binding())?;
                 self.identity
-                    .read_entry(builder, phis, self.block, claim.binding())?;
+                    .read_entry(builder, self.block, claim.binding())?;
                 Ok(())
             }
             NestedBindingEffectEntryV1::FirstAssignment(claim) => {
@@ -256,7 +255,8 @@ fn claims_for(unit: &VerifiedResolvedSourceUnitV1) -> VerifiedNestedBindingExecu
     let root = input.source().body_stmt(&body, 1).expect("root loop");
     let projection = issue_nested_predicate_source_projection_v1(input, &root)
         .expect("nested source projection");
-    let product = produce_nested_predicate_recipe_v1(projection, input.function()).expect("nested recipe product");
+    let product = produce_nested_predicate_recipe_v1(projection, input.function())
+        .expect("nested recipe product");
     issue_nested_binding_execution_claims_v1(input.function(), product.source_handoff())
         .expect("nested execution claims")
 }
@@ -273,20 +273,16 @@ fn ordered_effect_adapter_consumes_all_claims_once() {
     adapter
         .publish_initialized_prefix(&mut builder, &claims)
         .expect("initialized prefix");
-    let mut phis = PhiTxn::begin("nested-effect-test");
+
     adapter
-        .consume_role(
-            NestedBindingEffectRoleV1::RootPredicateReadI,
-            &mut builder,
-            &mut phis,
-        )
+        .consume_role(NestedBindingEffectRoleV1::RootPredicateReadI, &mut builder)
         .expect("root predicate");
     adapter
         .activate_child_declaration(&claims)
         .expect("child declaration-only activation");
     for role in NestedBindingEffectRoleV1::ALL.iter().copied().skip(1) {
         adapter
-            .consume_role(role, &mut builder, &mut phis)
+            .consume_role(role, &mut builder)
             .expect("ordered effect claim");
     }
     adapter.finish().expect("all effects consumed");
@@ -304,45 +300,31 @@ fn effect_adapter_rejects_out_of_order_and_duplicate_claims() {
     adapter
         .publish_initialized_prefix(&mut builder, &claims)
         .expect("initialized prefix");
-    let mut phis = PhiTxn::begin("nested-effect-order-test");
+
     assert!(adapter
-        .consume_role(
-            NestedBindingEffectRoleV1::ChildPredicateReadJ,
-            &mut builder,
-            &mut phis
-        )
+        .consume_role(NestedBindingEffectRoleV1::ChildPredicateReadJ, &mut builder)
         .unwrap_err()
         .contains("order_mismatch"));
     adapter
-        .consume_role(
-            NestedBindingEffectRoleV1::RootPredicateReadI,
-            &mut builder,
-            &mut phis,
-        )
+        .consume_role(NestedBindingEffectRoleV1::RootPredicateReadI, &mut builder)
         .expect("root predicate");
     adapter
         .activate_child_declaration(&claims)
         .expect("child declaration-only activation");
     assert!(adapter
-        .consume_role(
-            NestedBindingEffectRoleV1::ChildPredicateReadJ,
-            &mut builder,
-            &mut phis
-        )
+        .consume_role(NestedBindingEffectRoleV1::ChildPredicateReadJ, &mut builder)
         .unwrap_err()
         .contains("order_mismatch"));
     adapter
         .consume_role(
             NestedBindingEffectRoleV1::ChildInitializeWriteJ,
             &mut builder,
-            &mut phis,
         )
         .expect("first child assignment");
     assert!(adapter
         .consume_role(
             NestedBindingEffectRoleV1::ChildInitializeWriteJ,
             &mut builder,
-            &mut phis,
         )
         .unwrap_err()
         .contains("order_mismatch"));
@@ -361,11 +343,7 @@ fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
         .publish_initialized_prefix(&mut builder, &claims)
         .expect("initialized prefix");
     adapter
-        .consume_role(
-            NestedBindingEffectRoleV1::RootPredicateReadI,
-            &mut builder,
-            &mut PhiTxn::begin("nested-scope-test"),
-        )
+        .consume_role(NestedBindingEffectRoleV1::RootPredicateReadI, &mut builder)
         .expect("root predicate");
     adapter
         .activate_child_declaration(&claims)
@@ -374,7 +352,6 @@ fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
         .consume_role(
             NestedBindingEffectRoleV1::ChildInitializeWriteJ,
             &mut builder,
-            &mut PhiTxn::begin("nested-scope-test"),
         )
         .expect("first child assignment");
     drop(adapter);
@@ -405,11 +382,9 @@ fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
         .close_scope_region_success(child, &mut identity)
         .expect("child pair closes without retiring outer j");
 
-    let mut phis = PhiTxn::begin("nested-scope-read");
     identity
         .read_entry(
             &mut builder,
-            &mut phis,
             BasicBlockId::new(0),
             claims.prefix().uninitialized().binding(),
         )
@@ -420,7 +395,6 @@ fn scope_pairs_retire_outer_j_only_at_root_loop_exit() {
     assert!(identity
         .read_entry(
             &mut builder,
-            &mut phis,
             BasicBlockId::new(0),
             claims.prefix().uninitialized().binding(),
         )

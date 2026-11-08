@@ -207,7 +207,7 @@ impl CanonicalSsaFunctionSessionV2<'_> {
             .map_err(|error| DynamicLoopPhiOpenIssueV1::CanonicalCfg(error.to_string()))?;
         let header_current = self
             .identity
-            .read_entry_receipt(builder, &mut self.phis, header, carrier.binding())
+            .read_entry_receipt(builder, header, carrier.binding())
             .map_err(DynamicLoopPhiOpenIssueV1::HeaderRead)?;
         let placement = DynamicLoopPhysicalPlacementV1 {
             enter,

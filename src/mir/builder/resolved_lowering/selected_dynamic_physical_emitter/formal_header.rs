@@ -198,12 +198,10 @@ pub(super) fn open(
         .cfg
         .select_block(builder, header)
         .map_err(|error| error.to_string())?;
-    let header_current = canonical.identity.read_entry_receipt(
-        builder,
-        &mut canonical.phis,
-        header,
-        relation.induction_binding(),
-    )?;
+    let header_current =
+        canonical
+            .identity
+            .read_entry_receipt(builder, header, relation.induction_binding())?;
     if header_current.owner() != relation.owner()
         || header_current.binding() != relation.induction_binding()
         || header_current.physical_block() != header

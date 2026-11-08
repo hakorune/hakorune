@@ -7,7 +7,7 @@
 
 use super::segment_dispatcher::CompletedLoopSegmentProgramV1;
 use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
@@ -141,7 +141,6 @@ impl PreparedRecursiveAfterV1 {
         builder: &mut MirBuilder,
         cfg: &mut CanonicalCfgSessionV1,
         identity: &mut ResolvedSsaIdentityStateV2<'_>,
-        phis: &mut PhiTxn,
     ) -> Result<ReadyLoopAfterContinuationV1, RecursiveAfterRejectV1> {
         let owner = self.program.layout.program().demand().context().owner();
         let preheader = self.program.entry.preheader();
@@ -175,16 +174,16 @@ impl PreparedRecursiveAfterV1 {
                 )?;
             }
         }
-        seal_block(builder, cfg, identity, phis, preheader)?;
+        seal_block(builder, cfg, identity, preheader)?;
         for segment in self.program.layout.segments() {
             let block = self
                 .program
                 .segment_receipt
                 .lookup(segment.key())
                 .ok_or(RecursiveAfterRejectV1::TargetMissing)?;
-            seal_block(builder, cfg, identity, phis, block)?;
+            seal_block(builder, cfg, identity, block)?;
         }
-        let after = seal_block(builder, cfg, identity, phis, root_after)?;
+        let after = seal_block(builder, cfg, identity, root_after)?;
         cfg.select_block(builder, root_after)
             .map_err(|error| RecursiveAfterRejectV1::SelectAfter(error.to_string()))?;
         Ok(ReadyLoopAfterContinuationV1 {
@@ -319,7 +318,7 @@ fn seal_block(
     builder: &mut MirBuilder,
     cfg: &mut CanonicalCfgSessionV1,
     identity: &mut ResolvedSsaIdentityStateV2<'_>,
-    phis: &mut PhiTxn,
+
     block: BasicBlockId,
 ) -> Result<
     crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1,
@@ -335,7 +334,7 @@ fn seal_block(
             .map_err(|error| RecursiveAfterRejectV1::CfgSeal(error.to_string()))?
     };
     identity
-        .seal_block(builder, phis, block, &witness)
+        .seal_block(builder, block, &witness)
         .map_err(RecursiveAfterRejectV1::IdentitySeal)?;
     Ok(witness)
 }

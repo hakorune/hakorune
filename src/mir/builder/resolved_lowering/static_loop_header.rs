@@ -147,7 +147,6 @@ pub(super) fn emit_unpublished_header_v1(
         .claim_variable_use_binding(&roles.header_bin_read_site, roles.bin_binding)?;
     let read = canonical.identity.read_entry_receipt_with_deferred_entry(
         draft,
-        &mut canonical.phis,
         header,
         roles.bin_binding,
         preheader,

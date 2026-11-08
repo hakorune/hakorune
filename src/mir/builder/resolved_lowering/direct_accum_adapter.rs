@@ -8,12 +8,10 @@
 use std::collections::BTreeSet;
 
 use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::DirectAccumBindingPortV1;
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::loop_recipe_contract::{
-    LoopBindingKeyV1, VerifiedLoopRecipeBindingRelationV1,
-};
+use crate::mir::loop_recipe_contract::{LoopBindingKeyV1, VerifiedLoopRecipeBindingRelationV1};
 use crate::mir::loop_structural_facts::{
     DirectAccumBindingEffectRoleV1, VerifiedDirectAccumBindingEffectPlanV1,
 };
@@ -70,12 +68,12 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
     pub(in crate::mir::builder::resolved_lowering) fn read_entry_for_key(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         block: BasicBlockId,
         key: LoopBindingKeyV1,
     ) -> Result<ValueId, String> {
         let binding = self.binding_for(key)?;
-        self.identity.read_entry(builder, phis, block, binding)
+        self.identity.read_entry(builder, block, binding)
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn finish_effect_claims(
@@ -95,13 +93,13 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
         &mut self,
         role: DirectAccumBindingEffectRoleV1,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
         let site = self.check_entry(role, binding)?.site().clone();
         self.identity.claim_variable_use_binding(&site, binding)?;
-        let value = self.identity.read_entry(builder, phis, block, binding)?;
+        let value = self.identity.read_entry(builder, block, binding)?;
         self.claimed.insert(role);
         Ok(value)
     }
@@ -158,24 +156,23 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     fn read_binding(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
-        self.identity.read_entry(builder, phis, block, binding)
+        self.identity.read_entry(builder, block, binding)
     }
 
     fn read_condition_induction(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
         self.claim_read(
             DirectAccumBindingEffectRoleV1::ConditionInductionRead,
             builder,
-            phis,
             binding,
             block,
         )
@@ -184,14 +181,13 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     fn read_update_accumulator(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
         self.claim_read(
             DirectAccumBindingEffectRoleV1::UpdateAccumulatorRead,
             builder,
-            phis,
             binding,
             block,
         )
@@ -200,14 +196,13 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     fn read_step_induction(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
         self.claim_read(
             DirectAccumBindingEffectRoleV1::StepInductionRead,
             builder,
-            phis,
             binding,
             block,
         )
@@ -248,11 +243,11 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     fn seal(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
+
         block: BasicBlockId,
         witness: &VerifiedPredecessorsV1,
     ) -> Result<(), String> {
-        self.identity.seal_block(builder, phis, block, witness)
+        self.identity.seal_block(builder, block, witness)
     }
 }
 

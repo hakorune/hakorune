@@ -130,7 +130,7 @@ pub(super) fn emit_unpublished_tail_v1<'ledger>(
     };
     canonical
         .identity
-        .seal_block(draft, &mut canonical.phis, header.after, &after_witness)?;
+        .seal_block(draft, header.after, &after_witness)?;
     canonical.completion.claim_explicit_return(
         tail.return_site(),
         canonical.target_function(),

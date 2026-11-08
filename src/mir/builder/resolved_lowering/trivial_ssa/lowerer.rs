@@ -17,16 +17,17 @@ use crate::mir::resolved_control_flow::if_control::{
     ResolvedIfControlMaterializationV1, VerifiedResolvedFunctionIfControlV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
-use crate::mir::resolved_semantics::{
-    BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1,
-};
+use crate::mir::resolved_semantics::{BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1};
 use crate::mir::resolved_value_profile::product::{
     TrivialRepresentationV1, VerifiedTrivialCanonicalOwnerV1,
 };
 use crate::mir::resolved_value_profile::TrivialProfileConsumptionV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
-pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowererV1<'builder, 'source> {
+pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowererV1<
+    'builder,
+    'source,
+> {
     builder: &'builder mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'source>,
     session: CanonicalSsaFunctionSessionV2<'source>,
@@ -282,9 +283,13 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .map_err(|error| error.to_string())?;
         let (value, actual) = self.lower_expr(&value, coverage)?;
         let block = self.current_block()?;
-        self.session
-            .identity
-            .define_assignment(self.builder, target.site(), binding, block, value)?;
+        self.session.identity.define_assignment(
+            self.builder,
+            target.site(),
+            binding,
+            block,
+            value,
+        )?;
         let expected = self.profile.claim_assignment(binding, target.site())?;
         require_representation(actual, expected, "assignment")
     }
@@ -307,7 +312,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 let block = self.current_block()?;
                 let (_, value) = self.session.identity.variable_value(
                     self.builder,
-                    &mut self.session.phis,
                     block,
                     expression.site(),
                     name,
@@ -464,7 +468,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         };
         self.session
             .identity
-            .seal_block(self.builder, &mut self.session.phis, block, &witness)
+            .seal_block(self.builder, block, &witness)
     }
 
     fn current_block(&self) -> Result<BasicBlockId, String> {

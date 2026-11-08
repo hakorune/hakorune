@@ -47,7 +47,10 @@ pub(super) fn finish_unpublished_static_loop_v1(
         || landing.instructions.first() != Some(&projection.1)
         || landing.predecessors.len() != 1
         || [early.graph.clean, tail_root.graph.clean].iter().any(|id| {
-            function.blocks.get(id).is_none_or(|block| block.terminator.is_some())
+            function
+                .blocks
+                .get(id)
+                .is_none_or(|block| block.terminator.is_some())
         })
     {
         return Err(reject());
@@ -74,9 +77,7 @@ pub(super) fn finish_unpublished_static_loop_v1(
                 .seal_block(function, block)
                 .map_err(|error| error.to_string())?
         };
-        canonical
-            .identity
-            .seal_block(draft, &mut canonical.phis, block, &witness)?;
+        canonical.identity.seal_block(draft, block, &witness)?;
     }
     let close = finish_profile_close(canonical.owner(), terminal, || {
         if semantic.recipe().as_recipe().carriers.len() != 1

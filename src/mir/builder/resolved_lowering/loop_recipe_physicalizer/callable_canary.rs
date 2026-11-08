@@ -186,7 +186,7 @@ pub(super) fn materialize_callable_prelude_v1(
             .map_err(CallablePreludeMaterializationRejectV1::ArgumentIdentity)?;
         let receipt = session
             .identity
-            .read_entry_receipt(builder, &mut session.phis, preheader, row.binding())
+            .read_entry_receipt(builder, preheader, row.binding())
             .map_err(CallablePreludeMaterializationRejectV1::ArgumentIdentity)?;
         arguments.push(receipt);
     }

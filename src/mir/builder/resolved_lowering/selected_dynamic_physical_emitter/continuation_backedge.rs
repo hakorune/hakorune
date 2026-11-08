@@ -295,25 +295,18 @@ fn emit_program(
         .identity
         .seal_block(
             outer.builder_view_mut_for_lowering(),
-            &mut canonical.phis,
             continuation.block(),
             &continuation_witness,
         )
         .map_err(reject)?;
     canonical
         .identity
-        .seal_block(
-            outer.builder_view_mut_for_lowering(),
-            &mut canonical.phis,
-            enter,
-            &enter_witness,
-        )
+        .seal_block(outer.builder_view_mut_for_lowering(), enter, &enter_witness)
         .map_err(reject)?;
     canonical
         .identity
         .seal_block(
             outer.builder_view_mut_for_lowering(),
-            &mut canonical.phis,
             header,
             &header_witness,
         )

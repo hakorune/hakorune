@@ -1,8 +1,8 @@
 //! Canonical session close and DraftSeal handoff.
 //!
 //! This child keeps the parent session facade below the source-size trigger.
-//! It owns no new authority: the parent session still owns CFG, SSA, PHI, and
-//! Completion, while DraftSeal remains the only Return projection owner.
+//! Source, semantic, If and Completion checks close the profile. The function
+//! control retains SSA and PHI state until DraftSeal verifies the final Return.
 
 use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
 use crate::mir::builder::MirBuilder;
@@ -34,7 +34,6 @@ impl CanonicalSsaFunctionSessionV2<'_> {
             if_control,
             completion,
             cfg,
-            phis,
             ..
         } = self;
         let function = builder
@@ -59,8 +58,13 @@ impl CanonicalSsaFunctionSessionV2<'_> {
         identity
             .finish(builder)
             .map_err(CanonicalFunctionFinishErrorV1::Identity)?;
-        phis.commit(builder)
-            .map_err(|error| CanonicalFunctionFinishErrorV1::Phi(error.to_string()))?;
+        let control = builder
+            .function_control_for_owner_v1(owner)
+            .map_err(CanonicalFunctionFinishErrorV1::Phi)?;
+        control
+            .borrow_mut()
+            .require_transaction_settled(builder)
+            .map_err(CanonicalFunctionFinishErrorV1::Phi)?;
         builder
             .function_state
             .resolved_binding_state

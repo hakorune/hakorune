@@ -473,10 +473,9 @@ fn emit_unpublished_static_invoke(
     canonical
         .identity
         .claim_variable_use_binding(packet.argument_site(), *binding)?;
-    let actual =
-        canonical
-            .identity
-            .read_entry_receipt(draft, &mut canonical.phis, entry, *binding)?;
+    let actual = canonical
+        .identity
+        .read_entry_receipt(draft, entry, *binding)?;
     if actual.physical_block() != entry || actual.physical_value() != entry_value {
         return Err("[freeze:contract][callable-loop/static-invoke-actual-drift]".into());
     }
@@ -531,9 +530,7 @@ fn emit_unpublished_static_invoke(
         normal,
         result,
     )?;
-    let observed = canonical
-        .identity
-        .read_entry_receipt(draft, &mut canonical.phis, normal, n)?;
+    let observed = canonical.identity.read_entry_receipt(draft, normal, n)?;
     if observed.physical_value() != result || observed.physical_block() != normal {
         return Err("[freeze:contract][callable-loop/static-invoke-n-result-drift]".into());
     }
@@ -545,10 +542,7 @@ fn emit_unpublished_static_invoke(
         normal,
         bin_value,
     )?;
-    let bin_read =
-        canonical
-            .identity
-            .read_entry_receipt(draft, &mut canonical.phis, normal, bin)?;
+    let bin_read = canonical.identity.read_entry_receipt(draft, normal, bin)?;
     if bin_read.physical_value() != bin_value || bin_read.physical_block() != normal {
         return Err("[freeze:contract][callable-loop/static-invoke-bin-input-drift]".into());
     }

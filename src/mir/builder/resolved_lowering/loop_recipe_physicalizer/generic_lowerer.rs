@@ -152,12 +152,9 @@ fn lower_generic_g0_function_ready_v1<'builder, 'source>(
         let preheader = session.entry_block(draft)?;
         let mut rows = Vec::with_capacity(preflight.entries().len());
         for entry in preflight.entries() {
-            let receipt = session.identity.read_entry_receipt(
-                draft,
-                &mut session.phis,
-                preheader,
-                entry.binding(),
-            )?;
+            let receipt = session
+                .identity
+                .read_entry_receipt(draft, preheader, entry.binding())?;
             if receipt.owner() != input.owner()
                 || receipt.binding() != entry.binding()
                 || receipt.physical_block() != preheader
@@ -183,11 +180,7 @@ fn lower_generic_g0_function_ready_v1<'builder, 'source>(
                     format!("[freeze:contract][generic-g0/dispatch-preflight] {error:?}")
                 })?;
         let completed = {
-            let mut services = LoopOperationDispatchServicesV1::new(
-                draft,
-                &mut session.identity,
-                &mut session.phis,
-            );
+            let mut services = LoopOperationDispatchServicesV1::new(draft, &mut session.identity);
             dispatch
                 .emit_all(LoopOperationValueLedgerV1::default(), &mut services)
                 .map_err(|error| format!("[freeze:contract][generic-g0/dispatch] {error:?}"))?
@@ -195,12 +188,7 @@ fn lower_generic_g0_function_ready_v1<'builder, 'source>(
         let prepared_after = prepare_recursive_after_v1(completed, draft)
             .map_err(|error| format!("[freeze:contract][generic-g0/after-preflight] {error:?}"))?;
         let ready_after = prepared_after
-            .emit_and_seal(
-                draft,
-                &mut session.cfg,
-                &mut session.identity,
-                &mut session.phis,
-            )
+            .emit_and_seal(draft, &mut session.cfg, &mut session.identity)
             .map_err(|error| format!("[freeze:contract][generic-g0/after] {error:?}"))?;
         let predecessor_count = ready_after.predecessor_count();
         let terminal_block = consume_tail(ready_after, input, &tail, draft, &mut session)?;
@@ -243,12 +231,9 @@ fn consume_tail(
     session
         .identity
         .claim_variable_use_binding(post_loop.value(), post_loop.binding())?;
-    let receipt = session.identity.read_entry_receipt(
-        builder,
-        &mut session.phis,
-        after,
-        post_loop.binding(),
-    )?;
+    let receipt = session
+        .identity
+        .read_entry_receipt(builder, after, post_loop.binding())?;
     if receipt.owner() != owner
         || receipt.binding() != post_loop.binding()
         || receipt.physical_block() != after

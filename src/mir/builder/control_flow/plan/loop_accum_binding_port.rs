@@ -6,6 +6,7 @@
 
 #[cfg(test)]
 use crate::mir::builder::emission::phi_lifecycle::PhiToken;
+#[cfg(test)]
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;
 #[cfg(test)]
@@ -26,7 +27,6 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
     fn read_binding(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String>;
@@ -34,7 +34,6 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
     fn read_condition_induction(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String>;
@@ -42,7 +41,6 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
     fn read_update_accumulator(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String>;
@@ -50,7 +48,6 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
     fn read_step_induction(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String>;
@@ -74,7 +71,6 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
     fn seal(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         block: BasicBlockId,
         witness: &VerifiedPredecessorsV1,
     ) -> Result<(), String>;
@@ -85,6 +81,7 @@ pub(in crate::mir::builder) trait DirectAccumBindingPortV1 {
 #[cfg(test)]
 pub(in crate::mir::builder) struct RawDirectAccumBindingPort<'ssa> {
     pub(in crate::mir::builder) ssa: &'ssa mut BindingSsaBuilderV1<PhiToken>,
+    pub(in crate::mir::builder) phis: &'ssa mut PhiTxn,
 }
 
 #[cfg(test)]
@@ -104,11 +101,10 @@ impl DirectAccumBindingPortV1 for RawDirectAccumBindingPort<'_> {
     fn read_binding(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
-        let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
+        let mut adapter = MirBindingSsaAdapterV1::new(builder, self.phis);
         self.ssa
             .read(&mut adapter, binding, block)
             .map_err(|error| error.to_string())
@@ -117,31 +113,28 @@ impl DirectAccumBindingPortV1 for RawDirectAccumBindingPort<'_> {
     fn read_condition_induction(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
-        self.read_binding(builder, phis, binding, block)
+        self.read_binding(builder, binding, block)
     }
 
     fn read_update_accumulator(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
-        self.read_binding(builder, phis, binding, block)
+        self.read_binding(builder, binding, block)
     }
 
     fn read_step_induction(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
-        self.read_binding(builder, phis, binding, block)
+        self.read_binding(builder, binding, block)
     }
 
     fn write_update_accumulator(
@@ -169,11 +162,10 @@ impl DirectAccumBindingPortV1 for RawDirectAccumBindingPort<'_> {
     fn seal(
         &mut self,
         builder: &mut MirBuilder,
-        phis: &mut PhiTxn,
         block: BasicBlockId,
         witness: &VerifiedPredecessorsV1,
     ) -> Result<(), String> {
-        let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
+        let mut adapter = MirBindingSsaAdapterV1::new(builder, self.phis);
         self.ssa
             .seal(&mut adapter, block, witness)
             .map_err(|error| error.to_string())

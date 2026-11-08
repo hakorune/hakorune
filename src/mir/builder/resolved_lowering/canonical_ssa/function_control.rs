@@ -29,17 +29,80 @@ impl FunctionControlV1 {
         self.cfg.bind_source_owner(owner)?;
         Ok(())
     }
-    pub(in crate::mir::builder) fn with_source_bindings<T>(
+    fn source_parts(
         &mut self,
-        action: impl FnOnce(&mut BindingSsaBuilderV1<PhiToken, FunctionSsaKeyV1>) -> Result<T, String>,
-    ) -> Result<T, String> {
-        self.owner.ok_or_else(inactive)?;
-        self.transaction
+    ) -> Result<
+        (
+            &mut BindingSsaBuilderV1<PhiToken, FunctionSsaKeyV1>,
+            &mut PhiTxn,
+        ),
+        String,
+    > {
+        let owner = self.owner.ok_or_else(inactive)?;
+        let transaction = self
+            .transaction
             .get_or_insert_with(|| PhiTxn::begin("canonical_binding_ssa"));
-        action(
-            self.bindings
-                .get_or_insert_with(|| BindingSsaBuilderV1::with_keys(self.owner)),
-        )
+        let bindings = self
+            .bindings
+            .get_or_insert_with(|| BindingSsaBuilderV1::with_keys(Some(owner)));
+        Ok((bindings, transaction))
+    }
+    pub(in crate::mir::builder) fn validate_source_bindings(&mut self) -> Result<(), String> {
+        self.source_parts()?
+            .0
+            .validate_finish()
+            .map_err(|error| error.to_string())
+    }
+    pub(in crate::mir::builder) fn read_source(
+        &mut self,
+        builder: &mut MirBuilder,
+        binding: BindingRefV1,
+        block: BasicBlockId,
+        deferred: Option<BasicBlockId>,
+    ) -> Result<ValueId, String> {
+        let (bindings, transaction) = self.source_parts()?;
+        let mut adapter = match deferred {
+            Some(entry) => {
+                MirBindingSsaAdapterV1::new_with_deferred_reachable(builder, transaction, entry)
+            }
+            None => MirBindingSsaAdapterV1::new(builder, transaction),
+        };
+        bindings
+            .read(&mut adapter, FunctionSsaKeyV1::Source(binding), block)
+            .map_err(|error| error.to_string())
+    }
+    pub(in crate::mir::builder) fn seal_source(
+        &mut self,
+        builder: &mut MirBuilder,
+        block: BasicBlockId,
+        witness: &super::super::canonical_cfg::VerifiedPredecessorsV1,
+    ) -> Result<(), String> {
+        let (bindings, transaction) = self.source_parts()?;
+        bindings
+            .seal(
+                &mut MirBindingSsaAdapterV1::new(builder, transaction),
+                block,
+                witness,
+            )
+            .map_err(|error| error.to_string())
+    }
+    pub(in crate::mir::builder) fn require_transaction_settled(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<(), String> {
+        let pending = self
+            .transaction
+            .as_ref()
+            .is_some_and(|transaction| transaction.pending_tokens_v1().next().is_some());
+        if pending {
+            return self
+                .transaction
+                .take()
+                .ok_or_else(inactive)?
+                .commit(builder)
+                .map_err(|error| error.to_string());
+        }
+        Ok(())
     }
     pub(in crate::mir::builder) fn is_empty_for_commit(&self) -> bool {
         self.owner.is_none()
@@ -263,10 +326,10 @@ impl FunctionControlV1 {
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        self.with_source_bindings(|ssa| {
-            ssa.define(FunctionSsaKeyV1::Source(binding), block, value)
-                .map_err(|error| error.to_string())
-        })
+        self.source_parts()?
+            .0
+            .define(FunctionSsaKeyV1::Source(binding), block, value)
+            .map_err(|error| error.to_string())
     }
     pub(in crate::mir::builder) fn complete_blocks(
         &mut self,

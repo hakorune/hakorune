@@ -12,7 +12,7 @@ pub(super) use super::pure_operation_emitter::{
     LoopOperationEmissionRejectV1, LoopOperationServicesV1, PreparedLoopOperationEmissionV1,
 };
 use super::topology::LoopPhysicalBlockRoleV1;
-use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2,
 };
@@ -125,7 +125,6 @@ impl ReadBindingEmissionReceiptV1 {
 pub(super) struct CanonicalBindingReadServicesV1<'a, 'source> {
     pub(super) builder: &'a mut crate::mir::builder::MirBuilder,
     pub(super) identity: &'a mut ResolvedSsaIdentityStateV2<'source>,
-    pub(super) phis: &'a mut PhiTxn,
 }
 
 impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
@@ -137,7 +136,7 @@ impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
     ) -> Result<CanonicalBindingReadReceiptV1, String> {
         self.identity.claim_variable_use_binding(site, binding)?;
         self.identity
-            .read_entry_receipt(self.builder, self.phis, block, binding)
+            .read_entry_receipt(self.builder, block, binding)
     }
 
     pub(super) fn define_assignment(

@@ -112,7 +112,6 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
             candidate,
             &mut self.session.cfg,
             &mut port,
-            &mut self.session.phis,
         )?;
         let profile_close =
             finish_profile_close(self.input.owner(), continuation.continuation_block, || {
@@ -158,7 +157,7 @@ impl<'builder, 'source> CanonicalNestedPredicateSsaLowererV1<'builder, 'source> 
             .map_err(|error| format!("[freeze:contract][nested_cfg/after_seal] {error:?}"))?;
         self.session
             .identity
-            .seal_block(self.builder, &mut self.session.phis, after, &witness)
+            .seal_block(self.builder, after, &witness)
     }
 
     fn current_block(&self) -> Result<BasicBlockId, String> {
