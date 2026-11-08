@@ -44,8 +44,11 @@ impl<'session> PreparedCanonicalBranchV1<'session> {
         self.commit_with_edge_args(function, None, None);
     }
 
-    fn commit_with_edge_args(self, function: &mut MirFunction,
-        then_args: Option<crate::mir::EdgeArgs>, else_args: Option<crate::mir::EdgeArgs>,
+    fn commit_with_edge_args(
+        self,
+        function: &mut MirFunction,
+        then_args: Option<crate::mir::EdgeArgs>,
+        else_args: Option<crate::mir::EdgeArgs>,
     ) {
         let Self {
             session,
@@ -55,7 +58,9 @@ impl<'session> PreparedCanonicalBranchV1<'session> {
             else_block,
             _seal,
         } = self;
-        session.commit_prepared_branch(function, source, condition, then_block, else_block, then_args, else_args);
+        session.commit_prepared_branch(
+            function, source, condition, then_block, else_block, then_args, else_args,
+        );
     }
 }
 
@@ -68,12 +73,20 @@ impl CanonicalCfgSessionV1 {
         then_block: BasicBlockId,
         else_block: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
-        self.emit_branch_with_edge_args(function, source, condition,
-            (then_block, else_block), (None, None))
+        self.emit_branch_with_edge_args(
+            function,
+            source,
+            condition,
+            (then_block, else_block),
+            (None, None),
+        )
     }
 
     pub(in crate::mir::builder) fn emit_branch_with_edge_args(
-        &self, function: &mut MirFunction, source: BasicBlockId, condition: ValueId,
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        condition: ValueId,
         targets: (BasicBlockId, BasicBlockId),
         args: (Option<crate::mir::EdgeArgs>, Option<crate::mir::EdgeArgs>),
     ) -> Result<(), CanonicalCfgErrorV1> {
@@ -117,12 +130,17 @@ impl CanonicalCfgSessionV1 {
         then_edge_args: Option<crate::mir::EdgeArgs>,
         else_edge_args: Option<crate::mir::EdgeArgs>,
     ) {
-        Self::commit_instruction(function, source, MirInstruction::Branch {
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::Branch {
                 condition,
                 then_bb: then_block,
                 else_bb: else_block,
                 then_edge_args,
                 else_edge_args,
-            }, None);
+            },
+            None,
+        );
     }
 }

@@ -64,12 +64,17 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
     ) -> Result<(), String> {
         if let Self::SourcePublication { loop_completion: Some(completion), .. } = self {
             if let Some(session) = completion.matching_phi_session(plan)? {
-                session.with_transaction(|txn| super::phi_processing::patch_all_phis_with_transaction(builder, plan, txn))?;
+                session.with_transaction(|txn| {
+                    super::phi_processing::patch_all_phis_with_transaction(builder, plan, txn)
+                })?;
                 return session.require_patched();
             }
         }
-        super::phi_processing::patch_all_phis_with_transaction(builder, plan,
-            transaction.ok_or("[freeze:contract][phi_lifecycle/plan-transaction-missing]")?)
+        super::phi_processing::patch_all_phis_with_transaction(
+            builder,
+            plan,
+            transaction.ok_or("[freeze:contract][phi_lifecycle/plan-transaction-missing]")?,
+        )
     }
     pub(super) fn completed_loop(&self, plan: &crate::mir::builder::control_flow::plan::CoreLoopPlan,
         function: &crate::mir::MirFunction,

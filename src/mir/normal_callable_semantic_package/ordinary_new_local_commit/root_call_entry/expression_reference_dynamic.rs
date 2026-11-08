@@ -124,13 +124,21 @@ impl ExpressionReferenceReadV1 {
     pub(in crate::mir) fn validate_loop_binding_v2(
         binding: crate::mir::resolved_semantics::BindingRefV1,
         source: &crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1,
-        read: &BindingValueObservationV2, context: CallValidationContextV1<'_>, function: &MirFunction,
+        read: &BindingValueObservationV2,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
     ) -> Result<Vec<Binding>, String> {
         use crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1 as Source;
         match source {
-            Source::Scalar(source) => Self::validate_scalar_binding_v2(binding, source, read, context, function),
-            Source::Text(source) => Self::validate_text_binding_v2(binding, source, read, context, function),
-            Source::Dynamic(source) => Self::validate_dynamic_binding_v2(binding, source, read, context, function),
+            Source::Scalar(source) => {
+                Self::validate_scalar_binding_v2(binding, source, read, context, function)
+            }
+            Source::Text(source) => {
+                Self::validate_text_binding_v2(binding, source, read, context, function)
+            }
+            Source::Dynamic(source) => {
+                Self::validate_dynamic_binding_v2(binding, source, read, context, function)
+            }
         }
     }
 }
@@ -138,16 +146,32 @@ impl ExpressionReferenceReadV1 {
 impl CallValidationContextV1<'_> {
     /// Shared typed Header projection from the original basis; each class
     /// still uses its own original-product validator.
-    pub(in crate::mir) fn source_loop_header_point_v2(self,
-        basis: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::LoopHeaderValueBasisV1>,
-    ) -> Result<(crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1,
-        std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>), String> {
-        use crate::mir::resolved_semantics::home_new_prefix::{SourceLoopValueProducerV1 as Source,
-            CurrentScalarProducerV1, SourceLoopTextProducerV1, SourceLoopDynamicProducerV1};
+    pub(in crate::mir) fn source_loop_header_point_v2(
+        self,
+        basis: &std::rc::Rc<
+            crate::mir::resolved_semantics::home_new_prefix::LoopHeaderValueBasisV1,
+        >,
+    ) -> Result<
+        (
+            crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1,
+            std::rc::Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
+        ),
+        String,
+    > {
+        use crate::mir::resolved_semantics::home_new_prefix::{
+            CurrentScalarProducerV1, SourceLoopDynamicProducerV1, SourceLoopTextProducerV1,
+            SourceLoopValueProducerV1 as Source,
+        };
         let source = match basis.entry_producer() {
-            Source::Scalar(_) => Source::Scalar(CurrentScalarProducerV1::LoopHeader(std::rc::Rc::clone(basis))),
-            Source::Text(_) => Source::Text(SourceLoopTextProducerV1::Header(std::rc::Rc::clone(basis))),
-            Source::Dynamic(_) => Source::Dynamic(SourceLoopDynamicProducerV1::Header(std::rc::Rc::clone(basis))),
+            Source::Scalar(_) => Source::Scalar(CurrentScalarProducerV1::LoopHeader(
+                std::rc::Rc::clone(basis),
+            )),
+            Source::Text(_) => {
+                Source::Text(SourceLoopTextProducerV1::Header(std::rc::Rc::clone(basis)))
+            }
+            Source::Dynamic(_) => Source::Dynamic(SourceLoopDynamicProducerV1::Header(
+                std::rc::Rc::clone(basis),
+            )),
         };
         let product = match &source {
             Source::Scalar(source) => self.source_loop_point_product_v2(source)?,

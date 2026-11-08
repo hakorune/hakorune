@@ -149,7 +149,10 @@ impl OpenScriptPhysicalEntrySessionV1 {
         };
         let completed = ScriptPhysicalExitCommitV1::commit_projected(&mut self.candidate, prepared);
         if let Err(error) = self.candidate.finish_function_control_v1() {
-            return Err((self, ScriptPhysicalEntrySessionErrorV1::Lowering { _error: error }));
+            return Err((
+                self,
+                ScriptPhysicalEntrySessionErrorV1::Lowering { _error: error },
+            ));
         }
         let verification = {
             let function = self

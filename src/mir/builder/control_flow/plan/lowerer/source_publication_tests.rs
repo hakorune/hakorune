@@ -211,9 +211,19 @@ fn source_loop_completion_requires_final_incoming_and_unique_physical_definition
         let adoption = session.adopt_and_define(&mut builder, &selected);
         if mutation == "none" {
             adoption.unwrap();
-            assert!(session.adopt_and_define(&mut builder, &selected).is_err(), "single adoption");
-            session.with_transaction(|txn| super::super::phi_processing::patch_all_phis_with_transaction(
-                &mut builder, &selected, txn)).unwrap();
+            assert!(
+                session.adopt_and_define(&mut builder, &selected).is_err(),
+                "single adoption"
+            );
+            session
+                .with_transaction(|txn| {
+                    super::super::phi_processing::patch_all_phis_with_transaction(
+                        &mut builder,
+                        &selected,
+                        txn,
+                    )
+                })
+                .unwrap();
             session.require_patched().unwrap();
             let completed_function = builder.function_state.current_function.as_ref().unwrap();
             let completion = LoopCondPhysicalCompletionV1::new(owner, site.clone(), &plan).unwrap();

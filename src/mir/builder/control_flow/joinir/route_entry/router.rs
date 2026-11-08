@@ -139,8 +139,8 @@ pub(crate) fn route_loop(
         .to_string());
     };
 
-    let site = site.ok_or_else(||
-        "[freeze:contract][route-loop/missing-source-site]".to_owned())?;
+    let site =
+        site.ok_or_else(|| "[freeze:contract][route-loop/missing-source-site]".to_owned())?;
 
     // Resolve the function's source unit once; sibling loops share it.
     let unit = if let Some(unit) = &builder
@@ -166,12 +166,14 @@ pub(crate) fn route_loop(
 
     // The caller retains the resolver's original statement receipt. Identical
     // loops have distinct sites; no syntax scan may choose between them.
-    let loop_stmt = input.source().exact_stmt(site)
+    let loop_stmt = input
+        .source()
+        .exact_stmt(site)
         .map_err(|error| error.to_string())?;
     if !matches!(loop_stmt.node(), ASTNode::Loop { .. }) {
-        return Err(Freeze::contract(
-            "resolver loop site projected a non-Loop statement",
-        ).to_string());
+        return Err(
+            Freeze::contract("resolver loop site projected a non-Loop statement").to_string(),
+        );
     }
 
     // One policy winner -> one verified recipe.

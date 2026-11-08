@@ -86,12 +86,17 @@ impl CanonicalCfgSessionV1 {
                 ));
             }
         }
-        Self::commit_instruction(function, source, MirInstruction::Invoke {
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::Invoke {
                 operation,
                 fault_frame: frame,
                 normal_landing: normal,
                 fault_landing: fault,
-            }, None);
+            },
+            None,
+        );
         Ok(())
     }
 
@@ -109,7 +114,12 @@ impl CanonicalCfgSessionV1 {
                 "root frame is not exactly defined at entry".into(),
             ));
         }
-        Self::commit_instruction(function, source, MirInstruction::ReturnFault { fault_frame: frame }, None);
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::ReturnFault { fault_frame: frame },
+            None,
+        );
         Ok(())
     }
 
@@ -139,7 +149,10 @@ impl CanonicalCfgSessionV1 {
                 return Err(CanonicalCfgErrorV1::Invoke("landing is not empty".into()));
             }
         }
-        Self::commit_instruction(function, source, MirInstruction::Invoke {
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::Invoke {
                 operation: InvokeOperation::Call {
                     call,
                     result: InvokeCallResultKind::I64,
@@ -147,7 +160,9 @@ impl CanonicalCfgSessionV1 {
                 fault_frame: frame,
                 normal_landing: normal,
                 fault_landing: fault,
-            }, None);
+            },
+            None,
+        );
         Ok(())
     }
 
@@ -167,7 +182,12 @@ impl CanonicalCfgSessionV1 {
         }) {
             return Err(CanonicalCfgErrorV1::Invoke("foreign Fault landing".into()));
         }
-        Self::commit_instruction(function, source, MirInstruction::ReturnFault { fault_frame: frame }, None);
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::ReturnFault { fault_frame: frame },
+            None,
+        );
         Ok(())
     }
 }

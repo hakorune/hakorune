@@ -407,13 +407,28 @@ impl MirBuilder {
                     let mut control = control.borrow_mut();
                     for target in [then_t, else_t, jump_t].into_iter().flatten() {
                         if !function.blocks.contains_key(&target) {
-                            control.cfg.create_block(function, target).map_err(|error| error.to_string())?;
+                            control
+                                .cfg
+                                .create_block(function, target)
+                                .map_err(|error| error.to_string())?;
                         }
                     }
-                    control.cfg.append_packet_instruction(function, block_id,
-                        instruction, self.metadata_ctx.current_span()).map_err(|error| error.to_string())?;
+                    control
+                        .cfg
+                        .append_packet_instruction(
+                            function,
+                            block_id,
+                            instruction,
+                            self.metadata_ctx.current_span(),
+                        )
+                        .map_err(|error| error.to_string())?;
                 } else {
-                    append_instruction_core(function, block_id, instruction, self.metadata_ctx.current_span())?;
+                    append_instruction_core(
+                        function,
+                        block_id,
+                        instruction,
+                        self.metadata_ctx.current_span(),
+                    )?;
                 }
             } else {
                 return Err(FreezeContract::new("builder/emit_missing_block")

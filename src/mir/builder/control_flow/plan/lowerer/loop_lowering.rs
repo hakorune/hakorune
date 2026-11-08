@@ -117,15 +117,23 @@ impl super::PlanLowerer {
         let final_values = loop_plan.final_values.clone();
 
         // A source session lends its transaction; otherwise this scope owns one.
-        let source_transaction = port.prepare_source_loop_phis(builder, &loop_plan)?.is_some();
-        let mut transaction = (!source_transaction).then(||
-            crate::mir::builder::emission::phi_lifecycle::PhiTxn::begin("loop_lowerer"));
+        let source_transaction = port
+            .prepare_source_loop_phis(builder, &loop_plan)?
+            .is_some();
+        let mut transaction = (!source_transaction)
+            .then(|| crate::mir::builder::emission::phi_lifecycle::PhiTxn::begin("loop_lowerer"));
         let res: Result<(), String> = (|| {
             if let Some(txn) = transaction.as_mut() {
-                for phi in &loop_plan.phis { builder.ensure_block_exists(phi.block)?; }
                 for phi in &loop_plan.phis {
-                    txn.define_provisional_phi(builder, phi.block, phi.dst,
-                        &format!("loop_lowerer:step1.5:{}", phi.tag))?;
+                    builder.ensure_block_exists(phi.block)?;
+                }
+                for phi in &loop_plan.phis {
+                    txn.define_provisional_phi(
+                        builder,
+                        phi.block,
+                        phi.dst,
+                        &format!("loop_lowerer:step1.5:{}", phi.tag),
+                    )?;
                 }
             }
             // Step 2: Emit block effects in SSOT order (preheader, header, body, step)
@@ -187,13 +195,18 @@ impl super::PlanLowerer {
         })();
 
         if let Some(txn) = transaction {
-            let labels: Vec<_> = loop_plan.phis.iter().map(|phi|
-                (phi.block, phi.dst, phi.tag.as_str())).collect();
+            let labels: Vec<_> = loop_plan
+                .phis
+                .iter()
+                .map(|phi| (phi.block, phi.dst, phi.tag.as_str()))
+                .collect();
             let strict = crate::config::env::joinir_dev::strict_planner_required_enabled()
                 || (crate::config::env::joinir_dev_enabled()
                     && crate::config::env::joinir_dev::planner_required_enabled());
             txn.finish_plan_scope(builder, res, &labels, strict)?;
-        } else { res?; }
+        } else {
+            res?;
+        }
 
         // Step 5: Emit Frag (terminators)
         // SSOT: Delegated to loop_completion::emit_loop_frag()

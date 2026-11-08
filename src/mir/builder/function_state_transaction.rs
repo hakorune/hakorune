@@ -55,7 +55,8 @@ pub(super) struct CapturedFunctionOwnedStateV1 {
     pub(super) compilation: FunctionCompilationScratchV1,
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
-    pub(super) canonical_control: Option<super::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
+    pub(super) canonical_control:
+        Option<super::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
     pub(super) local_ssa_correspondence: super::ssa::local::correspondence::LocalSsaPhysicalIndexV1,
     pub(super) checked_compare_reuse: super::ssa::local::checked_compare::CheckedCompareReuseV1,
     pub(super) checked_mul_reuse: super::ssa::local::checked_mul::CheckedMulReuseV1,

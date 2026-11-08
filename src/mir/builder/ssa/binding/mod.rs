@@ -73,8 +73,11 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
     /// Adopt a typed destination issued by the same function's PHI writer.
     /// Its incoming values are still derived by the common sealed-block SSA.
     pub(in crate::mir::builder) fn adopt_provisional_phi(
-        &mut self, binding: BindingRefV1, block: BasicBlockId,
-        value: ValueId, token: Token,
+        &mut self,
+        binding: BindingRefV1,
+        block: BasicBlockId,
+        value: ValueId,
+        token: Token,
     ) -> Result<(), BindingSsaErrorV1> {
         self.require_usable()?;
         self.require_binding(binding)?;
@@ -84,25 +87,36 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
         }
         if self.definitions.contains_key(&(block, binding)) {
             return Err(BindingSsaErrorV1::PhiOperation {
-                operation: "adopt", detail: "binding already has a definition".to_owned(),
+                operation: "adopt",
+                detail: "binding already has a definition".to_owned(),
             });
         }
         self.definitions.insert((block, binding), value);
-        self.incomplete.insert((block, binding), IncompletePhiV1 { token });
+        self.incomplete
+            .insert((block, binding), IncompletePhiV1 { token });
         Ok(())
     }
 
     /// Close the function only after every final predecessor witness exists.
     /// A locally completed block must retain its original incoming edge set.
     pub(in crate::mir::builder) fn close<I: BindingSsaIrV1<PhiToken = Token>>(
-        mut self, ir: &mut I, witnesses: &[VerifiedPredecessorsV1],
+        mut self,
+        ir: &mut I,
+        witnesses: &[VerifiedPredecessorsV1],
     ) -> Result<(), BindingSsaErrorV1> {
         for witness in witnesses {
-            match self.blocks.get(&witness.block()).and_then(|state| state.predecessors.as_ref()) {
-                Some(previous) if previous.as_ref() == witness.predecessors() => {},
-                Some(_) => return Err(BindingSsaErrorV1::PhiOperation {
-                    operation: "close", detail: format!("predecessors changed for {}", witness.block()),
-                }),
+            match self
+                .blocks
+                .get(&witness.block())
+                .and_then(|state| state.predecessors.as_ref())
+            {
+                Some(previous) if previous.as_ref() == witness.predecessors() => {}
+                Some(_) => {
+                    return Err(BindingSsaErrorV1::PhiOperation {
+                        operation: "close",
+                        detail: format!("predecessors changed for {}", witness.block()),
+                    })
+                }
                 None => self.seal(ir, witness.block(), witness)?,
             }
         }

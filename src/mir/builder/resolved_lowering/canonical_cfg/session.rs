@@ -85,10 +85,19 @@ impl CanonicalCfgSessionV1 {
         if function.get_block(block).is_some() {
             return Err(CanonicalCfgErrorV1::BlockAlreadyExists { block });
         }
-        let incoming: Vec<_> = function.blocks.iter().filter_map(|(source, body)|
-            body.successors_from_terminator().contains(&block).then_some(*source)).collect();
+        let incoming: Vec<_> = function
+            .blocks
+            .iter()
+            .filter_map(|(source, body)| {
+                body.successors_from_terminator()
+                    .contains(&block)
+                    .then_some(*source)
+            })
+            .collect();
         let mut created = BasicBlock::new(block);
-        for source in incoming { created.add_predecessor(source); }
+        for source in incoming {
+            created.add_predecessor(source);
+        }
         function.add_block(created);
         self.creation.record_created(block);
         Ok(())
@@ -114,7 +123,11 @@ impl CanonicalCfgSessionV1 {
             block,
             role: CanonicalCfgBlockRoleV1::Source,
         };
-        let function = builder.function_state.current_function.as_ref().ok_or_else(&missing)?;
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(&missing)?;
         require_block(function, block, CanonicalCfgBlockRoleV1::Source)?;
         builder.start_new_block(block).map_err(|_| missing())
     }
@@ -126,10 +139,15 @@ impl CanonicalCfgSessionV1 {
         target: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
         self.preflight_edge(function, source, &[target])?;
-        Self::commit_instruction(function, source, MirInstruction::Jump {
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::Jump {
                 target,
                 edge_args: None,
-            }, None);
+            },
+            None,
+        );
         Ok(())
     }
 
@@ -178,14 +196,19 @@ impl CanonicalCfgSessionV1 {
             .expect("site plan remained present")
             .validate_instruction(site_id, normal_landing, fault_landing, effects)
             .map_err(|error| CanonicalCfgErrorV1::CheckedCallOut(format!("{error:?}")))?;
-        Self::commit_instruction(function, source, MirInstruction::CheckedCallOut {
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::CheckedCallOut {
                 site_id,
                 receiver,
                 arguments,
                 normal_landing,
                 fault_landing,
                 effects,
-            }, None);
+            },
+            None,
+        );
         Ok(())
     }
 
@@ -219,12 +242,22 @@ impl CanonicalCfgSessionV1 {
                     .to_owned(),
             ));
         }
-        Self::commit_instruction(function, source, MirInstruction::PinnedTextResidenceEnter {
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::PinnedTextResidenceEnter {
                 plan,
                 normal_landing,
                 trap_landing,
-            }, None);
-        Self::commit_instruction(function, trap_landing, MirInstruction::PinnedTextResidenceTrap { plan }, None);
+            },
+            None,
+        );
+        Self::commit_instruction(
+            function,
+            trap_landing,
+            MirInstruction::PinnedTextResidenceTrap { plan },
+            None,
+        );
         self.seal_block(function, trap_landing)?;
         Ok(PinnedTextResidenceFinishCapabilityV1::from_parts(residence))
     }
@@ -289,7 +322,12 @@ impl CanonicalCfgSessionV1 {
                 "checked callout Fault source is not the admitted site landing".to_owned(),
             ));
         }
-        Self::commit_instruction(function, source, MirInstruction::CheckedCallOutFault { site_id }, None);
+        Self::commit_instruction(
+            function,
+            source,
+            MirInstruction::CheckedCallOutFault { site_id },
+            None,
+        );
         Ok(())
     }
 
@@ -303,8 +341,11 @@ impl CanonicalCfgSessionV1 {
             return Err(CanonicalCfgErrorV1::SealTwice { block });
         }
 
-        let witness = self.predecessor_witnesses(function)?.into_iter()
-            .find(|witness| witness.block == block).expect("seal block was checked");
+        let witness = self
+            .predecessor_witnesses(function)?
+            .into_iter()
+            .find(|witness| witness.block == block)
+            .expect("seal block was checked");
         function
             .get_block_mut(block)
             .expect("seal block was checked")
@@ -316,21 +357,31 @@ impl CanonicalCfgSessionV1 {
     /// Observe actual edges without closing a block against later writers.
     /// The function owner rechecks these witnesses at its final close.
     pub(in crate::mir::builder) fn predecessor_witnesses(
-        &self, function: &MirFunction,
+        &self,
+        function: &MirFunction,
     ) -> Result<Vec<VerifiedPredecessorsV1>, CanonicalCfgErrorV1> {
-        Ok(derive_and_verify_predecessors(function)?.into_iter().map(|(block, incoming)|
-            VerifiedPredecessorsV1 { block, predecessors: incoming.into_iter().collect() }).collect())
+        Ok(derive_and_verify_predecessors(function)?
+            .into_iter()
+            .map(|(block, incoming)| VerifiedPredecessorsV1 {
+                block,
+                predecessors: incoming.into_iter().collect(),
+            })
+            .collect())
     }
 
     /// Adopt completed prefix/checked-packet blocks and seal open blocks once
     /// all function edges are known. Existing seals must keep their witnesses.
     pub(in crate::mir::builder) fn close_function_blocks(
-        &mut self, function: &mut MirFunction,
+        &mut self,
+        function: &mut MirFunction,
     ) -> Result<Vec<VerifiedPredecessorsV1>, CanonicalCfgErrorV1> {
         let witnesses = self.predecessor_witnesses(function)?;
         self.validate_recorded_seals(function, &witnesses, false)?;
         for witness in &witnesses {
-            function.get_block_mut(witness.block).expect("witness block").seal();
+            function
+                .get_block_mut(witness.block)
+                .expect("witness block")
+                .seal();
             self.sealed.insert(witness.block, witness.clone());
         }
         Ok(witnesses)
@@ -352,26 +403,39 @@ impl CanonicalCfgSessionV1 {
         })
     }
 
-    fn validate_recorded_seals(&self, function: &MirFunction,
-        current: &[VerifiedPredecessorsV1], require_all: bool,
+    fn validate_recorded_seals(
+        &self,
+        function: &MirFunction,
+        current: &[VerifiedPredecessorsV1],
+        require_all: bool,
     ) -> Result<(), CanonicalCfgErrorV1> {
         for witness in current {
             let block = witness.block;
             let Some(previous) = self.sealed.get(&block) else {
-                if require_all { return Err(CanonicalCfgErrorV1::UnsealedBlockAtFinish { block }); }
+                if require_all {
+                    return Err(CanonicalCfgErrorV1::UnsealedBlockAtFinish { block });
+                }
                 continue;
             };
-            if !function.get_block(block).expect("witness block").is_sealed() {
+            if !function
+                .get_block(block)
+                .expect("witness block")
+                .is_sealed()
+            {
                 return Err(CanonicalCfgErrorV1::SealStateMismatch { block });
             }
             if previous != witness {
                 return Err(CanonicalCfgErrorV1::SealedPredecessorsChanged {
-                    block, sealed: previous.predecessors.clone(), current: witness.predecessors.clone(),
+                    block,
+                    sealed: previous.predecessors.clone(),
+                    current: witness.predecessors.clone(),
                 });
             }
         }
         for block in self.sealed.keys().copied() {
-            if function.get_block(block).is_none() { return Err(CanonicalCfgErrorV1::SealedBlockRemoved { block }); }
+            if function.get_block(block).is_none() {
+                return Err(CanonicalCfgErrorV1::SealedBlockRemoved { block });
+            }
         }
         Ok(())
     }

@@ -202,7 +202,8 @@ impl MirBuilder {
         result: RootBodyResultV1,
         tracker: &ActiveRootBodyCompletionTrackerV1,
     ) -> Result<PreparedRawRootExitPlanV1, RawRootBodyExitSealErrorV1> {
-        self.finish_function_control_v1().map_err(RawRootBodyExitSealErrorV1::CanonicalControl)?;
+        self.finish_function_control_v1()
+            .map_err(RawRootBodyExitSealErrorV1::CanonicalControl)?;
         tracker
             .prepare_seal()
             .map_err(RawRootBodyExitSealErrorV1::TrackerNotSealable)?;

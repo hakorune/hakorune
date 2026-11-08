@@ -551,15 +551,26 @@ impl Driver<'_, '_, '_, '_, '_> {
                         source_joins.iter().map(|row| (row.source.binding(), row.result, row.binding, row.write_item)).collect::<Vec<_>>(),
                         joins.iter().map(|row| row.source().binding()).collect::<Vec<_>>(), self.logical);
                 }
-                self.publish_join_sources(builder,
-                    source_joins.iter().map(|row| (&row.source, row.binding, row.result)),
+                self.publish_join_sources(
+                    builder,
+                    source_joins
+                        .iter()
+                        .map(|row| (&row.source, row.binding, row.result)),
                     joins.iter().map(|row| (row.source(), row.relation())),
-                    &entry_logical, "if-logical-join-not-canonical")?;
-                let consumed_text = self.publish_join_sources(builder,
-                    source_text_joins.iter().map(|row| (&row.source, row.binding, row.result)),
+                    &entry_logical,
+                    "if-logical-join-not-canonical",
+                )?;
+                let consumed_text = self.publish_join_sources(
+                    builder,
+                    source_text_joins
+                        .iter()
+                        .map(|row| (&row.source, row.binding, row.result)),
                     text_joins.iter().map(|row| (row.source(), row.relation())),
-                    &entry_logical, "if-text-join-not-canonical")?;
-                if consumed_text != text_joins.len() || text_joins.len() != source_text_joins.len() {
+                    &entry_logical,
+                    "if-text-join-not-canonical",
+                )?;
+                if consumed_text != text_joins.len() || text_joins.len() != source_text_joins.len()
+                {
                     return Err(reject("if-text-join-not-canonical"));
                 }
             } else if !source_joins.is_empty() {
@@ -579,24 +590,42 @@ impl Driver<'_, '_, '_, '_, '_> {
     }
     /// Scalar and Text keep distinct typed source identities; their physical
     /// join correspondence and logical writeback obey the same contract.
-    fn publish_join_sources<'a, T: 'a>(&mut self, builder: &MirBuilder,
+    fn publish_join_sources<'a, T: 'a>(
+        &mut self,
+        builder: &MirBuilder,
         scheduled: impl Iterator<Item = (&'a Rc<T>, Option<LoopBindingKeyV1>, LoopValueKeyV1)>,
         observed: impl Iterator<Item = (&'a Rc<T>, &'a Rc<LocalSsaPhysicalRelationV1>)>,
-        entry: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>, reason: &str,
+        entry: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
+        reason: &str,
     ) -> Result<usize, String> {
         let observed: Vec<_> = observed.collect();
         let mut consumed = BTreeSet::new();
         for (source, binding, result) in scheduled {
-            let mut matching = observed.iter().enumerate().filter(|(_, (candidate, _))|
-                Rc::ptr_eq(candidate, source));
+            let mut matching = observed
+                .iter()
+                .enumerate()
+                .filter(|(_, (candidate, _))| Rc::ptr_eq(candidate, source));
             let (index, (_, relation)) = matching.next().ok_or_else(|| reject(reason))?;
-            if matching.next().is_some() || !consumed.insert(index) { return Err(reject(reason)); }
-            let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
+            if matching.next().is_some() || !consumed.insert(index) {
+                return Err(reject(reason));
+            }
+            let function = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .ok_or_else(|| reject("function-missing"))?;
             relation.verify(function)?;
-            if self.values.insert(result, relation.values().0).is_some() { return Err(reject(reason)); }
+            if self.values.insert(result, relation.values().0).is_some() {
+                return Err(reject(reason));
+            }
             if let Some(binding) = binding {
-                let previous = self.logical.insert(binding, result).ok_or_else(|| reject(reason))?;
-                if entry.get(&binding) != Some(&previous) { return Err(reject(reason)); }
+                let previous = self
+                    .logical
+                    .insert(binding, result)
+                    .ok_or_else(|| reject(reason))?;
+                if entry.get(&binding) != Some(&previous) {
+                    return Err(reject(reason));
+                }
             }
         }
         Ok(consumed.len())

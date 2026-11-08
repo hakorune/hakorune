@@ -142,8 +142,12 @@ impl fmt::Display for CanonicalCfgErrorV1 {
 impl Error for CanonicalCfgErrorV1 {}
 
 /// One lookup keeps the diagnostic role supplied by the existing preflight.
-pub(super) fn require_block(function: &crate::mir::MirFunction,
-    block: crate::mir::BasicBlockId, role: CanonicalCfgBlockRoleV1,
+pub(super) fn require_block(
+    function: &crate::mir::MirFunction,
+    block: crate::mir::BasicBlockId,
+    role: CanonicalCfgBlockRoleV1,
 ) -> Result<&crate::mir::BasicBlock, CanonicalCfgErrorV1> {
-    function.get_block(block).ok_or(CanonicalCfgErrorV1::MissingBlock { block, role })
+    function
+        .get_block(block)
+        .ok_or(CanonicalCfgErrorV1::MissingBlock { block, role })
 }

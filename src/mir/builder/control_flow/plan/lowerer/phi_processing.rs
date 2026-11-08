@@ -128,13 +128,25 @@ pub(super) fn patch_all_phis_with_transaction(
                     .iter()
                     .any(|(_, incoming)| *incoming == phi.dst)
             });
-        let token = transaction.pending_tokens_v1().find_map(|(block, token)|
-            (block == phi.block && token.dst() == phi.dst).then_some(token))
+        let token = transaction
+            .pending_tokens_v1()
+            .find_map(|(block, token)| {
+                (block == phi.block && token.dst() == phi.dst).then_some(token)
+            })
             .ok_or_else(|| "[freeze:contract][source-loop-phi/patch-token-missing]".to_owned())?;
         if is_unreferenced_empty_step_phi {
-            transaction.rollback_pending_phi(builder, token, &format!("loop_lowerer:step4:drop_unused:{}", phi.tag))?;
+            transaction.rollback_pending_phi(
+                builder,
+                token,
+                &format!("loop_lowerer:step4:drop_unused:{}", phi.tag),
+            )?;
         } else {
-            transaction.patch_phi_inputs(builder, token, inputs, &format!("loop_lowerer:step4:{}", phi.tag))?;
+            transaction.patch_phi_inputs(
+                builder,
+                token,
+                inputs,
+                &format!("loop_lowerer:step4:{}", phi.tag),
+            )?;
         }
     }
 

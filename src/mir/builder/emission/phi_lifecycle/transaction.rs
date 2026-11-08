@@ -99,8 +99,13 @@ pub(in crate::mir::builder) struct PhiTxn {
 
 impl PhiTxn {
     /// Read-only census of tokens issued and still owned by this transaction.
-    pub(in crate::mir::builder) fn pending_tokens_v1(&self) -> impl Iterator<Item = (BasicBlockId, PhiToken)> + '_ {
-        self.pending.iter().copied().map(|token| (token.block, token))
+    pub(in crate::mir::builder) fn pending_tokens_v1(
+        &self,
+    ) -> impl Iterator<Item = (BasicBlockId, PhiToken)> + '_ {
+        self.pending
+            .iter()
+            .copied()
+            .map(|token| (token.block, token))
     }
 
     pub(in crate::mir::builder) fn begin(tag: impl Into<String>) -> Self {
@@ -139,8 +144,10 @@ impl PhiTxn {
         }
         let complete = !inputs.is_empty();
         patch_phi_inputs(builder, token.block, token.dst, inputs, tag)?;
-        if complete { self.pending
-            .retain(|pending| pending.block != token.block || pending.dst != token.dst); }
+        if complete {
+            self.pending
+                .retain(|pending| pending.block != token.block || pending.dst != token.dst);
+        }
         Ok(())
     }
 
@@ -176,8 +183,11 @@ impl PhiTxn {
     /// Finish an existing plan scope using the same transaction as its writer.
     /// Source transactions are borrowed by their owner instead of calling this.
     pub(in crate::mir::builder) fn finish_plan_scope(
-        self, builder: &mut MirBuilder, result: Result<(), String>,
-        labels: &[(BasicBlockId, ValueId, &str)], strict_diagnostics: bool,
+        self,
+        builder: &mut MirBuilder,
+        result: Result<(), String>,
+        labels: &[(BasicBlockId, ValueId, &str)],
+        strict_diagnostics: bool,
     ) -> Result<(), String> {
         if self.pending.is_empty() {
             return match result {
@@ -186,30 +196,61 @@ impl PhiTxn {
             };
         }
         let first = self.pending[0];
-        let label = |token: PhiToken| labels.iter()
-            .find(|(block, value, _)| *block == token.block && *value == token.dst)
-            .map(|(_, _, label)| *label).unwrap_or("<unknown>");
-        let function = builder.function_state.current_function.as_ref()
-            .map(|function| function.signature.name.clone()).unwrap_or_default();
+        let label = |token: PhiToken| {
+            labels
+                .iter()
+                .find(|(block, value, _)| *block == token.block && *value == token.dst)
+                .map(|(_, _, label)| *label)
+                .unwrap_or("<unknown>")
+        };
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .map(|function| function.signature.name.clone())
+            .unwrap_or_default();
         let failed = result.is_err();
         let primary = result.err().unwrap_or_else(|| "none".to_owned());
         let error = self.abort_on_err(builder, primary);
         if !strict_diagnostics && failed && error.cleanup_failures.is_empty() {
             return Err(error.primary);
         }
-        let reason = if !error.cleanup_failures.is_empty() { "rollback_failed" }
-            else if failed { "err_before_patch" } else { "ok_after_patch" };
-        let original = error.cleanup_failures.first().map(|failure| format!(
-            "dst=%{} bb={:?} tag={} rollback_err={}", failure.token.dst.0,
-            failure.token.block, label(failure.token), failure.error))
+        let reason = if !error.cleanup_failures.is_empty() {
+            "rollback_failed"
+        } else if failed {
+            "err_before_patch"
+        } else {
+            "ok_after_patch"
+        };
+        let original = error
+            .cleanup_failures
+            .first()
+            .map(|failure| {
+                format!(
+                    "dst=%{} bb={:?} tag={} rollback_err={}",
+                    failure.token.dst.0,
+                    failure.token.block,
+                    label(failure.token),
+                    failure.error
+                )
+            })
             .unwrap_or_else(|| error.primary.clone());
-        let original = if original.starts_with("[freeze:")
-            && !original.contains(['\n', '\r']) { original }
-            else { let short: String = original.chars().take(80).collect();
-                if original.chars().count() > 80 { format!("{short}...") } else { short } };
+        let original = if original.starts_with("[freeze:") && !original.contains(['\n', '\r']) {
+            original
+        } else {
+            let short: String = original.chars().take(80).collect();
+            if original.chars().count() > 80 {
+                format!("{short}...")
+            } else {
+                short
+            }
+        };
         let rollback_count = error.pending_count - error.cleanup_failures.len();
-        let additional = if !error.cleanup_failures.is_empty() { format!(" cleanup={error}") }
-            else { String::new() };
+        let additional = if !error.cleanup_failures.is_empty() {
+            format!(" cleanup={error}")
+        } else {
+            String::new()
+        };
         Err(format!("[freeze:contract][phi_lifecycle/provisional_left_unpatched] fn={} phi_dst=%{} phi_bb={:?} tag={} orig_err=<{}> reason={} rollback_count={}{}",
             function, first.dst.0, first.block, label(first), original, reason, rollback_count, additional))
     }

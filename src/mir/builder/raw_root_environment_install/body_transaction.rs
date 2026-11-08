@@ -204,7 +204,11 @@ impl InstalledRawRootEnvironmentV1 {
                     ScriptPhysicalExitCommitV1::commit_projected(session.builder_mut(), prepared);
                 if let Err(error) = session.builder_mut().finish_function_control_v1() {
                     return Err(RejectedRawRootBodyPhysicalV1 {
-                        owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical, recipe },
+                        owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                            session,
+                            physical,
+                            recipe,
+                        },
                         error: RawRootBodyLoweringErrorV1::Lower(error),
                     });
                 }

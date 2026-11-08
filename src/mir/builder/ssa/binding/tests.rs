@@ -384,12 +384,19 @@ fn reserved_destination_keeps_identity_and_checks_final_predecessors() {
         ssa.define(binding, bb(0), value(10)).unwrap();
         ssa.define(binding, bb(1), value(11)).unwrap();
         let (reserved, token) = ir.define_provisional_phi(bb(2)).unwrap();
-        ssa.adopt_provisional_phi(binding, bb(2), reserved, token).unwrap();
+        ssa.adopt_provisional_phi(binding, bb(2), reserved, token)
+            .unwrap();
         assert_eq!(ssa.read(&mut ir, binding, bb(2)).unwrap(), reserved);
         ssa.seal(&mut ir, bb(2), &witness(2, &[0, 1])).unwrap();
-        assert_eq!(ir.phi_at(bb(2)).unwrap().1.inputs, vec![(bb(0), value(10)), (bb(1), value(11))]);
+        assert_eq!(
+            ir.phi_at(bb(2)).unwrap().1.inputs,
+            vec![(bb(0), value(10)), (bb(1), value(11))]
+        );
         let incoming: &[u32] = if changed { &[0] } else { &[0, 1] };
-        let result = ssa.close(&mut ir, &[witness(0, &[]), witness(1, &[]), witness(2, incoming)]);
+        let result = ssa.close(
+            &mut ir,
+            &[witness(0, &[]), witness(1, &[]), witness(2, incoming)],
+        );
         assert_eq!(result.is_err(), changed);
     }
 }

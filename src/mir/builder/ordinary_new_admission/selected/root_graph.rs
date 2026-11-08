@@ -60,10 +60,22 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         let jump = MirInstruction::Jump { target: next, edge_args: None };
         if let Some(control) = &builder.function_state.canonical_control {
             let mut control = control.borrow_mut();
-            control.cfg.create_block(function, id).map_err(|error| error.to_string())?;
-            control.cfg.append_packet_instruction(function, id, release.clone(), crate::ast::Span::unknown())
+            control
+                .cfg
+                .create_block(function, id)
                 .map_err(|error| error.to_string())?;
-            control.cfg.append_packet_instruction(function, id, jump.clone(), crate::ast::Span::unknown())
+            control
+                .cfg
+                .append_packet_instruction(
+                    function,
+                    id,
+                    release.clone(),
+                    crate::ast::Span::unknown(),
+                )
+                .map_err(|error| error.to_string())?;
+            control
+                .cfg
+                .append_packet_instruction(function, id, jump.clone(), crate::ast::Span::unknown())
                 .map_err(|error| error.to_string())?;
         } else {
             let mut block = BasicBlock::new(id);
@@ -97,8 +109,18 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         let function = new_block_function(builder.function_state.current_function.as_mut(), id)?;
         if let Some(control) = &builder.function_state.canonical_control {
             let mut control = control.borrow_mut();
-            control.cfg.create_block(function, id).map_err(|error| error.to_string())?;
-            control.cfg.append_packet_instruction(function, id, terminator.clone(), crate::ast::Span::unknown())
+            control
+                .cfg
+                .create_block(function, id)
+                .map_err(|error| error.to_string())?;
+            control
+                .cfg
+                .append_packet_instruction(
+                    function,
+                    id,
+                    terminator.clone(),
+                    crate::ast::Span::unknown(),
+                )
                 .map_err(|error| error.to_string())?;
         } else {
             let mut block = BasicBlock::new(id);
@@ -500,8 +522,13 @@ pub(in crate::mir::builder) fn prepare_operation_cleanup_v1(
     Ok(result)
 }
 
-fn new_block_function(function: Option<&mut MirFunction>, id: BasicBlockId) -> Result<&mut MirFunction, String> {
+fn new_block_function(
+    function: Option<&mut MirFunction>,
+    id: BasicBlockId,
+) -> Result<&mut MirFunction, String> {
     let function = function.ok_or_else(|| freeze("no-function"))?;
-    if function.blocks.contains_key(&id) { return Err(freeze("duplicate-block")); }
+    if function.blocks.contains_key(&id) {
+        return Err(freeze("duplicate-block"));
+    }
     Ok(function)
 }

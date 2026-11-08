@@ -10,7 +10,10 @@ impl super::super::MirBuilder {
         if let Some(ref mut function) = self.function_state.current_function {
             if !function.blocks.contains_key(&block_id) {
                 if let Some(control) = &self.function_state.canonical_control {
-                    control.borrow_mut().cfg.create_block(function, block_id)
+                    control
+                        .borrow_mut()
+                        .cfg
+                        .create_block(function, block_id)
                         .map_err(|error| error.to_string())?;
                 } else {
                     function.add_block(BasicBlock::new(block_id));
