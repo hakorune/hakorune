@@ -251,9 +251,22 @@ impl InstalledRawRootEnvironmentV1 {
                         });
                     }
                 };
-                let (draft, exit) = session
+                let (draft, exit) = match session
                     .builder_mut()
-                    .commit_raw_root_exit_v1(open, plan, brand);
+                    .commit_raw_root_exit_v1(open, plan, brand)
+                {
+                    Ok(completed) => completed,
+                    Err(error) => {
+                        return Err(RejectedRawRootBodyPhysicalV1 {
+                            owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                                session,
+                                physical,
+                                recipe,
+                            },
+                            error: RawRootBodyLoweringErrorV1::ExitSeal(error),
+                        });
+                    }
+                };
                 (draft, exit, completion_plan)
             }
         };

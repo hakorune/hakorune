@@ -202,8 +202,6 @@ impl MirBuilder {
         result: RootBodyResultV1,
         tracker: &ActiveRootBodyCompletionTrackerV1,
     ) -> Result<PreparedRawRootExitPlanV1, RawRootBodyExitSealErrorV1> {
-        self.finish_function_control_v1()
-            .map_err(RawRootBodyExitSealErrorV1::CanonicalControl)?;
         tracker
             .prepare_seal()
             .map_err(RawRootBodyExitSealErrorV1::TrackerNotSealable)?;
@@ -261,7 +259,7 @@ impl MirBuilder {
         open: RawOpenRootFunctionV1,
         plan: PreparedRawRootExitPlanV1,
         brand: ModuleInvocationBrandV1,
-    ) -> (MirFunction, RawRootBodyExitWitnessV1) {
+    ) -> Result<(MirFunction, RawRootBodyExitWitnessV1), RawRootBodyExitSealErrorV1> {
         let (disposition, returned_void) = match plan {
             PreparedRawRootExitPlanV1::AppVoid {
                 block,
@@ -270,19 +268,28 @@ impl MirBuilder {
                 let function = self.function_state.current_function.as_mut().unwrap();
                 let void_value = function.next_value_id();
                 function.signature.return_type = MirType::Void;
-                function
-                    .get_block_mut(block)
-                    .unwrap()
-                    .add_instruction(MirInstruction::Const {
+                let control = self.function_state.canonical_control.borrow();
+                for instruction in [
+                    MirInstruction::Const {
                         dst: void_value,
                         value: ConstValue::Void,
-                    });
-                function
-                    .get_block_mut(block)
-                    .unwrap()
-                    .add_instruction(MirInstruction::Return {
+                    },
+                    MirInstruction::Return {
                         value: Some(void_value),
-                    });
+                    },
+                ] {
+                    control
+                        .cfg
+                        .append_body_instruction(
+                            function,
+                            block,
+                            instruction,
+                            crate::ast::Span::unknown(),
+                        )
+                        .map_err(|error| {
+                            RawRootBodyExitSealErrorV1::CanonicalControl(error.to_string())
+                        })?;
+                }
                 (
                     RawRootBodyExitDispositionV1::AppVoid {
                         block,
@@ -299,12 +306,14 @@ impl MirBuilder {
                 .value_types
                 .insert(void_value, MirType::Void);
         }
+        self.finish_function_control_v1()
+            .map_err(RawRootBodyExitSealErrorV1::CanonicalControl)?;
         let route = open.route;
         let draft = self.function_state.current_function.take().unwrap();
         self.function_state.current_block = None;
         self.comp_ctx.current_slot_registry = None;
         close_raw_root_function_state_v1(self);
-        (
+        Ok((
             draft,
             RawRootBodyExitWitnessV1 {
                 brand,
@@ -312,7 +321,7 @@ impl MirBuilder {
                 disposition,
                 _seal: RawRootBodyExitWitnessSealV1,
             },
-        )
+        ))
     }
 
     /// Raw lifecycle adapter after the shared Script exit kernel has already
