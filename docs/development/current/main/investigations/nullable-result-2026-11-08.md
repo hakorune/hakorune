@@ -62,3 +62,4 @@ Stage 2: n12 canonical EXE prints 3 / exit 0; instance n01 and early-return nonn
 - N28: P? の本文と宣言の照合は source catalog と元の return witness、最終 MIR/ABI の既存検証を保持し、非nullable P の null、別 class、String? と scalar nullable を受けない。
 - N29: 検証済み元 return cohort が Null だけなら SUM は Null 単独の事実を保持でき、object class や nonnull/input ABI の証明には使わず、teardown の条件付き性は本文の枝数ではなく catalog の結果契約に合わせる。
 - N30: 独立検証の到達解析は公開 MIR の canonical Static Call も既存の callable-key owner で辿り、未解決辺は従来どおり保守的に扱い、到達する関数と物理関数の range 検証をすべて保持する。
+- N31: catalog が owned Nullable と決めた関数は New site が無くても共通 Home/terminal walk を選び、全 Null の検証済み teardown は既存の descriptor=None/nullable=true/unsupported=false で payload 不在を保持し、packet はそれを conditional End だけへ接続する。
