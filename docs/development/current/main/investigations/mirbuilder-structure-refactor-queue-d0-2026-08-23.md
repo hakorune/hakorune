@@ -247,6 +247,8 @@ staticのStringの入口（Sonnet実装・Opus監査、`54181cfffd`、[規則](s
 
 結果の種類を決める所を1つに（Codex実装・Opus監査、`f60b74e371`、[規則](result-kind-ssot-2026-11-08.md) U1〜U34）: calleeの結果の種類は`CalleeResultKindCatalogV1`が1つ答え、lexical・direct・root・R1・staticのclaim・Unitがそれを読む。staticの契約の行、objectのclaim、instanceのscalar、遅く揃うTextとUnitとMapの証拠をこのcatalogに集め、正の証拠が食い違えば名前つきで止める。`construction_result_callee`と`nullable_exits_hold`は種類を決めず、可否だけを返す独立した検証として残した。結果の種類から物理の種類への写しは1つ（`invoke_result`）。K13は記録するownerの違いとして保ち、K14は箱のclassとconstructorの引数の要求を別の事実にした。受理は変えない: 329入力と1,459本のMIRは各段で差0、384組・229入力・apps 100本・suite 8/8も前と同じ。Opusが78形を流し、結果とMIRは全部同じ。production +280、test +37。残る注意（[Opusの確認](result-kind-ssot-2026-11-08.md)）: 証拠を作る所は別々のまま、Textなどの証拠は発行の途中で書き足される、`KnownValueClass`は包む形。次はnullable。
 
+nullableのobjectの結果（Codex実装・Opus監査、`b4ba7283b6`、[規則](nullable-result-2026-11-08.md) N1〜N34）: instanceとstaticのfactoryが返す`new P(..)`か`null`をroot scopeのlocalで受け、`null`と比べ、methodを呼べる。種類はcatalogの`Nullable(P)`を読み、別の判定を作らない。`: P?`の宣言はobjectだけ・nullだけの本体も受ける。nullにmethodを呼ぶと、calleeに入る前に既存のCallのFault辺でTypeError（理由302）になり、取得済みのobjectは解放される。C側の新しい公開キー・opcode・ABIは無く、既存のinstanceの呼び出しの前にもnullの検査の分岐が1つ入る。早いreturnの後に受けたobjectを使う形は、非nullでも同じ規則で開いた（t02）。1,788入力のうち旧成功のMIRと出力の変化は0、前は拒否で今は通るのが4本、別の門へ移ったのが4本。384組・apps 100本・suite 8/8・Python v4は前と同じ。229入力は1本増えた。Opusの未見27形で誤りは0。production +230。残り: `a == void`（builderが`const void`を出す）、always-nullのfield getter、代入・alias・forward・分岐内の受け取り・配列・`String?`。次はS4のloop（共通CFG・PhiTxn）。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。

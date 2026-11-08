@@ -497,6 +497,15 @@ argument is still unsupported. Calling a typed-field getter through an
 always-null result also remains unsupported by the current compiler; an
 always-null call to a literal-result method reaches TypeError correctly.
 
+Also measured at the audit (2026-11-08, unseen inputs): `null == a` with the
+operands reversed works like `a == null`. `a == void` is refused by the C
+backend (`published-lifecycle-v4/unsupported-cohort`), although the language
+makes `void` and `null` the same value, because the builder emits `const void`
+there. Still refused on both binaries: a method call with an argument on the
+received result (`a.plus(10)`), `local isnil = a == null`, and a factory that
+returns `new P(a + b)` (`object-return/callee-exit`, also for non-null
+results).
+
 ### static call result bound in a plain function (series static-call-context)
 
 An owner that binds, in a `local`, the result of a static call with only i64 formals (or none) joins the typed static execution, whether it is `main` or not (rule document `static-call-context-rule-2026-11-07.md`, C1 to C8). Measured by EXE with the series binary against the previous main.

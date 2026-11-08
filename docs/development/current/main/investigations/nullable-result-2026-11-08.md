@@ -71,3 +71,15 @@ Stage 3: n11/n14/n21 canonical EXE prints 3 / exit 3 / prints 0; all ten require
 Evidence: callable result family 99 pass, root instance family 4 pass, owned result family 1 pass (new six captures plus unchanged original cases), C owned execution/cleanup/class mismatch and integer-zero-versus-Null mutations pass. Scope-negative is integrated into that existing family; no test or checker file is added. Full-series regression validation follows this commit.
 
 Final review correction (N11/N21): a retained Null class must not erase Unknown/Pending call admission. Normalize admission before checking Pending and exclude only an actual KnownNonI64 Null from nominal return reduction. A qualified-call semantic negative now covers mixed and declared-nullable wrappers around an unavailable unannotated null-only provider. The old parameter-catalog test's Leaf? result refusal is replaced by the approved acceptance, while nullable parameters and String/scalar/unknown/nested/generic nullable result refusals remain checked. The first lib run and its deterministic obsolete-assert failures are retained separately; final validation restarts after this correction.
+
+## Opus の確認（2026-11-08）
+
+- 順序: 最初の commit `1896e1861a` は規則だけで、N1〜N20 は段 1 の実装（`4f8bf1270f`）より前、N21〜N24 は段 2 より前、N25〜N34 は段 3 より前に入っている。実装 commit の文書変更は段の結果と書式だけで、規則の中身は変えていない。最終 review の直し `b4ba7283b6` だけは規則の追記と code が同じ commit。
+- binary: `hakorune.final` は worktree の `target/quick/hakorune` と同一（SHA256 `3f61ce91…`）、HEAD は `b4ba7283b6`、`find src lang crates -newer` も C shim より新しい `lang/c-abi` も空。base は result-kind SSOT の final と同一。
+- 目標 10 形と非 null の twin 8 本を Opus が最終 binary で再実行し、報告どおり（n05 は `reason=302` の TypeError、exit 70）。範囲外 11 形と配列借用 4 形は名前付き拒否のまま。
+- 未見入力 27 本（別 class・2 引数 factory・static 3 出口・`: P` で null・別 class を返す `P?`・forward・rebind・null の枝での呼び出し・TypeError 前の print など）: 期待どおりに動いたのが 15 本、拒否のままが正しい 9 本（`: P` の null、別 class、forward、rebind、always-null の field getter ほか）、前からの制限が 3 本（引数つきの method 呼び出し、`local b = a == null`、`new P(a + b)` を返す factory。どれも base でも拒否で、非 null でも同じ）。
+- 見つけた境界: `a == void` は仕様では `a == null` と同じだが、builder が `const void` を出すため C が `unsupported-cohort` で拒否する。base でも拒否だったので (b) で、後の series で直す（status-index に記録）。
+- (a) 4 本のうち p09・q02・q09・q15 を Opus が実行し、source の意味どおり。lib の赤は前の 231 名に、順序で落ちる既知の 1 本が加わっただけ。
+- C 側: 新しい公開キー・opcode・ABI・export は無い（`receiver`、`nyash.fault.record_static_v1`、理由 302 は main に既にある）。null の検査は receiver を持つ全ての ordinary Call の前に入るため、既存の EXE にも分岐が 1 つ増える。出力・exit は 229 入力と apps で変わらない。
+- Rust 側: kind は catalog の `Nullable` を読み、`nullable_exits_hold` は共有の場所へ移って 2 つの読み手が使う。canonical object の照合は共通の query 1 つにまとめた。名前や形での照合は無い。
+- 残る気がかり: production は +230 行。test file 1 本が 862 行（main で 795 行、test なので上限の対象外）。Python v4 は 17 PASS、fixture が無い 4 本は前と同じ。
