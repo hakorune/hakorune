@@ -56,3 +56,5 @@ B17. takeで宣言された非null object formalのreceiver classは元batch slo
 B18. 非finiteなowned nominal domainは既存の全formal・全incomingの閉じた同型非null SUM証拠を持つ同じtake formalだけに貸し、単独の都合のよいactualや型名だけでfinite検査を省略しない。
 
 G5調査: ordinary takeのEndは `root_home_cleanup_order.rs:548` の元take宣言と記録済entry値に結び付いた既存planを使う。receiverの元classがcallerの裸変数再走査で失われることを先に直し、未証明readをcensusへ追加して通さない。Birthのt01は別で、`ownership_ssa/model.rs:53-59` / `verify.rs:273-279` がNormalだけactual tokenを移す。ownership.md:1076-1086のfield格納transactionと、指示書の非格納take受領後Fault責任の関係は未確定なので、単純End追加は行わず別に検証する。
+
+B19. qualified staticの終端は引数一個/Opaqueだけという形で選ばず、元の完全なordinary input契約（borrowed handleと正確なi64）から同じ終端issuerへ渡し、実引数・受領・cleanupは同じsource snapshotで閉じる。
