@@ -263,6 +263,30 @@ fn stale_predecessor_cache_is_not_repaired() {
         .unwrap()
         .predecessors
         .contains(&block(0)));
+
+    let mut missing = self::function(2);
+    let mut session = CanonicalCfgSessionV1::new();
+    session.emit_jump(&mut missing, block(0), block(1)).unwrap();
+    missing
+        .get_block_mut(block(1))
+        .unwrap()
+        .predecessors
+        .clear();
+    session
+        .append_selected_instruction(
+            &mut missing,
+            block(0),
+            MirInstruction::Const {
+                dst: crate::mir::ValueId::new(90),
+                value: crate::mir::ConstValue::Integer(1),
+            },
+            crate::ast::Span::unknown(),
+            super::InstructionPlacementV1::Scheduled,
+        )
+        .unwrap();
+    assert!(matches!(session.seal_block(&mut missing, block(1)),
+        Err(CanonicalCfgErrorV1::CachedPredecessorsMismatch { block: id, .. }) if id == block(1)));
+    assert!(missing.get_block(block(1)).unwrap().predecessors.is_empty());
 }
 
 #[test]
@@ -585,6 +609,39 @@ fn incoming_seal_keeps_source_body_open_but_packets_and_late_edges_closed() {
             )
             .unwrap_err(),
         CanonicalCfgErrorV1::SourceAlreadyTerminated { source: block(1) },
+    );
+    let scheduled = MirInstruction::Const {
+        dst: crate::mir::ValueId::new(90),
+        value: crate::mir::ConstValue::Integer(1),
+    };
+    session
+        .append_selected_instruction(
+            &mut function,
+            block(1),
+            scheduled.clone(),
+            crate::ast::Span::unknown(),
+            super::InstructionPlacementV1::Scheduled,
+        )
+        .unwrap();
+    assert_eq!(
+        function.blocks[&block(1)].instructions.last(),
+        Some(&scheduled)
+    );
+    assert_eq!(
+        function.blocks[&block(1)].terminator,
+        Some(MirInstruction::Return { value: None })
+    );
+    assert_eq!(
+        session
+            .append_selected_instruction(
+                &mut function,
+                block(1),
+                MirInstruction::Return { value: None },
+                crate::ast::Span::unknown(),
+                super::InstructionPlacementV1::Scheduled,
+            )
+            .unwrap_err(),
+        CanonicalCfgErrorV1::SourceAlreadyTerminated { source: block(1) }
     );
     session.close_function_blocks(&mut function).unwrap();
     session.finish(&function).unwrap();

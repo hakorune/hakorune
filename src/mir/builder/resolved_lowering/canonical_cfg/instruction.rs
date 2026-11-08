@@ -8,6 +8,14 @@ use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction};
 use std::cell::RefMut;
 use std::collections::{BTreeMap, BTreeSet};
 
+/// Placement selected by the original emission API, not inferred from a shape.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum InstructionPlacementV1 {
+    Packet,
+    Body,
+    Scheduled,
+}
+
 impl CanonicalCfgSessionV1 {
     /// Missing targets have no block-local predecessor cache yet. Adopt the
     /// prefix once, then let this session's sole writer retain forward edges.
@@ -42,7 +50,13 @@ impl CanonicalCfgSessionV1 {
         instruction: MirInstruction,
         span: crate::ast::Span,
     ) -> Result<(), CanonicalCfgErrorV1> {
-        self.append_selected_instruction(function, source, instruction, span, true)
+        self.append_selected_instruction(
+            function,
+            source,
+            instruction,
+            span,
+            InstructionPlacementV1::Packet,
+        )
     }
 
     /// The source body cursor can continue after its incoming SSA edge set is
@@ -55,26 +69,36 @@ impl CanonicalCfgSessionV1 {
         instruction: MirInstruction,
         span: crate::ast::Span,
     ) -> Result<(), CanonicalCfgErrorV1> {
-        self.append_selected_instruction(function, source, instruction, span, false)
+        self.append_selected_instruction(
+            function,
+            source,
+            instruction,
+            span,
+            InstructionPlacementV1::Body,
+        )
     }
 
-    fn append_selected_instruction(
+    pub(in crate::mir::builder) fn append_selected_instruction(
         &self,
         function: &mut MirFunction,
         source: BasicBlockId,
         instruction: MirInstruction,
         span: crate::ast::Span,
-        require_open_packet_source: bool,
+        placement: InstructionPlacementV1,
     ) -> Result<(), CanonicalCfgErrorV1> {
         let block = require_block(function, source, CanonicalCfgBlockRoleV1::Source)?;
-        if block.is_terminated() {
-            return Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { source });
-        }
         let mut projection = BasicBlock::new(source);
         projection.add_instruction_with_span(instruction.clone(), span.clone());
         let targets = projection.successors_from_terminator();
+        let scheduled_definition = projection.terminator.is_none()
+            && (placement == InstructionPlacementV1::Scheduled
+                || (placement == InstructionPlacementV1::Body
+                    && matches!(instruction, MirInstruction::Phi { .. })));
+        if block.is_terminated() && !scheduled_definition {
+            return Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { source });
+        }
         if projection.terminator.is_some() {
-            if require_open_packet_source
+            if placement == InstructionPlacementV1::Packet
                 && (block.is_sealed() || self.sealed.contains_key(&source))
             {
                 return Err(CanonicalCfgErrorV1::SourceAfterSeal { source });
@@ -128,7 +152,7 @@ impl CanonicalCfgSessionV1 {
                 incoming.remove(&source);
             }
         }
-        for target in targets {
+        for target in targets.difference(previous).copied() {
             if let Some(block) = function.get_block_mut(target) {
                 block.add_predecessor(source);
             } else {

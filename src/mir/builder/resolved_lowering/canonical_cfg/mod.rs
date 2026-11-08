@@ -8,6 +8,7 @@ mod branch;
 mod error;
 mod fragment;
 mod instruction;
+pub(in crate::mir::builder) use instruction::InstructionPlacementV1;
 mod open_instruction_target;
 mod pinned_text_finish;
 mod predecessors;

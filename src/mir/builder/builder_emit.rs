@@ -1,3 +1,4 @@
+use super::resolved_lowering::canonical_cfg::InstructionPlacementV1;
 use super::{observe, origin};
 use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
@@ -28,7 +29,10 @@ impl MirBuilder {
     ) -> Result<(), String> {
         let previous = self.function_state.current_block;
         self.function_state.current_block = Some(block_id);
-        let result = self.emit_instruction(instruction);
+        let result = self.emit_instruction_with_placement(
+            instruction,
+            InstructionPlacementV1::Scheduled,
+        );
         self.function_state.current_block = previous;
         result
     }
@@ -38,6 +42,15 @@ impl MirBuilder {
     pub(in crate::mir::builder) fn emit_instruction(
         &mut self,
         instruction: MirInstruction,
+    ) -> Result<(), String> {
+        self.emit_instruction_with_placement(instruction, InstructionPlacementV1::Body)
+    }
+
+    #[track_caller]
+    fn emit_instruction_with_placement(
+        &mut self,
+        instruction: MirInstruction,
+        placement: InstructionPlacementV1,
     ) -> Result<(), String> {
         // Capture caller location at function entry (before any closures) for accurate reporting
         let caller = std::panic::Location::caller();
@@ -407,8 +420,12 @@ impl MirBuilder {
                         control.cfg.create_block(function, target).map_err(|error| error.to_string())?;
                     }
                 }
-                control.cfg.append_body_instruction(
-                    function, block_id, instruction, self.metadata_ctx.current_span(),
+                control.cfg.append_selected_instruction(
+                    function,
+                    block_id,
+                    instruction,
+                    self.metadata_ctx.current_span(),
+                    placement,
                 ).map_err(|error| error.to_string())?;
             } else {
                 return Err(FreezeContract::new("builder/emit_missing_block")
