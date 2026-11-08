@@ -43,3 +43,5 @@ B14. 元のi64演算は全operandのsource証拠と共通演算法則を保持�
 初回の算術initializer選択拡大はe01/e03/e15がEXE成功したが、既存21本のMIRが変わったため不採用。古いscalar appendを新しいframe発行で置換したことが原因（既存再帰のID/発行順、既存Callの経路が変化）。試作はpatchへ保存して戻し、B13の元producer貸出へ切り替える。
 
 B15. 比較の入力scopeは同じchecked評価のfield読取も含み、そのreceiverのIdentityは値の取得として再評価せず、field copyの取得とNormal/Fault Endを同じ入力順序に保持する。
+
+B16. Core結果を新しい利用先へ渡す時は元Core loanで結果のclassを効果前に選び、同じloanを一度だけ葉の準備へ渡し、準備済みの葉を共通の値評価が消費して再分類・再発行しない。
