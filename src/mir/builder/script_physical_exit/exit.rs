@@ -239,6 +239,7 @@ impl ScriptPhysicalExitCommitV1 {
             physical,
             _seal: _,
         } = completion;
+        let control = builder.function_state.canonical_control.borrow();
         let (physical, return_type) = match physical {
             PreparedScriptPhysicalResultV1::ExistingOperand { value, ty } => (
                 ScriptPhysicalResultV1::ExistingOperand {
@@ -253,13 +254,15 @@ impl ScriptPhysicalExitCommitV1 {
             } => {
                 let function = builder.function_state.current_function.as_mut().unwrap();
                 function.next_value_id = committed_next_value_id;
-                function
-                    .get_block_mut(block)
-                    .unwrap()
-                    .add_instruction(MirInstruction::Const {
+                control.cfg.commit_instruction(
+                    function,
+                    block,
+                    MirInstruction::Const {
                         dst: value,
                         value: ConstValue::Void,
-                    });
+                    },
+                    Some(crate::ast::Span::unknown()),
+                );
                 builder
                     .function_state
                     .type_ctx
@@ -277,12 +280,14 @@ impl ScriptPhysicalExitCommitV1 {
         };
         let function = builder.function_state.current_function.as_mut().unwrap();
         function.signature.return_type = return_type;
-        function
-            .get_block_mut(block)
-            .unwrap()
-            .add_instruction(MirInstruction::Return {
+        control.cfg.commit_instruction(
+            function,
+            block,
+            MirInstruction::Return {
                 value: Some(returned_value),
-            });
+            },
+            Some(crate::ast::Span::unknown()),
+        );
         CompletedScriptPhysicalExitCoreV1 {
             block,
             _completion: CompletedScriptBodyCompletionV1 {

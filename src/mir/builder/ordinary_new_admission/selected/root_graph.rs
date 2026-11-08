@@ -119,15 +119,25 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         if !matches!(projection, MirInstruction::InvokeNormalResult { .. }) {
             return Err(freeze("root-graph-projection-unsupported"));
         }
-        builder
+        let function = builder
             .function_state
             .current_function
             .as_mut()
-            .ok_or_else(|| freeze("no-function"))?
-            .blocks
-            .get_mut(&landing)
-            .ok_or_else(|| freeze("no-normal-landing"))?
-            .add_instruction(projection);
+            .ok_or_else(|| freeze("no-function"))?;
+        if !function.blocks.contains_key(&landing) {
+            return Err(freeze("no-normal-landing"));
+        }
+        builder
+            .function_state
+            .canonical_control
+            .borrow()
+            .cfg
+            .commit_instruction(
+                function,
+                landing,
+                projection,
+                Some(crate::ast::Span::unknown()),
+            );
         Ok(())
     }
 }
