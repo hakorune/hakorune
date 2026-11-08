@@ -51,3 +51,8 @@ G4のText field契約 `ordinary_new_field_value_source.rs:260` は条件を拒�
 G4の停止根拠は別にある。共通frameを完結すると `builder/control_flow/mod.rs:117` のSome選択が `selected/bool_condition.rs:31` の新block/Jump writerを必ず選び、旧2本のraw `field.get : str` / CompareのMIRが変わる。TとTagの名前の特例は設けない。e17は拒否のまま。
 G2の同じCore loanを一度だけ値評価へ渡す試作ではe07が正規EXE exit3に到達した。しかし旧dump受理3本(bool-result/in/d3.hako、audit-warn/in/x6.hako、tr/in6/c2.hako)がraw StringBox.length/Addからchecked Invoke/Fault/cleanupへ変わり(c)=3となった。
 両群とも指示書の既存MIR変更の停止条件で止める。現存 `physical_selection` はclosed-appのzero-incoming catalog選択だけであり、式のactivation切替の権限ではない（normal_default_pipeline.rs:84/248、issuer.rs:275）。無断で新profileとして転用しない。再開には旧raw→checkedのdump MIR移行の承認が要る。試作はpatchに保護し、本線に未接続実装を残さない。
+
+B17. takeで宣言された非null object formalのreceiver classは元batch slot・owner・ordinal・bindingの一致から一度貸し、callerのmove構文を裸の変数に読み替えて再推論せず、全incomingと実entry移転の検査は既存finisherに残す。
+B18. 非finiteなowned nominal domainは既存の全formal・全incomingの閉じた同型非null SUM証拠を持つ同じtake formalだけに貸し、単独の都合のよいactualや型名だけでfinite検査を省略しない。
+
+G5調査: ordinary takeのEndは `root_home_cleanup_order.rs:548` の元take宣言と記録済entry値に結び付いた既存planを使う。receiverの元classがcallerの裸変数再走査で失われることを先に直し、未証明readをcensusへ追加して通さない。Birthのt01は別で、`ownership_ssa/model.rs:53-59` / `verify.rs:273-279` がNormalだけactual tokenを移す。ownership.md:1076-1086のfield格納transactionと、指示書の非格納take受領後Fault責任の関係は未確定なので、単純End追加は行わず別に検証する。
