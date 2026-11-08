@@ -55,3 +55,8 @@ C emitterの実引数準備は意味不変で分割し、3 EXEと33 dumpの一�
 - N24: 独立 MIR 検証は既存の StaticBoxMethod Call に NullableHandle を認め、canonical target・arity・callee result と公開 return/lease の照合をすべて保持し、free function や別の ABI を同時に開かない。
 
 Stage 2: n12 canonical EXE prints 3 / exit 0; instance n01 and early-return nonnullable t02 retain their results; forward n15 stays refused. Callable result family: 99 pass. One semantic test adds nullable class/input-obligation proof and conflicting-class/null-only/Void refusals to the existing source-proof family; legacy nonnullable expectations now state the nullable bit explicitly.
+
+- N25: 所有結果の `P?` は canonical TypeReference の Nullable(Name(P)) と ordinary box coverage から認め、本文の全 return が P または literal Null に合うことを検査し、P だけ・Null だけも同じ nullable 契約に含む。
+- N26: 宣言済み Null-only の nominal class は元の宣言からだけ供給し、元の constructor object registry の実在 ID を共有して conditional End を計画するが、架空 ID・New claim・非nullの証拠を作らない。
+- N27: Null-only の公開 return は C verifier が元の全 return の const_null を独立に証明し、null の条件付き解放だけを許し、通常の所有移転・無条件 End・非null借用の証拠として使わない。
+- N28: P? の本文と宣言の照合は source catalog と元の return witness、最終 MIR/ABI の既存検証を保持し、非nullable P の null、別 class、String? と scalar nullable を受けない。
