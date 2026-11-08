@@ -55,6 +55,7 @@ pub(in crate::mir) enum RawRootBodyExitSealErrorV1 {
     TrackerNotSealable(RootBodyCompletionErrorV1),
     ScriptExitMustUseSharedKernel,
     ScriptCompletionRelationMismatch,
+    CanonicalControl(String),
 }
 
 #[derive(Debug)]
@@ -196,11 +197,12 @@ impl MirBuilder {
     }
 
     pub(in crate::mir::builder) fn prepare_raw_root_exit_v1(
-        &self,
+        &mut self,
         open: &RawOpenRootFunctionV1,
         result: RootBodyResultV1,
         tracker: &ActiveRootBodyCompletionTrackerV1,
     ) -> Result<PreparedRawRootExitPlanV1, RawRootBodyExitSealErrorV1> {
+        self.finish_function_control_v1().map_err(RawRootBodyExitSealErrorV1::CanonicalControl)?;
         tracker
             .prepare_seal()
             .map_err(RawRootBodyExitSealErrorV1::TrackerNotSealable)?;
@@ -404,6 +406,7 @@ fn close_raw_root_function_state_v1(builder: &mut MirBuilder) {
     builder.function_state.value_origins = Default::default();
     builder.function_state.pending_phis.clear();
     builder.function_state.local_ssa_map.clear();
+    builder.function_state.canonical_control = None;
     builder.function_state.local_ssa_correspondence.clear();
     builder.function_state.checked_compare_reuse.clear();
     builder.function_state.checked_mul_reuse.clear();

@@ -91,6 +91,7 @@ pub(super) fn lower_app_main_root_body_v1(
                                 "[freeze:contract][mir/callable-main/raw-root-mismatch]".to_owned()
                             );
                         }
+                        inner.prepare_function_control_v1(builder)?;
                         inner
                             .callable_ledger
                             .as_ref()

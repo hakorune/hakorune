@@ -128,7 +128,7 @@ impl EmittedSourceLoopGraphV2 {
             for edge in &self.edges {
                 if let Some(cleanup) = &edge.cleanup { cleanup.plan.validate_original_emitted_v2(cleanup, context, function)?; }
             }
-            let inputs = self.verify_phi_inputs_v2(builder, state)?;
+            let inputs = self.verify_source_edges_v2(builder, state)?;
             source.phi_session_v1().prepare_checked_completion_v2(builder, &inputs)
         })();
         result.map_err(|error| source.phi_session_v1().abort_error(builder, error))
@@ -551,67 +551,15 @@ impl Driver<'_, '_, '_, '_, '_> {
                         source_joins.iter().map(|row| (row.source.binding(), row.result, row.binding, row.write_item)).collect::<Vec<_>>(),
                         joins.iter().map(|row| row.source().binding()).collect::<Vec<_>>(), self.logical);
                 }
-                let mut consumed = Vec::new();
-                for scheduled in source_joins {
-                    let mut matching = joins.iter().enumerate().filter(|(_, observed)|
-                        Rc::ptr_eq(observed.source(), &scheduled.source));
-                    let Some((index, observed)) = matching.next() else {
-                        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                            eprintln!("[loop-join-debug] scheduled-source-unmatched binding={:?}", scheduled.source.binding());
-                        }
-                        return Err(reject("if-logical-join-not-canonical"));
-                    };
-                    if matching.next().is_some() || consumed.contains(&index) {
-                        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                            eprintln!("[loop-join-debug] scheduled-source-duplicate binding={:?}", scheduled.source.binding());
-                        }
-                        return Err(reject("if-logical-join-not-canonical"));
-                    }
-                    consumed.push(index);
-                    let relation = observed.relation();
-                    let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
-                    relation.verify(function)?;
-                    if self.values.insert(scheduled.result, relation.values().0).is_some() {
-                        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                            eprintln!("[loop-join-debug] result-already-present result={:?}", scheduled.result);
-                        }
-                        return Err(reject("if-logical-join-not-canonical"));
-                    }
-                    if let Some(binding) = scheduled.binding {
-                        let previous = self.logical.insert(binding, scheduled.result)
-                            .ok_or_else(|| reject("if-logical-join-not-canonical"))?;
-                        if entry_logical.get(&binding) != Some(&previous) {
-                            if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-                                eprintln!("[loop-join-debug] binding-prior-mismatch binding={binding:?} previous={previous:?} entry={:?}", entry_logical.get(&binding));
-                            }
-                            return Err(reject("if-logical-join-not-canonical"));
-                        }
-                    }
-                }
-                let mut consumed_text = Vec::new();
-                for scheduled in source_text_joins {
-                    let mut matching = text_joins.iter().enumerate().filter(|(_, observed)|
-                        Rc::ptr_eq(observed.source(), &scheduled.source));
-                    let Some((index, observed)) = matching.next() else { return Err(reject("if-text-join-not-canonical")); };
-                    if matching.next().is_some() || consumed_text.contains(&index) {
-                        return Err(reject("if-text-join-not-canonical"));
-                    }
-                    consumed_text.push(index);
-                    let relation = observed.relation();
-                    let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
-                    relation.verify(function)?;
-                    if self.values.insert(scheduled.result, relation.values().0).is_some() {
-                        return Err(reject("if-text-join-not-canonical"));
-                    }
-                    if let Some(binding) = scheduled.binding {
-                        let previous = self.logical.insert(binding, scheduled.result)
-                            .ok_or_else(|| reject("if-text-join-not-canonical"))?;
-                        if entry_logical.get(&binding) != Some(&previous) {
-                            return Err(reject("if-text-join-not-canonical"));
-                        }
-                    }
-                }
-                if consumed_text.len() != text_joins.len() || text_joins.len() != source_text_joins.len() {
+                self.publish_join_sources(builder,
+                    source_joins.iter().map(|row| (&row.source, row.binding, row.result)),
+                    joins.iter().map(|row| (row.source(), row.relation())),
+                    &entry_logical, "if-logical-join-not-canonical")?;
+                let consumed_text = self.publish_join_sources(builder,
+                    source_text_joins.iter().map(|row| (&row.source, row.binding, row.result)),
+                    text_joins.iter().map(|row| (row.source(), row.relation())),
+                    &entry_logical, "if-text-join-not-canonical")?;
+                if consumed_text != text_joins.len() || text_joins.len() != source_text_joins.len() {
                     return Err(reject("if-text-join-not-canonical"));
                 }
             } else if !source_joins.is_empty() {
@@ -628,6 +576,30 @@ impl Driver<'_, '_, '_, '_, '_> {
             normal: (yes_normal, no_normal), join: (yes_normal || no_normal).then_some(join),
             condition_materialization: pending, joins, text_joins });
         Ok(yes_normal || no_normal)
+    }
+    /// Scalar and Text keep distinct typed source identities; their physical
+    /// join correspondence and logical writeback obey the same contract.
+    fn publish_join_sources<'a, T: 'a>(&mut self, builder: &MirBuilder,
+        scheduled: impl Iterator<Item = (&'a Rc<T>, Option<LoopBindingKeyV1>, LoopValueKeyV1)>,
+        observed: impl Iterator<Item = (&'a Rc<T>, &'a Rc<LocalSsaPhysicalRelationV1>)>,
+        entry: &BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>, reason: &str,
+    ) -> Result<usize, String> {
+        let observed: Vec<_> = observed.collect();
+        let mut consumed = BTreeSet::new();
+        for (source, binding, result) in scheduled {
+            let mut matching = observed.iter().enumerate().filter(|(_, (candidate, _))|
+                Rc::ptr_eq(candidate, source));
+            let (index, (_, relation)) = matching.next().ok_or_else(|| reject(reason))?;
+            if matching.next().is_some() || !consumed.insert(index) { return Err(reject(reason)); }
+            let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
+            relation.verify(function)?;
+            if self.values.insert(result, relation.values().0).is_some() { return Err(reject(reason)); }
+            if let Some(binding) = binding {
+                let previous = self.logical.insert(binding, result).ok_or_else(|| reject(reason))?;
+                if entry.get(&binding) != Some(&previous) { return Err(reject(reason)); }
+            }
+        }
+        Ok(consumed.len())
     }
     fn edge(&mut self, builder: &mut MirBuilder, source: Edge, port: Option<usize>) -> Result<(), String> {
         if self.edges.iter().any(|row| row.source == source) { return Err(reject("source-edge-repeat")); }
@@ -650,17 +622,8 @@ impl Driver<'_, '_, '_, '_, '_> {
             let observation = self.ledger.borrow().observe_binding_value_v2(binding).map_err(|error| error.to_string())?;
             let before = observation.binding_value().1;
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function-missing"))?;
-            let dependencies = match &expected.producer {
-                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Scalar(source) =>
-                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
-                        binding, source, &observation, context, function)?,
-                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Text(source) =>
-                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_text_binding_v2(
-                        binding, source, &observation, context, function)?,
-                crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Dynamic(source) =>
-                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_dynamic_binding_v2(
-                        binding, source, &observation, context, function)?,
-            };
+            let dependencies = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_loop_binding_v2(
+                binding, &expected.producer, &observation, context, function)?;
             let joins = match &expected.producer {
                 crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1::Scalar(source) =>
                     crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::scalar_binding_join_v2(

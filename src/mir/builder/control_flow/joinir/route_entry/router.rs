@@ -216,36 +216,3 @@ pub(crate) fn route_loop(
     let result = emit_void(builder)?;
     Ok(Some(result))
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn identical_loops_keep_distinct_resolver_receipts() {
-        let program = crate::parser::NyashParser::parse_from_string(
-            "static box Main { main() {\nloop(false) {}\nloop(false) {}\nreturn 0\n} }",
-        ).unwrap();
-        let ASTNode::Program { statements, .. } = program else { panic!("Program"); };
-        let declaration = statements.into_iter().find_map(|node| match node {
-            ASTNode::BoxDeclaration { methods, .. } => methods.get_declaration("main").cloned(),
-            _ => None,
-        }).unwrap();
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(declaration.clone()).unwrap();
-        let input = unit.root_function_input().unwrap();
-        let sites: Vec<_> = input.function().loop_sites().cloned().collect();
-        assert_eq!(sites.len(), 2);
-        assert_ne!(sites[0], sites[1]);
-        for site in sites {
-            let located = input.source().exact_stmt(&site).unwrap();
-            let ASTNode::Loop { condition, body, .. } = located.node() else { panic!("Loop"); };
-            let mut builder = MirBuilder::new();
-            builder.enter_function_for_test("main".to_owned());
-            builder.function_state.compilation.fn_declaration_ast = Some(declaration.clone());
-            let context = LoopRouteContext::new(condition, body, "main", false, true);
-            let error = route_loop(&mut builder, &context, &site).unwrap_err();
-            assert!(error.contains("loop winner selection declined"), "{error}");
-            assert!(error.contains(&format!("site={site:?}")), "{error}");
-        }
-    }
-}

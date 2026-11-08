@@ -578,6 +578,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         input: Self::BodyInput,
     ) -> Result<ValueId, String> {
+        self.prepare_function_control_v1(builder)?;
         match self.current_source_context_v1() {
             Some(context) => {
                 crate::mir::builder::raw_invocation_body::drive_located_invocation_body_v1(

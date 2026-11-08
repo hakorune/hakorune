@@ -5,6 +5,7 @@
 //! checked witnesses and are never repaired here.
 
 mod branch;
+mod instruction;
 mod error;
 mod open_instruction_target;
 mod pinned_text_finish;

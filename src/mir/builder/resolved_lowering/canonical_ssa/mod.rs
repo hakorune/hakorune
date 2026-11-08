@@ -4,6 +4,9 @@
 //! only the common identity, semantic, CFG, PHI, and completion machinery that
 //! every admitted profile must share.
 
+mod function_control;
+pub(in crate::mir::builder) use function_control::SharedFunctionControlV1;
+
 mod identity;
 mod session;
 

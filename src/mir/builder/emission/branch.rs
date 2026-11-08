@@ -10,11 +10,20 @@ pub fn emit_conditional(
     then_bb: BasicBlockId,
     else_bb: BasicBlockId,
 ) -> Result<(), String> {
+    if b.function_state.canonical_control.is_some() {
+        b.ensure_block_exists(then_bb)?;
+        b.ensure_block_exists(else_bb)?;
+    }
     if let (Some(func), Some(cur_bb)) = (
         b.function_state.current_function.as_mut(),
         b.function_state.current_block,
     ) {
-        crate::mir::ssot::cf_common::set_branch(func, cur_bb, cond, then_bb, else_bb);
+        if let Some(control) = &b.function_state.canonical_control {
+            control.borrow().cfg.emit_branch(func, cur_bb, cond, then_bb, else_bb)
+                .map_err(|error| error.to_string())?;
+        } else {
+            crate::mir::ssot::cf_common::set_branch(func, cur_bb, cond, then_bb, else_bb);
+        }
         Ok(())
     } else {
         b.emit_instruction(MirInstruction::Branch {
@@ -29,11 +38,19 @@ pub fn emit_conditional(
 
 #[inline]
 pub fn emit_jump(b: &mut MirBuilder, target: BasicBlockId) -> Result<(), String> {
+    if b.function_state.canonical_control.is_some() {
+        b.ensure_block_exists(target)?;
+    }
     if let (Some(func), Some(cur_bb)) = (
         b.function_state.current_function.as_mut(),
         b.function_state.current_block,
     ) {
-        crate::mir::ssot::cf_common::set_jump(func, cur_bb, target);
+        if let Some(control) = &b.function_state.canonical_control {
+            control.borrow().cfg.emit_jump(func, cur_bb, target)
+                .map_err(|error| error.to_string())?;
+        } else {
+            crate::mir::ssot::cf_common::set_jump(func, cur_bb, target);
+        }
         Ok(())
     } else {
         b.emit_instruction(MirInstruction::Jump {
@@ -161,11 +178,21 @@ pub(in crate::mir::builder) fn emit_carriers_only_conditional_v2(
         layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
         values: Vec::new(),
     };
-    let mut frag = Frag::new(from);
-    frag.branches.push(BranchStub::new(from, condition, targets.0, empty(), targets.1, empty()));
-    let function = builder.function_state.current_function.as_mut()
-        .ok_or("[freeze:contract][source-branch/function-missing]")?;
-    builder.function_state.frag_emit_session.emit_and_seal(function, &frag)?;
+    if let Some(control) = builder.function_state.canonical_control.clone() {
+        builder.ensure_block_exists(targets.0)?;
+        builder.ensure_block_exists(targets.1)?;
+        let function = builder.function_state.current_function.as_mut()
+            .ok_or("[freeze:contract][source-branch/function-missing]")?;
+        control.borrow().cfg.emit_branch_with_edge_args(
+            function, from, condition, targets, (Some(empty()), Some(empty())),
+        ).map_err(|error| error.to_string())?;
+    } else {
+        let mut frag = Frag::new(from);
+        frag.branches.push(BranchStub::new(from, condition, targets.0, empty(), targets.1, empty()));
+        let function = builder.function_state.current_function.as_mut()
+            .ok_or("[freeze:contract][source-branch/function-missing]")?;
+        builder.function_state.frag_emit_session.emit_and_seal(function, &frag)?;
+    }
     crate::mir::builder::ssa::local::checked_compare::observe_branch(
         builder, from, condition, targets.0, targets.1)
 }

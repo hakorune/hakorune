@@ -9,8 +9,12 @@ impl super::super::MirBuilder {
     pub(crate) fn ensure_block_exists(&mut self, block_id: BasicBlockId) -> Result<(), String> {
         if let Some(ref mut function) = self.function_state.current_function {
             if !function.blocks.contains_key(&block_id) {
-                let block = BasicBlock::new(block_id);
-                function.add_block(block);
+                if let Some(control) = &self.function_state.canonical_control {
+                    control.borrow_mut().cfg.create_block(function, block_id)
+                        .map_err(|error| error.to_string())?;
+                } else {
+                    function.add_block(BasicBlock::new(block_id));
+                }
             }
             Ok(())
         } else {
@@ -20,10 +24,8 @@ impl super::super::MirBuilder {
 
     /// Start a new basic block and set as current
     pub(crate) fn start_new_block(&mut self, block_id: BasicBlockId) -> Result<(), String> {
-        if let Some(ref mut function) = self.function_state.current_function {
-            if !function.blocks.contains_key(&block_id) {
-                function.add_block(BasicBlock::new(block_id));
-            }
+        self.ensure_block_exists(block_id)?;
+        if self.function_state.current_function.is_some() {
             self.function_state.current_block = Some(block_id);
             // Local SSA cache is per-block; clear on block switch
             self.function_state.local_ssa_map.clear();

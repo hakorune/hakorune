@@ -193,6 +193,7 @@ pub(super) struct FunctionLoweringStateV1 {
     pub(super) value_origins: FunctionValueOriginFactsV1,
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
+    pub(super) canonical_control: Option<super::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
     pub(super) local_ssa_correspondence: super::ssa::local::correspondence::LocalSsaPhysicalIndexV1,
     pub(super) checked_compare_reuse: super::ssa::local::checked_compare::CheckedCompareReuseV1,
     pub(super) checked_mul_reuse: super::ssa::local::checked_mul::CheckedMulReuseV1,
@@ -250,6 +251,7 @@ impl FunctionLoweringStateV1 {
             && self.value_origins.value_origin_callers.is_empty()
             && self.pending_phis.is_empty()
             && self.local_ssa_map.is_empty()
+            && self.canonical_control.is_none()
             && self.local_ssa_correspondence.is_empty()
             && self.checked_compare_reuse.is_empty()
             && self.checked_mul_reuse.is_empty()

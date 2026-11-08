@@ -364,6 +364,8 @@ impl MirBuilder {
             })?;
         }
 
+        self.finish_function_control_v1()?;
+
         // The completed-draft verifier above runs after metadata publication
         // and before the draft leaves this function-owned session.
         self.function_state.current_function.take().ok_or_else(|| {

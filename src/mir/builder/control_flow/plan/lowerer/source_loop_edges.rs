@@ -6,42 +6,32 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 use crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2 as Product;
 use crate::mir::resolved_semantics::{BindingRefV1, home_new_prefix::SourceLoopPortKindV1 as Port};
 use crate::mir::resolved_semantics::source_value_flow::SourceValueEdgeV1 as Edge;
-use crate::mir::resolved_semantics::home_new_prefix::SourceLoopValueProducerV1 as Producer;
-use crate::mir::{BasicBlockId, ValueId, MirInstruction};
+use crate::mir::{BasicBlockId, MirInstruction};
 use std::{rc::Rc, collections::BTreeMap};
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct VerifiedSourceLoopPhiInputsV2 {
+pub(in crate::mir::builder) struct VerifiedSourceLoopEdgesV2 {
     product: Rc<Product>,
+    entry_block: BasicBlockId,
     header: BasicBlockId,
     after: BasicBlockId,
     entries: BTreeMap<BindingRefV1, BindingValueObservationV2>,
-    incoming: BTreeMap<(BasicBlockId, BindingRefV1), Vec<(BasicBlockId, ValueId)>>,
 }
-impl VerifiedSourceLoopPhiInputsV2 {
+impl VerifiedSourceLoopEdgesV2 {
+    pub(in crate::mir::builder) fn entry_block(&self) -> BasicBlockId { self.entry_block }
     pub(in crate::mir::builder) fn product(&self) -> &Rc<Product> { &self.product }
     pub(in crate::mir::builder) fn scope(&self) -> (BasicBlockId, BasicBlockId) { (self.header, self.after) }
     pub(in crate::mir::builder) fn entry(&self, binding: BindingRefV1) -> Option<&BindingValueObservationV2> { self.entries.get(&binding) }
-    pub(in crate::mir::builder) fn incoming(&self, block: BasicBlockId, binding: BindingRefV1)
-        -> Result<&[(BasicBlockId, ValueId)], String> {
-        self.incoming.get(&(block, binding)).map(Vec::as_slice).ok_or_else(|| reject("destination"))
-    }
+
 }
 impl EmittedSourceLoopGraphV2 {
-    pub(super) fn verify_phi_inputs_v2(&self, builder: &MirBuilder, state: &CallableSemanticLoweringState)
-        -> Result<VerifiedSourceLoopPhiInputsV2, String> {
+    pub(super) fn verify_source_edges_v2(&self, builder: &MirBuilder, state: &CallableSemanticLoweringState)
+        -> Result<VerifiedSourceLoopEdgesV2, String> {
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| reject("function"))?;
         let claims = state.ordinary_new_claim_ledger().ok_or_else(|| reject("claims"))?;
         let context = crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(claims);
         let basis = self.product.source.headers.values().next().ok_or_else(|| reject("empty-carriers"))?;
-        let checked_product = match basis.entry_producer() {
-            Producer::Scalar(_) => context.source_loop_point_product_v2(
-                &crate::mir::resolved_semantics::home_new_prefix::CurrentScalarProducerV1::LoopHeader(Rc::clone(basis)))?,
-            Producer::Text(_) => context.source_loop_text_point_product_v2(
-                &crate::mir::resolved_semantics::home_new_prefix::SourceLoopTextProducerV1::Header(Rc::clone(basis)))?,
-            Producer::Dynamic(_) => context.source_loop_dynamic_point_product_v2(
-                &crate::mir::resolved_semantics::home_new_prefix::SourceLoopDynamicProducerV1::Header(Rc::clone(basis)))?,
-        };
+        let (_, checked_product) = context.source_loop_header_point_v2(basis)?;
         if !Rc::ptr_eq(&checked_product, &self.product) {
             return Err(reject("original-product"));
         }
@@ -82,11 +72,11 @@ impl EmittedSourceLoopGraphV2 {
             }
         }
         let mut entries = BTreeMap::new();
-        let mut incoming = BTreeMap::new();
+        let shared = builder.function_state.canonical_control.clone().ok_or_else(|| reject("function-control"))?;
         for source in original.iter() {
             let binding = source.basis.binding();
             for (block, source_rows) in [(self.header, source.header_incoming.as_ref()), (self.after, source.after_incoming.as_ref())] {
-                let mut payloads = Vec::new();
+                let mut predecessors = std::collections::BTreeSet::new();
                 for expected in source_rows {
                     let mut edges = self.edges.iter().filter(|edge| edge.source == expected.edge && edge.target == block);
                     let edge = edges.next().ok_or_else(|| reject("incoming-edge"))?;
@@ -95,14 +85,8 @@ impl EmittedSourceLoopGraphV2 {
                     let value = values.next().ok_or_else(|| reject("incoming-binding"))?;
                     if values.next().is_some() { return Err(reject("incoming-binding-duplicate")); }
                     self.product.validate_incoming_value_v2(&edge.source, binding, value.logical)?;
-                    match &expected.producer {
-                        Producer::Scalar(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
-                            binding, source, &value.observation, context, function)?,
-                        Producer::Text(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_text_binding_v2(
-                            binding, source, &value.observation, context, function)?,
-                        Producer::Dynamic(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_dynamic_binding_v2(
-                            binding, source, &value.observation, context, function)?,
-                    };
+                    crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_loop_binding_v2(
+                        binding, &expected.producer, &value.observation, context, function)?;
                     value.localized.verify(function)?;
                     if value.localized.values().0 != value.observation.binding_value().1 { return Err(reject("localized-origin")); }
                     match (&edge.source, &value.canonical) {
@@ -115,14 +99,15 @@ impl EmittedSourceLoopGraphV2 {
                             if canonical.values().1 != value.localized.values().1 { return Err(reject("canonical-localized")); }
                         }
                     }
-                    payloads.push((edge.predecessor, value.localized.values().1));
+                    if !predecessors.insert(edge.predecessor) { return Err(reject("predecessor-census")); }
+                    shared.borrow_mut().define(binding, edge.predecessor, value.localized.values().1)?;
                 }
-                payloads.sort_by_key(|row| row.0);
-                if payloads.is_empty() || payloads.windows(2).any(|pair| pair[0].0 == pair[1].0)
-                    || incoming.insert((block, binding), payloads).is_some() { return Err(reject("predecessor-census")); }
+                if predecessors.is_empty() { return Err(reject("predecessor-census")); }
             }
         }
-        Ok(VerifiedSourceLoopPhiInputsV2 { product: Rc::clone(&self.product), header: self.header, after: self.after, entries, incoming })
+        let entry_block = self.edges.iter().find(|edge| matches!(edge.source, Edge::LoopEntry))
+            .ok_or_else(|| reject("incoming-edge"))?.predecessor;
+        Ok(VerifiedSourceLoopEdgesV2 { product: Rc::clone(&self.product), entry_block, header: self.header, after: self.after, entries })
     }
 }
 fn reject(reason: &str) -> String { format!("[freeze:contract][source-loop/phi-inputs/{reason}]") }

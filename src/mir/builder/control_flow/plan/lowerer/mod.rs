@@ -63,8 +63,8 @@ mod source_loop_driver;
 pub(in crate::mir) use source_loop_driver::EmittedSourceLoopGraphV2;
 mod source_loop_control;
 mod source_loop_completion;
-mod source_loop_phi_inputs;
-pub(in crate::mir::builder) use source_loop_phi_inputs::VerifiedSourceLoopPhiInputsV2;
+mod source_loop_edges;
+pub(in crate::mir::builder) use source_loop_edges::VerifiedSourceLoopEdgesV2;
 
 // Re-export LoopFrame for internal use
 pub(super) use core::LoopFrame;

@@ -403,12 +403,18 @@ impl MirBuilder {
                 }
                 // Phase 136 Step 6/7: Use metadata_ctx for span. Both legacy
                 // and strict front doors share this one physical append point.
-                append_instruction_core(
-                    function,
-                    block_id,
-                    instruction,
-                    self.metadata_ctx.current_span(),
-                )?;
+                if let Some(control) = &self.function_state.canonical_control {
+                    let mut control = control.borrow_mut();
+                    for target in [then_t, else_t, jump_t].into_iter().flatten() {
+                        if !function.blocks.contains_key(&target) {
+                            control.cfg.create_block(function, target).map_err(|error| error.to_string())?;
+                        }
+                    }
+                    control.cfg.append_packet_instruction(function, block_id,
+                        instruction, self.metadata_ctx.current_span()).map_err(|error| error.to_string())?;
+                } else {
+                    append_instruction_core(function, block_id, instruction, self.metadata_ctx.current_span())?;
+                }
             } else {
                 return Err(FreezeContract::new("builder/emit_missing_block")
                     .field("fn", current_fn_name)
@@ -419,28 +425,14 @@ impl MirBuilder {
             // Update predecessor sets for branch/jump immediately so that
             // debug_verify_phi_inputs can observe a consistent CFG without
             // requiring a full function.update_cfg() pass.
-            if let Some(t) = then_t {
-                if !function.blocks.contains_key(&t) {
-                    function.add_block(BasicBlock::new(t));
-                }
-                if let Some(succ) = function.get_block_mut(t) {
-                    succ.add_predecessor(block_id);
-                }
-            }
-            if let Some(t) = else_t {
-                if !function.blocks.contains_key(&t) {
-                    function.add_block(BasicBlock::new(t));
-                }
-                if let Some(succ) = function.get_block_mut(t) {
-                    succ.add_predecessor(block_id);
-                }
-            }
-            if let Some(t) = jump_t {
-                if !function.blocks.contains_key(&t) {
-                    function.add_block(BasicBlock::new(t));
-                }
-                if let Some(succ) = function.get_block_mut(t) {
-                    succ.add_predecessor(block_id);
+            if self.function_state.canonical_control.is_none() {
+                for target in [then_t, else_t, jump_t].into_iter().flatten() {
+                    if !function.blocks.contains_key(&target) {
+                        function.add_block(BasicBlock::new(target));
+                    }
+                    if let Some(successor) = function.get_block_mut(target) {
+                        successor.add_predecessor(block_id);
+                    }
                 }
             }
             Ok(())

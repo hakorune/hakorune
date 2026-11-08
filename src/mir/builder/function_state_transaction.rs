@@ -55,6 +55,7 @@ pub(super) struct CapturedFunctionOwnedStateV1 {
     pub(super) compilation: FunctionCompilationScratchV1,
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
+    pub(super) canonical_control: Option<super::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
     pub(super) local_ssa_correspondence: super::ssa::local::correspondence::LocalSsaPhysicalIndexV1,
     pub(super) checked_compare_reuse: super::ssa::local::checked_compare::CheckedCompareReuseV1,
     pub(super) checked_mul_reuse: super::ssa::local::checked_mul::CheckedMulReuseV1,
@@ -101,6 +102,7 @@ impl FunctionOwnedStateTransactionV1 {
             compilation: std::mem::take(&mut state.compilation),
             pending_phis: std::mem::take(&mut state.pending_phis),
             local_ssa_map: std::mem::take(&mut state.local_ssa_map),
+            canonical_control: state.canonical_control.take(),
             local_ssa_correspondence: std::mem::take(&mut state.local_ssa_correspondence),
             checked_compare_reuse: std::mem::take(&mut state.checked_compare_reuse),
             checked_mul_reuse: std::mem::take(&mut state.checked_mul_reuse),
@@ -151,6 +153,7 @@ impl FunctionOwnedStateTransactionV1 {
         state.compilation = caller.compilation;
         state.pending_phis = caller.pending_phis;
         state.local_ssa_map = caller.local_ssa_map;
+        state.canonical_control = caller.canonical_control;
         state.local_ssa_correspondence = caller.local_ssa_correspondence;
         state.checked_compare_reuse = caller.checked_compare_reuse;
         state.checked_mul_reuse = caller.checked_mul_reuse;

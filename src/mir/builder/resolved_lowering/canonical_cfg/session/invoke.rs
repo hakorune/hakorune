@@ -86,21 +86,12 @@ impl CanonicalCfgSessionV1 {
                 ));
             }
         }
-        function
-            .get_block_mut(source)
-            .expect("preflight checked source")
-            .set_terminator(MirInstruction::Invoke {
+        Self::commit_instruction(function, source, MirInstruction::Invoke {
                 operation,
                 fault_frame: frame,
                 normal_landing: normal,
                 fault_landing: fault,
-            });
-        for landing in [normal, fault] {
-            function
-                .get_block_mut(landing)
-                .expect("preflight checked landing")
-                .add_predecessor(source);
-        }
+            }, None);
         Ok(())
     }
 
@@ -118,10 +109,7 @@ impl CanonicalCfgSessionV1 {
                 "root frame is not exactly defined at entry".into(),
             ));
         }
-        function
-            .get_block_mut(source)
-            .expect("preflight checked root Fault")
-            .set_terminator(MirInstruction::ReturnFault { fault_frame: frame });
+        Self::commit_instruction(function, source, MirInstruction::ReturnFault { fault_frame: frame }, None);
         Ok(())
     }
 
@@ -151,10 +139,7 @@ impl CanonicalCfgSessionV1 {
                 return Err(CanonicalCfgErrorV1::Invoke("landing is not empty".into()));
             }
         }
-        function
-            .get_block_mut(source)
-            .expect("preflight checked source")
-            .set_terminator(MirInstruction::Invoke {
+        Self::commit_instruction(function, source, MirInstruction::Invoke {
                 operation: InvokeOperation::Call {
                     call,
                     result: InvokeCallResultKind::I64,
@@ -162,13 +147,7 @@ impl CanonicalCfgSessionV1 {
                 fault_frame: frame,
                 normal_landing: normal,
                 fault_landing: fault,
-            });
-        for landing in [normal, fault] {
-            function
-                .get_block_mut(landing)
-                .expect("preflight checked landing")
-                .add_predecessor(source);
-        }
+            }, None);
         Ok(())
     }
 
@@ -188,10 +167,7 @@ impl CanonicalCfgSessionV1 {
         }) {
             return Err(CanonicalCfgErrorV1::Invoke("foreign Fault landing".into()));
         }
-        function
-            .get_block_mut(source)
-            .expect("preflight checked Fault")
-            .set_terminator(MirInstruction::ReturnFault { fault_frame: frame });
+        Self::commit_instruction(function, source, MirInstruction::ReturnFault { fault_frame: frame }, None);
         Ok(())
     }
 }

@@ -14,16 +14,6 @@ use crate::mir::resolved_semantics::home_new_prefix::{CurrentScalarProducerV1 as
     SourceLoopDynamicProducerV1 as DynamicProducer, SourceLoopTextProducerV1 as TextProducer,
     SourceLoopValueProducerV1 as ValueProducer};
 
-fn source_point_product_v2(context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
-    source: &ValueProducer,
-) -> Result<Rc<Product>, String> {
-    match source {
-        ValueProducer::Scalar(source) => context.source_loop_point_product_v2(source),
-        ValueProducer::Text(source) => context.source_loop_text_point_product_v2(source),
-        ValueProducer::Dynamic(source) => context.source_loop_dynamic_point_product_v2(source),
-    }
-}
-
 /// Issued only from this session's canonical source-to-destination association.
 /// Publication cannot substitute another binding, role or indexed Phi.
 #[derive(Debug, Clone)]
@@ -43,7 +33,7 @@ impl SourceLoopPointCapabilityV2<'_> {
             PointOwnerV2::Completed(completed) => return completed.require_after_association_v2(&self.source, &self.relation),
         };
         let state = session.state.borrow();
-        if state.finished || state.transaction.is_none() { return Err(freeze("checked-session-inactive")); }
+        if state.finished || !state.is_active() { return Err(freeze("checked-session-inactive")); }
         let binding = match &self.source {
             ValueProducer::Scalar(Producer::LoopHeader(basis)) => basis.binding(),
             ValueProducer::Text(TextProducer::Header(basis)) => basis.binding(),
@@ -141,20 +131,16 @@ impl CompletedSourceLoopPhiPointsV2 {
         Ok(issued)
     }
     fn require_after_association_v2(&self, source: &ValueProducer, relation: &Rc<LocalSsaPhysicalRelationV1>) -> Result<(), String> {
-        let (product, binding, producer_class) = match source {
-            ValueProducer::Scalar(Producer::LoopAfter { product, binding }) => (product, *binding, 0),
-            ValueProducer::Text(TextProducer::After { product, binding }) => (product, *binding, 1),
-            ValueProducer::Dynamic(DynamicProducer::After { product, binding }) => (product, *binding, 2),
+        let (product, binding) = match source {
+            ValueProducer::Scalar(Producer::LoopAfter { product, binding })
+            | ValueProducer::Text(TextProducer::After { product, binding })
+            | ValueProducer::Dynamic(DynamicProducer::After { product, binding }) => (product, *binding),
             _ => return Err(freeze("completed-role")),
         };
         let row = self.points.carriers.get(&binding).ok_or_else(|| freeze("completed-binding"))?;
         relation.require_completed_v1()?;
         if !Rc::ptr_eq(product, &self.points.product) || !Rc::ptr_eq(relation, &row.after)
-            || producer_class != match &row.source {
-                ValueProducer::Scalar(_) => 0,
-                ValueProducer::Text(_) => 1,
-                ValueProducer::Dynamic(_) => 2,
-            }
+            || std::mem::discriminant(source) != std::mem::discriminant(&row.source)
             || relation.identity_phi_binding_v1()?.0 != self.scope.1 { return Err(freeze("completed-association")); }
         Ok(())
     }
@@ -166,7 +152,13 @@ struct State {
     adopted: bool,
     finished: bool,
     transaction: Option<PhiTxn>,
+    shared: Option<crate::mir::builder::resolved_lowering::canonical_ssa::SharedFunctionControlV1>,
     checked: Option<CheckedPointsV2>,
+}
+impl State {
+    fn is_active(&self) -> bool {
+        self.transaction.is_some() || self.shared.as_ref().is_some_and(|control| control.borrow().is_active())
+    }
 }
 #[derive(Debug, Default)]
 pub(in crate::mir::builder) struct SourceLoopPhiSessionV1 {
@@ -192,42 +184,12 @@ impl SourceLoopPhiSessionV1 {
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
         let mut entries = Vec::new();
         for (&binding, basis) in &product.source.headers {
-            let source = match basis.entry_producer() {
-                ValueProducer::Scalar(_) => {
-                    let source = ValueProducer::Scalar(Producer::LoopHeader(Rc::clone(basis)));
-                    let checked = source_point_product_v2(context, &source)?;
-                    if !Rc::ptr_eq(&checked, &product) {
-                        return Err(freeze("checked-source-product"));
-                    }
-                    source
-                }
-                ValueProducer::Text(_) => {
-                    let source = ValueProducer::Text(TextProducer::Header(Rc::clone(basis)));
-                    let checked = source_point_product_v2(context, &source)?;
-                    if !Rc::ptr_eq(&checked, &product) {
-                        return Err(freeze("checked-source-product"));
-                    }
-                    source
-                }
-                ValueProducer::Dynamic(_) => {
-                    let source = ValueProducer::Dynamic(DynamicProducer::Header(Rc::clone(basis)));
-                    let checked = source_point_product_v2(context, &source)?;
-                    if !Rc::ptr_eq(&checked, &product) {
-                        return Err(freeze("checked-source-product"));
-                    }
-                    source
-                }
-            };
+            let (source, checked_product) = context.source_loop_header_point_v2(basis)?;
+            if !Rc::ptr_eq(&checked_product, &product) { return Err(freeze("checked-source-product")); }
             let entry = ledger.observe_binding_value_v2(binding).map_err(|error| error.to_string())?;
             ledger.source_loop_binding_name(binding, &builder.function_state.variable_ctx.variable_map)?;
-            let dependencies = match basis.entry_producer() {
-                ValueProducer::Scalar(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_scalar_binding_v2(
-                    binding, source, &entry, context, function)?,
-                ValueProducer::Text(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_text_binding_v2(
-                    binding, source, &entry, context, function)?,
-                ValueProducer::Dynamic(source) => crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_dynamic_binding_v2(
-                    binding, source, &entry, context, function)?,
-            };
+            let dependencies = crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1::validate_loop_binding_v2(
+                binding, basis.entry_producer(), &entry, context, function)?;
             entries.push((binding, source, entry, dependencies));
         }
         let destinations: Vec<_> = entries.iter().map(|(_, source, _, _)| {
@@ -238,7 +200,20 @@ impl SourceLoopPhiSessionV1 {
             };
             (builder.alloc_typed(ty.clone()), builder.alloc_typed(ty))
         }).collect();
-        self.prepare(builder, header, after, destinations.iter().map(|row| row.0), destinations.iter().map(|row| row.1))?;
+        let shared = builder.function_control_for_owner_v1(ledger.owner())?;
+        {
+            let mut state = self.state.borrow_mut();
+            state.scope = Some((header, after));
+            state.shared = Some(Rc::clone(&shared));
+        }
+        builder.ensure_block_exists(header)?;
+        builder.ensure_block_exists(after)?;
+        for (block, tail) in [(header, false), (after, true)] {
+            for ((binding, _, _, _), destinations) in entries.iter().zip(&destinations) {
+                shared.borrow_mut().reserve(builder, *binding, block,
+                    if tail { destinations.1 } else { destinations.0 })?;
+            }
+        }
         let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
         let mut carriers = BTreeMap::new();
         for ((binding, source, entry, entry_dependencies), (head, tail)) in entries.into_iter().zip(destinations) {
@@ -262,7 +237,7 @@ impl SourceLoopPhiSessionV1 {
     pub(super) fn header_point(&self, product: &Rc<Product>, binding: BindingRefV1)
         -> Result<SourceLoopPointCapabilityV2<'_>, String> {
         let state = self.state.borrow();
-        if state.finished || state.transaction.is_none() { return Err(freeze("checked-session-inactive")); }
+        if state.finished || !state.is_active() { return Err(freeze("checked-session-inactive")); }
         let checked = state.checked.as_ref().ok_or_else(|| freeze("checked-points-missing"))?;
         if !Rc::ptr_eq(&checked.product, product) { return Err(freeze("checked-point-product")); }
         let row = checked.carriers.get(&binding).ok_or_else(|| freeze("checked-point-binding"))?;
@@ -297,40 +272,46 @@ impl SourceLoopPhiSessionV1 {
     /// Patch the SAME txn from exact source-edge verification, retaining its
     /// ownership until the whole-graph caller completes all fallible checks.
     pub(in crate::mir::builder) fn prepare_checked_completion_v2(&self, builder: &mut MirBuilder,
-        inputs: &crate::mir::builder::control_flow::plan::lowerer::VerifiedSourceLoopPhiInputsV2,
+        inputs: &crate::mir::builder::control_flow::plan::lowerer::VerifiedSourceLoopEdgesV2,
     ) -> Result<PreparedSourceLoopPhiCompletionV2<'_>, String> {
         let result = (|| {
-            let mut rows: crate::mir::builder::control_flow::plan::lowerer::LoopPhiInputRowsV2 = Vec::new();
-            {
-                let state = self.state.borrow();
-                if state.finished || !state.adopted || state.scope != Some(inputs.scope()) { return Err(freeze("checked-finish-scope")); }
-                let points = state.checked.as_ref().ok_or_else(|| freeze("checked-points-missing"))?;
-                if !Rc::ptr_eq(&points.product, inputs.product()) { return Err(freeze("checked-finish-product")); }
-                let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
-                for (&binding, row) in &points.carriers {
-                    if inputs.entry(binding) != Some(&row.entry) { return Err(freeze("checked-finish-entry")); }
-                    for relation in [&row.header, &row.after] {
-                        relation.verify(function)?;
-                        let (block, instruction) = relation.identity_phi_binding_v1()?;
-                        let crate::mir::MirInstruction::Phi { dst, inputs: pending, .. } = instruction else { return Err(freeze("checked-finish-definition")); };
-                        if !pending.is_empty() { return Err(freeze("checked-finish-already-patched")); }
-                        rows.push((*block, *dst, inputs.incoming(*block, binding)?.to_vec()));
-                    }
+            let state = self.state.borrow();
+            if state.finished || !state.adopted || state.scope != Some(inputs.scope()) { return Err(freeze("checked-finish-scope")); }
+            let points = state.checked.as_ref().ok_or_else(|| freeze("checked-points-missing"))?;
+            if !Rc::ptr_eq(&points.product, inputs.product()) { return Err(freeze("checked-finish-product")); }
+            let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
+            let mut destinations = Vec::new();
+            for (&binding, row) in &points.carriers {
+                if inputs.entry(binding) != Some(&row.entry) { return Err(freeze("checked-finish-entry")); }
+                for relation in [&row.header, &row.after] {
+                    relation.verify(function)?;
+                    let (block, instruction) = relation.identity_phi_binding_v1()?;
+                    let crate::mir::MirInstruction::Phi { dst, inputs: pending, .. } = instruction else { return Err(freeze("checked-finish-definition")); };
+                    if !pending.is_empty() { return Err(freeze("checked-finish-already-patched")); }
+                    destinations.push((*block, *dst));
                 }
             }
+            let shared = state.shared.clone().ok_or_else(|| freeze("checked-control-missing"))?;
+            drop(state);
             self.with_transaction(|txn| {
-                let tokens: Vec<_> = txn.pending_tokens_v1().collect();
-                if tokens.len() != rows.len() || rows.iter().any(|(block, value, _)|
+                let tokens: Vec<_> = txn.pending_tokens_v1().filter(|(block, _)|
+                    *block == inputs.scope().0 || *block == inputs.scope().1).collect();
+                if tokens.len() != destinations.len() || destinations.iter().any(|(block, value)|
                     tokens.iter().filter(|(id, token)| id == block && token.dst() == *value).count() != 1) {
                     return Err(freeze("checked-finish-token-census"));
                 }
-                for (block, value, incoming) in &rows {
-                    let token = tokens.iter().find(|(id, token)| id == block && token.dst() == *value).expect("exact census above").1;
-                    txn.patch_phi_inputs(builder, token, incoming.clone(), "source-loop:checked-completion")?;
-                }
                 Ok(())
             })?;
+            shared.borrow_mut().complete_blocks(builder, &[inputs.scope().0, inputs.scope().1], inputs.entry_block())?;
             let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("function-missing"))?;
+            let rows: crate::mir::builder::control_flow::plan::lowerer::LoopPhiInputRowsV2 = destinations.into_iter().map(|(block, value)| {
+                let phi = function.blocks[&block].instructions.iter().find(|row|
+                    matches!(row, crate::mir::MirInstruction::Phi { dst, .. } if *dst == value));
+                match phi {
+                    Some(crate::mir::MirInstruction::Phi { inputs, .. }) => Ok((block, value, inputs.clone())),
+                    _ => Err(freeze("checked-finish-definition")),
+                }
+            }).collect::<Result<_, String>>()?;
             let phis = crate::mir::builder::control_flow::plan::lowerer::capture_exact_loop_phis_v2(function, &rows)?;
             Ok(PreparedSourceLoopPhiCompletionV2 { session: self, scope: inputs.scope(), rows, phis })
         })();
@@ -383,17 +364,31 @@ impl SourceLoopPhiSessionV1 {
     ) -> Result<R, String> {
         let mut state = self.state.borrow_mut();
         if !state.adopted || state.finished { return Err(freeze("transaction-not-adopted")); }
+        if let Some(shared) = state.shared.clone() {
+            drop(state);
+            return shared.borrow_mut().with_transaction(action);
+        }
         action(state.transaction.as_mut().ok_or_else(|| freeze("transaction-missing"))?)
     }
     pub(in crate::mir::builder) fn require_patched(&self) -> Result<(), String> {
+        let scope = {
+            let state = self.state.borrow();
+            state.shared.as_ref().and(state.scope)
+        };
         self.with_transaction(|txn| {
-            if txn.pending_tokens_v1().next().is_some() { return Err(freeze("pending-after-patch")); }
+            if txn.pending_tokens_v1().any(|(block, _)| scope.is_none_or(|(header, after)| block == header || block == after)) {
+                return Err(freeze("pending-after-patch"));
+            }
             Ok(())
         })
     }
     pub(in crate::mir::builder) fn commit(&self, builder: &mut MirBuilder) -> Result<(), String> {
         self.require_patched()?;
         let mut state = self.state.borrow_mut();
+        if state.shared.is_some() {
+            state.finished = true;
+            return Ok(());
+        }
         let txn = state.transaction.take().ok_or_else(|| freeze("transaction-missing"))?;
         txn.commit(builder).map_err(|error| error.to_string())?;
         state.finished = true;
@@ -402,6 +397,8 @@ impl SourceLoopPhiSessionV1 {
     /// All enclosing error boundaries call the same owner. Once a txn has
     /// aborted, preserve the returned primary+cleanup error without wrapping it.
     pub(in crate::mir::builder) fn abort_error(&self, builder: &mut MirBuilder, error: String) -> String {
+        let shared = self.state.borrow().shared.clone();
+        if let Some(shared) = shared { return shared.borrow_mut().abort(builder, error); }
         let transaction = self.state.borrow_mut().transaction.take();
         match transaction { Some(txn) => txn.abort_on_err(builder, error).to_string(), None => error }
     }

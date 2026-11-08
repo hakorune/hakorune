@@ -1,4 +1,4 @@
-use super::error::{CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
+use super::error::{require_block, CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -42,12 +42,7 @@ pub(super) fn derive_and_verify_predecessors(
         .collect::<TerminatorPredecessorsV1>();
 
     for source in block_ids.iter().copied() {
-        let block = function
-            .get_block(source)
-            .ok_or(CanonicalCfgErrorV1::MissingBlock {
-                block: source,
-                role: CanonicalCfgBlockRoleV1::Source,
-            })?;
+        let block = require_block(function, source, CanonicalCfgBlockRoleV1::Source)?;
         reject_duplicate_branch_edge(source, block.terminator.as_ref())?;
 
         let terminator_successors = block.successors_from_terminator();
@@ -68,12 +63,7 @@ pub(super) fn derive_and_verify_predecessors(
     }
 
     for block_id in block_ids {
-        let block = function
-            .get_block(block_id)
-            .ok_or(CanonicalCfgErrorV1::MissingBlock {
-                block: block_id,
-                role: CanonicalCfgBlockRoleV1::Target,
-            })?;
+        let block = require_block(function, block_id, CanonicalCfgBlockRoleV1::Target)?;
         let expected = predecessors
             .get(&block_id)
             .expect("all function blocks were initialized");

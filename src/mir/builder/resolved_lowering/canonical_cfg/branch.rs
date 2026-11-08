@@ -41,6 +41,12 @@ impl<'session> PreparedCanonicalBranchV1<'session> {
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn commit(self, function: &mut MirFunction) {
+        self.commit_with_edge_args(function, None, None);
+    }
+
+    fn commit_with_edge_args(self, function: &mut MirFunction,
+        then_args: Option<crate::mir::EdgeArgs>, else_args: Option<crate::mir::EdgeArgs>,
+    ) {
         let Self {
             session,
             source,
@@ -49,7 +55,7 @@ impl<'session> PreparedCanonicalBranchV1<'session> {
             else_block,
             _seal,
         } = self;
-        session.commit_prepared_branch(function, source, condition, then_block, else_block);
+        session.commit_prepared_branch(function, source, condition, then_block, else_block, then_args, else_args);
     }
 }
 
@@ -62,8 +68,17 @@ impl CanonicalCfgSessionV1 {
         then_block: BasicBlockId,
         else_block: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
-        let prepared = self.prepare_branch(function, source, condition, then_block, else_block)?;
-        prepared.commit(function);
+        self.emit_branch_with_edge_args(function, source, condition,
+            (then_block, else_block), (None, None))
+    }
+
+    pub(in crate::mir::builder) fn emit_branch_with_edge_args(
+        &self, function: &mut MirFunction, source: BasicBlockId, condition: ValueId,
+        targets: (BasicBlockId, BasicBlockId),
+        args: (Option<crate::mir::EdgeArgs>, Option<crate::mir::EdgeArgs>),
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        self.prepare_branch(function, source, condition, targets.0, targets.1)?
+            .commit_with_edge_args(function, args.0, args.1);
         Ok(())
     }
 
@@ -99,22 +114,15 @@ impl CanonicalCfgSessionV1 {
         condition: ValueId,
         then_block: BasicBlockId,
         else_block: BasicBlockId,
+        then_edge_args: Option<crate::mir::EdgeArgs>,
+        else_edge_args: Option<crate::mir::EdgeArgs>,
     ) {
-        function
-            .get_block_mut(source)
-            .expect("source was checked")
-            .set_terminator(MirInstruction::Branch {
+        Self::commit_instruction(function, source, MirInstruction::Branch {
                 condition,
                 then_bb: then_block,
                 else_bb: else_block,
-                then_edge_args: None,
-                else_edge_args: None,
-            });
-        for target in [then_block, else_block] {
-            function
-                .get_block_mut(target)
-                .expect("target was checked")
-                .add_predecessor(source);
-        }
+                then_edge_args,
+                else_edge_args,
+            }, None);
     }
 }

@@ -54,15 +54,23 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         &mut self, builder: &mut MirBuilder, id: BasicBlockId, value: ValueId,
         next: BasicBlockId, bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        let function = builder.function_state.current_function.as_mut().ok_or_else(|| freeze("no-function"))?;
-        if function.blocks.contains_key(&id) { return Err(freeze("duplicate-block")); }
+        let function = new_block_function(builder.function_state.current_function.as_mut(), id)?;
         if !function.blocks.contains_key(&next) { return Err(freeze("no-normal-landing")); }
         let release = MirInstruction::ArrayResidenceRelease { value };
         let jump = MirInstruction::Jump { target: next, edge_args: None };
-        let mut block = BasicBlock::new(id);
-        block.add_instruction(release.clone());
-        block.set_terminator(jump.clone());
-        function.add_block(block);
+        if let Some(control) = &builder.function_state.canonical_control {
+            let mut control = control.borrow_mut();
+            control.cfg.create_block(function, id).map_err(|error| error.to_string())?;
+            control.cfg.append_packet_instruction(function, id, release.clone(), crate::ast::Span::unknown())
+                .map_err(|error| error.to_string())?;
+            control.cfg.append_packet_instruction(function, id, jump.clone(), crate::ast::Span::unknown())
+                .map_err(|error| error.to_string())?;
+        } else {
+            let mut block = BasicBlock::new(id);
+            block.add_instruction(release.clone());
+            block.set_terminator(jump.clone());
+            function.add_block(block);
+        }
         bindings.extend([(id, release), (id, jump)]);
         Ok(())
     }
@@ -86,17 +94,17 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         ) {
             return Err(freeze("root-graph-terminator-unsupported"));
         }
-        let function = builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| freeze("no-function"))?;
-        if function.blocks.contains_key(&id) {
-            return Err(freeze("duplicate-block"));
+        let function = new_block_function(builder.function_state.current_function.as_mut(), id)?;
+        if let Some(control) = &builder.function_state.canonical_control {
+            let mut control = control.borrow_mut();
+            control.cfg.create_block(function, id).map_err(|error| error.to_string())?;
+            control.cfg.append_packet_instruction(function, id, terminator.clone(), crate::ast::Span::unknown())
+                .map_err(|error| error.to_string())?;
+        } else {
+            let mut block = BasicBlock::new(id);
+            block.set_terminator(terminator.clone());
+            function.add_block(block);
         }
-        let mut block = BasicBlock::new(id);
-        block.set_terminator(terminator.clone());
-        function.add_block(block);
         bindings.push((id, terminator));
         Ok(())
     }
@@ -490,4 +498,10 @@ pub(in crate::mir::builder) fn prepare_operation_cleanup_v1(
         (graph.acquisition_fault, Some((graph.clean, next, continuation, graph.normal_origins)))
     };
     Ok(result)
+}
+
+fn new_block_function(function: Option<&mut MirFunction>, id: BasicBlockId) -> Result<&mut MirFunction, String> {
+    let function = function.ok_or_else(|| freeze("no-function"))?;
+    if function.blocks.contains_key(&id) { return Err(freeze("duplicate-block")); }
+    Ok(function)
 }

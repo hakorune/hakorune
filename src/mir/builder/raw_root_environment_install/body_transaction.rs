@@ -202,6 +202,12 @@ impl InstalledRawRootEnvironmentV1 {
                 };
                 let completed =
                     ScriptPhysicalExitCommitV1::commit_projected(session.builder_mut(), prepared);
+                if let Err(error) = session.builder_mut().finish_function_control_v1() {
+                    return Err(RejectedRawRootBodyPhysicalV1 {
+                        owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical, recipe },
+                        error: RawRootBodyLoweringErrorV1::Lower(error),
+                    });
+                }
                 let (draft, exit) = session
                     .builder_mut()
                     .commit_raw_script_exit_v1(open, completed, brand);
@@ -224,7 +230,7 @@ impl InstalledRawRootEnvironmentV1 {
                             });
                         }
                     };
-                let plan = match session.builder().prepare_raw_root_exit_v1(
+                let plan = match session.builder_mut().prepare_raw_root_exit_v1(
                     &open,
                     result,
                     physical.tracker(),
