@@ -281,7 +281,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => {
                 return lower_outside_callable_loop_v1(reason)
             }
-            None => return lower_non_callable_loop_route_v1(builder, condition, body),
+            None => return lower_non_callable_loop_route_v1(builder, condition, body, parent_source),
         };
         let owner = binding_product.owner();
         if let (Some(input), Some(ledger), Some(loop_site)) =
@@ -619,7 +619,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         "[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned(),
                     );
                 };
-                lower_non_callable_loop_route_v1(builder, *condition, body)
+                lower_non_callable_loop_route_v1(builder, *condition, body, parent_source)
             }
             CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
                 Err(format!(
@@ -716,10 +716,15 @@ fn lower_non_callable_loop_route_v1(
     builder: &mut MirBuilder,
     condition: ASTNode,
     body: Vec<ASTNode>,
+    source: &RawInvocationSourceContextV1,
 ) -> Result<ValueId, String> {
     #[cfg(test)]
     test_route_observation::record_non_callable_route();
-    super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, condition, body)
+    let site = source.site().cloned()
+        .map(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node);
+    super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
+        builder, condition, body, site.as_ref(),
+    )
 }
 
 #[cfg(test)]

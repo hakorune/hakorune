@@ -270,10 +270,11 @@ pub(in crate::mir::builder) fn lower_loop_or_freeze_v1(
     builder: &mut MirBuilder,
     condition: ASTNode,
     body: Vec<ASTNode>,
+    site: Option<&crate::mir::resolved_semantics::SourceStmtSiteV1>,
 ) -> Result<ValueId, String> {
     planner_reject_detail::clear_last_plan_reject_detail();
 
-    if let Some(result) = builder.try_cf_loop_joinir(&condition, &body)? {
+    if let Some(result) = builder.try_cf_loop_joinir(&condition, &body, site)? {
         return Ok(result);
     }
 
@@ -324,6 +325,7 @@ impl MirBuilder {
         &mut self,
         condition: &ASTNode,
         body: &[ASTNode],
+        site: Option<&crate::mir::resolved_semantics::SourceStmtSiteV1>,
     ) -> Result<Option<ValueId>, String> {
         // Get current function name
         let func_name = self
@@ -410,7 +412,7 @@ impl MirBuilder {
         );
 
         // Phase 49-3: Implement JoinIR Frontend integration
-        self.cf_loop_joinir_impl(condition, body, &func_name, debug)
+        self.cf_loop_joinir_impl(condition, body, &func_name, debug, site)
     }
 
     /// Phase 49-3: JoinIR Frontend integration implementation
@@ -422,6 +424,7 @@ impl MirBuilder {
         body: &[ASTNode],
         func_name: &str,
         debug: bool,
+        site: Option<&crate::mir::resolved_semantics::SourceStmtSiteV1>,
     ) -> Result<Option<ValueId>, String> {
         // Phase 137-2/137-4: Dev-only observation via Loop Canonicalizer
         if crate::config::env::joinir_dev_enabled() {
@@ -549,7 +552,9 @@ impl MirBuilder {
             result?;
         }
 
-        if let Some(result) = route_loop(self, &ctx)? {
+        let site = site.ok_or_else(||
+            "[freeze:contract][route-loop/missing-source-site]".to_owned())?;
+        if let Some(result) = route_loop(self, &ctx, site)? {
             trace::trace().routing("router", func_name, "Loop router succeeded");
             return Ok(Some(result));
         }

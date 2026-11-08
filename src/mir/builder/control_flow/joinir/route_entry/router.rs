@@ -122,6 +122,7 @@ impl<'a> LoopRouteContext<'a> {
 pub(crate) fn route_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
+    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
 ) -> Result<Option<ValueId>, String> {
     // Source authority: the FunctionDeclaration recorded at function entry.
     // A missing declaration means the walked loop has no canonical source
@@ -160,39 +161,15 @@ pub(crate) fn route_loop(
         .root_function_input()
         .map_err(|error| error.to_string())?;
 
-    // Exact membership: the walked loop must equal exactly one resolver-
-    // inventoried Loop statement by structure. Zero or two matches are
-    // terminal — no index, span, or ordinal re-derivation.
-    let mut matched = None;
-    for site in input.function().loop_sites() {
-        let located = input
-            .source()
-            .exact_stmt(site)
-            .map_err(|error| error.to_string())?;
-        let ASTNode::Loop {
-            condition, body, ..
-        } = located.node()
-        else {
-            return Err(Freeze::contract(
-                "resolver loop inventory projected a non-Loop statement",
-            )
-            .to_string());
-        };
-        if condition.as_ref() == ctx.condition && body.as_slice() == ctx.body {
-            if matched.replace(located).is_some() {
-                return Err(Freeze::contract(
-                    "ambiguous loop membership: two resolver sites match one walked loop",
-                )
-                .to_string());
-            }
-        }
-    }
-    let Some(loop_stmt) = matched else {
+    // The caller retains the resolver's original statement receipt. Identical
+    // loops have distinct sites; no syntax scan may choose between them.
+    let loop_stmt = input.source().exact_stmt(site)
+        .map_err(|error| error.to_string())?;
+    if !matches!(loop_stmt.node(), ASTNode::Loop { .. }) {
         return Err(Freeze::contract(
-            "walked loop is absent from the resolver loop inventory",
-        )
-        .to_string());
-    };
+            "resolver loop site projected a non-Loop statement",
+        ).to_string());
+    }
 
     // One policy winner -> one verified recipe.
     let issued = match issue_loop_node_winner_recipe_v1(input, loop_stmt, NumericTarget::host()) {
@@ -238,4 +215,37 @@ pub(crate) fn route_loop(
     builder.function_state.current_block = Some(continuation.root_after());
     let result = emit_void(builder)?;
     Ok(Some(result))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn identical_loops_keep_distinct_resolver_receipts() {
+        let program = crate::parser::NyashParser::parse_from_string(
+            "static box Main { main() {\nloop(false) {}\nloop(false) {}\nreturn 0\n} }",
+        ).unwrap();
+        let ASTNode::Program { statements, .. } = program else { panic!("Program"); };
+        let declaration = statements.into_iter().find_map(|node| match node {
+            ASTNode::BoxDeclaration { methods, .. } => methods.get_declaration("main").cloned(),
+            _ => None,
+        }).unwrap();
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(declaration.clone()).unwrap();
+        let input = unit.root_function_input().unwrap();
+        let sites: Vec<_> = input.function().loop_sites().cloned().collect();
+        assert_eq!(sites.len(), 2);
+        assert_ne!(sites[0], sites[1]);
+        for site in sites {
+            let located = input.source().exact_stmt(&site).unwrap();
+            let ASTNode::Loop { condition, body, .. } = located.node() else { panic!("Loop"); };
+            let mut builder = MirBuilder::new();
+            builder.enter_function_for_test("main".to_owned());
+            builder.function_state.compilation.fn_declaration_ast = Some(declaration.clone());
+            let context = LoopRouteContext::new(condition, body, "main", false, true);
+            let error = route_loop(&mut builder, &context, &site).unwrap_err();
+            assert!(error.contains("loop winner selection declined"), "{error}");
+            assert!(error.contains(&format!("site={site:?}")), "{error}");
+        }
+    }
 }
