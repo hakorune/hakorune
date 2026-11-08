@@ -36,3 +36,8 @@ B9. 置換したconsumer別の判定と引渡しは同じ責務の変更で削�
 B10. 算術のdomain・除数の証明・overflow/Fault・Text変換は既存法則を保持し、未証明値をDynamicへ落として通さない。
 B11. 今のsource walkと既存CFGの責任を維持し、短絡の未実行枝に取得や効果を発行せず、値の短絡とeditのCFG設計を先取りしない。
 B12. 公開MIR/ABI等または走査/意味契約の変更が必要な群は、試した接続とfile:lineと不足物を記録してその群だけ止め、他群を進める。
+
+B13. 元のscalar appendが既に決まるinitializerはその発行を保持し、checkedな元演算の結果をCurrentScalarReadへ貸し、共通式consumerのためにinitializerを再発行しない。
+B14. 元のi64演算は全operandのsource証拠と共通演算法則を保持し、演算結果の読取は元appendとlocal束縛の対応を照合し、型や同形のMIR検索からproducerを捏造しない。
+
+初回の算術initializer選択拡大はe01/e03/e15がEXE成功したが、既存21本のMIRが変わったため不採用。古いscalar appendを新しいframe発行で置換したことが原因（既存再帰のID/発行順、既存Callの経路が変化）。試作はpatchへ保存して戻し、B13の元producer貸出へ切り替える。
