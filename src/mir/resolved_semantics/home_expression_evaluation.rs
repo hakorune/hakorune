@@ -203,69 +203,6 @@ impl CheckedExpressionEvaluationV1 {
         }
         Some(())
     }
-    fn comparison_input_order_v1(
-        &self, comparison: usize, allow_dynamic_call: bool,
-    ) -> Option<Vec<usize>> {
-        self.text_comparison_operation_v1(comparison, allow_dynamic_call)?;
-        let root = self.source.nodes().get(comparison)?;
-        let prefix = root.site().node().segments();
-        let order: Vec<_> = self
-            .order
-            .iter()
-            .copied()
-            .filter(|node| {
-                *node != comparison
-                    && self.source.nodes()[*node]
-                        .site()
-                        .node()
-                        .segments()
-                        .starts_with(prefix)
-                    && (!allow_dynamic_call || !self.transfers_node(*node))
-            })
-            .collect();
-        if allow_dynamic_call {
-            let dynamic_positions: Vec<_> = order.iter().enumerate().filter_map(|(position, node)| {
-                self.calls.iter().any(|call| call.site().site() == self.source.nodes()[*node].site()
-                    && call.dynamic_invocation_result_lifecycle_v1().is_some()).then_some(position)
-            }).collect();
-            if dynamic_positions.len() > 1 || dynamic_positions.first().is_some_and(|position| {
-                order[*position + 1..].iter().any(|node| !matches!(
-                    self.source.nodes()[*node].source(),
-                    ExpressionNodeSourceV1::Reference(_)
-                        | ExpressionNodeSourceV1::Literal(
-                            super::super::ResolvedLiteralSourceV1::String(_)
-                                | super::super::ResolvedLiteralSourceV1::Integer(_)
-                        )
-                ))
-            }) {
-                return None;
-            }
-        }
-        for &node in &order {
-            let original = &self.source.nodes()[node];
-            if self.transfers_node(node)
-                || self.node_is_identity(node)
-                || !matches!(original.children(), crate::mir::resolved_value_profile::expression_children::ExpressionChildrenV1::Known(children)
-                    if children.iter().all(|child| child.reach == crate::mir::resolved_value_profile::expression_children::ExpressionChildReachV1::Always))
-            {
-                return None;
-            }
-            match original.source() {
-                ExpressionNodeSourceV1::Reference(_) | ExpressionNodeSourceV1::Literal(
-                    super::super::ResolvedLiteralSourceV1::Integer(_) | super::super::ResolvedLiteralSourceV1::String(_)) => {},
-                ExpressionNodeSourceV1::MethodCall
-                    if self.cores.get(&node).is_some_and(|core| core.matches_plan(&self.source, node))
-                        || allow_dynamic_call && self.calls.iter().any(|call|
-                            call.site().site() == self.source.nodes()[node].site()
-                                && call.dynamic_invocation_result_lifecycle_v1().is_some()) => {},
-                ExpressionNodeSourceV1::Binary(binary) if binary.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add
-                    && self.class(node) == Some(ExpressionLeafClassV1::Value(
-                        crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64)) => {},
-                _ => return None,
-            }
-        }
-        (!order.is_empty()).then_some(order)
-    }
     /// The same eager-input scope serves Text comparison and synchronous
     /// field presence. Presence currently requires a passive exact Text leaf:
     /// computed key effects must not move ahead of receiver field evaluation.
@@ -694,95 +631,9 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_text_evaluati
     Ok(if fields.is_empty() { Ok(evaluation) } else { Err("evaluation-requests-field-reads") })
 }
 
-pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_value_evaluation_v1<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    source: std::rc::Rc<
-        crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1,
-    >,
-    expected: crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1,
-    purpose_site: &OwnedExprSiteV1,
-    locals: &PrefixLocalFlow<'_>,
-    homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
-    calls: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1],
-    actuals: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
-    field_text_source: Option<
-        &crate::mir::normal_callable_semantic_package::CheckedFieldArrayAccessSourceV1,
-    >,
-    field_seeds: &std::collections::BTreeMap<usize, crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1>,
-    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::LocalFieldReadRequestV1>,
-) -> Result<
-    Result<(
-        std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
-        Vec<super::super::LocalFieldReadRequestV1>,
-    ), &'static str>,
-    E,
-> {
-    use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
-    let Some(prepared) = crate::mir::resolved_semantics::home_new_prefix::expression_plan::prepare_expression_calls_v1(&source,
-        crate::mir::resolved_semantics::home_new_prefix::expression_plan::ExpressionLeafProfileV1::Print, field_seeds, homes,
-        &mut |site| super::super::local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
-            &mut |binding| locals.field_alias_call_path(binding), actuals))? else { return Ok(Err("call-preparation-declined")) };
-    let mut initial = Vec::new();
-    for (node, original) in source.nodes().iter().enumerate() {
-        if !prepared.is_active_reference(node) {
-            continue;
-        }
-        let Some((binding, root)) =
-            crate::mir::resolved_semantics::home_new_prefix::argument_expression::text_reference(
-                input,
-                locals,
-                original.site(),
-            )
-        else {
-            continue;
-        };
-        let owned = purpose_site.clone();
-        if let Some(field_text_source) = field_text_source {
-            let Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::TextEntryRead(read)) = actuals(&owned,
-                crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::FieldArrayTextEntryRead {
-                    input,
-                    source: field_text_source,
-                    plan: &source,
-                    read: original.site(),
-                    binding,
-                    root,
-                })? else {
-                if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
-                    eprintln!("[field-text-append] owner={:?} reason=text-entry-read-unavailable read={:?}", input.owner(), original.site());
-                }
-                return Ok(Err("text-entry-read-unavailable"));
-            };
-            initial.push((node, crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::ArgumentEntry(read)));
-        } else if let Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(&owned,
-            crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::FiniteEntryRead { input, plan: &source, read: original.site(), binding, root })? {
-            initial.push((node, crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::FiniteEntry {
-                read, exclusion: locals.entry_null_exclusion(original.site(), binding, root),
-            }));
-        }
-    }
-    let (evaluation, fields) = match crate::mir::resolved_semantics::home_new_prefix::expression_plan::qualify_statement_evaluation_v1(prepared, initial,
-        &mut |site| locals.static_text_reference(site), &mut |site| locals.text_reference(site),
-        &mut |site| locals.loop_text_reference_v1(site, homes),
-        &mut |site| locals.current_scalar_read_v1(site, calls), field_request)? {
-            Ok(qualified) => qualified,
-            Err(reason) => {
-                if std::env::var_os("HAKO_DEBUG_FIELD_TEXT_APPEND").is_some() {
-                    eprintln!("[field-text-append] owner={:?} reason=evaluation-qualification-missing:{reason}", input.owner());
-                }
-                return Ok(Err(reason));
-            }
-        };
-    if evaluation.root_class() != ExpressionLeafClassV1::Value(expected) {
-        return Ok(Err("root-class-mismatch"));
-    }
-    Ok(Ok((std::rc::Rc::new(evaluation), fields)))
-}
+#[path = "home_expression_value_preparation.rs"]
+mod value_preparation;
+pub(in crate::mir::resolved_semantics::home_new_prefix) use value_preparation::prepare_value_evaluation_v1;
 
 #[path = "home_expression_comparison_nodes.rs"]
 mod comparison_nodes;
