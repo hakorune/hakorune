@@ -12,9 +12,8 @@
 use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
-use crate::mir::builder::emission::phi_lifecycle;
 use crate::mir::builder::MirBuilder;
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+use crate::mir::MirInstruction;
 
 /// Prepare loop entry: handle preheader, flatten body, jump to entry
 ///
@@ -114,38 +113,6 @@ pub fn prepare_loop_entry(
     }
 
     Ok((frag, body_effects, loop_plan))
-}
-
-/// Insert provisional PHIs (empty inputs) to define PHI dsts early
-///
-/// This ensures PHI dsts are in def_blocks before body instructions are emitted.
-/// Inputs will be patched in Step 4 after Step 3.5 merges deferred inputs.
-///
-/// Returns list of (phi_dst, phi_bb, phi_tag) for error path validation.
-pub fn insert_provisional_phis(
-    builder: &mut MirBuilder,
-    loop_plan: &CoreLoopPlan,
-) -> Result<Vec<(ValueId, BasicBlockId, String)>, String> {
-    // Step 1.5a: Ensure PHI blocks exist before provisional PHI insertion
-    // Block Existence Contract: callsite is responsible for ensuring blocks exist
-    for phi in &loop_plan.phis {
-        builder.ensure_block_exists(phi.block)?;
-    }
-
-    // Step 1.5: Insert provisional PHIs with empty inputs
-    let mut provisional_phis: Vec<(ValueId, BasicBlockId, String)> = Vec::new();
-    for phi in &loop_plan.phis {
-        phi_lifecycle::define_provisional_phi(
-            builder,
-            phi.block,
-            phi.dst,
-            &format!("loop_lowerer:step1.5:{}", phi.tag),
-        )?;
-        // Track for potential cleanup on error
-        provisional_phis.push((phi.dst, phi.block, phi.tag.clone()));
-    }
-
-    Ok(provisional_phis)
 }
 
 /// Flatten nested Seq plans in body into a single Vec

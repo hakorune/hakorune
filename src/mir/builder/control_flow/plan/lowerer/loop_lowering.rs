@@ -116,20 +116,18 @@ impl super::PlanLowerer {
         // Clone final_values to avoid borrow conflict with mutable loop_plan access in closure
         let final_values = loop_plan.final_values.clone();
 
-        // Step 1.5a/1.5: Insert provisional PHIs (empty inputs) to define PHI dsts early
-        // This ensures PHI dsts are in def_blocks before body instructions are emitted.
-        // Inputs will be patched in Step 4 after Step 3.5 merges deferred inputs.
-        // SSOT: Delegated to loop_preparation::insert_provisional_phis()
-        let source_phis = port.prepare_source_loop_phis(builder, &loop_plan)?;
-        let source_transaction = source_phis.is_some();
-        let provisional_phis = match source_phis {
-            Some(phis) => phis,
-            None => loop_preparation::insert_provisional_phis(builder, &loop_plan)?,
-        };
-
-        // Wrap Steps 2-4 in closure for error handling
-        // If error occurs, we can detect unpatched provisional PHIs
+        // A source session lends its transaction; otherwise this scope owns one.
+        let source_transaction = port.prepare_source_loop_phis(builder, &loop_plan)?.is_some();
+        let mut transaction = (!source_transaction).then(||
+            crate::mir::builder::emission::phi_lifecycle::PhiTxn::begin("loop_lowerer"));
         let res: Result<(), String> = (|| {
+            if let Some(txn) = transaction.as_mut() {
+                for phi in &loop_plan.phis { builder.ensure_block_exists(phi.block)?; }
+                for phi in &loop_plan.phis {
+                    txn.define_provisional_phi(builder, phi.block, phi.dst,
+                        &format!("loop_lowerer:step1.5:{}", phi.tag))?;
+                }
+            }
             // Step 2: Emit block effects in SSOT order (preheader, header, body, step)
             // SSOT: Delegated to block_effect_emission::emit_all_block_effects()
             block_effect_emission::emit_all_block_effects(
@@ -176,10 +174,7 @@ impl super::PlanLowerer {
             // PHIs were inserted provisionally in Step 1.5 with empty inputs.
             // Now update them with the actual inputs merged in Step 3.5.
             // SSOT: Delegated to phi_processing::patch_all_phis()
-            port.patch_loop_phis(builder, &loop_plan)?;
-            if !source_transaction {
-                phi_processing::validate_no_unpatched_phis_after_patch(builder, &provisional_phis)?;
-            }
+            port.patch_loop_phis(builder, &loop_plan, transaction.as_mut())?;
 
             if debug {
                 trace_logger.debug(
@@ -191,19 +186,14 @@ impl super::PlanLowerer {
             Ok(())
         })();
 
-        // Check for unpatched provisional PHIs on error
-        // SSOT: Delegated to phi_processing::validate_no_unpatched_phis()
-        if res.is_err() && !source_transaction {
-            let res_err = res
-                .as_ref()
-                .err()
-                .map(|e| e.as_str())
-                .unwrap_or("[no_error]");
-            phi_processing::validate_no_unpatched_phis(builder, &provisional_phis, res_err)?;
-        }
-
-        // Step 5-8 continue with original flow (res must be Ok for execution to continue)
-        let _ = res?;
+        if let Some(txn) = transaction {
+            let labels: Vec<_> = loop_plan.phis.iter().map(|phi|
+                (phi.block, phi.dst, phi.tag.as_str())).collect();
+            let strict = crate::config::env::joinir_dev::strict_planner_required_enabled()
+                || (crate::config::env::joinir_dev_enabled()
+                    && crate::config::env::joinir_dev::planner_required_enabled());
+            txn.finish_plan_scope(builder, res, &labels, strict)?;
+        } else { res?; }
 
         // Step 5: Emit Frag (terminators)
         // SSOT: Delegated to loop_completion::emit_loop_frag()

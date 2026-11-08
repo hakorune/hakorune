@@ -42,7 +42,9 @@ use crate::mir::{BasicBlockId, MirType, ValueId};
 mod batch_type_publication;
 
 mod transaction;
-pub(in crate::mir::builder) use transaction::{PhiToken, PhiTxn, PhiTxnAbortErrorV1};
+pub(in crate::mir::builder) use transaction::{PhiToken, PhiTxn};
+#[cfg(test)]
+pub(in crate::mir::builder) use transaction::PhiTxnAbortErrorV1;
 /// Define a provisional PHI with empty inputs.
 ///
 /// **Purpose**: Define PHI dst early (before body emit) to ensure
