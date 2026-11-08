@@ -58,31 +58,7 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         if !function.blocks.contains_key(&next) { return Err(freeze("no-normal-landing")); }
         let release = MirInstruction::ArrayResidenceRelease { value };
         let jump = MirInstruction::Jump { target: next, edge_args: None };
-        if let Some(control) = &builder.function_state.canonical_control {
-            let mut control = control.borrow_mut();
-            control
-                .cfg
-                .create_block(function, id)
-                .map_err(|error| error.to_string())?;
-            control
-                .cfg
-                .append_packet_instruction(
-                    function,
-                    id,
-                    release.clone(),
-                    crate::ast::Span::unknown(),
-                )
-                .map_err(|error| error.to_string())?;
-            control
-                .cfg
-                .append_packet_instruction(function, id, jump.clone(), crate::ast::Span::unknown())
-                .map_err(|error| error.to_string())?;
-        } else {
-            let mut block = BasicBlock::new(id);
-            block.add_instruction(release.clone());
-            block.set_terminator(jump.clone());
-            function.add_block(block);
-        }
+        append_new_root_block(builder, id, &[release.clone(), jump.clone()])?;
         bindings.extend([(id, release), (id, jump)]);
         Ok(())
     }
@@ -106,27 +82,8 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         ) {
             return Err(freeze("root-graph-terminator-unsupported"));
         }
-        let function = new_block_function(builder.function_state.current_function.as_mut(), id)?;
-        if let Some(control) = &builder.function_state.canonical_control {
-            let mut control = control.borrow_mut();
-            control
-                .cfg
-                .create_block(function, id)
-                .map_err(|error| error.to_string())?;
-            control
-                .cfg
-                .append_packet_instruction(
-                    function,
-                    id,
-                    terminator.clone(),
-                    crate::ast::Span::unknown(),
-                )
-                .map_err(|error| error.to_string())?;
-        } else {
-            let mut block = BasicBlock::new(id);
-            block.set_terminator(terminator.clone());
-            function.add_block(block);
-        }
+        new_block_function(builder.function_state.current_function.as_mut(), id)?;
+        append_new_root_block(builder, id, std::slice::from_ref(&terminator))?;
         bindings.push((id, terminator));
         Ok(())
     }
@@ -520,6 +477,44 @@ pub(in crate::mir::builder) fn prepare_operation_cleanup_v1(
         (graph.acquisition_fault, Some((graph.clean, next, continuation, graph.normal_origins)))
     };
     Ok(result)
+}
+
+/// Both root packet forms use the same block and instruction owners. The
+/// optional session checks the selected whole-function CFG; plain functions
+/// retain their existing packet proof and block-local emission policy.
+fn append_new_root_block(
+    builder: &mut MirBuilder,
+    id: BasicBlockId,
+    instructions: &[MirInstruction],
+) -> Result<(), String> {
+    builder.ensure_block_exists(id)?;
+    let function = builder
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| freeze("no-function"))?;
+    for instruction in instructions {
+        if let Some(control) = &builder.function_state.canonical_control {
+            control
+                .borrow()
+                .cfg
+                .append_packet_instruction(
+                    function,
+                    id,
+                    instruction.clone(),
+                    crate::ast::Span::unknown(),
+                )
+                .map_err(|error| error.to_string())?;
+        } else {
+            crate::mir::ssot::cf_common::append_instruction_core(
+                function,
+                id,
+                instruction.clone(),
+                Some(crate::ast::Span::unknown()),
+            )?;
+        }
+    }
+    Ok(())
 }
 
 fn new_block_function(

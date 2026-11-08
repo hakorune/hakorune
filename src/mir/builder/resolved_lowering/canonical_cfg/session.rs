@@ -3,7 +3,7 @@ use super::open_instruction_target::{
     CanonicalCfgCreationStateV1, CanonicalOpenInstructionTargetErrorV1,
     VerifiedCanonicalOpenInstructionTargetV1,
 };
-use super::predecessors::derive_and_verify_predecessors;
+use super::predecessors::{derive_and_verify_predecessors, TerminatorPredecessorsV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
 use crate::mir::pinned_text_residence_lifecycle::{
@@ -12,6 +12,7 @@ use crate::mir::pinned_text_residence_lifecycle::{
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 #[path = "session/invoke.rs"]
@@ -61,6 +62,7 @@ impl VerifiedCanonicalCfgV1 {
 pub(in crate::mir::builder) struct CanonicalCfgSessionV1 {
     pub(super) sealed: BTreeMap<BasicBlockId, VerifiedPredecessorsV1>,
     creation: CanonicalCfgCreationStateV1,
+    pub(super) forward_predecessors: RefCell<Option<TerminatorPredecessorsV1>>,
 }
 
 impl CanonicalCfgSessionV1 {
@@ -74,6 +76,7 @@ impl CanonicalCfgSessionV1 {
         Self {
             sealed: BTreeMap::new(),
             creation: CanonicalCfgCreationStateV1::new_for_owner(owner),
+            forward_predecessors: RefCell::default(),
         }
     }
 
@@ -85,18 +88,10 @@ impl CanonicalCfgSessionV1 {
         if function.get_block(block).is_some() {
             return Err(CanonicalCfgErrorV1::BlockAlreadyExists { block });
         }
-        let incoming: Vec<_> = function
-            .blocks
-            .iter()
-            .filter_map(|(source, body)| {
-                body.successors_from_terminator()
-                    .contains(&block)
-                    .then_some(*source)
-            })
-            .collect();
+        let incoming = self.forward_predecessors(function).remove(&block);
         let mut created = BasicBlock::new(block);
-        for source in incoming {
-            created.add_predecessor(source);
+        if let Some(incoming) = incoming {
+            created.predecessors = incoming;
         }
         function.add_block(created);
         self.creation.record_created(block);
@@ -139,7 +134,7 @@ impl CanonicalCfgSessionV1 {
         target: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
         self.preflight_edge(function, source, &[target])?;
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::Jump {
@@ -158,7 +153,7 @@ impl CanonicalCfgSessionV1 {
         value: Option<ValueId>,
     ) -> Result<(), CanonicalCfgErrorV1> {
         self.preflight_terminator(function, source)?;
-        Self::commit_instruction(function, source, MirInstruction::Return { value }, None);
+        self.commit_instruction(function, source, MirInstruction::Return { value }, None);
         Ok(())
     }
 
@@ -196,7 +191,7 @@ impl CanonicalCfgSessionV1 {
             .expect("site plan remained present")
             .validate_instruction(site_id, normal_landing, fault_landing, effects)
             .map_err(|error| CanonicalCfgErrorV1::CheckedCallOut(format!("{error:?}")))?;
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::CheckedCallOut {
@@ -242,7 +237,7 @@ impl CanonicalCfgSessionV1 {
                     .to_owned(),
             ));
         }
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::PinnedTextResidenceEnter {
@@ -252,7 +247,7 @@ impl CanonicalCfgSessionV1 {
             },
             None,
         );
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             trap_landing,
             MirInstruction::PinnedTextResidenceTrap { plan },
@@ -322,7 +317,7 @@ impl CanonicalCfgSessionV1 {
                 "checked callout Fault source is not the admitted site landing".to_owned(),
             ));
         }
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::CheckedCallOutFault { site_id },

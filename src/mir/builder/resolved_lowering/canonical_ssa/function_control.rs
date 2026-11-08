@@ -92,7 +92,7 @@ impl FunctionControlV1 {
             let witness = witnesses
                 .iter()
                 .find(|row| row.block() == *block)
-                .ok_or_else(inactive)?;
+                .ok_or_else(|| format!("[freeze:contract][canonical-control/predecessor-witness-missing] block={block}"))?;
             self.bindings
                 .as_mut()
                 .ok_or_else(inactive)?
@@ -132,31 +132,8 @@ impl FunctionControlV1 {
                     &witnesses,
                 )
                 .map_err(|error| error.to_string())?;
-            let incoming: Vec<_> = builder
-                .function_state
-                .current_function
-                .as_ref()
-                .ok_or_else(inactive)?
-                .blocks
-                .values()
-                .flat_map(|block| block.instructions.iter())
-                .filter_map(|row| match row {
-                    crate::mir::MirInstruction::Phi { inputs, .. } => Some(inputs.iter().copied()),
-                    _ => None,
-                })
-                .flatten()
-                .collect();
-            let adapter = MirBindingSsaAdapterV1::new(
-                builder,
-                self.transaction.as_mut().ok_or_else(inactive)?,
-            );
-            for (predecessor, value) in incoming {
-                crate::mir::builder::ssa::binding::BindingSsaIrV1::verify_phi_input(
-                    &adapter,
-                    predecessor,
-                    value,
-                )?;
-            }
+            MirBindingSsaAdapterV1::new(builder, self.transaction.as_mut().ok_or_else(inactive)?)
+                .verify_function_phi_inputs()?;
             let function = builder
                 .function_state
                 .current_function

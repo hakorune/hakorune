@@ -3,6 +3,24 @@ use crate::mir::{
     BasicBlockId, CompareOp, MirFunction, MirInstruction, MirType, SpannedInstruction, ValueId,
 };
 
+/// Shared packet/prepared block append. Callers own permission, sealing and CFG
+/// bookkeeping; no source or route is selected at this boundary.
+pub(in crate::mir) fn append_instruction_core(
+    function: &mut MirFunction,
+    block_id: BasicBlockId,
+    instruction: MirInstruction,
+    span: Option<crate::ast::Span>,
+) -> Result<(), String> {
+    let block = function
+        .get_block_mut(block_id)
+        .ok_or_else(|| format!("Basic block {} does not exist", block_id))?;
+    match span {
+        Some(span) => block.add_instruction_with_span(instruction, span),
+        None => block.set_terminator(instruction),
+    }
+    Ok(())
+}
+
 /// Emit a MIR Compare instruction into the current block (function-level SSOT helper)
 pub fn emit_compare_func(
     f: &mut MirFunction,
@@ -25,14 +43,20 @@ pub fn set_branch(
     then_bb: BasicBlockId,
     else_bb: BasicBlockId,
 ) {
-    if let Some(bb) = f.get_block_mut(cur_bb) {
-        bb.set_terminator(MirInstruction::Branch {
-            condition,
-            then_bb,
-            else_bb,
-            then_edge_args: None,
-            else_edge_args: None,
-        });
+    if f.get_block(cur_bb).is_some() {
+        append_instruction_core(
+            f,
+            cur_bb,
+            MirInstruction::Branch {
+                condition,
+                then_bb,
+                else_bb,
+                then_edge_args: None,
+                else_edge_args: None,
+            },
+            None,
+        )
+        .expect("checked branch source");
     }
     if let Some(tb) = f.get_block_mut(then_bb) {
         tb.add_predecessor(cur_bb);
@@ -44,11 +68,17 @@ pub fn set_branch(
 
 /// Set an unconditional jump terminator and register predecessor on target block.
 pub fn set_jump(f: &mut MirFunction, cur_bb: BasicBlockId, target: BasicBlockId) {
-    if let Some(bb) = f.get_block_mut(cur_bb) {
-        bb.set_terminator(MirInstruction::Jump {
-            target,
-            edge_args: None,
-        });
+    if f.get_block(cur_bb).is_some() {
+        append_instruction_core(
+            f,
+            cur_bb,
+            MirInstruction::Jump {
+                target,
+                edge_args: None,
+            },
+            None,
+        )
+        .expect("checked jump source");
     }
     if let Some(tb) = f.get_block_mut(target) {
         tb.add_predecessor(cur_bb);

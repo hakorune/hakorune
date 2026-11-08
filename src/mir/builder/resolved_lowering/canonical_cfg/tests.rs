@@ -498,3 +498,42 @@ fn named_selection_never_creates_a_missing_block() {
         .get_block(block(99))
         .is_none());
 }
+
+#[test]
+fn forward_edges_are_adopted_once_and_still_checked_at_finish() {
+    let mut function = function(1);
+    function
+        .get_block_mut(block(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: block(1),
+            edge_args: None,
+        });
+    let mut session = CanonicalCfgSessionV1::new();
+    session.create_block(&mut function, block(1)).unwrap();
+    assert_eq!(function.blocks[&block(1)].predecessors, [block(0)].into());
+    session
+        .append_packet_instruction(
+            &mut function,
+            block(1),
+            MirInstruction::Jump {
+                target: block(2),
+                edge_args: None,
+            },
+            crate::ast::Span::unknown(),
+        )
+        .unwrap();
+    session.create_block(&mut function, block(2)).unwrap();
+    assert_eq!(function.blocks[&block(2)].predecessors, [block(1)].into());
+    seal_all(&mut session, &mut function).unwrap();
+    function
+        .get_block_mut(block(2))
+        .unwrap()
+        .predecessors
+        .clear();
+    assert!(matches!(
+        session.finish(&function),
+        Err(CanonicalCfgErrorV1::CachedPredecessorsMismatch { block: missing, .. })
+            if missing == block(2)
+    ));
+}

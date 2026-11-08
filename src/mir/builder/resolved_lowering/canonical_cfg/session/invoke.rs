@@ -86,7 +86,7 @@ impl CanonicalCfgSessionV1 {
                 ));
             }
         }
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::Invoke {
@@ -114,7 +114,7 @@ impl CanonicalCfgSessionV1 {
                 "root frame is not exactly defined at entry".into(),
             ));
         }
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::ReturnFault { fault_frame: frame },
@@ -149,7 +149,7 @@ impl CanonicalCfgSessionV1 {
                 return Err(CanonicalCfgErrorV1::Invoke("landing is not empty".into()));
             }
         }
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::Invoke {
@@ -182,7 +182,7 @@ impl CanonicalCfgSessionV1 {
         }) {
             return Err(CanonicalCfgErrorV1::Invoke("foreign Fault landing".into()));
         }
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::ReturnFault { fault_frame: frame },

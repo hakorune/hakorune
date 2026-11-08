@@ -1,4 +1,4 @@
-use self::builder_emit_core::append_instruction_core;
+use crate::mir::ssot::cf_common::append_instruction_core;
 use super::{observe, origin};
 use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
@@ -427,7 +427,7 @@ impl MirBuilder {
                         function,
                         block_id,
                         instruction,
-                        self.metadata_ctx.current_span(),
+                        Some(self.metadata_ctx.current_span()),
                     )?;
                 }
             } else {

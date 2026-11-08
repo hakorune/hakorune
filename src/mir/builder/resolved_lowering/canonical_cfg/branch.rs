@@ -130,7 +130,7 @@ impl CanonicalCfgSessionV1 {
         then_edge_args: Option<crate::mir::EdgeArgs>,
         else_edge_args: Option<crate::mir::EdgeArgs>,
     ) {
-        Self::commit_instruction(
+        self.commit_instruction(
             function,
             source,
             MirInstruction::Branch {

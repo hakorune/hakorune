@@ -10,7 +10,8 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
+use crate::mir::ssot::cf_common::append_instruction_core;
+use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) struct CanonicalCompareAppendProofV1 {
@@ -69,19 +70,6 @@ pub(in crate::mir::builder) struct PreparedCanonicalCompareAppendV1 {
     instruction_index: usize,
 }
 
-pub(super) fn append_instruction_core(
-    function: &mut MirFunction,
-    block_id: BasicBlockId,
-    instruction: MirInstruction,
-    span: crate::ast::Span,
-) -> Result<(), String> {
-    let block = function
-        .get_block_mut(block_id)
-        .ok_or_else(|| format!("Basic block {} does not exist", block_id))?;
-    block.add_instruction_with_span(instruction, span);
-    Ok(())
-}
-
 impl PreparedCanonicalCompareAppendV1 {
     /// Commit one already-prepared Compare append. The shared append core is
     /// the only physical mutation point; prepared invariants make this commit
@@ -113,7 +101,7 @@ impl PreparedCanonicalCompareAppendV1 {
             .current_function
             .as_mut()
             .expect("prepared canonical Compare requires current function");
-        append_instruction_core(function, target.block(), instruction, span)
+        append_instruction_core(function, target.block(), instruction, Some(span))
             .expect("prepared canonical Compare target must remain appendable");
         CanonicalCompareDefinitionSourceV1 {
             owner: target.owner(),

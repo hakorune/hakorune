@@ -29,6 +29,27 @@ impl<'a> MirBindingSsaAdapterV1<'a> {
         }
     }
 
+    /// Recheck all published inputs with this adapter's final reachability and
+    /// dominance policy; the function owner does not reconstruct an input list.
+    pub(in crate::mir::builder) fn verify_function_phi_inputs(&self) -> Result<(), String> {
+        let function = self
+            .builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| format!("{ADAPTER_TAG}: no current function"))?;
+        for block in function.blocks.values() {
+            for instruction in &block.instructions {
+                if let crate::mir::MirInstruction::Phi { inputs, .. } = instruction {
+                    for (predecessor, value) in inputs {
+                        self.verify_phi_input(*predecessor, *value)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn new_with_deferred_reachable(
         builder: &'a mut MirBuilder,
         phis: &'a mut PhiTxn,
