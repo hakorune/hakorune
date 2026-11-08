@@ -477,3 +477,31 @@ fn missing_and_unknown_required_arguments_are_non_publishing() {
         unavailable,
     );
 }
+
+#[test]
+fn null_value_metadata_does_not_admit_an_unavailable_call_result() {
+    let source = r#"
+        box Payload { birth(value: i64) { } }
+        static box Provider { empty(value) { return null } }
+        static box Consumer {
+            mixed(k) {
+                if k > 0 { return new Payload(k) }
+                return Provider.empty(0)
+            }
+            declared(): Payload? { return Provider.empty(0) }
+        }
+    "#;
+    let declarations = declarations(source);
+    let targets = qualified_targets(&declarations, &[], &[
+        CallSiteSpecV1 { caller_owner: "Consumer", caller_name: "mixed", caller_arity: 1,
+            site: site(vec![SourcePathSegmentV1::Body(1), SourcePathSegmentV1::Value]) },
+        CallSiteSpecV1 { caller_owner: "Consumer", caller_name: "declared", caller_arity: 0,
+            site: return_site() },
+    ]);
+    let results = seal_with_targets(&declarations, &targets);
+    for (name, arity) in [("mixed", 1), ("declared", 0)] {
+        assert_eq!(results.disposition(&key(&declarations, "Consumer", name, arity)),
+            Some(&VerifiedCallableResultDispositionV1::Unavailable(
+                CallableResultUnavailableReasonV1::StaticCallResultUnavailable)));
+    }
+}

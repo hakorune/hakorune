@@ -358,7 +358,12 @@ fn unsupported_explicit_type_rejects_without_opaque_fallback() {
     batch.with_declaration_semantics(|semantic| {
         assert!(matches!(semantic.declarations().last().unwrap().declared_result_type(), Some(crate::ast::TypeReferenceV1::Nullable(_))));
     }).unwrap();
-    assert!(matches!(issue_callable_parameter_contract_v1(&batch), Err(super::CallableParameterContractIssueV1::UnsupportedResultType { .. })));
+    assert!(issue_callable_parameter_contract_v1(&batch).is_ok(), "owned nullable result declarations are admitted independently of parameters");
+    for spelling in ["String?", "i64?", "Missing?", "Leaf[]?", "Shared<Leaf>?"] {
+        let unsupported = self::batch(&format!("box Leaf {{}} static box Api {{ run(): {spelling} {{ return null }} }}"), 10);
+        assert!(matches!(issue_callable_parameter_contract_v1(&unsupported),
+            Err(super::CallableParameterContractIssueV1::UnsupportedResultType { .. })), "{spelling}");
+    }
 
 }
 

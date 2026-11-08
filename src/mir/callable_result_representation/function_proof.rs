@@ -401,7 +401,7 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
     }
     if returns
         .iter()
-        .any(|fact| matches!(fact, I64ExpressionFactV1::PendingDependency))
+        .any(|fact| matches!(fact.admission_fact(), I64ExpressionFactV1::PendingDependency))
     {
         return FunctionProofOutcomeV1::PendingDependency;
     }
@@ -409,7 +409,8 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
     // Null only widens an otherwise proved nominal result; it supplies no class or input proof.
     let nullable = returns.iter().any(|fact| matches!(fact.source_value_class(),
         Some(super::CallableSourceValueClassV1::Null | super::CallableSourceValueClassV1::NullableNominalBox(_))));
-    let returns = returns.into_iter().filter(|fact| !matches!(fact.source_value_class(), Some(super::CallableSourceValueClassV1::Null)))
+    let returns = returns.into_iter().filter(|fact| !(matches!(fact.source_value_class(), Some(super::CallableSourceValueClassV1::Null))
+        && matches!(fact.admission_fact(), I64ExpressionFactV1::KnownNonI64)))
         .map(|fact| fact.admission_fact().clone()).collect::<Vec<_>>();
     if returns.is_empty() { return FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::KnownNonI64Return); }
     let mut requirements = BTreeSet::new();
