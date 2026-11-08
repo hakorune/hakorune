@@ -46,5 +46,8 @@ B15. 比較の入力scopeは同じchecked評価のfield読取も含み、そのr
 
 B16. Core結果を新しい利用先へ渡す時は元Core loanで結果のclassを効果前に選び、同じloanを一度だけ葉の準備へ渡し、準備済みの葉を共通の値評価が消費して再分類・再発行しない。
 
-## G4 の境界（試作を戻して保持）
-Text field の共通 `role_admits_v1`（ordinary_new_field_value_source.rs:260）が条件を拒否していた。B6/B15 に沿い、条件のText seed・一度のcopy取得・比較入力scope・Normal/Fault Endへ接続した試作は、1,788本中の旧受理2本(tr/in4/c1.hako、tr/in9/e5.hako)を変更した。両方の基準MIRは `field.get : str` と直接CompareでcopyのEndを持たず、共通のchecked field取得/cleanupへの移行は既存MIRの維持と両立しない。さらに新経路のsource requirement引継ぎが未完で `ordinary-field-read/required-source-loan-missing` に達した。名前・形による旧writerへの逃げ分けはしない。指示書の既存MIR変更の停止条件でG4を止め、試作4ファイルはpatchに保護して本線には入れない。e17は拒否のまま。再開には旧2入力のchecked copy/cleanupへのMIR移行を許可する判断が要る。
+## G2/G4 の既存MIR保存境界（試作を戻して保持）
+G4のText field契約 `ordinary_new_field_value_source.rs:260` は条件を拒否していた。B6/B15の接続試作で旧dump受理2本(tr/in4/c1.hako、tr/in9/e5.hako)が変化した。これは正規EXE受理2本という意味ではない。さらに `home_new_prefix_condition.rs:629` のbatch結果からTextを除くpredicate漏れで、install済rowに対するcandidate/source requirementが保持されず `required-source-loan-missing` に達した。この漏れはbuilderで直す対象であり停止理由にはしない。
+G4の停止根拠は別にある。共通frameを完結すると `builder/control_flow/mod.rs:117` のSome選択が `selected/bool_condition.rs:31` の新block/Jump writerを必ず選び、旧2本のraw `field.get : str` / CompareのMIRが変わる。TとTagの名前の特例は設けない。e17は拒否のまま。
+G2の同じCore loanを一度だけ値評価へ渡す試作ではe07が正規EXE exit3に到達した。しかし旧dump受理3本(bool-result/in/d3.hako、audit-warn/in/x6.hako、tr/in6/c2.hako)がraw StringBox.length/Addからchecked Invoke/Fault/cleanupへ変わり(c)=3となった。
+両群とも指示書の既存MIR変更の停止条件で止める。現存 `physical_selection` はclosed-appのzero-incoming catalog選択だけであり、式のactivation切替の権限ではない（normal_default_pipeline.rs:84/248、issuer.rs:275）。無断で新profileとして転用しない。再開には旧raw→checkedのdump MIR移行の承認が要る。試作はpatchに保護し、本線に未接続実装を残さない。
