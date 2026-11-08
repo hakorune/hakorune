@@ -60,3 +60,5 @@ Stage 2: n12 canonical EXE prints 3 / exit 0; instance n01 and early-return nonn
 - N26: 宣言済み Null-only の nominal class は元の宣言からだけ供給し、元の constructor object registry の実在 ID を共有して conditional End を計画するが、架空 ID・New claim・非nullの証拠を作らない。
 - N27: Null-only の公開 return は C verifier が元の全 return の const_null を独立に証明し、null の条件付き解放だけを許し、通常の所有移転・無条件 End・非null借用の証拠として使わない。
 - N28: P? の本文と宣言の照合は source catalog と元の return witness、最終 MIR/ABI の既存検証を保持し、非nullable P の null、別 class、String? と scalar nullable を受けない。
+- N29: 検証済み元 return cohort が Null だけなら SUM は Null 単独の事実を保持でき、object class や nonnull/input ABI の証明には使わず、teardown の条件付き性は本文の枝数ではなく catalog の結果契約に合わせる。
+- N30: 独立検証の到達解析は公開 MIR の canonical Static Call も既存の callable-key owner で辿り、未解決辺は従来どおり保守的に扱い、到達する関数と物理関数の range 検証をすべて保持する。
