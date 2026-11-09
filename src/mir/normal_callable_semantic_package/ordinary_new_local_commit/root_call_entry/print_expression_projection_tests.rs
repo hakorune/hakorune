@@ -1034,9 +1034,10 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 vec![],
                 vec![],
                 Default::default(),
-                entry.clone(),
-                print.clone(),
-                continuation.clone(),
+                Some(entry.clone()),
+                None,
+                Some(print.clone()),
+                Some(continuation.clone()),
                 bindings.clone(),
                 ledger,
                 &function,
@@ -1083,18 +1084,19 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
             );
         }
         assert!(EmittedPrintExpressionProjectionV1::new(
-            frame,
-            vec![Some(Operand::StaticText { utf8: "別".into() }.into())],
-            vec![],
-            vec![],
-            Default::default(),
-            entry.clone(),
-            print.clone(),
-            continuation.clone(),
-            bindings.clone(),
-            ledger,
-            &function
-        )
+                frame,
+                vec![Some(Operand::StaticText { utf8: "別".into() }.into())],
+                vec![],
+                vec![],
+                Default::default(),
+                Some(entry.clone()),
+                None,
+                Some(print.clone()),
+                Some(continuation.clone()),
+                bindings.clone(),
+                ledger,
+                &function,
+            )
         .is_err());
         let mut injected = function.clone();
         injected
@@ -1112,12 +1114,13 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 vec![],
                 vec![],
                 Default::default(),
-                entry.clone(),
-                print.clone(),
-                continuation.clone(),
+                Some(entry.clone()),
+                None,
+                Some(print.clone()),
+                Some(continuation.clone()),
                 bindings.clone(),
                 ledger,
-                &injected
+                &injected,
             )
             .is_err(),
             "unowned instruction inside expression scope"
@@ -1147,9 +1150,10 @@ fn literal_print_retains_original_frame_and_requires_physical_membership_without
                 vec![],
                 vec![],
                 Default::default(),
-                entry.clone(),
-                print.clone(),
-                continuation.clone(),
+                Some(entry.clone()),
+                None,
+                Some(print.clone()),
+                Some(continuation.clone()),
                 observed,
                 ledger,
                 &outside,

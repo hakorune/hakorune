@@ -111,8 +111,8 @@ pub(in crate::mir::builder) struct PendingEvaluatedInitializerV1 {
     ordinal: u32,
     frame: Rc<CheckedInitializerExpressionFrameV1>,
     expression: EmittedExpressionValueV1,
-    terminal: Binding,
-    continuation: Binding,
+    terminal: Option<Binding>,
+    continuation: Option<Binding>,
     loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         Vec<crate::mir::builder::BindingValueObservationV2>)>,
 }
@@ -138,7 +138,7 @@ impl PendingEvaluatedInitializerV1 {
         let packet = Rc::new(EmittedInitializerExpressionProjectionV1::new(self.frame,
             receipt.initializer(), receipt.local(), receipt.copy().cloned(), expression.body.values,
             expression.body.calls, expression.body.dynamic_calls, expression.body.path_reads, expression.body.reference_reads,
-            expression.body.entry, self.terminal, self.continuation, self.loop_residency, expression.purpose_acquisition,
+            expression.body.entry, expression.body.inline_range, self.terminal, self.continuation, self.loop_residency, expression.purpose_acquisition,
             expression.body.bindings, ledger, function)?);
         ledger.prepare_initializer_expression_bindings(packet, bindings)?.commit()
     }

@@ -438,9 +438,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         usize,
         crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
     >,
-    entry: (BasicBlockId, MirInstruction),
-    terminal: (BasicBlockId, MirInstruction),
-    continuation: (BasicBlockId, MirInstruction),
+    entry: Option<(BasicBlockId, MirInstruction)>,
+    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+    terminal: Option<(BasicBlockId, MirInstruction)>,
+    continuation: Option<(BasicBlockId, MirInstruction)>,
     residence: Option<ReturnExpressionResidenceV1>,
     after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
     original: Vec<(BasicBlockId, MirInstruction)>,
@@ -507,7 +508,7 @@ impl ReturnExpressionEmissionV1 {
             &self.path_reads,
             &self.reads,
             &self.original,
-        )
+        ).with_inline_range_v1(self.inline_range)
     }
     fn validate(
         &self,
@@ -576,7 +577,7 @@ impl ReturnExpressionEmissionV1 {
                 }
                 ordered.push(row.install.clone());
             }
-            ordered.push(self.terminal.clone());
+            ordered.extend(self.terminal.iter().cloned());
             expression.validate_original_scope(
                 context.ledger(),
                 function,
@@ -644,9 +645,10 @@ impl OrdinaryNewClaimLedgerV1 {
             usize,
             crate::mir::normal_callable_semantic_package::ExpressionReferenceReadV1,
         >,
-        entry: (BasicBlockId, MirInstruction),
-        terminal: (BasicBlockId, MirInstruction),
-        continuation: (BasicBlockId, MirInstruction),
+        entry: Option<(BasicBlockId, MirInstruction)>,
+        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+        terminal: Option<(BasicBlockId, MirInstruction)>,
+        continuation: Option<(BasicBlockId, MirInstruction)>,
         materialize: Option<[(BasicBlockId, MirInstruction); 2]>,
         after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
         original: Vec<(BasicBlockId, MirInstruction)>,
@@ -695,6 +697,7 @@ impl OrdinaryNewClaimLedgerV1 {
             path_reads,
             reads,
             entry,
+            inline_range,
             terminal,
             continuation,
             original,

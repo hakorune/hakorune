@@ -82,7 +82,7 @@ pub(in crate::mir::builder) fn emit(
     let assigned = receipt.assigned();
     let bindings = expression.body.bindings.clone();
     let packet = Rc::new(EmittedBindingRebindProjectionV1::new(Rc::clone(&frame), receipt, expression.body.values, expression.body.calls, expression.body.path_reads, expression.body.reference_reads,
-        expression.body.entry, terminal, continuation, expression.purpose_acquisition, loop_residency, expression.body.bindings, ledger, function)?);
+        expression.body.entry, expression.body.inline_range, terminal, continuation, expression.purpose_acquisition, loop_residency, expression.body.bindings, ledger, function)?);
     let pending = ledger.prepare_rebind_expression_bindings(packet, bindings)?;
     let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment } = frame.source().root()
         else { return Err(freeze("rebind-expression/source-purpose")) };

@@ -38,7 +38,7 @@ pub(in crate::mir::builder) fn emit(
         return Err(freeze("map-get-shape"));
     }
     let mut body = key.body;
-    let frame = body.fault_frame;
+    let frame = body.required_fault_frame_v1()?;
     let (terminal, continuation) =
         expression_value::finish_value_continuation_v1(builder, &mut body)?;
     let candidate = match (source.source().installed_local_v1(source.site()), source.binding()) {
@@ -56,9 +56,9 @@ pub(in crate::mir::builder) fn emit(
         candidate,
         body.values,
         body.reference_reads,
-        body.entry,
-        terminal,
-        continuation,
+        body.entry.ok_or_else(|| freeze("expression/fault-frame-required"))?,
+        terminal.ok_or_else(|| freeze("expression/fault-frame-required"))?,
+        continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?,
         body.bindings,
         ledger,
         builder

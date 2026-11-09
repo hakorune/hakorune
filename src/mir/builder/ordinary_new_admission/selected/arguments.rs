@@ -41,7 +41,7 @@ pub(super) fn materialize_arguments(
             let body = expression.body;
             let packet = Rc::new(EmittedNewExpressionV1::new(Rc::clone(evaluation), body.values, body.calls,
                 body.path_reads, body.reference_reads, body.acquired,
-                body.entry, terminal, continuation, body.bindings));
+                body.entry, body.inline_range, terminal, continuation, body.bindings));
             packet.validate_emitted_v1(row, &payload, ledger,
                 builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, Some(&inherited))?;
             arguments.push(EmittedNewArgumentV1::new_v1(row.clone(), payload, None, Some(packet)));

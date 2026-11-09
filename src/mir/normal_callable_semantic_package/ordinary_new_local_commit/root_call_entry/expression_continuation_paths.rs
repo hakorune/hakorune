@@ -7,9 +7,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_local_continuation_v1(
@@ -28,9 +28,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         residence: Option<&Binding>,
         displaced: Option<&InvokeOperation>,
         purpose_acquisition: Option<&[Binding; 2]>,
@@ -62,9 +62,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
@@ -86,9 +86,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
         purpose_acquisition: Option<&[Binding; 2]>,
@@ -120,9 +120,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         carrier: ValueId,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
         self.validate_dynamic_carrier_argument_continuation_v1(
@@ -141,9 +141,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
         purpose_acquisition: Option<&[Binding; 2]>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
@@ -174,9 +174,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
         carrier: ValueId,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
@@ -207,10 +207,25 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
     ) -> Result<(), String> {
+        let (Some(entry), Some(terminal), Some(continuation)) = (entry, terminal, continuation)
+        else {
+            if entry.is_some() || terminal.is_some() || continuation.is_some() {
+                return Err(freeze("expression/inline-delimiter-drift"));
+            }
+            self.validate_inline_scope_v1(context, function, finishing)?;
+            return Ok(());
+        };
+        if self.inline_range.is_some()
+            || !context
+                .ledger()
+                .expression_requires_fault_frame_v1(self.frame)
+        {
+            return Err(freeze("expression/inline-delimiter-drift"));
+        }
         for original in [entry, terminal, continuation] {
             match finishing {
                 Some(boundary) => {
@@ -240,9 +255,9 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         &self,
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
-        entry: &Binding,
-        terminal: &Binding,
-        continuation: &Binding,
+        entry: &Option<Binding>,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
     ) {
         self.validate_deferred_owned_continuation_v1(
             context,
@@ -269,7 +284,11 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             "scalar completion cannot skip its own Ends"
         );
         let mut changed = function.clone();
-        changed.blocks.get_mut(&terminal.0).unwrap().terminator = Some(MirInstruction::Jump {
+        changed
+            .blocks
+            .get_mut(&terminal.as_ref().expect("owned argument has a terminal").0)
+            .unwrap()
+            .terminator = Some(MirInstruction::Jump {
             target: BasicBlockId(999_995),
             edge_args: None,
         });

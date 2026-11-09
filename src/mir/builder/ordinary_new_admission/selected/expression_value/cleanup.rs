@@ -142,7 +142,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_initializer_continuation(
     builder: &mut MirBuilder,
     expression: &mut EmittedExpressionValueV1,
-) -> Result<(Binding, Binding), String> {
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     let Operand::DynamicCarrier(value) = expression.value.as_operand()? else {
         return Err(freeze("initializer-expression/dynamic-carrier-result"));
     };
@@ -215,20 +215,20 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_dynamic_
 /// I64 purpose completion retains the scalar result and ends only its child
 /// Text acquisitions. Prior Homes remain live on Normal and unwind on Fault.
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_scalar_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
-    -> Result<(Binding, Binding), String> {
+    -> Result<(Option<Binding>, Option<Binding>), String> {
     finish_continuation(builder, expression, None, None, false)
 }
 
 /// The destination's original initializer frame is the sole issuer of this
 /// transfer. Child temporaries remain inside this expression's cleanup scope.
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residence_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1)
-    -> Result<(Binding, Binding), String> {
+    -> Result<(Option<Binding>, Option<Binding>), String> {
     finish_residence_with_displaced_continuation(builder, expression, None)
 }
 
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residence_with_displaced_continuation(builder: &mut MirBuilder,
     expression: &mut EmittedExpressionValueV1, displaced: Option<InvokeOperation>,
-) -> Result<(Binding, Binding), String> {
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else { return Err(freeze("expression/residence-root")); };
     let materialized = expression.purpose_acquisition.as_ref().and_then(|pair| pair[1].1.dst_value());
     if materialized != Some(root) && expression.body.acquired.last().is_none_or(|(_, value)| *value != root) {
@@ -241,7 +241,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_residenc
 /// The newest root prevents earlier children from ending before that Call.
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_deferred_argument_continuation(
     builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
-) -> Result<(Binding, Binding), String> {
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     let Operand::OwnedString(root) = expression.value.as_operand()?.clone() else {
         return Err(freeze("argument-expression/deferred-root"));
     };
@@ -257,7 +257,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_deferred
     let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean, edge_args: None })?;
     expression.body.bindings.push(terminal.clone());
     builder.start_new_block(next)?;
-    Ok((terminal, continuation))
+    Ok((Some(terminal), Some(continuation)))
 }
 
 /// Materialize after the original source acquisition-prefix validation. The
@@ -278,7 +278,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_tex
     let pending = FaultCleanupPlanV1::pending(&expression.body.acquired, &expression.body.dynamic_carriers,
         &expression.body.temporary_order, &expression.body.homes)?;
     let (value, _, pair) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
-        InvokeOperation::String(Operation::Materialize { value: expression.value.as_operand()?.clone() }), expression.body.fault_frame,
+        InvokeOperation::String(Operation::Materialize { value: expression.value.as_operand()?.clone() }), expression.body.required_fault_frame_v1()?,
         &pending, &mut expression.body.bindings)?;
     expression.purpose_acquisition = Some(pair);
     expression.value = Operand::OwnedString(value).into();
@@ -288,7 +288,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn materialize_tex
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
     frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedBindingRebindFrameV1,
     displaced: Option<InvokeOperation>,
-) -> Result<(Binding, Binding), String> {
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     if frame.declared_read_v1().is_some() {
         if !matches!(expression.value, EvaluatedExpressionValueV1::DeclaredRead(_)) { return Err(freeze("expression/scalar-continuation-result")); }
         return finish_body_continuation(builder, &mut expression.body, None, None, false);
@@ -304,7 +304,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_rebind_c
 
 fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpressionValueV1,
     residence: Option<ValueId>, displaced: Option<InvokeOperation>, dynamic_loop_carrier: bool)
-    -> Result<(Binding, Binding), String> {
+    -> Result<(Option<Binding>, Option<Binding>), String> {
     let scalar_result = matches!(expression.value,
         EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(_)) | EvaluatedExpressionValueV1::Bool(_))
         || dynamic_loop_carrier && matches!(expression.value,
@@ -316,7 +316,7 @@ fn finish_continuation(builder: &mut MirBuilder, expression: &mut EmittedExpress
 }
 
 pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_value_continuation_v1(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1)
-    -> Result<(Binding, Binding), String> {
+    -> Result<(Option<Binding>, Option<Binding>), String> {
     finish_body_continuation(builder, body, None, None, false)
 }
 
@@ -324,7 +324,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_bool_con
     builder: &mut MirBuilder,
     body: &mut EmittedExpressionBodyV1,
     normal: Vec<InvokeOperation>,
-) -> Result<(Binding, Binding), String> {
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     let fault = normal.iter().cloned().chain(body.homes.iter().cloned()).collect();
     finish_body_cleanup(builder, body, normal, fault, None)
 }
@@ -334,7 +334,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn finish_bool_con
 /// later discharge it with DynamicCarrierEnd on every exit path.
 fn finish_body_continuation(builder: &mut MirBuilder, body: &mut EmittedExpressionBodyV1,
     residence: Option<ValueId>, displaced: Option<InvokeOperation>, materialized: bool,
-) -> Result<(Binding, Binding), String> {
+) -> Result<(Option<Binding>, Option<Binding>), String> {
     if let Some(value) = residence {
         let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
         let replaces = match displaced.as_ref() {
@@ -364,7 +364,13 @@ fn finish_body_cleanup(
     mut normal: Vec<InvokeOperation>,
     fault: Vec<InvokeOperation>,
     displaced: Option<InvokeOperation>,
-) -> Result<(Binding, Binding), String> {
+) -> Result<(Option<Binding>, Option<Binding>), String> {
+    let Some(fault_frame) = body.fault_frame else {
+        if !normal.is_empty() || displaced.is_some() {
+            return Err(freeze("expression/fault-frame-required"));
+        }
+        return Ok((None, None));
+    };
     let mut writer = RawRootGraphWriterV1;
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;
@@ -372,7 +378,7 @@ fn finish_body_cleanup(
     writer.append_terminated(builder, clean, continuation.1.clone(), &mut body.bindings)?;
     let plan = FaultCleanupPlanV1::body(normal, fault, displaced)?;
     let clean_entry = if plan.normal().is_empty() { clean } else {
-        root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, body.fault_frame, clean,
+        root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame, clean,
             &plan, &mut body.bindings)?.clean
     };
     let terminal = writer.emit_current(builder, MirInstruction::Jump { target: clean_entry, edge_args: None })?;
@@ -381,5 +387,38 @@ fn finish_body_cleanup(
     let mut unique = Vec::new();
     for binding in std::mem::take(&mut body.bindings) { if !unique.contains(&binding) { unique.push(binding); } }
     body.bindings = unique;
-    Ok((terminal, continuation))
+    Ok((Some(terminal), Some(continuation)))
+}
+
+// Inline intervals begin before committed read copies. Only the existing
+// function owner can later insert the shared frame at the entry/Phi prefix.
+pub(super) fn begin_inline_scope_v1(
+    builder: &MirBuilder, state: &CallableSemanticLoweringState,
+) -> Result<(BasicBlockId, usize, bool), String> {
+    let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+    let offset = function.blocks.get(&block).ok_or_else(|| freeze("no-block"))?.instructions.len();
+    let had_entry_frame = block == function.entry_block
+        && state.observed_fault_frame_binding_v2(function)?.is_some();
+    Ok((block, offset, had_entry_frame))
+}
+
+pub(super) fn finish_inline_scope_v1(
+    builder: &MirBuilder, start: Option<(BasicBlockId, usize, bool)>,
+) -> Result<Option<(BasicBlockId, usize, usize, bool)>, String> {
+    start.map(|(block, start, had_entry_frame)| {
+        if builder.function_state.current_block != Some(block) {
+            return Err(freeze("expression/nonfault-control"));
+        }
+        let end = builder.function_state.current_function.as_ref()
+            .and_then(|function| function.blocks.get(&block))
+            .ok_or_else(|| freeze("no-block"))?.instructions.len();
+        Ok((block, start, end, had_entry_frame))
+    }).transpose()
+}
+
+impl EmittedExpressionBodyV1 {
+    pub(in crate::mir::builder) fn required_fault_frame_v1(&self) -> Result<ValueId, String> {
+        self.fault_frame.ok_or_else(|| freeze("expression/fault-frame-required"))
+    }
 }

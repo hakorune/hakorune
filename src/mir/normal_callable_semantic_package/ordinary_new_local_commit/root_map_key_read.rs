@@ -137,9 +137,9 @@ impl FieldMapKeyReadEmissionV1 {
             context,
             function,
             finishing,
-            &self.entry,
-            &self.terminal,
-            &self.continuation,
+            &Some(self.entry.clone()),
+            &Some(self.terminal.clone()),
+            &Some(self.continuation.clone()),
             None,
             None,
         )?;
@@ -183,9 +183,9 @@ impl FieldMapKeyReadEmissionV1 {
                 ledger,
                 function,
                 &covered,
-                &self.entry,
-                &self.terminal,
-                &self.continuation,
+                &Some(self.entry.clone()),
+                &Some(self.terminal.clone()),
+                &Some(self.continuation.clone()),
                 &ordered,
             )?;
         }

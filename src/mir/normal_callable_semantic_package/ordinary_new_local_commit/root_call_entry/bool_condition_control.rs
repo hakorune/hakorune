@@ -433,9 +433,9 @@ impl EmittedBoolConditionProjectionV1 {
                         context,
                         function,
                         None,
-                        entry,
-                        terminal,
-                        continuation,
+                        &Some(entry.clone()),
+                        &Some(terminal.clone()),
+                        &Some(continuation.clone()),
                         None,
                     )?;
                     let mut ordered = projection.ordered_bindings_in_context(context)?;
@@ -444,9 +444,9 @@ impl EmittedBoolConditionProjectionV1 {
                         ledger,
                         function,
                         &covered,
-                        entry,
-                        terminal,
-                        continuation,
+                        &Some(entry.clone()),
+                        &Some(terminal.clone()),
+                        &Some(continuation.clone()),
                         &ordered,
                     )?;
                     let MirInstruction::Jump {

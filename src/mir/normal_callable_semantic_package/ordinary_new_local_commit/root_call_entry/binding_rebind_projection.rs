@@ -22,25 +22,22 @@ pub(crate) struct EmittedBindingRebindProjectionV1 {
     calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
-    entry: Binding,
-    terminal: Binding,
-    continuation: Binding,
+    entry: Option<Binding>,
+    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+    terminal: Option<Binding>,
+    continuation: Option<Binding>,
     original: Vec<Binding>,
 }
 impl EmittedBindingRebindProjectionV1 {
     pub(super) fn corroborate_loop_frame_v2(
         &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
         entry: BasicBlockId,
         end: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        if self.entry.0 != entry
-            || self.value() != value
-            || !matches!(self.continuation.1, MirInstruction::Jump { target, edge_args: None } if target == end)
-        {
-            return Err(freeze("source-loop/binding-frame-correspondence"));
-        }
-        Ok(())
+        if self.value() != value { return Err(freeze("source-loop/binding-frame-correspondence")); }
+        self.expression().corroborate_outer_scope_v1(ledger, &self.entry, &self.continuation, entry, end)
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedBindingRebindFrameV1> {
         &self.frame
@@ -96,9 +93,10 @@ impl EmittedBindingRebindProjectionV1 {
         calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reference_reads: BTreeMap<usize, ExpressionReferenceReadV1>,
-        entry: Binding,
-        terminal: Binding,
-        continuation: Binding,
+        entry: Option<Binding>,
+        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+        terminal: Option<Binding>,
+        continuation: Option<Binding>,
         purpose_acquisition: Option<[Binding; 2]>,
         loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
             crate::mir::builder::BindingValueObservationV2)>,
@@ -142,6 +140,7 @@ impl EmittedBindingRebindProjectionV1 {
             path_reads,
             reference_reads,
             entry,
+            inline_range,
             terminal,
             continuation,
             original,
@@ -155,7 +154,7 @@ impl EmittedBindingRebindProjectionV1 {
         if let Some(install) = &packet.install {
             ordered.push(install.clone());
         }
-        ordered.push(packet.terminal.clone());
+        ordered.extend(packet.terminal.iter().cloned());
         packet.expression().validate_original_scope(
             ledger,
             function,
@@ -175,7 +174,7 @@ impl EmittedBindingRebindProjectionV1 {
             &self.path_reads,
             &self.reference_reads,
             &self.original,
-        )
+        ).with_inline_range_v1(self.inline_range)
     }
     pub(super) fn validate_recorded(
         &self,
@@ -184,7 +183,7 @@ impl EmittedBindingRebindProjectionV1 {
     ) -> Result<(), String> {
         self.expression().validate_recorded(bindings, finishing)?;
         if [&self.entry, &self.terminal, &self.continuation]
-            .iter()
+            .into_iter().flatten()
             .any(|row| !self.original.contains(row))
         {
             return Err(freeze("rebind-expression/structural-membership"));

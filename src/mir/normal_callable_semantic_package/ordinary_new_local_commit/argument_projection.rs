@@ -62,9 +62,10 @@ pub(in crate::mir) struct EmittedNewExpressionV1 {
     path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
     reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     acquired: Vec<(usize, ValueId)>,
-    entry: Binding,
-    terminal: Binding,
-    continuation: Binding,
+    entry: Option<Binding>,
+    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+    terminal: Option<Binding>,
+    continuation: Option<Binding>,
     original: Vec<Binding>,
 }
 impl PartialEq for EmittedNewExpressionV1 {
@@ -81,9 +82,10 @@ impl EmittedNewExpressionV1 {
         path_reads: Vec<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
         reads: std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
         acquired: Vec<(usize, ValueId)>,
-        entry: Binding,
-        terminal: Binding,
-        continuation: Binding,
+        entry: Option<Binding>,
+        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+        terminal: Option<Binding>,
+        continuation: Option<Binding>,
         original: Vec<Binding>,
     ) -> Self {
         Self {
@@ -94,6 +96,7 @@ impl EmittedNewExpressionV1 {
             reads,
             acquired,
             entry,
+            inline_range,
             terminal,
             continuation,
             original,
@@ -107,7 +110,7 @@ impl EmittedNewExpressionV1 {
             &self.path_reads,
             &self.reads,
             &self.original,
-        )
+        ).with_inline_range_v1(self.inline_range)
     }
     pub(super) fn calls_v1(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
@@ -230,7 +233,7 @@ impl EmittedNewExpressionV1 {
         };
         if finishing.is_none() {
             let mut ordered = view.ordered_bindings_in_context(context)?;
-            ordered.push(self.terminal.clone());
+            ordered.extend(self.terminal.iter().cloned());
             view.validate_original_scope(
                 context.ledger(),
                 function,
@@ -320,10 +323,10 @@ impl NewArgumentCleanupV1 {
         let mut ordered = Vec::new();
         for argument in arguments {
             if let Some(packet) = argument.expression_v1() {
-                ordered.push(packet.entry.clone());
+                ordered.extend(packet.entry.iter().cloned());
                 ordered.extend(packet.projection().ordered_bindings_in_context(context)?);
-                ordered.push(packet.terminal.clone());
-                ordered.push(packet.continuation.clone());
+                ordered.extend(packet.terminal.iter().cloned());
+                ordered.extend(packet.continuation.iter().cloned());
             }
         }
         ordered.push(self.allocation.clone());

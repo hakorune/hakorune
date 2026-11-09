@@ -7,8 +7,8 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        terminal: &Binding,
-        continuation: &Binding,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
@@ -31,8 +31,8 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         context: CallValidationContextV1<'_>,
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        terminal: &Binding,
-        continuation: &Binding,
+        terminal: &Option<Binding>,
+        continuation: &Option<Binding>,
         residence: Option<&Binding>,
         inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
         defer_owned_argument: bool,
@@ -40,6 +40,26 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         purpose_acquisition: Option<&[Binding; 2]>,
         forwarded_dynamic_carrier: Option<ValueId>,
     ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
+        let (Some(terminal), Some(continuation)) = (terminal, continuation) else {
+            if terminal.is_some()
+                || continuation.is_some()
+                || residence.is_some()
+                || defer_owned_argument
+                || displaced.is_some()
+                || purpose_acquisition.is_some()
+                || forwarded_dynamic_carrier.is_some()
+            {
+                return Err(freeze("expression/inline-delimiter-drift"));
+            }
+            return self.validate_inline_scope_v1(context, function, finishing);
+        };
+        if self.inline_range.is_some()
+            || !context
+                .ledger()
+                .expression_requires_fault_frame_v1(self.frame)
+        {
+            return Err(freeze("expression/inline-delimiter-drift"));
+        }
         let ledger = context.ledger();
         use super::super::super::root_cleanup_graph::ordered_paths as paths;
         self.validate_source(context)?;

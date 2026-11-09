@@ -40,6 +40,7 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     reference_reads: &'a std::collections::BTreeMap<usize, ExpressionReferenceReadV1>,
     original: &'a [Binding],
     prior_home_unwind: Option<&'a [InvokeOperation]>,
+    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
     comparison: Option<(usize, ValueId)>,
     scalar_receiver: Option<&'a crate::mir::builder::ExactLexicalReadV1>,
 }
@@ -87,9 +88,30 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             reference_reads,
             original,
             prior_home_unwind: None,
+            inline_range: None,
             comparison: None,
             scalar_receiver: None,
         }
+    }
+
+    pub(super) fn corroborate_outer_scope_v1(
+        &self, ledger: &OrdinaryNewClaimLedgerV1, entry: &Option<Binding>,
+        continuation: &Option<Binding>, start: BasicBlockId, end: BasicBlockId,
+    ) -> Result<(), String> {
+        let matches = if ledger.expression_requires_fault_frame_v1(self.frame) {
+            self.inline_range.is_none() && entry.as_ref().is_some_and(|row| row.0 == start)
+                && matches!(continuation.as_ref(), Some((_, MirInstruction::Jump { target, edge_args: None })) if *target == end)
+        } else {
+            entry.is_none() && continuation.is_none() && start == end
+                && self.inline_range.is_some_and(|(block, _, _, _)| block == start)
+        };
+        if !matches { return Err(freeze("source-loop/binding-frame-correspondence")); }
+        Ok(())
+    }
+
+    pub(in crate::mir) fn with_inline_range_v1(mut self, range: Option<(BasicBlockId, usize, usize, bool)>) -> Self {
+        self.inline_range = range;
+        self
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn with_prior_home_unwind(mut self, unwind: &'a [InvokeOperation]) -> Self {

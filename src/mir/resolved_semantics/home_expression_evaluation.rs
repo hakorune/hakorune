@@ -28,6 +28,40 @@ pub(crate) struct CheckedExpressionEvaluationV1 {
     pub(super) transferred_inputs: BTreeSet<usize>,
 }
 impl CheckedExpressionEvaluationV1 {
+    /// The retained source laws, not an emitted opcode, decide whether this
+    /// evaluation or its terminal consumer can need a Fault frame.
+    pub(crate) fn requires_fault_frame_v1(
+        &self,
+        mut checked_field: impl FnMut(&OwnedExprSiteV1) -> Option<bool>,
+    ) -> bool {
+        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1;
+        use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1;
+        if !matches!(self.root_class(), ExpressionLeafClassV1::Value(
+                ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool))
+            || !self.calls.is_empty() || !self.owned_results.is_empty()
+            || matches!(self.source.root(), ExpressionPlanRootV1::Statement {
+                role: StatementExpressionRoleV1::PrintValue, ..
+            })
+            || self.cores.values().any(|core| !core.source().target().checked_array_count_law_v1())
+        {
+            return true;
+        }
+        for loan in self.operations.iter() {
+            if loan.scalar_copy_v1().is_none() && loan.integer_operator_v1().is_none()
+                && self.exact_integer_comparison_nodes_v1(loan.node()).is_none()
+                && loan.nullable_null_v1().is_none() && loan.nullable_field_null_v1().is_none()
+            {
+                return true;
+            }
+        }
+        self.order.iter().any(|&index| {
+            let node = &self.source.nodes()[index];
+            matches!(node.source(), ExpressionNodeSourceV1::Shape(
+                crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }
+            )) && checked_field(&OwnedExprSiteV1::new(self.source.owner(), node.site().clone()))
+                != Some(false)
+        })
+    }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.source
     }

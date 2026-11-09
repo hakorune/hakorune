@@ -42,8 +42,9 @@ pub(in crate::mir) struct EmittedExpressionBodyV1 {
     pub(in crate::mir) dynamic_carriers: Vec<(usize, ValueId)>,
     pub(in crate::mir) temporary_order: Vec<usize>,
     pub(in crate::mir) homes: Vec<InvokeOperation>,
-    pub(in crate::mir) fault_frame: ValueId,
-    pub(in crate::mir) entry: Binding,
+    pub(in crate::mir) fault_frame: Option<ValueId>,
+    pub(in crate::mir) entry: Option<Binding>,
+    pub(in crate::mir) inline_range: Option<(BasicBlockId, usize, usize, bool)>,
     pub(in crate::mir) bindings: Vec<Binding>,
 }
 
@@ -311,6 +312,9 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             direct_fields.insert(index, (base, descriptor, slot.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?));
         }
     }
+    let needs_fault_frame = ledger.expression_requires_fault_frame_v1(frame);
+    let inline_start = (!needs_fault_frame)
+        .then(|| cleanup::begin_inline_scope_v1(builder, state)).transpose()?;
     let mut reads: Vec<_> = state.commit_exact_lexical_reads(pending).map_err(|error| error.to_string())?
         .into_iter().map(Some).collect();
     let mut path_reads = std::collections::BTreeMap::new();
@@ -320,13 +324,19 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     let reference_reads = reference_slots.into_iter().map(|(node, (slot, producer))| {
         Ok((node, producer.finish(reads[slot].take().ok_or_else(|| freeze("expression-value/reference-slot"))?)))
     }).collect::<Result<std::collections::BTreeMap<_, _>, String>>()?;
-    let fault_frame = state.borrow_fault_frame(builder)?;
-    let mut bindings = vec![fault_frame_binding(builder, state, fault_frame)?];
+    let fault_frame = needs_fault_frame
+        .then(|| state.borrow_fault_frame(builder)).transpose()?;
+    let mut bindings = Vec::new();
     let mut writer = RawRootGraphWriterV1;
-    let start = writer.reserve_block(builder)?;
-    let entry = writer.emit_current(builder, MirInstruction::Jump { target: start, edge_args: None })?;
-    bindings.push(entry.clone());
-    builder.start_new_block(start)?;
+    let entry = if let Some(fault_frame) = fault_frame {
+        bindings.push(fault_frame_binding(builder, state, fault_frame)?);
+        let start = writer.reserve_block(builder)?;
+        let entry = writer.emit_current(builder, MirInstruction::Jump { target: start, edge_args: None })?;
+        bindings.push(entry.clone());
+        builder.start_new_block(start)?;
+        Some(entry)
+    } else { None };
+    let require_fault_frame = || fault_frame.ok_or_else(|| freeze("expression/fault-frame-required"));
     let mut values: Vec<Option<EvaluatedExpressionValueV1>> = vec![None; source.nodes().len()];
     let mut field_outputs: Vec<Option<ValueId>> = vec![None; source.nodes().len()];
     let mut acquired = Vec::new();
@@ -363,10 +373,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             let value = if descriptor.requires_checked_field_read_v1() {
                 let normal = writer.reserve_block(builder)?;
                 let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
-                let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
+                let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, require_fault_frame()?,
                     normal, &pending, &mut bindings)?;
                 let (value, pair, prefix) = builder.append_checked_received_field_read_v1(base, &descriptor,
-                    &site, ledger, fault_frame, normal, graph.acquisition_fault)?;
+                    &site, ledger, require_fault_frame()?, normal, graph.acquisition_fault)?;
                 // A direct path uses the SAME committed root read. Nested
                 // paths retain their existing checked-parent Normal proof.
                 let read = if path.parent().is_none() {
@@ -452,10 +462,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let value = if source.requires_checked_field_read_v1() {
                     let normal = writer.reserve_block(builder)?;
                     let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
-                    let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
+                    let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, require_fault_frame()?,
                         normal, &pending, &mut bindings)?;
                     let (value, pair, prefix) = builder.append_checked_received_field_read_v1(base, &source,
-                        &site, ledger, fault_frame, normal, graph.acquisition_fault)?;
+                        &site, ledger, require_fault_frame()?, normal, graph.acquisition_fault)?;
                     ledger.record_enclosed_checked_local_field_read_v1(&site, &source,
                         Some(Rc::new(original_read.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?)), pair[0].clone(), pair[1].clone(), prefix.clone())?;
                     bindings.extend(prefix);
@@ -500,12 +510,12 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;
                 let value = match operation {
                     InvokeOperation::String(operation) => emit_string_value(builder, &mut writer, operation,
-                        index, fault_frame, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
+                        index, require_fault_frame()?, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
                         &homes, &mut bindings)?,
                     operation @ InvokeOperation::DynamicArrayGet { .. } => {
                         let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
                         let (value, result, _) = emit_scalar_operation_with_pending_v1(
-                            builder, &mut writer, operation, fault_frame, &pending, &mut bindings)?;
+                            builder, &mut writer, operation, require_fault_frame()?, &pending, &mut bindings)?;
                         if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
                             return Err(freeze("expression-core/array-get-result"));
                         }
@@ -611,7 +621,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     ResultKind::OwnedStringValue => {
                         let right = frame.string_add_right_operand_v1(binary.rhs(), right);
                         emit_string_value(builder, &mut writer, Operation::Add { left, right }, index,
-                            fault_frame, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
+                            require_fault_frame()?, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
                             &homes, &mut bindings)?
                     }
                     ResultKind::SelfContainedNonAliasingDynamicCarrier => {
@@ -642,7 +652,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                                     builder,
                                     &mut writer,
                                     InvokeOperation::DynamicCarrierSubI64 { carrier: *lhs, rhs: *rhs },
-                                    fault_frame,
+                                    require_fault_frame()?,
                                     &pending,
                                     &mut bindings,
                                 )?;
@@ -665,9 +675,10 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
     }
     crate::mir::normal_callable_semantic_package::validate_expression_acquisition_scope_v1(frame, comparison, None, &acquired, &values,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
+    let inline_range = cleanup::finish_inline_scope_v1(builder, inline_start)?;
     Ok(EmittedExpressionBodyV1 { values, calls, dynamic_calls,
         path_reads: path_reads.into_values().collect(), reference_reads, acquired,
-        dynamic_carriers, temporary_order, homes, fault_frame, entry, bindings })
+        dynamic_carriers, temporary_order, homes, fault_frame, entry, inline_range, bindings })
 }
 
 fn emit_string_value(
@@ -712,13 +723,13 @@ pub(super) fn emit_string_operation_v1(
 pub(super) fn emit_checked_scalar_condition_v1(
     builder: &mut MirBuilder, frame: &CheckedExpressionEvaluationV1, node: usize,
     values: &[Option<EvaluatedExpressionValueV1>], receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
-    fault_frame: ValueId, pending: &FaultCleanupPlanV1, bindings: &mut Vec<Binding>,
+    fault_frame: Option<ValueId>, pending: &FaultCleanupPlanV1, bindings: &mut Vec<Binding>,
 ) -> Result<ValueId, String> {
     let plan = crate::mir::normal_callable_semantic_package::checked_scalar_invoke_operation_v1(frame, node, values, receiver)?;
     let (normal, kind) = match (plan.operation(), plan.direct_integer()) {
         (Some(operation), _) => {
             let (normal, kind, _) = emit_scalar_operation_with_pending_v1(builder, &mut RawRootGraphWriterV1,
-                operation.clone(), fault_frame, pending, bindings)?;
+                operation.clone(), fault_frame.ok_or_else(|| freeze("expression/fault-frame-required"))?, pending, bindings)?;
             (normal, kind)
         }
         // Two exact i64 operand values compare directly; nothing is invoked.

@@ -98,8 +98,11 @@ pub(in crate::mir::builder) fn emit_text(builder: &mut MirBuilder, state: &mut C
     let payload = crate::mir::instruction::ArrayElementWriteValueV1::Text(expression.value.as_operand()?.clone());
     let mut body = expression.body;
     let (terminal, continuation) = super::expression_value::finish_value_continuation_v1(builder, &mut body)?;
+    let fault_frame = body.required_fault_frame_v1()?;
     let argument = crate::mir::normal_callable_semantic_package::FieldAppendTextProjectionV1::new(field, read_binding.clone(),
-        body.values, body.reference_reads, body.fault_frame, body.entry, terminal, continuation, body.bindings.clone());
+        body.values, body.reference_reads, fault_frame, body.entry.ok_or_else(|| freeze("expression/fault-frame-required"))?,
+        terminal.ok_or_else(|| freeze("expression/fault-frame-required"))?,
+        continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?, body.bindings.clone());
     let mut bindings = receiver.original_copy_dependencies_v1()?.to_vec();
     bindings.push(read_binding);
     for row in body.bindings { if !bindings.contains(&row) { bindings.push(row); } }

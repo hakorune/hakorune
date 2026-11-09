@@ -52,8 +52,8 @@ enum FieldWriteRhsObservationsV1 {
 struct OwnedFieldWriteRhsV1 {
     body: crate::mir::builder::EmittedExpressionBodyV1,
     acquisition: Option<[Binding; 2]>,
-    terminal: Binding,
-    continuation: Binding,
+    terminal: Option<Binding>,
+    continuation: Option<Binding>,
 }
 #[derive(Debug)]
 pub(in crate::mir) struct EmittedFieldWriteRhsV1 {
@@ -73,7 +73,7 @@ impl EmittedFieldWriteRhsV1 {
     pub(in crate::mir) fn from_owned_expression_v1(
         recipe: Rc<QualifiedFieldWriteRhsV1>, body: crate::mir::builder::EmittedExpressionBodyV1,
         value: crate::mir::ValueId, acquisition: Option<[Binding; 2]>,
-        terminal: Binding, continuation: Binding,
+        terminal: Option<Binding>, continuation: Option<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
         let result = Self { recipe, value, observations: FieldWriteRhsObservationsV1::Owned(
@@ -229,7 +229,7 @@ impl EmittedFieldWriteRhsV1 {
             if finishing.is_none() && post_rhs_prefix.is_empty() {
                 let mut ordered = view.ordered_bindings_in_context(context)?;
                 if let Some(pair) = &owned.acquisition { ordered.extend(pair.iter().cloned()); }
-                ordered.push(owned.terminal.clone());
+                ordered.extend(owned.terminal.iter().cloned());
                 view.validate_original_scope(context.ledger(), function, &covered,
                     &owned.body.entry, &owned.terminal, &owned.continuation, &ordered)?;
             }

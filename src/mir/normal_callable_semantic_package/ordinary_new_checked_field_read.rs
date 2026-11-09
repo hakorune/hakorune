@@ -84,6 +84,15 @@ impl OrdinaryNewClaimLedgerV1 {
         self.local_field_reads.borrow().get(site).is_some_and(|row| row.source.requires_checked_field_read_v1())
     }
 
+    pub(in crate::mir) fn expression_requires_fault_frame_v1(
+        &self,
+        frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+    ) -> bool {
+        let rows = self.local_field_reads.borrow();
+        frame.requires_fault_frame_v1(|site| rows.get(site)
+            .map(|row| row.source.requires_checked_field_read_v1()))
+    }
+
     /// Lend the emitted value for the exact already-issued scalar local field
     /// read. This is a source dependency lookup; it cannot create or consume
     /// another field read.

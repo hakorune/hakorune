@@ -69,9 +69,10 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
     path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
     reference_reads:
         std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
-    entry: Binding,
-    terminal: Binding,
-    continuation: Binding,
+    entry: Option<Binding>,
+    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+    terminal: Option<Binding>,
+    continuation: Option<Binding>,
     loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
         Vec<crate::mir::builder::BindingValueObservationV2>)>,
     /// The `Materialize` pair when the Local owns a Text snapshot of an owned carrier.
@@ -81,17 +82,13 @@ pub(crate) struct EmittedInitializerExpressionProjectionV1 {
 impl EmittedInitializerExpressionProjectionV1 {
     pub(super) fn corroborate_loop_frame_v2(
         &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
         entry: BasicBlockId,
         end: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        if self.entry.0 != entry
-            || self.value() != value
-            || !matches!(self.continuation.1, MirInstruction::Jump { target, edge_args: None } if target == end)
-        {
-            return Err(freeze("source-loop/binding-frame-correspondence"));
-        }
-        Ok(())
+        if self.value() != value { return Err(freeze("source-loop/binding-frame-correspondence")); }
+        self.expression().corroborate_outer_scope_v1(ledger, &self.entry, &self.continuation, entry, end)
     }
     pub(crate) fn frame(&self) -> &Rc<CheckedInitializerExpressionFrameV1> {
         &self.frame
@@ -264,9 +261,10 @@ impl EmittedInitializerExpressionProjectionV1 {
             usize,
             super::expression_projection::ExpressionReferenceReadV1,
         >,
-        entry: Binding,
-        terminal: Binding,
-        continuation: Binding,
+        entry: Option<Binding>,
+        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+        terminal: Option<Binding>,
+        continuation: Option<Binding>,
         loop_residency: Option<(Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>,
             Vec<crate::mir::builder::BindingValueObservationV2>)>,
         purpose_acquisition: Option<[Binding; 2]>,
@@ -290,6 +288,7 @@ impl EmittedInitializerExpressionProjectionV1 {
             path_reads: path_reads.into_boxed_slice(),
             reference_reads,
             entry,
+            inline_range,
             terminal,
             continuation,
             loop_residency,
@@ -308,7 +307,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         if let Some(install) = &packet.install {
             ordered.push(install.clone());
         }
-        ordered.push(packet.terminal.clone());
+        ordered.extend(packet.terminal.iter().cloned());
         packet.expression().validate_original_scope(
             ledger,
             function,
@@ -380,7 +379,7 @@ impl EmittedInitializerExpressionProjectionV1 {
             &self.path_reads,
             &self.reference_reads,
             &self.original,
-        )
+        ).with_inline_range_v1(self.inline_range)
     }
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let selected = context
@@ -432,19 +431,19 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         if !Rc::ptr_eq(&selected, &self.frame)
             || self.values.first() != Some(&Some(expected))
-            || !matches!(
-                self.terminal.1,
-                MirInstruction::Jump {
+            || context.ledger().expression_requires_fault_frame_v1(self.frame.evaluation()) && !matches!(
+                self.terminal.as_ref().map(|row| &row.1),
+                Some(MirInstruction::Jump {
                     edge_args: None,
                     ..
-                }
+                })
             )
-            || !matches!(
-                self.continuation.1,
-                MirInstruction::Jump {
+            || context.ledger().expression_requires_fault_frame_v1(self.frame.evaluation()) && !matches!(
+                self.continuation.as_ref().map(|row| &row.1),
+                Some(MirInstruction::Jump {
                     edge_args: None,
                     ..
-                }
+                })
             )
         {
             return Err(freeze("initializer-expression/source-or-result"));
@@ -503,7 +502,7 @@ impl EmittedInitializerExpressionProjectionV1 {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.expression().validate_recorded(bindings, finishing)?;
-        for expected in [&self.entry, &self.terminal, &self.continuation] {
+        for expected in [&self.entry, &self.terminal, &self.continuation].into_iter().flatten() {
             if !self.original.contains(expected) {
                 return Err(freeze("initializer-expression/structural-membership"));
             }

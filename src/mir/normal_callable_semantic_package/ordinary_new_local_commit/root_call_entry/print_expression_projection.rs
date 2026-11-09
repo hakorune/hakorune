@@ -16,9 +16,10 @@ pub(crate) struct EmittedPrintExpressionProjectionV1 {
     path_reads: Box<[std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>]>,
     reference_reads:
         std::collections::BTreeMap<usize, super::expression_projection::ExpressionReferenceReadV1>,
-    entry: Binding,
-    print: Binding,
-    continuation: Binding,
+    entry: Option<Binding>,
+    inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+    print: Option<Binding>,
+    continuation: Option<Binding>,
     original: Vec<Binding>,
 }
 
@@ -45,9 +46,10 @@ impl EmittedPrintExpressionProjectionV1 {
             usize,
             super::expression_projection::ExpressionReferenceReadV1,
         >,
-        entry: Binding,
-        print: Binding,
-        continuation: Binding,
+        entry: Option<Binding>,
+        inline_range: Option<(BasicBlockId, usize, usize, bool)>,
+        print: Option<Binding>,
+        continuation: Option<Binding>,
         original: Vec<Binding>,
         ledger: &OrdinaryNewClaimLedgerV1,
         function: &MirFunction,
@@ -59,6 +61,7 @@ impl EmittedPrintExpressionProjectionV1 {
             path_reads: path_reads.into_boxed_slice(),
             reference_reads,
             entry,
+            inline_range,
             print,
             continuation,
             original,
@@ -78,19 +81,24 @@ impl EmittedPrintExpressionProjectionV1 {
             &self.path_reads,
             &self.reference_reads,
             &self.original,
-        )
+        ).with_inline_range_v1(self.inline_range)
     }
 
     fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         self.expression().validate_source(context)?;
+        if !context.ledger().expression_requires_fault_frame_v1(self.frame.evaluation()) {
+            if !self.frame.is_discard() || self.entry.is_some() || self.print.is_some() || self.continuation.is_some() {
+                return Err(freeze("print-expression/print-or-continuation"));
+            }
+            return Ok(());
+        }
         let sink = if self.frame.is_discard() {
-            matches!(self.print.1, MirInstruction::Jump { edge_args: None, .. })
+            matches!(self.print.as_ref(), Some((_, MirInstruction::Jump { edge_args: None, .. })))
         } else {
-            matches!((&self.print.1, self.values.first()),
-                (MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Print { value }), .. }, Some(Some(root))) if root.as_operand().is_ok_and(|root| value == root))
+            matches!((self.print.as_ref(), self.values.first()),
+                (Some((_, MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Print { value }), .. })), Some(Some(root))) if root.as_operand().is_ok_and(|root| value == root))
         };
-        if !sink || !matches!(self.continuation.1, MirInstruction::Jump { .. })
-        {
+        if !sink || !matches!(self.continuation.as_ref(), Some((_, MirInstruction::Jump { .. }))) {
             return Err(freeze("print-expression/print-or-continuation"));
         }
         Ok(())
@@ -106,7 +114,7 @@ impl EmittedPrintExpressionProjectionV1 {
     ) -> Result<Vec<Binding>, String> {
         let mut ordered = self.expression().ordered_bindings_in_context(context)?;
         if !self.frame.is_discard() {
-            ordered.push(self.print.clone());
+            ordered.extend(self.print.iter().cloned());
         }
         Ok(ordered)
     }
@@ -165,9 +173,9 @@ impl EmittedPrintExpressionProjectionV1 {
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         self.expression().validate_recorded(bindings, finishing)?;
-        if !self.original.contains(&self.entry)
-            || !self.original.contains(&self.print)
-            || !self.original.contains(&self.continuation)
+        if self.entry.as_ref().is_some_and(|row| !self.original.contains(row))
+            || self.print.as_ref().is_some_and(|row| !self.original.contains(row))
+            || self.continuation.as_ref().is_some_and(|row| !self.original.contains(row))
         {
             return Err(freeze("print-expression/terminal-membership"));
         }

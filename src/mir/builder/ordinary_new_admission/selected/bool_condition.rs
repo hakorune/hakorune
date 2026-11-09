@@ -207,8 +207,9 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     )?;
     Ok((value, Proof::ScalarInvocation { receiver,
         input_values: body.values.into_boxed_slice(), dynamic_calls: body.dynamic_calls.into_boxed_slice(),
-        input_reads: body.reference_reads, entry: body.entry,
-        terminal, continuation, bindings: body.bindings.into_boxed_slice() }))
+        input_reads: body.reference_reads, entry: body.entry.ok_or_else(|| freeze("expression/fault-frame-required"))?,
+        terminal: terminal.ok_or_else(|| freeze("expression/fault-frame-required"))?,
+        continuation: continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?, bindings: body.bindings.into_boxed_slice() }))
 }
 pub(in crate::mir::builder) fn definition(function: &MirFunction, value: ValueId) -> Result<Option<Binding>, String> {
     let mut definitions = function.blocks.iter().flat_map(|(id, block)| block.all_instructions()

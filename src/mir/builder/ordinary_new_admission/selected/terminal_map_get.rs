@@ -24,10 +24,10 @@ fn emit_read(builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState
         return Err(freeze("map-get-shape"));
     }
     let mut body = expression.body;
-    let frame = body.fault_frame;
+    let frame = body.required_fault_frame_v1()?;
     let (terminal, continuation) = expression_value::finish_value_continuation_v1(builder, &mut body)?;
     let read = StoredMapGetReadEmissionV1::issue(source.clone(), Rc::clone(key), receiver,
-        body.values, body.reference_reads, body.entry, terminal, continuation, body.bindings, ledger,
+        body.values, body.reference_reads, body.entry.ok_or_else(|| freeze("expression/fault-frame-required"))?, terminal.ok_or_else(|| freeze("expression/fault-frame-required"))?, continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?, body.bindings, ledger,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     Ok((read, frame))
 }

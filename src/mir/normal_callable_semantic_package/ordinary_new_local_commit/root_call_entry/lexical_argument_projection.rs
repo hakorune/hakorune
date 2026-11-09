@@ -6,6 +6,11 @@ use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
+#[path = "lexical_argument_expression_validation.rs"]
+mod expression_validation;
+#[path = "lexical_argument_expression.rs"]
+mod expression;
+
 impl LexicalCallArgumentProjectionV1 {
     pub(super) fn source_loop_bindings_in_context_v1(
         &self,
@@ -174,8 +179,8 @@ pub(crate) struct EmittedArgumentExpressionProjectionV1 {
         crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
     >,
     body: crate::mir::builder::EmittedExpressionBodyV1,
-    terminal: Binding,
-    continuation: Binding,
+    terminal: Option<Binding>,
+    continuation: Option<Binding>,
     purpose_acquisition: Option<[Binding; 2]>,
     completion: ArgumentCompletionV1,
     retained_argument_frames: Option<
@@ -186,560 +191,6 @@ pub(crate) struct EmittedArgumentExpressionProjectionV1 {
         ]>,
     >,
 }
-impl EmittedArgumentExpressionProjectionV1 {
-    fn ordinal(&self) -> Result<u32, String> {
-        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { ordinal, .. } = self.frame.source().root()
-            else { return Err(freeze("argument-expression/source-purpose")) };
-        Ok(*ordinal)
-    }
-    fn expression(
-        &self,
-    ) -> super::super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
-        super::super::expression_projection::ExpressionPhysicalProjectionRefV1::new_with_dynamic(
-            self.frame.evaluation(),
-            &self.body.values,
-            &self.body.calls,
-            &self.body.dynamic_calls,
-            &self.body.path_reads,
-            &self.body.reference_reads,
-            &self.body.bindings,
-        )
-    }
-    fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<ValueId, String> {
-        let source = self.frame.source();
-        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = source.root()
-            else { return Err(freeze("argument-expression/source-purpose")) };
-        let site = source
-            .nodes()
-            .first()
-            .ok_or_else(|| freeze("argument-expression/root-missing"))?
-            .site();
-        let original = if let Some(frames) = &self.retained_argument_frames {
-            let mut matches = frames.iter().filter(|frame| std::rc::Rc::ptr_eq(frame, &self.frame));
-            let original = matches
-                .next()
-                .ok_or_else(|| freeze("argument-expression/retained-frame-membership"))?;
-            if matches.next().is_some()
-                || original.source().owner() != source.owner()
-                || !std::rc::Rc::ptr_eq(original.source_loan().plan(), original.source())
-                || !original.evaluation().reference_coverage_is_exact()
-                || original.source().nodes().first().is_none_or(|root| root.site() != site)
-            {
-                return Err(freeze("argument-expression/retained-frame-drift"));
-            }
-            std::rc::Rc::clone(original)
-        } else {
-            context.ledger().qualified_argument_expression_frame_v1(
-                &crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-                    source.owner(),
-                    call.site().clone(),
-                ),
-                *ordinal,
-                site,
-            )?
-        };
-        if !std::rc::Rc::ptr_eq(&original, &self.frame)
-            || !matches!(
-                self.terminal.1,
-                MirInstruction::Jump {
-                    edge_args: None,
-                    ..
-                }
-            )
-            || !matches!(
-                self.continuation.1,
-                MirInstruction::Jump {
-                    edge_args: None,
-                    ..
-                }
-            )
-        {
-            return Err(freeze("argument-expression/source-or-result"));
-        }
-        if self.purpose_acquisition.is_some() != self.frame.materializes_root() {
-            return Err(freeze("argument-expression/deferred-source-root"));
-        }
-        let materialized = match &self.purpose_acquisition {
-            Some([invoke, normal]) => {
-                let input = self
-                    .body.values
-                    .first()
-                    .and_then(Option::as_ref)
-                    .ok_or_else(|| freeze("argument-expression/result"))?
-                    .as_operand()?;
-                let value = normal
-                    .1
-                    .dst_value()
-                    .ok_or_else(|| freeze("argument-expression/result"))?;
-                let snapshot = matches!(input, crate::mir::instruction::StringInvokeOperand::DynamicCarrier(_))
-                    && self.frame.evaluation().text_snapshot_root_v1().is_some_and(|node|
-                        self.body.values.get(node).and_then(Option::as_ref)
-                            .and_then(|value| value.as_operand().ok()) == Some(input));
-                if !(input.is_text() || snapshot)
-                    || !matches!(&invoke.1, MirInstruction::Invoke {
-                    operation: InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Materialize { value }),
-                    normal_landing, .. } if value == input && *normal_landing == normal.0)
-                    || normal.1
-                        != (MirInstruction::InvokeNormalResult {
-                            invoke_block: invoke.0,
-                            dst: value,
-                        })
-                    || !self.body.bindings.contains(invoke)
-                    || !self.body.bindings.contains(normal)
-                {
-                    return Err(freeze("argument-expression/result"));
-                }
-                Some(value)
-            }
-            None => None,
-        };
-        let value = match (
-            self.completion,
-            self.body.values
-                .first()
-                .and_then(Option::as_ref)
-                .map(|value| value.as_operand())
-                .transpose()?,
-        ) {
-            (
-                ArgumentCompletionV1::ScalarCompleted,
-                Some(crate::mir::instruction::StringInvokeOperand::NormalInteger(value)),
-            ) if self.frame.is_i64() => *value,
-            (
-                ArgumentCompletionV1::DynamicCarrierDeferred,
-                Some(crate::mir::instruction::StringInvokeOperand::DynamicCarrier(value)),
-            ) if self.frame.is_dynamic_carrier_append_v1() => *value,
-            (ArgumentCompletionV1::OwnedTextDeferred, _) if materialized.is_some() => {
-                materialized.unwrap()
-            }
-            (
-                ArgumentCompletionV1::OwnedTextDeferred,
-                Some(crate::mir::instruction::StringInvokeOperand::OwnedString(value)),
-            ) if !self.frame.is_i64()
-                && self.frame.evaluation().owned_text_root_node_v1().is_some() =>
-            {
-                *value
-            }
-            _ => return Err(freeze("argument-expression/result")),
-        };
-        self.expression().validate_source(context)?;
-        Ok(value)
-    }
-    fn scope_bindings_in_context_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<(Vec<Binding>, Vec<Binding>), String> {
-        self.validate_source(context)?;
-        let mut ordered = self.expression().ordered_bindings_in_context(context)?;
-        if let Some(pair) = &self.purpose_acquisition {
-            ordered.extend(pair.iter().cloned());
-        }
-        ordered.push(self.terminal.clone());
-
-        let mut copies = self.copy_dependencies_in_context_v1(context)?;
-        for call in &self.body.calls {
-            copies.extend(
-                call.copy_dependencies_in_context(context)?
-                    .into_iter()
-                    .map(|(_, binding)| binding),
-            );
-        }
-        Ok((ordered, copies))
-    }
-    fn source_loop_bindings_in_context_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<Vec<Binding>, String> {
-        let (ordered, copies) = self.scope_bindings_in_context_v1(context)?;
-        let mut bindings = ordered;
-        bindings.extend(copies);
-        for read in self.body.reference_reads.values() {
-            bindings.extend(read.dependencies()?);
-        }
-        for call in &self.body.calls {
-            bindings.extend(call.source_loop_argument_bindings_in_context_v1(context)?);
-        }
-        for call in &self.body.dynamic_calls {
-            let (ordered, copies) = call.scope_bindings_in_context_v1(context)?;
-            bindings.extend(ordered);
-            bindings.extend(copies);
-        }
-        let mut unique = Vec::new();
-        for binding in bindings {
-            if !unique.contains(&binding) {
-                unique.push(binding);
-            }
-        }
-        Ok(unique)
-    }
-    fn copy_dependencies_in_context_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<Vec<Binding>, String> {
-        let mut copies = Vec::new();
-        for read in &self.body.path_reads {
-            copies.extend_from_slice(read.original_copy_dependencies_v1()?);
-        }
-        for read in self.body.reference_reads.values() {
-            copies.extend_from_slice(read.original_copy_dependencies_v1()?);
-        }
-        copies.extend(self.expression().scalar_copy_dependencies_v1(context)?);
-        for node in self.frame.source().nodes() {
-            copies.extend(context.ledger().checked_field_copy_dependencies_v1(
-                &OwnedExprSiteV1::new(self.frame.source().owner(), node.site().clone()),
-                context,
-            )?);
-        }
-        Ok(copies)
-    }
-    fn validate(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &crate::mir::MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_source(context)?;
-        match self.completion {
-            ArgumentCompletionV1::ScalarCompleted => {
-                self.expression().validate_scalar_continuation_v1(
-                    context,
-                    function,
-                    finishing,
-                    &self.body.entry,
-                    &self.terminal,
-                    &self.continuation,
-                    inherited,
-                )
-            }
-            ArgumentCompletionV1::OwnedTextDeferred => self
-                .expression()
-                .validate_deferred_owned_continuation_v1(
-                    context,
-                    function,
-                    finishing,
-                    &self.body.entry,
-                    &self.terminal,
-                    &self.continuation,
-                    inherited,
-                    self.purpose_acquisition.as_ref(),
-                ),
-            ArgumentCompletionV1::DynamicCarrierDeferred => {
-                let carrier = self.validate_source(context)?;
-                self.expression()
-                    .validate_dynamic_carrier_argument_continuation_v1(
-                        context,
-                        function,
-                        finishing,
-                        &self.body.entry,
-                        &self.terminal,
-                        &self.continuation,
-                        inherited,
-                        carrier,
-                    )
-            }
-        }
-    }
-}
-impl LexicalCallArgumentProjectionV1 {
-    pub(crate) fn dynamic_call_argument_scope_bindings_v1(
-        &self,
-        source: &LocalCallArgumentV1,
-        call: &OwnedExprSiteV1,
-        ordinal: usize,
-        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<(Vec<Binding>, Vec<Binding>), String> {
-        let (
-            Self::Expression(packet),
-            LocalCallArgumentV1::Expression {
-                ordinal: observed,
-                site: observed_site,
-            },
-        ) = (self, source)
-        else {
-            return Err(freeze("dynamic-expression/argument-purpose"));
-        };
-        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
-            call: original,
-            ordinal: position,
-            ..
-        } = packet.frame.source().root()
-        else {
-            return Err(freeze("dynamic-expression/argument-purpose"));
-        };
-        if *observed as usize != ordinal
-            || observed_site != site
-            || original.owner() != call.owner()
-            || original.site() != call.site()
-            || *position as usize != ordinal
-            || packet.frame.source().owner() != call.owner()
-            || packet
-                .frame
-                .source()
-                .nodes()
-                .first()
-                .is_none_or(|node| node.site() != site)
-            || packet.completion != ArgumentCompletionV1::ScalarCompleted
-            || !packet.frame.is_i64()
-        {
-            return Err(freeze("dynamic-expression/argument-source"));
-        }
-        packet.scope_bindings_in_context_v1(context)
-    }
-
-    pub(in crate::mir) fn from_expression_v1(
-        frame: std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
-        >,
-        body: crate::mir::builder::EmittedExpressionBodyV1,
-        terminal: Binding,
-        continuation: Binding,
-        purpose_acquisition: Option<[Binding; 2]>,
-        retained_argument_frames: &[std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
-        >],
-        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
-        function: &crate::mir::MirFunction,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-    ) -> Result<Self, String> {
-        let retained_argument_frames = if retained_argument_frames
-            .iter()
-            .any(|candidate| std::rc::Rc::ptr_eq(candidate, &frame))
-        {
-            Some(retained_argument_frames.to_vec().into_boxed_slice())
-        } else {
-            None
-        };
-        let completion = if frame.is_i64() {
-            ArgumentCompletionV1::ScalarCompleted
-        } else if frame.is_dynamic_carrier_append_v1() {
-            ArgumentCompletionV1::DynamicCarrierDeferred
-        } else if frame.materializes_root() || frame.evaluation().owned_text_root_node_v1().is_some()
-        {
-            ArgumentCompletionV1::OwnedTextDeferred
-        } else {
-            return Err(freeze("argument-expression/deferred-source-root"));
-        };
-        let packet = EmittedArgumentExpressionProjectionV1 {
-            completion,
-            purpose_acquisition,
-            frame,
-            body,
-            terminal,
-            continuation,
-            retained_argument_frames,
-        };
-        let context = CallValidationContextV1::Lowering(ledger);
-        let covered = packet.validate(context, function, None, inherited)?;
-        let mut ordered = packet.expression().ordered_bindings_in_context(context)?;
-        if let Some(pair) = &packet.purpose_acquisition {
-            ordered.extend(pair.iter().cloned());
-        }
-        ordered.push(packet.terminal.clone());
-        packet.expression().validate_original_scope(
-            ledger,
-            function,
-            &covered,
-            &packet.body.entry,
-            &packet.terminal,
-            &packet.continuation,
-            &ordered,
-        )?;
-        Ok(Self::Expression(Box::new(packet)))
-    }
-    pub(crate) fn dynamic_carrier_append_value_v1(
-        &self,
-        append: &crate::mir::normal_callable_semantic_package::OwnedArrayAppendSourceLoanV1,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<(ValueId, Binding), String> {
-        let Self::Expression(packet) = self else {
-            return Err(freeze("array-append/dynamic-expression-projection"));
-        };
-        let source = packet.frame.source();
-        let Some(root) = source.nodes().first() else {
-            return Err(freeze("array-append/dynamic-expression-root"));
-        };
-        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument {
-            call,
-            ordinal,
-            ..
-        } = source.root()
-        else {
-            return Err(freeze("array-append/dynamic-expression-purpose"));
-        };
-        let holder = append
-            .dynamic_carrier_source()
-            .ok_or_else(|| freeze("array-append/dynamic-holder-source"))?;
-        if packet.completion != ArgumentCompletionV1::DynamicCarrierDeferred
-            || !packet.frame.is_dynamic_carrier_append_v1()
-            || source.owner() != append.site().owner()
-            || call.owner() != append.site().owner()
-            || call.site() != append.site().site()
-            || *ordinal != 0
-            || root.site() != append.candidate().site()
-            || packet.frame.source_loan().dynamic_array_carrier_append_v1() != Some(&holder)
-        {
-            return Err(freeze("array-append/dynamic-expression-source"));
-        }
-        let root_call = packet
-            .body.dynamic_calls
-            .iter()
-            .filter(|call| call.source().site().site() == root.site());
-        let mut root_calls = root_call;
-        let call_packet = root_calls
-            .next()
-            .ok_or_else(|| freeze("array-append/dynamic-expression-call"))?;
-        if root_calls.next().is_some() {
-            return Err(freeze("array-append/dynamic-expression-call-duplicate"));
-        }
-        let value = packet.validate_source(context)?;
-        if call_packet.value() != value {
-            return Err(freeze("array-append/dynamic-expression-result"));
-        }
-        Ok((value, call_packet.invoke_binding().clone()))
-    }
-    /// Source-bound live-out observations, never a second acquisition inventory.
-    pub(in crate::mir) fn deferred_temporaries_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<Vec<ExpressionOwnedTemporaryV1>, String> {
-        let Self::Expression(packet) = self else { return Ok(Vec::new()); };
-        let root = packet.validate_source(context)?;
-        match packet.completion {
-            ArgumentCompletionV1::ScalarCompleted => return Ok(Vec::new()),
-            // This continuation has already ended every child temporary;
-            // only the affine root is deferred to the append consumer.
-            ArgumentCompletionV1::DynamicCarrierDeferred => {
-                return Ok(vec![ExpressionOwnedTemporaryV1::DynamicCarrier(root)]);
-            }
-            ArgumentCompletionV1::OwnedTextDeferred => {}
-        }
-        packet.body.ordered_owned_temporaries_v1(
-            packet.frame.evaluation(), root, packet.purpose_acquisition.is_some(),
-        )
-    }
-    /// Ownership-prefix corroboration only. Non-expression arguments add no
-    /// retained stack; the enclosing materializer still checks every original
-    /// actual tuple, including its formal, site and ordinal.
-    pub(in crate::mir) fn require_argument_frame_position_v1(
-        &self,
-        call: &OwnedExprSiteV1,
-        ordinal: usize,
-        homes: &[LiveHomeV1],
-        context: CallValidationContextV1<'_>,
-    ) -> Result<(), String> {
-        let Self::Expression(packet) = self else {
-            return Ok(());
-        };
-        let source = packet.frame.source();
-        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::CallArgument { call: original, ordinal: position, .. } = source.root()
-            else { return Err(freeze("argument-expression/source-purpose")) };
-        if source.owner() != call.owner()
-            || original.site() != call.site()
-            || *position as usize != ordinal
-            || packet.frame.prior_homes() != homes
-        {
-            return Err(freeze("argument-expression/prefix-position"));
-        }
-        packet.validate_source(context).map(drop)
-    }
-    pub(in crate::mir) fn validate_expression_recorded_v1(
-        &self,
-        bindings: &[Binding],
-        finishing: Option<&FinishedBindings>,
-    ) -> Result<(), String> {
-        if let Self::Expression(packet) = self {
-            packet.expression().validate_recorded(bindings, finishing)?;
-        }
-        Ok(())
-    }
-    pub(in crate::mir) fn expression_bindings_v1(&self) -> &[Binding] {
-        match self {
-            Self::Expression(packet) => &packet.body.bindings,
-            _ => &[],
-        }
-    }
-    pub(in crate::mir) fn validate_expression_physical_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &crate::mir::MirFunction,
-        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
-        bindings: &[Binding],
-        coordinates: Option<&super::super::super::physical_boundary::FinishedBindings>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        self.validate_expression_physical_with_prefix_v1(
-            context,
-            function,
-            finishing,
-            bindings,
-            coordinates,
-            None,
-        )
-    }
-    fn validate_expression_physical_with_prefix_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &crate::mir::MirFunction,
-        finishing: Option<&FinishedBindings>,
-        bindings: &[Binding],
-        coordinates: Option<&FinishedBindings>,
-        inherited: Option<&ExpressionCallTransientPrefixV1<'_>>,
-    ) -> Result<std::collections::BTreeSet<BasicBlockId>, String> {
-        if let Self::Expression(packet) = self {
-            let covered = packet.validate(context, function, finishing, inherited)?;
-            packet
-                .expression()
-                .validate_recorded(bindings, coordinates)?;
-            return Ok(covered);
-        }
-        Ok(Default::default())
-    }
-
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expression_copy_dependencies_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-    ) -> Result<Vec<Binding>, String> {
-        let mut copies = Vec::new();
-        if let Self::Expression(packet) = self {
-            packet.validate_source(context)?;
-            copies.extend(packet.copy_dependencies_in_context_v1(context)?);
-        }
-        Ok(copies)
-    }
-
-    /// Child packets remain borrowed from their original evaluation, never
-    /// reconstructed from the flattened MIR or promoted to another pool.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn expression_calls_v1(
-        &self,
-    ) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
-        match self {
-            Self::Expression(packet) => Some(packet.as_ref()),
-            _ => None,
-        }
-        .into_iter()
-        .flat_map(|packet| packet.body.calls.iter().map(std::rc::Rc::as_ref))
-    }
-
-    pub(super) fn visit_expression_calls_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-        context: CallValidationContextV1<'_>,
-        visit: &mut impl FnMut(
-            &EmittedLexicalCallProjectionV1,
-            &[LocalCallArgumentV1],
-        ) -> Result<(), String>,
-    ) -> Result<(), String> {
-        if let Self::Expression(packet) = self {
-            packet.validate_source(context)?;
-            for (source, call) in packet.frame.evaluation().calls().iter().zip(&packet.body.calls) {
-                call.visit_original_nodes_in_context_v1(owner, source.arguments(), context, visit)?;
-            }
-        }
-        Ok(())
-    }
-}
-
 impl EmittedLexicalCallProjectionV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn deferred_argument_ends_v1(
         &self,
@@ -1043,25 +494,26 @@ mod tests {
                     values: Vec::new(), calls: Vec::new(), dynamic_calls: Vec::new(),
                     path_reads: Vec::new(), reference_reads: Default::default(),
                     acquired: Vec::new(), dynamic_carriers: Vec::new(),
-                    temporary_order: Vec::new(), homes: Vec::new(), fault_frame: crate::mir::ValueId(0),
-                    entry: (BasicBlockId(1), MirInstruction::Jump { target: BasicBlockId(2), edge_args: None }),
+                    temporary_order: Vec::new(), homes: Vec::new(), fault_frame: Some(crate::mir::ValueId(0)),
+                    inline_range: None,
+                    entry: Some((BasicBlockId(1), MirInstruction::Jump { target: BasicBlockId(2), edge_args: None })),
                     bindings: Vec::new(),
                 },
                 retained_argument_frames: None,
-                terminal: (
+                terminal: Some((
                     BasicBlockId(2),
                     MirInstruction::Jump {
                         target: BasicBlockId(3),
                         edge_args: None,
                     },
-                ),
-                continuation: (
+                )),
+                continuation: Some((
                     BasicBlockId(3),
                     MirInstruction::Jump {
                         target: BasicBlockId(4),
                         edge_args: None,
                     },
-                ),
+                )),
                 completion: ArgumentCompletionV1::ScalarCompleted,
                 purpose_acquisition: None,
             },
@@ -1105,7 +557,12 @@ impl PreparedLexicalCallProjectionV1 {
 impl LexicalCallArgumentProjectionV1 {
     fn original_argument_boundaries_v1(&self) -> Result<Option<(Binding, Binding)>, String> {
         Ok(match self {
-            Self::Expression(packet) => Some((packet.body.entry.clone(), packet.continuation.clone())),
+            Self::Expression(packet) => match (&packet.body.entry, &packet.continuation) {
+                (Some(entry), Some(continuation)) => Some((entry.clone(), continuation.clone())),
+                (None, None) => packet.body.bindings.first().cloned()
+                    .zip(packet.body.bindings.last().cloned()),
+                _ => return Err(freeze("expression/inline-delimiter-drift")),
+            },
             Self::CallResult(packet) => {
                 let mut entry = packet.invoke.clone();
                 for argument in &packet.prepared.arguments {

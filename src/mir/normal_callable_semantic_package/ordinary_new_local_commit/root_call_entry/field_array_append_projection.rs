@@ -126,9 +126,9 @@ impl FieldAppendTextProjectionV1 {
             context,
             function,
             finishing,
-            &self.entry,
-            &self.terminal,
-            &self.continuation,
+            &Some(self.entry.clone()),
+            &Some(self.terminal.clone()),
+            &Some(self.continuation.clone()),
             None,
             None,
         )?;
@@ -194,9 +194,9 @@ impl FieldAppendTextProjectionV1 {
                 context.ledger(),
                 function,
                 &covered,
-                &self.entry,
-                &self.terminal,
-                &self.continuation,
+                &Some(self.entry.clone()),
+                &Some(self.terminal.clone()),
+                &Some(self.continuation.clone()),
                 &ordered,
             )?;
         }

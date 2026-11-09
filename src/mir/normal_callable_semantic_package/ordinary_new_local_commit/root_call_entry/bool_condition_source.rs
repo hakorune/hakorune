@@ -477,9 +477,9 @@ impl EmittedBoolConditionProjectionV1 {
                         context,
                         function,
                         finishing,
-                        entry,
-                        terminal,
-                        continuation,
+                        &Some(entry.clone()),
+                        &Some(terminal.clone()),
+                        &Some(continuation.clone()),
                         None,
                     )?;
                     for binding in bindings.iter() {
