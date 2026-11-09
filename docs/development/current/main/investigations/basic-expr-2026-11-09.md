@@ -60,16 +60,18 @@ G5調査: ordinary takeのEndは `root_home_cleanup_order.rs:548` の元take宣�
 B19. qualified staticの終端は引数一個/Opaqueだけという形で選ばず、元の完全なordinary input契約（borrowed handleと正確なi64）から同じ終端issuerへ渡し、実引数・受領・cleanupは同じsource snapshotで閉じる。
 
 B20. 元のCallまたはCoreに結び付いたreceiverはそのCallのIdentityとして保持し、結果の算術classへ再分類せず、site・binding・targetの対応と元receiver/input検証を残す。
-B21. 値を返さない操作はprivateなEffectOnlyとして同じ式評価に保持し、Discardだけが値なしで消費でき、print/local/return/引数は値を要求し続ける。
-B22. local数値Arrayの表現は元constructionとbinding・全appendの正確なi64 class・全使用の閉包から貸し、fieldやScriptや型注釈を偽造せず、既存ordinary Coreと実在LocalSlotのclaimへ渡す。
+B21. 値を返さない操作は既存NoValueのstatement effect ownerに同じ引数評価を保持し、値を捏造せず、print/local/return/引数は値を要求し続ける。
+B22. local数値Arrayの表現は元constructionとbinding・全appendの正確なi64 class・全使用の閉包から貸し、fieldやScriptや型注釈を偽造せず、既存ordinary Coreの未claim residenceへ渡し、推論したi64を宣言済みelement contractへ昇格させない。
 B23. 数値Arrayの非fallible Endは既存RootCleanupActionV1::ArrayReleaseを同じsuffix DAGへ渡し、source origin・値・順序・一度の消費と唯一Jumpを独立検証して、第二graphや新End opcodeを作らない。
 
 ## G3 の経路整理
-数値Arrayは `source_call_target/named_array_method.rs:122` のLoop限定、localはText/fieldはIntegerというsourceの分岐が入口を狭めていた。既存 `issue_ordinary_source`、ArrayIntegerAppend/Count/DynamicRead、IntrinsicArrayNew/ArrayStateContractClaim/ArrayElementWrite、ArrayRead/ArrayResidenceReleaseを利用できる。NoValue、claimのordinary publication/Cの同じキーでの受理、既存RootCleanupActionへの統合はprivate接続として必要であり、opcode/公開schema不足とは扱わない。基準dump受理にlocal new Array+数値pushは0本で、Arrayの(c)衝突は未確認。
+数値Arrayは `source_call_target/named_array_method.rs:122` のLoop限定、localはText/fieldはIntegerというsourceの分岐が入口を狭めていた。既存 `issue_ordinary_source`、ArrayIntegerAppend/Count/DynamicRead、IntrinsicArrayNew/ArrayStateContractClaim/ArrayElementWrite、ArrayRead/ArrayResidenceReleaseを利用できる。既存statement append ownerをreceiver proofと引数classで一般化し、NoValueは値の根に偽装しない。無注釈numeric Arrayは既存field numericと同じ未claim residenceを使い、array_claimのnative-only制限は触らない。既存RootCleanupActionへの統合はprivate接続として必要であり、opcode/公開schema不足とは扱わない。基準dump受理にlocal new Array+数値pushは0本で、Arrayの(c)衝突は未確認。
 Mapのe12は別境界。基準dump受理plain/in/a4.hako、plain/in/a5.hako、red-sort/in/mg.hakoは共通のnew/set/getをraw new/call_methodで生成しEnd/Faultを持たない。共通Map ownerのNew/InstallValue/Endへの移行はこのMIRを変える。return位置だけを特例にせず、旧MIRの移行判断までMap群を止める。e13は表示の規範を確認できず測定だけとする。
 
 B24. 所有を受領する完全なordinary static入力族の結果は同じ元Staticと受動snapshot・実expression membershipを照合して共通評価へ貸し、利用先だけで別loanを作らず、既存scalar-only Staticの元writerは保持する。
 
 B25. 元の所有入力を持ち既存の終端観測がないInstance/Object Return callは同じCallEntryHomesで効果前に選び、共有評価の呼出し観測に元pre-entry Home列を保持し、位相をまたいだ同一take集合を既存commitと独立entry検証へ渡す。
 
-既存Staticの終端観測ownerはB2に従い保持する。CallEntryHomesは元source namespaceの有無を投影し、その情報だけで観測の不足を選び、MIRやbackendの成功から選別しない。
+既存Staticの終端観測ownerはB2に従い保持する。CallEntryHomesは元Instance/Objectの型付きsource phaseを投影し、その情報だけで観測の不足を選び、MIRやbackendの成功から選別しない。
+
+B26. 共通評価で完成した所有入力Static localは同じ元Call観測と完成入力の同一性から既存route集合へ参加し、選択集合への所属だけで実行やEndの権限を発行しない。
