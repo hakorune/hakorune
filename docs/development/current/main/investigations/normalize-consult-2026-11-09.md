@@ -72,3 +72,38 @@
 3. **basic-expr の残り。** 約束が閉じた操作から進める。
 4. **Map の契約を投影する回。**
 5. `edit` → 3b と旧経路の退役 → 徹底的な整理 → `.hako` の parser の parity → selfhost。
+
+## source の解析の側の調査（2026-11-09）
+
+メンテナの問い: source の解析の側も、綺麗に正規化できているか。
+- opencode の DeepSeek V4 Pro に、commit `a74b40ba59` の写しを、読むだけの plan モードで調べてもらった。主な数は Opus が確かめた。行番号はこの commit の物である。
+- もう 1 つにまとまっている物:
+  - move と消費済みの状態(`UseAfterMove` を出す所は 2 か所)
+  - 後始末の集合と順序(`HomesV1` と `FaultCleanupPlanV1`)
+  - 呼び先の結果の種類(`CalleeResultKindCatalogV1`)
+- まだ散らばっている物:
+  - field の読み: 要求・結果・source の型が 17 個あり、判断する所が約 45 か所ある。
+  - 結果の種類: 4 つの系統で、約 21 回出し直している。宣言の結果の綴りを分類する所が 5 か所ある。
+  - receiver が生きているか借りているか: `StoredLocal` の読み替えが約 18 か所ある。
+  - Fault: 外への続きを出す所が約 11 か所ある。
+  - terminal: 先着順の 5 段の連鎖がある(`home_new_prefix_terminal.rs:55–209`)。
+  - `scan_new_home_flow` に、`FnMut` の callback が 9 個ある。
+- 候補:
+  - A. field の読みの形を、1 つの要求・1 つの結果・1 つの物理の記述へ畳む。一番大きい。
+  - B. field の証明の callback を、1 つの持ち主へまとめる。
+  - C. 宣言の結果の綴りを、`DeclaredResultKindV1` 1 つで分類する。小さい。
+  - D. terminal の連鎖を、1 つの振り分けにする。重なりを先に測る。
+  - E. `observe_*` を、CFG の上の dataflow へ移す。CFG の作り方の質問を待つ。
+
+## ユーザー決定（2026-11-09、2 回目）
+
+Opus の勧めた順番にする。
+
+1. 正規化の 1 回目。2026-11-10 に着地した([記録](normalize-1-2026-11-09.md))。
+2. String の length の専用の軽い操作。公開の形は、調査の後でメンテナが決める。
+3. field の読みの正規化: A と B。C は、どこかの回のついでにする。
+4. basic-expr の残り。
+5. Map の契約を投影する回。
+6. `edit` → 3b と旧経路の退役 → 徹底的な整理(D はここ)→ `.hako` の parser の parity → selfhost。
+
+E は、value の `&&` と `edit` の前に聞く「CFG の作り方」の質問の時に扱う。
