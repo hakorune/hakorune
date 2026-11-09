@@ -432,32 +432,12 @@ impl UnifiedCallEmitterBox {
             )?;
         }
 
-        // Emit resolve.choose for method callee (dev-only; default OFF)
-        if let Callee::Method {
-            box_name,
-            method,
-            receiver: Some(receiver),
-            ..
-        } = &callee
-        {
-            if box_name == "ArrayBox" {
-                if let Some(completed) = builder.try_emit_known_array_method_write_recorded_v1(dst, *receiver, method, &args)? {
-                    super::super::types::array_element::observe_array_write_call(
-                        builder, &callee, &args,
-                    );
-                    if let Some(observation) = array_observation {
-                        if observation.is_some() { return Err("[freeze:contract][array-write/duplicate-observation]".into()); }
-                        *observation = Some(completed);
-                    }
-                    return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
-                        UnifiedCallAlternateRouteV1::KnownArrayWrite,
-                    ));
-                }
-                if builder.try_emit_known_array_method_read(dst, *receiver, method, &args)? {
-                    return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
-                        UnifiedCallAlternateRouteV1::KnownArrayRead,
-                    ));
-                }
+        // The existing Array owner selects known write/read emission once.
+        if let Callee::Method { receiver: Some(receiver), .. } = &callee {
+            if let Some(route) = builder.try_emit_known_array_method_call_v1(
+                dst, *receiver, &args, &callee, &args, array_observation,
+            )? {
+                return Ok(UnifiedCallEmissionOutcomeV1::Alternate(route));
             }
         }
 

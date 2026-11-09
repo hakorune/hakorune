@@ -185,7 +185,6 @@ impl super::PlanLowerer {
                         "RuntimeDataBox",
                         box_val,
                     )
-                    && builder.try_emit_known_array_method_write(*dst, box_val, method, &args)?
                 {
                     let box_kind = crate::mir::policies::callee_box_kind::classify_callee_box_kind_v1(
                         crate::mir::policies::callee_box_kind::CalleeBoxKindPolicyContextV1::GeneralEmission,
@@ -198,12 +197,11 @@ impl super::PlanLowerer {
                         certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
                         box_kind,
                     };
-                    crate::mir::builder::types::array_element::observe_array_write_call(
-                        builder,
-                        &observed_callee,
-                        &args,
-                    );
-                    return Ok(());
+                    if builder.try_emit_known_array_method_write_call_v1(
+                        *dst, box_val, method, &args, &observed_callee, &args, None,
+                    )? {
+                        return Ok(());
+                    }
                 }
                 builder.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
                     *dst,

@@ -17,6 +17,51 @@ impl CompletedArrayElementWriteV1 {
 }
 
 impl MirBuilder {
+    /// Unified and BoxCall entrypoints lend the same known Array method to
+    /// one selector. Physical operands and observation operands stay distinct
+    /// because the existing LocalSSA materialization can change their ids.
+    pub(in crate::mir::builder) fn try_emit_known_array_method_call_v1(
+        &mut self,
+        dst: Option<ValueId>,
+        receiver: ValueId,
+        args: &[ValueId],
+        observed_callee: &crate::mir::Callee,
+        observed_args: &[ValueId],
+        observation: Option<&mut Option<CompletedArrayElementWriteV1>>,
+    ) -> Result<
+        Option<crate::mir::builder::calls::unified_emitter::UnifiedCallAlternateRouteV1>,
+        String,
+    > {
+        use crate::mir::builder::calls::unified_emitter::UnifiedCallAlternateRouteV1 as Route;
+        let crate::mir::Callee::Method {
+            box_name,
+            method,
+            receiver: Some(_),
+            ..
+        } = observed_callee
+        else {
+            return Ok(None);
+        };
+        if box_name != "ArrayBox" {
+            return Ok(None);
+        }
+        if self.try_emit_known_array_method_write_call_v1(
+            dst,
+            receiver,
+            method,
+            args,
+            observed_callee,
+            observed_args,
+            observation,
+        )? {
+            return Ok(Some(Route::KnownArrayWrite));
+        }
+        if self.try_emit_known_array_method_read(dst, receiver, method, args)? {
+            return Ok(Some(Route::KnownArrayRead));
+        }
+        Ok(None)
+    }
+
     /// Raw and Plan calls join the same three original children to the sole
     /// Array writer observation. No physical value grants source permission.
     pub(in crate::mir::builder) fn complete_borrowed_array_set_v1(
@@ -76,15 +121,35 @@ impl MirBuilder {
         Ok(CompletedArrayElementWriteV1 { site: site_id, original })
     }
 
-    pub(super) fn try_emit_known_array_method_write(
+    /// The known write's emission, metadata observation and optional receipt
+    /// commit are shared by all call fronts; each retains its receiver proof.
+    pub(in crate::mir::builder) fn try_emit_known_array_method_write_call_v1(
         &mut self,
         dst: Option<ValueId>,
         receiver: ValueId,
         method: &str,
         args: &[ValueId],
+        observed_callee: &crate::mir::Callee,
+        observed_args: &[ValueId],
+        observation: Option<&mut Option<CompletedArrayElementWriteV1>>,
     ) -> Result<bool, String> {
-        self.try_emit_known_array_method_write_recorded_v1(dst, receiver, method, args)
-            .map(|completed| completed.is_some())
+        if let Some(completed) =
+            self.try_emit_known_array_method_write_recorded_v1(dst, receiver, method, args)?
+        {
+            crate::mir::builder::types::array_element::observe_array_write_call(
+                self,
+                observed_callee,
+                observed_args,
+            );
+            if let Some(observation) = observation {
+                if observation.is_some() {
+                    return Err("[freeze:contract][array-write/duplicate-observation]".into());
+                }
+                *observation = Some(completed);
+            }
+            return Ok(true);
+        }
+        Ok(false)
     }
 
     pub(in crate::mir::builder) fn try_emit_known_array_method_write_recorded_v1(

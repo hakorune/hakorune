@@ -154,17 +154,9 @@ impl super::super::MirBuilder {
                 certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
                 box_kind,
             };
-            if self.try_emit_known_array_method_write(dst, box_val, &method, &args)? {
-                crate::mir::builder::types::array_element::observe_array_write_call(
-                    self,
-                    &observed_callee,
-                    &observed_args,
-                );
-                return Ok(());
-            }
-            if bx_name == "ArrayBox"
-                && self.try_emit_known_array_method_read(dst, box_val, &method, &args)?
-            {
+            if self.try_emit_known_array_method_call_v1(
+                dst, box_val, &args, &observed_callee, &observed_args, None,
+            )?.is_some() {
                 return Ok(());
             }
         }

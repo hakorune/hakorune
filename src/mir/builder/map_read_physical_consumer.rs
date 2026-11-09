@@ -318,27 +318,13 @@ fn emit_typed_map_read(
         MirInstruction::ReturnFault { fault_frame: frame },
         &mut bindings,
     )?;
-    let origin = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| freeze("no-block"))?;
-    let normal = builder.next_block_id();
-    let result = builder.next_value_id();
-    let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Map(operation),
-        fault_frame: frame,
-        normal_landing: normal,
-        fault_landing: fault,
-    };
-    builder.emit_instruction(invoke.clone())?;
-    bindings.push((origin, invoke));
-    builder.start_new_block(normal)?;
-    let projection = MirInstruction::InvokeNormalResult {
-        invoke_block: origin,
-        dst: result,
-    };
-    builder.emit_instruction(projection.clone())?;
-    bindings.push((normal, projection));
+    // Preserve the existing Map-specific missing-block refusal before lending
+    // the selected operation to the common Invoke/Normal writer.
+    builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    let (result, _) = super::ordinary_new_admission::selected::emit_invoke_operation_v1(
+        builder, frame, InvokeOperation::Map(operation), fault, &mut bindings,
+    )?;
+    let result = result.expect("the selected Map read operation has a normal result");
     builder
         .function_state
         .type_ctx

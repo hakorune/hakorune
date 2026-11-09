@@ -1,6 +1,6 @@
 //! Shared physical Invoke/Normal writer; source selection stays with its caller.
 use super::*;
-pub(super) fn emit(
+pub(in crate::mir::builder) fn emit(
     builder: &mut MirBuilder,
     frame: ValueId,
     operation: InvokeOperation,
