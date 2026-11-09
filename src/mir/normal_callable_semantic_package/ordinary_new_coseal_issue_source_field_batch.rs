@@ -494,7 +494,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                             candidates, coverage, receiver_proof, entry_home, received.as_ref(),
                             request, source.field()).map_err(|issue|
                                 OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
-                    } else if request.formal && source.declared_type_name() == Some("i64") {
+                    } else if request.formal && source.declared_type_name() == Some("i64")
+                        && ingress.as_ref().is_ok_and(|ingress| ingress.formal_object_view(request.home).is_some()) {
                         Some(terminal_home::ExpressionFieldRootSourceV1::issue_formal_v1(coverage,
                             ingress.as_ref().map_err(|issue|
                                 OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue: issue.clone() })?,

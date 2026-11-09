@@ -75,7 +75,9 @@ impl ExpressionFieldRootSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn requires_initialized_home_v1(
         &self,
     ) -> bool {
-        matches!(self.origin, RootOriginV1::New(_))
+        // Only the separately admitted formal declaration replaces New
+        // evidence. Other origins keep the existing exact-New requirement.
+        !matches!(self.origin, RootOriginV1::Formal(_))
     }
     /// Share the original entry receiver owner with reads and writes. This
     /// lends declaration identity only, never a storage or value-kind lease.
