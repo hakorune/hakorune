@@ -134,56 +134,17 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl FinalizedRootSourceHandoffV1 {
-    pub(in crate::mir) fn has_source_scalar_root_v1(&self) -> bool {
-        let is_integer_exit =
-            |terminal: &crate::mir::resolved_semantics::home_new_prefix::TerminalScalarReturnV1| {
-                terminal.scalar_kind()
-                    == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
-                    && terminal.evaluation().map_or(true, |evaluation| {
-                        !self.ledger.expression_requires_fault_frame_v1(evaluation)
-                    })
-            };
-        if self.terminals.is_empty()
-            || !self.terminals.values().all(|row| match row {
-                TerminalRelationV1::Scalar(terminal) => is_integer_exit(terminal),
-                TerminalRelationV1::IntegerLiteral(_) => true,
-                _ => false,
-            })
-        {
-            return false;
-        }
-        // Preserve the existing bound-read cohort. Literal-only roots need an
-        // original inline evaluation witness, not physical frame presence.
-        if self.terminals.values().all(|row| matches!(row,
+    pub(in crate::mir) fn has_plain_scalar_read_root_v1(&self) -> bool {
+        !self.terminals.is_empty() && self.terminals.values().all(|row| matches!(row,
             TerminalRelationV1::Scalar(terminal) if terminal.evaluation().is_none()
+                && terminal.scalar_kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
                 && terminal.original_read_v1().is_some()))
-            || self.terminals.values().any(|row| matches!(row,
-                TerminalRelationV1::Scalar(terminal) if terminal.evaluation().is_some_and(|evaluation|
-                    !self.ledger.expression_requires_fault_frame_v1(evaluation)))) {
-            return true;
-        }
-        let groups = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(
-            self.local_calls
-                .get(&self.owner)
-                .map(Vec::as_slice)
-                .unwrap_or(&[]),
-        );
-        groups
-            .iter()
-            .filter(|group| group.site().owner() == self.owner)
-            .filter_map(|group| {
-                group
-                    .initializer()
-                    .map(|packet| packet.frame().evaluation())
-                    .or_else(|| group.rebind().map(|packet| packet.frame().evaluation()))
-            })
-            .any(|evaluation| !self.ledger.expression_requires_fault_frame_v1(evaluation))
     }
-    pub(in crate::mir) fn validate_source_scalar_root_v1(
+    pub(in crate::mir) fn validate_plain_scalar_read_root_v1(
         &self,
         module: &MirModule,
     ) -> Result<bool, String> {
-        if !self.has_source_scalar_root_v1() {
+        if !self.has_plain_scalar_read_root_v1() {
             return Ok(false);
         }
         self.ledger

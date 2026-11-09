@@ -97,7 +97,7 @@ impl<'module> PublishedMirBackendView<'module> {
         self.retained_handoff = Some(handoff);
         if self.route == super::PublishedStaticMethodRouteV1::ExplicitCompatibility {
             if let Some(source) = handoff.root_source() {
-                if source.validate_source_scalar_root_v1(self.module)? {
+                if source.validate_plain_scalar_read_root_v1(self.module)? {
                     self.route = super::PublishedStaticMethodRouteV1::CanonicalTyped;
                 }
             }

@@ -32,11 +32,13 @@ impl CheckedExpressionEvaluationV1 {
     /// evaluation or its terminal consumer can need a Fault frame.
     pub(crate) fn requires_fault_frame_v1(
         &self,
+        consumer_frame_free_proved: bool,
         mut checked_field: impl FnMut(&OwnedExprSiteV1) -> Option<bool>,
     ) -> bool {
         use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1;
         use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1;
-        if !matches!(self.root_class(), ExpressionLeafClassV1::Value(
+        if !consumer_frame_free_proved
+            || !matches!(self.root_class(), ExpressionLeafClassV1::Value(
                 ExpressionValueClassV1::I64 | ExpressionValueClassV1::Bool))
             || !self.calls.is_empty() || !self.owned_results.is_empty()
             || matches!(self.source.root(), ExpressionPlanRootV1::Statement {

@@ -89,7 +89,11 @@ impl OrdinaryNewClaimLedgerV1 {
         frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
     ) -> bool {
         let rows = self.local_field_reads.borrow();
-        frame.requires_fault_frame_v1(|site| rows.get(site)
+        // Root's process-result/dispose contract still requires its existing
+        // frame. No frame-free root consumer has been source-bound in this lane.
+        let consumer_frame_free_proved = self.root_owner()
+            .is_some_and(|root| root != frame.source().owner());
+        frame.requires_fault_frame_v1(consumer_frame_free_proved, |site| rows.get(site)
             .map(|row| row.source.requires_checked_field_read_v1()))
     }
 

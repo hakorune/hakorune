@@ -3,7 +3,10 @@ use super::*;
 
 #[test]
 fn scalar_initializer_inline_scope_keeps_complete_final_sequence() {
-    let text = "static box Main { main() { local a = 5 local b = copy a + 1 print(b) return 0 } }";
+    let text = "static box Main {
+        calc(a: i64): i64 { local b = copy a + 1 print(b) return b }
+        main() { print(Main.calc(5)) return 0 }
+    }";
     let (completed, ledger) =
         crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
     let (key, module, same, keys, cohort) =
@@ -17,14 +20,13 @@ fn scalar_initializer_inline_scope_keeps_complete_final_sequence() {
         .unwrap();
     assert!(root
         .local_calls
-        .get(&root.owner())
-        .unwrap()
-        .iter()
+        .values()
+        .flatten()
         .filter_map(|group| group.initializer())
         .any(|packet| !ledger.expression_requires_fault_frame_v1(packet.frame.evaluation())));
     for mutation in ["insert", "duplicate", "remove", "reorder"] {
         let mut changed = module.clone();
-        let function = changed.functions.get_mut(&key).unwrap();
+        let function = changed.functions.get_mut("Main.calc/1").unwrap();
         let block = function
             .blocks
             .values_mut()
