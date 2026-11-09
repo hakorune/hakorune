@@ -55,7 +55,7 @@ G2の同じCore loanを一度だけ値評価へ渡す試作ではe07が正規EXE
 B17. takeで宣言された非null object formalのreceiver classは元batch slot・owner・ordinal・bindingの一致から一度貸し、callerのmove構文を裸の変数に読み替えて再推論せず、全incomingと実entry移転の検査は既存finisherに残す。
 B18. 非finiteなowned nominal domainは既存の全formal・全incomingの閉じた同型非null SUM証拠を持つ同じtake formalだけに貸し、単独の都合のよいactualや型名だけでfinite検査を省略しない。
 
-G5調査: ordinary takeのEndは `root_home_cleanup_order.rs:548` の元take宣言と記録済entry値に結び付いた既存planを使う。receiverの元classがcallerの裸変数再走査で失われることを先に直し、未証明readをcensusへ追加して通さない。Birthのt01は別で、`ownership_ssa/model.rs:53-59` / `verify.rs:273-279` がNormalだけactual tokenを移す。ownership.md:1076-1086のfield格納transactionと、指示書の非格納take受領後Fault責任の関係は未確定なので、単純End追加は行わず別に検証する。
+G5調査: ordinary takeのEndは `root_home_cleanup_order.rs:548` の元take宣言と記録済entry値に結び付いた既存planを使う。receiverの元classがcallerの裸変数再走査で失われることを先に直し、未証明readをcensusへ追加して通さない。Birthのt01は別で、`ownership_ssa/model.rs:53-59` / `verify.rs:273-279` がNormalだけactual tokenを移す。一方ADR-002の3aは通常takeと同じ入場契約を明記しているため、仕様未決の停止とは扱わない。未格納引数のEnd・field移転後のEnd・outer reclaimを分離する実装が不足しており、単純End追加はしない。
 
 B19. qualified staticの終端は引数一個/Opaqueだけという形で選ばず、元の完全なordinary input契約（borrowed handleと正確なi64）から同じ終端issuerへ渡し、実引数・受領・cleanupは同じsource snapshotで閉じる。
 
@@ -75,3 +75,5 @@ B25. 元の所有入力を持ち既存の終端観測がないInstance/Object Re
 既存Staticの終端観測ownerはB2に従い保持する。CallEntryHomesは元Instance/Objectの型付きsource phaseを投影し、その情報だけで観測の不足を選び、MIRやbackendの成功から選別しない。
 
 B26. 共通評価で完成した所有入力Static localは同じ元Call観測と完成入力の同一性から既存route集合へ参加し、選択集合への所属だけで実行やEndの権限を発行しない。
+
+B27. 共通式内の各Call入場後は同じ元take証拠でcallerの未移転Home列を進め、後続のCall・Core・一時値EndのFaultでは移転済みHomeを含めず、元pre-entry観測は改変せず生成側と実MIR照合側で同じ契約を検査する。
