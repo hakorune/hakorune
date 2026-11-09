@@ -135,18 +135,17 @@ impl OrdinaryNewClaimLedgerV1 {
 
 impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir) fn has_source_scalar_root_v1(&self) -> bool {
-        let is_integer_read =
+        let is_integer_exit =
             |terminal: &crate::mir::resolved_semantics::home_new_prefix::TerminalScalarReturnV1| {
                 terminal.scalar_kind()
                     == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
-                    && terminal.evaluation().map_or_else(
-                        || terminal.original_read_v1().is_some(),
-                        |evaluation| !self.ledger.expression_requires_fault_frame_v1(evaluation),
-                    )
+                    && terminal.evaluation().map_or(true, |evaluation| {
+                        !self.ledger.expression_requires_fault_frame_v1(evaluation)
+                    })
             };
         if self.terminals.is_empty()
             || !self.terminals.values().all(|row| match row {
-                TerminalRelationV1::Scalar(terminal) => is_integer_read(terminal),
+                TerminalRelationV1::Scalar(terminal) => is_integer_exit(terminal),
                 TerminalRelationV1::IntegerLiteral(_) => true,
                 _ => false,
             })

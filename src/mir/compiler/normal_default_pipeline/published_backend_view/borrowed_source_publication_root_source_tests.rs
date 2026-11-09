@@ -155,6 +155,8 @@ fn unproven_bound_returns_stay_fail_closed() {
             "static box Main { main() { local x = 5 return x } }",
             "static box Main { main() { local x = 5 local value = copy x + 2 if copy true { return copy value } return 2 } }",
             "static box Main { main() { local v = 0 loop(v < 1) { if v == 0 { return 0 } v = v + 1 } return 1 } }",
+            "static box Main { main() { local sum = 0 local i = 0 loop(i < 3) { sum = sum + i i = i + 1 } return sum } }",
+            "static box Main { main() { local x = 0 if x == 0 { x = 1 } else { x = 2 } return x } }",
         ] {
         let called = std::cell::Cell::new(false);
         MirCompiler::with_options(false)
