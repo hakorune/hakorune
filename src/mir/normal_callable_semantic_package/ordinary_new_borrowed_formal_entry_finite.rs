@@ -110,7 +110,9 @@ impl OrdinaryNewClaimLedgerV1 {
         if !uses.matches_contract(contract) { return Err(freeze("borrowed-entry/original-use-contract")); }
         let mut domains = BTreeMap::new();
         for (formal, sum) in borrowed.iter().zip(sums) {
-            if !sum.finite_input() && !(nominal_sibling_structure && sum.object_class_v1().is_some()) {
+            if !sum.finite_input()
+                && !((nominal_sibling_structure || owned_nominal && formal.takes_declared_object_v1())
+                    && sum.object_class_v1().is_some()) {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[input-domain] finite owner={owner:?} formal={:?} alternatives={:?}", formal.binding, sum.alternatives());
                 }

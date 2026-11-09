@@ -161,6 +161,13 @@ pub(super) struct OwnedCallableParameterContractV1 {
 }
 
 impl OwnedCallableParameterContractV1 {
+    /// The full source-input domain, not executable argument or entry authority.
+    /// Scalar-only calls retain their existing exact-I64 owner.
+    pub(super) fn ordinary_source_input_cohort_v1(parameters: &[Self]) -> bool {
+        parameters.iter().any(|parameter| parameter.kind.is_ordinary_borrowed_handle())
+            && parameters.iter().all(|parameter|
+                parameter.kind.is_ordinary_borrowed_handle() || parameter.kind.is_i64_actual_v1())
+    }
     pub(super) fn takes_declared_object_v1(&self) -> bool {
         self.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
             && matches!(self.kind, CallableParameterContractKindV1::DeclaredObject(_))

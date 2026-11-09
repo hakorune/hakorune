@@ -393,6 +393,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
     let Some(key) = caller_key else {
         return Ok(None);
     };
+    if crate::config::env::builder_debug_enabled()
+        && input.body_shape().is_some_and(|shape|
+            shape.return_value_sites().any(|value| value == site.site())) {
+        let target = claims.source_target(key, site.site());
+        eprintln!("[static-claim] site={site:?} target={:?} evidence={:?} kind={:?} claim={} current={}",
+            target.map(|target| target.target()),
+            target.and_then(|target| claims.result_for_key(target.target())),
+            target.and_then(|target| claims.result_catalog.kind(target.target())),
+            claims.claim(key, site.site()).is_some(), claims.current_owner_i64_source(key, site.site()).is_some());
+    }
     if let Some(claim) = claims.claim(key, site.site()) {
         if site.owner() == input.owner()
             && input.body_shape().is_some_and(|shape| shape.return_value_sites().any(|value| value == site.site()))
@@ -401,9 +411,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
                 let original = claims.incoming_source(key, site, call, selected, contracts, app_main)
                     .map_err(|issue| super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
                 if original.is_some_and(|row| {
-                    row.contract().parameters.len() == 1
-                        && row.contract().parameters[0].kind
-                            == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle
+                    super::model::OwnedCallableParameterContractV1::ordinary_source_input_cohort_v1(
+                        &row.contract().parameters,
+                    )
                 }) {
                     return Ok(Some(StaticScalarCallClaimV1::qualified_terminal(
                         site.clone(),

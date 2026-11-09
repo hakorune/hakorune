@@ -30,8 +30,8 @@ pub(super) type FieldSourcesV1 = BTreeMap<FieldKeyV1, Rc<DeclaredFieldValueSourc
 enum LeafV1 {
     Structural,
     Core(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
-    /// This exact field projection belongs to the retained Core source node.
-    CoreReceiver(usize),
+    /// This exact receiver projection belongs to the retained Call/Core source node.
+    CallReceiver(usize),
     Integer(OriginalIntegerBasisV1),
     DeclaredRead(crate::mir::resolved_semantics::home_new_prefix::DeclaredCallReadSourceV1),
     Receiver(BindingRefV1),
@@ -353,29 +353,45 @@ impl ResultExpressionSourceV1 {
                 _ => LeafV1::Unresolved,
             };
         }
-        // Only the source-issued field receiver is structural. This does not
-        // erase a key/argument subtree or reclassify a Map as a scalar field.
-        // A Core call's result class is its table row's; a declared field read that is the
-        // call's own receiver operand is closed by the Core source, not classified as a value.
+        // Receiver identity belongs to the original Call/Core. It is not a
+        // value operand whose class must be rediscovered by the result sink.
         for index in 0..leaves.len() {
-            let field = match &leaves[index] {
-                LeafV1::Core(core) => core.field_map().map(|field| field.field_site().clone())
-                    .or_else(|| core.field_array_access_v1().map(|count| count.receiver().site().clone()))
-                    .or_else(|| plan.nodes().iter().position(|node| node.site() == core.source().source().receiver_site())
-                        .filter(|receiver| matches!(leaves[*receiver], LeafV1::Field { .. }))
-                        .map(|_| core.source().source().receiver_site().clone())),
-                _ => None,
-            };
-            if let Some(field) = field {
-                if let Some(receiver) = plan.nodes().iter().position(|node| node.site() == &field) {
-                    leaves[receiver] = LeafV1::CoreReceiver(index);
-                }
+            if let Some(receiver) = Self::receiver_node_v1(&plan, &leaves, index) {
+                leaves[receiver] = LeafV1::CallReceiver(index);
             }
         }
         Self {
             plan,
             leaves: leaves.into_boxed_slice(),
         }
+    }
+    fn receiver_node_v1(
+        plan: &ExpressionSourcePlanV1,
+        leaves: &[LeafV1],
+        call: usize,
+    ) -> Option<usize> {
+        let receiver = match leaves.get(call)? {
+            LeafV1::Core(core) => core.field_map().map(|field| field.field_site().clone())
+                .or_else(|| core.field_array_access_v1().map(|count| count.receiver().site().clone()))
+                .or_else(|| plan.nodes().iter().position(|node| node.site() == core.source().source().receiver_site())
+                    .filter(|receiver| matches!(leaves[*receiver], LeafV1::Field { .. })
+                        || matches!(leaves[*receiver], LeafV1::CallReceiver(owner) if owner == call))
+                    .map(|_| core.source().source().receiver_site().clone()))?,
+            LeafV1::Call {
+                reference,
+                receiver: crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)),
+                stored_receiver: None,
+                receiver_site,
+            } if reference.call_site.owner() == plan.owner()
+                && plan.nodes().get(call).is_some_and(|node|
+                    node.site() == reference.call_site.site()
+                        && matches!(node.source(), ExpressionNodeSourceV1::MethodCall))
+                && plan.nodes().iter().any(|node| node.site() == receiver_site
+                    && matches!(node.source(), ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(original))
+                        if original == binding)) => receiver_site.clone(),
+            _ => return None,
+        };
+        plan.nodes().iter().position(|node| node.site() == &receiver)
     }
     pub(super) fn class(
         &self,
@@ -410,7 +426,7 @@ impl ResultExpressionSourceV1 {
             LeafV1::Core(core) if core.source().target().checked_text_keys_law_v1() => ExpressionLeafClassV1::Identity,
             LeafV1::Core(core) => core.result_class().map(ExpressionLeafClassV1::Value)
                 .unwrap_or(ExpressionLeafClassV1::Unresolved),
-            LeafV1::CoreReceiver(_) => ExpressionLeafClassV1::Identity,
+            LeafV1::CallReceiver(_) => ExpressionLeafClassV1::Identity,
             LeafV1::Integer(_) => ExpressionLeafClassV1::Value(ExpressionValueClassV1::I64),
             LeafV1::DeclaredRead(_) | LeafV1::Receiver(_) | LeafV1::MapLocal { .. } | LeafV1::ObjectField { .. } | LeafV1::StoredObjectField { .. } => {
                 ExpressionLeafClassV1::Identity
@@ -525,8 +541,9 @@ impl ResultExpressionSourceV1 {
                 && self.plan.nodes().iter().any(|node| node.site() == read.read().site()
                     && matches!(node.source(), ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding))
                         if *binding == read.binding())),
-            LeafV1::CoreReceiver(index) => matches!(self.leaves.get(*index), Some(LeafV1::Core(core))
-                if core.matches_plan(&self.plan, *index)),
+            LeafV1::CallReceiver(index) => self.plan.nodes().iter().enumerate().any(|(receiver, _)|
+                Self::receiver_node_v1(&self.plan, &self.leaves, *index) == Some(receiver)
+                    && std::ptr::eq(&self.leaves[receiver], leaf)),
             LeafV1::Local(inner) => inner.core_sources_match(),
             _ => true,
         })

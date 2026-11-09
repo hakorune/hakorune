@@ -246,9 +246,10 @@ impl PreparedBorrowedFormalIngressV1 {
     ) -> bool {
         original.qualified_scalar_result_v1().is_some()
             && self.static_terminal_sites.contains(original.call_site())
-            && original.argument_sites().len() == 1
-            && original.parameters().len() == 1
-            && original.parameters()[0].kind == CallableParameterContractKindV1::OpaqueHandle
+            && original.argument_sites().len() == original.parameters().len()
+            && crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1::ordinary_source_input_cohort_v1(
+                original.parameters(),
+            )
     }
 
     /// Source lookup borrows the one original draft map's disjoint partition.

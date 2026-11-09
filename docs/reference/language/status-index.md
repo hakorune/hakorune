@@ -146,6 +146,9 @@ Results: `connected` = the EXE is built and its exit and output match the expect
 | receiver take m() declared, never called | accept, exit 0 [L56] | refused-named | `UnsupportedReceiverTransfer` |
 | receiver take m() called plainly x.m() | reject [rule 4 (implied)] | refused-named | `UnsupportedReceiverTransfer` |
 
+Additional ordinary static-method checks (2026-11-09, separate from the fixed rows above):
+`take x: Leaf` is connected through the canonical EXE both when the callee reads `x` and when it leaves `x` unused; the callee ends the received Home. Mixed i64/take inputs and two take inputs also execute, while moving the same local twice is refused as `UseAfterMove`. These checks do not claim non-stored `birth(take)` or fresh-actual coverage.
+
 ### expression `take`: 0 connected of 6 (0 of the 5 accepted forms)
 
 | Form (spelling) | Frozen expectation | Measured | Tag or exit |

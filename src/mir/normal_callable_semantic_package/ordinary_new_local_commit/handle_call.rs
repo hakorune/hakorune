@@ -173,9 +173,18 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.local_commits.borrow();
         let mut operations = Vec::new();
         for binding in prior_homes.iter().rev() {
-            match self.take_entry_home_end_plan_v1(binding).ok()? {
-                Some(plans) => { operations.extend(plans.into_iter().map(|(_, operation)| operation)); continue; }
-                None => {}
+            match self.take_entry_home_end_plan_v1(binding) {
+                Ok(Some(plans)) => {
+                    operations.extend(plans.into_iter().map(|(_, operation)| operation));
+                    continue;
+                }
+                Ok(None) => {}
+                Err(issue) => {
+                    if crate::config::env::builder_debug_enabled() {
+                        eprintln!("[prior-home] take entry unavailable home={binding:?}: {issue}");
+                    }
+                    return None;
+                }
             }
             match installed_source_home(&rows, binding) {
                 Ok(row) if row.end_available() => {

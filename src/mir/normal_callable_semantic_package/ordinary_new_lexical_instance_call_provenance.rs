@@ -92,6 +92,31 @@ impl LexicalReceiverClassSourceV1<'_> {
         }) else {
             return Ok(None);
         };
+        // A take declaration supplies nominal class, not entry or ownership
+        // permission. The original full incoming cohort still closes later.
+        let mut contracts = self.parameters.iter().filter(|row| row.batch_slot == callee_slot);
+        if let Some(contract) = contracts.next() {
+            if contracts.next().is_some() {
+                return Err(freeze("lexical-instance-call/batch-loan"));
+            }
+            if let Some(formal) = contract.parameters.get(index as usize)
+                .filter(|formal| formal.takes_declared_object_v1()) {
+                let valid = batch.with_lowering_input(callee_slot, |input| {
+                    input.owner() == contract.owner
+                        && formal.ordinal == index
+                        && formal.binding.owner() == contract.owner
+                        && input.function().binding(formal.binding).is_some_and(|binding|
+                            binding.kind() == BindingKindV1::Parameter { index })
+                }).map_err(|_| freeze("lexical-instance-call/batch-loan"))?;
+                if !valid { return Err(freeze("lexical-instance-call/batch-loan")); }
+                if let crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject(class) = &formal.kind {
+                    if self.ordinary_box_names.iter().any(|name| name == class) {
+                        return Ok(Some(class.clone()));
+                    }
+                }
+                return Ok(None);
+            }
+        }
         let callee_declarations = selected
             .keys()
             .filter(|selected_key| {
