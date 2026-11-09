@@ -113,14 +113,18 @@ fn bound_i64_returns_publish_through_root_source() {
 
 /// A retained root-source loan whose exits name no result ABI stays
 /// fail-closed at the unchanged result boundary: unproven bound returns
-/// (bool/object) never mint an i64 terminal, and pure mains still stop at
-/// the unchanged completion gate.
+/// (bool/object/text) never mint an i64 terminal; proven pure scalar roots
+/// publish through their source-certified Static V2 route.
 #[test]
 fn unproven_bound_returns_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for (label, tail, stop) in [
-            ("bound-bool", "local b = true return b", "artifact-root-bool-result-unsupported"),
+            (
+                "bound-bool",
+                "local b = true return b",
+                "artifact-root-bool-result-unsupported",
+            ),
             (
                 "bound-object",
                 "local g = new Store() return g",
@@ -146,21 +150,27 @@ fn unproven_bound_returns_stay_fail_closed() {
                 .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
             assert!(error.contains(stop), "{label}: {error}");
         }
-        // A pure main without any checked `new` has no Completion artifact
-        // at all — the unchanged root-completion gate still stops it.
-        let error = MirCompiler::with_options(false)
+        // B36: the original literal/read receipt authorizes Static V2, not a lifecycle ABI.
+        let called = std::cell::Cell::new(false);
+        MirCompiler::with_options(false)
             .compile_normal_with_published(
                 request("static box Main { main() { local x = 5 return x } }"),
-                |view, verification| {
+                |view, verification| -> Result<(), String> {
+                    called.set(true);
                     require_artifact_verification(verification);
-                    view.issue_lifecycle_physical_abi_input().map(|_| ())
+                    assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
+                    assert!(!view.has_lifecycle_instructions());
+                    assert!(view
+                        .retained_root_source()
+                        .expect("original scalar source")
+                        .validate_plain_scalar_read_root_v1(view.module())?);
+                    Ok(())
                 },
             )
-            .err()
-            .unwrap_or_else(|| panic!("pure-bound-lit: unexpectedly admitted"));
+            .unwrap_or_else(|error| panic!("pure-bound-lit: {error}"));
         assert!(
-            error.contains("main-arguments/root-completion"),
-            "pure-bound-lit: {error}"
+            called.get(),
+            "pure-bound-lit must reach the canonical consumer"
         );
     });
 }
@@ -169,30 +179,62 @@ fn unproven_bound_returns_stay_fail_closed() {
 fn explicit_share_source_rejects_an_unrequested_physical_clone() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-    let text = "box Page { value: i64 birth() { me.value = 7 } }
+        let text = "box Page { value: i64 birth() { me.value = 7 } }
         static box Main { main() { local page = new Page()
         local first = share move page local second = share first return 7 } }";
-    MirCompiler::with_options(false).compile_normal_with_published(request(text),
-        |view, verification| -> Result<(), String> {
-            require_artifact_verification(verification);
-            view.issue_lifecycle_physical_abi_input()?;
-            let main = &view.module().functions["main"];
-            let original = super::super::shared_initializer::bindings(Some(view.module()), main, Some(&view))?;
-            let extra = original.iter().find_map(|(_, instruction)| matches!(instruction,
-                MirInstruction::Invoke { operation: InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Clone { .. }), .. })
-                .then(|| instruction.clone())).ok_or("explicit share must select Clone")?;
-            let mut changed = view.module().clone();
-            let id = crate::mir::BasicBlockId::new(900_101);
-            let mut block = crate::mir::BasicBlock::new(id);
-            block.terminator = Some(extra);
-            changed.functions.get_mut("main").unwrap().blocks.insert(id, block);
-            // Check the publication coverage owner directly: a generic CFG/SSA
-            // refusal must not substitute for the original-source obligation.
-            let error = super::super::shared_initializer::bindings(Some(&changed),
-                &changed.functions["main"], Some(&view)).expect_err("no source share authorizes the extra Clone");
-            assert!(error.contains("shared-initializer/source-coverage"), "{error}");
-            Ok(())
-        }).unwrap();
+        MirCompiler::with_options(false)
+            .compile_normal_with_published(
+                request(text),
+                |view, verification| -> Result<(), String> {
+                    require_artifact_verification(verification);
+                    view.issue_lifecycle_physical_abi_input()?;
+                    let main = &view.module().functions["main"];
+                    let original = super::super::shared_initializer::bindings(
+                        Some(view.module()),
+                        main,
+                        Some(&view),
+                    )?;
+                    let extra = original
+                        .iter()
+                        .find_map(|(_, instruction)| {
+                            matches!(
+                                instruction,
+                                MirInstruction::Invoke {
+                                    operation: InvokeOperation::Shared(
+                                        crate::mir::instruction::SharedInvokeOperation::Clone { .. }
+                                    ),
+                                    ..
+                                }
+                            )
+                            .then(|| instruction.clone())
+                        })
+                        .ok_or("explicit share must select Clone")?;
+                    let mut changed = view.module().clone();
+                    let id = crate::mir::BasicBlockId::new(900_101);
+                    let mut block = crate::mir::BasicBlock::new(id);
+                    block.terminator = Some(extra);
+                    changed
+                        .functions
+                        .get_mut("main")
+                        .unwrap()
+                        .blocks
+                        .insert(id, block);
+                    // Check the publication coverage owner directly: a generic CFG/SSA
+                    // refusal must not substitute for the original-source obligation.
+                    let error = super::super::shared_initializer::bindings(
+                        Some(&changed),
+                        &changed.functions["main"],
+                        Some(&view),
+                    )
+                    .expect_err("no source share authorizes the extra Clone");
+                    assert!(
+                        error.contains("shared-initializer/source-coverage"),
+                        "{error}"
+                    );
+                    Ok(())
+                },
+            )
+            .unwrap();
         for tail in [
             "local v = s.right return v",
             "local t = share s local v = t.right return v",
@@ -201,12 +243,16 @@ fn explicit_share_source_rejects_an_unrequested_physical_clone() {
         ] {
             let text = format!("box Pair {{ left: i64 right: i64 birth(left, right) {{ me.left = left me.right = right }} }}
                 static box Main {{ main() {{ local s = share new Pair(4, 5) {tail} }} }}");
-            MirCompiler::with_options(false).compile_normal_with_published(request(&text),
-                |view, verification| -> Result<(), String> {
-                    require_artifact_verification(verification);
-                    view.issue_lifecycle_physical_abi_input()?;
-                    Ok(())
-                }).unwrap_or_else(|error| panic!("fresh Shared payload read {tail}: {error}"));
+            MirCompiler::with_options(false)
+                .compile_normal_with_published(
+                    request(&text),
+                    |view, verification| -> Result<(), String> {
+                        require_artifact_verification(verification);
+                        view.issue_lifecycle_physical_abi_input()?;
+                        Ok(())
+                    },
+                )
+                .unwrap_or_else(|error| panic!("fresh Shared payload read {tail}: {error}"));
         }
     });
 }

@@ -7,14 +7,27 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, OwnedExprSiteV1, SourcePathSegmentV1};
 
-fn static_accepts_home_calls(package: &VerifiedNormalCallableSemanticPackageV1) -> Vec<LocalCallObservationV1> {
+fn static_accepts_home_calls(
+    package: &VerifiedNormalCallableSemanticPackageV1,
+) -> Vec<LocalCallObservationV1> {
     let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "accepts", 1);
-    let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
-    let owner = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap().owner;
-    package.ordinary_new_claim_ledger.completion_for_owner(owner)
+    let slot = package
+        .selected
+        .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key))
+        .unwrap();
+    let owner = package
+        .parameter_contracts
+        .iter()
+        .find(|row| row.batch_slot == slot)
+        .unwrap()
+        .owner;
+    package
+        .ordinary_new_claim_ledger
+        .completion_for_owner(owner)
         .and_then(|completion| completion.cleanup().root_flow())
         .expect("accepts source Home flow")
-        .local_calls().to_vec()
+        .local_calls()
+        .to_vec()
 }
 
 #[test]
@@ -23,20 +36,30 @@ fn static_current_owner_eq_home_preserves_both_original_children_in_order() {
     let package = issue(source).expect("unchanged size-class source");
     let calls = static_accepts_home_calls(&package);
     assert_eq!(calls.len(), 2);
-    assert_eq!(calls[0].site().site().node().segments(), &[
-        SourcePathSegmentV1::Body(0), SourcePathSegmentV1::IfCondition,
-        SourcePathSegmentV1::Lhs,
-    ]);
-    assert_eq!(calls[1].site().site().node().segments(), &[
-        SourcePathSegmentV1::Body(0), SourcePathSegmentV1::IfCondition,
-        SourcePathSegmentV1::Rhs,
-    ]);
+    assert_eq!(
+        calls[0].site().site().node().segments(),
+        &[
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::IfCondition,
+            SourcePathSegmentV1::Lhs,
+        ]
+    );
+    assert_eq!(
+        calls[1].site().site().node().segments(),
+        &[
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::IfCondition,
+            SourcePathSegmentV1::Rhs,
+        ]
+    );
     assert_eq!(calls[0].statement(), calls[1].statement());
-    assert!(calls.iter().all(|call| call.is_expression_value()
-        && call.result() == LocalCallResultClassV1::I64));
-    assert!(matches!(calls[0].arguments(), [LocalCallArgumentV1::BorrowedActual {
-        ordinal: 0, ..
-    }]));
+    assert!(calls
+        .iter()
+        .all(|call| call.is_expression_value() && call.result() == LocalCallResultClassV1::I64));
+    assert!(matches!(
+        calls[0].arguments(),
+        [LocalCallArgumentV1::BorrowedActual { ordinal: 0, .. }]
+    ));
     assert!(calls[1].arguments().is_empty());
 }
 
@@ -204,19 +227,37 @@ fn scalar_expression_claims_order_compare_field_operands() {
     // Direct order comparisons still keep their existing admission owner.
     let owned = package("if (pool.size > 0) && (pool.size == 1) { return 1 } return 0");
     assert_eq!(staged_count(&owned), 2);
-    let frames: Vec<_> = owned.parameter_contracts.iter().filter_map(|row|
-        owned.ordinary_new_claim_ledger.completion_for_owner(row.owner))
+    let frames: Vec<_> = owned
+        .parameter_contracts
+        .iter()
+        .filter_map(|row| {
+            owned
+                .ordinary_new_claim_ledger
+                .completion_for_owner(row.owner)
+        })
         .filter_map(|completion| completion.cleanup().root_flow())
         .flat_map(|flow| flow.expression_plans().iter())
-        .filter_map(|plan| plan.condition_frame()).collect();
+        .filter_map(|plan| plan.condition_frame())
+        .collect();
     assert_eq!(frames.len(), 1);
     let frame = frames[0];
     assert_eq!(frame.logical_nodes().len(), 1);
     assert!(frame.calls().is_empty());
-    assert_eq!(frame.operations().iter().map(|loan| loan.single_envelope().unwrap().domain().family()).collect::<Vec<_>>(),
-        vec![crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Greater,
-            crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Equal]);
-    assert!(frame.operations().iter().all(|loan| std::rc::Rc::ptr_eq(loan.source(), frame.source())));
+    assert_eq!(
+        frame
+            .operations()
+            .iter()
+            .map(|loan| loan.single_envelope().unwrap().domain().family())
+            .collect::<Vec<_>>(),
+        vec![
+            crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Greater,
+            crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Equal
+        ]
+    );
+    assert!(frame
+        .operations()
+        .iter()
+        .all(|loan| std::rc::Rc::ptr_eq(loan.source(), frame.source())));
 }
 
 #[test]
@@ -298,25 +339,43 @@ fn scalar_expression_scope_keeps_whole_bool_and_outside_nested_conditions_distin
         let package = issue(&source).expect("outside condition source package");
         let whole_integer_compare = condition == "(pool.size > 0) && (pool.size == 1)";
         let invalid_logical_integer = condition == "(pool.size == 1) && pool.ready()";
-        assert_eq!(staged_count(&package), if whole_integer_compare { 2 } else { 0 }, "{condition}");
+        assert_eq!(
+            staged_count(&package),
+            if whole_integer_compare { 2 } else { 0 },
+            "{condition}"
+        );
         let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
         if invalid_logical_integer {
             let mut refused = 0;
             package.batch().declarations().for_each(|declaration| {
-                package.batch().with_lowering_input(declaration.batch_slot(), |input| {
-                    for site in input.function().if_region_sites() {
-                        let flow = package.ordinary_new_claim_ledger.completion_for_owner(input.owner())
-                            .and_then(|completion| completion.cleanup().root_flow()).unwrap();
-                        assert!(flow.statement_prefix_unavailable(site));
-                        assert!(flow.expression_plans().iter().all(|plan| plan.condition_frame().is_none()));
-                        refused += 1;
-                    }
-                }).unwrap();
+                package
+                    .batch()
+                    .with_lowering_input(declaration.batch_slot(), |input| {
+                        for site in input.function().if_region_sites() {
+                            let flow = package
+                                .ordinary_new_claim_ledger
+                                .completion_for_owner(input.owner())
+                                .and_then(|completion| completion.cleanup().root_flow())
+                                .unwrap();
+                            assert!(flow.statement_prefix_unavailable(site));
+                            assert!(flow
+                                .expression_plans()
+                                .iter()
+                                .all(|plan| plan.condition_frame().is_none()));
+                            refused += 1;
+                        }
+                    })
+                    .unwrap();
             });
-            assert_eq!(refused, 1, "selected I64 logical operand refuses the exact Home condition");
+            assert_eq!(
+                refused, 1,
+                "selected I64 logical operand refuses the exact Home condition"
+            );
         } else {
-            assert!(claims.values().all(|claim| claim.home_prefix().is_ok()),
-                "whole-frame success and unselected nested-field admission: {condition}");
+            assert!(
+                claims.values().all(|claim| claim.home_prefix().is_ok()),
+                "whole-frame success and unselected nested-field admission: {condition}"
+            );
         }
     }
 }
@@ -324,9 +383,7 @@ fn scalar_expression_scope_keeps_whole_bool_and_outside_nested_conditions_distin
 fn source_operations(
     package: &VerifiedNormalCallableSemanticPackageV1,
 ) -> Vec<
-    std::rc::Rc<
-        crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1,
-    >,
+    std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1>,
 > {
     package
         .batch()
@@ -350,7 +407,34 @@ fn scalar_source_retention_preserves_original_size_class_initializer_rows() {
     ))
     .unwrap();
     let rows = source_operations(&package);
-    assert_eq!(rows.len(), 3);
+    // B29–B31: Add is an optional original; the legacy Sub/Div sources stay mandatory.
+    assert_eq!(
+        rows.iter()
+            .filter(|row| !row.original_needs_consumer_receipt_v1())
+            .count(),
+        3
+    );
+    let optional: Vec<_> = rows
+        .iter()
+        .filter(|row| row.original_needs_consumer_receipt_v1())
+        .collect();
+    let [add] = optional.as_slice() else {
+        panic!("one optional Add source")
+    };
+    assert_eq!(add.binary().operator(), Op::Add);
+    assert_eq!(add.positive_divisor(), None);
+    let rhs = add
+        .plan()
+        .nodes()
+        .iter()
+        .find(|node| node.site() == add.binary().rhs())
+        .unwrap();
+    assert!(matches!(
+        rhs.source(),
+        crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Literal(
+            crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(3)
+        )
+    ));
     assert_eq!(
         rows.iter()
             .filter(|row| row.binary().operator() == Op::Subtract)
@@ -371,8 +455,16 @@ fn scalar_source_retention_preserves_original_size_class_initializer_rows() {
         assert_eq!(row.plan().owner(), row.owner());
         assert_eq!(row.plan().nodes()[0].binary(), Some(row.binary()));
         assert!(!row.plan().has_opaque_obligations());
-        assert!(row.plan().nodes().iter().any(|node| node.site() == row.binary().lhs()));
-        assert!(row.plan().nodes().iter().any(|node| node.site() == row.binary().rhs()));
+        assert!(row
+            .plan()
+            .nodes()
+            .iter()
+            .any(|node| node.site() == row.binary().lhs()));
+        assert!(row
+            .plan()
+            .nodes()
+            .iter()
+            .any(|node| node.site() == row.binary().rhs()));
         assert_ne!(row.binary().lhs(), row.binary().rhs());
         assert!(!row.statement().node().segments().is_empty());
     }
@@ -395,13 +487,29 @@ fn scalar_source_retention_is_published_only_for_complete_integer_roots() {
         ("pool.size - true", None),
         ("pool.missing / 4", None),
         ("pool.page / 4", None),
-        ("pool.size + 1", None),
+        // B29: a complete Integer Add retains a candidate; invalid roots remain absent.
+        ("pool.size + 1", Some(Op::Add)),
     ] {
         let package = package(&format!("local value = {root} return 0"));
         let rows = source_operations(&package);
         assert_eq!(rows.len(), usize::from(expected.is_some()), "{root}");
         if let Some(expected) = expected {
-            assert_eq!(rows[0].binary().operator(), expected);
+            let row = &rows[0];
+            assert_eq!(row.binary().operator(), expected);
+            assert_eq!(
+                row.original_needs_consumer_receipt_v1(),
+                expected == Op::Add
+            );
+            assert_eq!(
+                row.positive_divisor(),
+                (expected == Op::Divide).then_some(4)
+            );
+            assert_eq!(row.initializer().unwrap().binding().owner(), row.owner());
+            assert_eq!(
+                row.initializer().unwrap().initializer_site(),
+                Some(row.binary().site())
+            );
+            assert_eq!(row.plan().nodes()[0].binary(), Some(row.binary()));
         }
     }
 }

@@ -20,7 +20,28 @@ fn original_scalar_append_requires_same_source_and_exact_ordered_producer() {
                 .unwrap_or_default()
         })
         .collect();
-    assert_eq!(sources.len(), 3);
+    // B29–B31: the three mandatory sources coexist with one source-anchored optional Add.
+    assert_eq!(
+        sources
+            .iter()
+            .filter(|s| !s.original_needs_consumer_receipt_v1())
+            .count(),
+        3
+    );
+    let optional: Vec<_> = sources
+        .iter()
+        .filter(|s| s.original_needs_consumer_receipt_v1())
+        .collect();
+    let [add] = optional.as_slice() else {
+        panic!("one optional Add source")
+    };
+    assert_eq!(source_operator(add).unwrap(), BinaryOp::Add);
+    assert_eq!(add.positive_divisor(), None);
+    assert_eq!(
+        add.initializer().unwrap().initializer_site(),
+        Some(add.binary().site())
+    );
+    assert_eq!(add.plan().nodes()[0].binary(), Some(add.binary()));
     for source in sources {
         let op = source_operator(&source).unwrap();
         let site = OwnedExprSiteV1::new(source.owner(), source.binary().site().clone());
@@ -36,13 +57,15 @@ fn original_scalar_append_requires_same_source_and_exact_ordered_producer() {
         builder.enter_function_for_test("scalar_original_test/0".into());
         let left = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
         let right = crate::mir::builder::emission::constant::emit_integer(&mut builder, 4).unwrap();
-        let operator = if op == BinaryOp::Sub {
-            BinaryOperator::Subtract
-        } else {
-            BinaryOperator::Divide
+        let operator = match op {
+            BinaryOp::Add => BinaryOperator::Add,
+            BinaryOp::Sub => BinaryOperator::Subtract,
+            BinaryOp::Div => BinaryOperator::Divide,
+            BinaryOp::Mod => BinaryOperator::Modulo,
+            _ => panic!("unexpected retained scalar law: {op:?}"),
         };
         let (completed, relations) = builder
-            .build_source_scalar_from_values_recorded(operator, left, right)
+            .build_source_scalar_from_values_recorded(operator.clone(), left, right)
             .unwrap();
         let entry = builder.current_block_for_test().unwrap();
         let mut physical = MirFunction::new(
@@ -125,15 +148,7 @@ fn original_scalar_append_requires_same_source_and_exact_ordered_producer() {
         let foreign_right =
             crate::mir::builder::emission::constant::emit_integer(&mut foreign_builder, 4).unwrap();
         let (_, foreign_relations) = foreign_builder
-            .build_source_scalar_from_values_recorded(
-                if op == BinaryOp::Sub {
-                    BinaryOperator::Subtract
-                } else {
-                    BinaryOperator::Divide
-                },
-                foreign_left,
-                foreign_right,
-            )
+            .build_source_scalar_from_values_recorded(operator, foreign_left, foreign_right)
             .unwrap();
         assert_eq!(foreign_relations[0].values(), relations[0].values());
         assert!(ledger
