@@ -73,11 +73,11 @@ impl crate::mir::MirBuilder {
             LocalFieldReadResultV1::Scalar => (Self::checked_scalar_field_read_operation_v1(base, source.field()), MirType::Integer),
             _ => return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into()),
         };
-        let invoke = MirInstruction::Invoke {
-            operation,
-            fault_frame, normal_landing: normal, fault_landing: fault,
-        };
-        self.emit_instruction(invoke.clone())?;
+        let (_, invoke) = crate::mir::builder::ordinary_new_admission::selected::emit_invoke_control_to_landing_v1(
+            self,
+            &mut crate::mir::builder::ordinary_new_admission::selected::root_graph::RawRootGraphWriterV1,
+            operation, fault_frame, normal, fault,
+        )?;
         self.start_new_block(normal)?;
         let dst = destination.unwrap_or_else(|| self.next_value_id());
         let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst };

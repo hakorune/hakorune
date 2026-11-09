@@ -160,12 +160,11 @@ fn invoke(
         .current_block
         .ok_or_else(|| fault("block-missing"))?;
     let normal = builder.next_block_id();
-    builder.emit_instruction(MirInstruction::Invoke {
-        operation,
-        fault_frame: frame,
-        normal_landing: normal,
-        fault_landing: fault_block,
-    })?;
+    crate::mir::builder::ordinary_new_admission::selected::emit_invoke_control_to_landing_v1(
+        builder,
+        &mut crate::mir::builder::ordinary_new_admission::selected::root_graph::RawRootGraphWriterV1,
+        operation, frame, normal, fault_block,
+    )?;
     builder.start_new_block(normal)?;
     Ok(ArrayInvokeSite {
         origin,

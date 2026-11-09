@@ -339,12 +339,7 @@ pub(super) fn cleanup_step_with_writer(
     writer.append_terminated(
         builder,
         origin,
-        MirInstruction::Invoke {
-            operation,
-            fault_frame: frame,
-            normal_landing: normal,
-            fault_landing: fault,
-        },
+        super::invoke_operation::instruction(operation, frame, normal, fault),
         bindings,
     )?;
     Ok(origin)

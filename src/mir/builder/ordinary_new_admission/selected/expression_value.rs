@@ -678,9 +678,9 @@ pub(in crate::mir::builder) fn emit_scalar_operation_to_landing_v1(
     fault_frame: ValueId, normal: BasicBlockId, fault: BasicBlockId, bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind, [Binding; 2]), String> {
     let result = operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
-    let invoke = writer.emit_current(builder, MirInstruction::Invoke {
-        operation, fault_frame, normal_landing: normal, fault_landing: fault,
-    })?;
+    let invoke = emit_invoke_control_to_landing_v1(
+        builder, writer, operation, fault_frame, normal, fault,
+    )?;
     let value = builder.next_value_id();
     builder.start_new_block(normal)?;
     let projection = MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value };

@@ -4,7 +4,9 @@ use crate::mir::instruction::InvokeCallResultKind;
 mod arguments;
 #[path = "selected/invoke_operation.rs"]
 mod invoke_operation;
-pub(in crate::mir::builder) use invoke_operation::emit as emit_invoke_operation_v1;
+pub(in crate::mir::builder) use invoke_operation::{
+    emit as emit_invoke_operation_v1, emit_control_to_landing_v1 as emit_invoke_control_to_landing_v1,
+};
 #[path = "selected/owned_array.rs"]
 pub(in crate::mir::builder) mod owned_array;
 #[path = "selected/read_argument.rs"]
