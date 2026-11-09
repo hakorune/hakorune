@@ -102,3 +102,5 @@ B36の今回の接続は、既存lawがある整数producer（literal・Operatio
 callを持たない正規artifactの新需要は既存のapp-root identityから選ぶ。calleeの通常returnまで走査を広げると未使用blockの予約が既存MIRを変えるため、このRoot publication要求をhelperの要求へ転用しない。名前や完成MIRからrootを推測しない。
 
 着地範囲: G1の元Add/Sub等のproducer読取とapp-rootの直接scalar read publication、G5のordinary take（t02/t03/t04/t06）。B33の全Return Frame化は採用せずpatchに保護。B21〜23の数値Array接続とB27の式内移転後Fault prefix、Birth/fresh actualは未完。最終報告で未完と既存MIR移行境界を区別する。
+
+B37. 旧single-Opaque入力の終端契約は保持し、新ordinary cohortへの拡張は宣言済みtake-objectを含む契約へ限定して、複数OpaqueのMap引数を既存ownerから横取りしない。
