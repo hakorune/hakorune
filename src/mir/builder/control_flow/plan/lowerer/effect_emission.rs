@@ -301,12 +301,7 @@ impl super::PlanLowerer {
                 declared_type,
             } => {
                 let base = builder.local_field_base(*base);
-                builder.emit_instruction(MirInstruction::FieldGet {
-                    dst: *dst,
-                    base,
-                    field: field.clone(),
-                    declared_type: declared_type.clone(),
-                })?;
+                builder.append_raw_field_get_v1(*dst, base, field.clone(), declared_type.clone())?;
             }
             CoreEffectPlan::FieldSet {
                 base,

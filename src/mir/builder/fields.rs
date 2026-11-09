@@ -9,6 +9,7 @@ mod assignment;
 mod post_success;
 mod store_post_success;
 mod checked_read;
+pub(in crate::mir::builder) use checked_read::emit_terminal_i64_field_return;
 
 pub(in crate::mir::builder) use assignment::{
     lower_prepared_raw_field_assignment_with_port_v1, PreparedRawFieldAssignmentV1,
@@ -176,16 +177,45 @@ impl super::MirBuilder {
         &mut self, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
         ty: crate::mir::MirType, destination: Option<ValueId>,
     ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
+        let (dst, binding) = self.append_object_field_read_v1(base, field, destination)?;
+        self.function_state.type_ctx.value_types.insert(dst, ty.clone());
+        if let Some(function) = self.function_state.current_function.as_mut() {
+            function.metadata.value_types.insert(dst, ty);
+        }
+        Ok((dst, binding))
+    }
+
+    /// One raw exact-field append. The caller retains its source receipt and
+    /// its original type publication point; this does not grant read permission.
+    pub(in crate::mir::builder) fn append_object_field_read_v1(
+        &mut self, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
+        destination: Option<ValueId>,
+    ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
         let block = self.function_state.current_block
             .ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
         let dst = destination.unwrap_or_else(|| self.next_value_id());
         let instruction = crate::mir::MirInstruction::ObjectFieldGet { dst, base, field };
         self.emit_instruction(instruction.clone())?;
-        self.function_state.type_ctx.value_types.insert(dst, ty.clone());
-        if let Some(function) = self.function_state.current_function.as_mut() {
-            function.metadata.value_types.insert(dst, ty);
-        }
         Ok((dst, (block, instruction)))
+    }
+
+    /// Shared checked Scalar projection; Local and Terminal keep their distinct
+    /// source/cleanup proofs and never masquerade as each other's source kind.
+    pub(in crate::mir::builder) fn checked_scalar_field_read_operation_v1(
+        base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
+    ) -> crate::mir::instruction::InvokeOperation {
+        crate::mir::instruction::InvokeOperation::FieldGet { field, base }
+    }
+
+    /// Raw legacy-field append only; caller-specific origin, fastmem and
+    /// post-success transactions remain at their original positions.
+    pub(in crate::mir::builder) fn append_raw_field_get_v1(
+        &mut self, dst: ValueId, base: ValueId, field: String,
+        declared_type: Option<crate::mir::MirType>,
+    ) -> Result<(), String> {
+        self.emit_instruction(crate::mir::MirInstruction::FieldGet {
+            dst, base, field, declared_type,
+        })
     }
 
     /// Both raw FieldAccess and a retained expression consume this same
@@ -441,12 +471,7 @@ impl super::MirBuilder {
         )
         .map_err(|error| error.to_string())?;
         let field_val = destination.unwrap_or_else(|| self.next_value_id());
-        self.emit_instruction(crate::mir::MirInstruction::FieldGet {
-            dst: field_val,
-            base: object_value,
-            field,
-            declared_type,
-        })?;
+        self.append_raw_field_get_v1(field_val, object_value, field, declared_type)?;
         post_success.commit(self, field_val, object_value);
 
         Ok(field_val)

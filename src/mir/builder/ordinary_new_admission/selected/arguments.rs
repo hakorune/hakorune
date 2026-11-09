@@ -110,8 +110,7 @@ pub(super) fn materialize_arguments(
                     .function_state
                     .current_block
                     .ok_or_else(|| freeze("no-block"))?;
-                let dst = builder.next_value_id();
-                builder.emit_instruction(MirInstruction::ObjectFieldGet { dst, base, field })?;
+                let (dst, _) = builder.append_object_field_read_v1(base, field, None)?;
                 builder
                     .function_state
                     .type_ctx
