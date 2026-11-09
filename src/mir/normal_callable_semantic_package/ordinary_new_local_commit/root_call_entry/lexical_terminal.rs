@@ -96,7 +96,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .is_none_or(|original| !std::rc::Rc::ptr_eq(&original, &expression.source)) {
                 return Err(freeze("local-stored-receiver/source-drift"));
             }
-            let bindings = order.return_expression_bindings_v1(CallValidationContextV1::Lowering(self))?;
+            let bindings = order.return_value_bindings_v1(CallValidationContextV1::Lowering(self))?;
             expression.visit_calls_v1(|packet, arguments| lend(packet, arguments, &bindings))?;
         }
         let groups = self.root_local_call_bindings.borrow();

@@ -501,7 +501,7 @@ impl FinalizedRootSourceHandoffV1 {
                         RootHomeExitProgress::Finalized(order) => order,
                         _ => continue,
                     };
-                    originals.extend(order.return_expression_bindings_v1(context)?);
+                    originals.extend(order.return_value_bindings_v1(context)?);
                 }
                 let mut operations = Vec::new();
                 for original in originals {

@@ -17,6 +17,7 @@ pub(crate) struct TerminalScalarReturnV1 {
     /// R16: the exit's scalar kind, from the stored local's kind or the evaluation's root class.
     kind: SourceScalarKind,
     entry_read: Option<crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
+    original_read: Option<crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1>,
     evaluation: Option<
         std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1>,
     >,
@@ -34,6 +35,7 @@ impl TerminalScalarReturnV1 {
             value_site,
             kind: SourceScalarKind::Integer,
             entry_read: None,
+            original_read: None,
             evaluation: None,
         }
     }
@@ -62,6 +64,15 @@ impl TerminalScalarReturnV1 {
         }
         self.entry_read = Some(read);
         Some(self)
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn with_original_read_v1(
+        mut self, read: Option<crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1>,
+    ) -> Self {
+        self.original_read = read;
+        self
+    }
+    pub(crate) fn original_read_v1(&self) -> Option<&crate::mir::resolved_semantics::home_new_prefix::CurrentScalarReadV1> {
+        self.original_read.as_ref()
     }
     pub(crate) fn evaluation(
         &self,

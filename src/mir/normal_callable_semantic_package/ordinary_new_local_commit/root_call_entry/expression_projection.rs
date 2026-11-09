@@ -11,7 +11,7 @@ type Binding = (BasicBlockId, MirInstruction);
 #[path = "expression_reference_read.rs"]
 mod reference_read;
 pub(in crate::mir) use reference_read::{
-    BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ReferenceProducerV1,
+    BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ReferenceProducerV1, ScalarBindingReadProofV1,
 };
 #[path = "expression_terminal_paths.rs"]
 mod terminal_paths;

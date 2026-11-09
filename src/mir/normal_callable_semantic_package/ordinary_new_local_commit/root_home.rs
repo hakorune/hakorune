@@ -30,6 +30,8 @@ pub(crate) use null_return::TerminalNullReturnSourceLoanV1;
 mod fresh_return;
 #[path = "root_home_received_return.rs"]
 mod received_return;
+#[path = "root_scalar_read.rs"]
+mod scalar_read;
 #[path = "root_field_get_entry.rs"]
 mod root_field_get_entry;
 

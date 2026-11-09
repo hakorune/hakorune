@@ -322,7 +322,7 @@ impl<'a> CallValidationContextV1<'a> {
                     visit(bindings);
                     if let Some(frame) = &order.original_frame { visit(std::slice::from_ref(frame)); }
                     // The return expression's own Fault chain also discharges live Homes.
-                    visit(&order.return_expression_bindings_v1(self)?);
+                    visit(&order.return_value_bindings_v1(self)?);
                 }
                 RootHomeExitProgress::Finalized(_) => {
                     if let Self::Finalized(source) = self {

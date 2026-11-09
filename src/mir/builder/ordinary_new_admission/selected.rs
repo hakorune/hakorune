@@ -283,6 +283,8 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     value: ValueId,
 ) -> Result<ValueId, String> {
+    ledger.prepare_scalar_return_read_v1(owner, site, value,
+        builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     ledger.check_declared_return_value_v1(owner, site, value)?;
     let alias = if let Some(install) = ledger.installed_map_return_candidate_v1(owner, site, value,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)? {

@@ -671,3 +671,4 @@ impl ExpressionReferenceReadV1 {
 
 #[path = "expression_binding_provenance.rs"]
 mod binding_provenance;
+pub(in crate::mir) use binding_provenance::ScalarBindingReadProofV1;

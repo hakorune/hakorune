@@ -54,17 +54,19 @@ impl ExpressionScalarOperationLoanV1 {
         if node.binary()? != binary || original_value != root.site() {
             return None;
         }
-        match binary.operator() {
-            ResolvedBinaryOperatorV1::Add | ResolvedBinaryOperatorV1::Subtract
-                if positive_divisor.is_none() => {}
-            ResolvedBinaryOperatorV1::Divide | ResolvedBinaryOperatorV1::Modulo
-                if positive_divisor.is_some_and(|n| n > 0)
-                    && source.nodes().iter().any(|node| {
-                        node.site() == binary.rhs()
-                            && matches!(node.source(), ExpressionNodeSourceV1::Literal(
+        let (_, needs_divisor) = Self::original_integer_operator_law_v1(binary.operator())?;
+        if needs_divisor {
+            if !positive_divisor.is_some_and(|n| n > 0)
+                || !source.nodes().iter().any(|node| {
+                    node.site() == binary.rhs()
+                        && matches!(node.source(), ExpressionNodeSourceV1::Literal(
                         ResolvedLiteralSourceV1::Integer(n)) if Some(*n) == positive_divisor)
-                    }) => {}
-            _ => return None,
+                })
+            {
+                return None;
+            }
+        } else if positive_divisor.is_some() {
+            return None;
         }
         let loan = Rc::new(Self {
             plan: Rc::clone(&source),
@@ -73,23 +75,29 @@ impl ExpressionScalarOperationLoanV1 {
         });
         Some(loan)
     }
-    /// One source operator law shared by original scalar and expression users.
-    pub(crate) fn integer_operator_v1(&self) -> Option<crate::mir::BinaryOp> {
-        match self.binary().operator() {
-            ResolvedBinaryOperatorV1::Add if self.positive_divisor.is_none() => {
-                Some(crate::mir::BinaryOp::Add)
-            }
-            ResolvedBinaryOperatorV1::Subtract if self.positive_divisor.is_none() => {
-                Some(crate::mir::BinaryOp::Sub)
-            }
-            ResolvedBinaryOperatorV1::Divide if self.positive_divisor.is_some_and(|n| n > 0) => {
-                Some(crate::mir::BinaryOp::Div)
-            }
-            ResolvedBinaryOperatorV1::Modulo if self.positive_divisor.is_some_and(|n| n > 0) => {
-                Some(crate::mir::BinaryOp::Mod)
-            }
+    /// Source operator law only; operand membership and execution stay with the qualifier.
+    pub(crate) fn original_integer_operator_law_v1(
+        operator: ResolvedBinaryOperatorV1,
+    ) -> Option<(crate::mir::BinaryOp, bool)> {
+        use crate::mir::BinaryOp;
+        match operator {
+            ResolvedBinaryOperatorV1::Add => Some((BinaryOp::Add, false)),
+            ResolvedBinaryOperatorV1::Subtract => Some((BinaryOp::Sub, false)),
+            ResolvedBinaryOperatorV1::Divide => Some((BinaryOp::Div, true)),
+            ResolvedBinaryOperatorV1::Modulo => Some((BinaryOp::Mod, true)),
             _ => None,
         }
+    }
+    /// The same law, with this retained source's positive-divisor proof.
+    pub(crate) fn integer_operator_v1(&self) -> Option<crate::mir::BinaryOp> {
+        let (operator, needs_divisor) =
+            Self::original_integer_operator_law_v1(self.binary().operator())?;
+        (if needs_divisor {
+            self.positive_divisor.is_some_and(|n| n > 0)
+        } else {
+            self.positive_divisor.is_none()
+        })
+        .then_some(operator)
     }
 
     /// New optional originals are pinned by completed semantic consumers;

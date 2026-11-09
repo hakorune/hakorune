@@ -134,7 +134,7 @@ impl FinalizedRootSourceHandoffV1 {
             };
             let mut candidates = bindings.to_vec();
             entry.append_bindings(&mut candidates);
-            let expression = order.return_expression_bindings_v1(CallValidationContextV1::Finalized(self))?;
+            let expression = order.return_value_bindings_v1(CallValidationContextV1::Finalized(self))?;
             if !candidates.iter().chain(expression.iter()).any(|(_, row)| matches!(row,
                 MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }
                     | crate::mir::instruction::InvokeOperation::Shared(crate::mir::instruction::SharedInvokeOperation::Release { .. }), .. }))
@@ -442,12 +442,13 @@ pub(super) fn validate_finished_cleanup_entry(
         let TerminalReturnedSourceV1::BorrowedNullableLocal(source) = terminal.returned() else { return None; };
         source.read_v1()
     });
-    match (declared, &order.declared_read_return) {
+    match (declared, &order.return_read) {
         (Some(source), Some(read)) => {
             context.declared_result_read_v1(source, read)?;
             context.validate_declared_read_transport_v1(source.source(), read.binding_observation_v2(), function, finishing)?;
         }
         (None, None) => {},
+        (None, Some(_)) if order.scalar_return_read.is_some() => {},
         _ => return Err(freeze("borrowed-return/source-kind")),
     }
     if matches!(context, CallValidationContextV1::Finalized(_)) {

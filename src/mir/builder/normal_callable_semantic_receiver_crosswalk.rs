@@ -280,7 +280,7 @@ impl CallableSemanticLoweringState {
         site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<ValueId, String> {
         if let Some(claims) = self.ordinary_new_claim_ledger.clone() {
-            if let Some(value) = claims.emit_declared_return_read_v1(self.owner, site,
+            if let Some(value) = claims.emit_return_read_v1(self.owner, site,
                 || self.read_variable_with_source_v1(site))? { return Ok(value); }
         }
         self.read_variable(site)

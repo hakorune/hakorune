@@ -32,8 +32,9 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrder
         )>,
     pub(super) installed_map_return: Option<super::map_field_install::InstalledMapReturnEmissionV1>,
     pub(super) null_return: Option<super::null_return::TerminalNullReturnProducerV1>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) scalar_return_read: Option<super::call_entry::ScalarBindingReadProofV1>,
     pub(super) return_expression: Option<Box<super::received_return::ReturnExpressionEmissionV1>>,
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) declared_read_return: Option<crate::mir::builder::ExactLexicalReadV1>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) return_read: Option<crate::mir::builder::ExactLexicalReadV1>,
     pub(super) text_return_hold: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
     direct: Option<(
         super::super::super::completion_index::DirectRootCleanupSourceV1,
@@ -333,7 +334,8 @@ impl RootHomeCleanupOrderV1 {
             installed_map_return: None,
             null_return: None,
             return_expression: None,
-            declared_read_return: None,
+            scalar_return_read: None,
+            return_read: None,
             text_return_hold: None,
             implicit_void: None,
             original_frame: None,
@@ -588,7 +590,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
         let rows = self.root_exits.borrow();
         let Some(RootHomeExitProgress::Prepared(order)) = rows.get(&(owner, exit.clone().into()))
             else { return Err(freeze("root-exit-record-without-prepare")); };
-        if order.declared_read_return.as_ref().is_some_and(|read|
+        if order.return_read.as_ref().is_some_and(|read|
             read.binding_observation_v2().binding_value().1 != value) {
             return Err(freeze("borrowed-return/source-kind"));
         }
@@ -597,7 +599,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
 
     /// Keep the actual one-shot terminal read in the existing exit owner.
     /// Nonterminal reads and legacy returns retain their original lowering.
-    pub(crate) fn emit_declared_return_read_v1(
+    pub(crate) fn emit_return_read_v1(
         &self, owner: FunctionOwnerIdV1,
         site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
         emit: impl FnOnce() -> Result<crate::mir::builder::ExactLexicalReadV1, String>,
@@ -605,29 +607,48 @@ impl super::OrdinaryNewClaimLedgerV1 {
         use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1};
         let Some((SourcePathSegmentV1::Value, parent)) = site.segments().split_last() else { return Ok(None); };
         let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(parent.to_vec()));
-        let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, &exit)
-            else { return Ok(None); };
-        let TerminalReturnedSourceV1::BorrowedNullableLocal(source) = terminal.returned()
-            else { return Ok(None); };
-        let Some(view) = source.read_v1() else { return Ok(None); };
-        if terminal.value_site().node() != site || view.read().site().node() != site
-            || self.checked_borrowed_nullable_return_source_v1(owner, &exit)? != Some(source.as_ref()) {
-            return Err(freeze("borrowed-return/source-kind"));
-        }
+        let terminal = self.terminal_relation_for_owner_at(owner, &exit);
+        let declared = match terminal {
+            Some(TerminalRelationV1::Value(terminal)) => {
+                let TerminalReturnedSourceV1::BorrowedNullableLocal(source) = terminal.returned() else { return Ok(None); };
+                let Some(view) = source.read_v1() else { return Ok(None); };
+                if terminal.value_site().node() != site || view.read().site().node() != site
+                    || self.checked_borrowed_nullable_return_source_v1(owner, &exit)? != Some(source.as_ref()) {
+                    return Err(freeze("borrowed-return/source-kind"));
+                }
+                Some(view)
+            }
+            Some(TerminalRelationV1::Scalar(terminal)) if terminal.evaluation().is_none() => {
+                let Some(read) = terminal.original_read_v1() else { return Ok(None); };
+                if terminal.value_site().node() != site || read.read().node() != site
+                    || read.binding().owner() != owner || read.kind() != crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer {
+                    return Err(freeze("expression/scalar-binding-observation"));
+                }
+                None
+            }
+            _ => return Ok(None),
+        };
         {
             let rows = self.root_exits.borrow();
             if !matches!(rows.get(&(owner, exit.clone().into())),
-                Some(RootHomeExitProgress::Prepared(order)) if order.declared_read_return.is_none()) {
+                Some(RootHomeExitProgress::Prepared(order)) if order.return_read.is_none()) {
                 return Err(freeze("root-exit-record-without-emission"));
             }
         }
         let read = emit()?;
-        let (value, _) = CallValidationContextV1::Lowering(self).declared_result_read_v1(view, &read)?;
+        let value = match declared {
+            Some(view) => CallValidationContextV1::Lowering(self).declared_result_read_v1(view, &read)?.0,
+            None => {
+                let Some(TerminalRelationV1::Scalar(terminal)) = terminal else { unreachable!() };
+                let source = terminal.original_read_v1().unwrap();
+                read.value_for(owner, site, source.binding()).map_err(|error| error.to_string())?
+            }
+        };
         let mut rows = self.root_exits.borrow_mut();
         let Some(RootHomeExitProgress::Prepared(order)) = rows.get_mut(&(owner, exit.into()))
             else { return Err(freeze("root-exit-record-without-emission")); };
-        if order.declared_read_return.is_some() { return Err(freeze("borrowed-return/source-kind")); }
-        order.declared_read_return = Some(read);
+        if order.return_read.is_some() { return Err(freeze("expression/scalar-binding-observation")); }
+        order.return_read = Some(read);
         Ok(Some(value))
     }
 

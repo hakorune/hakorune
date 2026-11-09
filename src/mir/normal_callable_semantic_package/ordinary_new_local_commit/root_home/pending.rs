@@ -71,7 +71,7 @@ impl PendingRootHomeExitV1<'_> {
         for binding in &entry_bindings {
             push(binding);
         }
-        for original in self.order.return_expression_bindings_v1(CallValidationContextV1::Lowering(self.ledger))? {
+        for original in self.order.return_value_bindings_v1(CallValidationContextV1::Lowering(self.ledger))? {
             push(&original);
         }
         if let Some(original) = &self.order.text_return_hold {

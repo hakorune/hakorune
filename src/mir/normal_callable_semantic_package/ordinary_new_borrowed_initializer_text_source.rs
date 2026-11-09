@@ -351,12 +351,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
 }
 
 impl PreparedBorrowedFormalIngressV1 {
-    /// Select the existing Home walk for an original Text/Core initializer.
+    /// Select the existing Home walk for original initializer/Return value demands.
     /// This is a source demand only; the qualifier still proves the whole root,
     /// current state and acquisition. Call-owned inputs are not parent leaves.
-    pub(in crate::mir::normal_callable_semantic_package) fn requires_initializer_expression_walk_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_expression_walk_v1(
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,
+        is_artifact_root: bool,
     ) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::{
             local_expression_source_plan_v1, ExpressionNodeSourceV1 as Node,
@@ -405,6 +406,34 @@ impl PreparedBorrowedFormalIngressV1 {
                 }
                 self.requires_text_expression_plan_v1(input, &plan)
             })
+            || (is_artifact_root && input.body_shape().is_some_and(|shape| {
+                let Some(flow) = input.function().expression_source().value_flow() else {
+                    return false;
+                };
+                shape.statements().iter().any(|statement| {
+                    if !matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(_), .. }) {
+                        return false;
+                    }
+                    let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                        &ledger, shape, statement.site()) else { return false };
+                    let Some(node) = plan.nodes().first() else { return false; };
+                    let Node::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() else { return false; };
+                    let original = flow.read(node.site(), *binding)
+                        .and_then(|value| flow.alias_origin(value, |site| input.function().variable_ref(site)))
+                        .and_then(|value| flow.origin(value));
+                    let Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(original)) = original else { return false; };
+                    let scalar = match input.function().expression_source().literal(original) {
+                        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_)) => true,
+                        _ => input.function().expression_source().binary(original)
+                            .and_then(|binary| crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1::original_integer_operator_law_v1(binary.operator())
+                                .map(|(_, needs_divisor)| !needs_divisor || matches!(input.function().expression_source().literal(binary.rhs()),
+                                    Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(n)) if *n > 0)))
+                            .unwrap_or(false),
+                    };
+                    scalar && self.lend_original_read_sum_v1(flow, node.site(), *binding)
+                        .is_some_and(|sum| sum.signed_only())
+                })
+            }))
     }
 
     /// Original ReturnValue demand selects the same Home walk as Text locals.

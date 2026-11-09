@@ -470,7 +470,7 @@ impl FinalizedRootSourceHandoffV1 {
                             source.target().namespace(), function, projection, entry, loan.access_v1())?;
                         let FinalizedObjectReturnOriginV1::BorrowedCall { producer, .. } = &origin else { unreachable!() };
                         let expected = if let Some(view) = borrowed.read_v1() {
-                            let read = order.declared_read_return.as_ref()
+                            let read = order.return_read.as_ref()
                                 .ok_or_else(|| freeze("borrowed-return/source-kind"))?;
                             let retained = FinalizedDeclaredReadTransportV1::issue(CallValidationContextV1::Finalized(self),
                                 view, read, function, projection)?;

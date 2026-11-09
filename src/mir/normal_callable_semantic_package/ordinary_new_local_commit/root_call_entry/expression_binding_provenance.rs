@@ -150,3 +150,75 @@ impl ExpressionReferenceReadV1 {
         Ok(dependencies)
     }
 }
+
+#[derive(Debug)]
+pub(in crate::mir) struct ScalarBindingReadProofV1 {
+    source: CurrentScalarReadV1,
+    producer: ReferenceProducerV1,
+}
+impl ScalarBindingReadProofV1 {
+    pub(in crate::mir) fn prepare(
+        source: CurrentScalarReadV1,
+        read: &ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+    ) -> Result<Self, String> {
+        read.value_for(
+            source.binding().owner(),
+            source.read().node(),
+            source.binding(),
+        )
+        .map_err(|error| error.to_string())?;
+        let producer = prepare_scalar_binding_producer(
+            source.binding(),
+            source.producer(),
+            read.binding_observation_v2(),
+            context,
+            function,
+        )?;
+        Ok(Self { source, producer })
+    }
+    pub(in crate::mir) fn source(&self) -> &CurrentScalarReadV1 {
+        &self.source
+    }
+    pub(in crate::mir) fn value(&self, read: &ExactLexicalReadV1) -> Result<ValueId, String> {
+        read.value_for(
+            self.source.binding().owner(),
+            self.source.read().node(),
+            self.source.binding(),
+        )
+        .map_err(|error| error.to_string())
+    }
+    pub(in crate::mir) fn validate(
+        &self,
+        read: &ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>,
+        function: &MirFunction,
+        finishing: Option<&Finished>,
+    ) -> Result<(), String> {
+        self.value(read)?;
+        validate_scalar_binding_observation_v1(
+            self.source.binding(),
+            self.source.producer(),
+            read.binding_observation_v2(),
+            &self.producer,
+            context,
+            function,
+            finishing,
+        )
+    }
+    pub(in crate::mir) fn dependencies(
+        &self,
+        read: &ExactLexicalReadV1,
+    ) -> Result<Vec<Binding>, String> {
+        self.value(read)?;
+        let mut dependencies = Vec::new();
+        match &self.producer {
+            ReferenceProducerV1::Definition(row) => dependencies.push(row.clone()),
+            ReferenceProducerV1::Phi(point) => point.append_observed_bindings_v1(&mut dependencies),
+            ReferenceProducerV1::Entry(_) => {}
+        }
+        dependencies.extend_from_slice(read.original_copy_dependencies_v1()?);
+        Ok(dependencies)
+    }
+}

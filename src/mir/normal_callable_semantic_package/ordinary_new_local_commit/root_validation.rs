@@ -602,7 +602,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if let Some((_, original)) = &order.implicit_void {
                     result.push(original.clone());
                 }
-                result.extend(order.return_expression_bindings_v1(CallValidationContextV1::Lowering(self))?);
+                result.extend(order.return_value_bindings_v1(CallValidationContextV1::Lowering(self))?);
                 if let Some(original) = order.text_return_hold_binding() {
                     result.push(original.clone());
                 }

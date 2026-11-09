@@ -398,7 +398,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // without constructions, borrowed calls or owned temporaries.
                 requests.require(ScanRequestV1::PrintOperand, walk_triggers::has_print_expression_v1(input));
                 requests.require(ScanRequestV1::ConditionOperand, walk_triggers::has_condition_expression_v1(input));
-                requests.require(ScanRequestV1::ValueExpression, walk_triggers::has_explicit_copy_source_v1(input) || borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_initializer_expression_walk_v1(input)));
+                requests.require(ScanRequestV1::ValueExpression, walk_triggers::has_explicit_copy_source_v1(input) || borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_expression_walk_v1(input, is_app_main)));
                 requests.require(ScanRequestV1::TextReturn, borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_return_walk_v1(input, &borrowed_i64_results)));
                 requests.require(ScanRequestV1::NamedArrayResidence, source_core_calls.is_some_and(|rows| rows.values()
                     .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some())));

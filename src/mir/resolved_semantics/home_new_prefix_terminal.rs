@@ -530,7 +530,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                     statement.site().clone(),
                                                     value.site().clone(),
                                                     returned.stored_kind(),
-                                                )
+                                                ).with_original_read_v1(locals.current_scalar_read_v1(value.site(), local_calls)
+                                                    .filter(|read| read.kind() == super::local_flow::SourceScalarKind::Integer
+                                                        && matches!(read.producer(), super::CurrentScalarProducerV1::Integer { .. }
+                                                            | super::CurrentScalarProducerV1::Operation(_)
+                                                            | super::CurrentScalarProducerV1::Initializer(_)
+                                                            | super::CurrentScalarProducerV1::BindingRebind(_))))
                                             }),
                                         ));
                                     true

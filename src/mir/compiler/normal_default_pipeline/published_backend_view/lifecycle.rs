@@ -95,6 +95,13 @@ impl<'module> PublishedMirBackendView<'module> {
             return Err(fault("retained-birth-missing"));
         }
         self.retained_handoff = Some(handoff);
+        if self.route == super::PublishedStaticMethodRouteV1::ExplicitCompatibility {
+            if let Some(source) = handoff.root_source() {
+                if source.validate_plain_scalar_read_root_v1(self.module)? {
+                    self.route = super::PublishedStaticMethodRouteV1::CanonicalTyped;
+                }
+            }
+        }
         Ok(self)
     }
 

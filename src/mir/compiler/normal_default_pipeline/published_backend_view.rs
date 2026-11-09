@@ -60,8 +60,8 @@ pub(crate) use physical_program_json::emit_lifecycle_physical_abi_json;
 /// physical admission state rather than an implicit compatibility fallback.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PublishedStaticMethodRouteV1 {
-    /// At least one selected call exists.  Other call families may remain on
-    /// their explicit compatibility routes until their own cohort is cut over.
+    /// A source-certified root or selected typed call has a canonical consumer.
+    /// Other call families retain their explicit compatibility corridors.
     CanonicalTyped,
     /// No selected typed call exists; an explicit compatibility caller may
     /// consume the module without pretending it is canonical.

@@ -80,6 +80,10 @@ impl OrdinaryNewClaimLedgerV1 {
         return_projection: Option<&FinishedBindings>,
         function: Option<&MirFunction>,
     ) -> Result<Option<Vec<(BasicBlockId, MirInstruction)>>, String> {
+        if let Some(bindings) = self.validate_plain_scalar_return_read_v1(context, owner, exit, order,
+            entry, bindings, producer_projection, return_projection, function)? {
+            return Ok(Some(bindings));
+        }
         if let Some(TerminalRelationV1::Scalar(terminal)) =
             self.terminal_relation_for_owner_at(owner, exit)
         {
@@ -591,12 +595,17 @@ impl RootHomeCleanupOrderV1 {
         &self,
     ) -> Option<&ReturnExpressionEmissionV1> { self.return_expression.as_deref() }
 
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn return_expression_bindings_v1(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn return_value_bindings_v1(
         &self,
         context: CallValidationContextV1<'_>,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let Some(expression) = &self.return_expression else { return Ok(Vec::new()); };
-        let mut bindings = expression.original.clone();
+        let mut bindings = match &self.scalar_return_read {
+            Some(proof) => proof.dependencies(self.return_read.as_ref()
+                .ok_or_else(|| freeze("expression/scalar-binding-observation"))?)?,
+            None => Vec::new(),
+        };
+        let Some(expression) = &self.return_expression else { return Ok(bindings); };
+        bindings.extend_from_slice(&expression.original);
         // Calls retain their source-qualified read adapters separately from
         // the enclosing expression. Lend the same dependencies to capture,
         // final validation and DCE; a Plain return has no direct Call entry.
