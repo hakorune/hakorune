@@ -75,7 +75,7 @@ pub(super) fn validate_original(
             return Err(fault("original-node"));
         }
     }
-    let incoming = boundary_incoming(function, &reached, *entry)?;
+    let incoming = boundary_incoming(function, &reached, *entry, None)?;
     if incoming.is_empty() {
         return Err(fault("missing-entry-incoming"));
     }
@@ -172,6 +172,7 @@ fn boundary_incoming(
     function: &MirFunction,
     nodes: &BTreeSet<BasicBlockId>,
     entry: BasicBlockId,
+    borrowed: Option<(BasicBlockId, &Bindings)>,
 ) -> Result<Incoming, String> {
     let mut incoming = BTreeMap::new();
     for (id, block) in &function.blocks {
@@ -183,6 +184,13 @@ fn boundary_incoming(
                 continue;
             }
             if edge.target != entry {
+                let allowed = borrowed.is_some_and(|(fault, rows)| edge.target == fault
+                    && block.terminator.as_ref().is_some_and(|instruction| rows.contains(&(*id, instruction.clone()))));
+                if allowed { continue; }
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!("[root-cleanup/incoming] function={} source={id:?} target={:?} entry={entry:?} borrowed={:?} instruction={:?}",
+                        function.signature.name, edge.target, borrowed.map(|(entry, _)| entry), block.terminator);
+                }
                 return Err(fault("internal-incoming"));
             }
             let terminal = block
@@ -238,7 +246,8 @@ pub(super) fn validate_projected_ingress(
     function: &MirFunction,
     bindings: &Bindings,
     entry: BasicBlockId,
+    borrowed: Option<(BasicBlockId, &Bindings)>,
 ) -> Result<(), String> {
     let nodes = bindings.iter().map(|(id, _)| *id).collect();
-    boundary_incoming(function, &nodes, entry).map(drop)
+    boundary_incoming(function, &nodes, entry, borrowed).map(drop)
 }

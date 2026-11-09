@@ -73,6 +73,5 @@ pub(in crate::mir::builder) fn emit(
             arguments: bindings,
             call,
             result: InvokeCallResultKind::I64,
-        })),
-    )
+        })), None)
 }

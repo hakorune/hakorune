@@ -112,7 +112,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                 MirInstruction::Invoke { fault_frame, .. } => Some(*fault_frame),
                 _ => None,
             });
-            (coordinate(start)?, None, frame, result)
+            (coordinate(start)?, order.borrowed_expression_fault_v1()
+                .map(|(entry, _)| coordinate(entry)).transpose()?, frame, result)
         }
     };
     // Root argument cleanup is owned by the same lexical packet, separately

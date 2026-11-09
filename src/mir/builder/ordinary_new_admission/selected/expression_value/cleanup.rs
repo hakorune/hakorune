@@ -371,6 +371,15 @@ fn finish_body_cleanup(
         }
         return Ok((None, None));
     };
+    if let Some((continuation, _)) = &body.root_cleanup {
+        if !normal.is_empty() || displaced.is_some() || fault != body.homes {
+            return Err(freeze("expression/fault-frame-required"));
+        }
+        let terminal = RawRootGraphWriterV1.emit_current(builder,
+            MirInstruction::Jump { target: continuation.0, edge_args: None })?;
+        body.bindings.push(terminal.clone());
+        return Ok((Some(terminal), Some(continuation.clone())));
+    }
     let mut writer = RawRootGraphWriterV1;
     let next = writer.reserve_block(builder)?;
     let clean = writer.reserve_block(builder)?;

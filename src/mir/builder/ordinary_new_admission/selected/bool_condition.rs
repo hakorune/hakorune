@@ -200,7 +200,7 @@ pub(in crate::mir::builder) fn emit_scalar_condition_v1(
     let pending = super::FaultCleanupPlanV1::unwind(normal_temporaries.iter().cloned()
         .chain(body.homes.iter().cloned()).collect());
     let value = super::expression_value::emit_checked_scalar_condition_v1(builder,
-        frame.evaluation(), node, &body.values, receiver.as_ref(), body.fault_frame, &pending, &mut body.bindings)?;
+        frame.evaluation(), node, &body.values, receiver.as_ref(), body.fault_frame, &pending, None, &mut body.bindings)?;
     if let Some(receiver) = &receiver { body.bindings.extend(receiver.original_copy_dependencies_v1()?.iter().cloned()); }
     let (terminal, continuation) = super::expression_value::finish_bool_condition_continuation_v1(
         builder, &mut body, normal_temporaries,

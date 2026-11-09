@@ -207,8 +207,7 @@ pub(in crate::mir::builder) fn emit(
             arguments,
             call,
             result,
-        })),
-    )
+        })), None)
 }
 
 pub(in crate::mir::builder) fn emit_instance(
@@ -259,8 +258,7 @@ pub(in crate::mir::builder) fn emit_instance(
             arguments,
             call,
             result,
-        })),
-    )
+        })), None)
 }
 
 pub(super) fn emit_ingress(

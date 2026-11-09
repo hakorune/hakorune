@@ -60,8 +60,7 @@ pub(in crate::mir::builder) fn emit(
             arguments,
             call,
             result,
-        })),
-    )
+        })), None)
 }
 
 #[cfg(test)]

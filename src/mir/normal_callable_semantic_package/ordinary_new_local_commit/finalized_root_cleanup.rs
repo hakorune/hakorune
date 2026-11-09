@@ -579,6 +579,7 @@ pub(super) fn validate_finished_cleanup_entry(
             entry,
             finishing,
             order.ingress_result_kind(),
+                order.borrowed_expression_fault_v1(),
         ),
         None => root_cleanup_graph::ordered_structure::validate_finished_call(
             function,

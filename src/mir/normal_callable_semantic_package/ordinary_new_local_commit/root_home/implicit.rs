@@ -186,6 +186,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 entry,
                 projection,
                 order.ingress_result_kind(),
+                order.borrowed_expression_fault_v1(),
             )?;
         } else {
             super::super::root_cleanup_graph::ordered_structure::validate_original_with_wrapper(
@@ -194,6 +195,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 entry,
                 order.ingress_result_kind(),
                 &self.main_arguments_release_suffix_v1(owner, function)?,
+                order.borrowed_expression_fault_v1(),
             )?;
         }
         Ok(())

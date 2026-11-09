@@ -230,6 +230,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 entry,
                 order.ingress_result_kind(),
                 &self.main_arguments_release_suffix_v1(owner, function)?,
+                order.borrowed_expression_fault_v1(),
             )?;
         }
         for row in pending.iter().filter(|row| row.owner() == owner) {
@@ -246,6 +247,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 row.entry(),
                 row.order().ingress_result_kind(),
                 &self.main_arguments_release_suffix_v1(owner, function)?,
+                row.order().borrowed_expression_fault_v1(),
             )?;
         }
         Ok(())

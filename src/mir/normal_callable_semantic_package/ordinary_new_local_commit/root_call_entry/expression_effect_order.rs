@@ -368,6 +368,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         let mut scope = BTreeSet::new();
         let mut pending = vec![entry];
         while let Some(id) = pending.pop() {
+            if self.root_fault == Some(id) { continue; }
             if !scope.insert(id) {
                 continue;
             }
@@ -375,6 +376,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .blocks
                 .get(&id)
                 .ok_or_else(|| freeze("print-expression/scope-block"))?;
+            if id == continuation.0 {
+                if block.terminator.as_ref() != Some(&continuation.1) || !block.instructions.is_empty() {
+                    return Err(freeze("print-expression/continuation-body"));
+                }
+                continue;
+            }
             for instruction in block.all_instructions() {
                 let binding = (id, instruction.clone());
                 let structural = matches!(
@@ -398,12 +405,6 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 .terminator
                 .as_ref()
                 .ok_or_else(|| freeze("print-expression/scope-terminal"))?;
-            if id == continuation.0 {
-                if terminal != &continuation.1 || !block.instructions.is_empty() {
-                    return Err(freeze("print-expression/continuation-body"));
-                }
-                continue;
-            }
             match terminal {
                 MirInstruction::Jump {
                     target,

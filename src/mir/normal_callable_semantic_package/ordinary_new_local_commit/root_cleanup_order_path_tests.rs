@@ -494,6 +494,33 @@ fn root_ordered_structure_rejects_extra_missing_foreign_cycle_and_duplicate_node
             "mutation {mutation}"
         );
     }
+    // A source-validated expression may lend one Fault ingress. The same
+    // ownership boundary still rejects unknown callers and interior entries.
+    let (_, mut function, bindings) = fixture();
+    let caller = (BasicBlockId(8), MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+    let mut block = BasicBlock::new(caller.0);
+    block.set_terminator(caller.1.clone());
+    function.add_block(block);
+    let entry = RootHomeExitEntry::Plain { local_bindings: vec![] };
+    let allowed = [caller.clone()];
+    let validate = |function: &MirFunction| {
+        super::super::super::super::root_cleanup_graph::ordered_structure::validate_original_with_wrapper(
+            function, &bindings, &entry, crate::mir::instruction::InvokeCallResultKind::I64,
+            &[], Some((BasicBlockId(3), &allowed)))
+    };
+    validate(&function).unwrap();
+    super::super::super::super::root_cleanup_graph::validate_projected_ingress(
+        &function, &bindings, BasicBlockId(0), Some((BasicBlockId(3), &allowed))).unwrap();
+    for (block, target) in [(BasicBlockId(9), BasicBlockId(3)), (caller.0, BasicBlockId(2))] {
+        let mut changed = function.clone();
+        let mut foreign = BasicBlock::new(block);
+        foreign.set_terminator(MirInstruction::Jump { target, edge_args: None });
+        changed.blocks.insert(block, foreign);
+        assert!(validate(&changed).is_err());
+        assert!(super::super::super::super::root_cleanup_graph::validate_projected_ingress(
+            &changed, &bindings, BasicBlockId(0), Some((BasicBlockId(3), &allowed))).is_err());
+    }
+
 }
 
 #[test]
@@ -520,6 +547,7 @@ fn root_ordered_structure_and_paths_accept_finished_plain_entry_contraction() {
         &entry,
         &projection,
         crate::mir::instruction::InvokeCallResultKind::I64,
+        None,
     )
     .unwrap();
     ordered_paths::validate(&function, &bindings, &entry, &order, Some(&projection)).unwrap();

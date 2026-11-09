@@ -498,6 +498,7 @@ mod tests {
                     inline_range: None,
                     entry: Some((BasicBlockId(1), MirInstruction::Jump { target: BasicBlockId(2), edge_args: None })),
                     bindings: Vec::new(),
+                    root_cleanup: None,
                 },
                 retained_argument_frames: None,
                 terminal: Some((

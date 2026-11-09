@@ -42,9 +42,14 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     prior_home_unwind: Option<&'a [InvokeOperation]>,
     inline_range: Option<(BasicBlockId, usize, usize, bool)>,
     comparison: Option<(usize, ValueId)>,
+    root_fault: Option<BasicBlockId>,
     scalar_receiver: Option<&'a crate::mir::builder::ExactLexicalReadV1>,
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn with_root_fault_v1(mut self, root_fault: Option<BasicBlockId>) -> Self {
+        self.root_fault = root_fault;
+        self
+    }
     pub(super) fn permits_empty_bindings_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> bool {
         self.original.is_empty() && self.inline_range.is_some()
             && !ledger.expression_requires_fault_frame_v1(self.frame)
@@ -95,6 +100,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             prior_home_unwind: None,
             inline_range: None,
             comparison: None,
+            root_fault: None,
             scalar_receiver: None,
         }
     }

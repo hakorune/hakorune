@@ -46,7 +46,7 @@ pub(in crate::mir::builder) fn emit(builder: &mut MirBuilder,
     let value = builder.next_value_id();
     // The result has no owning lease; do not bind a fresh object result.
     emit_root_home_exit_payload(builder, state, ledger, owner, &exit, Some(value), value,
-        Some(RootExitIngress::MapGet { operation, stored: Some(Box::new(stored)) }))
+        Some(RootExitIngress::MapGet { operation, stored: Some(Box::new(stored)) }), None)
 }
 
 /// Affine transport until the real Local writer completes. No group or receipt

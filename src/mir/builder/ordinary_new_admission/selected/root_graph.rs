@@ -160,10 +160,21 @@ pub(super) fn emit_cleanup_suffixes_with_writer(
     plan: &FaultCleanupPlanV1,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<CleanupSuffixGraphV1, String> {
-    emit_cleanup_actions_with_writer(writer, builder, frame, clean,
-        plan.normal(),
-        plan.fault(),
-        plan.after_normal(), plan.acquisition(), bindings)
+    emit_cleanup_suffixes_with_parent_v1(writer, builder, frame, clean, plan, None, bindings)
+
+}
+
+/// The caller lends an older source-owned suffix, or owns the final Fault.
+pub(super) fn emit_cleanup_suffixes_with_parent_v1(
+    writer: &mut impl RootGraphWriterPortV1, builder: &mut MirBuilder,
+    frame: ValueId, clean: BasicBlockId, plan: &FaultCleanupPlanV1,
+    older: Option<BasicBlockId>, bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<CleanupSuffixGraphV1, String> {
+    match older {
+        Some(fault) => emit_cleanup_suffixes_to_fault_with_writer(writer, builder, frame, clean, plan, fault, bindings),
+        None => emit_cleanup_actions_with_writer(writer, builder, frame, clean, plan.normal(), plan.fault(),
+            plan.after_normal(), plan.acquisition(), bindings),
+    }
 }
 
 pub(super) fn emit_cleanup_actions_with_writer(
@@ -367,46 +378,18 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
     ingress_operation: Option<InvokeOperation>,
     argument_ends: &[InvokeOperation],
 ) -> Result<RootGraphEmissionV1, String> {
-    let fault_operations: Vec<_> = fault_sequences
-        .full
-        .iter()
-        .map(|origin| origin.operation().clone())
-        .collect();
-    let mut bindings = Vec::new();
-    let mut clean = writer.reserve_block(builder)?;
-    writer.append_terminated(
-        builder,
-        clean,
-        MirInstruction::Return {
-            value: return_value,
-        },
-        &mut bindings,
-    )?;
-    let mut origins = Vec::with_capacity(operations.len());
-    let mut frame_value = None;
+    let prepared = prepare_root_cleanup_graph_v1(builder, frame_port, writer, operations,
+        &fault_sequences, ingress_operation.is_some())?;
+    let return_block = prepared.return_block;
+    let fault_terminal = prepared.fault_terminal;
+    let acquisition_fault = prepared.acquisition_fault;
+    let RootGraphEmissionV1 { origins, mut bindings, frame: frame_value, mut clean, .. } = prepared;
+    writer.append_terminated(builder, return_block, MirInstruction::Return { value: return_value }, &mut bindings)?;
+    bindings.rotate_right(1);
     let mut ingress = None;
     let mut argument_cleanup = None;
-    // Empty-Home Plain has no Fault edge and therefore no frame definition.
-    if !operations.is_empty() || ingress_operation.is_some() {
-        let frame = frame_port.materialize(builder)?;
-        frame_value = Some(frame);
-        let root_plan = FaultCleanupPlanV1::from_residuals(
-            operations.iter().map(|origin| origin.operation().clone()).collect(),
-            fault_operations,
-            fault_sequences.after_normal.clone(),
-            if ingress_operation.is_some() { fault_sequences.acquisition.clone() } else { Vec::new() },
-        );
-        let cleanup = root_graph::emit_cleanup_suffixes_with_writer(
-            writer, builder, frame, clean, &root_plan, &mut bindings,
-        )?;
-        clean = cleanup.clean;
-        origins.extend(operations.into_iter().zip(cleanup.normal_origins)
-            .map(|(origin, (block, instruction))| (origin, block, instruction)));
-        let fault = if ingress_operation.is_some() {
-            cleanup.acquisition_fault
-        } else {
-            cleanup.fault_terminal
-        };
+    if let Some(frame) = frame_value {
+        let fault = acquisition_fault.or(fault_terminal).ok_or_else(|| freeze("root-fault-terminal-missing"))?;
         if let Some(operation) = ingress_operation {
             let mut normal_landing = clean;
             let mut fault_landing = fault;
@@ -457,6 +440,7 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
         frame: frame_value,
         clean,
         argument_cleanup,
+        return_block, fault_terminal, acquisition_fault,
     })
 }
 
@@ -498,4 +482,41 @@ fn new_block_function(
         return Err(freeze("duplicate-block"));
     }
     Ok(function)
+}
+
+
+/// Reserve the real Return destination, then compose this source order once.
+/// Its value is filled by the Return owner only after expression evaluation.
+pub(super) fn prepare_root_cleanup_graph_v1(
+    builder: &mut MirBuilder,
+    frame_port: &mut impl RootExitFramePortV1,
+    writer: &mut impl RootGraphWriterPortV1,
+    operations: Vec<RootHomeReleaseOriginV1>,
+    faults: &RootHomeFaultSequencesV1,
+    needs_acquisition: bool,
+) -> Result<RootGraphEmissionV1, String> {
+    let return_block = writer.reserve_block(builder)?;
+    let mut result = RootGraphEmissionV1 {
+        origins: Vec::new(), bindings: Vec::new(), ingress: None, frame: None,
+        clean: return_block, argument_cleanup: None, return_block,
+        fault_terminal: None, acquisition_fault: None,
+    };
+    if !operations.is_empty() || needs_acquisition {
+        let frame = frame_port.materialize(builder)?;
+        let plan = FaultCleanupPlanV1::from_residuals(
+            operations.iter().map(|origin| origin.operation().clone()).collect(),
+            faults.full.iter().map(|origin| origin.operation().clone()).collect(),
+            faults.after_normal.clone(),
+            if needs_acquisition { faults.acquisition.clone() } else { Vec::new() },
+        );
+        let graph = emit_cleanup_suffixes_with_writer(writer, builder, frame, return_block,
+            &plan, &mut result.bindings)?;
+        result.clean = graph.clean;
+        result.frame = Some(frame);
+        result.fault_terminal = Some(graph.fault_terminal);
+        result.acquisition_fault = needs_acquisition.then_some(graph.acquisition_fault);
+        result.origins = operations.into_iter().zip(graph.normal_origins)
+            .map(|(source, (block, instruction))| (source, block, instruction)).collect();
+    }
+    Ok(result)
 }

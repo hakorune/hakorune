@@ -215,6 +215,19 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             fault_frame,
             inherited,
         )?;
+        if let Some(root_fault) = self.root_fault {
+            if !ledger.expression_root_cleanup_v1(self.frame)?.is_some()
+                || !live.is_empty() || residence.is_some() || defer_owned_argument
+                || displaced.is_some() || purpose_acquisition.is_some() || forwarded_dynamic_carrier.is_some() {
+                return Err(freeze("expression/residence-original-pair"));
+            }
+            let start = match finishing {
+                Some(boundary) => boundary.destination(root_fault).ok_or_else(|| freeze("expression/residence-original-pair"))?,
+                None => root_fault,
+            };
+            let borrowed = paths::pending_operations(function, start, &homes, Some(fault_frame))?;
+            covered.retain(|block| !borrowed.contains(block));
+        }
         if let Some(carrier) = forwarded_dynamic_carrier {
             if live.pop() != Some(ExpressionOwnedTemporaryV1::DynamicCarrier(carrier)) {
                 return Err(freeze("dynamic-expression/local-handoff-order"));

@@ -117,12 +117,17 @@ impl OrdinaryNewClaimLedgerV1 {
                     (entry, projection, mapped.as_ref())
                 {
                     if let Some((entry, _)) = bindings.last() {
+                        let borrowed = order.borrowed_expression_fault_v1().map(|(fault, original)| {
+                            Ok::<_, String>((projection.destination(fault).ok_or_else(|| freeze("root-cleanup-graph/residual-node"))?,
+                                projection.bindings(original)?))
+                        }).transpose()?;
                         super::super::root_cleanup_graph::validate_projected_ingress(
                             function,
                             mapped,
                             projection
                                 .destination(*entry)
                                 .expect("checked root mapping"),
+                            borrowed.as_ref().map(|(entry, rows)| (*entry, rows.as_slice())),
                         )?;
                     }
                 }
@@ -293,6 +298,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         entry,
                         projection,
                         order.ingress_result_kind(),
+                order.borrowed_expression_fault_v1(),
                     )?;
                 }
                 let _ = mapped;

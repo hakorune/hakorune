@@ -227,6 +227,19 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             return Err(freeze("expression/inline-delimiter-drift"));
         }
         for original in [entry, terminal, continuation] {
+            if original == continuation && self.root_fault.is_some() {
+                if !context.ledger().expression_root_continuation_v1(self.frame, continuation)? {
+                    return Err(freeze("expression/inline-delimiter-drift"));
+                }
+                let actual = match finishing {
+                    Some(boundary) => boundary.binding(original.0, &original.1)?.ok_or_else(|| freeze("initializer-expression/structural-jump-drift"))?,
+                    None => original.clone(),
+                };
+                if !super::super::super::physical_boundary::check_binding(function, None, actual.0, &actual.1)? {
+                    return Err(freeze("initializer-expression/structural-jump-drift"));
+                }
+                continue;
+            }
             match finishing {
                 Some(boundary) => {
                     boundary.structural_jump_binding(

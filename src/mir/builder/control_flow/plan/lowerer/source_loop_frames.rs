@@ -84,7 +84,7 @@ pub(super) fn emit_return(
     let prior = product.source.condition.prior_homes().iter().map(|home| home.binding()).collect();
     claims.attach_loop_return_text_carrier_ends_v2(input.owner(), &source.site, prior, ends)?;
     crate::mir::builder::ordinary_new_admission::selected::emit_root_home_exit(
-        builder, &mut state, &claims, input.owner(), &source.site, value)?;
+        builder, &mut state, &claims, input.owner(), &source.site, value, None)?;
     Ok((value, read, claims.source_loop_return_bindings_v2(product, source)?))
 }
 

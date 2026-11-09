@@ -283,6 +283,7 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     owner: FunctionOwnerIdV1,
     site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     value: ValueId,
+    prepared: Option<(RootGraphEmissionV1, RootHomeFaultSequencesV1)>,
 ) -> Result<ValueId, String> {
     ledger.prepare_scalar_return_read_v1(owner, site, value,
         builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
@@ -296,7 +297,7 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
         ledger.record_installed_map_return_alias_v1(owner, site, install, (block, copy))?;
         dst
     } else { value };
-    emit_root_home_exit_payload(builder, state, ledger, owner, site, Some(alias), alias, None)
+    emit_root_home_exit_payload(builder, state, ledger, owner, site, Some(alias), alias, None, prepared)
 }
 
 pub(in crate::mir::builder) fn emit_root_home_unit_exit(
@@ -315,8 +316,7 @@ pub(in crate::mir::builder) fn emit_root_home_unit_exit(
         site,
         None,
         statement_result,
-        None,
-    )
+        None, None)
 }
 
 /// One physically-emitting terminal ingress. Every fallible terminal read
@@ -341,6 +341,9 @@ pub(in crate::mir::builder) struct RootGraphEmissionV1 {
     pub frame: Option<ValueId>,
     pub clean: BasicBlockId,
     pub argument_cleanup: Option<root_graph::RootArgumentCleanupV1>,
+    pub return_block: BasicBlockId,
+    pub fault_terminal: Option<BasicBlockId>,
+    pub acquisition_fault: Option<BasicBlockId>,
 }
 
 fn emit_root_home_exit_payload(
@@ -352,6 +355,7 @@ fn emit_root_home_exit_payload(
     return_value: Option<ValueId>,
     statement_result: ValueId,
     ingress: Option<RootExitIngress>,
+    prepared: Option<(RootGraphEmissionV1, RootHomeFaultSequencesV1)>,
 ) -> Result<ValueId, String> {
     let operations = ledger.begin_root_home_exit(owner, site)?;
     if let Some(RootExitIngress::Call(call)) = &ingress {
@@ -381,20 +385,19 @@ fn emit_root_home_exit_payload(
         Some(RootExitIngress::Call(call)) => call.source.deferred_argument_ends_v1(ledger)?,
         _ => Vec::new(),
     };
-    if ingress_operation.is_none() && !operations.is_empty() {
+    if prepared.is_none() && ingress_operation.is_none() && !operations.is_empty() {
         root_graph::separate_plain_entry_v1(builder, frame_port)?;
     }
-    let emission = root_graph::emit_root_graph_with_arguments_v1(
-        builder,
-        frame_port,
-        &mut RawRootGraphWriterV1,
-        operations,
-        fault_sequences,
-        return_value,
-        statement_result,
-        ingress_operation,
-        &argument_ends,
-    )?;
+    let emission = if let Some((emission, expected)) = prepared {
+        if ingress.is_some() || emission.origins.iter().map(|(origin, _, _)| origin.clone()).collect::<Vec<_>>() != operations
+            || expected != fault_sequences {
+            return Err(freeze("root-fault-sequence-shape"));
+        }
+        emission
+    } else {
+        root_graph::emit_root_graph_with_arguments_v1(builder, frame_port, &mut RawRootGraphWriterV1,
+            operations, fault_sequences, return_value, statement_result, ingress_operation, &argument_ends)?
+    };
     let RootGraphEmissionV1 {
         origins,
         bindings,
@@ -402,6 +405,7 @@ fn emit_root_home_exit_payload(
         frame,
         clean: _,
         argument_cleanup,
+        ..
     } = emission;
     match (ingress, physical_ingress) {
         (Some(RootExitIngress::Call(call)), Some((invoke, projection))) => {
@@ -565,8 +569,7 @@ pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
                 site: prepared.site,
                 field: prepared.field,
                 base: prepared.base,
-            }),
-        )?;
+            }), None)?;
         return Ok(crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1 {
             value,
             root_home_exit_emitted: true,
@@ -629,8 +632,7 @@ pub(in crate::mir::builder) fn emit_terminal_map_get_return(
             operation: InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
                 map: prepared.map, utf8: prepared.utf8,
             }), stored: None,
-        }),
-    )
+        }), None)
 }
 
 /// The Fault-only chain of a plan in front of `tail`: no Normal End, so every step

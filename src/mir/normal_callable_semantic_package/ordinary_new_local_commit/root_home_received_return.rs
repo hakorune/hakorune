@@ -122,6 +122,20 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     return Err(freeze("expression/residence-original-pair"));
                 }
+                if row.root_fault.is_some() {
+                    let continuation = row.continuation.as_ref().ok_or_else(|| freeze("expression/residence-original-pair"))?;
+                    let normal = bindings.last().and_then(|(_, instruction)| match instruction {
+                        MirInstruction::Jump { target, edge_args: None } => Some(*target), _ => None,
+                    }).ok_or_else(|| freeze("expression/residence-original-pair"))?;
+                    let coordinate = |block| match return_projection {
+                        Some(projection) => projection.destination(block).ok_or_else(|| freeze("expression/residence-original-pair")),
+                        None => Ok(block),
+                    };
+                    if coordinate(normal)? != producer_projection.map_or(Ok(continuation.0), |projection|
+                        projection.destination(continuation.0).ok_or_else(|| freeze("expression/residence-original-pair")))? {
+                        return Err(freeze("expression/residence-original-pair"));
+                    }
+                }
                 let producer = row
                     .expression()
                     .require_unique(|instruction| instruction.dst_value() == Some(row.value))?;
@@ -445,6 +459,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     residence: Option<ReturnExpressionResidenceV1>,
     after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
     original: Vec<(BasicBlockId, MirInstruction)>,
+    root_fault: Option<BasicBlockId>,
 }
 #[derive(Debug)]
 struct ReturnExpressionResidenceV1 {
@@ -452,6 +467,11 @@ struct ReturnExpressionResidenceV1 {
     install: (BasicBlockId, MirInstruction),
 }
 impl ReturnExpressionEmissionV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn borrowed_root_boundary_v1(&self)
+        -> Option<(BasicBlockId, &[(BasicBlockId, MirInstruction)])> {
+        self.root_fault.map(|entry| (entry, self.original.as_slice()))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn require_source_v1(
         &self, owner: FunctionOwnerIdV1, exit: &SourceStmtSiteV1,
     ) -> Result<(), String> {
@@ -508,7 +528,7 @@ impl ReturnExpressionEmissionV1 {
             &self.path_reads,
             &self.reads,
             &self.original,
-        ).with_inline_range_v1(self.inline_range)
+        ).with_inline_range_v1(self.inline_range).with_root_fault_v1(self.root_fault)
     }
     fn validate(
         &self,
@@ -649,6 +669,7 @@ impl OrdinaryNewClaimLedgerV1 {
         inline_range: Option<(BasicBlockId, usize, usize, bool)>,
         terminal: Option<(BasicBlockId, MirInstruction)>,
         continuation: Option<(BasicBlockId, MirInstruction)>,
+        root_fault: Option<BasicBlockId>,
         materialize: Option<[(BasicBlockId, MirInstruction); 2]>,
         after_residency: Option<crate::mir::builder::BindingValueObservationV2>,
         original: Vec<(BasicBlockId, MirInstruction)>,
@@ -700,6 +721,7 @@ impl OrdinaryNewClaimLedgerV1 {
             inline_range,
             terminal,
             continuation,
+            root_fault,
             original,
         };
         packet.validate(CallValidationContextV1::Lowering(self), function, None)?;

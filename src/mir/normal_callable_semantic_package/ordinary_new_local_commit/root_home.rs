@@ -187,6 +187,7 @@ impl RootHomeReleaseEmissionV1 {
 
 /// Temporary immutable emission projection of the SAME retained root order.
 /// Indices identify original obligations, never operation-payload equivalence.
+#[derive(Clone, PartialEq)]
 pub(crate) struct RootHomeFaultSequencesV1 {
     pub(crate) full: Vec<RootHomeReleaseOriginV1>,
     pub(crate) acquisition: Vec<usize>,
@@ -341,6 +342,50 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("direct-result-not-emitting"));
         };
         order.bind_direct_result(value, kind)
+    }
+
+    /// Borrow the SAME older Home order for a scalar expression with no
+    /// independent argument/result cleanup. This lends no affine progress.
+    pub(crate) fn expression_root_cleanup_v1(
+        &self,
+        frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+    ) -> Result<Option<(Vec<RootHomeReleaseOriginV1>, RootHomeFaultSequencesV1)>, String> {
+        use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
+            expression_projection::ExpressionLeafClassV1 as Leaf};
+        if !matches!(frame.root_class(), Leaf::Value(Class::I64 | Class::Bool))
+            || !frame.calls().is_empty() || !frame.owned_result_nodes().is_empty()
+            || frame.cores().values().any(|core| !core.source().target().checked_array_count_law_v1()) {
+            return Ok(None);
+        }
+        let owner = frame.source().owner();
+        let site = frame.source().root().statement();
+        if self.return_expression_evaluation_v1(owner, site)?.is_none_or(|source| !std::ptr::eq(source.as_ref(), frame)) {
+            return Ok(None);
+        }
+        let exits = self.root_exits.borrow();
+        let order = match exits.get(&(owner, site.clone().into())) {
+            Some(RootHomeExitProgress::Prepared(order) | RootHomeExitProgress::Emitting(order)
+                | RootHomeExitProgress::Finalized(order))
+            | Some(RootHomeExitProgress::Emitted { order, .. }) => order,
+            _ => return Ok(None),
+        };
+        if order.normal().is_empty() || order.text_return_hold.is_some() { return Ok(None); }
+        let faults = RootHomeFaultSequencesV1 {
+            full: order.full().to_vec(), acquisition: order.acquisition_fault_indices().to_vec(),
+            after_normal: (0..order.normal().len()).map(|index| order.fault_indices_after_normal_step(index)).collect::<Result<_, _>>()?,
+        };
+        let older: Vec<_> = faults.acquisition.iter().map(|index| faults.full[*index].operation().clone()).collect();
+        if older != self.prior_home_unwind_for(frame.prior_homes())? { return Ok(None); }
+        Ok(Some((order.normal().to_vec(), faults)))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn expression_root_continuation_v1(
+        &self, frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionEvaluationV1,
+        continuation: &(BasicBlockId, MirInstruction),
+    ) -> Result<bool, String> {
+        let Some((normal, _)) = self.expression_root_cleanup_v1(frame)? else { return Ok(false); };
+        Ok(matches!(&continuation.1, MirInstruction::Invoke { operation, .. }
+            if normal.first().is_some_and(|origin| origin.operation() == operation)))
     }
 
     pub(crate) fn root_home_fault_sequences(

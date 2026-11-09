@@ -9,13 +9,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     entry: &RootHomeExitEntry,
     expected_kind: crate::mir::instruction::InvokeCallResultKind,
 ) -> Result<(), String> {
-    validate_original_with_wrapper(function, bindings, entry, expected_kind, &[])
+    validate_original_with_wrapper(function, bindings, entry, expected_kind, &[], None)
 }
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_original_with_wrapper(
     function: &MirFunction, bindings: &Bindings, entry: &RootHomeExitEntry,
     expected_kind: crate::mir::instruction::InvokeCallResultKind,
     wrapper_suffix: &[(BasicBlockId, MirInstruction)],
+    borrowed: Option<(BasicBlockId, &Bindings)>,
 ) -> Result<(), String> {
     let nodes = collect_nodes(bindings)?;
     let (starts, plain_entry, projected_result) = match entry {
@@ -55,7 +56,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             (vec![clean, pending], None, Some(projection))
         }
     };
-    topology(function, &nodes, starts, plain_entry)?;
+    topology(function, &nodes, starts, plain_entry, borrowed)?;
     for (id, terminal) in &nodes {
         let block = function
             .blocks
@@ -94,6 +95,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     entry: &RootHomeExitEntry,
     projection: &super::super::physical_boundary::FinishedBindings,
     expected_kind: crate::mir::instruction::InvokeCallResultKind,
+    borrowed: Option<(BasicBlockId, &Bindings)>,
 ) -> Result<(), String> {
     let bindings = projection.bindings(original)?;
     let nodes = collect_nodes(&bindings)?;
@@ -136,7 +138,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     };
     // Existing PhysicalBoundary::validate_complete independently checks merged
     // instruction sequences before the owner can enter FinishingChecked.
-    topology(function, &nodes, starts, plain_entry)
+    let mapped_borrowed = borrowed.map(|(entry, original)| {
+        Ok::<_, String>((projection.destination(entry).ok_or_else(|| fault("ordered-structure/missing-projection"))?,
+            projection.bindings(original)?))
+    }).transpose()?;
+    topology(function, &nodes, starts, plain_entry,
+        mapped_borrowed.as_ref().map(|(entry, rows)| (*entry, rows.as_slice())))
 }
 /// Root Call payloads are already rebound before their affine final handoff.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_finished_call(
@@ -154,7 +161,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     let nodes = collect_nodes(bindings)?;
     let (clean, pending, _, _) =
         call::ingress(function, bindings, invoke, projection, expected_kind)?;
-    topology(function, &nodes, vec![clean, pending], None)
+    topology(function, &nodes, vec![clean, pending], None, None)
 }
 
 fn collect_nodes(bindings: &Bindings) -> Result<BTreeMap<BasicBlockId, &MirInstruction>, String> {
@@ -173,12 +180,16 @@ fn topology(
     nodes: &BTreeMap<BasicBlockId, &MirInstruction>,
     starts: Vec<BasicBlockId>,
     plain_entry: Option<BasicBlockId>,
+    borrowed: Option<(BasicBlockId, &Bindings)>,
 ) -> Result<(), String> {
-    topology_until(function, nodes, starts, plain_entry, None)
+    let mut starts = starts;
+    if let Some((entry, _)) = borrowed { starts.push(entry); }
+    topology_until(function, nodes, starts, plain_entry, None, borrowed)
 }
 fn topology_until(
     function: &MirFunction, nodes: &BTreeMap<BasicBlockId, &MirInstruction>,
     starts: Vec<BasicBlockId>, plain_entry: Option<BasicBlockId>, stop: Option<BasicBlockId>,
+    borrowed: Option<(BasicBlockId, &Bindings)>,
 ) -> Result<(), String> {
     let mut reached = BTreeSet::new();
     let mut work = starts;
@@ -205,7 +216,7 @@ fn topology_until(
         }
     }
     if let Some(entry) = plain_entry {
-        let incoming = boundary_incoming(function, &reached, entry)?;
+        let incoming = boundary_incoming(function, &reached, entry, borrowed)?;
         if entry != function.entry_block && incoming.is_empty() {
             return Err(fault("ordered-structure/missing-incoming"));
         }
@@ -226,5 +237,5 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         edges(terminal)?;
     }
     require_acyclic_until(&nodes, Some(continuation))?;
-    topology_until(function, &nodes, vec![entry], Some(entry), Some(continuation))
+    topology_until(function, &nodes, vec![entry], Some(entry), Some(continuation), None)
 }

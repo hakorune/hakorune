@@ -476,8 +476,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             ledger,
             owner,
             &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site),
-            value,
-        )
+            value, None)
     }
     fn emit_root_home_unit_exit(
         &mut self,

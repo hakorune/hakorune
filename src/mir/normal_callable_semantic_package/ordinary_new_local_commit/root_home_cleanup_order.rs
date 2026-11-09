@@ -3,6 +3,7 @@
 use super::{freeze, RootHomeReleaseOriginV1, FunctionOwnerIdV1, SourceStmtSiteV1,
     TerminalRelationV1, TerminalReturnedSourceV1, CallValidationContextV1, RootHomeExitProgress, ValueId};
 use crate::mir::instruction::InvokeOperation;
+use crate::mir::{BasicBlockId, MirInstruction};
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
@@ -458,6 +459,11 @@ impl RootHomeCleanupOrderV1 {
             return Err(freeze("result-cleanup/order-drift"));
         }
         Ok(())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn borrowed_expression_fault_v1(&self)
+        -> Option<(BasicBlockId, &[(BasicBlockId, MirInstruction)])> {
+        self.return_expression.as_ref().and_then(|row| row.borrowed_root_boundary_v1())
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn normal(
