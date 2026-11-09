@@ -652,7 +652,9 @@ pub(in crate::mir::builder) fn cleanup_chain(
     let mut next = tail;
     // Build links backwards; execution preserves the source-issued order.
     for operation in plan.fault().iter().rev().cloned() {
-        next = cleanup_step(builder, frame, operation, next, next, bindings)?;
+        next = root_graph::cleanup_action_step_with_writer(
+            &mut RawRootGraphWriterV1, builder, frame, operation, next, next, bindings,
+        )?.0;
     }
     Ok(next)
 }

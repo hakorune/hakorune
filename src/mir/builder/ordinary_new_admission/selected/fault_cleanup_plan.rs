@@ -4,23 +4,24 @@
 //! the writers in `root_graph.rs` only turn a plan into blocks.
 use super::*;
 use crate::mir::instruction::StringInvokeOperation as Operation;
+use crate::mir::normal_callable_semantic_package::RootCleanupActionV1;
 
 /// `normal` ends on the Normal edge in order; `fault` is the full list a Fault may
 /// close; `after_normal[i]` names the `fault` entries still owed after Normal step `i`;
 /// `acquisition` names the entries a Fault of the guarded operation itself closes.
 #[derive(Debug, Clone, Default)]
 pub(in crate::mir::builder) struct FaultCleanupPlanV1 {
-    normal: Vec<InvokeOperation>,
-    fault: Vec<InvokeOperation>,
+    normal: Vec<RootCleanupActionV1>,
+    fault: Vec<RootCleanupActionV1>,
     after_normal: Vec<Vec<usize>>,
     acquisition: Vec<usize>,
 }
 
 impl FaultCleanupPlanV1 {
-    pub(in crate::mir::builder) fn normal(&self) -> &[InvokeOperation] {
+    pub(in crate::mir::builder) fn normal(&self) -> &[RootCleanupActionV1] {
         &self.normal
     }
-    pub(in crate::mir::builder) fn fault(&self) -> &[InvokeOperation] {
+    pub(in crate::mir::builder) fn fault(&self) -> &[RootCleanupActionV1] {
         &self.fault
     }
     pub(in crate::mir::builder) fn after_normal(&self) -> &[Vec<usize>] {
@@ -64,7 +65,7 @@ impl FaultCleanupPlanV1 {
     /// A Fault-only suffix: no Normal End, and a Fault of the guarded operation closes every entry.
     pub(in crate::mir::builder) fn unwind(operations: Vec<InvokeOperation>) -> Self {
         let acquisition = (0..operations.len()).collect();
-        Self { normal: Vec::new(), fault: operations, after_normal: Vec::new(), acquisition }
+        Self::from_residuals(Vec::new(), operations, Vec::new(), acquisition)
     }
 
     /// The Fault-only suffix in front of one fallible operation of an expression.
@@ -108,13 +109,15 @@ impl FaultCleanupPlanV1 {
     /// An acquisition owes exactly one End: reject a plan that ends one value twice.
     pub(in crate::mir::builder) fn reject_duplicate_acquisition(&self) -> Result<(), String> {
         let mut seen = std::collections::BTreeSet::new();
-        for operation in &self.fault {
-            if let InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { value })
-                | InvokeOperation::DynamicCarrierEnd { carrier: value } = operation
-            {
-                if !seen.insert(*value) {
-                    return Err(freeze("call-argument/duplicate-acquisition"));
-                }
+        for action in &self.fault {
+            let value = match action {
+                RootCleanupActionV1::Invoke(InvokeOperation::String(Operation::End { value })
+                    | InvokeOperation::DynamicCarrierEnd { carrier: value })
+                | RootCleanupActionV1::ArrayRelease { value } => value,
+                _ => continue,
+            };
+            if !seen.insert(*value) {
+                return Err(freeze("call-argument/duplicate-acquisition"));
             }
         }
         Ok(())
@@ -158,7 +161,7 @@ impl FaultCleanupPlanV1 {
                 crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(fault.len(), &normal_indices, step))
                 .collect::<Result<Vec<_>, _>>()?,
         };
-        Ok(Self { normal, fault, after_normal, acquisition: Vec::new() })
+        Ok(Self::from_residuals(normal, fault, after_normal, Vec::new()))
     }
 
     /// The arguments of a `new`: the object's own cleanup first, then the argument Ends, then the Homes.
@@ -175,7 +178,7 @@ impl FaultCleanupPlanV1 {
             .map(|step| crate::mir::normal_callable_semantic_package::fault_indices_after_normal_step_v2(
                 object_cleanup.len(), &indices, step))
             .collect::<Result<Vec<_>, _>>()?;
-        Ok(Self { normal: normal_ends, fault: object_cleanup, after_normal, acquisition: Vec::new() })
+        Ok(Self::from_residuals(normal_ends, object_cleanup, after_normal, Vec::new()))
     }
 
     /// A plan whose residual Fault entries were already derived from the original source
@@ -183,6 +186,21 @@ impl FaultCleanupPlanV1 {
     pub(in crate::mir::builder) fn from_residuals(
         normal: Vec<InvokeOperation>,
         fault: Vec<InvokeOperation>,
+        after_normal: Vec<Vec<usize>>,
+        acquisition: Vec<usize>,
+    ) -> Self {
+        Self::from_action_residuals(
+            normal.into_iter().map(RootCleanupActionV1::Invoke).collect(),
+            fault.into_iter().map(RootCleanupActionV1::Invoke).collect(),
+            after_normal,
+            acquisition,
+        )
+    }
+
+    /// The same suffix graph consumes fallible Ends and infallible residence releases.
+    pub(in crate::mir::builder) fn from_action_residuals(
+        normal: Vec<RootCleanupActionV1>,
+        fault: Vec<RootCleanupActionV1>,
         after_normal: Vec<Vec<usize>>,
         acquisition: Vec<usize>,
     ) -> Self {
@@ -197,6 +215,6 @@ impl FaultCleanupPlanV1 {
                 fault.len(), &indices, step))
             .collect::<Result<Vec<_>, _>>()?;
         let acquisition = acquisition.unwrap_or_else(|| (0..fault.len()).collect());
-        Ok(Self { normal, fault, after_normal, acquisition })
+        Ok(Self::from_residuals(normal, fault, after_normal, acquisition))
     }
 }

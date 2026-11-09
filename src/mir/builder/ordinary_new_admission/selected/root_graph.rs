@@ -161,8 +161,8 @@ pub(super) fn emit_cleanup_suffixes_with_writer(
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<CleanupSuffixGraphV1, String> {
     emit_cleanup_actions_with_writer(writer, builder, frame, clean,
-        &plan.normal().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
-        &plan.fault().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
+        plan.normal(),
+        plan.fault(),
         plan.after_normal(), plan.acquisition(), bindings)
 }
 
@@ -205,8 +205,8 @@ pub(super) fn emit_cleanup_suffixes_to_fault_with_writer(
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<CleanupSuffixGraphV1, String> {
     emit_cleanup_actions_to_fault_with_writer(writer, builder, frame, clean,
-        &plan.normal().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
-        &plan.fault().iter().cloned().map(RootCleanupActionV1::Invoke).collect::<Vec<_>>(),
+        plan.normal(),
+        plan.fault(),
         plan.after_normal(), plan.acquisition(), fault_terminal, bindings)
 }
 
@@ -294,7 +294,7 @@ fn emit_pending_root_fault_sequence(
     Ok(next)
 }
 
-fn cleanup_action_step_with_writer(
+pub(super) fn cleanup_action_step_with_writer(
     writer: &mut impl RootGraphWriterPortV1, builder: &mut MirBuilder,
     frame: ValueId, action: RootCleanupActionV1, normal_next: BasicBlockId, fault_next: BasicBlockId,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
