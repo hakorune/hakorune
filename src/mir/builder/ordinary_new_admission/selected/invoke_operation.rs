@@ -43,7 +43,12 @@ pub(in crate::mir::builder) fn emit(
         .ok_or_else(|| freeze("no-block"))?;
     let normal = builder.next_block_id();
     let invoke = emit_control_to_landing_v1(
-        builder, &mut RawRootGraphWriterV1, operation, frame, normal, fault,
+        builder,
+        &mut RawRootGraphWriterV1,
+        operation,
+        frame,
+        normal,
+        fault,
     )?;
     bindings.push(invoke);
     builder.start_new_block(normal)?;

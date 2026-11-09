@@ -264,7 +264,11 @@ impl ScriptSemanticLoweringState {
             builder.emit_instruction(MirInstruction::ArrayResidenceRelease { value: *value })?;
         }
         let instruction = crate::mir::ssot::cf_common::return_instruction(
-            if matches!(recipe.result(), RootResult::Unit) { None } else { Some(value) },
+            if matches!(recipe.result(), RootResult::Unit) {
+                None
+            } else {
+                Some(value)
+            },
         );
         builder.emit_instruction(instruction.clone())?;
         let block = builder

@@ -154,9 +154,17 @@ impl super::super::MirBuilder {
                 certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
                 box_kind,
             };
-            if self.try_emit_known_array_method_call_v1(
-                dst, box_val, &args, &observed_callee, &observed_args, None,
-            )?.is_some() {
+            if self
+                .try_emit_known_array_method_call_v1(
+                    dst,
+                    box_val,
+                    &args,
+                    &observed_callee,
+                    &observed_args,
+                    None,
+                )?
+                .is_some()
+            {
                 return Ok(());
             }
         }
