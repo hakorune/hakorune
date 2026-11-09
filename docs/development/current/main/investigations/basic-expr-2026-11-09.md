@@ -84,3 +84,5 @@ B29. 元preflightが既に認めるAddのappendは消去可能な候補として
 B30. consumer handoffを封じた後とFinalizedで使用receiptを新規発行せず、既存receiptを照合し、未使用候補が消えた場合だけそのoriginalと派生対応を省略し、生存するappendと実使用の対応検証は省略しない。
 
 B31. 未借用Add候補の省略は同じoriginalまたは正規relationが保持する厳密なbindingに限り、captureの一意性・移転先・最終の定義と使用とreturn_envの不在・非mandatoryを検査し、既定のrelation検証と借用済みoriginalの必須検証は変えない。
+
+B32. Returnのlocal参照は同じ元source flowの完全なsigned SUMを需要として既存Home走査を選び、演算子やReturn式の形を再判定せず、実受理と所有は既存のCurrentScalarRead・元producer・終端ownerで検証する。
