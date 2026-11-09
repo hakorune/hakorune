@@ -130,6 +130,24 @@ fn scalar_expression_emits_typed_field_reads_and_arithmetic() {
         }
         assert!(validate(&module).is_err(), "original path drift {mutation} must refuse");
     }
+    // A nested result enumerates direct siblings too. The common path row
+    // and the direct numeric row keep their own canonical source proofs.
+    let source = callable_source(
+        "box Leaf { n: usize = 3
+ birth() { } }
+         box Parent { left: Leaf = new Leaf()
+ value: usize = 5
+ birth() { }
+             total() { return me.left.n + me.value } }
+         static box Main { main() { local parent = new Parent()
+ return parent.total() } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session().complete_normal_default_program_root_catalog_lifecycle(
+        source, CallableMainMaterializationPolicyV1::Omitted, NormalRuntimeInputSnapshotV1::empty(),
+    ).expect("mixed direct and nested original fields retain one source row each");
+    let (_, module, validate) = completed.into_artifact_parts();
+    validate(&module).unwrap();
 }
 
 #[test]

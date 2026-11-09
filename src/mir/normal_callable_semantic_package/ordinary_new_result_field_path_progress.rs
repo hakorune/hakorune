@@ -19,14 +19,22 @@ impl OrdinaryNewClaimLedgerV1 {
                 receiver: loan.root(), home: loan.root(), source, numeric_source: None,
                 progress: LocalReadProgress::Pending }).is_some() { return Err(fault("result-path/duplicate")); }
         }
-        let mut rows = self.local_field_reads.borrow_mut();
-        for (site, row) in &staged {
-            if let Some(previous) = rows.get(site) {
-                if previous.source != row.source || !matches!(previous.progress, LocalReadProgress::Pending) {
-                    return Err(fault("result-path/stage-conflict"));
+        {
+            let rows = self.local_field_reads.borrow();
+            for (site, row) in &staged {
+                let Some(previous) = rows.get(site) else { continue; };
+                if !matches!(previous.progress, LocalReadProgress::Pending) { return Err(fault("result-path/stage-conflict")); }
+                if previous.source != row.source {
+                    let Some(FieldPathSourceV1::Return(loan)) = row.source.expression_path.as_ref() else { unreachable!() };
+                    if matches!(previous.source.expression_path, Some(FieldPathSourceV1::Return(_)))
+                        || !self.result_path_row_matches_v1(&canonical, loan, previous)? {
+                        return Err(fault("result-path/stage-conflict"));
+                    }
+                    self.recheck_local_field_source_v1(site, previous, CallValidationContextV1::Lowering(self))?;
                 }
             }
         }
+        let mut rows = self.local_field_reads.borrow_mut();
         for (site, row) in staged { rows.entry(site).or_insert(row); }
         Ok(())
     }
@@ -43,10 +51,28 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(result) = self.callable_scalar_result_source_v1(owner)? else { return Ok(None); };
         for loan in result.nested_result_field_sources_v1()? {
             let row = rows.get(&loan.site()).ok_or_else(|| fault("result-path/required-read-missing"))?;
-            if row.source.expression_path.as_ref() != Some(&FieldPathSourceV1::Return(loan)) { return Err(fault("result-path/required-source-drift")); }
+            if !self.result_path_row_matches_v1(&result, &loan, row)? { return Err(fault("result-path/required-source-drift")); }
         }
         Ok(Some(result))
     }
+    fn result_path_row_matches_v1(&self, result: &CallableScalarResultSourceLoanV1,
+        loan: &crate::mir::normal_callable_semantic_package::ResultPathFieldSourceLoanV1, row: &LocalFieldRead,
+    ) -> Result<bool, String> {
+        loan.recheck(result)?;
+        let (field, kind, declared) = loan.descriptor()?;
+        if row.local.is_some() || row.receiver_site != *loan.receiver_site()
+            || row.receiver != loan.root() || row.home != loan.root()
+            || row.source.field != field || row.source.result != kind
+            || row.source.declared_type_name.as_deref() != declared { return Ok(false); }
+        if row.source.expression_path.as_ref() == Some(&FieldPathSourceV1::Return(loan.clone())) {
+            return Ok(row.numeric_source.is_none());
+        }
+        let Some(required) = self.source_field_requirement_v1(&loan.site())? else { return Ok(false); };
+        if !loan.corroborated_expression_requirement_v1(result, required)? { return Ok(false); }
+        Ok(matches!((required.request().path.as_ref(), row.source.expression_path.as_ref(), row.numeric_source.as_ref()),
+            (Some(_), Some(FieldPathSourceV1::Print(_)), None) | (None, None, Some(_))))
+    }
+
     pub(super) fn recheck_result_path_field_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let loan = row.source.expression_path.as_ref().ok_or_else(|| fault("result-path/source-missing"))?;
         context.require_ledger(self)?;

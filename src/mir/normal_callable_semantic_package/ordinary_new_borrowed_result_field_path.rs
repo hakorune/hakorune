@@ -80,6 +80,34 @@ impl ResultPathFieldSourceLoanV1 {
     pub(crate) fn parent(&self) -> Option<OwnedExprSiteV1> {
         self.path.parent()
     }
+    /// Corroborate two canonical plans of the SAME original Return, without
+    /// replacing the retained result loan or comparing separately issued Rc plans.
+    pub(crate) fn corroborated_expression_requirement_v1(
+        &self, canonical: &CallableScalarResultSourceLoanV1,
+        required: &crate::mir::resolved_semantics::home_new_prefix::ExpressionFieldRequirementV1,
+    ) -> Result<bool, String> {
+        use crate::mir::resolved_value_profile::expression_plan::{ExpressionPlanRootV1, OriginalExpressionFieldPathV1};
+        use crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1;
+        self.recheck(canonical)?;
+        let plan = required.plan();
+        let request = required.request();
+        let Some(path) = OriginalExpressionFieldPathV1::issue(Rc::clone(plan), request.site.site()) else { return Ok(false); };
+        Ok(plan.owner() == self.path.plan().owner()
+            && matches!(plan.root(), ExpressionPlanRootV1::Statement { role: StatementExpressionRoleV1::ReturnValue, .. })
+            && plan.root() == self.path.plan().root()
+            && request.node_in_plan(plan) == Some(path.node())
+            && request.site == self.site() && request.receiver_site == *self.receiver_site()
+            && request.receiver == self.root() && request.home == self.root()
+            && request.field.as_ref() == path.name()
+            && (request.path.is_some() || !path.is_nested_component())
+            && path.root() == self.path.root() && path.root_site() == self.path.root_site()
+            && path.parent() == self.path.parent() && path.fields().len() == self.path.fields().len()
+            && path.fields().iter().zip(self.path.fields()).all(|(left, right)| {
+                let left = &plan.nodes()[*left]; let right = &self.path.plan().nodes()[*right];
+                left.site() == right.site() && left.source() == right.source()
+            }))
+    }
+
     pub(crate) fn descriptor(
         &self,
     ) -> Result<

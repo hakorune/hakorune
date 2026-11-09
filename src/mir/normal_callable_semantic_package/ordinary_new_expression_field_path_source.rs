@@ -33,7 +33,8 @@ impl StatementFieldPathSourceV1 {
         if request.node_in_plan(path.plan()) != Some(path.node()) || request.nullable || request.formal
             || (!matches!(request.received, Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { .. }))
                 && !matches!(path.plan().root(), ExpressionPlanRootV1::Statement {
-                    role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. }))
+                    role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue
+                        | crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
             || declaration.expression_path.is_some() || declaration.received.is_some()
         { return Err(fault("expression-path/source-role")); }
         match (&parent, path.parent()) {
