@@ -67,3 +67,5 @@ B23. 数値Arrayの非fallible Endは既存RootCleanupActionV1::ArrayReleaseを�
 ## G3 の経路整理
 数値Arrayは `source_call_target/named_array_method.rs:122` のLoop限定、localはText/fieldはIntegerというsourceの分岐が入口を狭めていた。既存 `issue_ordinary_source`、ArrayIntegerAppend/Count/DynamicRead、IntrinsicArrayNew/ArrayStateContractClaim/ArrayElementWrite、ArrayRead/ArrayResidenceReleaseを利用できる。NoValue、claimのordinary publication/Cの同じキーでの受理、既存RootCleanupActionへの統合はprivate接続として必要であり、opcode/公開schema不足とは扱わない。基準dump受理にlocal new Array+数値pushは0本で、Arrayの(c)衝突は未確認。
 Mapのe12は別境界。基準dump受理plain/in/a4.hako、plain/in/a5.hako、red-sort/in/mg.hakoは共通のnew/set/getをraw new/call_methodで生成しEnd/Faultを持たない。共通Map ownerのNew/InstallValue/Endへの移行はこのMIRを変える。return位置だけを特例にせず、旧MIRの移行判断までMap群を止める。e13は表示の規範を確認できず測定だけとする。
+
+B24. 完全なordinary static入力族の結果は同じ元Staticと受動snapshot・実expression membershipを照合して共通評価へ貸し、利用先だけで別loanを作らず、既存scalar-only Staticの元writerは保持する。
