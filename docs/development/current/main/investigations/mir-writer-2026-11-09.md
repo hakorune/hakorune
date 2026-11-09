@@ -87,14 +87,42 @@ Paths below are relative to `src/mir/`. A family is counted once even if several
 4. Unify Return at the existing canonical CFG boundary while preserving placement/span and strict vs selected preflight; never replace all Returns with the strict emitter blindly.
 5. Verify acceptance/refusals and outputs against the supplied base, enumerate all MIR changes and remaining evidence boundaries in the final report.
 
-## Consolidated boundaries
+## Trim rules and complete function inventory (7d32be05ee)
 
-- Arithmetic raw construction is in `ssot/binop_lower::emit_binop_with`; checked Binary shape selection is in existing `builder/ops/arithmetic::emit_checked_binary_v1`. The expression descent no longer independently chooses Integer/String/Dynamic emission. Ordinary unqualified Add is not promoted into a forged Integer proof.
-- Compare construction is in `ssot/cf_common::emit_compare_with`; strict prepared append and ordinary Bool publication retain their original transactions.
-- Field construction/dispatch is in existing `builder/fields`: raw exact reads 4→1, legacy raw field reads 2→1, checked Scalar operation projection 2→1. Terminal raw/checked dispatch moved from selected into fields/checked_read; its existing prepared source/root cleanup is retained. Local/Terminal/shared source proofs remain distinct.
-- Known Array write/read call fronts share the existing Array owner. The CorePlan write-only Array-like proof is preserved, and all three call fronts share successful-write observation/receipt publication. The old `try_emit_known_array_method_write` wrapper is removed. Raw Array read and write primitives were already single owners.
-- The Map read consumer no longer hand-writes Invoke/NormalResult. Selected operations, expression/field checked reads, script Array control and root packets share the existing Invoke layout/control writer; result projection and cleanup keep their prepared transactions.
-- Return construction is in `cf_common::return_instruction` and installation in `append_return_to_block_core`; canonical `commit_return` also preserves predecessor/edge truth. Strict vs selected preflight, append vs replacement, current vs fallback span and return_env remain unchanged. Source completion/cleanup owners are not claimed to have merged.
+W12. 1つの命令の値を作るだけの関数は、書き手ではないので足さない。命令のenumのliteralが、その命令を作る唯一の場所である。
+W13. 共通の関数にしてよいのは、2か所以上で重複していた、いくつかの手順のまとまりだけである。
+W14. 呼ぶ所が1つの関数を移してよいのは、依存か重複が減る時だけである。依存の向きが逆になる移動や、橋渡しが増える移動はしない。
+
+Three read-only workers classified every added or visibility-widened function in aee4cdebc8..7d32be05ee before trim implementation (20 functions, no extra functions found). Paths below are relative to src/mir; line numbers refer to 7d32be05ee. ア = one instruction/operation value or one append, イ = repeated multi-step transaction, ウ = single-caller move/artificial bridge. Existing multi-step helpers are retained, with unnecessary visibility undone.
+
+| Function and body | Callers / location | Class / action |
+|---|---|---|
+| binop_lower::emit_binop_with: construct BinOp and call supplied append | ssot/binop_lower.rs:23; ops/arithmetic:97, Loop emission:48/125, unary:180, Script:141, selected:552, trivial:51, CoreEffect:344, loop_common:41 | ア: delete, restore literals |
+| cf_common::emit_compare_with: construct Compare and call append | cf_common.rs:63; emission/compare:61, builder_emit_core:92, trivial:55, CoreEffect:354, cf_common:74 | ア: delete, restore literals |
+| cf_common::return_instruction: construct Return | cf_common.rs:29; 17 builder source-command/detached sites in preceding inventory | ア: delete, restore literals |
+| cf_common::append_return_to_block_core: Return plus one append/set | cf_common.rs:36; append_instruction_core, append_return_core, detached thunk/seal/module/condition | ア: delete, restore original append |
+| cf_common::append_return_core: lookup block then delegate Return append | cf_common.rs:48; cfg commit_return, draft_seal/exit_projection | ア: delete, restore original append |
+| CanonicalCfgSession::commit_return: delegate same CFG mutation to Return-only branch | canonical_cfg/instruction.rs:148; commit_instruction, session.emit_return, Script exit, edgecfg wires | ア: delete Return branch |
+| CanonicalCfgSession::commit_with: old predecessor/append/edge sequence split out for newly-created branches | canonical_cfg/instruction.rs:163; commit_instruction and commit_return only | ウ: restore the original single commit_instruction body; not a genuinely pre-existing duplicate |
+| invoke_operation::instruction: construct Invoke | selected/invoke_operation.rs:5; emit_control_to_landing and root_graph packet | ア: delete, restore literals |
+| invoke_operation::emit_control_to_landing_v1: construct one Invoke and pass it to emit_current | selected/invoke_operation.rs:19; emit, expression_value, checked_read, script_array_control | ア: delete, restore original append |
+| invoke_operation::emit: Invoke→Normal block→optional NormalResult→bindings | selected/invoke_operation.rs:36; owned_array, map, field_array_append, map_field_install, terminal_map_get, new map_read_physical_consumer | イ: retain transaction and only the visibility needed by Map read |
+| checked_scalar_field_read_operation_v1: construct FieldGet operation | fields.rs:204; checked_read:73 and selected root ingress:398 | ア: delete, restore literals |
+| append_raw_field_get_v1: construct legacy FieldGet plus one emit | fields.rs:212; fields AST path:474 and CoreEffect:302 | ア: delete, restore literals |
+| append_object_field_read_v1: block check→destination choice→append→binding | fields.rs:190; exact typed wrapper:180, selected terminal Add:538, selected/arguments:113, terminal field in checked_read:152 | イ: retain repeated append transaction; type publication remains with its old callers |
+| try_emit_known_array_method_call_v1: known-method write/read choice and delegation | array_element_write.rs:23; unified_emitter and boxcall facade | イ: retain two-front selection |
+| try_emit_known_array_method_write_call_v1: write→metadata observation→duplicate-slot check→receipt | array_element_write.rs:126; known-method call plus CoreEffect write-only call | イ: retain three-front transaction |
+| emit_checked_binary_v1: moved checked Integer/String/Dynamic branch | ops/arithmetic.rs:204; expression_value:577 only | ウ: put branch back in expression descent; remove arithmetic→selected dependency |
+| emit_terminal_i64_field_return: moved terminal source dispatch/root cleanup | fields/checked_read.rs:133; raw_ordinary_new_claim/invocation only | ウ: restore selected owner; keep its raw append on shared object-field transaction |
+| emit_root_field_exit_v1: new bridge back to original root cleanup | selected.rs; terminal field helper only | ウ: inline old root ingress into restored terminal helper, delete bridge |
+| emit_string_value: existing acquisition-count/temporary-order/result conversion sequence | expression_value.rs:594; expression descent and moved arithmetic helper | イ existing body: retain; restore private visibility/reexports after move is undone |
+| emit_scalar_operation_with_pending_v1: existing result check→Normal reserve→Fault cleanup→Invoke/NormalResult | expression_value.rs:662; expression descent, cleanup.rs, lexical_i64_expression and moved arithmetic | イ existing body: retain; restore pub(super) visibility |
+
+## Consolidated boundaries (corrected counting)
+
+The preceding round's literal-site counts (11→1 arithmetic, 5→1 Compare, 17→1 Return) are withdrawn as writer-convergence claims. A value factory is not a new shared semantic writer. The checked Binary shape selector was one location moved to another, not elimination of a duplicate. Source adapters, independent verifiers and optimization/rematerialization passes remain separate.
+
+Count only genuine shape decisions and duplicated multi-step transactions: known ArrayBox write/read choice 2→1; Array successful-write observation/receipt sequence 3→1; Map read Invoke/Normal/result sequence 2→1; exact-object field append transaction 4→1. Existing Integer/String/Dynamic expression shape selection remains one location, restored to its expression owner. Local/Terminal source and cleanup decisions remain distinct; no universal shape-selection claim is made.
 
 ## Stopped semantic representation boundaries (W7/W11)
 
