@@ -708,7 +708,7 @@ fn pure_scalar_read_root_publishes_without_calls_and_rejects_return_drift() {
                 assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
                 assert!(!view.has_lifecycle_instructions());
                 let source = view.retained_root_source().expect("same finalized source");
-                assert!(source.validate_plain_scalar_read_root_v1(view.module())?);
+                assert!(source.validate_source_scalar_root_v1(view.module())?);
                 let symbol = view.retained_root().unwrap().signature.name.clone();
                 let mut changed = view.module().clone();
                 let root = changed.functions.get_mut(&symbol).unwrap();
@@ -723,13 +723,13 @@ fn pure_scalar_read_root_publishes_without_calls_and_rejects_return_drift() {
                     }
                 }
                 assert_eq!(edits, 1);
-                assert!(source.validate_plain_scalar_read_root_v1(&changed).is_err());
+                assert!(source.validate_source_scalar_root_v1(&changed).is_err());
                 let mut changed_constant = view.module().clone();
                 let root = changed_constant.functions.get_mut(&symbol).unwrap();
                 let constant = root.blocks.values_mut().flat_map(|b| b.instructions.iter_mut())
                     .find_map(|i| match i { MirInstruction::Const { value, .. } => Some(value), _ => None }).unwrap();
                 *constant = crate::mir::ConstValue::Integer(99);
-                assert!(source.validate_plain_scalar_read_root_v1(&changed_constant).is_err());
+                assert!(source.validate_source_scalar_root_v1(&changed_constant).is_err());
                 Ok(())
             }).unwrap();
         assert!(called.get(), "source-certified root must reach the canonical consumer");

@@ -151,10 +151,15 @@ fn unproven_bound_returns_stay_fail_closed() {
             assert!(error.contains(stop), "{label}: {error}");
         }
         // B36: the original literal/read receipt authorizes Static V2, not a lifecycle ABI.
+        for text in [
+            "static box Main { main() { local x = 5 return x } }",
+            "static box Main { main() { local x = 5 local value = copy x + 2 if copy true { return copy value } return 2 } }",
+            "static box Main { main() { local v = 0 loop(v < 1) { if v == 0 { return 0 } v = v + 1 } return 1 } }",
+        ] {
         let called = std::cell::Cell::new(false);
         MirCompiler::with_options(false)
             .compile_normal_with_published(
-                request("static box Main { main() { local x = 5 return x } }"),
+                request(text),
                 |view, verification| -> Result<(), String> {
                     called.set(true);
                     require_artifact_verification(verification);
@@ -163,7 +168,7 @@ fn unproven_bound_returns_stay_fail_closed() {
                     assert!(view
                         .retained_root_source()
                         .expect("original scalar source")
-                        .validate_plain_scalar_read_root_v1(view.module())?);
+                        .validate_source_scalar_root_v1(view.module())?);
                     Ok(())
                 },
             )
@@ -172,6 +177,21 @@ fn unproven_bound_returns_stay_fail_closed() {
             called.get(),
             "pure-bound-lit must reach the canonical consumer"
         );
+        }
+        let outcome = MirCompiler::with_options(false)
+            .compile_normal_with_published(
+                request(
+                    "static box Main { main() { local x = 5 if x == 5 { return x } return 0 } }",
+                ),
+                |_, _| -> Result<(), String> {
+                    panic!("a literal sibling alone grants no new source eligibility")
+                },
+            )
+            .unwrap();
+        assert!(matches!(
+            outcome,
+            crate::mir::compiler::NormalPublishedCompileOutcome::ExplicitCompatibility(_)
+        ));
     });
 }
 

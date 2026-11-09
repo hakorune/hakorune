@@ -608,7 +608,7 @@ impl MirCompiler {
                 }
                 .map_err(|error| error.to_string())?;
                 let view = if retained_root.as_ref().and_then(|root| root.root_source())
-                    .is_some_and(|source| source.has_plain_scalar_read_root_v1()) {
+                    .is_some_and(|source| source.has_source_scalar_root_v1()) {
                     view.bind_finalized_root_handoff(retained_root.as_ref())?
                 } else { view };
                 use published_backend_view::PublishedStaticMethodRouteV1;
