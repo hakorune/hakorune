@@ -164,7 +164,9 @@ impl OwnedCallableParameterContractV1 {
     /// The full source-input domain, not executable argument or entry authority.
     /// Scalar-only calls retain their existing exact-I64 owner.
     pub(super) fn ordinary_source_input_cohort_v1(parameters: &[Self]) -> bool {
-        parameters.iter().any(|parameter| parameter.kind.is_ordinary_borrowed_handle())
+        (matches!(parameters, [parameter] if parameter.kind == CallableParameterContractKindV1::OpaqueHandle)
+            || parameters.iter().any(Self::takes_declared_object_v1))
+            && parameters.iter().any(|parameter| parameter.kind.is_ordinary_borrowed_handle())
             && parameters.iter().all(|parameter|
                 parameter.kind.is_ordinary_borrowed_handle() || parameter.kind.is_i64_actual_v1())
     }
