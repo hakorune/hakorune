@@ -17,6 +17,19 @@ pub fn parse_binop_str(op: &str) -> Option<BinaryOp> {
     }
 }
 
+/// One raw arithmetic writer. Callers retain their pre-existing permission and
+/// append transaction; exact i64 Add/Sub/Mul cannot Fault and stay one BinOp.
+/// This does not turn an ordinary unqualified Add into an i64 proof.
+pub(in crate::mir) fn emit_binop_with<R>(
+    dst: ValueId,
+    op: BinaryOp,
+    lhs: ValueId,
+    rhs: ValueId,
+    append: impl FnOnce(MirInstruction) -> R,
+) -> R {
+    append(MirInstruction::BinOp { dst, op, lhs, rhs })
+}
+
 /// Emit a MIR BinOp into the current block and return the destination ValueId
 pub fn emit_binop_func(
     f: &mut MirFunction,
@@ -27,7 +40,9 @@ pub fn emit_binop_func(
 ) -> ValueId {
     let dst = f.next_value_id();
     if let Some(bb) = f.get_block_mut(cur_bb) {
-        bb.add_instruction(MirInstruction::BinOp { dst, op, lhs, rhs });
+        emit_binop_with(dst, op, lhs, rhs, |instruction| {
+            bb.add_instruction(instruction)
+        });
     }
     dst
 }
@@ -59,9 +74,10 @@ pub fn emit_binop_to_dst_recorded(
     rhs: ValueId,
 ) -> Option<(BasicBlockId, MirInstruction)> {
     if let Some(bb) = f.get_block_mut(cur_bb) {
-        let instruction = MirInstruction::BinOp { dst, op, lhs, rhs };
-        bb.add_instruction(instruction.clone());
-        Some((cur_bb, instruction))
+        emit_binop_with(dst, op, lhs, rhs, |instruction| {
+            bb.add_instruction(instruction.clone());
+            Some((cur_bb, instruction))
+        })
     } else {
         None
     }

@@ -38,12 +38,13 @@ pub fn apply_increment_before_continue(
     // Emit add
     let new_v = f.next_value_id();
     if let Some(bb) = f.get_block_mut(cur_bb) {
-        bb.add_instruction(MirInstruction::BinOp {
-            dst: new_v,
-            op: BinaryOp::Add,
-            lhs: cur_val,
-            rhs: step_v,
-        });
+        bb.add_instruction(crate::mir::ssot::binop_lower::emit_binop_with(
+            new_v,
+            BinaryOp::Add,
+            cur_val,
+            step_v,
+            |instruction| instruction,
+        ));
     }
     vars.insert(var_name.to_string(), new_v);
     Some(new_v)

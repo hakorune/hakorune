@@ -49,11 +49,11 @@ pub(super) fn emit_binary(
 }
 
 fn arithmetic(dst: ValueId, op: BinaryOp, lhs: ValueId, rhs: ValueId) -> MirInstruction {
-    MirInstruction::BinOp { dst, op, lhs, rhs }
+    crate::mir::ssot::binop_lower::emit_binop_with(dst, op, lhs, rhs, |instruction| instruction)
 }
 
 fn comparison(dst: ValueId, op: CompareOp, lhs: ValueId, rhs: ValueId) -> MirInstruction {
-    MirInstruction::Compare { dst, op, lhs, rhs }
+    crate::mir::ssot::cf_common::emit_compare_with(dst, op, lhs, rhs, |instruction| instruction)
 }
 
 #[cfg(test)]

@@ -3,8 +3,7 @@
 use crate::mir::normal_callable_semantic_package::EvaluatedExpressionValueV1;
 use super::*;
 use crate::mir::dynamic_operator_contract::{
-    DynamicOperatorFamilyV1 as OperatorFamily, DynamicOperatorNormalResultV1 as ResultKind,
-    DynamicOperatorValueClassV1 as OperatorClass,
+    DynamicOperatorNormalResultV1 as ResultKind, DynamicOperatorFamilyV1 as OperatorFamily,
 };
 use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
 use crate::mir::normal_callable_semantic_package::{EmittedDynamicInvocationCallProjectionV1, EmittedLexicalCallProjectionV1, ExpressionReferenceReadV1, CallValidationContextV1, ExpressionCallTransientPrefixV1};
@@ -575,89 +574,11 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                 let right = operand(binary.rhs())?;
                 let operation = frame.operations().iter().find(|loan| loan.node() == index)
                     .ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
-                match operation.normal_result_v1().ok_or_else(|| freeze("expression/finite-envelope-execution-pending"))? {
-                    ResultKind::NormalInteger => {
-                        let (Operand::NormalInteger(lhs), Operand::NormalInteger(rhs)) = (left, right) else {
-                            return Err(freeze("print-expression/integer-operands"));
-                        };
-                        let completed = if let Some(scalar) = operation.scalar_source_v1() {
-                            let operator = match scalar.integer_operator_v1() {
-                                Some(crate::mir::BinaryOp::Add) => crate::ast::BinaryOperator::Add,
-                                Some(crate::mir::BinaryOp::Sub) => crate::ast::BinaryOperator::Subtract,
-                                Some(crate::mir::BinaryOp::Div) => crate::ast::BinaryOperator::Divide,
-                                Some(crate::mir::BinaryOp::Mod) => crate::ast::BinaryOperator::Modulo,
-                                _ => return Err(freeze("print-expression/operator-source-missing")),
-                            };
-                            let (completed, relations) = builder.build_source_scalar_from_values_recorded(operator, lhs, rhs)?;
-                            for relation in &relations {
-                                relation.append_materialization_chain_v1(&mut bindings);
-                            }
-                            let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
-                            let record = ledger.record_scalar_operation_append_v1(Rc::clone(scalar), (lhs, rhs), relations,
-                                &completed, builder.local_ssa_physical_correspondence_v1(), function)?;
-                            builder.function_state.local_ssa_correspondence.install_scalar_original(function, record)?;
-                            ledger.retain_scalar_operation_use_v1(scalar, false)?;
-                            completed
-                        } else {
-                            crate::mir::builder::ops::CompletedOrdinaryBinaryV1::Arithmetic(
-                                crate::mir::builder::ops::arithmetic::build_arithmetic_op_recorded(
-                                    builder, operation.integer_operator_v1().ok_or_else(|| freeze("print-expression/operator-source-missing"))?, lhs, rhs)?)
-                        };
-                        let binding = completed.arithmetic_original().ok_or_else(|| freeze("print-expression/integer-append"))?.clone();
-                        let value = binding.1.dst_value().ok_or_else(|| freeze("print-expression/integer-result"))?;
-                        bindings.push(binding);
-                        Operand::NormalInteger(value)
-                    }
-                    ResultKind::OwnedStringValue => {
-                        let right = frame.string_add_right_operand_v1(binary.rhs(), right);
-                        emit_string_value(builder, &mut writer, Operation::Add { left, right }, index,
-                            fault_frame, &mut acquired, &mut dynamic_carriers, &mut temporary_order,
-                            &homes, &mut bindings)?
-                    }
-                    ResultKind::SelfContainedNonAliasingDynamicCarrier => {
-                        let envelope = operation.single_envelope().ok_or_else(|| freeze("print-expression/operator-envelope"))?;
-                        let domain = envelope.domain();
-                        let (Operand::Dynamic(lhs), Operand::NormalInteger(rhs)) = (&left, &right) else {
-                            return Err(freeze("print-expression/dynamic-add-operands"));
-                        };
-                        if domain.left() != OperatorClass::Dynamic
-                            || domain.right() != OperatorClass::I64
-                        {
-                            return Err(freeze("print-expression/dynamic-add-contract"));
-                        }
-                        match domain.family() {
-                            OperatorFamily::Add if !frame.owned_result_nodes().contains(&index) => {
-                                let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-                                let value = builder.next_value_id();
-                                let binding = (block, MirInstruction::BinOp {
-                                    dst: value, op: crate::mir::BinaryOp::Add, lhs: *lhs, rhs: *rhs,
-                                });
-                                builder.emit_instruction(binding.1.clone())?;
-                                bindings.push(binding);
-                                Operand::Dynamic(value)
-                            }
-                            OperatorFamily::Sub if frame.owned_result_nodes().contains(&index) => {
-                                let pending = FaultCleanupPlanV1::pending(&acquired, &dynamic_carriers, &temporary_order, &homes)?;
-                                let (value, result, _) = emit_scalar_operation_with_pending_v1(
-                                    builder,
-                                    &mut writer,
-                                    InvokeOperation::DynamicCarrierSubI64 { carrier: *lhs, rhs: *rhs },
-                                    fault_frame,
-                                    &pending,
-                                    &mut bindings,
-                                )?;
-                                if result != crate::mir::instruction::InvokeNormalResultKind::DynamicCarrier {
-                                    return Err(freeze("print-expression/dynamic-sub-result"));
-                                }
-                                dynamic_carriers.push((index, value));
-                                temporary_order.push(index);
-                                Operand::DynamicCarrier(value)
-                            }
-                            _ => return Err(freeze("print-expression/dynamic-operator-contract")),
-                        }
-                    }
-                    _ => return Err(freeze("print-expression/operator-result")),
-                }
+                crate::mir::builder::ops::arithmetic::emit_checked_binary_v1(
+                    builder, ledger, frame, operation, binary, index, left, right,
+                    &mut writer, fault_frame, &mut acquired, &mut dynamic_carriers,
+                    &mut temporary_order, &homes, &mut bindings,
+                )?
             }
             _ => return Err(freeze("print-expression/source-node")),
         };
@@ -670,7 +591,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
         dynamic_carriers, temporary_order, homes, fault_frame, entry, bindings })
 }
 
-fn emit_string_value(
+pub(in crate::mir::builder) fn emit_string_value(
     builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: Operation,
     node: usize, fault_frame: ValueId, acquired: &mut Vec<(usize, ValueId)>,
     dynamic_carriers: &[(usize, ValueId)], temporary_order: &mut Vec<usize>,
@@ -738,7 +659,7 @@ pub(super) fn emit_checked_scalar_condition_v1(
     }
 }
 
-pub(super) fn emit_scalar_operation_with_pending_v1(
+pub(in crate::mir::builder) fn emit_scalar_operation_with_pending_v1(
     builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: InvokeOperation,
     fault_frame: ValueId, pending: &FaultCleanupPlanV1, bindings: &mut Vec<Binding>,
 ) -> Result<(ValueId, crate::mir::instruction::InvokeNormalResultKind, [Binding; 2]), String> {

@@ -5,7 +5,7 @@
 
 use crate::mir::builder::emission::{compare, constant};
 use crate::mir::builder::MirBuilder;
-use crate::mir::{BinaryOp, CompareOp, MirInstruction, MirType, ValueId};
+use crate::mir::{BinaryOp, CompareOp, MirType, ValueId};
 
 pub(in crate::mir::builder) fn emit_const_i64(
     builder: &mut MirBuilder,
@@ -45,12 +45,13 @@ pub(in crate::mir::builder) fn emit_add_i64_at_with_dst(
     require_i64_operands_at(builder, block, lhs, rhs)?;
     builder.emit_instruction_at(
         block,
-        MirInstruction::BinOp {
+        crate::mir::ssot::binop_lower::emit_binop_with(
             dst,
-            op: BinaryOp::Add,
+            BinaryOp::Add,
             lhs,
             rhs,
-        },
+            |instruction| instruction,
+        ),
     )?;
     builder
         .function_state
@@ -121,7 +122,9 @@ fn emit_binary_i64_at(
 ) -> Result<ValueId, String> {
     require_i64_operands_at(builder, block, lhs, rhs)?;
     let dst = builder.next_value_id();
-    builder.emit_instruction_at(block, MirInstruction::BinOp { dst, op, lhs, rhs })?;
+    crate::mir::ssot::binop_lower::emit_binop_with(dst, op, lhs, rhs, |instruction| {
+        builder.emit_instruction_at(block, instruction)
+    })?;
     builder
         .function_state
         .type_ctx

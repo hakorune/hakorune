@@ -348,24 +348,20 @@ impl super::PlanLowerer {
                 } else {
                     (try_arg(builder, *lhs)?, try_arg(builder, *rhs)?)
                 };
-                builder.emit_instruction(MirInstruction::BinOp {
-                    dst: *dst,
-                    lhs,
-                    op: *op,
-                    rhs,
-                })?;
+                crate::mir::ssot::binop_lower::emit_binop_with(
+                    *dst, *op, lhs, rhs,
+                    |instruction| builder.emit_instruction(instruction),
+                )?;
             }
             CoreEffectPlan::Compare { dst, lhs, op, rhs } => {
                 // LocalSSA: compare operands must be defined in the current block.
                 let mut lhs = *lhs;
                 let mut rhs = *rhs;
                 crate::mir::builder::ssa::local::finalize_compare(builder, &mut lhs, &mut rhs)?;
-                builder.emit_instruction(MirInstruction::Compare {
-                    dst: *dst,
-                    lhs,
-                    op: *op,
-                    rhs,
-                })?;
+                crate::mir::ssot::cf_common::emit_compare_with(
+                    *dst, *op, lhs, rhs,
+                    |instruction| builder.emit_instruction(instruction),
+                )?;
             }
             CoreEffectPlan::Select {
                 dst,

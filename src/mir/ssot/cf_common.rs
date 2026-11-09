@@ -21,6 +21,18 @@ pub(in crate::mir) fn append_instruction_core(
     Ok(())
 }
 
+/// One raw Compare writer; prepared callers keep their exact type/CFG receipt
+/// and commit timing rather than acquiring a different emission policy.
+pub(in crate::mir) fn emit_compare_with<R>(
+    dst: ValueId,
+    op: CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+    append: impl FnOnce(MirInstruction) -> R,
+) -> R {
+    append(MirInstruction::Compare { dst, op, lhs, rhs })
+}
+
 /// Emit a MIR Compare instruction into the current block (function-level SSOT helper)
 pub fn emit_compare_func(
     f: &mut MirFunction,
@@ -31,7 +43,9 @@ pub fn emit_compare_func(
     rhs: ValueId,
 ) {
     if let Some(bb) = f.get_block_mut(cur_bb) {
-        bb.add_instruction(MirInstruction::Compare { dst, op, lhs, rhs });
+        emit_compare_with(dst, op, lhs, rhs, |instruction| {
+            bb.add_instruction(instruction)
+        });
     }
 }
 

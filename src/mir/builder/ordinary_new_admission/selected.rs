@@ -19,7 +19,9 @@ pub(in crate::mir::builder) mod root_graph;
 pub(in crate::mir::builder) mod bool_condition;
 #[path = "selected/expression_value.rs"]
 mod expression_value;
-pub(in crate::mir::builder) use expression_value::emit_scalar_operation_to_landing_v1;
+pub(in crate::mir::builder) use expression_value::{
+    emit_scalar_operation_to_landing_v1, emit_scalar_operation_with_pending_v1, emit_string_value,
+};
 pub(in crate::mir) use expression_value::{EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1};
 #[path = "selected/return_expression.rs"]
 mod return_expression;
@@ -532,12 +534,10 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
         .current_block
         .ok_or_else(|| freeze("no-block"))?;
     let result = builder.next_value_id();
-    builder.emit_instruction(MirInstruction::BinOp {
-        dst: result,
-        op: crate::mir::BinaryOp::Add,
-        lhs: values[0],
-        rhs: values[1],
-    })?;
+    crate::mir::ssot::binop_lower::emit_binop_with(
+        result, crate::mir::BinaryOp::Add, values[0], values[1],
+        |instruction| builder.emit_instruction(instruction),
+    )?;
     builder
         .function_state
         .type_ctx
