@@ -346,7 +346,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
     scalar_operation_appends: RefCell<BTreeMap<OwnedExprSiteV1, Rc<OriginalScalarAppendV1>>>,
     scalar_operation_consumers:
-        RefCell<BTreeMap<FunctionOwnerIdV1, Vec<scalar_operations::ScalarConsumerObservationV1>>>,
+        RefCell<BTreeMap<FunctionOwnerIdV1, scalar_operations::ScalarConsumerGroupV1>>,
     // Return-position `new` claims keyed by the exact `new` site — the
     // bounded transfer-to-caller family inside this same ledger, not a
     // parallel issuer.

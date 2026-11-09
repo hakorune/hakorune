@@ -56,7 +56,7 @@ pub(super) fn validate_selected_scalar_operations(
             let MirInstruction::BinOp { op, rhs, .. } = &binding.1 else {
                 return Err(fault("scalar-source-shape"));
             };
-            if !matches!(op, BinaryOp::Sub | BinaryOp::Div | BinaryOp::Mod) {
+            if Some(*op) != original.source().integer_operator_v1() {
                 return Err(fault("scalar-source-operator"));
             }
             if matches!(op, BinaryOp::Div | BinaryOp::Mod) {
@@ -81,9 +81,11 @@ pub(super) fn validate_selected_scalar_operations(
         }
         Ok(())
     })?;
-    if actual.len() != expected.len()
-        || actual.iter().any(|binding| !expected.contains(binding))
-        || expected.iter().any(|binding| !actual.contains(binding))
+    let mandatory: Vec<_> = expected.iter().filter(|(_, row)| matches!(row,
+        MirInstruction::BinOp { op: BinaryOp::Sub | BinaryOp::Div | BinaryOp::Mod, .. })).cloned().collect();
+    if actual.len() != mandatory.len()
+        || actual.iter().any(|binding| !mandatory.contains(binding))
+        || mandatory.iter().any(|binding| !actual.contains(binding))
     {
         return Err(format!("{} function={} actual={} source={} unexpected={:?} missing={:?}",
             fault("scalar-source-coverage"), function.signature.name,

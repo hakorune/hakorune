@@ -100,7 +100,7 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_terminal_i64_add_return_projected(owner, function, Some(&projection))?;
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             self.verify_finished_scalar_operations_v1(owner, function, |original| {
-                projection.relation_binding(function, original)
+                self.project_scalar_operation_binding_v1(owner, function, &projection, original)
             })?;
             self.verify_finished_borrowed_compares_v1(owner, function, |original| {
                 let mapped = projection
@@ -261,7 +261,7 @@ impl OrdinaryNewClaimLedgerV1 {
             Ok(mapped)
         })?;
         self.verify_finished_scalar_operations_v1(owner, function, |original| {
-            projection.relation_binding(function, original)
+            self.project_scalar_operation_binding_v1(owner, function, &projection, original)
         })?;
         self.verify_finished_borrowed_muls_v1(owner, function, |original| {
             let mapped = projection

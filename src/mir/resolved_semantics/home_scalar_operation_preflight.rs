@@ -198,7 +198,7 @@ pub(super) fn preflight<E>(
     }
     if local_initializer_profile
         && is_root
-        && matches!(row.operator(), Op::Subtract | Op::Divide | Op::Modulo)
+        && matches!(row.operator(), Op::Add | Op::Subtract | Op::Divide | Op::Modulo)
     {
         let mut initializers = input
             .function()

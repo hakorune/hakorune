@@ -49,7 +49,14 @@ pub(in super::super) fn initializer_value(
         Producer::LoopHeader(_) => return Err(freeze("expression/loop-header-physical-pending")),
         Producer::LoopAfter { .. } => return Err(freeze("expression/loop-after-physical-pending")),
     };
-    read.loan_forwarded_initializer_v1(expected)
+    let value = read.loan_forwarded_initializer_v1(expected)?;
+    if let Producer::Operation(operation) = source {
+        context.ledger().retain_scalar_operation_use_v1(
+            operation,
+            matches!(context, CallValidationContextV1::Finalized(_)),
+        )?;
+    }
+    Ok(value)
 }
 pub(in super::super) fn validate_scalar_origin(
     binding: crate::mir::resolved_semantics::BindingRefV1,

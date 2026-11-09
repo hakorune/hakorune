@@ -55,7 +55,8 @@ impl ExpressionScalarOperationLoanV1 {
             return None;
         }
         match binary.operator() {
-            ResolvedBinaryOperatorV1::Subtract if positive_divisor.is_none() => {}
+            ResolvedBinaryOperatorV1::Add | ResolvedBinaryOperatorV1::Subtract
+                if positive_divisor.is_none() => {}
             ResolvedBinaryOperatorV1::Divide | ResolvedBinaryOperatorV1::Modulo
                 if positive_divisor.is_some_and(|n| n > 0)
                     && source.nodes().iter().any(|node| {
@@ -75,6 +76,9 @@ impl ExpressionScalarOperationLoanV1 {
     /// One source operator law shared by original scalar and expression users.
     pub(crate) fn integer_operator_v1(&self) -> Option<crate::mir::BinaryOp> {
         match self.binary().operator() {
+            ResolvedBinaryOperatorV1::Add if self.positive_divisor.is_none() => {
+                Some(crate::mir::BinaryOp::Add)
+            }
             ResolvedBinaryOperatorV1::Subtract if self.positive_divisor.is_none() => {
                 Some(crate::mir::BinaryOp::Sub)
             }
@@ -86,6 +90,12 @@ impl ExpressionScalarOperationLoanV1 {
             }
             _ => None,
         }
+    }
+
+    /// New optional originals are pinned by completed semantic consumers;
+    /// legacy scalar originals retain their existing mandatory correspondence.
+    pub(crate) fn original_needs_consumer_receipt_v1(&self) -> bool {
+        self.integer_operator_v1() == Some(crate::mir::BinaryOp::Add)
     }
 
     pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> {

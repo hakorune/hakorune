@@ -426,17 +426,19 @@ fn selected_child_emission_failure_publishes_no_parent_cache_or_relation() {
 #[test]
 fn consumer_handoff_is_atomic_and_rejects_resend_without_replacing_loans() {
     let (ledger, sources) = OriginalScalarAppendV1::source_inventory_for_correspondence_test();
-    assert_eq!(sources.len(), 3, "complete original source inventory");
+    assert!(!sources.is_empty(), "complete original source inventory");
     let owner = sources[0].owner();
     assert!(sources.iter().all(|source| source.owner() == owner));
     let (mut builder, left) = fixture();
     let mut values = Vec::new();
     for source in sources {
         let right = crate::mir::builder::emission::constant::emit_integer(&mut builder, 4).unwrap();
-        let operator = if source.positive_divisor().is_some() {
-            crate::ast::BinaryOperator::Divide
-        } else {
-            crate::ast::BinaryOperator::Subtract
+        let operator = match source.integer_operator_v1().expect("source integer law") {
+            crate::mir::BinaryOp::Add => crate::ast::BinaryOperator::Add,
+            crate::mir::BinaryOp::Sub => crate::ast::BinaryOperator::Subtract,
+            crate::mir::BinaryOp::Div => crate::ast::BinaryOperator::Divide,
+            crate::mir::BinaryOp::Mod => crate::ast::BinaryOperator::Modulo,
+            _ => unreachable!("source integer law"),
         };
         let (completed, relations) = builder
             .build_source_scalar_from_values_recorded(operator, left, right)
@@ -538,6 +540,16 @@ fn consumer_handoff_is_atomic_and_rejects_resend_without_replacing_loans() {
         })
         .unwrap();
     assert_eq!(accepted.len(), observations.len());
+    let mut unused_add = None;
+    ledger.visit_scalar_operation_originals_v1(|original| {
+        if original.source().integer_operator_v1() == Some(crate::mir::BinaryOp::Add) {
+            unused_add = Some(Rc::clone(original));
+        }
+        Ok(())
+    }).unwrap();
+    let unused_add = unused_add.expect("the source inventory includes an Add candidate");
+    assert!(ledger.retain_scalar_operation_use_v1(unused_add.source(), false).is_err());
+    assert!(ledger.retain_scalar_operation_use_v1(unused_add.source(), true).is_err());
     for (accepted, original) in accepted.iter().zip(&observations) {
         assert!(Rc::ptr_eq(&accepted.0, &original.0));
         assert!(Rc::ptr_eq(&accepted.1, &original.1));

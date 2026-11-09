@@ -582,6 +582,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                         };
                         let completed = if let Some(scalar) = operation.scalar_source_v1() {
                             let operator = match scalar.integer_operator_v1() {
+                                Some(crate::mir::BinaryOp::Add) => crate::ast::BinaryOperator::Add,
                                 Some(crate::mir::BinaryOp::Sub) => crate::ast::BinaryOperator::Subtract,
                                 Some(crate::mir::BinaryOp::Div) => crate::ast::BinaryOperator::Divide,
                                 Some(crate::mir::BinaryOp::Mod) => crate::ast::BinaryOperator::Modulo,
@@ -595,6 +596,7 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                             let record = ledger.record_scalar_operation_append_v1(Rc::clone(scalar), (lhs, rhs), relations,
                                 &completed, builder.local_ssa_physical_correspondence_v1(), function)?;
                             builder.function_state.local_ssa_correspondence.install_scalar_original(function, record)?;
+                            ledger.retain_scalar_operation_use_v1(scalar, false)?;
                             completed
                         } else {
                             crate::mir::builder::ops::CompletedOrdinaryBinaryV1::Arithmetic(

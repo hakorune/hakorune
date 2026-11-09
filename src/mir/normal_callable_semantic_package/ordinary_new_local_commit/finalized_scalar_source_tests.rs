@@ -20,6 +20,7 @@ fn original_scalar_append_observer_retains_three_source_operations() {
                             .retained_root_source()
                             .expect("original source retained");
                         let mut count = 0;
+                        let mut mandatory_count = 0;
                         let mut originals = Vec::new();
                         let mut owners = std::collections::BTreeSet::new();
                         source.visit_scalar_operation_originals_v1(|row| {
@@ -46,12 +47,14 @@ fn original_scalar_append_observer_retains_three_source_operations() {
                             owners.insert(proof.owner());
                             originals.push(std::rc::Rc::clone(row));
                             count += 1;
+                            mandatory_count += usize::from(!proof.original_needs_consumer_receipt_v1());
                             Ok(())
                         })?;
                         assert_eq!(
-                            count, 3,
-                            "one original append per Sub/Div source, not derived coverage"
+                            mandatory_count, 3,
+                            "the three original Sub/Div sources remain mandatory"
                         );
+                        assert_eq!(count - mandatory_count, 1, "the original Add source is an optional candidate");
                         let mut finished_count = 0;
                         source.visit_finished_scalar_operations_v1(
                             view.module(),
@@ -107,7 +110,7 @@ fn original_scalar_append_observer_retains_three_source_operations() {
                                     source.ledger.verify_finished_scalar_operations_v1(
                                         owner,
                                         function,
-                                        |binding| projection.relation_binding(function, binding),
+                                        |binding| source.ledger.project_scalar_operation_binding_v1(owner, function, projection, binding),
                                     )?;
                                     let mut derived_probe = None;
                                     source.ledger.visit_scalar_operation_consumers_v1(
@@ -221,8 +224,8 @@ fn original_scalar_append_observer_retains_three_source_operations() {
                                                     owner,
                                                     &changed,
                                                     |binding| {
-                                                        projection
-                                                            .relation_binding(&changed, binding)
+                                                        source.ledger.project_scalar_operation_binding_v1(
+                                                            owner, &changed, projection, binding)
                                                     },
                                                 )
                                                 .unwrap_err();
@@ -261,6 +264,7 @@ fn original_scalar_append_observer_retains_three_source_operations() {
                     assert!(verification.is_ok());
                     let source = view.retained_root_source().unwrap();
                     let mut count = 0;
+                        let mut mandatory_count = 0;
                     source.visit_scalar_operation_originals_v1(|row| {
                         let proof = row.source();
                         assert!(proof.initializer().is_none());

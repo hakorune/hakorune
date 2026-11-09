@@ -84,6 +84,48 @@ impl FinishedBindings {
             fault("relation-finished-producer"), function.signature.name))
     }
 
+    /// Only an unborrowed, source-proved scalar candidate may omit its exact
+    /// unused pure bindings. The ordinary relation API stays fail-closed.
+    pub(in super::super) fn scalar_candidate_binding_v1(
+        &self,
+        function: &MirFunction,
+        candidate: &crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1,
+        relation: Option<&crate::mir::builder::LocalSsaPhysicalRelationV1>,
+        binding: &(BasicBlockId, MirInstruction),
+    ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        if !candidate.source().original_needs_consumer_receipt_v1() {
+            return self.relation_binding(function, binding);
+        }
+        let original = binding == candidate.original();
+        let member = original || relation.is_some_and(|relation| {
+            let mut observed = Vec::new();
+            relation.append_observed_bindings_v1(&mut observed);
+            observed.contains(binding)
+        });
+        let pure = matches!(&binding.1, MirInstruction::Const { value: crate::mir::ConstValue::Integer(_), .. }
+            | MirInstruction::Copy { .. })
+            || matches!(&binding.1, MirInstruction::BinOp { op: crate::mir::BinaryOp::Add, .. });
+        if !member || !pure || self.recorded.contains(binding) {
+            return self.relation_binding(function, binding);
+        }
+        let value = binding.1.dst_value().ok_or_else(|| fault("relation-dst"))?;
+        if function.params.contains(&value) || self.captured_definition(value)? != binding {
+            return Err(fault("relation-captured-membership"));
+        }
+        // Validate the exact destination projection before permitting absence.
+        let mapped = self.binding(binding.0, &binding.1)?.ok_or_else(|| fault("relation-destination"))?;
+        if !function.blocks.contains_key(&mapped.0) || self.recorded.contains(&mapped) {
+            return self.relation_binding(function, binding);
+        }
+        let unused = function.blocks.values().all(|block| {
+            block.all_instructions().all(|row| row.dst_value() != Some(value)
+                && !row.used_values().contains(&value))
+                && block.return_env.as_ref().is_none_or(|values| !values.contains(&value))
+        });
+        if unused { return Ok(None); }
+        self.relation_binding(function, binding)
+    }
+
     /// Before the source-owned boundary seal, check original capture and the
     /// actual projected effect. This lends correspondence, not publication.
     pub(in super::super) fn captured_effect_binding(

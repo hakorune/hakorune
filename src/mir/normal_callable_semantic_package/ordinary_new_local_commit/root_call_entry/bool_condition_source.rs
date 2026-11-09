@@ -394,6 +394,7 @@ impl EmittedBoolConditionProjectionV1 {
                         if original.original() != append {
                             return Err(freeze("bool-condition/operator-append"));
                         }
+                        ledger.retain_scalar_operation_use_v1(scalar, finishing.is_some())?;
                     }
                     for relation in operands {
                         relation.verify_projected(function, &mut |binding| {

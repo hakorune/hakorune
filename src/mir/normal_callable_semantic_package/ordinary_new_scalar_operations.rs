@@ -11,6 +11,14 @@ type Binding = (BasicBlockId, MirInstruction);
 pub(super) type ScalarConsumerObservationV1 =
     (Rc<OriginalScalarAppendV1>, Rc<LocalSsaPhysicalRelationV1>);
 
+/// The existing physical-consumer handoff, with definite checked uses retained
+/// before its affine seal. An index Copy alone is not a semantic use.
+#[derive(Debug, Default)]
+pub(super) struct ScalarConsumerGroupV1 {
+    borrowed: Vec<Rc<Source>>,
+    derived: Option<Vec<ScalarConsumerObservationV1>>,
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct OriginalScalarAppendV1 {
     source: Rc<Source>,
@@ -27,7 +35,7 @@ impl OriginalScalarAppendV1 {
         left: ValueId,
     ) -> Rc<Self> {
         let (ledger, sources) = Self::source_inventory_for_correspondence_test();
-        let source = sources.into_iter().next().unwrap();
+        let source = sources.into_iter().find(|source| source.positive_divisor().is_some()).unwrap();
         let operator = match source_operator(&source).unwrap() {
             BinaryOp::Sub => crate::ast::BinaryOperator::Subtract,
             BinaryOp::Div => crate::ast::BinaryOperator::Divide,
@@ -113,6 +121,34 @@ impl OriginalScalarAppendV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn retain_scalar_operation_use_v1(
+        &self, source: &Rc<Source>, finalized: bool,
+    ) -> Result<(), String> {
+        // Existing original laws retain their mandatory correspondence.
+        if !source.original_needs_consumer_receipt_v1() { return Ok(()); }
+        self.scalar_operation_original_v1(source)?;
+        {
+            let consumers = self.scalar_operation_consumers.borrow();
+            if let Some(group) = consumers.get(&source.owner()) {
+                if finalized && group.derived.is_none() { return Err(reject("consumer-handoff-missing")); }
+                if group.borrowed.iter().any(|prior| Rc::ptr_eq(prior, source)) { return Ok(()); }
+                if group.derived.is_some() { return Err(reject("source-membership")); }
+            }
+            if finalized { return Err(reject("consumer-handoff-missing")); }
+        }
+        self.scalar_operation_consumers.borrow_mut().entry(source.owner()).or_default()
+            .borrowed.push(Rc::clone(source));
+        Ok(())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn scalar_operation_original_required_v1(
+        &self, original: &OriginalScalarAppendV1,
+    ) -> bool {
+        !original.source().original_needs_consumer_receipt_v1()
+            || self.scalar_operation_consumers.borrow().get(&original.source().owner())
+                .is_some_and(|group| group.borrowed.iter().any(|source| Rc::ptr_eq(source, original.source())))
+    }
+
     fn scalar_operation_sources_v1(&self, owner: FunctionOwnerIdV1) -> Result<Vec<Rc<Source>>, String> {
         let flow = self.completion_for_owner(owner).and_then(|row| row.cleanup().root_flow());
         let mut sources = Vec::<Rc<Source>>::new();
@@ -315,10 +351,11 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(());
         }
         let mut consumers = self.scalar_operation_consumers.borrow_mut();
-        if consumers.contains_key(&owner) {
+        let group = consumers.entry(owner).or_default();
+        if group.derived.is_some() {
             return Err(reject("duplicate-consumer-handoff"));
         }
-        consumers.insert(owner, collected);
+        group.derived = Some(collected);
         Ok(())
     }
 
@@ -328,7 +365,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Vec<Binding>, String> {
         let mut bindings = Vec::new();
         self.visit_scalar_operation_originals_v1(|original| {
-            if original.source().owner() == owner {
+            if original.source().owner() == owner && self.scalar_operation_original_required_v1(original) {
                 bindings.push(original.original().clone());
                 for relation in original.operand_relations() {
                     relation.append_required_bindings(&mut bindings);
@@ -336,8 +373,10 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             Ok(())
         })?;
-        self.visit_scalar_operation_consumers_v1(owner, |_, relation| {
-            relation.append_required_bindings(&mut bindings);
+        self.visit_scalar_operation_consumers_v1(owner, |original, relation| {
+            if self.scalar_operation_original_required_v1(original) {
+                relation.append_required_bindings(&mut bindings);
+            }
             Ok(())
         })?;
         Ok(bindings)
@@ -351,8 +390,11 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         self.visit_scalar_operation_originals_v1(|original| {
             if original.source().owner() == owner {
-                let mapped = project(original.original())?
-                    .ok_or_else(|| reject("mandatory-original-removed"))?;
+                let Some(mapped) = project(original.original())? else {
+                    return if self.scalar_operation_original_required_v1(original) {
+                        Err(reject("mandatory-original-removed"))
+                    } else { Ok(()) };
+                };
                 let value = mapped.1.dst_value().ok_or_else(|| reject("append-shape"))?;
                 if unique_definition(function, value)? != mapped {
                     return Err(reject("finished-original-producer"));
@@ -366,7 +408,10 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             Ok(())
         })?;
-        self.visit_scalar_operation_consumers_v1(owner, |_, relation| {
+        self.visit_scalar_operation_consumers_v1(owner, |original, relation| {
+            if !self.scalar_operation_original_required_v1(original) && project(original.original())?.is_none() {
+                return Ok(());
+            }
             relation.verify_projected(function, &mut project)
         })
     }
@@ -380,7 +425,7 @@ impl OrdinaryNewClaimLedgerV1 {
         ) -> Result<(), String>,
     ) -> Result<(), String> {
         let consumers = self.scalar_operation_consumers.borrow();
-        let Some(rows) = consumers.get(&owner) else {
+        let Some(rows) = consumers.get(&owner).and_then(|group| group.derived.as_ref()) else {
             if self.has_scalar_operation_source_v1(owner)? {
                 return Err(reject("consumer-handoff-missing"));
             }
