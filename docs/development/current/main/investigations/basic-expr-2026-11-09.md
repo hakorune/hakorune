@@ -69,3 +69,5 @@ B23. 数値Arrayの非fallible Endは既存RootCleanupActionV1::ArrayReleaseを�
 Mapのe12は別境界。基準dump受理plain/in/a4.hako、plain/in/a5.hako、red-sort/in/mg.hakoは共通のnew/set/getをraw new/call_methodで生成しEnd/Faultを持たない。共通Map ownerのNew/InstallValue/Endへの移行はこのMIRを変える。return位置だけを特例にせず、旧MIRの移行判断までMap群を止める。e13は表示の規範を確認できず測定だけとする。
 
 B24. 完全なordinary static入力族の結果は同じ元Staticと受動snapshot・実expression membershipを照合して共通評価へ貸し、利用先だけで別loanを作らず、既存scalar-only Staticの元writerは保持する。
+
+B25. 元の所有入力を持つReturn callは同じCallEntryHomesで効果前に選び、共有評価の呼出し観測に元pre-entry Home列を保持し、位相をまたいだ同一take集合を既存commitと独立entry検証へ渡す。
