@@ -11,8 +11,8 @@ use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    LocalCallObservationV1, LocalCallResultClassV1, TerminalI64AddReturnV1,
-    TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1, TerminalRelationV1,
+    LocalCallObservationV1, LocalCallResultClassV1,
+     TerminalIntegerLiteralReturnV1, TerminalRelationV1,
     TerminalReturnedSourceV1, TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::{
@@ -340,12 +340,6 @@ impl FinalizedRootSourceHandoffV1 {
             .flatten()
     }
 
-    pub(crate) fn terminal_i64_add(&self) -> Option<&TerminalI64AddReturnV1> {
-        match self.sole_terminal() {
-            Some(TerminalRelationV1::I64Add(row)) => Some(row),
-            _ => None,
-        }
-    }
     pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
         match self.sole_terminal() {
             Some(TerminalRelationV1::Unit(row)) => Some(row),
@@ -355,12 +349,6 @@ impl FinalizedRootSourceHandoffV1 {
     pub(crate) fn terminal_integer_literal(&self) -> Option<&TerminalIntegerLiteralReturnV1> {
         match self.sole_terminal() {
             Some(TerminalRelationV1::IntegerLiteral(row)) => Some(row),
-            _ => None,
-        }
-    }
-    pub(crate) fn terminal_i64_field_return(&self) -> Option<&TerminalI64FieldReturnV1> {
-        match self.sole_terminal() {
-            Some(TerminalRelationV1::I64Field(row)) => Some(row),
             _ => None,
         }
     }

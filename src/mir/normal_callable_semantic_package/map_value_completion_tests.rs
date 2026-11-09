@@ -306,8 +306,8 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
                     contract.completion().explicit_sites(),
                     contract.completion().implicit_body_end().is_some(),
                     &std::collections::BTreeSet::new(),
-                    &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok::<_, std::convert::Infallible>(false),
-                    &mut |_, _| Ok(false),
+
+                    &mut |_, _| Ok::<_, std::convert::Infallible>(false),
                     &mut |_| Ok(false),
                     &mut |_| Ok(None),
                     &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),

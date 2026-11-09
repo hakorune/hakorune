@@ -207,12 +207,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 || input.function().variable_ref(object) != Some(ResolvedLexicalRefV1::Local(binding))
             { return Err(fault("borrowed-entry-read-origin")); }
             let view = entry.formal_object_view(formal)?
-                .ok_or_else(|| format!("{}: owner={:?}, binding={binding:?}, formal={formal:?}, read={site:?}, field={field}, incoming={:?}, original_class={:?}, retained=(terminal:{}, argument:{}, local:{})",
+                .ok_or_else(|| format!("{}: owner={:?}, binding={binding:?}, formal={formal:?}, read={site:?}, field={field}, incoming={:?}, original_class={:?}, retained=(argument:{}, local:{})",
                     fault("borrowed-entry-object-view-missing"), input.owner(),
                     entry.incoming().map(|rows| rows.iter().map(|(call, actuals)| (*call, actuals.len())).collect::<Vec<_>>()),
                     self.borrowed_formal_source.as_ref().and_then(|source| source.as_ref().ok())
                         .map(|source| source.field_source_object_view_v1(formal).map(|view| view.map(|view| view.class().to_owned()))),
-                    self.field_reads.borrow().contains_key(&site), self.argument_field_reads.borrow().contains_key(&site),
+                    self.argument_field_reads.borrow().contains_key(&site),
                     self.local_field_reads.borrow().contains_key(&site)))?;
             let source = view.scalar_field_source_v1(field)
                 .ok_or_else(|| fault("borrowed-entry-declaration-missing"))?;
@@ -234,16 +234,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             // Terminal and constructor-argument reads use the same canonical
             // emitter but keep their existing affine ledger families.
-            if let Some(original) = self.field_reads.borrow().get(&site) {
-                if matches!(original.progress, Progress::Released) {
-                    return Err(fault("borrowed-entry-terminal-released"));
-                }
-                if original.receiver_site != row.receiver_site || original.receiver != row.receiver
-                    || original.home != row.home || original.field != row.source.field()
-                { return Err(fault("borrowed-entry-terminal-conflict")); }
-                self.recheck_terminal_field_value_v1(&site, original, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(self))?;
-                continue;
-            }
+
             if let Some(original) = self.argument_field_reads.borrow().get(&site) {
                 if matches!(original.progress, Progress::Released) {
                     return Err(fault("borrowed-entry-argument-released"));

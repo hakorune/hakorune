@@ -43,11 +43,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             invoke,
             projection: result_projection,
             ..
-        }
-        | RootHomeExitEntry::FieldGet {
-            invoke,
-            projection: result_projection,
-            ..
         } => {
             let (_, invoke) = binding(invoke)?;
             let (_, projected) = binding(result_projection)?;
@@ -78,7 +73,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                         let entry_kind = match entry {
                             RootHomeExitEntry::Call { .. } => "Call",
                             RootHomeExitEntry::MapGet { .. } => "MapGet",
-                            RootHomeExitEntry::FieldGet { .. } => "FieldGet",
+
                             RootHomeExitEntry::Plain { .. } => "Plain",
                         };
                         eprintln!("[root-cleanup/ingress] function={} entry={entry_kind} expected={kind:?} operation={operation:?}", function.signature.name);
@@ -131,7 +126,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             let kind = match entry {
                 RootHomeExitEntry::Call { invoke, .. } => format!("Call invoke={:?}", invoke),
                 RootHomeExitEntry::MapGet { invoke, .. } => format!("MapGet invoke={:?}", invoke),
-                RootHomeExitEntry::FieldGet { invoke, .. } => format!("FieldGet invoke={:?}", invoke),
+
                 RootHomeExitEntry::Plain { .. } => "Plain".to_owned(),
             };
             eprintln!("[ordered-path] function={} entry={kind} acquisition_fault={acquisition:?}", function.signature.name);

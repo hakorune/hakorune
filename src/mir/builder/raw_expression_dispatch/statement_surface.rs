@@ -648,19 +648,11 @@ where
         if let Some(value) = port.emit_terminal_map_get_return(builder)? {
             return Ok(value);
         }
-        if let Some(value) = port.emit_terminal_i64_add_return(builder)? {
-            return port.emit_root_home_exit(builder, value);
-        }
+
         if let Some(value) = port.emit_terminal_scalar_literal_return(builder)? {
             return port.emit_root_home_exit(builder, value);
         }
-        if let Some(result) = port.emit_terminal_i64_field_return(builder)? {
-            return if result.root_home_exit_emitted {
-                Ok(result.value)
-            } else {
-                port.emit_root_home_exit(builder, result.value)
-            };
-        }
+
         let value = match &statement {
             ASTNode::Return { value: Some(_), .. } => {
                 let source = port
@@ -694,16 +686,7 @@ where
                 port.complete_terminal_scalar_literal_return(builder)?;
                 return Ok(emitted);
             }
-            if let Some(result) = port.emit_terminal_i64_field_return(builder)? {
-                return if result.root_home_exit_emitted {
-                    Ok(result.value)
-                } else {
-                    crate::mir::builder::stmts::return_stmt::emit_return_from_value(
-                        builder,
-                        result.value,
-                    )
-                };
-            }
+
             let input = RawLegacyValueReturnInputV1::new(statement);
             drive_value_return_statement_v1(builder, port, input, |builder, port, input| {
                 let source = port.prepare_expression_child_source_v1(

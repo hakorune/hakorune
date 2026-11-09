@@ -107,8 +107,6 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
             TerminalRelationV1::Unit(_)
                 | TerminalRelationV1::IntegerLiteral(_)
                 | TerminalRelationV1::BoolLiteral(_)
-                | TerminalRelationV1::I64Field(_)
-                | TerminalRelationV1::I64Add(_)
                 | TerminalRelationV1::Scalar(_)
                 | TerminalRelationV1::MapGet(_)
         )

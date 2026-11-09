@@ -20,7 +20,6 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     >,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
     source_value_class_facts: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::SourceValueClassFactsV1>>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
         crate::mir::resolved_semantics::BindingRefV1,
@@ -148,7 +147,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             completion.explicit_sites(),
             completion.implicit_body_end().is_some(),
             result_sites,
-            field_is_integer,
+
             map_compatible,
             terminal_call,
             local_call_route,

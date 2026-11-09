@@ -30,21 +30,7 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         self.check_new_ledger_identity()?;
         self.inner.emit_terminal_i64_call_exit(builder)
     }
-    fn emit_terminal_i64_add_return(
-        &mut self,
-        builder: &mut MirBuilder,
-    ) -> Result<Option<ValueId>, String> {
-        self.check_new_ledger_identity()?;
-        self.inner.emit_terminal_i64_add_return(builder)
-    }
 
-    fn emit_terminal_i64_field_return(
-        &mut self,
-        builder: &mut MirBuilder,
-    ) -> Result<Option<crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1>, String> {
-        self.check_new_ledger_identity()?;
-        self.inner.emit_terminal_i64_field_return(builder)
-    }
 
     fn emit_terminal_map_get_return(
         &mut self,

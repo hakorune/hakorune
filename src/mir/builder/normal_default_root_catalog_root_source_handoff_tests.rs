@@ -32,7 +32,7 @@ fn final_handoff_retains_exact_source_for_alias_and_multiple_homes() {
         assert!(matches!(
             handoff.root_result(&module).unwrap(),
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
-                if source.terminal_i64_add().expect("I64 source relation").owner() == owner
+                if source.owner() == owner
         ));
         assert_eq!(
             handoff.birth_keys().expect("callable keys"),
@@ -99,7 +99,7 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
     assert!(matches!(
         handoff.root_result(&module).unwrap(),
         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
-            if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
+            if root_source.owner() == owner
     ));
     let _identity = root_source.app_main_identity();
     assert_eq!(

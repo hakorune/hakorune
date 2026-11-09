@@ -21,7 +21,7 @@ fn package(field: bool) -> Package {
     .expect("same-site Root/child source")
 }
 
-fn owners(package: &Package, field: bool) -> (FunctionOwnerIdV1, FunctionOwnerIdV1) {
+fn owners(package: &Package, _field: bool) -> (FunctionOwnerIdV1, FunctionOwnerIdV1) {
     let ledger = &package.ordinary_new_claim_ledger;
     let root = ledger.root_owner().expect("original Root");
     let child = package
@@ -30,13 +30,7 @@ fn owners(package: &Package, field: bool) -> (FunctionOwnerIdV1, FunctionOwnerId
         .map(|row| row.owner())
         .find(|owner| {
             *owner != root
-                && if field {
-                    ledger.terminal_i64_field_return_for_owner(*owner).is_some()
-                } else {
-                    ledger
-                        .terminal_integer_literal_return_for_owner(*owner)
-                        .is_some()
-                }
+                && ledger.terminal_integer_literal_return_for_owner(*owner).is_some()
         })
         .expect("original scalar child");
     assert!(Rc::ptr_eq(
@@ -113,92 +107,5 @@ fn indexed_root_literal_storage_is_independent_of_same_site_child() {
             Some(ValueId(901))
         );
         assert!(!children.contains_key(&(root, site)));
-    }
-}
-
-#[test]
-fn indexed_root_field_storage_requires_both_same_site_owners() {
-    for root_first in [false, true] {
-        let package = package(true);
-        let ledger = &package.ordinary_new_claim_ledger;
-        let (root, child) = owners(&package, true);
-        let site = ledger
-            .terminal_i64_field_return_for_owner(root)
-            .unwrap()
-            .return_site()
-            .clone();
-        assert_eq!(
-            &site,
-            ledger
-                .terminal_i64_field_return_for_owner(child)
-                .unwrap()
-                .return_site()
-        );
-        assert!(ledger.terminal_relation_is_indexed(root, &site));
-        assert!(!ledger.terminal_i64_field_return_complete());
-        let order = if root_first {
-            [root, child]
-        } else {
-            [child, root]
-        };
-        for (index, owner) in order.into_iter().enumerate() {
-            let value = if owner == root {
-                ValueId(900)
-            } else {
-                ValueId(901)
-            };
-            // This test isolates scalar storage, without installing a Home
-            // or issuing a physical field read from the source-only fixture.
-            ledger
-                .record_terminal_i64_field_return(owner, &site, value)
-                .unwrap();
-            assert_eq!(ledger.terminal_i64_field_return_complete(), index == 1);
-            assert_eq!(
-                ledger
-                    .prepare_terminal_i64_field_return(owner, site.node(), |_, _| panic!(
-                        "duplicate cannot resolve"
-                    ))
-                    .err()
-                    .unwrap(),
-                "[freeze:contract][ordinary-terminal-field-return/source-drift]"
-            );
-            assert_eq!(
-                ledger
-                    .record_terminal_i64_field_return(owner, &site, value)
-                    .unwrap_err(),
-                "[freeze:contract][ordinary-terminal-field-return/duplicate-emission]"
-            );
-        }
-        assert_eq!(
-            ledger.terminal_i64_field_value.borrow().get(&site),
-            Some(&ValueId(900))
-        );
-        assert_eq!(
-            ledger
-                .terminal_i64_field_values
-                .borrow()
-                .get(&(child, site.clone())),
-            Some(&ValueId(901))
-        );
-        assert!(!ledger
-            .terminal_i64_field_values
-            .borrow()
-            .contains_key(&(root, site.clone())));
-        ledger.terminal_i64_field_value.borrow_mut().remove(&site);
-        assert!(!ledger.terminal_i64_field_return_complete());
-        ledger
-            .terminal_i64_field_value
-            .borrow_mut()
-            .insert(site.clone(), ValueId(900));
-        assert!(ledger.terminal_i64_field_return_complete());
-        ledger
-            .terminal_i64_field_values
-            .borrow_mut()
-            .remove(&(child, site.clone()));
-        assert!(!ledger.terminal_i64_field_return_complete());
-        assert_eq!(
-            ledger.terminal_i64_field_value.borrow().get(&site),
-            Some(&ValueId(900))
-        );
     }
 }

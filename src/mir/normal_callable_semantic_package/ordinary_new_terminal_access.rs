@@ -163,27 +163,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    #[cfg(test)]
-    pub(crate) fn terminal_i64_add_return_for_owner(
-        &self,
-        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
-    ) -> Option<&TerminalI64AddReturnV1> {
-        match self.sole_terminal_relation_for_owner(owner) {
-            Some(TerminalRelationV1::I64Add(row)) => Some(row),
-            _ => None,
-        }
-    }
 
-    #[cfg(test)]
-    pub(crate) fn terminal_i64_field_return_for_owner(
-        &self,
-        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
-    ) -> Option<&TerminalI64FieldReturnV1> {
-        match self.sole_terminal_relation_for_owner(owner) {
-            Some(TerminalRelationV1::I64Field(row)) => Some(row),
-            _ => None,
-        }
-    }
 
     #[cfg(test)]
     pub(crate) fn terminal_integer_literal_return_for_owner(
@@ -294,7 +274,6 @@ impl OrdinaryNewClaimLedgerV1 {
             && self.local_call_bindings_consumed()
             && self.field_reads_complete()
             && self.birth_abi_handoffs.borrow().is_empty()
-            && self.terminal_result_complete()
             && self
                 .terminal_relation
                 .iter()
@@ -321,7 +300,6 @@ impl OrdinaryNewClaimLedgerV1 {
                         .borrow()
                         .get(&(*owner, site.clone())).is_some_and(|row| row.producer.is_some() && row.returned.is_some())
                 })
-            && self.terminal_i64_field_return_complete()
             && self.root_instance_call_is_empty()
     }
 
@@ -357,12 +335,6 @@ impl OrdinaryNewClaimLedgerV1 {
             .flatten()
     }
 
-    pub(crate) fn terminal_i64_add_return(&self) -> Option<&TerminalI64AddReturnV1> {
-        match self.sole_root_terminal_relation() {
-            Some(TerminalRelationV1::I64Add(row)) => Some(row),
-            _ => None,
-        }
-    }
 
     pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
         match self.sole_root_terminal_relation() {
@@ -380,23 +352,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    pub(crate) fn terminal_i64_field_return(&self) -> Option<&TerminalI64FieldReturnV1> {
-        match self.sole_root_terminal_relation() {
-            Some(TerminalRelationV1::I64Field(row)) => Some(row),
-            _ => None,
-        }
-    }
 
-    pub(crate) fn terminal_i64_add_return_for_owner_at(
-        &self,
-        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
-        site: &SourceStmtSiteV1,
-    ) -> Option<&TerminalI64AddReturnV1> {
-        match self.terminal_relation_for_owner_at(owner, site) {
-            Some(TerminalRelationV1::I64Add(row)) => Some(row),
-            _ => None,
-        }
-    }
 
     pub(crate) fn terminal_map_get_return_for_owner_at(
         &self,

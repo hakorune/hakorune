@@ -272,7 +272,7 @@ fn foreign_selected_return_qualification_refuses_without_scalar_retry() {
             None,
             contract.completion().explicit_sites(), contract.completion().implicit_body_end().is_some(),
             &std::collections::BTreeSet::new(),
-            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok::<_, std::convert::Infallible>(false),
+
             &mut |_, _| Ok(false),
             &mut |_| -> Result<bool, std::convert::Infallible> { panic!("no scalar terminal retry") },
             &mut |_| -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallRouteV1>, std::convert::Infallible> { panic!("no borrowed i64 terminal retry") },

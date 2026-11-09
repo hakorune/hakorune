@@ -46,12 +46,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &[],
         false,
         result_sites,
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
-              _,
-              _,
-              _: &str| Ok::<_, std::convert::Infallible>(false),
-        &mut |_, _| Ok(false),
+        &mut |_, _| Ok::<_, std::convert::Infallible>(false),
         &mut |_| Ok(false),
         // The bounded sibling mints no call routes: lexical, receiver and
         // static membership live on the verified-completion lane alone.
@@ -128,7 +123,6 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     // `local x = Alias.m(..)` or `local x = recv.m(..)` keeps this walk
     // covered, so the readiness gate never under- or over-predicts.
     local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -195,7 +189,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         explicit_sites,
         false,
         &BTreeSet::new(),
-        field_is_integer,
+
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         local_call_route,

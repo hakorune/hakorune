@@ -96,8 +96,8 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_new_emissions_projected(owner, function, Some(&projection))?;
             self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), Some(&projection), |binding| projection.binding(binding.0, &binding.1), |copy| projection.borrowed_copy_coordinate(function, copy).map(|_| ()))?;
             self.validate_terminal_scalar_literal_return_projected(owner, function, Some(&projection))?;
-            self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
-            self.validate_terminal_i64_add_return_projected(owner, function, Some(&projection))?;
+
+
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             self.verify_finished_scalar_operations_v1(owner, function, |original| {
                 self.project_scalar_operation_binding_v1(owner, function, &projection, original)
@@ -189,33 +189,13 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(projection) => projection.borrowed_copy_coordinate(function, copy).map(|_| ()),
             None => if function.blocks.values().flat_map(|block| block.all_instructions()).filter(|i| *i == &copy.1).count() == 1 { Ok(()) } else { Err(freeze("alias/finished-copy-missing-or-duplicate")) },
         })?;
-        self.validate_terminal_i64_add_return_projected(owner, function, projection)?;
+
         self.validate_terminal_scalar_literal_return_projected(owner, function, projection)?;
-        self.validate_terminal_i64_field_return_projected(owner, function, projection)?;
+
         Ok(())
     }
 
-    pub(super) fn validate_terminal_i64_add_return_projected(
-        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
-        projection: Option<&super::physical_boundary::FinishedBindings>,
-    ) -> Result<(), String> {
-        self.validate_terminal_i64_add_return(owner, function, |block, instruction| {
-            super::physical_boundary::check_binding(function, projection, block, instruction)
-        })
-    }
 
-    /// The same canonical boundary checker owns draft and finished read positions.
-    /// The terminal source validator receives no independent block remapper.
-    pub(super) fn validate_terminal_i64_field_return_projected(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        projection: Option<&super::physical_boundary::FinishedBindings>,
-    ) -> Result<(), String> {
-        self.validate_terminal_i64_field_return(owner, function, |block, instruction| {
-            super::physical_boundary::check_binding(function, projection, block, instruction)
-        })
-    }
 
     /// Recheck the same retained source obligations after compiler finishing.
     /// The early observation cannot authorize a modified function. No source
@@ -632,9 +612,7 @@ impl OrdinaryNewClaimLedgerV1 {
         result.extend(self.borrowed_mul_bindings_v1(owner)?);
         result.extend(self.scalar_operation_bindings_v1(owner)?);
         result.extend(self.original_checked_field_bindings_v1(owner)?);
-        for binding in self.terminal_i64_add_bindings_v1(owner)? {
-            if !result.contains(&binding) { result.push(binding); }
-        }
+
         result.extend(
             self.selected_loop_body_packets
                 .borrow()

@@ -456,33 +456,6 @@ impl ResultExpressionSourceV1 {
             _ => None,
         }
     }
-    pub(super) fn field_source(
-        &self,
-        site: &SourceExprSiteV1,
-        receiver_site: &SourceExprSiteV1,
-        receiver: BindingRefV1,
-        class: &str,
-        name: &str,
-    ) -> Option<(usize, Rc<DeclaredFieldValueSourceV1>)> {
-        let index = self
-            .plan
-            .field_read_node_v1(site, receiver_site, receiver, name)?;
-        let receiver_index = self
-            .plan
-            .nodes()
-            .iter()
-            .position(|node| node.site() == receiver_site)?;
-        if !matches!(self.leaves.get(receiver_index), Some(LeafV1::Receiver(binding)) if *binding == receiver)
-        {
-            return None;
-        }
-        match self.leaves.get(index)? {
-            LeafV1::Field { key, source } if key.0.as_ref() == class && key.1.as_ref() == name => {
-                Some((index, Rc::clone(source)))
-            }
-            _ => None,
-        }
-    }
     pub(super) fn uses_fields(&self) -> bool {
         self.leaves_deep()
             .into_iter()

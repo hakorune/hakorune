@@ -541,19 +541,7 @@ where
     ) -> Result<Option<ValueId>, String> {
         self.child.emit_terminal_i64_call_exit(builder)
     }
-    fn emit_terminal_i64_add_return(
-        &mut self,
-        builder: &mut MirBuilder,
-    ) -> Result<Option<ValueId>, String> {
-        self.child.emit_terminal_i64_add_return(builder)
-    }
 
-    fn emit_terminal_i64_field_return(
-        &mut self,
-        builder: &mut MirBuilder,
-    ) -> Result<Option<crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1>, String> {
-        self.child.emit_terminal_i64_field_return(builder)
-    }
 
     fn emit_terminal_map_get_return(
         &mut self,

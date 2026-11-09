@@ -23,7 +23,6 @@ pub(in crate::mir::builder) struct PreparedRawFieldReadV1 {
 /// carries the issuer's declared-type classification: `Scalar` reads an
 /// `Integer`, `Alias` reads a `Box` handle of the declared class.
 pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
-    Terminal,
     CheckedLocal {
         source: std::rc::Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>,
         read: std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>,
@@ -233,7 +232,7 @@ impl super::MirBuilder {
             return Err("[freeze:contract][ordinary-field-read/checked-fault-context-missing]".into());
         }
         let ty = match &claim {
-            PreparedExactFieldReadClaimV1::Terminal => crate::mir::MirType::Integer,
+
             PreparedExactFieldReadClaimV1::CheckedLocal { .. } => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
             PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
@@ -278,7 +277,7 @@ impl super::MirBuilder {
         let (dst, binding) = self.append_exact_object_field_read_with_destination_v1(base, field, ty, destination)?;
         match claim {
             PreparedExactFieldReadClaimV1::CheckedLocal { .. } => return Err("[freeze:contract][ordinary-field-read/checked-dispatch]".into()),
-            PreparedExactFieldReadClaimV1::Terminal => ledger.record_terminal_field_read(site, binding.0, dst, base, field)?,
+
             PreparedExactFieldReadClaimV1::Local(source) => ledger.record_local_field_read(site, binding.0, dst, base, field, &source)?,
         }
         Ok((dst, binding))

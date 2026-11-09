@@ -24,7 +24,7 @@ mod borrowed_entry;
 
 #[path = "ordinary_new_owned_ready_field_source.rs"]
 mod owned_ready;
-pub(super) use owned_ready::{OwnedReadyFieldReadSourceV1, TerminalFieldValueSourceV1};
+pub(super) use owned_ready::OwnedReadyFieldReadSourceV1;
 
 #[path = "ordinary_new_received_field_source.rs"]
 mod received;
@@ -37,15 +37,6 @@ use checked_cleanup::CheckedFieldReadCleanupV1;
 mod returned;
 pub(in crate::mir::normal_callable_semantic_package) use received::{ReceivedFieldReadSourceV1, ReceivedFieldContextV1};
 
-#[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) struct FieldRead {
-    pub(super) receiver_site: SourceExprSiteV1,
-    pub(super) receiver: BindingRefV1,
-    pub(super) home: BindingRefV1,
-    pub(super) field: CanonicalFieldRefV1,
-    pub(super) value_source: TerminalFieldValueSourceV1,
-    pub(super) progress: Progress,
-}
 
 /// One argument-position `receiver.field` read staged by the issuer's
 /// proof. The site key is the exact `FieldAccess` argument expression site
@@ -94,10 +85,6 @@ pub(super) enum Progress {
     Pending,
     Taken(ValueId),
     Emitted(BasicBlockId, MirInstruction),
-    CheckedEmitted {
-        invoke: (BasicBlockId, MirInstruction),
-        projection: (BasicBlockId, MirInstruction),
-    },
     /// Retired by the enclosing claim's `RetainedUnavailable` decline:
     /// no selected emitter exists, so the raw lane owns the physical
     /// read at that site. Distinct from `Taken`/`Emitted` — released
@@ -105,61 +92,7 @@ pub(super) enum Progress {
     Released,
 }
 
-pub(super) fn merge_staged_field_reads(
-    destination: &mut BTreeMap<OwnedExprSiteV1, FieldRead>,
-    owner: FunctionOwnerIdV1,
-    staged: BTreeMap<OwnedExprSiteV1, FieldRead>,
-) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    for (site, row) in &staged {
-        if site.owner() != owner || row.receiver.owner() != owner || row.home.owner() != owner {
-            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: site.clone() });
-        }
-        if destination.contains_key(site) {
-            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
-        }
-    }
-    destination.extend(staged);
-    Ok(())
-}
 
-pub(super) fn merge_terminal_relation_field_reads(
-    destination: &mut BTreeMap<OwnedExprSiteV1, FieldRead>,
-    owner: FunctionOwnerIdV1,
-    relations: &BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
-    staged: BTreeMap<OwnedExprSiteV1, FieldRead>,
-) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    let mut consumed = false;
-    for relation in relations.values() {
-        match relation {
-            TerminalRelationV1::I64Add(result) => {
-                if result.owner() != owner
-                    || result
-                        .field_reads()
-                        .iter()
-                        .any(|site| !staged.contains_key(site))
-                {
-                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                        site: result.add_site().clone(),
-                    });
-                }
-                consumed = true;
-            }
-            TerminalRelationV1::I64Field(result) => {
-                if result.owner() != owner || !staged.contains_key(result.field_read_site()) {
-                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                        site: result.field_read_site().clone(),
-                    });
-                }
-                consumed = true;
-            }
-            _ => {}
-        }
-    }
-    if !consumed {
-        return Ok(());
-    }
-    merge_staged_field_reads(destination, owner, staged)
-}
 
 /// Merge staged argument-position reads into the ledger. Every sealed
 /// `I64Field` argument row must carry a staged read at its exact site
@@ -226,6 +159,23 @@ pub(super) fn merge_staged_local_field_reads(
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// The same Return field cannot be taken for a sibling exit or after its
+    /// prepare window. Non-Return expression roles retain their own owner.
+    pub(super) fn require_field_return_phase_v1(&self, site: &OwnedExprSiteV1) -> Result<(), String> {
+        use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1,
+            expression_root::StatementExpressionRoleV1};
+        let Some(required) = self.source_field_requirement_v1(site)? else { return Ok(()); };
+        let ExpressionPlanRootV1::Statement { statement, role: StatementExpressionRoleV1::ReturnValue, .. }
+            = required.plan().root() else { return Ok(()); };
+        let ready = self.root_exits.borrow().get(&(site.owner(), statement.clone().into()))
+            .map(|state| matches!(state, local_commit::RootHomeExitProgress::Prepared(_)
+                | local_commit::RootHomeExitProgress::Unavailable));
+        if !match ready {
+            Some(ready) => ready,
+            None => self.root_home_exit_not_selected_v1(site.owner(), statement.node())?,
+        } { return Err(fault("root-exit-phase")); }
+        Ok(())
+    }
     /// Take the staged local-initializer read for the exact `FieldAccess`
     /// initializer site once. The caller resolves the staged receiver
     /// binding to the live base value; the sealed result class returns
@@ -236,8 +186,9 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &OwnedExprSiteV1,
         resolve_receiver: impl FnOnce(BindingRefV1) -> Result<ValueId, String>,
     ) -> Result<Option<(ValueId, Rc<LocalFieldReadSourceV1>)>, String> {
-        let mut reads = self.local_field_reads.borrow_mut();
-        let Some(row) = reads.get_mut(site) else {
+        self.require_field_return_phase_v1(site)?;
+        let reads = self.local_field_reads.borrow();
+        let Some(row) = reads.get(site) else {
             if self.source_field_requirement_v1(site)?.is_some() { return Err(fault("required-source-read-missing")); }
             return Ok(None);
         };
@@ -255,8 +206,26 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
         if row.source.expression_path.is_some() { return Err(fault("result-path/direct-take")); }
-        let base = resolve_receiver(row.receiver)?;
+        if self.source_field_requirement_v1(site)?.is_some_and(|required| matches!(required.plan().root(),
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
+            && (row.source.owned_ready.is_some() || row.numeric_source.as_ref().is_some_and(|loan| loan.requires_installed_home_v1()))
+            && !self.local_commits.borrow().values().any(|local| local.installs(row.home))
+        {
+            return Err(fault("home-not-installed"));
+        }
+        let receiver = row.receiver;
+        let home = row.home;
+        let receiver_site = row.receiver_site.clone();
         let source = Rc::clone(&row.source);
+        drop(reads);
+        let base = resolve_receiver(receiver)?;
+        let mut reads = self.local_field_reads.borrow_mut();
+        let row = reads.get_mut(site).ok_or_else(|| fault("missing-source-site"))?;
+        if !matches!(row.progress, LocalReadProgress::Pending) || !Rc::ptr_eq(&row.source, &source)
+            || row.receiver != receiver || row.home != home || row.receiver_site != receiver_site {
+            return Err(fault("emission-mismatch"));
+        }
         row.progress = LocalReadProgress::Taken { base, source: Rc::clone(&source) };
         Ok(Some((base, source)))
     }
@@ -297,8 +266,8 @@ impl OrdinaryNewClaimLedgerV1 {
             MirInstruction::ObjectFieldGet { base, .. } | MirInstruction::FieldGet { base, .. } => *base,
             _ => return Err(fault("source-emission-kind")),
         };
-        let mut reads = self.local_field_reads.borrow_mut();
-        let row = reads.get_mut(site).ok_or_else(|| fault("missing-source-site"))?;
+        let reads = self.local_field_reads.borrow();
+        let row = reads.get(site).ok_or_else(|| fault("missing-source-site"))?;
         if !matches!(&row.progress, LocalReadProgress::Taken { base: expected, source: taken }
             if *expected == base && Rc::ptr_eq(taken, source))
             || !Rc::ptr_eq(&row.source, source)
@@ -306,6 +275,9 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(fault("emission-mismatch"));
         }
         self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
+        drop(reads);
+        let mut reads = self.local_field_reads.borrow_mut();
+        let row = reads.get_mut(site).ok_or_else(|| fault("missing-source-site"))?;
         row.progress = LocalReadProgress::Emitted {
             block, instruction, source: Rc::clone(source), read: None,
         };
@@ -479,97 +451,7 @@ impl OrdinaryNewClaimLedgerV1 {
             &row.receiver_site, row.receiver, row.home, &row.source)
     }
 
-    fn recheck_integer_field_source_v1(&self, source: &super::lexical_instance_call::IntegerFieldSourceLoanV1,
-        site: &OwnedExprSiteV1, row: &FieldRead) -> Result<(), String> {
-        let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| fault("integer-source-missing"))?
-            .as_ref().map_err(Clone::clone)?;
-        source.recheck(&self.borrowed_i64_results, ingress, site, &row.receiver_site, row.receiver, row.home, row.field)
-    }
 
-    pub(crate) fn take_terminal_field_read(
-        &self,
-        site: &OwnedExprSiteV1,
-        resolve_receiver: impl FnOnce(BindingRefV1) -> Result<ValueId, String>,
-    ) -> Result<Option<(ValueId, CanonicalFieldRefV1)>, String> {
-        let mut reads = self.field_reads.borrow_mut();
-        let Some(row) = reads.get_mut(site) else {
-            return Ok(None);
-        };
-        // The read belongs to the relation of its own exact exit site; the
-        // exit row for that site — never a sibling exit's — must be in the
-        // prepare window.
-        let exit_site = self
-            .terminal_relations_for_owner(site.owner())
-            .into_iter()
-            .find_map(|relation| match relation {
-                TerminalRelationV1::I64Add(relation) if relation.field_reads().contains(site) => {
-                    Some(relation.return_site().clone())
-                }
-                TerminalRelationV1::I64Field(relation) if relation.field_read_site() == site => {
-                    Some(relation.return_site().clone())
-                }
-                _ => None,
-            });
-        let Some(exit_site) = exit_site else {
-            return Err(fault("root-exit-phase"));
-        };
-        let recorded_ready = {
-            let exits = self.root_exits.borrow();
-            exits
-                .get(&(site.owner(), exit_site.clone().into()))
-                .map(|progress| {
-                    matches!(
-                        progress,
-                        local_commit::RootHomeExitProgress::Prepared(_)
-                            | local_commit::RootHomeExitProgress::Unavailable,
-                    )
-                })
-        };
-        let phase_ready = match recorded_ready {
-            Some(ready) => ready,
-            None => self.root_home_exit_not_selected_v1(site.owner(), exit_site.node())?,
-        };
-        if !phase_ready {
-            return Err(fault("root-exit-phase"));
-        }
-        if row.receiver.owner() != site.owner() || row.home.owner() != site.owner() {
-            return Err(fault("foreign-binding"));
-        }
-        let Some((last, parent)) = row.receiver_site.node().segments().split_last() else {
-            return Err(fault("receiver-source-site"));
-        };
-        if *last != SourcePathSegmentV1::Receiver || parent != site.site().node().segments() {
-            return Err(fault("receiver-source-site"));
-        }
-        self.recheck_terminal_field_value_v1(site, row, CallValidationContextV1::Lowering(self))?;
-        // `installs` — not `installs_ordinary`: a non-null-narrowed
-        // received nullable is a `CallReceived` row, not an `Ordinary`
-        // `new` Home, and it still names a physically materialized base.
-        // A borrowed formal needs no local commit: the co-sealed object
-        // view already proves its physical base is the incoming tagged
-        // param, and the physical verifier checks the emitted read's base
-        // is that exact formal/copy root in the non-null cone.
-        if !matches!(row.value_source, TerminalFieldValueSourceV1::Numeric(_)) && (!self
-            .local_commits
-            .borrow()
-            .values()
-            .any(|local| local.installs(row.home))
-            && self
-                .borrowed_formal_source
-                .as_ref()
-                .and_then(|source| source.as_ref().ok())
-                .and_then(|source| source.formal_object_view(row.home))
-                .is_none())
-        {
-            return Err(fault("home-not-installed"));
-        }
-        if !matches!(row.progress, Progress::Pending) {
-            return Err(fault("already-taken"));
-        }
-        let base = resolve_receiver(row.receiver)?;
-        row.progress = Progress::Taken(base);
-        Ok(Some((base, row.field)))
-    }
 
     /// Take the staged argument-position read for the exact `FieldAccess`
     /// argument site once. The argument row's receiver binding must match
@@ -653,60 +535,10 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    pub(crate) fn record_terminal_field_read(
-        &self,
-        site: &OwnedExprSiteV1,
-        block: BasicBlockId,
-        dst: ValueId,
-        base: ValueId,
-        field: CanonicalFieldRefV1,
-    ) -> Result<(), String> {
-        let mut reads = self.field_reads.borrow_mut();
-        let row = reads
-            .get_mut(site)
-            .ok_or_else(|| fault("missing-source-site"))?;
-        self.recheck_terminal_field_value_v1(site, row, CallValidationContextV1::Lowering(self))?;
-        if !matches!(row.progress, Progress::Taken(expected) if expected == base)
-            || row.field != field
-        {
-            return Err(fault("emission-mismatch"));
-        }
-        row.progress =
-            Progress::Emitted(block, MirInstruction::ObjectFieldGet { dst, base, field });
-        Ok(())
-    }
 
-    pub(crate) fn record_terminal_checked_field_read(
-        &self,
-        site: &OwnedExprSiteV1,
-        invoke: (BasicBlockId, MirInstruction),
-        projection: (BasicBlockId, MirInstruction),
-        base: ValueId,
-        field: CanonicalFieldRefV1,
-    ) -> Result<(), String> {
-        let mut reads = self.field_reads.borrow_mut();
-        let row = reads.get_mut(site).ok_or_else(|| fault("missing-source-site"))?;
-        self.recheck_terminal_field_value_v1(site, row, CallValidationContextV1::Lowering(self))?;
-        if !matches!(row.progress, Progress::Taken(expected) if expected == base)
-            || row.field != field
-            || !matches!((&invoke.1, &projection.1),
-                (MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldGet { field: actual, base: actual_base }, normal_landing, .. },
-                 MirInstruction::InvokeNormalResult { invoke_block, .. })
-                    if *actual == field && *actual_base == base && *normal_landing == projection.0 && *invoke_block == invoke.0)
-        {
-            return Err(fault("checked-emission-mismatch"));
-        }
-        row.progress = Progress::CheckedEmitted { invoke, projection };
-        Ok(())
-    }
 
     pub(super) fn field_reads_complete(&self) -> bool {
-        self.field_reads
-            .borrow()
-            .values()
-            .all(|row| matches!(row.progress, Progress::Emitted(..) | Progress::CheckedEmitted { .. }))
-            && self
-                .argument_field_reads
+        self.argument_field_reads
                 .borrow()
                 .values()
                 .all(|row| matches!(row.progress, Progress::Emitted(..) | Progress::Released))

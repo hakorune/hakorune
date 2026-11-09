@@ -26,8 +26,7 @@ use crate::mir::instance_constructor_abi::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
     CallerNewHomePrefixV1, HomePrefixUnavailableV1, ResultNewHomePrefixV1,
-    SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalMapGetReturnV1, TerminalRelationV1,
+    SelectedNewArgumentUnavailableV1, TerminalIntegerLiteralReturnV1, TerminalMapGetReturnV1, TerminalRelationV1,
     TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
@@ -99,12 +98,6 @@ mod coseal_issue;
 pub(in crate::mir) use coseal_issue::source_claims::StoredChildFieldSourceV1;
 pub(crate) use coseal_issue::RetainedSourceLoopProductV1;
 pub(super) use coseal_issue::issue_ordinary_source_cohort_v1;
-#[path = "ordinary_new_terminal_result.rs"]
-mod terminal_result;
-pub(crate) use terminal_result::PreparedTerminalI64AddReturnV1;
-#[path = "ordinary_new_terminal_field_return.rs"]
-mod terminal_field_return;
-pub(crate) use terminal_field_return::PreparedTerminalI64FieldReturnV1;
 #[path = "ordinary_new_terminal_map_get_return.rs"]
 mod terminal_map_get_return;
 pub(crate) use terminal_map_get_return::{PreparedTerminalMapGetReturnV1, StoredMapGetSourceLoanV1, StoredMapGetReturnSourceLoanV1};
@@ -503,7 +496,6 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         BTreeMap<OwnedExprSiteV1, lexical_instance_call::LexicalInstanceCallDispositionSlotV1>,
     >,
     root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
-    field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     // Argument-position `receiver.field` reads keyed by the exact
     // `FieldAccess` argument expression site — issued only for argument
     // rows the sealed observation proved `I64Field`, consumed once by the
@@ -573,10 +565,6 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     terminal_scalar_literal_value: RefCell<BTreeMap<SourceStmtSiteV1, terminal_access::TerminalScalarLiteralEmissionV1>>,
     terminal_scalar_literal_values:
         RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), terminal_access::TerminalScalarLiteralEmissionV1>>,
-    terminal_i64_field_value: RefCell<BTreeMap<SourceStmtSiteV1, crate::mir::ValueId>>,
-    terminal_i64_field_values:
-        RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), crate::mir::ValueId>>,
-    terminal_result_progress: RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), terminal_result::Progress>>,
     root_completion: Option<
         Result<
             Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
@@ -699,9 +687,6 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         site: OwnedExprSiteV1,
     },
     FieldReadOwnerMismatch {
-        site: OwnedExprSiteV1,
-    },
-    TerminalResultFieldReadMissing {
         site: OwnedExprSiteV1,
     },
     /// A sealed `I64Field` argument row reached the ledger without the

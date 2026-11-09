@@ -260,7 +260,6 @@ pub(crate) use borrowed_formal_result::{
     BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1,
 };
 
-pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::{lend_integer_field_v1, IntegerFieldSourceLoanV1};
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::{ExpressionFieldSourceLoanV1, ClosedNumericFieldSourceLoanV1, ExpressionObjectFieldSourceLoanV1};
 
 #[path = "ordinary_new_borrowed_formal_profile.rs"]

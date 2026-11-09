@@ -539,15 +539,6 @@ pub(super) fn validate_finished_cleanup_entry(
                 frame,
                 ..
             },
-        )
-        | (
-            finishing @ Some(_),
-            RootHomeExitEntry::FieldGet {
-                invoke,
-                projection: result,
-                frame,
-                ..
-            },
         ) => {
             for original in [invoke, result, frame] {
                 mandatory.push(match finishing {

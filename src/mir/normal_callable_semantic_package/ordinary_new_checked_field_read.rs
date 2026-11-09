@@ -135,8 +135,8 @@ impl OrdinaryNewClaimLedgerV1 {
         read: Option<Rc<ExactLexicalReadV1>>, invoke: Binding, normal: Binding,
         cleanup: CheckedFieldReadCleanupV1,
     ) -> Result<(), String> {
-        let mut rows = self.local_field_reads.borrow_mut();
-        let row = rows.get_mut(site).ok_or_else(|| fault("received/read-missing"))?;
+        let rows = self.local_field_reads.borrow();
+        let row = rows.get(site).ok_or_else(|| fault("received/read-missing"))?;
         let LocalReadProgress::Taken { source: taken, base } = &row.progress else { return Err(fault("received/emission-source")); };
         let field_base = self.shared_field_base_v1(site, row, &cleanup)?.unwrap_or(*base);
         if !source.requires_checked_field_read_v1() || !Rc::ptr_eq(source, &row.source)
@@ -145,6 +145,9 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(fault("received/emission-source"));
         }
         self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
+        drop(rows);
+        let mut rows = self.local_field_reads.borrow_mut();
+        let row = rows.get_mut(site).ok_or_else(|| fault("received/read-missing"))?;
         row.progress = LocalReadProgress::CheckedEmitted { source: Rc::clone(source), invoke, normal, read, cleanup };
         drop(rows);
         self.checked_field_pair_v1(site, CallValidationContextV1::Lowering(self))?
@@ -294,16 +297,13 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn has_checked_field_reads_v1(&self, owner: FunctionOwnerIdV1) -> bool {
         self.local_field_reads.borrow().iter().any(|(site, row)| site.owner() == owner && row.source.requires_checked_field_read_v1())
-            || self.field_reads.borrow().iter().any(|(site, row)| site.owner() == owner
-                && matches!(row.progress, Progress::CheckedEmitted { .. }))
+
     }
 
     pub(in crate::mir) fn checked_field_read_owners_v1(&self) -> BTreeSet<FunctionOwnerIdV1> {
         self.local_field_reads.borrow().iter()
             .filter(|(_, row)| row.source.requires_checked_field_read_v1())
             .map(|(site, _)| site.owner())
-            .chain(self.field_reads.borrow().iter().filter_map(|(site, row)|
-                matches!(row.progress, Progress::CheckedEmitted { .. }).then_some(site.owner())))
             .collect()
     }
 
@@ -360,21 +360,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 expected.push(mapped);
             }
         }
-        for (site, row) in self.field_reads.borrow().iter().filter(|(site, row)| {
-            site.owner() == owner && matches!(row.progress, Progress::CheckedEmitted { .. })
-        }) {
-            self.recheck_terminal_field_value_v1(site, row, context)?;
-            let linked = self.terminal_relations_for_owner(owner).into_iter().any(|relation| {
-                matches!(relation, TerminalRelationV1::I64Field(field) if field.field_read_site() == site)
-            });
-            if !linked { return Err(fault("received/terminal-source-missing")); }
-            let Progress::CheckedEmitted { invoke, projection } = &row.progress else { unreachable!() };
-            for binding in [invoke, projection] {
-                let mapped = project(binding)?.ok_or_else(|| fault("received/finished-binding-missing"))?;
-                if expected.contains(&mapped) { return Err(fault("received/duplicate-binding")); }
-                expected.push(mapped);
-            }
-        }
+
         let published = expected.clone();
         // Nonnullable stored-call receiver reads have a different original
         // owner. This census owns only its retained checked-read receipts;
@@ -427,7 +413,6 @@ impl OrdinaryNewClaimLedgerV1 {
         mut project: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<Option<(BasicBlockId, MirInstruction)>, String>,
         mut project_copy: impl FnMut(&(BasicBlockId, MirInstruction)) -> Result<(), String>,
     ) -> Result<(), String> {
-        let reads = self.field_reads.borrow();
         let mut expected = Vec::new();
         let stored_receivers = self.stored_terminal_receiver_reads_v1(owner)?;
         expected.extend(
@@ -438,20 +423,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .filter(|(_, instruction)| matches!(instruction, MirInstruction::ObjectFieldGet { .. }))
                 .map(|(block, instruction)| (*block, instruction)),
         );
-        for (site, row) in reads.iter() {
-            if site.owner() != owner {
-                continue;
-            }
-            self.recheck_terminal_field_value_v1(site, row, context)?;
-            match &row.progress {
-                Progress::Emitted(block, instruction) => expected.push((*block, instruction)),
-                // The root FieldGet entry owns and independently validates
-                // the checked Invoke/result pair. This census owns only
-                // direct field-read instructions.
-                Progress::CheckedEmitted { .. } => {}
-                _ => return Err(fault("unconsumed-read")),
-            }
-        }
+
         let argument_reads = self.argument_field_reads.borrow();
         for (site, row) in argument_reads.iter() {
             if site.owner() != owner || matches!(row.progress, Progress::Released) {

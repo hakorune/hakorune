@@ -188,10 +188,9 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         let source = format!("box Pair {{ {declaration} }} static box Main {{ main() {{ local pair = new Pair() {body} }} }}");
         let package = issue_with_brand_catalog(&source).expect("source-ready terminal");
         let ledger = &package.ordinary_new_claim_ledger;
-        let requests: Vec<_> = if fields == 1 {
-            vec![ledger.terminal_i64_field_return().unwrap().field_request()]
-        } else { ledger.terminal_i64_add_return().unwrap().field_requests().iter().collect() };
         let flow = ledger.root_completion_for_test().cleanup().root_flow().unwrap();
+        let requests: Vec<_> = flow.source_expression_fields().map(|required| required.request()).collect();
+        assert_eq!(requests.len(), fields, "complete original Return requests");
         for request in requests {
             let ready = request.owned_ready.as_ref().expect("exact successful LOCAL store").frame();
             let local = ready.owned_local().unwrap();
@@ -204,7 +203,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     }
     let shadow = issue_with_brand_catalog("box ArrayBox { value: i64 } static box Main { main() { local item = new ArrayBox() item.value = 7 return item.value } }")
         .expect("user declaration stays with its ordinary New owner");
-    assert!(shadow.ordinary_new_claim_ledger.terminal_i64_field_return().is_some(),
+    assert!(has_return_fields(&shadow.ordinary_new_claim_ledger),
         "bare builtin qualification cannot reject an ordinary shadow");
     let sentinel = include_str!("../../../apps/typed-object-untyped-field-min/main.hako");
     let package = issue_with_brand_catalog(sentinel).expect("unchanged Array-to-Dynamic source");
@@ -223,7 +222,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let exit = flow.exit_row(completion.explicit_sites().first().unwrap()).unwrap().unwrap();
     assert_eq!(exit.homes().iter().map(|home| home.binding()).collect::<Vec<_>>(), [local.root()],
         "Normal moves the Array Home into its holder; no second local End");
-    assert!(ledger.terminal_i64_field_return().is_some(), "unrelated Array acquisition preserves count writer kind");
+    assert!(has_return_fields(ledger), "unrelated Array acquisition preserves count writer kind");
     let original = ledger.field_write_source_at_v1(transfer.frame().source().owner(),
         transfer.frame().source().root().statement()).unwrap().unwrap();
     original.validate_source(ledger).unwrap();
@@ -258,14 +257,14 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         "pair.left = 10 loop false { pair.touch() break } return pair.left"] {
         let text = format!("box Pair {{ left right touch() {{ return 0 }} }} static box Main {{ observe(value: Pair) {{ return 0 }} main() {{ local pair = new Pair() {body} }} }}");
         let package = issue_with_brand_catalog(&text).expect("unproved Dynamic source stays closed");
-        assert!(package.ordinary_new_claim_ledger.terminal_i64_field_return().is_none(), "no kind after missing writer or exposed root: {body}");
+        assert!(!has_return_fields(&package.ordinary_new_claim_ledger), "no kind after missing writer or exposed root: {body}");
     }
     for body in ["return pair.left", "pair.left = 10 return pair.right",
         "pair.left = 10 if true { pair.left = 20 } else {} return pair.left"] {
         let source = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local pair = new Pair() {body} }} }}");
         let package = issue_with_brand_catalog(&source).expect("unready source stays descriptive");
         let ledger = &package.ordinary_new_claim_ledger;
-        assert!(ledger.terminal_i64_field_return().is_none(), "no ready terminal loan: {body}");
+        assert!(!has_return_fields(ledger), "no ready terminal loan: {body}");
         assert!(ledger.root_completion_for_test().cleanup().terminal_homes().unwrap().is_err());
     }
     for (body, frames) in [("pair.left = true", 0), ("pair.missing = 1", 0),
@@ -798,3 +797,10 @@ pub(in crate::mir) const STORED_BORROWED_LOCAL_SOURCE: &str = "box Item { value:
             run(p: Item) { local same = me.child.maybe(p) return 0 } }
         static box Main { main() { local parent = new Parent() local item = new Item()
             return parent.run(item) } }";
+
+fn has_return_fields(ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1) -> bool {
+    ledger.root_completion_for_test().cleanup().root_flow().is_some_and(|flow|
+        flow.source_expression_fields().any(|required| matches!(required.plan().root(),
+            crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. })))
+}

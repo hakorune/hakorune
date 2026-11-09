@@ -6,7 +6,7 @@
 #[path = "home_field_source.rs"]
 mod field_source;
 pub(crate) use field_source::{
-    HomeFieldSourceConsultV1, HomeTerminalFieldSourceConsultV1, NoScalarFieldSourceV1,
+    HomeFieldSourceConsultV1, NoScalarFieldSourceV1,
 };
 
 use super::{
@@ -278,8 +278,8 @@ use terminal_relation::{
     terminal_map_get, terminal_returned_source, ReturnScalar,
 };
 pub(crate) use terminal_relation::{
-    BorrowedNullableReturnV1, TerminalBoolLiteralReturnV1, TerminalCallArgumentV1, TerminalI64AddReturnV1,
-    TerminalI64CallReturnV1, TerminalI64FieldReturnV1, TerminalScalarReturnV1,
+    BorrowedNullableReturnV1, TerminalBoolLiteralReturnV1, TerminalCallArgumentV1,
+    TerminalI64CallReturnV1,  TerminalScalarReturnV1,
     TerminalIntegerLiteralReturnV1, TerminalMapGetReceiverClassV1, TerminalMapGetReturnV1,
     TerminalOpaqueCallReturnV1, TerminalRelationV1, TerminalReturnedSourceV1, TerminalUnitReturnV1,
     TerminalValueReturnV1,
@@ -299,12 +299,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &[],
         false,
         &BTreeSet::new(),
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
-              _,
-              _,
-              _: &str| Ok::<_, std::convert::Infallible>(false),
-        &mut |_, _| Ok(false),
+        &mut |_, _| Ok::<_, std::convert::Infallible>(false),
         &mut |_| Ok(false),
         &mut |_| Ok(None),
         &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -423,7 +418,6 @@ pub(crate) fn scan_new_home_flow<E>(
     exit_sites: &[SourceStmtSiteV1],
     uncovered_implicit_exit: bool,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's lexical instance-call membership for the exact-i64
@@ -621,7 +615,7 @@ pub(crate) fn scan_new_home_flow<E>(
         &mut covered_statements,
         &mut selected_seen,
         &mut unavailable,
-        field_is_integer,
+
         map_compatible,
         terminal_call,
         local_call_route,

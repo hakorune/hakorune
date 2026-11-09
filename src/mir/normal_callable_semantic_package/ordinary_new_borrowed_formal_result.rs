@@ -44,9 +44,6 @@ pub(crate) use callable_result_source::CallableResultSourceV1;
 #[path = "ordinary_new_borrowed_expression_field_source.rs"]
 mod expression_field;
 
-#[path = "ordinary_new_borrowed_field_integer_source.rs"]
-mod integer_field;
-pub(in crate::mir::normal_callable_semantic_package) use integer_field::{lend_integer_field_v1, IntegerFieldSourceLoanV1};
 pub(in crate::mir::normal_callable_semantic_package) use expression_field::{ExpressionFieldSourceLoanV1, ClosedNumericFieldSourceLoanV1, ExpressionObjectFieldSourceLoanV1};
 
 pub(in crate::mir::normal_callable_semantic_package) use original::BorrowedResultCohortV1;

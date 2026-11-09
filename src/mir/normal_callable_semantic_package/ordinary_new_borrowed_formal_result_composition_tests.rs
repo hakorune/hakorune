@@ -380,7 +380,7 @@ fn call_result_source_accepts_rebind_and_grants_no_i64_for_non_i64_or_ungrounded
                 Some((plan, prepare(), OwnedExprSiteV1::new(input.owner(), site), object, receiver))
             }).unwrap()
         }).expect("original getter-free Print expression");
-        let staged = package.ordinary_new_claim_ledger.field_reads.borrow().len();
+        let staged = package.ordinary_new_claim_ledger.local_field_reads.borrow().len();
         let leaf = context.sources.get(&("Counter".into(), "n".into())).map(|source|
             super::super::expression_field::ExpressionFieldSourceLoanV1::issue(
                 cohort, ingress, Rc::clone(&plan), Rc::clone(source), &site, &object, receiver, receiver, "n"));
@@ -393,7 +393,7 @@ fn call_result_source_accepts_rebind_and_grants_no_i64_for_non_i64_or_ungrounded
             assert!(leaf.recheck(cohort, ingress, &foreign_plan, &site, &object, receiver, receiver, leaf.field())
                 .unwrap_err().contains("integer-field/source-identity"));
         }
-        assert_eq!(package.ordinary_new_claim_ledger.field_reads.borrow().len(), staged,
+        assert_eq!(package.ordinary_new_claim_ledger.local_field_reads.borrow().len(), staged,
             "source-only leaf preparation never publishes a partial frame/read");
         let (_, recomputed) = grounded_with_fields_v1(&empty, Some(ingress));
         let recomputed = recomputed.unwrap();
@@ -732,38 +732,24 @@ fn original_return_field_requests_keep_nested_expression_plans_before_qualificat
 }
 
 #[test]
-fn original_field_request_rejects_lost_retained_return_before_lending() {
+fn canonical_field_return_rejects_lost_or_substituted_original_source() {
     let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
-        "box Counter { n: i64 birth() { me.n = 0 } read() { return me.n } }
-         static box Main { main() { local c = new Counter() return 0 } }").unwrap();
-    let contract = package.parameter_contracts.iter().find(|row| matches!(
-        package.selected.key_for_batch_slot(row.batch_slot),
-        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().clone();
-    let mut results = std::mem::take(&mut Rc::get_mut(&mut package.ordinary_new_claim_ledger)
-        .unwrap().borrowed_i64_results);
-    let proof = results[&contract.owner].as_ref().unwrap();
-    let receiver = proof.original_return.as_ref().unwrap().receiver();
-    let site = OwnedExprSiteV1::new(contract.owner, proof.expressions[0].plan().nodes()[0].site().clone());
-    let crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
-        BodyExpressionShapeV1::FieldAccess { object, .. }) = proof.expressions[0].plan().nodes()[0].source()
-        else { panic!("original field") };
-    let object = object.clone();
-    for erase in [false, true] {
-        if erase {
-            results.get_mut(&contract.owner).unwrap().as_mut().unwrap()
-                .source_facts_mut_for_test().original_return = None;
-        }
-        let loan = package.batch().with_lowering_input(contract.batch_slot, |input| {
-            let class = package.batch().ordinary_box_coverage().row_for("Counter").unwrap().unwrap();
-            super::super::integer_field::lend_integer_field_v1(&results,
-                package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap(),
-                input, package.instance_constructors(), Some((receiver, class)),
-                &site, &object, receiver, receiver, "n")
-        }).unwrap();
-        if erase {
-            assert!(loan.unwrap_err().contains("integer-field/original-return-missing"));
-        } else { assert!(loan.unwrap().is_some()); }
-    }
+        "box Counter { n: i64 m: i64 birth() { me.n = 0 me.m = 1 } }
+         static box Main { main() { local c = new Counter() if true { return c.n } return c.m } }").unwrap();
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let (owner, canonical) = ledger.terminal_relation_index.iter()
+        .find(|(_, relations)| relations.len() == 2).map(|(owner, relations)| (*owner, Rc::clone(relations))).unwrap();
+    let exits: Vec<_> = canonical.keys().cloned().collect();
+    for exit in &exits { assert!(ledger.return_expression_evaluation_v1(owner, exit).unwrap().is_some()); }
+    Rc::make_mut(ledger.terminal_relation_index.get_mut(&owner).unwrap()).remove(&exits[0]);
+    assert!(ledger.return_expression_evaluation_v1(owner, &exits[0]).unwrap().is_none(),
+        "a missing indexed exit cannot use a sibling or root receipt");
+    ledger.terminal_relation_index.insert(owner, Rc::clone(&canonical));
+    Rc::make_mut(ledger.terminal_relation_index.get_mut(&owner).unwrap())
+        .insert(exits[0].clone(), canonical[&exits[1]].clone());
+    assert!(ledger.return_expression_evaluation_v1(owner, &exits[0]).unwrap_err()
+        .contains("expression/residence-original-pair"));
+    assert!(ledger.return_expression_evaluation_v1(owner, &exits[1]).unwrap().is_some());
 }
 
 #[test]

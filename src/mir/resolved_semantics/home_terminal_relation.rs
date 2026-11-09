@@ -23,57 +23,7 @@ pub(crate) use returned_value::{
     BorrowedNullableReturnV1, TerminalScalarReturnV1, TerminalReturnedSourceV1, TerminalValueReturnV1,
 };
 
-/// Source-only terminal shape for the selected ordinary-`New` root.
-///
-/// This records the decision made by the Completion ownership walk.  It has no
-/// physical value, ABI, recipe, JSON, or backend authority.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64AddReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    add_site: OwnedExprSiteV1,
-    field_reads: [OwnedExprSiteV1; 2],
-    field_requests: [LocalFieldReadRequestV1; 2],
-}
 
-impl TerminalI64AddReturnV1 {
-    pub(crate) fn field_requests(&self) -> &[LocalFieldReadRequestV1; 2] {
-        &self.field_requests
-    }
-    pub(super) fn issue(
-        owner: FunctionOwnerIdV1,
-        return_site: SourceStmtSiteV1,
-        add_site: OwnedExprSiteV1,
-        field_requests: [LocalFieldReadRequestV1; 2],
-    ) -> Self {
-        Self {
-            owner,
-            return_site,
-            add_site,
-            field_reads: [
-                field_requests[0].site.clone(),
-                field_requests[1].site.clone(),
-            ],
-            field_requests,
-        }
-    }
-
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-
-    pub(crate) fn add_site(&self) -> &OwnedExprSiteV1 {
-        &self.add_site
-    }
-
-    pub(crate) fn field_reads(&self) -> &[OwnedExprSiteV1; 2] {
-        &self.field_reads
-    }
-}
 
 /// Exact source relation for a Completion-backed untyped integer literal return.
 /// It records source identity and value only; it owns no physical representation.
@@ -121,48 +71,7 @@ impl TerminalBoolLiteralReturnV1 {
     }
 }
 
-/// Exact source relation for a Completion-backed direct selected i64 field
-/// return. The referenced field-read row retains receiver/Home/field identity.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64FieldReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    value_site: SourceExprSiteV1,
-    field_read_site: OwnedExprSiteV1,
-    field_request: LocalFieldReadRequestV1,
-}
 
-impl TerminalI64FieldReturnV1 {
-    pub(crate) fn field_request(&self) -> &LocalFieldReadRequestV1 {
-        &self.field_request
-    }
-    pub(super) fn issue(
-        owner: FunctionOwnerIdV1,
-        return_site: SourceStmtSiteV1,
-        value_site: SourceExprSiteV1,
-        field_request: LocalFieldReadRequestV1,
-    ) -> Self {
-        Self {
-            owner,
-            return_site,
-            value_site,
-            field_read_site: field_request.site.clone(),
-            field_request,
-        }
-    }
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
-    }
-    pub(crate) fn field_read_site(&self) -> &OwnedExprSiteV1 {
-        &self.field_read_site
-    }
-}
 impl TerminalIntegerLiteralReturnV1 {
     pub(super) fn issue(
         owner: FunctionOwnerIdV1,
@@ -301,11 +210,6 @@ pub(super) enum ReturnScalar {
     /// A local whose stored kind is Bool (R16).
     Bool,
     OtherTrivial,
-    IntegerField(Box<LocalFieldReadRequestV1>),
-    I64Add {
-        site: OwnedExprSiteV1,
-        field_reads: Box<[LocalFieldReadRequestV1; 2]>,
-    },
 }
 
 impl ReturnScalar {
@@ -316,7 +220,7 @@ impl ReturnScalar {
     }
     fn proves_integer(&self) -> bool {
         match self {
-            Self::Integer | Self::IntegerField(_) | Self::I64Add { .. } => true,
+            Self::Integer => true,
             Self::Bool | Self::OtherTrivial => false,
         }
     }
@@ -325,17 +229,16 @@ impl ReturnScalar {
 // This classifier is terminal-only: argument and prefix-local eligibility
 // still belongs to the local-flow observation. Field authority is borrowed from the exact
 // selected New's source definition, never from runtime layout or MIR types.
-pub(super) fn return_scalar<E>(
+pub(super) fn return_scalar(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
-) -> Result<Option<ReturnScalar>, E> {
+) -> Option<ReturnScalar> {
     if matches!(
         input.function().expression_source().literal(site),
         Some(ResolvedLiteralSourceV1::Integer(_))
     ) {
-        return Ok(Some(ReturnScalar::Integer));
+        return Some(ReturnScalar::Integer);
     }
     match locals.observe(site) {
         // A local bound to a proven-i64 source returns an integer scalar:
@@ -345,16 +248,16 @@ pub(super) fn return_scalar<E>(
             _,
             Some(super::local_flow::SourceScalarKind::Integer),
         )) => {
-            return Ok(Some(ReturnScalar::Integer));
+            return Some(ReturnScalar::Integer);
         }
         Some(OrdinaryObservation::TrivialLocal(
             _,
             Some(super::local_flow::SourceScalarKind::Bool),
         )) => {
-            return Ok(Some(ReturnScalar::Bool));
+            return Some(ReturnScalar::Bool);
         }
         Some(value) if value.is_trivial() => {
-            return Ok(Some(ReturnScalar::OtherTrivial));
+            return Some(ReturnScalar::OtherTrivial);
         }
         _ => {}
     }
@@ -362,47 +265,10 @@ pub(super) fn return_scalar<E>(
         .source()
         .expr_at(&OwnedExprSiteV1::new(input.owner(), site.clone()))
     else {
-        return Ok(None);
+        return None;
     };
     match expr.node() {
-        ASTNode::FieldAccess { field, .. } => {
-            let Ok(receiver) = input
-                .source()
-                .child_expr_from_expr(&expr, ExprChildRoleV1::Receiver)
-            else {
-                return Ok(None);
-            };
-            let Some(home) = locals.field_home(receiver.site()) else {
-                return Ok(None);
-            };
-            let Some(ResolvedLexicalRefV1::Local(binding)) =
-                input.function().variable_ref(receiver.site())
-            else {
-                return Ok(None);
-            };
-            let field_site = OwnedExprSiteV1::new(input.owner(), site.clone());
-            let Some(owned_ready) = locals.ready_field_read(home, field) else {
-                return Ok(None);
-            };
-            let request = LocalFieldReadRequestV1 {
-                site: field_site.clone(),
-                receiver_site: receiver.site().clone(),
-                receiver: binding,
-                home,
-                shared_support: None,
-                alias_class: None,
-                nullable: false,
-                formal: false,
-                received: None,
-                path: None,
-                alias_path: None,
-                field: field.clone().into(),
-                owned_ready,
-            };
-            Ok(field_is_integer
-                .integer_field(&request)?
-                .then_some(ReturnScalar::IntegerField(Box::new(request))))
-        }
+
         ASTNode::BinaryOp {
             operator: crate::ast::BinaryOperator::Add,
             ..
@@ -411,32 +277,25 @@ pub(super) fn return_scalar<E>(
                 .source()
                 .child_expr_from_expr(&expr, ExprChildRoleV1::BinaryLeft)
             else {
-                return Ok(None);
+                return None;
             };
             let Ok(right) = input
                 .source()
                 .child_expr_from_expr(&expr, ExprChildRoleV1::BinaryRight)
             else {
-                return Ok(None);
+                return None;
             };
-            let left = return_scalar(input, left.site(), locals, field_is_integer)?;
-            let right = return_scalar(input, right.site(), locals, field_is_integer)?;
-            let add_site = OwnedExprSiteV1::new(input.owner(), site.clone());
+            let left = return_scalar(input, left.site(), locals);
+            let right = return_scalar(input, right.site(), locals);
             match (left, right) {
-                (
-                    Some(ReturnScalar::IntegerField(left)),
-                    Some(ReturnScalar::IntegerField(right)),
-                ) => Ok(Some(ReturnScalar::I64Add {
-                    site: add_site,
-                    field_reads: Box::new([*left, *right]),
-                })),
+
                 (Some(left), Some(right)) if left.proves_integer() && right.proves_integer() => {
-                    Ok(Some(ReturnScalar::Integer))
+                    Some(ReturnScalar::Integer)
                 }
-                _ => Ok(None),
+                _ => None,
             }
         }
-        _ => Ok(None),
+        _ => None,
     }
 }
 
@@ -698,11 +557,9 @@ impl TerminalI64CallReturnV1 {
 #[derive(Debug, Clone)]
 pub(crate) enum TerminalRelationV1 {
     Call(TerminalI64CallReturnV1),
-    I64Add(TerminalI64AddReturnV1),
     Unit(TerminalUnitReturnV1),
     IntegerLiteral(TerminalIntegerLiteralReturnV1),
     BoolLiteral(TerminalBoolLiteralReturnV1),
-    I64Field(TerminalI64FieldReturnV1),
     Scalar(TerminalScalarReturnV1),
     Value(TerminalValueReturnV1),
     OpaqueCall(TerminalOpaqueCallReturnV1),
@@ -713,11 +570,9 @@ impl TerminalRelationV1 {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         match self {
             Self::Call(row) => row.owner,
-            Self::I64Add(row) => row.owner,
             Self::Unit(row) => row.owner,
             Self::IntegerLiteral(row) => row.owner,
             Self::BoolLiteral(row) => row.owner,
-            Self::I64Field(row) => row.owner,
             Self::Scalar(row) => row.owner(),
             Self::Value(row) => row.owner(),
             Self::OpaqueCall(row) => row.owner,
@@ -731,7 +586,7 @@ impl TerminalRelationV1 {
     pub(crate) fn scalar_class(&self) -> Option<super::local_flow::SourceScalarKind> {
         use super::local_flow::SourceScalarKind as Kind;
         match self {
-            Self::IntegerLiteral(_) | Self::I64Add(_) | Self::I64Field(_) | Self::MapGet(_) => Some(Kind::Integer),
+            Self::IntegerLiteral(_) | Self::MapGet(_) => Some(Kind::Integer),
             Self::Scalar(row) => Some(row.scalar_kind()),
             Self::BoolLiteral(_) => Some(Kind::Bool),
             Self::Call(call) => call.source_scalar().map(|_| call.scalar_kind()),
@@ -745,11 +600,9 @@ impl TerminalRelationV1 {
     pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
         match self {
             Self::Call(row) => row.return_site(),
-            Self::I64Add(row) => row.return_site(),
             Self::Unit(row) => row.return_site(),
             Self::IntegerLiteral(row) => row.return_site(),
             Self::BoolLiteral(row) => row.return_site(),
-            Self::I64Field(row) => row.return_site(),
             Self::Scalar(row) => row.return_site(),
             Self::Value(row) => row.return_site(),
             Self::OpaqueCall(row) => row.return_site(),

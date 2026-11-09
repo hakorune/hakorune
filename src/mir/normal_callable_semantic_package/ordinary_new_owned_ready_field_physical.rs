@@ -10,18 +10,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, frame: &Rc<CheckedFieldWriteFrameV1>, installed: ValueId, context: CallValidationContextV1<'_>,
     ) -> Result<Vec<(Binding, bool, Option<Binding>)>, String> {
         let mut bindings = Vec::new();
-        for row in self.field_reads.borrow().values() {
-            let TerminalFieldValueSourceV1::OwnedLocal(source) = &row.value_source else { continue };
-            if !Rc::ptr_eq(source.frame(), frame) { continue; }
-            match &row.progress {
-                Progress::Emitted(block, instruction) => bindings.push(((*block, instruction.clone()), true, None)),
-                Progress::CheckedEmitted { invoke, projection } => {
-                    bindings.push((invoke.clone(), true, None));
-                    bindings.push((projection.clone(), false, None));
-                }
-                _ => return Err(fault("owned-ready/read-unconsumed")),
-            }
-        }
+
         for (site, row) in self.local_field_reads.borrow().iter() {
             if !row.source.owned_ready.as_ref().is_some_and(|source| Rc::ptr_eq(source.frame(), frame)) { continue; }
             match &row.progress {
@@ -61,15 +50,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         context.require_ledger(self)?;
         let mut reads = Vec::new();
-        for (site, row) in self.field_reads.borrow().iter().filter(|(site, _)| site.owner() == owner) {
-            let TerminalFieldValueSourceV1::OwnedLocal(source) = &row.value_source else { continue };
-            let read = match &row.progress {
-                Progress::Emitted(block, instruction) => (*block, instruction.clone()),
-                Progress::CheckedEmitted { invoke, .. } => invoke.clone(),
-                _ => return Err(fault("owned-ready/read-unconsumed")),
-            };
-            reads.push((site.clone(), source.clone(), read));
-        }
+
         for (site, row) in self.local_field_reads.borrow().iter().filter(|(site, _)| site.owner() == owner) {
             let Some(source) = &row.source.owned_ready else { continue };
             let read = match &row.progress {

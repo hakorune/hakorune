@@ -43,31 +43,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     OrdinaryNewCoSealIssueV1,
 > {
-    let mut terminal_reads = BTreeMap::new();
-    let mut terminal_fields = super::super::integer_fields::terminal_field_consult_v1(
-        instance_constructors,
-        candidates,
-        batch.ordinary_box_coverage(),
-        &mut terminal_reads,
-        |site, receiver_site, receiver, home, name| {
-            super::super::integer_fields::consult_v1(
-                input,
-                selected,
-                batch,
-                instance_constructors,
-                candidates,
-                callable_result_classes,
-                borrowed_formal_source,
-                borrowed_i64_results,
-                receiver_proof,
-                site,
-                receiver_site,
-                receiver,
-                home,
-                name,
-            )
-        },
-    );
+
     let route_sources = super::super::local_route::LocalRouteSourcesV1 {
         owner_loan: None, selected, batch, parameter_contracts, callable_result_classes,
         candidates, receiver_call_observations: receiver_rows, input,
@@ -89,7 +65,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
                 .route(site, local_static_call)?
                 .filter(|route| route.in_readiness_probe()))
         },
-        &mut terminal_fields,
         &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
             terminal_home::argument_integer_field(
                 instance_constructors,

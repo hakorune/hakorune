@@ -23,7 +23,6 @@ pub(super) fn observe_terminal_statement<'a, E>(
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     argument_i64_field: &mut impl FnMut(
@@ -484,31 +483,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 statement.site(),
                                 locals,
                                 view_use,
-                                field_is_integer,
+
                             )?;
                             match scalar {
-                                Some(ReturnScalar::I64Add { site, field_reads }) => {
-                                    relation = Some(TerminalRelationV1::I64Add(
-                                        TerminalI64AddReturnV1::issue(
-                                            input.owner(),
-                                            statement.site().clone(),
-                                            site,
-                                            *field_reads,
-                                        ),
-                                    ));
-                                    true
-                                }
-                                Some(ReturnScalar::IntegerField(field_read_site)) => {
-                                    relation = Some(TerminalRelationV1::I64Field(
-                                        TerminalI64FieldReturnV1::issue(
-                                            input.owner(),
-                                            statement.site().clone(),
-                                            value.site().clone(),
-                                            *field_read_site,
-                                        ),
-                                    ));
-                                    true
-                                }
+
+
                                 // A top-level proven scalar — a bound local (i64 or Bool)
                                 // or trivial integer expression — is its own source
                                 // relation (R16: its kind is the local's stored kind).

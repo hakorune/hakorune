@@ -51,11 +51,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("artifact-call-owner-drift"));
                     }
                 }
-                TerminalRelationV1::I64Add(relation) => {
-                    if relation.owner() != owner {
-                        return Err(freeze("artifact-root-result-unavailable"));
-                    }
-                }
+
                 TerminalRelationV1::Unit(relation) => {
                     if relation.owner() != owner {
                         return Err(freeze("artifact-root-unit-owner-drift"));
@@ -82,11 +78,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 TerminalRelationV1::BoolLiteral(_) => {
                     return Err(freeze("artifact-root-bool-result-unsupported"));
                 }
-                TerminalRelationV1::I64Field(relation) => {
-                    if relation.owner() != owner {
-                        return Err(freeze("artifact-root-field-unavailable"));
-                    }
-                }
+
                 TerminalRelationV1::Scalar(relation) => {
                     if relation.owner() != owner {
                         return Err(freeze("artifact-root-scalar-unavailable"));
@@ -115,17 +107,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        if !self.terminal_result_complete() {
-            return Err(freeze("artifact-root-result-unavailable"));
-        }
-        if self
-            .terminal_relation
-            .values()
-            .any(|terminal| matches!(terminal, TerminalRelationV1::I64Field(_)))
-            && !self.terminal_i64_field_return_complete()
-        {
-            return Err(freeze("artifact-root-field-unavailable"));
-        }
+
+
         let call_sites =
             self.preflight_finalized_root_exits(module, owner, &symbol, &projection)?;
         let mut keys = BTreeSet::new();

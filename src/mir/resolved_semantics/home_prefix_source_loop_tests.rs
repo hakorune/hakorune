@@ -75,7 +75,6 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
         &mut covered,
         &mut Vec::new(),
         &mut None,
-        &mut absent_integer_field::<E>,
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(None),

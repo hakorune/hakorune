@@ -195,7 +195,7 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
                 assert!(matches!(
                     view.retained_root_result().unwrap(),
                     Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
-                        if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
+                        if root_source.owner() == owner
                 ));
                 let _identity = root_source.app_main_identity();
                 let input = view.issue_lifecycle_physical_abi_input()?;
@@ -680,7 +680,7 @@ fn direct_i64_field_return_reaches_completed_entry_contract() {
             let source = view.retained_root_source().ok_or_else(|| "root source missing".to_owned())?;
             assert!(matches!(view.retained_root_result().unwrap(),
                 Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64Return { owner })
-                    if source.terminal_i64_field_return().is_some_and(|relation| relation.owner() == owner)));
+                    if source.owner() == owner));
             let input = view.issue_lifecycle_physical_abi_input()?;
             assert_eq!(input.entry().root_result(), published_backend_view::CompiledEntryRootResultV1::I64);
             Ok(())

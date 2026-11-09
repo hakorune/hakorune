@@ -107,8 +107,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 let groups = match entry {
                     RootHomeExitEntry::Plain { local_bindings }
                     | RootHomeExitEntry::Call { local_bindings, .. }
-                    | RootHomeExitEntry::MapGet { local_bindings, .. }
-                    | RootHomeExitEntry::FieldGet { local_bindings, .. } => local_bindings,
+                    | RootHomeExitEntry::MapGet { local_bindings, .. } => local_bindings,
                 };
                 Some(
                     groups
@@ -508,18 +507,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 };
                 Ok(None)
             }
-            RootHomeExitProgress::Emitted {
-                order,
-                origins,
-                bindings,
-                entry: RootHomeExitEntry::FieldGet { local_bindings, invoke, projection, frame },
-            } => {
-                *progress = RootHomeExitProgress::Emitted {
-                    order, origins, bindings,
-                    entry: RootHomeExitEntry::FieldGet { local_bindings, invoke, projection, frame },
-                };
-                Ok(None)
-            }
+
             // The MapGet payload stays internal like a Plain entry: the
             // physical instructions already live in the finished function
             // body, so the handoff carries no separate read receipt.
@@ -567,7 +555,7 @@ impl RootHomeExitEntry {
     pub(crate) fn call_invoke(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { invoke, .. } => Some(invoke),
-            Self::Plain { .. } | Self::MapGet { .. } | Self::FieldGet { .. } => None,
+            Self::Plain { .. } | Self::MapGet { .. } => None,
         }
     }
 }
@@ -584,8 +572,7 @@ impl RootHomeExitEntry {
         let groups = match self {
             Self::Plain { local_bindings }
             | Self::Call { local_bindings, .. }
-            | Self::MapGet { local_bindings, .. }
-            | Self::FieldGet { local_bindings, .. } => local_bindings,
+            | Self::MapGet { local_bindings, .. } => local_bindings,
         };
         let mut copies = Vec::new();
         let tree = RootLifecyclePrefixBindingGroupV1::snapshot_tree_v2(groups);
@@ -625,8 +612,7 @@ impl RootHomeExitEntry {
     ) {
         let local_groups = match self {
             Self::Plain { local_bindings } => local_bindings,
-            Self::Call { local_bindings, .. } | Self::MapGet { local_bindings, .. }
-            | Self::FieldGet { local_bindings, .. } => {
+            Self::Call { local_bindings, .. } | Self::MapGet { local_bindings, .. } => {
                 local_bindings
             }
         };
@@ -666,9 +652,6 @@ impl RootHomeExitEntry {
                 );
             }
             bindings.push(frame.clone());
-        }
-        if let Self::FieldGet { invoke, projection, frame, .. } = self {
-            bindings.extend([invoke.clone(), projection.clone(), frame.clone()]);
         }
     }
 }

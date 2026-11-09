@@ -127,11 +127,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             owner,
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
         );
-        if ledger.terminal_result_blocks_raw_field_read(&site) {
-            return Err(
-                "[freeze:contract][ordinary-terminal-result/raw-field-read-reentry]".into(),
-            );
-        }
+
         let state = self
             .callable_ledger
             .as_ref()
@@ -151,16 +147,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
                 ledger.clone(),
             )));
         }
-        if let Some((base, field)) = ledger.take_terminal_field_read(&site, &resolve)? {
-            return Ok(Some(PreparedRawFieldReadV1::exact_object(
-                object,
-                base,
-                field,
-                site,
-                ledger.clone(),
-                PreparedExactFieldReadClaimV1::Terminal,
-            )));
-        }
+
         // A claimed `local x = recv.field` initializer reaches the same
         // raw FieldAccess dispatch — its staged row carries the sealed
         // declared-type classification that decides the destination type.
@@ -232,35 +219,6 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         Ok(selected)
     }
 
-    fn emit_terminal_i64_add_return(
-        &mut self,
-        builder: &mut crate::mir::MirBuilder,
-    ) -> Result<Option<crate::mir::ValueId>, String> {
-        let Some(ledger) = &self.ordinary_new_claim_ledger else {
-            return Ok(None);
-        };
-        let owner = self
-            .callable_owner_v1()
-            .ok_or("[ordinary-terminal-result/owner-missing]")?;
-        let site = self
-            .current_source_site_v1()
-            .ok_or("[ordinary-terminal-result/site-missing]")?;
-        let state = self
-            .callable_ledger
-            .as_ref()
-            .ok_or("[ordinary-terminal-result/state-missing]")?;
-        let Some(prepared) = ledger.prepare_terminal_i64_add_return(owner, &site, |binding, source_site| {
-            let value = state.borrow_mut().read_variable(source_site)?;
-            let expected = state.borrow().value_for_exact_binding(owner, binding).map_err(|error|
-                format!("[freeze:contract][ordinary-terminal-result/receiver-binding] {error:?}"))?;
-            if value != expected { return Err("[freeze:contract][ordinary-terminal-result/receiver-binding-drift]".into()); }
-            Ok(value)
-        })? else { return Ok(None); };
-        crate::mir::builder::ordinary_new_admission::selected::emit_terminal_i64_add_return(
-            builder, ledger, prepared,
-        )
-        .map(Some)
-    }
 
     fn emit_terminal_scalar_literal_return(
         &mut self,
@@ -347,49 +305,6 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         )
     }
 
-    fn emit_terminal_i64_field_return(
-        &mut self,
-        builder: &mut crate::mir::MirBuilder,
-    ) -> Result<Option<TerminalFieldReturnV1>, String> {
-        let Some(ledger) = &self.ordinary_new_claim_ledger else {
-            return Ok(None);
-        };
-        let owner = self
-            .callable_owner_v1()
-            .ok_or("[ordinary-field-return/owner-missing]")?;
-        let site = self
-            .current_source_site_v1()
-            .ok_or("[ordinary-field-return/site-missing]")?;
-        let state = self
-            .callable_ledger
-            .as_ref()
-            .ok_or("[ordinary-field-return/state-missing]")?;
-        let Some(prepared) =
-            ledger.prepare_terminal_i64_field_return(owner, &site, |binding, source_site| {
-                let value = state.borrow_mut().read_variable(source_site)?;
-                let expected = state
-                    .borrow()
-                    .value_for_exact_binding(owner, binding)
-                    .map_err(|error| {
-                        format!(
-                            "[freeze:contract][ordinary-field-return/receiver-binding] {error:?}"
-                        )
-                    })?;
-                if value != expected {
-                    return Err(
-                        "[freeze:contract][ordinary-field-return/receiver-binding-drift]".into(),
-                    );
-                }
-                Ok(value)
-            })?
-        else {
-            return Ok(None);
-        };
-        let mut state = state.borrow_mut();
-        crate::mir::builder::ordinary_new_admission::selected::emit_terminal_i64_field_return(
-            builder, &mut state, ledger, prepared,
-        ).map(Some)
-    }
 
     fn emit_terminal_map_get_return(
         &mut self,
@@ -858,105 +773,5 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             .take_birth_site_recipe(&site, class, argument_count)
             .map(|entry| entry.map(|(recipe, _handoff)| recipe))
             .map_err(|error| format!("[freeze:contract][raw-ordinary-new/birth-site] {error:?}"))
-    }
-}
-
-impl super::super::RawInvocationChildPortV1<'_, '_> {
-    /// Same source/receiver/candidate transaction for raw statements and the
-    /// checked Loop schedule; the sole owned-array writer records the packet.
-    pub(in crate::mir::builder) fn emit_owned_array_append_v1(
-        &mut self,
-        builder: &mut crate::mir::MirBuilder,
-        method: &str,
-        arity: usize,
-        argument_frame: Option<std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
-        >>,
-        nested_argument_frames: &[std::rc::Rc<
-            crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
-        >],
-    ) -> Result<
-        Option<
-            std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedOwnedArrayAppendV1>,
-        >,
-        String,
-    > {
-        let (Some(ledger), Some(node)) = (
-            self.ordinary_new_claim_ledger.as_ref(),
-            self.current_source_site_v1(),
-        ) else {
-            return Ok(None);
-        };
-        let owner = self
-            .callable_owner_v1()
-            .ok_or("[freeze:contract][array-append/owner-missing]")?;
-        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-            owner,
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
-        );
-        if !ledger.has_owned_array_append_v1(&site)? {
-            return Ok(None);
-        }
-        let source = self
-            .owned_array_source
-            .ok_or("[freeze:contract][array-append/source-scope-missing]")?;
-        source.require_same_ledger_v1(ledger)?;
-        let append = source
-            .prepare_append_v1(&site)?
-            .ok_or("[freeze:contract][array-append/source-missing]")?;
-        let derived_argument_frames = if append.dynamic_carrier_source().is_some()
-            && argument_frame.is_none()
-        {
-            Some(
-                ledger
-                    .dynamic_carrier_array_append_argument_frames_v1(&site)?
-                    .ok_or("[freeze:contract][array-append/dynamic-argument-frame-missing]")?,
-            )
-        } else {
-            None
-        };
-        let argument_frame = argument_frame.or_else(|| {
-            derived_argument_frames
-                .as_ref()
-                .map(|(frame, _)| std::rc::Rc::clone(frame))
-        });
-        let nested_argument_frames = derived_argument_frames
-            .as_ref()
-            .map(|(_, frames)| frames.as_slice())
-            .unwrap_or(nested_argument_frames);
-        self.check_new_emission_scope(&site)?;
-        if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity)
-            != Some(crate::boxes::array::ArrayMethodId::Push)
-        {
-            return Err("[freeze:contract][array-append/syntax-drift]".into());
-        }
-        let candidate = if append.null_candidate() || append.dynamic_carrier_source().is_some() {
-            None
-        } else {
-            let site = append.candidate();
-            let row = ledger
-                .take_lexical_instance_call(site.owner(), site.site())?
-                .ok_or("[freeze:contract][array-append/candidate-disposition-missing]")?;
-            append.check_candidate_v1(&row)?;
-            self.consume_lexical_self_receiver_locator_v1(&row)?;
-            Some(row)
-        };
-        let consume_receiver = self.lexical_self_receiver_locator_consumer_v1()?;
-        let packet =
-            crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_append(
-                builder,
-                &mut self
-                    .callable_ledger
-                    .as_ref()
-                    .expect("checked source state")
-                    .borrow_mut(),
-                ledger,
-                append,
-                candidate,
-                &consume_receiver,
-                argument_frame,
-                nested_argument_frames,
-            )?;
-        Ok(Some(packet))
     }
 }

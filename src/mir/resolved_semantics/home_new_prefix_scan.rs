@@ -31,7 +31,6 @@ pub(super) fn scan_statement_flow<'a, E>(
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's lexical instance-call membership for the exact-i64
@@ -190,7 +189,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 covered_statements,
                 selected_seen,
                 unavailable,
-                field_is_integer,
+
                 map_compatible,
                 terminal_call,
                 argument_i64_field,
@@ -231,7 +230,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 covered_statements,
                 selected_seen,
                 unavailable,
-                field_is_integer,
+
                 map_compatible,
                 terminal_call,
                 local_call_route,
@@ -461,7 +460,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                                         covered_statements,
                                         selected_seen,
                                         unavailable,
-                                        field_is_integer,
+
                                         map_compatible,
                                         terminal_call,
                                         local_call_route,
@@ -510,7 +509,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 covered_statements,
                                 selected_seen,
                                 unavailable,
-                                field_is_integer,
+
                                 map_compatible,
                                 terminal_call,
                                 local_call_route,

@@ -667,7 +667,6 @@ pub(super) fn observe_terminal_scalar_source<E>(
     exit: &SourceStmtSiteV1,
     locals: &PrefixLocalFlow<'_>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
 ) -> Result<Option<ReturnScalar>, E> {
     let site = OwnedExprSiteV1::new(input.owner(), value.clone());
     let checked = view_use(
@@ -702,6 +701,6 @@ pub(super) fn observe_terminal_scalar_source<E>(
     if checked {
         Ok(Some(ReturnScalar::Integer))
     } else {
-        return_scalar(input, value, locals, field_is_integer)
+        Ok(return_scalar(input, value, locals))
     }
 }

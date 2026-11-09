@@ -5,161 +5,73 @@ use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_i
 
 #[test]
 fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
-    // Physical-state test using real source-issued rows, not executable Birth proof.
-    let package = issue_with_brand_catalog(
-        "box Page { slot: i64 birth() { me.slot = 7 } }
-        static box Main { main() { local page = new Page() return page.slot } }",
-    )
-    .unwrap();
-    let ledger = package.ordinary_new_claim_ledger;
-    let site = ledger.claims.borrow().keys().next().unwrap().clone();
-    let claim = ledger.try_take(&site, "Page", 0).unwrap().unwrap();
-    assert!(ledger.prepare_new_emission(&claim).unwrap().is_ok());
-    let (_, reclaim) = ledger.begin_new_emission(&site).unwrap();
-    let reclaim = reclaim.expect("Birth construction retains reclaim origin");
-    let entry = BasicBlockId(0);
-    let initializer = MirInstruction::Const {
-        dst: ValueId(1),
-        value: crate::mir::ConstValue::Integer(0),
-    };
-    let mut function = MirFunction::new(
-        crate::mir::FunctionSignature {
-            name: "physical_state_test".into(),
-            params: vec![],
-            return_type: crate::mir::MirType::Integer,
-            effects: crate::mir::EffectMask::CONTROL,
-        },
-        entry,
-    );
-    let block = function.blocks.get_mut(&entry).unwrap();
-    for instruction in [
-        initializer.clone(),
-        MirInstruction::Copy {
-            dst: ValueId(2),
-            src: ValueId(1),
-        },
+    for (text, owned_ready) in [
+        ("box Page { slot: i64 birth() { me.slot = 7 } }
+         static box Main { main() { local page = new Page() return page.slot } }", false),
+        ("box Page { slot: i64 }
+         static box Main { main() { local page = new Page() page.slot = 7 return page.slot } }", true),
     ] {
-        block.instructions.push(instruction);
-        block.instruction_spans.push(crate::ast::Span::unknown());
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        text,
+        crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+    ).unwrap();
+    let main = package.declaration_catalog().source_backed_app_main().unwrap();
+    let declaration = package.batch().declarations()
+        .find(|row| row.identity().same_as(main.parser_identity())).unwrap();
+    let mut builder = crate::mir::MirBuilder::new();
+    let function = package.batch().with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity|
+        builder.lower_map_dependency_for_test(input,
+            crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+            main.parser_identity(), identity.method_source_observation().cloned(),
+            Rc::clone(&package.ordinary_new_claim_ledger), None)).unwrap().unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let site = ledger.local_field_reads.borrow().keys().next().unwrap().clone();
+    let original = ledger.expression_field_read_emission_v1(&site,
+        ledger.source_field_requirement_v1(&site).unwrap().unwrap().plan(),
+        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger)).unwrap();
+    if owned_ready {
+        let field = ledger.local_field_reads.borrow()[&site].source.field();
+        let fault = function.blocks.values().find_map(|block| match &block.terminator {
+            Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldSet { field: actual, .. }, fault_landing, .. })
+                if *actual == field => Some(*fault_landing),
+            _ => None,
+        }).unwrap();
+        let mut changed = function.clone();
+        let block = changed.blocks.get_mut(&original.0).unwrap();
+        let position = block.instructions.iter().position(|row| row == &original.1).unwrap();
+        block.instructions.remove(position);
+        block.instruction_spans.remove(position);
+        changed.blocks.get_mut(&fault).unwrap().add_instruction(original.1.clone());
+        for block in changed.blocks.values_mut() {
+            block.successors = block.successors_from_terminator().into_iter().collect();
+        }
+        // Coordinate the retained read position with the altered image, so
+        // the failure proves store Normal dominance, not stale row metadata.
+        if let LocalReadProgress::Emitted { block, .. } = &mut ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().progress { *block = fault; }
+        let issue = ledger.validate_owned_ready_reads_v1(site.owner(), &changed,
+            crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger),
+            |binding| Ok(Some(binding.clone()))).unwrap_err();
+        assert!(issue.contains("owned-ready/store-normal-dominance"), "{issue}");
+        if let LocalReadProgress::Emitted { block, .. } = &mut ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().progress { *block = original.0; }
     }
-    let reclaim_block = BasicBlockId(1);
-    let reclaim_instruction = MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished {
-            object: reclaim.object(),
-            value: ValueId(1),
-        },
-        fault_frame: ValueId(100),
-        normal_landing: entry,
-        fault_landing: entry,
-    };
-    let mut reclaim_physical = BasicBlock::new(reclaim_block);
-    reclaim_physical.add_instruction(reclaim_instruction.clone());
-    function.add_block(reclaim_physical);
-    let OrdinaryNewConstructorDispositionV1::Birth(recipe) = &claim.core.constructor else {
-        panic!("source-issued Birth")
-    };
-    let call = crate::mir::instruction::BirthInvokeV1::from_value_arguments(
-        recipe.target_ref().clone(), ValueId(1), vec![], recipe.physical_effect_mask());
-    let birth_id = BasicBlockId(2);
-    let birth = MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::Birth(call),
-        fault_frame: ValueId(100),
-        normal_landing: entry,
-        fault_landing: reclaim_block,
-    };
-    let mut birth_block = BasicBlock::new(birth_id);
-    birth_block.set_terminator(birth.clone());
-    function.add_block(birth_block);
-    ledger
-        .record_new_emission(
-            &site,
-            ValueId(1),
-            Vec::new(),
-            Some((reclaim, reclaim_block, reclaim_instruction.clone())),
-            vec![
-                (entry, initializer),
-                (reclaim_block, reclaim_instruction),
-                (birth_id, birth),
-            ],
-        )
-        .unwrap();
-    ledger
-        .complete_new_expression(&site, "Page", ValueId(1))
-        .unwrap();
-    let crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, ordinal } =
-        &claim.declaration
-    else {
-        panic!("source local destination")
-    };
-    ledger
-        .complete_local_installation(
-            site.owner(),
-            statement.node(),
-            &[(claim.destination, *ordinal, ValueId(1), ValueId(2))],
-        )
-        .unwrap();
-    ledger
-        .complete_new_emissions(site.owner(), &function)
-        .unwrap();
-    let return_stmt_site = ledger
-        .terminal_i64_field_return()
-        .unwrap()
-        .return_site()
-        .clone();
-    ledger.root_exits.borrow_mut().insert(
-        (site.owner(), return_stmt_site.clone().into()),
-        local_commit::RootHomeExitProgress::Unavailable,
-    );
-    let read_site = ledger.field_reads.borrow().keys().next().unwrap().clone();
-    let return_site = return_stmt_site.node().clone();
-    let prepared = ledger
-        .prepare_terminal_i64_field_return(site.owner(), &return_site, |binding, _| {
-            assert_eq!(binding, claim.destination);
-            Ok(ValueId(2))
-        })
-        .unwrap()
-        .expect("selected read remains exact despite unavailable cleanup");
-    assert_eq!(prepared.site, read_site);
-    let (base, field) = (prepared.base, prepared.field);
-    assert!(ledger
-        .take_terminal_field_read(&read_site, |_| panic!("duplicate take"))
-        .unwrap_err()
-        .contains("already-taken"));
-    assert!(ledger
-        .record_terminal_field_read(&read_site, entry, ValueId(3), ValueId(99), field)
-        .unwrap_err()
-        .contains("emission-mismatch"));
-    ledger
-        .record_terminal_field_read(&read_site, entry, ValueId(3), base, field)
-        .unwrap();
-    let block = function.blocks.get_mut(&entry).unwrap();
-    block.instructions.push(MirInstruction::ObjectFieldGet {
-        dst: ValueId(3),
-        base,
-        field,
-    });
-    block.instruction_spans.push(crate::ast::Span::unknown());
-    block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId(3)),
-    });
-    ledger
-        .record_terminal_i64_field_return(site.owner(), &return_stmt_site, ValueId(3))
-        .unwrap();
+    let exit = ledger.source_field_requirement_v1(&site).unwrap().unwrap().plan().root().statement().clone();
+    ledger.root_exits.borrow_mut().insert((site.owner(), exit.into()), local_commit::RootHomeExitProgress::Unavailable);
+    assert!(ledger.take_local_field_read(&site, |_| panic!("duplicate read cannot resolve"))
+        .unwrap_err().contains("already-taken"));
+    let source = ledger.local_field_reads.borrow().get(&site).unwrap().source.clone();
+    assert!(ledger.record_local_field_read(&site, original.0, ValueId(9999), ValueId(9998), source.field(), &source)
+        .unwrap_err().contains("emission-mismatch"));
     assert!(ledger.field_reads_complete());
-    ledger
-        .validate_field_reads(site.owner(), &function)
-        .unwrap();
-    ledger.register_new_root(site.owner()).unwrap();
-    assert_eq!(
-        ledger.validate_finalized_new_root(&function).unwrap(),
+    ledger.validate_field_reads(site.owner(), &function).unwrap();
+    assert_eq!(ledger.validate_finalized_new_root(&function).unwrap(),
         crate::mir::function::RootOrdinaryNewObservation::Unavailable(
-            crate::mir::function::RootOrdinaryNewUnavailable::RootExitUnavailable
-        )
-    );
-    assert!(ledger
-        .validate_artifact_after_compiler_finishing(&function)
-        .unwrap_err()
+            crate::mir::function::RootOrdinaryNewUnavailable::RootExitUnavailable));
+    assert_eq!(ledger.expression_field_read_emission_v1(&site,
+        ledger.source_field_requirement_v1(&site).unwrap().unwrap().plan(),
+        crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger)).unwrap(), original);
+    assert!(ledger.validate_artifact_after_compiler_finishing(&function).unwrap_err()
         .contains("artifact-source-unavailable"));
+    }
 }
 
 /// A result claim that declines to `RetainedUnavailable` releases its
@@ -261,19 +173,19 @@ fn terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression() {
         );
         let package = issue_with_brand_catalog(&source).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
-        let reads = ledger.field_reads.borrow();
+        let reads = ledger.local_field_reads.borrow();
         assert_eq!(reads.len(), expected, "{suffix}");
         for (site, row) in reads.iter() {
             assert_eq!(row.receiver.owner(), site.owner());
             assert_eq!(row.receiver != row.home, alias);
-            assert_eq!(row.field.declaration_ordinal(), 0);
-            assert!(matches!(row.progress, Progress::Pending));
+            assert_eq!(row.source.field().declaration_ordinal(), 0);
+            assert!(matches!(row.progress, LocalReadProgress::Pending));
         }
         let selected = reads.keys().next().cloned();
         drop(reads);
         if let Some(site) = selected {
             let error = ledger
-                .take_terminal_field_read(&site, |_| {
+                .take_local_field_read(&site, |_| {
                     panic!("wrong root phase must reject before receiver resolution")
                 })
                 .unwrap_err();

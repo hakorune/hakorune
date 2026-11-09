@@ -57,8 +57,6 @@ mod walk_triggers;
 mod route;
 use route::{OwnershipRouteV1, RouteFactsV1, ScanRequestV1, ScanRequestsV1};
 
-#[path = "ordinary_new_coseal_issue_integer_field.rs"]
-mod integer_fields;
 
 #[path = "ordinary_new_coseal_issue_source.rs"]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) mod source_claims;
@@ -109,7 +107,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut result_claims = Vec::new();
     let mut seeds = super::super::result_contract::VerifiedCallableResultContractBuilderV1::new();
     let mut root_completion = None;
-    let mut field_reads = BTreeMap::new();
     let mut argument_field_reads = BTreeMap::new();
     let mut local_field_reads = BTreeMap::new();
     let mut root_terminal_relation = BTreeMap::new();
@@ -445,12 +442,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 }
                 drop(probe);
                 let (home_prefixes, argument_observations, result_prefixes) = if route.walks() {
-                    let mut staged_reads = BTreeMap::new();
-                    let mut field_is_integer = integer_fields::terminal_field_consult_v1(instance_constructors,
-                        &candidates, batch.ordinary_box_coverage(), &mut staged_reads,
-                        |site, receiver_site, receiver, home, name| integer_fields::consult_v1(input, selected, batch,
-                            instance_constructors, &candidates, &callable_result_classes, &borrowed_formal_source,
-                            &borrowed_i64_results, receiver_proof, site, receiver_site, receiver, home, name));
+
                     // Argument-position `receiver.field` reads: a claim-local
                     // `new` Home receiver reuses the terminal provenance; the
                     // entry loan's receiver root proves against this
@@ -516,7 +508,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         borrowed_formal_source.as_ref().ok().and_then(|source| {
                             source.lend_source_value_class_facts_v1(input.owner())
                         }),
-                        &mut field_is_integer, &mut |site, binding| {
+                        &mut |site, binding| {
                             source_claims::ordinary_candidate_compatible_v1(&candidates, site, binding)
                         }, &mut |site| {
                             let direct = owner_loan
@@ -608,45 +600,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     .root_flow()
                                     .is_some_and(|flow| flow.all_exits_ready())
                                 {
-                                    for terminal in terminal_relation.values() {
-                                        match terminal {
-                                            TerminalRelationV1::I64Add(result) => {
-                                                if result.owner() != input.owner()
-                                                    || result.field_reads().iter().any(|site|
-                                                        !staged_reads.contains_key(site))
-                                                {
-                                                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                                                        site: result.add_site().clone(),
-                                                    });
-                                                }
-                                            }
-                                            TerminalRelationV1::I64Field(result) => {
-                                                if result.owner() != input.owner()
-                                                    || !staged_reads.contains_key(result.field_read_site())
-                                                {
-                                                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                                                        site: result.field_read_site().clone(),
-                                                    });
-                                                }
-                                            }
-                                            _ => {}
-                                        }
-                                    }
-                                    field_reads::merge_staged_field_reads(
-                                        &mut field_reads,
-                                        input.owner(),
-                                        staged_reads,
-                                    )?;
+
+
                                     root_terminal_relation.extend(terminal_relation);
                                 }
                                 root_completion = Some(Ok(Rc::new(completion)));
                             } else {
-                                field_reads::merge_terminal_relation_field_reads(
-                                    &mut field_reads,
-                                    input.owner(),
-                                    &terminal_relation,
-                                    staged_reads,
-                                )?;
+
                                 let relation = retain_child_terminal_relations_v1(
                                     terminal_relation, owner, requests.has(ScanRequestV1::MapLiteral), |row| {
                                     let qualified = match row {
@@ -784,7 +744,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.array_i64_fields = array_i64_field_sets;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;
-    ledger.field_reads = std::cell::RefCell::new(field_reads);
     ledger.argument_field_reads = std::cell::RefCell::new(argument_field_reads);
     ledger.local_field_reads = std::cell::RefCell::new(local_field_reads);
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);

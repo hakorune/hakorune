@@ -316,69 +316,8 @@ fn unannotated_instance_return_is_owner_scoped_in_inverse_order() {
     assert!(ledger.root_instance_call_is_empty());
 }
 
-#[test]
-fn pair_i64_add_return_is_issued_from_completion_and_existing_field_reads() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Pair { left: i64 right: i64
-        birth(left, right) { me.left = left me.right = right } }
-        static box Main { main() {
-        local pair = new Pair(10, 20)
-        return pair.left + pair.right } }",
-    )
-    .expect("source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let result = ledger
-        .terminal_i64_add_return()
-        .expect("Pair terminal result relation");
-    let completion = ledger.root_completion_for_test();
-    assert_eq!(result.owner(), completion.owner());
-    assert_eq!(
-        result.return_site(),
-        completion.explicit_site().expect("return site")
-    );
-    let reads = ledger.field_reads.borrow();
-    assert_eq!(reads.len(), 2);
-    assert!(result
-        .field_reads()
-        .iter()
-        .all(|site| reads.contains_key(site)));
-    assert_ne!(result.field_reads()[0], result.field_reads()[1]);
-    assert_eq!(result.add_site().owner(), result.owner());
-}
 
-#[test]
-fn non_add_terminal_does_not_issue_pair_result_relation() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Pair { left: i64 right: i64
-        birth(left, right) { me.left = left me.right = right } }
-        static box Main { main() {
-        local pair = new Pair(10, 20)
-        return pair.left } }",
-    )
-    .expect("source package");
-    assert!(package
-        .ordinary_new_claim_ledger
-        .terminal_i64_add_return()
-        .is_none());
-}
 
-#[test]
-fn nested_add_keeps_scalar_completion_without_issuing_direct_pair_relation() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Pair { left: i64 right: i64
-        birth(left, right) { me.left = left me.right = right } }
-        static box Main { main() {
-        local pair = new Pair(10, 20)
-        return (pair.left + pair.right) + 1 } }",
-    )
-    .expect("source package");
-    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
-    assert!(matches!(completion.cleanup().terminal_homes(), Some(Ok(_))));
-    assert!(package
-        .ordinary_new_claim_ledger
-        .terminal_i64_add_return()
-        .is_none());
-}
 
 #[test]
 fn explicit_bare_return_issues_unit_relation_without_i64_specialization() {
@@ -395,7 +334,6 @@ fn explicit_bare_return_issues_unit_relation_without_i64_specialization() {
         relation.return_site(),
         completion.explicit_site().expect("return site")
     );
-    assert!(ledger.terminal_i64_add_return().is_none());
 }
 
 #[test]
@@ -414,10 +352,6 @@ fn direct_integer_literal_issues_exact_terminal_relation() {
         completion.explicit_site().expect("return site")
     );
     assert_eq!(relation.value(), 30);
-    assert!(package
-        .ordinary_new_claim_ledger
-        .terminal_i64_add_return()
-        .is_none());
     assert!(package
         .ordinary_new_claim_ledger
         .terminal_unit_return()
@@ -514,110 +448,18 @@ fn ordinary_child_field_relation_is_retained_by_owner() {
         })
         .expect("helper owner");
     let ledger = &package.ordinary_new_claim_ledger;
-    let relation = ledger
-        .terminal_i64_field_return_for_owner(owner)
-        .expect("ordinary child field relation");
-    assert_eq!(relation.owner(), owner);
-    assert_eq!(relation.field_read_site().owner(), owner);
-    assert!(ledger
-        .field_reads
-        .borrow()
-        .contains_key(relation.field_read_site()));
-    let foreign_owner = package
-        .batch()
-        .declarations()
-        .find(|declaration| declaration.owner() != owner)
-        .expect("app main owner")
-        .owner();
-    assert!(ledger
-        .prepare_terminal_i64_field_return(foreign_owner, relation.return_site().node(), |_, _| {
-            Ok(crate::mir::ValueId(1))
-        })
-        .unwrap()
-        .is_none());
+    let read_site = ledger.local_field_reads.borrow().keys()
+        .find(|site| site.owner() == owner).expect("same child Return field").clone();
+    assert!(ledger.source_field_requirement_v1(&read_site).unwrap().is_some());
+    let foreign_owner = package.batch().declarations()
+        .find(|declaration| declaration.owner() != owner).unwrap().owner();
+    let foreign = crate::mir::resolved_semantics::OwnedExprSiteV1::new(foreign_owner, read_site.site().clone());
+    assert!(ledger.take_local_field_read(&foreign, |_| panic!("foreign owner cannot resolve a receiver"))
+        .unwrap().is_none());
 }
 
-#[test]
-fn child_and_root_add_field_reads_merge_in_declaration_order() {
-    for methods in [
-        "main() { local pair = new Pair(10, 20) return pair.left + pair.right } helper(value: i64): i64 { local pair = new Pair(value, 20) return pair.left + pair.right }",
-        "helper(value: i64): i64 { local pair = new Pair(value, 20) return pair.left + pair.right } main() { local pair = new Pair(10, 20) return pair.left + pair.right }",
-        r#"main() { local pair = new Pair(10, 20) local m = %{"root" => 1} return pair.left + pair.right }
-           helper(value: i64): i64 { local pair = new Pair(value, 20) local m = %{"child" => value} return pair.left + pair.right }"#,
-        r#"helper(value: i64): i64 { local pair = new Pair(value, 20) local m = %{"child" => value} return pair.left + pair.right }
-           main() { local pair = new Pair(10, 20) local m = %{"root" => 1} return pair.left + pair.right }"#,
-    ] {
-        let source = format!(
-            "box Pair {{ left: i64 right: i64 birth(left, right) {{ me.left = left me.right = right }} }} static box Main {{ {methods} }}"
-        );
-        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(&source)
-            .expect("root and child add source package");
-        let ledger = &package.ordinary_new_claim_ledger;
-        let root_owner = ledger.root_completion_for_test().owner();
-        let child_owner = package
-            .batch()
-            .declarations()
-            .find_map(|declaration| {
-                let owner = declaration.owner();
-                (owner != root_owner && ledger.terminal_i64_add_return_for_owner(owner).is_some())
-                    .then_some(owner)
-            })
-            .expect("child add relation");
-        let root = ledger
-            .terminal_i64_add_return_for_owner(root_owner)
-            .expect("root add relation");
-        let child = ledger
-            .terminal_i64_add_return_for_owner(child_owner)
-            .expect("child add relation");
-        let reads = ledger.field_reads.borrow();
-        assert_eq!(root.field_reads().len(), 2);
-        assert_eq!(child.field_reads().len(), 2);
-        assert_eq!(reads.len(), 4);
-        assert!(root
-            .field_reads()
-            .iter()
-            .chain(child.field_reads())
-            .all(|site| reads.contains_key(site)));
-    }
-}
 
-#[test]
-fn direct_i64_field_issues_exact_terminal_relation() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left } }",
-    )
-    .expect("source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let relation = ledger
-        .terminal_i64_field_return()
-        .expect("direct field terminal relation");
-    let completion = ledger.root_completion_for_test();
-    assert_eq!(relation.owner(), completion.owner());
-    assert_eq!(
-        relation.return_site(),
-        completion.explicit_site().expect("return site")
-    );
-    assert_eq!(relation.field_read_site().owner(), relation.owner());
-    assert!(ledger
-        .field_reads
-        .borrow()
-        .contains_key(relation.field_read_site()));
-    assert!(ledger.terminal_i64_add_return().is_none());
-    assert!(ledger.terminal_integer_literal_return().is_none());
-    assert!(ledger.terminal_unit_return().is_none());
-}
 
-#[test]
-fn direct_bool_does_not_issue_i64_field_terminal_relation() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return true } }",
-    )
-    .expect("source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    assert!(ledger.terminal_i64_field_return().is_none());
-    assert!(ledger.terminal_i64_add_return().is_none());
-    assert!(ledger.terminal_integer_literal_return().is_none());
-}
 
 /// TASK4-ROOTSOURCE-S0: a proven-i64 bound local — stored literal or a
 /// classified call result — returns its own scalar terminal relation.
@@ -683,7 +525,7 @@ fn mixed_or_unproven_add_discards_terminal_and_all_staged_reads() {
             Some(Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::ReturnValueNotCovered(_)))),
             "{suffix}");
         assert!(ledger.terminal_relation.is_empty(), "{suffix}");
-        assert!(ledger.field_reads.borrow().is_empty(), "{suffix}");
+        assert!(ledger.local_field_reads.borrow().is_empty(), "{suffix}");
     }
 }
 

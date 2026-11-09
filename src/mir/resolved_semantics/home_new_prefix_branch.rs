@@ -47,7 +47,6 @@ fn walk_branch<'a, E>(
         Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     >,
     mut path: BranchPath<'a>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
@@ -116,7 +115,7 @@ fn walk_branch<'a, E>(
         &mut path.covered,
         &mut path.selected_seen,
         &mut path.unavailable,
-        field_is_integer,
+
         map_compatible,
         terminal_call,
         local_call_route,
@@ -254,7 +253,6 @@ pub(super) fn observe_if_statement<'a, E>(
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
-    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
@@ -577,7 +575,7 @@ pub(super) fn observe_if_statement<'a, E>(
                 .filter(|(_, operator)| matches!(operator, ResolvedBinaryOperatorV1::NotEqual))
                 .map(|(binding, _)| binding),
         ),
-        field_is_integer,
+
         map_compatible,
         terminal_call,
         local_call_route,
@@ -617,7 +615,7 @@ pub(super) fn observe_if_statement<'a, E>(
                     .filter(|(_, operator)| matches!(operator, ResolvedBinaryOperatorV1::Equal))
                     .map(|(binding, _)| binding),
             ),
-            field_is_integer,
+
             map_compatible,
             terminal_call,
             local_call_route,

@@ -133,6 +133,9 @@ impl ExpressionFieldSourceLoanV1 {
             request.receiver, request.home, declaration)?;
         Ok(loan)
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_installed_home_v1(&self) -> bool {
+        self.declared.is_some()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_plan(&self, plan: &Rc<ExpressionSourcePlanV1>) -> bool {
         Rc::ptr_eq(&self.plan, plan)
     }
@@ -190,9 +193,6 @@ impl ExpressionFieldSourceLoanV1 {
             (None, Some((_, original, _))) => *original == field && declared == Some("i64"),
             _ => false,
         }
-    }
-    pub(super) fn matches_source(&self, node: usize, source: &Rc<DeclaredFieldValueSourceV1>) -> bool {
-        self.node == node && self.value.as_ref().is_some_and(|value| Rc::ptr_eq(&value.source, source))
     }
     pub(super) fn recheck(
         &self,

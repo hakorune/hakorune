@@ -82,42 +82,7 @@ impl OwnedReadyFieldReadSourceV1 {
     }
 }
 
-#[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) enum TerminalFieldValueSourceV1 {
-    Declared,
-    Numeric(super::super::lexical_instance_call::IntegerFieldSourceLoanV1),
-    OwnedLocal(OwnedReadyFieldReadSourceV1),
-}
-impl TerminalFieldValueSourceV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn requires_checked_read_v1(&self) -> bool {
-        match self {
-            Self::OwnedLocal(source) => source.requires_checked_read_v1(),
-            Self::Numeric(source) => source.requires_checked_read_v1(),
-            Self::Declared => false,
-        }
-    }
-}
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn recheck_terminal_field_value_v1(&self, site: &OwnedExprSiteV1, row: &FieldRead,
-        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
-    ) -> Result<(), String> {
-        let request = self.terminal_relation.values().find_map(|relation| match relation {
-            TerminalRelationV1::I64Add(relation) => relation.field_requests().iter().find(|request| &request.site == site),
-            TerminalRelationV1::I64Field(relation) if relation.field_read_site() == site => Some(relation.field_request()),
-            _ => None,
-        });
-        match (&row.value_source, request.and_then(|request| request.owned_ready.as_ref())) {
-            (TerminalFieldValueSourceV1::OwnedLocal(source), Some(frame)) => {
-                if !Rc::ptr_eq(source.frame(), frame.frame()) || !source.matches_request(request.unwrap()) {
-                    return Err(fault("owned-ready/terminal-source-drift"));
-                }
-                source.recheck(self, site, &row.receiver_site, row.receiver, row.home, row.field, context)
-            }
-            (TerminalFieldValueSourceV1::OwnedLocal(_), None) | (_, Some(_)) => Err(fault("owned-ready/terminal-source-missing")),
-            (TerminalFieldValueSourceV1::Numeric(source), None) => self.recheck_integer_field_source_v1(source, site, row),
-            (TerminalFieldValueSourceV1::Declared, None) => Ok(()),
-        }
-    }
     pub(super) fn recheck_owned_local_read_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead,
         context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
     ) -> Result<(), String> {

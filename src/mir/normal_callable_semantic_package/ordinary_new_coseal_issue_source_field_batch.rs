@@ -391,6 +391,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 })?,
             None => source,
         };
+        if request.path.as_ref().is_some_and(|path| path.is_intermediate())
+            && !matches!(source.result(), LocalFieldReadResultV1::Alias(_))
+            && matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
+                if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                    role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
+        {
+            return Ok(None);
+        }
         if request.path.is_some() {
             let root = if parent.is_none() {
                 Some(

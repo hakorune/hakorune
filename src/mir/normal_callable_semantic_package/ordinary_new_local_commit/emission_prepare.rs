@@ -460,8 +460,8 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_scalar_literal_return(owner, function)?;
-        self.validate_terminal_i64_field_return_projected(owner, function, None)?;
-        self.validate_terminal_i64_add_return_projected(owner, function, None)?;
+
+
         let (bindings, selected_body_block) = if let Some(view) = pending {
             self.validate_root_home_exit_with_pending(owner, function, None, view)?;
             self.validate_root_cleanup_shape_with_pending(owner, function, view)?;

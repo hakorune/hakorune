@@ -96,6 +96,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn reserve_result_path_field_v1(&self, site: &OwnedExprSiteV1,
         resolve_root: impl FnOnce(BindingRefV1) -> Result<ValueId, String>,
     ) -> Result<bool, String> {
+        self.require_field_return_phase_v1(site)?;
         let mut rows = self.local_field_reads.borrow_mut();
         let Some(row) = rows.get_mut(site).filter(|row| row.source.expression_path.is_some()) else {
             if let Some(result) = self.callable_scalar_result_source_v1(site.owner())? {

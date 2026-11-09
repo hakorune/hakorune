@@ -32,8 +32,6 @@ mod fresh_return;
 mod received_return;
 #[path = "root_scalar_read.rs"]
 mod scalar_read;
-#[path = "root_field_get_entry.rs"]
-mod root_field_get_entry;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
@@ -77,15 +75,6 @@ pub(crate) enum RootHomeExitEntry {
         projection: (BasicBlockId, MirInstruction),
         frame: (BasicBlockId, MirInstruction),
     },
-    /// One checked terminal Dynamic-field I64 read. The source relation keeps
-    /// the exact field access; the entry owns its physical Invoke/NormalResult
-    /// pair and the same root cleanup graph as other fallible returns.
-    FieldGet {
-        local_bindings: Vec<super::RootLifecyclePrefixBindingGroupV1>,
-        invoke: (BasicBlockId, MirInstruction),
-        projection: (BasicBlockId, MirInstruction),
-        frame: (BasicBlockId, MirInstruction),
-    },
 }
 
 impl RootHomeExitEntry {
@@ -96,8 +85,7 @@ impl RootHomeExitEntry {
         match self {
             Self::Plain { local_bindings }
             | Self::Call { local_bindings, .. }
-            | Self::MapGet { local_bindings, .. }
-            | Self::FieldGet { local_bindings, .. } => local_bindings,
+            | Self::MapGet { local_bindings, .. } => local_bindings,
         }
     }
 }

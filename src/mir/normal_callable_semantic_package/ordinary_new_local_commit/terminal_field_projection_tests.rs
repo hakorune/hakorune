@@ -76,7 +76,8 @@ fn stored_child_finishing_rejects_missing_duplicate_and_drifted_receiver_reads()
                 let error = ledger.validate_finalized_child_functions(&changed, false)
                     .expect_err("changed stored receiver cannot finish");
                 if change == 5 {
-                    assert!(error.contains("ordinary-new/local-commit/call-binding-drift"), "{error}");
+                    assert!(error.contains("ordinary-new/local-commit/call-binding-drift")
+                        || error.contains("physical-boundary/finished-sequence"), "{error}");
                 } else {
                     assert!(error.contains("physical-boundary/")
                         || error.contains("ordinary-field-read/"), "change={change}: {error}");
@@ -158,8 +159,8 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                 if symbol == "Counter.read/0" {
                     assert_eq!(reader.signature.return_type, crate::mir::MirType::Integer);
                     assert_eq!(reader.params.len(), 1, "original implicit receiver ABI");
-                    let reads = ledger.field_reads.borrow();
-                    let (site, _) = reads.iter().find(|(_, row)| matches!(row.value_source, crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::TerminalFieldValueSourceV1::Numeric(_)))
+                    let reads = ledger.local_field_reads.borrow();
+                    let (site, _) = reads.iter().find(|(_, row)| row.numeric_source.is_some())
                         .expect("same result-owner numeric field loan");
                     let target = ledger.terminal_relation.values().find_map(|relation| {
                         let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Call(call) = relation else { return None };
@@ -184,7 +185,7 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                             matches!(instruction, MirInstruction::BinOp { op: crate::mir::BinaryOp::Add, .. })
                                 .then(|| (*block, index, instruction.clone())))).expect("original Add");
                     let MirInstruction::BinOp { dst: result, lhs, rhs, .. } = add else { unreachable!() };
-                    for mutation in 0..5 {
+                    for mutation in 0..8 {
                         let mut changed = original.clone();
                         let reader = changed.functions.get_mut(symbol).unwrap();
                         match mutation {
@@ -208,11 +209,32 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                                     reader.add_block(orphan);
                                 }
                             }
+                            5 => {
+                                let other = reader.blocks.iter().find_map(|(id, block)|
+                                    block.instructions.iter().enumerate().find_map(|(index, instruction)|
+                                        (matches!(instruction, MirInstruction::ObjectFieldGet { .. })
+                                            && (*id, index) != (read_block, read_index))
+                                            .then_some((*id, index, instruction.clone())))).unwrap();
+                                reader.blocks.get_mut(&read_block).unwrap().instructions[read_index] = other.2;
+                                reader.blocks.get_mut(&other.0).unwrap().instructions[other.1] = read.clone();
+                            }
+                            6 => {
+                                for block in reader.blocks.values_mut() {
+                                    if matches!(block.terminator, Some(MirInstruction::Return { value: Some(value) }) if value == result) {
+                                        block.terminator = None;
+                                    }
+                                }
+                            }
+                            7 => {
+                                let mut duplicate = BasicBlock::new(BasicBlockId(99998));
+                                duplicate.set_terminator(MirInstruction::Return { value: Some(result) });
+                                reader.add_block(duplicate);
+                            }
                             _ => unreachable!(),
                         }
                         rearm_children(ledger, &original);
                         let issue = ledger.validate_finalized_child_functions(&changed, false)
-                            .expect_err("same child Add and exact Return cannot drift");
+                            .expect_err(&format!("same child Add and exact Return cannot drift: mutation={mutation}"));
                         assert!(issue.contains("[freeze:contract]"), "{mutation}: {issue}");
                         assert!(!issue.contains("duplicate-child"), "{issue}");
                     }
@@ -277,17 +299,28 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                 if symbol == "Counter.read/0" {
                     // Matching source-row and physical corruption must still
                     // lose the immutable original field-source loan.
-                    let site = ledger.field_reads.borrow().iter()
-                        .find(|(_, row)| matches!(row.value_source, crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::TerminalFieldValueSourceV1::Numeric(_))).unwrap().0.clone();
+                    let site = ledger.local_field_reads.borrow().iter()
+                        .find(|(_, row)| row.numeric_source.is_some()).unwrap().0.clone();
                     let foreign = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(field.object(), 1).unwrap();
-                    ledger.field_reads.borrow_mut().get_mut(&site).unwrap().field = foreign;
+                    let original_source = ledger.local_field_reads.borrow().get(&site).unwrap().source.clone();
+                    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source =
+                        crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1::from_declaration(
+                            foreign, original_source.result().clone(), original_source.declared_type_name().map(Into::into));
+                    {
+                        let rows = ledger.local_field_reads.borrow();
+                        let issue = ledger.recheck_local_field_source_v1(&site, &rows[&site],
+                            CallValidationContextV1::Lowering(ledger)).unwrap_err();
+                        assert!(issue.contains("integer-field/"), "immutable common source rejects the changed field: {issue}");
+                    }
                     let mut changed = original.clone();
                     changed.functions.get_mut(symbol).unwrap().blocks.get_mut(&read_block).unwrap()
                         .instructions[read_index] = MirInstruction::ObjectFieldGet { dst, base, field: foreign };
                     rearm_children(ledger, &original);
                     let outcome = ledger.validate_finalized_child_functions(&changed, false);
-                    ledger.field_reads.borrow_mut().get_mut(&site).unwrap().field = field;
-                    assert!(outcome.unwrap_err().contains("integer-field/source-identity"));
+                    ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source = original_source;
+                    let issue = outcome.unwrap_err();
+                    assert!(issue.contains("integer-field/") || issue.contains("ordinary-field-read/")
+                        || issue.contains("physical-boundary/finished-sequence"), "{issue}");
                 }
                 Ok(())
             },
@@ -299,5 +332,43 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
             assert!(issue.contains("borrowed-result/source-not-i64"), "{issue}");
         }
         }
+    });
+}
+
+#[test]
+fn indexed_root_field_storage_requires_both_same_site_owners() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Page { slot: i64 birth() { me.slot = 7 } }
+            static box Main {
+                main() { local page = new Page() local ignored = Main.helper() return page.slot }
+                helper(): i64 { local page = new Page() local ignored = 30 return page.slot }
+            }";
+        MirCompiler::with_options(false).compile_normal_with_published(request(Some(text)), |view, _| -> Result<(), String> {
+            let source = view.retained_root_source().expect("same common source");
+            let ledger = &source.ledger;
+            let root = source.owner();
+            let reads = ledger.local_field_reads.borrow();
+            let root_site = reads.keys().find(|site| site.owner() == root).unwrap().clone();
+            let child_site = reads.keys().find(|site| site.owner() != root).unwrap().clone();
+            assert_eq!(root_site.site(), child_site.site(), "same source site under separate owners");
+            let root_exit = ledger.source_field_requirement_v1(&root_site)?.unwrap().plan().root().statement().clone();
+            let child_exit = ledger.source_field_requirement_v1(&child_site)?.unwrap().plan().root().statement().clone();
+            assert_eq!(root_exit, child_exit);
+            drop(reads);
+            assert!(ledger.root_home_exit_is_complete());
+            for site in [&root_site, &child_site] {
+                assert!(ledger.take_local_field_read(site, |_| panic!("a finished owner cannot consume twice"))
+                    .unwrap_err().contains("root-exit-phase"));
+                let key = (site.owner(), root_exit.clone().into());
+                let saved = ledger.root_exits.borrow_mut().remove(&key).unwrap();
+                assert!(!ledger.root_home_exit_is_complete(), "the sibling owner's row cannot satisfy this exit");
+                let sibling = if site.owner() == root { child_site.owner() } else { root };
+                assert!(ledger.root_exits.borrow().contains_key(&(sibling, root_exit.clone().into())));
+                ledger.root_exits.borrow_mut().insert(key, saved);
+                assert!(ledger.root_home_exit_is_complete());
+            }
+            Ok(())
+        }).unwrap();
     });
 }

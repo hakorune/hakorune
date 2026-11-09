@@ -106,6 +106,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 row.expression().validate_source(context)?;
                 if let Some(function) = function {
                     row.validate(context, function, producer_projection)?;
+                    if function.blocks.values().flat_map(|block| block.all_instructions())
+                        .filter(|instruction| matches!(instruction, MirInstruction::Return { value: Some(value) } if *value == row.value))
+                        .count() != 1 {
+                        return Err(freeze("expression/residence-original-pair"));
+                    }
                 }
                 let returned = match return_projection {
                     Some(projection) => projection.bindings(bindings)?,
