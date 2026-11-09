@@ -73,6 +73,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 site: request.site.clone(),
             });
         }
+        // Source-only/conflicting formals retain their unclaimed bounded walk.
+        // A passive declaration must never select executable field admission.
+        if returning && request.formal && ingress.as_ref().is_ok_and(|source|
+            !source.formal_field_read_target(request.site.owner())) {
+            return Ok(None);
+        }
         // Return classification borrows construction availability; an unavailable
         // constructor keeps its own earlier refusal, before any field-value query.
         if returning && request.owned_ready.is_none()
@@ -486,6 +492,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                         request.home, &request.field)? == Some(source.field()) {
                         Some(terminal_home::ExpressionFieldRootSourceV1::issue(constructors,
                             candidates, coverage, receiver_proof, entry_home, received.as_ref(),
+                            request, source.field()).map_err(|issue|
+                                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
+                    } else if request.formal && source.declared_type_name() == Some("i64") {
+                        Some(terminal_home::ExpressionFieldRootSourceV1::issue_formal_v1(coverage,
+                            ingress.as_ref().map_err(|issue|
+                                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue: issue.clone() })?,
                             request, source.field()).map_err(|issue|
                                 OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
                     } else { None },

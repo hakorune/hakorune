@@ -4,11 +4,17 @@ use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1;
 
 #[derive(Debug, Clone)]
 enum RootOriginV1 {
-    StoredMapGet { frame: Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
-        exclusion: Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1> },
+    StoredMapGet {
+        frame: Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
+        exclusion: Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>,
+    },
     New(Rc<super::super::LocalNewRootSourceV1>),
+    Formal(Rc<super::super::LocalFieldReadSourceV1>),
     Received(super::super::field_reads::ReceivedFieldReadSourceV1),
-    Entry { slot: u32, identity: crate::parser::CallableDeclarationIdentityV1 },
+    Entry {
+        slot: u32,
+        identity: crate::parser::CallableDeclarationIdentityV1,
+    },
     Alias {
         path: Box<crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1>,
         root_box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
@@ -25,35 +31,108 @@ pub(in crate::mir::normal_callable_semantic_package) struct ExpressionFieldRootS
     origin: RootOriginV1,
 }
 impl ExpressionFieldRootSourceV1 {
+    /// Borrow the admitted formal's original declared scalar field. This is
+    /// independent of the all-writer value closure and grants no entry/Home.
+    pub(in crate::mir::normal_callable_semantic_package) fn issue_formal_v1(
+        coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+        ingress: &super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+        request: &LocalFieldReadRequestV1,
+        field: CanonicalFieldRefV1,
+    ) -> Result<Rc<Self>, String> {
+        if !request.formal
+            || request.path.is_some()
+            || request.received.is_some()
+            || request.owned_ready.is_some()
+        {
+            return Err("expression-path/formal-root-kind".into());
+        }
+        let view = ingress
+            .formal_object_view(request.home)
+            .ok_or("expression-path/formal-root-view")?;
+        let source = view
+            .scalar_field_source_v1(&request.field)
+            .ok_or("expression-path/formal-root-field")?;
+        if source.field() != field
+            || field.object() != view.object()
+            || source.declared_type_name() != Some("i64")
+            || *source.result()
+                != crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar
+        {
+            return Err("expression-path/formal-root-field".into());
+        }
+        let box_source = coverage
+            .row_for(view.class())
+            .map_err(|_| "expression-path/root-object")?
+            .ok_or("expression-path/root-object")?;
+        Ok(Rc::new(Self {
+            receiver: request.receiver,
+            home: request.home,
+            box_source: box_source.clone(),
+            object: view.object(),
+            origin: RootOriginV1::Formal(Rc::clone(source)),
+        }))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_initialized_home_v1(
+        &self,
+    ) -> bool {
+        matches!(self.origin, RootOriginV1::New(_))
+    }
     /// Share the original entry receiver owner with reads and writes. This
     /// lends declaration identity only, never a storage or value-kind lease.
     pub(in crate::mir::normal_callable_semantic_package) fn issue_entry_v1(
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         receiver: (BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1),
         entry: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1,
-        owner: FunctionOwnerIdV1, receiver_read: BindingRefV1, field: CanonicalFieldRefV1,
+        owner: FunctionOwnerIdV1,
+        receiver_read: BindingRefV1,
+        field: CanonicalFieldRefV1,
     ) -> Result<Rc<Self>, String> {
         let (binding, box_source) = receiver;
-        if entry.receiver() != binding || entry.owner() != owner || binding.owner() != owner || receiver_read.owner() != owner {
+        if entry.receiver() != binding
+            || entry.owner() != owner
+            || binding.owner() != owner
+            || receiver_read.owner() != owner
+        {
             return Err("expression-path/entry-root-drift".into());
         }
-        let (object, _) = constructors.destruction_for(box_source).map_err(|_| "expression-path/root-object")?;
-        if field.object() != object { return Err("expression-path/root-field-object".into()); }
-        Ok(Rc::new(Self { receiver: receiver_read, home: binding, box_source: box_source.clone(), object,
-            origin: RootOriginV1::Entry { slot: entry.batch_slot(), identity: entry.identity().clone() } }))
+        let (object, _) = constructors
+            .destruction_for(box_source)
+            .map_err(|_| "expression-path/root-object")?;
+        if field.object() != object {
+            return Err("expression-path/root-field-object".into());
+        }
+        Ok(Rc::new(Self {
+            receiver: receiver_read,
+            home: binding,
+            box_source: box_source.clone(),
+            object,
+            origin: RootOriginV1::Entry {
+                slot: entry.batch_slot(),
+                identity: entry.identity().clone(),
+            },
+        }))
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn entry_receiver_v1(&self) -> Option<BindingRefV1> {
-        (matches!(self.origin, RootOriginV1::Entry { .. }) && self.receiver == self.home).then_some(self.home)
+    pub(in crate::mir::normal_callable_semantic_package) fn entry_receiver_v1(
+        &self,
+    ) -> Option<BindingRefV1> {
+        (matches!(self.origin, RootOriginV1::Entry { .. }) && self.receiver == self.home)
+            .then_some(self.home)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_entry_v1(
-        &self, ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1,
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        owner: FunctionOwnerIdV1,
     ) -> Result<(), String> {
         let RootOriginV1::Entry { slot, identity } = &self.origin else {
             return Err("expression-path/root-entry-drift".into());
         };
-        let (selected, signatures) = ledger.original_instance_input_issuance.as_ref()
+        let (selected, signatures) = ledger
+            .original_instance_input_issuance
+            .as_ref()
             .ok_or("expression-path/root-entry-issuance")?;
-        let signature = signatures.row(*slot).ok_or("expression-path/root-entry-signature")?;
+        let signature = signatures
+            .row(*slot)
+            .ok_or("expression-path/root-entry-signature")?;
         let key = selected.key_for_batch_slot(*slot);
         if !selected.identity_for_batch_slot(*slot).is_some_and(|actual| actual.same_as(identity))
             || !matches!(key, Some(SelectedNormalCallableKeyV1::Cataloged(key))
@@ -62,27 +141,40 @@ impl ExpressionFieldRootSourceV1 {
             || signature.mode() != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod {
             return Err("expression-path/root-entry-drift".into());
         }
-        let mut receivers = signature.lanes().iter().filter(|lane| lane.role()
-            == super::super::super::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver);
-        if receivers.next().is_none_or(|lane| lane.binding() != self.home) || receivers.next().is_some() {
+        let mut receivers = signature.lanes().iter().filter(|lane| {
+            lane.role()
+            == super::super::super::physical_signature::PhysicalCallableLaneRoleV1::InstanceReceiver
+        });
+        if receivers
+            .next()
+            .is_none_or(|lane| lane.binding() != self.home)
+            || receivers.next().is_some()
+        {
             return Err("expression-path/root-entry-receiver".into());
         }
         Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn checked_entry_value_v1(
-        &self, ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1, function: &crate::mir::MirFunction,
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        owner: FunctionOwnerIdV1,
+        function: &crate::mir::MirFunction,
     ) -> Result<(usize, crate::mir::ValueId), String> {
         self.recheck_entry_v1(ledger, owner)?;
-        let RootOriginV1::Entry { slot, .. } = self.origin else { unreachable!("checked entry root") };
+        let RootOriginV1::Entry { slot, .. } = self.origin else {
+            unreachable!("checked entry root")
+        };
         ledger.checked_instance_receiver_value_v1(self.home, slot, owner, function)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-        candidates: &[OrdinaryNewCandidate], coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+        candidates: &[OrdinaryNewCandidate],
+        coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
         receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
         entry: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
         received: Option<&super::super::field_reads::ReceivedFieldReadSourceV1>,
-        request: &LocalFieldReadRequestV1, field: CanonicalFieldRefV1,
+        request: &LocalFieldReadRequestV1,
+        field: CanonicalFieldRefV1,
     ) -> Result<Rc<Self>, String> {
         let (box_source, origin) = if let Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame, exclusion }) = &request.received {
             if received.is_some() || request.receiver != frame.binding() || request.home != frame.binding()
@@ -141,33 +233,53 @@ impl ExpressionFieldRootSourceV1 {
                 _ => return Err("expression-path/root-ambiguous".into()),
             }
         };
-        let (object, _) = constructors.destruction_for(box_source).map_err(|_| "expression-path/root-object")?;
-        if field.object() != object { return Err("expression-path/root-field-object".into()); }
-        Ok(Rc::new(Self { receiver: request.receiver, home: request.home,
-            box_source: box_source.clone(), object, origin }))
+        let (object, _) = constructors
+            .destruction_for(box_source)
+            .map_err(|_| "expression-path/root-object")?;
+        if field.object() != object {
+            return Err("expression-path/root-field-object".into());
+        }
+        Ok(Rc::new(Self {
+            receiver: request.receiver,
+            home: request.home,
+            box_source: box_source.clone(),
+            object,
+            origin,
+        }))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck_initialized_local_v1(
-        &self, ledger: &OrdinaryNewClaimLedgerV1,
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
         let RootOriginV1::New(source) = &self.origin else {
             return Err("expression-path/root-new-drift".into());
         };
         source.recheck_construction_v1(ledger)
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn class(&self) -> &str { self.box_source.name() }
-    pub(in crate::mir::normal_callable_semantic_package) fn received_source_v1(&self)
-        -> Option<&super::super::field_reads::ReceivedFieldReadSourceV1> {
-        match &self.origin { RootOriginV1::Received(source) => Some(source), _ => None }
+    pub(in crate::mir::normal_callable_semantic_package) fn class(&self) -> &str {
+        self.box_source.name()
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn received_source_v1(
+        &self,
+    ) -> Option<&super::super::field_reads::ReceivedFieldReadSourceV1> {
+        match &self.origin {
+            RootOriginV1::Received(source) => Some(source),
+            _ => None,
+        }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn validate_read_v1(
-        &self, read: &crate::mir::builder::ExactLexicalReadV1, context: CallValidationContextV1<'_>,
+        &self,
+        read: &crate::mir::builder::ExactLexicalReadV1,
+        context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
         // Passive correspondence grants no physical nonnull permission. Every
         // executable purpose must also validate its same Normal/nonNull Branch.
         if let RootOriginV1::StoredMapGet { frame, exclusion } = &self.origin {
             frame.source().recheck_v1(context.ledger())?;
-            if self.receiver != frame.binding() || self.home != frame.binding()
-                || exclusion.root_binding() != frame.binding() {
+            if self.receiver != frame.binding()
+                || self.home != frame.binding()
+                || exclusion.root_binding() != frame.binding()
+            {
                 return Err("expression-path/root-source-drift".into());
             }
             read.loan_local_initializer_v1(frame.binding())?;
@@ -176,12 +288,15 @@ impl ExpressionFieldRootSourceV1 {
             let ledger = context.ledger();
             context.with_taken_packet_v1(source.target()?.call_site(), |packet| {
                 let row = packet.original_row()?;
-                if row.source_target() != source.target()? { return Err("expression-path/received-packet".into()); }
+                if row.source_target() != source.target()? {
+                    return Err("expression-path/received-packet".into());
+                }
                 let original = ledger.borrowed_object_call_packet_v1(row)?;
                 if original.result() != crate::mir::instruction::InvokeCallResultKind::Handle {
                     return Err("expression-path/received-result".into());
                 }
-                let value = packet.value_in_context_v1(self.home.owner(), original.arguments(), context)?;
+                let value =
+                    packet.value_in_context_v1(self.home.owner(), original.arguments(), context)?;
                 read.loan_forwarded_copies(self.home, value)?;
                 Ok(())
             })?;
@@ -190,60 +305,164 @@ impl ExpressionFieldRootSourceV1 {
     }
     /// Original source loan only; execution still requires the Bool owner's
     /// independent same-Normal/nonNull-Branch check in every physical purpose.
-    pub(in crate::mir::normal_callable_semantic_package) fn stored_get_v1(&self) -> Option<(
+    pub(in crate::mir::normal_callable_semantic_package) fn stored_get_v1(
+        &self,
+    ) -> Option<(
         &Rc<crate::mir::resolved_semantics::home_new_prefix::MapFieldGetLocalV1>,
         &Rc<crate::mir::resolved_semantics::home_new_prefix::SourceNullExclusionV1>,
     )> {
-        match &self.origin { RootOriginV1::StoredMapGet { frame, exclusion } => Some((frame, exclusion)), _ => None }
+        match &self.origin {
+            RootOriginV1::StoredMapGet { frame, exclusion } => Some((frame, exclusion)),
+            _ => None,
+        }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn same_source(&self, other: &Self) -> bool {
-        self.receiver == other.receiver && self.home == other.home && self.object == other.object
-            && self.box_source.same_source_as(&other.box_source) && match (&self.origin, &other.origin) {
-                (RootOriginV1::StoredMapGet { frame: a, exclusion: x }, RootOriginV1::StoredMapGet { frame: b, exclusion: y }) => Rc::ptr_eq(a, b) && x == y,
+    pub(in crate::mir::normal_callable_semantic_package) fn same_source(
+        &self,
+        other: &Self,
+    ) -> bool {
+        self.receiver == other.receiver
+            && self.home == other.home
+            && self.object == other.object
+            && self.box_source.same_source_as(&other.box_source)
+            && match (&self.origin, &other.origin) {
+                (
+                    RootOriginV1::StoredMapGet {
+                        frame: a,
+                        exclusion: x,
+                    },
+                    RootOriginV1::StoredMapGet {
+                        frame: b,
+                        exclusion: y,
+                    },
+                ) => Rc::ptr_eq(a, b) && x == y,
                 (RootOriginV1::New(a), RootOriginV1::New(b)) => a == b,
+                (RootOriginV1::Formal(a), RootOriginV1::Formal(b)) => Rc::ptr_eq(a, b),
                 (RootOriginV1::Received(a), RootOriginV1::Received(b)) => a == b,
-                (RootOriginV1::Entry { slot: a, identity: x }, RootOriginV1::Entry { slot: b, identity: y }) => a == b && x.same_as(y),
-                (RootOriginV1::Alias { path: a, root_box_source: x, root_object: u, edges: i },
-                 RootOriginV1::Alias { path: b, root_box_source: y, root_object: v, edges: j }) =>
-                    a == b && x.same_source_as(y) && u == v && i == j,
+                (
+                    RootOriginV1::Entry {
+                        slot: a,
+                        identity: x,
+                    },
+                    RootOriginV1::Entry {
+                        slot: b,
+                        identity: y,
+                    },
+                ) => a == b && x.same_as(y),
+                (
+                    RootOriginV1::Alias {
+                        path: a,
+                        root_box_source: x,
+                        root_object: u,
+                        edges: i,
+                    },
+                    RootOriginV1::Alias {
+                        path: b,
+                        root_box_source: y,
+                        root_object: v,
+                        edges: j,
+                    },
+                ) => a == b && x.same_source_as(y) && u == v && i == j,
                 _ => false,
             }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck(
-        &self, ledger: &OrdinaryNewClaimLedgerV1, request: &LocalFieldReadRequestV1, field: CanonicalFieldRefV1,
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        request: &LocalFieldReadRequestV1,
+        field: CanonicalFieldRefV1,
         context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
-        if request.receiver != self.receiver || request.home != self.home || field.object() != self.object {
+        if request.receiver != self.receiver
+            || request.home != self.home
+            || field.object() != self.object
+        {
             return Err("expression-path/root-source-drift".into());
         }
         match &self.origin {
+            RootOriginV1::Formal(source) => {
+                let ingress = ledger
+                    .borrowed_formal_source
+                    .as_ref()
+                    .ok_or("expression-path/formal-root-view")?
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                let view = ingress
+                    .formal_object_view(self.home)
+                    .ok_or("expression-path/formal-root-view")?;
+                if !request.formal
+                    || request.path.is_some()
+                    || request.received.is_some()
+                    || request.owned_ready.is_some()
+                    || view.class() != self.class()
+                    || view.object() != self.object
+                    || source.field() != field
+                    || source.declared_type_name() != Some("i64")
+                    || !view
+                        .scalar_field_source_v1(&request.field)
+                        .is_some_and(|actual| Rc::ptr_eq(actual, source))
+                {
+                    return Err("expression-path/formal-root-drift".into());
+                }
+            }
             RootOriginV1::StoredMapGet { frame, exclusion } => {
-                let retained = ledger.stored_map_get_local_source_v1(request.site.owner(), frame.statement().node())?
+                let retained = ledger
+                    .stored_map_get_local_source_v1(request.site.owner(), frame.statement().node())?
                     .ok_or("expression-path/root-source-drift")?;
-                if !Rc::ptr_eq(&retained, frame) || !matches!(&request.received,
+                if !Rc::ptr_eq(&retained, frame)
+                    || !matches!(&request.received,
                     Some(crate::mir::resolved_semantics::home_new_prefix::ReceivedFieldReadRequestV1::StoredMapGet { frame: actual, exclusion: proof })
-                        if Rc::ptr_eq(actual, frame) && proof == exclusion) {
+                        if Rc::ptr_eq(actual, frame) && proof == exclusion)
+                {
                     return Err("expression-path/root-source-drift".into());
                 }
-            },
+            }
             RootOriginV1::Received(source) => {
-                let ingress = ledger.borrowed_formal_source.as_ref().ok_or("expression-path/received-ingress")?
-                    .as_ref().map_err(Clone::clone)?;
-                context.with_current_instance_source_v1(source.target()?.call_site(), |target|
-                    source.recheck_issuing_target_v1(&ledger.callable_result_classes, ingress, target, request))?;
-            },
+                let ingress = ledger
+                    .borrowed_formal_source
+                    .as_ref()
+                    .ok_or("expression-path/received-ingress")?
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                context.with_current_instance_source_v1(
+                    source.target()?.call_site(),
+                    |target| {
+                        source.recheck_issuing_target_v1(
+                            &ledger.callable_result_classes,
+                            ingress,
+                            target,
+                            request,
+                        )
+                    },
+                )?;
+            }
             RootOriginV1::New(source) => {
-                if source.binding() != self.home || !source.matches_definition(&self.box_source, self.object) {
+                if source.binding() != self.home
+                    || !source.matches_definition(&self.box_source, self.object)
+                {
                     return Err("expression-path/root-new-drift".into());
                 }
                 source.recheck(ledger)?;
-            },
-            RootOriginV1::Alias { path, root_box_source, root_object, edges } => {
-                if request.alias_path.as_ref() != Some(path) || request.alias_class.as_deref() != Some(self.class())
-                    || ledger.field_alias_source_object_v1(path, request.site.owner(), self.receiver, root_box_source, *root_object, edges)? != self.object {
+            }
+            RootOriginV1::Alias {
+                path,
+                root_box_source,
+                root_object,
+                edges,
+            } => {
+                if request.alias_path.as_ref() != Some(path)
+                    || request.alias_class.as_deref() != Some(self.class())
+                    || ledger.field_alias_source_object_v1(
+                        path,
+                        request.site.owner(),
+                        self.receiver,
+                        root_box_source,
+                        *root_object,
+                        edges,
+                    )? != self.object
+                {
                     return Err("expression-path/root-alias-drift".into());
                 }
-            },
+            }
             RootOriginV1::Entry { .. } => self.recheck_entry_v1(ledger, request.site.owner())?,
         }
         Ok(())

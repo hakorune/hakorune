@@ -266,7 +266,9 @@ impl ExpressionFieldSourceLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn requires_installed_home_v1(
         &self,
     ) -> bool {
-        self.declared.is_some()
+        self.declared
+            .as_ref()
+            .is_some_and(|(root, _, _)| root.requires_initialized_home_v1())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_plan(
         &self,
@@ -428,7 +430,9 @@ impl ExpressionFieldSourceLoanV1 {
                 return Err(freeze("integer-field/source-identity"));
             }
             root.recheck(ledger, request, *field, context)?;
-            root.recheck_initialized_local_v1(ledger)?;
+            if root.requires_initialized_home_v1() {
+                root.recheck_initialized_local_v1(ledger)?;
+            }
         }
         Ok(())
     }
