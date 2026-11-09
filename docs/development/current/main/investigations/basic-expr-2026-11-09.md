@@ -88,3 +88,5 @@ B31. 未借用Add候補の省略は同じoriginalまたは正規relationが保�
 B32. Returnのlocal参照は同じ元source flowの完全なsigned SUMを需要として既存Home走査を選び、演算子やReturn式の形を再判定せず、実受理と所有は既存のCurrentScalarRead・元producer・終端ownerで検証する。
 
 B33. 元のOperation・Initializer・再代入のchecked producerを読むReturnは、その同じCurrentScalarReadから共有評価を受け取り、従来literal/fieldだけのScalar終端は保持し、MIRの型やbackend成功からpublicationの可否を推測しない。
+
+B34. 整数literalのalias読取は保持済みの元root binding・root valueと全Copy列を照合して元producerを貸し、alias側のinitializer CopyをConstとして扱わず、実MIRの一意なConst値との独立照合を保持する。
