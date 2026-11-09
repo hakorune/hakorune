@@ -16,6 +16,12 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         self.validate_reference_dependencies(context, function, finishing)?;
         let ordered = self.ordered_bindings_in_context(context)?;
         let mut copies = self.scalar_copy_dependencies_v1(context)?;
+        for (index, node) in self.frame.source().nodes().iter().enumerate() {
+            if self.node_selected(index) {
+                copies.extend(ledger.checked_field_copy_dependencies_v1(
+                    &OwnedExprSiteV1::new(self.frame.source().owner(), node.site().clone()), context)?);
+            }
+        }
         for read in self.path_reads {
             copies.extend_from_slice(read.original_copy_dependencies_v1()?);
         }

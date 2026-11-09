@@ -29,14 +29,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(None);
     };
-    // Checked stored/read origins use the same complete Return evaluator.
-    let stored_field = input.body_shape().is_some_and(|shape| matches!(shape.expression_shape(value.site()),
-        Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. })
-            if locals.stored_get_reference_v1(&object).is_some()
-                || matches!(input.function().variable_ref(&object), Some(super::super::super::ResolvedLexicalRefV1::Local(binding))
-                    if locals.has_declared_read_origin_v1(binding)
-                        || matches!(locals.field_read_receiver(binding, Some(object)),
-                            Some(super::super::super::local_flow::FieldReadReceiverV1::Shared { .. })))));
+    let stored_field = input.body_shape().is_some_and(|shape| matches!(
+        shape.expression_shape(value.site()),
+        Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })
+    ));
     let binary = input
         .function()
         .expression_source()
@@ -92,18 +88,6 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(refused());
     };
-    // Existing literal/field Add owners keep their original plans. Calls need
-    // this complete evaluation so their Fault edges and cleanup stay ordered.
-    if add
-        && !source.contains_copy_v1()
-        && !source.nodes().iter().any(|node| {
-            matches!(node.source(),
-        crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall
-        | crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::DirectCall)
-        })
-    {
-        return Ok(None);
-    }
     // The complete Return evaluation borrows its Call and field leaves from
     // their existing source issuers and retains their ordered cleanup proof.
     let prepared = prepare_value_evaluation_v1(
@@ -142,6 +126,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             return Ok(if add || bool_root { None } else { refused() });
         }
     };
+    // The pre-existing plain scalar kernel is still the consumer for pure
+    // arithmetic without field demand, explicit copy, or invocation. It has
+    // no lifecycle-root ABI demand; do not route it through a framed consumer.
+    if add && requests.is_empty() && !source.contains_copy_v1() && evaluation.calls().is_empty() && evaluation.cores().is_empty() {
+        return Ok(None);
+    }
     if stored_field {
         // Only an integer field belongs to this scalar lane; Text and others keep theirs.
         let probed = fields(

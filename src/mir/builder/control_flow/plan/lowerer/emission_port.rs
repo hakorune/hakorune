@@ -107,7 +107,7 @@ impl<'plan> CorePlanEffectEmissionPortV1<'plan> {
                     if ledger.borrow().owner() != site.owner() {
                         return Err("[freeze:contract][ordinary-field-read/plan-owner]".into());
                     }
-                    let checked = source_ledger.local_field_read_requires_checked_v1(site);
+                    let checked = source_ledger.local_field_requires_exact_receiver_v1(site);
                     let mut original_read = None;
                     let receiver_site = crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())
                         .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver).expr();

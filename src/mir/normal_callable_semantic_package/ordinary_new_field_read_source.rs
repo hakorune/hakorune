@@ -55,7 +55,10 @@ impl LocalFieldReadSourceV1 {
             | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_))
             || (self.declared_type_name.is_none()
             && self.result == crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar)
-            || self.owned_ready.is_some() || self.shared_support.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
+            || self.owned_ready.as_ref().is_some_and(|source| source.requires_checked_read_v1()) || self.shared_support.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
+    }
+    pub(in crate::mir) fn requires_exact_receiver_v1(&self) -> bool {
+        self.requires_checked_field_read_v1() || self.owned_ready.is_some()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn received_root_source_v1(&self) -> Option<&ReceivedFieldReadSourceV1> {
         self.received.as_ref().or_else(|| self.statement_path().and_then(|path| path.received_root_v1()))

@@ -130,7 +130,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                     Ok(value)
                 })?.ok_or("[freeze:contract][field-write-rhs/field-source]")?;
                 let field = read.field();
-                let claim = if read.requires_checked_field_read_v1() {
+                let claim = if read.requires_exact_receiver_v1() {
                     crate::mir::builder::fields::PreparedExactFieldReadClaimV1::CheckedLocal { source: read,
                         read: receiver.ok_or("[freeze:contract][field-write-rhs/exact-receiver]")?, state: Rc::clone(&state) }
                 } else { crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(read) };

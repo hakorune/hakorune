@@ -122,7 +122,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.recheck_returned_field_read_v1(retained.source.read(), row)?;
         if !Rc::ptr_eq(source, &row.source) { return Err(fault("returned/source-identity")); }
         match &row.progress {
-            LocalReadProgress::Emitted { block, instruction, source: emitted } if Rc::ptr_eq(emitted, source) =>
+            LocalReadProgress::Emitted { block, instruction, source: emitted, .. } if Rc::ptr_eq(emitted, source) =>
                 Ok((*block, instruction.clone())),
             _ => Err(fault("returned/read-not-emitted")),
         }

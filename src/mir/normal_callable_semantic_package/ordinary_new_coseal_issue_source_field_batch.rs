@@ -70,6 +70,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 site: request.site.clone(),
             });
         }
+        // Return classification borrows construction availability; an unavailable
+        // constructor keeps its own earlier refusal, before any field-value query.
+        if matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
+            if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
+            && request.owned_ready.is_none()
+            && candidates.iter().any(|candidate| candidate.destination == request.home
+                && candidate.construction.is_err())
+        {
+            return Ok(None);
+        }
         let parent = match request.path.as_ref().and_then(|path| path.parent()) {
             Some(site) => {
                 let Some(parent) = rows
@@ -103,7 +114,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                     role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::PrintValue, .. })
                     || borrowed_read && matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
                         role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
-                    && (!borrowed_read || plan.nodes().first().is_some_and(|node| node.site() == request.site.site()))) {
+                    && request.node_in_plan(plan).is_some()) {
             return Ok(None);
         }
         let received = if request.received.is_some() && !stored_get {
@@ -465,6 +476,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                     Rc::clone(plan),
                     request,
                     &source,
+                    if terminal_home::initialized_integer_field(constructors, candidates,
+                        request.home, &request.field)? == Some(source.field()) {
+                        Some(terminal_home::ExpressionFieldRootSourceV1::issue(constructors,
+                            candidates, coverage, receiver_proof, entry_home, received.as_ref(),
+                            request, source.field()).map_err(|issue|
+                                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?)
+                    } else { None },
                 )
                 .map_err(|issue| {
                     OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {

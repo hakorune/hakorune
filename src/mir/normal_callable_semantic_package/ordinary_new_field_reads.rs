@@ -80,7 +80,7 @@ pub(super) enum LocalReadProgress {
     Pending,
     SourceReceiverPending { root: ValueId },
     Taken { base: ValueId, source: Rc<LocalFieldReadSourceV1> },
-    Emitted { block: BasicBlockId, instruction: MirInstruction, source: Rc<LocalFieldReadSourceV1> },
+    Emitted { block: BasicBlockId, instruction: MirInstruction, source: Rc<LocalFieldReadSourceV1>, read: Option<Rc<crate::mir::builder::ExactLexicalReadV1>> },
     CheckedEmitted {
         source: Rc<LocalFieldReadSourceV1>,
         invoke: (BasicBlockId, MirInstruction), normal: (BasicBlockId, MirInstruction),
@@ -307,8 +307,27 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
         row.progress = LocalReadProgress::Emitted {
-            block, instruction, source: Rc::clone(source),
+            block, instruction, source: Rc::clone(source), read: None,
         };
+        Ok(())
+    }
+
+    pub(in crate::mir) fn retain_raw_field_receiver_v1(
+        &self, site: &OwnedExprSiteV1, source: &Rc<LocalFieldReadSourceV1>,
+        exact: Rc<crate::mir::builder::ExactLexicalReadV1>,
+    ) -> Result<(), String> {
+        let mut rows = self.local_field_reads.borrow_mut();
+        let row = rows.get_mut(site).ok_or_else(|| fault("missing-source-site"))?;
+        let value = exact.value_for(site.owner(), row.receiver_site.node(), row.receiver)
+            .map_err(|issue| issue.to_string())?;
+        let LocalReadProgress::Emitted { instruction, source: emitted, read, .. } = &mut row.progress
+            else { return Err(fault("source-emission-kind")); };
+        if !Rc::ptr_eq(source, &row.source) || !Rc::ptr_eq(source, emitted) || read.is_some()
+            || !source.corroborates_instruction(instruction)
+            || !matches!(instruction, MirInstruction::ObjectFieldGet { base, .. } | MirInstruction::FieldGet { base, .. } if *base == value) {
+            return Err(fault("source-descriptor-drift"));
+        }
+        *read = Some(exact);
         Ok(())
     }
 
@@ -325,7 +344,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             self.recheck_local_field_source_v1(site, row, CallValidationContextV1::Lowering(self))?;
-            let LocalReadProgress::Emitted { block, instruction, source } = &row.progress else {
+            let LocalReadProgress::Emitted { block, instruction, source, .. } = &row.progress else {
                 return Err(fault("array-read-unconsumed"));
             };
             if !Rc::ptr_eq(source, &row.source) || !source.corroborates_instruction(instruction) {
@@ -349,7 +368,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.local_field_reads.borrow();
         let row = rows.get(site).ok_or_else(|| fault("required-source-read-missing"))?;
         self.recheck_local_field_source_v1(site, row, context)?;
-        let LocalReadProgress::Emitted { block, instruction, source } = &row.progress else {
+        let LocalReadProgress::Emitted { block, instruction, source, .. } = &row.progress else {
             return Err(fault("unconsumed-read"));
         };
         if !Rc::ptr_eq(source, &row.source) { return Err(fault("source-descriptor-drift")); }
@@ -450,6 +469,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !source.matches_plan(required.plan()) || row.receiver_site != request.receiver_site
                     || row.receiver != request.receiver || row.home != request.home
                 { return Err(fault("required-source-read-drift")); }
+                source.recheck_declared_root_v1(self, request, context)?;
                 source
             },
         };

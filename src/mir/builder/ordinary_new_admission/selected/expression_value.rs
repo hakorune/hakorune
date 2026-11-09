@@ -499,7 +499,12 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
                     value
                 } else {
                     let (value, binding) = builder.complete_exact_field_read_v1(base, source.field(), &site, ledger,
-                        crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(source))?;
+                        crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(Rc::clone(&source)))?;
+                    if let Some(read) = original_read {
+                        ledger.retain_raw_field_receiver_v1(&site, &source, Rc::new(read))?;
+                    } else if source.requires_exact_receiver_v1() {
+                        return Err(freeze("print-expression/field-exact-read-missing"));
+                    }
                     bindings.push(binding);
                     value
                 };

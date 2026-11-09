@@ -146,6 +146,14 @@ impl ExpressionFieldRootSourceV1 {
         Ok(Rc::new(Self { receiver: request.receiver, home: request.home,
             box_source: box_source.clone(), object, origin }))
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_initialized_local_v1(
+        &self, ledger: &OrdinaryNewClaimLedgerV1,
+    ) -> Result<(), String> {
+        let RootOriginV1::New(source) = &self.origin else {
+            return Err("expression-path/root-new-drift".into());
+        };
+        source.recheck_construction_v1(ledger)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn class(&self) -> &str { self.box_source.name() }
     pub(in crate::mir::normal_callable_semantic_package) fn received_source_v1(&self)
         -> Option<&super::super::field_reads::ReceivedFieldReadSourceV1> {

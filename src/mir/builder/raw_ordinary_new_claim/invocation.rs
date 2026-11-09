@@ -167,7 +167,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         if let Some(input) = self.source_input {
             ledger.stage_source_array_receiver_v1(input, &site, field)?;
         }
-        let checked = ledger.local_field_read_requires_checked_v1(&site);
+        let checked = ledger.local_field_requires_exact_receiver_v1(&site);
         let mut original_read = None;
         let receiver_site =
             crate::mir::resolved_semantics::SourcePathV1::from_node(site.site().node())

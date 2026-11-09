@@ -21,7 +21,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(array_fault("read-original-caller-drift"));
         }
         self.recheck_local_field_source_v1(field.site(), row, context)?;
-        let super::LocalReadProgress::Emitted { block, instruction, source } = &row.progress else {
+        let super::LocalReadProgress::Emitted { block, instruction, source, .. } = &row.progress else {
             return Err(array_fault("read-physical-cardinality"));
         };
         let MirInstruction::ObjectFieldGet { dst, field: actual, .. } = instruction else {

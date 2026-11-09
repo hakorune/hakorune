@@ -18,7 +18,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.local_field_reads.borrow();
         let row = rows.get(frame.source().receiver()).ok_or_else(|| fault("missing-source-site"))?;
         self.recheck_local_field_source_v1(frame.source().receiver(), row, context)?;
-        let LocalReadProgress::Emitted { block, instruction, source: emitted } = &row.progress else { return Err(fault("unconsumed-read")) };
+        let LocalReadProgress::Emitted { block, instruction, source: emitted, .. } = &row.progress else { return Err(fault("unconsumed-read")) };
         if !Rc::ptr_eq(descriptor, &row.source) || !Rc::ptr_eq(emitted, descriptor)
             || !matches!(descriptor.result(), crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::ArrayField(original)
                 if original.text_append_origin_v1().is_some_and(|original| source.matches_text_frame(original)))
@@ -173,7 +173,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.local_field_reads.borrow();
         let row = rows.get(site).ok_or_else(|| fault("array-set-read-missing"))?;
         self.recheck_local_field_source_v1(site, row, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(self))?;
-        let LocalReadProgress::Emitted { block, instruction, source } = &row.progress else {
+        let LocalReadProgress::Emitted { block, instruction, source, .. } = &row.progress else {
             return Err(fault("array-set-read-unconsumed"));
         };
         if !Rc::ptr_eq(original, &row.source) || !Rc::ptr_eq(original, source) {

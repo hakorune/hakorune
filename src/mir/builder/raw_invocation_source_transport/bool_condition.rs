@@ -113,7 +113,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                     exact_read = Some(Rc::new(read));
                     Ok(value)
                 })?.ok_or("[freeze:contract][bool-condition/field-source]")?;
-                let (value, binding) = if read.requires_checked_field_read_v1() {
+                let (value, binding) = if read.requires_exact_receiver_v1() {
                     builder.complete_source_checked_field_read_v1(base, read.field(), &owned, &ledger, &read,
                         exact_read.ok_or("[freeze:contract][bool-condition/checked-receiver]")?,
                         &mut state.borrow_mut(), None)?

@@ -101,6 +101,12 @@ impl crate::mir::MirBuilder {
                 .map_err(|issue| issue.to_string())? != base {
             return Err("[freeze:contract][ordinary-field-read/checked-receiver-context]".into());
         }
+        if !source.requires_checked_field_read_v1() {
+            let result = self.complete_exact_field_read_with_destination_v1(base, field, site, ledger,
+                super::PreparedExactFieldReadClaimV1::Local(Rc::clone(source)), destination)?;
+            ledger.retain_raw_field_receiver_v1(site, source, read)?;
+            return Ok(result);
+        }
         let operations = ledger.prior_home_unwind_for(required.prior_homes())?;
         let entry = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
         let start = self.function_state.current_function.as_ref().and_then(|function| function.blocks.get(&entry))

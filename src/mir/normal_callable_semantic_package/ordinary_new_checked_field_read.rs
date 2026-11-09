@@ -12,7 +12,7 @@ impl OrdinaryNewClaimLedgerV1 {
         -> Result<Vec<Rc<crate::mir::normal_callable_semantic_package::BranchReadPhiObservationV1>>, String> {
         let mut points = Vec::new();
         for (_, row) in self.local_field_reads.borrow().iter().filter(|(site, _)| site.owner() == owner) {
-            if let LocalReadProgress::CheckedEmitted { read: Some(read), .. } = &row.progress {
+            if let LocalReadProgress::CheckedEmitted { read: Some(read), .. } | LocalReadProgress::Emitted { read: Some(read), .. } = &row.progress {
                 if let Some(point) = read.binding_observation_v2().source_read_branch_v1()? {
                     if !points.iter().any(|old| Rc::ptr_eq(old, &point)) { points.push(point); }
                 }
@@ -80,8 +80,8 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.recheck_local_field_source_v1(&request.site, row, context)
     }
-    pub(in crate::mir) fn local_field_read_requires_checked_v1(&self, site: &OwnedExprSiteV1) -> bool {
-        self.local_field_reads.borrow().get(site).is_some_and(|row| row.source.requires_checked_field_read_v1())
+    pub(in crate::mir) fn local_field_requires_exact_receiver_v1(&self, site: &OwnedExprSiteV1) -> bool {
+        self.local_field_reads.borrow().get(site).is_some_and(|row| row.source.requires_exact_receiver_v1())
     }
 
     pub(in crate::mir) fn expression_requires_fault_frame_v1(
@@ -119,6 +119,7 @@ impl OrdinaryNewClaimLedgerV1 {
             block,
             instruction,
             source,
+            ..
         } = &row.progress
         else {
             return Err(fault("scalar/emission-missing"));
@@ -226,7 +227,23 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn checked_field_copy_dependencies_v1(
         &self, site: &OwnedExprSiteV1, context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
-        if self.checked_field_pair_v1(site, context)?.is_none() { return Ok(Vec::new()); }
+        if self.checked_field_pair_v1(site, context)?.is_none() {
+            let rows = self.local_field_reads.borrow();
+            let Some(row) = rows.get(site) else { return Ok(Vec::new()); };
+            let LocalReadProgress::Emitted { instruction, read, .. } = &row.progress else { return Ok(Vec::new()); };
+            let Some(read) = read else {
+                return if row.numeric_source.is_some() || row.source.requires_exact_receiver_v1() {
+                    Err(fault("received/exact-read-missing"))
+                } else { Ok(Vec::new()) };
+            };
+            self.recheck_local_field_source_v1(site, row, context)?;
+            let base = read.value_for(site.owner(), row.receiver_site.node(), row.receiver).map_err(|issue| issue.to_string())?;
+            if !row.source.corroborates_instruction(instruction)
+                || !matches!(instruction, MirInstruction::ObjectFieldGet { base: actual, .. } | MirInstruction::FieldGet { base: actual, .. } if *actual == base) {
+                return Err(fault("received/source-drift"));
+            }
+            return read.original_copy_dependencies_v1().map(<[_]>::to_vec);
+        }
         let rows = self.local_field_reads.borrow();
         let row = rows.get(site).ok_or_else(|| fault("received/read-missing"))?;
         let LocalReadProgress::CheckedEmitted { read, .. } = &row.progress else { return Err(fault("received/emission-missing")); };
@@ -234,7 +251,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(received) = row.source.received.as_ref() else {
             // checked_field_pair replays the same complete numeric/source loan
             // and exact lexical receiver. A direct Self read has no Call result.
-            if row.numeric_source.is_none() && row.source.shared_support_v1().is_none() && !matches!(row.source.result(),
+            if row.numeric_source.is_none() && row.source.owned_ready.is_none() && row.source.shared_support_v1().is_none() && !matches!(row.source.result(),
                 crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedObject(_)
                     | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Text(_)) {
                 return Err(fault("received/source-missing"));
@@ -463,7 +480,7 @@ impl OrdinaryNewClaimLedgerV1 {
             self.recheck_local_field_source_using_v1(site, row, context, ||
                 self.recheck_result_path_field_using_result_v1(site, row, context, result.as_ref()))?;
             if matches!(row.progress, LocalReadProgress::CheckedEmitted { .. }) { continue; }
-            let LocalReadProgress::Emitted { block, instruction, source } = &row.progress else {
+            let LocalReadProgress::Emitted { block, instruction, source, .. } = &row.progress else {
                 return Err(fault("unconsumed-read"));
             };
             if !Rc::ptr_eq(&row.source, source)

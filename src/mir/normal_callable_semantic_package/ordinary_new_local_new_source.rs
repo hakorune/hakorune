@@ -68,6 +68,15 @@ impl LocalNewRootSourceV1 {
         }
         Ok(())
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_construction_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
+        self.recheck(ledger)?;
+        ledger.with_local_new_source_v1(&self.acquisition, self.binding, |source| {
+            if !source.construction.as_ref().is_ok_and(|plan| plan.object() == self.object) {
+                return Err("[freeze:contract][local-new-source/construction-unavailable]".into());
+            }
+            Ok(())
+        })?.ok_or_else(|| "[freeze:contract][local-new-source/original-row-missing]".to_owned())
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
         ledger.with_local_new_source_v1(&self.acquisition, self.binding, |source| {
             if !source.box_source.same_source_as(&self.box_source) || source.object != self.object || source.declaration != &self.declaration {

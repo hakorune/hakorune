@@ -89,7 +89,9 @@ impl ExpressionObjectFieldSourceLoanV1 {
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) struct ExpressionFieldSourceLoanV1 {
-    value: ClosedNumericFieldSourceLoanV1,
+    value: Option<ClosedNumericFieldSourceLoanV1>,
+    // Existing initialized-constructor authority, independent of all-writer SUM.
+    declared: Option<(Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::terminal_home::ExpressionFieldRootSourceV1>, CanonicalFieldRefV1, Box<str>)>,
     plan: Rc<ExpressionSourcePlanV1>,
     node: usize,
     site: OwnedExprSiteV1,
@@ -106,7 +108,21 @@ impl ExpressionFieldSourceLoanV1 {
         plan: Rc<ExpressionSourcePlanV1>,
         request: &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1,
         declaration: &crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1,
+        declared: Option<Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::terminal_home::ExpressionFieldRootSourceV1>>,
     ) -> Result<Self, String> {
+        if let Some(root) = declared {
+            if declaration.declared_type_name() != Some("i64") {
+                return Err(freeze("integer-field/receiver-declaration"));
+            }
+            let node = plan.field_read_node_v1(request.site.site(), &request.receiver_site,
+                request.receiver, &request.field).ok_or_else(|| freeze("integer-field/original-read"))?;
+            let loan = Self { value: None, declared: Some((root, declaration.field(), request.field.clone())),
+                plan, node, site: request.site.clone(), receiver_site: request.receiver_site.clone(),
+                receiver: request.receiver, home: request.home };
+            loan.recheck_read(results, ingress, &request.site, &request.receiver_site,
+                request.receiver, request.home, declaration)?;
+            return Ok(loan);
+        }
         let context = results.field_candidates.as_ref().map_err(Clone::clone)?;
         let mut sources = context.sources().values().filter(|row| row.field() == declaration.field());
         let source = sources.next().ok_or_else(|| freeze("integer-field/source-missing"))?;
@@ -121,7 +137,11 @@ impl ExpressionFieldSourceLoanV1 {
         Rc::ptr_eq(&self.plan, plan)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn same_source(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.plan, &other.plan) && self.value.same_source(&other.value) && self.node == other.node
+        Rc::ptr_eq(&self.plan, &other.plan) && match (&self.value, &other.value, &self.declared, &other.declared) {
+            (Some(a), Some(b), None, None) => a.same_source(b),
+            (None, None, Some((a, f, n)), Some((b, g, m))) => a.same_source(b) && f == g && n == m,
+            _ => false,
+        } && self.node == other.node
             && self.site == other.site && self.receiver_site == other.receiver_site
             && self.receiver == other.receiver && self.home == other.home
     }
@@ -153,20 +173,26 @@ impl ExpressionFieldSourceLoanV1 {
         let node = plan.field_read_node_v1(site.site(), receiver_site, receiver, name)
             .ok_or_else(|| freeze("integer-field/original-read"))?;
         let loan = Self {
-            value, plan, node,
+            value: Some(value), declared: None, plan, node,
             site: site.clone(), receiver_site: receiver_site.clone(), receiver, home,
         };
         loan.recheck(results, ingress, &loan.plan, site, receiver_site, receiver, home, loan.field())?;
         Ok(loan)
     }
-    pub(super) fn field(&self) -> CanonicalFieldRefV1 { self.value.field() }
+    pub(super) fn field(&self) -> CanonicalFieldRefV1 {
+        self.value.as_ref().map(|value| value.field()).unwrap_or_else(|| self.declared.as_ref().expect("selected field authority").1)
+    }
     /// Agreement with a separately qualified receiver's original declaration.
     /// Absent annotations stay absent; this comparison grants no Integer/Home.
     pub(super) fn matches_declaration(&self, field: CanonicalFieldRefV1, declared: Option<&str>) -> bool {
-        self.value.matches_declaration(field, declared)
+        match (&self.value, &self.declared) {
+            (Some(value), None) => value.matches_declaration(field, declared),
+            (None, Some((_, original, _))) => *original == field && declared == Some("i64"),
+            _ => false,
+        }
     }
     pub(super) fn matches_source(&self, node: usize, source: &Rc<DeclaredFieldValueSourceV1>) -> bool {
-        self.node == node && Rc::ptr_eq(&self.value.source, source)
+        self.node == node && self.value.as_ref().is_some_and(|value| Rc::ptr_eq(&value.source, source))
     }
     pub(super) fn recheck(
         &self,
@@ -184,9 +210,28 @@ impl ExpressionFieldSourceLoanV1 {
             || self.site != *site || self.receiver_site != *receiver_site
             || self.receiver != receiver || self.home != home || self.field() != field
         { return Err(freeze("integer-field/source-identity")); }
-        if self.plan.field_read_node_v1(site.site(), receiver_site, receiver, &self.value.name) != Some(self.node) {
+        let name = match (&self.value, &self.declared) {
+            (Some(value), None) => &value.name,
+            (None, Some((_, _, name))) => name,
+            _ => return Err(freeze("integer-field/source-identity")),
+        };
+        if self.plan.field_read_node_v1(site.site(), receiver_site, receiver, name) != Some(self.node) {
             return Err(freeze("integer-field/original-read"));
         }
-        self.value.recheck(results, ingress)
+        match &self.value { Some(value) => value.recheck(results, ingress), None => Ok(()) }
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_declared_root_v1(
+        &self, ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+        request: &crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1,
+        context: crate::mir::normal_callable_semantic_package::CallValidationContextV1<'_>,
+    ) -> Result<(), String> {
+        if let Some((root, field, name)) = &self.declared {
+            if name != &request.field || *field != self.field() {
+                return Err(freeze("integer-field/source-identity"));
+            }
+            root.recheck(ledger, request, *field, context)?;
+            root.recheck_initialized_local_v1(ledger)?;
+        }
+        Ok(())
     }
 }

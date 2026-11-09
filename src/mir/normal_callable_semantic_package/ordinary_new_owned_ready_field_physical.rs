@@ -25,7 +25,18 @@ impl OrdinaryNewClaimLedgerV1 {
         for (site, row) in self.local_field_reads.borrow().iter() {
             if !row.source.owned_ready.as_ref().is_some_and(|source| Rc::ptr_eq(source.frame(), frame)) { continue; }
             match &row.progress {
-                LocalReadProgress::Emitted { block, instruction, .. } => bindings.push(((*block, instruction.clone()), true, None)),
+                LocalReadProgress::Emitted { block, instruction, read, .. } => {
+                    let target = (*block, instruction.clone());
+                    let exact = read.as_ref().ok_or_else(|| fault("owned-ready/exact-read-missing"))?;
+                    if exact.value_for(site.owner(), row.receiver_site.node(), row.receiver).map_err(|issue| issue.to_string())?
+                        != match instruction { MirInstruction::ObjectFieldGet { base, .. } => *base, _ => return Err(fault("owned-ready/read-shape")) } {
+                        return Err(fault("owned-ready/read-source"));
+                    }
+                    for copy in exact.loan_forwarded_copies(row.receiver, installed)? {
+                        bindings.push((copy.clone(), false, Some(target.clone())));
+                    }
+                    bindings.push((target, true, None));
+                },
                 LocalReadProgress::CheckedEmitted { read, .. } => {
                     let [invoke, normal] = self.checked_field_pair_v1(site, context)?
                         .ok_or_else(|| fault("owned-ready/read-unconsumed"))?;
