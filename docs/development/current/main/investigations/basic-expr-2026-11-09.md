@@ -90,3 +90,5 @@ B32. Returnのlocal参照は同じ元source flowの完全なsigned SUMを需要�
 B33. 元のOperation・Initializer・再代入のchecked producerを読むReturnは、その同じCurrentScalarReadから共有評価を受け取り、従来literal/fieldだけのScalar終端は保持し、MIRの型やbackend成功からpublicationの可否を推測しない。
 
 B34. 整数literalのalias読取は保持済みの元root binding・root valueと全Copy列を照合して元producerを貸し、alias側のinitializer CopyをConstとして扱わず、実MIRの一意なConst値との独立照合を保持する。
+
+B35. i64 Returnの新しい走査需要は同じreadのsigned SUMとalias終点Expressionの肯定証拠から選び、Entry・未対応Join・Unknown・循環を新需要へ含めず、値のclassと実行の権限は既存ownerに残す。
