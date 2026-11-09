@@ -104,3 +104,18 @@ callを持たない正規artifactの新需要は既存のapp-root identityから
 着地範囲: G1の元Add/Sub等のproducer読取とapp-rootの直接scalar read publication、G5のordinary take（t02/t03/t04/t06）。B33の全Return Frame化は採用せずpatchに保護。B21〜23の数値Array接続とB27の式内移転後Fault prefix、Birth/fresh actualは未完。最終報告で未完と既存MIR移行境界を区別する。
 
 B37. 旧single-Opaque入力の終端契約は保持し、新ordinary cohortへの拡張は宣言済みtake-objectを含む契約へ限定して、複数OpaqueのMap引数を既存ownerから横取りしない。
+
+## Opus の確認（2026-11-09）
+
+- 履歴: `41cd71f719` から 37 commit（最後の `d46b93c69b` は test だけ）。B1〜B37 は、それぞれ対応する実装の commit より先に入っている。
+- binary: Opus が `eaecee8ba3` から build し直した `hakorune`（SHA-256 `e033d88e…`）で測った。build 後に、source が binary より新しい file は無かった。`d46b93c69b` は test の file 4 つだけを変えたので、MIR と EXE の結果はこの binary の結果を使う。
+- 1,788 本の `--dump-mir`: 前から通っていた物の変化 0、拒否の文言の変化 0、新しく通った物 16。新しく通った 16 本は、EXE の出力を source の意味と照らして全部確かめた。
+- 目標の 26 本: e01・e02・e15・t02・t03・t04・t06 が通った。前から通っていた 6 本は同じ。残りは base と同じ拒否（t05 は文言だけが変わった）。
+- Opus の未見の入力 20 本（再代入、alias、加算と減算の連続、`2^63-1 + 1`、0 で割る形、take の引数 2 つ、static の take、callee 内の print、出口が 2 つある take、move 後の利用、二重の move）: 全部が期待どおりだった。加算は `dynamic-operators.md` の 2026-10-12 の決定どおり 2^64 で回る。0 で割る形は拒否。move 後の利用と二重の move は `UseAfterMove` で拒否。
+- 前の監査の入力 482 本: 拒否の文言が変わったのは 2 本（`q_bo_fwd_d`、`q_io_fwd_d`。どちらも前から拒否）だけ。前から通っていた 193 本は MIR も同じ。
+- 全 lib（`d46b93c69b`）: 8863 pass / 228 fail / 56 ignored。基準の 232 名に対して新しい名前は 0、消えた名前は 4。`eaecee8ba3` の時点では新しい赤が 5 本あったが、どれも B29（Add の消去可能な候補）と B36（純 scalar の Return）で意図して変えた所を、古い件数や拒否で固定していた test だった。`d46b93c69b` で今の規則を確かめる形に直し、拒否を確かめる assertion は残した。
+- status-index の 149 形: `41cd71f719` の binary と比べて、変わったのは前から拒否の n07 の拒否の文言（`EdgeArgumentsForbidden` → `CopyOnOwned`）だけ。connected の数は変わらない。
+- 消した `select_static_scalar_local_routes_v1`、`return_expression_bindings_v1`、`emit_declared_return_read_v1` は、呼ぶ所が 0。800 行を超える production の file と、新しい `_for_test` は無い。
+- 行数（rustfmt で整えた後、`41cd71f719` から）: production +979、test +248。
+- 残り: 掛け算、式の return、String の method、Array・Map、field の比較、Birth に格納しない take、fresh な `new` を渡す take。多くは試作で EXE まで届いたが、前から通っていた入力の MIR が変わるので止めた。原因は、同じ操作を MIR にする書き手が文脈ごとに分かれていること（古い書き手は raw の形、共通の評価は Fault 付きの形を出す）。
+- ユーザー決定（2026-11-09）: 次は MIR の書き手の整理。受理は変えず、操作ごとに書き手を 1 つにする。その後で、この残りに戻る。
