@@ -255,6 +255,8 @@ S4のloop（Codex実装・Opus監査、`aafc0a2abd`、[規則](s4-loop-2026-11-0
 
 MIRの書き手の整理（Codex実装・Opus監査、`c3df413562`、[規則と記録](mir-writer-2026-11-09.md) W1〜W14）: 受理・拒否・1,788本のMIR・EXEはすべて不変。1回目は命令のliteralを包むだけの関数とReturnの同じ分岐が大半で、整形後production +268だったので、ユーザー決定で仕上げを挟み、W12（1つの命令の値を作るだけの関数は書き手ではない）〜W14で取り消した。残ったのは重複していた手順のまとまり4つ（Arrayのwrite・readの選び方、writeの後の観測とreceipt、Mapの読みのInvokeとNormalResult、object fieldのappend）。整形後production +54、test 0。基本式の残りの本当の壁は、軽い形のStringのlength（raw Call）をlifecycleのbackendが`call-not-birth`で拒否することと、Mapの契約表が`Unprojected`であること（2つの証拠の世界）。次は（ユーザー決定2026-11-09）正規化・共通化で綺麗になるかのChatGPT Proへの設計相談、その後で基本式の残り。
 
+正規化の設計相談（2026-11-09、ChatGPT ProとGemini 4 Argon、Opusが根拠を確認、[記録](normalize-consult-2026-11-09.md)）: 揃えるのは命令の組み立て方ではなく、元の証拠・操作の法則・Faultと所有の約束。新しい正規形の型は作らず、既存の`CheckedExpressionEvaluationV1`等へ「Faultの枠が要るか」の問い合わせを足す。軽いNoSourceFault操作をlifecycleに通してから旧raw経路を退役し、常にInvokeにはしない。順番（ユーザー決定2026-11-09）: ①正規化の1回目（Faultが起きないscalarの式は枠なし、`TerminalI64AddReturnV1`と`TerminalI64FieldReturnV1`の専用一式を共通の評価器へ合流させて消す、純減で閉じる）→②Stringのlengthの専用の軽い操作（公開の形は調査後に決める）→③基本式の残り→④Mapの契約の投影→`edit`→3bと退役→徹底的な整理。
+
 徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
 
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
