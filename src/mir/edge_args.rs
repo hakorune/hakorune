@@ -19,3 +19,10 @@ pub struct EdgeArgs {
     pub layout: JumpArgsLayout,
     pub values: Vec<ValueId>,
 }
+
+impl EdgeArgs {
+    /// The canonical empty marker carries no value or ownership responsibility.
+    pub(crate) fn is_empty_carriers(&self) -> bool {
+        self.layout == JumpArgsLayout::CarriersOnly && self.values.is_empty()
+    }
+}

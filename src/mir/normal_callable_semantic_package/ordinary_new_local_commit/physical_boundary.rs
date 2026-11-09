@@ -35,10 +35,7 @@ type Incoming = BTreeMap<
 
 fn same_finished_instruction(actual: &MirInstruction, expected: &MirInstruction) -> bool {
     let empty_carriers = |args: &Option<EdgeArgs>| {
-        args.as_ref().is_none_or(|args| {
-            args.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly
-                && args.values.is_empty()
-        })
+        args.as_ref().is_none_or(EdgeArgs::is_empty_carriers)
     };
     match (actual, expected) {
         (

@@ -419,8 +419,8 @@ impl EmittedBoolConditionProjectionV1 {
             || !matches!(&original.1, MirInstruction::Branch { condition, then_bb: actual_then, else_bb: actual_else,
                 then_edge_args: Some(a), else_edge_args: Some(b) }
                 if *condition == self.materialization.physical().values().1 && (*actual_then, *actual_else) == (then_bb, else_bb)
-                    && a.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly && a.values.is_empty()
-                    && b.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly && b.values.is_empty())
+                    && a.is_empty_carriers()
+                    && b.is_empty_carriers())
         {
             return Err(freeze("bool-condition/outer-branch-source"));
         }

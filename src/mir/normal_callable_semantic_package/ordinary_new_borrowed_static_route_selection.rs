@@ -43,9 +43,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    /// Select only a fully finished original CurrentOwner Scalar cohort.
+    /// Select completed original scalar-result cohorts with their actual source observations.
     /// The incoming inventory stays the sole source; this is route membership.
-    pub(in crate::mir::normal_callable_semantic_package) fn select_static_scalar_local_routes_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn select_completed_static_local_routes_v1(
         &mut self,
     ) -> Result<(), String> {
         let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
@@ -58,6 +58,22 @@ impl OrdinaryNewClaimLedgerV1 {
                     self.local_call_for_owner(row.call.owner(), row.call.site())
                         .map(|_| row.call.clone())
                 }));
+            }
+        }
+        for (row, legacy) in source.source_incoming.source_rows_with_legacy_v1() {
+            if legacy { continue; }
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source
+                else { continue; };
+            if !crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1::owning_ordinary_source_input_cohort_v1(original.parameters()) {
+                continue;
+            }
+            let Some(observation) = self.local_call_for_owner(row.call.owner(), row.call.site())
+                else { continue; };
+            let same_source = matches!(observation.result_source(),
+                Some(crate::mir::resolved_semantics::home_new_prefix::LocalCallResultSourceV1::Ordinary(loan))
+                    if loan.static_source().is_some_and(|source| Rc::ptr_eq(source, original)));
+            if same_source && self.checked_completed_static_expression_input_v1(original)?.is_some() {
+                sites.push(row.call.clone());
             }
         }
         if let Some(Ok(selected)) = self.borrowed_static_source_sites.as_mut() {

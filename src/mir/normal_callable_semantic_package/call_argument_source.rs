@@ -6,8 +6,13 @@ use super::*;
 impl BorrowedFormalActualSourceV1 {
     pub(crate) fn taken_home_v1(&self) -> Option<(BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
         match self {
-            Self::TypedHome { moved: Some(_), binding, root, acquisition, .. } =>
-                Some((*binding, *root, acquisition)),
+            Self::TypedHome {
+                moved: Some(_),
+                binding,
+                root,
+                acquisition,
+                ..
+            } => Some((*binding, *root, acquisition)),
             _ => None,
         }
     }
@@ -68,8 +73,14 @@ pub(super) fn bind_original_argument_plans_v1(
             input, read_site,
         );
         let same = match (&candidate.value, atom.as_ref()) {
-            (BorrowedCallActualValueV1::DeclaredRead(read), Some(BorrowedCallActualValueV1::Binding(original))) =>
-                read.binding() == *original && read.read().site() == read_site && read.corroborates_v1(input),
+            (
+                BorrowedCallActualValueV1::DeclaredRead(read),
+                Some(BorrowedCallActualValueV1::Binding(original)),
+            ) => {
+                read.binding() == *original
+                    && read.read().site() == read_site
+                    && read.corroborates_v1(input)
+            }
             (
                 BorrowedCallActualValueV1::Scalar(binding, _)
                 | BorrowedCallActualValueV1::SelfRooted { binding, .. }
@@ -211,26 +222,44 @@ impl ObjectActualHomeSourceV1<'_> {
     }
 }
 
-
 impl ObjectActualHomeSourceV1<'_> {
-    pub(super) fn prepare_home_actual_v1(self,
+    pub(super) fn prepare_home_actual_v1(
+        self,
         call: &OwnedExprSiteV1,
         formal: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1,
         actual: &BorrowedCallActualCandidateV1,
     ) -> Result<Option<BorrowedFormalActualSourceV1>, String> {
-        let BorrowedCallActualValueV1::Home { binding, root, acquisition, moved } = &actual.value
-            else { return Err(freeze("borrowed-actual/source-identity")); };
+        let BorrowedCallActualValueV1::Home {
+            binding,
+            root,
+            acquisition,
+            moved,
+        } = &actual.value
+        else {
+            return Err(freeze("borrowed-actual/source-identity"));
+        };
         if formal.ordinal != actual.ordinal
-            || (formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home) != moved.is_some()
-            || moved.as_ref().is_some_and(|unary| unary.site() != &actual.site || !unary.is_move()) {
+            || (formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home)
+                != moved.is_some()
+            || moved
+                .as_ref()
+                .is_some_and(|unary| unary.site() != &actual.site || !unary.is_move())
+        {
             return Err(freeze("borrowed-actual/source-identity"));
         }
-        let Some(class) = self.home_class(call, *binding, *root, acquisition)? else { return Ok(None); };
-        if matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(expected) if expected != &class) {
+        let Some(class) = self.home_class(call, *binding, *root, acquisition)? else {
+            return Ok(None);
+        };
+        if matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(expected) if expected != &class)
+        {
             return Err(freeze("borrowed-actual/declared-object-class"));
         }
         Ok(Some(BorrowedFormalActualSourceV1::TypedHome {
-            binding: *binding, root: *root, acquisition: acquisition.clone(), moved: moved.clone(), class,
+            binding: *binding,
+            root: *root,
+            acquisition: acquisition.clone(),
+            moved: moved.clone(),
+            class,
         }))
     }
 }
@@ -241,29 +270,109 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_take_homes_v1(
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
     candidates: &[super::super::super::candidate::OrdinaryNewCandidate],
-) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>, String> {
-    let Some(rows) = pending.get(site) else { return Ok(Box::new([])); };
+    contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+) -> Result<(bool, Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>), String> {
+    let Some(rows) = pending.get(site) else {
+        return Ok((false, Box::new([])));
+    };
     let rows = rows.as_ref().map_err(Clone::clone)?;
-    let mut homes = Vec::new();
-    if let Some(snapshot) = rows.source_static_snapshot_v1() {
-        let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &snapshot.phase
-            else { return Err(freeze("borrowed-actual/source-identity")); };
-        if identity.source.call_site() != site
-            || identity.source.parameters().len() != identity.candidates.len() {
+    let instance_input = matches!(
+        &rows.phase,
+        BorrowedCallActualEvidencePhaseV1::SourceInstance(_)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)
+            | BorrowedCallActualEvidencePhaseV1::SourceObject(_)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
+    );
+    let passive = if let Some(snapshot) = rows.source_static_snapshot_v1() {
+        let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &snapshot.phase else {
+            return Err(freeze("borrowed-actual/source-identity"));
+        };
+        if identity.source.call_site() != site {
             return Err(freeze("borrowed-actual/source-identity"));
         }
-        for (formal, candidate) in identity.source.parameters().iter().zip(identity.candidates.iter()) {
-            if formal.demand != crate::mir::resolved_semantics::HomeDemandV1::Home { continue; }
+        Some((identity.source.parameters(), identity.candidates.as_ref()))
+    } else {
+        let instance = match &rows.phase {
+            BorrowedCallActualEvidencePhaseV1::SourceInstance(identity)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(identity) => Some((
+                &identity.source,
+                identity.candidates.as_ref(),
+                identity.incoming_arguments.as_ref(),
+            )),
+            BorrowedCallActualEvidencePhaseV1::SourceObject(identity)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(identity) => Some((
+                &identity.source,
+                identity.candidates.as_ref(),
+                identity.incoming_arguments.as_ref(),
+            )),
+            _ => None,
+        };
+        if let Some((target, actuals, incoming)) = instance {
+            let mut matching = contracts
+                .iter()
+                .filter(|row| row.owner == target.callee_owner());
+            let contract = matching
+                .next()
+                .ok_or_else(|| freeze("borrowed-actual/formal-missing"))?;
+            if matching.next().is_some()
+                || target.call_site() != site
+                || target.target_batch_slot() != contract.batch_slot
+                || target.argument_sites().len() != contract.parameters.len()
+                || actuals.len() != contract.parameters.len()
+            {
+                return Err(freeze("borrowed-actual/source-identity"));
+            }
+            for (index, (formal, actual)) in contract.parameters.iter().zip(actuals).enumerate() {
+                if formal.ordinal as usize != index
+                    || actual.ordinal != formal.ordinal
+                    || formal.binding.owner() != contract.owner
+                    || target.argument_sites().get(index) != Some(&actual.site)
+                {
+                    return Err(freeze("borrowed-actual/source-identity"));
+                }
+                if formal.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
+                    && incoming
+                        .iter()
+                        .filter(|(ordinal, at, binding)| {
+                            *ordinal == formal.ordinal
+                                && at == &actual.site
+                                && *binding == formal.binding
+                        })
+                        .count()
+                        != 1
+                {
+                    return Err(freeze("borrowed-actual/source-identity"));
+                }
+            }
+            Some((contract.parameters.as_ref(), actuals))
+        } else {
+            None
+        }
+    };
+    let mut homes = Vec::new();
+    if let Some((parameters, actuals)) = passive {
+        if parameters.len() != actuals.len() {
+            return Err(freeze("borrowed-actual/arity"));
+        }
+        for (formal, candidate) in parameters.iter().zip(actuals) {
+            if formal.demand != crate::mir::resolved_semantics::HomeDemandV1::Home {
+                continue;
+            }
             let source = ObjectActualHomeSourceV1::Candidates(candidates)
                 .prepare_home_actual_v1(site, formal, candidate)?
                 .ok_or_else(|| freeze("borrowed-actual/home-source"))?;
-            let (binding, root, acquisition) = source.taken_home_v1()
+            let (binding, root, acquisition) = source
+                .taken_home_v1()
                 .ok_or_else(|| freeze("borrowed-actual/source-identity"))?;
             homes.push((binding, root, acquisition.clone()));
         }
     } else {
-        homes.extend(rows.opaque_actuals.iter().filter_map(|actual| actual.source.taken_home_v1())
-            .map(|(binding, root, acquisition)| (binding, root, acquisition.clone())));
+        homes.extend(
+            rows.opaque_actuals
+                .iter()
+                .filter_map(|actual| actual.source.taken_home_v1())
+                .map(|(binding, root, acquisition)| (binding, root, acquisition.clone())),
+        );
     }
-    Ok(homes.into_boxed_slice())
+    Ok((instance_input, homes.into_boxed_slice()))
 }

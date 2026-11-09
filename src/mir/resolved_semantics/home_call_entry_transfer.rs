@@ -198,7 +198,7 @@ impl PrefixLocalFlow<'_> {
         for call in calls.iter().filter(|call| call.statement() == statement) {
             if !seen.insert(call.site().clone()) { continue; }
             let entry = port(call.site(), BorrowedCallActualRequestV1::CallEntryHomes(self.input))?;
-            let Some(BorrowedCallArgumentsV1::CallEntryHomes { taken, preserves_reads }) = entry else {
+            let Some(BorrowedCallArgumentsV1::CallEntryHomes { taken, preserves_reads, .. }) = entry else {
                 self.invalidate_declared_read_call_v1(statement);
                 continue;
             };

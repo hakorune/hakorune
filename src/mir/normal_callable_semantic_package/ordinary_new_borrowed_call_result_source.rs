@@ -142,6 +142,10 @@ impl OrdinaryResultSourceLoanV1 {
     pub(crate) fn result(&self) -> LocalCallResultClassV1 {
         self.result
     }
+    pub(crate) fn has_ordinary_static_input_v1(&self) -> bool {
+        self.static_source().is_some_and(|source|
+            crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1::owning_ordinary_source_input_cohort_v1(source.parameters()))
+    }
     pub(crate) fn static_source(&self) -> Option<&Rc<StaticIncomingSourceV1>> {
         match &self.source {
             OrdinaryResultOriginV1::Static(source) => Some(source),
@@ -234,7 +238,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_ordinary_result_a
                     // Any other use site takes this result only while its
                     // actuals are still passive source rows; once another
                     // writer advanced them, that writer keeps the call.
-                    || (crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(site.site()).is_argument_frame()
+                    || ((crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(site.site()).is_argument_frame()
+                        || crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1::owning_ordinary_source_input_cohort_v1(original.parameters()))
+                        && plan.nodes().iter().any(|node| node.site() == site.site()
+                            && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall))
                         && pending.get(site).is_some_and(|rows| rows.as_ref().is_ok_and(|rows| rows.source_static_snapshot_v1().is_some())))))
         {
             return ordinary_result_absent(site, "a whole-binding scalar result belongs to its statement-level writer");

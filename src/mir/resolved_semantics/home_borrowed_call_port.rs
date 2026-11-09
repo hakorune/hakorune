@@ -124,6 +124,7 @@ pub(crate) enum BorrowedCallArgumentsV1 {
     CallEntryHomes {
         taken: Box<[(super::BindingRefV1, super::BindingRefV1, super::OwnedExprSiteV1)]>,
         preserves_reads: bool,
+        instance_input: bool,
     },
     StoredMapGetSource(crate::mir::normal_callable_semantic_package::StoredMapGetSourceLoanV1),
     StoredMapSource(

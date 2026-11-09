@@ -31,9 +31,10 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     completed: Option<&crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractBuilderV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
     if let BorrowedCallActualRequestV1::CallEntryHomes(input) = request {
-        return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates)
-            .map(|taken| Some(BorrowedCallArgumentsV1::CallEntryHomes {
+        return super::super::lexical_instance_call::source_take_homes_v1(pending, site, candidates, contracts)
+            .map(|(instance_input, taken)| Some(BorrowedCallArgumentsV1::CallEntryHomes {
                 preserves_reads: source.as_ref().is_ok_and(|source| source.call_preserves_read_loans_v1(input, batch, contracts, site)),
+                instance_input,
                 taken,
             }))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });

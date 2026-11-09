@@ -58,10 +58,16 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         .is_some_and(|unary| {
             unary.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Not
         });
+    let purpose = OwnedExprSiteV1::new(input.owner(), value.site().clone());
+    let owns_inputs = matches!(actuals(
+        &purpose,
+        super::super::super::BorrowedCallActualRequestV1::CallEntryHomes(input),
+    )?, Some(super::super::super::BorrowedCallArgumentsV1::CallEntryHomes { taken, instance_input: true, .. }) if !taken.is_empty());
     if !stored_field
         && !add
         && !copy
         && !bool_root
+        && !owns_inputs
         && binary != Some(crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Subtract)
     {
         return Ok(None);
@@ -100,7 +106,6 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     }
     // The complete Return evaluation borrows its Call and field leaves from
     // their existing source issuers and retains their ordered cleanup proof.
-    let purpose = OwnedExprSiteV1::new(input.owner(), value.site().clone());
     let prepared = prepare_value_evaluation_v1(
         input,
         std::rc::Rc::clone(&source),

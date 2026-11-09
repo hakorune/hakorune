@@ -168,6 +168,10 @@ impl OwnedCallableParameterContractV1 {
             && parameters.iter().all(|parameter|
                 parameter.kind.is_ordinary_borrowed_handle() || parameter.kind.is_i64_actual_v1())
     }
+    pub(super) fn owning_ordinary_source_input_cohort_v1(parameters: &[Self]) -> bool {
+        Self::ordinary_source_input_cohort_v1(parameters)
+            && parameters.iter().any(Self::takes_declared_object_v1)
+    }
     pub(super) fn takes_declared_object_v1(&self) -> bool {
         self.demand == crate::mir::resolved_semantics::HomeDemandV1::Home
             && matches!(self.kind, CallableParameterContractKindV1::DeclaredObject(_))

@@ -272,7 +272,10 @@ pub(super) fn selects_static_expression_source_v1(
         });
     // Input observation retains the original target and input demand only.
     // Result meaning is issued separately from the same completed Return owner.
-    Ok(original.is_some() && (core_source || source_expression || sibling_source))
+    let ordinary_input_source = original.is_some_and(|source|
+        source.qualified_scalar_result_v1().is_some()
+            && crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1::owning_ordinary_source_input_cohort_v1(source.parameters()));
+    Ok(original.is_some() && (core_source || source_expression || sibling_source || ordinary_input_source))
 }
 
 pub(super) fn prepare_static_source_actuals_v1(

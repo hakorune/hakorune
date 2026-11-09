@@ -433,6 +433,51 @@ fn canonical_edge_arguments_are_rejected() {
 }
 
 #[test]
+fn empty_carrier_edges_do_not_transfer_ownership() {
+    let (mut function, abi) = function(&[], 2);
+    function.signature.return_type = MirType::Void;
+    let abi = OwnershipFunctionAbiV1::new(
+        abi.owner(),
+        vec![],
+        FunctionResultOwnershipV1::None,
+    );
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: bb(1),
+            edge_args: Some(EdgeArgs {
+                layout: JumpArgsLayout::CarriersOnly,
+                values: vec![],
+            }),
+        });
+    function
+        .get_block_mut(bb(1))
+        .unwrap()
+        .add_predecessor(bb(0));
+    function
+        .get_block_mut(bb(1))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    let result = verify_ownership_ssa_v1(&function, &abi);
+    assert!(result.is_ok(), "{result:?}");
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: bb(1),
+            edge_args: Some(EdgeArgs {
+                layout: JumpArgsLayout::ExprResultPlusCarriers,
+                values: vec![],
+            }),
+        });
+    assert!(matches!(
+        verify_ownership_ssa_v1(&function, &abi),
+        Err(OwnershipSsaErrorV1::EdgeArgumentsForbidden { .. })
+    ));
+}
+
+#[test]
 fn managed_call_shape_without_abi_witness_is_rejected() {
     let (mut function, abi) = function(&[MirOwnershipKindV1::Borrowed], 1);
     let abi = OwnershipFunctionAbiV1::new(

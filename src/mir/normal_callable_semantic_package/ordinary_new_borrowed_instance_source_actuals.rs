@@ -368,6 +368,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                     root,
                     ref acquisition, ref moved,
                 } if (owning_input_request || field_input_request || unit_request
+                    || (finite_input && formal.takes_declared_object_v1())
                     || (scalar_request && matches!(formal.kind, CallableParameterContractKindV1::DeclaredObject(_)))
                     || borrowed_result.is_some_and(|loan| loan.matches_read_home_actual_v1(
                         site, actual.ordinal, binding, root, acquisition, &actual.site, moved.is_some())))

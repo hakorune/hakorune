@@ -346,6 +346,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
             && !dynamic_invocation_root && !dynamic_alias_root && !bool_root)
         || (classes[0] == Leaf::Value(Class::I64)
             && !has_core
+            && !calls.contains_key(&0)
             && !entry_reads
                 .iter()
                 .any(|read| read.requirement().node() == 0 && read.signed_only())

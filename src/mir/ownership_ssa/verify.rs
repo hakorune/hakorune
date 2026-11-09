@@ -651,7 +651,17 @@ fn require_live_if_owned(
 fn reject_edge_arguments(function: &MirFunction) -> Result<(), OwnershipSsaErrorV1> {
     for block in function.blocks.values() {
         for edge in block.out_edges() {
-            if edge.args.is_some() {
+            if edge
+                .args
+                .as_ref()
+                .is_some_and(|args| !args.is_empty_carriers())
+            {
+                if crate::config::env::builder_debug_enabled() {
+                    eprintln!(
+                        "[ownership/edge-arguments] source={:?} target={:?} args={:?}",
+                        block.id, edge.target, edge.args
+                    );
+                }
                 return Err(OwnershipSsaErrorV1::EdgeArgumentsForbidden {
                     source: block.id,
                     target: edge.target,
