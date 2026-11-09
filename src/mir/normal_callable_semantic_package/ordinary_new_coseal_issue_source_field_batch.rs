@@ -51,6 +51,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
 ) -> Result<Option<Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1;
     use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
+    let returning = matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
+        if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
+            role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }));
     let mut seen = BTreeSet::new();
     let mut rows: Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> =
         Vec::with_capacity(requests.len());
@@ -72,10 +75,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         }
         // Return classification borrows construction availability; an unavailable
         // constructor keeps its own earlier refusal, before any field-value query.
-        if matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
-            if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
-                role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
-            && request.owned_ready.is_none()
+        if returning && request.owned_ready.is_none()
             && candidates.iter().any(|candidate| candidate.destination == request.home
                 && candidate.construction.is_err())
         {
@@ -393,9 +393,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         };
         if request.path.as_ref().is_some_and(|path| path.is_intermediate())
             && !matches!(source.result(), LocalFieldReadResultV1::Alias(_))
-            && matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan, .. }
-                if matches!(plan.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Statement {
-                    role: crate::mir::resolved_value_profile::expression_root::StatementExpressionRoleV1::ReturnValue, .. }))
+            && returning
         {
             return Ok(None);
         }

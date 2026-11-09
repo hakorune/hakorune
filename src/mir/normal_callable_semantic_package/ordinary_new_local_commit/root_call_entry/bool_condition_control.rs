@@ -441,13 +441,14 @@ impl EmittedBoolConditionProjectionV1 {
                     let mut ordered = projection.ordered_bindings_in_context(context)?;
                     ordered.push(terminal.clone());
                     projection.validate_original_scope(
-                        ledger,
+            CallValidationContextV1::Lowering(ledger),
                         function,
                         &covered,
                         &Some(entry.clone()),
                         &Some(terminal.clone()),
                         &Some(continuation.clone()),
                         &ordered,
+            None,
                     )?;
                     let MirInstruction::Jump {
                         target,

@@ -30,7 +30,9 @@ fn owners(package: &Package, _field: bool) -> (FunctionOwnerIdV1, FunctionOwnerI
         .map(|row| row.owner())
         .find(|owner| {
             *owner != root
-                && ledger.terminal_integer_literal_return_for_owner(*owner).is_some()
+                && ledger
+                    .terminal_integer_literal_return_for_owner(*owner)
+                    .is_some()
         })
         .expect("original scalar child");
     assert!(Rc::ptr_eq(

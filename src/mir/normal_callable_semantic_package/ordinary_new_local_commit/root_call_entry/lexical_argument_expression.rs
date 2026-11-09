@@ -99,13 +99,14 @@ impl LexicalCallArgumentProjectionV1 {
         }
         ordered.extend(packet.terminal.iter().cloned());
         packet.expression().validate_original_scope(
-            ledger,
+            CallValidationContextV1::Lowering(ledger),
             function,
             &covered,
             &packet.body.entry,
             &packet.terminal,
             &packet.continuation,
             &ordered,
+            None,
         )?;
         Ok(Self::Expression(Box::new(packet)))
     }

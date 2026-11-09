@@ -604,13 +604,14 @@ impl ReturnExpressionEmissionV1 {
             }
             ordered.extend(self.terminal.iter().cloned());
             expression.validate_original_scope(
-                context.ledger(),
+                context,
                 function,
                 &covered,
                 &self.entry,
                 &self.terminal,
                 &self.continuation,
                 &ordered,
+                None,
             )?;
         }
         Ok(())

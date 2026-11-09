@@ -191,13 +191,14 @@ impl FieldAppendTextProjectionV1 {
             let mut ordered = expression.ordered_bindings_in_context(context)?;
             ordered.push(self.terminal.clone());
             expression.validate_original_scope(
-                context.ledger(),
+                CallValidationContextV1::Lowering(context.ledger()),
                 function,
                 &covered,
                 &Some(self.entry.clone()),
                 &Some(self.terminal.clone()),
                 &Some(self.continuation.clone()),
                 &ordered,
+                None,
             )?;
         }
         Ok(dst)

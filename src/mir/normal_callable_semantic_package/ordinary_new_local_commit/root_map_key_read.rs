@@ -180,13 +180,14 @@ impl FieldMapKeyReadEmissionV1 {
             let mut ordered = expression.ordered_bindings_in_context(context)?;
             ordered.push(self.terminal.clone());
             expression.validate_original_scope(
-                ledger,
+                CallValidationContextV1::Lowering(ledger),
                 function,
                 &covered,
                 &Some(self.entry.clone()),
                 &Some(self.terminal.clone()),
                 &Some(self.continuation.clone()),
                 &ordered,
+                None,
             )?;
         }
         Ok(value)

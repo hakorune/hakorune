@@ -230,8 +230,8 @@ impl EmittedFieldWriteRhsV1 {
                 let mut ordered = view.ordered_bindings_in_context(context)?;
                 if let Some(pair) = &owned.acquisition { ordered.extend(pair.iter().cloned()); }
                 ordered.extend(owned.terminal.iter().cloned());
-                view.validate_original_scope(context.ledger(), function, &covered,
-                    &owned.body.entry, &owned.terminal, &owned.continuation, &ordered)?;
+                view.validate_original_scope(context, function, &covered,
+                    &owned.body.entry, &owned.terminal, &owned.continuation, &ordered, None)?;
             }
             return Ok(());
         }

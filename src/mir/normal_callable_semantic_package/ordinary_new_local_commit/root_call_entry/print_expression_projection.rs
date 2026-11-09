@@ -126,14 +126,15 @@ impl EmittedPrintExpressionProjectionV1 {
         covered: &std::collections::BTreeSet<BasicBlockId>,
     ) -> Result<(), String> {
         self.expression().validate_original_scope(
-            ledger,
+            CallValidationContextV1::Lowering(ledger),
             function,
             covered,
             &self.entry,
             &self.print,
             &self.continuation,
             &self.ordered_bindings(ledger)?,
-        )
+            None,
+        ).map(|_| ())
     }
 
     pub(super) fn validate_paths(

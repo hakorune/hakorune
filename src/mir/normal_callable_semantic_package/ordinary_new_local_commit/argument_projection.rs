@@ -235,13 +235,14 @@ impl EmittedNewExpressionV1 {
             let mut ordered = view.ordered_bindings_in_context(context)?;
             ordered.extend(self.terminal.iter().cloned());
             view.validate_original_scope(
-                context.ledger(),
+                context,
                 function,
                 &covered,
                 &self.entry,
                 &self.terminal,
                 &self.continuation,
                 &ordered,
+                None,
             )?;
         }
         Ok(())

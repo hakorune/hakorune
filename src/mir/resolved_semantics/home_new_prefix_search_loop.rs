@@ -170,7 +170,6 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
         covered_statements,
         selected_seen,
         unavailable,
-
         map_compatible,
         terminal_call,
         local_call_route,

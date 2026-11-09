@@ -29,10 +29,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     else {
         return Ok(None);
     };
-    let stored_field = input.body_shape().is_some_and(|shape| matches!(
-        shape.expression_shape(value.site()),
-        Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })
-    ));
+    let stored_field = input.body_shape().is_some_and(|shape| {
+        matches!(
+            shape.expression_shape(value.site()),
+            Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })
+        )
+    });
     let binary = input
         .function()
         .expression_source()
@@ -129,7 +131,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     // The pre-existing plain scalar kernel is still the consumer for pure
     // arithmetic without field demand, explicit copy, or invocation. It has
     // no lifecycle-root ABI demand; do not route it through a framed consumer.
-    if add && requests.is_empty() && !source.contains_copy_v1() && evaluation.calls().is_empty() && evaluation.cores().is_empty() {
+    if add
+        && requests.is_empty()
+        && !source.contains_copy_v1()
+        && evaluation.calls().is_empty()
+        && evaluation.cores().is_empty()
+    {
         return Ok(None);
     }
     if stored_field {

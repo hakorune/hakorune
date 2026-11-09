@@ -328,10 +328,22 @@ fn allocation_only_local_new_releases_home_without_initializing_fields() {
                                             )
                                         })
                                         .map(|row| (*block, row.clone()))
-                                }).or_else(|| function.blocks.iter().find_map(|(block, body)|
-                                    body.all_instructions().find(|row| matches!(row,
-                                        MirInstruction::Invoke { operation: InvokeOperation::FieldSet { .. }, .. }))
-                                        .map(|row| (*block, row.clone()))))
+                                })
+                                .or_else(|| {
+                                    function.blocks.iter().find_map(|(block, body)| {
+                                        body.all_instructions()
+                                            .find(|row| {
+                                                matches!(
+                                                    row,
+                                                    MirInstruction::Invoke {
+                                                        operation: InvokeOperation::FieldSet { .. },
+                                                        ..
+                                                    }
+                                                )
+                                            })
+                                            .map(|row| (*block, row.clone()))
+                                    })
+                                })
                                 .expect("a source checked operation owns this Fault edge");
                             let MirInstruction::Invoke {
                                 normal_landing,

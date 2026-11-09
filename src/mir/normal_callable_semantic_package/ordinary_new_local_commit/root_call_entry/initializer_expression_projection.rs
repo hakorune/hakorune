@@ -309,13 +309,14 @@ impl EmittedInitializerExpressionProjectionV1 {
         }
         ordered.extend(packet.terminal.iter().cloned());
         packet.expression().validate_original_scope(
-            ledger,
+            CallValidationContextV1::Lowering(ledger),
             function,
             &covered,
             &packet.entry,
             &packet.terminal,
             &packet.continuation,
             &ordered,
+            None,
         )?;
         Ok(packet)
     }

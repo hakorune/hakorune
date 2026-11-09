@@ -51,7 +51,16 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
             {
                 return Err(freeze("expression/inline-delimiter-drift"));
             }
-            return self.validate_inline_scope_v1(context, function, finishing);
+            return self.validate_original_scope(
+                context,
+                function,
+                &std::collections::BTreeSet::new(),
+                &None,
+                terminal,
+                continuation,
+                &self.ordered_bindings_in_context(context)?,
+                finishing,
+            );
         };
         if self.inline_range.is_some()
             || !context
@@ -217,12 +226,19 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
         )?;
         if let Some(root_fault) = self.root_fault {
             if !ledger.expression_root_cleanup_v1(self.frame)?.is_some()
-                || !live.is_empty() || residence.is_some() || defer_owned_argument
-                || displaced.is_some() || purpose_acquisition.is_some() || forwarded_dynamic_carrier.is_some() {
+                || !live.is_empty()
+                || residence.is_some()
+                || defer_owned_argument
+                || displaced.is_some()
+                || purpose_acquisition.is_some()
+                || forwarded_dynamic_carrier.is_some()
+            {
                 return Err(freeze("expression/residence-original-pair"));
             }
             let start = match finishing {
-                Some(boundary) => boundary.destination(root_fault).ok_or_else(|| freeze("expression/residence-original-pair"))?,
+                Some(boundary) => boundary
+                    .destination(root_fault)
+                    .ok_or_else(|| freeze("expression/residence-original-pair"))?,
                 None => root_fault,
             };
             let borrowed = paths::pending_operations(function, start, &homes, Some(fault_frame))?;
