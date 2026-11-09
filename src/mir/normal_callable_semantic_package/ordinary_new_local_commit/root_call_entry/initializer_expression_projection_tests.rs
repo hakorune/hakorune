@@ -204,3 +204,42 @@ fn initializer_core_i64_final_consumer_rechecks_jumps_reads_local_and_cleanup() 
         })
         .unwrap();
 }
+
+#[test]
+fn empty_scalar_rebind_keeps_original_source_and_finished_sequence() {
+    let text = "static box Main {
+        a(x: i64): i64 { local y = 0 if x > 2 { y = x } return y }
+        main() { print(Main.a(4)) print(Main.a(1)) return 0 }
+    }";
+    let (completed, ledger) =
+        crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (key, module, same, keys, cohort) =
+        completed.document_preflight_parts_for_test(true).unwrap();
+    assert!(Rc::ptr_eq(&same, &ledger));
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
+        .unwrap();
+    let root = handoff.root_source().unwrap();
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
+        .unwrap();
+    let mut changed = module.clone();
+    let function = changed.functions.get_mut("Main.a/1").unwrap();
+    let block = function
+        .blocks
+        .values_mut()
+        .find(|body| {
+            body.instructions
+                .iter()
+                .any(|row| matches!(row, MirInstruction::Phi { .. }))
+        })
+        .unwrap();
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId(99999),
+        value: crate::mir::ConstValue::Integer(99),
+    });
+    assert!(
+        root.visit_finalized_lexical_call_nodes_v1(&changed, |_, _, _, _, _, _, _| Ok(()))
+            .is_err(),
+        "an empty evaluation never grants an unowned instruction"
+    );
+}

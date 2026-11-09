@@ -201,6 +201,15 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }
+    pub(super) fn permits_empty_bindings_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> bool {
+        match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(packet)) =>
+                packet.expression().permits_empty_bindings_v1(ledger),
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(packet)) =>
+                packet.expression().permits_empty_bindings_v1(ledger),
+            _ => false,
+        }
+    }
     pub(crate) fn bindings(&self) -> &[(BasicBlockId, MirInstruction)] {
         if !self.projected {
             if let Some(packet) = self.source_loop_rc() {

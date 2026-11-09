@@ -45,6 +45,11 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     scalar_receiver: Option<&'a crate::mir::builder::ExactLexicalReadV1>,
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
+    pub(super) fn permits_empty_bindings_v1(&self, ledger: &OrdinaryNewClaimLedgerV1) -> bool {
+        self.original.is_empty() && self.inline_range.is_some()
+            && !ledger.expression_requires_fault_frame_v1(self.frame)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_normal_order_v1(
         function: &MirFunction,
         ordered: &[Binding],

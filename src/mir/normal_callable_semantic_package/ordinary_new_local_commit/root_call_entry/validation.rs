@@ -578,7 +578,7 @@ impl OrdinaryNewClaimLedgerV1 {
             || groups.iter().zip(expected.iter()).any(|(group, expected)| {
                 group.site().owner() != owner
                     || !group.matches_source(expected)
-                    || group.bindings().is_empty()
+                    || group.bindings().is_empty() && !group.permits_empty_bindings_v1(self)
             })
         {
             if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
