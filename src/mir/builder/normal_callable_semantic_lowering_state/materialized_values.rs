@@ -267,6 +267,14 @@ impl LocalProvenanceV1 {
             .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
             .loan(root, result)
     }
+    /// Lend the original root value only through the same complete copy proof.
+    pub(in crate::mir) fn loan_root_initializer_v1(
+        &self, original: BindingRefV1, result: ValueId,
+    ) -> Result<ValueId, String> {
+        self.loan_copies(original, self.root_value, result)?;
+        Ok(self.root_value)
+    }
+
     /// Resolve an aliased local initializer to its source producer value.
     /// The source and this local's initializer operand must occur in that
     /// order on the same verified physical copy chain.

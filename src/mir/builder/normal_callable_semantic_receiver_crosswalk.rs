@@ -115,6 +115,16 @@ impl BindingValueObservationV2 {
         self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
             .loan_initializer_v1(root, self.value)
     }
+    pub(in crate::mir) fn loan_root_initializer_v1(
+        &self, original: BindingRefV1,
+    ) -> Result<ValueId, String> {
+        if original.owner() != self.owner {
+            return Err("[freeze:contract][forwarded-copy/owner]".into());
+        }
+        self.provenance.as_ref()
+            .ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+            .loan_root_initializer_v1(original, self.value)
+    }
     pub(in crate::mir) fn loan_forwarded_initializer_v1(
         &self, expected_source_value: Option<ValueId>,
     ) -> Result<ValueId, String> {

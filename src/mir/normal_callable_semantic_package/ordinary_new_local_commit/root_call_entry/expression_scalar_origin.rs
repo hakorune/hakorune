@@ -7,7 +7,7 @@ pub(in super::super) fn initializer_value(
     context: CallValidationContextV1<'_>,
 ) -> Result<ValueId, String> {
     let expected = match source {
-        Producer::Integer { .. } => None,
+        Producer::Integer { binding, .. } => Some(read.loan_root_initializer_v1(*binding)?),
         Producer::Call(call) => {
             if context.ledger().lexical_i64_call_source(call.site()) != Some(call) {
                 return Err(freeze("expression/scalar-call-source"));
