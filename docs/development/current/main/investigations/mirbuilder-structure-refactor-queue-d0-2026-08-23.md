@@ -253,6 +253,10 @@ S4のloop（Codex実装・Opus監査、`aafc0a2abd`、[規則](s4-loop-2026-11-0
 
 基本式の1回目（Codex実装・Opus監査、`d46b93c69b`、[規則](basic-expr-2026-11-09.md) B1〜B37）: i64の加算・減算の結果が、同じchecked評価からprint・local・returnへ届く（`local b = a + 1`→`print(b)`、`local c = 1 + 2`→`return c`）。fieldへ入れない`take`は、instanceとstaticの呼び出しで、受け取ったHomeを既存のEnd経路で全出口に終える。受理: 1,788本で前から通っていた物の変化0、新しく通った物16。Opusの未見20本・482本・全libの新しい赤0。rustfmt後でproduction +979、test +248。消した物: `select_static_scalar_local_routes_v1`、`return_expression_bindings_v1`、`emit_declared_return_read_v1`。残り（[Opusの確認](basic-expr-2026-11-09.md)）: 掛け算、式のreturn、Stringのmethod、Array・Map、fieldの比較、Birthに格納しない`take`、freshな`new`を渡す`take`。多くは、同じ操作のMIRの書き手が文脈ごとに分かれていて、寄せると前から通っていた入力のMIRが変わるので止めた。次は（ユーザー決定2026-11-09）MIRの書き手の整理（受理は変えず、操作ごとに書き手を1つにする）、その後で基本式の残り。
 
+MIRの書き手の整理（Codex実装・Opus監査、`c3df413562`、[規則と記録](mir-writer-2026-11-09.md) W1〜W14）: 受理・拒否・1,788本のMIR・EXEはすべて不変。1回目は命令のliteralを包むだけの関数とReturnの同じ分岐が大半で、整形後production +268だったので、ユーザー決定で仕上げを挟み、W12（1つの命令の値を作るだけの関数は書き手ではない）〜W14で取り消した。残ったのは重複していた手順のまとまり4つ（Arrayのwrite・readの選び方、writeの後の観測とreceipt、Mapの読みのInvokeとNormalResult、object fieldのappend）。整形後production +54、test 0。基本式の残りの本当の壁は、軽い形のStringのlength（raw Call）をlifecycleのbackendが`call-not-birth`で拒否することと、Mapの契約表が`Unprojected`であること（2つの証拠の世界）。次は（ユーザー決定2026-11-09）正規化・共通化で綺麗になるかのChatGPT Proへの設計相談、その後で基本式の残り。
+
+徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
+
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
 
 材料: 4つの形を端から端まで追うと、判定は25〜34個で、同じsourceの判断の出し直しと運搬が多い（呼び出しは所有が無いのに再導出10）。結果型I64は少なくとも10か所、field の格納の形は9か所以上で決め直している。所有をMIRの上で1passにする案は、10-21の判断どおり不十分（operationと辺ごとの取得済みprefix、Normal/Faultの移転が要る）。
