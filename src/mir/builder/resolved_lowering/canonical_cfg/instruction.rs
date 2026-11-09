@@ -129,44 +129,10 @@ impl CanonicalCfgSessionV1 {
         instruction: MirInstruction,
         span: Option<crate::ast::Span>,
     ) {
-        if let MirInstruction::Return { value } = instruction {
-            return self.commit_return(function, source, value, span);
-        }
-        self.commit_with(function, source, |function| {
-            crate::mir::ssot::cf_common::append_instruction_core(
-                function,
-                source,
-                instruction,
-                span,
-            )
-            .expect("prepared CFG source");
-        });
-    }
-
-    /// All Return callers retain their existing preflight and span policy.
-    /// Only the common terminal append and edge-truth update are committed here.
-    pub(in crate::mir::builder) fn commit_return(
-        &self,
-        function: &mut MirFunction,
-        source: BasicBlockId,
-        value: Option<crate::mir::ValueId>,
-        span: Option<crate::ast::Span>,
-    ) {
-        self.commit_with(function, source, |function| {
-            crate::mir::ssot::cf_common::append_return_core(function, source, value, span)
-                .expect("prepared CFG source");
-        });
-    }
-
-    fn commit_with(
-        &self,
-        function: &mut MirFunction,
-        source: BasicBlockId,
-        append: impl FnOnce(&mut MirFunction),
-    ) {
         drop(self.forward_predecessors(function));
         let previous = function.blocks[&source].successors_from_terminator();
-        append(function);
+        crate::mir::ssot::cf_common::append_instruction_core(function, source, instruction, span)
+            .expect("prepared CFG source");
         self.record_instruction_edges(function, source, &previous);
     }
 

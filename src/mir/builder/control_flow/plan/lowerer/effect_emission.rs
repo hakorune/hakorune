@@ -299,7 +299,12 @@ impl super::PlanLowerer {
                 declared_type,
             } => {
                 let base = builder.local_field_base(*base);
-                builder.append_raw_field_get_v1(*dst, base, field.clone(), declared_type.clone())?;
+                builder.emit_instruction(MirInstruction::FieldGet {
+                    dst: *dst,
+                    base,
+                    field: field.clone(),
+                    declared_type: declared_type.clone(),
+                })?;
             }
             CoreEffectPlan::FieldSet {
                 base,
@@ -341,20 +346,24 @@ impl super::PlanLowerer {
                 } else {
                     (try_arg(builder, *lhs)?, try_arg(builder, *rhs)?)
                 };
-                crate::mir::ssot::binop_lower::emit_binop_with(
-                    *dst, *op, lhs, rhs,
-                    |instruction| builder.emit_instruction(instruction),
-                )?;
+                builder.emit_instruction(MirInstruction::BinOp {
+                    dst: *dst,
+                    lhs,
+                    op: *op,
+                    rhs,
+                })?;
             }
             CoreEffectPlan::Compare { dst, lhs, op, rhs } => {
                 // LocalSSA: compare operands must be defined in the current block.
                 let mut lhs = *lhs;
                 let mut rhs = *rhs;
                 crate::mir::builder::ssa::local::finalize_compare(builder, &mut lhs, &mut rhs)?;
-                crate::mir::ssot::cf_common::emit_compare_with(
-                    *dst, *op, lhs, rhs,
-                    |instruction| builder.emit_instruction(instruction),
-                )?;
+                builder.emit_instruction(MirInstruction::Compare {
+                    dst: *dst,
+                    lhs,
+                    op: *op,
+                    rhs,
+                })?;
             }
             CoreEffectPlan::Select {
                 dst,
@@ -441,7 +450,9 @@ impl super::PlanLowerer {
                 builder.ensure_block_exists(return_bb)?;
                 emit_conditional(builder, cond_val, return_bb, fallthrough_target)?;
                 builder.start_new_block(return_bb)?;
-                builder.emit_instruction(crate::mir::ssot::cf_common::return_instruction(Some(*value)))?;
+                builder.emit_instruction(MirInstruction::Return {
+                    value: Some(*value),
+                })?;
             }
             CoreExitPlan::Return(None) => {
                 return Err("[lowerer] ExitIf(Return) requires payload".to_string());

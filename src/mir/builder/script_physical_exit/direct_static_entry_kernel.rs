@@ -138,9 +138,7 @@ fn lower_node(
                 ScalarBinaryOperatorV1::BitOr => BinaryOp::BitOr,
                 ScalarBinaryOperatorV1::BitXor => BinaryOp::BitXor,
             };
-            crate::mir::ssot::binop_lower::emit_binop_with(dst, op, lhs, rhs, |instruction| {
-                builder.emit_instruction(instruction)
-            })?;
+            builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
             builder
                 .function_state
                 .type_ctx

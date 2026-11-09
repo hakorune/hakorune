@@ -1,8 +1,6 @@
 //! Sole checked field append and source-owned read Fault completion.
 use super::*;
-use crate::mir::{BasicBlockId, MirInstruction, MirBuilder, MirType};
-use crate::mir::builder::ordinary_new_admission::selected::{freeze, emit_root_field_exit_v1};
-use crate::mir::normal_callable_semantic_package::PreparedTerminalI64FieldReturnV1;
+use crate::mir::{BasicBlockId, MirInstruction};
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::normal_callable_semantic_package::{LocalFieldReadSourceV1, OrdinaryNewClaimLedgerV1};
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
@@ -70,14 +68,14 @@ impl crate::mir::MirBuilder {
                     MirType::Box(child.child_class().into())),
             LocalFieldReadResultV1::Text(text) if text.field() == source.field() =>
                 (InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::FieldMaterialize { field: source.field(), base }), MirType::String),
-            LocalFieldReadResultV1::Scalar => (Self::checked_scalar_field_read_operation_v1(base, source.field()), MirType::Integer),
+            LocalFieldReadResultV1::Scalar => (InvokeOperation::FieldGet { field: source.field(), base }, MirType::Integer),
             _ => return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into()),
         };
-        let (_, invoke) = crate::mir::builder::ordinary_new_admission::selected::emit_invoke_control_to_landing_v1(
-            self,
-            &mut crate::mir::builder::ordinary_new_admission::selected::root_graph::RawRootGraphWriterV1,
-            operation, fault_frame, normal, fault,
-        )?;
+        let invoke = MirInstruction::Invoke {
+            operation,
+            fault_frame, normal_landing: normal, fault_landing: fault,
+        };
+        self.emit_instruction(invoke.clone())?;
         self.start_new_block(normal)?;
         let dst = destination.unwrap_or_else(|| self.next_value_id());
         let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst };
@@ -126,49 +124,4 @@ impl crate::mir::MirBuilder {
             normal_prefix, fault)?;
         Ok((value, pair[1].clone()))
     }
-}
-
-/// Terminal and Local field reads share this field owner; the terminal lends
-/// its existing prepared source and root graph rather than faking a Local loan.
-pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
-    builder: &mut MirBuilder,
-    state: &mut CallableSemanticLoweringState,
-    ledger: &OrdinaryNewClaimLedgerV1,
-    prepared: PreparedTerminalI64FieldReturnV1,
-) -> Result<crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1, String> {
-    if prepared.checked {
-        let result = builder.next_value_id();
-        builder.function_state.type_ctx.value_types.insert(result, MirType::Integer);
-        let value = emit_root_field_exit_v1(builder, state, ledger, prepared, result)?;
-        return Ok(crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1 {
-            value,
-            root_home_exit_emitted: true,
-        });
-    }
-    let block = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| freeze("no-block"))?;
-    let (result, _) = builder.append_object_field_read_v1(prepared.base, prepared.field, None)?;
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(result, MirType::Integer);
-    ledger.record_terminal_field_read(
-        &prepared.site,
-        block,
-        result,
-        prepared.base,
-        prepared.field,
-    )?;
-    ledger.record_terminal_i64_field_return(
-        prepared.site.owner(),
-        &prepared.return_site,
-        result,
-    )?;
-    Ok(crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1 {
-        value: result,
-        root_home_exit_emitted: false,
-    })
 }

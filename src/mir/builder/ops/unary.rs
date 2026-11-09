@@ -177,10 +177,12 @@ where
             PreparedRawOrdinaryUnaryOperatorV1::Minus => {
                 let zero = crate::mir::builder::emission::constant::emit_integer(builder, 0)?;
                 let dst = builder.next_value_id();
-                crate::mir::ssot::binop_lower::emit_binop_with(
-                    dst, crate::mir::BinaryOp::Sub, zero, operand_val,
-                    |instruction| builder.emit_instruction(instruction),
-                )?;
+                builder.emit_instruction(MirInstruction::BinOp {
+                    dst,
+                    op: crate::mir::BinaryOp::Sub,
+                    lhs: zero,
+                    rhs: operand_val,
+                })?;
                 builder
                     .function_state
                     .type_ctx
@@ -208,10 +210,12 @@ where
             PreparedRawOrdinaryUnaryOperatorV1::BitNot => {
                 let all1 = crate::mir::builder::emission::constant::emit_integer(builder, -1)?;
                 let dst = builder.next_value_id();
-                crate::mir::ssot::binop_lower::emit_binop_with(
-                    dst, crate::mir::BinaryOp::BitXor, operand_val, all1,
-                    |instruction| builder.emit_instruction(instruction),
-                )?;
+                builder.emit_instruction(MirInstruction::BinOp {
+                    dst,
+                    op: crate::mir::BinaryOp::BitXor,
+                    lhs: operand_val,
+                    rhs: all1,
+                })?;
                 builder
                     .function_state
                     .type_ctx

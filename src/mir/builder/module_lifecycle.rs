@@ -538,9 +538,9 @@ impl super::MirBuilder {
             if let Some(ref mut function) = self.function_state.current_function {
                 if let Some(block) = function.get_block_mut(block_id) {
                     if !block.is_terminated() {
-                        crate::mir::ssot::cf_common::append_return_to_block_core(
-                            block, Some(result_value), Some(crate::ast::Span::unknown()),
-                        );
+                        block.add_instruction(MirInstruction::Return {
+                            value: Some(result_value),
+                        });
                     }
                     if let Some(mt) = self
                         .function_state

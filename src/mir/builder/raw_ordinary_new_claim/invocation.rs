@@ -386,7 +386,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             return Ok(None);
         };
         let mut state = state.borrow_mut();
-        crate::mir::builder::fields::emit_terminal_i64_field_return(
+        crate::mir::builder::ordinary_new_admission::selected::emit_terminal_i64_field_return(
             builder, &mut state, ledger, prepared,
         ).map(Some)
     }

@@ -215,7 +215,7 @@ impl MirBuilder {
                             return Err("[freeze:contract][implicit-exit/unconsumed]".into());
                         }
                         let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
-                        self.emit_instruction(crate::mir::ssot::cf_common::return_instruction(Some(void_val)))?;
+                        self.emit_instruction(MirInstruction::Return { value: Some(void_val) })?;
                     }
                 }
             }

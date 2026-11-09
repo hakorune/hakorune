@@ -274,7 +274,9 @@ impl MirBuilder {
                         dst: void_value,
                         value: ConstValue::Void,
                     },
-                    crate::mir::ssot::cf_common::return_instruction(Some(void_value)),
+                    MirInstruction::Return {
+                        value: Some(void_value),
+                    },
                 ] {
                     control
                         .cfg

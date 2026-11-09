@@ -4,9 +4,7 @@ use crate::mir::instruction::InvokeCallResultKind;
 mod arguments;
 #[path = "selected/invoke_operation.rs"]
 mod invoke_operation;
-pub(in crate::mir::builder) use invoke_operation::{
-    emit as emit_invoke_operation_v1, emit_control_to_landing_v1 as emit_invoke_control_to_landing_v1,
-};
+pub(in crate::mir::builder) use invoke_operation::emit as emit_invoke_operation_v1;
 #[path = "selected/owned_array.rs"]
 pub(in crate::mir::builder) mod owned_array;
 #[path = "selected/read_argument.rs"]
@@ -22,9 +20,7 @@ pub(in crate::mir::builder) mod root_graph;
 pub(in crate::mir::builder) mod bool_condition;
 #[path = "selected/expression_value.rs"]
 mod expression_value;
-pub(in crate::mir::builder) use expression_value::{
-    emit_scalar_operation_to_landing_v1, emit_scalar_operation_with_pending_v1, emit_string_value,
-};
+pub(in crate::mir::builder) use expression_value::emit_scalar_operation_to_landing_v1;
 pub(in crate::mir) use expression_value::{EmittedExpressionBodyV1, ExpressionOwnedTemporaryV1};
 #[path = "selected/return_expression.rs"]
 mod return_expression;
@@ -48,7 +44,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
-    OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1,
+    OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
     PreparedTerminalMapGetReturnV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -347,23 +343,6 @@ pub(in crate::mir::builder) struct RootGraphEmissionV1 {
     pub argument_cleanup: Option<root_graph::RootArgumentCleanupV1>,
 }
 
-/// The field owner lends its prepared terminal to the existing root cleanup
-/// owner; only this ingress adapter constructs the root-private packet.
-pub(in crate::mir::builder) fn emit_root_field_exit_v1(
-    builder: &mut MirBuilder,
-    state: &mut CallableSemanticLoweringState,
-    ledger: &OrdinaryNewClaimLedgerV1,
-    prepared: crate::mir::normal_callable_semantic_package::PreparedTerminalI64FieldReturnV1,
-    result: ValueId,
-) -> Result<ValueId, String> {
-    emit_root_home_exit_payload(
-        builder, state, ledger, prepared.site.owner(), &prepared.return_site,
-        Some(result), result, Some(RootExitIngress::FieldGet {
-            site: prepared.site, field: prepared.field, base: prepared.base,
-        }),
-    )
-}
-
 fn emit_root_home_exit_payload(
     builder: &mut MirBuilder,
     frame_port: &mut impl RootExitFramePortV1,
@@ -395,7 +374,7 @@ fn emit_root_home_exit_payload(
             result: call.result,
         }),
         Some(RootExitIngress::MapGet { operation, .. }) => Some(operation.clone()),
-        Some(RootExitIngress::FieldGet { field, base, .. }) => Some(MirBuilder::checked_scalar_field_read_operation_v1(*base, *field)),
+        Some(RootExitIngress::FieldGet { field, base, .. }) => Some(InvokeOperation::FieldGet { field: *field, base: *base }),
         None => None,
     };
     let argument_ends = match &ingress {
@@ -549,10 +528,12 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
         .current_block
         .ok_or_else(|| freeze("no-block"))?;
     let result = builder.next_value_id();
-    crate::mir::ssot::binop_lower::emit_binop_with(
-        result, crate::mir::BinaryOp::Add, values[0], values[1],
-        |instruction| builder.emit_instruction(instruction),
-    )?;
+    builder.emit_instruction(MirInstruction::BinOp {
+        dst: result,
+        op: crate::mir::BinaryOp::Add,
+        lhs: values[0],
+        rhs: values[1],
+    })?;
     builder
         .function_state
         .type_ctx
@@ -563,6 +544,61 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
     Ok(result)
 }
 
+pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    prepared: PreparedTerminalI64FieldReturnV1,
+) -> Result<crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1, String> {
+    if prepared.checked {
+        let result = builder.next_value_id();
+        builder.function_state.type_ctx.value_types.insert(result, MirType::Integer);
+        let value = emit_root_home_exit_payload(
+            builder,
+            state,
+            ledger,
+            prepared.site.owner(),
+            &prepared.return_site,
+            Some(result),
+            result,
+            Some(RootExitIngress::FieldGet {
+                site: prepared.site,
+                field: prepared.field,
+                base: prepared.base,
+            }),
+        )?;
+        return Ok(crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1 {
+            value,
+            root_home_exit_emitted: true,
+        });
+    }
+    let block = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    let (result, _) = builder.append_object_field_read_v1(prepared.base, prepared.field, None)?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(result, MirType::Integer);
+    ledger.record_terminal_field_read(
+        &prepared.site,
+        block,
+        result,
+        prepared.base,
+        prepared.field,
+    )?;
+    ledger.record_terminal_i64_field_return(
+        prepared.site.owner(),
+        &prepared.return_site,
+        result,
+    )?;
+    Ok(crate::mir::builder::recursive_child_lowering::TerminalFieldReturnV1 {
+        value: result,
+        root_home_exit_emitted: false,
+    })
+}
 
 /// Emit the bounded readable-Map terminal: one checked `get` read whose i64
 /// projection becomes the returned value. The ingress shares the terminal

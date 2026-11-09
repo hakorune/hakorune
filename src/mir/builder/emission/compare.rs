@@ -57,10 +57,7 @@ fn emit_to_at_recorded(
     let prepared =
         PreparedCanonicalCompareBoolTypeV1::prepare(b.function_state.type_ctx.get_type(dst))
             .map_err(|error| error.to_string())?;
-    let instruction =
-        crate::mir::ssot::cf_common::emit_compare_with(dst, op, lhs, rhs, |instruction| {
-            instruction
-        });
+    let instruction = MirInstruction::Compare { dst, op, lhs, rhs };
     b.emit_instruction_at(block, instruction.clone())?;
     prepared.commit(dst, &mut b.function_state.type_ctx);
     Ok((block, instruction))

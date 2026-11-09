@@ -339,7 +339,12 @@ pub(super) fn cleanup_step_with_writer(
     writer.append_terminated(
         builder,
         origin,
-        super::invoke_operation::instruction(operation, frame, normal, fault),
+        MirInstruction::Invoke {
+            operation,
+            fault_frame: frame,
+            normal_landing: normal,
+            fault_landing: fault,
+        },
         bindings,
     )?;
     Ok(origin)
@@ -372,7 +377,9 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
     writer.append_terminated(
         builder,
         clean,
-        crate::mir::ssot::cf_common::return_instruction(return_value),
+        MirInstruction::Return {
+            value: return_value,
+        },
         &mut bindings,
     )?;
     let mut origins = Vec::with_capacity(operations.len());

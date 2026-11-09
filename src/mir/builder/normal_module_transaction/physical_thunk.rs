@@ -88,7 +88,7 @@ impl VerifiedNormalMainPhysicalThunkDraftV1 {
             Vec::new(),
             effects,
         ));
-        crate::mir::ssot::cf_common::append_return_to_block_core(block, returned, None);
+        block.set_terminator(MirInstruction::Return { value: returned });
 
         verify_completed_draft_typed_value_definitions_v1(&draft, &draft.metadata.value_types)
             .map_err(NormalMainPhysicalThunkErrorV1::TypedDefinition)?;

@@ -36,8 +36,7 @@ impl super::PlanLowerer {
 
         match exit {
             CoreExitPlan::Return(opt_val) => {
-                builder
-                    .emit_instruction(crate::mir::ssot::cf_common::return_instruction(opt_val))?;
+                builder.emit_instruction(MirInstruction::Return { value: opt_val })?;
                 if let Some(current_bb) = builder.function_state.current_block {
                     trace_logger.debug(
                         "lowerer/term_set",

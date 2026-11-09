@@ -1,32 +1,5 @@
 //! Shared physical Invoke/Normal writer; source selection stays with its caller.
 use super::*;
-/// One Invoke layout for both current-block writes and prepared root packets.
-/// The source owner supplies the selected operation and both continuations.
-pub(in crate::mir::builder) fn instruction(
-    operation: InvokeOperation,
-    frame: ValueId,
-    normal: BasicBlockId,
-    fault: BasicBlockId,
-) -> MirInstruction {
-    MirInstruction::Invoke {
-        operation,
-        fault_frame: frame,
-        normal_landing: normal,
-        fault_landing: fault,
-    }
-}
-
-pub(in crate::mir::builder) fn emit_control_to_landing_v1(
-    builder: &mut MirBuilder,
-    writer: &mut RawRootGraphWriterV1,
-    operation: InvokeOperation,
-    frame: ValueId,
-    normal: BasicBlockId,
-    fault: BasicBlockId,
-) -> Result<(BasicBlockId, MirInstruction), String> {
-    writer.emit_current(builder, instruction(operation, frame, normal, fault))
-}
-
 pub(in crate::mir::builder) fn emit(
     builder: &mut MirBuilder,
     frame: ValueId,
@@ -42,15 +15,14 @@ pub(in crate::mir::builder) fn emit(
         .current_block
         .ok_or_else(|| freeze("no-block"))?;
     let normal = builder.next_block_id();
-    let invoke = emit_control_to_landing_v1(
-        builder,
-        &mut RawRootGraphWriterV1,
+    let instruction = MirInstruction::Invoke {
         operation,
-        frame,
-        normal,
-        fault,
-    )?;
-    bindings.push(invoke);
+        fault_frame: frame,
+        normal_landing: normal,
+        fault_landing: fault,
+    };
+    builder.emit_instruction(instruction.clone())?;
+    bindings.push((origin, instruction));
     builder.start_new_block(normal)?;
     let projection = value
         .map(|dst| {

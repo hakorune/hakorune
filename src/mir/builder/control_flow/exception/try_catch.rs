@@ -130,9 +130,9 @@ where
             .emitted()
             && !cleanup_terminated
         {
-            builder.emit_instruction(crate::mir::ssot::cf_common::return_instruction(Some(
-                ret_slot,
-            )))?;
+            builder.emit_instruction(MirInstruction::Return {
+                value: Some(ret_slot),
+            })?;
         }
         crate::mir::builder::emission::constant::emit_void(builder)
     })();

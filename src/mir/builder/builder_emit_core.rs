@@ -89,13 +89,12 @@ impl PreparedCanonicalCompareAppendV1 {
         let lhs_value = lhs.physical_value();
         let rhs_value = rhs.physical_value();
         let physical_value = destination.value();
-        let instruction = crate::mir::ssot::cf_common::emit_compare_with(
-            physical_value,
+        let instruction = MirInstruction::Compare {
+            dst: physical_value,
             op,
-            lhs_value,
-            rhs_value,
-            |instruction| instruction,
-        );
+            lhs: lhs_value,
+            rhs: rhs_value,
+        };
         let span = builder.metadata_ctx.current_span();
         let function = builder
             .function_state
