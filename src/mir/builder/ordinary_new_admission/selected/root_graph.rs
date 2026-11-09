@@ -377,9 +377,7 @@ pub(in crate::mir::builder) fn emit_root_graph_with_arguments_v1(
     writer.append_terminated(
         builder,
         clean,
-        MirInstruction::Return {
-            value: return_value,
-        },
+        crate::mir::ssot::cf_common::return_instruction(return_value),
         &mut bindings,
     )?;
     let mut origins = Vec::with_capacity(operations.len());

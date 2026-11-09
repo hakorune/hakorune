@@ -36,9 +36,9 @@ impl super::MirBuilder {
             self, ok_local, then_block, else_block,
         )?;
         self.start_new_block(then_block)?;
-        self.emit_instruction(super::MirInstruction::Return {
-            value: Some(res_local),
-        })?;
+        self.emit_instruction(crate::mir::ssot::cf_common::return_instruction(Some(
+            res_local,
+        )))?;
         self.start_new_block(else_block)?;
         let val_id = self.next_value_id();
         self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(

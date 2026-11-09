@@ -153,11 +153,9 @@ impl FunctionDraftSealProjectionV1 {
                             )
                         })?;
                     }
-                    function
-                        .blocks
-                        .get_mut(&block)
-                        .expect("validated exit block")
-                        .add_instruction(MirInstruction::Return { value: Some(value) });
+                    crate::mir::ssot::cf_common::append_return_core(
+                        &mut function, block, Some(value), Some(crate::ast::Span::unknown()),
+                    ).expect("validated exit block");
                 }
                 PreparedFunctionExitV1::ExplicitUnit { .. }
                 | PreparedFunctionExitV1::ImplicitUnit { .. } => {
@@ -180,7 +178,9 @@ impl FunctionDraftSealProjectionV1 {
                         dst: value,
                         value: ConstValue::Void,
                     });
-                    block_data.add_instruction(MirInstruction::Return { value: Some(value) });
+                    crate::mir::ssot::cf_common::append_return_to_block_core(
+                        block_data, Some(value), Some(crate::ast::Span::unknown()),
+                    );
                 }
             }
             Ok(())

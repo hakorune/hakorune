@@ -169,7 +169,7 @@ impl CanonicalCfgSessionV1 {
         value: Option<ValueId>,
     ) -> Result<(), CanonicalCfgErrorV1> {
         self.preflight_terminator(function, source)?;
-        self.commit_instruction(function, source, MirInstruction::Return { value }, None);
+        self.commit_return(function, source, value, None);
         Ok(())
     }
 

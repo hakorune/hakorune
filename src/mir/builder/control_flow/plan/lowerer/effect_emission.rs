@@ -441,9 +441,7 @@ impl super::PlanLowerer {
                 builder.ensure_block_exists(return_bb)?;
                 emit_conditional(builder, cond_val, return_bb, fallthrough_target)?;
                 builder.start_new_block(return_bb)?;
-                builder.emit_instruction(MirInstruction::Return {
-                    value: Some(*value),
-                })?;
+                builder.emit_instruction(crate::mir::ssot::cf_common::return_instruction(Some(*value)))?;
             }
             CoreExitPlan::Return(None) => {
                 return Err("[lowerer] ExitIf(Return) requires payload".to_string());

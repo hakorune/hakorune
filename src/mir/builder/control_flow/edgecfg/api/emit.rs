@@ -106,14 +106,7 @@ pub(in crate::mir::builder) fn emit_wires(
             }
             ExitKind::Return => {
                 // Return terminator + metadata（Phase 260 例外ルール: set_terminator + set_return_env）
-                cfg.commit_instruction(
-                    function,
-                    stub.from,
-                    MirInstruction::Return {
-                        value: stub.args.values.first().copied(),
-                    },
-                    None,
-                );
+                cfg.commit_return(function, stub.from, stub.args.values.first().copied(), None);
                 function
                     .get_block_mut(stub.from)
                     .expect("checked source")

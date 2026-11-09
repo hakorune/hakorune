@@ -280,12 +280,10 @@ impl ScriptPhysicalExitCommitV1 {
         };
         let function = builder.function_state.current_function.as_mut().unwrap();
         function.signature.return_type = return_type;
-        control.cfg.commit_instruction(
+        control.cfg.commit_return(
             function,
             block,
-            MirInstruction::Return {
-                value: Some(returned_value),
-            },
+            Some(returned_value),
             Some(crate::ast::Span::unknown()),
         );
         CompletedScriptPhysicalExitCoreV1 {

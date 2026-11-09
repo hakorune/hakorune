@@ -14,10 +14,47 @@ pub(in crate::mir) fn append_instruction_core(
     let block = function
         .get_block_mut(block_id)
         .ok_or_else(|| format!("Basic block {} does not exist", block_id))?;
+    match instruction {
+        MirInstruction::Return { value } => append_return_to_block_core(block, value, span),
+        instruction => match span {
+            Some(span) => block.add_instruction_with_span(instruction, span),
+            None => block.set_terminator(instruction),
+        },
+    }
+    Ok(())
+}
+
+/// Return is nonfaulting; cleanup stays with the source owner. This one
+/// descriptor is also used by prepared packets before their original preflight.
+pub(in crate::mir) fn return_instruction(value: Option<ValueId>) -> MirInstruction {
+    MirInstruction::Return { value }
+}
+
+/// Sole Return installation, including detached draft/thunk blocks. Some span
+/// retains append's duplicate-terminal rejection; None retains set's replacement
+/// and fallback span. These are existing commit policies, not new route flags.
+pub(in crate::mir) fn append_return_to_block_core(
+    block: &mut crate::mir::BasicBlock,
+    value: Option<ValueId>,
+    span: Option<Span>,
+) {
+    let instruction = return_instruction(value);
     match span {
         Some(span) => block.add_instruction_with_span(instruction, span),
         None => block.set_terminator(instruction),
     }
+}
+
+pub(in crate::mir) fn append_return_core(
+    function: &mut MirFunction,
+    source: BasicBlockId,
+    value: Option<ValueId>,
+    span: Option<Span>,
+) -> Result<(), String> {
+    let block = function
+        .get_block_mut(source)
+        .ok_or_else(|| format!("Basic block {} does not exist", source))?;
+    append_return_to_block_core(block, value, span);
     Ok(())
 }
 

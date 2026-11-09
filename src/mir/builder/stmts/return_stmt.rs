@@ -198,9 +198,9 @@ pub(in crate::mir::builder) fn emit_return_from_value(
         }
     } else {
         // Normal return
-        builder.emit_instruction(MirInstruction::Return {
-            value: Some(return_value),
-        })?;
+        builder.emit_instruction(crate::mir::ssot::cf_common::return_instruction(Some(
+            return_value,
+        )))?;
         Ok(return_value)
     }
 }

@@ -39,7 +39,11 @@ impl RawRequiredConditionDraftV1 {
             dst: value,
             value: ConstValue::Integer(1),
         });
-        entry.add_instruction(MirInstruction::Return { value: Some(value) });
+        crate::mir::ssot::cf_common::append_return_to_block_core(
+            entry,
+            Some(value),
+            Some(crate::ast::Span::unknown()),
+        );
         Self {
             draft,
             _seal: RawRequiredConditionDraftSealV1,
