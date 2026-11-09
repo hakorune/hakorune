@@ -77,3 +77,5 @@ B25. 元の所有入力を持ち既存の終端観測がないInstance/Object Re
 B26. 共通評価で完成した所有入力Static localは同じ元Call観測と完成入力の同一性から既存route集合へ参加し、選択集合への所属だけで実行やEndの権限を発行しない。
 
 B27. 共通式内の各Call入場後は同じ元take証拠でcallerの未移転Home列を進め、後続のCall・Core・一時値EndのFaultでは移転済みHomeを含めず、元pre-entry観測は改変せず生成側と実MIR照合側で同じ契約を検査する。
+
+B28. 独立所有検証はpayloadを持たないCarriersOnly辺を所有移転なしとして検査し、payloadを持つ辺と欠落した式結果は従来どおり拒否し、None ownership分類だけをscalar証拠にしない。
