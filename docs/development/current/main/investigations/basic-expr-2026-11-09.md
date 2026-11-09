@@ -92,3 +92,5 @@ B33. 元のOperation・Initializer・再代入のchecked producerを読むReturn
 B34. 整数literalのalias読取は保持済みの元root binding・root valueと全Copy列を照合して元producerを貸し、alias側のinitializer CopyをConstとして扱わず、実MIRの一意なConst値との独立照合を保持する。
 
 B35. i64 Returnの新しい走査需要は同じreadのsigned SUMとalias終点Expressionの肯定証拠から選び、Entry・未対応Join・Unknown・循環を新需要へ含めず、値のclassと実行の権限は既存ownerに残す。
+
+B36. 純scalarのReturn readは既存raw writerが一度取得したExactLexicalReadと元CurrentScalarReadを同じ出口へ保持し、元producer・Copy列・実Returnを最終projection後にも照合したreceiptだけで既存Static V2を選び、FaultFrameやABIや別台帳を追加しない。
