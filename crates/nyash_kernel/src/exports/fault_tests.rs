@@ -514,8 +514,8 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         ) -> u32;
         #[link_name = "nyash.string.checked_end_v1"]
         fn checked_end(storage: *mut std::ffi::c_void, site: u64, handle: u64, token: u64) -> u32;
-        #[link_name = "nyash.string.checked_length_v1"]
-        fn checked_length(storage: *mut std::ffi::c_void, site: u64, value: *const Operand, out: *mut i64) -> u32;
+        #[link_name = "nyash.string.code_point_count_v1"]
+        fn code_point_count(value: *const Operand, out: *mut i64) -> u32;
         #[link_name = "nyash.string.checked_materialize_v1"]
         fn checked_materialize(storage: *mut std::ffi::c_void, site: u64, value: *const Operand, out: *mut OwnedText) -> u32;
         #[link_name = "nyash.string.checked_substring_v1"]
@@ -630,7 +630,7 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         assert_eq!(checked_add(pointer, 20, &literal("aé界z".as_bytes()), &literal(b""), &mut base), 0);
         for operand in [literal("aé界z".as_bytes()), owned(base)] {
             let mut count = 999;
-            assert_eq!(checked_length(pointer, 21, &operand, &mut count), 0);
+            assert_eq!(code_point_count(&operand, &mut count), 0);
             assert_eq!(count, 4);
             for (start, end, expected) in [
                 (1, 3, "é界"), (-5, 99, "aé界z"), (3, 1, ""),
@@ -653,7 +653,7 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
             Operand { token: base.token + 1, ..owned(base) }] {
             let mut scalar = 999;
             let mut slice = sentinel;
-            assert_eq!(checked_length(pointer, 25, &bad, &mut scalar), 2);
+            assert_eq!(code_point_count(&bad, &mut scalar), 2);
             assert_eq!(checked_index_of(pointer, 25, &bad, &literal(b""), &mut scalar), 2);
             assert_eq!(checked_index_of(pointer, 25, &owned(base), &bad, &mut scalar), 2);
             assert_eq!(checked_materialize(pointer, 25, &bad, &mut slice), 2);
@@ -666,7 +666,7 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         assert_eq!(checked_substring(pointer, 26, &owned(base), 4, 0, &mut empty), 0);
         assert_ne!(full.handle, empty.handle);
         assert_ne!(full.token, empty.token);
-        assert_eq!(checked_length(pointer, 27, &owned(base), std::ptr::null_mut()), 2);
+        assert_eq!(code_point_count(&owned(base), std::ptr::null_mut()), 2);
         assert_eq!(checked_substring(pointer, 27, &owned(base), 0, 1, std::ptr::null_mut()), 2);
         assert_eq!(checked_index_of(pointer, 27, &owned(base), &literal(b""), std::ptr::null_mut()), 2);
         assert_eq!(checked_end(pointer, 28, base.handle, base.token), 0);
@@ -675,7 +675,7 @@ fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
         assert_eq!(checked_end(pointer, 29, empty.handle, empty.token), 0);
         assert_eq!(checked_end(pointer, 29, full.handle, full.token), 0);
         let mut count = 999;
-        assert_eq!(checked_length(pointer, 30, &literal(b"\0"), &mut count), 0);
+        assert_eq!(code_point_count(&literal(b"\0"), &mut count), 0);
         assert_eq!(count, 1);
         assert!(frame.diagnostics().unwrap().0.is_none());
         // Existing primary stays primary, IO fault becomes suppressed; every
@@ -874,7 +874,7 @@ fn checked_dynamic_invocation_publishes_and_ends_one_opaque_carrier() {
         let owned = TextOperand { kind: 2, reserved: 0, bytes: std::ptr::null(), len: 0,
             handle: snapshot.handle, token: snapshot.token, integer: 0 };
         let mut length = -1;
-        assert_eq!(text_api::length(type_pointer, 53, &owned, &mut length), 0);
+        assert_eq!(text_api::code_point_count(&owned, &mut length), 0);
         assert_eq!(length, 1, "Text snapshot outlives the borrowed carrier");
         assert_eq!(text_api::end(type_pointer, 54, snapshot.handle, snapshot.token), 0);
     }

@@ -26,6 +26,7 @@ static int lv4_string_native_operand(yyjson_val* fn, yyjson_val* operand,
      Dynamic formal. That source lane belongs to indexed admission. */
   if (lv4_is(operand, "kind", "tagged_dynamic")) return 0;
   if (lv4_is(operand, "kind", "normal_integer")) return kind == LV4_I64;
+  if (!lv4_is(operand, "kind", "owned_string") && !lv4_is(operand, "kind", "text_operand")) return 0;
   int origin = lv4_native_origin(fn, value, budget);
   return kind == LV4_OWNED_STRING && origin >= 0 && state[origin] > LV4_STRING_RANK_BASE;
 }
@@ -68,6 +69,10 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
               ? state[origin] <= LV4_STRING_RANK_BASE : state[origin] != 1)) return 0;
       int result_kind = lv4_type(fn, lv4_u(ins, "dst"), budget);
       if (result_kind == LV4_I64 || result_kind == LV4_BOOL) state[origin] = 0;
+    } else if (lv4_is(ins, "op", "string_length")) {
+      if (faulted || lv4_string_pending(state, count) || lv4_string_held(state, count) ||
+          lv4_string_call_pending(state, count) ||
+          !lv4_string_native_operand(fn, yyjson_obj_get(ins, "value"), state, budget)) return 0;
     } else if (lv4_is(ins, "op", "string_residence_install")) {
       uint32_t value = lv4_u(ins, "value");
       yyjson_val* previous = yyjson_obj_get(ins, "replaces");
@@ -104,9 +109,13 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* inco
       memcpy(normal, state, count * sizeof(*state));
     } else if (hako_physical_string_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
       if (state[bi] || lv4_is(op, "kind", "string_field_materialize")) return 0;
-      for (size_t role = 0; role < hako_physical_string_operand_count(op); role++)
-        if (!lv4_string_native_operand(fn,
-            hako_physical_string_operand_at(op, role), state, budget)) return 0;
+      for (size_t role = 0; role < hako_physical_string_operand_count(op); role++) {
+        yyjson_val* operand = hako_physical_string_operand_at(op, role);
+        if (lv4_is(op, "kind", "string_substring") && role > 0) {
+          if (!lv4_is(operand, "kind", "normal_integer") ||
+              lv4_type(fn, lv4_u(operand, "value"), budget) != LV4_I64) return 0;
+        } else if (!lv4_string_native_operand(fn, operand, state, budget)) return 0;
+      }
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) == 1 &&
           !lv4_string_push(state, count, &normal[bi])) return 0;
       if (hako_physical_string_result(yyjson_get_str(yyjson_obj_get(op, "kind"))) >= 2) normal[bi] = 1;

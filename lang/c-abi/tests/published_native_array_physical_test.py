@@ -106,7 +106,7 @@ def checked_string_physical():
              "nyash.array.checked_append_i64_v1", "nyash.array.checked_append_bool_v1",
              "nyash.array.checked_append_f64_v1", "nyrt_handle_release_h",
              "nyash.string.checked_add_v1", "nyash.string.checked_print_v1", "nyash.string.checked_end_v1",
-             "nyash.string.checked_materialize_v1", "nyash.string.checked_length_v1", "nyash.string.checked_substring_v1", "nyash.string.checked_substring_operands_v1", "nyash.string.checked_index_of_v1", "nyash.string.checked_compare_v1",
+             "nyash.string.checked_materialize_v1", "nyash.string.checked_substring_operands_v1", "nyash.string.checked_compare_v1",
              "nyash.fault.report_final_v1", "nyash.fault.frame_dispose_v1"]
     def execute(data, defines=(), status=0, endings=(), payload=None, primary=None):
         compile_input(data, True)
@@ -180,6 +180,15 @@ def checked_string_physical():
         bare["functions"][0]["blocks"] = [block(0, inv("string_print", 1, 2, value=literal("猫\0")), entry),
             block(1, {"op": "return", "value": 4}, [{"op": "const_i64", "dst": 4, "value": 0}]), block(2, fault)]
         execute(bare, endings=[], payload="猫\0\n".encode())
+        # Both physical cohorts borrow live Text through normal rows.
+        counted = copy.deepcopy(data)
+        count_block = next(b for b in counted["functions"][0]["blocks"] if b["id"] == 2)
+        count_block["instructions"] += [
+            {"index":1,"instruction":{"op":"string_length","dst":88,"value":owned(3)}},
+            {"index":2,"instruction":{"op":"string_length","dst":89,"value":literal("e\u0301😀")}}]
+        count_block["terminator"]["index"] = 3
+        count_block["terminator"]["instruction"]["operation"]["value"] = {"kind":"normal_integer","value":88}
+        execute(counted, endings=[1,0], payload=b"22\n")
         if native:
             mixed = copy.deepcopy(data)
             f = mixed["functions"][0]; f["entry"] = 2000
@@ -218,6 +227,10 @@ def checked_string_physical():
             elif change == "copy":
                 b["instructions"].append({"index": 1, "instruction": {"op": "copy", "src": 3, "dst": 100}})
                 b["terminator"]["index"] = 2
+                if not native:
+                    # A descriptor Copy is a legal readonly alias in indexed V4,
+                    # but cannot acquire the original pair's End authority.
+                    first(bad, "string_end")["operation"]["value"] = 100
             else:
                 b = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 10)
                 b["terminator"] = {"index": 0, "instruction": fault}; b["edges"] = []
@@ -228,9 +241,10 @@ def checked_string_physical():
             block(0, inv("string_materialize", 1, 90, value=literal("aé界z")),
                   [entry[0], {"op":"const_i64", "dst":1, "value":1}, {"op":"const_i64", "dst":4, "value":3},
                    {"op":"const_i64", "dst":5, "value":0}]),
-            block(1, inv("string_substring", 2, 10, value=owned(2), start=1, end=4), [projection(0,2)]),
-            block(2, inv("string_length", 3, 20, value=owned(3)), [projection(1,3)]),
-            block(3, inv("string_index_of", 4, 20, value=owned(3), needle=literal("界")), [projection(2,7)]),
+            block(1, inv("string_substring", 2, 10, value=owned(2), start={"kind":"normal_integer", "value":1}, end={"kind":"normal_integer", "value":4}), [projection(0,2)]),
+            block(2, {"op":"jump", "target":3, "args":None}, [projection(1,3),
+                {"op":"string_length", "dst":7, "value":owned(3)}]),
+            block(3, inv("string_index_of", 4, 20, value=owned(3), needle=literal("界"))),
             block(4, inv("string_print", 5, 20, value={"kind":"normal_integer", "value":7}), [projection(3,8)]),
             block(5, inv("string_print", 6, 20, value={"kind":"normal_integer", "value":8})),
             block(6, inv("string_print", 7, 20, value=owned(3))),
@@ -247,11 +261,43 @@ def checked_string_physical():
             if b["terminator"]["instruction"]["op"] == "invoke": b["terminator"]["instruction"]["operation"]["site"] = 200 + i
         cp["functions"][0]["blocks"] = cp_rows
         execute(cp, endings=[1,0], payload="2\n1\né界\n".encode())
+        # Several normal reads in one block have separate prologue slots and literals.
+        multiple = copy.deepcopy(cp)
+        text_block = next(b for b in multiple["functions"][0]["blocks"] if b["id"] == 2)
+        for dst, text in [(44, ""), (45, "e\u0301😀")]:
+            text_block["instructions"].append({"index":len(text_block["instructions"]),
+                "instruction":{"op":"string_length", "dst":dst, "value":literal(text)}})
+        text_block["terminator"]["index"] = len(text_block["instructions"])
+        execute(multiple, endings=[1,0], payload="2\n1\né界\n".encode())
+        for mutation in ["normal_integer", "normal_bool", "tagged_dynamic", "dynamic_carrier",
+                "borrowed_text", "frame", "site", "normal", "fault", "ended", "before_definition"]:
+            bad = copy.deepcopy(cp)
+            block2 = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)
+            length = block2["instructions"][1]["instruction"]
+            if mutation in ["normal_integer", "normal_bool", "tagged_dynamic", "dynamic_carrier"]:
+                length["value"] = {"kind":mutation, "value":1}
+            elif mutation == "borrowed_text":
+                length["value"] = {"kind":"borrowed_text", "value":3}
+            elif mutation in ["frame", "site", "normal", "fault"]:
+                length[mutation] = 0
+            elif mutation == "before_definition":
+                block2["instructions"][0]["instruction"], length = length, block2["instructions"][0]["instruction"]
+                block2["instructions"][1]["instruction"] = length
+            else:
+                length = copy.deepcopy(length)
+                length["dst"] = 99
+                end_block = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 1007)
+                end_block["instructions"] = [{"index":0,"instruction":length}]
+                end_block["terminator"]["index"] = 1
+            compile_input(bad, False)
+
         execute(cp, ["-DTEST_FAIL_STRING_SUBSTRING"], 70, [0], primary=9304)
-        for read_at in [1,2]: execute(cp, [f"-DTEST_FAIL_STRING_READ_AT={read_at}"], 70, [1,0], primary=9305)
+        # Inject only genuinely fallible I/O, after both String acquisitions.
+        # Both ordinal failures must release the same two live pairs.
+        for read_at in [1,2]: execute(cp, [f"-DTEST_FAIL_STRING_PRINT_AT={read_at}"], 70, [1,0], primary=9305)
         for mutation in ["owned_bound", "integer_receiver", "integer_needle", "end_scalar", "slice_scalar"]:
             bad = copy.deepcopy(cp)
-            if mutation == "owned_bound": first(bad, "string_substring")["operation"]["start"] = 2
+            if mutation == "owned_bound": first(bad, "string_substring")["operation"]["start"] = owned(2)
             elif mutation == "integer_receiver": first(bad, "string_materialize")["operation"]["value"] = {"kind":"normal_integer", "value":1}
             elif mutation == "integer_needle": first(bad, "string_index_of")["operation"]["needle"] = {"kind":"normal_integer", "value":1}
             elif mutation == "end_scalar": first(bad, "string_end")["operation"]["value"] = 7

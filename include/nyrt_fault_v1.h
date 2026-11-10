@@ -145,6 +145,9 @@ uint32_t nyrt_string_checked_end_v1(void *, uint64_t, uint64_t, uint64_t)
 uint32_t nyrt_string_checked_compare_v1(void *, uint64_t, uint32_t,
     const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.string.checked_compare_v1");
+/* Borrow-only Unicode code point count: 0 writes out; 2 leaves out unchanged. */
+uint32_t nyrt_string_code_point_count_v1(const NyrtStringOperandV1 *, int64_t *)
+    __asm__("nyash.string.code_point_count_v1");
 uint32_t nyrt_string_checked_length_v1(void *, uint64_t, const NyrtStringOperandV1 *, int64_t *)
     __asm__("nyash.string.checked_length_v1");
 /* Text-only borrowed input; Normal publishes an independent pair, never Ends input. */

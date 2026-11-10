@@ -552,7 +552,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   const char* op = instruction ? yyjson_get_str(yyjson_obj_get(instruction, "op")) : NULL;
   uint32_t a, b, c;
   if (!op) return 0;
-  if (native && strcmp(op, "const_i64") && strcmp(op, "const_bool") &&
+  if (native && strcmp(op, "string_length") && strcmp(op, "const_i64") && strcmp(op, "const_bool") &&
       strcmp(op, "const_f64_bits") && strcmp(op, "const_unit") &&
       strcmp(op, "copy") && strcmp(op, "fault_frame_enter") &&
       strcmp(op, "invoke") && strcmp(op, "invoke_normal_result") &&
@@ -673,6 +673,13 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
         hako_physical_u32(yyjson_obj_get(instruction, "value"), &c) &&
         hako_physical_value_available_at(function, c, current_block, current_index) &&
         hako_physical_u64(yyjson_obj_get(instruction, "site"), NULL);
+  }
+  if (!strcmp(op, "string_length")) {
+    static const char* const keys[] = {"op", "dst", "value"};
+    return hako_physical_exact_keys(instruction, keys, 3) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
+        hako_physical_string_operand(function, yyjson_obj_get(instruction, "value"),
+            current_block, current_index, 1, 0, 0);
   }
   if (!strcmp(op, "array_length")) {
     static const char* const keys[] = {"op", "array", "dst"};

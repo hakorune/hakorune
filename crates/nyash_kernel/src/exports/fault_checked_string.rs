@@ -230,6 +230,36 @@ unsafe fn comparable(frame: &mut FaultFrame, site: u64, value: *const Operand) -
     }
 }
 
+/// Count a live Text borrow without allocation or a language Fault frame.
+/// Invalid descriptors leave the caller's output unchanged.
+#[export_name = "nyash.string.code_point_count_v1"]
+pub unsafe extern "C" fn code_point_count(value: *const Operand, out: *mut i64) -> u32 {
+    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
+    let value = match unsafe { operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
+    let count = match value.kind {
+        STATIC_TEXT if value.handle == 0 && value.token == 0 && value.integer == 0 => {
+            if value.len > isize::MAX as usize || (value.len != 0 && value.bytes.is_null()) {
+                return Status::InvalidContract as u32;
+            }
+            let bytes = if value.len == 0 { &[] } else {
+                unsafe { std::slice::from_raw_parts(value.bytes, value.len) }
+            };
+            std::str::from_utf8(bytes).map(|text| text.chars().count()).ok()
+        }
+        OWNED_TEXT if value.bytes.is_null() && value.len == 0 && value.integer == 0 => {
+            NonZeroU64::new(value.token).and_then(|token|
+                lease::with_end_authorized_text_pair(value.handle, token, |text| text.chars().count()).ok())
+        }
+        _ => None,
+    };
+    let Some(count) = count.and_then(|count| i64::try_from(count).ok()) else {
+        return Status::InvalidContract as u32;
+    };
+    // The lease/handle callback has returned and released its locks.
+    unsafe { out.write(count) };
+    Status::Normal as u32
+}
+
 /// Fixed CodePoint contract. No legacy indexing toggle or handle dispatch.
 #[export_name = "nyash.string.checked_length_v1"]
 pub unsafe extern "C" fn length(storage: *mut c_void, _site: u64, value: *const Operand, out: *mut i64) -> u32 {

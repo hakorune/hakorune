@@ -227,7 +227,7 @@ int main(void) {
   assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
   assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,171,field_parent,999,0,&text_value,&field_text[field_profile-1],field_outcome)==1);
   NyrtStringOperandV1 borrowed={NYRT_STRING_OWNED_TEXT_V1,0,NULL,0,text_pair.handle,text_pair.token,0};
-  assert(nyrt_string_checked_length_v1(frame,172,&borrowed,&value)==0 && value==3);
+  assert(nyrt_string_code_point_count_v1(&borrowed,&value)==0 && value==3);
   assert(nyrt_object_checked_dynamic_replace_v1(frame,field_profile,173,field_parent,940,0,&text_value,&field_text[field_profile-1],field_outcome)==0);
   field_finish(frame,174);
   assert(nyrt_object_checked_dynamic_get_v1(frame,field_profile,175,field_parent,940,0,NYRT_FIELD_TEXT_V1,&seen)==0);
@@ -235,7 +235,7 @@ int main(void) {
   assert(nyrt_object_field_outcome_init_v1(field_outcome)==0);
   assert(nyrt_object_checked_dynamic_take_v1(frame,field_profile,176,field_parent,940,0,field_outcome)==0);
   field_finish(frame,177);
-  assert(nyrt_string_checked_length_v1(frame,178,&borrowed,&value)==2);
+  assert(nyrt_string_code_point_count_v1(&borrowed,&value)==2);
   /* Direct Array Home uses the existing source-selected release owner. */
   int64_t array=0; assert(nyrt_array_checked_new_v1(frame,180,&array)==0);
   assert(nyrt_array_checked_claim_v1(frame,181,array,NYRT_ARRAY_ELEMENT_I64_V1)==0);
@@ -326,7 +326,7 @@ int main(void) {
     NyrtStringOperandV1 map_key_loan={NYRT_STRING_OWNED_TEXT_V1,0,NULL,0,map_key_pair.handle,map_key_pair.token,0};
     assert(nyrt_object_checked_map_field_has_v1(frame,1,190,field_parent,940,0,&map_key_loan,&value)==0 && value==1);
     assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==0 && value==child);
-    assert(nyrt_string_checked_length_v1(frame,190,&map_key_loan,&value)==0 && value==5);
+    assert(nyrt_string_code_point_count_v1(&map_key_loan,&value)==0 && value==5);
     /* A field-entry install must retain caller Home on every precommit error,
      * then expose the new child BEFORE detached old End (which Faults here).
      * Reuse the leased Text: install must neither consume nor materialize it. */
@@ -355,7 +355,7 @@ int main(void) {
     assert(nyrt_map_outcome_dispose_v1(out)==0);
     assert(nyrt_object_checked_field_get_i64_v1(1,old_child,932,0,&value)==2);
     assert(nyrt_object_checked_map_field_get_v1(frame,1,190,field_parent,940,0,&map_key_loan,932,&value)==0 && value==replacement);
-    assert(nyrt_string_checked_length_v1(frame,190,&map_key_loan,&value)==0 && value==5);
+    assert(nyrt_string_code_point_count_v1(&map_key_loan,&value)==0 && value==5);
     child=replacement;
 
     assert(nyrt_string_checked_end_v1(frame,190,map_key_pair.handle,map_key_pair.token)==0);

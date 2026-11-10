@@ -150,16 +150,16 @@ uint32_t wrap_string_materialize(void* f, uint64_t s, const NyrtStringOperandV1*
   if (!status) observe_string_acquisition(out);
   return status;
 }
-uint32_t real_string_substring(void*, uint64_t, const NyrtStringOperandV1*, int64_t, int64_t, NyrtOwnedStringV1*)
-    __asm__("__real_nyash.string.checked_substring_v1");
-uint32_t wrap_string_substring(void*, uint64_t, const NyrtStringOperandV1*, int64_t, int64_t, NyrtOwnedStringV1*)
-    __asm__("__wrap_nyash.string.checked_substring_v1");
-uint32_t wrap_string_substring(void* f, uint64_t s, const NyrtStringOperandV1* value,
-    int64_t start, int64_t end, NyrtOwnedStringV1* out) {
+uint32_t real_string_substring_operands(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__real_nyash.string.checked_substring_operands_v1");
+uint32_t wrap_string_substring_operands(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__wrap_nyash.string.checked_substring_operands_v1");
+uint32_t wrap_string_substring_operands(void* f, uint64_t s, const NyrtStringOperandV1* value,
+    const NyrtStringOperandV1* start, const NyrtStringOperandV1* end, NyrtOwnedStringV1* out) {
 #ifdef TEST_FAIL_STRING_SUBSTRING
   return nyrt_fault_record_static_v1(f, 9304, s, 0, 0);
 #else
-  uint32_t status = real_string_substring(f, s, value, start, end, out);
+  uint32_t status = real_string_substring_operands(f, s, value, start, end, out);
   if (!status) {
     observe_string_acquisition(out);
   }
@@ -226,40 +226,24 @@ uint32_t wrap_string_compare(void* f, uint64_t s, uint32_t op,
   return status;
 #endif
 }
-static unsigned string_reads;
-uint32_t real_string_length(void*, uint64_t, const NyrtStringOperandV1*, int64_t*)
-    __asm__("__real_nyash.string.checked_length_v1");
-uint32_t wrap_string_length(void*, uint64_t, const NyrtStringOperandV1*, int64_t*)
-    __asm__("__wrap_nyash.string.checked_length_v1");
-uint32_t wrap_string_length(void* f, uint64_t s, const NyrtStringOperandV1* value, int64_t* out) {
-  ++string_reads;
-#ifdef TEST_FAIL_STRING_READ_AT
-  if (string_reads == TEST_FAIL_STRING_READ_AT) return nyrt_fault_record_static_v1(f, 9305, s, 0, 0);
-#endif
-  return real_string_length(f, s, value, out);
-}
-uint32_t real_string_index_of(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, int64_t*)
-    __asm__("__real_nyash.string.checked_index_of_v1");
-uint32_t wrap_string_index_of(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, int64_t*)
-    __asm__("__wrap_nyash.string.checked_index_of_v1");
-uint32_t wrap_string_index_of(void* f, uint64_t s, const NyrtStringOperandV1* value, const NyrtStringOperandV1* needle, int64_t* out) {
-  ++string_reads;
-#ifdef TEST_FAIL_STRING_READ_AT
-  if (string_reads == TEST_FAIL_STRING_READ_AT) return nyrt_fault_record_static_v1(f, 9305, s, 0, 0);
-#endif
-  return real_string_index_of(f, s, value, needle, out);
-}
 uint32_t real_string_print(void*, uint64_t, const NyrtStringOperandV1*)
     __asm__("__real_nyash.string.checked_print_v1");
 uint32_t wrap_string_print(void*, uint64_t, const NyrtStringOperandV1*)
     __asm__("__wrap_nyash.string.checked_print_v1");
+static unsigned string_prints;
 uint32_t wrap_string_print(void* f, uint64_t s, const NyrtStringOperandV1* value) {
+  ++string_prints;
+#ifdef TEST_FAIL_STRING_PRINT_AT
+  if (string_prints == TEST_FAIL_STRING_PRINT_AT)
+    return nyrt_fault_record_static_v1(f, 9305, s, 0, 0);
+#endif
 #ifdef TEST_FAIL_STRING_PRINT
   return nyrt_fault_record_static_v1(f, 9302, s, 0, 0);
 #else
   return real_string_print(f,s,value);
 #endif
 }
+
 uint32_t real_string_end(void*, uint64_t, uint64_t, uint64_t)
     __asm__("__real_nyash.string.checked_end_v1");
 uint32_t wrap_string_end(void*, uint64_t, uint64_t, uint64_t)
