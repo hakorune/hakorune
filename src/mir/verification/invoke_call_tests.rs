@@ -513,3 +513,15 @@ fn cataloged_call_checks_bool_and_unit_results_against_the_callee_declaration() 
         );
     }
 }
+
+#[test]
+fn cataloged_call_checks_length_result_type_without_metadata() {
+    let mut module = call_module(cataloged_callee(crate::mir::MirType::Bool));
+    let caller = module.functions.get_mut("invoke_control_test").unwrap();
+    caller.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[1] =
+        MirInstruction::StringLength { dst: ValueId(1), value:
+            crate::mir::instruction::StringInvokeOperand::StaticText { utf8: "x".into() } };
+    assert!(!caller.metadata.value_types.contains_key(&ValueId(1)));
+    let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+    assert!(format!("{errors:?}").contains("call-argument-type-drift"), "{errors:?}");
+}

@@ -70,6 +70,7 @@ fn is_tagged_dynamic_formal(function: &MirFunction, value: ValueId) -> bool {
 mod source;
 #[path = "invoke_string_lifetime.rs"]
 mod lifetime;
+pub(super) use lifetime::read::has_length_origin;
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     lifetime::check(function, None).map_err(|(_, reason, _)| reason)
@@ -442,8 +443,7 @@ mod tests {
         if let Some(MirInstruction::Invoke { operation: InvokeOperation::String(Op::Substring { start, .. }), .. }) =
             &mut bad_slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator { *start = Operand::NormalInteger(ValueId(2)); }
         assert_eq!(check(&bad_slice), Err("string-integer-domain"));
-        for operation in [Op::Length { value: Operand::OwnedString(ValueId(3)) },
-            Op::IndexOf { value: Operand::OwnedString(ValueId(3)), needle: Operand::StaticText { utf8: "界".into() } }] {
+        for operation in [Op::IndexOf { value: Operand::OwnedString(ValueId(3)), needle: Operand::StaticText { utf8: "界".into() } }] {
             let mut read = good.clone();
             if let Some(MirInstruction::Invoke { operation: slot, .. }) = &mut read.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator {
                 *slot = InvokeOperation::String(operation);
@@ -600,11 +600,49 @@ mod tests {
         owned.blocks.get_mut(&BasicBlockId(1)).unwrap().instructions.insert(0,
             MirInstruction::StringLength { dst: ValueId(45), value: Operand::OwnedString(ValueId(2)) });
         assert_eq!(check(&owned), Err("string-read-before-definition"));
+        // Surviving real Fault paths still forbid even a static read before cleanup.
+        for value in [Operand::OwnedString(ValueId(3)), Operand::StaticText { utf8: "live".into() }] {
+            let mut faulted = graph();
+            faulted.blocks.get_mut(&BasicBlockId(20)).unwrap().instructions.push(
+                MirInstruction::StringLength { dst: ValueId(45), value });
+            assert_eq!(check(&faulted), Err("string-effect-after-fault"));
+        }
         // A previously valid pair is not readable after its End.
         let mut ended = graph();
         ended.blocks.get_mut(&BasicBlockId(4)).unwrap().instructions.push(
             MirInstruction::StringLength { dst: ValueId(45), value: Operand::OwnedString(ValueId(3)) });
         assert_eq!(check(&ended), Err("string-borrow-not-live"));
+    }
+
+    #[test]
+    fn string_length_phi_preserves_i64_without_type_metadata() {
+        let mut function = MirFunction::new(FunctionSignature {
+            name: "count_phi".into(), params: vec![], return_type: MirType::Integer,
+            effects: EffectMask::READ,
+        }, BasicBlockId(0));
+        let mut entry = BasicBlock::new(BasicBlockId(0));
+        entry.add_instruction(MirInstruction::StringLength { dst: ValueId(1),
+            value: Operand::StaticText { utf8: "猫".into() } });
+        entry.add_instruction(MirInstruction::Const { dst: ValueId(2), value: ConstValue::Bool(true) });
+        entry.add_instruction(MirInstruction::Const { dst: ValueId(5), value: ConstValue::Integer(0) });
+        entry.set_terminator(MirInstruction::Branch { condition: ValueId(2), then_bb: BasicBlockId(1),
+            else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None });
+        function.add_block(entry);
+        for id in [1, 2] {
+            let mut branch = BasicBlock::new(BasicBlockId(id));
+            branch.set_terminator(MirInstruction::Jump { target: BasicBlockId(3), edge_args: None });
+            function.add_block(branch);
+        }
+        let mut join = BasicBlock::new(BasicBlockId(3));
+        join.add_instruction(MirInstruction::Phi { dst: ValueId(4), type_hint: None,
+            inputs: vec![(BasicBlockId(1), ValueId(1)), (BasicBlockId(2), ValueId(5))] });
+        join.set_terminator(MirInstruction::Return { value: Some(ValueId(4)) });
+        function.add_block(join);
+        assert_eq!(check(&function), Ok(()));
+        assert!(super::super::check_function(&function).is_ok());
+        function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions[2] =
+            MirInstruction::Const { dst: ValueId(5), value: ConstValue::Bool(false) };
+        assert_eq!(check(&function), Err("string-length-result-type"));
     }
 
 }

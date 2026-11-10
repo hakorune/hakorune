@@ -85,6 +85,13 @@ pub(super) fn check_call_edge(
         .zip(params.iter().skip(receiver_params))
         .enumerate()
     {
+        if super::string::has_length_origin(function, *argument)
+            && !matches!(parameter, crate::mir::MirType::Integer | crate::mir::MirType::Unknown)
+        {
+            errors.push(call_argument_drift(function, callee, block,
+                format!("argument={index} value={argument:?} actual=StringLength(I64) formal={parameter:?}")));
+            return;
+        }
         if let Some((expected, object)) = take_slots.and_then(|slots| slots.get(&index)) {
             if !source_bound || expected != argument || module.canonical_object_definition(*object).is_none()
                 || !matches!(parameter, crate::mir::MirType::Box(_))

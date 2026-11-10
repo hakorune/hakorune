@@ -163,7 +163,10 @@ fn check_available<'a>(
 }
 
 /// Derive the scalar result from actual definitions, never an absent type hint.
-fn has_length_origin(function: &MirFunction, value: ValueId) -> bool {
+pub(in crate::mir::verification) fn has_length_origin(
+    function: &MirFunction,
+    value: ValueId,
+) -> bool {
     fn walk(
         function: &MirFunction,
         value: ValueId,
@@ -213,6 +216,17 @@ pub(super) fn check_i64_results(function: &MirFunction) -> Result<(), &'static s
         }) {
             return Err("string-length-result-type");
         }
+        if let MirInstruction::Phi {
+            dst,
+            inputs,
+            type_hint,
+        } = row
+        {
+            if has_length_origin(function, *dst) && (type_hint.as_ref().is_some_and(|ty| *ty != MirType::Integer) || inputs.iter().any(|(_, value)| {
+                matches!(intrinsic_scalar_type(function, *value, &mut std::collections::BTreeSet::new()),
+                    Some(ty) if ty != MirType::Integer)
+            })) { return Err("string-length-result-type"); }
+        }
         if matches!(row, MirInstruction::Branch { condition, .. } if has_length_origin(function, *condition))
         {
             return Err("string-length-result-type");
@@ -224,4 +238,59 @@ pub(super) fn check_i64_results(function: &MirFunction) -> Result<(), &'static s
         }
     }
     Ok(())
+}
+
+/// Independent primitive definitions expose contradictions without upgrading
+/// unknown legacy values from cached type metadata. C checks complete PHI kinds.
+fn intrinsic_scalar_type(
+    function: &MirFunction,
+    value: ValueId,
+    seen: &mut std::collections::BTreeSet<ValueId>,
+) -> Option<crate::mir::MirType> {
+    use crate::mir::{ConstValue, MirType};
+    if !seen.insert(value) {
+        return None;
+    }
+    let definition = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find(|row| row.dst_value() == Some(value));
+    match definition {
+        Some(
+            MirInstruction::StringLength { .. }
+            | MirInstruction::Const {
+                value: ConstValue::Integer(_),
+                ..
+            },
+        ) => Some(MirType::Integer),
+        Some(
+            MirInstruction::Compare { .. }
+            | MirInstruction::Const {
+                value: ConstValue::Bool(_),
+                ..
+            },
+        ) => Some(MirType::Bool),
+        Some(MirInstruction::Const {
+            value: ConstValue::Float(_),
+            ..
+        }) => Some(MirType::Float),
+        Some(MirInstruction::InvokeNormalResult { invoke_block, .. }) => {
+            let MirInstruction::Invoke { operation, .. } =
+                function.blocks.get(invoke_block)?.terminator.as_ref()?
+            else {
+                return None;
+            };
+            match operation.normal_result_kind()? {
+                crate::mir::instruction::InvokeNormalResultKind::I64 => Some(MirType::Integer),
+                crate::mir::instruction::InvokeNormalResultKind::Bool => Some(MirType::Bool),
+                crate::mir::instruction::InvokeNormalResultKind::OwnedString => {
+                    Some(MirType::String)
+                }
+                _ => None,
+            }
+        }
+        Some(MirInstruction::Copy { src, .. }) => intrinsic_scalar_type(function, *src, seen),
+        _ => None,
+    }
 }

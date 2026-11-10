@@ -3,7 +3,7 @@
 use super::source::{Origin, TextSourceImage};
 use super::*;
 #[path = "invoke_string_read.rs"]
-mod read;
+pub(super) mod read;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Residence {
