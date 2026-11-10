@@ -23,6 +23,21 @@ pub(crate) struct ComparisonExecutionPlanV1 {
     kind: ComparisonExecutionKindV1,
 }
 impl ComparisonExecutionPlanV1 {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn observed_null_v1(
+        operator: crate::mir::CompareOp,
+        operands: [usize; 2],
+    ) -> Option<Self> {
+        matches!(
+            operator,
+            crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne
+        )
+        .then_some(Self {
+            operator,
+            operands: Some(operands),
+            kind: ComparisonExecutionKindV1::Null,
+        })
+    }
+
     pub(crate) fn operator(self) -> crate::mir::CompareOp {
         self.operator
     }
@@ -38,15 +53,9 @@ impl ComparisonExecutionPlanV1 {
 }
 
 impl CheckedExpressionEvaluationV1 {
-    pub(crate) fn comparison_plan_v1(
-        &self,
-        node: usize,
-    ) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
-        comparison_execution_plan_v1(ComparisonEvidenceV1::Checked(self, node))
-    }
     /// The only execution-form conversion. Immutable source laws and exact
     /// operand evidence are required together; neither MIR nor ABI chooses a form.
-    fn checked_comparison_plan_v1(
+    pub(crate) fn comparison_plan_v1(
         &self,
         node: usize,
     ) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
@@ -305,55 +314,32 @@ impl CheckedExpressionEvaluationV1 {
     }
 }
 
-/// Original syntax facts do not grant carrier admission or a source loan.
-enum ComparisonEvidenceV1<'a> {
-    Checked(&'a CheckedExpressionEvaluationV1, usize),
-    Original(
-        &'a crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
-        &'a crate::mir::resolved_semantics::SourceExprSiteV1,
-    ),
-}
-fn comparison_execution_plan_v1(
-    evidence: ComparisonEvidenceV1<'_>,
-) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
-    match evidence {
-        ComparisonEvidenceV1::Checked(frame, node) => frame.checked_comparison_plan_v1(node),
-        ComparisonEvidenceV1::Original(source, site) => {
-            let Some(binary) = source.binary(site) else {
-                return Ok(None);
-            };
-            let Some(operator) = binary
-                .operator()
-                .compare_op()
-                .filter(|op| matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne))
-            else {
-                return Ok(None);
-            };
-            let null = |site| {
-                matches!(
-                    source.literal(site),
-                    Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)
-                )
-            };
-            Ok(
-                (null(binary.lhs()) ^ null(binary.rhs())).then_some(ComparisonExecutionPlanV1 {
-                    operator,
-                    operands: None,
-                    kind: ComparisonExecutionKindV1::Null,
-                }),
-            )
-        }
-    }
-}
 impl ComparisonExecutionPlanV1 {
-    /// The old raw source comparison keeps its executable admission with the
-    /// existing owner. Only its original exact-null representation is selected here.
+    /// Retain the old representation for original comparisons whose
+    /// raw execution owner cannot yet lend the exact carrier.
     pub(crate) fn original_null_v1(
         source: &crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Result<Option<Self>, &'static str> {
-        comparison_execution_plan_v1(ComparisonEvidenceV1::Original(source, site))
+    ) -> Option<Self> {
+        let binary = source.binary(site)?;
+        let operator = binary.operator().compare_op()?;
+        let is_null = |site| {
+            matches!(
+                source.literal(site),
+                Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)
+            )
+        };
+        (matches!(
+            operator,
+            crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne
+        ) && (is_null(binary.lhs()) ^ is_null(binary.rhs())))
+        .then_some(Self {
+            operator,
+            operands: None,
+            kind: ComparisonExecutionKindV1::Null,
+        })
     }
+
     pub(crate) fn instruction_v1(
         self,
         dst: crate::mir::ValueId,

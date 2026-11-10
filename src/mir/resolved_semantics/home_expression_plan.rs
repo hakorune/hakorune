@@ -137,15 +137,37 @@ pub(crate) struct HomeExpressionPlanV1 {
     argument_frame: Option<Rc<CheckedArgumentExpressionFrameV1>>,
     initializer_frame: Option<InitializerFrameV1>,
     rebind_frame: Option<Rc<CheckedBindingRebindFrameV1>>,
-    condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
+    condition_frame: Option<ConditionSourceV1>,
     loop_recipe: Option<Rc<crate::mir::loop_recipe_contract::VerifiedSourceLoopRecipeProductV2>>,
     field_write: Option<FieldWritePlanV1>,
     source_field_homes: Option<Rc<[LiveHomeV1]>>,
 }
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ConditionSourceV1 {
+    Frame(Rc<CheckedBoolConditionFrameV1>),
+    RawNull(ComparisonExecutionPlanV1),
+}
+
 #[path = "home_expression_source_fields.rs"]
 mod source_fields;
 
 impl HomeExpressionPlanV1 {
+    fn for_source(source: Rc<ExpressionSourcePlanV1>) -> Self {
+        Self {
+            source,
+            scalar_operations: Vec::new(),
+            source_fields: Vec::new(),
+            print_frame: None,
+            argument_frame: None,
+            initializer_frame: None,
+            rebind_frame: None,
+            condition_frame: None,
+            loop_recipe: None,
+            field_write: None,
+            source_field_homes: None,
+        }
+    }
+
     pub(super) fn move_initializer(
         source: Rc<ExpressionSourcePlanV1>,
         unary: &crate::mir::resolved_semantics::ResolvedUnaryExpressionSourceV1,
@@ -166,22 +188,13 @@ impl HomeExpressionPlanV1 {
             return None;
         }
         let plan = Self {
-            source: Rc::clone(&source),
-            scalar_operations: Vec::new(),
-            source_fields: Vec::new(),
-            print_frame: None,
-            argument_frame: None,
             initializer_frame: Some(InitializerFrameV1::Move {
-                source,
+                source: Rc::clone(&source),
                 unary: unary.clone(),
                 from,
                 acquisition,
             }),
-            rebind_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
-            field_write: None,
-            source_field_homes: None,
+            ..Self::for_source(source)
         };
         plan.is_consistent().then_some(plan)
     }
@@ -199,17 +212,8 @@ impl HomeExpressionPlanV1 {
             positive_divisor,
         )?;
         Some(Self {
-            source,
             scalar_operations: vec![loan],
-            source_fields: Vec::new(),
-            print_frame: None,
-            argument_frame: None,
-            initializer_frame: None,
-            rebind_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
-            field_write: None,
-            source_field_homes: None,
+            ..Self::for_source(source)
         })
     }
     /// The same completed evaluation, independent of its existing purpose.
@@ -286,7 +290,27 @@ impl HomeExpressionPlanV1 {
         self.argument_frame.as_ref()
     }
     pub(crate) fn condition_frame(&self) -> Option<&Rc<CheckedBoolConditionFrameV1>> {
-        self.condition_frame.as_ref()
+        match self.condition_frame.as_ref()? {
+            ConditionSourceV1::Frame(frame) => Some(frame),
+            ConditionSourceV1::RawNull(_) => None,
+        }
+    }
+
+    pub(crate) fn raw_null_condition_v1(&self) -> Option<ComparisonExecutionPlanV1> {
+        match self.condition_frame.as_ref()? {
+            ConditionSourceV1::Frame(_) => None,
+            ConditionSourceV1::RawNull(plan) => Some(*plan),
+        }
+    }
+
+    pub(super) fn observed_null_condition_v1(
+        source: Rc<ExpressionSourcePlanV1>,
+        comparison: ComparisonExecutionPlanV1,
+    ) -> Self {
+        Self {
+            condition_frame: Some(ConditionSourceV1::RawNull(comparison)),
+            ..Self::for_source(source)
+        }
     }
     pub(crate) fn loop_recipe_v2(
         &self,
@@ -311,7 +335,7 @@ impl HomeExpressionPlanV1 {
     ) -> bool {
         matches!(self.source.root(), crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::LoopCondition { .. })
             && Rc::ptr_eq(&self.source, product.source.condition.source())
-            && self.condition_frame.as_ref().is_some_and(|frame| Rc::ptr_eq(frame, &product.source.condition))
+            && self.condition_frame().is_some_and(|frame| Rc::ptr_eq(frame, &product.source.condition))
             && product.source.source.site() == self.source.root().statement()
             && product.source.source.owner() == self.source.owner()
     }
@@ -371,7 +395,20 @@ impl HomeExpressionPlanV1 {
             && self
                 .condition_frame
                 .as_ref()
-                .is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+                .is_none_or(|condition| match condition {
+                    ConditionSourceV1::Frame(frame) => Rc::ptr_eq(frame.source(), &self.source),
+                    ConditionSourceV1::RawNull(comparison) => {
+                        matches!(self.source.root(), ExpressionPlanRootV1::IfCondition { .. })
+                            && comparison.kind() == ComparisonExecutionKindV1::Null
+                            && self.source.nodes()[0].binary().is_some_and(|binary| {
+                                binary.operator().compare_op() == Some(comparison.operator())
+                                    && comparison.operands().is_some_and(|[left, right]| {
+                                        self.source.nodes().get(left).is_some_and(|node| node.site() == binary.lhs())
+                                            && self.source.nodes().get(right).is_some_and(|node| node.site() == binary.rhs())
+                                    })
+                            })
+                    }
+                })
             && self.argument_frame.as_ref().is_none_or(|frame| {
                 Rc::ptr_eq(frame.source(), &self.source)
                     && Rc::ptr_eq(frame.source_loan().plan(), &self.source)
@@ -509,6 +546,7 @@ impl super::RootHomeFlow {
                 (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a, b),
                 _ => true,
             }
+            || original.raw_null_condition_v1() != refined.raw_null_condition_v1()
             || match (original.loop_recipe_v2(), refined.loop_recipe_v2()) {
                 (None, None) => false,
                 (Some(a), Some(b)) => !Rc::ptr_eq(a, b),

@@ -392,20 +392,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         }
     }
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source),
         scalar_operations: operations,
-        source_fields: Vec::new(),
-        source_field_homes: None,
-        argument_frame: None,
-        initializer_frame: None,
-        rebind_frame: None,
-        print_frame: None,
-        condition_frame: None,
-        loop_recipe: None,
         field_write: frame.map(|frame| FieldWritePlanV1 {
             frame,
             rhs: qualified_rhs,
         }),
+        ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
     let Some(candidate) = candidate.with_source_field_requirements(&requests) else {
         return Ok(None);
@@ -448,20 +440,11 @@ impl HomeExpressionPlanV1 {
             evaluation: Some(evaluation),
         });
         let plan = Self {
-            source,
-            scalar_operations: Vec::new(),
-            source_fields: Vec::new(),
-            source_field_homes: None,
-            argument_frame: None,
-            initializer_frame: None,
-            rebind_frame: None,
-            print_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
             field_write: Some(FieldWritePlanV1 {
                 frame,
                 rhs: Some(rhs),
             }),
+            ..Self::for_source(source)
         };
         plan.is_consistent().then_some(plan)
     }
@@ -505,20 +488,11 @@ impl HomeExpressionPlanV1 {
             return None;
         }
         Some(Self {
-            source,
-            scalar_operations: Vec::new(),
-            source_fields: Vec::new(),
-            source_field_homes: None,
-            argument_frame: None,
-            initializer_frame: None,
-            rebind_frame: None,
-            print_frame: None,
-            condition_frame: None,
-            loop_recipe: None,
             field_write: Some(FieldWritePlanV1 {
                 frame,
                 rhs: Some(rhs),
             }),
+            ..Self::for_source(source)
         })
     }
 }

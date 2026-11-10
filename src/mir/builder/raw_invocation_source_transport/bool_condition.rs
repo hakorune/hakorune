@@ -61,12 +61,20 @@ impl RawInvocationChildPortV1<'_, '_> {
                 .comparison_plan_v1(node)
                 .map_err(|reason| format!("[freeze:contract][{reason}]"));
         }
+        let site = SourceExprSiteV1::from_node(site);
+        if let (Some(ledger), Some(owner)) =
+            (&self.ordinary_new_claim_ledger, self.callable_owner_v1())
+        {
+            if let Some(plan) = ledger.raw_null_condition_v1(owner, &site)? {
+                return Ok(Some(plan));
+            }
+        }
         let Some(input) = self.source_input else {
             return Ok(None);
         };
-        crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1::original_null_v1(
-            input.function().expression_source(), &SourceExprSiteV1::from_node(site))
-            .map_err(|reason| format!("[freeze:contract][{reason}]"))
+        Ok(crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1::original_null_v1(
+            input.function().expression_source(), &site,
+        ))
     }
 
     pub(super) fn lower_whole_bool_condition_v1(

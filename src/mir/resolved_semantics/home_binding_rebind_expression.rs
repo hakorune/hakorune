@@ -347,17 +347,8 @@ pub(crate) fn qualify_binding_rebind_expression_with_loop_dynamic_v1<E>(
         reject_rebind!("reference-coverage");
     }
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source),
-        scalar_operations: Vec::new(),
-        source_fields: Vec::new(),
-        source_field_homes: None,
-        argument_frame: None,
-        initializer_frame: None,
         rebind_frame: Some(frame),
-        print_frame: None,
-        condition_frame: None,
-        loop_recipe: None,
-        field_write: None,
+        ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
         reject_rebind!("field-requirements");

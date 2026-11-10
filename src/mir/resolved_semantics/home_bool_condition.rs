@@ -361,80 +361,55 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 continue;
             }
         }
-        // Only the original entry guard loan admits raw tagged equality. The
-        // sibling remains the exact source null; no payload view is issued.
-        if binary.operator() == Op::Equal {
-            let entry_null = [(left, right), (right, left)]
+        // A finite entry guard or an invocation result can lend its original
+        // carrier tag for equality with the exact null literal.
+        if binary.operator() == Op::Equal
+            && [(left, right), (right, left)]
                 .into_iter()
                 .any(|(reference, null)| {
-                    matches!(reference_proofs.get(&reference),
-                    Some(CheckedExpressionReferenceV1::FiniteEntry { read, exclusion: None })
-                    if read.null_compare_v1().is_some_and(|original|
-                        original.owner() == source.owner() && original.site() == node.site())
-                        && Rc::ptr_eq(read.requirement().source_plan(), &source))
-                        && classes[reference] == Leaf::Value(Class::Opaque)
-                        && matches!(
-                            source.nodes()[null].source(),
-                            ExpressionNodeSourceV1::Literal(
-                                super::super::ResolvedLiteralSourceV1::Null
-                            )
+                    if !matches!(
+                        source.nodes()[null].source(),
+                        ExpressionNodeSourceV1::Literal(
+                            super::super::ResolvedLiteralSourceV1::Null
                         )
-                });
-            if entry_null {
-                let Ok(envelope) =
-                    issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
-                        family,
-                        DynamicOperatorValueClassV1::Dynamic,
-                        DynamicOperatorValueClassV1::Null,
-                    ))
-                else {
-                    return Ok(None);
-                };
-                operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
-                    plan: Rc::clone(&source),
-                    node: index,
-                    proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])),
-                }));
-                continue;
-            }
-        }
-        // A dynamic invocation result is a tagged value; comparing it with the
-        // exact source null observes the tag only and takes no payload view.
-        if binary.operator() == Op::Equal {
-            let result_null =
-                [(left, right), (right, left)]
-                    .into_iter()
-                    .any(|(reference, null)| {
-                        matches!(
-                            reference_proofs.get(&reference),
-                            Some(CheckedExpressionReferenceV1::DynamicInvocationResult(_))
-                        ) && matches!(
-                            classes[reference],
-                            Leaf::Value(Class::Dynamic | Class::Opaque)
-                        ) && matches!(
-                            source.nodes()[null].source(),
-                            ExpressionNodeSourceV1::Literal(
-                                super::super::ResolvedLiteralSourceV1::Null
-                            )
-                        )
-                    });
-            if result_null {
-                let Ok(envelope) =
-                    issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
-                        family,
-                        DynamicOperatorValueClassV1::Dynamic,
-                        DynamicOperatorValueClassV1::Null,
-                    ))
-                else {
-                    return Ok(None);
-                };
-                operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
-                    plan: Rc::clone(&source),
-                    node: index,
-                    proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])),
-                }));
-                continue;
-            }
+                    ) {
+                        return false;
+                    }
+                    match (reference_proofs.get(&reference), classes[reference]) {
+                        (
+                            Some(CheckedExpressionReferenceV1::FiniteEntry {
+                                read,
+                                exclusion: None,
+                            }),
+                            Leaf::Value(Class::Opaque),
+                        ) => {
+                            read.null_compare_v1().is_some_and(|original| {
+                                original.owner() == source.owner() && original.site() == node.site()
+                            }) && Rc::ptr_eq(read.requirement().source_plan(), &source)
+                        }
+                        (
+                            Some(CheckedExpressionReferenceV1::DynamicInvocationResult(_)),
+                            Leaf::Value(Class::Dynamic | Class::Opaque),
+                        ) => true,
+                        _ => false,
+                    }
+                })
+        {
+            let Ok(envelope) =
+                issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
+                    family,
+                    DynamicOperatorValueClassV1::Dynamic,
+                    DynamicOperatorValueClassV1::Null,
+                ))
+            else {
+                return Ok(None);
+            };
+            operations.push(Rc::new(CheckedExpressionOperationLoanV1 {
+                plan: Rc::clone(&source),
+                node: index,
+                proof: CheckedExpressionOperationProofV1::Dynamic(Box::new([envelope])),
+            }));
+            continue;
         }
         if binary.operator().compare_op().is_some() {
             let Some(loan) =
@@ -551,17 +526,8 @@ pub(crate) fn qualify_condition_expression_v1<E>(
     }
 
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source),
-        scalar_operations: Vec::new(),
-        source_fields: Vec::new(),
-        source_field_homes: None,
-        argument_frame: None,
-        initializer_frame: None,
-        rebind_frame: None,
-        print_frame: None,
-        condition_frame: Some(frame),
-        loop_recipe: None,
-        field_write: None,
+        condition_frame: Some(super::ConditionSourceV1::Frame(frame)),
+        ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else {
         return Ok(None);

@@ -468,17 +468,8 @@ fn initializer_plan_v1(
         return None;
     }
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source),
-        scalar_operations: Vec::new(),
-        source_fields: Vec::new(),
-        print_frame: None,
-        condition_frame: None,
-        loop_recipe: None,
-        argument_frame: None,
         initializer_frame: Some(super::InitializerFrameV1::Evaluation(frame)),
-        rebind_frame: None,
-        field_write: None,
-        source_field_homes: None,
+        ..HomeExpressionPlanV1::for_source(Rc::clone(&source))
     };
     candidate.is_consistent().then_some(candidate)
 }
