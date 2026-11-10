@@ -125,10 +125,26 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
             return Ok(if add || bool_root { None } else { refused() });
         }
     };
-    // The pre-existing plain scalar kernel is still the consumer for pure
-    // arithmetic without field demand, explicit copy, or invocation. It has
-    // no lifecycle-root ABI demand; do not route it through a framed consumer.
+    // Preserve the plain scalar kernel for returns whose operands have no
+    // retained execution dependency that it cannot replay.
+    use crate::mir::resolved_semantics::home_new_prefix::{
+        CheckedExpressionReferenceV1, CurrentScalarProducerV1,
+    };
+    let needs_retained_producer = evaluation.references().values().any(|reference| {
+        let CheckedExpressionReferenceV1::Scalar(scalar) = reference else {
+            return false;
+        };
+        scalar.original_read().is_some_and(|read| match read.producer() {
+            CurrentScalarProducerV1::Operation(operation) => matches!(
+                operation.integer_operator_v1(),
+                Some(crate::mir::BinaryOp::Div | crate::mir::BinaryOp::Mod)
+            ),
+            CurrentScalarProducerV1::BindingRebind(_) => true,
+            _ => false,
+        })
+    });
     if add
+        && !needs_retained_producer
         && requests.is_empty()
         && !source.contains_copy_v1()
         && evaluation.calls().is_empty()

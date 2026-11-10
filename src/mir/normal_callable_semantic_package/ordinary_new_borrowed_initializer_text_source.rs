@@ -417,6 +417,32 @@ impl PreparedBorrowedFormalIngressV1 {
                     let Ok(Some(plan)) = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
                         &ledger, shape, statement.site()) else { return false };
                     let Some(node) = plan.nodes().first() else { return false; };
+                    if node.binary().is_some_and(|row| row.operator()
+                        == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Add)
+                        && plan.nodes_outside_calls().any(|(_, operand)| {
+                            let Node::Reference(ResolvedLexicalRefV1::Local(binding)) = operand.source() else {
+                                return false;
+                            };
+                            let source = input.function().expression_source();
+                            let origin = flow.read(operand.site(), *binding)
+                                .and_then(|value| flow.alias_origin(value, |site| input.function().variable_ref(site)))
+                                .and_then(|value| flow.origin(value));
+                            let Some(crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1::Expression(original)) = origin else {
+                                return false;
+                            };
+                            source.binary(original).is_some_and(|binary| {
+                                matches!(binary.operator(),
+                                    crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Divide
+                                        | crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Modulo)
+                                    && matches!(source.literal(binary.rhs()), Some(
+                                        crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(divisor)
+                                    ) if *divisor > 0)
+                            }) || shape.assignment_sources().iter()
+                                .any(|assignment| assignment.value_site() == original)
+                        })
+                    {
+                        return true;
+                    }
                     let Node::Reference(ResolvedLexicalRefV1::Local(binding)) = node.source() else { return false; };
                     let original = flow.read(node.site(), *binding)
                         .and_then(|value| flow.alias_origin(value, |site| input.function().variable_ref(site)))
