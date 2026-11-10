@@ -17,7 +17,7 @@ N9. Exactly one NullCompare operand has a unique direct ConstValue::Null definit
 N10. The other operand must be an available, dominating permitted live carrier; integer/Bool carriers remain distinct from null and Text-only residences are not null carriers.
 N11. Independent checks preserve actual definition uniqueness/order/dominance, Copy/PHI origin and kind, borrower/holder/opaque carrier lifetime and faulted-state restrictions.
 N12. Canonical Compare with a direct null operand is rejected by name before publication; compatibility producers do not gain canonical admission.
-N13. Serializer maps NullCompare to unchanged borrowed_null_compare five keys and Compare to unchanged compare; it does not search definitions or choose a representation.
+N13. Lifecycle physical serializer maps NullCompare to unchanged borrowed_null_compare five keys and Compare to unchanged compare; it does not search definitions or choose a representation.
 N14. C, runtime and JSON spellings/predicates remain unchanged; no schema version, alias or new descriptor is introduced.
 N15. Preserve current source Eq-only capabilities and existing nullable-alias Eq/Ne; do not broaden Dynamic/null Ne, Bool ordering, object identity or basic-expr acceptance.
 N16. NullCompare may be reused in the same block or have IDs remapped, but is never added to the Compare SSA cloning/rematerialization arms.
@@ -127,3 +127,5 @@ N24. The independent lifetime walk visits every CFG prefix that can reach an act
 N25. An unused NullCompare is an elidable NoSourceFault READ, never a generic READ waiver. Canonical drafts pass actual MIR validation before optimization. Source-validated initializer rows lend only exact Copy/ConstNull/NullCompare and transparent downstream Copies to the existing captured dead-cone owner; other mandatory consumers stay protected. Omission requires the original whole-draft dead-user fixed point and final whole-function no-definition/no-use (including return_env). Shared operand producers may remain. No force-pinning or source-use heuristic is used to hide MIR growth.
 
 N26. Ownership-SSA classifies NullCompare's result as the same non-owning scalar as Compare and recognizes it in the same readonly field-borrow window; managed-use, move/copy, End and acquisition checks remain unchanged. This preserves the existing CopyOnOwned refusal for the Opus n07 input rather than introducing an unsupported-opcode refusal.
+
+N27. Compatibility MIR JSON keeps its existing compare keys for NullCompare without searching producers; it does not gain canonical source-transport admission (that profile still rejects the opcode). A legacy named FieldGet declared Box remains an opaque carrier-domain obligation, with base lifetime checked; canonical publication still demands its existing route/layout proof. Preserve the old missing-tool/field-route refusals rather than substituting unsupported-opcode or early coarse-domain errors.

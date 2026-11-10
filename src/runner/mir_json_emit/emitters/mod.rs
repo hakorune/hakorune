@@ -115,8 +115,9 @@ fn emit_instruction(
 
     let pinned_text_residence_instruction =
         pinned_text_residence_transport && matches!(inst, I::PinnedTextResidenceFinish { .. });
-    if !crate::mir::contracts::backend_core_ops::is_supported_mir_json_instruction(inst)
-        && !pinned_text_residence_instruction
+    if (!crate::mir::contracts::backend_core_ops::is_supported_mir_json_instruction(inst)
+        && !pinned_text_residence_instruction)
+        || (canonical_transport && matches!(inst, I::NullCompare { .. }))
     {
         return Err(format!(
             "MIR JSON emit contract violation: unsupported instruction {}",
@@ -226,13 +227,11 @@ fn emit_instruction(
             }
             Ok(row)
         }
-        I::Compare { dst, op, lhs, rhs } => Ok(basic::emit_compare(
-            dst,
-            op,
-            lhs,
-            rhs,
-            &func.metadata.value_types,
-        )),
+        // The compatibility wire retains its old comparison spelling. This
+        // cannot select the canonical source transport or lifecycle admission.
+        I::Compare { dst, op, lhs, rhs } | I::NullCompare { dst, op, lhs, rhs } => Ok(
+            basic::emit_compare(dst, op, lhs, rhs, &func.metadata.value_types),
+        ),
         I::Debug { value, message } => Ok(basic::emit_debug(value, message)),
         I::Safepoint => Ok(basic::emit_safepoint()),
         I::FutureNew { dst, value } => Ok(basic::emit_future_new(dst, value)),

@@ -102,6 +102,12 @@ fn check_kind(
             | MirInstruction::StringCompare { .. }
             | MirInstruction::ObjectFieldGet { .. }
             | MirInstruction::NewBox { .. } => Ok(()),
+            // A compatibility named field is only an opaque Box domain here.
+            // It still needs the existing publication route/layout proof.
+            MirInstruction::FieldGet {
+                declared_type: Some(MirType::Box(_)),
+                ..
+            } => Ok(()),
             MirInstruction::BinOp { lhs, rhs, .. } => {
                 check_kind(function, definitions, *lhs, active)?;
                 check_kind(function, definitions, *rhs, active)
@@ -173,7 +179,9 @@ fn supports(
         return;
     }
     let base = match definitions.get(&value).map(|(_, row)| *row) {
-        Some(MirInstruction::ObjectFieldGet { base, .. }) => Some(*base),
+        Some(
+            MirInstruction::ObjectFieldGet { base, .. } | MirInstruction::FieldGet { base, .. },
+        ) => Some(*base),
         Some(MirInstruction::InvokeNormalResult { invoke_block, .. }) => {
             use crate::mir::instruction::{
                 BorrowedResultSupportV1 as Support, InvokeCallResultKind as ResultKind,

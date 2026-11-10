@@ -42,7 +42,10 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::DestroyOwned { .. }
             | MirInstruction::MapLiteralEntryWrite { .. }
             | MirInstruction::ArrayElementWrite { .. }
-            | MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. }, .. }
+            | MirInstruction::ArrayRead {
+                operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. },
+                ..
+            }
             | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::RecordFieldContractCheck { .. }
@@ -52,6 +55,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::TypeOp { .. }
             | MirInstruction::BinOp { .. }
             | MirInstruction::Compare { .. }
+            | MirInstruction::NullCompare { .. }
             | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::Select { .. }
@@ -159,17 +163,24 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. }
         | MirInstruction::ArrayResidenceRelease { .. }
-        | MirInstruction::StringLength { .. } | MirInstruction::StringIndexOf { .. } | MirInstruction::StringCompare { .. }
-        | MirInstruction::StringResidenceInstall { .. }
-        | MirInstruction::NullCompare { .. } => &[],
+        | MirInstruction::StringLength { .. }
+        | MirInstruction::StringIndexOf { .. }
+        | MirInstruction::StringCompare { .. }
+        | MirInstruction::StringResidenceInstall { .. } => &[],
         MirInstruction::Const { .. } => &["const"],
         MirInstruction::BinOp { .. } => &["binop"],
         MirInstruction::UnaryOp { .. } => &["unop"],
-        MirInstruction::Compare { .. } => &["compare"],
+        MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. } => &["compare"],
         MirInstruction::StaticDataLoad { .. } => &["static_data_load"],
         MirInstruction::ArrayElementWrite { .. } => &["array_element_write"],
-        MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. }, .. } => &["array_element_read"],
-        MirInstruction::ArrayRead { operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. } => &[],
+        MirInstruction::ArrayRead {
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element { .. },
+            ..
+        } => &["array_element_read"],
+        MirInstruction::ArrayRead {
+            operation: crate::mir::instruction::ArrayReadOperationV1::Count,
+            ..
+        } => &[],
         MirInstruction::MapLiteralEntryWrite { .. } => &[],
         MirInstruction::ArrayStateContractClaim { .. } => &[],
         MirInstruction::FieldGet { .. } => &["field_get"],

@@ -171,3 +171,45 @@ fn build_mir_json_root_requires_and_emits_pinned_text_plan_census() {
     assert_eq!(instruction["plan_stamp"], 19);
     assert_eq!(instruction["access"]["kind"], "byte_len");
 }
+
+#[test]
+fn null_observation_preserves_compat_wire_without_source_transport_admission() {
+    let mut function = make_function("null_compat", false);
+    function.signature.return_type = MirType::Bool;
+    let null = MirInstruction::NullCompare {
+        dst: ValueId(2),
+        op: CompareOp::Eq,
+        lhs: ValueId(0),
+        rhs: ValueId(1),
+    };
+    let block = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId(0),
+        value: ConstValue::Integer(0),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId(1),
+        value: ConstValue::Null,
+    });
+    block.add_instruction(null.clone());
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(2)),
+    });
+    assert!(super::canonical_transport::validate_source(&function).is_err());
+    assert!(!crate::mir::contracts::backend_core_ops::is_supported_vm_instruction(&null));
+    assert_eq!(
+        crate::mir::contracts::backend_core_ops::llvm_json_ops_for_instruction(&null),
+        &["compare"]
+    );
+    let mut module = crate::mir::MirModule::new("null_compat".into());
+    module.add_function(function);
+    let root = super::root::build_mir_json_root_with_profile(
+        &module,
+        super::root::JsonEgressProfile::CompatibilityV0 { methodize: false },
+    )
+    .unwrap();
+    assert_eq!(
+        root["functions"][0]["blocks"][0]["instructions"][2],
+        serde_json::json!({"op":"compare","operation":"==","lhs":0,"rhs":1,"dst":2})
+    );
+}
