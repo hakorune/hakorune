@@ -215,7 +215,7 @@ impl CheckedExpressionEvaluationV1 {
     pub(crate) fn scalar_invoke_input_order_v1(&self, root: usize) -> Option<Vec<usize>> {
         if let Some(plan) = self.comparison_plan_v1(root).ok().flatten() {
             if matches!(plan.kind(), ComparisonExecutionKindV1::Checked { integer_carrier_left: Some(_) }) {
-                return Some(plan.operands().to_vec());
+                return Some(plan.operands()?.to_vec());
             }
         }
         if let Some(order) = self.bool_condition_comparison_input_order_v1(root) {

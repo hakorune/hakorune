@@ -148,6 +148,7 @@ impl FunctionUses {
     fn finite_scalar_operand_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
         coordinate: Coordinate, instruction: &MirInstruction,
     ) -> bool {
+        if matches!(instruction, MirInstruction::NullCompare { .. }) { return false; }
         if !self.finite_input || self.finite_scalar_bindings.get(&coordinate) != Some(instruction) { return false; }
         // Raw tag equality must consume the exact null-use admission even for
         // a signed-only/Bool-only incoming SUM. Scalar permission cannot skip it.
@@ -229,7 +230,7 @@ impl FunctionUses {
         let mut copy_coordinates = BTreeMap::new();
         for (coordinate, instruction) in indexed {
             let operands: Vec<ValueId> = match instruction {
-                MirInstruction::Compare { lhs, rhs, .. } => vec![*lhs, *rhs],
+                MirInstruction::Compare { lhs, rhs, .. } | MirInstruction::NullCompare { lhs, rhs, .. } => vec![*lhs, *rhs],
                 MirInstruction::BinOp {
                     op: crate::mir::BinaryOp::Add,
                     lhs,
@@ -519,7 +520,7 @@ impl FunctionUses {
                     }
                 }
             }
-            MirInstruction::Compare {
+            MirInstruction::NullCompare {
                 op: crate::mir::CompareOp::Eq,
                 lhs,
                 rhs,
@@ -537,7 +538,7 @@ impl FunctionUses {
                     &mut definitions.null_uses,
                 )?;
             }
-            MirInstruction::Compare { lhs, rhs, .. } => {
+            MirInstruction::Compare { lhs, rhs, .. } | MirInstruction::NullCompare { lhs, rhs, .. } => {
                 // `!=`, `<`, `<=`, `>=` and general tagged equality stay
                 // outside the admitted envelopes.
                 if [lhs, rhs].iter().any(|operand| {

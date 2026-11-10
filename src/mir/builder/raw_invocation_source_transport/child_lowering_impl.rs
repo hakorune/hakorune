@@ -77,9 +77,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 
     fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
-        let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None) };
-        let node = self.current_source_site_v1().ok_or_else(|| "[freeze:contract][bool-condition/statement-site-missing]".to_owned())?;
-        ledger.bool_condition_frame_v1(owner, &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(node))
+        self.source_bool_condition_frame_v1()
     }
     fn lower_checked_bool_condition_v1(&mut self, builder: &mut MirBuilder,
         frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>, condition: ASTNode,
@@ -104,6 +102,10 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>,
     ) -> Result<ValueId, String> {
         self.emit_checked_print_value_v1(builder, frame)
+    }
+
+    fn comparison_execution_plan_v1(&mut self) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1>, String> {
+        self.source_comparison_plan_v1()
     }
 
     fn prepare_ordinary_scalar_source_v1(

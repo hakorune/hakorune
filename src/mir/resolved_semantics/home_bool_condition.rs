@@ -60,7 +60,7 @@ impl CheckedBoolConditionFrameV1 {
     pub(crate) fn comparison_input_children_v1(&self, node: usize) -> Option<[usize; 2]> {
         let plan = self.evaluation.comparison_plan_v1(node).ok()??;
         matches!(plan.kind(), ComparisonExecutionKindV1::Text | ComparisonExecutionKindV1::Checked { .. })
-            .then_some(plan.operands())
+            .then_some(plan.operands()?)
     }
 
     pub(crate) fn scalar_invocation_input_nodes_v1(&self) -> BTreeSet<usize> {

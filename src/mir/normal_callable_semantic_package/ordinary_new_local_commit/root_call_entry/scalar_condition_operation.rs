@@ -85,7 +85,7 @@ fn checked_scalar_base_operation_v1(
             _ => Err(freeze("bool-condition/text-operand-order")),
         }
     };
-    let [left, right] = plan.operands();
+    let [left, right] = plan.operands().ok_or_else(|| freeze("bool-condition/text-operand-order"))?;
     let (left, right) = (operand(left)?, operand(right)?);
     let op = plan.operator();
     if plan.kind() == ComparisonKind::Text {
@@ -132,7 +132,7 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
         let operand = |node: usize| values.get(node).and_then(Option::as_ref)
             .and_then(|value| value.as_operand().ok())
             .ok_or_else(|| freeze("bool-condition/text-operand-order"));
-        let [left, right] = plan.operands();
+        let [left, right] = plan.operands().ok_or_else(|| freeze("bool-condition/text-operand-order"))?;
         let integer = |node| match operand(node)? {
             Operand::NormalInteger(value) => Ok(*value),
             _ => Err(freeze("bool-condition/text-operand-order")),

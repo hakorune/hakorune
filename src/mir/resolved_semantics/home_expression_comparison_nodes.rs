@@ -17,12 +17,12 @@ pub(crate) enum ComparisonExecutionKindV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ComparisonExecutionPlanV1 {
     operator: crate::mir::CompareOp,
-    operands: [usize; 2],
+    operands: Option<[usize; 2]>,
     kind: ComparisonExecutionKindV1,
 }
 impl ComparisonExecutionPlanV1 {
     pub(crate) fn operator(self) -> crate::mir::CompareOp { self.operator }
-    pub(crate) fn operands(self) -> [usize; 2] { self.operands }
+    pub(crate) fn operands(self) -> Option<[usize; 2]> { self.operands }
     pub(crate) fn kind(self) -> ComparisonExecutionKindV1 { self.kind }
     pub(crate) fn requires_fault_frame(self) -> bool {
         matches!(self.kind, ComparisonExecutionKindV1::Checked { .. })
@@ -30,9 +30,12 @@ impl ComparisonExecutionPlanV1 {
 }
 
 impl CheckedExpressionEvaluationV1 {
+    pub(crate) fn comparison_plan_v1(&self, node: usize) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
+        comparison_execution_plan_v1(ComparisonEvidenceV1::Checked(self, node))
+    }
     /// The only execution-form conversion. Immutable source laws and exact
     /// operand evidence are required together; neither MIR nor ABI chooses a form.
-    pub(crate) fn comparison_plan_v1(
+    fn checked_comparison_plan_v1(
         &self, node: usize,
     ) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
         use crate::mir::dynamic_operator_contract::{
@@ -49,7 +52,7 @@ impl CheckedExpressionEvaluationV1 {
         if loans.next().is_some() || !Rc::ptr_eq(loan.source(), &self.source) { return Err(error); }
         let index = |site| self.source.nodes().iter().position(|row| row.site() == site).ok_or(error);
         let operands = [index(binary.lhs())?, index(binary.rhs())?];
-        let plan = |kind| Some(ComparisonExecutionPlanV1 { operator, operands, kind });
+        let plan = |kind| Some(ComparisonExecutionPlanV1 { operator, operands: Some(operands), kind });
         if loan.nullable_field_null_v1().is_some() || loan.nullable_null_v1().is_some() {
             return Ok(plan(Kind::Null));
         }
@@ -208,5 +211,45 @@ impl CheckedExpressionEvaluationV1 {
             }
         }
         (!order.is_empty()).then_some(order)
+    }
+}
+
+
+/// Original syntax facts do not grant carrier admission or a source loan.
+enum ComparisonEvidenceV1<'a> {
+    Checked(&'a CheckedExpressionEvaluationV1, usize),
+    Original(&'a crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
+        &'a crate::mir::resolved_semantics::SourceExprSiteV1),
+}
+fn comparison_execution_plan_v1(evidence: ComparisonEvidenceV1<'_>)
+    -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
+    match evidence {
+        ComparisonEvidenceV1::Checked(frame, node) => frame.checked_comparison_plan_v1(node),
+        ComparisonEvidenceV1::Original(source, site) => {
+            let Some(binary) = source.binary(site) else { return Ok(None); };
+            let Some(operator) = binary.operator().compare_op()
+                .filter(|op| matches!(op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)) else { return Ok(None); };
+            let null = |site| matches!(source.literal(site), Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null));
+            Ok((null(binary.lhs()) ^ null(binary.rhs())).then_some(ComparisonExecutionPlanV1 {
+                operator, operands: None, kind: ComparisonExecutionKindV1::Null,
+            }))
+        }
+    }
+}
+impl ComparisonExecutionPlanV1 {
+    /// The old raw source comparison keeps its executable admission with the
+    /// existing owner. Only its original exact-null representation is selected here.
+    pub(crate) fn original_null_v1(source: &crate::mir::resolved_semantics::ResolvedExpressionSourceInventoryV1,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<Option<Self>, &'static str> {
+        comparison_execution_plan_v1(ComparisonEvidenceV1::Original(source, site))
+    }
+    pub(crate) fn instruction_v1(self, dst: crate::mir::ValueId, lhs: crate::mir::ValueId, rhs: crate::mir::ValueId)
+        -> Option<crate::mir::MirInstruction> {
+        match self.kind {
+            ComparisonExecutionKindV1::Null => Some(crate::mir::MirInstruction::NullCompare { dst, op: self.operator, lhs, rhs }),
+            ComparisonExecutionKindV1::Scalar(_) => Some(crate::mir::MirInstruction::Compare { dst, op: self.operator, lhs, rhs }),
+            _ => None,
+        }
     }
 }

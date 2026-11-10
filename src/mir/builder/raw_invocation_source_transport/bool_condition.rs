@@ -6,6 +6,27 @@ use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 
 use crate::mir::resolved_semantics::{home_new_prefix::CheckedBoolConditionFrameV1, OwnedExprSiteV1, SourceExprSiteV1};
 
 impl RawInvocationChildPortV1<'_, '_> {
+    pub(super) fn source_bool_condition_frame_v1(&self) -> Result<Option<Rc<CheckedBoolConditionFrameV1>>, String> {
+        let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None); };
+        let node = self.current_source_site_v1().ok_or("[freeze:contract][bool-condition/statement-site-missing]")?;
+        ledger.bool_condition_frame_v1(owner, &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(node))
+    }
+    pub(super) fn source_comparison_plan_v1(&self)
+        -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1>, String> {
+        let Some(site) = self.current_source_site_v1() else { return Ok(None); };
+        if let Some(emission) = &self.bool_condition_emission {
+            let emission = emission.borrow();
+            let node = emission.frame.source().nodes().iter().position(|node| node.site().node() == &site)
+                .ok_or("[freeze:contract][bool-condition/foreign-source-node]")?;
+            return emission.frame.evaluation().comparison_plan_v1(node)
+                .map_err(|reason| format!("[freeze:contract][{reason}]"));
+        }
+        let Some(input) = self.source_input else { return Ok(None); };
+        crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1::original_null_v1(
+            input.function().expression_source(), &SourceExprSiteV1::from_node(site))
+            .map_err(|reason| format!("[freeze:contract][{reason}]"))
+    }
+
     pub(super) fn lower_whole_bool_condition_v1(&mut self, builder: &mut MirBuilder,
         frame: Rc<CheckedBoolConditionFrameV1>, condition: ASTNode,
     ) -> Result<physical::LoweredBoolConditionV1, String> {
@@ -214,7 +235,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 } else {
                     let append = emission.borrow_mut().binary.remove(&site).ok_or("[freeze:contract][bool-condition/binary-observation-missing]")?;
                     let (lhs, rhs) = match append.1 {
-                        crate::mir::MirInstruction::Compare { lhs, rhs, .. } | crate::mir::MirInstruction::BinOp { lhs, rhs, .. } => (lhs, rhs),
+                        crate::mir::MirInstruction::Compare { lhs, rhs, .. } | crate::mir::MirInstruction::NullCompare { lhs, rhs, .. } | crate::mir::MirInstruction::BinOp { lhs, rhs, .. } => (lhs, rhs),
                         _ => return Err("[freeze:contract][bool-condition/binary-append-kind]".into()),
                     };
                     let inputs = (emission.borrow().value_at(binary.lhs())?, emission.borrow().value_at(binary.rhs())?);

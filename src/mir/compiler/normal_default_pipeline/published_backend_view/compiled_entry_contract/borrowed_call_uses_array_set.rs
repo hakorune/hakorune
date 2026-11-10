@@ -59,7 +59,7 @@ pub(super) fn guards(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingRe
                 return Err(fault("borrowed-set/dependency-instruction"));
             }
         }
-        let MirInstruction::Compare { op: crate::mir::CompareOp::Eq, lhs, rhs, .. } = expected.null_compare.0.1
+        let MirInstruction::NullCompare { op: crate::mir::CompareOp::Eq, lhs, rhs, .. } = expected.null_compare.0.1
             else { return Err(fault("borrowed-set/null-compare")) };
         let formal = |value: &ValueId| tracked.get(value).or(views.views.get(value));
         if !((formal(&lhs) == Some(&expected.index_formal) && views.null_consts.contains(&rhs))
@@ -127,7 +127,7 @@ mod tests {
             state.compare_admissions.insert(value_formal, 1);
             state.compare_coordinates = Some([(value_formal,
                 BTreeSet::from([((BasicBlockId(0), 3), 0)]))].into());
-            let null = MirInstruction::Compare { dst: ValueId(92), op: crate::mir::CompareOp::Eq,
+            let null = MirInstruction::NullCompare { dst: ValueId(92), op: crate::mir::CompareOp::Eq,
                 lhs: ValueId(10), rhs: ValueId(90) };
             let branch = MirInstruction::Branch { condition: ValueId(92), then_bb: BasicBlockId(1),
                 else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None };

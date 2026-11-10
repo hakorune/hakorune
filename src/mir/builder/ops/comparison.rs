@@ -38,7 +38,11 @@ impl super::super::MirBuilder {
         op: CompareOp,
         lhs: ValueId,
         rhs: ValueId,
+        plan: Option<crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1>,
     ) -> Result<CompletedOrdinaryComparisonV1, String> {
+        if plan.is_some_and(|plan| plan.operator() != op) {
+            return Err("[freeze:contract][bool-condition/operator-kind]".into());
+        }
         let dst = self.next_value_id();
 
         // The legacy Builder operator-call route is rejected at compiler
@@ -80,8 +84,10 @@ impl super::super::MirBuilder {
         let mut lhs2 = lhs2_raw;
         let mut rhs2 = rhs2_raw;
         crate::mir::builder::ssa::local::finalize_compare(self, &mut lhs2, &mut rhs2)?;
-        let original =
-            crate::mir::builder::emission::compare::emit_to_recorded(self, dst, op, lhs2, rhs2)?;
+        let original = match plan {
+            Some(plan) => crate::mir::builder::emission::compare::emit_planned_recorded(self, plan, dst, lhs2, rhs2)?,
+            None => crate::mir::builder::emission::compare::emit_to_recorded(self, dst, op, lhs2, rhs2)?,
+        };
 
         Ok(CompletedOrdinaryComparisonV1 {
             value: dst,

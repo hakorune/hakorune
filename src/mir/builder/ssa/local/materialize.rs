@@ -224,7 +224,7 @@ fn materialize_local_inner_v1(
         if def_block == Some(bb)
             && ((matches!(failure_policy, LocalSsaFailurePolicyV1::CheckedScalar)
                 && matches!(def_inst, Some(MirInstruction::BinOp { .. })))
-                || (kind == LocalKind::Cond && matches!(def_inst, Some(MirInstruction::Compare { .. }))))
+                || (kind == LocalKind::Cond && matches!(def_inst, Some(MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. }))))
         {
             // A direct same-block Compare already supplies its SSA condition.
             // Replaying it duplicates operand uses; reuse is physical identity,

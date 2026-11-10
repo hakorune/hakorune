@@ -232,6 +232,7 @@ where
         ));
     }
 
+    let comparison = port.comparison_execution_plan_v1()?;
     let source = match (
         port.prepare_binary_source_v1(&operator)?,
         port.prepare_binary_mul_source_v1(&operator)?,
@@ -263,6 +264,12 @@ where
         let (completed, relations) = builder.build_source_scalar_from_values_recorded(operator, left, right)?;
         scalar_relations = Some(relations);
         completed
+    } else if let Some(plan) = comparison {
+        let op = match super::converters::convert_binary_operator(operator)? {
+            super::converters::BinaryOpType::Comparison(op) if op == plan.operator() => op,
+            _ => return Err("[freeze:contract][bool-condition/operator-kind]".into()),
+        };
+        super::CompletedOrdinaryBinaryV1::Comparison(builder.build_comparison_op_recorded(op, left, right, Some(plan))?)
     } else {
         builder.build_binary_op_from_values_recorded(operator, left, right)?
     };

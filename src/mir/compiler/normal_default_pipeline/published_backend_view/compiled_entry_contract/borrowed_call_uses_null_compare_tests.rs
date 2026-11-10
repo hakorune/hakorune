@@ -46,7 +46,7 @@ fn borrowed_use_null_compare_view_passes_in_either_operand_order() {
         .instructions
         .extend([
             null_const(ValueId(800)),
-            MirInstruction::Compare {
+            MirInstruction::NullCompare {
                 dst: ValueId(701),
                 op: CompareOp::Eq,
                 lhs: view,
@@ -64,7 +64,7 @@ fn borrowed_use_null_compare_view_passes_in_either_operand_order() {
         .instructions
         .extend([
             null_const(ValueId(800)),
-            MirInstruction::Compare {
+            MirInstruction::NullCompare {
                 dst: ValueId(701),
                 op: CompareOp::Eq,
                 lhs: ValueId(800),
@@ -86,7 +86,7 @@ fn borrowed_use_null_compare_view_passes_in_either_operand_order() {
         .instructions
         .extend([
             null_const(ValueId(800)),
-            MirInstruction::Compare {
+            MirInstruction::NullCompare {
                 dst: ValueId(701),
                 op: CompareOp::Eq,
                 lhs: carrier,
@@ -107,7 +107,7 @@ fn borrowed_use_rejects_null_compare_operator_and_sibling_drift() {
         .instructions
         .extend([
             null_const(ValueId(800)),
-            MirInstruction::Compare {
+            MirInstruction::NullCompare {
                 dst: ValueId(701),
                 op: CompareOp::Ne,
                 lhs: view,
@@ -128,7 +128,7 @@ fn borrowed_use_rejects_null_compare_operator_and_sibling_drift() {
         .instructions
         .extend([
             i64_const(ValueId(800)),
-            MirInstruction::Compare {
+            MirInstruction::NullCompare {
                 dst: ValueId(701),
                 op: CompareOp::Eq,
                 lhs: view,
@@ -179,7 +179,7 @@ fn borrowed_use_null_compare_coverage_is_per_admission() {
         .instructions
         .extend([
             null_const(ValueId(800)),
-            MirInstruction::Compare {
+            MirInstruction::NullCompare {
                 dst: ValueId(701),
                 op: CompareOp::Eq,
                 lhs: view,

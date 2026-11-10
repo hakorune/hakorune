@@ -282,24 +282,8 @@ fn encode_instruction(
                 crate::mir::CompareOp::Gt => "sgt",
                 crate::mir::CompareOp::Ge => "sge",
             };
-            // Exactly one operand produced by the `ConstValue::Null` row
-            // makes this the borrowed/null equality, never an integer
-            // compare: the physical row keeps the operands in source order
-            // and the emitter reads the carrier's kind lane only. Without
-            // the function context (serializer tests) the row keeps the
-            // ordinary spelling.
-            let null_equality =
-                matches!(*op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
-                    && call_context.is_some_and(|(_, function, _)| {
-                        null_producer(function, *lhs) ^ null_producer(function, *rhs)
-                    });
-            if null_equality {
-                json!({ "op": "borrowed_null_compare", "dst": value(dst), "lhs": value(lhs),
-                    "rhs": value(rhs), "predicate": predicate })
-            } else {
-                json!({ "op": "compare", "dst": value(dst), "lhs": value(lhs),
-                    "rhs": value(rhs), "predicate": predicate })
-            }
+            json!({ "op": "compare", "dst": value(dst), "lhs": value(lhs),
+                "rhs": value(rhs), "predicate": predicate })
         }
         MirInstruction::NullCompare { dst, op, lhs, rhs } => {
             let predicate = match op {
@@ -469,24 +453,7 @@ fn encode_instruction(
 /// Whether `operand`'s producer inside `function` is the exact
 /// `ConstValue::Null` row — the null sentinel materialization, never a
 /// borrowed carrier or a forged zero.
-fn null_producer(function: &PublishedLifecyclePhysicalFunctionV1<'_>, operand: ValueId) -> bool {
-    function.blocks().iter().any(|block| {
-        block
-            .instructions()
-            .iter()
-            .copied()
-            .chain(std::iter::once(block.terminator()))
-            .any(|row| {
-                matches!(
-                    row.instruction(),
-                    MirInstruction::Const {
-                        dst,
-                        value: ConstValue::Null
-                    } if *dst == operand
-                )
-            })
-    })
-}
+
 
 fn diagnostic_site(
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,

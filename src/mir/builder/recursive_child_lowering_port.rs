@@ -159,6 +159,8 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Err("[freeze:contract][print-expression/consumer-unavailable]".into())
     }
 
+    fn comparison_execution_plan_v1(&mut self) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1>, String> { Ok(None) }
+
     fn prepare_ordinary_scalar_source_v1(
         &mut self, _operator: &crate::ast::BinaryOperator,
     ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1>>, String> { Ok(None) }

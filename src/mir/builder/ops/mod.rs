@@ -172,7 +172,7 @@ impl super::MirBuilder {
             }
             // Comparison operations
             BinaryOpType::Comparison(op) => self
-                .build_comparison_op_recorded(op, lhs_raw, rhs_raw)
+                .build_comparison_op_recorded(op, lhs_raw, rhs_raw, None)
                 .map(CompletedOrdinaryBinaryV1::Comparison),
         }
     }

@@ -235,6 +235,10 @@ where
         self.child.with_prepared_child_source_v1(source, |child| child.lower_checked_print_value_v1(builder, frame))
     }
 
+    fn comparison_execution_plan_v1(&mut self) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1>, String> {
+        self.child.comparison_execution_plan_v1()
+    }
+
     fn prepare_ordinary_scalar_source_v1(
         &mut self, operator: &crate::ast::BinaryOperator,
     ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1>>, String> {

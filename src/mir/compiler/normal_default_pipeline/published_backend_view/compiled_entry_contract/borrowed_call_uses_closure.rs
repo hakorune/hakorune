@@ -97,7 +97,7 @@ impl FunctionUses {
             ))?;
         }
         self.definitions(tracked, &function.params, &definitions).map_err(|issue| {
-            let comparisons: Vec<_> = indexed.iter().filter(|(_, row)| matches!(row, MirInstruction::Compare { .. })).collect();
+            let comparisons: Vec<_> = indexed.iter().filter(|(_, row)| matches!(row, MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. })).collect();
             format!("{issue} function={} scan=module comparisons={comparisons:?}", function.signature.name)
         })
     }

@@ -368,12 +368,16 @@ impl EmittedBoolConditionProjectionV1 {
                         _ => Some(self.frame.evaluation().comparison_plan_v1(node.node).map_err(freeze)?
                             .ok_or_else(|| freeze("bool-condition/operator-kind"))?.operator()),
                     };
+                    let comparison = self.frame.evaluation().comparison_plan_v1(node.node).map_err(freeze)?;
+                    let null = comparison.is_some_and(|plan| plan.kind() == crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionKindV1::Null);
                     let (a, b) = match &append.1 {
                         MirInstruction::Compare { dst, op, lhs, rhs }
-                            if *dst == node.value && Some(*op) == expected =>
+                            if !null && *dst == node.value && Some(*op) == expected =>
                         {
                             (*lhs, *rhs)
                         }
+                        MirInstruction::NullCompare { dst, op, lhs, rhs }
+                            if null && *dst == node.value && Some(*op) == expected => (*lhs, *rhs),
                         MirInstruction::BinOp {
                             dst,
                             op,

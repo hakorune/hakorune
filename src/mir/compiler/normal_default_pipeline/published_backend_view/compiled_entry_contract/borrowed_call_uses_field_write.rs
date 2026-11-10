@@ -53,7 +53,7 @@ pub(super) fn guards(state: &FunctionUses, tracked: &BTreeMap<ValueId, BindingRe
                 return Err(fault("borrowed-write/guard-instruction"));
             }
         }
-        let MirInstruction::Compare { op: crate::mir::CompareOp::Eq, lhs, rhs, .. } = &write.null_compare.0.1
+        let MirInstruction::NullCompare { op: crate::mir::CompareOp::Eq, lhs, rhs, .. } = &write.null_compare.0.1
             else { return Err(fault("borrowed-write/null-compare")) };
         let formal = |value: &ValueId| tracked.get(value).or(views.views.get(value));
         if !((formal(lhs) == Some(&write.receiver) && views.null_consts.contains(rhs))
@@ -114,7 +114,7 @@ mod tests {
             state.null_admissions.insert(receiver, 1);
             state.compare_admissions.insert(value, 1);
             state.compare_coordinates = Some([(value, BTreeSet::from([((BasicBlockId(0), 3), 0)]))].into());
-            let null_compare = MirInstruction::Compare { dst: ValueId(92), op: crate::mir::CompareOp::Eq, lhs: ValueId(10), rhs: ValueId(90) };
+            let null_compare = MirInstruction::NullCompare { dst: ValueId(92), op: crate::mir::CompareOp::Eq, lhs: ValueId(10), rhs: ValueId(90) };
             let branch = MirInstruction::Branch { condition: ValueId(92), then_bb: BasicBlockId(1), else_bb: BasicBlockId(2), then_edge_args: None, else_edge_args: None };
             let store = MirInstruction::Invoke { operation: InvokeOperation::FieldSet { mode: crate::mir::instruction::FieldSetModeV1::ExactSlot, field, base: ValueId(10), value: ValueId(11) },
                 fault_frame: ValueId(94), normal_landing: BasicBlockId(3), fault_landing: BasicBlockId(4) };

@@ -53,14 +53,29 @@ fn emit_to_at_recorded(
     lhs: ValueId,
     rhs: ValueId,
 ) -> Result<(crate::mir::BasicBlockId, MirInstruction), String> {
-    require_existing_compare_block(b, block)?;
-    let prepared =
-        PreparedCanonicalCompareBoolTypeV1::prepare(b.function_state.type_ctx.get_type(dst))
-            .map_err(|error| error.to_string())?;
-    let instruction = MirInstruction::Compare { dst, op, lhs, rhs };
-    b.emit_instruction_at(block, instruction.clone())?;
-    prepared.commit(dst, &mut b.function_state.type_ctx);
+    append_comparison(b, block, dst, MirInstruction::Compare { dst, op, lhs, rhs })
+}
+
+fn append_comparison(builder: &mut MirBuilder, block: crate::mir::BasicBlockId,
+    dst: ValueId, instruction: MirInstruction,
+) -> Result<(crate::mir::BasicBlockId, MirInstruction), String> {
+    require_existing_compare_block(builder, block)?;
+    let prepared = PreparedCanonicalCompareBoolTypeV1::prepare(builder.function_state.type_ctx.get_type(dst))
+        .map_err(|error| error.to_string())?;
+    builder.emit_instruction_at(block, instruction.clone())?;
+    prepared.commit(dst, &mut builder.function_state.type_ctx);
     Ok((block, instruction))
+}
+
+pub(in crate::mir::builder) fn emit_planned_recorded(
+    builder: &mut MirBuilder, plan: crate::mir::resolved_semantics::home_new_prefix::ComparisonExecutionPlanV1,
+    dst: ValueId, lhs: ValueId, rhs: ValueId,
+) -> Result<(crate::mir::BasicBlockId, MirInstruction), String> {
+    require_existing_current_compare_block(builder)?;
+    let block = builder.function_state.current_block.expect("validated comparison block");
+    let instruction = plan.instruction_v1(dst, lhs, rhs)
+        .ok_or("[freeze:contract][bool-condition/operator-kind]")?;
+    append_comparison(builder, block, dst, instruction)
 }
 
 fn require_existing_current_compare_block(builder: &MirBuilder) -> Result<(), String> {

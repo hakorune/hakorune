@@ -56,7 +56,7 @@ pub(super) fn collect_nonnull_successors(
     }
     let mut successors: BTreeMap<BindingRefV1, Vec<BasicBlockId>> = BTreeMap::new();
     for (_, instruction) in indexed {
-        let MirInstruction::Compare {
+        let MirInstruction::NullCompare {
             op: crate::mir::CompareOp::Eq,
             lhs,
             rhs,

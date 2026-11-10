@@ -377,6 +377,7 @@ fn issue_function_with_module<'module>(
     ordinary_calls: &[OrdinaryCallSite],
     selected_view: Option<&PublishedMirBackendView<'module>>,
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
+    crate::mir::verification::reject_canonical_legacy_null_comparisons(function).map_err(fault)?;
     validate_object_return_census(function, &role)?;
     let source_field_reads = field_ref::source_array_reads(module, function, selected_view, &role)?;
     let received_field_reads = field_ref::source_received_reads(module, function, selected_view, &role)?;
