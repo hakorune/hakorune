@@ -47,7 +47,7 @@ until the v2 frame and both C consumers are ready. See the
 DOC_SYNC_MIR_KEPT_COUNT=61
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=77
+DOC_SYNC_MIR_VOCABULARY_COUNT=78
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -62,6 +62,15 @@ owners. The row carries no frame or Normal/Fault successor. Its printed name
 is `string_length`; its selected v2 JSON has exactly `op`, `dst`, `value`.
 The retired `StringInvokeOperation::Length` has no producer or reader.
 See the [ABI](../abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2).
+
+`StringIndexOf { dst, value: StringInvokeOperand, needle: StringInvokeOperand }`
+is a nonterminator READ with an I64 Unicode code-point result (empty needle 0,
+not found -1). Each input must be StaticText, OwnedString, BorrowedText or
+TextOperand and readable at this exact row. It borrows, never acquires or Ends,
+and has no frame, site or Normal/Fault edges. It shares length's independent
+Text/domain/liveness and I64-origin checks. Its printer is `string_index_of`;
+selected v2 JSON has exactly `op`, `dst`, `value`, `needle`. Other String
+operations retain their own Fault and cleanup edges.
 
 ### Owned String residence and Return handoff
 
@@ -415,6 +424,7 @@ allowlists are being updated.
 - ArrayResidenceRelease
 - StringResidenceInstall
 - StringLength
+- StringIndexOf
 - ArrayElementWrite
 - ArrayRead
 - MapLiteralEntryWrite

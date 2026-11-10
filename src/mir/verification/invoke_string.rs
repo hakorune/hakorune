@@ -443,17 +443,12 @@ mod tests {
         if let Some(MirInstruction::Invoke { operation: InvokeOperation::String(Op::Substring { start, .. }), .. }) =
             &mut bad_slice.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator { *start = Operand::NormalInteger(ValueId(2)); }
         assert_eq!(check(&bad_slice), Err("string-integer-domain"));
-        for operation in [Op::IndexOf { value: Operand::OwnedString(ValueId(3)), needle: Operand::StaticText { utf8: "界".into() } }] {
-            let mut read = good.clone();
-            if let Some(MirInstruction::Invoke { operation: slot, .. }) = &mut read.blocks.get_mut(&BasicBlockId(2)).unwrap().terminator {
-                *slot = InvokeOperation::String(operation);
-            }
-            read.blocks.get_mut(&BasicBlockId(1002)).unwrap().instructions.push(MirInstruction::InvokeNormalResult {
-                invoke_block: BasicBlockId(2), dst: ValueId(10),
-            });
-            assert!(super::super::check_function(&read).is_ok());
-            assert_eq!(check(&read), Ok(()), "scalar reads borrow without acquisition or End");
-        }
+        let mut read = good.clone();
+        read.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(MirInstruction::StringIndexOf {
+            dst: ValueId(10), value: Operand::OwnedString(ValueId(3)), needle: Operand::StaticText { utf8: "界".into() },
+        });
+        assert!(super::super::check_function(&read).is_ok());
+        assert_eq!(check(&read), Ok(()), "scalar reads borrow without acquisition or End");
         let cases: Vec<(u32, MirInstruction, &str)> = vec![
             (3, end(2, 4, 21), "string-end-order-or-not-live"),
             (4, end(3, 5, 90), "string-end-order-or-not-live"),

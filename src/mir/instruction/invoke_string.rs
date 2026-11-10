@@ -74,7 +74,6 @@ pub enum StringInvokeOperation {
     FieldMaterialize { field: hakorune_mir_defs::CanonicalFieldRefV1, base: ValueId },
     /// Fixed CodePoint operations; the source issuer retains the exact Core law.
     Substring { value: StringInvokeOperand, start: StringInvokeOperand, end: StringInvokeOperand },
-    IndexOf { value: StringInvokeOperand, needle: StringInvokeOperand },
     /// Borrow the root value and write exact bytes followed by a newline.
     Print { value: StringInvokeOperand },
     /// Consume exactly this pair; never an object or raw-handle release.
@@ -87,7 +86,6 @@ impl StringInvokeOperation {
     pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
         match self {
             Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } | Self::FieldMaterialize { .. } => Some(InvokeNormalResultKind::OwnedString),
-            Self::IndexOf { .. } => Some(InvokeNormalResultKind::I64),
             Self::Compare { .. } => Some(InvokeNormalResultKind::Bool),
             Self::Print { .. } | Self::End { .. } | Self::EndIfOwned { .. } => None,
         }
@@ -95,7 +93,7 @@ impl StringInvokeOperation {
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::Add { .. } | Self::Substring { .. } | Self::Materialize { .. } | Self::FieldMaterialize { .. } => EffectMask::READ.add(Effect::Alloc).add(Effect::Control),
-            Self::IndexOf { .. } | Self::Compare { .. } => EffectMask::READ.add(Effect::Control),
+            Self::Compare { .. } => EffectMask::READ.add(Effect::Control),
             // Runtime output preparation may allocate; End consumes residence.
             Self::Print { .. } => EffectMask::IO.add(Effect::Alloc).add(Effect::Control),
             Self::End { .. } | Self::EndIfOwned { .. } => EffectMask::WRITE.add(Effect::Control),
@@ -104,7 +102,6 @@ impl StringInvokeOperation {
     pub fn operands(&self) -> Vec<&StringInvokeOperand> {
         match self {
             Self::Add { left, right } | Self::Compare { left, right, .. } => vec![left, right],
-            Self::IndexOf { value, needle } => vec![value, needle],
             Self::Materialize { value } | Self::Substring { value, .. } | Self::Print { value } => vec![value],
             Self::End { .. } | Self::EndIfOwned { .. } | Self::FieldMaterialize { .. } => vec![],
         }
@@ -125,7 +122,6 @@ impl StringInvokeOperation {
                 left.rewrite_value(&mut rewrite);
                 right.rewrite_value(rewrite);
             }
-            Self::IndexOf { value, needle } => { value.rewrite_value(&mut rewrite); needle.rewrite_value(rewrite); }
             Self::Substring { value, start, end } => {
                 value.rewrite_value(&mut rewrite);
                 start.rewrite_value(&mut rewrite);
@@ -150,7 +146,6 @@ impl StringInvokeOperation {
             Self::Substring { value, start, end } => value.is_text()
                 && matches!(start, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_))
                 && matches!(end, StringInvokeOperand::NormalInteger(_) | StringInvokeOperand::Dynamic(_)),
-            Self::IndexOf { value, needle } => value.is_text() && needle.is_text(),
             Self::Print { value } => !matches!(value, StringInvokeOperand::Dynamic(_) | StringInvokeOperand::DynamicCarrier(_)),
             Self::End { .. } | Self::EndIfOwned { .. } | Self::FieldMaterialize { .. } => true,
         }

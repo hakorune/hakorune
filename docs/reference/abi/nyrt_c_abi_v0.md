@@ -363,6 +363,29 @@ v2. Other String operations retain their existing checked ABI and cleanup.
 Length's removed, non-source-Fault edge needs no cleanup copy; every executable
 Normal and remaining Fault path retains the original acquisition/End order.
 
+String search transport (2026-11-10) is the normal v2 row
+`{"op":"string_index_of","dst":D,"value":T,"needle":T}` with exactly four
+keys. Both operands use the same four Text representations, positional
+readability and definition/origin checks as length. The result is an I64
+Unicode code-point position: empty needle is 0, absence is -1. The instruction
+borrows both values without acquisition, transfer or End, even when identical.
+
+The leaf is `nyash.string.code_point_index_of_v1(const NyrtStringOperandV1*,
+const NyrtStringOperandV1*, int64_t*) -> uint32_t`. It returns only 0 (writes
+output) or 2 (preserves output). Descriptor, lease, generation and exact Text
+checks are shared with length. Leased inputs take the lease lock then registry
+lock once each, validate both occurrences, and search borrowed backing without
+cloning. Output is written after releasing locks. C shares length's strict row
+checks and prologue allocation, adding distinct operand-role names; status
+other than 0 goes to invalid, never a source Fault edge.
+
+The old Invoke `kind:string_index_of` and
+`nyash.string.checked_index_of_v1` are retired; old physical documents reject.
+The raw `indexOf_hh`, two-argument indexOf and compatibility text-state routes
+remain separate. Removing the search Fault edge can remove its exclusive
+cleanup copy; executable Normal and remaining concatenation/call Fault paths
+retain their original acquisition, transfer and End responsibility and order.
+
 Scalar PHIs may carry I64 or BOOL only. Their leading group uses the existing
 physical predecessor/value relations; no resource provenance is merged. Kind
 equality components must have one consistent defining kind, independent of

@@ -322,6 +322,13 @@ def checked_string_physical():
         old_landing["terminator"]["index"] = 1
         compile_input(obsolete, False)
 
+        obsolete_search = copy.deepcopy(cp)
+        old_search = next(b for b in obsolete_search["functions"][0]["blocks"] if b["id"] == 3)
+        old_search["instructions"] = []
+        old_search["terminator"] = {"index":0, "instruction":inv("string_index_of", 4, 20, value=owned(3), needle=literal("界"))}
+        old_search["edges"] = [{"target":4,"args":None},{"target":20,"args":None}]
+        compile_input(obsolete_search, False)
+
         # Several normal reads in one block have separate prologue slots and literals.
         multiple = copy.deepcopy(cp)
         text_block = next(b for b in multiple["functions"][0]["blocks"] if b["id"] == 2)

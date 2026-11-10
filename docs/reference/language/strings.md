@@ -32,6 +32,17 @@ keep their own Fault/cleanup responsibilities. A non-root function needs no
 FaultFrameEnter when length was its only reason for a frame; Root ABI duties
 remain. The runtime borrows Text without cloning its full backing.
 
+## Selected canonical String indexOf
+
+The existing `StringIndexOf/1 -> CodePointSearchFromZero` source law selects a
+normal `StringIndexOf` row. It returns the Unicode code-point position, 0 for
+an empty needle and -1 for absence, independently of `NYASH_STR_CP`. Combining
+marks count separately and supplementary-plane characters count once. Both
+receiver and needle are evaluated once in source order. The read borrows both
+backings without cloning or changing ownership; concatenation, calls and End
+retain their existing Fault and cleanup responsibilities. This transport change
+does not extend accepted source shapes or the two-argument compatibility API.
+
 ## Selected AOT TextScan profile
 
 The selected `hako.text.scan@1` AOT capability fixes the CodePoint/clamped

@@ -361,17 +361,6 @@ pub unsafe extern "C" fn substring_operands(storage: *mut c_void, site: u64,
     unsafe { publish(frame, site, result, out) }
 }
 
-#[export_name = "nyash.string.checked_index_of_v1"]
-pub unsafe extern "C" fn index_of(storage: *mut c_void, _site: u64, value: *const Operand,
-    needle: *const Operand, out: *mut i64) -> u32 {
-    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
-    if let Err(s) = unsafe { frame(storage) } { return s as u32; }
-    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
-    let needle = match unsafe { text_operand(needle) } { Ok(v) => v, Err(s) => return s as u32 };
-    unsafe { out.write(string_ops::index_of(&value, &needle, None, StringIndexMode::CodePoint)) };
-    Status::Normal as u32
-}
-
 /// Caller guarantees live nonoverlapping frame/operands/out storage. The
 /// tagged Dynamic operand preserves its original source tag and payload.
 /// Normal alone writes both result words and creates one fresh End obligation.

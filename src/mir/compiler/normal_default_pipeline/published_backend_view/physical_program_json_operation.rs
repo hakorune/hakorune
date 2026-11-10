@@ -95,7 +95,6 @@ pub(super) fn encode_invoke(
                     "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
                     "base":value(base)}),
                 Op::Substring { value:v, start, end } => json!({"kind":"string_substring", "value":operand(v), "start":operand(start), "end":operand(end)}),
-                Op::IndexOf { value, needle } => json!({"kind":"string_index_of", "value":operand(value), "needle":operand(needle)}),
                 Op::Print { value } => json!({"kind":"string_print", "value":operand(value)}),
                 Op::End { value:v } => json!({"kind":"string_end", "value":value(v)}),
                 Op::EndIfOwned { value:v } => json!({"kind":"string_end_if_owned", "value":value(v)}),

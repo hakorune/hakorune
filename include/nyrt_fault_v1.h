@@ -160,8 +160,6 @@ uint32_t nyrt_string_checked_substring_v1(void *, uint64_t, const NyrtStringOper
 uint32_t nyrt_string_checked_substring_operands_v1(void *, uint64_t,
     const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, NyrtOwnedStringV1 *)
     __asm__("nyash.string.checked_substring_operands_v1");
-uint32_t nyrt_string_checked_index_of_v1(void *, uint64_t, const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, int64_t *)
-    __asm__("nyash.string.checked_index_of_v1");
 
 uint32_t nyrt_fault_frame_init_v1(void *) __asm__("nyash.fault.frame_init_v1");
 uint32_t nyrt_fault_record_static_v1(void *, uint32_t, uint64_t, int64_t, int64_t)

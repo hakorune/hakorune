@@ -51,7 +51,6 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     StringMaterialize,
     StringCompare,
     StringSubstring,
-    StringIndexOf,
     StringPrint,
     StringEnd,
     DynamicInvocation,
@@ -126,7 +125,6 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 crate::mir::instruction::StringInvokeOperation::Add { .. } => Self::StringAdd,
                 crate::mir::instruction::StringInvokeOperation::Compare { .. } => Self::StringCompare,
                 crate::mir::instruction::StringInvokeOperation::Substring { .. } => Self::StringSubstring,
-                crate::mir::instruction::StringInvokeOperation::IndexOf { .. } => Self::StringIndexOf,
                 crate::mir::instruction::StringInvokeOperation::Print { .. } => Self::StringPrint,
                 crate::mir::instruction::StringInvokeOperation::End { .. }
                     | crate::mir::instruction::StringInvokeOperation::EndIfOwned { .. } => Self::StringEnd,

@@ -20,8 +20,7 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.string.code_point_count_v1\"(ptr, ptr)\n"
       "declare i32 @\"nyash.string.code_point_index_of_v1\"(ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_materialize_v1\"(ptr, i64, ptr, ptr)\n"
-      "declare i32 @\"nyash.string.checked_substring_operands_v1\"(ptr, i64, ptr, ptr, ptr, ptr)\n"
-      "declare i32 @\"nyash.string.checked_index_of_v1\"(ptr, i64, ptr, ptr, ptr)\n");
+      "declare i32 @\"nyash.string.checked_substring_operands_v1\"(ptr, i64, ptr, ptr, ptr, ptr)\n");
   for (size_t fi = 0; fi < yyjson_arr_size(in->functions); fi++) {
     yyjson_val* blocks = hako_physical_blocks(yyjson_arr_get(in->functions, fi));
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {

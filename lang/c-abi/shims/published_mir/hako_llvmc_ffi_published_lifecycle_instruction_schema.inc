@@ -25,7 +25,6 @@ static int hako_physical_owned_object_borrow_field(yyjson_val* layouts,
 static int hako_physical_string_result(const char* kind) {
   if (!kind) return 0;
   if (!strcmp(kind, "string_add") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_materialize") || !strcmp(kind, "string_field_materialize")) return 1;
-  if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_index_of")) return 2;
   if (!strcmp(kind, "string_compare")) return 3; /* Bool, never I64 */
   return 0;
 }
@@ -41,14 +40,14 @@ static size_t hako_physical_string_operand_count(yyjson_val* op) {
   if (hako_physical_array_text_append(op) || hako_physical_map_field_text_access(op)) return 1;
   if (!hako_physical_string_kind(kind) || !strcmp(kind, "string_end") || !strcmp(kind, "string_end_if_owned") || !strcmp(kind, "string_field_materialize")) return 0;
   if (!strcmp(kind, "string_substring")) return 3;
-  return !strcmp(kind, "string_add") || !strcmp(kind, "string_compare") || !strcmp(kind, "string_index_of") ? 2 : 1;
+  return !strcmp(kind, "string_add") || !strcmp(kind, "string_compare") ? 2 : 1;
 }
 static yyjson_val* hako_physical_string_operand_at(yyjson_val* op, size_t ordinal) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (hako_physical_map_field_text_access(op)) return ordinal ? NULL : yyjson_obj_get(op, "key");
   if (kind && !strcmp(kind, "string_substring"))
     return yyjson_obj_get(op, ordinal == 0 ? "value" : ordinal == 1 ? "start" : ordinal == 2 ? "end" : "");
-  const char* field = kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_compare")) ? (ordinal ? "right" : "left") : (ordinal ? "needle" : "value");
+  const char* field = kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_compare")) ? (ordinal ? "right" : "left") : "value";
   return yyjson_obj_get(op, field);
 }
 /* One comparison spelling/opcode table shared by validation and emission. */
@@ -256,13 +255,12 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1, 0, 0) &&
         hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 0, 1, 1);
   }
-  if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_index_of")) {
+  if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_substring")) {
     static const char* const read[] = {"kind", "value", "site"};
     static const char* const slice[] = {"kind", "value", "start", "end", "site"};
-    static const char* const search[] = {"kind", "value", "needle", "site"};
-    int substring = !strcmp(kind, "string_substring"), index_of = !strcmp(kind, "string_index_of");
-    if (!hako_physical_exact_keys(operation, substring ? slice : index_of ? search : read,
-        substring ? 5 : index_of ? 4 : 3) || !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)) return 0;
+    int substring = !strcmp(kind, "string_substring");
+    if (!hako_physical_exact_keys(operation, substring ? slice : read,
+        substring ? 5 : 3) || !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)) return 0;
     for (size_t role = 0; role < hako_physical_string_operand_count(operation); role++) {
       int text_only = !substring || role == 0;
       int allow_dynamic = substring && role > 0;
