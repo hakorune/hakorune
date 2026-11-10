@@ -77,6 +77,27 @@ impl Live {
             _ => false,
         }
     }
+    fn check_text_reads(
+        &self,
+        operands: &[&Operand],
+        faulted: bool,
+        source: &TextSourceImage,
+    ) -> Result<(), &'static str> {
+        if !operands.is_empty()
+            && (faulted || self.replacement.is_some() || self.hold.is_some()
+                || self.call_pending.is_some())
+        {
+            return Err("string-effect-after-fault");
+        }
+        for operand in operands {
+            if matches!(operand, Operand::TextOperand(value) if !self.descriptor_live(*value, source))
+                || matches!(operand, Operand::OwnedString(value) if !self.contains(value))
+            {
+                return Err("string-borrow-not-live");
+            }
+        }
+        Ok(())
+    }
     fn end(
         &mut self,
         value: ValueId,
@@ -608,27 +629,7 @@ pub(super) fn check(
             }
             let displaced_replacement = live.replacement;
             if let MirInstruction::Invoke { operation, .. } = term {
-                if !text_operands(operation).is_empty()
-                    && (faulted
-                        || live.replacement.is_some()
-                        || live.hold.is_some()
-                        || live.call_pending.is_some())
-                    && !matches!(
-                        operation,
-                        InvokeOperation::String(Op::End { .. } | Op::EndIfOwned { .. })
-                    )
-                {
-                    return Err("string-effect-after-fault");
-                }
-                for operand in text_operands(operation) {
-                    if matches!(operand, Operand::TextOperand(value) if !live.descriptor_live(*value, source))
-                    {
-                        return Err("string-borrow-not-live");
-                    }
-                    if matches!(operand, Operand::OwnedString(value) if !live.contains(value)) {
-                        return Err("string-borrow-not-live");
-                    }
-                }
+                live.check_text_reads(&text_operands(operation), faulted, source)?;
                 if let InvokeOperation::String(Op::EndIfOwned { value }) = operation {
                     if !source.permits_operation(id, term)
                         || !live.end_carrier(*value, faulted, source)
