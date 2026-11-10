@@ -58,10 +58,15 @@ pub(super) fn preflight<E>(
         let alias_null = |value: &SourceExprSiteV1, null: &SourceExprSiteV1| {
             let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(value)? else { return None; };
             let local_flow::FieldReadReceiverV1::Alias { root, .. } = locals.field_read_receiver(binding, None)? else { return None; };
-            matches!(locals.observe(null), Some(OrdinaryObservation::Null)).then_some((binding, root))
+            let direct_null = matches!(expression_source_v1(ledger, input.body_shape(), null),
+                Some(ResolvedExpressionSourceV1::Literal(ResolvedLiteralSourceV1::Null)));
+            matches!(locals.observe(null), Some(OrdinaryObservation::Null)).then_some((binding, root, direct_null))
         };
-        if let Some((binding, root)) = alias_null(row.lhs(), row.rhs()).or_else(|| alias_null(row.rhs(), row.lhs())) {
-            if local_initializer_profile && is_root {
+        if let Some((binding, root, direct_null)) = alias_null(row.lhs(), row.rhs()).or_else(|| alias_null(row.rhs(), row.lhs())) {
+            // Stored null locals keep their existing scalar law. Only an
+            // original literal can supply the direct sentinel of NullCompare;
+            // a local reference is never rewritten into a fresh literal.
+            if local_initializer_profile && is_root && direct_null {
                 let mut initializers = input.function().expression_source().initializers()
                     .filter(|initializer| initializer.initializer_site() == Some(site));
                 let Some(initializer) = initializers.next() else { return Ok(None); };
