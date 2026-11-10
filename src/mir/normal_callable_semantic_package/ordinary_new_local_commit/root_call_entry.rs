@@ -692,7 +692,7 @@ pub(in crate::mir) use expression_projection::{
     BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, EvaluatedExpressionValueV1, ExpressionCallArgumentSourceV1,
     ExpressionCallTransientPrefixV1, ExpressionReferenceReadV1, ScalarBindingReadProofV1,
 };
-pub(crate) use initializer_expression_projection::EmittedInitializerExpressionProjectionV1;
+pub(crate) use initializer_expression_projection::{EmittedInitializerExpressionProjectionV1, EmittedComparisonInitializerProjectionV1};
 pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
 
 #[path = "root_call_entry/owned_array_append_projection.rs"]

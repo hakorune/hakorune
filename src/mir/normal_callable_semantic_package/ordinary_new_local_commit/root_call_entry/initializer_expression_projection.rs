@@ -616,57 +616,80 @@ impl OrdinaryNewClaimLedgerV1 {
 #[path = "initializer_expression_projection_tests.rs"]
 mod tests;
 
-impl OrdinaryNewClaimLedgerV1 {
-    /// Same completed Local Copy law for scalar/Text and nonowning get purposes.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_initializer_local_copy_v1(
-        &self,
-        context: CallValidationContextV1<'_>,
-        function: &MirFunction,
+#[path = "initializer_local_copy.rs"]
+mod local_copy;
+
+
+/// Source-only comparison receipt in the existing evaluated-binding pool.
+#[derive(Debug)]
+pub(crate) struct EmittedComparisonInitializerProjectionV1 {
+    source: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
+    value: ValueId, local: ValueId, copy: Option<Binding>,
+    children: (ValueId, ValueId), original: Binding,
+    operands: [Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>; 2],
+    dependencies: Vec<Binding>,
+}
+impl EmittedComparisonInitializerProjectionV1 {
+    pub(super) fn source(&self) -> &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1> { &self.source }
+    pub(super) fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        bindings: &[Binding], coordinates: Option<&super::super::physical_boundary::FinishedBindings>,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        value: ValueId,
-        local: ValueId,
-        copy: Option<&Binding>,
-    ) -> Result<Option<Binding>, String> {
-        if let Some(copy) = copy {
-            if !matches!(copy.1, MirInstruction::Copy { dst, src } if dst == local && src == value)
-            {
-                return Err(freeze("initializer-expression/local-copy-receipt"));
-            }
-            let actual = match (finishing, context) {
-                (Some(boundary), CallValidationContextV1::Finalized(_)) => {
-                    boundary.relation_binding(function, copy)?
-                }
-                (Some(boundary), CallValidationContextV1::Lowering(_)) => {
-                    if boundary.captured_definition(local)? != copy {
-                        return Err(freeze("initializer-expression/local-copy-capture"));
-                    }
-                    None
-                }
-                (None, _) => Some(copy.clone()),
-            };
-            if let Some((block, instruction)) = &actual {
-                let mut definitions = function
-                    .blocks
-                    .iter()
-                    .flat_map(|(id, body)| body.all_instructions().map(move |row| (*id, row)))
-                    .filter(|(_, row)| row.dst_value() == Some(local));
-                if function.params.contains(&local)
-                    || definitions.next() != Some((*block, instruction))
-                    || definitions.next().is_some()
-                {
-                    return Err(freeze("initializer-expression/local-definition-identity"));
-                }
-                if !super::super::physical_boundary::check_binding(
-                    function,
-                    None,
-                    *block,
-                    instruction,
-                )? {
-                    return Err(freeze("initializer-expression/local-copy-missing"));
-                }
-            }
-            return Ok(actual);
+    ) -> Result<(), String> {
+        let source = self.source.source();
+        let current = context.ledger().comparison_initializer_source_v1(source.owner(), source.nodes()[0].site())?
+            .ok_or_else(|| freeze("initializer-expression/comparison-source"))?;
+        if !Rc::ptr_eq(&current, &self.source) { return Err(freeze("initializer-expression/comparison-source")); }
+        let plan = self.source.alias_comparison_plan_v1().map_err(freeze)?;
+        let (lhs, rhs) = match &self.original.1 {
+            MirInstruction::NullCompare { dst, lhs, rhs, .. } if *dst == self.value => (*lhs, *rhs),
+            _ => return Err(freeze("initializer-expression/comparison-original")),
+        };
+        if plan.instruction_v1(self.value, lhs, rhs).as_ref() != Some(&self.original.1)
+            || self.operands[0].values() != (self.children.0, lhs) || self.operands[1].values() != (self.children.1, rhs) {
+            return Err(freeze("initializer-expression/comparison-operands"));
         }
-        Ok(None)
+        let (_, null) = self.source.nullable_alias_null_v1().ok_or_else(|| freeze("initializer-expression/comparison-source"))?;
+        let [left, _] = plan.operands().ok_or_else(|| freeze("initializer-expression/comparison-source"))?;
+        let original_null = if null == left { self.children.0 } else { self.children.1 };
+        let mut null_rows = self.dependencies.iter().filter(|(_, row)| row.dst_value() == Some(original_null));
+        if !matches!(null_rows.next(), Some((_, MirInstruction::Const { value: crate::mir::ConstValue::Null, .. })))
+            || null_rows.next().is_some() { return Err(freeze("initializer-expression/comparison-null-source")); }
+        let map = |binding: &Binding| match finishing {
+            Some(boundary) => boundary.relation_binding(function, binding), None => Ok(Some(binding.clone())),
+        };
+        let mut expected = self.dependencies.clone();
+        if !expected.contains(&self.original) { expected.push(self.original.clone()); }
+        if let Some(copy) = &self.copy { if !expected.contains(copy) { expected.push(copy.clone()); } }
+        let projected = match coordinates { Some(boundary) => boundary.bindings(&expected)?, None => expected.clone() };
+        if bindings != projected { return Err(freeze("initializer-expression/comparison-inventory")); }
+        for relation in &self.operands { relation.verify_projected(function, &mut |binding| map(binding))?; }
+        let physical = expected.iter().map(map).collect::<Result<Vec<_>,_>>()?.into_iter().flatten().collect::<Vec<_>>();
+        let actual = map(&self.original)?.ok_or_else(|| freeze("initializer-expression/comparison-removed"))?;
+        if actual.1 != self.original.1 { return Err(freeze("initializer-expression/comparison-drift")); }
+        for binding in &physical {
+            if !super::super::physical_boundary::check_binding(function, None, binding.0, &binding.1)? {
+                return Err(freeze("initializer-expression/comparison-binding"));
+            }
+        }
+        context.ledger().validate_initializer_local_copy_v1(context, function, finishing,
+            self.value, self.local, self.copy.as_ref())?;
+        Ok(())
+    }
+}
+impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn prepare_comparison_initializer_bindings_v1(&self,
+        source: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
+        value: ValueId, local: ValueId, copy: Option<Binding>, children: (ValueId, ValueId), original: Binding,
+        operands: [Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>; 2], dependencies: Vec<Binding>,
+        function: &MirFunction,
+    ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
+        let owner = source.source().owner();
+        let mut bindings = dependencies.clone();
+        if !bindings.contains(&original) { bindings.push(original.clone()); }
+        if let Some(copy) = &copy { if !bindings.contains(copy) { bindings.push(copy.clone()); } }
+        let packet = Rc::new(EmittedComparisonInitializerProjectionV1 { source, value, local, copy,
+            children, original, operands, dependencies });
+        packet.validate(CallValidationContextV1::Lowering(self), function, &bindings, None, None)?;
+        self.prepare_local_call_binding_group(owner, RootLifecyclePrefixBindingGroupV1::new_comparison_initializer(packet, bindings))
     }
 }

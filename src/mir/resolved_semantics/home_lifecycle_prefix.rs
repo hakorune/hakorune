@@ -41,6 +41,7 @@ pub(crate) enum LifecyclePrefixSourceV1 {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedBindingRebindFrameV1>,
     },
+    ComparisonInitializer { site: OwnedExprSiteV1, operation: std::rc::Rc<CheckedExpressionOperationLoanV1> },
     InitializerExpression {
         site: OwnedExprSiteV1,
         frame: std::rc::Rc<CheckedInitializerExpressionFrameV1>,
@@ -65,6 +66,7 @@ impl LifecyclePrefixSourceV1 {
             | Self::StoredMapGet { site, .. }
             | Self::Loop { site, .. }
             | Self::BindingRebind { site, .. }
+            | Self::ComparisonInitializer { site, .. }
             | Self::InitializerExpression { site, .. }
             | Self::SharedInitializer { site, .. }
             | Self::BorrowedFieldWrite { site, .. }
@@ -85,6 +87,7 @@ impl LifecyclePrefixSourceV1 {
             Self::FieldArrayAppend { proof, .. } => proof.site(),
             Self::FieldTextAppend { frame, .. } => frame.statement(),
             Self::BindingRebind { frame, .. } => frame.source().root().statement(),
+            Self::ComparisonInitializer { operation, .. } => operation.source().root().statement(),
             Self::InitializerExpression { frame, .. } => frame.source().root().statement(),
             Self::SharedInitializer { source, .. } => source.root().statement(),
             Self::PrintExpression { frame, .. } => frame.source().root().statement(),
@@ -99,6 +102,7 @@ impl LifecyclePrefixSourceV1 {
             | Self::StoredMapGet { .. }
             | Self::Loop { .. }
             | Self::BindingRebind { .. }
+            | Self::ComparisonInitializer { .. }
             | Self::InitializerExpression { .. }
             | Self::SharedInitializer { .. }
             | Self::BorrowedFieldWrite { .. }
@@ -241,6 +245,11 @@ impl RootHomeFlow {
                     frame: std::rc::Rc::clone(frame),
                 }),
         );
+        prefixes.extend(self.expression_plans.iter().filter(standalone).filter_map(HomeExpressionPlanV1::comparison_root)
+            .map(|operation| LifecyclePrefixSourceV1::ComparisonInitializer {
+                site: OwnedExprSiteV1::new(operation.source().owner(), operation.source().nodes()[0].site().clone()),
+                operation: std::rc::Rc::clone(operation),
+            }));
         prefixes.extend(initializers.into_iter().map(|frame| {
             LifecyclePrefixSourceV1::InitializerExpression {
                 site: OwnedExprSiteV1::new(

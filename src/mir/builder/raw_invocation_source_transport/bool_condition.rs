@@ -6,6 +6,13 @@ use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 
 use crate::mir::resolved_semantics::{home_new_prefix::CheckedBoolConditionFrameV1, OwnedExprSiteV1, SourceExprSiteV1};
 
 impl RawInvocationChildPortV1<'_, '_> {
+    pub(super) fn observe_completed_source_binary_v1(&mut self, builder: &mut MirBuilder,
+        children: (ValueId, ValueId), completed: &crate::mir::builder::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        self.observe_write_guard_binary_v1(builder, children, completed)?;
+        self.observe_initializer_comparison_v1(builder, children, completed)
+    }
+
     pub(super) fn source_bool_condition_frame_v1(&self) -> Result<Option<Rc<CheckedBoolConditionFrameV1>>, String> {
         let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None); };
         let node = self.current_source_site_v1().ok_or("[freeze:contract][bool-condition/statement-site-missing]")?;

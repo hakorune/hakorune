@@ -16,7 +16,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
 
     fn observe_borrowed_field_write_guard_binary_v1(&mut self, builder: &mut MirBuilder,
         children: (ValueId, ValueId), completed: &super::super::ops::CompletedOrdinaryBinaryV1,
-    ) -> Result<(), String> { self.observe_write_guard_binary_v1(builder, children, completed) }
+    ) -> Result<(), String> { self.observe_completed_source_binary_v1(builder, children, completed) }
     fn prepare_borrowed_field_write_guard_observer_v1(&mut self)
         -> Result<Option<Box<dyn super::super::if_form::IfFormPhysicalObserverV1>>, String> {
         self.write_guard_observer_v1()

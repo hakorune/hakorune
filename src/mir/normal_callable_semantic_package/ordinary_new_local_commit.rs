@@ -731,7 +731,7 @@ pub(crate) use root_home::{FrameFreeExpressionReadV1, checked_expression_core_op
 pub(in crate::mir) use root_home::{EvaluatedExpressionValueV1, BranchScalarPhiObservationV1, BranchTextPhiObservationV1, BranchReadPhiObservationV1, ExpressionReferenceReadV1, ExpressionCallTransientPrefixV1, ExpressionCallArgumentSourceV1, validate_expression_acquisition_prefix_v1, validate_expression_acquisition_scope_v1};
 #[cfg(test)]
 pub(in crate::mir) use root_home::ExpressionPhysicalProjectionRefV1;
-pub(crate) use root_home::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1};
+pub(crate) use root_home::{EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, EmittedComparisonInitializerProjectionV1};
 
 #[cfg(test)]
 #[path = "ordinary_new_local_commit/root_return_construction_tests.rs"]

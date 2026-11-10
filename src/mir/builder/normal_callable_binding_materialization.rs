@@ -6,7 +6,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::stmts::{drive_local_statement_with_placement_v1, RawLegacyLocalInputV1};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
-use crate::mir::{MirBuilder, ValueId};
+use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
 use super::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
@@ -15,6 +15,12 @@ use super::raw_invocation_source_transport::RawSourceTransportPortV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
 };
+
+pub(in crate::mir::builder) struct ComparisonInitializerObservationV1 {
+    source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
+    ordinal: u32,
+    completed: Option<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1>,
+}
 
 impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn callable_result_owner_v1(&self) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, String> {
@@ -270,6 +276,13 @@ impl RawInvocationChildPortV1<'_, '_> {
                 builder, &mut state.borrow_mut(), &claims, frame, ordinal)?;
             return Ok(Some(super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1::StoredMapGet(pending)));
         }
+        if let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source {
+            if let Some(node) = context.site() {
+                if let Some(loan) = claims.comparison_initializer_source_v1(owner, &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node.clone()))? {
+                    return self.emit_comparison_initializer_v1(builder, source, statement, ordinal, loan).map(Some);
+                }
+            }
+        }
         let Some(frame) = claims.initializer_expression_frame_v1(state.borrow().owner(), &site)? else { return Ok(None) };
         let super::raw_structured_child_scope::PreparedRawChildSourceV1::Exact(context) = source else {
             return Err(freeze("initializer-expression/exact-source-required"));
@@ -446,4 +459,49 @@ impl RawInvocationChildPortV1<'_, '_> {
 
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][callable-semantic-lowering/{reason}]")
+}
+
+impl RawInvocationChildPortV1<'_, '_> {
+    fn emit_comparison_initializer_v1(&mut self, builder: &mut MirBuilder,
+        source: &super::raw_structured_child_scope::PreparedRawChildSourceV1, statement: &ASTNode, ordinal: u32,
+        loan: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
+    ) -> Result<super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1, String> {
+        use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
+        let ASTNode::Local { initial_values, .. } = statement else { return Err(freeze("initializer-expression/local-source")); };
+        let input = initial_values.get(ordinal as usize).and_then(Option::as_deref).ok_or_else(|| freeze("initializer-expression/source-drift"))?;
+        if self.comparison_initializer_emission.is_some() || self.bool_condition_emission.is_some()
+            || !matches!(loan.source().root().initializer().map(|row| row.declaration_site()),
+                Some(crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: original, .. }) if *original == ordinal) {
+            return Err(freeze("initializer-expression/source-drift"));
+        }
+        let observation = std::rc::Rc::new(std::cell::RefCell::new(ComparisonInitializerObservationV1 { source: loan, ordinal, completed: None }));
+        self.comparison_initializer_emission = Some(std::rc::Rc::clone(&observation));
+        let value = self.with_prepared_child_source_v1(source.clone(), |child| child.lower_expression(builder, input.clone()));
+        self.comparison_initializer_emission = None;
+        let value = value?;
+        let pending = observation.borrow_mut().completed.take().ok_or_else(|| freeze("initializer-expression/comparison-observation"))?;
+        if pending.value() != value { return Err(freeze("initializer-expression/comparison-value")); }
+        Ok(pending)
+    }
+    pub(super) fn observe_initializer_comparison_v1(&mut self, builder: &mut MirBuilder,
+        children: (ValueId, ValueId), completed: &super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        let Some(observation) = self.comparison_initializer_emission.clone() else { return Ok(()); };
+        let mut observation = observation.borrow_mut();
+        if self.current_source_site_v1().as_ref() != Some(observation.source.source().nodes()[0].site().node()) { return Ok(()); }
+        if observation.completed.is_some() { return Err(freeze("initializer-expression/comparison-repeated")); }
+        let original = completed.comparison_original().ok_or_else(|| freeze("initializer-expression/comparison-writer"))?.clone();
+        let MirInstruction::NullCompare { lhs, rhs, .. } = original.1 else { return Err(freeze("initializer-expression/comparison-writer")); };
+        let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+        let relations = &mut builder.function_state.local_ssa_correspondence;
+        let left = relations.loan(function, children.0, lhs).ok_or_else(|| freeze("initializer-expression/comparison-left"))?;
+        let right = relations.loan(function, children.1, rhs).ok_or_else(|| freeze("initializer-expression/comparison-right"))?;
+        let mut dependencies = Vec::new();
+        left.append_observed_bindings_v1(&mut dependencies); right.append_observed_bindings_v1(&mut dependencies);
+        observation.completed = Some(super::ordinary_new_admission::selected::initializer_expression::PendingInitializerExpressionV1::Comparison {
+            ordinal: observation.ordinal, source: std::rc::Rc::clone(&observation.source), value: completed.value(), children,
+            original, operands: [left, right], dependencies,
+        });
+        Ok(())
+    }
 }

@@ -7,6 +7,8 @@ use crate::mir::normal_callable_semantic_package::{
 use std::rc::Rc;
 #[path = "direct_scalar_call.rs"]
 mod direct_scalar;
+#[path = "local_binding_source.rs"]
+mod source_match;
 use direct_scalar::DirectScalarCallProjectionV1;
 
 #[derive(Debug, Clone)]
@@ -38,6 +40,7 @@ enum PrefixPhysicalProofV1 {
 #[derive(Debug, Clone)]
 enum EvaluatedBindingProjectionV1 {
     Initializer(Rc<EmittedInitializerExpressionProjectionV1>),
+    ComparisonInitializer(Rc<EmittedComparisonInitializerProjectionV1>),
     Rebind(Rc<binding_rebind_projection::EmittedBindingRebindProjectionV1>),
 }
 
@@ -489,6 +492,10 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
         self.initializer_rc().map(Rc::as_ref)
     }
+    pub(super) fn new_comparison_initializer(packet: Rc<EmittedComparisonInitializerProjectionV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Self {
+        Self { site: OwnedExprSiteV1::new(packet.source().source().owner(), packet.source().source().nodes()[0].site().clone()),
+            bindings, proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)), projected: false }
+    }
     pub(super) fn new_initializer(
         packet: Rc<EmittedInitializerExpressionProjectionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
@@ -605,69 +612,7 @@ impl RootLifecyclePrefixBindingGroupV1 {
             _ => None,
         }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn matches_source(
-        &self,
-        source: &LifecyclePrefixSourceV1,
-    ) -> bool {
-        if self.site() != source.site() {
-            return false;
-        }
-        match (&self.proof, source) {
-            (PrefixPhysicalProofV1::SharedInitializer(packet), LifecyclePrefixSourceV1::SharedInitializer { source, .. }) => Rc::ptr_eq(&packet.source, source),
-            (PrefixPhysicalProofV1::FieldMapInstall(packet), LifecyclePrefixSourceV1::FieldMapInstall { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
-            (
-                PrefixPhysicalProofV1::StoredMapGet(packet),
-                LifecyclePrefixSourceV1::StoredMapGet { frame, .. },
-            ) => Rc::ptr_eq(packet.frame(), frame),
-            (
-                PrefixPhysicalProofV1::Loop(packet),
-                LifecyclePrefixSourceV1::Loop { product, .. },
-            ) => Rc::ptr_eq(packet.product(), product),
-            (
-                PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
-                    packet,
-                )),
-                LifecyclePrefixSourceV1::InitializerExpression { frame, .. },
-            ) => Rc::ptr_eq(packet.frame(), frame),
-            (
-                PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
-                    packet,
-                )),
-                LifecyclePrefixSourceV1::BindingRebind { frame, .. },
-            ) => Rc::ptr_eq(packet.frame(), frame),
-            (
-                PrefixPhysicalProofV1::BorrowedFieldWrite(packet),
-                LifecyclePrefixSourceV1::BorrowedFieldWrite { frame, .. },
-            ) => Rc::ptr_eq(packet.source().frame(), frame),
-            (
-                PrefixPhysicalProofV1::Call(_) | PrefixPhysicalProofV1::DirectScalar(_),
-                LifecyclePrefixSourceV1::Call { .. },
-            ) => true,
-            (
-                PrefixPhysicalProofV1::FieldArrayAppend(packet),
-                LifecyclePrefixSourceV1::FieldArrayAppend { proof, index, .. },
-            ) => packet.source().matches_original(proof, *index),
-            (
-                PrefixPhysicalProofV1::FieldArrayAppend(packet),
-                LifecyclePrefixSourceV1::FieldTextAppend { frame, .. },
-            ) => packet.source().matches_text_frame(frame),
-            (
-                PrefixPhysicalProofV1::BoolCondition(packet),
-                LifecyclePrefixSourceV1::BoolCondition { frame, .. },
-            ) => Rc::ptr_eq(packet.frame(), frame),
-            (
-                PrefixPhysicalProofV1::PrintExpression(packet),
-                LifecyclePrefixSourceV1::PrintExpression { frame, .. },
-            ) => Rc::ptr_eq(packet.frame(), frame),
-            (
-                PrefixPhysicalProofV1::OwnedArrayAppend(packet),
-                LifecyclePrefixSourceV1::OwnedArrayAppend {
-                    holder, candidate, ..
-                },
-            ) => packet.source().matches_original_v1(holder, candidate),
-            _ => false,
-        }
-    }
+
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded(
         &self,
@@ -695,6 +640,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 .validate_text_residence_home_v1(&home, context)?;
         }
         match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)) =>
+                packet.validate(context, function, &self.bindings, coordinates, finishing),
             PrefixPhysicalProofV1::SharedInitializer(packet) => packet.validate_shared_v1(context.ledger(), function, coordinates),
             PrefixPhysicalProofV1::Loop(packet) => packet.validate_completion_v2(
                 context,

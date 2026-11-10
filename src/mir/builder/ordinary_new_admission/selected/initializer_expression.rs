@@ -10,6 +10,9 @@ type Binding = (BasicBlockId, MirInstruction);
 /// One pending Local transport, with purpose-specific value and publication laws.
 pub(in crate::mir::builder) enum PendingInitializerExpressionV1 {
     Expression(PendingEvaluatedInitializerV1),
+    Comparison { ordinal: u32, source: Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1>,
+        value: ValueId, children: (ValueId, ValueId), original: Binding,
+        operands: [Rc<crate::mir::builder::LocalSsaPhysicalRelationV1>; 2], dependencies: Vec<Binding> },
     StoredMapGet(terminal_map_get::PendingLocalV1),
     Move { ordinal: u32, value: ValueId },
     Shared {
@@ -25,14 +28,15 @@ pub(in crate::mir::builder) enum PendingInitializerExpressionV1 {
 }
 impl PendingInitializerExpressionV1 {
     pub(in crate::mir::builder) fn ordinal(&self) -> u32 {
-        match self { Self::Expression(p) => p.ordinal(), Self::StoredMapGet(p) => p.ordinal(), Self::Move { ordinal, .. } | Self::Shared { ordinal, .. } => *ordinal }
+        match self { Self::Expression(p) => p.ordinal(), Self::StoredMapGet(p) => p.ordinal(), Self::Move { ordinal, .. } | Self::Shared { ordinal, .. } | Self::Comparison { ordinal, .. } => *ordinal }
     }
     pub(in crate::mir::builder) fn value(&self) -> ValueId {
-        match self { Self::Expression(p) => p.value(), Self::StoredMapGet(p) => p.value(), Self::Move { value, .. } | Self::Shared { value, .. } => *value }
+        match self { Self::Expression(p) => p.value(), Self::StoredMapGet(p) => p.value(), Self::Move { value, .. } | Self::Shared { value, .. } | Self::Comparison { value, .. } => *value }
     }
     pub(in crate::mir::builder) fn placement(&self, value: ValueId) -> Result<crate::mir::builder::stmts::variable_stmt::LocalValuePlacement, String> {
         match self {
             Self::Expression(p) => p.placement(value),
+            Self::Comparison { value: original, .. } if *original == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy),
             Self::StoredMapGet(p) if p.value() == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy),
             Self::Move { value: source, .. } | Self::Shared { value: source, .. } if *source == value => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::ReuseInitializer),
             _ => Err(freeze("initializer-expression/placement-value")),
@@ -47,6 +51,11 @@ impl PendingInitializerExpressionV1 {
             Self::StoredMapGet(p) => p.publish(receipt, ledger, function),
             Self::Move { ordinal, value } if receipt.ordinal() == ordinal && receipt.initializer() == value && receipt.local() == value && receipt.copy().is_none() => Ok(()),
             Self::Move { .. } => Err(freeze("move-initializer/local-receipt")),
+            Self::Comparison { ordinal, source, value, children, original, operands, dependencies } => {
+                if receipt.ordinal() != ordinal || receipt.initializer() != value { return Err(freeze("initializer-expression/local-receipt")); }
+                ledger.prepare_comparison_initializer_bindings_v1(source, value, receipt.local(), receipt.copy().cloned(),
+                    children, original, operands, dependencies, function)?.commit()
+            }
             Self::Shared { ordinal, source, payload_source, prior_homes, descriptor, payload, value, bindings } => {
                 if receipt.ordinal() != ordinal || receipt.initializer() != value || receipt.local() != value || receipt.copy().is_some() {
                     return Err(freeze("shared-initializer/local-receipt"));

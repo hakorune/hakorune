@@ -259,7 +259,7 @@ pub(in crate::mir) use ordinary_new_coseal::{EvaluatedExpressionValueV1, BranchS
 #[cfg(test)]
 pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;
 pub(in crate::mir) use ordinary_new_coseal::EmittedDynamicInvocationCallProjectionV1;
-pub(crate) use ordinary_new_coseal::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1};
+pub(crate) use ordinary_new_coseal::{RootLifecyclePrefixBindingGroupV1, EmittedFieldArrayAppendV1, FieldAppendTextProjectionV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, EmittedBindingRebindProjectionV1, EmittedInitializerExpressionProjectionV1, EmittedComparisonInitializerProjectionV1};
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayReadV1;
 pub(crate) use ordinary_new_coseal::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
