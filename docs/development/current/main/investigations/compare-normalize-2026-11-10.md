@@ -168,3 +168,29 @@ N33のうち`Original`構文fallbackの撤去は段階停止とする。`$S/plac
 低位DCE/memory-effectへfull null検証を置く試作は停止した。既にcanonicalで拒否される`$OA/in/c21.hako`(String/null)では、carrier-kind拒否により無関係なdead行も最適化されず、dumpが9→14命令となった。検証結果を文字列で分岐したり、invalid観測をpinして不正CFG/重複定義の消失を見逃す回復は採らない。canonical前検証を保持したまま、低位guardの一般的な接続はこのseriesでは着地しない。共有READ削除判定と通常packet省略の統合は行うが、memory-effectへ新たなNullCompare削除権限は足さない。
 
 `return_env`の使用は両passの共通control-anchorへ集約し、到達不能な捕捉scopeのmetadataも含めて生存を保持する。既存scalar/null actual-MIR testへmetadata-only useと真の未使用を加え、両入口を検証する。Scalar/Text比較の既存consumer protocolは保持し、frame不要のLocal receiptは既存のNull計画に限定する。全群のEXE照合で、Scalarまで省略するとOpusの`targets-and-unseen/e05`が正規publicationを外れる退行を確認したため、Scalarの既存frameを保持する。
+
+## 直し方の ChatGPT Pro への相談（2026-11-11）
+
+前の回（`db95057e79`〜`5f19e50566`）の Opus の監査は不合格だった。理由は 4 つ: null の検証が、比較の前に並ぶ if の数で指数的に遅くなる（p20 で 11 秒、main は 0.2 秒）。比較の初期化だけの専用の道と、その省略のための読み取りの集合ができた。loop の側が比較の種類を型の組から選び直していた。消し忘れの doc comment。ユーザー決定で直し方を ChatGPT Pro に相談し、Pro が引いた根拠は Opus が読んで確かめた。
+
+- Opus の前提の誤り（Pro の指摘）: String の生存の検証は block ごとに状態を 1 つにしてはいない（`(block, faulted)` ごとに `Vec<Live>` を持つ）。真似るだけでは速くならない。
+- Pro の答えの要点: `NullCompare` は残す。検証は `(block, faulted)` ごとに「終わった値」と「どれがどれに頼るか」の関係を持つ有限の dataflow にし、PHI は辺の上で同時に置き換え、合流は和、合流の後で推移閉包を作らない。初期化は通常の initializer の道へ寄せ、構文から計画を補わない。DCE は既存の effect-sensitive read の判定 1 か所へ寄せ、元の行の捕捉の安全装置は残す。loop の側の選び直しも今閉じる。順番は probe → 検証 → 初期化 → DCE → loop。
+- Opus が確かめた事: SSA の検査は parameter 同士の重複を見ない（`ssa.rs`）。null の検査は SSA と CFG の検査より先に呼ばれていた（`invoke.rs`）。`value_origin` は合流でどの道からも同じ値の時だけ Copy をたどる。行数の 7 行の差（+1,370 と +1,363）は、inline test の数え方の違い。
+
+## Opus の確認（2026-11-11）
+
+Codex の `c409824e34`〜`72040b9178`（6 commit）を監査し、前の回と一緒に main `988a95b790` から fast-forward した。
+
+- 速さ（`--dump-mir`、Opus が測った。main / この回）: p20 0.197 / 0.201 秒、q20 0.199 / 0.206 秒。Codex の測定では p60 も main 4.1 秒、この回 4.2 秒。
+- 検証: 状態は `(block, faulted)` ごとに 1 つ。Copy と PHI は両方の関係を同時に置き換え、合流は和。状態の数の上限は無い。関係を持つのは null を見る値と、その Copy・PHI・field の元だけ。Codex は、実際の MIR の小さな CFG 70 個で旧い列挙と同じ答えになる事を確かめた。検査の順番も、SSA と CFG を先にした。
+- 初期化: 比較専用の observation・pending・packet・prefix の腕を消し、通常の initializer の道（`CheckedExpressionEvaluationV1` → initializer frame → `Pending::Expression` → 通常の projection）1 本で運ぶ。退役した名前 15 個は src で参照 0。
+- DCE: `NullCompare` は READ のまま。消してよい事は `is_removable_effect_sensitive_read_instruction`（`dce/local_fields.rs`）1 か所。DCE と memory-effect の control anchor の重複も 1 つにした。
+- loop: `source_loop_bool.rs` と `source_loop_execution.rs` は型の組から選び直さず、計画の種類から既存の recipe の domain へ写す。`home_bool_condition.rs` は共通の qualifier を使う。
+- 行数（`fmtcount.py`、`src/` の .rs、rustfmt の後）: この回は production −161 / test +263 で、Codex の数と同じ。main からの全体は production +1,209 / test +728。生の行数が +2,453 なのは、整形されていなかった file を rustfmt した分。
+- 未見の入力: 前の監査の 20 本と、新しい 25 本（相関 PHI、比較で初期化した局所、使わない初期化、loop の中、`null == x`、`&&` の中、null を入れた局所、nullable な formal）を、main・前の回・この回で比べた。動作と拒否の文言は 45 本とも main と同じ。MIR の差は命令の名前（`icmp` → `null_compare`）と、初期化の比較を宣言の所で 1 回だけ計算するようになった 2 本だけ（main は使う所で計算し直していた。Copy が 1〜2 個増える）。
+- 全 lib の失敗 227 件は main と同じ名前の組。固定 suite 8/8。
+- 残した事:
+  - `Original` の腕: issuer の許可が無い 42 本（fresh owned Box、Box の field、null を入れた局所、型の無い formal、Dynamic の結果、nullable Text field、null と 0/false の比較）は、構文の null literal から Null の計画を選ぶ。消すには、既存の受理の持ち主がこれらの許可を出す必要がある。意味は仕様で決まっている（`types.md` の `x == null`、`dynamic-operators.md` の「Null は true、Integer・Bool・object は false」）。Opus の案では basic-expr の残りの回に入れる。
+  - 低い所の DCE の入口（optimizer の core、`semantic_simplification`、`string_corridor_sink`）は、最適化の前に null の生存を検証しない。canonical の道は最適化の前に検証している。`dce/local_fields.rs` の注釈「the common DCE entry validates its lifetime」はこれと合わないので直す。
+  - `source_loop_execution.rs:200,218,334` は空白の無い長い 1 行で、`ComparisonExecutionKindV1` の長い path と Checked の判定を繰り返している。次の回の始めに直す。
+  - 速さ（main にも前からある）: `if x > i { if me.leaf.v > 0 { ... } }` を k 個並べると、k が 1 増えるごとに約 3.7 倍遅くなる（k=12 で 29 秒）。中の条件が null 比較でも同じ。field の読みの側の問題で、この branch とは関係ない。速さの調査の候補。

@@ -271,6 +271,8 @@ fieldの読みの正規化（Codex実装・Opus監査、`097ba0fff4`、[記録](
 
 `StringCompare`（Codex実装・Opus監査、`61bdc5f6b7`、[記録](string-compare-2026-11-10.md)）: exactなString同士の6つの比較を、枠なしの通常行`StringCompare`（JSON `string_compare`、runtime `compare_text_v1`）で書く。issuerは比較そのものを「sourceのFault無し」とNonSuspendingで発行し、枠の判定・命令の選択・sourceの対応の検査は同じ問い合わせ1つを使う。証拠が半端な時はcheckedへ戻らず止まる。runtimeは2つのTextを複製せずに借り、checkedの比較（mixedとnull）も同じhelperで借りる。Cはexportを`op`の名前で選ぶ。1,788本のうち27本のMIRが軽くなり、後退は0。200万回の比較の1本で0.305秒 → 0.200秒。整数の約束は変えていない。次は比較の正規化（ユーザー決定、[no-fault-ops](no-fault-ops-2026-11-10.md)の最後）: 意味はissuer、実装形はprivateな変換1つ、検証は独立。nullの等値はMIRに専用の行を足し、JSONへ書き出す所での形の選択をやめる。exactな整数とBoolの比較をexact Stringと同じ約束にし、checkedの整数の見方はTypeErrorのまま残す。その後basic-exprの残り。
 
+比較の正規化（Codex実装・直し方をChatGPT Proに相談・Opus監査、`72040b9178`、[記録](compare-normalize-2026-11-10.md)）: nullとの`==`/`!=`を専用の行`NullCompare`（JSON `borrowed_null_compare`）で書き、独立検証はblockごとの有限の関係のdataflowで生存を確かめる（最初の版は指数的に遅く、監査で不合格にした）。比較の実行計画（Scalar、Null、Text、Checked）を、枠の判定・初期化・DCE・loopのrecipeが同じ物として読む。比較の初期化は通常のinitializerの道1本。issuerのcheckedの整数比較は共通の生成にした。1,788本の動作と拒否はmainと同じ。残り: 構文のnull literalから計画を選ぶ`Original`の腕（42本、basic-exprの残りの回へ）と、低いDCEの入口の検証。
+
 徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
 
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
