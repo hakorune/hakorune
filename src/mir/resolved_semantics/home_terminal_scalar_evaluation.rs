@@ -162,14 +162,15 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         if !installation.approve(&candidate) {
             return Ok(refused());
         }
-        if fields.local_field_read(
-            &requests,
-            super::super::super::LocalFieldReadDemandV1::SourceExpression {
-                probe: false,
-                plan: source,
-            },
-        )?
-        .is_none()
+        if fields
+            .local_field_read(
+                &requests,
+                super::super::super::LocalFieldReadDemandV1::SourceExpression {
+                    probe: false,
+                    plan: source,
+                },
+            )?
+            .is_none()
         {
             return Ok(refused());
         }

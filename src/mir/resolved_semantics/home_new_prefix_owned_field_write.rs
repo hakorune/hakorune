@@ -10,7 +10,9 @@ pub(super) fn observe<E>(
     homes: &mut HomesV1,
     prefix_known: bool,
     local_calls: &[LocalCallObservationV1],
-    source_consult: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
+    source_consult: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<
+        E,
+    >,
 ) -> Result<Option<bool>, E> {
     let Some(shape) = input.body_shape() else {
         return Ok(None);
