@@ -260,17 +260,6 @@ pub unsafe extern "C" fn code_point_count(value: *const Operand, out: *mut i64) 
     Status::Normal as u32
 }
 
-/// Fixed CodePoint contract. No legacy indexing toggle or handle dispatch.
-#[export_name = "nyash.string.checked_length_v1"]
-pub unsafe extern "C" fn length(storage: *mut c_void, _site: u64, value: *const Operand, out: *mut i64) -> u32 {
-    if out.is_null() || !out.is_aligned() { return Status::InvalidContract as u32; }
-    if let Err(s) = unsafe { frame(storage) } { return s as u32; }
-    let value = match unsafe { text_operand(value) } { Ok(v) => v, Err(s) => return s as u32 };
-    let Ok(count) = i64::try_from(value.chars().count()) else { return Status::InvalidContract as u32 };
-    unsafe { out.write(count) };
-    Status::Normal as u32
-}
-
 /// Copy a borrowed Text descriptor into one independent End-authorized pair.
 /// Operand validation and publication use the same owners as the other reads.
 #[export_name = "nyash.string.checked_materialize_v1"]

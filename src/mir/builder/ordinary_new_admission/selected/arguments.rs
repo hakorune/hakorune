@@ -498,7 +498,7 @@ mod tests {
                                 let invoke = changed.blocks.values().flat_map(|body| body.all_instructions()).find_map(|row|
                                     match row { MirInstruction::InvokeNormalResult { invoke_block, dst } if *dst == acquired[0].1 => Some(*invoke_block), _ => None }).unwrap();
                                 let Some(MirInstruction::Invoke { operation, .. }) = &mut changed.blocks.get_mut(&invoke).unwrap().terminator else { unreachable!() };
-                                *operation = InvokeOperation::String(Operation::Length { value: Operand::StaticText { utf8: "wrong-kind".into() } });
+                                *operation = InvokeOperation::String(Operation::IndexOf { value: Operand::StaticText { utf8: "wrong-kind".into() }, needle: Operand::StaticText { utf8: "x".into() } });
                             }
                             4 => values[acquired[0].0] = Some(Operand::NormalInteger(acquired[0].1).into()),
                             _ => unreachable!(),
@@ -530,7 +530,10 @@ mod tests {
                         }
                     }
                     let ordered = view.ordered_bindings_in_context(context).unwrap();
-                    let core_count = frame.evaluation().cores().len();
+                    let core_count = frame.evaluation().cores().values().filter(|core|
+                        core.source().target().frame_free_read_law_v1().is_none()).count();
+                    let normal_core_count = frame.evaluation().cores().len() - core_count;
+                    assert_eq!(ordered.iter().filter(|(_, row)| matches!(row, MirInstruction::StringLength { .. })).count(), normal_core_count);
                     assert_eq!(ordered.iter().filter(|(_, row)| matches!(row, MirInstruction::Invoke { operation: InvokeOperation::String(_), .. })).count(), core_count);
                     assert_eq!(ordered.iter().filter(|(_, row)| matches!(row, MirInstruction::InvokeNormalResult { .. })).count(), core_count);
                     for mutation in 0..3 {
@@ -541,7 +544,7 @@ mod tests {
                             1 => {
                                 let MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } = &mut changed[index].1 else { unreachable!() };
                                 let Operation::Substring { value, .. } = operation else { unreachable!() };
-                                *operation = Operation::Length { value: value.clone() };
+                                *operation = Operation::IndexOf { value: value.clone(), needle: Operand::StaticText { utf8: "x".into() } };
                             }
                             2 => {
                                 let projection = changed.iter_mut().find(|(_, row)| matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if Some(*dst) == emitted.value.value())).unwrap();

@@ -18,7 +18,6 @@ static void lv4_string_globals(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.string.checked_end_v1\"(ptr, i64, i64, i64)\n"
       "declare i32 @\"nyash.string.checked_compare_v1\"(ptr, i64, i32, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.code_point_count_v1\"(ptr, ptr)\n"
-      "declare i32 @\"nyash.string.checked_length_v1\"(ptr, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_materialize_v1\"(ptr, i64, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_substring_operands_v1\"(ptr, i64, ptr, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.string.checked_index_of_v1\"(ptr, i64, ptr, ptr, ptr)\n");

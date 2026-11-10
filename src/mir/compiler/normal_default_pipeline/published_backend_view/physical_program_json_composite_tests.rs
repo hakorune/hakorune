@@ -365,8 +365,10 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
             json!({"kind":"string_compare", "site":42, "comparison":comparison,
                 "left":{"kind":"owned_string", "value":9}, "right":{"kind":"static_text", "utf8":"界"}}));
     }
-    assert_eq!(encode(Op::Length { value: Operand::OwnedString(ValueId(9)) }),
-        json!({"kind":"string_length", "site":42, "value":{"kind":"owned_string", "value":9}}));
+    let row = MirInstruction::StringLength { dst: ValueId(10), value: Operand::OwnedString(ValueId(9)) };
+    assert_eq!(encode_instruction(None, &row, &BTreeMap::new(), 0, None, None,
+        &BTreeMap::new(), None).unwrap(),
+        json!({"op":"string_length", "dst":10, "value":{"kind":"owned_string", "value":9}}));
     assert_eq!(encode(Op::Substring { value: Operand::OwnedString(ValueId(9)), start: Operand::NormalInteger(ValueId(1)), end: Operand::NormalInteger(ValueId(2)) }),
         json!({"kind":"string_substring", "site":42, "value":{"kind":"owned_string", "value":9},
             "start":{"kind":"normal_integer", "value":1}, "end":{"kind":"normal_integer", "value":2}}));

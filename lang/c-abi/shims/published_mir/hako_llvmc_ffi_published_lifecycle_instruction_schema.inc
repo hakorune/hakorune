@@ -19,7 +19,7 @@ static int hako_physical_owned_object_borrow_field(yyjson_val* layouts,
 static int hako_physical_string_result(const char* kind) {
   if (!kind) return 0;
   if (!strcmp(kind, "string_add") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_materialize") || !strcmp(kind, "string_field_materialize")) return 1;
-  if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_length") || !strcmp(kind, "string_index_of")) return 2;
+  if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_index_of")) return 2;
   if (!strcmp(kind, "string_compare")) return 3; /* Bool, never I64 */
   return 0;
 }
@@ -250,7 +250,7 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1, 0, 0) &&
         hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 0, 1, 1);
   }
-  if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_length") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_index_of")) {
+  if (!strcmp(kind, "string_materialize") || !strcmp(kind, "string_substring") || !strcmp(kind, "string_index_of")) {
     static const char* const read[] = {"kind", "value", "site"};
     static const char* const slice[] = {"kind", "value", "start", "end", "site"};
     static const char* const search[] = {"kind", "value", "needle", "site"};

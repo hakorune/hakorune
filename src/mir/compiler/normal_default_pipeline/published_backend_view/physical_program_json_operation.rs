@@ -94,7 +94,6 @@ pub(super) fn encode_invoke(
                 Op::FieldMaterialize { field, base } => json!({"kind":"string_field_materialize",
                     "object_id":field.object().declaration_index(), "field_ordinal":field.declaration_ordinal(),
                     "base":value(base)}),
-                Op::Length { value } => json!({"kind":"string_length", "value":operand(value)}),
                 Op::Substring { value:v, start, end } => json!({"kind":"string_substring", "value":operand(v), "start":operand(start), "end":operand(end)}),
                 Op::IndexOf { value, needle } => json!({"kind":"string_index_of", "value":operand(value), "needle":operand(needle)}),
                 Op::Print { value } => json!({"kind":"string_print", "value":operand(value)}),

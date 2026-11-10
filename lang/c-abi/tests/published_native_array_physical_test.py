@@ -261,6 +261,16 @@ def checked_string_physical():
             if b["terminator"]["instruction"]["op"] == "invoke": b["terminator"]["instruction"]["operation"]["site"] = 200 + i
         cp["functions"][0]["blocks"] = cp_rows
         execute(cp, endings=[1,0], payload="2\n1\né界\n".encode())
+        obsolete = copy.deepcopy(cp)
+        old_block = next(b for b in obsolete["functions"][0]["blocks"] if b["id"] == 2)
+        old_block["instructions"].pop()
+        old_block["terminator"] = {"index":1, "instruction":inv("string_length", 3, 20, value=owned(3))}
+        old_block["edges"] = [{"target":3,"args":None},{"target":20,"args":None}]
+        old_landing = next(b for b in obsolete["functions"][0]["blocks"] if b["id"] == 3)
+        old_landing["instructions"] = [{"index":0,"instruction":projection(2,7)}]
+        old_landing["terminator"]["index"] = 1
+        compile_input(obsolete, False)
+
         # Several normal reads in one block have separate prologue slots and literals.
         multiple = copy.deepcopy(cp)
         text_block = next(b for b in multiple["functions"][0]["blocks"] if b["id"] == 2)

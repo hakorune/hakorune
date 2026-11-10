@@ -39,7 +39,7 @@ fn records_direct_len_family_core_method_routes() {
 
     refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 3);
+    assert_eq!(function.metadata.generic_method_routes.len(), 2);
     let map_route = &function.metadata.generic_method_routes[0];
     assert_eq!(map_route.route_id(), "generic_method.len");
     assert_eq!(map_route.method(), "size");
@@ -80,16 +80,9 @@ fn records_direct_len_family_core_method_routes() {
     let array_core = array_route.core_method().expect("ArrayLen carrier");
     assert_eq!(array_core.op, CoreMethodOp::ArrayLen);
 
-    let string_route = &function.metadata.generic_method_routes[2];
-    assert_eq!(string_route.method(), "len");
-    assert_eq!(string_route.receiver_origin_box(), Some("StringBox"));
-    assert_eq!(string_route.route_kind(), GenericMethodRouteKind::StringLen);
-    assert_eq!(
-        string_route.route_kind().helper_symbol(),
-        "nyash.string.len_fast_h"
-    );
-    let string_core = string_route.core_method().expect("StringLen carrier");
-    assert_eq!(string_core.op, CoreMethodOp::StringLen);
+    assert!(function.metadata.generic_method_routes.iter().all(|route|
+        route.route_kind() != GenericMethodRouteKind::StringLen),
+        "source String length must not choose the byte ABI");
 }
 
 #[test]
@@ -178,19 +171,8 @@ fn records_stringbox_length_self_arg_route() {
 
     refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.box_name(), "StringBox");
-    assert_eq!(route.method(), "length");
-    assert_eq!(route.arity(), 1);
-    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringLen);
-    assert_eq!(
-        route.route_kind().helper_symbol(),
-        "nyash.string.len_fast_h"
-    );
-    let core_method = route.core_method().expect("StringLen carrier");
-    assert_eq!(core_method.op, CoreMethodOp::StringLen);
+    assert!(function.metadata.generic_method_routes.is_empty(),
+        "canonical CodePointCount must never be replaced by a generic byte route");
 }
 
 #[test]
@@ -381,27 +363,8 @@ fn records_runtime_data_string_len_from_generic_global_call_origin() {
 
     refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.box_name(), "RuntimeDataBox");
-    assert_eq!(route.method(), "length");
-    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringLen);
-    assert_eq!(
-        route.route_kind().helper_symbol(),
-        "nyash.string.len_fast_h"
-    );
-    let core_method = route.core_method().expect("StringLen carrier");
-    assert_eq!(core_method.op, CoreMethodOp::StringLen);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::WarmDirectAbi
-    );
-    assert_eq!(
-        route.return_shape(),
-        Some(GenericMethodReturnShape::ScalarI64)
-    );
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+    assert!(function.metadata.generic_method_routes.is_empty(),
+        "canonical CodePointCount must never be replaced by a generic byte route");
 }
 
 #[test]

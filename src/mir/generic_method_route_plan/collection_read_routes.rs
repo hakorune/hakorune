@@ -474,11 +474,6 @@ pub(super) fn match_generic_len_route(
                 CoreMethodOp::ArrayLen,
                 "ArrayBox",
             ),
-            Some("StringBox") => (
-                GenericMethodRouteKind::StringLen,
-                CoreMethodOp::StringLen,
-                "StringBox",
-            ),
             Some("Box") => (
                 GenericMethodRouteKind::AnyLength,
                 CoreMethodOp::AnyLen,
