@@ -12,9 +12,97 @@ import sys
 import tempfile
 from published_lifecycle_v4_test_support import TESTS, ARCHIVE, checked, env, release_driver, run
 
-DIRECTORY = Path(sys.argv[1])
 ENV = env(V4_PROBE_MODE='normal')
 ENV.pop('V4_PROBE_FAULT_AT', None)
+
+
+def local_child_path(path):
+    """Check an original caller-owned child path and nullable-wire corruption."""
+    original = json.loads(path.read_text())
+    main = original['functions'][0]
+    rows = [r['instruction'] for b in main['blocks'] for r in b['instructions']]
+    copies = {r['dst']: r['src'] for r in rows if r['op'] == 'copy'}
+
+    def root(value):
+        seen = set()
+        while value in copies:
+            assert value not in seen
+            seen.add(value)
+            value = copies[value]
+        return value
+
+    reads = [(b, r['instruction']) for b in main['blocks'] for r in b['instructions']
+             if r['instruction']['op'] == 'object_field_get']
+    paths = [(b, r) for b, r in reads if any(t['base'] == r['dst'] for _, t in reads)]
+    assert len(paths) == 1
+    read_block, read = paths[0]
+    births = [b for b in main['blocks'] if
+              b['terminator']['instruction'].get('operation', {}).get('kind') == 'birth_call'
+              and root(b['terminator']['instruction']['operation']['call']['receiver']) == root(read['base'])]
+    assert len(births) == 1
+    born = births[0]
+    with tempfile.TemporaryDirectory(prefix='hako local child path ') as directory:
+        work = Path(directory)
+        driver = release_driver(work)
+        obj, exe = work / 'child.o', work / 'child'
+        checked([driver, path, obj], env=ENV)
+        checked(['cc', obj, ARCHIVE, '-lpthread', '-ldl', '-lm', '-o', exe])
+        assert run([exe], env=ENV).returncode == 6
+        for flavor in ('nullable-actual', 'ambiguous-writer'):
+            data = copy.deepcopy(original)
+            caller = data['functions'][0]
+            block = next(b for b in caller['blocks'] if b['id'] == born['id'])
+            call = block['terminator']['instruction']['operation']['call']
+            if flavor == 'nullable-actual':
+                fresh = 1 + max(r['dst'] for r in rows if 'dst' in r)
+                block['instructions'].append({'index': len(block['instructions']),
+                    'instruction': {'op': 'const_null', 'dst': fresh}})
+                block['terminator']['index'] = len(block['instructions'])
+                assert len(call['args']) == 1
+                call['args'][0] = {'kind': 0, 'value': fresh}
+            else:
+                duplicate = copy.deepcopy(data['functions'][call['target']])
+                duplicate['name'] += '_duplicate'
+                def sites(node):
+                    if isinstance(node, dict):
+                        for key, value in node.items():
+                            if key == 'site':
+                                yield value
+                            else:
+                                yield from sites(value)
+                    elif isinstance(node, list):
+                        for value in node:
+                            yield from sites(value)
+                renumber = {old: max(max(sites(data)), data['process_result_site']) + i + 1
+                            for i, old in enumerate(sorted(set(sites(duplicate))))}
+                def fresh_sites(node):
+                    if isinstance(node, dict):
+                        for key, value in node.items():
+                            if key == 'site':
+                                node[key] = renumber[value]
+                            else:
+                                fresh_sites(value)
+                    elif isinstance(node, list):
+                        for value in node:
+                            fresh_sites(value)
+                fresh_sites(duplicate)
+                call['target'] = len(data['functions'])
+                data['functions'].append(duplicate)
+            negative = work / (flavor + '.json')
+            negative.write_text(json.dumps(data))
+            obj.unlink(missing_ok=True)
+            result = run([driver, negative, obj], env=ENV)
+            assert result.returncode != 0 and f'block={read_block["id"]} phase=flow' in result.stderr, result
+            assert not obj.exists() and not list(work.glob('child.o.*'))
+            print('reject local child path', flavor)
+        print('original local child path EXE exit 6; nullable and ambiguous writers rejected at read')
+
+
+if sys.argv[1] == '--child-path':
+    local_child_path(Path(sys.argv[2]))
+    sys.exit(0)
+
+DIRECTORY = Path(sys.argv[1])
 
 
 def owned_slot_mutant(base, flavor):

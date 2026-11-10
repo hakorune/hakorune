@@ -3,6 +3,10 @@
 static int lv4_birth_field_borrow_live(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* edge, const hako_lv4_state* state, uint32_t use);
 
+static int lv4_birth_actual_object(const hako_lv4_input* in,
+    hako_lv4_function_index* caller, uint32_t target, size_t ordinal,
+    hako_lv4_value* value, int nullable);
+
 /* One current writer census for provider and Provided residence proofs. */
 static yyjson_val* lv4_unique_field_writer(const hako_lv4_input* in,
     uint32_t object, uint32_t field, hako_lv4_function_index** owner) {
@@ -176,14 +180,23 @@ static int lv4_object_base_readable_mode(const hako_lv4_input* in, hako_lv4_func
     }
     uint32_t born;
     int nullable = 0;
+    hako_lv4_function_index* provided_writer = NULL;
+    uint32_t provided_ordinal = 0;
     int received = root && lv4_received_field_parent(in, fn, root);
     if (received && base == root) {
       uint32_t target = lv4_received_field_parent(in, fn, root);
       if (!lv4_received_field_residence(in, &in->index[target], base->object_id,
           lv4_u(read, "field_ordinal"), edge->object_id, in->index_count + 1, &nullable) ||
           (nullable && !allow_nullable)) return 0;
-    } else if (!lv4_field_borrow_writer(in, base->object_id, lv4_u(read, "field_ordinal"), edge->object_id)) return 0;
+    } else if (!lv4_field_borrow_writer(in, base->object_id, lv4_u(read, "field_ordinal"), edge->object_id)) {
+      /* A nullable wire formal is nonnull only for this root's proved actual.
+       * Nested or receiver roots have no matching local Birth actual here. */
+      if (base != root || !lv4_typed_field_store(in, base->object_id,
+          lv4_u(read, "field_ordinal"), edge->object_id,
+          &provided_writer, &provided_ordinal)) return 0;
+    }
     if (lv4_canonical_receiver(fn, root) && lv4_is_ordinary(fn->function)) {
+      if (provided_writer) return 0;
       born = lv4_u(fn->function, "entry");
     } else {
       if (!root || root->origin < 0 || !root->object_id_set ||
@@ -203,6 +216,14 @@ static int lv4_object_base_readable_mode(const hako_lv4_input* in, hako_lv4_func
         uint32_t target = lv4_u(call, "target");
         if (++births != 1 || target >= in->index_count || !in->index[target].receiver_object_set ||
             in->index[target].receiver_object != root->object_id) return 0;
+        if (provided_writer) {
+          yyjson_val* actual = yyjson_arr_get(yyjson_obj_get(call, "args"), provided_ordinal);
+          hako_lv4_value* child = lv4_index_value(fn, lv4_u(actual, "value"));
+          if (&in->index[target] != provided_writer || !actual ||
+              !yyjson_is_uint(yyjson_obj_get(actual, "kind")) || lv4_u(actual, "kind") != 3 ||
+              !child || !child->object_id_set || child->object_id != edge->object_id ||
+              !lv4_birth_actual_object(in, fn, target, provided_ordinal, child, 0)) return 0;
+        }
         born = lv4_u(term, "normal");
       }
       if (births != 1 || lv4_pred_count(fn, born) != 1) return 0;
