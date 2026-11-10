@@ -18,6 +18,13 @@ F10. A child-path read may only emit a raw field operation when its receiver has
 F11. Replaced types, decision branches and callback plumbing retire with their consumers in this series; no new classifier, ledger, progress type, public ABI/opcode or shape-specific producer is introduced.
 F12. Completed cleanup is production net negative after formatting, including common code and all move destinations; u16 functionality, if any, is counted separately.
 
+## u16: independent raw child borrowing
+
+F13. A raw child view is proved only from public canonical nonweak, nonnullable user-object field definitions, a live Published owned root, and a readonly use interval; source descriptors and MirType names alone are not ownership evidence.
+F14. The existing classifier and instruction-kind checks keep their order; the same raw-base liveness check may recognize the proved child view, without retrying verification or predicting OutsideModel from source syntax.
+F15. Each view has one definition, is not a parameter, and every use is a later ObjectFieldGet base in the same block with the exact child owner; consumers are declared integer scalars or equally proved child views, with no intervening mutation or ownership operation and no escape through Copy, PHI, Call, Store or Return.
+F16. The existing kinds map records the proved Borrowed views; no new ledger, ownership acquisition, release, MIR row or public ABI is introduced, and failed proof keeps InvalidObjectLifecycle rather than an ignored OutsideModel error.
+
 ## Existing routes and responsibilities
 
 |Stage|Base source location|Responsibility|
