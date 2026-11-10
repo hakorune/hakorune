@@ -335,10 +335,18 @@ impl FunctionUses {
     pub(super) fn verify_text_operands_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
         operands: &[&crate::mir::instruction::StringInvokeOperand], scalar_values: &[ValueId], fault_frame: ValueId,
     ) -> Result<(), String> {
-        use crate::mir::instruction::StringInvokeOperand as Operand;
         if tracked.contains_key(&fault_frame) || views.views.contains_key(&fault_frame) {
             return Err(fault("borrowed-use/string-fault-frame"));
         }
+        self.verify_readonly_text_operands_v1(tracked, views, operands, scalar_values)
+    }
+
+    /// A normal Text read has no frame operand; its entry authority is the
+    /// same sealed readonly domain as an Invoke, never a synthetic frame.
+    pub(super) fn verify_readonly_text_operands_v1(&self, tracked: &BTreeMap<ValueId, BindingRefV1>, views: &ViewScan,
+        operands: &[&crate::mir::instruction::StringInvokeOperand], scalar_values: &[ValueId],
+    ) -> Result<(), String> {
+        use crate::mir::instruction::StringInvokeOperand as Operand;
         for operand in operands.iter().copied() {
             if let Operand::BorrowedText(value) = operand {
                 let formal = tracked.get(value).ok_or_else(|| fault("borrowed-use/string-formal"))?;

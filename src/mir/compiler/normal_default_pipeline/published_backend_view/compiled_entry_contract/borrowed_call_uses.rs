@@ -374,6 +374,9 @@ impl FunctionUses {
                         fault("borrowed-use/unproved-copy")));
                 }
             }
+            MirInstruction::StringLength { value, .. } => {
+                self.verify_readonly_text_operands_v1(tracked, views, &[value], &[])?;
+            }
             MirInstruction::Invoke { operation: InvokeOperation::String(operation), fault_frame, .. } => {
                 self.verify_text_operation_v1(tracked, views, coordinate, operation, *fault_frame)?;
             }
