@@ -114,50 +114,26 @@ const BOOL_EQUALITIES: [VerifiedDynamicOperatorExecutionEnvelopeV1; 2] = [
     exact_comparison(DynamicOperatorFamilyV1::NotEqual, DynamicOperatorValueClassV1::Bool),
 ];
 
-const LESS_DYNAMIC_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+const fn checked_comparison(
+    family: DynamicOperatorFamilyV1,
+    left: DynamicOperatorValueClassV1,
+    right: DynamicOperatorValueClassV1,
+) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::Dynamic,
-            DynamicOperatorValueClassV1::Dynamic,
-        ),
+        DynamicOperatorDomainV1::new(family, left, right),
         DynamicOperatorNormalResultV1::TrivialBool,
         DynamicOperatorSuspensionV1::MaySuspend,
         None,
-    );
-
-const LESS_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::Dynamic,
-            DynamicOperatorValueClassV1::I64,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
-
-const LESS_I64_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::I64,
-            DynamicOperatorValueClassV1::Dynamic,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
-
-const GREATER_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(DynamicOperatorFamilyV1::Greater,
-            DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
+    )
+}
+const LESS_DYNAMIC_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 = checked_comparison(
+    DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Dynamic,
+);
+const DYNAMIC_INTEGER_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 3] = [
+    checked_comparison(DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64),
+    checked_comparison(DynamicOperatorFamilyV1::Greater, DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64),
+    checked_comparison(DynamicOperatorFamilyV1::Less, DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic),
+];
 
 const fn dynamic_string_comparison(
     family: DynamicOperatorFamilyV1,
@@ -263,82 +239,22 @@ const fn comparison_index(family: DynamicOperatorFamilyV1) -> Option<usize> {
     }
 }
 
-const EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::Equal,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
-
-const NOT_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::NotEqual,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
-
-const LESS_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
-
 /// The checked compare lends a Normal-Integer operand view: both operands
 /// must prove the logical signed-integer class, and a fault arrives before
 /// any result without operand mutation or rebind.
-const GREATER_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::Greater,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
-
-const GREATER_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::GreaterEqual,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
-
 /// Inclusive checked comparison keeps the same borrowed operand and Fault
 /// laws; the Boolean result does not change either operand's Integer class.
-const LESS_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::LessEqual,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ),
-        DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
-        None,
-    );
+const fn checked_integer_comparison(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
+    checked_comparison(family, DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::NormalInteger)
+}
+const CHECKED_INTEGER_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
+    checked_integer_comparison(DynamicOperatorFamilyV1::Equal),
+    checked_integer_comparison(DynamicOperatorFamilyV1::NotEqual),
+    checked_integer_comparison(DynamicOperatorFamilyV1::Less),
+    checked_integer_comparison(DynamicOperatorFamilyV1::Greater),
+    checked_integer_comparison(DynamicOperatorFamilyV1::GreaterEqual),
+    checked_integer_comparison(DynamicOperatorFamilyV1::LessEqual),
+];
 
 /// A dominated use of the same lent view: both operands must prove the
 /// logical signed-integer class; the result is a fresh integer carrying
@@ -396,32 +312,18 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
     domain: DynamicOperatorDomainV1,
 ) -> Result<&'static VerifiedDynamicOperatorExecutionEnvelopeV1, DynamicOperatorEnvelopeIssueV1> {
     if let Some(index) = comparison_index(domain.family()) {
-        let mixed_comparisons = match (domain.left(), domain.right()) {
-            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::String) => {
-                Some(&DYNAMIC_STRING_COMPARISONS)
-            }
-            (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic) => {
-                Some(&STRING_DYNAMIC_COMPARISONS)
-            }
-            _ => None,
-        };
-        if let Some(comparisons) = mixed_comparisons {
-            return Ok(&comparisons[index]);
-        }
-    }
-    if let Some(index) = comparison_index(domain.family()) {
         match (domain.left(), domain.right()) {
             (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String) => return Ok(&STRING_COMPARISONS[index]),
             (DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::I64) => return Ok(&I64_COMPARISONS[index]),
+            (DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::NormalInteger) => return Ok(&CHECKED_INTEGER_COMPARISONS[index]),
+            (DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool) if index < BOOL_EQUALITIES.len() => return Ok(&BOOL_EQUALITIES[index]),
+            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::String) => return Ok(&DYNAMIC_STRING_COMPARISONS[index]),
+            (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic) => return Ok(&STRING_DYNAMIC_COMPARISONS[index]),
+            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Dynamic) if index == 2 => return Ok(&LESS_DYNAMIC_DYNAMIC),
+            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64) if index == 2 => return Ok(&DYNAMIC_INTEGER_COMPARISONS[0]),
+            (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::I64) if index == 3 => return Ok(&DYNAMIC_INTEGER_COMPARISONS[1]),
+            (DynamicOperatorValueClassV1::I64, DynamicOperatorValueClassV1::Dynamic) if index == 2 => return Ok(&DYNAMIC_INTEGER_COMPARISONS[2]),
             _ => {}
-        }
-    }
-    if matches!((domain.left(), domain.right()),
-        (DynamicOperatorValueClassV1::Bool, DynamicOperatorValueClassV1::Bool)) {
-        match domain.family() {
-            DynamicOperatorFamilyV1::Equal => return Ok(&BOOL_EQUALITIES[0]),
-            DynamicOperatorFamilyV1::NotEqual => return Ok(&BOOL_EQUALITIES[1]),
-            _ => return Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain),
         }
     }
     match (domain.family(), domain.left(), domain.right()) {
@@ -455,53 +357,6 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::I64,
         ) => Ok(&SUB_DYNAMIC_I64),
-        (
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::Dynamic,
-            DynamicOperatorValueClassV1::Dynamic,
-        ) => Ok(&LESS_DYNAMIC_DYNAMIC),
-        (
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::Dynamic,
-            DynamicOperatorValueClassV1::I64,
-        ) => Ok(&LESS_DYNAMIC_I64),
-        (DynamicOperatorFamilyV1::Greater, DynamicOperatorValueClassV1::Dynamic,
-            DynamicOperatorValueClassV1::I64) => Ok(&GREATER_DYNAMIC_I64),
-        (
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::I64,
-            DynamicOperatorValueClassV1::Dynamic,
-        ) => Ok(&LESS_I64_DYNAMIC),
-        (
-            DynamicOperatorFamilyV1::Equal,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ) => Ok(&EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
-        (
-            DynamicOperatorFamilyV1::NotEqual,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ) => Ok(&NOT_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
-        (
-            DynamicOperatorFamilyV1::Less,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ) => Ok(&LESS_NORMAL_INTEGER_NORMAL_INTEGER),
-        (
-            DynamicOperatorFamilyV1::Greater,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ) => Ok(&GREATER_NORMAL_INTEGER_NORMAL_INTEGER),
-        (
-            DynamicOperatorFamilyV1::GreaterEqual,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ) => Ok(&GREATER_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
-        (
-            DynamicOperatorFamilyV1::LessEqual,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ) => Ok(&LESS_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
         (
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::NormalInteger,
