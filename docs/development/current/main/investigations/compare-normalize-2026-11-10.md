@@ -108,3 +108,12 @@ The single Ne and Copy(null) carrier examples require canonical-versus-compatibi
 | `dynamic_invocation_contract/tests.rs:101`, field-append/local-field `.fault()` | Different contract types, unchanged |
 
 Evidence families: scalar six ops/Bool EqNe use N1-4; distinct null source capabilities N5-7/N15; direct-null and live carrier N8-12; stable wire N13-14; Copy/PHI and SSA N11/N16-17; short-circuit/Fault/Text End N18-20.
+
+## Connected implementation and retained boundaries
+
+The private `ComparisonExecutionPlanV1` is issued through `comparison_execution_plan_v1` for checked source operations, original source-null expressions and retained nullable-alias proofs. Frame selection, scalar operation emission and expected-row correspondence consume it. The raw recursive port obtains it before descending; it never infers null meaning from MIR types.
+Nullable-alias local initializers retain the existing source loan and carry the final observed SSA relation through the existing initializer/prefix projection pool; source matching checks the loan, source site and actual NullCompare row.
+Independent `verification/invoke_null_compare.rs` checks actual definitions, order/dominance, op/result, direct sentinel, Copy/PHI origin and path-selected lifetime. It does not replace the existing C ABI carrier-kind/lease/slot checks: generic formal ABI kinds remain that boundary's responsibility.
+The four added verifier tests cover previously unrepresented NullCompare mutation/lifetime boundaries in the existing test family; existing alias evidence is extended without a new checker or test hook. No tests are deleted or renamed.
+The serializer's `null_producer` and separate frame-free/exact-Integer/carrier-Integer/Text comparison queries are removed. NullCompare is added to value remapping and same-block reuse, never to comparison replay/SSA cloning arms. C/runtime sources and the five-key JSON schema remain unchanged.
+The checked Integer envelope cleanup preserves existing test expectations and every refinement comment: formatted issuer lines 589 -> 480 (-109). The earlier private-plan cleanup is -21 formatted production lines; movement into responsibility helpers receives no cleanup credit. Final dump/EXE/root-test evidence is recorded in the external report, not this operational document.

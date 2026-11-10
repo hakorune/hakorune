@@ -131,6 +131,14 @@ evaluation retains its own Faults, source order and borrowed access. Exactness
 comes from source evidence; a tagged value or MIR storage type does not grant
 this contract. The checked Integer view keeps TypeError and MaySuspend.
 
+| Operand domain | Operators | Source Fault | Suspension |
+|---|---|---|---|
+| Exact I64/I64 | all six | none | NonSuspending |
+| Exact Bool/Bool | Eq/Ne | none | NonSuspending |
+| Exact String/String | all six | none | NonSuspending |
+| Checked NormalInteger/NormalInteger | all six | TypeError before result | MaySuspend |
+| Admitted borrowed Dynamic/null guard | Eq only | none; malformed transport is InvalidContract | NonSuspending |
+
 ## Mixed Dynamic and String comparisons
 
 The `types.md` comparison table also covers a tagged Dynamic value compared
@@ -254,6 +262,12 @@ object class nor liveness. A formal field read additionally needs the complete
 source-backed object-class view and BorrowForCall proof. The initial field
 profile uses a terminating null arm and the existing surviving-path/intersection
 rules, with invalidation on rebind and no lending into the null arm or Fault.
+
+The MIR representation is `NullCompare`, selected from original source evidence
+before physical operands are bound. It is a Bool READ with no source Fault or
+suspension and no ownership transition. Nullable-field, nullable-result and
+field-alias laws retain their own source evidence; this does not turn them into
+tagged-Dynamic admission or broaden the Eq-only guard profile.
 
 The physical projection is `borrowed_null_compare` with the original `lhs`,
 `rhs`, Bool `dst` and `predicate: "eq"`; exactly one operand is the admitted

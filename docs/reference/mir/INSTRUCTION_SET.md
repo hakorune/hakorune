@@ -1,7 +1,7 @@
 # Hakorune MIR Instruction Set (Canonical SSOT)
 
 Status: Canonical (Source of Truth) — transitioning
-Last Updated: 2026-11-10
+Last Updated: 2026-11-11
 
 この文書はHakoruneのMIR命令セットの唯一の参照だよ。
 `src/mir/contracts/backend_core_ops.rs` の ledger と、この文書の機械可読カウントが一致することを SSOT 契約とする。
@@ -44,10 +44,10 @@ until the v2 frame and both C consumers are ready. See the
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=63
+DOC_SYNC_MIR_KEPT_COUNT=64
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=79
+DOC_SYNC_MIR_VOCABULARY_COUNT=80
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -81,6 +81,25 @@ transfers and Ends nothing and has no frame, site or Normal/Fault edges. The
 printer is `string_compare`; selected v2 JSON has exactly `op`, `dst`,
 `comparison`, `left`, `right`. Checked String Compare remains a distinct Invoke
 operation for mixed/null contracts.
+
+### Borrow-only null observation
+
+`NullCompare { dst, op: CompareOp, lhs, rhs }` is a nonterminator READ
+producing Bool. Only Eq/Ne are valid; exactly one operand has a unique direct
+`ConstValue::Null` definition. Source operand order is preserved. Zero, false
+and Copy(null) cannot substitute for that sentinel. Available carrier values
+must retain their actual ABI kind, dominance and borrowing/lifetime support.
+It creates no frame, Normal/Fault edge, acquisition, transfer or End.
+
+The printer is `null_compare`. Selected JSON remains `borrowed_null_compare`
+with exactly `op`, `dst`, `lhs`, `rhs`, `predicate`; ordinary Compare always
+projects to `compare`. Canonical publication rejects a remaining ordinary
+Compare with a direct null operand. This representation grants no new source
+capability: tagged null guards remain Eq-only; the existing field-alias law
+keeps Eq/Ne. SSA may remap IDs or reuse an existing observation but cannot
+rematerialize it through the ordinary Compare cloning arms. Unknown generic
+MIR carriers still owe final ABI admission; the strict C kind/lease checks
+remain unchanged.
 
 ### Owned String residence and Return handoff
 
@@ -436,6 +455,7 @@ allowlists are being updated.
 - StringLength
 - StringIndexOf
 - StringCompare
+- NullCompare
 - ArrayElementWrite
 - ArrayRead
 - MapLiteralEntryWrite

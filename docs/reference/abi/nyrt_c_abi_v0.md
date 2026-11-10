@@ -749,6 +749,12 @@ lifetime. The final owner checks kind 3 before the existing checked accessor;
 unknown class/slot and operand drift reject before artifact output. The initial
 profile admits exact scalar-I64 fields only, with no borrowed object escape.
 
+The compiler maps the explicit MIR `NullCompare` row to the same existing
+five-key `borrowed_null_compare` schema (`op`, `dst`, `lhs`, `rhs`, `predicate`).
+Ordinary MIR Compare always maps to `compare`; serialization does not select a
+null observation by scanning definitions. This changes no C export, runtime
+entry, descriptor or schema version.
+
 `borrowed_null_compare` tests kind 0, not payload zero; well-formed kinds 1/2/3
 compare unequal to null without obtaining an Integer/object view. Its null
 operand must retain exact source/producer identity. Operation and use closure,

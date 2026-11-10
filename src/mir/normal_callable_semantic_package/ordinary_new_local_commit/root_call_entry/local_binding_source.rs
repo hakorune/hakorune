@@ -10,10 +10,20 @@ impl RootLifecyclePrefixBindingGroupV1 {
             return false;
         }
         match (&self.proof, source) {
-            (PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)),
-                LifecyclePrefixSourceV1::ComparisonInitializer { operation, .. }) => Rc::ptr_eq(packet.source(), operation),
-            (PrefixPhysicalProofV1::SharedInitializer(packet), LifecyclePrefixSourceV1::SharedInitializer { source, .. }) => Rc::ptr_eq(&packet.source, source),
-            (PrefixPhysicalProofV1::FieldMapInstall(packet), LifecyclePrefixSourceV1::FieldMapInstall { frame, .. }) => Rc::ptr_eq(packet.frame(), frame),
+            (
+                PrefixPhysicalProofV1::EvaluatedBinding(
+                    EvaluatedBindingProjectionV1::ComparisonInitializer(packet),
+                ),
+                LifecyclePrefixSourceV1::ComparisonInitializer { operation, .. },
+            ) => Rc::ptr_eq(packet.source(), operation),
+            (
+                PrefixPhysicalProofV1::SharedInitializer(packet),
+                LifecyclePrefixSourceV1::SharedInitializer { source, .. },
+            ) => Rc::ptr_eq(&packet.source, source),
+            (
+                PrefixPhysicalProofV1::FieldMapInstall(packet),
+                LifecyclePrefixSourceV1::FieldMapInstall { frame, .. },
+            ) => Rc::ptr_eq(packet.frame(), frame),
             (
                 PrefixPhysicalProofV1::StoredMapGet(packet),
                 LifecyclePrefixSourceV1::StoredMapGet { frame, .. },
