@@ -499,6 +499,36 @@ fn checked_c_operations_preserve_primary_and_out_slot() {
 }
 
 #[test]
+fn code_point_count_rejects_malformed_descriptors_without_writing_output() {
+    use super::checked_string::{self as api, Operand};
+    let literal = Operand {
+        kind: 1,
+        reserved: 0,
+        bytes: b"abc".as_ptr(),
+        len: 3,
+        handle: 0,
+        token: 0,
+        integer: 0,
+    };
+    let mut count = -55;
+    unsafe {
+        assert_eq!(api::code_point_count(std::ptr::null(), &mut count), 2);
+        assert_eq!(count, -55);
+        for descriptor in [
+            Operand { bytes: std::ptr::null(), ..literal },
+            Operand { handle: 1, ..literal },
+            Operand { token: 1, ..literal },
+            Operand { handle: 1, token: 1, ..literal },
+        ] {
+            assert_eq!(api::code_point_count(&descriptor, &mut count), 2);
+            assert_eq!(count, -55);
+        }
+        assert_eq!(api::code_point_count(&literal, &mut count), 0);
+        assert_eq!(count, 3);
+    }
+}
+
+#[test]
 fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
     use super::checked_string::{self as api, Operand, OwnedText};
     use nyash_rust::runtime::dynamic_v2_lease as lease;

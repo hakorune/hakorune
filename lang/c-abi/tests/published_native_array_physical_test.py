@@ -189,6 +189,30 @@ def checked_string_physical():
         count_block["terminator"]["index"] = 3
         count_block["terminator"]["instruction"]["operation"]["value"] = {"kind":"normal_integer","value":88}
         execute(counted, endings=[1,0], payload=b"22\n")
+        counted_static = copy.deepcopy(counted)
+        first(counted_static, "string_print")["operation"]["value"]["value"] = 89
+        execute(counted_static, endings=[1,0], payload=b"3\n")
+        if not native:
+            # A real ordinary static callee reads its lent Text formal. The
+            # row-prefixed kind guard and descriptor load execute at runtime.
+            borrowed = copy.deepcopy(data)
+            borrowed["functions"][0]["blocks"] = [
+                block(0, {"op":"invoke", "fault_frame":0, "normal":1, "fault":90,
+                    "operation":{"kind":"ordinary_call", "result":"i64", "call":{
+                        "target":1, "dst":None, "args":[
+                            {"kind":"borrowed_text", "operand":literal("e\u0301😀")}]}}}, [entry[0]]),
+                block(1, inv("string_print", 2, 90, value={"kind":"normal_integer", "value":2}),
+                    [{"op":"invoke_normal_result", "invoke_block":0, "dst":2}]),
+                block(2, {"op":"return", "value":3}, [{"op":"const_i64", "dst":3, "value":0}]),
+                block(90, fault)]
+            first(borrowed, "string_print")["operation"]["site"] = 8
+            borrowed["functions"].append({"name":"count_borrowed", "role":"ordinary_i64",
+                "receiver":None, "receiver_object":None, "params":[{
+                    "value":3, "representation":"borrowed_kind_payload_v1",
+                    "object_view":None, "text_view":True}], "entry":0, "blocks":[
+                    block(0, {"op":"return", "value":4}, [
+                        {"op":"string_length", "dst":4, "value":{"kind":"borrowed_text", "value":3}}])]})
+            execute(borrowed, endings=[], payload=b"3\n")
         if native:
             mixed = copy.deepcopy(data)
             f = mixed["functions"][0]; f["entry"] = 2000
@@ -261,6 +285,16 @@ def checked_string_physical():
             if b["terminator"]["instruction"]["op"] == "invoke": b["terminator"]["instruction"]["operation"]["site"] = 200 + i
         cp["functions"][0]["blocks"] = cp_rows
         execute(cp, endings=[1,0], payload="2\n1\né界\n".encode())
+        if not native:
+            # Copy lends the descriptor; it never gains the original pair's
+            # End authority. Keep the original two End operations unchanged.
+            carrier = copy.deepcopy(cp)
+            carrier_block = next(b for b in carrier["functions"][0]["blocks"] if b["id"] == 2)
+            carrier_block["instructions"].insert(1, {"instruction":{"op":"copy", "dst":46, "src":3}})
+            carrier_block["instructions"][2]["instruction"]["value"] = {"kind":"text_operand", "value":46}
+            for i, row in enumerate(carrier_block["instructions"]): row["index"] = i
+            carrier_block["terminator"]["index"] = len(carrier_block["instructions"])
+            execute(carrier, endings=[1,0], payload="2\n1\né界\n".encode())
         obsolete = copy.deepcopy(cp)
         old_block = next(b for b in obsolete["functions"][0]["blocks"] if b["id"] == 2)
         old_block["instructions"].pop()
@@ -278,7 +312,10 @@ def checked_string_physical():
             text_block["instructions"].append({"index":len(text_block["instructions"]),
                 "instruction":{"op":"string_length", "dst":dst, "value":literal(text)}})
         text_block["terminator"]["index"] = len(text_block["instructions"])
-        execute(multiple, endings=[1,0], payload="2\n1\né界\n".encode())
+        for dst, expected in [(44, 0), (45, 3)]:
+            counted_static = copy.deepcopy(multiple)
+            first(counted_static, "string_print")["operation"]["value"]["value"] = dst
+            execute(counted_static, endings=[1,0], payload=f"{expected}\n1\né界\n".encode())
         for mutation in ["normal_integer", "normal_bool", "tagged_dynamic", "dynamic_carrier",
                 "borrowed_text", "frame", "site", "normal", "fault", "ended", "before_definition"]:
             bad = copy.deepcopy(cp)

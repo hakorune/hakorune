@@ -672,13 +672,17 @@ second argument for the source-issued formal/alias captures in both finishing
 modes, plus external zero/Bool/null actual probes. Those mutations test the C
 input/runtime boundary and do not supply new source-language authority.
 
-Checked expression String uses the existing V4 physical consumer in both indexed
-and native cohorts: `string_add`, `string_print`, `string_end`, `string_length`,
-`string_substring`, and `string_index_of`. One schema owner classifies operation
-result and ordered operand roles for all consumers. Exact inline UTF-8 or typed
-owned/borrowed Text are separate from NormalInteger; only Add's right operand and
-Print accept Integer. Substring takes separate proven I64 bounds. Length and
-IndexOf return scalar I64 and acquire nothing; Add and Substring publish the same
+String code point counting is the frame-free ordinary row
+`{"op":"string_length","dst":D,"value":Text}` in physical program v2.
+It calls `nyash.string.code_point_count_v1(value,out)` without a frame or site:
+status 0 writes I64; status 2 leaves out unchanged and takes the invalid exit.
+It acquires, transfers and consumes no owner and has no source Fault edge.
+Checked expression String keeps the V4 Invoke consumer for `string_add`,
+`string_print`, `string_end`, `string_substring`, and `string_index_of` in indexed
+and native cohorts. One schema owner classifies their results and operand roles.
+Exact inline UTF-8 or typed owned/borrowed Text are separate from NormalInteger;
+only Add's right operand and Print accept Integer. Substring takes proven I64
+bounds. IndexOf returns scalar I64; Add and Substring publish the same
 distinct two-word Normal result. Core operations fix CodePoint semantics, never
 legacy env/byte indexing: reverse/equal slices empty, empty needle0 and miss-1. Shared emission calls the checked kernel ABI; old console/concat helpers
 are excluded. Each existing per-origin state carries String acquisition rank,
