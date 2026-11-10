@@ -69,5 +69,20 @@ For concatenation, expression_value/invoke.rs retains its acquisition and fault 
 4. Caller-zero retirement and generated manifest; retain raw/compat callers with locations.
 5. Update ABI/String reference, then freeze source and run final verification once.
 
-Final evidence includes all1,788 dumps and changed-input metrics, new/old EXE pairs, existing229/apps100/384/suite/Opus/unseen18/String groups, runtime checked/helper tests with timeout, C physical tests, full lib failure-name comparison, Python21 (including the four baseline missing captures), guards and formatting.
+Final evidence includes all 1,788 dumps and changed-input metrics, new/old EXE pairs, existing 229/apps 100/384/suite/Opus/unseen 18/String groups, runtime checked/helper tests with timeout, C physical tests, full lib failure-name comparison, Python 21 (including the four baseline missing captures), guards and formatting.
 Baseline FFI/runtime are copied before any build and their expected hashes match. Final reports record actual Normal/Fault responsibility changes, feature/cleanup LOC, all retired or moved test names, and three timings per old/new loop EXE. No speed claim precedes measurement.
+
+## Opus の確認（2026-11-10）
+
+Codex の `143a01e52a`〜`5e5bf4881a`（7 commit）を、main `a58caad795` から監査して fast-forward した。
+
+- 法則の問い合わせは `frame_free_read_law_v1` 1 つのまま、`CodePointSearchFromZero` を足しただけ。projection は operand を 2 つまで持つ private な `FrameFreeExpressionCoreReadV1` を返し、writer（`text_instruction_v1`）と source の対応の検査（`matches_instruction_v1`）が同じ値を使う。needle が Text でない時は、枠なしにも checked にも戻らず、`operand-domain` で止まる。
+- runtime: `with_text_operands` が 1 つか 2 つの descriptor を先に全部検査し、Owned があれば lease の表 → registry の順に 1 回ずつ取る。同じ pair を 2 回読む時も 2 回確かめる。`out` は guard を離してから書く。length も同じ関数を通るので、検査は 1 つ。旧 `with_text_formal_wire` と同じ identity で照合していることを読んだ。
+- C: `lv4_string_read_alloca` / `lv4_string_read_emit` を length と共有し、名前は `row<fi>_<b>_<row>_<role>` で operand ごとに一意。export は operand の数（1 なら count、2 なら index_of）で選んでいる。`StringCompare` は operand が 2 つなので、その回では操作の名前で選ぶ形にする。
+- 行数（`fmtcount.py` の `src/` だけ）: production +364 / test +28。このうち inline test（`invoke_string_source.rs` の 143 行、`invoke_string.rs`、`dynamic_v2_lease.rs`）を test に分けると、`src/` の production は約 +129 で、Codex の数と合う。全体は機能 +217 / +370、整理 −56 / −35。
+- 未見の 21 本（`/mnt/workdisk/claude-scratch/sio-audit`、基準は main の CLI と、Codex が build の前に写した FFI と runtime）: 出力と拒否は 21 本とも同じ。EXE になる 7 本は MIR が軽くなり、答えも正しい（見つからない → −1、空の needle → 0、同じ Owned を 2 回 → 0、loop、length と混ぜる、needle が長い、root でない method）。
+- 残した事:
+  - `return s.indexOf("l")` のように、Return の根が indexOf そのものの形は、前と同じく `ReturnValueNotCovered` で止まる（length の 13 本と同じ、basic-expr の残り）。`s.indexOf("z") + 1` は通る。
+  - `if` の条件、`print`、2 引数の indexOf、String の formal、Text の field の上の indexOf は、前と同じ拒否のまま。
+  - 速さ: 200,000 回の検索の 1 本で、前 91.8 ms、後 93.6 ms（3 回の中央値）。複製をやめても、この入力では速くならなかった。lock と検索そのものの時間を分けて測るのは、比較の回に回す。
+  - `bool_region::may_fault` の Length と IndexOf は、loop の recipe の保守的な印のまま。

@@ -267,6 +267,8 @@ mixedの`==`の修正（Codex実装・Opus監査、`297ea922b3`、[記録](mixed
 
 fieldの読みの正規化（Codex実装・Opus監査、`097ba0fff4`、[記録](field-read-2026-11-10.md)）: fieldの証明のqueryを既存の`HomeFieldSourceConsultV1`1つに集め（`scan_new_home_flow`の`FnMut`は12→7）、要求・結果の重複wrapperと物理の再分類を消し、宣言の結果のscalar投影を1か所にした。整形後のproductionは整理で−669行（u16の機能+236行は別）。1,788本のMIRは全部同じ。所有の検証が、子のobjectのfieldを通る読み（`return n.leaf.value + 1`）の借用を実MIRと公開の宣言から証明するようになり、u16はexit 6。`local s = t.f`は閉じたまま。次は`StringIndexOf`。
 
+`StringIndexOf`（Codex実装・Opus監査、`5e5bf4881a`、[記録](string-index-of-2026-11-10.md)）: sourceの1引数の`indexOf`を、枠なしの通常行`StringIndexOf`（JSON `string_index_of`、runtime `code_point_index_of_v1`）で書く。runtimeは2つのTextを、leaseの表とhostのregistryを1回ずつ取って確かめてから、複製せずに読む。lengthの借用も同じ検査を使う。旧checked IndexOfのInvokeとexportは、作る所が0になってから消した。1,788本のうち5本のMIRが軽くなり、後退は0。速さは、測った1本では変わらなかった（約92 ms → 94 ms）。rawと互換の`indexOf_hh`の道は3bで扱う。次は比較の契約の精密化と`StringCompare`。
+
 徹底的な整理（ユーザー決定2026-11-09）: MirBuilderができたら徹底的に綺麗にする。時期は基本式の残り・`edit`・3bと旧経路の退役の後、`.hako` parserのparityとselfhostの前（前の「builderの調査」の枠）。数回の大きな回で行い、各回は実装者がsubagentで経路を上からたどる調査から始める。目標: 責務ごとに持ち主1つ、操作ごとにMIRの書き手1つ（W12〜W14の意味で数える）、形や文脈の名前のfamilyを作らない、退役した経路と互換のfallbackを残さない、productionのfileは800行以下、各回で整形後の行数を純減。既存のgateは保つ。
 
 ## 証明の作り（2026-11-06、ChatGPT Proの検討、Opusが引用を確認）
