@@ -105,7 +105,7 @@ fn verify_source_moves_on_published_mir(
         let Some((aliases, initially_published)) = source.move_ownership_aliases_v1(owner, physical.function(), take_call || take_entries.contains(&owner))? else {
             if has_shared(physical.function()) { return Err("[ownership/shared-owner-missing]".into()); }
             if matches!(physical.role(), Role::Root { .. } | Role::OrdinaryI64 { .. } | Role::OrdinaryUnit { .. } | Role::OrdinaryBool { .. }) {
-                crate::mir::ownership_ssa::verify_published_object_homes_v1(physical.function(), owner, &birth_takes, &take_calls)
+                crate::mir::ownership_ssa::verify_published_object_homes_v1(physical.function(), owner, &birth_takes, &take_calls, Some(module))
                     .map_err(|error| format!("[ownership/published-homes] {error:?}"))?;
             }
             continue;
@@ -128,7 +128,7 @@ fn verify_source_moves_on_published_mir(
             .with_source_shared_descriptors(descriptors).with_source_birth_takes(birth_takes.clone())
             .with_source_owned_parameters(owned_parameters.into_iter().map(|(index, object)| (physical.params()[index], object)).collect())
             .with_source_call_takes(take_calls.clone());
-        crate::mir::ownership_ssa::verify_ownership_ssa_v1(physical.function(), &abi)
+        crate::mir::ownership_ssa::verify_ownership_ssa_with_module_v1(physical.function(), &abi, module)
             .map_err(|error| {
                 if crate::config::env::builder_debug_enabled() {
                     eprintln!("[ownership] function={} error={error:?}", physical.function().signature.name);

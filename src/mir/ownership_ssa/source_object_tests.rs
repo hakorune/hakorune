@@ -163,30 +163,113 @@ fn published_homes_derive_their_inputs_and_refuse_a_missing_or_doubled_end() {
     let owner = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
     let (births, calls) = (Default::default(), Default::default());
     let (function, object) = new_home_fixture();
-    assert_eq!(check(&function, owner, &births, &calls), Ok(Verdict::Verified));
+    assert_eq!(check(&function, owner, &births, &calls, None), Ok(Verdict::Verified));
 
     let mut missing_fault_end = function.clone();
     missing_fault_end.get_block_mut(bb(4)).unwrap().set_terminator(MirInstruction::Return { value: None });
     missing_fault_end.blocks.retain(|id, _| *id != bb(7) && *id != bb(8));
-    assert!(matches!(check(&missing_fault_end, owner, &births, &calls), Err(OwnershipSsaErrorV1::MissingDispositionAtExit { .. })));
+    assert!(matches!(check(&missing_fault_end, owner, &births, &calls, None), Err(OwnershipSsaErrorV1::MissingDispositionAtExit { .. })));
 
     let mut doubled_fault_end = function.clone();
     invoke(&mut doubled_fault_end, 7, InvokeOperation::ReclaimUnpublished { object, value: value(10) }, 8, 8);
-    assert!(matches!(check(&doubled_fault_end, owner, &births, &calls), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
+    assert!(matches!(check(&doubled_fault_end, owner, &births, &calls, None), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
 
     let mut missing_normal_end = function.clone();
     missing_normal_end.get_block_mut(bb(3)).unwrap().set_terminator(MirInstruction::Return { value: None });
     missing_normal_end.blocks.retain(|id, _| *id != bb(5) && *id != bb(6));
-    assert!(matches!(check(&missing_normal_end, owner, &births, &calls), Err(OwnershipSsaErrorV1::MissingDispositionAtExit { .. })));
+    assert!(matches!(check(&missing_normal_end, owner, &births, &calls, None), Err(OwnershipSsaErrorV1::MissingDispositionAtExit { .. })));
 
     // No claim is made about a function the verifier cannot model.
     let mut float_parameter = function.clone();
     float_parameter.signature.params.push(MirType::Float);
-    assert_eq!(check(&float_parameter, owner, &births, &calls), Ok(Verdict::OutsideModel));
+    assert_eq!(check(&float_parameter, owner, &births, &calls, None), Ok(Verdict::OutsideModel));
     // A Home with a second copy (a read temporary) cannot be derived uniquely.
     let mut second_copy = function.clone();
     second_copy.get_block_mut(bb(3)).unwrap().add_instruction(MirInstruction::Copy { dst: value(12), src: value(10) });
-    assert_eq!(check(&second_copy, owner, &births, &calls), Ok(Verdict::OutsideModel));
+    assert_eq!(check(&second_copy, owner, &births, &calls, None), Ok(Verdict::OutsideModel));
     let (without_home, _) = self::function(&[], 2);
-    assert_eq!(check(&without_home, owner, &births, &calls), Ok(Verdict::NoHomes));
+    assert_eq!(check(&without_home, owner, &births, &calls, None), Ok(Verdict::NoHomes));
+}
+
+/// The public field declaration and a closed read interval grant a view, not
+/// an owner. No generator descriptor or value_types hint participates.
+#[test]
+fn raw_child_view_requires_public_nonnullable_field_and_closed_live_interval() {
+    use crate::mir::function::{CanonicalObjectDefinitionV1, ObjectDestructionDispositionV1, UserBoxFieldDecl};
+    use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
+    let owner = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap();
+    let parent = CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+    let child = CanonicalObjectIdV1::from_declaration_index(1).unwrap();
+    let child_field = CanonicalFieldRefV1::from_declaration_ordinal(parent, 0).unwrap();
+    let scalar_field = CanonicalFieldRefV1::from_declaration_ordinal(child, 0).unwrap();
+    let module = |declared: &str, weak: bool, scalar: &str| {
+        let mut module = crate::mir::MirModule::new("borrow_interval".into());
+        let definitions = [("Pair", "child", declared, weak), ("Leaf", "value", scalar, false)]
+            .into_iter().map(|(class, name, declared, is_weak)| {
+                let fields = vec![UserBoxFieldDecl { name: name.into(), declared_type_name: Some(declared.into()), is_weak }];
+                module.metadata.user_box_decls.insert(class.into(), vec![name.into()]);
+                module.metadata.user_box_field_decls.insert(class.into(), fields.clone());
+                CanonicalObjectDefinitionV1::from_source_declaration(class.into(), fields.into_boxed_slice(),
+                    Ok(()), ObjectDestructionDispositionV1::NUMERIC_NO_HOOK, Box::new([]))
+            }).collect::<Vec<_>>();
+        module.install_object_definitions_preflighted(definitions.into_boxed_slice());
+        module.metadata.canonical_object_membership = Some([
+            ("Pair".into(), parent), ("Leaf".into(), child),
+        ].into_iter().collect());
+        module.validate_object_definition_membership().unwrap();
+        module
+    };
+    let (mut original, _) = new_home_fixture();
+    original.get_block_mut(bb(3)).unwrap().add_instruction(MirInstruction::ObjectFieldGet {
+        dst: value(12), base: value(11), field: child_field,
+    });
+    original.get_block_mut(bb(3)).unwrap().add_instruction(MirInstruction::ObjectFieldGet {
+        dst: value(13), base: value(12), field: scalar_field,
+    });
+    let abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner), vec![], FunctionResultOwnershipV1::None)
+        .with_source_aliases([(value(11), value(10))].into_iter().collect());
+    assert!(matches!(verify_ownership_ssa_v1(&original, &abi), Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })),
+        "an absent module cannot grant a child type");
+    let valid = module("Leaf", false, "i64");
+    assert!(super::super::verify_ownership_ssa_with_module_v1(&original, &abi, &valid).is_ok());
+    for bad in [module("Leaf?", false, "i64"), module("Leaf", true, "i64"),
+        module("Leaf", false, "String"), module("Leaf", false, "ArrayBox")] {
+        assert!(matches!(super::super::verify_ownership_ssa_with_module_v1(&original, &abi, &bad),
+            Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { .. })));
+    }
+    let mut bad_membership = valid.clone();
+    bad_membership.metadata.canonical_object_membership = None;
+    assert!(super::super::verify_ownership_ssa_with_module_v1(&original, &abi, &bad_membership).is_err());
+    for mutation in 0..6 {
+        let mut changed = original.clone();
+        let body = &mut changed.get_block_mut(bb(3)).unwrap().instructions;
+        match mutation {
+            0 => body[2] = MirInstruction::ObjectFieldGet { dst: value(13), base: value(12), field: child_field },
+            1 => body.push(MirInstruction::Copy { dst: value(14), src: value(12) }),
+            2 => body.push(MirInstruction::Const { dst: value(12), value: crate::mir::ConstValue::Integer(0) }),
+            3 => body.swap(1, 2),
+            4 => body.insert(2, MirInstruction::Store { value: value(9), ptr: value(9) }),
+            5 => {
+                let read = body.remove(2);
+                changed.get_block_mut(bb(5)).unwrap().add_instruction(read);
+            }
+            _ => unreachable!(),
+        }
+        assert!(super::super::verify_ownership_ssa_with_module_v1(&changed, &abi, &valid).is_err(),
+            "invalid field view mutation {mutation}");
+    }
+    let mut after_end = original.clone();
+    after_end.get_block_mut(bb(5)).unwrap().add_instruction(MirInstruction::ObjectFieldGet {
+        dst: value(14), base: value(12), field: scalar_field,
+    });
+    assert!(super::super::verify_ownership_ssa_with_module_v1(&after_end, &abi, &valid).is_err(),
+        "a released parent's child cannot be read on its continuation");
+    let mut parameter_clash = original.clone();
+    parameter_clash.params.push(value(12));
+    parameter_clash.signature.params.push(MirType::Integer);
+    let parameter_abi = OwnershipFunctionAbiV1::new(OwnershipFunctionOwnerV1::source(owner),
+        vec![MirOwnershipKindV1::None], FunctionResultOwnershipV1::None)
+        .with_source_aliases([(value(11), value(10))].into_iter().collect());
+    assert!(super::super::verify_ownership_ssa_with_module_v1(&parameter_clash, &parameter_abi, &valid).is_err(),
+        "a borrowed view cannot redefine a parameter");
 }

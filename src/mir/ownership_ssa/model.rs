@@ -230,7 +230,7 @@ impl VerifiedOwnershipSsaV1 {
     }
 
     pub(crate) fn matches_function(&self, function: &MirFunction) -> bool {
-        super::verify::verify(function, &self.abi).as_ref() == Ok(self)
+        super::verify::verify(function, &self.abi, None).as_ref() == Ok(self)
     }
 }
 

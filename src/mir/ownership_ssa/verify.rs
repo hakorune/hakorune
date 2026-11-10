@@ -20,6 +20,7 @@ struct SharedState {
 pub(super) fn verify(
     function: &MirFunction,
     abi: &OwnershipFunctionAbiV1,
+    module: Option<&crate::mir::MirModule>,
 ) -> Result<VerifiedOwnershipSsaV1, OwnershipSsaErrorV1> {
     let shared_blocks: Vec<_> = function.blocks.iter().filter_map(|(id, block)| match &block.terminator {
         Some(MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Shared(operation), normal_landing, fault_landing, .. }) => Some((*id, *normal_landing, *fault_landing, operation.normal_result_kind().is_some())),
@@ -41,7 +42,7 @@ pub(super) fn verify(
             }
         }
     }
-    let kinds = classify(function, abi)?;
+    let mut kinds = classify(function, abi)?;
     let reachable = reachable_blocks(function);
     for block in function.blocks.keys().copied() {
         if !reachable.contains(&block) {
@@ -88,6 +89,18 @@ pub(super) fn verify(
                 let valid = match kinds.get(&value) {
                     Some(MirOwnershipKindV1::Owned) => objects.get(&value) == Some(&(field.object(), ObjectStage::Published)),
                     Some(MirOwnershipKindV1::Borrowed) => true,
+                    Some(MirOwnershipKindV1::None) if module.is_some() => {
+                        let (root, object, views) = super::classify::local_field_borrow(
+                            function, module.unwrap(), block_id, value, *field)?;
+                        let root = *abi.aliases().get(&root).unwrap_or(&root);
+                        if kinds.get(&root) != Some(&MirOwnershipKindV1::Owned)
+                            || !live.contains(&root)
+                            || objects.get(&root) != Some(&(object, ObjectStage::Published)) {
+                            return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value });
+                        }
+                        for view in views { kinds.insert(view, MirOwnershipKindV1::Borrowed); }
+                        true
+                    }
                     _ => false,
                 };
                 if !valid { return Err(OwnershipSsaErrorV1::InvalidObjectLifecycle { block: block_id, value }); }

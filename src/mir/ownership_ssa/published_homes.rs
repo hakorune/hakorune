@@ -34,6 +34,7 @@ pub(crate) fn verify_published_object_homes_v1(
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     birth_takes: &BTreeMap<CanonicalSameModuleCallableKeyV1, BTreeSet<u32>>,
     call_takes: &BTreeMap<CanonicalSameModuleCallableKeyV1, BTreeMap<u32, CanonicalObjectIdV1>>,
+    module: Option<&crate::mir::MirModule>,
 ) -> Result<PublishedHomeVerdictV1, Error> {
     let mut homes = BTreeSet::new();
     let mut shared = false;
@@ -82,7 +83,7 @@ pub(crate) fn verify_published_object_homes_v1(
         .with_initially_published(initially_published)
         .with_source_birth_takes(birth_takes.clone())
         .with_source_call_takes(call_takes.clone());
-    match super::verify_ownership_ssa_v1(function, &abi) {
+    match super::verify::verify(function, &abi, module) {
         Ok(_) => Ok(PublishedHomeVerdictV1::Verified),
         Err(Error::UnsupportedManagedInstruction { .. } | Error::InvalidAcquisition { .. }
             | Error::ManagedCallOwnershipUnsupported { .. } | Error::InvalidSourceAlias { .. }
