@@ -1,118 +1,106 @@
-//! Source-issued classification of the comparison nodes of a checked evaluation.
-//! A comparison names its operand nodes from the checked operation loan only; no MIR fact
-//! or runtime tag takes part in selecting an operation.
+//! One source-derived comparison plan; physical writers bind its ordered operands.
+//! This conversion owns representation selection, never source admission or MIR validation.
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1;
 use std::rc::Rc;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ComparisonExecutionKindV1 {
+    Scalar(super::super::super::SourceScalarKind),
+    Null,
+    Text,
+    /// An opaque integer extraction needs the original carrier orientation;
+    /// otherwise the existing checked Text operation supplies the Bool directly.
+    Checked { integer_carrier_left: Option<bool> },
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ComparisonExecutionPlanV1 {
+    operator: crate::mir::CompareOp,
+    operands: [usize; 2],
+    kind: ComparisonExecutionKindV1,
+}
+impl ComparisonExecutionPlanV1 {
+    pub(crate) fn operator(self) -> crate::mir::CompareOp { self.operator }
+    pub(crate) fn operands(self) -> [usize; 2] { self.operands }
+    pub(crate) fn kind(self) -> ComparisonExecutionKindV1 { self.kind }
+    pub(crate) fn requires_fault_frame(self) -> bool {
+        matches!(self.kind, ComparisonExecutionKindV1::Checked { .. })
+    }
+}
+
 impl CheckedExpressionEvaluationV1 {
-    /// The original source loan alone selects an exact, frame-free Text read.
-    /// Invalid exact evidence refuses rather than degrading to checked Compare.
-    pub(crate) fn frame_free_text_comparison_v1(
-        &self,
-        node: usize,
-    ) -> Result<Option<crate::mir::CompareOp>, &'static str> {
+    /// The only execution-form conversion. Immutable source laws and exact
+    /// operand evidence are required together; neither MIR nor ABI chooses a form.
+    pub(crate) fn comparison_plan_v1(
+        &self, node: usize,
+    ) -> Result<Option<ComparisonExecutionPlanV1>, &'static str> {
         use crate::mir::dynamic_operator_contract::{
             DynamicOperatorFaultV1 as Fault, DynamicOperatorNormalResultV1 as Normal,
             DynamicOperatorSuspensionV1 as Suspension, DynamicOperatorValueClassV1 as Class,
         };
-        use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as ValueClass;
-        let Some(binary) = self.source.nodes().get(node).and_then(|node| node.binary()) else {
-            return Ok(None);
-        };
-        let Some(op) = binary.operator().compare_op() else {
-            return Ok(None);
-        };
-        let operands = [binary.lhs(), binary.rhs()].map(|site| {
-            self.source
-                .nodes()
-                .iter()
-                .position(|row| row.site() == site)
-        });
-        let exact_classes = operands.iter().all(|index| {
-            index.is_some_and(|index| {
-                self.class(index) == Some(ExpressionLeafClassV1::Value(ValueClass::String))
-            })
-        });
-        let loan = self.operations.iter().find(|loan| loan.node() == node);
-        let envelope = loan.and_then(|loan| loan.single_envelope());
-        let exact_domain = envelope.is_some_and(|envelope| {
-            envelope.domain().left() == Class::String && envelope.domain().right() == Class::String
-        });
-        if !exact_classes && !exact_domain {
-            return Ok(None);
+        use crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1 as Value;
+        use ComparisonExecutionKindV1 as Kind;
+        let Some(binary) = self.source.nodes().get(node).and_then(|row| row.binary()) else { return Ok(None); };
+        let Some(operator) = binary.operator().compare_op() else { return Ok(None); };
+        let mut loans = self.operations.iter().filter(|loan| loan.node() == node);
+        let Some(loan) = loans.next() else { return Ok(None); };
+        let error = "bool-condition/text-comparison-source";
+        if loans.next().is_some() || !Rc::ptr_eq(loan.source(), &self.source) { return Err(error); }
+        let index = |site| self.source.nodes().iter().position(|row| row.site() == site).ok_or(error);
+        let operands = [index(binary.lhs())?, index(binary.rhs())?];
+        let plan = |kind| Some(ComparisonExecutionPlanV1 { operator, operands, kind });
+        if loan.nullable_field_null_v1().is_some() || loan.nullable_null_v1().is_some() {
+            return Ok(plan(Kind::Null));
         }
-        let valid = loan.zip(envelope).is_some_and(|(loan, envelope)| {
-            Rc::ptr_eq(loan.source(), &self.source) && exact_classes && exact_domain
-            && envelope.normal_result() == Normal::TrivialBool
-            && envelope.fault() == Fault::NoSourceFault
-            && envelope.suspension() == Suspension::NonSuspending
-            && envelope.lifecycle().is_none()
-            && crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(
-                binary.operator()) == Some(envelope.domain().family())
-            && operands.iter().all(|index| index.is_some_and(|index| !self.transfers_node(index)))
-        });
-        if !valid {
-            return Err("bool-condition/text-comparison-source");
+        let Some(envelope) = loan.single_envelope() else { return Ok(None); };
+        let domain = envelope.domain();
+        if envelope.normal_result() != Normal::TrivialBool
+            || crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(binary.operator()) != Some(domain.family()) {
+            return Err(error);
         }
-        Ok(Some(op))
+        let exact = match (domain.left(), domain.right()) {
+            (Class::I64, Class::I64) => Some((Value::I64, Kind::Scalar(super::super::super::SourceScalarKind::Integer))),
+            (Class::Bool, Class::Bool) => Some((Value::Bool, Kind::Scalar(super::super::super::SourceScalarKind::Bool))),
+            (Class::String, Class::String) => Some((Value::String, Kind::Text)),
+            _ => None,
+        };
+        if let Some((class, kind)) = exact {
+            if envelope.fault() != Fault::NoSourceFault
+                || envelope.suspension() != Suspension::NonSuspending
+                || envelope.lifecycle().is_some()
+                || operands.iter().any(|&node| self.class(node) != Some(ExpressionLeafClassV1::Value(class)) || self.transfers_node(node)) {
+                return Err(error);
+            }
+            return Ok(plan(kind));
+        }
+        if matches!((domain.left(), domain.right()), (Class::Dynamic, Class::Null) | (Class::Null, Class::Dynamic)) {
+            if operator != crate::mir::CompareOp::Eq || envelope.fault() != Fault::NoSourceFault
+                || envelope.suspension() != Suspension::NonSuspending || envelope.lifecycle().is_some()
+                || operands.iter().filter(|&&node| matches!(self.source.nodes()[node].source(),
+                    ExpressionNodeSourceV1::Literal(super::super::super::ResolvedLiteralSourceV1::Null))).count() != 1 {
+                return Err(error);
+            }
+            return Ok(plan(Kind::Null));
+        }
+        let carrier_left = match (domain.left(), domain.right(), operator) {
+            (Class::Dynamic, Class::I64, crate::mir::CompareOp::Lt | crate::mir::CompareOp::Gt) => Some(true),
+            (Class::I64, Class::Dynamic, crate::mir::CompareOp::Lt) => Some(false),
+            _ => None,
+        };
+        if let Some(carrier_left) = carrier_left {
+            let [left, right] = operands;
+            let (carrier, integer) = if carrier_left { (left, right) } else { (right, left) };
+            return Ok(self.checked_integer_carrier_home_v1(carrier, integer).is_some()
+                .then(|| plan(Kind::Checked { integer_carrier_left: Some(carrier_left) })).flatten());
+        }
+        if matches!((domain.left(), domain.right()), (Class::String, Class::Dynamic) | (Class::Dynamic, Class::String)) {
+            return Ok(plan(Kind::Checked { integer_carrier_left: None }));
+        }
+        Ok(None)
     }
-    /// Source-issued Integer payload check for one opaque carrier comparison.
-    /// The returned nodes are (carrier, I64, carrier-on-left); no MIR fact or
-    /// runtime tag participates in selecting this operation.
-    pub(crate) fn carrier_integer_comparison_nodes_v1(
-        &self,
-        root: usize,
-    ) -> Option<(usize, usize, bool)> {
-        use crate::mir::dynamic_operator_contract::{
-            DynamicOperatorFamilyV1 as Family, DynamicOperatorNormalResultV1 as Normal,
-            DynamicOperatorValueClassV1 as Class,
-        };
-        let binary = self.source.nodes().get(root)?.binary()?;
-        let loan = self.operations.iter().find(|loan| loan.node() == root)?;
-        let envelope = loan.single_envelope()?;
-        if !Rc::ptr_eq(loan.source(), &self.source)
-            || envelope.normal_result() != Normal::TrivialBool
-        {
-            return None;
-        }
-        let left = self
-            .source
-            .nodes()
-            .iter()
-            .position(|node| node.site() == binary.lhs())?;
-        let right = self
-            .source
-            .nodes()
-            .iter()
-            .position(|node| node.site() == binary.rhs())?;
-        let (carrier, integer, carrier_left) = match (
-            envelope.domain().family(),
-            envelope.domain().left(),
-            envelope.domain().right(),
-            binary.operator(),
-        ) {
-            (
-                Family::Greater,
-                Class::Dynamic,
-                Class::I64,
-                crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Greater,
-            )
-            | (
-                Family::Less,
-                Class::Dynamic,
-                Class::I64,
-                crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less,
-            ) => (left, right, true),
-            (
-                Family::Less,
-                Class::I64,
-                Class::Dynamic,
-                crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Less,
-            ) => (right, left, false),
-            _ => return None,
-        };
+    /// Validate the existing opaque Integer view's retained Home and original reads.
+    fn checked_integer_carrier_home_v1(&self, carrier: usize, integer: usize) -> Option<()> {
         let proof = self.references.get(&carrier)?;
         if !proof.matches_node(&self.source, carrier) {
             return None;
@@ -134,46 +122,7 @@ impl CheckedExpressionEvaluationV1 {
                     | ExpressionNodeSourceV1::Literal(super::super::ResolvedLiteralSourceV1::Integer(_)))) {
             return None;
         }
-        Some((carrier, integer, carrier_left))
-    }
-    /// R16: a comparison of two exact i64 operands is one `Compare` over the operand
-    /// values; no Invoke or extraction takes part. The returned nodes are (left, right).
-    /// The checked loan's envelope names the domain and the Bool result; no MIR fact participates.
-    pub(crate) fn exact_integer_comparison_nodes_v1(&self, root: usize) -> Option<(usize, usize)> {
-        use crate::mir::dynamic_operator_contract::{
-            DynamicOperatorNormalResultV1 as Normal, DynamicOperatorValueClassV1 as Class,
-        };
-        let binary = self.source.nodes().get(root)?.binary()?;
-        let loan = self.operations.iter().find(|loan| loan.node() == root)?;
-        let envelope = loan.single_envelope()?;
-        if !Rc::ptr_eq(loan.source(), &self.source)
-            || envelope.normal_result() != Normal::TrivialBool
-            || envelope.domain().left() != Class::I64
-            || envelope.domain().right() != Class::I64
-            || crate::mir::resolved_value_profile::expression_class::comparison_operator_family_v1(
-                binary.operator(),
-            ) != Some(envelope.domain().family())
-        {
-            return None;
-        }
-        let left = self
-            .source
-            .nodes()
-            .iter()
-            .position(|node| node.site() == binary.lhs())?;
-        let right = self
-            .source
-            .nodes()
-            .iter()
-            .position(|node| node.site() == binary.rhs())?;
-        let i64_class = Some(ExpressionLeafClassV1::Value(
-            crate::mir::resolved_value_profile::expression_class::ExpressionValueClassV1::I64,
-        ));
-        (self.class(left) == i64_class
-            && self.class(right) == i64_class
-            && !self.transfers_node(left)
-            && !self.transfers_node(right))
-        .then_some((left, right))
+        Some(())
     }
 }
 
@@ -183,7 +132,11 @@ impl CheckedExpressionEvaluationV1 {
         comparison: usize,
         allow_dynamic_call: bool,
     ) -> Option<Vec<usize>> {
-        self.text_comparison_operation_v1(comparison, allow_dynamic_call)?;
+        let plan = self.comparison_plan_v1(comparison).ok()??;
+        if !matches!(plan.kind(), ComparisonExecutionKindV1::Text)
+            && !(allow_dynamic_call && matches!(plan.kind(), ComparisonExecutionKindV1::Checked { integer_carrier_left: None })) {
+            return None;
+        }
         let root = self.source.nodes().get(comparison)?;
         let prefix = root.site().node().segments();
         let order: Vec<_> = self

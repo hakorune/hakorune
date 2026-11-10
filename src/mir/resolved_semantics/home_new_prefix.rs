@@ -224,6 +224,7 @@ pub(crate) use expression_plan::{
     qualify_binding_rebind_expression_with_loop_dynamic_v1, qualify_condition_expression_v1, qualify_initializer_expression_v1,
     qualify_print_expression_v1, BindingRebindDestinationV1, CheckedArgumentExpressionFrameV1,
     CheckedBindingRebindFrameV1, CheckedBoolConditionFrameV1, CheckedExpressionEvaluationV1,
+    ComparisonExecutionKindV1, ComparisonExecutionPlanV1,
     CheckedExpressionReferenceV1, CheckedExpressionOperationLoanV1, CheckedFieldWriteFrameV1, CheckedInitializerExpressionFrameV1,
     CheckedPrintExpressionFrameV1, CheckedScalarReferenceV1, ExpressionCallSourceV1,
     ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, FieldWritePlanV1,

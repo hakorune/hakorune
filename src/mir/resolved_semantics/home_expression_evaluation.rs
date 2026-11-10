@@ -50,9 +50,7 @@ impl CheckedExpressionEvaluationV1 {
         }
         for loan in self.operations.iter() {
             if loan.scalar_copy_v1().is_none() && loan.integer_operator_v1().is_none()
-                && self.exact_integer_comparison_nodes_v1(loan.node()).is_none()
-                && !matches!(self.frame_free_text_comparison_v1(loan.node()), Ok(Some(_)))
-                && loan.nullable_null_v1().is_none() && loan.nullable_field_null_v1().is_none()
+                && !matches!(self.comparison_plan_v1(loan.node()), Ok(Some(plan)) if !plan.requires_fault_frame())
             {
                 return true;
             }
@@ -211,42 +209,14 @@ impl CheckedExpressionEvaluationV1 {
     }
     /// Operation eligibility is independent of a purpose's input schedule.
     /// The complete expression and a conditional subtree lend the same source loan.
-    pub(crate) fn text_comparison_operation_v1(
-        &self,
-        comparison: usize,
-        allow_dynamic_call: bool,
-    ) -> Option<()> {
-        use crate::mir::dynamic_operator_contract::{
-            DynamicOperatorNormalResultV1 as ResultKind, DynamicOperatorValueClassV1 as Class,
-        };
-        let root = self.source.nodes().get(comparison)?;
-        let loan = self
-            .operations
-            .iter()
-            .find(|loan| loan.node() == comparison)?;
-        let envelope = loan.single_envelope()?;
-        let domain = envelope.domain();
-        let operand_domain = match (domain.left(), domain.right()) {
-            (Class::String, Class::String) => true,
-            (Class::Dynamic, Class::String) | (Class::String, Class::Dynamic) => allow_dynamic_call,
-            _ => false,
-        };
-        if !Rc::ptr_eq(loan.source(), &self.source)
-            || root.binary().is_none()
-            || !operand_domain
-            || envelope.normal_result() != ResultKind::TrivialBool
-        {
-            return None;
-        }
-        Some(())
-    }
     /// The same eager-input scope serves Text comparison and synchronous
     /// field presence. Presence currently requires a passive exact Text leaf:
     /// computed key effects must not move ahead of receiver field evaluation.
     pub(crate) fn scalar_invoke_input_order_v1(&self, root: usize) -> Option<Vec<usize>> {
-        if let Some((left, right, _)) = self.carrier_integer_comparison_nodes_v1(root) {
-            let binary = self.source.nodes()[root].binary()?;
-            return Some(if self.source.nodes()[left].site() == binary.lhs() { vec![left, right] } else { vec![right, left] });
+        if let Some(plan) = self.comparison_plan_v1(root).ok().flatten() {
+            if matches!(plan.kind(), ComparisonExecutionKindV1::Checked { integer_carrier_left: Some(_) }) {
+                return Some(plan.operands().to_vec());
+            }
         }
         if let Some(order) = self.bool_condition_comparison_input_order_v1(root) {
             return Some(order);
@@ -674,3 +644,5 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) use value_preparation::p
 
 #[path = "home_expression_comparison_nodes.rs"]
 mod comparison_nodes;
+
+pub(crate) use comparison_nodes::{ComparisonExecutionKindV1, ComparisonExecutionPlanV1};

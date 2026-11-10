@@ -26,6 +26,7 @@ N18. Source evidence mismatch refuses by an existing named boundary; no checked 
 N19. Evaluate original left then right once; preserve executable Normal and surviving Fault acquisition/transfer/End responsibility and order, without requiring equal static End counts.
 N20. Stage A contracts and stage B plan connection preserve admission/MIR; later changes are lighter or equal-weight Compare→NullCompare spelling only, with every changed input recorded.
 N21. Functionality and cleanup have separate normalized production/test counts; cleanup includes all shared destinations and closes net negative without movement/formatting credit.
+N22. Cleanup groups the six checked Integer envelopes into one constructor/array and shares identical Dynamic/I64 bodies, preserving every domain/result/suspension/Fault/lifecycle and refinement comment; comparison_index reduces selection arms, existing test expectations and all 1788 dumps/refusals remain unchanged.
 
 ## Private plan and NullCompare decision
 
@@ -85,7 +86,7 @@ The single Ne and Copy(null) carrier examples require canonical-versus-compatibi
 |---|---|
 | `verification/invoke.rs:324-346` | Activate independent checks even for NullCompare-only and canonical old null Compare |
 | `verification/invoke_string_read.rs:130,178,229` | Shared availability/scalar-origin components; keep Text borrowing separate |
-| `verification/value_origin.rs:118`, `ssa.rs`, `dom.rs` | Actual Copy/complete-PHI origin, definition/SSA/dominance, not overwritten def-map as proof |
+| `value_origin.rs:118`, `ssa.rs`, `dom.rs` | Actual Copy/complete-PHI origin, definition/SSA/dominance, not overwritten def-map as proof |
 | `compiled_entry_contract/borrowed_call_uses_null_compare.rs` | Existing null use/coverage and direct sentinel checking |
 | `compiled_entry_contract/borrowed_call_uses.rs:154,232,522` | Scalar-authority fence, view pickup and null admission |
 | `compiled_entry_contract/borrowed_call_uses_object_field.rs:43-87` | Existing Eq false-edge nonnull guard |

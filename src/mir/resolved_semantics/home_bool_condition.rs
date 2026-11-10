@@ -58,28 +58,11 @@ impl CheckedBoolConditionFrameV1 {
     /// These original leaves are observations owned by one checked comparison,
     /// not scalar-producing nodes or separate Local acquisitions.
     pub(crate) fn comparison_input_children_v1(&self, node: usize) -> Option<[usize; 2]> {
-        let loan = self.operations().iter().find(|loan| loan.node() == node)?;
-        let envelope = loan.single_envelope()?;
-        let domain = envelope.domain();
-        let operands_supported = self.evaluation.carrier_integer_comparison_nodes_v1(node).is_some() || matches!(
-            (domain.left(), domain.right()),
-            (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String)
-                | (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::String)
-                | (DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::Dynamic)
-        );
-        if !operands_supported || envelope.normal_result()
-            != crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::TrivialBool {
-            return None;
-        }
-        let binary = self.source().nodes().get(node)?.binary()?;
-        let index = |site| {
-            self.source()
-                .nodes()
-                .iter()
-                .position(|node| node.site() == site)
-        };
-        Some([index(binary.lhs())?, index(binary.rhs())?])
+        let plan = self.evaluation.comparison_plan_v1(node).ok()??;
+        matches!(plan.kind(), ComparisonExecutionKindV1::Text | ComparisonExecutionKindV1::Checked { .. })
+            .then_some(plan.operands())
     }
+
     pub(crate) fn scalar_invocation_input_nodes_v1(&self) -> BTreeSet<usize> {
         self.ordered_nodes()
             .iter()
@@ -526,7 +509,8 @@ pub(crate) fn qualify_condition_expression_v1<E>(
                 envelope.domain().family() == DynamicOperatorFamilyV1::Greater
                     && envelope.domain().left() == DynamicOperatorValueClassV1::Dynamic
                     && envelope.domain().right() == DynamicOperatorValueClassV1::I64);
-        if required_carrier_comparison && frame.evaluation().carrier_integer_comparison_nodes_v1(node).is_none() {
+        if required_carrier_comparison && !matches!(frame.evaluation().comparison_plan_v1(node), Ok(Some(plan))
+            if matches!(plan.kind(), ComparisonExecutionKindV1::Checked { integer_carrier_left: Some(_) })) {
             return Ok(None);
         }
         let scalar_core = frame.evaluation().cores().get(&node).is_some_and(|core| {

@@ -1,5 +1,6 @@
 //! One source-derived scalar terminal plan for emission and independent validation.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::{ComparisonExecutionKindV1 as ComparisonKind, SourceScalarKind};
 
 /// Central terminal operation projection shared by the Bool writer and both
 /// final source consumers. Bool results never enter an Integer/Text operand.
@@ -52,25 +53,14 @@ fn checked_scalar_base_operation_v1(
     if receiver.is_some() {
         return Err(freeze("expression-core/source-identity"));
     }
-    let exact = frame.frame_free_text_comparison_v1(node).map_err(freeze)?;
-    if exact.is_none() {
-        frame.text_comparison_operation_v1(node, true)
-            .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
-    }
-    let binary = frame.source().nodes()[node]
-        .binary()
+    let plan = frame.comparison_plan_v1(node).map_err(freeze)?
+        .filter(|plan| matches!(plan.kind(), ComparisonKind::Text | ComparisonKind::Checked { integer_carrier_left: None }))
         .ok_or_else(|| freeze("bool-condition/text-comparison-source"))?;
-    let operand = |site| {
+    let operand = |index: usize| {
         use crate::mir::resolved_value_profile::{
             expression_class::ExpressionValueClassV1 as Class,
             expression_projection::ExpressionLeafClassV1 as Leaf,
         };
-        let index = frame
-            .source()
-            .nodes()
-            .iter()
-            .position(|row| row.site() == site)
-            .ok_or_else(|| freeze("bool-condition/text-operand-order"))?;
         let value = values[index]
             .as_ref()
             .map(|value| value.as_operand())
@@ -95,12 +85,12 @@ fn checked_scalar_base_operation_v1(
             _ => Err(freeze("bool-condition/text-operand-order")),
         }
     };
-    let left = operand(binary.lhs())?;
-    let right = operand(binary.rhs())?;
-    if let Some(op) = exact {
+    let [left, right] = plan.operands();
+    let (left, right) = (operand(left)?, operand(right)?);
+    let op = plan.operator();
+    if plan.kind() == ComparisonKind::Text {
         return Ok(ControlFlow::Continue(super::expression_projection::FrameFreeExpressionReadV1::text_comparison_v1(op, left, right)?));
     }
-    let op = binary.operator().compare_op().ok_or_else(|| freeze("bool-condition/text-operator"))?;
     Ok(ControlFlow::Break(InvokeOperation::String(Operation::Compare { op, left, right })))
 }
 
@@ -131,45 +121,35 @@ pub(crate) fn checked_scalar_invoke_operation_v1(
     node: usize, values: &[Option<EvaluatedExpressionValueV1>],
     receiver: Option<&crate::mir::builder::ExactLexicalReadV1>,
 ) -> Result<CheckedScalarConditionOperationV1, String> {
-    if let Some((carrier_node, integer_node, carrier_left)) = frame.carrier_integer_comparison_nodes_v1(node) {
+    let comparison = frame.comparison_plan_v1(node).map_err(freeze)?;
+    if let Some(plan) = comparison.filter(|plan| matches!(plan.kind(),
+        ComparisonKind::Scalar(SourceScalarKind::Integer)
+            | ComparisonKind::Checked { integer_carrier_left: Some(_) })) {
         use crate::mir::instruction::StringInvokeOperand as Operand;
         if receiver.is_some() || values.len() != frame.source().nodes().len() {
             return Err(freeze("bool-condition/text-comparison-source"));
         }
         let operand = |node: usize| values.get(node).and_then(Option::as_ref)
-            .and_then(|value| value.as_operand().ok()).ok_or_else(|| freeze("bool-condition/text-operand-order"));
-        let Operand::Dynamic(carrier) = operand(carrier_node)? else {
-            return Err(freeze("bool-condition/text-operand-order"));
-        };
-        let Operand::NormalInteger(other) = operand(integer_node)? else {
-            return Err(freeze("bool-condition/text-operand-order"));
-        };
-        let op = frame.source().nodes()[node].binary().and_then(|binary| binary.operator().compare_op())
-            .filter(|op| matches!(op, crate::mir::CompareOp::Gt | crate::mir::CompareOp::Lt))
-            .ok_or_else(|| freeze("bool-condition/text-operator"))?;
-        return Ok(CheckedScalarConditionOperationV1 {
-            read: None,
-            operation: Some(InvokeOperation::DynamicCarrierInteger { carrier: *carrier }),
-            direct_integer: None,
-            comparison: Some((op, *other, carrier_left)),
-        });
-    }
-    if let Some((left, right)) = frame.exact_integer_comparison_nodes_v1(node) {
-        use crate::mir::instruction::StringInvokeOperand as Operand;
-        if receiver.is_some() || values.len() != frame.source().nodes().len() {
-            return Err(freeze("bool-condition/text-comparison-source"));
-        }
-        let operand = |node: usize| match values.get(node).and_then(Option::as_ref).and_then(|value| value.as_operand().ok()) {
-            Some(Operand::NormalInteger(value)) => Ok(*value),
+            .and_then(|value| value.as_operand().ok())
+            .ok_or_else(|| freeze("bool-condition/text-operand-order"));
+        let [left, right] = plan.operands();
+        let integer = |node| match operand(node)? {
+            Operand::NormalInteger(value) => Ok(*value),
             _ => Err(freeze("bool-condition/text-operand-order")),
         };
-        let op = frame.source().nodes()[node].binary().and_then(|binary| binary.operator().compare_op())
-            .ok_or_else(|| freeze("bool-condition/text-operator"))?;
+        let (operation, direct_integer, other, carrier_left) = match plan.kind() {
+            ComparisonKind::Checked { integer_carrier_left: Some(carrier_left) } => {
+                let (carrier, other) = if carrier_left { (left, right) } else { (right, left) };
+                let Operand::Dynamic(carrier) = operand(carrier)? else {
+                    return Err(freeze("bool-condition/text-operand-order"));
+                };
+                (Some(InvokeOperation::DynamicCarrierInteger { carrier: *carrier }), None, integer(other)?, carrier_left)
+            }
+            _ => (None, Some(integer(left)?), integer(right)?, true),
+        };
         return Ok(CheckedScalarConditionOperationV1 {
-            read: None,
-            operation: None,
-            direct_integer: Some(operand(left)?),
-            comparison: Some((op, operand(right)?, true)),
+            read: None, operation, direct_integer,
+            comparison: Some((plan.operator(), other, carrier_left)),
         });
     }
     let (operation, read) = match checked_scalar_base_operation_v1(frame, node, values, receiver)? {

@@ -365,7 +365,8 @@ impl EmittedBoolConditionProjectionV1 {
                     let expected = match binary.operator() {
                         ResolvedBinaryOperatorV1::Add | ResolvedBinaryOperatorV1::Subtract
                         | ResolvedBinaryOperatorV1::Multiply => None,
-                        operator => Some(operator.compare_op().ok_or_else(|| freeze("bool-condition/operator-kind"))?),
+                        _ => Some(self.frame.evaluation().comparison_plan_v1(node.node).map_err(freeze)?
+                            .ok_or_else(|| freeze("bool-condition/operator-kind"))?.operator()),
                     };
                     let (a, b) = match &append.1 {
                         MirInstruction::Compare { dst, op, lhs, rhs }
