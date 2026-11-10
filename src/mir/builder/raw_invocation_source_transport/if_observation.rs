@@ -30,7 +30,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let site = OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(node));
         if ledger.borrowed_field_write_guard_for_binary_v1(owner, &site)?.is_none() { return Ok(()) }
         let original = completed.comparison_original().ok_or("[freeze:contract][borrowed-write-guard/not-compare]")?;
-        let MirInstruction::Compare { lhs, rhs, .. } = original.1 else {
+        let MirInstruction::NullCompare { lhs, rhs, .. } = original.1 else {
             return Err("[freeze:contract][borrowed-write-guard/not-compare]".into());
         };
         let function = builder.function_state.current_function.as_ref().ok_or("[freeze:contract][borrowed-write-guard/no-function]")?;

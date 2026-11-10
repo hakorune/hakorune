@@ -630,6 +630,9 @@ pub(crate) struct EmittedComparisonInitializerProjectionV1 {
     dependencies: Vec<Binding>,
 }
 impl EmittedComparisonInitializerProjectionV1 {
+    pub(super) fn copy_receipt_v1(&self) -> Option<(ValueId, ValueId, &Binding)> {
+        Some((self.local, self.value, self.copy.as_ref()?))
+    }
     pub(super) fn source(&self) -> &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionOperationLoanV1> { &self.source }
     pub(super) fn validate(&self, context: CallValidationContextV1<'_>, function: &MirFunction,
         bindings: &[Binding], coordinates: Option<&super::super::physical_boundary::FinishedBindings>,

@@ -137,7 +137,7 @@ fn declared_read_result_keeps_local_support_through_field_publication() {
                 let mut comparisons = 0;
                 for block in changed.functions.get_mut("main").unwrap().blocks.values_mut() {
                     for row in &mut block.instructions {
-                        if let MirInstruction::Compare { op, .. } = row {
+                        if let MirInstruction::NullCompare { op, .. } = row {
                             *op = crate::mir::CompareOp::Ne;
                             comparisons += 1;
                         }

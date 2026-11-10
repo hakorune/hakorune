@@ -271,6 +271,31 @@ pub(super) fn check(function: &MirFunction) -> Result<(), Failure> {
                 .map_err(|why| (*id, why))?;
         }
     }
+    // A tail that cannot reach any observation cannot affect a null read.
+    // Compute this once from actual Normal/Fault edges, retaining returning
+    // loops and every prefix; never cap the number of executable states.
+    let mut predecessors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
+    let mut reaches_observation = BTreeSet::new();
+    let mut reverse_pending = VecDeque::new();
+    for (id, block) in &function.blocks {
+        for target in block.successors_from_terminator() {
+            predecessors.entry(target).or_default().push(*id);
+        }
+        if block
+            .all_instructions()
+            .any(|row| matches!(row, MirInstruction::NullCompare { .. }))
+        {
+            reaches_observation.insert(*id);
+            reverse_pending.push_back(*id);
+        }
+    }
+    while let Some(id) = reverse_pending.pop_front() {
+        for predecessor in predecessors.get(&id).into_iter().flatten() {
+            if reaches_observation.insert(*predecessor) {
+                reverse_pending.push_back(*predecessor);
+            }
+        }
+    }
     // Retain incoming-edge Phi identity while checking every executable path.
     // Joining dead sets first would lose which resource a Phi actually selected.
     let initial = (
@@ -335,6 +360,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), Failure> {
             }
         }
         for target in block.successors_from_terminator() {
+            if !reaches_observation.contains(&target) {
+                continue;
+            }
             let fault_edge = matches!(block.terminator, Some(MirInstruction::Invoke { fault_landing, .. }) if target == fault_landing);
             pending.push_back((
                 target,

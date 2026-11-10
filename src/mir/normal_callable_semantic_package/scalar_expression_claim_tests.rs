@@ -290,7 +290,7 @@ fn field_alias_null_equality_claims_both_predicates_and_orders() {
     // following `new` claim covered.
     for compare in ["l == null", "l != null", "null == l", "null != l"] {
         let package = package(&format!(
-            "local l = pool.page local c = {compare} local later = new Page() return 0"
+            "local l = pool.page local c = {compare} local later = new Page() if c {{ return 1 }} return 0"
         ));
         assert_eq!(staged_count(&package), 1, "compare {compare}");
         let loans: Vec<_> = package

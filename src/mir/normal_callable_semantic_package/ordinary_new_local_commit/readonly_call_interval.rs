@@ -8,7 +8,7 @@ pub(super) fn readonly_instruction_v1(row: &MirInstruction) -> bool {
     matches!(row,
         MirInstruction::Const { .. } | MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
         | MirInstruction::KeepAlive { .. }
-        | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Branch { .. }
+        | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. } | MirInstruction::Branch { .. }
         | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::ReturnFault { .. }
         | MirInstruction::FaultFrameEnter { .. } | MirInstruction::InvokeNormalResult { .. } | MirInstruction::TypeOp { .. }
         | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. }

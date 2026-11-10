@@ -206,7 +206,7 @@ pub(super) fn validate_map_field_v1(
             MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }
                 | InvokeOperation::ObjectFieldBorrow { .. } | InvokeOperation::String(_), .. }
             | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. } | MirInstruction::Const { .. } | MirInstruction::Copy { .. }
-            | MirInstruction::Phi { .. } | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. }
+            | MirInstruction::Phi { .. } | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. }
             | MirInstruction::Branch { .. } | MirInstruction::Jump { .. } | MirInstruction::Return { .. }
             | MirInstruction::InvokeNormalResult { .. } | MirInstruction::FaultFrameEnter { .. }
             | MirInstruction::ReturnFault { .. } | MirInstruction::TypeOp { .. } => false,
@@ -241,7 +241,7 @@ fn validate_map_scalar_callee_v1(module: &crate::mir::MirModule, function: &MirF
                 origins.origin(*base) == Some(receiver)
                     && named_ordinal(field).is_some_and(|ordinal| ordinal as u32 != protected.declaration_ordinal()),
             MirInstruction::Const { .. } | MirInstruction::Copy { .. } | MirInstruction::Phi { .. }
-            | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::Branch { .. }
+            | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. } | MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. } | MirInstruction::Return { .. } | MirInstruction::InvokeNormalResult { .. }
             | MirInstruction::FaultFrameEnter { .. } | MirInstruction::ReturnFault { .. } | MirInstruction::TypeOp { .. } => true,
             _ => false,
@@ -394,7 +394,7 @@ fn validate_map_completion_effects_v1(
                         MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }
                             | InvokeOperation::ObjectFieldBorrow { .. }, .. }
                         | MirInstruction::ObjectFieldGet { .. } | MirInstruction::FieldGet { .. } | MirInstruction::Const { .. } | MirInstruction::Copy { .. }
-                        | MirInstruction::Phi { .. } | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. }
+                        | MirInstruction::Phi { .. } | MirInstruction::BinOp { .. } | MirInstruction::Compare { .. } | MirInstruction::NullCompare { .. }
                         | MirInstruction::Branch { .. } | MirInstruction::Jump { .. } | MirInstruction::Return { .. }
                         | MirInstruction::InvokeNormalResult { .. } | MirInstruction::FaultFrameEnter { .. }
                         | MirInstruction::ReturnFault { .. } | MirInstruction::TypeOp { .. } | MirInstruction::ArrayRead { .. } => true,

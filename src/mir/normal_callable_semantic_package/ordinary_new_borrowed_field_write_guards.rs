@@ -87,7 +87,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let (guard, _, null_side) = self.borrowed_field_write_guard_for_binary_v1(owner, &site)?
             .ok_or_else(|| freeze("borrowed-write-guard/source-missing"))?;
-        if !matches!(comparison.1, MirInstruction::Compare { op: CompareOp::Eq, lhs, rhs, .. }
+        if !matches!(comparison.1, MirInstruction::NullCompare { op: CompareOp::Eq, lhs, rhs, .. }
             if (lhs, rhs) == (operands[0].values().1, operands[1].values().1))
         { return Err(freeze("borrowed-write-guard/compare-shape")); }
         let mut original = vec![comparison.clone()];

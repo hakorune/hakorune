@@ -15,6 +15,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
         if let Some(packet) = self.stored_map_get() {
             return Some(packet.copy_receipt());
         }
+        if let Some(packet) = self.comparison_initializer() {
+            return packet.copy_receipt_v1();
+        }
         let packet = self.initializer()?;
         Some((
             packet.local_value(),

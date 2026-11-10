@@ -492,6 +492,12 @@ impl RootLifecyclePrefixBindingGroupV1 {
     pub(in crate::mir) fn initializer(&self) -> Option<&EmittedInitializerExpressionProjectionV1> {
         self.initializer_rc().map(Rc::as_ref)
     }
+    pub(in crate::mir) fn comparison_initializer(&self) -> Option<&EmittedComparisonInitializerProjectionV1> {
+        match &self.proof {
+            PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)) => Some(packet),
+            _ => None,
+        }
+    }
     pub(super) fn new_comparison_initializer(packet: Rc<EmittedComparisonInitializerProjectionV1>, bindings: Vec<(BasicBlockId, MirInstruction)>) -> Self {
         Self { site: OwnedExprSiteV1::new(packet.source().source().owner(), packet.source().source().nodes()[0].site().clone()),
             bindings, proof: PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::ComparisonInitializer(packet)), projected: false }

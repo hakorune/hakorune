@@ -74,6 +74,14 @@ pub(super) fn preflight<E>(
                     || !matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { statement: original, .. } if original == statement) {
                     return Ok(None);
                 }
+                // This pure local/literal observation has no persistent result
+                // consumer when the sealed source has neither reads nor captures.
+                // Preserve its old DCE path instead of pinning an unused packet.
+                let result = initializer.binding();
+                if ledger.uncaptured_binding(result) && !ledger.variable_refs().any(|(_, reference)|
+                    *reference == ResolvedLexicalRefV1::Local(result)) {
+                    return Ok(Some(Kind::Bool));
+                }
                 let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
                     ledger, input.body_shape(), initializer) else { return Ok(None); };
                 let Some(plan) = HomeExpressionPlanV1::alias_null_root(source, binding, root) else { return Ok(None); };
