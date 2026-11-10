@@ -1,4 +1,4 @@
-//! Original borrowed alias Copies, separate from the lifecycle contraction DAG.
+//! Captured borrowed aliases and source-proven scalar read cones, separate from control contraction.
 //! This is physical correspondence only; the original entry loan owns authority.
 use super::*;
 
@@ -10,13 +10,6 @@ pub(super) struct OriginalBorrowedCopies {
 
 impl OriginalBorrowedCopies {
     pub(super) fn capture(
-        function: &MirFunction,
-        mandatory: &Bindings,
-        copies: &Bindings,
-    ) -> Result<Self, String> {
-        Self::capture_with_reads(function, mandatory, copies, &[])
-    }
-    pub(super) fn capture_with_reads(
         function: &MirFunction,
         mandatory: &Bindings,
         copies: &Bindings,

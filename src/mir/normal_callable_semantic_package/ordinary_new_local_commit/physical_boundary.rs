@@ -154,7 +154,7 @@ impl PhysicalBoundary {
         source_phi_roles: &phi_policy::SourcePhiRoles, single_predecessor_phi_body: Option<BasicBlockId>,
         source_loops: &[std::rc::Rc<crate::mir::builder::VerifiedLoopCondAfterPhysicalRoleV1>], read_cones: &Bindings,
     ) -> Result<Self, String> {
-        let borrowed_copies = OriginalBorrowedCopies::capture_with_reads(function, bindings, borrowed_copies, read_cones)?;
+        let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies, read_cones)?;
         let used = used_values(function);
         let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
         let mut definitions = BTreeMap::<ValueId, usize>::new();
