@@ -1,7 +1,7 @@
 # Hakorune MIR Instruction Set (Canonical SSOT)
 
 Status: Canonical (Source of Truth) — transitioning
-Last Updated: 2026-09-06
+Last Updated: 2026-11-10
 
 この文書はHakoruneのMIR命令セットの唯一の参照だよ。
 `src/mir/contracts/backend_core_ops.rs` の ledger と、この文書の機械可読カウントが一致することを SSOT 契約とする。
@@ -44,12 +44,24 @@ until the v2 frame and both C consumers are ready. See the
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=60
+DOC_SYNC_MIR_KEPT_COUNT=61
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=76
+DOC_SYNC_MIR_VOCABULARY_COUNT=77
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
+
+### Borrow-only String length
+
+`StringLength { dst, value: StringInvokeOperand }` is a nonterminator READ.
+It defines I64 Unicode code point count and accepts only StaticText,
+OwnedString, BorrowedText and TextOperand. The shared Text read validation
+checks current lifetime, exact borrowed-formal/Copy origin, definition order
+and dominance; acquisition/transfer/End transitions remain with their existing
+owners. The row carries no frame or Normal/Fault successor. Its printed name
+is `string_length`; its selected v2 JSON has exactly `op`, `dst`, `value`.
+The retired `StringInvokeOperation::Length` has no producer or reader.
+See the [ABI](../abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2).
 
 ### Owned String residence and Return handoff
 
@@ -387,7 +399,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（60）
+## Current Kept Vocabulary（61）
 
 This is the current kept vocabulary (backend admission is separate) from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
@@ -402,6 +414,7 @@ allowlists are being updated.
 - DestroyOwned
 - ArrayResidenceRelease
 - StringResidenceInstall
+- StringLength
 - ArrayElementWrite
 - ArrayRead
 - MapLiteralEntryWrite

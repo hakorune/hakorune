@@ -43,9 +43,13 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     .and_then(EvaluatedExpressionValueV1::value)
                     .ok_or_else(|| freeze("expression-core/result-missing"))?;
                 let result = self.require_unique(|row| row.dst_value() == Some(value))?;
-                if matches!(super::checked_expression_core_operation_v1(&self.frame.cores()[&index], self.values)?,
-                    std::ops::ControlFlow::Continue(_))
-                {
+                if matches!(
+                    super::checked_expression_core_operation_v1(
+                        &self.frame.cores()[&index],
+                        self.values
+                    )?,
+                    std::ops::ControlFlow::Continue(_)
+                ) {
                     ordered.push(result.clone());
                     continue;
                 }

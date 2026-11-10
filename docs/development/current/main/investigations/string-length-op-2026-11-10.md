@@ -66,3 +66,22 @@ full lib failure-name comparison, Python v4, naming/pointer/rustfmt/diff checks.
 Feature and cleanup normalized production/test LOC are separate; cleanup must be net negative.
 The earlier normalization exception remains bounded by dyn_locals instructions83/blocks61/Invokes22;
 it does not permit a heavier StringLength transformation.
+
+## Retained compatibility contracts
+
+The source StringBox arm in `match_generic_len_route` is removed. The shared
+`GenericMethodRouteKind::StringLen` descriptor remains for actual C compatibility
+consumers: `lang/c-abi/shims/hako_llvmc_ffi_same_module_generic_method_string_emit.inc:28,83`
+and `hako_llvmc_ffi_same_module_generic_method_collection_emit.inc:607` use the
+byte helper (including substring omitted-end and indexOf bounds).
+`hako_llvmc_ffi_generic_method_len_policy.inc:196,200` also retains compatibility
+length. These callers keep `nyash.string.len_fast_h`; they do not authorize a
+canonical source fallback. The `.hako` CoreMethodContractBox StringLen row is
+retained because the generated manifest supplies the new operation's exact
+CodePointCount source law, independently of that compatibility helper symbol.
+
+C verification exposed pre-existing fixture/consumer mismatches: indexed Copy
+is a readonly descriptor alias, not End authority; Substring indices use the
+existing operand descriptor ABI. Their rejection/cleanup evidence is preserved.
+The native Array release emitter now guards its indexed-only Map query before
+using the unchanged native release path; native Substring indices require I64.

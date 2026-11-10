@@ -165,9 +165,14 @@ fn refresh_module_semantic_metadata_accepts_stringbox_length_self_arg_in_generic
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
     assert_eq!(route.target_shape_reason(), None);
     let callee = &module.functions["Helper.debug_len/1"];
-    assert!(callee.metadata.generic_method_routes.iter().all(|route|
-        route.route_kind_tag() != "string_len"),
-        "source String length cannot select the compatibility byte route");
+    assert!(
+        callee
+            .metadata
+            .generic_method_routes
+            .iter()
+            .all(|route| route.route_kind_tag() != "string_len"),
+        "source String length cannot select the compatibility byte route"
+    );
 }
 
 #[test]

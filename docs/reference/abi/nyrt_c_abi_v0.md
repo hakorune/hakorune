@@ -339,6 +339,30 @@ i64`. Bool operands, mixed kinds and all other representations reject in V4;
 unknown predicates or missing/foreign operands reject in the physical parser.
 This supplies no implicit conversion and does not authorize a new source shape.
 
+String length transport (2026-11-10) is the normal row
+`{"op":"string_length","dst":D,"value":T}` with exactly those three keys.
+`T` uses the existing Text operand spellings `static_text`, `owned_string`,
+`borrowed_text` or `text_operand`. The result kind is I64 Unicode code points;
+frame, site and Normal/Fault fields are absent. Definition availability,
+borrowed-formal origin and Text readability are checked at the row's position.
+A read never acquires, transfers or consumes a String residence.
+
+The C leaf is `nyash.string.code_point_count_v1(const NyrtStringOperandV1*,
+int64_t*) -> uint32_t`: status 0 writes the count, status 2 preserves the output,
+and status 1 is never returned. Detected descriptor/lease/output violations are
+InvalidContract, not source Fault. The leaf borrows backing Text while counting,
+releases its identity locks before writing output, and does not clone the String.
+C allocates descriptor/output slots in the prologue with function/block/row
+names, continues only on status 0 and sends any other status to the existing
+invalid exit. It uses the same PHI edge-forwarding convention below.
+
+The old `kind:string_length` Invoke operation and
+`nyash.string.checked_length_v1` export are retired in the same series; an old
+physical document is rejected as unknown vocabulary. The program schema remains
+v2. Other String operations retain their existing checked ABI and cleanup.
+Length's removed, non-source-Fault edge needs no cleanup copy; every executable
+Normal and remaining Fault path retains the original acquisition/End order.
+
 Scalar PHIs may carry I64 or BOOL only. Their leading group uses the existing
 physical predecessor/value relations; no resource provenance is merged. Kind
 equality components must have one consistent defining kind, independent of

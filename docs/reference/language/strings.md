@@ -17,6 +17,21 @@ The Rust runtime currently supports a legacy performance/compatibility switch:
 
 This applies to both primitive `String` and `StringBox` paths. Long-term, the language-level SSOT is CP semantics; the env toggle exists to keep migrations reversible while the VM/runner paths are being unified.
 
+## Selected canonical String length
+
+The existing `StringLen/0 -> CodePointCount` source law is connected to the
+normal `StringLength` MIR row. It counts Unicode code points, including combining
+marks separately; it does not count bytes or grapheme clusters. This path does
+not consult `NYASH_STR_CP`. The legacy byte/compatibility APIs above remain a
+separate boundary.
+
+The common expression evaluator borrows the receiver once and sends the I64
+result to the existing consumer. Length itself has no source Fault edge and
+changes no ownership. Receiver acquisition, concatenation, calls, Print and End
+keep their own Fault/cleanup responsibilities. A non-root function needs no
+FaultFrameEnter when length was its only reason for a frame; Root ABI duties
+remain. The runtime borrows Text without cloning its full backing.
+
 ## Selected AOT TextScan profile
 
 The selected `hako.text.scan@1` AOT capability fixes the CodePoint/clamped

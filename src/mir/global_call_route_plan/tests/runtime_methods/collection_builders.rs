@@ -73,9 +73,14 @@ fn refresh_module_semantic_metadata_accepts_read_char_unknown_receiver_from_stri
     assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
 
     let read_char = &module.functions["StringScanBox.read_char/2"];
-    assert!(read_char.metadata.generic_method_routes.iter().all(|route|
-        route.route_kind_tag() != "string_len"),
-        "source String length cannot select the compatibility byte route");
+    assert!(
+        read_char
+            .metadata
+            .generic_method_routes
+            .iter()
+            .all(|route| route.route_kind_tag() != "string_len"),
+        "source String length cannot select the compatibility byte route"
+    );
     assert!(read_char
         .metadata
         .generic_method_routes

@@ -80,9 +80,14 @@ fn records_direct_len_family_core_method_routes() {
     let array_core = array_route.core_method().expect("ArrayLen carrier");
     assert_eq!(array_core.op, CoreMethodOp::ArrayLen);
 
-    assert!(function.metadata.generic_method_routes.iter().all(|route|
-        route.route_kind() != GenericMethodRouteKind::StringLen),
-        "source String length must not choose the byte ABI");
+    assert!(
+        function
+            .metadata
+            .generic_method_routes
+            .iter()
+            .all(|route| route.route_kind() != GenericMethodRouteKind::StringLen),
+        "source String length must not choose the byte ABI"
+    );
 }
 
 #[test]
@@ -171,8 +176,10 @@ fn records_stringbox_length_self_arg_route() {
 
     refresh_function_generic_method_routes(&mut function);
 
-    assert!(function.metadata.generic_method_routes.is_empty(),
-        "canonical CodePointCount must never be replaced by a generic byte route");
+    assert!(
+        function.metadata.generic_method_routes.is_empty(),
+        "canonical CodePointCount must never be replaced by a generic byte route"
+    );
 }
 
 #[test]
@@ -363,8 +370,10 @@ fn records_runtime_data_string_len_from_generic_global_call_origin() {
 
     refresh_function_generic_method_routes(&mut function);
 
-    assert!(function.metadata.generic_method_routes.is_empty(),
-        "canonical CodePointCount must never be replaced by a generic byte route");
+    assert!(
+        function.metadata.generic_method_routes.is_empty(),
+        "canonical CodePointCount must never be replaced by a generic byte route"
+    );
 }
 
 #[test]
