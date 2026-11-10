@@ -96,7 +96,7 @@ pub(in crate::mir::builder::ordinary_new_admission::selected) fn bool_condition_
                     core,
                     &body.values,
                 )?,
-                InvokeOperation::DynamicArrayGet { .. }
+                std::ops::ControlFlow::Break(InvokeOperation::DynamicArrayGet { .. })
             )
         } else if let Some(operation) = frame
             .operations()

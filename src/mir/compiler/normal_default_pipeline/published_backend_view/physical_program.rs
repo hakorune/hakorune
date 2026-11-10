@@ -651,6 +651,7 @@ fn validate_instruction_with_context(
                 ..
             } | MirInstruction::Compare { .. }
                 | MirInstruction::Copy { .. }
+                | MirInstruction::StringLength { .. }
                 | MirInstruction::Phi { .. }
                 | MirInstruction::KeepAlive { .. }
                 | MirInstruction::ObjectFieldGet { .. }

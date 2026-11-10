@@ -187,7 +187,7 @@ impl ExpressionPhysicalProjectionRefV1<'_> {
                         let expected = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(
                             core, self.values,
                         ).ok()?;
-                        if &expected != operation { return None; }
+                        if expected != std::ops::ControlFlow::Break(operation.clone()) { return None; }
                         self.values.get(*node).and_then(Option::as_ref)
                             .and_then(|value| value.as_operand().ok())
                             .and_then(|value| match value {

@@ -44,7 +44,7 @@ impl CheckedExpressionEvaluationV1 {
             || matches!(self.source.root(), ExpressionPlanRootV1::Statement {
                 role: StatementExpressionRoleV1::PrintValue, ..
             })
-            || self.cores.values().any(|core| !core.source().target().checked_array_count_law_v1())
+            || self.cores.values().any(|core| core.source().target().frame_free_read_law_v1().is_none())
         {
             return true;
         }

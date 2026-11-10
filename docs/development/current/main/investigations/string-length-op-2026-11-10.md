@@ -11,7 +11,7 @@ SL2. NoSourceFault comes from the original source loan, exact Text receiver and 
 SL3. The common evaluator evaluates the receiver once in source order and retains acquisition, field/concat/call Fault and temporary End responsibilities.
 SL4. `StringLength { dst, value }` is a nonterminator without frame or Normal/Fault edges; Root ABI and other operations keep their frames.
 SL5. One Core projection selects normal read versus Invoke for ArrayCount and CodePointCount; consumer purpose supplies only the destination.
-SL6. Length acquires, transfers and consumes no ownership; acquisition/transfer/End counts and order remain unchanged.
+SL6. Length acquires, transfers and consumes no ownership; acquisition/transfer/End responsibilities and order remain unchanged on every executable Normal and surviving Fault path. Static End/cleanup rows exclusive to the removed Length Fault edge may disappear and are reported per input (maintainer clarification, 2026-11-10).
 SL7. The existing `(block, faulted)` Live solver checks Text readability at each row and Invoke; borrowed origins retain exact marked formal and unique Copy-chain checks.
 SL8. Only StaticText, OwnedString, BorrowedText and TextOperand are legal; definitions, types, dominance, same-block order and lifetime checks remain independent.
 SL9. Runtime `nyash.string.code_point_count_v1(value, out)` returns 0 with the count or 2 without touching out; it never records a source Fault or returns 1.
@@ -35,6 +35,7 @@ SL14. Source raw StringLen selection retires; unrelated byte/compat helpers stay
 | Borrowed origin | `src/mir/verification/invoke_string.rs:104` | Explicit formal + unique Copy chain |
 | Read state | `src/mir/verification/invoke_string_lifetime.rs:534,550,610` | Shared readable query; transitions stay Invoke-owned |
 | Publication | `src/mir/compiler/normal_default_pipeline/published_backend_view/physical_program_json.rs:383`; `physical_program_json_operation.rs:97` | Nonterminator v2 row; remove old operation |
+| C SSA definitions | same directory `hako_llvmc_ffi_published_lifecycle_physical_v2.inc:129` | Register ordinary result definitions before kind/state validation |
 | C schema/state | `lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_lifecycle_instruction_schema.inc:253`; `hako_llvmc_ffi_lifecycle_v4_admission.inc:190` | Exact keys/domain and readable state at row |
 | C emission | same directory `hako_llvmc_ffi_lifecycle_v4_string_emit.inc:21,85,214`; `hako_llvmc_ffi_lifecycle_v4_emit.inc:425,720` | Prologue storage, unique names, existing invalid path |
 | Runtime | `crates/nyash_kernel/src/exports/fault_checked_string.rs:61,132,234`; `src/runtime/dynamic_v2_lease.rs:92`; `include/nyrt_fault_v1.h:148` | Borrowing count ABI replaces frame-dependent export |

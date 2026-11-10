@@ -1,5 +1,7 @@
 //! Original source/value correspondence and checked core-operation projection.
 use super::*;
+use std::ops::ControlFlow;
+use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
 
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir) fn validate_source(
@@ -219,13 +221,21 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                     if !core.matches_plan(source, index) {
                         return Err(freeze("expression-core/source-identity"));
                     }
-                    if let Some(receiver) = core.array_count_receiver_v1(self.values)? {
-                        let Operand::NormalInteger(dst) = value else { return Err(freeze("expression-core/result-domain")); };
-                        self.require_unique(|row| matches!(row, MirInstruction::ArrayRead { dst: Some(actual), receiver: array,
-                            operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. } if actual == dst && *array == receiver))?;
-                        continue;
-                    }
-                    let expected = checked_expression_core_operation_v1(core, self.values)?;
+                    let expected = match checked_expression_core_operation_v1(core, self.values)? {
+                        ControlFlow::Continue((law, receiver)) => {
+                            let Operand::NormalInteger(dst) = value else { return Err(freeze("expression-core/result-domain")); };
+                            self.require_unique(|row| match (law, row) {
+                                (Law::ArrayCount, MirInstruction::ArrayRead { dst: Some(actual), receiver: array,
+                                    operation: crate::mir::instruction::ArrayReadOperationV1::Count, .. }) =>
+                                    actual == dst && receiver == Operand::NormalInteger(*array),
+                                (Law::CodePointCount, MirInstruction::StringLength { dst: actual, value }) =>
+                                    actual == dst && value == &receiver,
+                                _ => false,
+                            })?;
+                            continue;
+                        }
+                        ControlFlow::Break(operation) => operation,
+                    };
                     let dst = match (value, expected.normal_result_kind()) {
                         (
                             Operand::OwnedString(dst),
@@ -395,7 +405,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
 pub(crate) fn checked_expression_core_operation_v1(
     core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
     values: &[Option<EvaluatedExpressionValueV1>],
-) -> Result<crate::mir::instruction::InvokeOperation, String> {
+) -> Result<ControlFlow<crate::mir::instruction::InvokeOperation, (Law, Operand)>, String> {
     use crate::mir::core_method_op::CoreMethodOp as Core;
     let source = core.plan();
     if !core.matches_plan(source, core.node()) || values.len() != source.nodes().len() {
@@ -421,9 +431,18 @@ pub(crate) fn checked_expression_core_operation_v1(
         .iter()
         .map(|arg| operand(arg.site()))
         .collect::<Result<Vec<_>, _>>()?;
+    if let Some(law) = core.source().target().frame_free_read_law_v1() {
+        if core.owns_result() || !arguments.is_empty() { return Err(freeze("expression-core/source-identity")); }
+        let valid = match law {
+            Law::ArrayCount => matches!(receiver, Operand::NormalInteger(_)),
+            Law::CodePointCount => receiver.is_text(),
+            _ => false,
+        };
+        if !valid { return Err(freeze("expression-core/operand-domain")); }
+        return Ok(ControlFlow::Continue((law, receiver)));
+    }
     use crate::mir::instruction::InvokeOperation as Invoke;
     let operation = match (core.source().target().row().row().op, arguments.as_slice()) {
-        (Core::StringLen, []) => Invoke::String(Operation::Length { value: receiver }),
         (
             Core::StringSubstring,
             [start @ (Operand::NormalInteger(_) | Operand::Dynamic(_)), end @ (Operand::NormalInteger(_) | Operand::Dynamic(_))],
@@ -456,6 +475,6 @@ pub(crate) fn checked_expression_core_operation_v1(
     if !operation_valid || result_kind.is_none() || owned_result != core.owns_result() {
         return Err(freeze("expression-core/operand-domain"));
     }
-    Ok(operation)
+    Ok(ControlFlow::Break(operation))
 }
 

@@ -244,7 +244,8 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         let Some(core) = cores.next() else { return Ok(None); };
         if cores.next().is_some() { return Err(freeze("finished-array-field/source-membership")); }
         let (array, binding) = if operation.is_count() {
-            let array = core.array_count_receiver_v1(self.values)?.ok_or_else(|| freeze("finished-array-field/source-membership"))?;
+            let std::ops::ControlFlow::Continue((crate::mir::core_method_result_kind::CoreMethodSemanticLawV2::ArrayCount, Operand::NormalInteger(array))) =
+                checked_expression_core_operation_v1(core, self.values)? else { return Err(freeze("finished-array-field/source-membership")); };
             let Some(Some(EvaluatedExpressionValueV1::Operand(Operand::NormalInteger(value)))) = self.values.get(core.node())
                 else { return Err(freeze("finished-array-field/source-membership")); };
             (array, self.require_unique(|row| matches!(row, MirInstruction::ArrayRead {
@@ -252,13 +253,13 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             } if dst == value && *receiver == array))?.clone())
         } else {
             let expected = checked_expression_core_operation_v1(core, self.values)?;
-            let InvokeOperation::DynamicArrayGet { array, .. } = expected else { return Err(freeze("finished-array-field/source-membership")); };
+            let std::ops::ControlFlow::Break(InvokeOperation::DynamicArrayGet { array, .. }) = expected else { return Err(freeze("finished-array-field/source-membership")); };
             let Some(Some(EvaluatedExpressionValueV1::Operand(Operand::DynamicCarrier(value)))) = self.values.get(core.node())
                 else { return Err(freeze("finished-array-field/source-membership")); };
             let normal = self.require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if dst == value))?;
             let MirInstruction::InvokeNormalResult { invoke_block, .. } = normal.1 else { unreachable!() };
             let invoke = self.require_unique(|row| matches!(row, MirInstruction::Invoke { operation, normal_landing, .. }
-                if operation == &expected && *normal_landing == normal.0))?;
+                if std::ops::ControlFlow::Break(operation.clone()) == expected && *normal_landing == normal.0))?;
             if invoke.0 != invoke_block { return Err(freeze("finished-array-field/source-membership")); }
             (array, invoke.clone())
         };

@@ -342,7 +342,7 @@ impl OrdinaryNewClaimLedgerV1 {
             expression_projection::ExpressionLeafClassV1 as Leaf};
         if !matches!(frame.root_class(), Leaf::Value(Class::I64 | Class::Bool))
             || !frame.calls().is_empty() || !frame.owned_result_nodes().is_empty()
-            || frame.cores().values().any(|core| !core.source().target().checked_array_count_law_v1()) {
+            || frame.cores().values().any(|core| core.source().target().frame_free_read_law_v1().is_none()) {
             return Ok(None);
         }
         let owner = frame.source().owner();
