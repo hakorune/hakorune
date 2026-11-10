@@ -129,3 +129,30 @@ N25. An unused NullCompare is an elidable NoSourceFault READ, never a generic RE
 N26. Ownership-SSA classifies NullCompare's result as the same non-owning scalar as Compare and recognizes it in the same readonly field-borrow window; managed-use, move/copy, End and acquisition checks remain unchanged. This preserves the existing CopyOnOwned refusal for the Opus n07 input rather than introducing an unsupported-opcode refusal.
 
 N27. Compatibility MIR JSON keeps its existing compare keys for NullCompare without searching producers; it does not gain canonical source-transport admission (that profile still rejects the opcode). A legacy named FieldGet declared Box remains an opaque carrier-domain obligation, with base lifetime checked; canonical publication still demands its existing route/layout proof. Preserve the old missing-tool/field-route refusals rather than substituting unsupported-opcode or early coarse-domain errors.
+
+## 監査後の直し（2026-11-11）
+
+基点は `5f19e50566`。Pro回答と指示書は `$S`、旧結果は `$L`、今回の証拠は `$L2`。公開形・受理・拒否・EXEは保持し、このseries全体を整形後production純減で閉じる。
+
+- N28: null生存検証は `(block, faulted)` ごとの一つの有限要約 `Bad(value)` と同一経路上の `Depends(value, support)` を用い、履歴を列挙しない。
+- N29: 合流は辺上の変換後の事実の和であり、状態の違いだけで拒否せず、別経路の依存を推移閉包で結ばない。
+- N30: Copyと辺ごとのPHIは同じ前状態から関係の両側を同時に置換し、観測値・支持元・Copy/PHI・関係するEndに解析を限定する。
+- N31: 定義索引と共通SSA/CFG検査を再利用しparameter重複を補い、carrier-kindの完了結果を再利用して循環検出と既存診断名を保つ。
+- N32: 比較initializerは既存のevaluation→initializer frame→Expression→projection→Local receiptへ統合し、比較専用observation・pending・packetを退役する。
+- N33: 実行計画は元source ownerの許可からだけ作り、証拠欠落を構文のnull literalで補完しない。
+- N34: preflightの非対象Noneと対象確定後の契約違反Errを区別し、既存拒否が変わる入力は列挙してその変更を止める。
+- N35: NullCompareはREADのまま、削除可否は既存effect-sensitive read判定、省略の正当性は既存元行捕捉・dead-user・最終no-def/no-use検査へ集約する。
+- N36: 全DCE入口は不正なEnd後null観測を消して合法化せず、他consumerの必須行・return_env・共有operandを保護する。
+- N37: loop比較の実行形は共通計画と元loanから既存recipeへ写し、文脈の受理制限とoperand取得のFault inventoryは保持する。
+- N38: 固定probeを先に保存し、小CFGで旧列挙との一致と相関PHI・再取得・Fault・失効拒否を検証し、k系列で処理回数と関係数を測る。一時の計数コードは着地に残さない。
+
+### 読み取り経路（着手時）
+
+| 責務 | 現在の経路と置換先 |
+|---|---|
+| 独立検証 | verification::verify_function/module → invoke::check_function_inner → null_compare::check。共通SSA/CFGを先に行い、同じ定義索引から有限関係解析へ |
+| 初期化 | home_scalar_operation_preflight → alias_null_root → comparison observation → Pending::Comparison → comparison projection。既存CheckedExpressionEvaluation/initializer Expressionへ統合 |
+| 省略 | DCE eliminationのroot/deletion判定とOriginalBorrowedCopiesの元行捕捉・最終省略照合。比較専用収集とDCE別例外を消す |
+| loop | home_bool_conditionの契約発行を既存home_expression_operationsへ、source_loop_bool/executionの再分類を計画消費へ |
+
+固定source probeは `$L2/probes` に保存。元の1,788本と前回probeは変更しない。sourceで表せない相関PHIやEnd後観測は既存actual-MIR検証testへ責務別に追加する。DCE低位入口も検証前の不正観測を保持し、後段拒否を回避しない。
