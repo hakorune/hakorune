@@ -27,11 +27,11 @@ MIR, independent verifier, and carrier ownership are unchanged.
 | Bool source | `home_bool_condition.rs:416–444`: retains predicate and operand order. |
 | Projection | `ordinary_new_local_commit/root_call_entry/scalar_condition_operation.rs:55–110`: Text and retained call-result/local DynamicCarrier are projected; tagged Dynamic formal is not interchangeable. |
 | Independent MIR | `instruction/invoke_string.rs:145–147,352–358`: validates operand domain and lifecycle. |
-| Physical ABI | `published_lifecycle_instruction_schema.inc:239–245`, `published_lifecycle_string_emit.inc:124–132,252–260`: carrier descriptor kind 5 and checked status branches. |
+| Physical ABI | `hako_llvmc_ffi_published_lifecycle_instruction_schema.inc:239–245`, `hako_llvmc_ffi_lifecycle_v4_string_emit.inc:124–132,252–260`: carrier descriptor kind 5 and checked status branches. |
 | Runtime | `fault_checked_string.rs::compare/comparable`; `runtime/dynamic_invocation.rs:162–191,360–377`: registered caller-owned payload and length's Integer result. |
 
 Paths above are under `src/mir` unless otherwise named; the source target lives
-under `expression_source`, Bool/call flow under `resolved_semantics`, physical
+under `source_call_target`, Bool/call flow under `resolved_semantics`, physical
 files under `lang/c-abi/shims`, runtime export under `crates/nyash_kernel/src/exports`.
 
 ## Reproduction and evidence
@@ -41,9 +41,12 @@ and a bound length local; the integer probes stop before EXE. Direct length
 stops at `ordinary_new_borrowed_static_route_selection.rs:127`
 (`static-input/cohort-unfinished`); bound locals stop at
 `install/lowering_port.rs:542` (`IncompleteOrdinaryNewCoverage`). Tagged formal
-probes also stop before runtime. No source acceptance is broadened to reach this
-bug. `substring(0, 2)` yields a Text carrier: equal/different Text controls reach
-EXE for `==`, `!=`, `<`, both orders. All 28 scratch inputs have before/after
+probes stop at `ordinary-new/root-instance-call-receiver` before runtime. No
+source acceptance is broadened to reach this bug. The substring controls reach
+EXE for `==`, `!=`, `<`, both orders, but MIR identifies their receiver as exact
+Text and their result as OwnedString, not DynamicCarrier. They are ordinary
+Text regression controls, not evidence that an opaque source route was reached.
+Opaque Text and Integer carriers are exercised by the ABI matrix. All 28 scratch inputs have before/after
 logs in `$L`; exact results are in the final report.
 
 The existing ABI test file now contains one matrix covering all 36 ordered
