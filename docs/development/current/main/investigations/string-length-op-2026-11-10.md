@@ -85,3 +85,14 @@ is a readonly descriptor alias, not End authority; Substring indices use the
 existing operand descriptor ABI. Their rejection/cleanup evidence is preserved.
 The native Array release emitter now guards its indexed-only Map query before
 using the unchanged native release path; native Substring indices require I64.
+
+## Opus の確認（2026-11-10）
+
+Codex の実装（`06b56b30c7`〜`50471fd1cc`）と仕上げ（`acebaf066b`、test・README・生成manifestだけ）を、main `45a605118e` から監査して fast-forward した。
+
+- 行数（rustfmt後）: 機能の追加は production +468・test +254、整理は production −43・test −6。Opus の数え方（`src/` だけ、file単位）でも食い違いはない。差はinlineのtest moduleの扱い。800行を超える変更productionは無い。
+- 構造: 枠なしで書けるかの法則は `frame_free_read_law_v1`（`core_method_instance_target.rs`）1つで、Arrayのcountと共有する。frameの要否（`home_expression_evaluation.rs`）、唯一のCore projection（`expression_source_values.rs`）、writer（`expression_value.rs`）、sourceの対応検査が同じ答えを使い、旧`array_count_receiver_v1`は消えた。
+- 独立検証: 新しい`invoke_string_read.rs`が、通常行とInvokeのTextの読みの検査を共有する。End後の読み、定義より前の読み、Bool・型の偽装、terminatorとしての行を拒否する。
+- C・runtime: Opus とは別の reviewer に読ませた。約束からのずれと検査の弱化は無かった。受理が広がったのはreadonlyの許可リストの1か所で、readonlyの本体はstaticか借りた仮引数のTextしか持てないので安全。借りたTextとCopy carrierの正の例、static textの値、不正なdescriptorでstatus 2と出力不変の確認は、仕上げで足した。
+- 検証（Codex のlogを読んだ）: 1,788本で新規受理0・後退0・文言変化0・軽量化38。全libの赤228件は基準と名前が一致。Opus の未見の18本（`$C/sl-audit/in/s01〜s18`、`len()`の別名、自分の`length`を持つuser box、連結の結果を2回数える、絵文字と修飾子など）は、前と後で受理と出力がすべて同じ（通る6本、止まる12本）。
+- 残り: 13本はまだ raw の`call_method StringBox.length`を出す。`return s.length()`のようにReturnのrootがMethodCallの形を、共通の評価器が選ばない（`home_terminal_scalar_evaluation.rs:35–79`）ため。正規のEXEの道では全部拒否され、byteの数は答えにならない。互換のCの道（`hako_llvmc_ffi_mir_call_route_policy.inc:204`から`len_fast_h`）も残る。前者はbasic-exprの残り、後者は3bの旧経路の退役で消す。
