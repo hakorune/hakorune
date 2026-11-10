@@ -68,7 +68,7 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
     if (lv4_is(op, "kind", "ordinary_call") && lv4_is(op, "result", "nullable_text"))
       return LV4_DYNAMIC_CARRIER;
     int result = hako_physical_string_result(yyjson_get_str(yyjson_obj_get(yyjson_obj_get(lv4_term(origin), "operation"), "kind")));
-    return result == 1 ? LV4_OWNED_STRING : result == 2 ? LV4_I64 : result == 3 ? LV4_BOOL : LV4_HANDLE;
+    return result == 1 ? LV4_OWNED_STRING : result == 3 ? LV4_BOOL : LV4_HANDLE;
   }
   if (lv4_is(def, "op", "fault_frame_enter")) return LV4_FRAME;
   if (lv4_is(def, "op", "const_unit")) return LV4_UNIT;

@@ -370,8 +370,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%v%u = load i64, ptr %%dynout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && lv4_is(producer_op, "kind", "dynamic_carrier_integer"))
           fprintf(f, "  %%v%u = load i64, ptr %%dynint%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
-        else if ((kind == LV4_I64 || kind == LV4_BOOL) &&
-            hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == (kind == LV4_BOOL ? 3 : 2))
+        else if (kind == LV4_BOOL &&
+            hako_physical_string_result(yyjson_get_str(yyjson_obj_get(producer_op, "kind"))) == 3)
           fprintf(f, "  %%v%u = load i64, ptr %%strout%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (lv4_shared_kind(producer_op))
           fprintf(f, "  %%v%u = load i64, ptr %%shared_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
