@@ -328,10 +328,11 @@ fn checked_comparisons_preserve_complete_borrowed_normal_fault_contract() {
             envelope.ordering(),
             DynamicOperatorOrderingV1::SynchronousNonDetached
         );
-        assert_eq!(
-            envelope.suspension(),
-            DynamicOperatorSuspensionV1::MaySuspend
-        );
+        let exact_text = domain.left() == DynamicOperatorValueClassV1::String
+            && domain.right() == DynamicOperatorValueClassV1::String;
+        assert_eq!(envelope.suspension(), if exact_text {
+            DynamicOperatorSuspensionV1::NonSuspending
+        } else { DynamicOperatorSuspensionV1::MaySuspend });
         assert_eq!(
             envelope.control(),
             DynamicOperatorControlV1::ExpressionBounded
@@ -344,10 +345,9 @@ fn checked_comparisons_preserve_complete_borrowed_normal_fault_contract() {
             envelope.normal_result(),
             DynamicOperatorNormalResultV1::TrivialBool
         );
-        assert_eq!(
-            envelope.fault(),
-            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
-        );
+        assert_eq!(envelope.fault(), if exact_text {
+            DynamicOperatorFaultV1::NoSourceFault
+        } else { DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind });
         assert_eq!(envelope.lifecycle(), None);
     }
 }

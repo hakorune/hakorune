@@ -105,6 +105,8 @@ pub(crate) enum DynamicOperatorNormalResultV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorFaultV1 {
+    /// The admitted source operation itself cannot Fault; operand effects remain separate.
+    NoSourceFault,
     TypeErrorBeforeResultNoOperandMutationNoRebind,
     /// Malformed carriers Fault, but well-formed values outside the compared
     /// source class still produce the contract's ordinary equality result.

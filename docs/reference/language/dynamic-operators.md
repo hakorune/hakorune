@@ -95,7 +95,7 @@ contract nor cleanup. The String envelope does not activate a source, physical
 or runtime consumer. The compatibility String-concat route and opaque
 `DynamicAdd(Dynamic, I64)` remain separate execution contracts.
 
-## Checked String comparisons
+## Exact String comparisons
 
 The same operator issuer provides `Equal`, `NotEqual`, `Less`, `Greater`,
 `LessEqual` and `GreaterEqual` for exact `String/String` operands. This is the
@@ -107,12 +107,15 @@ its numeric value, and place a proper prefix before the longer sequence.
 Neither operation normalizes text or uses locale-specific collation.
 
 Operands evaluate in source order and are borrowed without escape or mutation.
-Normal publishes a TrivialBool with no result lifecycle; TypeError precedes any
-result, mutation or rebind when the operand cannot satisfy this checked class.
-The envelope retains the existing synchronous, expression-bounded, observable,
-conservatively MaySuspend contract. It grants no Integer refinement and does
-not change generic mixed-kind equality. Mixed operand classes need their own
-execution envelope.
+Normal publishes a TrivialBool with no result lifecycle. Comparing two live,
+exact Strings has no source Fault and is NonSuspending: the comparison itself
+has no allocation, dispatch or suspension point. Faults while producing an
+operand remain that operand operation's responsibility. Detected malformed
+physical descriptors or dead leases are InvalidContract, not a String TypeError.
+The envelope keeps synchronous ordering, expression-bounded evaluation and
+observability; NonSuspending does not permit moving a read across End or
+changing operand order. This grants no Integer refinement and does not change
+generic mixed-kind or null equality; those retain their own checked envelopes.
 
 This semantic envelope alone does not admit a Text read or activate Bool,
 Loop, ABI, runtime comparison or cleanup. Source correspondence, conditional

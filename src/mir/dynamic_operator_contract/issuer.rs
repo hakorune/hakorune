@@ -82,11 +82,12 @@ const ADD_STRING_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
 /// Exact immutable String operands use the existing language comparison law.
 /// The source class and family stay attached to the complete borrowed contract.
 const fn string_comparison(family: DynamicOperatorFamilyV1) -> VerifiedDynamicOperatorExecutionEnvelopeV1 {
-    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed_with_fault(
         DynamicOperatorDomainV1::new(family, DynamicOperatorValueClassV1::String, DynamicOperatorValueClassV1::String),
         DynamicOperatorNormalResultV1::TrivialBool,
-        DynamicOperatorSuspensionV1::MaySuspend,
+        DynamicOperatorSuspensionV1::NonSuspending,
         None,
+        DynamicOperatorFaultV1::NoSourceFault,
     )
 }
 const STRING_COMPARISONS: [VerifiedDynamicOperatorExecutionEnvelopeV1; 6] = [
