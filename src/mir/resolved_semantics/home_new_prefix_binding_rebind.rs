@@ -10,10 +10,7 @@ pub(super) fn observe<E>(
     known: bool,
     calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -104,7 +101,7 @@ pub(super) fn observe<E>(
             installation = Some(pending);
             true
         },
-        &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
+        &mut |requests, demand| Ok(fields.local_field_read(requests, demand)?.is_some()),
     )?
     else {
         return Ok(false);

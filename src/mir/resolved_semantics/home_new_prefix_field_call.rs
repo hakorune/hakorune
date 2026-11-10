@@ -37,31 +37,7 @@ fn proven_field_call<E>(
     call_site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
-    container_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    array_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The issuer's `formal.<field>` index proof: the scanner supplies the
-    // exact site, receiver site, and the receiver's resolved parameter
-    // binding; the predicate alone decides the unique-declaration proof.
-    formal_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
     let Some(shape) = input.body_shape() else {
@@ -81,7 +57,7 @@ fn proven_field_call<E>(
     let Some(home) = field_write::self_rooted_me(shape, object, locals) else {
         return Ok(None);
     };
-    if !container_field(
+    if !scalar_field.container_field(
         &OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
         object,
         home,
@@ -114,7 +90,7 @@ fn proven_field_call<E>(
                                     root,
                                 },
                             )? {
-                                if !formal_i64_field(
+                                if !scalar_field.formal_i64_field(
                                     &OwnedExprSiteV1::new(input.owner(), index.site().clone()),
                                     object,
                                     binding,
@@ -137,7 +113,6 @@ fn proven_field_call<E>(
             locals,
             homes,
             scalar_field,
-            formal_i64_field,
             view_use,
         )? {
             return Ok(None);
@@ -187,7 +162,7 @@ fn proven_field_call<E>(
         else {
             return Ok(false);
         };
-        formal_i64_field(
+        scalar_field.formal_i64_field(
             &OwnedExprSiteV1::new(input.owner(), site.clone()),
             object,
             *binding,
@@ -199,7 +174,7 @@ fn proven_field_call<E>(
         ("get", 1)
             if row.result_kind == CoreMethodResultKindV1::Dynamic
                 && index_i64(0)?
-                && array_i64_field(
+                && scalar_field.array_i64_field(
                     &OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
                     object,
                     home,
@@ -227,14 +202,7 @@ fn argument_subtree_neutral<E>(
     root: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
-    formal_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let prefix = root.node().segments();
@@ -271,7 +239,7 @@ fn argument_subtree_neutral<E>(
                 ..
             }) = shape.expression_shape(object)
             {
-                if formal_i64_field(
+                if scalar_field.formal_i64_field(
                     &OwnedExprSiteV1::new(input.owner(), site.clone()),
                     object,
                     *binding,
@@ -371,28 +339,7 @@ pub(super) fn observe_statement_field_call<E>(
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
-    container_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    array_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    formal_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<bool, E> {
     if !matches!(statement.node(), ASTNode::MethodCall { .. }) {
@@ -405,9 +352,6 @@ pub(super) fn observe_statement_field_call<E>(
             &call_site,
             locals,
             homes,
-            container_field,
-            array_i64_field,
-            formal_i64_field,
             scalar_field,
             view_use,
         )?,
@@ -423,28 +367,7 @@ pub(super) fn observe_local_field_call<E>(
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
-    container_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    array_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    formal_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
     let Some(kind) = proven_field_call(
@@ -452,9 +375,6 @@ pub(super) fn observe_local_field_call<E>(
         site,
         locals,
         homes,
-        container_field,
-        array_i64_field,
-        formal_i64_field,
         scalar_field,
         view_use,
     )?

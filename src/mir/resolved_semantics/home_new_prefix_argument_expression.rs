@@ -113,10 +113,7 @@ pub(super) fn observe<E>(
     homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -213,7 +210,7 @@ pub(super) fn observe<E>(
             ) else { continue; };
             let mut installation = locals.expression_installation();
             if !installation.approve(&candidate) { continue; }
-            if fields(std::slice::from_ref(&request), LocalFieldReadDemandV1::SourceExpression {
+            if fields.local_field_read(std::slice::from_ref(&request), LocalFieldReadDemandV1::SourceExpression {
                 probe: false, plan: source,
             })?.is_some() { installation.commit(); }
             continue;
@@ -361,7 +358,7 @@ pub(super) fn observe<E>(
                 installation = Some(candidate);
                 true
             },
-            &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
+            &mut |requests, demand| Ok(fields.local_field_read(requests, demand)?.is_some()),
         )?;
         if crate::config::env::builder_debug_enabled() {
             eprintln!(
@@ -434,10 +431,7 @@ pub(crate) fn observe_for_test<E>(
     )>,
     prefix_known: bool,
     unavailable: Option<BindingRefV1>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,

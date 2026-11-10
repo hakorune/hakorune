@@ -13,11 +13,7 @@ pub(super) fn observe<E>(
     prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
-    scalar_source: &mut impl HomeFieldSourceConsultV1<E>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    scalar_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -101,10 +97,10 @@ pub(super) fn observe<E>(
         // call under it in source order from this real Prefix, as the
         // whole-expression consumers do.
         local_call_flow::stage_expression_actuals_v1(
-            input, statement, &source, locals, prefix_known, homes, local_calls, path_calls, fields, port,
+            input, statement, &source, locals, prefix_known, homes, local_calls, path_calls, scalar_source, port,
         )?;
     }
-    let field_seeds = field_read::text_field_seeds_v1(input, &source, locals, fields);
+    let field_seeds = field_read::text_field_seeds_v1(input, &source, locals, scalar_source);
     let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(
         &source,
         super::expression_plan::ExpressionLeafProfileV1::LocalInitializer,
@@ -229,7 +225,7 @@ pub(super) fn observe<E>(
             installation = Some(candidate);
             true
         },
-        &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
+        &mut |requests, demand| Ok(scalar_source.local_field_read(requests, demand)?.is_some()),
     )?;
     if plan.is_none() && debug {
         eprintln!("[initializer-expression] statement={:?} site={site:?} qualification unavailable reads={}", statement.site(), reads.len());
@@ -280,10 +276,7 @@ pub(crate) fn observe_for_test<E>(
     )>,
     prefix_known: bool,
     invalid: Option<BindingRefV1>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -322,7 +315,6 @@ pub(crate) fn observe_for_test<E>(
             known,
             &mut calls,
             &mut path,
-            &mut NoScalarFieldSourceV1,
             fields,
             port,
         )? {

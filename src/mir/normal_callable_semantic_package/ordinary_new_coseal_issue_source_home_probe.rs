@@ -65,99 +65,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pro
                 .route(site, local_static_call)?
                 .filter(|route| route.in_readiness_probe()))
         },
-        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-            terminal_home::argument_integer_field(
-                instance_constructors,
-                &candidates,
-                site,
-                receiver_proof,
-                home,
-                name,
-            )
-            .map(|field| field.is_some())
-        },
-        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name: &str| {
-            terminal_home::receiver_scalar_field(
-                instance_constructors,
-                receiver_proof,
-                site,
-                home,
-                name,
-            )
-            .map(|field| field.is_some())
-        },
-        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-            terminal_home::receiver_container_field(
-                instance_constructors,
-                receiver_proof,
-                site,
-                home,
-                name,
-            )
-            .map(|field| field.is_some())
-        },
-        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-            // The probe shares the verified lane's sealed census — the
-            // declared `ArrayBox` type alone admits nothing.
-            terminal_home::receiver_array_i64_field_from_census_v1(
-                instance_constructors,
-                receiver_proof,
-                array_i64_field_sets,
-                site,
-                home,
-                name,
-            )
-        },
-        // The probe shares the verified lane's `formal.<field>` index
-        // proof — same consult factory, same sealed authority.
-        &mut formal_i64_index_consult_v1(
-            input,
-            instance_constructors,
-            batch.ordinary_box_coverage(),
+        &mut field_sources_with_original_writes(
+            None, parameter_contracts, instance_constructors, receiver_proof, entry_home,
+            borrowed_i64_results, borrowed_formal_source, candidates, result_constructions,
+            None, input, (batch, selected, callable_result_classes, lexical_source_targets, field_write_claims),
+            source_core_calls, array_i64_field_sets, None, None,
         ),
-        // The probe shares the verified lane's local
-        // field-read membership — no staging here; the
-        // verified walk owns the ledger rows.
-        &mut |requests, demand| {
-            prove_local_field_read_batch(
-                instance_constructors,
-                &candidates, result_constructions,
-                batch.ordinary_box_coverage(),
-                receiver_proof,
-                entry_home,
-                source_core_calls,
-                requests,
-                demand,
-                borrowed_i64_results,
-                borrowed_formal_source,
-                &mut |home| {
-                    super::super::lexical::nullable_received_result_class(
-                        selected,
-                        batch,
-                        callable_result_classes,
-                        &candidates,
-                        input,
-                        receiver_proof,
-                        home,
-                    )
-                },
-                &mut |home| source_formal_class_v1(borrowed_formal_source, home),
-                Some((
-                    batch,
-                    selected,
-                    callable_result_classes,
-                    lexical_source_targets,
-                    field_write_claims,
-                )),
-            )
-            .map(|rows| {
-                rows.map(|rows| {
-                    rows.into_iter()
-                        .map(|(_, row)| row.source.result().clone())
-                        .collect()
-                })
-            })
-        },
         &mut |site, actuals| source_call_arguments_v1(
             input, brands, batch, selected, instance_constructors, receiver_proof, entry_home,
             callable_result_classes, field_write_claims, lexical_source_targets, dynamic_source_calls,

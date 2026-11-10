@@ -443,45 +443,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 drop(probe);
                 let (home_prefixes, argument_observations, result_prefixes) = if route.walks() {
 
-                    // Argument-position `receiver.field` reads: a claim-local
-                    // `new` Home receiver reuses the terminal provenance; the
-                    // entry loan's receiver root proves against this
-                    // declaration's own box source. The same site is asked
-                    // twice (observation + accounting pass) — the staged row
-                    // makes the answer idempotent.
+                    // The one field consult stages only this verified walk's rows.
                     let mut argument_staged_reads = BTreeMap::new();
-                    let mut argument_field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
-                        if argument_staged_reads.contains_key(site) {
-                            return Ok(true);
-                        }
-                        let Some(field) = terminal_home::argument_integer_field(
-                            instance_constructors, &candidates, site, receiver_proof, home, name,
-                        )? else { return Ok(false); };
-                        argument_staged_reads.insert(site.clone(), field_reads::ArgumentFieldRead {
-                            receiver_site: receiver_site.clone(), object: receiver, field,
-                            progress: field_reads::Progress::Pending,
-                        });
-                        Ok(true)
-                    };
-                    // Local-initializer `receiver.field` reads: the same
-                    // site may be re-asked across paths, so the staged row
-                    // is the idempotent answer — the first proof stages
-                    // the ledger row, later asks return its result class.
-                    let mut local_staged_reads: BTreeMap<OwnedExprSiteV1, field_reads::LocalFieldRead> = BTreeMap::new();
-                    let mut local_field_read = |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], demand| {
-                        let probe = matches!(&demand, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1::SourceExpression { probe: true, .. });
-                        let Some(rows) = source_claims::prove_local_field_read_batch(
-                            instance_constructors, &candidates, &result_resolutions, batch.ordinary_box_coverage(),
-                            receiver_proof, entry_home, source_core_calls, requests, demand, &borrowed_i64_results, &borrowed_formal_source,
-                            &mut |home| lexical::nullable_received_result_class(
-                                selected, batch, &callable_result_classes, &candidates, input, receiver_proof, home,
-                            ),
-                            &mut |home| source_claims::source_formal_class_v1(&borrowed_formal_source, home), Some((batch, selected, &callable_result_classes, &lexical_source_targets, &field_write_claims)),
-                        )? else { return Ok(None); };
-                        if probe { return Ok(Some(rows.into_iter().map(|(_, row)| row.source.result().clone()).collect())); }
-                        source_claims::stage_local_field_read_batch(&mut local_staged_reads, rows)
-                            .map(Some)
-                    };
+                    let mut local_staged_reads = BTreeMap::new();
                     let base_completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input);
                     if let Ok(ref completion) = base_completion {
                         if loop_static_source_loans.selected_sites.iter().any(|(owner, _)| *owner == input.owner()) {
@@ -529,32 +493,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             // One question per Local call initializer: kind from name
                             // resolution, result class from the callee's own class source.
                             local_route_sources.route(site, &mut local_static_call)
-                        }, &result_sites, &mut argument_field_is_integer, &mut source_claims::scalar_fields_with_original_writes(static_caller_key.as_ref(), parameter_contracts, instance_constructors, receiver_proof, entry_home, &borrowed_i64_results, &borrowed_formal_source, &candidates, &result_resolutions, &field_write_claims, |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-                            // RHS `me.<field>` reads inside a field write
-                            // share the entry-receiver proof; the contract
-                            // is the numeric integer-scalar set, not `i64`.
-                            terminal_home::receiver_scalar_field(
-                                instance_constructors, receiver_proof, site, home, name,
-                            ).map(|field| field.is_some())
-                        }), &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-                            // `me.<ArrayBox field>.m(..)` receiver proof
-                            // shares the entry receiver root; the declared
-                            // `ArrayBox` contract is the only admitted type.
-                            terminal_home::receiver_container_field(
-                                instance_constructors, receiver_proof, site, home, name,
-                            ).map(|field| field.is_some())
-                        }, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-                            // `me.<ArrayBox field>.m(..)` receiver proof
-                            // adds the sealed whole-Box element-integer
-                            // census: the declared type alone never carries
-                            // an i64 element contract.
-                            terminal_home::receiver_array_i64_field_from_census_v1(
-                                instance_constructors, receiver_proof, &array_i64_field_sets,
-                                site, home, name,
-                            )
-                        }, &mut source_claims::formal_i64_index_consult_v1(
-                            input, instance_constructors, batch.ordinary_box_coverage(),
-                        ), &mut local_field_read, &mut |site, actuals| {
+                        }, &result_sites,
+        &mut source_claims::field_sources_with_original_writes(
+                            static_caller_key.as_ref(), parameter_contracts, instance_constructors,
+                            receiver_proof, entry_home, &borrowed_i64_results, &borrowed_formal_source,
+                            &candidates, &result_resolutions, Some(&field_write_claims), input,
+                            (batch, selected, &callable_result_classes, &lexical_source_targets, &field_write_claims),
+                            source_core_calls, &array_i64_field_sets,
+                            Some(&mut argument_staged_reads), Some(&mut local_staged_reads),
+                        ), &mut |site, actuals| {
                             source_claims::source_call_arguments_v1(
                                 input, brands, batch, selected, instance_constructors, receiver_proof, entry_home,
                                 &callable_result_classes, &field_write_claims, &lexical_source_targets, dynamic_source_calls,

@@ -286,13 +286,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actua
     prior_homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
-        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
-    ) -> Result<
-        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
-        E,
-    >,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -355,13 +349,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_argument_expres
     homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
-        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
-    ) -> Result<
-        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
-        E,
-    >,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -392,13 +380,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_expression_actu
     homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
-        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
-    ) -> Result<
-        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
-        E,
-    >,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -443,13 +425,7 @@ fn stage_argument_roots_v1<E>(
     homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut std::collections::BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
-        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
-    ) -> Result<
-        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
-        E,
-    >,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     port: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,

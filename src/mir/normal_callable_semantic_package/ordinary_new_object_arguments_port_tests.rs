@@ -437,7 +437,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
             let result = crate::mir::resolved_semantics::home_new_prefix::observe_argument_expression_for_test(
                 input, &statement, parameters, mutation != 1,
                 match mutation { 2 => Some(contract.parameters[0].binding), 3 => Some(contract.parameters[2].binding), _ => None },
-                &mut |requests, _| -> Result<_, OrdinaryNewCoSealIssueV1> {
+                &mut |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| -> Result<_, OrdinaryNewCoSealIssueV1> {
                     batches += 1;
                     assert!(requests.is_empty());
                     Ok((mutation != 4).then(Vec::new))
@@ -507,7 +507,7 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
                 let repeated = crate::mir::resolved_semantics::home_new_prefix::observe_argument_expression_for_test(
                     input, &statement, parameters, true, None,
-                    &mut |requests, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(requests.is_empty()); Ok(Some(Vec::new())) },
+                    &mut |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(requests.is_empty()); Ok(Some(Vec::new())) },
                     &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[], &contracts,
                         &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
                         &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims, None)).unwrap();

@@ -188,10 +188,7 @@ pub(super) fn observe_local_field_read<E>(
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    field_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
 ) -> Result<Option<(LocalFieldReadRequestV1, LocalFieldReadResultV1)>, E> {
     let Some(request) = field_read_request(input, site, locals) else {
         return Ok(None);
@@ -245,7 +242,7 @@ pub(super) fn observe_local_field_read<E>(
             plan: std::rc::Rc::clone(plan.source()),
         })
         .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: false });
-    let Some(mut results) = local_field_read(std::slice::from_ref(&request), demand)? else {
+    let Some(mut results) = field_source.local_field_read(std::slice::from_ref(&request), demand)? else {
         return Ok(None);
     };
     if results.len() != 1 {
@@ -515,9 +512,9 @@ pub(super) fn install_local_field_read_result(
 pub(super) fn probed_text_field_seed_v1<E>(
     source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     request: &LocalFieldReadRequestV1,
-    fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
 ) -> Result<Option<crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1>, E> {
-    Ok(fields(std::slice::from_ref(request), LocalFieldReadDemandV1::SourceExpression {
+    Ok(fields.local_field_read(std::slice::from_ref(request), LocalFieldReadDemandV1::SourceExpression {
         probe: true, plan: std::rc::Rc::clone(source),
     })?.filter(|classes| matches!(classes.as_slice(), [LocalFieldReadResultV1::Text(_)])).map(|_|
         crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1::Value(
@@ -532,7 +529,7 @@ pub(super) fn text_field_seeds_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
     locals: &PrefixLocalFlow<'_>,
-    fields: &mut impl FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
 ) -> std::collections::BTreeMap<usize, crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1> {
     let mut seeds = std::collections::BTreeMap::new();
     for (index, node) in source.nodes().iter().enumerate() {

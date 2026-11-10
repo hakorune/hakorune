@@ -318,8 +318,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_receiver_fiel
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>, locals: &PrefixLocalFlow<'_>,
     homes: &[crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1],
-    fields: &mut impl FnMut(&[super::super::LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1)
-        -> Result<Option<Vec<super::super::LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
 ) -> Result<Option<TerminalValueReturnV1>, E> {
     use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1, expression_root::StatementExpressionRoleV1};
     let Some(shape) = input.body_shape() else { return Ok(None); };
@@ -329,12 +328,12 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_receiver_fiel
     let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(value) else { return Ok(None); };
     let Some(binding) = locals.terminal_receiver_v1(object) else { return Ok(None); };
     let Some(request) = super::super::field_read::expression_field_read_request(input, &plan, value, locals) else { return Ok(None); };
-    let Some(results) = fields(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression { probe: true, plan: std::rc::Rc::clone(&plan) })? else { return Ok(None); };
+    let Some(results) = fields.local_field_read(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression { probe: true, plan: std::rc::Rc::clone(&plan) })? else { return Ok(None); };
     let [super::super::LocalFieldReadResultV1::BorrowedObject(source)] = results.as_slice() else { return Ok(None); };
     let Some(requirements) = super::super::HomeExpressionPlanV1::borrowed_return_reads_v1(std::rc::Rc::clone(&plan), homes, &request) else { return Ok(None); };
     let mut installation = locals.expression_installation();
     if !installation.approve(&requirements) { return Ok(None); }
-    let Some(issued) = fields(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: std::rc::Rc::clone(&plan) })? else { return Ok(None); };
+    let Some(issued) = fields.local_field_read(std::slice::from_ref(&request), super::super::LocalFieldReadDemandV1::SourceExpression { probe: false, plan: std::rc::Rc::clone(&plan) })? else { return Ok(None); };
     if !matches!(issued.as_slice(), [super::super::LocalFieldReadResultV1::BorrowedObject(same)] if std::rc::Rc::ptr_eq(source, same)) { return Ok(None); }
     installation.commit();
     Ok(Some(TerminalValueReturnV1::issue(input.owner(), statement.site().clone(), value.clone(),
@@ -354,10 +353,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
-    fields: &mut impl FnMut(
-        &[super::super::LocalFieldReadRequestV1],
-        super::super::LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<super::super::LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
 ) -> Result<Option<TerminalValueReturnV1>, E> {
     use crate::mir::resolved_value_profile::{
         expression_plan::ExpressionPlanRootV1,
@@ -462,7 +458,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_text_return_e
         if !installation.approve(&candidate) {
             return text_return_declined(input, statement, 8);
         }
-        if fields(
+        if fields.local_field_read(
             &requests,
             super::super::LocalFieldReadDemandV1::SourceExpression {
                 probe: false,

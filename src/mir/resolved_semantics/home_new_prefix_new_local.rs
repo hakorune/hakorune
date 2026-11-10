@@ -17,19 +17,12 @@ pub(super) fn observe_selected_new_local<E>(
     covered_statements: &[SourceStmtSiteV1],
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     calls: &[LocalCallObservationV1],
     actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-    argument_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
 ) -> Result<(), E> {
     if destination != binding {
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
@@ -50,7 +43,7 @@ pub(super) fn observe_selected_new_local<E>(
                     locals,
                     homes,
                     calls,
-                    argument_i64_field,
+                    scalar_field,
                     actuals,
                 )?;
                 argument_observations.insert(owned.clone(), observation);
@@ -105,13 +98,7 @@ pub(super) fn observe_new_arguments_v1<E>(
     locals: &PrefixLocalFlow<'_>,
     homes: &[LiveHomeV1],
     calls: &[LocalCallObservationV1],
-    argument_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -169,7 +156,7 @@ pub(super) fn observe_new_arguments_v1<E>(
             continue;
         }
         let explicit_move = input.function().expression_source().moved(site).is_some();
-        let observed = locals.observe_selected_argument(site, argument_i64_field)?;
+        let observed = locals.observe_selected_argument(site, field_source)?;
         // Already-proved scalar leaves keep their exact old domain. Opaque
         // bindings/otherwise uncovered Text need their own original evaluation.
         let needs_expression = matches!(

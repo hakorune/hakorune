@@ -314,10 +314,7 @@ pub(super) fn observe<E>(
     prefix_known: bool,
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -421,10 +418,7 @@ pub(super) fn observe_loop<E>(
     homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -472,10 +466,7 @@ fn install_source<E>(
     homes: &[LiveHomeV1],
     local_calls: &mut Vec<LocalCallObservationV1>,
     path_calls: &mut BTreeSet<OwnedExprSiteV1>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -627,7 +618,7 @@ fn install_source<E>(
             true
         },
         &mut |requests, demand| {
-            Ok(fields(requests, demand)?.is_some_and(|results| {
+            Ok(fields.local_field_read(requests, demand)?.is_some_and(|results| {
                 results.len() == requests.len()
                     && results.iter().all(|result| matches!(result,
                         LocalFieldReadResultV1::Scalar | LocalFieldReadResultV1::BorrowedObject(_)

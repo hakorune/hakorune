@@ -18,10 +18,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
-    fields: &mut impl FnMut(
-        &[super::super::super::LocalFieldReadRequestV1],
-        super::super::super::LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<super::super::super::LocalFieldReadResultV1>>, E>,
+    fields: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
 ) -> Result<Option<Result<TerminalScalarReturnV1, super::super::HomePrefixUnavailableV1>>, E> {
     let Ok(value) = input
         .source()
@@ -141,7 +138,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
     }
     if stored_field {
         // Only an integer field belongs to this scalar lane; Text and others keep theirs.
-        let probed = fields(
+        let probed = fields.local_field_read(
             &requests,
             super::super::super::LocalFieldReadDemandV1::SourceExpression {
                 probe: true,
@@ -165,7 +162,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_scalar_return
         if !installation.approve(&candidate) {
             return Ok(refused());
         }
-        if fields(
+        if fields.local_field_read(
             &requests,
             super::super::super::LocalFieldReadDemandV1::SourceExpression {
                 probe: false,

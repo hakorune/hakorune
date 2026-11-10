@@ -78,12 +78,8 @@ pub(crate) fn assert_original_loop_source_walk_for_test<E: std::fmt::Debug>(
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(None),
-        &mut |_, _, _, _, _| Ok(false),
-        &mut NoScalarFieldSourceV1,
-        &mut |_, _, _, _, _| Ok(false),
-        &mut |_, _, _, _, _| Ok(false),
-        &mut |_, _, _, _, _| Ok(false),
-        &mut |requests, _| {
+
+        &mut |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| {
             assert!(requests.is_empty());
             Ok(Some(Vec::<LocalFieldReadResultV1>::new()))
         },

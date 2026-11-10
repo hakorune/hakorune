@@ -37,63 +37,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     // result lane — `local x = recv.m(..)` sites whose uniquely selected
     // callee returns only literals carry an `I64` local-call claim.
     local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
-    // The issuer's lexical instance-call membership for the nullable-result
-    // lane — `local x = recv.m(..)` sites whose uniquely selected callee
-    // carries the sealed `NullableObject` claim join the checked-release
-    // lane instead of the scalar lane.
-    // The issuer's qualified static-box call membership — `local x =
-    // Alias.m(..)` sites sealed `ExactI64` join the I64 lane as ordinary
-    // non-lifecycle local-call claims.
-    // The issuer's argument-position i64-field proof: the scanner supplies
-    // the exact read site, receiver site, receiver binding, and observed
-    // handle root; the predicate alone decides the field class.
-    argument_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The issuer's receiver-side scalar-field proof for `me.<field>` reads
-    // inside a field-write RHS — same evidence shape, separate contract.
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
-    // The issuer's receiver-side container-field proof for `me.<field>`
-    // receivers of builtin container calls — a separate contract.
-    container_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The issuer's receiver-side `ArrayBox` field proof — the
-    // predicate alone consults the sealed whole-Box element-integer
-    // census; the scanner carries no element facts.
-    array_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The issuer's `formal.<field>` index proof — the scanner supplies
-    // the exact read site and the receiver's resolved parameter binding;
-    // the predicate alone decides the unique-declaration proof.
-    formal_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The issuer's local-initializer `receiver.field` read membership —
-    // the scanner supplies the exact read site, receiver site, receiver
-    // binding, movable root, and any field-read alias class; the
-    // predicate alone decides the field declaration and result class.
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -153,7 +97,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             homes,
             local_calls,
             path_calls,
-            local_field_read,
+            scalar_field,
             borrowed_actuals,
         )?;
 
@@ -192,13 +136,12 @@ pub(super) fn scan_statement_flow<'a, E>(
 
                 map_compatible,
                 terminal_call,
-                argument_i64_field,
+                scalar_field,
                 local_call_route,
                 borrowed_actuals,
                 view_use,
                 object_return,
                 local_calls,
-                local_field_read,
             )?;
             locals.record_source_loop_return_v1(
                 statement.site(),
@@ -234,12 +177,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 map_compatible,
                 terminal_call,
                 local_call_route,
-                argument_i64_field,
                 scalar_field,
-                container_field,
-                array_i64_field,
-                formal_i64_field,
-                local_field_read,
                 borrowed_actuals,
                 view_use,
                 loop_prestate,
@@ -260,7 +198,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 unavailable.is_none(),
                 local_calls,
                 path_calls,
-                local_field_read,
+                scalar_field,
                 borrowed_actuals,
             )? {
                 unavailable.get_or_insert_with(|| {
@@ -280,7 +218,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 unavailable.is_none(),
                 local_calls,
                 path_calls,
-                local_field_read,
+                scalar_field,
                 borrowed_actuals,
             )? {
                 locals.record_source_loop_expression_v1(statement.site());
@@ -333,7 +271,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     unavailable.is_none(),
                     local_calls,
                     path_calls,
-                    local_field_read,
+                    scalar_field,
                     borrowed_actuals,
                 )? {
                     locals.record_source_loop_expression_v1(statement.site());
@@ -353,7 +291,6 @@ pub(super) fn scan_statement_flow<'a, E>(
                 borrowed_actuals,
                 scalar_field,
                 view_use,
-                local_field_read,
             )? {
                 // The admitted write commits on this Normal successor, after
                 // its RHS. Every writer shares the same borrow invalidation.
@@ -394,9 +331,6 @@ pub(super) fn scan_statement_flow<'a, E>(
                 &statement,
                 locals,
                 homes,
-                container_field,
-                array_i64_field,
-                formal_i64_field,
                 scalar_field,
                 view_use,
             )? {
@@ -464,12 +398,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                                         map_compatible,
                                         terminal_call,
                                         local_call_route,
-                                        argument_i64_field,
                                         scalar_field,
-                                        container_field,
-                                        array_i64_field,
-                                        formal_i64_field,
-                                        local_field_read,
                                         borrowed_actuals,
                                         view_use,
                                         loop_prestate,
@@ -513,12 +442,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 map_compatible,
                                 terminal_call,
                                 local_call_route,
-                                argument_i64_field,
                                 scalar_field,
-                                container_field,
-                                array_i64_field,
-                                formal_i64_field,
-                                local_field_read,
                                 borrowed_actuals,
                                 view_use,
                                 loop_prestate,
@@ -601,12 +525,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             unavailable,
             map_compatible,
             local_call_route,
-            argument_i64_field,
             scalar_field,
-            container_field,
-            array_i64_field,
-            formal_i64_field,
-            local_field_read,
             borrowed_actuals,
             view_use,
         )?;

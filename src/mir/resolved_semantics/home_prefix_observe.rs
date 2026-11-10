@@ -71,13 +71,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_selected_argument<E>(
         &self,
         site: &SourceExprSiteV1,
-        argument_i64_field: &mut impl FnMut(
-            &OwnedExprSiteV1,
-            &SourceExprSiteV1,
-            BindingRefV1,
-            BindingRefV1,
-            &str,
-        ) -> Result<bool, E>,
+        field_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     ) -> Result<Option<SelectedNewArgumentKindV1>, E> {
         if let Some(observation) = self.observe(site) {
             return Ok(observation.into_selected_argument());
@@ -120,7 +114,7 @@ impl<'source> PrefixLocalFlow<'source> {
             return Ok(None);
         };
         let field_site = OwnedExprSiteV1::new(self.input.owner(), site.clone());
-        if !argument_i64_field(&field_site, receiver.site(), binding, home, field)? {
+        if !field_source.argument_i64_field(&field_site, receiver.site(), binding, home, field)? {
             return Ok(None);
         }
         Ok(Some(SelectedNewArgumentKindV1::I64Field {

@@ -24,39 +24,7 @@ pub(super) fn observe<'a, E>(
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
-    argument_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
-    container_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    array_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    formal_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -151,7 +119,7 @@ pub(super) fn observe<'a, E>(
                         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue;
                     };
                     let (observation, moved, issue) = super::new_local::observe_new_arguments_v1(
-                        input, &payload, construction.arguments().len(), locals, homes, local_calls, argument_i64_field, borrowed_actuals)?;
+                        input, &payload, construction.arguments().len(), locals, homes, local_calls, scalar_field, borrowed_actuals)?;
                     argument_observations.insert(payload.clone(), observation);
                     if unavailable.is_some() || issue.is_some() || !moved.is_empty() || !construction.field_initializers().is_empty() {
                         unavailable.get_or_insert_with(|| issue.unwrap_or(HomePrefixUnavailableV1::SourceMismatch)); continue;
@@ -272,7 +240,7 @@ pub(super) fn observe<'a, E>(
         let staged_whole = match &whole {
             Some(plan) => local_call_flow::stage_expression_actuals_v1(
                 input, &statement, plan, locals, unavailable.is_none(), homes,
-                local_calls, path_calls, local_field_read, borrowed_actuals,
+                local_calls, path_calls, scalar_field, borrowed_actuals,
             )?,
             None => false,
         };
@@ -286,7 +254,7 @@ pub(super) fn observe<'a, E>(
                 homes,
                 local_calls,
                 path_calls,
-                local_field_read,
+                scalar_field,
                 borrowed_actuals,
             )?;
         }
@@ -440,7 +408,6 @@ pub(super) fn observe<'a, E>(
                 scalar_field,
                 local_calls,
                 borrowed_actuals,
-                argument_i64_field,
             )?;
         } else if let Some(keys) = map_literal_keys(input, site) {
             if unavailable.is_none() {
@@ -492,7 +459,6 @@ pub(super) fn observe<'a, E>(
             local_calls,
             path_calls,
             scalar_field,
-            local_field_read,
             borrowed_actuals,
         )? {
             // The original Normal Text residence retains its acquisition.
@@ -505,9 +471,6 @@ pub(super) fn observe<'a, E>(
             site,
             locals,
             homes,
-            container_field,
-            array_i64_field,
-            formal_i64_field,
             scalar_field,
             view_use,
         )? {
@@ -526,7 +489,7 @@ pub(super) fn observe<'a, E>(
             }
             continue;
         } else if let Some(result) =
-            field_read::observe_local_field_read(input, site, locals, homes, local_field_read)?
+            field_read::observe_local_field_read(input, site, locals, homes, scalar_field)?
         {
             field_read::install_local_field_read_result(
                 input,
@@ -544,7 +507,7 @@ pub(super) fn observe<'a, E>(
                 input,
                 site,
                 locals,
-                local_field_read,
+                scalar_field,
                 statement.site(),
                 homes,
                 unavailable.is_none(),

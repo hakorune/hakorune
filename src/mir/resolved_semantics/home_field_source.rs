@@ -1,4 +1,4 @@
-//! One source consult for declared scalar reads and original field-write plans.
+//! One source consult for field reads and original field-write plans.
 //! Borrowing a plan grants no FieldSet, Home or scalar operation permission.
 use super::*;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
@@ -24,12 +24,26 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
     }
     fn scalar_field(
         &mut self,
-        site: &OwnedExprSiteV1,
-        receiver_site: &SourceExprSiteV1,
-        receiver: BindingRefV1,
-        home: BindingRefV1,
-        field: &str,
-    ) -> Result<bool, E>;
+        _site: &OwnedExprSiteV1,
+        _receiver_site: &SourceExprSiteV1,
+        _receiver: BindingRefV1,
+        _home: BindingRefV1,
+        _field: &str,
+    ) -> Result<bool, E> { Ok(false) }
+    fn argument_i64_field(&mut self, _site: &OwnedExprSiteV1, _receiver_site: &SourceExprSiteV1,
+        _receiver: BindingRefV1, _home: BindingRefV1, _field: &str,
+    ) -> Result<bool, E> { Ok(false) }
+    fn container_field(&mut self, _site: &OwnedExprSiteV1, _receiver_site: &SourceExprSiteV1,
+        _receiver: BindingRefV1, _home: BindingRefV1, _field: &str,
+    ) -> Result<bool, E> { Ok(false) }
+    fn array_i64_field(&mut self, _site: &OwnedExprSiteV1, _receiver_site: &SourceExprSiteV1,
+        _receiver: BindingRefV1, _home: BindingRefV1, _field: &str,
+    ) -> Result<bool, E> { Ok(false) }
+    fn formal_i64_field(&mut self, _site: &OwnedExprSiteV1, _receiver_site: &SourceExprSiteV1,
+        _receiver: BindingRefV1, _home: BindingRefV1, _field: &str,
+    ) -> Result<bool, E> { Ok(false) }
+    fn local_field_read(&mut self, _requests: &[LocalFieldReadRequestV1], _demand: LocalFieldReadDemandV1,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E> { Ok(None) }
     fn owned_local_write(
         &mut self,
         _input: ResolvedFunctionLoweringInputV1<'_>,
@@ -104,28 +118,15 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
     }
 }
 
-// Existing read-only probes keep their source-only contract. Only the original
-// package inventory supplies assignment plans in the production implementation.
+// Existing bounded test/source batches retain only their local-field query;
+// construction, scalar, argument and writer proofs remain unavailable.
 impl<E, F> HomeFieldSourceConsultV1<E> for F
 where
-    F: FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    F: FnMut(&[LocalFieldReadRequestV1], LocalFieldReadDemandV1)
+        -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 {
-    fn scalar_field(
-        &mut self,
-        site: &OwnedExprSiteV1,
-        receiver_site: &SourceExprSiteV1,
-        receiver: BindingRefV1,
-        home: BindingRefV1,
-        field: &str,
-    ) -> Result<bool, E> {
-        self(site, receiver_site, receiver, home, field)
-    }
+    fn local_field_read(&mut self, requests: &[LocalFieldReadRequestV1], demand: LocalFieldReadDemandV1,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E> { self(requests, demand) }
 }
 
 /// Source-only sibling with no declared scalar-field proof or writer loan.

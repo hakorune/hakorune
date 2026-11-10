@@ -55,3 +55,22 @@ D. Resolve u16 using the same child-read evidence, without weakening the verifie
 Final validation uses the final source binary: 1,788 dumps, all changed compilable
 inputs, fixed suite and existing EXE groups, complete lib failure names, applicable
 Python physical tests and naming/pointer/rustfmt/diff checks. No source edits after it.
+
+## A/B implementation notes
+
+The physical factory is the existing LocalFieldReadSourceV1: raw projection and
+checked operation are selected there, retaining source-field guards. The writer
+and source correspondence share that answer; independent MIR verification does not
+consume this descriptor. ObservedLocalFieldReadV1 and the nested raw-route wrapper
+are removed, not replaced by aliases.
+
+HomeFieldSourceConsultV1 now carries all six field queries: scan FnMut ports
+fall from12 to7 and the 64 named field-FnMut signatures disappear. Original
+construction/write/frame/SUM capabilities remain optional and absent on the probe;
+all ten former defaults are returned before lookups, errors or diagnostics.
+The two existing staging maps are retained only by the verified walk.
+
+The child-field cohort model is separated from the source-query owner without
+changing its witness conditions. Installation tests move intact out of the source
+model so the touched production files stay below800 lines; test names/assertions
+and literal inputs are unchanged. Neither movement is counted as a deletion.

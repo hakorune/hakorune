@@ -148,7 +148,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
             let (plans, homes) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                 input, parameters, mutation != 1,
                 match mutation { 2 => Some(contract.parameters[0].binding), 4 => Some(contract.parameters[1].binding), _ => None },
-                &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { batches += 1; assert!(fields.is_empty()); Ok((mutation != 3).then(Vec::new)) },
+                &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| -> Result<_, OrdinaryNewCoSealIssueV1> { batches += 1; assert!(fields.is_empty()); Ok((mutation != 3).then(Vec::new)) },
                 &mut |site, request| {
                     if matches!(request, BorrowedCallActualRequestV1::FiniteEntryRead { .. }) { requests += 1; }
                     borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[], &package.parameter_contracts,
@@ -635,7 +635,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
             let mut pending = ledger.borrowed_formal_actuals.clone();
             let (plans, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                 input, parameters, true, None,
-                &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
+                &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
                 &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
                     &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                     &ledger.borrowed_i64_results, &mut |_| None, site, request,
@@ -697,7 +697,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
                 let (repeated, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                     input, parameters, true, None,
-                    &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
+                    &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
                     &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &[],
                         &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
                         &ledger.borrowed_i64_results, &mut |_| None, site, request,

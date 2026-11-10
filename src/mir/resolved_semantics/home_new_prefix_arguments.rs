@@ -51,40 +51,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // The bounded sibling mints no call routes: lexical, receiver and
         // static membership live on the verified-completion lane alone.
         &mut |_| Ok(None),
-        // This bounded sibling issues no field-read evidence: argument
-        // `me.f` reads stay truthfully unavailable here. Only the
-        // verified-completion lane carries the issuer predicate.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
-              _,
-              _,
-              _: &str| Ok(false),
-        // Field-write scalar proof stays unavailable on this lane for the
-        // same reason — no `me.<field> = ..` statement is admitted here.
         &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
-        // Container-field proof stays unavailable on this lane as well —
-        // no `me.<field>.m(..)` statement is admitted here.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
-              _,
-              _,
-              _: &str| Ok(false),
-        // The `ArrayBox` field census stays unavailable on this lane —
-        // a `me.<field>.get(..)` result claims no i64 here.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
-              _,
-              _,
-              _: &str| Ok(false),
-        // The `formal.<field>` index proof stays unavailable on this lane.
-        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1,
-              _: &crate::mir::resolved_semantics::SourceExprSiteV1,
-              _,
-              _,
-              _: &str| Ok(false),
-        // Local-initializer field reads stay unavailable on this lane —
-        // the verified-completion lane owns the issuer predicate.
-        &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         // The dominated-view consult stays unavailable on this lane for
         // the same reason — a `Handle` leaf is truthfully uncovered here.
@@ -123,49 +90,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     // `local x = Alias.m(..)` or `local x = recv.m(..)` keeps this walk
     // covered, so the readiness gate never under- or over-predicts.
     local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
-    argument_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
-    container_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The probe must see the same `ArrayBox` field-census membership
-    // the verified lane sees: an admitted `me.<field>.get(..)` i64 result
-    // keeps this walk covered exactly as the verified lane admits it.
-    array_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The probe must see the same `formal.<field>` index proof the
-    // verified lane sees: an admitted `formal.<unique-i64 field>` index
-    // keeps this walk covered exactly as the verified lane admits it.
-    formal_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-    // The probe must see the same local-initializer field-read membership
-    // the verified lane sees: an admitted `local x = recv.field` keeps
-    // this walk covered, so the readiness gate never under- or
-    // over-predicts.
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -193,12 +118,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         local_call_route,
-        argument_i64_field,
         scalar_field,
-        container_field,
-        array_i64_field,
-        formal_i64_field,
-        local_field_read,
         borrowed_actuals,
         view_use,
         &mut |_| Ok(None),

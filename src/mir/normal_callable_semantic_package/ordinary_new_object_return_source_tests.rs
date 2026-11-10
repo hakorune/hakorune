@@ -276,9 +276,7 @@ fn foreign_selected_return_qualification_refuses_without_scalar_retry() {
             &mut |_, _| Ok(false),
             &mut |_| -> Result<bool, std::convert::Infallible> { panic!("no scalar terminal retry") },
             &mut |_| -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::LocalCallRouteV1>, std::convert::Infallible> { panic!("no borrowed i64 terminal retry") },
-            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false), &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
-            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false), &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
-            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false), &mut |_, _| Ok(None),
+        &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
             &mut |_, request| {
                 if matches!(request, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::ScalarArguments) {
                     panic!("no scalar argument retry");

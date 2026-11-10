@@ -10,11 +10,7 @@ pub(super) fn observe<E>(
     homes: &mut HomesV1,
     prefix_known: bool,
     local_calls: &[LocalCallObservationV1],
-    source_consult: &mut impl HomeFieldSourceConsultV1<E>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    source_consult: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
 ) -> Result<Option<bool>, E> {
     let Some(shape) = input.body_shape() else {
         return Ok(None);
@@ -92,7 +88,7 @@ pub(super) fn observe<E>(
         &mut |site| finite_reads.get(site).cloned(),
         &mut |site| super::super::field_read::field_read_request(input, site, locals),
         &mut |plan| installation.approve(plan),
-        &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
+        &mut |requests, demand| Ok(source_consult.local_field_read(requests, demand)?.is_some()),
     )?;
     let Some(writer) = plan
         .as_ref()

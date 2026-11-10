@@ -27,12 +27,8 @@ pub(super) fn observe<E>(
     actuals: &mut impl FnMut(
         &OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    fields: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<bool, E> {
     if let Some(admitted) = owned_local::observe(
         input,
@@ -42,7 +38,6 @@ pub(super) fn observe<E>(
         prefix_known,
         local_calls,
         scalar_field,
-        fields,
     )? {
         return Ok(admitted);
     }
@@ -71,7 +66,7 @@ pub(super) fn observe<E>(
                         if text {
                             if !prefix_known || !local_call_flow::stage_expression_actuals_v1(
                                 input, statement, frame.source(), locals, prefix_known,
-                                homes, local_calls, path_calls, fields, actuals,
+                                homes, local_calls, path_calls, scalar_field, actuals,
                             )? { return field_write_declined(input, statement, 1); }
                             let purpose = OwnedExprSiteV1::new(input.owner(), assignment.value_site().clone());
                             let Ok(evaluation) = super::expression_plan::qualify_text_evaluation_v1(
@@ -126,7 +121,7 @@ pub(super) fn observe<E>(
                             &mut |site| super::field_read::field_read_request(input, site, locals),
                             &mut |plan| installation.approve(plan),
                             &mut |requests, demand| {
-                                let ready = fields(requests, demand)?.is_some();
+                                let ready = scalar_field.local_field_read(requests, demand)?.is_some();
                                 field_batch_ready = Some(ready);
                                 Ok(ready)
                             },
@@ -211,7 +206,7 @@ pub(super) fn observe<E>(
         &mut |site| finite_reads.get(site).cloned(),
         &mut |site| super::field_read::field_read_request(input, site, locals),
         &mut |plan| installation.approve(plan),
-        &mut |requests, demand| Ok(fields(requests, demand)?.is_some()),
+        &mut |requests, demand| Ok(scalar_field.local_field_read(requests, demand)?.is_some()),
     )?;
     if plan.is_none() {
         return field_write_declined(input, statement, 11);

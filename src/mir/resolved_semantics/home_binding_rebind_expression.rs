@@ -397,7 +397,7 @@ mod tests {
                 case != 6,
                 &mut calls,
                 &mut paths,
-                &mut |fields, _| {
+                &mut |fields: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| {
                     assert!(fields.is_empty());
                     Ok(Some(Vec::new()))
                 },
@@ -432,7 +432,7 @@ mod tests {
             let statement = input.source().body_stmt(&body, 2).unwrap();
             let accepted = super::super::super::binding_rebind::observe::<()>(
                 input, &statement, &mut locals, &mut homes, true, &mut Vec::new(), &mut Default::default(),
-                &mut |_, _| panic!("unsupported destination must not evaluate RHS"),
+                &mut |_: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], _| panic!("unsupported destination must not evaluate RHS"),
                 &mut |_, _| panic!("unsupported destination must not issue calls"),
             ).unwrap();
             assert!(!accepted, "{assignment}");

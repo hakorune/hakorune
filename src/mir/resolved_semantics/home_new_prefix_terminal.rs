@@ -25,13 +25,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    argument_i64_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     local_call_route: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallRouteV1>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -43,10 +37,6 @@ pub(super) fn observe_terminal_statement<'a, E>(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
     local_calls: &mut Vec<LocalCallObservationV1>,
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<(), E> {
     let mut relation: Option<TerminalRelationV1> = None;
     // Qualified object returns are exclusive, including unavailable support.
@@ -108,7 +98,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
             homes,
             local_calls,
             borrowed_actuals,
-            local_field_read,
+            field_source,
         )?
     } else {
         None
@@ -122,7 +112,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
     let value_terminal =
         if object_terminal.is_none() && scalar_terminal.is_none() && unavailable.is_none() {
             if let Some(returned) = super::terminal_relation::observe_receiver_field_return_v1(
-                input, statement, locals, homes, local_field_read,
+                input, statement, locals, homes, field_source,
             )? { Some(returned) } else { observe_text_return_expression_v1(
                 input,
                 statement,
@@ -130,7 +120,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 homes,
                 local_calls,
                 borrowed_actuals,
-                local_field_read,
+                field_source,
             )? }
         } else {
             None
@@ -194,7 +184,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     locals,
                     Some(SourceScalarKind::Integer),
                     false,
-                    &mut |_, _| Ok(None),
+                    &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
                     statement.site(),
                     homes,
                     unavailable.is_none(),
@@ -569,7 +559,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                     ..
                                                                 } => {
                                                                     let (observation, moved_arguments, issue) = super::new_local::observe_new_arguments_v1(
-                                                                        input, owned, arguments.len(), locals, homes, local_calls, argument_i64_field, borrowed_actuals)?;
+                                                                        input, owned, arguments.len(), locals, homes, local_calls, field_source, borrowed_actuals)?;
                                                                     argument_observations.insert(
                                                                         owned.clone(),
                                                                         observation,

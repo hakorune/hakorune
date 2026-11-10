@@ -22,10 +22,7 @@ pub(super) fn observe_local_initializer<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    field_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
     prefix_known: bool,
@@ -43,7 +40,7 @@ pub(super) fn observe_local_initializer<E>(
         locals,
         None,
         true,
-        local_field_read,
+        field_source,
         statement,
         homes,
         prefix_known,
@@ -64,10 +61,7 @@ pub(super) fn observe_scalar_expression<E>(
     locals: &PrefixLocalFlow<'_>,
     required: Option<SourceScalarKind>,
     local_initializer_profile: bool,
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    field_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
     prefix_known: bool,
@@ -85,7 +79,7 @@ pub(super) fn observe_scalar_expression<E>(
         locals,
         required,
         local_initializer_profile,
-        local_field_read,
+        field_source,
         statement,
         homes,
         prefix_known,
@@ -102,10 +96,7 @@ fn observe_scalar_expression_with_operation<E>(
     locals: &PrefixLocalFlow<'_>,
     required: Option<SourceScalarKind>,
     local_initializer_profile: bool,
-    local_field_read: &mut impl FnMut(
-        &[LocalFieldReadRequestV1],
-        LocalFieldReadDemandV1,
-    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    field_source: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     statement: &SourceStmtSiteV1,
     homes: &[LiveHomeV1],
     prefix_known: bool,
@@ -249,7 +240,7 @@ fn observe_scalar_expression_with_operation<E>(
                 plan: std::rc::Rc::clone(plan.source()),
             })
             .unwrap_or(LocalFieldReadDemandV1::Declared { scalar_only: true });
-        let Some(results) = local_field_read(&requests, demand)? else {
+        let Some(results) = field_source.local_field_read(&requests, demand)? else {
             return Ok(None);
         };
         if results.len() != requests.len()
