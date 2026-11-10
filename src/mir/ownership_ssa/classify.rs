@@ -110,6 +110,7 @@ pub(super) fn classify(
                                 } | MirInstruction::BinOp { .. }
                                     | MirInstruction::UnaryOp { .. }
                                     | MirInstruction::Compare { .. }
+                                    | MirInstruction::NullCompare { .. }
                                     | MirInstruction::Copy { .. }
                                     | MirInstruction::FaultFrameEnter { .. }
                                     | MirInstruction::ObjectFieldGet { .. }
@@ -316,6 +317,7 @@ pub(super) fn local_field_borrow(
                 | MirInstruction::BinOp { .. }
                 | MirInstruction::UnaryOp { .. }
                 | MirInstruction::Compare { .. }
+                | MirInstruction::NullCompare { .. }
                 | MirInstruction::Copy { .. } => true,
                 MirInstruction::ObjectFieldGet { field, .. } => {
                     integer_field(module, *field)
